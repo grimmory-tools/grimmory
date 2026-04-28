@@ -72,7 +72,7 @@ public class LibraryService {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void initializeMonitoring() {
-        List<Library> libraries = libraryRepository.findAll().stream().map(libraryMapper::toLibrary).collect(Collectors.toList());
+        List<Library> libraries = libraryRepository.findAll().stream().map(libraryMapper::toLibrary).toList();
         libraryWatchService.registerLibraries(libraries);
         log.info("Monitoring initialized with {} libraries", libraries.size());
     }
@@ -161,9 +161,9 @@ public class LibraryService {
                 .libraryPaths(
                         request.getPaths() == null || request.getPaths().isEmpty() ?
                                 Collections.emptyList() :
-                                request.getPaths().stream()
+                                new ArrayList<>(request.getPaths().stream()
                                         .map(path -> LibraryPathEntity.builder().path(path.getPath()).build())
-                                        .collect(Collectors.toList())
+                                        .toList())
                 )
                 .icon(request.getIcon())
                 .iconType(request.getIconType())

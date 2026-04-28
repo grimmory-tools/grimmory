@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -43,7 +43,7 @@ public class BookReviewService {
 
         List<BookReview> existingReviews = bookReviewRepository.findByBookMetadataBookId(bookId).stream()
                 .map(mapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
 
         MetadataPublicReviewsSettings reviewSettings = appSettingService.getAppSettings().getMetadataPublicReviewsSettings();
 
@@ -67,7 +67,7 @@ public class BookReviewService {
                 bookRepository.save(bookEntity);
                 return bookReviewRepository.findByBookMetadataBookId(bookId).stream()
                         .map(mapper::toDto)
-                        .collect(Collectors.toList());
+                        .toList();
             }
         } catch (Exception e) {
             log.warn("Failed to auto-fetch reviews for book {}: {}", bookId, e.getMessage());
@@ -86,14 +86,14 @@ public class BookReviewService {
         List<MetadataProvider> providers = settings.getProviders().stream()
                 .filter(MetadataPublicReviewsSettings.ReviewProviderConfig::isEnabled)
                 .map(MetadataPublicReviewsSettings.ReviewProviderConfig::getProvider)
-                .collect(Collectors.toList());
+                .toList();
 
         Map<MetadataProvider, BookMetadata> metadataMap = metadataRefreshService.fetchMetadataForBook(providers, bookEntity);
 
         return metadataMap.values().stream()
                 .filter(meta -> meta.getBookReviews() != null)
                 .flatMap(meta -> meta.getBookReviews().stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -120,7 +120,7 @@ public class BookReviewService {
 
         return bookReviewRepository.findByBookMetadataBookId(bookId).stream()
                 .map(mapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional

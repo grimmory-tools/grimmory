@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -336,7 +335,7 @@ public class BookRuleEvaluatorService {
 
         List<ReadStatus> readStatuses = statuses.stream()
                 .map(ReadStatus::valueOf)
-                .collect(Collectors.toList());
+                .toList();
 
         sub.select(cb.literal(1L)).where(
                 cb.equal(subRoot.get("metadata").get("seriesName"), root.get("metadata").get("seriesName")),
@@ -741,11 +740,11 @@ public class BookRuleEvaluatorService {
             boolean hasUnset = ruleList.stream().anyMatch("UNSET"::equals);
             List<String> nonUnsetValues = ruleList.stream()
                     .filter(v -> !"UNSET".equals(v))
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<ReadStatus> statuses = nonUnsetValues.stream()
                     .map(ReadStatus::valueOf)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (hasUnset && !statuses.isEmpty()) {
                 return cb.or(
@@ -759,7 +758,7 @@ public class BookRuleEvaluatorService {
             }
         }
 
-        List<String> lowerList = ruleList.stream().map(String::toLowerCase).collect(Collectors.toList());
+        List<String> lowerList = ruleList.stream().map(String::toLowerCase).toList();
         return cb.lower(field.as(String.class)).in(lowerList);
     }
 
@@ -879,7 +878,7 @@ public class BookRuleEvaluatorService {
 
             List<String> lowerValues = values.stream()
                     .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+                    .toList();
 
             subquery.select(cb.literal(1L)).where(
                     cb.equal(subRoot.get("id"), root.get("id")),
@@ -947,7 +946,7 @@ public class BookRuleEvaluatorService {
         if (value instanceof List) {
             return ((Collection<?>) value).stream()
                     .map(Object::toString)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return Collections.singletonList(value.toString());

@@ -494,7 +494,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         if (response != null && response.getResults() != null) {
             return response.getResults().stream()
                     .map(comic -> convertToBookMetadata(comic, null))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return Collections.emptyList();
     }

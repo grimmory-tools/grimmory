@@ -200,7 +200,7 @@ public class GoogleParser implements BookParser {
         
         return results.stream()
                 .filter(this::isRelevantResult)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isRelevantResult(BookMetadata metadata) {
@@ -231,7 +231,7 @@ public class GoogleParser implements BookParser {
         if (googleBooksApiResponse != null && googleBooksApiResponse.getItems() != null) {
             return googleBooksApiResponse.getItems().stream()
                     .map(this::convertToFetchedBookMetadata)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return List.of();
     }
@@ -619,7 +619,7 @@ public class GoogleParser implements BookParser {
                 .sorted((a, b) -> Integer.compare(
                         countPopulatedFields(b),
                         countPopulatedFields(a)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private int countPopulatedFields(BookMetadata metadata) {
