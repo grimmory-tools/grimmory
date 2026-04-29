@@ -2,6 +2,26 @@
 
 > This document describes how the Grimmory project is governed: who participates, how decisions are made, and how the project evolves over time. It is a living document and may itself be amended through the processes described herein.
 
+## Table of Contents
+
+- [Principles](#principles)
+- [Roles](#roles)
+  - [Contributor](#contributor)
+  - [Maintainer](#maintainer)
+  - [Core Maintainer](#core-maintainer)
+  - [Project Representative](#project-representative)
+- [Decision Making](#decision-making)
+  - [Lazy Consensus](#lazy-consensus)
+  - [Official Voting](#official-voting)
+  - [Examples](#examples)
+  - [Recording Decisions](#recording-decisions)
+- [Communication](#communication)
+- [Releases](#releases)
+- [Emeritus Status](#emeritus-status)
+- [Code of Conduct](#code-of-conduct)
+- [Amendments to This Document](#amendments-to-this-document)
+- [License](#license)
+
 ---
 
 ## Principles
