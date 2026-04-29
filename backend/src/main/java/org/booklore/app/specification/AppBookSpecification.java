@@ -89,6 +89,18 @@ public class AppBookSpecification {
         };
     }
 
+    public static final String SORT_AUTHOR = "__author__";
+    public static final String SORT_AUTHOR_SURNAME = "__authorSurname__";
+
+    public static Specification<BookEntity> isDeleted(boolean deleted) {
+        return (root, query, cb) -> {
+            if (deleted) {
+                return cb.isNotNull(root.get("deleted"));
+            }
+            return cb.or(cb.isNull(root.get("deleted")), cb.equal(root.get("deleted"), false));
+        };
+    }
+
     public static Specification<BookEntity> inShelf(Long shelfId) {
         return (root, query, cb) -> {
             if (shelfId == null) {
@@ -895,6 +907,80 @@ public class AppBookSpecification {
             case "coverartist" -> ComicCreatorRole.COVER_ARTIST;
             case "editor" -> ComicCreatorRole.EDITOR;
             default -> throw new APIException("Invalid comic creator role: " + roleName, HttpStatus.BAD_REQUEST);
+        };
+    }
+
+    /**
+     * Returns true when the sort field requires a correlated-subquery ORDER BY
+     * (author name or author surname) rather than a simple property path.
+     */
+    public static boolean isAuthorSort(String sortField) {
+        return SORT_AUTHOR.equals(sortField) || SORT_AUTHOR_SURNAME.equals(sortField);
+    }
+
+    /**
+     * Adds an ORDER BY that sorts books by the first (sort_order=0) author's name.
+     * Uses a correlated scalar subquery:
+     *   ORDER BY (SELECT MIN(a.name) FROM BookMetadataEntity m JOIN m.authors a WHERE m.bookId = book.id
+     * The subquery is evaluated by the DB for every row BEFORE pagination (LIMIT/OFFSET),
+     * so the sort is global across the entire result set, not just within one page.
+     * Books with no authors produce NULL and sort last.
+     */
+    public static Specification<BookEntity> orderByAuthorName(boolean ascending) {
+        return (root, query, cb) -> {
+            if (Long.class.equals(query.getResultType()) || long.class.equals(query.getResultType())) {
+                // Count query — don't touch ordering
+                return cb.conjunction();
+            }
+            Subquery<String> sub = query.subquery(String.class);
+            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
+            // Use LEFT JOIN to include books with no authors
+            Join<BookMetadataEntity, AuthorEntity> authorJoin = metaRoot.join("authors", JoinType.LEFT);
+            sub.select(cb.least(authorJoin.<String>get("name")))
+                    .where(cb.equal(metaRoot.get("bookId"), root.get("id")));
+
+            Order order = ascending ? cb.asc(sub) : cb.desc(sub);
+
+            List<Order> orders = new ArrayList<>();
+            orders.add(order);
+            orders.add(cb.asc(root.get("id"))); // tiebreaker for stable pagination
+            query.orderBy(orders);
+
+            return cb.conjunction();
+        };
+    }
+
+    /**
+     * Adds an ORDER BY that sorts books by the first author's surname.
+     * Transforms "Firstname Lastname" → "Lastname, Firstname" for sort ordering.
+     * Single-word names (e.g. "Madonna") are left as-is.
+     *
+     * The subquery is evaluated by the DB for every row BEFORE pagination,
+     * so the sort is global across the entire result set.
+     */
+    public static Specification<BookEntity> orderByAuthorSurname(boolean ascending) {
+        return (root, query, cb) -> {
+            if (Long.class.equals(query.getResultType()) || long.class.equals(query.getResultType())) {
+                return cb.conjunction();
+            }
+            Subquery<String> sub = query.subquery(String.class);
+            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
+            // Use LEFT JOIN to include books with no authors
+            Join<BookMetadataEntity, AuthorEntity> authorJoin = metaRoot.join("authors", JoinType.LEFT);
+            // Denormalized approach: Use the pre-computed sortName field.
+            Expression<String> sortExpr = cb.least(authorJoin.<String>get("sortName"));
+
+            sub.select(sortExpr)
+                    .where(cb.equal(metaRoot.get("bookId"), root.get("id")));
+
+            Order order = ascending ? cb.asc(sub) : cb.desc(sub);
+
+            List<Order> orders = new ArrayList<>();
+            orders.add(order);
+            orders.add(cb.asc(root.get("id"))); // tiebreaker for stable pagination
+            query.orderBy(orders);
+
+            return cb.conjunction();
         };
     }
 

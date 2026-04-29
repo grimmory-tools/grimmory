@@ -24,8 +24,28 @@ public class AuthorEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "sort_name")
+    private String sortName;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @PrePersist
+    @PreUpdate
+    public void updateSortName() {
+        if (this.name == null) {
+            this.sortName = null;
+            return;
+        }
+
+        String trimmed = this.name.trim();
+        int lastSpace = trimmed.lastIndexOf(' ');
+        if (lastSpace > 0) {
+            this.sortName = (trimmed.substring(lastSpace + 1) + ", " + trimmed.substring(0, lastSpace)).trim();
+        } else {
+            this.sortName = trimmed;
+        }
+    }
 
     @Column(name = "asin", length = 20)
     private String asin;

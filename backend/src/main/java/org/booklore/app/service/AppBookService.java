@@ -99,9 +99,12 @@ public class AppBookService {
         int pageNum = req.page() != null && req.page() >= 0 ? req.page() : 0;
         int pageSize = req.size() != null && req.size() > 0 ? Math.min(req.size(), MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
 
+        String sortField = getSortField(req.sort());
+        boolean ascending = "asc".equalsIgnoreCase(req.dir());
+
         // Handle magic shelf: compose the DB-side specification directly (no IN-list)
         if (req.magicShelfId() != null) {
-            Sort sort = buildSort(req.sort(), req.dir());
+            Sort sort = buildSort(sortField, ascending);
             Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
 
             Specification<BookEntity> spec = buildSpecification(
@@ -112,11 +115,13 @@ public class AppBookService {
                 spec = spec.and(AppBookSpecification.unshelved());
             }
 
+            spec = applyAuthorSortIfNeeded(spec, sortField, ascending);
+
             Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
             return buildPageResponse(bookPage, userId, pageNum, pageSize);
         }
 
-        Sort sort = buildSort(req.sort(), req.dir());
+        Sort sort = buildSort(sortField, ascending);
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
 
         Specification<BookEntity> spec = buildSpecification(
@@ -125,6 +130,8 @@ public class AppBookService {
         if (Boolean.TRUE.equals(req.unshelved())) {
             spec = spec.and(AppBookSpecification.unshelved());
         }
+
+        spec = applyAuthorSortIfNeeded(spec, sortField, ascending);
 
         Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
@@ -1058,6 +1065,8 @@ public class AppBookService {
         return switch (sortBy != null ? sortBy.toLowerCase() : DEFAULT_SORT) {
             case "addedon" -> "addedOn";
             case "title" -> "metadata.title";
+            case "author" -> AppBookSpecification.SORT_AUTHOR;
+            case "authorsurnamevorname" -> AppBookSpecification.SORT_AUTHOR_SURNAME;
             case "seriesname", "series" -> "metadata.seriesName";
             case "seriesnumber" -> "metadata.seriesNumber";
             case "pagecount" -> "metadata.pageCount";
@@ -1080,14 +1089,27 @@ public class AppBookService {
         };
     }
 
-    private Sort buildSort(String sortBy, String sortDir) {
-        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir)
-                ? Sort.Direction.ASC
-                : Sort.Direction.DESC;
+    private Sort buildSort(String resolvedField, boolean ascending) {
+        if (AppBookSpecification.isAuthorSort(resolvedField)) {
+            return Sort.unsorted();
+        }
 
-        String field = getSortField(sortBy);
+        Sort.Direction direction = ascending ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, resolvedField);
+    }
 
-        return Sort.by(direction, field);
+    /**
+     * If the sort is an author sort, appends the corresponding ordering Specification.
+     */
+    private Specification<BookEntity> applyAuthorSortIfNeeded(
+            Specification<BookEntity> spec, String sortField, boolean ascending) {
+        if (AppBookSpecification.SORT_AUTHOR.equals(sortField)) {
+            return spec.and(AppBookSpecification.orderByAuthorName(ascending));
+        }
+        if (AppBookSpecification.SORT_AUTHOR_SURNAME.equals(sortField)) {
+            return spec.and(AppBookSpecification.orderByAuthorSurname(ascending));
+        }
+        return spec;
     }
 
     private int validatePageNumber(Integer page) {
