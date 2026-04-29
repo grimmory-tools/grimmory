@@ -15,9 +15,7 @@
   - [Official Voting](#official-voting)
   - [Examples](#examples)
   - [Recording Decisions](#recording-decisions)
-- [Communication](#communication)
 - [Releases](#releases)
-- [Emeritus Status](#emeritus-status)
 - [Code of Conduct](#code-of-conduct)
 - [Amendments to This Document](#amendments-to-this-document)
 - [License](#license)
@@ -48,7 +46,7 @@ Contributors are the lifeblood of the project. All contributors are expected to 
 
 Maintainers may:
 
-- Review and merge pull requests within the project's conventions
+- Manage submitted pull requests according to the project's conventions and technical goals
 - Triage issues and manage the repository
 - Cast binding votes on project decisions and direction (see [Decision Making](#decision-making))
 
