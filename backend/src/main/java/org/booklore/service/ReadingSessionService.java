@@ -815,6 +815,11 @@ public class ReadingSessionService {
         return computePeakHours(sessions, zone);
     }
 
+    public List<FavoriteReadingDaysResponse> getListeningFavoriteDays(Integer year, Integer month) {
+        Long userId = authenticationService.getAuthenticatedUser().getId();
+        ZoneId zone = ZoneId.systemDefault();
+        PeriodBounds bounds = computeOptionalBounds(year, month);
+
         var sessions = readingSessionRepository.findListeningSessionTimestampsByUser(userId, bounds.start(), bounds.end());
         return computeFavoriteDays(sessions, zone);
     }
