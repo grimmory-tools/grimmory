@@ -156,6 +156,7 @@ jobs:
     name: Notify Discord Release
     needs:
       - prepare-release-notification
+      - publish-helm-chart
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
