@@ -118,6 +118,7 @@ public class AuthorMetadataService {
 
         if (!author.isPhotoLocked() && result.getImageUrl() != null && !result.getImageUrl().isBlank()) {
             fileService.createAuthorThumbnailFromUrl(author.getId(), result.getImageUrl());
+            author.setHasPhoto(true);
         }
 
         auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
@@ -139,6 +140,7 @@ public class AuthorMetadataService {
 
                 if (!author.isPhotoLocked() && result.getImageUrl() != null && !result.getImageUrl().isBlank()) {
                     fileService.createAuthorThumbnailFromUrl(author.getId(), result.getImageUrl());
+                    author.setHasPhoto(true);
                 }
 
                 auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
@@ -184,6 +186,7 @@ public class AuthorMetadataService {
 
             author.setDescription(null);
             author.setAsin(null);
+            author.setHasPhoto(false);
             authorRepository.save(author);
             fileService.deleteAuthorImages(authorId);
 
@@ -251,6 +254,8 @@ public class AuthorMetadataService {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to decode image");
             }
             fileService.saveAuthorImages(image, authorId);
+            author.setHasPhoto(true);
+            authorRepository.save(author);
             image.flush();
         } catch (java.io.IOException e) {
             throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
@@ -304,6 +309,8 @@ public class AuthorMetadataService {
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
         fileService.createAuthorThumbnailFromUrl(authorId, imageUrl);
+        author.setHasPhoto(true);
+        authorRepository.save(author);
     }
 
     public AuthorDetails getAuthorByName(String name) {

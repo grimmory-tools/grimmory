@@ -42,6 +42,10 @@ public class AuthorEntity {
     @Column(name = "photo_locked", nullable = false)
     private boolean photoLocked;
 
+    @Column(name = "has_photo", nullable = false)
+    @Builder.Default
+    private boolean hasPhoto = false;
+
     @ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
     @BatchSize(size = 20)
     @Builder.Default

@@ -150,6 +150,7 @@ dependencies {
     // --- Mapping (DTOs & Entities) ---
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.3.2.Final")
 
     // --- API Documentation ---
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3")
