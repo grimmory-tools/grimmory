@@ -362,7 +362,7 @@ public class AppSeriesService {
     private Specification<BookEntity> buildSeriesBooksSpec(Set<Long> accessibleLibraryIds, Long libraryId, String seriesName) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
         specs.add(AppBookSpecification.inSeries(seriesName));
 
         if (accessibleLibraryIds != null) {
