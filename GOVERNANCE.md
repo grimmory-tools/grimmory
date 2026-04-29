@@ -135,31 +135,9 @@ Larger or longer-lived decisions - including governance changes, significant tec
 
 ---
 
-## Communication
-
-All project governance discussions, proposals, and votes take place in **GitHub Issues and Discussions** in the main repository. This ensures the record is open, searchable, and permanent.
-
-For informal coordination, contributors may use any community channels the project maintains, but **binding decisions are only made in GitHub**.
-
----
-
 ## Releases
 
 Releases are proposed by any Maintainer and proceed by lazy consensus under the process described in [Decision Making](#decision-making). A release proposal should include a summary of changes, a proposed version number following the project's versioning convention, and a reasonable timeframe for feedback. If quorum is present and no `-1` vote is raised, the proposing Maintainer may cut the release without a formal vote.
-
----
-
-## Emeritus Status
-
-A Maintainer or Core Maintainer who has been inactive for **12 or more months** - with no meaningful commits, reviews, or governance participation - may be moved to **Emeritus** status.
-
-The process:
-
-1. Any Core Maintainer may raise the matter in a private GitHub Discussion thread, tagging the inactive member.
-2. The inactive member is given **30 days** to respond or resume participation.
-3. If there is no response or return to activity, all Maintainers decide by lazy consensus to confer Emeritus status.
-
-<!-- Emeritus members retain their history and contribution credit, are listed in `MAINTAINERS.md` under an Emeritus section, and may return to active status at any time by resuming participation and requesting reinstatement from the Maintainers. -->
 
 ---
 
