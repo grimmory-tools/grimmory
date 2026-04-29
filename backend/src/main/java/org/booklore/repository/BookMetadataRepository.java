@@ -40,6 +40,6 @@ public interface BookMetadataRepository extends JpaRepository<BookMetadataEntity
 
     List<BookMetadataEntity> findAllByLanguageIgnoreCase(String language);
 
-    @Query("SELECT m.isbn13 FROM BookMetadataEntity m WHERE m.isbn13 IS NOT NULL")
+    @Query("SELECT DISTINCT m.isbn13 FROM BookMetadataEntity m WHERE m.isbn13 IS NOT NULL")
     Set<String> findAllIsbn13s();
 }

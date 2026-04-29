@@ -12,6 +12,7 @@ import {AcquisitionService, AddToWantedRequest, BookSearchResult} from '../../..
 
 @Component({
   selector: 'app-book-discovery',
+  standalone: true,
   imports: [
     FormsModule,
     DatePipe,

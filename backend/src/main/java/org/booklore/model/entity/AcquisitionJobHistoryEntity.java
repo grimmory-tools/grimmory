@@ -36,9 +36,9 @@ public class AcquisitionJobHistoryEntity {
     private Integer confidence;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 32)
+    @Column(name = "status", length = 32, nullable = false)
     private JobHistoryStatus status;
 
-    @Column(name = "attempted_at")
+    @Column(name = "attempted_at", nullable = false)
     private Instant attemptedAt;
 }

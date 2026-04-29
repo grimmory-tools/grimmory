@@ -9,6 +9,7 @@
       <button class="topbar-item" [class.active]="isIsbnSearch"
               (click)="isIsbnSearch = !isIsbnSearch"
               pTooltip="Toggle ISBN search" tooltipPosition="top"
+              aria-label="Toggle ISBN search"
               type="button">
         <i class="pi pi-barcode"></i>
       </button>
@@ -28,6 +29,7 @@
 
       <button class="topbar-item" [disabled]="!searchQuery.trim()"
               (click)="search()" pTooltip="Search" tooltipPosition="top"
+              aria-label="Search"
               type="button">
         @if (loading && results.length === 0) {
           <i class="pi pi-spin pi-spinner"></i>

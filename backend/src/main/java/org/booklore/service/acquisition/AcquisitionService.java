@@ -173,7 +173,7 @@ public class AcquisitionService {
         List<AcquisitionClientEntity> clients = clientRepository.findByEnabledTrue();
         if (clients.isEmpty()) {
             log.warn("No enabled SABnzbd client — cannot dispatch NZB for wanted book id={}", wanted.getId());
-            markFailed(wanted, allResults);
+            markDispatchFailed(wanted, winner, score);
             return AcquisitionResult.notFound(wanted.getId());
         }
 
@@ -191,9 +191,16 @@ public class AcquisitionService {
             return AcquisitionResult.dispatched(wanted.getId(), winner.title(), score, jobId);
         } catch (Exception e) {
             log.error("SABnzbd dispatch failed for wanted book id={}: {}", wanted.getId(), e.getMessage());
-            markFailed(wanted, allResults);
+            markDispatchFailed(wanted, winner, score);
             return AcquisitionResult.notFound(wanted.getId());
         }
+    }
+
+    private void markDispatchFailed(WantedBookEntity wanted, NzbResult winner, int score) {
+        wanted.setRetryCount(wanted.getRetryCount() + 1);
+        wanted.setStatus(WantedBookStatus.FAILED);
+        wantedBookRepository.save(wanted);
+        saveHistory(wanted, winner, score, JobHistoryStatus.FAILED);
     }
 
     private void markFailed(WantedBookEntity wanted, List<NzbResult> allResults) {

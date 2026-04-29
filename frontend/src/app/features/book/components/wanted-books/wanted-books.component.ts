@@ -16,6 +16,7 @@ import {RxStompService} from '../../../../shared/websocket/rx-stomp.service';
 
 @Component({
   selector: 'app-wanted-books',
+  standalone: true,
   imports: [
     DatePipe,
     FormsModule,
@@ -175,6 +176,10 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
     this.acquisitionService.getJobHistory(book.id).subscribe({
       next: (history) => {
         this.jobHistory[book.id] = history;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.jobHistory[book.id] = [];
         this.cdr.detectChanges();
       }
     });

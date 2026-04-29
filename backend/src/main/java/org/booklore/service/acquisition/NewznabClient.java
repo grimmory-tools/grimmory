@@ -45,7 +45,8 @@ public class NewznabClient {
                     .build()
                     .toUri();
 
-            log.info("Querying indexer '{}': {}", indexer.getName(), uri);
+            log.info("Querying indexer '{}': {}", indexer.getName(),
+                    uri.toString().replaceAll("apikey=[^&]+", "apikey=***"));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)

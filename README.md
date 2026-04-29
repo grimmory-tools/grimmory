@@ -251,7 +251,7 @@ graph LR
 
 | Step | What Happens |
 | --- | --- |
-| 1. Discover | Search Open Library by title, author, or ISBN from the Discover Books page |
+| 1. Discover | Search Open Library or Google Books by title, author, or ISBN from the Discover Books page |
 | 2. Want | Add a book to the Wanted list from search results or manually |
 | 3. Search | Grimmory queries enabled Newznab indexers using title, author, and ISBN |
 | 4. Score | Each NZB result is scored for confidence — penalising audiobooks, rewarding ISBN matches |

@@ -5,15 +5,15 @@
     <p class="wanted-title">Wanted Books</p>
     <div class="wanted-toolbar">
       <button class="topbar-item" (click)="openManualAddDialog()"
-              pTooltip="Manual Add" tooltipPosition="top" type="button">
+              pTooltip="Manual Add" tooltipPosition="top" aria-label="Manual Add" type="button">
         <i class="pi pi-plus"></i>
       </button>
       <button class="topbar-item" (click)="loadWantedBooks()"
-              pTooltip="Refresh" tooltipPosition="top" type="button">
+              pTooltip="Refresh" tooltipPosition="top" aria-label="Refresh" type="button">
         <i [class]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'"></i>
       </button>
       <button class="topbar-item" (click)="runAll()"
-              pTooltip="Run All Now" tooltipPosition="top" type="button">
+              pTooltip="Run All Now" tooltipPosition="top" aria-label="Run All Now" type="button">
         <i class="pi pi-play"></i>
       </button>
     </div>
@@ -37,6 +37,7 @@
         <td>
           <p-button [icon]="expandedRows[book.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                     size="small" [text]="true" severity="secondary"
+                    [ariaLabel]="(expandedRows[book.id] ? 'Collapse' : 'Expand') + ' history for ' + book.title"
                     (onClick)="toggleHistory(book)"></p-button>
         </td>
         <td>
@@ -81,11 +82,11 @@
         <td>
           <div style="display:flex; gap:0.375rem;">
             <p-button icon="pi pi-search" size="small" outlined="true" severity="info"
-                      pTooltip="Search Now"
+                      pTooltip="Search Now" [ariaLabel]="'Search now for ' + book.title"
                       [loading]="isSearching(book)"
                       (onClick)="triggerSearch(book)"></p-button>
             <p-button icon="pi pi-trash" size="small" outlined="true" severity="danger"
-                      pTooltip="Remove"
+                      pTooltip="Remove" [ariaLabel]="'Remove ' + book.title + ' from wanted list'"
                       (onClick)="removeWanted(book)"></p-button>
           </div>
         </td>

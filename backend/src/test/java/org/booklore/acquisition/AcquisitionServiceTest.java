@@ -227,7 +227,7 @@ class AcquisitionServiceTest {
     }
 
     @Test
-    void searchAndDispatch_sabnzbdDispatchFails_setsNotFoundStatus() {
+    void searchAndDispatch_sabnzbdDispatchFails_setsFailedStatus() {
         when(wantedBookRepository.save(any())).thenReturn(wantedEntity);
         when(indexerRepository.findByEnabledTrueOrderByPriorityAsc()).thenReturn(List.of(indexer));
         when(newznabClient.searchBooks(eq(indexer), any())).thenReturn(List.of(goodResult));
@@ -240,11 +240,11 @@ class AcquisitionServiceTest {
         AcquisitionResult result = service.searchAndDispatch(wantedEntity);
 
         assertThat(result.found()).isFalse();
-        assertThat(wantedEntity.getStatus()).isEqualTo(WantedBookStatus.NOT_FOUND);
+        assertThat(wantedEntity.getStatus()).isEqualTo(WantedBookStatus.FAILED);
     }
 
     @Test
-    void searchAndDispatch_noEnabledClients_setsNotFoundStatus() {
+    void searchAndDispatch_noEnabledClients_setsFailedStatus() {
         when(wantedBookRepository.save(any())).thenReturn(wantedEntity);
         when(indexerRepository.findByEnabledTrueOrderByPriorityAsc()).thenReturn(List.of(indexer));
         when(newznabClient.searchBooks(eq(indexer), any())).thenReturn(List.of(goodResult));
@@ -256,7 +256,7 @@ class AcquisitionServiceTest {
         AcquisitionResult result = service.searchAndDispatch(wantedEntity);
 
         assertThat(result.found()).isFalse();
-        assertThat(wantedEntity.getStatus()).isEqualTo(WantedBookStatus.NOT_FOUND);
+        assertThat(wantedEntity.getStatus()).isEqualTo(WantedBookStatus.FAILED);
         verify(sabnzbdClient, never()).sendNzb(any(), any(), any());
     }
 

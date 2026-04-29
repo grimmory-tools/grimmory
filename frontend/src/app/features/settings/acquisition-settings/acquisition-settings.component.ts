@@ -13,6 +13,7 @@ import {AcquisitionService, DownloadClient, Indexer} from '../../../core/service
 
 @Component({
   selector: 'app-acquisition-settings',
+  standalone: true,
   imports: [
     FormsModule,
     Button,
