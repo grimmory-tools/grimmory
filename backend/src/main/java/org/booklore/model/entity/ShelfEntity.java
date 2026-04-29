@@ -5,10 +5,12 @@ import lombok.*;
 import org.booklore.convertor.SortConverter;
 import org.booklore.model.dto.Sort;
 import org.booklore.model.enums.IconType;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Formula;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -16,7 +18,6 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "shelf")
 public class ShelfEntity {
@@ -57,4 +58,17 @@ public class ShelfEntity {
     )
     @Builder.Default
     private Set<BookEntity> bookEntities = new HashSet<>();
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        ShelfEntity that = (ShelfEntity) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Hibernate.getClass(this).hashCode();
+    }
 }
