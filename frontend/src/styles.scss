@@ -40,16 +40,16 @@ html {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--primary-color) 45%, transparent);
+    background: var(--surface-600);
     border-radius: 10px;
 
     &:hover {
-      background: color-mix(in srgb, var(--primary-color) 65%, transparent);
+      background: var(--surface-500);
     }
   }
 
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--primary-color) 45%, transparent) transparent;
+  scrollbar-color: var(--surface-600) transparent;
 }
 
 .chart-info-tooltip.p-tooltip {

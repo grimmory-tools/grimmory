@@ -19,14 +19,8 @@
   height: 8px;
 }
 
-.dashboard-scroller-infinite::-webkit-scrollbar-track {
-}
-
 .dashboard-scroller-infinite::-webkit-scrollbar-thumb {
   border-radius: 4px;
-}
-
-.dashboard-scroller-infinite::-webkit-scrollbar-thumb:hover {
 }
 
 .dashboard-scroller-card {
@@ -53,7 +47,7 @@
   left: 10%;
   right: 10%;
   height: 4px;
-  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  background: linear-gradient(90deg, transparent, var(--surface-400), transparent);
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -111,7 +105,7 @@
   }
 
   &.primary-file {
-    border-left: 3px solid var(--primary-color);
+    border-left: 3px solid var(--surface-400);
   }
 }
 
