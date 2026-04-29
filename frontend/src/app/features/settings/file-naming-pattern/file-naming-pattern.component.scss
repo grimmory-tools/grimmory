@@ -79,7 +79,7 @@
 .default-pattern-card {
   background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
-  border-left: 3px solid var(--p-primary-color);
+  border-left: 3px solid var(--surface-600);
   border-radius: 6px;
   padding: 1rem;
 }
@@ -167,7 +167,7 @@
   }
 
   &.has-pattern {
-    border-left-color: var(--p-primary-color);
+    border-left-color: var(--surface-600);
   }
 }
 
@@ -263,7 +263,7 @@
   background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border-radius: 6px;
   padding: 1rem;
-  border-left: 3px solid var(--p-primary-color);
+  border-left: 3px solid var(--surface-600);
 
   @media (width <= 768px) {
     padding: 0.75rem;

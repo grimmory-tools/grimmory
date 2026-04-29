@@ -221,7 +221,7 @@
 
 .group-container {
   padding: 1rem;
-  border-left: 4px solid var(--primary-color);
+  border-left: 4px solid var(--surface-600);
   margin-top: 0.75rem;
   width: 100%;
   border-radius: 8px;
@@ -231,6 +231,7 @@
   transition: all 0.3s ease;
 
   &:hover {
+    border-color: var(--surface-500);
     box-shadow: 0 3px 8px rgb(0 0 0 / 10%);
   }
 

@@ -89,11 +89,11 @@
 }
 
 ::ng-deep .progress-incomplete .p-progressbar-value {
-  background-color: var(--primary-color);
+  background-color: var(--surface-500);
 }
 
 ::ng-deep .progress-complete .p-progressbar-value {
-  background-color: var(--primary-hover-color);
+  background-color: var(--surface-400);
 }
 
 ::ng-deep .progress-incomplete-ko .p-progressbar-value {

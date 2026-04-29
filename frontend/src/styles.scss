@@ -52,6 +52,10 @@ html {
   scrollbar-color: var(--surface-600) transparent;
 }
 
+::ng-deep .p-progressbar .p-progressbar-value {
+  background-color: var(--surface-500);
+}
+
 .chart-info-tooltip.p-tooltip {
   --p-tooltip-max-width: 25rem;
 }

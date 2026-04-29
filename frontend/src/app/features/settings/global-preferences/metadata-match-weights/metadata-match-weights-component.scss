@@ -53,7 +53,7 @@
 .setting-item {
   padding: 0.875rem 1rem;
   border-radius: 6px;
-  border-left: 3px solid var(--primary-color);
+  border-left: 3px solid var(--surface-600);
   background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
 
   @media (width <= 768px) {

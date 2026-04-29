@@ -201,7 +201,7 @@
   }
 
   &.progress-incomplete ::ng-deep .p-progressbar-value {
-    background: linear-gradient(90deg, var(--p-primary-400), var(--p-primary-600));
+    background: linear-gradient(90deg, var(--p-surface-500), var(--p-surface-700));
   }
 }
 
