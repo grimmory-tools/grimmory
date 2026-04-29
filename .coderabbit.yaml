@@ -51,7 +51,6 @@ reviews:
         - Spring Boot 4 (latest major version, check APIs accordingly)
         - Jackson 3 (new package: tools.jackson.* instead of com.fasterxml.jackson.*)
         - Hibernate 7.3.x (Jakarta Persistence 3.2, new APIs; avoid deprecated Hibernate 5/6 patterns)
-        - Angular 21 (standalone components, signals-based reactivity, no NgModules unless legacy)
 
         ## Grimmory Internal Tools
         - epub4j and pdfium4j are our own internal tools developed by the Grimmory team.
@@ -109,19 +108,6 @@ reviews:
         - Flag EAGER fetching on @OneToMany / @ManyToMany; always prefer LAZY.
         - Flag missing database indexes on frequently queried foreign key columns.
         - Prefer Hibernate's @SQLRestriction over @Where (deprecated in 7.x).
-
-        ## Angular 21 rules
-        - Prefer standalone components; NgModules are legacy. Flag new NgModule declarations.
-        - Prefer Angular Signals (signal(), computed(), effect()) over RxJS Subjects for local state.
-        - Prefer the new @if / @for / @switch control flow syntax over *ngIf / *ngFor structural directives.
-        - Prefer inject() function over constructor-based dependency injection.
-        - Localization: use Transloco (TranslocoService, transloco directive) for all user-facing strings.
-        - UI Components: use PrimeNG components (Button, AutoComplete, DatePicker, etc.) for a consistent design system.
-        - Prefer HttpClient with typed generics and explicit error handling.
-        - Prefer OnPush change detection strategy on all components.
-        - Flag any direct DOM manipulation; use Angular's Renderer2 or signal-driven templates.
-        - Flag missing trackBy (or track expression in @for) in list rendering.
-        - Prefer lazy-loaded routes for all feature modules.
 
         ## Do NOT comment on
         - Code formatting (handled by tools: Checkstyle, Prettier, etc.)
@@ -215,44 +201,6 @@ reviews:
         - Flag missing edge case coverage: null, empty, boundary values.
         - Prefer AssertJ over JUnit's built-in assertions for readability.
         - Prefer @Sql or Testcontainers for database state; not hand-rolled setup/teardown.
-
-    - path: "**/*.component.ts"
-      instructions: |
-        Angular 21 component review:
-        - Must be standalone (standalone: true); flag NgModule-based declarations.
-        - Prefer OnPush change detection strategy.
-        - Prefer inject() over constructor DI.
-        - Localization: use Transloco for all UI strings.
-        - UI: use PrimeNG components for layout and inputs.
-        - Prefer Angular Signals (signal, computed, effect) for local/reactive state.
-        - Flag direct DOM manipulation; use Renderer2 or template bindings.
-        - Flag missing trackBy / track expression in list rendering.
-        - Prefer @if / @for / @switch over *ngIf / *ngFor / *ngSwitch structural directives.
-
-    - path: "**/*.service.ts"
-      instructions: |
-        Angular 21 service review:
-        - Prefer providedIn: 'root' unless scope is intentionally limited.
-        - Prefer inject() over constructor DI.
-        - Prefer Signals or lightweight RxJS (takeUntilDestroyed) over manual subscription management.
-        - Flag unsubscribed Observables (missing takeUntilDestroyed or explicit unsubscribe).
-        - Prefer typed HttpClient responses with explicit error handling (catchError).
-        - Flag any state mutation outside a defined signal or BehaviorSubject.
-
-    - path: "**/*routing*.ts"
-      instructions: |
-        Angular 21 routing review:
-        - All feature routes must use lazy loading (loadComponent / loadChildren).
-        - Flag missing route guards on protected paths.
-        - Flag any route without a defined title for accessibility.
-
-    - path: "**/*.spec.ts"
-      instructions: |
-        Angular 21 test review:
-        - Prefer TestBed.configureTestingModule with standalone components.
-        - Flag tests with no expect() calls.
-        - Flag hardcoded async timeouts; prefer fakeAsync/tick or signal-based testing.
-        - Flag missing fixture.detectChanges() after state mutations.
 
     - path: "**/Dockerfile*"
       instructions: |
