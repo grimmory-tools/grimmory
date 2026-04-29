@@ -1,7 +1,295 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 inheritance: true
+language: "en-US"
 
 reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  changed_files_summary: true
+  review_status: true
+  poem: false
+
+  instructions: |
+    This project is being developed using current and future-facing technologies:
+    - Java 25 with --enable-preview (preview features are INTENTIONAL and encouraged)
+    - Spring Boot 4 (latest major version, check APIs accordingly)
+    - Jackson 3 (new package: tools.jackson.* instead of com.fasterxml.jackson.*)
+    - Hibernate 7.3.x (Jakarta Persistence 3.2, new APIs; avoid deprecated Hibernate 5/6 patterns)
+    - Angular 21 (standalone components, signals-based reactivity, no NgModules unless legacy)
+
+    ## Grimmory Internal Tools
+    - epub4j and pdfium4j are our own internal tools developed by the Grimmory team.
+    - Always verify behavior and API changes against the upstream repositories:
+      - epub4j: https://github.com/grimmory-tools/epub4j
+      - pdfium4j: https://github.com/grimmory-tools/pdfium4j
+    - If you encounter issues with these libraries, check if a fix exists in the upstream grimmory-tools organization.
+
+    ## Metadata Standards and Compliance
+    - For all metadata writing and parsing logic, double-check against Dublin Core and ANSI standards to ensure perfect official compliance.
+    - We strictly follow the widespread and official XML-compliant methods for EPUB2, EPUB3, CBX, and PDF formats.
+
+    ## General Java and Spring rules
+    - ALWAYS prefer modern, idiomatic Java 25 constructs over legacy patterns.
+    - Preview features (--enable-preview) are enabled and intentional; do NOT flag them as risky unless there is a concrete runtime issue.
+    - Prefer: records, sealed classes/interfaces, pattern matching (switch expressions, instanceof), structured concurrency (StructuredTaskScope), scoped values, string templates, unnamed patterns/variables.
+    - Prefer virtual threads (Thread.ofVirtual(), Executors.newVirtualThreadPerTaskExecutor()) over platform threads for I/O-bound work.
+    - Prefer the new Sequenced Collections API (SequencedCollection, SequencedMap) where applicable.
+    - Prefer `var` for local variables when the type is obvious from context.
+    - Use stream().toList() instead of stream().collect(Collectors.toList()) for immutable lists (Java 16+ standard).
+    - Flag any use of raw types, unchecked casts, or legacy date/time (java.util.Date, Calendar).
+    - Flag Thread.sleep() with millis in favor of Duration overloads.
+    - Immutability: prefer records, List.of(), Map.of(), Set.of() over mutable collections where appropriate.
+    - Never use StringBuffer; use StringBuilder or String::formatted.
+    - Null safety: prefer Optional, but do NOT overuse Optional in fields or method parameters.
+    - Logging: use @Slf4j from Lombok and log descriptive messages with appropriate levels (info, warn, error, debug).
+    - Exception Handling: use the ApiError enum (org.booklore.exception.ApiError) to create and throw exceptions via createException().
+
+    ## Spring 4 rules
+    - Spring 4 uses the new programmatic bean registration model; prefer functional bean definitions where appropriate.
+    - Flag any Spring 3.x deprecated API usage.
+    - Prefer constructor injection over field injection (@Autowired on fields is discouraged). Use Lombok's @AllArgsConstructor for clean DI.
+    - Prefer @RestController + @RequestMapping with typed ResponseEntity<T> over legacy patterns.
+    - Flag missing @Transactional boundaries on service methods performing multiple writes.
+    - Prefer Spring's RestClient (Spring 6.1+ / Spring 4) over deprecated RestTemplate for new code.
+    - Flag usage of WebClient in blocking contexts without explicit Mono.block() acknowledgment.
+    - Prefer ProblemDetail (RFC 9457) for error responses.
+
+    ## Jackson 3 rules
+    - Package has changed: tools.jackson.* (NOT com.fasterxml.jackson.*). Flag any old com.fasterxml imports in new code.
+    - Prefer @JsonProperty, @JsonAlias, and @JsonIgnoreProperties(ignoreUnknown = true) on DTOs.
+    - Prefer records as Jackson DTOs (Jackson 3 supports records natively).
+    - Flag ObjectMapper instantiated directly; it must be injected as a Spring bean or use JacksonMapper.shared().
+    - Prefer JsonMapper.builder() over new ObjectMapper() for new configuration.
+    - Flag missing @JsonTypeInfo / @JsonSubTypes when polymorphic deserialization is required.
+
+    ## Hibernate 7.3 rules
+    - Use Jakarta Persistence (jakarta.persistence.*), never javax.persistence.*.
+    - Prefer @Entity classes with records where Hibernate 7.3 supports it (check embeddables).
+    - Prefer typed Criteria API or JPQL over native SQL unless performance justifies it.
+    - Flag N+1 query problems: missing @BatchSize, @Fetch(FetchMode.SUBSELECT), or JOIN FETCH.
+    - Prefer @NaturalId for business key lookups.
+    - Flag entities missing equals()/hashCode() based on business key or @NaturalId.
+    - Prefer Hibernate's StatelessSession for bulk read operations.
+    - Flag EAGER fetching on @OneToMany / @ManyToMany; always prefer LAZY.
+    - Flag missing database indexes on frequently queried foreign key columns.
+    - Prefer Hibernate's @SQLRestriction over @Where (deprecated in 7.x).
+
+    ## Angular 21 rules
+    - Prefer standalone components; NgModules are legacy. Flag new NgModule declarations.
+    - Prefer Angular Signals (signal(), computed(), effect()) over RxJS Subjects for local state.
+    - Prefer the new @if / @for / @switch control flow syntax over *ngIf / *ngFor structural directives.
+    - Prefer inject() function over constructor-based dependency injection.
+    - Localization: use Transloco (TranslocoService, transloco directive) for all user-facing strings.
+    - UI Components: use PrimeNG components (Button, AutoComplete, DatePicker, etc.) for a consistent design system.
+    - Prefer HttpClient with typed generics and explicit error handling.
+    - Prefer OnPush change detection strategy on all components.
+    - Flag any direct DOM manipulation; use Angular's Renderer2 or signal-driven templates.
+    - Flag missing trackBy (or track expression in @for) in list rendering.
+    - Prefer lazy-loaded routes for all feature modules.
+
+    ## Do NOT comment on
+    - Code formatting (handled by tools: Checkstyle, Prettier, etc.)
+    - Import ordering (handled by IDE/tools)
+    - Javadoc on private methods
+    - Minor naming style unless actively misleading
+
   path_filters:
     - "!frontend/src/i18n/**"
+    - "!**/build/**"
+    - "!**/out/**"
+    - "!**/dist/**"
+    - "!**/node_modules/**"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
+    - "!**/pnpm-lock.yaml"
+    - "!**/*.generated.ts"
+    - "!**/*.generated.java"
+    - "!**/generated/**"
+    - "!**/__generated__/**"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"
+    - "!**/*.svg"
+    - "!**/*.ico"
+    - "!**/*.woff"
+    - "!**/*.woff2"
+    - "!**/*.ttf"
+    - "!**/*.pdf"
+    - "!**/coverage/**"
+    - "!**/__snapshots__/**"
+
+  path_instructions:
+    - path: "**/entity/**/*.java"
+      instructions: |
+        Hibernate 7.3 entity review:
+        - Jakarta Persistence (jakarta.persistence.*) only; never javax.
+        - Every @Entity must override equals() and hashCode() using business key or @NaturalId.
+        - Flag EAGER fetch on collections; must always be LAZY.
+        - Flag @OneToMany without mappedBy.
+        - Flag missing @Index annotations on foreign key columns.
+        - Flag @Where usage; use @SQLRestriction instead (Hibernate 7.x).
+        - Flag any mutable collection field that is not initialized (e.g., new ArrayList<>()).
+
+    - path: "**/repository/**/*.java"
+      instructions: |
+        Spring Data / Hibernate repository review:
+        - Prefer Spring Data JPA repository interfaces with typed methods.
+        - Flag N+1 risks: use @EntityGraph or JOIN FETCH in JPQL for collection associations.
+        - Flag missing @Transactional(readOnly = true) on query-only methods.
+        - Flag any native query with string concatenation; use named parameters only.
+        - Prefer @Query with JPQL over native SQL unless performance-critical.
+
+    - path: "**/service/**/*.java"
+      instructions: |
+        Spring 4 service layer review:
+        - Flag missing @Transactional on methods that perform multiple writes.
+        - Prefer constructor injection over @Autowired field injection. Use @AllArgsConstructor.
+        - Use ApiError enum for throwing exceptions.
+        - Flag checked exceptions swallowed silently; must log or rethrow.
+        - Flag Thread.sleep(); prefer Duration-based overloads or ScheduledExecutorService.
+        - Prefer virtual threads (Thread.ofVirtual()) for I/O-bound operations.
+        - Flag mutable shared state in singleton beans.
+
+    - path: "**/controller/**/*.java"
+      instructions: |
+        Spring 4 REST controller review:
+        - Prefer @RestController + @RequestMapping with ResponseEntity<T>.
+        - Flag missing input validation (@Valid / @Validated on request body/params).
+        - Prefer ProblemDetail (RFC 9457) for error responses.
+        - Flag @RequestMapping without explicit HTTP method constraint.
+        - Check for missing authorization checks on sensitive endpoints.
+        - Flag any logging of request body that may contain PII or credentials.
+
+    - path: "**/metadata/**/*.java"
+      instructions: |
+        Metadata and Sidecar review:
+        - Ensure perfect official compliance with Dublin Core and ANSI standards.
+        - Strictly follow official XML-compliant methods for EPUB2, EPUB3, CBX, and PDF formats.
+        - Sidecar files must be written in a way that is compatible with widespread e-reader standards.
+        - Avoid proprietary or non-standard XML tags unless absolutely necessary for internal tracking.
+
+    - path: "**/dto/**/*.java"
+      instructions: |
+        DTO review; prefer records:
+        - Prefer Java records over classes for DTOs.
+        - Jackson 3: use @JsonProperty, @JsonAlias, and @JsonIgnoreProperties(ignoreUnknown = true).
+        - Flag missing validation annotations (@NotNull, @NotBlank, @Size) on input DTOs.
+        - Flag ObjectMapper instantiation inside a DTO; must never happen.
+        - New Jackson 3 package is tools.jackson.*; flag any com.fasterxml.jackson.* in new files.
+
+    - path: "**/security/**/*.java"
+      instructions: |
+        Security-critical code; maximum scrutiny:
+        - Check token validation, expiration, and signature verification.
+        - Flag password hashing not using BCrypt or Argon2.
+        - Flag hardcoded secrets, tokens, or API keys.
+        - Verify CSRF protection on state-mutating endpoints.
+        - Check for timing attack vulnerabilities in comparison logic (use MessageDigest.isEqual or similar constant-time methods).
+        - Flag missing @PreAuthorize / @Secured on protected endpoints.
+
+    - path: "**/config/**/*.java"
+      instructions: |
+        Spring 4 configuration review:
+        - Flag hardcoded values that should be @Value or @ConfigurationProperties.
+        - Flag ObjectMapper bean missing essential modules (JavaTimeModule, etc.).
+        - Flag RestTemplate bean for new code; prefer RestClient.
+        - Flag missing @Primary or @Qualifier on ambiguous beans.
+
+    - path: "**/*Test.java"
+      instructions: |
+        Java test review:
+        - Prefer @ExtendWith(SpringExtension.class) or @SpringBootTest for integration tests.
+        - Flag tests with no assertions.
+        - Flag Thread.sleep() in tests; use Awaitility or virtual-thread-friendly alternatives.
+        - Flag hardcoded ports or file paths.
+        - Flag missing edge case coverage: null, empty, boundary values.
+        - Prefer AssertJ over JUnit's built-in assertions for readability.
+        - Prefer @Sql or Testcontainers for database state; not hand-rolled setup/teardown.
+
+    - path: "**/*.component.ts"
+      instructions: |
+        Angular 21 component review:
+        - Must be standalone (standalone: true); flag NgModule-based declarations.
+        - Prefer OnPush change detection strategy.
+        - Prefer inject() over constructor DI.
+        - Localization: use Transloco for all UI strings.
+        - UI: use PrimeNG components for layout and inputs.
+        - Prefer Angular Signals (signal, computed, effect) for local/reactive state.
+        - Flag direct DOM manipulation; use Renderer2 or template bindings.
+        - Flag missing trackBy / track expression in list rendering.
+        - Prefer @if / @for / @switch over *ngIf / *ngFor / *ngSwitch structural directives.
+
+    - path: "**/*.service.ts"
+      instructions: |
+        Angular 21 service review:
+        - Prefer providedIn: 'root' unless scope is intentionally limited.
+        - Prefer inject() over constructor DI.
+        - Prefer Signals or lightweight RxJS (takeUntilDestroyed) over manual subscription management.
+        - Flag unsubscribed Observables (missing takeUntilDestroyed or explicit unsubscribe).
+        - Prefer typed HttpClient responses with explicit error handling (catchError).
+        - Flag any state mutation outside a defined signal or BehaviorSubject.
+
+    - path: "**/*routing*.ts"
+      instructions: |
+        Angular 21 routing review:
+        - All feature routes must use lazy loading (loadComponent / loadChildren).
+        - Flag missing route guards on protected paths.
+        - Flag any route without a defined title for accessibility.
+
+    - path: "**/*.spec.ts"
+      instructions: |
+        Angular 21 test review:
+        - Prefer TestBed.configureTestingModule with standalone components.
+        - Flag tests with no expect() calls.
+        - Flag hardcoded async timeouts; prefer fakeAsync/tick or signal-based testing.
+        - Flag missing fixture.detectChanges() after state mutations.
+
+    - path: "**/Dockerfile*"
+      instructions: |
+        Dockerfile review:
+        - Prefer multi-stage builds (builder + runtime).
+        - Use non-root USER in the final stage.
+        - Pin base image versions (e.g., eclipse-temurin:25-jre-noble).
+        - Flag secrets or credentials embedded in the image.
+        - Ensure --enable-preview JVM flag is carried into ENTRYPOINT/CMD if required at runtime.
+
+    - path: "**/.github/workflows/*.yml"
+      instructions: |
+        GitHub Actions review:
+        - Pin action versions to SHA hashes, not floating tags.
+        - Flag secrets referenced as env vars in run: steps; prefer secrets context.
+        - Flag missing permissions: blocks (principle of least privilege).
+        - Ensure Java 25 with --enable-preview is set in java-version and java-flags.
+
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: false
+
+  tools:
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+    hadolint:
+      enabled: true
+    yamllint:
+      enabled: true
+    languagetool:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
