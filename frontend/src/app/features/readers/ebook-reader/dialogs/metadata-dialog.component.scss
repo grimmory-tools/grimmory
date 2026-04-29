@@ -117,10 +117,6 @@ $transition-normal: 200ms ease;
     width: 6px;
   }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
   &::-webkit-scrollbar-thumb {
     border-radius: 3px;
   }

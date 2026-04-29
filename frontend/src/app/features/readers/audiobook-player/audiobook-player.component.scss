@@ -612,17 +612,8 @@ $border-color: rgb(255 255 255 / 10%);
       width: 6px;
     }
 
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
     &::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--accent-color) 30%, transparent);
       border-radius: 3px;
-
-      &:hover {
-        background: color-mix(in srgb, var(--accent-color) 50%, transparent);
-      }
     }
   }
 }

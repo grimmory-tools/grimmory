@@ -137,17 +137,8 @@ $transition-normal: 200ms ease;
     width: 6px;
   }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
   &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 15%);
     border-radius: 3px;
-
-    &:hover {
-      background: rgb(255 255 255 / 25%);
-    }
   }
 }
 
