@@ -50,11 +50,15 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.acquisitionService.getLibraryIsbns().subscribe({
-      next: (isbns) => this.libraryIsbns = new Set(isbns)
+      next: (isbns) => {
+        this.libraryIsbns = new Set(isbns);
+        this.cdr.detectChanges();
+      }
     });
     this.acquisitionService.getWantedBooks().subscribe({
       next: (books) => {
         this.wantedIsbns = new Set(books.flatMap(b => [b.isbn13, b.isbn10].filter((v): v is string => !!v)));
+        this.cdr.detectChanges();
       }
     });
   }
@@ -165,10 +169,12 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
       next: () => {
         this.addingIds.delete(key);
         this.addedIds.add(key);
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'success', summary: 'Added', detail: `"${book.title}" added to wanted list`});
       },
       error: (err: {status: number}) => {
         this.addingIds.delete(key);
+        this.cdr.detectChanges();
         const msg = err.status === 409 ? 'Already in wanted list' : 'Failed to add to wanted list';
         this.messageService.add({severity: err.status === 409 ? 'info' : 'error', summary: err.status === 409 ? 'Info' : 'Error', detail: msg});
       }

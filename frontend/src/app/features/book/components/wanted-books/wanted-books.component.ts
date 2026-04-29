@@ -66,6 +66,7 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
             if (notification.status === 'DOWNLOADED') {
               this.messageService.add({severity: 'success', summary: 'Downloaded', detail: `Book downloaded: ${book.title}`});
             }
+            this.cdr.detectChanges();
           }
         }
       } catch {
@@ -99,10 +100,12 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
     this.acquisitionService.triggerSearch(book.id).subscribe({
       next: () => {
         this.searchingIds.delete(book.id);
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'info', summary: 'Searching', detail: `Searching for "${book.title}"...`});
       },
       error: () => {
         this.searchingIds.delete(book.id);
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to trigger search'});
       }
     });
@@ -113,6 +116,7 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
     this.acquisitionService.removeWanted(book.id).subscribe({
       next: () => {
         this.wantedBooks = this.wantedBooks.filter(b => b.id !== book.id);
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'success', summary: 'Removed', detail: `"${book.title}" removed`});
       },
       error: () => {
@@ -169,7 +173,10 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
 
   loadHistory(book: WantedBook): void {
     this.acquisitionService.getJobHistory(book.id).subscribe({
-      next: (history) => this.jobHistory[book.id] = history
+      next: (history) => {
+        this.jobHistory[book.id] = history;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -205,6 +212,7 @@ export class WantedBooksComponent implements OnInit, OnDestroy {
       next: (book) => {
         this.showManualAddDialog = false;
         this.wantedBooks = [book, ...this.wantedBooks];
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'success', summary: 'Added', detail: `"${book.title}" added to wanted list`});
       },
       error: (err) => {
