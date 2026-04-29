@@ -173,9 +173,9 @@
   @if (isComparison) {
     <p-button
       size="small"
-      [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || fetchedMetadata[field.fetchedKey] == null ? 'pi pi-refresh' : 'pi pi-angle-left')"
+      [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || fetchedMetadata[field.fetchedKey] === null || fetchedMetadata[field.fetchedKey] === undefined ? 'pi pi-refresh' : 'pi pi-angle-left')"
       [outlined]="true"
-      [ngClass]="{ 'nosrc' : fetchedMetadata[field.fetchedKey] == null }"
+      [ngClass]="{ 'nosrc' : fetchedMetadata[field.fetchedKey] === null || fetchedMetadata[field.fetchedKey] === undefined }"
       class="arrow-button"
       [severity]="isValueChanged(field.controlName) ? 'warn' : null"
       [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -203,7 +203,7 @@
       
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] !== null && fetchedMetadata[field.fetchedKey] !== undefined) {
         <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
       }
@@ -223,7 +223,7 @@
 
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] !== null && fetchedMetadata[field.fetchedKey] !== undefined) {
         <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
       }
@@ -268,7 +268,7 @@
 
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] !== null && fetchedMetadata[field.fetchedKey] !== undefined) {
         <p-autoComplete
           size="small" [ngModel]="fetchedMetadata[field.fetchedKey] ?? []" [ngModelOptions]="{standalone:true}"
           [disabled]="true" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false"
@@ -287,7 +287,7 @@
       
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] !== null && fetchedMetadata[field.fetchedKey] !== undefined) {
         <textarea pTextarea rows="4" pSize="small" [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                   [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"></textarea>
       }
