@@ -99,22 +99,14 @@ class CbxMetadataWriterTest {
         meta.setLanguage("en");
 
         List<AuthorEntity> authors = new ArrayList<>();
-        AuthorEntity aliceAuthor = new AuthorEntity();
-        aliceAuthor.setId(1L);
-        aliceAuthor.setName("Alice");
-        AuthorEntity bobAuthor = new AuthorEntity();
-        bobAuthor.setId(2L);
-        bobAuthor.setName("Bob");
+        AuthorEntity aliceAuthor = AuthorEntity.builder().id(1L).name("Alice").build();
+        AuthorEntity bobAuthor = AuthorEntity.builder().id(2L).name("Bob").build();
         authors.add(aliceAuthor);
         authors.add(bobAuthor);
         meta.setAuthors(authors);
         Set<CategoryEntity> cats = new HashSet<>();
-        CategoryEntity actionCat = new CategoryEntity();
-        actionCat.setId(1L);
-        actionCat.setName("action");
-        CategoryEntity adventureCat = new CategoryEntity();
-        adventureCat.setId(2L);
-        adventureCat.setName("adventure");
+        CategoryEntity actionCat = CategoryEntity.builder().id(1L).name("action").build();
+        CategoryEntity adventureCat = CategoryEntity.builder().id(2L).name("adventure").build();
         cats.add(actionCat);
         cats.add(adventureCat);
         meta.setCategories(cats);
@@ -179,20 +171,14 @@ class CbxMetadataWriterTest {
         meta.setAsin("B00TEST123");
         
         Set<TagEntity> tags = new HashSet<>();
-        TagEntity tag1 = new TagEntity();
-        tag1.setId(1L);
-        tag1.setName("Fantasy");
-        TagEntity tag2 = new TagEntity();
-        tag2.setId(2L);
-        tag2.setName("Epic");
+        TagEntity tag1 = TagEntity.builder().id(1L).name("Fantasy").build();
+        TagEntity tag2 = TagEntity.builder().id(2L).name("Epic").build();
         tags.add(tag1);
         tags.add(tag2);
         meta.setTags(tags);
 
         Set<MoodEntity> moods = new HashSet<>();
-        MoodEntity mood = new MoodEntity();
-        mood.setId(1L);
-        mood.setName("Dark");
+        MoodEntity mood = MoodEntity.builder().id(1L).name("Dark").build();
         moods.add(mood);
         meta.setMoods(moods);
 

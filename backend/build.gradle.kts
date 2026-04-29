@@ -180,6 +180,10 @@ dependencies {
     // --- Caching ---
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
+    implementation("org.hibernate.orm:hibernate-jcache")
+    implementation("com.github.ben-manes.caffeine:jcache:3.2.3")
+    // Transitive requirement for Caffeine JCache HOCON config parsing
+    implementation("com.typesafe:config:1.4.3")
 
     // --- Test Dependencies ---
     testImplementation("org.springframework.boot:spring-boot-starter-test")

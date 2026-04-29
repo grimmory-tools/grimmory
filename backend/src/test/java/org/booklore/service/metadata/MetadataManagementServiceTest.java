@@ -65,7 +65,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target Author").build();
 
         when(authorRepository.findByNameIgnoreCase("Target Author")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old Author")).thenReturn(Optional.of(oldAuthor));
 
         List<AuthorEntity> authors = new ArrayList<>(List.of(oldAuthor));
@@ -104,7 +103,6 @@ class MetadataManagementServiceTest {
         CategoryEntity targetCat = CategoryEntity.builder().id(2L).name("Target Cat").build();
 
         when(categoryRepository.findByNameIgnoreCase("Target Cat")).thenReturn(Optional.of(targetCat));
-        when(categoryRepository.save(targetCat)).thenReturn(targetCat);
         when(categoryRepository.findByNameIgnoreCase("Old Cat")).thenReturn(Optional.of(oldCat));
 
         Set<CategoryEntity> categories = new HashSet<>(List.of(oldCat));
@@ -123,7 +121,6 @@ class MetadataManagementServiceTest {
         MoodEntity targetMood = MoodEntity.builder().id(2L).name("Target Mood").build();
 
         when(moodRepository.findByNameIgnoreCase("Target Mood")).thenReturn(Optional.of(targetMood));
-        when(moodRepository.save(targetMood)).thenReturn(targetMood);
         when(moodRepository.findByNameIgnoreCase("Old Mood")).thenReturn(Optional.of(oldMood));
 
         Set<MoodEntity> moods = new HashSet<>(List.of(oldMood));
@@ -142,7 +139,6 @@ class MetadataManagementServiceTest {
         TagEntity targetTag = TagEntity.builder().id(2L).name("Target Tag").build();
 
         when(tagRepository.findByNameIgnoreCase("Target Tag")).thenReturn(Optional.of(targetTag));
-        when(tagRepository.save(targetTag)).thenReturn(targetTag);
         when(tagRepository.findByNameIgnoreCase("Old Tag")).thenReturn(Optional.of(oldTag));
 
         Set<TagEntity> tags = new HashSet<>(List.of(oldTag));
@@ -214,7 +210,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
 
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
 
         java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-");
@@ -275,7 +270,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
 
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
 
         java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-move-");
@@ -438,7 +432,6 @@ class MetadataManagementServiceTest {
     void consolidateAuthors_skipsNonExistentMergeValues() {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("NonExistent")).thenReturn(Optional.empty());
 
         service.consolidateMetadata(MergeMetadataType.authors, List.of("Target"), List.of("NonExistent"));
@@ -511,7 +504,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
 
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
 
         java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-nomove-");
@@ -563,7 +555,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
 
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
 
         BookFileEntity bookFile = BookFileEntity.builder()
@@ -599,7 +590,6 @@ class MetadataManagementServiceTest {
         AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
 
         when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
-        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
         when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
 
         BookEntity physicalBook = BookEntity.builder()

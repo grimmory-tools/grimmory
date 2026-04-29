@@ -3,12 +3,19 @@ package org.booklore.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
+@Cacheable
+@NaturalIdCache(region = "org.booklore.model.entity.CategoryEntity_NaturalId")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @Builder
@@ -21,9 +28,12 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @NaturalId(mutable = false)
+    @Setter(AccessLevel.NONE)
+    @Column(name = "name", nullable = false, unique = true, updatable = false)
     private String name;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     @BatchSize(size = 20)
     @Builder.Default
@@ -33,12 +43,12 @@ public class CategoryEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CategoryEntity that)) return false;
-        return id != null && Objects.equals(id, that.id);
+        return Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(name);
     }
 }
 

@@ -75,9 +75,14 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: false
     properties:
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
+          query:
+            timeout: 30000         # 30s max for any HQL/JPQL query (in ms)
       hibernate:
         query:
-          timeout: 30              # 30s max for any HQL/JPQL query
           plan_cache_max_size: 128 # Reduce from 2048 default; small self-hosted app
           plan_parameter_metadata_max_size: 32  # Reduce from 128 default
           in_clause_parameter_padding: true  # Pad IN params to power-of-2; fewer unique plan cache entries
@@ -92,6 +97,14 @@ spring:
         connection:
           provider_disables_autocommit: true  # Skip unnecessary JDBC autocommit check; reduces roundtrips
         default_batch_fetch_size: 16  # Global batch fetch for all lazy collections (prevents N+1)
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.internal.JCacheRegionFactory
+          jcache:
+            provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+          missing_cache_strategy: create
         log_slow_query: ${HIBERNATE_SLOW_QUERY_MS:500}  # Log queries taking longer than 500ms (see org.hibernate.SQL_SLOW)
         generate_statistics: ${HIBERNATE_STATISTICS:false}
   threads:

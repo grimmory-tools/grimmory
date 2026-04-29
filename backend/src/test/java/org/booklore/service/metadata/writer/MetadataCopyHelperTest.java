@@ -25,10 +25,8 @@ class MetadataCopyHelperTest {
     class MoodsTests {
         @Test
         void copyMoods_whenNotLocked_callsConsumer() {
-            MoodEntity mood1 = new MoodEntity();
-            mood1.setName("Dark");
-            MoodEntity mood2 = new MoodEntity();
-            mood2.setName("Atmospheric");
+            MoodEntity mood1 = MoodEntity.builder().name("Dark").build();
+            MoodEntity mood2 = MoodEntity.builder().name("Atmospheric").build();
             metadata.setMoods(Set.of(mood1, mood2));
             metadata.setMoodsLocked(false);
 
@@ -45,8 +43,7 @@ class MetadataCopyHelperTest {
 
         @Test
         void copyMoods_whenLocked_doesNotCallConsumer() {
-            MoodEntity mood = new MoodEntity();
-            mood.setName("Dark");
+            MoodEntity mood = MoodEntity.builder().name("Dark").build();
             metadata.setMoods(Set.of(mood));
             metadata.setMoodsLocked(true);
 
@@ -60,8 +57,7 @@ class MetadataCopyHelperTest {
 
         @Test
         void copyMoods_whenClear_passesEmptySet() {
-            MoodEntity mood = new MoodEntity();
-            mood.setName("Dark");
+            MoodEntity mood = MoodEntity.builder().name("Dark").build();
             metadata.setMoods(Set.of(mood));
             metadata.setMoodsLocked(false);
 
@@ -76,12 +72,9 @@ class MetadataCopyHelperTest {
 
         @Test
         void copyMoods_filtersBlankNames() {
-            MoodEntity mood1 = new MoodEntity();
-            mood1.setName("Dark");
-            MoodEntity mood2 = new MoodEntity();
-            mood2.setName("   ");
-            MoodEntity mood3 = new MoodEntity();
-            mood3.setName(null);
+            MoodEntity mood1 = MoodEntity.builder().name("Dark").build();
+            MoodEntity mood2 = MoodEntity.builder().name("   ").build();
+            MoodEntity mood3 = MoodEntity.builder().name(null).build();
             metadata.setMoods(Set.of(mood1, mood2, mood3));
             metadata.setMoodsLocked(false);
 
@@ -99,10 +92,8 @@ class MetadataCopyHelperTest {
     class TagsTests {
         @Test
         void copyTags_whenNotLocked_callsConsumer() {
-            TagEntity tag1 = new TagEntity();
-            tag1.setName("Fantasy");
-            TagEntity tag2 = new TagEntity();
-            tag2.setName("Epic");
+            TagEntity tag1 = TagEntity.builder().name("Fantasy").build();
+            TagEntity tag2 = TagEntity.builder().name("Epic").build();
             metadata.setTags(Set.of(tag1, tag2));
             metadata.setTagsLocked(false);
 
@@ -119,8 +110,7 @@ class MetadataCopyHelperTest {
 
         @Test
         void copyTags_whenLocked_doesNotCallConsumer() {
-            TagEntity tag = new TagEntity();
-            tag.setName("Fantasy");
+            TagEntity tag = TagEntity.builder().name("Fantasy").build();
             metadata.setTags(Set.of(tag));
             metadata.setTagsLocked(true);
 

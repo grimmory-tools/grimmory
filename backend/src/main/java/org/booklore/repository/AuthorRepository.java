@@ -3,8 +3,11 @@ package org.booklore.repository;
 import org.booklore.model.entity.AuthorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import jakarta.persistence.QueryHint;
+import org.hibernate.jpa.HibernateHints;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +16,10 @@ import java.util.Set;
 @Repository
 public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
 
+    @QueryHints(@QueryHint(name = HibernateHints.HINT_CACHEABLE, value = "true"))
     Optional<AuthorEntity> findByName(String name);
 
+    @QueryHints(@QueryHint(name = HibernateHints.HINT_CACHEABLE, value = "true"))
     Optional<AuthorEntity> findByNameIgnoreCase(String name);
 
     @Query("SELECT a FROM AuthorEntity a JOIN a.bookMetadataEntityList bm WHERE bm.bookId = :bookId")

@@ -69,8 +69,7 @@ class EpubMetadataWriterTest {
         writer = new EpubMetadataWriter(appSettingService);
         metadata = new BookMetadataEntity();
         metadata.setTitle("Test Book");
-        AuthorEntity author = new AuthorEntity();
-        author.setName("Test Author");
+        AuthorEntity author = AuthorEntity.builder().name("Test Author").build();
         metadata.setAuthors(List.of(author));
 
         bookEntity = new BookEntity();
@@ -173,8 +172,7 @@ class EpubMetadataWriterTest {
 
             BookMetadataEntity newMeta = new BookMetadataEntity();
             newMeta.setTitle("Updated Title");
-            AuthorEntity author = new AuthorEntity();
-            author.setName("Updated Author");
+            AuthorEntity author = AuthorEntity.builder().name("Updated Author").build();
             newMeta.setAuthors(List.of(author));
 
             writer.saveMetadataToFile(epubFile, newMeta, null, new MetadataClearFlags());

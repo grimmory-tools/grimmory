@@ -90,8 +90,7 @@ class PdfMetadataWriterTest {
         meta.setPageCount(754);
 
         List<AuthorEntity> authors = new ArrayList<>();
-        AuthorEntity author = new AuthorEntity();
-        author.setName("Jason C McDonald");
+        AuthorEntity author = AuthorEntity.builder().name("Jason C McDonald").build();
         authors.add(author);
         meta.setAuthors(authors);
 
@@ -289,19 +288,15 @@ class PdfMetadataWriterTest {
         BookMetadataEntity meta = createBasicMetadata();
 
         Set<TagEntity> tags = new HashSet<>();
-        TagEntity tag1 = new TagEntity();
-        tag1.setName("Python");
-        TagEntity tag2 = new TagEntity();
-        tag2.setName("Programming");
+        TagEntity tag1 = TagEntity.builder().name("Python").build();
+        TagEntity tag2 = TagEntity.builder().name("Programming").build();
         tags.add(tag1);
         tags.add(tag2);
         meta.setTags(tags);
 
         Set<MoodEntity> moods = new HashSet<>();
-        MoodEntity mood1 = new MoodEntity();
-        mood1.setName("Educational");
-        MoodEntity mood2 = new MoodEntity();
-        mood2.setName("Technical");
+        MoodEntity mood1 = MoodEntity.builder().name("Educational").build();
+        MoodEntity mood2 = MoodEntity.builder().name("Technical").build();
         moods.add(mood1);
         moods.add(mood2);
         meta.setMoods(moods);

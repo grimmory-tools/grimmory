@@ -39,10 +39,10 @@ class PathPatternResolverTest {
         } else {
             AtomicLong idCounter = new AtomicLong(1);
             ArrayList<AuthorEntity> authorEntities = authors.stream().map(name -> {
-                AuthorEntity a = new AuthorEntity();
-                a.setId(idCounter.getAndIncrement());
-                a.setName(name);
-                return a;
+                return AuthorEntity.builder()
+                        .id(idCounter.getAndIncrement())
+                        .name(name)
+                        .build();
             }).collect(Collectors.toCollection(ArrayList::new));
             when(metadata.getAuthors()).thenReturn(authorEntities);
         }

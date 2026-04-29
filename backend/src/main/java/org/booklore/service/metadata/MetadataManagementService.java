@@ -96,15 +96,8 @@ public class MetadataManagementService {
     private void consolidateAuthors(List<String> targetValues, List<String> valuesToMerge, boolean moveFile) {
         List<AuthorEntity> targetAuthors = targetValues.stream()
                 .map(name -> authorRepository.findByNameIgnoreCase(name)
-                        .map(existing -> {
-                            existing.setName(name);
-                            return authorRepository.save(existing);
-                        })
-                        .orElseGet(() -> {
-                            AuthorEntity author = new AuthorEntity();
-                            author.setName(name);
-                            return authorRepository.save(author);
-                        }))
+                        .map(existing -> existing)
+                        .orElseGet(() -> authorRepository.save(AuthorEntity.builder().name(name).build())))
                 .toList();
 
         List<AuthorEntity> authorsToMerge = valuesToMerge.stream()
@@ -134,15 +127,8 @@ public class MetadataManagementService {
     private void consolidateCategories(List<String> targetValues, List<String> valuesToMerge, boolean moveFile) {
         List<CategoryEntity> targetCategories = targetValues.stream()
                 .map(name -> categoryRepository.findByNameIgnoreCase(name)
-                        .map(existing -> {
-                            existing.setName(name);
-                            return categoryRepository.save(existing);
-                        })
-                        .orElseGet(() -> {
-                            CategoryEntity category = new CategoryEntity();
-                            category.setName(name);
-                            return categoryRepository.save(category);
-                        }))
+                        .map(existing -> existing)
+                        .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(name).build())))
                 .toList();
 
         List<CategoryEntity> categoriesToMerge = valuesToMerge.stream()
@@ -171,15 +157,8 @@ public class MetadataManagementService {
     private void consolidateMoods(List<String> targetValues, List<String> valuesToMerge, boolean moveFile) {
         List<MoodEntity> targetMoods = targetValues.stream()
                 .map(name -> moodRepository.findByNameIgnoreCase(name)
-                        .map(existing -> {
-                            existing.setName(name);
-                            return moodRepository.save(existing);
-                        })
-                        .orElseGet(() -> {
-                            MoodEntity mood = new MoodEntity();
-                            mood.setName(name);
-                            return moodRepository.save(mood);
-                        }))
+                        .map(existing -> existing)
+                        .orElseGet(() -> moodRepository.save(MoodEntity.builder().name(name).build())))
                 .toList();
 
         List<MoodEntity> moodsToMerge = valuesToMerge.stream()
@@ -209,15 +188,8 @@ public class MetadataManagementService {
     private void consolidateTags(List<String> targetValues, List<String> valuesToMerge, boolean moveFile) {
         List<TagEntity> targetTags = targetValues.stream()
                 .map(name -> tagRepository.findByNameIgnoreCase(name)
-                        .map(existing -> {
-                            existing.setName(name);
-                            return tagRepository.save(existing);
-                        })
-                        .orElseGet(() -> {
-                            TagEntity tag = new TagEntity();
-                            tag.setName(name);
-                            return tagRepository.save(tag);
-                        }))
+                        .map(existing -> existing)
+                        .orElseGet(() -> tagRepository.save(TagEntity.builder().name(name).build())))
                 .toList();
 
         List<TagEntity> tagsToMerge = valuesToMerge.stream()

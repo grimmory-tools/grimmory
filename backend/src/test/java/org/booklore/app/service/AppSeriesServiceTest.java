@@ -454,8 +454,7 @@ class AppSeriesServiceTest {
     }
 
     private BookEntity buildBook(Long id, String seriesName, Float seriesNumber, String authorName) {
-        AuthorEntity author = new AuthorEntity();
-        author.setName(authorName);
+        AuthorEntity author = AuthorEntity.builder().name(authorName).build();
 
         BookMetadataEntity metadata = BookMetadataEntity.builder()
                 .bookId(id)

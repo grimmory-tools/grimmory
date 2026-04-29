@@ -262,9 +262,7 @@ public class AuthorMetadataService {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
-        if (request.getName() != null) {
-            author.setName(request.getName());
-        }
+
         if (request.getDescription() != null) {
             author.setDescription(request.getDescription().isBlank() ? null : request.getDescription());
         }

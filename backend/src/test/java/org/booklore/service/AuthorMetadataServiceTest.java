@@ -114,9 +114,7 @@ class AuthorMetadataServiceTest {
 
     @Test
     void matchAuthor_updatesEntityAndReturnsDetails() {
-        AuthorEntity author = new AuthorEntity();
-        author.setId(1L);
-        author.setName("Stephen King");
+        AuthorEntity author = AuthorEntity.builder().id(1L).name("Stephen King").build();
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
@@ -164,9 +162,7 @@ class AuthorMetadataServiceTest {
 
     @Test
     void matchAuthor_throwsWhenProviderReturnsNull() {
-        AuthorEntity author = new AuthorEntity();
-        author.setId(1L);
-        author.setName("Test Author");
+        AuthorEntity author = AuthorEntity.builder().id(1L).name("Test Author").build();
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
         when(authorParser.getAuthorByAsin("INVALID", "us")).thenReturn(null);
@@ -183,9 +179,7 @@ class AuthorMetadataServiceTest {
 
     @Test
     void matchAuthor_throwsWhenSourceUnsupported() {
-        AuthorEntity author = new AuthorEntity();
-        author.setId(1L);
-        author.setName("Test Author");
+        AuthorEntity author = AuthorEntity.builder().id(1L).name("Test Author").build();
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
@@ -201,9 +195,7 @@ class AuthorMetadataServiceTest {
 
     @Test
     void getAuthorDetails_returnsDetails() {
-        AuthorEntity author = new AuthorEntity();
-        author.setId(5L);
-        author.setName("Brandon Sanderson");
+        AuthorEntity author = AuthorEntity.builder().id(5L).name("Brandon Sanderson").build();
         author.setDescription("Fantasy author");
         author.setAsin("B001IGFHW6");
 
@@ -242,9 +234,7 @@ class AuthorMetadataServiceTest {
 
     @Test
     void matchAuthor_skipsPhotoWhenPhotoLocked() {
-        AuthorEntity author = new AuthorEntity();
-        author.setId(1L);
-        author.setName("Test Author");
+        AuthorEntity author = AuthorEntity.builder().id(1L).name("Test Author").build();
         author.setPhotoLocked(true);
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));

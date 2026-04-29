@@ -82,12 +82,12 @@ class CbxComicInfoComplianceTest {
         metadata.setDescription("<p><i>On his own and out of options, Hughie resorts to extreme measures...</i></p>");
         
         Set<TagEntity> tags = new HashSet<>();
-        TagEntity t1 = new TagEntity(); t1.setName("Superhero");
+        TagEntity t1 = TagEntity.builder().name("Superhero").build();
         tags.add(t1);
         metadata.setTags(tags);
         
         Set<MoodEntity> moods = new HashSet<>();
-        MoodEntity m1 = new MoodEntity(); m1.setName("Dark");
+        MoodEntity m1 = MoodEntity.builder().name("Dark").build();
         moods.add(m1);
         metadata.setMoods(moods);
         

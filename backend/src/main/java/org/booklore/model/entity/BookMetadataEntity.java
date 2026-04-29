@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.LazyGroup;
 
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
 @Builder
@@ -372,6 +376,7 @@ public class BookMetadataEntity {
     @JoinColumn(name = "book_id", referencedColumnName = "book_id", insertable = false, updatable = false)
     private ComicMetadataEntity comicMetadata;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_author_mapping",
@@ -382,6 +387,7 @@ public class BookMetadataEntity {
     @Builder.Default
     private List<AuthorEntity> authors = new ArrayList<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_category_mapping",
@@ -392,6 +398,7 @@ public class BookMetadataEntity {
     @Builder.Default
     private Set<CategoryEntity> categories = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_mood_mapping",
@@ -402,6 +409,7 @@ public class BookMetadataEntity {
     @Builder.Default
     private Set<MoodEntity> moods = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_tag_mapping",
@@ -412,6 +420,7 @@ public class BookMetadataEntity {
     @Builder.Default
     private Set<TagEntity> tags = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "bookMetadata", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @BatchSize(size = 20)
     @Builder.Default
@@ -510,5 +519,17 @@ public class BookMetadataEntity {
                 && Boolean.TRUE.equals(this.contentRatingLocked)
                 && (this.comicMetadata == null || this.comicMetadata.areAllFieldsLocked())
                 ;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BookMetadataEntity that)) return false;
+        return bookId != null && bookId.equals(that.getBookId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }
