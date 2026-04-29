@@ -50,19 +50,19 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            grimmory/grimmory:${{ github.event.release.tag_name }}
-            grimmory/grimmory:latest
-            ghcr.io/grimmory-tools/grimmory:${{ github.event.release.tag_name }}
-            ghcr.io/grimmory-tools/grimmory:latest
+            ${{ vars.DOCKER_HUB_REPOSITORY || github.repository }}:${{ github.event.release.tag_name }}
+            ${{ vars.DOCKER_HUB_REPOSITORY || github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+            ghcr.io/${{ github.repository }}:latest
           build-args: |
             APP_VERSION=${{ github.event.release.tag_name }}
             APP_REVISION=${{ github.sha }}
           cache-from: |
             type=gha,scope=image-shared
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
           cache-to: |
             type=gha,scope=image-shared,mode=max
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
 
   prepare-release-notification:
     name: Prepare Stable Release Notification
