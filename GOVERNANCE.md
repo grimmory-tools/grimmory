@@ -63,8 +63,7 @@ Core Maintainers take on responsibilities that require elevated repository or in
 Core Maintainers are expected to:
 
 - Participate actively and consistently in project discussions and decisions
-- Review significant pull requests and architectural proposals
-- Steward the long-term health of the project
+- Steward the long-term health and architectural direction of the project
 - Model the behaviour they expect from others
 
 **How to become a Core Maintainer:** New Core Maintainers are invited by other Core Maintainers. Any Core Maintainer may propose inviting a Maintainer in a private thread among Core Maintainers, based on a history of sustained participation and a willingness to take on greater responsibility. The proposal is discussed using the process described in [Decision Making](#decision-making) and confirmed by the Core Maintainers only. Only after consensus is reached is the candidate invited.
