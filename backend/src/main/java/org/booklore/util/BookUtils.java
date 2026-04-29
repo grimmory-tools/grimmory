@@ -90,7 +90,23 @@ public class BookUtils {
     }
 
     private static String stripNestedPairs(String input, char open, char close) {
-        StringBuilder result = new StringBuilder();
+        int balance = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == open) {
+                balance++;
+            } else if (c == close) {
+                if (balance == 0) {
+                    return input.trim();
+                }
+                balance--;
+            }
+        }
+        if (balance != 0) {
+            return input.trim();
+        }
+
+        StringBuilder result = new StringBuilder(input.length());
         int depth = 0;
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);

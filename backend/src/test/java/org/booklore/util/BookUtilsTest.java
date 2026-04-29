@@ -460,4 +460,18 @@ class BookUtilsTest {
         assertEquals("francois", BookUtils.normalizeForSearch("François"));
         assertEquals("francois", BookUtils.normalizeForSearch("FRANÇOIS"));
     }
+    @Test
+    void testCleanFileName_withUnbalancedDelimiters() {
+        // Unclosed parenthesis - should return the trimmed input minus extension
+        assertEquals("Book (Author", BookUtils.cleanFileName("Book (Author.pdf"));
+
+        // Unopened parenthesis - should return the trimmed input minus extension
+        assertEquals("Book Author)", BookUtils.cleanFileName("Book Author).pdf"));
+
+        // Unclosed bracket - should return the trimmed input minus extension
+        assertEquals("Book [Series", BookUtils.cleanFileName("Book [Series.epub"));
+
+        // Unopened bracket - should return the trimmed input minus extension
+        assertEquals("Book Series]", BookUtils.cleanFileName("Book Series].epub"));
+    }
 }

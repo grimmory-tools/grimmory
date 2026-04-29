@@ -238,6 +238,8 @@ export class BookdropFileMetadataPickerComponent {
         next: (updatedFile) => {
           if (updatedFile.fetchedMetadata && updatedFile.fetchedMetadata.title) {
             this.fetchedMetadata = updatedFile.fetchedMetadata;
+            Object.keys(this.copiedFields).forEach(key => delete this.copiedFields[key]);
+            this.metadataCopied.emit(false);
             this.metadataRefetched.emit(updatedFile.fetchedMetadata);
             this.messageService.add({
               severity: 'success',

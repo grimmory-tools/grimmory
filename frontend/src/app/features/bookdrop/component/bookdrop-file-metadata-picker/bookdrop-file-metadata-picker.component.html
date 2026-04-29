@@ -70,7 +70,7 @@
               @else {
                 <div class="thumbnail no-cover-text">{{ t('noCoverImage') }}</div>
               }
-              <input type="hidden" id="thumbnailUrl" formControlName="thumbnailUrl"/>
+              <input type="hidden" id="thumbnailUrl-{{bookdropFileId}}" formControlName="thumbnailUrl"/>
             </div>
             <p-button
               size="small"
@@ -140,7 +140,7 @@
               alt="Book Thumbnail"
               class="thumbnail editor-thumbnail-img"
             />
-            <input type="hidden" id="thumbnailUrl" formControlName="thumbnailUrl"/>
+            <input type="hidden" id="thumbnailUrl-{{bookdropFileId}}" formControlName="thumbnailUrl"/>
           </div>
         </div>
         <div class="metacontent editor-metacontent">
@@ -173,9 +173,9 @@
   @if (isComparison) {
     <p-button
       size="small"
-      [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
+      [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || fetchedMetadata[field.fetchedKey] == null ? 'pi pi-refresh' : 'pi pi-angle-left')"
       [outlined]="true"
-      [ngClass]="{ 'nosrc' : !fetchedMetadata[field.fetchedKey] }"
+      [ngClass]="{ 'nosrc' : fetchedMetadata[field.fetchedKey] == null }"
       class="arrow-button"
       [severity]="isValueChanged(field.controlName) ? 'warn' : null"
       [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -196,14 +196,14 @@
 
 <ng-template #stringField let-field="field" let-isComparison="isComparison">
   <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
-    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <label for="{{field.controlName}}-{{bookdropFileId}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
     <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
-      <input pInputText pSize="small" [fluid]="true" id="{{field.controlName}}" [formControlName]="field.controlName"
+      <input pInputText pSize="small" [fluid]="true" id="{{field.controlName}}-{{bookdropFileId}}" [formControlName]="field.controlName"
              class="dest" [ngClass]="{ 'changed': isValueChanged(field.controlName) }"/>
       
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
         <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
       }
@@ -213,17 +213,17 @@
 
 <ng-template #dateField let-field="field" let-isComparison="isComparison">
   <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
-    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <label for="{{field.controlName}}-{{bookdropFileId}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
     <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
       <p-datepicker
-        size="small" [fluid]="true" inputId="{{field.controlName}}" [formControlName]="field.controlName"
+        size="small" [fluid]="true" inputId="{{field.controlName}}-{{bookdropFileId}}" [formControlName]="field.controlName"
         dataType="string" dateFormat="yy-mm-dd" [keepInvalid]="true" [showIcon]="true" [iconDisplay]="'input'"
         appendTo="body" class="dest" [class.full-width]="!isComparison" [ngClass]="{ 'changed': isValueChanged(field.controlName) }">
       </p-datepicker>
 
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
         <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
       }
@@ -233,7 +233,7 @@
 
 <ng-template #chipsField let-field="field" let-isComparison="isComparison">
   <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
-    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <label for="{{field.controlName}}-{{bookdropFileId}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
     <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
       @if (field.controlName === 'authors') {
         <div class="author-chips-container dest full-width"
@@ -249,7 +249,7 @@
           }
           <p-autoComplete class="author-add-input" [(ngModel)]="authorInputValue" [ngModelOptions]="{ standalone: true }"
                           size="small" [forceSelection]="false" [dropdown]="false" (onKeyUp)="onAuthorInputKeyUp($event)"
-                          (onSelect)="onAuthorInputSelect($event)" placeholder="Add author..."/>
+                          (onSelect)="onAuthorInputSelect($event)" [placeholder]="t('addAuthorPlaceholder')"/>
         </div>
       } @else {
         <p-autoComplete
@@ -260,7 +260,7 @@
 
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
         <p-autoComplete
           size="small" [ngModel]="fetchedMetadata[field.fetchedKey] ?? []" [ngModelOptions]="{standalone:true}"
           [disabled]="true" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false"
@@ -272,14 +272,14 @@
 
 <ng-template #textareaField let-field="field" let-isComparison="isComparison">
   <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
-    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <label for="{{field.controlName}}-{{bookdropFileId}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
     <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
-      <textarea pTextarea rows="4" pSize="small" [fluid]="!isComparison" id="{{field.controlName}}" [formControlName]="field.controlName"
+      <textarea pTextarea rows="4" pSize="small" [fluid]="!isComparison" id="{{field.controlName}}-{{bookdropFileId}}" [formControlName]="field.controlName"
                 class="dest" [ngClass]="{ 'changed': isValueChanged(field.controlName) }"></textarea>
       
       <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
 
-      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+      @if (isComparison && fetchedMetadata[field.fetchedKey] != null) {
         <textarea pTextarea rows="4" pSize="small" [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
                   [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"></textarea>
       }
