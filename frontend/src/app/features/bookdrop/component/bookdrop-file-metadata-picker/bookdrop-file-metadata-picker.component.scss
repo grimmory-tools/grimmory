@@ -253,6 +253,11 @@ textarea.changed,
   justify-content: space-between;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .metacontent {
   padding: 1rem;
 }

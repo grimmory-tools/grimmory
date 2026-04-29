@@ -36,14 +36,12 @@ public class BookdropFileEntity {
     private Status status = Status.PENDING_REVIEW;
 
     @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @LazyGroup("metadata")
+    @Basic(fetch = FetchType.EAGER)
     @Column(name = "original_metadata", columnDefinition = "JSON")
     private String originalMetadata;
 
     @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @LazyGroup("metadata")
+    @Basic(fetch = FetchType.EAGER)
     @Column(name = "fetched_metadata", columnDefinition = "JSON")
     private String fetchedMetadata;
 

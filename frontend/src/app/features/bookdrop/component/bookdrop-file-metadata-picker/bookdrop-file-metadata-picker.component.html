@@ -27,6 +27,16 @@
           </button>
           <button
             type="button"
+            class="p-button p-button-outlined p-button-sm p-button-icon-only"
+            [pTooltip]="t('refetchOnlineTooltip')"
+            tooltipPosition="bottom"
+            (click)="refetchOnline()"
+            [disabled]="refetching"
+          >
+            <span class="p-button-icon pi" [ngClass]="refetching ? 'pi-spin pi-spinner' : 'pi-cloud-download'"></span>
+          </button>
+          <button
+            type="button"
             class="p-button p-button-outlined p-button-sm p-button-icon-only p-button-warn"
             [pTooltip]="t('resetAllTooltip')"
             tooltipPosition="bottom"
@@ -351,15 +361,27 @@
         <p class="missingmd">
           {{ t('unableToFetchMetadata') }}
         </p>
-        <p-button
-          size="small"
-          severity="warn"
-          icon="pi pi-refresh"
-          [outlined]="true"
-          [pTooltip]="t('resetAllTooltip')"
-          tooltipPosition="left"
-          (onClick)="confirmReset()"
-        ></p-button>
+        <div class="header-actions">
+          <p-button
+            size="small"
+            severity="warn"
+            icon="pi pi-refresh"
+            [outlined]="true"
+            [pTooltip]="t('resetAllTooltip')"
+            tooltipPosition="left"
+            (onClick)="confirmReset()"
+          ></p-button>
+          <p-button
+            size="small"
+            severity="info"
+            [icon]="refetching ? 'pi pi-spin pi-spinner' : 'pi pi-cloud-download'"
+            [outlined]="true"
+            [pTooltip]="t('refetchOnlineTooltip')"
+            tooltipPosition="left"
+            (onClick)="refetchOnline()"
+            [disabled]="refetching"
+          ></p-button>
+        </div>
       </div>
       <div class="metabody">
         <div class="editor-thumbnail-wrapper">

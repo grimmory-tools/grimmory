@@ -259,7 +259,8 @@
                 [copiedFields]="file.copiedFields"
                 [savedFields]="file.savedFields"
                 [bookdropFileId]="file.file.id"
-                (metadataCopied)="onMetadataCopied(file.file.id, $event)">
+                (metadataCopied)="onMetadataCopied(file.file.id, $event)"
+                (metadataRefetched)="onMetadataRefetched(file.file.id, $event)">
               </app-bookdrop-file-metadata-picker-component>
             }
           </div>

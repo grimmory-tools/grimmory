@@ -40,6 +40,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
@@ -62,6 +63,7 @@ import java.util.stream.Stream;
 @Transactional
 public class BookDropService {
 
+    private final BookdropMetadataService bookdropMetadataService;
     private final BookdropFileRepository bookdropFileRepository;
     private final LibraryRepository libraryRepository;
     private final BookRepository bookRepository;
@@ -76,6 +78,11 @@ public class BookDropService {
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public BookdropFile refetchMetadata(Long id, BookMetadata manualMetadata) {
+        return mapper.toDto(bookdropMetadataService.refetchMetadata(id, manualMetadata));
+    }
 
     private static final int CHUNK_SIZE = 100;
 

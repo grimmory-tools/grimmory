@@ -24,6 +24,7 @@ public class BookUtils {
     private static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile("[!@$%^&*_=|~`<>?/\"]");
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
     private static final Pattern PARENTHESIS_PATTERN = Pattern.compile("\\s?\\([^()]*\\)");
+    private static final Pattern BRACKET_PATTERN = Pattern.compile("\\s?\\[[^\\]]*\\]");
 
     public static String buildSearchText(BookMetadataEntity e) {
         if (e == null) return null;
@@ -93,6 +94,15 @@ public class BookUtils {
             return "";
         }
         String s = term;
+        
+        // Remove content in parentheses and brackets first
+        String previous;
+        do {
+            previous = s;
+            s = PARENTHESIS_PATTERN.matcher(s).replaceAll("").trim();
+            s = BRACKET_PATTERN.matcher(s).replaceAll("").trim();
+        } while (!s.equals(previous));
+
         s = SPECIAL_CHARACTERS_PATTERN.matcher(s).replaceAll("").trim();
         s = WHITESPACE_PATTERN.matcher(s).replaceAll(" ");
         return s;

@@ -426,8 +426,8 @@ public class MetadataRefreshService {
         return FetchMetadataRequest.builder()
                 .isbn(isbn)
                 .asin(metadata.getAsin())
-                .author(metadata.getAuthors() != null ? String.join(", ", metadata.getAuthors()) : null)
-                .title(metadata.getTitle())
+                .author(metadata.getAuthors() != null ? BookUtils.cleanSearchTerm(String.join(", ", metadata.getAuthors())) : null)
+                .title(BookUtils.cleanSearchTerm(metadata.getTitle()))
                 .bookId(book.getId())
                 .build();
     }

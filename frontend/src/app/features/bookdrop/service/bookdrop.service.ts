@@ -125,4 +125,8 @@ export class BookdropService {
   bulkEditMetadata(payload: BulkEditRequest): Observable<BulkEditResult> {
     return this.http.post<BulkEditResult>(`${this.url}/files/bulk-edit`, payload);
   }
+  
+  refetchMetadata(id: number, manualMetadata?: BookMetadata): Observable<BookdropFile> {
+    return this.http.post<BookdropFile>(`${this.url}/files/${id}/refetch`, manualMetadata);
+  }
 }

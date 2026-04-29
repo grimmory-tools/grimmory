@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookdropFile;
 import org.booklore.model.dto.BookdropFileNotification;
 import org.booklore.model.dto.request.BookdropBulkEditRequest;
@@ -100,6 +101,17 @@ public class BookdropFileController {
     public ResponseEntity<BookdropBulkEditResult> bulkEditMetadata(
             @Parameter(description = "Bulk edit request") @Valid @RequestBody BookdropBulkEditRequest request) {
         BookdropBulkEditResult result = bookdropBulkEditService.bulkEdit(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(summary = "Refetch metadata for a bookdrop file", description = "Trigger a metadata refetch for a specific file, optionally with provided ISBN or search data.")
+    @ApiResponse(responseCode = "200", description = "Metadata refetched successfully")
+    @PostMapping("/files/{id}/refetch")
+    @PreAuthorize("@securityUtil.canAccessBookdrop() or @securityUtil.isAdmin()")
+    public ResponseEntity<BookdropFile> refetchMetadata(
+            @Parameter(description = "ID of the bookdrop file") @PathVariable Long id,
+            @Parameter(description = "Optional manual metadata to use for refetching") @RequestBody(required = false) BookMetadata request) {
+        BookdropFile result = bookDropService.refetchMetadata(id, request);
         return ResponseEntity.ok(result);
     }
 }

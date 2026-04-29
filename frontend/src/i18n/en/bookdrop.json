@@ -29,7 +29,14 @@
     "coverImageNotFound": "Cover image not found",
     "unableToFetchMetadata": "Unable to fetch metadata for this file",
     "confirmResetMessage": "Are you sure you want to reset all metadata changes made to this file?",
-    "confirmResetHeader": "Reset Metadata Changes?"
+    "confirmResetHeader": "Reset Metadata Changes?",
+    "refetchOnlineTooltip": "Search online for metadata using current form values",
+    "refetchSuccessSummary": "Metadata Refetched",
+    "refetchSuccessDetail": "Successfully updated metadata from online providers.",
+    "refetchNoResultsSummary": "No Results Found",
+    "refetchNoResultsDetail": "Could not find any matching metadata for the provided information.",
+    "refetchFailedSummary": "Refetch Failed",
+    "refetchFailedDetail": "An error occurred while searching for metadata online."
   },
   "fileReview": {
     "title": "Review Bookdrop Files",
