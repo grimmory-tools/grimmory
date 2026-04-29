@@ -25,7 +25,7 @@ public interface BookdropFileRepository extends JpaRepository<BookdropFileEntity
     long countByStatus(Status status);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM BookdropFileEntity f WHERE f.filePath LIKE CONCAT(:prefix, '%')")
     int deleteAllByFilePathStartingWith(@Param("prefix") String prefix);
 

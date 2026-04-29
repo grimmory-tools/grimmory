@@ -10,8 +10,8 @@ import org.booklore.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -32,9 +32,9 @@ public class MagicShelfService {
     }
 
     private List<MagicShelf> getShelvesForUser(Long userId) {
-        List<MagicShelf> shelves = magicShelfRepository.findAllByUserId(userId).stream()
+        List<MagicShelf> shelves = new ArrayList<>(magicShelfRepository.findAllByUserId(userId).stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList());
 
         List<Long> userShelfIds = shelves.stream().map(MagicShelf::getId).toList();
 

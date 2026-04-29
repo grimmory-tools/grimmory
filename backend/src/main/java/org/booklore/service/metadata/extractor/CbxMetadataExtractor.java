@@ -35,7 +35,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     // URL Patterns
     private static final Pattern GOODREADS_URL_PATTERN = Pattern.compile("goodreads\\.com/book/show/(\\d+)(?:-[\\w-]+)?");
     private static final Pattern AMAZON_URL_PATTERN = Pattern.compile("amazon\\.com/dp/([A-Z0-9]{10})");
-    private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/issue/(?:[^/]+/)?([\\w-]+)");
+    private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:issue|volume)/(?:[^/]+/)?(\\d+-\\d+)");
+    private static final Pattern COMICVINE_SITE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:[^/]+/)?(40(?:00|50)-\\d+)/?");
     private static final Pattern HARDCOVER_URL_PATTERN = Pattern.compile("hardcover\\.app/books/([\\w-]+)");
 
     private final ArchiveService archiveService;
@@ -132,14 +133,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             builder.authors(authors);
         }
 
-        Set<String> categories = new HashSet<>();
-        categories.addAll(splitValues(getTextContent(document, "Genre")));
+        Set<String> categories = splitValues(getTextContent(document, "Genre"));
         if (!categories.isEmpty()) {
             builder.categories(categories);
         }
 
-        Set<String> tags = new HashSet<>();
-        tags.addAll(splitValues(getTextContent(document, "Tags")));
+        Set<String> tags = splitValues(getTextContent(document, "Tags"));
         if (!tags.isEmpty()) {
             builder.tags(tags);
         }
@@ -316,6 +315,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             java.util.regex.Matcher cvMatcher = COMICVINE_URL_PATTERN.matcher(url);
             if (cvMatcher.find()) {
                 builder.comicvineId(cvMatcher.group(1));
+                continue;
+            }
+
+            java.util.regex.Matcher cvSiteMatcher = COMICVINE_SITE_URL_PATTERN.matcher(url);
+            if (cvSiteMatcher.find()) {
+                builder.comicvineId(cvSiteMatcher.group(1));
                 continue;
             }
 

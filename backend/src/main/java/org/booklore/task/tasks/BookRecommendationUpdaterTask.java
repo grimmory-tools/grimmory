@@ -132,7 +132,7 @@ public class BookRecommendationUpdaterTask implements Task {
                             return new BookVectorService.ScoredBook(candidateId, similarity);
                         })
                         .filter(scored -> scored.getScore() > 0.1)
-                        .collect(Collectors.toList());
+                        .toList();
 
                 List<BookVectorService.ScoredBook> topSimilar = vectorService.findTopKSimilar(
                         targetVector,

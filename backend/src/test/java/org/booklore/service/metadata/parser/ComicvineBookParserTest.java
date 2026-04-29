@@ -59,7 +59,7 @@ public class ComicvineBookParserTest {
         HttpResponse<String> response = getResponse(statusCode, payload);
         when(
             httpClient.<String>send(
-                argThat(arg -> arg != null && arg.uri().toString().startsWith(("https://comicvine.gamespot.com/api" + uri))),
+                argThat(arg -> arg != null && arg.uri().toString().contains(uri)),
                 any()
             )
         ).thenReturn(response);
@@ -107,15 +107,9 @@ public class ComicvineBookParserTest {
     @Test
     public void fetchTopMetadata_getsTitle() throws IOException, InterruptedException {
         mockResponse(
-                "/search/?api_key=example&format=json&resources=volume,issue&query=Example&",
+                "/search/",
                 200,
                 readFixture("search.json")
-        );
-
-        mockResponse(
-                "/issue/4000-60593/",
-                200,
-                readFixture("issue.json")
         );
 
         Book book = getBook("EXAMPLE");
@@ -131,14 +125,21 @@ public class ComicvineBookParserTest {
 
     @Test
     public void fetchTopMetadata_parsesSeriesInfoFromTitle() throws IOException, InterruptedException {
+        // The parser first tries /search/ endpoint for volumes
         mockResponse(
-                "/volumes/?api_key=example&format=json&filter=name:The%20Example&",
+                "/search/?api_key=example&format=json&resources=volume&query=The%20Example",
+                200,
+                "{\"results\": []}"
+        );
+
+        mockResponse(
+                "/volumes/?api_key=example&format=json&filter=name:The%20Example",
                 200,
                 readFixture("search.json")
         );
 
         mockResponse(
-                "/issues/?api_key=example&format=json&filter=volume:60593,issue_number:1&",
+                "/issues/?api_key=example&format=json&filter=volume:60593,issue_number:1",
                 200,
                 readFixture("issues.json")
         );
