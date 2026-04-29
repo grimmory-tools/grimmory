@@ -19,6 +19,9 @@ version = System.getenv("APP_VERSION") ?: "0.0.1-SNAPSHOT"
 val defaultFrontendDistDir = file("${rootDir}/../frontend/dist/grimmory/browser")
 val configuredFrontendDistDir = providers.gradleProperty("frontendDistDir")
     .map { file(it) }
+val embedFrontendDist = providers.gradleProperty("embedFrontendDist")
+    .map(String::toBoolean)
+    .orElse(true)
 
 java {
     toolchain {
@@ -219,10 +222,11 @@ tasks.named<Copy>("processResources") {
         .orElse(providers.provider { defaultFrontendDistDir })
         .get()
 
+    inputs.property("embedFrontendDist", embedFrontendDist.get())
     inputs.property("frontendDistDir", frontendResourcesDir.absolutePath)
     inputs.property("hasFrontendResources", frontendResourcesDir.exists())
 
-    if (frontendResourcesDir.exists()) {
+    if (embedFrontendDist.get() && frontendResourcesDir.exists()) {
         from(frontendResourcesDir) {
             into("static")
         }

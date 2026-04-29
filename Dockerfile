@@ -14,6 +14,8 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
     --mount=type=cache,target=/workspace/frontend/.angular/cache \
     CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
+FROM caddy:2.11.2-alpine AS caddy-layer
+
 FROM --platform=$BUILDPLATFORM gradle:9.4.1-jdk25-alpine AS backend-build
 
 ARG TARGETARCH
@@ -30,10 +32,9 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
 COPY backend/ ./
-COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    TARGETARCH=${TARGETARCH} ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
+    TARGETARCH=${TARGETARCH} ./gradlew --no-daemon -PembedFrontendDist=false bootJar
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
@@ -90,12 +91,18 @@ RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
 RUN ln -s /usr/lib/libarchive.so.13 /usr/lib/libarchive.so
 
 COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY packaging/docker/Caddyfile /etc/caddy/Caddyfile
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
 COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
+COPY --from=caddy-layer /usr/bin/caddy /usr/bin/caddy
 
 COPY --from=backend-build /workspace/backend/app.jar /app/app.jar
+COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /srv/frontend
+
+RUN GRIMMORY_HTTP_PORT=6060 GRIMMORY_BACKEND_PORT=8080 \
+    caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 
 ARG APP_VERSION=development
 ARG APP_REVISION=unknown
