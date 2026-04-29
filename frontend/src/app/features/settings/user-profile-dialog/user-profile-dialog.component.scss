@@ -33,18 +33,6 @@
   max-height: 60vh;
   overflow-y: auto;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-  }
-
   @media (width <= 480px) {
     padding: 1rem;
     gap: 1.25rem;

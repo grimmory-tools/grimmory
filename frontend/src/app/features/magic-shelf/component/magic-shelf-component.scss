@@ -190,18 +190,6 @@
   @media (width <= 768px) {
     max-height: 35rem;
   }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-  }
 }
 
 .dialog-footer {

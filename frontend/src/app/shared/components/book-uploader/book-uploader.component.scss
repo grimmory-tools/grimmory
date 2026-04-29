@@ -266,18 +266,6 @@
     overflow-y: auto;
     padding-right: 0.25rem;
 
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 3px;
-    }
-
     .file-item-card {
       display: flex;
       align-items: center;

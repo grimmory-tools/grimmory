@@ -162,14 +162,6 @@
   height: calc(100dvh - 22rem);
   box-sizing: border-box;
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
 }
 
 

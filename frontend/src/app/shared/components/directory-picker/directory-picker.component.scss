@@ -313,18 +313,6 @@
   &.fade-in {
     animation: fade-in-up 0.4s ease-out;
   }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-  }
 }
 
 @keyframes fade-in-up {

@@ -70,14 +70,6 @@
   overflow-y: auto;
 
   // Desktop width constraints moved to src/styles.scss for body-appended elements
-
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-  }
 }
 
 // .show class no longer needed as popover handles visibility

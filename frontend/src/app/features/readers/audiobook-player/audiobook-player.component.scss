@@ -607,14 +607,6 @@ $border-color: rgb(255 255 255 / 10%);
     flex: 1;
     overflow-y: auto;
     padding: 0.5rem 0;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 3px;
-    }
   }
 }
 

@@ -118,18 +118,6 @@
   flex: 1;
   padding-right: 0.25rem;
   min-height: 0;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-  }
 }
 
 .shelf-item {

@@ -105,21 +105,9 @@
   overflow: hidden auto;
   scrollbar-gutter: stable;
 
-  &::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
   @media (width <= 768px) {
     height: calc(100dvh - 13rem);
     padding: 0.5rem;
-
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
   }
 }
 

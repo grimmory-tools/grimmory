@@ -96,14 +96,6 @@ $transition-normal: 200ms ease;
   display: flex;
   flex-direction: column;
   gap: 24px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-  }
 }
 
 .shortcut-group {

@@ -109,18 +109,6 @@
   overflow: auto hidden;
   padding-bottom: 8px;
   height: 100%;
-
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-  }
 }
 
 .reviews-horizontal-list {
@@ -350,18 +338,6 @@
 
   &--blurred {
     filter: blur(4px);
-  }
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 2px;
   }
 }
 

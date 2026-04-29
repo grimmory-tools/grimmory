@@ -2,23 +2,11 @@
   height: calc(100dvh - 6.7rem);
   overflow-y: auto;
   position: relative;
-
-  &::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
 }
 
 @media (width <= 768px) {
   .dashboard-container {
     height: calc(100dvh - 5rem);
-
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
   }
 }
 

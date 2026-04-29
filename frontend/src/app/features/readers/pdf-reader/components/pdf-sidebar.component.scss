@@ -169,14 +169,6 @@ $transition-fast: 150ms ease;
   overflow-y: auto;
   padding: 12px 0;
   overscroll-behavior: contain;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-  }
 }
 
 // --- Outline / Chapter list ---

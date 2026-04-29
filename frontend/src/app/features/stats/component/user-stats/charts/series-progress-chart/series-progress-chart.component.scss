@@ -215,18 +215,6 @@
     max-height: 360px;
     overflow-y: auto;
 
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-      border-radius: 2px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 2px;
-    }
-
     .no-results {
       display: flex;
       align-items: center;
