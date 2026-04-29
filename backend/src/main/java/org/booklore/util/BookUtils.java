@@ -23,8 +23,6 @@ public class BookUtils {
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile("[!@$%^&*_=|~`<>?/\"]");
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-    private static final Pattern PARENTHESIS_PATTERN = Pattern.compile("\\s?\\([^()]*\\)");
-    private static final Pattern BRACKET_PATTERN = Pattern.compile("\\s?\\[[^\\]]*\\]");
 
     public static String buildSearchText(BookMetadataEntity e) {
         if (e == null) return null;
@@ -67,45 +65,46 @@ public class BookUtils {
     }
 
     public static String cleanFileName(String fileName) {
-        String name = fileName;
-        if (name == null) {
+        if (fileName == null) {
             return null;
         }
-        name = name.replace("(Z-Library)", "").trim();
-        
-        String previous;
-        do {
-            previous = name;
-            name = PARENTHESIS_PATTERN.matcher(name).replaceAll("").trim();
-        } while (!name.equals(previous));
-        
-        int dotIndex = name.lastIndexOf('.'); // Remove the file extension (e.g., .pdf, .docx)
+        String name = fileName.replace("(Z-Library)", "").trim();
+        name = stripNestedPairs(name, '(', ')');
+        name = stripNestedPairs(name, '[', ']');
+
+        int dotIndex = name.lastIndexOf('.');
         if (dotIndex > 0) {
             name = name.substring(0, dotIndex).trim();
         }
-        
-        name = WHITESPACE_PATTERN.matcher(name).replaceAll(" ").trim();
-        
-        return name;
+
+        return WHITESPACE_PATTERN.matcher(name).replaceAll(" ").trim();
     }
 
     public static String cleanSearchTerm(String term) {
         if (term == null) {
             return "";
         }
-        String s = term;
-        
-        // Remove content in parentheses and brackets first
-        String previous;
-        do {
-            previous = s;
-            s = PARENTHESIS_PATTERN.matcher(s).replaceAll("").trim();
-            s = BRACKET_PATTERN.matcher(s).replaceAll("").trim();
-        } while (!s.equals(previous));
-
-        s = SPECIAL_CHARACTERS_PATTERN.matcher(s).replaceAll("").trim();
+        String s = SPECIAL_CHARACTERS_PATTERN.matcher(term).replaceAll("").trim();
         s = WHITESPACE_PATTERN.matcher(s).replaceAll(" ");
         return s;
+    }
+
+    private static String stripNestedPairs(String input, char open, char close) {
+        StringBuilder result = new StringBuilder();
+        int depth = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == open) {
+                depth++;
+            } else if (c == close) {
+                if (depth > 0) {
+                    depth--;
+                }
+            } else if (depth == 0) {
+                result.append(c);
+            }
+        }
+        return result.toString().trim();
     }
 
     public static String cleanAndTruncateSearchTerm(String term) {

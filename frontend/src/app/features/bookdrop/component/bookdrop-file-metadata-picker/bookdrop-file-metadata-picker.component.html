@@ -79,7 +79,7 @@
               class="arrow-button"
               [severity]="isValueCopied('thumbnailUrl') ? 'warn' : null"
               [disabled]="!isFetchedDifferent('thumbnailUrl') && !isValueCopied('thumbnailUrl')"
-              (click)="isValueCopied('thumbnailUrl') ? resetField('thumbnailUrl') : copyFetchedToCurrent('thumbnailUrl')"
+              (onClick)="isValueCopied('thumbnailUrl') ? resetField('thumbnailUrl') : copyFetchedToCurrent('thumbnailUrl')"
             />
             <div class="thumbnail-column">
               @if (fetchedMetadata.thumbnailUrl) {
@@ -124,7 +124,7 @@
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (click)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
               />
               @if (fetchedMetadata[field.fetchedKey]) {
                 <input
@@ -171,7 +171,7 @@
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (click)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
               />
               @if (fetchedMetadata[field.fetchedKey]) {
                 <input
@@ -246,7 +246,7 @@
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (click)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
               />
               @if (fetchedMetadata[field.fetchedKey]) {
                 <p-autoComplete
@@ -292,7 +292,7 @@
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (click)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
               />
               @if (fetchedMetadata[field.fetchedKey]) {
                 <textarea
@@ -334,7 +334,7 @@
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (click)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
               />
               @if (fetchedMetadata[field.fetchedKey]) {
                 <input
@@ -416,7 +416,7 @@
                   class="arrow-button"
                   severity="warn"
                   [disabled]="!isValueChanged(field.controlName)"
-                  (click)="resetField(field.controlName)"
+                  (onClick)="resetField(field.controlName)"
                 />
               </div>
             </div>
@@ -449,7 +449,7 @@
                   class="arrow-button"
                   severity="warn"
                   [disabled]="!isValueChanged(field.controlName)"
-                  (click)="resetField(field.controlName)"
+                  (onClick)="resetField(field.controlName)"
                 />
               </div>
             </div>
@@ -510,7 +510,7 @@
                   class="arrow-button"
                   severity="warn"
                   [disabled]="!isValueChanged(field.controlName)"
-                  (click)="resetField(field.controlName)"
+                  (onClick)="resetField(field.controlName)"
                 />
               </div>
             </div>
@@ -538,7 +538,7 @@
                   class="arrow-button"
                   severity="warn"
                   [disabled]="!isValueChanged(field.controlName)"
-                  (click)="resetField(field.controlName)"
+                  (onClick)="resetField(field.controlName)"
                 />
               </div>
             </div>
@@ -565,7 +565,7 @@
                   class="arrow-button"
                   severity="warn"
                   [disabled]="!isValueChanged(field.controlName)"
-                  (click)="resetField(field.controlName)"
+                  (onClick)="resetField(field.controlName)"
                 />
               </div>
             </div>
