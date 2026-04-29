@@ -169,23 +169,6 @@ $transition-fast: 150ms ease;
   overflow-y: auto;
   padding: 12px 0;
   overscroll-behavior: contain;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 15%);
-    border-radius: 10px;
-    
-    &:hover {
-      background: rgb(255 255 255 / 25%);
-    }
-  }
 }
 
 // --- Outline / Chapter list ---
@@ -466,13 +449,5 @@ $transition-fast: 150ms ease;
 
   .highlight-text {
     color: $text-secondary-light;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    background: rgb(0 0 0 / 10%);
-
-    &:hover {
-      background: rgb(0 0 0 / 20%);
-    }
   }
 }
