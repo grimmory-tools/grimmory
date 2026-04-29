@@ -129,9 +129,9 @@ Examples of how this works in practice:
 
 ### Recording Decisions
 
-All governance decisions, whether made by lazy consensus or by formal vote, should be recorded in the thread, issue, discussion, or pull request where they were decided so the result is public and durable.
+Simple operational decisions may be proposed, discussed, and recorded in Discord when that is the most practical venue.
 
-Voting and formal proposals take place in GitHub Discussions, Issues, or pull requests so that the record is public and permanent.
+Larger or longer-lived decisions - including governance changes, significant technical direction, membership decisions, and other choices worth preserving for future reference - should be clarified and recorded in GitHub, whether in a Discussion, an Issue, a pull request, or another project document kept in the repository.
 
 ---
 
