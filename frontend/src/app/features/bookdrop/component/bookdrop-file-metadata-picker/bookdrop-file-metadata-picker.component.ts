@@ -1,7 +1,7 @@
 import {Component, effect, EventEmitter, inject, Input, Output} from '@angular/core';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {Tooltip} from 'primeng/tooltip';
 import {InputText} from 'primeng/inputtext';
 import {BookMetadata} from '../../../book/model/book.model';
@@ -30,6 +30,7 @@ import {finalize} from 'rxjs';
     Tooltip,
     InputText,
     NgClass,
+    NgTemplateOutlet,
     FormsModule,
     Textarea,
     AutoComplete,

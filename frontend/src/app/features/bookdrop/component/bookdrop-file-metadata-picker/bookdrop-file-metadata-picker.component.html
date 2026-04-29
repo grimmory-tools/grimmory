@@ -99,258 +99,7 @@
             </div>
           </div>
         </div>
-        @for (field of metadataFieldsTop; track field) {
-          <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
-            <div class="meta-fields">
-              <input
-                pSize="small"
-                fluid
-                pInputText
-                id="{{field.controlName}}"
-                formControlName="{{field.controlName}}"
-                class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
-              />
-              <p-button
-                size="small"
-                [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
-                [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
-                class="arrow-button"
-                [severity]="isValueChanged(field.controlName) ? 'warn' : null"
-                [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
-              />
-              @if (fetchedMetadata[field.fetchedKey]) {
-                <input
-                  pSize="small"
-                  pInputText
-                  [value]="fetchedMetadata[field.fetchedKey] ?? null"
-                  class="src"
-                  disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
-                />
-              }
-            </div>
-          </div>
-        }
-        @for (field of metadataPublishDate; track field) {
-          <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
-            <div class="meta-fields">
-              <p-datepicker
-                size="small"
-                fluid
-                inputId="{{field.controlName}}"
-                formControlName="{{field.controlName}}"
-                dataType="string"
-                dateFormat="yy-mm-dd"
-                [keepInvalid]="true"
-                [showIcon]="true"
-                [iconDisplay]="'input'"
-                appendTo="body"
-                class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }">
-              </p-datepicker>
-              <p-button
-                size="small"
-                [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
-                [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
-                class="arrow-button"
-                [severity]="isValueChanged(field.controlName) ? 'warn' : null"
-                [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
-              />
-              @if (fetchedMetadata[field.fetchedKey]) {
-                <input
-                  pSize="small"
-                  pInputText
-                  [value]="fetchedMetadata[field.fetchedKey] ?? null"
-                  class="src"
-                  disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
-                />
-              }
-            </div>
-          </div>
-        }
-        @for (field of metadataChips; track field) {
-          <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
-            <div class="meta-fields">
-              @if (field.controlName === 'authors') {
-                <div class="author-chips-container dest full-width"
-                     cdkDropList cdkDropListOrientation="mixed"
-                     (cdkDropListDropped)="dropAuthor($event)"
-                     [ngClass]="{ 'changed': isValueChanged('authors') }">
-                  @for (author of metadataForm.get('authors')!.value; track $index) {
-                    <span class="author-chip" [class.main-author]="$index === 0" cdkDrag>
-                      @if ($index === 0) { <span class="main-author-badge">m</span> }
-                      {{ author }}
-                      <i
-                        class="pi pi-times author-chip-remove"
-                        role="button"
-                        tabindex="0"
-                        (click)="removeAuthor($index)"
-                        (keydown.enter)="removeAuthor($index)"></i>
-                    </span>
-                  }
-                  <p-autoComplete
-                    class="author-add-input"
-                    [(ngModel)]="authorInputValue"
-                    [ngModelOptions]="{ standalone: true }"
-                    size="small"
-                    [forceSelection]="false"
-                    [dropdown]="false"
-                    (onKeyUp)="onAuthorInputKeyUp($event)"
-                    (onSelect)="onAuthorInputSelect($event)"
-                    placeholder="Add author..."
-                  />
-                </div>
-              } @else {
-                <p-autoComplete
-                  size="small"
-                  formControlName="{{field.controlName}}"
-                  [multiple]="true"
-                  [typeahead]="false"
-                  [dropdown]="false"
-                  [forceSelection]="false"
-                  class="dest full-width"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
-                  (onBlur)="onAutoCompleteBlur(field.controlName, $event)"
-                />
-              }
-              <p-button
-                size="small"
-                [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
-                [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
-                class="arrow-button"
-                [severity]="isValueChanged(field.controlName) ? 'warn' : null"
-                [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
-              />
-              @if (fetchedMetadata[field.fetchedKey]) {
-                <p-autoComplete
-                  size="small"
-                  [ngModel]="fetchedMetadata[field.fetchedKey] ?? []"
-                  [ngModelOptions]="{standalone:true}"
-                  [disabled]="true"
-                  [multiple]="true"
-                  [typeahead]="false"
-                  [dropdown]="false"
-                  [forceSelection]="false"
-                  class="src full-width"
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
-                />
-              }
-            </div>
-          </div>
-        }
-        @for (field of metadataDescription; track field) {
-          <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
-            <div class="meta-fields">
-              <textarea
-                pTextarea
-                rows="4"
-                pSize="small"
-                id="{{field.controlName}}"
-                formControlName="{{field.controlName}}"
-                class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
-              ></textarea>
-              <p-button
-                size="small"
-                [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
-                [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
-                class="arrow-button"
-                [severity]="isValueChanged(field.controlName) ? 'warn' : null"
-                [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
-              />
-              @if (fetchedMetadata[field.fetchedKey]) {
-                <textarea
-                  pTextarea
-                  rows="4"
-                  pSize="small"
-                  [value]="fetchedMetadata[field.fetchedKey] ?? null"
-                  class="src"
-                  disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
-                ></textarea>
-              }
-            </div>
-          </div>
-        }
-        @for (field of metadataFieldsBottom; track field) {
-          <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
-            <div class="meta-fields">
-              <input
-                pInputText
-                pSize="small"
-                id="{{field.controlName}}"
-                formControlName="{{field.controlName}}"
-                class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
-              />
-              <p-button
-                size="small"
-                [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
-                [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
-                class="arrow-button"
-                [severity]="isValueChanged(field.controlName) ? 'warn' : null"
-                [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
-                (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
-              />
-              @if (fetchedMetadata[field.fetchedKey]) {
-                <input
-                  pInputText
-                  pSize="small"
-                  [value]="fetchedMetadata[field.fetchedKey] ?? null"
-                  class="src"
-                  disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
-                />
-              }
-            </div>
-          </div>
-        }
+        <ng-container *ngTemplateOutlet="fieldLoops; context: { isComparison: true }"></ng-container>
       </div>
     </div>
   </form>
@@ -395,184 +144,146 @@
           </div>
         </div>
         <div class="metacontent editor-metacontent">
-          @for (field of metadataFieldsTop; track field) {
-            <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
-              <div class="field-input-row">
-                <input
-                  pSize="small"
-                  fluid
-                  pInputText
-                  id="{{field.controlName}}"
-                  formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
-                />
-                <p-button
-                  size="small"
-                  icon="pi pi-refresh"
-                  [outlined]="true"
-                  class="arrow-button"
-                  severity="warn"
-                  [disabled]="!isValueChanged(field.controlName)"
-                  (onClick)="resetField(field.controlName)"
-                />
-              </div>
-            </div>
-          }
-
-          @for (field of metadataPublishDate; track field) {
-            <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
-              <div class="field-input-row">
-                <p-datepicker
-                  size="small"
-                  fluid
-                  inputId="{{field.controlName}}"
-                  formControlName="{{field.controlName}}"
-                  dataType="string"
-                  dateFormat="yy-mm-dd"
-                  [keepInvalid]="true"
-                  [showIcon]="true"
-                  [iconDisplay]="'input'"
-                  appendTo="body"
-                  class="full-width"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }">
-                </p-datepicker>
-                <p-button
-                  size="small"
-                  icon="pi pi-refresh"
-                  [outlined]="true"
-                  class="arrow-button"
-                  severity="warn"
-                  [disabled]="!isValueChanged(field.controlName)"
-                  (onClick)="resetField(field.controlName)"
-                />
-              </div>
-            </div>
-          }
-
-          @for (field of metadataChips; track field) {
-            <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
-              <div class="field-input-row">
-                @if (field.controlName === 'authors') {
-                  <div class="author-chips-container full-width"
-                       cdkDropList cdkDropListOrientation="mixed"
-                       (cdkDropListDropped)="dropAuthor($event)"
-                       [ngClass]="{ 'changed': isValueChanged('authors') }">
-                    @for (author of metadataForm.get('authors')!.value; track $index) {
-                      <span class="author-chip" [class.main-author]="$index === 0" cdkDrag>
-                        @if ($index === 0) { <span class="main-author-badge">m</span> }
-                        {{ author }}
-                        <i
-                          class="pi pi-times author-chip-remove"
-                          role="button"
-                          tabindex="0"
-                          (click)="removeAuthor($index)"
-                          (keydown.enter)="removeAuthor($index)"></i>
-                      </span>
-                    }
-                    <p-autoComplete
-                      class="author-add-input"
-                      [(ngModel)]="authorInputValue"
-                      [ngModelOptions]="{ standalone: true }"
-                      size="small"
-                      [forceSelection]="false"
-                      [dropdown]="false"
-                      (onKeyUp)="onAuthorInputKeyUp($event)"
-                      (onSelect)="onAuthorInputSelect($event)"
-                      placeholder="Add author..."
-                    />
-                  </div>
-                } @else {
-                  <p-autoComplete
-                    size="small"
-                    formControlName="{{field.controlName}}"
-                    [multiple]="true"
-                    [typeahead]="false"
-                    [dropdown]="false"
-                    [forceSelection]="false"
-                    class="full-width"
-                    [ngClass]="{
-                      'changed': isValueChanged(field.controlName),
-                    }"
-                    (onBlur)="onAutoCompleteBlur(field.controlName, $event)"
-                  />
-                }
-                <p-button
-                  size="small"
-                  icon="pi pi-refresh"
-                  [outlined]="true"
-                  class="arrow-button"
-                  severity="warn"
-                  [disabled]="!isValueChanged(field.controlName)"
-                  (onClick)="resetField(field.controlName)"
-                />
-              </div>
-            </div>
-          }
-
-          @for (field of metadataDescription; track field) {
-            <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
-              <div class="field-input-row">
-                <textarea
-                  pTextarea
-                  fluid
-                  rows="4"
-                  pSize="small"
-                  id="{{field.controlName}}"
-                  formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
-                ></textarea>
-                <p-button
-                  size="small"
-                  icon="pi pi-refresh"
-                  [outlined]="true"
-                  class="arrow-button"
-                  severity="warn"
-                  [disabled]="!isValueChanged(field.controlName)"
-                  (onClick)="resetField(field.controlName)"
-                />
-              </div>
-            </div>
-          }
-
-          @for (field of metadataFieldsBottom; track field) {
-            <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
-              <div class="field-input-row">
-                <input
-                  pSize="small"
-                  fluid
-                  pInputText
-                  id="{{field.controlName}}"
-                  formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
-                />
-                <p-button
-                  size="small"
-                  icon="pi pi-refresh"
-                  [outlined]="true"
-                  class="arrow-button"
-                  severity="warn"
-                  [disabled]="!isValueChanged(field.controlName)"
-                  (onClick)="resetField(field.controlName)"
-                />
-              </div>
-            </div>
-          }
+          <ng-container *ngTemplateOutlet="fieldLoops; context: { isComparison: false }"></ng-container>
         </div>
       </div>
     </div>
   </form>
 }
+
+<ng-template #fieldLoops let-isComparison="isComparison">
+  @for (field of metadataFieldsTop; track field) {
+    <ng-container *ngTemplateOutlet="stringField; context: { field, isComparison }"></ng-container>
+  }
+  @for (field of metadataPublishDate; track field) {
+    <ng-container *ngTemplateOutlet="dateField; context: { field, isComparison }"></ng-container>
+  }
+  @for (field of metadataChips; track field) {
+    <ng-container *ngTemplateOutlet="chipsField; context: { field, isComparison }"></ng-container>
+  }
+  @for (field of metadataDescription; track field) {
+    <ng-container *ngTemplateOutlet="textareaField; context: { field, isComparison }"></ng-container>
+  }
+  @for (field of metadataFieldsBottom; track field) {
+    <ng-container *ngTemplateOutlet="stringField; context: { field, isComparison }"></ng-container>
+  }
+</ng-template>
+
+<ng-template #fieldAction let-field="field" let-isComparison="isComparison">
+  @if (isComparison) {
+    <p-button
+      size="small"
+      [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
+      [outlined]="true"
+      [ngClass]="{ 'nosrc' : !fetchedMetadata[field.fetchedKey] }"
+      class="arrow-button"
+      [severity]="isValueChanged(field.controlName) ? 'warn' : null"
+      [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
+      (onClick)="isValueChanged(field.controlName) ? resetField(field.controlName) : copyFetchedToCurrent(field.controlName)"
+    />
+  } @else {
+    <p-button
+      size="small"
+      icon="pi pi-refresh"
+      [outlined]="true"
+      class="arrow-button"
+      severity="warn"
+      [disabled]="!isValueChanged(field.controlName)"
+      (onClick)="resetField(field.controlName)"
+    />
+  }
+</ng-template>
+
+<ng-template #stringField let-field="field" let-isComparison="isComparison">
+  <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
+    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
+      <input pInputText pSize="small" [fluid]="true" id="{{field.controlName}}" [formControlName]="field.controlName"
+             class="dest" [ngClass]="{ 'changed': isValueChanged(field.controlName) }"/>
+      
+      <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
+
+      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+        <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
+               [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #dateField let-field="field" let-isComparison="isComparison">
+  <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
+    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
+      <p-datepicker
+        size="small" [fluid]="true" inputId="{{field.controlName}}" [formControlName]="field.controlName"
+        dataType="string" dateFormat="yy-mm-dd" [keepInvalid]="true" [showIcon]="true" [iconDisplay]="'input'"
+        appendTo="body" class="dest" [class.full-width]="!isComparison" [ngClass]="{ 'changed': isValueChanged(field.controlName) }">
+      </p-datepicker>
+
+      <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
+
+      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+        <input pSize="small" pInputText [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
+               [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #chipsField let-field="field" let-isComparison="isComparison">
+  <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
+    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
+      @if (field.controlName === 'authors') {
+        <div class="author-chips-container dest full-width"
+             cdkDropList cdkDropListOrientation="mixed"
+             (cdkDropListDropped)="dropAuthor($event)"
+             [ngClass]="{ 'changed': isValueChanged('authors') }">
+          @for (author of metadataForm.get('authors')!.value; track $index) {
+            <span class="author-chip" [class.main-author]="$index === 0" cdkDrag>
+              @if ($index === 0) { <span class="main-author-badge">m</span> }
+              {{ author }}
+              <i class="pi pi-times author-chip-remove" role="button" tabindex="0" (click)="removeAuthor($index)" (keydown.enter)="removeAuthor($index)"></i>
+            </span>
+          }
+          <p-autoComplete class="author-add-input" [(ngModel)]="authorInputValue" [ngModelOptions]="{ standalone: true }"
+                          size="small" [forceSelection]="false" [dropdown]="false" (onKeyUp)="onAuthorInputKeyUp($event)"
+                          (onSelect)="onAuthorInputSelect($event)" placeholder="Add author..."/>
+        </div>
+      } @else {
+        <p-autoComplete
+          size="small" [formControlName]="field.controlName" [multiple]="true" [typeahead]="false" [dropdown]="false"
+          [forceSelection]="false" class="dest full-width" [ngClass]="{ 'changed': isValueChanged(field.controlName) }"
+          (onBlur)="onAutoCompleteBlur(field.controlName, $event)"/>
+      }
+
+      <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
+
+      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+        <p-autoComplete
+          size="small" [ngModel]="fetchedMetadata[field.fetchedKey] ?? []" [ngModelOptions]="{standalone:true}"
+          [disabled]="true" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false"
+          class="src full-width" [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"/>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #textareaField let-field="field" let-isComparison="isComparison">
+  <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'" [formGroup]="metadataForm">
+    <label for="{{field.controlName}}" class="field-label" [class.field-label-fixed]="!isComparison">{{ field.label }}</label>
+    <div [class.meta-fields]="isComparison" [class.field-input-row]="!isComparison">
+      <textarea pTextarea rows="4" pSize="small" [fluid]="!isComparison" id="{{field.controlName}}" [formControlName]="field.controlName"
+                class="dest" [ngClass]="{ 'changed': isValueChanged(field.controlName) }"></textarea>
+      
+      <ng-container *ngTemplateOutlet="fieldAction; context: { field, isComparison }"></ng-container>
+
+      @if (isComparison && fetchedMetadata[field.fetchedKey]) {
+        <textarea pTextarea rows="4" pSize="small" [value]="fetchedMetadata[field.fetchedKey] ?? null" class="src" disabled
+                  [ngClass]="{ 'diff': isFetchedDifferent(field.controlName) }"></textarea>
+      }
+    </div>
+  </div>
+</ng-template>
 </ng-container>
