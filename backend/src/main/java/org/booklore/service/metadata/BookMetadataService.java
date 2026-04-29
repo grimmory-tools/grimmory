@@ -44,7 +44,6 @@ import org.booklore.model.dto.request.IsbnLookupRequest;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -207,7 +206,7 @@ public class BookMetadataService {
                 .peek(book -> book.getMetadata().applyLockToAllFields(lock))
                 .toList();
         bookRepository.saveAll(books);
-        return books.stream().map(b -> bookMetadataMapper.toBookMetadata(b.getMetadata(), false)).collect(Collectors.toList());
+        return books.stream().map(b -> bookMetadataMapper.toBookMetadata(b.getMetadata(), false)).toList();
     }
 
     public BookMetadata getComicInfoMetadata(long bookId) {

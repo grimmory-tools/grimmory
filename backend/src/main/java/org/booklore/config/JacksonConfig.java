@@ -8,7 +8,6 @@ import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.ValueSerializerModifier;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Jackson configuration for Komga API clean mode.
@@ -32,8 +31,8 @@ public class JacksonConfig {
                                     List<BeanPropertyWriter> beanProperties) {
 
                                 return beanProperties.stream()
-                                    .map(KomgaCleanBeanPropertyWriter::new)
-                                    .collect(Collectors.toList());
+                                    .<BeanPropertyWriter>map(KomgaCleanBeanPropertyWriter::new)
+                                    .toList();
                             }
                         })
                 )

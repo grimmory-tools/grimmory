@@ -1,0 +1,54 @@
+{
+  "error": "OK",
+  "limit": 10,
+  "offset": 0,
+  "number_of_page_results": 7,
+  "number_of_total_results": 7,
+  "status_code": 1,
+  "results": [
+    {
+      "aliases": null,
+      "api_detail_url": "https://comicvine.gamespot.com/api/volume/4050-60593/",
+      "count_of_issues": 1,
+      "date_added": "2013-04-30 06:57:41",
+      "date_last_updated": "2013-07-29 01:39:39",
+      "deck": null,
+      "description": "<p>Australian graphic novel.</p>",
+      "first_issue": {
+        "api_detail_url": "https://comicvine.gamespot.com/api/issue/4000-400275/",
+        "id": 400275,
+        "name": null,
+        "issue_number": "1"
+      },
+      "id": 60593,
+      "image": {
+        "icon_url": "https://comicvine.gamespot.com/a/uploads/square_avatar/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "medium_url": "https://comicvine.gamespot.com/a/uploads/scale_medium/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "screen_url": "https://comicvine.gamespot.com/a/uploads/screen_medium/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "screen_large_url": "https://comicvine.gamespot.com/a/uploads/screen_kubrick/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "small_url": "https://comicvine.gamespot.com/a/uploads/scale_small/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "super_url": "https://comicvine.gamespot.com/a/uploads/scale_large/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "thumb_url": "https://comicvine.gamespot.com/a/uploads/scale_avatar/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "tiny_url": "https://comicvine.gamespot.com/a/uploads/square_mini/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "original_url": "https://comicvine.gamespot.com/a/uploads/original/14/149950/3016256-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+        "image_tags": "All Images"
+      },
+      "last_issue": {
+        "api_detail_url": "https://comicvine.gamespot.com/api/issue/4000-400275/",
+        "id": 400275,
+        "name": null,
+        "issue_number": "1"
+      },
+      "name": "The Example",
+      "publisher": {
+        "api_detail_url": "https://comicvine.gamespot.com/api/publisher/4010-3027/",
+        "id": 3027,
+        "name": "Gestalt Comics"
+      },
+      "site_detail_url": "https://comicvine.gamespot.com/the-example/4050-60593/",
+      "start_year": "2009",
+      "resource_type": "volume"
+    }
+  ],
+  "version": "1.0"
+}

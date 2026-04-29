@@ -110,13 +110,6 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedBookIds = new Set(this.preselectedBookIds);
       this.syncSelectedBooks();
     }
-
-    const wrapperElements = this.elementRef.nativeElement.querySelectorAll('.p-virtualscroller');
-    wrapperElements.forEach((wrapperElement: Element) => {
-      if (wrapperElement instanceof HTMLElement) {
-        wrapperElement.style.height = 'calc(100dvh - 160px)';
-      }
-    });
   }
 
   private syncSelectedBooks(): void {

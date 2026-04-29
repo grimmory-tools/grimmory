@@ -24,6 +24,7 @@ import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
@@ -59,7 +60,7 @@ class BookMetadataServiceTest {
     @Mock private NotificationService notificationService;
     @Mock private BookMetadataRepository bookMetadataRepository;
     @Mock private BookQueryService bookQueryService;
-    @Mock private org.booklore.service.audit.AuditService auditService;
+    @Mock private AuditService auditService;
     @Mock private CbxMetadataExtractor cbxMetadataExtractor;
     @Mock private MetadataExtractorFactory metadataExtractorFactory;
     @Mock private MetadataClearFlagsMapper metadataClearFlagsMapper;

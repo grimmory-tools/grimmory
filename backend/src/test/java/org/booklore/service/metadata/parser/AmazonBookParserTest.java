@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -191,5 +192,30 @@ public class AmazonBookParserTest {
         amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
 
         mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/SEARCHASIN"));
+    }
+
+    @Test
+    public void fetchTopMetadata_cleansLineBreaks() throws Exception {
+        String fakePageHtml = """
+        <html><body>
+        <div class="product-description">
+        <br /><br   ><br><div>Hello</div><br /><br /><br><div>World</div><br /><br   ><br>
+        </div>
+        </body></html>
+        """;
+
+        mockAmazonIDSearch("Example");
+        mockJsoupConnect(
+                "https://www.amazon.com/dp/SEARCHASIN", fakePageHtml);
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
+
+        mockJsoup.when(() -> Jsoup.parse(anyString())).thenCallRealMethod();
+
+        BookMetadata metadata = amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        String actual = metadata.getDescription().replace("\n", "");
+        assertEquals("<div>Hello</div><br><br><div>World</div>", actual);
     }
 }
