@@ -271,22 +271,13 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: var(--overlay-background);
       border-radius: 3px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: var(--border-color);
       border-radius: 3px;
       transition: background 0.2s ease;
-
-      &:hover {
-        background: var(--primary-color);
-      }
     }
-
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) var(--overlay-background);
 
     .file-item-card {
       display: flex;

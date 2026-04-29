@@ -122,12 +122,7 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 15%);
     border-radius: 3px;
-
-    &:hover {
-      background: rgb(255 255 255 / 25%);
-    }
   }
 }
 

@@ -104,15 +104,12 @@
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 
   &::-webkit-scrollbar {
     width: 12px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(20 20 30 / 50%);
     border-radius: 10px;
   }
 

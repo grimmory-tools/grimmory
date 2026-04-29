@@ -13,8 +13,6 @@
   padding: 0.5rem;
   gap: 1rem;
   width: 100%;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
 }
 
 .dashboard-scroller-infinite::-webkit-scrollbar {
@@ -22,16 +20,13 @@
 }
 
 .dashboard-scroller-infinite::-webkit-scrollbar-track {
-  background: transparent;
 }
 
 .dashboard-scroller-infinite::-webkit-scrollbar-thumb {
-  background: var(--border-color);
   border-radius: 4px;
 }
 
 .dashboard-scroller-infinite::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary-color);
 }
 
 .dashboard-scroller-card {

@@ -59,7 +59,7 @@ $transition-fast: 150ms ease;
     background: rgb(255 255 255 / 2%);
     border-bottom: 1px solid $border-color;
     flex-shrink: 0;
-    
+
     .sidebar-title {
       font-size: 11px;
       font-weight: 700;
@@ -119,7 +119,7 @@ $transition-fast: 150ms ease;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -139,7 +139,7 @@ $transition-fast: 150ms ease;
 
   &.active {
     color: $active-color;
-    
+
     &::after {
       background: $active-color;
       box-shadow: 0 -4px 10px rgb(59 130 246 / 40%);
@@ -179,12 +179,7 @@ $transition-fast: 150ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 15%);
     border-radius: 10px;
-    
-    &:hover {
-      background: rgb(255 255 255 / 25%);
-    }
   }
 }
 
@@ -278,7 +273,7 @@ $transition-fast: 150ms ease;
       flex-shrink: 0;
       align-self: stretch;
     }
-    
+
     .item-content {
       padding: 2px 0;
     }
@@ -401,7 +396,7 @@ $transition-fast: 150ms ease;
   .sidebar-overlay {
     background: rgb(0 0 0 / 20%);
   }
-  
+
   .sidebar {
     background: $sidebar-bg-light;
     color: $text-primary-light;
@@ -411,7 +406,7 @@ $transition-fast: 150ms ease;
     .sidebar-header {
       background: rgb(0 0 0 / 1%);
       border-bottom-color: $border-color-light;
-      
+
       .sidebar-title {
         color: $text-muted-light;
       }
@@ -459,20 +454,12 @@ $transition-fast: 150ms ease;
   .item-title {
     color: $text-primary-light;
   }
-  
+
   .item-meta {
     color: $text-muted-light;
   }
 
   .highlight-text {
     color: $text-secondary-light;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    background: rgb(0 0 0 / 10%);
-
-    &:hover {
-      background: rgb(0 0 0 / 20%);
-    }
   }
 }

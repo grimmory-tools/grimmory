@@ -8,12 +8,8 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(20 20 30 / 50%);
     border-radius: 10px;
   }
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 }
 
 @media (width <= 768px) {

@@ -115,17 +115,11 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--ground-background);
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
     border-radius: 4px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
   }
 }
 
@@ -363,17 +357,11 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--ground-background);
     border-radius: 2px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
     border-radius: 2px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
   }
 }
 
