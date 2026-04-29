@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -31,6 +32,11 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 val useLocalLibs = providers.gradleProperty("useLocalLibs").isPresent
+val mainSourceSet = the<SourceSetContainer>()["main"]
+val openApiOutputDir = layout.buildDirectory.dir("openapi")
+val openApiOutputFile = openApiOutputDir.map { it.file("grimmory-openapi.json") }
+val openApiLogFile = openApiOutputDir.map { it.file("export-openapi.log") }
+val openApiExportScript = layout.projectDirectory.file("scripts/export-openapi.sh")
 
 repositories {
     if (useLocalLibs) mavenLocal()
@@ -89,6 +95,8 @@ configurations {
         extendsFrom(configurations.annotationProcessor.get())
     }
 }
+
+val openApiExportRuntimeOnly by configurations.creating
 
 dependencies {
     // --- Spring Boot ---
@@ -187,6 +195,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testRuntimeOnly("com.h2database:h2")
+    add(openApiExportRuntimeOnly.name, "com.h2database:h2")
 
     // PDFBox for test PDF creation only (production code uses PDFium4j)
     testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
@@ -238,4 +247,44 @@ tasks.named<BootRun>("bootRun") {
 
 tasks.named<BootJar>("bootJar") {
     mainClass.set("org.booklore.BookloreApplication")
+}
+
+tasks.register("exportOpenApi") {
+    group = "documentation"
+    description = "Boot the backend with the openapi-export profile and write build/openapi/grimmory-openapi.json."
+    dependsOn(tasks.named("classes"))
+    inputs.files(mainSourceSet.runtimeClasspath, openApiExportRuntimeOnly, openApiExportScript)
+    outputs.file(openApiOutputFile)
+
+    doLast {
+        val outputFile = openApiOutputFile.get().asFile
+        val logFile = openApiLogFile.get().asFile
+        val classpath = files(mainSourceSet.runtimeClasspath, openApiExportRuntimeOnly).asPath
+        val javaExecutable = javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(25))
+        }.get().executablePath.asFile.absolutePath
+
+        val result = ProcessBuilder(
+            "bash",
+            openApiExportScript.asFile.absolutePath,
+            javaExecutable,
+            classpath,
+            outputFile.absolutePath
+        )
+            .directory(project.projectDir)
+            .inheritIO()
+            .apply {
+                environment()["OPENAPI_EXPORT_LOG_FILE"] = logFile.absolutePath
+            }
+            .start()
+
+        val exitCode = result.waitFor()
+        check(exitCode == 0) { "OpenAPI export script failed with exit code $exitCode. See ${logFile.absolutePath}." }
+    }
+}
+
+tasks.register("buildOpenApiArtifacts") {
+    group = "build"
+    description = "Build the backend jar and export build/openapi/grimmory-openapi.json from the openapi-export profile."
+    dependsOn(tasks.named("bootJar"), tasks.named("exportOpenApi"))
 }

@@ -133,6 +133,28 @@ jobs:
             type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
 
+  export-openapi:
+    name: Export Nightly OpenAPI Artifact
+    needs: [resolve_ref, test-suite, build-and-push]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Export OpenAPI JSON
+        uses: ./.github/actions/export-openapi
+        with:
+          checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+          app_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
+
+      - name: Upload Nightly OpenAPI Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: nightly-openapi-${{ needs.resolve_ref.outputs.nightly_tag }}
+          path: backend/build/openapi/grimmory-openapi.json
+          retention-days: 30
+
   generate-notes:
     name: Nightly Changelog
     if: ${{ always() && needs.test-suite.result == 'success' }}
@@ -165,8 +187,8 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.generate-notes.outputs.predicted_version != '' }}
-    needs: [resolve_ref, build-and-push, generate-notes]
+    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.predicted_version != '' }}
+    needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
