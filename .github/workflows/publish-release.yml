@@ -172,6 +172,7 @@ jobs:
     needs:
       - prepare-release-notification
     if: ${{ needs.prepare-release-notification.outputs.available == 'true' }}
+      - publish-helm-chart
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
