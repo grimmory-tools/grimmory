@@ -33,10 +33,10 @@ import {RxStompService} from '../../../../shared/websocket/rx-stomp.service';
 })
 export class WantedBooksComponent implements OnInit, OnDestroy {
 
-  private acquisitionService = inject(AcquisitionService);
-  private messageService = inject(MessageService);
-  private rxStompService = inject(RxStompService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly acquisitionService = inject(AcquisitionService);
+  private readonly messageService = inject(MessageService);
+  private readonly rxStompService = inject(RxStompService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   wantedBooks: WantedBook[] = [];
   loading = false;

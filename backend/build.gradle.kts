@@ -111,13 +111,15 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql:12.4.0")
 
     // --- Security & Authentication ---
-    implementation("io.jsonwebtoken:jjwt-api:0.13.0")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    val jjwtVersion = "0.13.0"
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
     // --- Lombok (For Clean Code) ---
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    val lombokVersion = "1.18.46"
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
     // --- Book & Image Processing ---
     val pdfium4jVersion = if (useLocalLibs) "+" else "0.16.0"
@@ -148,8 +150,9 @@ dependencies {
     implementation("org.jsoup:jsoup:1.22.2")
 
     // --- Mapping (DTOs & Entities) ---
-    implementation("org.mapstruct:mapstruct:1.6.3")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+    val mapstructVersion = "1.6.3"
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 
     // --- API Documentation ---
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3")

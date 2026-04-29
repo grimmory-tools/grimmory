@@ -27,9 +27,9 @@ import {AcquisitionService, AddToWantedRequest, BookSearchResult} from '../../..
 })
 export class BookDiscoveryComponent implements OnInit, OnDestroy {
 
-  private acquisitionService = inject(AcquisitionService);
-  private messageService = inject(MessageService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly acquisitionService = inject(AcquisitionService);
+  private readonly messageService = inject(MessageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   searchQuery = '';
   isIsbnSearch = false;
@@ -41,7 +41,7 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
   addingIds = new Set<string>();
   currentPage = 0;
   hasMore = false;
-  private pageCache = new Map<string, BookSearchResult[]>();
+  private readonly pageCache = new Map<string, BookSearchResult[]>();
   private prefetchSub?: Subscription;
 
   ngOnDestroy(): void {

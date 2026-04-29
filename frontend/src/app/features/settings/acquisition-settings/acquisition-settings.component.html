@@ -24,11 +24,11 @@
         <p-table [value]="indexers">
           <ng-template pTemplate="header">
             <tr>
-              <th>Name</th>
-              <th>URL</th>
-              <th style="width:80px;">Priority</th>
-              <th style="width:80px;">Enabled</th>
-              <th style="width:200px;">Actions</th>
+              <th scope="col">Name</th>
+              <th scope="col">URL</th>
+              <th scope="col" style="width:80px;">Priority</th>
+              <th scope="col" style="width:80px;">Enabled</th>
+              <th scope="col" style="width:200px;">Actions</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-indexer>
@@ -90,12 +90,12 @@
         <p-table [value]="clients">
           <ng-template pTemplate="header">
             <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>URL</th>
-              <th>Category</th>
-              <th style="width:80px;">Enabled</th>
-              <th style="width:200px;">Actions</th>
+              <th scope="col">Name</th>
+              <th scope="col">Type</th>
+              <th scope="col">URL</th>
+              <th scope="col">Category</th>
+              <th scope="col" style="width:80px;">Enabled</th>
+              <th scope="col" style="width:200px;">Actions</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-client>
@@ -140,7 +140,7 @@
 
 <p-dialog [header]="isEditIndexer ? 'Edit Indexer' : 'Add Indexer'"
           [(visible)]="showIndexerDialog" [modal]="true" [style]="{width: '480px'}">
-  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+  <table role="presentation" style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
     <colgroup>
       <col style="width:5.5rem;">
       <col>
@@ -211,7 +211,7 @@
 
 <p-dialog [header]="isEditClient ? 'Edit Client' : 'Add Client'"
           [(visible)]="showClientDialog" [modal]="true" [style]="{width: '480px'}">
-  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+  <table role="presentation" style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
     <colgroup>
       <col style="width:5.5rem;">
       <col>

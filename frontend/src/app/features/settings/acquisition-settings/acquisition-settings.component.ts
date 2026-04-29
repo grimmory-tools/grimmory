@@ -30,9 +30,9 @@ import {AcquisitionService, DownloadClient, Indexer} from '../../../core/service
 })
 export class AcquisitionSettingsComponent implements OnInit {
 
-  private acquisitionService = inject(AcquisitionService);
-  private messageService = inject(MessageService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly acquisitionService = inject(AcquisitionService);
+  private readonly messageService = inject(MessageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   indexers: Indexer[] = [];
   clients: DownloadClient[] = [];

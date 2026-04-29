@@ -76,8 +76,8 @@ export interface AddToWantedRequest {
 
 @Injectable({providedIn: 'root'})
 export class AcquisitionService {
-  private http = inject(HttpClient);
-  private baseUrl = `${API_CONFIG.BASE_URL}/api/v1/acquisition`;
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/acquisition`;
 
   getIndexers(): Observable<Indexer[]> {
     return this.http.get<Indexer[]>(`${this.baseUrl}/indexers`);

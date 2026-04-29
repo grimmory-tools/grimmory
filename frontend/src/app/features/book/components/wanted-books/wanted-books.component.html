@@ -22,13 +22,13 @@
   <p-table [value]="wantedBooks" [loading]="loading">
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:40px;"></th>
-        <th style="width:60px;">Cover</th>
-        <th>Title</th>
-        <th>Author</th>
-        <th style="width:160px;">Status</th>
-        <th style="width:170px;">Last Checked</th>
-        <th style="width:160px;">Actions</th>
+        <th scope="col" style="width:40px;"></th>
+        <th scope="col" style="width:60px;">Cover</th>
+        <th scope="col">Title</th>
+        <th scope="col">Author</th>
+        <th scope="col" style="width:160px;">Status</th>
+        <th scope="col" style="width:170px;">Last Checked</th>
+        <th scope="col" style="width:160px;">Actions</th>
       </tr>
     </ng-template>
 
@@ -104,10 +104,10 @@
               <table class="w-full text-sm">
                 <thead>
                   <tr class="text-muted-color">
-                    <th class="text-left pb-1">NZB Title</th>
-                    <th class="text-center pb-1" style="width:100px;">Confidence</th>
-                    <th class="text-center pb-1" style="width:100px;">Status</th>
-                    <th class="text-right pb-1" style="width:160px;">Attempted</th>
+                    <th scope="col" class="text-left pb-1">NZB Title</th>
+                    <th scope="col" class="text-center pb-1" style="width:100px;">Confidence</th>
+                    <th scope="col" class="text-center pb-1" style="width:100px;">Status</th>
+                    <th scope="col" class="text-right pb-1" style="width:160px;">Attempted</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -140,7 +140,7 @@
 </div>
 
 <p-dialog header="Manual Add to Wanted" [(visible)]="showManualAddDialog" [modal]="true" [style]="{width: '480px'}">
-  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+  <table role="presentation" style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
     <colgroup>
       <col style="width:5.5rem;">
       <col>
