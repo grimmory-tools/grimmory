@@ -64,10 +64,40 @@ jobs:
             type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
 
+  export-openapi:
+    name: Export Stable OpenAPI Artifact
+    needs:
+      - build-and-release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Export OpenAPI JSON
+        uses: ./.github/actions/export-openapi
+        with:
+          checkout_ref: ${{ github.sha }}
+          app_version: ${{ github.event.release.tag_name }}
+
+      - name: Upload OpenAPI Workflow Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: stable-openapi-${{ github.event.release.tag_name }}
+          path: backend/build/openapi/grimmory-openapi.json
+          retention-days: 30
+
+      - name: Attach OpenAPI JSON to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" backend/build/openapi/grimmory-openapi.json --clobber
+
   prepare-release-notification:
     name: Prepare Stable Release Notification
     needs:
       - build-and-release
+      - export-openapi
     runs-on: ubuntu-latest
 
     outputs:

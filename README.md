@@ -206,6 +206,9 @@ When enabled via `API_DOCS_ENABLED`, API reference documentation is available as
 - API reference docs are available at `http://localhost:6060/api/docs`
 - OpenAPI JSON is available at `http://localhost:6060/api/openapi.json`
 
+Stable releases also publish a downloadable OpenAPI artifact at:
+- `https://github.com/grimmory-tools/grimmory/releases/latest/download/grimmory-openapi.json`
+
 ---
 
 ## BookDrop
