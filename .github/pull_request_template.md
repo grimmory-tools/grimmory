@@ -59,7 +59,7 @@ Paste test commands and output summary here.
 
 - [ ] This PR links and implements an accepted issue.
 - [ ] This PR is scoped to a single focused change.
-- [ ] I ran the relevant tests locally and filled out the testing section with my outputs.
+- [ ] I have run the relevant tests and filled out the testing section with my outputs.
 - [ ] I added screenshots above if there were any UI changes.
 - [ ] I disclosed my AI usage above.
 - [ ] I understand all of submitted changes.
