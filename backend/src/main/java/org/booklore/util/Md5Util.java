@@ -16,7 +16,7 @@ public class Md5Util {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(32);
             for (byte b : digest) {
                 sb.append(String.format("%02x", b));
             }

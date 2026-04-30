@@ -291,7 +291,7 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
     }
 
     private String extractTextFromElement(Element element) {
-        StringBuilder text = new StringBuilder();
+        StringBuilder text = new StringBuilder(1024);
         NodeList children = element.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {

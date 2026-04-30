@@ -121,7 +121,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         MetadataCopyHelper helper = new MetadataCopyHelper(entity);
 
         // --- PDF Info Dictionary (legacy) via PDFium4j ---
-        StringBuilder keywordsBuilder = new StringBuilder();
+        StringBuilder keywordsBuilder = new StringBuilder(256);
         helper.copyCategories(clear != null && clear.isCategories(), cats -> {
             if (cats != null && !cats.isEmpty()) {
                 keywordsBuilder.append(String.join("; ", cats));
@@ -321,7 +321,7 @@ public class PdfMetadataWriter implements MetadataWriter {
      * insert them as a separate rdf:Description block before &lt;/rdf:RDF&gt;.
      */
     private String injectBagElements(String xmpPacket, MetadataCopyHelper helper, MetadataClearFlags clear) {
-        StringBuilder bags = new StringBuilder();
+        StringBuilder bags = new StringBuilder(512);
 
         helper.copyTags(clear != null && clear.isTags(), tags -> {
             if (tags != null && !tags.isEmpty()) appendBagXml(bags, "tags", tags);

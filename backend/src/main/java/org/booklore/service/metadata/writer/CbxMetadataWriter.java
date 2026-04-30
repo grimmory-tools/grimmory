@@ -246,7 +246,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         info.setWeb(primaryUrl);
 
         // Notes - Custom Metadata
-        StringBuilder notesBuilder = new StringBuilder();
+        StringBuilder notesBuilder = new StringBuilder(1024);
         String existingNotes = info.getNotes();
         
         // Preserve existing notes that don't start with [BookLore

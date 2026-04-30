@@ -1168,7 +1168,7 @@ public class AppBookService {
     }
 
     private String buildScopeClause(String libraryClause, String shelfClause, String magicBookClause) {
-        var sb = new StringBuilder();
+        var sb = new StringBuilder(128);
         if (!libraryClause.isEmpty()) sb.append(" ").append(libraryClause);
         if (!shelfClause.isEmpty()) sb.append(" ").append(shelfClause);
         if (!magicBookClause.isEmpty()) sb.append(" ").append(magicBookClause);

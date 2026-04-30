@@ -354,7 +354,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
             pb.redirectErrorStream(true);
 
             Process process = pb.start();
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new StringBuilder(4096);
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;

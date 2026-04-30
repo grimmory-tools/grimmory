@@ -509,7 +509,7 @@ public class GoogleParser implements BookParser {
 
     private String truncateToMaxWords(String input) {
         String[] words = WHITESPACE_PATTERN.split(input);
-        StringBuilder truncated = new StringBuilder();
+        StringBuilder truncated = new StringBuilder(60);
 
         for (String word : words) {
             if (truncated.length() + word.length() + 1 > MAX_SEARCH_TERM_LENGTH) {
