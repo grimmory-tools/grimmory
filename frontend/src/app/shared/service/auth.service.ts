@@ -143,7 +143,7 @@ export class AuthService {
     } catch (e) {
       // Invalid URL or unsupported scheme, fall back to root
       console.error('resolveUrl failed:', e);
-      return '/';
+      return new URL('.', document.baseURI).href;
     }
   }
 
