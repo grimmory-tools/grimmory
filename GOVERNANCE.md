@@ -15,7 +15,6 @@
   - [Official Voting](#official-voting)
   - [Examples](#examples)
   - [Recording Decisions](#recording-decisions)
-- [Releases](#releases)
 - [Code of Conduct](#code-of-conduct)
 - [Amendments to This Document](#amendments-to-this-document)
 - [License](#license)
@@ -129,12 +128,6 @@ Examples of how this works in practice:
 Simple operational decisions may be proposed, discussed, and recorded in Discord when that is the most practical venue.
 
 Larger or longer-lived decisions - including governance changes, significant technical direction, membership decisions, and other choices worth preserving for future reference - should be clarified and recorded in GitHub, whether in a Discussion, an Issue, a pull request, or another project document kept in the repository.
-
----
-
-## Releases
-
-Releases are proposed by any Maintainer and proceed by lazy consensus under the process described in [Decision Making](#decision-making). A release proposal should include a summary of changes, a proposed version number following the project's versioning convention, and a reasonable timeframe for feedback. If quorum is present and no `-1` vote is raised, the proposing Maintainer may cut the release without a formal vote.
 
 ---
 
