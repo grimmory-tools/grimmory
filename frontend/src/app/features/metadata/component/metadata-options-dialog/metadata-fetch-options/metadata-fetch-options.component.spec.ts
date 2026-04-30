@@ -52,6 +52,7 @@ describe('MetadataFetchOptionsComponent', () => {
     });
 
     const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    component.ngOnInit();
 
     expect(component.libraryId).toBe(7);
     expect(component.bookIds).toEqual([1, 2]);
@@ -79,6 +80,7 @@ describe('MetadataFetchOptionsComponent', () => {
     });
 
     const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    component.ngOnInit();
     const options: MetadataRefreshOptions = {
       libraryId: 7,
       refreshCovers: false,

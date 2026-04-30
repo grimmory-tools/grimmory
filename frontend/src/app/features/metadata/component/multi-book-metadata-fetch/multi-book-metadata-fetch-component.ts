@@ -19,9 +19,10 @@ import {Button} from 'primeng/button';
   imports: [MetadataFetchOptionsComponent, FormsModule, Button],
 })
 export class MultiBookMetadataFetchComponent {
-  bookIds!: number[];
+  bookIds: number[] = [];
+  libraryId: number | null = null;
   booksToShow: Book[] = [];
-  metadataRefreshType!: MetadataRefreshType;
+  metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
 
   private dynamicDialogConfig = inject(DynamicDialogConfig);
@@ -31,8 +32,10 @@ export class MultiBookMetadataFetchComponent {
   expanded = false;
 
   constructor() {
-    this.bookIds = this.dynamicDialogConfig.data.bookIds;
-    this.metadataRefreshType = this.dynamicDialogConfig.data.metadataRefreshType;
+    const data = this.dynamicDialogConfig.data ?? {};
+    this.bookIds = data.bookIds ?? [];
+    this.libraryId = data.libraryId ?? null;
+    this.metadataRefreshType = data.metadataRefreshType ?? MetadataRefreshType.BOOKS;
     this.booksToShow = this.bookService.getBooksByIds(this.bookIds);
 
     effect(() => {
@@ -41,5 +44,9 @@ export class MultiBookMetadataFetchComponent {
         this.currentMetadataOptions = settings.defaultMetadataRefreshOptions;
       }
     });
+  }
+
+  get isLibraryRefresh(): boolean {
+    return this.metadataRefreshType === MetadataRefreshType.LIBRARY;
   }
 }

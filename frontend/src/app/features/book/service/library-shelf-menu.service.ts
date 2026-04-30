@@ -111,7 +111,13 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
             icon: 'pi pi-sync',
             command: () => {
-              this.dialogLauncherService.openLibraryMetadataFetchDialog((entity?.id as number));
+              if (!entity?.id) {
+                return;
+              }
+              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                metadataRefreshType: MetadataRefreshType.LIBRARY,
+                libraryId: entity.id
+              });
             }
           },
           {
