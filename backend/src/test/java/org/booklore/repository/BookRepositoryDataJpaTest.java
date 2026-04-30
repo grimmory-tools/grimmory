@@ -8,6 +8,8 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.mock;
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-        "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+        "spring.datasource.url=jdbc:h2:mem:book_repo_jpa_test_db;DB_CLOSE_DELAY=-1",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
@@ -49,6 +51,7 @@ import static org.mockito.Mockito.mock;
         "spring.jpa.properties.hibernate.enable_lazy_load_no_trans=false"
 })
 @Import(BookRepositoryDataJpaTest.TestConfig.class)
+@Execution(ExecutionMode.SAME_THREAD)
 class BookRepositoryDataJpaTest {
 
     @Autowired
@@ -120,7 +123,7 @@ class BookRepositoryDataJpaTest {
 
         entityManager.clear();
 
-        Optional<BookEntity> result = bookRepository.findByIdForKoboDownload(1L);
+        Optional<BookEntity> result = bookRepository.findByIdForKoboDownload(book.getId());
 
         TestTransaction.end();
 

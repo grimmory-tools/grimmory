@@ -9,6 +9,7 @@ import org.booklore.model.enums.TaskType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ class TaskHistoryServiceTest {
         if (mocks != null) {
             mocks.close();
         }
+        taskHistoryService.setVisibilityFilter(null); // Reset to default
     }
 
     @Test
@@ -266,7 +268,6 @@ class TaskHistoryServiceTest {
 
     @Test
     void testGetLatestTasksForEachType_allTypesHidden() {
-        List<TaskType> hiddenTypes = Arrays.asList(TaskType.values());
         TaskHistoryEntity dummyTask = TaskHistoryEntity.builder()
                 .id("dummy")
                 .type(TaskType.CLEANUP_DELETED_BOOKS)
@@ -276,14 +277,8 @@ class TaskHistoryServiceTest {
                 .build();
         when(taskHistoryRepository.findLatestTaskForEachType()).thenReturn(Collections.singletonList(dummyTask));
 
-        hiddenTypes.forEach(type -> {
-            try {
-                java.lang.reflect.Field field = TaskType.class.getDeclaredField("hiddenFromUI");
-                field.setAccessible(true);
-                field.set(type, true);
-            } catch (Exception ignored) {
-            }
-        });
+        // Use the new filter to hide everything without mutating the enum
+        taskHistoryService.setVisibilityFilter(type -> false);
 
         TasksHistoryResponse response = taskHistoryService.getLatestTasksForEachType();
         assertNotNull(response);

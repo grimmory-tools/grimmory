@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
 
@@ -25,6 +26,13 @@ public class TaskHistoryService {
 
     private final TaskHistoryRepository taskHistoryRepository;
     private final AuditService auditService;
+    private static final Predicate<TaskType> DEFAULT_VISIBILITY_FILTER = type -> !type.isHiddenFromUI();
+    private volatile Predicate<TaskType> visibilityFilter = DEFAULT_VISIBILITY_FILTER;
+
+    /** Visible for testing. Tests must reset to the default in {@code @AfterEach}. */
+    void setVisibilityFilter(Predicate<TaskType> visibilityFilter) {
+        this.visibilityFilter = visibilityFilter != null ? visibilityFilter : DEFAULT_VISIBILITY_FILTER;
+    }
 
     @Transactional
     public void createTask(String taskId, TaskType type, Long userId, Map<String, Object> options) {
@@ -130,7 +138,7 @@ public class TaskHistoryService {
         List<TasksHistoryResponse.TaskHistory> allTasks = new ArrayList<>();
 
         for (TaskType taskType : TaskType.values()) {
-            if (taskType.isHiddenFromUI()) {
+            if (!visibilityFilter.test(taskType)) {
                 continue;
             }
 

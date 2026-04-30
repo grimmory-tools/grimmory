@@ -11,6 +11,7 @@ import org.booklore.model.enums.TaskType;
 import org.booklore.task.TaskCancellationManager;
 import org.booklore.task.TaskStatus;
 import org.booklore.task.tasks.Task;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,13 @@ class TaskServiceTest {
                 objectMapper,
                 taskScheduler
         );
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (taskService != null) {
+            taskService.setVisibilityFilter(null);
+        }
     }
 
     @Test
