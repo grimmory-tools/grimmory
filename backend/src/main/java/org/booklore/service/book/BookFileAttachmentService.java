@@ -125,10 +125,43 @@ public class BookFileAttachmentService {
                 } else {
                     Path sourceLibraryRoot = Paths.get(sourceBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
                     for (BookFileEntity file : bookFormatFiles) {
-                        Path fileDir = sourceLibraryRoot.resolve(file.getFileSubPath()).normalize();
-                        String newSubPath = fileDir.equals(targetLibraryRoot)
-                                ? ""
-                                : targetLibraryRoot.relativize(fileDir).toString();
+                        Path subPath = Paths.get(file.getFileSubPath());
+                        if (subPath.isAbsolute()) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Absolute sub-path not allowed for file id " + file.getId());
+                        }
+                        Path fileDir = sourceLibraryRoot.resolve(subPath).normalize();
+                        // Derive the relative subpath from the source root, then apply it to the target root.
+                        final Path relativeSubPath;
+                        try {
+                            relativeSubPath = sourceLibraryRoot.relativize(fileDir);
+                        } catch (IllegalArgumentException e) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file sub-path for file id " + file.getId() + ": " + file.getFileSubPath());
+                        }
+                        if (relativeSubPath.startsWith("..") || relativeSubPath.isAbsolute()) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Disallowed source file sub-path traversal for file id " + file.getId());
+                        }
+                        // Verify the full target file path stays within target root
+                        final Path fileNamePath;
+                        try {
+                            fileNamePath = Paths.get(file.getFileName());
+                        } catch (IllegalArgumentException e) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file name for file id " + file.getId());
+                        }
+                        if (fileNamePath.isAbsolute() || fileNamePath.getNameCount() != 1) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file name for file id " + file.getId());
+                        }
+
+                        String newSubPath = relativeSubPath.toString();
+                        Path targetFilePath = targetLibraryRoot.resolve(relativeSubPath).resolve(fileNamePath).normalize();
+                        if (!targetFilePath.startsWith(targetLibraryRoot)) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Resolved path escapes target library root for file id " + file.getId());
+                        }
                         bookFileRepository.reassignFileToBookWithPath(targetBook.getId(), newSubPath, file.getId());
                     }
                 }
