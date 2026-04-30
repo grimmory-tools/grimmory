@@ -1,7 +1,7 @@
 import {Component, effect, EventEmitter, inject, Input, Output} from '@angular/core';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
-import {NgClass} from '@angular/common';
+import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {Tooltip} from 'primeng/tooltip';
 import {InputText} from 'primeng/inputtext';
 import {BookMetadata} from '../../../book/model/book.model';
@@ -10,7 +10,7 @@ import {Textarea} from 'primeng/textarea';
 import {AutoComplete} from 'primeng/autocomplete';
 import {Image} from 'primeng/image';
 import {LazyLoadImageModule} from 'ng-lazyload-image';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 import {AutoCompleteSelectEvent} from 'primeng/autocomplete';
 import {DatePicker} from 'primeng/datepicker';
@@ -19,6 +19,8 @@ import {MetadataUtilsService} from '../../../../shared/metadata';
 import {MetadataProviderSpecificFields} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {BookdropService} from '../../service/bookdrop.service';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-bookdrop-file-metadata-picker-component',
@@ -28,6 +30,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Tooltip,
     InputText,
     NgClass,
+    NgTemplateOutlet,
     FormsModule,
     Textarea,
     AutoComplete,
@@ -48,6 +51,8 @@ export class BookdropFileMetadataPickerComponent {
   protected readonly urlHelper = inject(UrlHelperService);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  private readonly bookdropService = inject(BookdropService);
+  private readonly messageService = inject(MessageService);
 
   @Input() fetchedMetadata!: BookMetadata;
   @Input() originalMetadata?: BookMetadata;
@@ -57,6 +62,9 @@ export class BookdropFileMetadataPickerComponent {
   @Input() bookdropFileId!: number;
 
   @Output() metadataCopied = new EventEmitter<boolean>();
+  @Output() metadataRefetched = new EventEmitter<BookMetadata>();
+
+  refetching = false;
 
   authorInputValue = '';
 
@@ -218,5 +226,42 @@ export class BookdropFileMetadataPickerComponent {
     }
     this.copiedFields = {};
     this.metadataCopied.emit(false);
+  }
+
+  refetchOnline(): void {
+    this.refetching = true;
+    const manualMetadata: BookMetadata = this.metadataForm.value;
+    
+    this.bookdropService.refetchMetadata(this.bookdropFileId, manualMetadata)
+      .pipe(finalize(() => this.refetching = false))
+      .subscribe({
+        next: (updatedFile) => {
+          if (updatedFile.fetchedMetadata?.title) {
+            this.fetchedMetadata = updatedFile.fetchedMetadata;
+            Object.keys(this.copiedFields).forEach(key => delete this.copiedFields[key]);
+            this.metadataCopied.emit(false);
+            this.metadataRefetched.emit(updatedFile.fetchedMetadata);
+            this.messageService.add({
+              severity: 'success',
+              summary: this.t.translate('bookdrop.metadataPicker.refetchSuccessSummary'),
+              detail: this.t.translate('bookdrop.metadataPicker.refetchSuccessDetail')
+            });
+          } else {
+            this.messageService.add({
+              severity: 'warn',
+              summary: this.t.translate('bookdrop.metadataPicker.refetchNoResultsSummary'),
+              detail: this.t.translate('bookdrop.metadataPicker.refetchNoResultsDetail')
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error refetching metadata:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('bookdrop.metadataPicker.refetchFailedSummary'),
+            detail: this.t.translate('bookdrop.metadataPicker.refetchFailedDetail')
+          });
+        }
+      });
   }
 }

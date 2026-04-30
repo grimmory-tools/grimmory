@@ -10,6 +10,7 @@ import org.booklore.model.enums.MetadataProvider;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.bookdrop.BookdropMetadataService;
+import org.booklore.service.bookdrop.BookdropMetadataPersistenceService;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.EpubMetadataExtractor;
@@ -58,6 +59,8 @@ class BookdropMetadataServiceTest {
     private FileService fileService;
     @Mock
     private MetadataExtractorFactory metadataExtractorFactory;
+    @Mock
+    private BookdropMetadataPersistenceService persistenceService;
 
     @InjectMocks
     private BookdropMetadataService bookdropMetadataService;
@@ -102,7 +105,6 @@ class BookdropMetadataServiceTest {
         AppSettings settings = new AppSettings();
         BookMetadata fetched = BookMetadata.builder().title("New Title").build();
 
-        when(bookdropFileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
         when(appSettingService.getAppSettings()).thenReturn(settings);
         when(metadataRefreshService.prepareProviders(any())).thenReturn(List.of());
@@ -110,12 +112,16 @@ class BookdropMetadataServiceTest {
         when(metadataRefreshService.fetchMetadataForBook(any(), any(Book.class))).thenReturn(Map.of());
         when(metadataRefreshService.buildFetchMetadata(any(), any(), any(), any())).thenReturn(fetched);
         when(objectMapper.writeValueAsString(fetched)).thenReturn("{\"title\":\"New Title\"}");
+        when(persistenceService.saveRefetchedMetadata(any(), any(), any())).thenAnswer(invocation -> {
+            BookdropFileEntity e = invocation.getArgument(0);
+            e.setFetchedMetadata(invocation.getArgument(1));
+            return e;
+        });
 
         BookdropFileEntity result = bookdropMetadataService.attachFetchedMetadata(1L);
 
         assertThat(result.getFetchedMetadata()).contains("New Title");
         assertThat(result.getStatus()).isEqualTo(PENDING_REVIEW);
-        verify(bookdropFileRepository).save(result);
     }
 
     @Test
@@ -200,13 +206,16 @@ class BookdropMetadataServiceTest {
         when(metadataRefreshService.fetchMetadataForBook(any(), any(Book.class))).thenReturn(Map.of());
         when(metadataRefreshService.buildFetchMetadata(any(), any(), any(), any())).thenReturn(fetched);
         when(objectMapper.writeValueAsString(fetched)).thenReturn("{\"title\":\"Fetched Book\"}");
-        when(bookdropFileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(persistenceService.saveRefetchedMetadata(any(), any(), any())).thenAnswer(invocation -> {
+            BookdropFileEntity e = invocation.getArgument(0);
+            e.setFetchedMetadata(invocation.getArgument(1));
+            return e;
+        });
 
         BookdropFileEntity result = bookdropMetadataService.attachFetchedMetadata(1L);
 
         assertThat(result.getFetchedMetadata()).contains("Fetched Book");
         assertThat(result.getStatus()).isEqualTo(PENDING_REVIEW);
-        verify(bookdropFileRepository).save(result);
     }
 
     @Test
@@ -214,12 +223,12 @@ class BookdropMetadataServiceTest {
         sampleFile.setOriginalMetadata("{invalidJson}");
 
         when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
-        when(appSettingService.getAppSettings()).thenReturn(new AppSettings());
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class)))
                 .thenThrow(new JacksonException("Invalid JSON") {
                 });
 
         assertThatThrownBy(() -> bookdropMetadataService.attachFetchedMetadata(1L))
-                .isInstanceOf(JacksonException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasCauseInstanceOf(JacksonException.class);
     }
 }

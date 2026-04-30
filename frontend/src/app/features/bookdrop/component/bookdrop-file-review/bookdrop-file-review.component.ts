@@ -257,6 +257,14 @@ export class BookdropFileReviewComponent implements OnInit {
     this.copiedFlags[fileId] = copied;
   }
 
+  onMetadataRefetched(fileId: number, fetchedMetadata: BookMetadata): void {
+    const cached = this.fileUiCache[fileId];
+    if (cached) {
+      cached.file.fetchedMetadata = fetchedMetadata;
+      this.copiedFlags[fileId] = false;
+    }
+  }
+
   applyLibraryDefaults(): void {
     if (!this.defaultLibraryId || !this.libraries) return;
 

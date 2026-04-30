@@ -14,6 +14,7 @@ import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
+import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ public class BookdropMetadataService {
     private final MetadataExtractorFactory metadataExtractorFactory;
     private final MetadataRefreshService metadataRefreshService;
     private final FileService fileService;
+    private final BookdropMetadataPersistenceService persistenceService;
 
     @Transactional
     public BookdropFileEntity attachInitialMetadata(Long bookdropFileId) throws JacksonException {
@@ -64,45 +66,55 @@ public class BookdropMetadataService {
         return bookdropFileRepository.save(entity);
     }
 
-    @Transactional
-    public BookdropFileEntity attachFetchedMetadata(Long bookdropFileId) throws JacksonException {
+
+    public BookdropFileEntity attachFetchedMetadata(Long bookdropFileId) {
         BookdropFileEntity entity = getOrThrow(bookdropFileId);
+        try {
+            BookMetadata initial = objectMapper.readValue(entity.getOriginalMetadata(), BookMetadata.class);
 
-        AppSettings appSettings = appSettingService.getAppSettings();
+            if (!hasSearchableMetadata(initial, entity)) {
+                log.info("Skipping online metadata fetch for '{}' — no reliable search data (title derived from filename, no ISBN or ASIN).", entity.getFileName());
+                return persistenceService.saveRefetchedMetadata(entity, null, PENDING_REVIEW);
+            }
 
-        MetadataRefreshOptions refreshOptions = appSettings.getDefaultMetadataRefreshOptions();
-
-        BookMetadata initial = objectMapper.readValue(entity.getOriginalMetadata(), BookMetadata.class);
-
-        if (!hasSearchableMetadata(initial, entity)) {
-            log.info("Skipping online metadata fetch for '{}' — no reliable search data (title derived from filename, no ISBN or ASIN).", entity.getFileName());
-            entity.setStatus(PENDING_REVIEW);
-            entity.setUpdatedAt(Instant.now());
-            return bookdropFileRepository.save(entity);
+            String fetchedJson = fetchOnlineMetadata(bookdropFileId, initial);
+            return persistenceService.saveRefetchedMetadata(entity, fetchedJson, PENDING_REVIEW);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Failed to parse/serialize metadata for file " + bookdropFileId, e);
         }
+    }
+
+    public BookdropFileEntity refetchMetadata(Long bookdropFileId, BookMetadata manualMetadata) {
+        BookdropFileEntity entity = getOrThrow(bookdropFileId);
+        try {
+            String fetchedJson = fetchOnlineMetadata(bookdropFileId, manualMetadata);
+            return persistenceService.saveRefetchedMetadata(entity, fetchedJson, null);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Failed to parse/serialize metadata for file " + bookdropFileId, e);
+        }
+    }
+
+    private String fetchOnlineMetadata(Long bookdropFileId, BookMetadata searchMetadata) throws JacksonException {
+        AppSettings appSettings = appSettingService.getAppSettings();
+        MetadataRefreshOptions refreshOptions = appSettings.getDefaultMetadataRefreshOptions();
 
         List<MetadataProvider> providers = metadataRefreshService.prepareProviders(refreshOptions);
         Book book = Book.builder()
-                .metadata(initial)
+                .metadata(searchMetadata)
                 .build();
 
         if (providers.contains(MetadataProvider.GoodReads)) {
             try {
                 Thread.sleep(ThreadLocalRandom.current().nextLong(250, 1250));
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
         }
 
         Map<MetadataProvider, BookMetadata> metadataMap = metadataRefreshService.fetchMetadataForBook(providers, book);
-        BookMetadata fetchedMetadata = metadataRefreshService.buildFetchMetadata(initial, book.getId(), refreshOptions, metadataMap);
-        String fetchedJson = objectMapper.writeValueAsString(fetchedMetadata);
-
-        entity.setFetchedMetadata(fetchedJson);
-        entity.setStatus(PENDING_REVIEW);
-        entity.setUpdatedAt(Instant.now());
-
-        return bookdropFileRepository.save(entity);
+        BookMetadata fetchedMetadata = metadataRefreshService.buildFetchMetadata(searchMetadata, book.getId(), refreshOptions, metadataMap);
+        return objectMapper.writeValueAsString(fetchedMetadata);
     }
 
     private boolean hasSearchableMetadata(BookMetadata metadata, BookdropFileEntity entity) {
@@ -110,9 +122,20 @@ public class BookdropMetadataService {
             return true;
         }
         String title = metadata.getTitle();
+        if (title == null || title.isBlank()) {
+            return false;
+        }
+
         String filenameFallback = FilenameUtils.getBaseName(entity.getFileName());
-        return title != null && !title.isBlank()
-                && !title.strip().equalsIgnoreCase(filenameFallback.strip());
+        
+        // If title is NOT the same as filename, it's definitely searchable (likely from internal metadata)
+        if (!title.strip().equalsIgnoreCase(filenameFallback.strip())) {
+            return true;
+        }
+
+        // If title matches filename, we only skip if it's "junk" (too short or just generic)
+        String cleanedTitle = BookUtils.cleanFileName(entity.getFileName());
+        return cleanedTitle != null && cleanedTitle.length() >= 3;
     }
 
     private boolean hasAnyKnownIdentifier(BookMetadata m) {

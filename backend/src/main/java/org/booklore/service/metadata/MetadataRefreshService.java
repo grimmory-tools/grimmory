@@ -38,9 +38,11 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.booklore.model.enums.MetadataProvider.*;
 
@@ -228,15 +230,7 @@ public class MetadataRefreshService {
     }
 
     public Map<MetadataProvider, BookMetadata> fetchMetadataForBook(List<MetadataProvider> providers, BookEntity bookEntity) {
-        Book book = bookMapper.toBook(bookEntity);
-        return providers.stream()
-                .map(provider -> fetchTopMetadataFromAProvider(provider, book))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(
-                        BookMetadata::getProvider,
-                        metadata -> metadata,
-                        (existing, replacement) -> existing
-                ));
+        return fetchMetadataForBook(providers, bookMapper.toBook(bookEntity));
     }
 
     private void reportProgressIfNeeded(MetadataFetchJobEntity task, String taskId, int completedCount, int total, BookEntity book, boolean isReviewMode) {
@@ -335,38 +329,20 @@ public class MetadataRefreshService {
         Set<MetadataProvider> uniqueProviders = EnumSet.noneOf(MetadataProvider.class);
 
         if (fieldOptions != null) {
-            addProviderToSet(fieldOptions.getTitle(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSubtitle(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getDescription(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAuthors(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPublisher(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPublishedDate(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesName(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesNumber(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesTotal(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getIsbn13(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getIsbn10(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLanguage(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getCategories(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getCover(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPageCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAsin(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getComicvineId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoogleId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLubimyczytacId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAmazonRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAmazonReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLubimyczytacRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getRanobedbId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getRanobedbRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getMoods(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getTags(), uniqueProviders, appSettings);
+            Stream.of(
+                    fieldOptions.getTitle(), fieldOptions.getSubtitle(), fieldOptions.getDescription(),
+                    fieldOptions.getAuthors(), fieldOptions.getPublisher(), fieldOptions.getPublishedDate(),
+                    fieldOptions.getSeriesName(), fieldOptions.getSeriesNumber(), fieldOptions.getSeriesTotal(),
+                    fieldOptions.getIsbn13(), fieldOptions.getIsbn10(), fieldOptions.getLanguage(),
+                    fieldOptions.getCategories(), fieldOptions.getCover(), fieldOptions.getPageCount(),
+                    fieldOptions.getAsin(), fieldOptions.getGoodreadsId(), fieldOptions.getComicvineId(),
+                    fieldOptions.getHardcoverId(), fieldOptions.getGoogleId(), fieldOptions.getLubimyczytacId(),
+                    fieldOptions.getAmazonRating(), fieldOptions.getAmazonReviewCount(),
+                    fieldOptions.getGoodreadsRating(), fieldOptions.getGoodreadsReviewCount(),
+                    fieldOptions.getHardcoverRating(), fieldOptions.getHardcoverReviewCount(),
+                    fieldOptions.getLubimyczytacRating(), fieldOptions.getRanobedbId(),
+                    fieldOptions.getRanobedbRating(), fieldOptions.getMoods(), fieldOptions.getTags()
+            ).filter(Objects::nonNull).forEach(p -> addProviderToSet(p, uniqueProviders, appSettings));
         }
 
         return uniqueProviders;
@@ -374,10 +350,9 @@ public class MetadataRefreshService {
 
     protected void addProviderToSet(MetadataRefreshOptions.FieldProvider fieldProvider, Set<MetadataProvider> providerSet, AppSettings appSettings) {
         if (fieldProvider != null) {
-            if (fieldProvider.getP1() != null && isProviderEnabled(fieldProvider.getP1(), appSettings)) providerSet.add(fieldProvider.getP1());
-            if (fieldProvider.getP2() != null && isProviderEnabled(fieldProvider.getP2(), appSettings)) providerSet.add(fieldProvider.getP2());
-            if (fieldProvider.getP3() != null && isProviderEnabled(fieldProvider.getP3(), appSettings)) providerSet.add(fieldProvider.getP3());
-            if (fieldProvider.getP4() != null && isProviderEnabled(fieldProvider.getP4(), appSettings)) providerSet.add(fieldProvider.getP4());
+            Stream.of(fieldProvider.getP1(), fieldProvider.getP2(), fieldProvider.getP3(), fieldProvider.getP4())
+                    .filter(p -> p != null && isProviderEnabled(p, appSettings))
+                    .forEach(providerSet::add);
         }
     }
 
@@ -426,8 +401,8 @@ public class MetadataRefreshService {
         return FetchMetadataRequest.builder()
                 .isbn(isbn)
                 .asin(metadata.getAsin())
-                .author(metadata.getAuthors() != null ? String.join(", ", metadata.getAuthors()) : null)
-                .title(metadata.getTitle())
+                .author(metadata.getAuthors() != null ? BookUtils.cleanSearchTerm(String.join(", ", metadata.getAuthors())) : null)
+                .title(metadata.getTitle() != null ? BookUtils.cleanSearchTerm(metadata.getTitle()) : null)
                 .bookId(book.getId())
                 .build();
     }
@@ -448,151 +423,29 @@ public class MetadataRefreshService {
         MetadataReplaceMode replaceMode = refreshOptions.getReplaceMode();
         boolean isReplaceAll = replaceMode == MetadataReplaceMode.REPLACE_ALL;
 
-        if (enabledFields.isTitle()) {
-            metadata.setTitle(resolveFieldAsString(metadataMap, fieldOptions.getTitle(), BookMetadata::getTitle));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setTitle(existingMetadata.getTitle());
-        }
-        
-        if (enabledFields.isSubtitle()) {
-            metadata.setSubtitle(resolveFieldAsString(metadataMap, fieldOptions.getSubtitle(), BookMetadata::getSubtitle));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setSubtitle(existingMetadata.getSubtitle());
-        }
-        
-        if (enabledFields.isDescription()) {
-            metadata.setDescription(resolveFieldAsString(metadataMap, fieldOptions.getDescription(), BookMetadata::getDescription));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setDescription(existingMetadata.getDescription());
-        }
-        
-        if (enabledFields.isAuthors()) {
-            metadata.setAuthors(resolveFieldAsList(metadataMap, fieldOptions.getAuthors(), BookMetadata::getAuthors));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setAuthors(existingMetadata.getAuthors());
-        }
-        
-        if (enabledFields.isPublisher()) {
-            metadata.setPublisher(resolveFieldAsString(metadataMap, fieldOptions.getPublisher(), BookMetadata::getPublisher));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setPublisher(existingMetadata.getPublisher());
-        }
-        
-        if (enabledFields.isPublishedDate()) {
-            metadata.setPublishedDate(resolveField(metadataMap, fieldOptions.getPublishedDate(), BookMetadata::getPublishedDate));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setPublishedDate(existingMetadata.getPublishedDate());
-        }
-        
-        if (enabledFields.isSeriesName()) {
-            metadata.setSeriesName(resolveFieldAsString(metadataMap, fieldOptions.getSeriesName(), BookMetadata::getSeriesName));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setSeriesName(existingMetadata.getSeriesName());
-        }
-        
-        if (enabledFields.isSeriesNumber()) {
-            metadata.setSeriesNumber(resolveField(metadataMap, fieldOptions.getSeriesNumber(), BookMetadata::getSeriesNumber));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setSeriesNumber(existingMetadata.getSeriesNumber());
-        }
-        
-        if (enabledFields.isSeriesTotal()) {
-            metadata.setSeriesTotal(resolveFieldAsInteger(metadataMap, fieldOptions.getSeriesTotal(), BookMetadata::getSeriesTotal));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setSeriesTotal(existingMetadata.getSeriesTotal());
-        }
-        
-        if (enabledFields.isIsbn13()) {
-            metadata.setIsbn13(resolveFieldAsString(metadataMap, fieldOptions.getIsbn13(), BookMetadata::getIsbn13));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setIsbn13(existingMetadata.getIsbn13());
-        }
-        
-        if (enabledFields.isIsbn10()) {
-            metadata.setIsbn10(resolveFieldAsString(metadataMap, fieldOptions.getIsbn10(), BookMetadata::getIsbn10));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setIsbn10(existingMetadata.getIsbn10());
-        }
-        
-        if (enabledFields.isLanguage()) {
-            metadata.setLanguage(resolveFieldAsString(metadataMap, fieldOptions.getLanguage(), BookMetadata::getLanguage));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setLanguage(existingMetadata.getLanguage());
-        }
-        
-        if (enabledFields.isPageCount()) {
-            metadata.setPageCount(resolveFieldAsInteger(metadataMap, fieldOptions.getPageCount(), BookMetadata::getPageCount));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setPageCount(existingMetadata.getPageCount());
-        }
-        
-        if (enabledFields.isCover()) {
-            metadata.setThumbnailUrl(resolveFieldAsString(metadataMap, fieldOptions.getCover(), BookMetadata::getThumbnailUrl));
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setThumbnailUrl(existingMetadata.getThumbnailUrl());
-        }
-        if (enabledFields.isAmazonRating()) {
-            if (metadataMap.containsKey(Amazon)) {
-                metadata.setAmazonRating(metadataMap.get(Amazon).getAmazonRating());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setAmazonRating(existingMetadata.getAmazonRating());
-        }
+        applyField(enabledFields.isTitle(), resolveFieldAsString(metadataMap, fieldOptions.getTitle(), BookMetadata::getTitle), metadata::setTitle, isReplaceAll, existingMetadata != null ? existingMetadata.getTitle() : null);
+        applyField(enabledFields.isSubtitle(), resolveFieldAsString(metadataMap, fieldOptions.getSubtitle(), BookMetadata::getSubtitle), metadata::setSubtitle, isReplaceAll, existingMetadata != null ? existingMetadata.getSubtitle() : null);
+        applyField(enabledFields.isDescription(), resolveFieldAsString(metadataMap, fieldOptions.getDescription(), BookMetadata::getDescription), metadata::setDescription, isReplaceAll, existingMetadata != null ? existingMetadata.getDescription() : null);
+        applyField(enabledFields.isAuthors(), resolveFieldAsList(metadataMap, fieldOptions.getAuthors(), BookMetadata::getAuthors), metadata::setAuthors, isReplaceAll, existingMetadata != null ? existingMetadata.getAuthors() : null);
+        applyField(enabledFields.isPublisher(), resolveFieldAsString(metadataMap, fieldOptions.getPublisher(), BookMetadata::getPublisher), metadata::setPublisher, isReplaceAll, existingMetadata != null ? existingMetadata.getPublisher() : null);
+        applyField(enabledFields.isPublishedDate(), resolveField(metadataMap, fieldOptions.getPublishedDate(), BookMetadata::getPublishedDate), metadata::setPublishedDate, isReplaceAll, existingMetadata != null ? existingMetadata.getPublishedDate() : null);
+        applyField(enabledFields.isSeriesName(), resolveFieldAsString(metadataMap, fieldOptions.getSeriesName(), BookMetadata::getSeriesName), metadata::setSeriesName, isReplaceAll, existingMetadata != null ? existingMetadata.getSeriesName() : null);
+        applyField(enabledFields.isSeriesNumber(), resolveField(metadataMap, fieldOptions.getSeriesNumber(), BookMetadata::getSeriesNumber), metadata::setSeriesNumber, isReplaceAll, existingMetadata != null ? existingMetadata.getSeriesNumber() : null);
+        applyField(enabledFields.isSeriesTotal(), resolveFieldAsInteger(metadataMap, fieldOptions.getSeriesTotal(), BookMetadata::getSeriesTotal), metadata::setSeriesTotal, isReplaceAll, existingMetadata != null ? existingMetadata.getSeriesTotal() : null);
+        applyField(enabledFields.isIsbn13(), resolveFieldAsString(metadataMap, fieldOptions.getIsbn13(), BookMetadata::getIsbn13), metadata::setIsbn13, isReplaceAll, existingMetadata != null ? existingMetadata.getIsbn13() : null);
+        applyField(enabledFields.isIsbn10(), resolveFieldAsString(metadataMap, fieldOptions.getIsbn10(), BookMetadata::getIsbn10), metadata::setIsbn10, isReplaceAll, existingMetadata != null ? existingMetadata.getIsbn10() : null);
+        applyField(enabledFields.isLanguage(), resolveFieldAsString(metadataMap, fieldOptions.getLanguage(), BookMetadata::getLanguage), metadata::setLanguage, isReplaceAll, existingMetadata != null ? existingMetadata.getLanguage() : null);
+        applyField(enabledFields.isPageCount(), resolveFieldAsInteger(metadataMap, fieldOptions.getPageCount(), BookMetadata::getPageCount), metadata::setPageCount, isReplaceAll, existingMetadata != null ? existingMetadata.getPageCount() : null);
+        applyField(enabledFields.isCover(), resolveFieldAsString(metadataMap, fieldOptions.getCover(), BookMetadata::getThumbnailUrl), metadata::setThumbnailUrl, isReplaceAll, existingMetadata != null ? existingMetadata.getThumbnailUrl() : null);
 
-        if (enabledFields.isAmazonReviewCount()) {
-            if (metadataMap.containsKey(Amazon)) {
-                metadata.setAmazonReviewCount(metadataMap.get(Amazon).getAmazonReviewCount());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setAmazonReviewCount(existingMetadata.getAmazonReviewCount());
-        }
-
-        if (enabledFields.isGoodreadsRating()) {
-            if (metadataMap.containsKey(GoodReads)) {
-                metadata.setGoodreadsRating(metadataMap.get(GoodReads).getGoodreadsRating());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setGoodreadsRating(existingMetadata.getGoodreadsRating());
-        }
-
-        if (enabledFields.isGoodreadsReviewCount()) {
-            if (metadataMap.containsKey(GoodReads)) {
-                metadata.setGoodreadsReviewCount(metadataMap.get(GoodReads).getGoodreadsReviewCount());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setGoodreadsReviewCount(existingMetadata.getGoodreadsReviewCount());
-        }
-
-        if (enabledFields.isHardcoverRating()) {
-            if (metadataMap.containsKey(Hardcover)) {
-                metadata.setHardcoverRating(metadataMap.get(Hardcover).getHardcoverRating());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setHardcoverRating(existingMetadata.getHardcoverRating());
-        }
-
-        if (enabledFields.isHardcoverReviewCount()) {
-            if (metadataMap.containsKey(Hardcover)) {
-                metadata.setHardcoverReviewCount(metadataMap.get(Hardcover).getHardcoverReviewCount());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setHardcoverReviewCount(existingMetadata.getHardcoverReviewCount());
-        }
-
-        if (enabledFields.isAsin()) {
-            if (metadataMap.containsKey(Amazon)) {
-                metadata.setAsin(metadataMap.get(Amazon).getAsin());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setAsin(existingMetadata.getAsin());
-        }
-        if (enabledFields.isGoodreadsId()) {
-            if (metadataMap.containsKey(GoodReads)) {
-                metadata.setGoodreadsId(metadataMap.get(GoodReads).getGoodreadsId());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setGoodreadsId(existingMetadata.getGoodreadsId());
-        }
+        applyField(enabledFields.isAmazonRating(), metadataMap.containsKey(Amazon) ? metadataMap.get(Amazon).getAmazonRating() : null, metadata::setAmazonRating, isReplaceAll, existingMetadata != null ? existingMetadata.getAmazonRating() : null);
+        applyField(enabledFields.isAmazonReviewCount(), metadataMap.containsKey(Amazon) ? metadataMap.get(Amazon).getAmazonReviewCount() : null, metadata::setAmazonReviewCount, isReplaceAll, existingMetadata != null ? existingMetadata.getAmazonReviewCount() : null);
+        applyField(enabledFields.isGoodreadsRating(), metadataMap.containsKey(GoodReads) ? metadataMap.get(GoodReads).getGoodreadsRating() : null, metadata::setGoodreadsRating, isReplaceAll, existingMetadata != null ? existingMetadata.getGoodreadsRating() : null);
+        applyField(enabledFields.isGoodreadsReviewCount(), metadataMap.containsKey(GoodReads) ? metadataMap.get(GoodReads).getGoodreadsReviewCount() : null, metadata::setGoodreadsReviewCount, isReplaceAll, existingMetadata != null ? existingMetadata.getGoodreadsReviewCount() : null);
+        applyField(enabledFields.isHardcoverRating(), metadataMap.containsKey(Hardcover) ? metadataMap.get(Hardcover).getHardcoverRating() : null, metadata::setHardcoverRating, isReplaceAll, existingMetadata != null ? existingMetadata.getHardcoverRating() : null);
+        applyField(enabledFields.isHardcoverReviewCount(), metadataMap.containsKey(Hardcover) ? metadataMap.get(Hardcover).getHardcoverReviewCount() : null, metadata::setHardcoverReviewCount, isReplaceAll, existingMetadata != null ? existingMetadata.getHardcoverReviewCount() : null);
+        applyField(enabledFields.isAsin(), metadataMap.containsKey(Amazon) ? metadataMap.get(Amazon).getAsin() : null, metadata::setAsin, isReplaceAll, existingMetadata != null ? existingMetadata.getAsin() : null);
+        applyField(enabledFields.isGoodreadsId(), metadataMap.containsKey(GoodReads) ? metadataMap.get(GoodReads).getGoodreadsId() : null, metadata::setGoodreadsId, isReplaceAll, existingMetadata != null ? existingMetadata.getGoodreadsId() : null);
 
         if (enabledFields.isHardcoverId()) {
             if (metadataMap.containsKey(Hardcover)) {
@@ -604,73 +457,19 @@ public class MetadataRefreshService {
             metadata.setHardcoverBookId(existingMetadata.getHardcoverBookId());
         }
 
-        if (enabledFields.isGoogleId()) {
-            if (metadataMap.containsKey(Google)) {
-                metadata.setGoogleId(metadataMap.get(Google).getGoogleId());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setGoogleId(existingMetadata.getGoogleId());
-        }
-
-        if (enabledFields.isComicvineId()) {
-            if (metadataMap.containsKey(Comicvine)) {
-                metadata.setComicvineId(metadataMap.get(Comicvine).getComicvineId());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setComicvineId(existingMetadata.getComicvineId());
-        }
+        applyField(enabledFields.isGoogleId(), metadataMap.containsKey(Google) ? metadataMap.get(Google).getGoogleId() : null, metadata::setGoogleId, isReplaceAll, existingMetadata != null ? existingMetadata.getGoogleId() : null);
+        applyField(enabledFields.isComicvineId(), metadataMap.containsKey(Comicvine) ? metadataMap.get(Comicvine).getComicvineId() : null, metadata::setComicvineId, isReplaceAll, existingMetadata != null ? existingMetadata.getComicvineId() : null);
 
         if (metadataMap.containsKey(Comicvine) && metadataMap.get(Comicvine).getComicMetadata() != null) {
             metadata.setComicMetadata(metadataMap.get(Comicvine).getComicMetadata());
         }
 
-        if (enabledFields.isLubimyczytacId()) {
-            if (metadataMap.containsKey(Lubimyczytac)) {
-                metadata.setLubimyczytacId(metadataMap.get(Lubimyczytac).getLubimyczytacId());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setLubimyczytacId(existingMetadata.getLubimyczytacId());
-        }
-
-        if (enabledFields.isLubimyczytacRating()) {
-            if (metadataMap.containsKey(Lubimyczytac)) {
-                metadata.setLubimyczytacRating(metadataMap.get(Lubimyczytac).getLubimyczytacRating());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setLubimyczytacRating(existingMetadata.getLubimyczytacRating());
-        }
-
-        if (enabledFields.isRanobedbId()) {
-            if (metadataMap.containsKey(Ranobedb)) {
-                metadata.setRanobedbId(metadataMap.get(Ranobedb).getRanobedbId());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setRanobedbId(existingMetadata.getRanobedbId());
-        }
-
-        if (enabledFields.isRanobedbRating()) {
-            if (metadataMap.containsKey(Ranobedb)) {
-                metadata.setRanobedbRating(metadataMap.get(Ranobedb).getRanobedbRating());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setRanobedbRating(existingMetadata.getRanobedbRating());
-        }
-
-        if (enabledFields.isMoods()) {
-            if (metadataMap.containsKey(Hardcover)) {
-                metadata.setMoods(metadataMap.get(Hardcover).getMoods());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setMoods(existingMetadata.getMoods());
-        }
-
-        if (enabledFields.isTags()) {
-            if (metadataMap.containsKey(Hardcover)) {
-                metadata.setTags(metadataMap.get(Hardcover).getTags());
-            }
-        } else if (isReplaceAll && existingMetadata != null) {
-            metadata.setTags(existingMetadata.getTags());
-        }
+        applyField(enabledFields.isLubimyczytacId(), metadataMap.containsKey(Lubimyczytac) ? metadataMap.get(Lubimyczytac).getLubimyczytacId() : null, metadata::setLubimyczytacId, isReplaceAll, existingMetadata != null ? existingMetadata.getLubimyczytacId() : null);
+        applyField(enabledFields.isLubimyczytacRating(), metadataMap.containsKey(Lubimyczytac) ? metadataMap.get(Lubimyczytac).getLubimyczytacRating() : null, metadata::setLubimyczytacRating, isReplaceAll, existingMetadata != null ? existingMetadata.getLubimyczytacRating() : null);
+        applyField(enabledFields.isRanobedbId(), metadataMap.containsKey(Ranobedb) ? metadataMap.get(Ranobedb).getRanobedbId() : null, metadata::setRanobedbId, isReplaceAll, existingMetadata != null ? existingMetadata.getRanobedbId() : null);
+        applyField(enabledFields.isRanobedbRating(), metadataMap.containsKey(Ranobedb) ? metadataMap.get(Ranobedb).getRanobedbRating() : null, metadata::setRanobedbRating, isReplaceAll, existingMetadata != null ? existingMetadata.getRanobedbRating() : null);
+        applyField(enabledFields.isMoods(), metadataMap.containsKey(Hardcover) ? metadataMap.get(Hardcover).getMoods() : null, metadata::setMoods, isReplaceAll, existingMetadata != null ? existingMetadata.getMoods() : null);
+        applyField(enabledFields.isTags(), metadataMap.containsKey(Hardcover) ? metadataMap.get(Hardcover).getTags() : null, metadata::setTags, isReplaceAll, existingMetadata != null ? existingMetadata.getTags() : null);
 
         if (enabledFields.isCategories()) {
             if (refreshOptions.isMergeCategories()) {
@@ -761,6 +560,14 @@ public class MetadataRefreshService {
         }
 
         return metadata;
+    }
+
+    private <T> void applyField(boolean isEnabled, T fetchedValue, Consumer<T> setter, boolean isReplaceAll, T existingValue) {
+        if (isEnabled) {
+            setter.accept(fetchedValue);
+        } else if (isReplaceAll) {
+            setter.accept(existingValue);
+        }
     }
 
     protected <T > T resolveField(Map < MetadataProvider, BookMetadata > metadataMap, MetadataRefreshOptions.FieldProvider fieldProvider, Function < BookMetadata, T > extractor) {
