@@ -3,6 +3,8 @@ package org.booklore.repository;
 import org.booklore.model.dto.*;
 
 import org.booklore.model.entity.ReadingSessionEntity;
+import org.springframework.data.jpa.repository.QueryHints;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,11 +13,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Repository
 public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEntity, Long> {
 
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
     @Query("""
             SELECT rs.startTime
             FROM ReadingSessionEntity rs
@@ -23,7 +28,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
             ORDER BY rs.startTime
             """)
-    List<Instant> findSessionStartTimesByUserAndPeriod(
+    Stream<Instant> findSessionStartTimesByUserAndPeriod(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
             @Param("periodEnd") Instant periodEnd);
@@ -131,6 +136,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("bookId") Long bookId,
             Pageable pageable);
 
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
     @Query("""
             SELECT
                 b.id as bookId,
@@ -149,8 +155,9 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             AND coalesce(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime) IS NOT NULL
             ORDER BY b.id, rs.startTime ASC
             """)
-    List<PageTurnerSessionDto> findPageTurnerSessionsByUser(@Param("userId") Long userId);
+    Stream<PageTurnerSessionDto> findPageTurnerSessionsByUser(@Param("userId") Long userId);
 
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
     @Query("""
             SELECT
                 b.id as bookId,
@@ -166,17 +173,48 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             AND rs.endProgress IS NOT NULL
             ORDER BY b.id, rs.startTime ASC
             """)
-    List<CompletionRaceSessionDto> findCompletionRaceSessionsByUserAndYear(
+    Stream<CompletionRaceSessionDto> findCompletionRaceSessionsByUserAndYear(
             @Param("userId") Long userId,
             @Param("year") int year);
 
+    @Query("""
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
+            FROM ReadingSessionEntity rs
+            WHERE rs.user.id = :userId
+            AND rs.bookType != org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
+            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            ORDER BY rs.startTime
+            """)
+    List<SessionTimestampDto> findReadingSessionTimestampsByUser(
+            @Param("userId") Long userId,
+            @Param("periodStart") Instant periodStart,
+            @Param("periodEnd") Instant periodEnd);
+
+    @Query("""
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
+            FROM ReadingSessionEntity rs
+            WHERE rs.user.id = :userId
+            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
+            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            ORDER BY rs.startTime
+            """)
+    List<SessionTimestampDto> findListeningSessionTimestampsByUser(
+            @Param("userId") Long userId,
+            @Param("periodStart") Instant periodStart,
+            @Param("periodEnd") Instant periodEnd);
+
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
     @Query("""
             SELECT rs.startTime
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             ORDER BY rs.startTime
             """)
-    List<Instant> findAllSessionStartTimesByUser(@Param("userId") Long userId);
+    Stream<Instant> findAllSessionStartTimesByUserStream(@Param("userId") Long userId);
 
     // ========================================================================
     // Listening (audiobook) stats
