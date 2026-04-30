@@ -185,13 +185,28 @@ jobs:
       release_type: ${{ steps.notes.outputs.release_type }}
       released: ${{ steps.notes.outputs.released }}
       to_sha: ${{ steps.notes.outputs.to_sha }}
+      available: ${{ steps.webhook_secrets_check.outputs.available }}
     steps:
+      - name: Check Discord Webhook secrets
+        id: webhook_secrets_check
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK != '' && secrets.DISCORD_NIGHTLY_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          # Check here rather than in the `if`.
+          # Github actions does not support the `secrets` context in `if` blocks.
+          if [[ -n "${DISCORD_WEBHOOK}" ]]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout Workflow Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 1
 
       - name: Build Full Changelog
+        if: ${{ steps.webhook_secrets_available.outputs.available == 'true' }}
         id: notes
         uses: ./.github/actions/compute-release-notes
         with:
@@ -202,7 +217,7 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.predicted_version != '' }}
+    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
     needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml

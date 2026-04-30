@@ -82,11 +82,25 @@ jobs:
     outputs:
       base_tag: ${{ steps.metadata.outputs.base_tag }}
       compare_url: ${{ steps.metadata.outputs.compare_url }}
+      available: ${{ steps.webhook_secrets_check.outputs.available }}
 
     permissions:
       contents: read
 
     steps:
+      - name: Check Discord Webhook secrets
+        id: webhook_secrets_check
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_STABLE_WEBHOOK }}
+        run: |
+          # Check here rather than in the `if`.
+          # Github actions does not support the `secrets` context in `if` blocks.
+          if [[ -n "${DISCORD_WEBHOOK}" ]]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -95,6 +109,7 @@ jobs:
 
       - name: Extract Stable Release Metadata
         id: metadata
+        if: ${{ steps.webhook_secrets_available.outputs.available == 'true' }}
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
@@ -117,6 +132,7 @@ jobs:
     name: Notify Discord Release
     needs:
       - prepare-release-notification
+    if: ${{ needs.prepare-release-notification.outputs.available == 'true' }}
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
