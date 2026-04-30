@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 
 import java.util.Optional;
 
@@ -41,6 +42,8 @@ class ShelfServiceTest {
     private UserRepository userRepository;
     @Mock
     private AuditService auditService;
+    @Mock
+    private CacheManager cacheManager;
 
     @InjectMocks
     private ShelfService shelfService;

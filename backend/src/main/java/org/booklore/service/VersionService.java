@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.ReleaseNote;
 import org.booklore.model.dto.VersionInfo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -31,6 +32,7 @@ public class VersionService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
+    @Cacheable(value = "versionInfo", unless = "#result == null || 'unknown'.equals(#result.latest)")
     public VersionInfo getVersionInfo() {
         String latest = "unknown";
         try {
@@ -41,6 +43,7 @@ public class VersionService {
         return new VersionInfo(appVersion, latest);
     }
 
+    @Cacheable(value = "changelog", key = "#root.target.appVersion", unless = "#result == null")
     public List<ReleaseNote> getChangelogSinceCurrentVersion() {
         return fetchReleaseNotesSince(appVersion);
     }
@@ -93,12 +96,12 @@ public class VersionService {
             }
 
             log.info("Returning {} newer releases", updates.size());
+            return updates;
 
         } catch (Exception e) {
             log.error("Failed to fetch release notes", e);
+            return null;
         }
-
-        return updates;
     }
 
     private boolean isVersionGreater(String version1, String version2) {

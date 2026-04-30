@@ -308,6 +308,18 @@ public class BookService {
         return getBookCover(bookEntity.getId());
     }
 
+    public String getBookCoverHash(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getBookCoverHash)
+                .orElse(null);
+    }
+
+    public String getAudiobookCoverHash(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getAudiobookCoverHash)
+                .orElse(null);
+    }
+
     public Resource getAudiobookThumbnail(long bookId) {
         Path thumbnailPath = Paths.get(fileService.getAudiobookThumbnailFile(bookId));
         try {

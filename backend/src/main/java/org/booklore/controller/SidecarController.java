@@ -8,12 +8,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
+import org.booklore.model.dto.sidecar.SidecarResponse;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.service.metadata.sidecar.SidecarService;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,13 +33,27 @@ public class SidecarController {
     @Operation(summary = "Get sidecar content", description = "Get the content of the sidecar JSON file for a book")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sidecar content returned successfully"),
+            @ApiResponse(responseCode = "304", description = "Not modified"),
             @ApiResponse(responseCode = "404", description = "Book or sidecar file not found")
     })
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/books/{bookId}/sidecar")
-    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId) {
-        Optional<SidecarMetadata> sidecar = sidecarService.getSidecarContent(bookId);
-        return sidecar.map(ResponseEntity::ok)
+    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId, WebRequest request) {
+        SidecarResponse sidecarResponse = sidecarService.getSidecarResponse(bookId);
+        long lastModified = sidecarResponse.getLastModified();
+        if (lastModified == 0L) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String etag = Long.toHexString(lastModified);
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
+
+        return sidecarResponse.getMetadata().map(metadata -> ResponseEntity.ok()
+                        .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
+                        .eTag(etag)
+                        .body(metadata))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

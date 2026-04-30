@@ -223,6 +223,16 @@ public class CbxReaderService {
         }
     }
 
+    public long getLastModified(Long bookId, String bookType) {
+        Path cbxPath = getBookPath(bookId, bookType);
+        try {
+            CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
+            return metadata.lastModified();
+        } catch (IOException e) {
+            return 0L;
+        }
+    }
+
     /**
      * Reads image dimensions for all pages using only image headers (a few KB
      * per page) instead of loading the full image.

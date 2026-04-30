@@ -15,10 +15,24 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("publicSettings", "appSettings");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(
+                "publicSettings",
+                "appSettings",
+                "library-by-id",
+                "libraries-by-user",
+                "shelves-by-user",
+                "shelf-by-id",
+                "authors-by-user",
+                "author-by-name",
+                "author-by-id",
+                "authors-by-book",
+                "recommendations",
+                "versionInfo",
+                "changelog"
+        );
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofHours(24))
-                .maximumSize(100));
+                .maximumSize(1000));
         return cacheManager;
     }
 }

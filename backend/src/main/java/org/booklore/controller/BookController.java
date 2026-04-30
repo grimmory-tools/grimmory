@@ -73,7 +73,9 @@ public class BookController {
             @RequestParam(required = false, defaultValue = "false") boolean withDescription,
             @Parameter(description = "Remove other metadata fields from the response")
             @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
-        return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
     @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated list of books. Supports sorting via 'sort' parameter (e.g. sort=metadata.title,asc).")
