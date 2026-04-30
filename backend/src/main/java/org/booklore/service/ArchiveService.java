@@ -97,7 +97,16 @@ public class ArchiveService {
         lock.lock();
         try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
             if (inputStream != null) {
-                return inputStream.transferTo(outputStream);
+                try {
+                    return inputStream.transferTo(outputStream);
+                } finally {
+                    // For some reason, NightCompress fails with a SIGSEGV if you
+                    // do not read the entirety of the input stream from the zip.
+                    //
+                    // To keep NightCompress happy, we need to exhaust the stream
+                    // before we continue.
+                    inputStream.transferTo(OutputStream.nullOutputStream());
+                }
             }
         } catch (Exception e) {
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
