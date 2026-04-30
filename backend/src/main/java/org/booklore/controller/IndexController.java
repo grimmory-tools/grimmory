@@ -47,7 +47,7 @@ public class IndexController {
         if (manifest != null) {
             return ResponseEntity.ok(manifest);
         }
-        return serveOriginal("static/manifest.webmanifest", MediaType.APPLICATION_JSON);
+        return serveOriginal("static/manifest.webmanifest", MediaType.parseMediaType("application/manifest+json"));
     }
 
     @GetMapping(value = "/ngsw.json", produces = MediaType.APPLICATION_JSON_VALUE)
