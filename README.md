@@ -140,7 +140,7 @@ services:
       - ./books:/books
       - ./bookdrop:/bookdrop
     healthcheck:
-      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
+      test: wget -q -O - "http://localhost:6060$${BASE_PATH:-}/api/v1/healthcheck"
       interval: 60s
       retries: 5
       start_period: 60s
