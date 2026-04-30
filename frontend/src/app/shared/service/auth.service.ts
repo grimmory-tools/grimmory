@@ -118,18 +118,33 @@ export class AuthService {
   }
 
   private resolveUrl(url: string): string {
-    // External URLs (http/https) are used as-is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+    try {
+      const trimmed = url.trim();
+
+      // Reject explicit non-http(s) schemes (e.g. javascript:, data:, ftp:)
+      if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmed) &&
+          !trimmed.startsWith('http://') &&
+          !trimmed.startsWith('https://')) {
+        throw new Error(`Unsupported redirect scheme: ${trimmed}`);
+      }
+
+      // External URLs (http/https) are used as-is
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+        return trimmed;
+      }
+      // Internal paths: resolve relative to document base
+      const base = new URL(document.baseURI);
+      // For paths starting with /, treat them as relative to the base path
+      if (trimmed.startsWith('/')) {
+        return new URL(base.pathname.replace(/\/$/, '') + trimmed, base.origin).href;
+      }
+      // Relative paths: resolve normally
+      return new URL(trimmed, document.baseURI).href;
+    } catch (e) {
+      // Invalid URL or unsupported scheme, fall back to root
+      console.error('resolveUrl failed:', e);
+      return '/';
     }
-    // Internal paths: resolve relative to document base
-    const base = new URL(document.baseURI);
-    // For paths starting with /, treat them as relative to the base path
-    if (url.startsWith('/')) {
-      return new URL(base.pathname.replace(/\/$/, '') + url, base.origin).href;
-    }
-    // Relative paths: resolve normally
-    return new URL(url, document.baseURI).href;
   }
 
   clearSessionOnLoginPage(): void {
