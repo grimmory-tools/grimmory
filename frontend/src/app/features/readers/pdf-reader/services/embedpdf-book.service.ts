@@ -25,6 +25,8 @@ export interface PdfOutlineItem {
   children: PdfOutlineItem[];
 }
 
+export type PdfScrollLayout = 'vertical' | 'horizontal';
+
 @Injectable()
 export class EmbedPdfBookService {
   private zone = inject(NgZone);
@@ -40,6 +42,7 @@ export class EmbedPdfBookService {
   private rotate: RotateCapability | null = null;
   private pan: PanCapability | null = null;
   private i18n: I18nCapability | null = null;
+  private scrollLayout: PdfScrollLayout = 'vertical';
 
   private currentDocumentId: string | null = null;
 
@@ -78,7 +81,6 @@ export class EmbedPdfBookService {
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
     const requestedLocale = localeCode || 'en';
-    const isSmallViewport = window.innerWidth <= 768;
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -122,7 +124,8 @@ export class EmbedPdfBookService {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        defaultImageQuality: isSmallViewport ? 0.85 : 0.92,
+        // Keep book-viewer text crisp across viewport sizes.
+        defaultImageQuality: 0.92,
       },
       tiling: this.getTilingConfig(),
     }) ?? null;
@@ -140,6 +143,7 @@ export class EmbedPdfBookService {
 
     const scrollPlugin = this.registry.getPlugin('scroll');
     this.scroll = scrollPlugin?.provides?.() as ScrollCapability ?? null;
+    this.applyScrollLayout(this.scrollLayout);
 
     const zoomPlugin = this.registry.getPlugin('zoom');
     this.zoom = zoomPlugin?.provides?.() as ZoomCapability ?? null;
@@ -220,6 +224,18 @@ export class EmbedPdfBookService {
 
   setLocale(localeCode: string): void {
     this.applyLocale(localeCode || 'en');
+  }
+
+  setScrollLayout(layout: PdfScrollLayout): void {
+    const page = this.currentPage;
+    this.scrollLayout = layout;
+    this.applyScrollLayout(layout);
+    // Use a short delay to allow the layout engine to recalculate before restoring position
+    setTimeout(() => this.scrollToPage(page, 'instant'), 80);
+  }
+
+  getScrollLayout(): PdfScrollLayout {
+    return this.readScrollLayoutFromPlugin() ?? this.scrollLayout;
   }
 
   scrollToPage(pageNumber: number, behavior: 'instant' | 'smooth' = 'smooth'): void {
@@ -416,6 +432,49 @@ export class EmbedPdfBookService {
     this.i18n.setLocale('en');
   }
 
+  private applyScrollLayout(layout: PdfScrollLayout): void {
+    if (!this.scroll) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const scrollLayoutCap = this.scroll as any;
+
+    if (typeof scrollLayoutCap.setScrollStrategy === 'function') {
+      scrollLayoutCap.setScrollStrategy(layout);
+      return;
+    }
+
+    if (typeof scrollLayoutCap.setScrollMode === 'function') {
+      scrollLayoutCap.setScrollMode(layout);
+      return;
+    }
+
+    if (typeof scrollLayoutCap.setLayoutMode === 'function') {
+      scrollLayoutCap.setLayoutMode(layout);
+    }
+  }
+
+  private readScrollLayoutFromPlugin(): PdfScrollLayout | null {
+    if (!this.scroll) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const scrollLayoutCap = this.scroll as any;
+
+    if (typeof scrollLayoutCap.getScrollStrategy === 'function') {
+      const strategy = scrollLayoutCap.getScrollStrategy();
+      return strategy === 'horizontal' ? 'horizontal' : 'vertical';
+    }
+
+    if (typeof scrollLayoutCap.getScrollMode === 'function') {
+      const mode = scrollLayoutCap.getScrollMode();
+      return mode === 'horizontal' ? 'horizontal' : 'vertical';
+    }
+
+    if (typeof scrollLayoutCap.getLayoutMode === 'function') {
+      const mode = scrollLayoutCap.getLayoutMode();
+      return mode === 'horizontal' ? 'horizontal' : 'vertical';
+    }
+
+    return null;
+  }
+
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
     if (!Array.isArray(items)) return [];
 
@@ -472,10 +531,11 @@ export class EmbedPdfBookService {
     const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
 
-    // On small screens, we CAP the DPR at 2.0.
+    // On small screens, enforce DPR 2.0 to avoid low-DPR blur while still
+    // avoiding the memory spikes caused by very high DPR values.
     // Modern phones often have DPR 3.0+, which combined with annotation layers
     // exceeds the browser's texture memory budget, leading to "emergency" downsampling (blurriness).
-    const targetDpr = isSmallViewport ? Math.min(currentDpr, 2) : Math.max(currentDpr, 2.5);
+    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
 
     if (currentDpr !== targetDpr) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -497,7 +557,7 @@ export class EmbedPdfBookService {
   private getTilingConfig(): {tileSize: number; overlapPx: number; extraRings: number} {
     const isSmallViewport = window.innerWidth <= 768;
     return isSmallViewport
-      ? {tileSize: 512, overlapPx: 2, extraRings: 0}
+      ? {tileSize: 640, overlapPx: 2, extraRings: 1}
       : {tileSize: 1024, overlapPx: 2, extraRings: 1};
   }
 
@@ -643,6 +703,15 @@ export class EmbedPdfBookService {
       style.textContent = `
         /* ── Grimmory book-mode overrides ── */
 
+        /* Center PDF content vertically and horizontally when smaller than viewport */
+        [class*="bg-bg-app"] {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        [class*="bg-bg-app"] > * {
+          margin: auto !important;
+        }
+
         /* Force high-quality image rendering for PDF tiles */
         img {
           image-rendering: high-quality;
@@ -674,23 +743,19 @@ export class EmbedPdfBookService {
         }
 
         /* Hide the built-in footer/status bar */
-        [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"] {
+        [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"],
+        [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"],
+        [role="contentinfo"],
+        [data-epdf-i*="footer"],
+        [data-epdf-i*="status"],
+        [class*="fixed"][class*="bottom-0"][class*="inset-x-0"],
+        [class*="sticky"][class*="bottom-0"],
+        [class*="bottom-0"][class*="border-t"],
+        [class*="bottom-0"][class*="bg-bg-surface"] {
           display: none !important;
         }
 
-        /* Hide bottom notification / popup bar */
-        [class*="fixed"][class*="bottom-"],
-        [class*="absolute"][class*="bottom-"],
-        [class*="snackbar"],
-        [class*="toast"],
-        [class*="notification"],
-        [class*="bottom-bar"],
-        [class*="status-bar"],
-        [class*="statusbar"],
-        footer,
-        [class*="footer"] {
-          display: none !important;
-        }
+        /* Keep viewer popups/menus visible; only hide explicit file controls. */
 
         /* Hide open/close document buttons */
         [data-epdf-i="open-document"],

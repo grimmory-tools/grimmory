@@ -306,6 +306,7 @@ export interface MetadataUpdateWrapper {
 export interface PdfViewerSetting {
   zoom: string;
   spread: 'none' | 'even' | 'odd';
+  scrollLayout?: 'vertical' | 'horizontal';
   isDarkTheme?: boolean;
 }
 

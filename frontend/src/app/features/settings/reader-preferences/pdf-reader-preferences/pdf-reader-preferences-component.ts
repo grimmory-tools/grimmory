@@ -33,6 +33,11 @@ export class PdfReaderPreferencesComponent {
     {name: 'Actual Size', key: 'page-actual', icon: 'pi pi-expand', translationKey: 'actualSize'}
   ];
 
+  readonly scrollLayouts: {name: string; key: 'vertical' | 'horizontal'; icon: string; translationKey: string}[] = [
+    {name: 'Vertical', key: 'vertical', icon: 'pi pi-arrows-v', translationKey: 'vertical'},
+    {name: 'Horizontal', key: 'horizontal', icon: 'pi pi-arrows-h', translationKey: 'horizontal'}
+  ];
+
   get selectedSpread(): 'even' | 'odd' | 'off' {
     return this.userSettings.pdfReaderSetting.pageSpread;
   }
@@ -49,5 +54,14 @@ export class PdfReaderPreferencesComponent {
   set selectedZoom(value: string) {
     this.userSettings.pdfReaderSetting.pageZoom = value;
     this.readerPreferencesService.updatePreference(['pdfReaderSetting', 'pageZoom'], value);
+  }
+
+  get selectedScrollLayout(): 'vertical' | 'horizontal' {
+    return this.userSettings.pdfReaderSetting.scrollLayout || 'vertical';
+  }
+
+  set selectedScrollLayout(value: 'vertical' | 'horizontal') {
+    this.userSettings.pdfReaderSetting.scrollLayout = value;
+    this.readerPreferencesService.updatePreference(['pdfReaderSetting', 'scrollLayout'], value);
   }
 }
