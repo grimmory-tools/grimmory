@@ -173,7 +173,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations")
 
     // --- Caching ---
-    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
 
     // --- Test Dependencies ---
