@@ -50,7 +50,7 @@ Maintainers may:
 - Triage issues/discussions and manage the repository
 - Cast binding votes on project decisions and direction (see [Decision Making](#decision-making))
 
-**How to become a Maintainer:** Maintainers are invited - they do not apply or self-nominate. Any Core Maintainer may propose inviting a Contributor by raising it in a private thread among all Maintainers. The proposal is discussed using the process described in [Decision Making](#decision-making). Only after consensus is reached is the Contributor approached with an invitation. The outcome is not announced publicly without the invitee's acceptance.
+**How to become a Maintainer:** Maintainers are invited - they do not apply or self-nominate. Any Maintainer may propose inviting a Contributor by raising it in a private thread among all Maintainers. The proposal is discussed using the process described in [Decision Making](#decision-making). Only after consensus is reached is the Contributor approached with an invitation. The outcome is not announced publicly without the invitee's acceptance.
 
 ### Core Maintainer
 
