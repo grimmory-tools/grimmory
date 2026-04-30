@@ -206,7 +206,7 @@ jobs:
           fetch-depth: 1
 
       - name: Build Full Changelog
-        if: ${{ steps.webhook_secrets_available.outputs.available == 'true' }}
+        if: ${{ steps.webhook_secrets_check.outputs.available == 'true' }}
         id: notes
         uses: ./.github/actions/compute-release-notes
         with:

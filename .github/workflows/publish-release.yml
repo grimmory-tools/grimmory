@@ -109,7 +109,7 @@ jobs:
 
       - name: Extract Stable Release Metadata
         id: metadata
-        if: ${{ steps.webhook_secrets_available.outputs.available == 'true' }}
+        if: ${{ steps.webhook_secrets_check.outputs.available == 'true' }}
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
