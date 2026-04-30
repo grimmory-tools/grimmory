@@ -32,12 +32,20 @@ server:
     min-response-size: 1024
   tomcat:
     relaxed-query-chars: '[,],%,{,},|'
+    mbeanregistry:
+      enabled: false               # Saves memory by not registering Tomcat internals in JMX
+    max-connections: 100           # Saves memory on socket buffers
+    accept-count: 10
     threads:
-      max: 10                      # Virtual threads handle concurrency; platform threads just overhead
+      max: 10                       # Virtual threads handle concurrency; platform threads just overhead
       min-spare: 2
   max-http-request-header-size: 64KB
 
 spring:
+  main:
+    lazy-initialization: true
+  jmx:
+    enabled: false                 # Major Metaspace/Heap saver
   jackson:
     deserialization:
       fail-on-null-for-primitives: false
@@ -53,6 +61,9 @@ spring:
   application:
     name: booklore-api
   data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred   # Speeds up startup and lowers peak memory during init
     web:
       pageable:
         max-page-size: 100
