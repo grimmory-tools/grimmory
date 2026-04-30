@@ -23,7 +23,7 @@ Environment=DATABASE_USERNAME=grimmory
 # For subpath reverse proxy deployments (e.g. mydomain.com/grimmory), uncomment:
 # Environment=BASE_PATH=/grimmory
 # Note: If using BASE_PATH, update HealthCmd to include the path
-HealthCmd=wget -q -O - http://localhost:6060${BASE_PATH:-}/api/v1/healthcheck
+HealthCmd=wget -q -O - http://localhost:6060${BASE_PATH%/}/api/v1/healthcheck
 HealthInterval=1m
 HealthRetries=5
 HealthStartPeriod=1m
