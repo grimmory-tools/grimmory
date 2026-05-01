@@ -25,10 +25,25 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             SELECT rs.startTime
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
+            AND rs.bookType != org.booklore.model.enums.BookFileType.AUDIOBOOK
             AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
             ORDER BY rs.startTime
             """)
-    Stream<Instant> findSessionStartTimesByUserAndPeriod(
+    Stream<Instant> findReadingSessionStartTimesByUserAndPeriod(
+            @Param("userId") Long userId,
+            @Param("periodStart") Instant periodStart,
+            @Param("periodEnd") Instant periodEnd);
+
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
+    @Query("""
+            SELECT rs.startTime
+            FROM ReadingSessionEntity rs
+            WHERE rs.user.id = :userId
+            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
+            ORDER BY rs.startTime
+            """)
+    Stream<Instant> findListeningSessionStartTimesByUserAndPeriod(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
             @Param("periodEnd") Instant periodEnd);
@@ -212,9 +227,20 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             SELECT rs.startTime
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
+            AND rs.bookType != org.booklore.model.enums.BookFileType.AUDIOBOOK
             ORDER BY rs.startTime
             """)
-    Stream<Instant> findAllSessionStartTimesByUser(@Param("userId") Long userId);
+    Stream<Instant> findAllReadingSessionStartTimesByUser(@Param("userId") Long userId);
+
+    @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
+    @Query("""
+            SELECT rs.startTime
+            FROM ReadingSessionEntity rs
+            WHERE rs.user.id = :userId
+            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            ORDER BY rs.startTime
+            """)
+    Stream<Instant> findAllListeningSessionStartTimesByUser(@Param("userId") Long userId);
 
     // ========================================================================
     // Listening (audiobook) stats
