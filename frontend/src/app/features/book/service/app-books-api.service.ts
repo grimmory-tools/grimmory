@@ -11,7 +11,7 @@ import {
   AppFilterOptions,
   AppPageResponse,
 } from '../model/app-book.model';
-import {Book, BookType, ReadStatus} from '../model/book.model';
+import {Book, BookFile, BookType, ReadStatus} from '../model/book.model';
 
 const PAGE_SIZE = 50;
 
@@ -62,16 +62,6 @@ export class AppBooksApiService {
     const data = this.booksQuery.data();
     if (!data) return [];
     return data.pages.flatMap(page => page.content.map(summaryToBook));
-  }, {
-    equal: (a, b) => {
-      if (a.length !== b.length) return false;
-      for (let i = 0; i < a.length; i++) {
-        if (a[i].id !== b[i].id) return false;
-        if (a[i].metadata?.coverUpdatedOn !== b[i].metadata?.coverUpdatedOn) return false;
-        if (a[i].metadata?.audiobookCoverUpdatedOn !== b[i].metadata?.audiobookCoverUpdatedOn) return false;
-      }
-      return true;
-    }
   });
 
   readonly totalElements = computed(() => {
@@ -249,18 +239,35 @@ function summaryToBook(summary: AppBookSummary): Book {
       bookId: summary.id,
       title: summary.title,
       authors: summary.authors ?? [],
+      publisher: summary.publisher ?? undefined,
       seriesName: summary.seriesName,
       seriesNumber: summary.seriesNumber,
+      categories: summary.categories ?? [],
+      tags: summary.tags ?? [],
+      moods: summary.moods ?? [],
+      language: summary.language ?? undefined,
+      narrator: summary.narrator ?? undefined,
+      isbn13: summary.isbn13 ?? undefined,
+      isbn10: summary.isbn10 ?? undefined,
       coverUpdatedOn: summary.coverUpdatedOn,
       audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
       publishedDate: summary.publishedDate ?? undefined,
       pageCount: summary.pageCount,
       ageRating: summary.ageRating,
       contentRating: summary.contentRating,
+      amazonRating: summary.amazonRating,
+      amazonReviewCount: summary.amazonReviewCount,
+      goodreadsRating: summary.goodreadsRating,
+      goodreadsReviewCount: summary.goodreadsReviewCount,
+      hardcoverRating: summary.hardcoverRating,
+      hardcoverReviewCount: summary.hardcoverReviewCount,
+      ranobedbRating: summary.ranobedbRating,
+      lubimyczytacRating: summary.lubimyczytacRating,
+      audibleRating: summary.audibleRating,
+      audibleReviewCount: summary.audibleReviewCount,
+      allMetadataLocked: summary.allMetadataLocked ?? false,
     },
-    primaryFile: summary.primaryFileType
-      ? {bookType: summary.primaryFileType as BookType, extension: summary.primaryFileType.toLowerCase()}
-      : null,
+    primaryFile: summaryToPrimaryFile(summary),
     pdfProgress: summary.readProgress != null
       ? {page: 0, percentage: summary.readProgress}
       : null,
@@ -268,4 +275,34 @@ function summaryToBook(summary: AppBookSummary): Book {
     cbxProgress: null,
     shelves: [],
   } as unknown as Book;
+}
+
+function summaryToPrimaryFile(summary: AppBookSummary): Partial<BookFile> | null {
+  if (!summary.primaryFileType) return null;
+
+  const primaryFile: Partial<BookFile> = {
+    bookId: summary.id,
+    bookType: summary.primaryFileType as BookType,
+    extension: summaryToPrimaryFileExtension(summary),
+    fileSizeKb: summary.fileSizeKb ?? undefined,
+    fileName: summary.primaryFileName ?? undefined,
+  };
+
+  if (summary.primaryFileId != null) {
+    primaryFile.id = summary.primaryFileId;
+  }
+
+  return primaryFile;
+}
+
+function summaryToPrimaryFileExtension(summary: AppBookSummary): string | undefined {
+  const fileName = summary.primaryFileName;
+  if (fileName) {
+    const dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex >= 0 && dotIndex < fileName.length - 1) {
+      return fileName.slice(dotIndex + 1).toLowerCase();
+    }
+  }
+
+  return summary.primaryFileType?.toLowerCase() || undefined;
 }
