@@ -281,7 +281,7 @@
 
       &.fit-width {
         overflow-y: auto;
-        align-items: flex-start;
+        align-items: stretch;
         touch-action: pan-y;
 
         .pages-wrapper,
@@ -298,7 +298,9 @@
 
         &.two-page-view {
           .pages-wrapper {
-            display: block;
+            display: grid;
+            align-content: center;
+            min-height: 100%;
           }
 
           .previous-page-layer,
@@ -333,13 +335,37 @@
         }
 
         &.two-page-view {
+          overflow: auto;
+          align-items: stretch;
+          touch-action: pan-x pan-y;
+
+          .pages-wrapper {
+            display: grid;
+            place-items: center;
+            width: max-content;
+            min-width: 100%;
+            min-height: 100%;
+            height: auto;
+          }
+
+          .previous-page-layer,
+          .current-page-layer {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            width: max-content;
+            height: auto;
+            justify-content: center;
+          }
+
           .page-image {
             width: auto;
-            height: 100%;
-            max-width: calc(50% - 0.5rem);
+            height: calc(100dvh - 1rem);
+            max-width: none;
           }
 
           .single-page-layer {
+            grid-template-columns: max-content;
+
             .page-image {
               max-width: 100%;
             }
@@ -366,6 +392,28 @@
           height: auto;
           max-width: none;
           max-height: none;
+        }
+
+        &.two-page-view {
+          .pages-wrapper {
+            display: block;
+            width: max-content;
+            min-width: 100%;
+            height: max-content;
+          }
+
+          .previous-page-layer,
+          .current-page-layer {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            width: max-content;
+            height: max-content;
+            justify-content: start;
+          }
+
+          .single-page-layer {
+            grid-template-columns: max-content;
+          }
         }
       }
 
