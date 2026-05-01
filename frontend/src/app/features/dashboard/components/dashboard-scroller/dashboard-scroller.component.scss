@@ -79,11 +79,6 @@
   width: 100%;
   position: relative;
   z-index: 2;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .dashboard-scroller-card {

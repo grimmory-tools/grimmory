@@ -91,13 +91,13 @@ public class AppAuthorService {
                             .hasPhoto(authorHasPhoto)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // Post-filter by hasPhoto if requested
         if (hasPhoto != null) {
             summaries = summaries.stream()
                     .filter(s -> s.isHasPhoto() == hasPhoto)
-                    .collect(Collectors.toList());
+                    .toList();
             // Adjust total count for hasPhoto filter — requires a separate count
             long filteredTotal = countAuthorsWithPhotoFilter(accessibleLibraryIds, libraryId, search, hasPhoto);
             return AppPageResponse.of(summaries, pageNum, pageSize, filteredTotal);

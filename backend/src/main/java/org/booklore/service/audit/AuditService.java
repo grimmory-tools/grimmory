@@ -45,7 +45,7 @@ public class AuditService {
             String ipAddress = null;
             try {
                 ipAddress = RequestUtils.getCurrentRequest().getRemoteAddr();
-            } catch (Exception ignored) {
+            } catch (Exception _) {
                 // Non-HTTP context (scheduled tasks, etc.)
             }
 

@@ -100,6 +100,7 @@ They come from `develop` through [`.github/workflows/publish-nightly.yml`](../.g
 
 - `nightly`
 - `nightly-YYYYMMDD-<sha>`
+- `grimmory-openapi.json`
 
 ## Preview Builds
 

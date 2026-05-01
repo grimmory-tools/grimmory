@@ -32,12 +32,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @AllArgsConstructor
 public class AudiobookMetadataExtractor implements FileMetadataExtractor {
 
+    private static final Pattern CHAPTER_PATTERN = Pattern.compile("(?i)^(chp?|chapter)?\\d+$");
+    private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^0-9]");
     private final FfprobeService ffprobeService;
 
     static {
@@ -115,7 +118,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
                     if (yearInt >= 1 && yearInt <= 9999) {
                         builder.publishedDate(LocalDate.of(yearInt, 1, 1));
                     }
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException _) {
                 }
             }
 
@@ -141,7 +144,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
                 try {
                     String trackNum = trackNo.contains("/") ? trackNo.split("/")[0] : trackNo;
                     builder.seriesNumber((float) Integer.parseInt(trackNum.trim()));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException _) {
                 }
             }
 
@@ -149,7 +152,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
             if (StringUtils.isNotBlank(trackTotal)) {
                 try {
                     builder.seriesTotal(Integer.parseInt(trackTotal.trim()));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException _) {
                 }
             }
 
@@ -210,7 +213,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
             return 6;
         }
         try {
-            return Integer.parseInt(channels.replaceAll("[^0-9]", ""));
+            return Integer.parseInt(NON_DIGIT_PATTERN.matcher(channels).replaceAll(""));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -324,11 +327,11 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
         try {
             Object elementId = chapBody.getObjectValue("ElementID");
             if (elementId instanceof String str && StringUtils.isNotBlank(str)) {
-                if (!str.matches("(?i)^(chp?|chapter)?\\d+$")) {
+                if (!CHAPTER_PATTERN.matcher(str).matches()) {
                     return str;
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
 
         return "Chapter " + (index + 1);

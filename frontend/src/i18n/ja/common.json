@@ -22,5 +22,8 @@
   "dismiss": "閉じる",
   "discard": "破棄",
   "review": "確認",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

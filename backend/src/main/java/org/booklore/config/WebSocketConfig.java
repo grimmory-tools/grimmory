@@ -18,12 +18,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*");
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
     private final Environment env;
 
@@ -67,7 +69,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         } else if (allowedOrigins.isEmpty()) {
             log.info("WebSocket endpoint registered at /ws (same-origin only)");
         } else {
-            String[] origins = Arrays.stream(allowedOrigins.split("\\s*,\\s*"))
+            String[] origins = Arrays.stream(COMMA_SPLIT_PATTERN.split(allowedOrigins))
                     .filter(s -> !s.isEmpty())
                     .toArray(String[]::new);
             endpoint.setAllowedOriginPatterns(origins);

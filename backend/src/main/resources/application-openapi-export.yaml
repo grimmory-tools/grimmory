@@ -1,0 +1,39 @@
+app:
+  api-docs:
+    enabled: true
+  path-config: ${OPENAPI_EXPORT_APP_PATH:${java.io.tmpdir}/grimmory-openapi-export/data}
+  bookdrop-folder: ${OPENAPI_EXPORT_BOOKDROP:${java.io.tmpdir}/grimmory-openapi-export/bookdrop}
+  cors:
+    allowed-origins: http://127.0.0.1
+
+server:
+  port: ${OPENAPI_EXPORT_PORT:9091}
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:openapi-export;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=VALUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  flyway:
+    enabled: false
+  jpa:
+    properties:
+      hibernate:
+        connection:
+          provider_disables_autocommit: false
+  task:
+    scheduling:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    org.booklore: WARN
+    org.hibernate.orm.deprecation: ERROR
+    com.github.gotson.nightcompress.Archive: ERROR
+    io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics: ERROR
+    org.booklore.config.WebSocketConfig: ERROR
+    org.booklore.config.security.SecurityConfig: ERROR
+    org.booklore.service.monitoring.LibraryWatchService: ERROR
+    org.booklore.service.watcher.LibraryFileEventProcessor: ERROR

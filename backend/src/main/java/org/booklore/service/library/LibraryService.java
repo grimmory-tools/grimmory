@@ -72,7 +72,7 @@ public class LibraryService {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void initializeMonitoring() {
-        List<Library> libraries = libraryRepository.findAll().stream().map(libraryMapper::toLibrary).collect(Collectors.toList());
+        List<Library> libraries = libraryRepository.findAll().stream().map(libraryMapper::toLibrary).toList();
         libraryWatchService.registerLibraries(libraries);
         log.info("Monitoring initialized with {} libraries", libraries.size());
     }
@@ -156,14 +156,16 @@ public class LibraryService {
         BookLoreUserEntity userEntity = userRepository.findById(bookLoreUser.getId())
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(bookLoreUser.getId()));
 
+        // Stream.toList() returns an unmodifiable list, while JPA/Hibernate requires a mutable collection for entity
+        // relationship fields
         LibraryEntity libraryEntity = LibraryEntity.builder()
                 .name(request.getName())
                 .libraryPaths(
                         request.getPaths() == null || request.getPaths().isEmpty() ?
                                 Collections.emptyList() :
-                                request.getPaths().stream()
+                                new ArrayList<>(request.getPaths().stream()
                                         .map(path -> LibraryPathEntity.builder().path(path.getPath()).build())
-                                        .collect(Collectors.toList())
+                                        .toList())
                 )
                 .icon(request.getIcon())
                 .iconType(request.getIconType())
