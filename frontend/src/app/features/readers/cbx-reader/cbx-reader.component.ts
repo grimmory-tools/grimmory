@@ -7,7 +7,7 @@ import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
 import { CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageSplitOption, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService } from '../../settings/user-management/user.service';
-import { CbxPageDimensionService, DoublePairs } from './core/cbx-page-dimension.service';
+import { CbxPageDimensionService } from './core/cbx-page-dimension.service';
 import { CbxPageDimension } from './models/cbx-page-dimension.model';
 import { MessageService } from 'primeng/api';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
@@ -39,6 +39,7 @@ import {
   shouldOfferWebtoonHint,
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
+import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 
 
 @Component({
@@ -91,7 +92,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   currentPage = signal(0);
   isLoading = signal(true);
 
-  pageSpread = signal<CbxPageSpread>(CbxPageSpread.ODD);
+  pageSpread = signal<CbxPageSpread>(CbxPageSpread.EVEN);
   pageViewMode = signal<CbxPageViewMode>(CbxPageViewMode.SINGLE_PAGE);
   backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
   fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
@@ -198,8 +199,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   // Page dimensions from backend
   pageDimensions = signal<CbxPageDimension[]>([]);
-  doublePairs = signal<DoublePairs>({});
-
   // Double page detection (fallback cache for pages without backend dims)
   private pageDimensionsCache = new Map<number, { width: number, height: number }>();
 
@@ -390,8 +389,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
         this.pages.set(pages);
         this.pageDimensions.set(dimensions);
-        this.doublePairs.set(this.pageDimensionService.computeDoublePairs(dimensions));
-
         if (this.bookType() === CbxReaderComponent.TYPE_CBX) {
           const global = userSettings.perBookSetting.cbx === CbxReaderComponent.SETTING_GLOBAL;
           this.cbxSettingsUsesGlobal.set(global);
@@ -406,8 +403,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
             : this.CbxPageViewMode[bookSettings.cbxSettings?.pageViewMode as keyof typeof CbxPageViewMode] || this.CbxPageViewMode[userSettings.cbxReaderSetting.pageViewMode as keyof typeof CbxPageViewMode] || this.CbxPageViewMode.SINGLE_PAGE);
 
           this.pageSpread.set(global
-            ? this.CbxPageSpread[userSettings.cbxReaderSetting.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread.ODD
-            : this.CbxPageSpread[bookSettings.cbxSettings?.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread[userSettings.cbxReaderSetting.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread.ODD);
+            ? this.CbxPageSpread[userSettings.cbxReaderSetting.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread.EVEN
+            : this.CbxPageSpread[bookSettings.cbxSettings?.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread[userSettings.cbxReaderSetting.pageSpread as keyof typeof CbxPageSpread] || this.CbxPageSpread.EVEN);
 
           this.fitMode.set(global
             ? this.CbxFitMode[userSettings.cbxReaderSetting.fitMode as keyof typeof CbxFitMode] || this.CbxFitMode.FIT_PAGE
@@ -653,7 +650,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.footerService.updateState({
       currentPage: this.currentPage(),
       totalPages: this.pages().length,
-      isTwoPageView: this.isTwoPageView(),
+      isTwoPageView: this.isTwoPageView() && this.getCurrentSpreadPages().length > 1,
       previousBookInSeries: this.previousBookInSeries(),
       nextBookInSeries: this.nextBookInSeries(),
       hasSeries: this.hasSeries()
@@ -758,41 +755,38 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private updateFooterPage(): void {
     this.resetSwipeBoundaryHits();
     this.footerService.setCurrentPage(this.currentPage());
+    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
     this.sidebarService.setCurrentPage(this.currentPage() + 1);
     this.updateBookmarkState();
     this.updateNotesState();
   }
 
-  private getRightPageForLeftPage(leftPage: number): number | undefined {
-    const pair = Object.entries(this.doublePairs()).find(([, pairedLeft]) => pairedLeft === leftPage);
-    if (!pair) return undefined;
+  private getCbxSpreads(): number[][] {
+    return computeCbxSpreads(this.pages(), this.pageDimensions(), this.pageSpread())
+      .map(spread => spread.pages);
+  }
 
-    const rightPage = Number(pair[0]);
-    return Number.isFinite(rightPage) ? rightPage : undefined;
+  private getCurrentSpreadPages(): number[] {
+    if (!this.isTwoPageView()) {
+      return [this.currentPage()];
+    }
+    return findCbxSpreadForPage(
+      computeCbxSpreads(this.pages(), this.pageDimensions(), this.pageSpread()),
+      this.currentPage()
+    )?.pages ?? [this.currentPage()];
+  }
+
+  isSinglePageLayer(): boolean {
+    return this.scrollMode() === CbxScrollMode.PAGINATED && this.isTwoPageView() && this.getCurrentSpreadPages().length === 1;
+  }
+
+  private getImageUrlsForCurrentPage(): string[] {
+    if (!this.pages().length) return [];
+    return this.getCurrentSpreadPages().map(pageIndex => this.getPageImageUrl(pageIndex));
   }
 
   private updateCurrentImageUrls(): void {
-    if (!this.pages().length) {
-      this.currentImageUrls.set([]);
-      return;
-    }
-
-    const urls: string[] = [];
-    urls.push(this.getPageImageUrl(this.currentPage()));
-
-    if (this.isTwoPageView()) {
-      // Use doublePairs for dimension-aware pairing
-      if (Object.keys(this.doublePairs()).length > 0) {
-        const pairedWith = this.getRightPageForLeftPage(this.currentPage());
-        if (pairedWith !== undefined && pairedWith < this.pages().length) {
-          urls.push(this.getPageImageUrl(pairedWith));
-        }
-      } else if (this.currentPage() + 1 < this.pages().length) {
-        urls.push(this.getPageImageUrl(this.currentPage() + 1));
-      }
-    }
-
-    this.currentImageUrls.set(urls);
+    this.currentImageUrls.set(this.getImageUrlsForCurrentPage());
   }
 
   private preloadAdjacentPages(): void {
@@ -854,7 +848,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
     this.resetPaginatedScroll();
 
-    const newUrls = this.getNewImageUrls();
+    const newUrls = this.getImageUrlsForCurrentPage();
 
     const allPreloaded = newUrls.every(url => {
       const img = this.preloadedImages.get(url);
@@ -880,26 +874,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
 
     this.preloadAdjacentPages();
-  }
-
-  private getNewImageUrls(): string[] {
-    if (!this.pages().length) return [];
-
-    const urls: string[] = [];
-    urls.push(this.getPageImageUrl(this.currentPage()));
-
-    if (this.isTwoPageView()) {
-      if (Object.keys(this.doublePairs()).length > 0) {
-        const pairedWith = this.getRightPageForLeftPage(this.currentPage());
-        if (pairedWith !== undefined && pairedWith < this.pages().length) {
-          urls.push(this.getPageImageUrl(pairedWith));
-        }
-      } else if (this.currentPage() + 1 < this.pages().length) {
-        urls.push(this.getPageImageUrl(this.currentPage() + 1));
-      }
-    }
-
-    return urls;
   }
 
   private preloadImagesAndTransition(urls: string[]): void {
@@ -951,8 +925,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   private advancePage(direction: 1 | -1): void {
     const previousPage = this.currentPage();
-    const step = this.getPageStep();
-
     if (this.scrollMode() === CbxScrollMode.LONG_STRIP) {
       const newPage = this.currentPage() + direction;
       if (newPage >= 0 && newPage < this.pages().length) {
@@ -980,29 +952,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (direction > 0) {
       // Forward navigation
       if (this.isTwoPageView()) {
-        // Use doublePairs for dimension-aware stepping
-        if (Object.keys(this.doublePairs()).length > 0) {
-          const pairedWith = this.getRightPageForLeftPage(this.currentPage());
-          if (pairedWith !== undefined) {
-            // Current page is paired — skip past its partner
-            const nextPage = Math.max(this.currentPage(), pairedWith) + 1;
-            if (nextPage < this.pages().length) {
-              this.currentPage.set(nextPage);
-            }
-          } else {
-            // Current page is solo (wide or cover) — advance by 1
-            if (this.currentPage() + 1 < this.pages().length) {
-              this.currentPage.set(this.currentPage() + 1);
-            }
-          }
-        } else {
-          // Fallback: use old heuristic
-          const effectiveStep = this.shouldShowSinglePage(this.currentPage()) ? 1 : step;
-          if (this.currentPage() + effectiveStep < this.pages().length) {
-            this.currentPage.set(this.currentPage() + effectiveStep);
-          } else if (this.currentPage() + 1 < this.pages().length) {
-            this.currentPage.set(this.currentPage() + 1);
-          }
+        const spreads = this.getCbxSpreads();
+        const spreadIndex = spreads.findIndex(spread => spread.includes(this.currentPage()));
+        const nextSpread = spreadIndex >= 0 ? spreads[spreadIndex + 1] : undefined;
+        if (nextSpread) {
+          this.currentPage.set(nextSpread[0]);
         }
       } else if (this.currentPage() < this.pages().length - 1) {
         // Single-page mode: handle canvas split state for wide pages
@@ -1022,21 +976,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     } else {
       // Backward navigation
       if (this.isTwoPageView()) {
-        if (Object.keys(this.doublePairs()).length > 0) {
-          // Find the page that starts the previous spread
-          const targetPage = this.currentPage() - 1;
-          if (targetPage >= 0) {
-            const pairedWith = this.doublePairs()[targetPage];
-            if (pairedWith !== undefined) {
-              // Land on the lower-indexed page of the pair
-              this.currentPage.set(Math.min(targetPage, pairedWith));
-            } else {
-              // Previous page is solo — just go there
-              this.currentPage.set(targetPage);
-            }
-          }
-        } else {
-          this.currentPage.set(Math.max(0, this.currentPage() - step));
+        const spreads = this.getCbxSpreads();
+        const spreadIndex = spreads.findIndex(spread => spread.includes(this.currentPage()));
+        const previousSpread = spreadIndex > 0 ? spreads[spreadIndex - 1] : undefined;
+        if (previousSpread) {
+          this.currentPage.set(previousSpread[0]);
         }
       } else {
         // Single-page backward: handle canvas split for wide pages
@@ -1072,27 +1016,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getPageStep(): number {
-    return this.isTwoPageView() ? 2 : 1;
-  }
-
   private alignCurrentPageToParity() {
     if (!this.pages().length || !this.isTwoPageView()) return;
 
-    const desiredOdd = this.pageSpread() === CbxPageSpread.ODD;
-    for (let i = this.currentPage(); i >= 0; i--) {
-      if ((this.pages()[i] % 2 === 1) === desiredOdd) {
-        this.currentPage.set(i);
-        this.updateProgress();
-        return;
-      }
-    }
-    for (let i = 0; i < this.pages().length; i++) {
-      if ((this.pages()[i] % 2 === 1) === desiredOdd) {
-        this.currentPage.set(i);
-        this.updateProgress();
-        return;
-      }
+    const spread = this.getCurrentSpreadPages();
+    if (spread.length && this.currentPage() !== spread[0]) {
+      this.currentPage.set(spread[0]);
+      this.updateProgress();
     }
   }
 
@@ -1142,7 +1072,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.alignCurrentPageToParity();
     this.updateCurrentImageUrls();
     this.preloadAdjacentPages();
-    this.footerService.setTwoPageView(this.isTwoPageView());
+    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
     this.updateViewerSetting();
   }
 
@@ -1152,6 +1082,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.alignCurrentPageToParity();
     this.updateCurrentImageUrls();
     this.preloadAdjacentPages();
+    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
     this.updateViewerSetting();
   }
 
