@@ -124,6 +124,8 @@
     }, myOrigin);
   }
 
+
+
   function injectGrimmoryStyles(targetEl, attempt) {
     if (attempt === undefined) attempt = 0;
     const container = targetEl.querySelector('embedpdf-container');
@@ -132,7 +134,9 @@
       if (attempt < 25) setTimeout(() => injectGrimmoryStyles(targetEl, attempt + 1), 200);
       return;
     }
-    if (shadow.querySelector('style[data-grimmory]')) return;
+    if (shadow.querySelector('style[data-grimmory]')) {
+      return;
+    }
 
     const style = document.createElement('style');
     style.setAttribute('data-grimmory', '');
@@ -173,18 +177,6 @@
         background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%) !important;
         border-bottom-color: #d0d0d0 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-      }
-
-      [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"],
-      [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"],
-      [role="contentinfo"],
-      [data-epdf-i*="footer"],
-      [data-epdf-i*="status"],
-      [class*="fixed"][class*="bottom-0"][class*="inset-x-0"],
-      [class*="sticky"][class*="bottom-0"],
-      [class*="bottom-0"][class*="border-t"],
-      [class*="bottom-0"][class*="bg-bg-surface"] {
-        display: none !important;
       }
 
       /* Keep viewer popups/menus visible; only hide explicit file controls. */
@@ -290,6 +282,15 @@
         image-rendering: high-quality;
         -webkit-font-smoothing: antialiased;
       }
+      /* ── Hide EmbedPDF built-in footer / status bar ── */
+      [data-epdf-i*="footer"],
+      [data-epdf-i*="status"],
+      [data-overlay-id="page-controls"],
+      [data-overlay-id*="overlay"],
+      [role="contentinfo"] {
+        display: none !important;
+      }
+
       /* ── Silence non-editable selection menus EXCEPT for navigation links ── */
 
       /* If the menu has no user-editing tools OR navigation, hide the whole menu. */
@@ -322,7 +323,6 @@
         viewer.destroy();
         viewer = null;
       }
-
       const isSmallViewport = window.innerWidth <= 768;
 
       viewer = EmbedPDF.init({
@@ -480,7 +480,21 @@
         } else if (typeof scrollPlugin.setLayoutMode === 'function') {
           scrollPlugin.setLayoutMode(msg.layout);
         }
-        scrollPlugin.scrollToPage({ pageNumber: page, behavior: 'instant' });
+
+        let handled = false;
+        const restorePage = () => {
+          if (handled) return;
+          handled = true;
+          scrollPlugin.scrollToPage({ pageNumber: page, behavior: 'instant' });
+        };
+
+        if (typeof scrollPlugin.onLayoutReady === 'function') {
+          const unsub = scrollPlugin.onLayoutReady(() => {
+            if (typeof unsub === 'function') unsub();
+            restorePage();
+          });
+        }
+        setTimeout(restorePage, 100);
       }
     }
 

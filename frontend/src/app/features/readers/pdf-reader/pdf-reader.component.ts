@@ -126,6 +126,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private cachedPdfBuffer: ArrayBuffer | null = null;
   private suppressProgressSave = false;
   private initialPage = 1;
+  private pendingDocTargetPage: number | null = null;
+  private docProgressReleaseTimer?: ReturnType<typeof setTimeout>;
   private closeReaderPromise: Promise<void> | null = null;
   readonly isClosingReader = signal(false);
 
@@ -578,7 +580,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           ).subscribe(() => {
             this.ngZone.run(() => {
               this.isInitialScrollDone.set(true);
-              this.suppressProgressSave = false;
+              this.releaseProgressPersistence();
             });
           });
           // Fallback in case pageChange$ doesn't fire (e.g. single-page PDF)
@@ -587,13 +589,13 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
               scrollSub.unsubscribe();
               this.ngZone.run(() => {
                 this.isInitialScrollDone.set(true);
-                this.suppressProgressSave = false;
+                this.releaseProgressPersistence();
               });
             }
           }, 800);
         } else {
           this.isInitialScrollDone.set(true);
-          this.suppressProgressSave = false;
+          this.releaseProgressPersistence();
         }
 
         // Load outline, bookmarks, and annotations after layout is ready and settled
@@ -925,13 +927,18 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   async setViewerMode(mode: 'book' | 'document') {
     if (mode === this.viewerMode()) return;
 
+    this.persistProgress(true);
+
     this.docViewerReady.set(false);
     if (this.initTimeout) {
       clearTimeout(this.initTimeout);
       this.initTimeout = undefined;
     }
+    this.clearDocProgressReleaseTimer();
 
     if (mode === 'document') {
+      this.initialPage = this.page();
+      this.pendingDocTargetPage = this.initialPage > 1 ? this.initialPage : null;
       this.suppressProgressSave = true;
       // Ensure annotations are captured before destroying the book viewer
       await this.persistAnnotations();
@@ -942,6 +949,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.initDocViewerIframe();
       }, 100);
     } else {
+      this.initialPage = this.page();
+      this.pendingDocTargetPage = null;
       // Switching from doc to book — save in background, don't block the switch
       if (this.embedPdfIframe) {
         this.saveEmbedPdfDocument().finally(() => this.destroyDocViewerIframe());
@@ -1043,14 +1052,17 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         }
         break;
       case 'documentOpened':
-        // Scroll to the page the user was on in book mode and re-enable progress saving
+        // Scroll to the page the user was on in book mode and release progress saving when navigation settles
+        if (typeof msg.pageCount === 'number' && msg.pageCount > 0) {
+          this.totalPages.set(msg.pageCount);
+        }
         if (this.embedPdfIframe?.contentWindow && this.initialPage > 1) {
           this.embedPdfIframe.contentWindow.postMessage(
             { type: 'scrollToPage', pageNumber: this.initialPage },
             location.origin
           );
         }
-        setTimeout(() => { this.suppressProgressSave = false; }, 500);
+        this.startDocProgressReleaseFallback();
         break;
       case 'documentError':
         console.error('[EmbedPDF] Document error:', msg.error);
@@ -1065,6 +1077,13 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.embedPdfSaveResolve = undefined;
         break;
       case 'pageChange':
+        if (this.viewerMode() === 'document' && this.suppressProgressSave) {
+          const shouldRelease = this.pendingDocTargetPage == null || msg.pageNumber >= this.pendingDocTargetPage - 1;
+          if (shouldRelease) {
+            this.pendingDocTargetPage = null;
+            this.releaseProgressPersistence();
+          }
+        }
         this.onPageChange(msg.pageNumber);
         this.totalPages.set(msg.totalPages);
         break;
@@ -1181,15 +1200,42 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   updateProgress(): void {
-    if (this.suppressProgressSave) return;
+    this.persistProgress();
+  }
+
+  private persistProgress(force = false): void {
+    if (this.suppressProgressSave && !force) return;
     const currentPage = this.page();
     const total = this.totalPages();
     const percentage = total > 0 ? Math.round((currentPage / total) * 1000) / 10 : 0;
     this.bookService.savePdfProgress(this.bookId, currentPage, percentage, this.bookFileId).subscribe();
   }
 
+  private releaseProgressPersistence(): void {
+    this.clearDocProgressReleaseTimer();
+    this.suppressProgressSave = false;
+    this.persistProgress(true);
+  }
+
+  private startDocProgressReleaseFallback(): void {
+    this.clearDocProgressReleaseTimer();
+    this.docProgressReleaseTimer = setTimeout(() => {
+      if (this.viewerMode() !== 'document') return;
+      if (this.suppressProgressSave) {
+        this.releaseProgressPersistence();
+      }
+    }, 1500);
+  }
+
+  private clearDocProgressReleaseTimer(): void {
+    if (!this.docProgressReleaseTimer) return;
+    clearTimeout(this.docProgressReleaseTimer);
+    this.docProgressReleaseTimer = undefined;
+  }
+
   ngOnDestroy(): void {
     if (this.initTimeout) clearTimeout(this.initTimeout);
+    this.clearDocProgressReleaseTimer();
     if (this.pdfFetchAbortController) this.pdfFetchAbortController.abort();
     this.wakeLockService.disable();
     if (this.chromeAutoHideTimer) clearTimeout(this.chromeAutoHideTimer);
