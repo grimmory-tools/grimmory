@@ -281,7 +281,7 @@
 
       &.fit-width {
         overflow-y: auto;
-        align-items: stretch;
+        align-items: flex-start;
         touch-action: pan-y;
 
         .pages-wrapper,
@@ -291,23 +291,26 @@
           max-height: none;
         }
 
+        .pages-wrapper {
+          min-height: 100%;
+        }
+
+        .current-page-layer {
+          margin-block: auto;
+        }
+
         .page-image {
           width: 100%;
           height: auto;
         }
 
         &.two-page-view {
-          .pages-wrapper {
-            display: grid;
-            align-content: center;
-            min-height: 100%;
-          }
-
           .previous-page-layer,
           .current-page-layer {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
+            width: 100%;
           }
 
           .single-page-layer {
@@ -340,8 +343,6 @@
           touch-action: pan-x pan-y;
 
           .pages-wrapper {
-            display: grid;
-            place-items: center;
             width: max-content;
             min-width: 100%;
             min-height: 100%;
@@ -354,7 +355,7 @@
             grid-template-columns: repeat(2, max-content);
             width: max-content;
             height: auto;
-            justify-content: center;
+            margin-inline: auto;
           }
 
           .page-image {
