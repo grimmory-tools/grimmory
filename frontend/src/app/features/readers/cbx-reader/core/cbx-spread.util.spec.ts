@@ -15,6 +15,13 @@ function dimensions(widePages: number[] = []): CbxPageDimension[] {
 describe('cbx spread utilities', () => {
   const pages = [1, 2, 3, 4, 5, 6];
 
+  it('returns no spreads for an empty page list', () => {
+    const spreads = computeCbxSpreads([], [], CbxPageSpread.EVEN);
+
+    expect(spreads).toEqual([]);
+    expect(findCbxSpreadForPage(spreads, 0)).toBeUndefined();
+  });
+
   it('keeps the cover solo and pairs even-starting spreads for LTR comics', () => {
     const spreads = computeCbxSpreads(pages, dimensions(), CbxPageSpread.EVEN);
 
