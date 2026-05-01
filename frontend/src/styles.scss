@@ -31,26 +31,27 @@ html {
 
 * {
   &::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
+    height: 8px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(0 0 0 / 10%);
-    border-radius: 10px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(128 128 128 / 50%);
+    background: var(--surface-600);
     border-radius: 10px;
 
     &:hover {
-      background: rgb(128 128 128 / 70%);
+      background: var(--surface-500);
     }
   }
 
   scrollbar-width: thin;
-  scrollbar-color: rgb(128 128 128 / 50%) rgb(0 0 0 / 10%);
+  scrollbar-color: var(--surface-600) transparent;
 }
+
 
 .chart-info-tooltip.p-tooltip {
   --p-tooltip-max-width: 25rem;

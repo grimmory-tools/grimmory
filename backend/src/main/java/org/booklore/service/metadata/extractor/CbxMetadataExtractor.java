@@ -38,6 +38,9 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:issue|volume)/(?:[^/]+/)?(\\d+-\\d+)");
     private static final Pattern COMICVINE_SITE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:[^/]+/)?(40(?:00|50)-\\d+)/?");
     private static final Pattern HARDCOVER_URL_PATTERN = Pattern.compile("hardcover\\.app/books/([\\w-]+)");
+    private static final Pattern BOOKLORE_TAG_PATTERN = Pattern.compile("\\[BookLore:[^\\]]+\\][^\\n]*(\n|$)");
+    private static final Pattern ISBN13_PATTERN = Pattern.compile("\\d{13}");
+    private static final Pattern ISBN_CLEANER_PATTERN = Pattern.compile("[- ]");
 
     private final ArchiveService archiveService;
 
@@ -120,8 +123,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         // Validate it's a 13-digit number (ISBN-13/EAN-13)
         String gtin = getTextContent(document, "GTIN");
         if (gtin != null && !gtin.isBlank()) {
-            String normalized = gtin.replaceAll("[- ]", "");
-            if (normalized.matches("\\d{13}")) {
+            String normalized = ISBN_CLEANER_PATTERN.matcher(gtin).replaceAll("");
+            if (ISBN13_PATTERN.matcher(normalized).matches()) {
                 builder.isbn13(normalized);
             } else {
                 log.debug("Invalid GTIN format (expected 13 digits): {}", gtin);
@@ -281,7 +284,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
             // If description is missing, use cleaned notes (removing BookLore tags)
             if (!hasDescription) {
-                String cleanedNotes = notes.replaceAll("\\[BookLore:[^\\]]+\\][^\\n]*(\n|$)", "").trim();
+                String cleanedNotes = BOOKLORE_TAG_PATTERN.matcher(notes).replaceAll("").trim();
                 if (!cleanedNotes.isEmpty()) {
                     builder.description(cleanedNotes);
                 }

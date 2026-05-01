@@ -919,7 +919,7 @@ public class BookRuleEvaluatorService {
         if (isNumericField(field)) {
             try {
                 return Double.parseDouble(value.toString());
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException _) {
             }
         }
 

@@ -106,12 +106,12 @@ public class PhysicalBookService {
         // Try full date format first (YYYY-MM-DD)
         try {
             return LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (DateTimeParseException ignored) {}
+        } catch (DateTimeParseException _) {}
         // Try year only format (YYYY)
         try {
             int year = Integer.parseInt(trimmed);
             return LocalDate.of(year, 1, 1);
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException _) {}
         return null;
     }
 
