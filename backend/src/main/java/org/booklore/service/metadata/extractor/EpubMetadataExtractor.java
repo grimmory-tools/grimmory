@@ -244,15 +244,13 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             safeParseInt(content, builderMeta::pageCount);
                         } else if ("calibre:user_metadata:#pagecount".equals(name)) {
                             try {
-                                try {
-                                    JsonNode jsonRoot = OBJECT_MAPPER.readTree(content);
-                                    JsonNode valueNode = jsonRoot.get("#value#");
-                                    if (valueNode != null && !valueNode.isNull()) {
-                                        safeParseInt(valueNode.asText(), builderMeta::pageCount);
-                                    }
-                                } catch (Exception e) {
-                                    log.debug("Failed to parse calibre:user_metadata:#pagecount: {}", e.getMessage());
+                                JsonNode jsonRoot = OBJECT_MAPPER.readTree(content);
+                                JsonNode valueNode = jsonRoot.get("#value#");
+                                if (valueNode != null && !valueNode.isNull()) {
+                                    safeParseInt(valueNode.asText(), builderMeta::pageCount);
                                 }
+                            } catch (Exception e) {
+                                log.debug("Failed to parse calibre:user_metadata:#pagecount: {}", e.getMessage());
                             }
                         } else if ("calibre:user_metadata".equals(prop)) {
                             try {
