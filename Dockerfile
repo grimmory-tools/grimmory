@@ -17,6 +17,8 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
 FROM --platform=$BUILDPLATFORM gradle:9.4.1-jdk25-alpine AS backend-build
 
 ARG TARGETARCH
+ARG APP_VERSION=development
+ARG APP_REVISION=unknown
 
 WORKDIR /workspace/backend
 

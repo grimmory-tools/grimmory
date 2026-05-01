@@ -22,5 +22,8 @@
   "dismiss": "Prezri",
   "discard": "Zavrzi",
   "review": "Preglej",
-  "libraryPathInaccessible": "Pot do knjižnice ni dostopna"
+  "libraryPathInaccessible": "Pot do knjižnice ni dostopna",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

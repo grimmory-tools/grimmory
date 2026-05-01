@@ -33,7 +33,7 @@ public class BookloreSyncTokenGenerator {
                         .rawKoboSyncToken(base64Token)
                         .build();
             }
-        } catch (Exception ignored) {
+        } catch (Exception _) {
 
         }
         return new BookloreSyncToken();

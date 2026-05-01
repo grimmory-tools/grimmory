@@ -1,4 +1,4 @@
-import {ElementRef, signal} from '@angular/core';
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
@@ -99,8 +99,7 @@ describe('AuthorDetailComponent', () => {
         {
           provide: CoverScalePreferenceService,
           useValue: {
-            currentCardSize: vi.fn(() => 'medium'),
-            gridColumnMinWidth: vi.fn(() => '12rem'),
+            currentCardSize: vi.fn(() => ({width: 135, height: 220})),
           },
         },
         {
@@ -182,29 +181,21 @@ describe('AuthorDetailComponent', () => {
     expect(component.canEditMetadata).toBe(true);
   });
 
-  it('detects description overflow from the assigned element ref only while collapsed', () => {
+  it('detects description overflow from element dimensions only while collapsed', () => {
     const component = createComponent();
 
-    component.descriptionContentRef = {
-      nativeElement: {
-        scrollHeight: 120,
-        clientHeight: 60,
-      },
-    } as unknown as ElementRef<HTMLElement>;
-
-    component.ngAfterViewChecked();
+    component.updateDescriptionOverflow({
+      scrollHeight: 120,
+      clientHeight: 60,
+    });
 
     expect(component.isOverflowing).toBe(true);
 
     component.isExpanded = true;
-    component.descriptionContentRef = {
-      nativeElement: {
-        scrollHeight: 20,
-        clientHeight: 80,
-      },
-    } as unknown as ElementRef<HTMLElement>;
-
-    component.ngAfterViewChecked();
+    component.updateDescriptionOverflow({
+      scrollHeight: 20,
+      clientHeight: 80,
+    });
 
     expect(component.isOverflowing).toBe(true);
   });

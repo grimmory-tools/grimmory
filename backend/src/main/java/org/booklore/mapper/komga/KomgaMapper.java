@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -122,14 +121,14 @@ public class KomgaMapper {
                             .name(author.getName())
                             .role("writer")
                             .build())
-                    .collect(Collectors.toList());
+                    .toList();
         }
         
         List<String> tags = new ArrayList<>();
         if (metadata.getTags() != null) {
             tags = metadata.getTags().stream()
                     .map(TagEntity::getName)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         
         return KomgaBookMetadataDto.builder()
@@ -165,12 +164,12 @@ public class KomgaMapper {
             if (firstMetadata.getCategories() != null) {
                 genres = firstMetadata.getCategories().stream()
                         .map(CategoryEntity::getName)
-                        .collect(Collectors.toList());
+                        .toList();
             }
             if (firstMetadata.getTags() != null) {
                 tags = firstMetadata.getTags().stream()
                         .map(TagEntity::getName)
-                        .collect(Collectors.toList());
+                        .toList();
             }
         }
         String language = firstMetadata != null ? firstMetadata.getLanguage() : null;
@@ -233,7 +232,7 @@ public class KomgaMapper {
         
         List<KomgaAuthorDto> authors = authorNames.stream()
                 .map(name -> KomgaAuthorDto.builder().name(name).role("writer").build())
-                .collect(Collectors.toList());
+                .toList();
         
         return KomgaBookMetadataAggregationDto.builder()
                 .authors(authors)
