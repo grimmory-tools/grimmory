@@ -137,7 +137,11 @@ public interface AppBookMapper {
 
     @Named("mapCategoryNames")
     default List<String> mapCategoryNames(Set<CategoryEntity> categories) {
-        return mapCategories(categories).stream()
+        if (categories == null || categories.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return categories.stream()
+                .map(CategoryEntity::getName)
                 .sorted()
                 .toList();
     }

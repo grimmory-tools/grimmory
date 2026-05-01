@@ -1,3 +1,5 @@
+import {BookType} from './book.model';
+
 export interface AppPageResponse<T> {
   content: T[];
   page: number;
@@ -22,7 +24,7 @@ export interface AppBookSummary {
   lastReadTime: string | null;
   readProgress: number | null;
   primaryFileId: number | null;
-  primaryFileType: string | null;
+  primaryFileType: BookType | null;
   primaryFileName: string | null;
   coverUpdatedOn: string | null;
   audiobookCoverUpdatedOn: string | null;
