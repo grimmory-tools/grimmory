@@ -257,7 +257,6 @@ public class ArchiveService {
             }
         } catch (Exception e) {
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
-        }
         } finally {
             lock.unlock();
         }
