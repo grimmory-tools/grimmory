@@ -32,7 +32,7 @@ public class ContentRestrictionService {
     public List<ContentRestriction> getUserRestrictions(Long userId) {
         return restrictionRepository.findByUserId(userId).stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ContentRestriction getRestriction(Long restrictionId) {
@@ -75,11 +75,11 @@ public class ContentRestrictionService {
                         .mode(r.getMode())
                         .value(r.getValue())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return restrictionRepository.saveAll(entities).stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -118,7 +118,7 @@ public class ContentRestrictionService {
                 .filter(book -> !hasExcludedContent(book, excludedCategories, excludedTags, excludedMoods, excludedContentRatings))
                 .filter(book -> matchesAllowList(book, allowedCategories, allowedTags, allowedMoods, allowedContentRatings))
                 .filter(book -> isWithinAgeRating(book, maxAgeRating))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Set<String> getValuesForTypeAndMode(List<UserContentRestrictionEntity> restrictions,

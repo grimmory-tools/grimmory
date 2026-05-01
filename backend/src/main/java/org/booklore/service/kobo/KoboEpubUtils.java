@@ -6,9 +6,13 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 
 import java.net.URI;
+import java.util.regex.Pattern;
 
 @UtilityClass
 class KoboEpubUtils {
+
+    private static final Pattern LEADING_SLASH_PATTERN = Pattern.compile("^/+");
+    private static final Pattern ANCHOR_PATTERN = Pattern.compile("#.*$");
 
     static BookFileEntity getSyncedEpubFile(BookEntity book) {
         BookFileEntity primaryFile = book != null ? book.getPrimaryBookFile() : null;
@@ -23,7 +27,7 @@ class KoboEpubUtils {
             return null;
         }
 
-        String normalizedPath = href.replaceFirst("#.*$", "")
+        String normalizedPath = ANCHOR_PATTERN.matcher(href).replaceFirst("")
                 .replace('\\', '/');
         try {
             String decodedPath = URI.create(normalizedPath).getPath();
@@ -39,7 +43,7 @@ class KoboEpubUtils {
             return null;
         }
 
-        return decodedHref.replaceFirst("^/+", "");
+        return LEADING_SLASH_PATTERN.matcher(decodedHref).replaceFirst("");
     }
 
 }

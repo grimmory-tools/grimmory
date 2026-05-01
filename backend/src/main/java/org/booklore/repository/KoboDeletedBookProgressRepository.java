@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface KoboDeletedBookProgressRepository extends JpaRepository<KoboDeletedBookProgressEntity, Long> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM KoboDeletedBookProgressEntity p WHERE p.snapshotId = :snapshotId AND p.userId = :userId")
     void deleteBySnapshotIdAndUserId(@Param("snapshotId") String snapshotId, @Param("userId") Long userId);

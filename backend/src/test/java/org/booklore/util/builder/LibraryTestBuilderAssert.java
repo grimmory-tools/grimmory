@@ -6,7 +6,6 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LibraryTestBuilderAssert extends AbstractAssert<LibraryTestBuilderAssert, LibraryTestBuilder> {
 
@@ -46,7 +45,7 @@ public class LibraryTestBuilderAssert extends AbstractAssert<LibraryTestBuilderA
                 .filter(a -> !a.equals(book.getPrimaryBookFile()))
                 .map(BookFileEntity::getBookType)
                 .filter(a -> a != null)
-                .collect(Collectors.toList());
+                .toList();
 
         Assertions.assertThat(additionalFormatTypesActual)
                 .describedAs("Book '%s' should have additional formats: %s", bookTitle, additionalFormatTypes)
@@ -90,7 +89,7 @@ public class LibraryTestBuilderAssert extends AbstractAssert<LibraryTestBuilderA
                 .filter(a -> !a.equals(book.getPrimaryBookFile()))
                 .map(BookFileEntity::getBookType)
                 .filter(a -> a != null)
-                .collect(Collectors.toList());
+                .toList();
 
         Assertions.assertThat(additionalFormatTypesActual)
                 .describedAs("Book '%s' should have no additional formats", bookTitle)
