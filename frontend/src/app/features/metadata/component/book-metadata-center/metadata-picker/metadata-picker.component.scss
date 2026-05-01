@@ -53,23 +53,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
-  }
 }
 
 // Column Headers - mirrors field-row structure for alignment (desktop only)

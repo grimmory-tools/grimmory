@@ -264,7 +264,7 @@ public class CustomFontService {
         FontFormat detectedFormat = null;
         try {
             detectedFormat = FontFormat.fromMimeType(detectedMime);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException _) {
             // Tika may return a generic MIME treated as unknown format below
         }
 

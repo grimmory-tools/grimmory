@@ -190,25 +190,6 @@
   @media (width <= 768px) {
     max-height: 35rem;
   }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--overlay-background);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: var(--primary-color);
-    }
-  }
 }
 
 .dialog-footer {

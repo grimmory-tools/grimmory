@@ -281,7 +281,7 @@ class TaskHistoryServiceTest {
                 java.lang.reflect.Field field = TaskType.class.getDeclaredField("hiddenFromUI");
                 field.setAccessible(true);
                 field.set(type, true);
-            } catch (Exception ignored) {
+            } catch (Exception _) {
             }
         });
 
