@@ -144,7 +144,7 @@ jobs:
 
   export-openapi:
     name: Export Nightly OpenAPI Artifact
-    needs: [resolve_ref, test-suite, build-and-push]
+    needs: [resolve_ref]
     runs-on: ubuntu-latest
 
     permissions:
