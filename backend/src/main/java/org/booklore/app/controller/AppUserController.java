@@ -37,7 +37,7 @@ public class AppUserController {
             if (configured != null) {
                 maxUploadSizeMb = configured;
             }
-        } catch (Exception ignored) {
+        } catch (Exception _) {
             // fall back to default
         }
 

@@ -104,25 +104,10 @@
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
-
-  &::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgb(20 20 30 / 50%);
-    border-radius: 10px;
-  }
 
   @media (width <= 768px) {
     height: calc(100dvh - 13rem);
     padding: 0.5rem;
-
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
   }
 }
 

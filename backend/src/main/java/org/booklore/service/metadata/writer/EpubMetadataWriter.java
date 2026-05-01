@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -54,6 +55,7 @@ import org.grimmory.epub4j.archive.EpubContainers;
 public class EpubMetadataWriter implements MetadataWriter {
 
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
+    private static final Pattern CALIBRE_PREFIX_PATTERN = Pattern.compile("calibre:\\s*https?://[^\\s]+");
     private final AppSettingService appSettingService;
 
     @Override
@@ -1111,7 +1113,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (packageElement.hasAttribute("prefix")) {
             String prefix = packageElement.getAttribute("prefix");
             if (prefix.contains("calibre:")) {
-                prefix = prefix.replaceAll("calibre:\\s*https?://[^\\s]+", "").trim();
+                prefix = CALIBRE_PREFIX_PATTERN.matcher(prefix).replaceAll("").trim();
                 if (prefix.isEmpty()) {
                     packageElement.removeAttribute("prefix");
                 } else {

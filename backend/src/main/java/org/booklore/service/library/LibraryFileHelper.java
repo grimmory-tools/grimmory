@@ -51,7 +51,7 @@ public class LibraryFileHelper {
                     return !currentFullPaths.contains(book.getFullFilePath());
                 })
                 .map(BookEntity::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Long> detectDeletedAdditionalFiles(List<LibraryFile> libraryFiles, List<BookFileEntity> allAdditionalFiles) {
@@ -63,7 +63,7 @@ public class LibraryFileHelper {
                 .filter(BookFileEntity::isBookFormat)
                 .filter(additionalFile -> !currentFileKeys.contains(generateUniqueKey(additionalFile)))
                 .map(BookFileEntity::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<LibraryFile> detectNewBookPaths(List<LibraryFile> libraryFiles, List<BookEntity> books, List<BookFileEntity> allAdditionalFiles) {
@@ -80,7 +80,7 @@ public class LibraryFileHelper {
 
         return libraryFiles.stream()
                 .filter(file -> !existingKeys.contains(generateUniqueKey(file)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private String generateUniqueKey(BookEntity book) {
@@ -227,7 +227,7 @@ public class LibraryFileHelper {
         Set<BookFileType> allowed = EnumSet.copyOf(allowedFormats);
         return files.stream()
                 .filter(file -> allowed.contains(file.getBookFileType()))
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
     }
 
     private List<LibraryFile> findLibraryFiles(LibraryPathEntity pathEntity, LibraryEntity libraryEntity) throws IOException {

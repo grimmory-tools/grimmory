@@ -23,11 +23,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class EpubCfiService {
 
+    private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?=/)");
     private final Cache<String, Document> documentCache;
 
     public EpubCfiService() {
@@ -193,7 +195,7 @@ public class EpubCfiService {
         if (cfi == null) {
             return null;
         }
-        return cfi.replaceFirst("!/4(?=/)", "!");
+        return CFI_CLEANER_PATTERN.matcher(cfi).replaceFirst("!");
     }
 
     private Integer resolveSourceOffset(Document document, CfiExpression expression) {

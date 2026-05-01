@@ -1,0 +1,36 @@
+name: Export OpenAPI
+description: Check out a ref, set up the backend toolchain, and export grimmory-openapi.json.
+
+inputs:
+  app_version:
+    description: Application version string to embed into the exported OpenAPI document.
+    required: true
+  checkout_ref:
+    description: Git ref or SHA to export from.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        fetch-depth: 1
+        ref: ${{ inputs.checkout_ref }}
+
+    - name: Install just
+      uses: taiki-e/install-action@5f57d6cb7cd20b14a8a27f522884c4bc8a187458 # v2.75.19
+      with:
+        tool: just
+
+    - name: Set Up JDK 25
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+
+    - name: Export OpenAPI JSON
+      shell: bash
+      env:
+        APP_VERSION: ${{ inputs.app_version }}
+      run: just api openapi-export

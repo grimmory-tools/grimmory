@@ -18,6 +18,10 @@ run profile='dev':
 build:
     {{ gradle }} build --no-daemon --parallel --build-cache
 
+# Build the backend jar and export build/openapi/grimmory-openapi.json.
+openapi-export:
+    {{ gradle }} buildOpenApiArtifacts --no-daemon --parallel --build-cache
+
 # Run the backend test suite.
 test:
     {{ gradle }} test --no-daemon --parallel --build-cache

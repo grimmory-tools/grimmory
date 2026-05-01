@@ -78,7 +78,7 @@ public class BookRecommendationService {
                 })
                 .filter(Objects::nonNull)
                 .limit(limit)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected Set<BookRecommendationLite> findSimilarBookIds(Long bookId, int limit) {
