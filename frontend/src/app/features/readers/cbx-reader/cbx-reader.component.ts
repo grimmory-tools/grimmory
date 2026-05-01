@@ -650,7 +650,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.footerService.updateState({
       currentPage: this.currentPage(),
       totalPages: this.pages().length,
-      isTwoPageView: this.isTwoPageView() && this.getCurrentSpreadPages().length > 1,
+      isTwoPageView: this.hasVisibleTwoPageSpread(),
       previousBookInSeries: this.previousBookInSeries(),
       nextBookInSeries: this.nextBookInSeries(),
       hasSeries: this.hasSeries()
@@ -755,7 +755,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private updateFooterPage(): void {
     this.resetSwipeBoundaryHits();
     this.footerService.setCurrentPage(this.currentPage());
-    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
+    this.footerService.setTwoPageView(this.hasVisibleTwoPageSpread());
     this.sidebarService.setCurrentPage(this.currentPage() + 1);
     this.updateBookmarkState();
     this.updateNotesState();
@@ -776,8 +776,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     )?.pages ?? [this.currentPage()];
   }
 
+  private isPaginatedTwoPageView(): boolean {
+    return this.scrollMode() === CbxScrollMode.PAGINATED && this.isTwoPageView();
+  }
+
+  private hasVisibleTwoPageSpread(): boolean {
+    return this.isPaginatedTwoPageView() && this.getCurrentSpreadPages().length > 1;
+  }
+
+  isPreviousSinglePageLayer(): boolean {
+    return this.isPaginatedTwoPageView() && this.previousImageUrls().length === 1;
+  }
+
   isSinglePageLayer(): boolean {
-    return this.scrollMode() === CbxScrollMode.PAGINATED && this.isTwoPageView() && this.getCurrentSpreadPages().length === 1;
+    return this.isPaginatedTwoPageView() && !this.hasVisibleTwoPageSpread();
   }
 
   private getImageUrlsForCurrentPage(): string[] {
@@ -1072,7 +1084,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.alignCurrentPageToParity();
     this.updateCurrentImageUrls();
     this.preloadAdjacentPages();
-    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
+    this.footerService.setTwoPageView(this.hasVisibleTwoPageSpread());
     this.updateViewerSetting();
   }
 
@@ -1082,7 +1094,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.alignCurrentPageToParity();
     this.updateCurrentImageUrls();
     this.preloadAdjacentPages();
-    this.footerService.setTwoPageView(this.isTwoPageView() && this.getCurrentSpreadPages().length > 1);
+    this.footerService.setTwoPageView(this.hasVisibleTwoPageSpread());
     this.updateViewerSetting();
   }
 

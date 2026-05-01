@@ -67,7 +67,7 @@
     <div class="pages-wrapper" role="button" tabindex="0" (click)="onImageClick()" (keydown.enter)="onImageClick()"
       (dblclick)="onImageDoubleClick()">
       @if (isPageTransitioning() && previousImageUrls().length > 0) {
-      <div class="previous-page-layer" [class.single-page-layer]="previousImageUrls().length === 1">
+      <div class="previous-page-layer" [class.single-page-layer]="isPreviousSinglePageLayer()">
         @for (url of previousImageUrls(); track url) {
         <img [src]="url" alt="Previous Page" class="page-image previous-image" />
         }
