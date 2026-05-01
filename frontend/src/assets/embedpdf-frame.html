@@ -480,9 +480,7 @@
         } else if (typeof scrollPlugin.setLayoutMode === 'function') {
           scrollPlugin.setLayoutMode(msg.layout);
         }
-        setTimeout(() => {
-          scrollPlugin.scrollToPage({ pageNumber: page, behavior: 'instant' });
-        }, 80);
+        scrollPlugin.scrollToPage({ pageNumber: page, behavior: 'instant' });
       }
     }
 

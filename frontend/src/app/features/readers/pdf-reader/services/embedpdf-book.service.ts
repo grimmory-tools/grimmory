@@ -230,8 +230,7 @@ export class EmbedPdfBookService {
     const page = this.currentPage;
     this.scrollLayout = layout;
     this.applyScrollLayout(layout);
-    // Use a short delay to allow the layout engine to recalculate before restoring position
-    setTimeout(() => this.scrollToPage(page, 'instant'), 80);
+    this.scrollToPage(page, 'instant');
   }
 
   getScrollLayout(): PdfScrollLayout {
