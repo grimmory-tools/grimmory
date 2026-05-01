@@ -22,5 +22,8 @@
   "dismiss": "Ignorálás",
   "discard": "Elvetés",
   "review": "Felülvizsgálat",
-  "libraryPathInaccessible": "Könyvtár elérési útvonal elérhetetlen"
+  "libraryPathInaccessible": "Könyvtár elérési útvonal elérhetetlen",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

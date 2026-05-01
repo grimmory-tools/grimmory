@@ -25,25 +25,6 @@
   overflow-y: auto;
   max-height: 60vh;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--overlay-background);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: var(--primary-color);
-    }
-  }
-
   @media (width <= 480px) {
     padding: 1rem;
     gap: 1.25rem;

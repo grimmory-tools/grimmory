@@ -3,6 +3,7 @@ package org.booklore.service.opds;
 import jakarta.servlet.http.HttpServletRequest;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
+import org.booklore.exception.APIException;
 import org.booklore.model.dto.*;
 import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.enums.BookFileType;
@@ -119,7 +120,7 @@ class OpdsFeedServiceTest {
     void generateShelvesNavigation_shouldThrowWhenNotAuthenticated() {
         when(authenticationService.getOpdsUser()).thenReturn(null);
         assertThatThrownBy(() -> opdsFeedService.generateShelvesNavigation(request))
-                .isInstanceOf(org.booklore.exception.APIException.class)
+                .isInstanceOf(APIException.class)
                 .hasMessageContaining("OPDS authentication required");
         verify(opdsBookService, never()).getUserShelves(any());
     }
@@ -308,7 +309,7 @@ class OpdsFeedServiceTest {
         var method = OpdsFeedService.class.getDeclaredMethod("getUserId");
         method.setAccessible(true);
         assertThatThrownBy(() -> method.invoke(opdsFeedService))
-                .hasCauseInstanceOf(org.booklore.exception.APIException.class)
+                .hasCauseInstanceOf(APIException.class)
                 .hasRootCauseMessage("OPDS authentication required");
     }
 

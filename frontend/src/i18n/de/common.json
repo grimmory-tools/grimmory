@@ -22,5 +22,8 @@
   "dismiss": "Verwerfen",
   "discard": "Verwerfen",
   "review": "Überprüfen",
-  "libraryPathInaccessible": "Der Pfad zur Bibliothek ist nicht zugreifbar"
+  "libraryPathInaccessible": "Der Pfad zur Bibliothek ist nicht zugreifbar",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

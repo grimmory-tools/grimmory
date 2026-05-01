@@ -23,12 +23,17 @@ import java.nio.file.StandardCopyOption;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PdfMetadataWriter implements MetadataWriter {
 
+    private static final Pattern NUMERIC_PATTERN = Pattern.compile("\\d+");
+    private static final Pattern TRAILING_DOT_PATTERN = Pattern.compile("\\.$");
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+    private static final Pattern TRAILING_ZEROS_PATTERN = Pattern.compile("0+$");
     private final AppSettingService appSettingService;
 
     @Override
@@ -189,7 +194,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         helper.copyAuthors(clear != null && clear.isAuthors(), a -> {
             if (a != null && !a.isEmpty()) {
                 authors[0] = a.stream()
-                        .map(name -> name.replaceAll("\\s+", " ").trim())
+                        .map(name -> WHITESPACE_PATTERN.matcher(name).replaceAll(" ").trim())
                         .filter(name -> !name.isBlank())
                         .toList();
             }
@@ -406,7 +411,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         // For decimals, show up to 2 decimal places but trim trailing zeros
         String formatted = String.format(Locale.US, "%.2f", number);
         // Remove trailing zeros after decimal point: "1.50" -> "1.5"
-        formatted = formatted.replaceAll("0+$", "").replaceAll("\\.$", "");
+        formatted = TRAILING_DOT_PATTERN.matcher(TRAILING_ZEROS_PATTERN.matcher(formatted).replaceAll("")).replaceAll("");
         return formatted;
     }
 
@@ -427,7 +432,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         if (sep < 0) sep = goodreadsId.indexOf('.');
         if (sep > 0) {
             String numericPart = goodreadsId.substring(0, sep);
-            if (numericPart.matches("\\d+")) {
+            if (NUMERIC_PATTERN.matcher(numericPart).matches()) {
                 return numericPart;
             }
         }

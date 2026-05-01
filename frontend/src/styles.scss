@@ -31,26 +31,27 @@ html {
 
 * {
   &::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
+    height: 8px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(0 0 0 / 10%);
-    border-radius: 10px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(128 128 128 / 50%);
+    background: var(--surface-600);
     border-radius: 10px;
 
     &:hover {
-      background: rgb(128 128 128 / 70%);
+      background: var(--surface-500);
     }
   }
 
   scrollbar-width: thin;
-  scrollbar-color: rgb(128 128 128 / 50%) rgb(0 0 0 / 10%);
+  scrollbar-color: var(--surface-600) transparent;
 }
+
 
 .chart-info-tooltip.p-tooltip {
   --p-tooltip-max-width: 25rem;
@@ -64,6 +65,62 @@ html {
 
   &:hover {
     color: rgb(255 255 255 / 80%);
+  }
+}
+
+.virtual-scroller {
+  .virtual-content {
+    position: relative;
+    width: 100%;
+  }
+
+  .virtual-cell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .virtual-cell > app-author-card,
+  .virtual-cell > app-book-card,
+  .virtual-cell > app-series-card {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .virtual-scroller-item {
+    position: relative;
+  }
+}
+
+.browser-grid-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.browser-grid-option-btn {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 6px;
+  background-color: var(--card-background);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color-text);
   }
 }
 

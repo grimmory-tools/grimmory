@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -44,7 +43,7 @@ public class AppLibraryController {
             libraries = libraryRepository.findAll();
         } else {
             List<Long> libraryIds = user.getAssignedLibraries() != null
-                    ? user.getAssignedLibraries().stream().map(Library::getId).collect(Collectors.toList())
+                    ? user.getAssignedLibraries().stream().map(Library::getId).toList()
                     : List.of();
             libraries = libraryRepository.findByIdIn(libraryIds);
         }
@@ -54,7 +53,7 @@ public class AppLibraryController {
                     long bookCount = bookRepository.countByLibraryId(library.getId());
                     return mobileBookMapper.toLibrarySummary(library, bookCount);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(summaries);
     }

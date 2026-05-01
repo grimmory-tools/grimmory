@@ -685,7 +685,7 @@ public class MetadataRefreshService {
         List<BookReview> allReviews = metadataMap.values().stream()
                 .filter(Objects::nonNull)
                 .flatMap(md -> Optional.ofNullable(md.getBookReviews()).stream().flatMap(Collection::stream))
-                .collect(Collectors.toList());
+                .toList();
         if (!allReviews.isEmpty()) {
             metadata.setBookReviews(allReviews);
         }

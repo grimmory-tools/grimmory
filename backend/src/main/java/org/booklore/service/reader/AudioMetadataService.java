@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.AudiobookMetadata;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AudioMetadataService {
 
+  private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^0-9]");
   private final AudioFileUtilityService audioFileUtility;
   private final AudiobookMetadataExtractor audiobookMetadataExtractor;
   private final BookFileRepository bookFileRepository;
@@ -382,7 +385,7 @@ public class AudioMetadataService {
     if (channels.toLowerCase(Locale.ROOT).contains("stereo")) return 2;
     if (channels.toLowerCase(Locale.ROOT).contains("mono")) return 1;
     try {
-      return Integer.parseInt(channels.replaceAll("[^0-9]", ""));
+      return Integer.parseInt(NON_DIGIT_PATTERN.matcher(channels).replaceAll(""));
     } catch (NumberFormatException e) {
       return null;
     }

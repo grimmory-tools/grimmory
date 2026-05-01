@@ -14,6 +14,8 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +36,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private static final Pattern ASIN_PATTERN = Pattern.compile("([A-Z0-9]{10})");
-    private static final Pattern TRAILING_BR_TAGS_PATTERN = Pattern.compile("(\\s*<br\\s*/?>\\s*)+$");
-    private static final Pattern LEADING_BR_TAGS_PATTERN = Pattern.compile("^(\\s*<br\\s*/?>\\s*)+");
-    private static final Pattern MULTIPLE_BR_TAGS_PATTERN = Pattern.compile("(<br\\s*/?>\\s*){3,}");
-    private static final Pattern MULTIPLE_BR_CLOSING_TAGS_PATTERN = Pattern.compile("(<br>\\s*){3,}");
 
     private static class AmazonAntiScrapingException extends RuntimeException {
         public AmazonAntiScrapingException(String message) {
@@ -863,7 +861,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         for (String pattern : DATE_PATTERNS) {
             try {
                 return LocalDate.parse(trimmedDate, DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH));
-            } catch (DateTimeParseException ignored) {
+            } catch (DateTimeParseException _) {
             }
         }
 
@@ -871,7 +869,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             for (String pattern : DATE_PATTERNS) {
                 try {
                     return LocalDate.parse(trimmedDate, DateTimeFormatter.ofPattern(pattern, localeInfo.locale()));
-                } catch (DateTimeParseException ignored) {
+                } catch (DateTimeParseException _) {
                 }
             }
         }
@@ -883,6 +881,18 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private LocalDate parseDate(String dateString) {
         String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
         return parseDate(dateString, getLocaleInfoForDomain(domain));
+    }
+
+    private boolean isWhitespaceNode(Node node) {
+        if (node instanceof TextNode textNode) {
+            return textNode.isBlank();
+        }
+
+        if (node instanceof Element element) {
+            return "br".equals(element.tagName());
+        }
+
+        return false;
     }
 
     private String cleanDescriptionHtml(String html) {
@@ -914,8 +924,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
             // Remove excessive line breaks (more than 2 consecutive <br> tags)
             Elements brTags = document.select("br");
-            for (int i = 0; i < brTags.size(); i++) {
-                Element br = brTags.get(i);
+            for (Element br : brTags) {
                 int consecutiveBrCount = 1;
                 Element next = br.nextElementSibling();
 
@@ -932,18 +941,17 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 }
             }
 
+            // "trim" the start and end of the document of whitespace & <br>
+            Node node;
+            while ((node = document.body().firstChild()) != null && isWhitespaceNode(node)) {
+                node.remove();
+            }
+            while ((node = document.body().lastChild()) != null && isWhitespaceNode(node)) {
+                node.remove();
+            }
+
             // Clean up any remaining whitespace issues
-            String cleanedHtml = document.body().html();
-
-            // Replace multiple consecutive <br> patterns that might still exist
-            cleanedHtml = MULTIPLE_BR_CLOSING_TAGS_PATTERN.matcher(cleanedHtml).replaceAll("<br><br>");
-            cleanedHtml = MULTIPLE_BR_TAGS_PATTERN.matcher(cleanedHtml).replaceAll("<br><br>");
-
-            // Remove leading/trailing <br> tags
-            cleanedHtml = LEADING_BR_TAGS_PATTERN.matcher(cleanedHtml).replaceAll("");
-            cleanedHtml = TRAILING_BR_TAGS_PATTERN.matcher(cleanedHtml).replaceAll("");
-
-            return cleanedHtml;
+            return document.body().html().trim();
         } catch (Exception e) {
             log.warn("Error cleaning html description, Error: {}", e.getMessage());
         }
