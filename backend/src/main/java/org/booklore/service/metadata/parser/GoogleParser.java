@@ -41,6 +41,10 @@ public class GoogleParser implements BookParser {
     private static final int MAX_SEARCH_TERM_LENGTH = 60;
     private static final int MAX_RESULTS = 20;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern EDGE_CURL_PATTERN = Pattern.compile("&?edge=curl");
+    private static final Pattern ZOOM_PATTERN = Pattern.compile("zoom=\\d+");
+    private static final Pattern CATEGORY_SPLIT_PATTERN = Pattern.compile(" / ");
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
     private final HttpClient httpClient;
@@ -200,7 +204,7 @@ public class GoogleParser implements BookParser {
         
         return results.stream()
                 .filter(this::isRelevantResult)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isRelevantResult(BookMetadata metadata) {
@@ -231,7 +235,7 @@ public class GoogleParser implements BookParser {
         if (googleBooksApiResponse != null && googleBooksApiResponse.getItems() != null) {
             return googleBooksApiResponse.getItems().stream()
                     .map(this::convertToFetchedBookMetadata)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return List.of();
     }
@@ -294,7 +298,7 @@ public class GoogleParser implements BookParser {
             if (seriesNumber == null && seriesInfo.getBookDisplayNumber() != null) {
                 try {
                     seriesNumber = Float.parseFloat(seriesInfo.getBookDisplayNumber());
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException _) {
                     // Not a valid number, ignore
                 }
             }
@@ -408,7 +412,7 @@ public class GoogleParser implements BookParser {
                 .flatMap(cat -> {
                     // Split hierarchical categories (e.g., "Fiction / Fantasy / General")
                     if (cat.contains(" / ")) {
-                        return Arrays.stream(cat.split(" / "))
+                        return Arrays.stream(CATEGORY_SPLIT_PATTERN.split(cat))
                                 .map(String::trim)
                                 .filter(s -> !s.equalsIgnoreCase("General"));
                     }
@@ -471,10 +475,10 @@ public class GoogleParser implements BookParser {
         imageUrl = imageUrl.replace("http://", "https://");
         
         if (imageUrl.contains("zoom=")) {
-            imageUrl = imageUrl.replaceAll("zoom=\\d+", "zoom=0");
+            imageUrl = ZOOM_PATTERN.matcher(imageUrl).replaceAll("zoom=0");
         }
         
-        imageUrl = imageUrl.replaceAll("&?edge=curl", "");
+        imageUrl = EDGE_CURL_PATTERN.matcher(imageUrl).replaceAll("");
         
         return imageUrl;
     }
@@ -540,7 +544,7 @@ public class GoogleParser implements BookParser {
         
         try {
             // Try full date format first (YYYY-MM-DD)
-            if (input.length() == 10 && input.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            if (input.length() == 10 && ISO_DATE_PATTERN.matcher(input).matches()) {
                 return LocalDate.parse(input, DATE_FORMATTER);
             }
             
@@ -619,7 +623,7 @@ public class GoogleParser implements BookParser {
                 .sorted((a, b) -> Integer.compare(
                         countPopulatedFields(b),
                         countPopulatedFields(a)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private int countPopulatedFields(BookMetadata metadata) {

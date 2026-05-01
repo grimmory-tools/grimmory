@@ -35,8 +35,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     // URL Patterns
     private static final Pattern GOODREADS_URL_PATTERN = Pattern.compile("goodreads\\.com/book/show/(\\d+)(?:-[\\w-]+)?");
     private static final Pattern AMAZON_URL_PATTERN = Pattern.compile("amazon\\.com/dp/([A-Z0-9]{10})");
-    private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/issue/(?:[^/]+/)?([\\w-]+)");
+    private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:issue|volume)/(?:[^/]+/)?(\\d+-\\d+)");
+    private static final Pattern COMICVINE_SITE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:[^/]+/)?(40(?:00|50)-\\d+)/?");
     private static final Pattern HARDCOVER_URL_PATTERN = Pattern.compile("hardcover\\.app/books/([\\w-]+)");
+    private static final Pattern BOOKLORE_TAG_PATTERN = Pattern.compile("\\[BookLore:[^\\]]+\\][^\\n]*(\n|$)");
+    private static final Pattern ISBN13_PATTERN = Pattern.compile("\\d{13}");
+    private static final Pattern ISBN_CLEANER_PATTERN = Pattern.compile("[- ]");
 
     private final ArchiveService archiveService;
 
@@ -119,8 +123,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         // Validate it's a 13-digit number (ISBN-13/EAN-13)
         String gtin = getTextContent(document, "GTIN");
         if (gtin != null && !gtin.isBlank()) {
-            String normalized = gtin.replaceAll("[- ]", "");
-            if (normalized.matches("\\d{13}")) {
+            String normalized = ISBN_CLEANER_PATTERN.matcher(gtin).replaceAll("");
+            if (ISBN13_PATTERN.matcher(normalized).matches()) {
                 builder.isbn13(normalized);
             } else {
                 log.debug("Invalid GTIN format (expected 13 digits): {}", gtin);
@@ -132,14 +136,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             builder.authors(authors);
         }
 
-        Set<String> categories = new HashSet<>();
-        categories.addAll(splitValues(getTextContent(document, "Genre")));
+        Set<String> categories = splitValues(getTextContent(document, "Genre"));
         if (!categories.isEmpty()) {
             builder.categories(categories);
         }
 
-        Set<String> tags = new HashSet<>();
-        tags.addAll(splitValues(getTextContent(document, "Tags")));
+        Set<String> tags = splitValues(getTextContent(document, "Tags"));
         if (!tags.isEmpty()) {
             builder.tags(tags);
         }
@@ -282,7 +284,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
             // If description is missing, use cleaned notes (removing BookLore tags)
             if (!hasDescription) {
-                String cleanedNotes = notes.replaceAll("\\[BookLore:[^\\]]+\\][^\\n]*(\n|$)", "").trim();
+                String cleanedNotes = BOOKLORE_TAG_PATTERN.matcher(notes).replaceAll("").trim();
                 if (!cleanedNotes.isEmpty()) {
                     builder.description(cleanedNotes);
                 }
@@ -316,6 +318,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             java.util.regex.Matcher cvMatcher = COMICVINE_URL_PATTERN.matcher(url);
             if (cvMatcher.find()) {
                 builder.comicvineId(cvMatcher.group(1));
+                continue;
+            }
+
+            java.util.regex.Matcher cvSiteMatcher = COMICVINE_SITE_URL_PATTERN.matcher(url);
+            if (cvSiteMatcher.find()) {
+                builder.comicvineId(cvSiteMatcher.group(1));
                 continue;
             }
 

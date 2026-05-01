@@ -1,14 +1,11 @@
-// Skeleton loader — opacity animation runs on the compositor thread
-// so it stays smooth while the main thread computes books.
 .skeleton-grid {
   display: grid;
   gap: 21px;
-  align-items: start;
+  place-items: start center;
   width: 100%;
 
   @media (width <= 767px) {
-    gap: 0.5rem 8px;
-    padding: 0 0.5rem;
+    gap: 8px;
   }
 }
 
@@ -221,38 +218,6 @@
   font-weight: 500;
 }
 
-.scale-value-display {
-  text-align: center;
-}
-
-.column-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.column-option-btn {
-  flex: 1;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 6px;
-  background-color: var(--card-background);
-  color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    border-color: var(--primary-color);
-  }
-
-  &.active {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: var(--primary-color-text);
-  }
-}
-
 // Sort button wrapper
 .sort-button-wrapper {
   position: relative;
@@ -437,41 +402,18 @@
 .virtual-scroller {
   width: 100%;
   height: calc(100dvh - 10.9rem);
-  padding: 1rem;
+  padding: 1rem 0;
   box-sizing: border-box;
   overflow-y: auto;
 
   @media (width <= 768px) {
     height: calc(100dvh - 9rem);
+    padding: 0.75rem;
   }
 }
 
-.book-grid {
-  display: grid;
-  gap: 21px;
-  align-items: start;
-  width: 100%;
-
-  @media (width <= 767px) {
-    gap: 0.5rem 8px;
-    padding: 0 0.5rem;
-  }
-}
-
-.scroll-sentinel {
-  height: 1px;
-}
-
-.virtual-scroller-item {
-  position: relative;
-  margin-bottom: 21px;
-  contain: strict;
-  content-visibility: auto;
-  contain-intrinsic-size: auto var(--virtual-scroller-item-height, 220px);
-
-  @media (width <= 767px) {
-    margin-bottom: 0.5rem;
-  }
+.virtual-loader-cell {
+  pointer-events: none;
 }
 
 // No books state
@@ -607,13 +549,4 @@
       margin-left: 1rem;
     }
   }
-}
-
-// Book state container
-.book-state-wrapper {
-  position: relative;
-}
-
-.book-state-content-refreshing {
-  pointer-events: none;
 }

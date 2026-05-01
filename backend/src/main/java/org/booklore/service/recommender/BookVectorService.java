@@ -14,7 +14,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -143,7 +143,7 @@ public class BookVectorService {
         return candidates.stream()
                 .sorted(Comparator.comparingDouble(ScoredBook::getScore).reversed())
                 .limit(k)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Getter

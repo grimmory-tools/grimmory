@@ -428,7 +428,7 @@ public class FilenamePatternExtractor {
     private void setSeriesNumber(BookMetadata metadata, String value) {
         try {
             metadata.setSeriesNumber(Float.parseFloat(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
 
@@ -590,7 +590,7 @@ public class FilenamePatternExtractor {
     private void setSeriesTotal(BookMetadata metadata, String value) {
         try {
             metadata.setSeriesTotal(Integer.parseInt(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
 
