@@ -86,6 +86,8 @@ When `semantic-release` creates a release, [`.github/workflows/release-main.yml`
 That workflow will:
 
 - build the multi-architecture container image,
+- export `backend/build/openapi/grimmory-openapi.json`,
+- attach `grimmory-openapi.json` to the published GitHub release,
 - publish `grimmory/grimmory:vX.Y.Z`,
 - publish `grimmory/grimmory:latest`,
 - publish `ghcr.io/grimmory-tools/grimmory:vX.Y.Z`,
@@ -112,3 +114,4 @@ Use the preview-image workflow if you want a one-off test image without creating
 
 - Stable releases are driven by commit history on `main`, not by labels or manual version bump inputs.
 - If you need to understand why a release did or did not happen, start with the `Release - Dry Run Preview` workflow and then inspect the `semantic-release` output.
+- The latest stable OpenAPI artifact is always available at `https://github.com/grimmory-tools/grimmory/releases/latest/download/grimmory-openapi.json`.
