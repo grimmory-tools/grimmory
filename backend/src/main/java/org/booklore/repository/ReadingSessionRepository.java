@@ -214,7 +214,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             WHERE rs.user.id = :userId
             ORDER BY rs.startTime
             """)
-    Stream<Instant> findAllSessionStartTimesByUserStream(@Param("userId") Long userId);
+    Stream<Instant> findAllSessionStartTimesByUser(@Param("userId") Long userId);
 
     // ========================================================================
     // Listening (audiobook) stats

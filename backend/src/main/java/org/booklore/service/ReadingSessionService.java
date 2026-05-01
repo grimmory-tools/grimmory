@@ -97,7 +97,7 @@ public class ReadingSessionService {
                         .sessionCount(e.getValue()[0])
                         .totalDurationSeconds(e.getValue()[1])
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<FavoriteReadingDaysResponse> computeFavoriteDays(List<SessionTimestampDto> sessions, ZoneId zone) {
@@ -115,7 +115,7 @@ public class ReadingSessionService {
                         .totalDurationSeconds(e.getValue()[1])
                         .build())
                 .sorted(Comparator.comparingInt(FavoriteReadingDaysResponse::getDayOfWeek))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static int toSundayFirstDow(DayOfWeek dow) {
@@ -423,7 +423,7 @@ public class ReadingSessionService {
 
         List<CompletionRaceSessionDto> allSessions;
         try (var sessionStream = readingSessionRepository.findCompletionRaceSessionsByUserAndYear(userId, year)) {
-            allSessions = sessionStream.collect(Collectors.toList());
+            allSessions = sessionStream.toList();
         }
 
         // Collect unique book IDs in order of appearance, take last N (most recently finished)
@@ -455,7 +455,7 @@ public class ReadingSessionService {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         ZoneId zone = ZoneId.systemDefault();
 
-        try (var startTimes = readingSessionRepository.findAllSessionStartTimesByUserStream(userId)) {
+        try (var startTimes = readingSessionRepository.findAllSessionStartTimesByUser(userId)) {
             return groupByLocalDate(startTimes, zone);
         }
     }
@@ -557,7 +557,7 @@ public class ReadingSessionService {
         ZoneId zone = ZoneId.systemDefault();
 
         Set<LocalDate> readingDays;
-        try (var startTimes = readingSessionRepository.findAllSessionStartTimesByUserStream(userId)) {
+        try (var startTimes = readingSessionRepository.findAllSessionStartTimesByUser(userId)) {
             readingDays = startTimes
                     .map(instant -> instant.atZone(zone).toLocalDate())
                     .collect(Collectors.toCollection(TreeSet::new));
