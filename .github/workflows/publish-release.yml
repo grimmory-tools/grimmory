@@ -110,7 +110,7 @@ jobs:
           helm package deploy/helm/grimmory \
             --version "${VERSION}" \
             --app-version "${RELEASE_TAG}"
-          helm push "grimmory-${VERSION}.tgz" "oci://ghcr.io/${{ github.repository_owner }}/charts"
+          helm push "grimmory-${VERSION}.tgz" "oci://ghcr.io/${{ github.repository_owner }}/helm-charts"
 
   prepare-release-notification:
     name: Prepare Stable Release Notification
@@ -171,8 +171,8 @@ jobs:
     name: Notify Discord Release
     needs:
       - prepare-release-notification
-    if: ${{ needs.prepare-release-notification.outputs.available == 'true' }}
       - publish-helm-chart
+    if: ${{ needs.prepare-release-notification.outputs.available == 'true' }}
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
