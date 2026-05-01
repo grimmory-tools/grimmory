@@ -164,24 +164,6 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-height: 50vh;
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-
-    &:hover {
-      background: var(--text-color-secondary);
-    }
-  }
 }
 
 .cover-info {

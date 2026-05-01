@@ -283,7 +283,7 @@ public class AppBookService {
         return topIds.stream()
                 .filter(enrichedMap::containsKey)
                 .map(id -> mobileBookMapper.toSummary(enrichedMap.get(id), progressMap.get(id)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<AppBookSummary> getContinueListening(Integer limit) {
@@ -306,7 +306,7 @@ public class AppBookService {
         return topIds.stream()
                 .filter(enrichedMap::containsKey)
                 .map(id -> mobileBookMapper.toSummary(enrichedMap.get(id), progressMap.get(id)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<AppBookSummary> getRecentlyAdded(Integer limit) {
@@ -329,7 +329,7 @@ public class AppBookService {
 
         return bookPage.getContent().stream()
                 .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<AppBookSummary> getRecentlyScanned(Integer limit) {
@@ -351,7 +351,7 @@ public class AppBookService {
 
         return bookPage.getContent().stream()
                 .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public AppPageResponse<AppBookSummary> getRandomBooks(
@@ -413,7 +413,7 @@ public class AppBookService {
                 .filter(Objects::nonNull)
                 .filter(BookEntity::hasFiles)
                 .map(bookEntity -> mobileBookMapper.toSummary(bookEntity, progressMap.get(bookEntity.getId())))
-                .collect(Collectors.toList());
+                .toList();
 
         return AppPageResponse.of(summaries, pageNum, pageSize, booksPage.getTotalElements());
     }
@@ -1154,7 +1154,7 @@ public class AppBookService {
 
         List<AppBookSummary> summaries = books.stream()
                 .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
-                .collect(Collectors.toList());
+                .toList();
 
         return AppPageResponse.of(summaries, pageNum, pageSize, bookPage.getTotalElements());
     }

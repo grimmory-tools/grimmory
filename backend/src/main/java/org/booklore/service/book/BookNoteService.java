@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,7 +35,7 @@ public class BookNoteService {
         return bookNoteRepository.findByBookIdAndUserIdOrderByUpdatedAtDesc(bookId, currentUser.getId())
                 .stream()
                 .map(mapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
