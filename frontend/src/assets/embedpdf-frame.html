@@ -314,7 +314,10 @@
   }
 
   window.addEventListener('message', async (event) => {
+    if (event.origin !== myOrigin) return;
+    if (event.source !== parent) return;
     const msg = event.data;
+    if (!msg || typeof msg.type !== 'string') return;
 
     if (msg.type === 'init') {
       log('Init requested');
@@ -345,7 +348,7 @@
         },
         render: { defaultImageQuality: isSmallViewport ? 0.85 : 0.92 },
         tiling: isSmallViewport
-          ? { tileSize: 512, overlapPx: 2, extraRings: 0 }
+          ? { tileSize: 640, overlapPx: 2, extraRings: 1 }
           : { tileSize: 1024, overlapPx: 2, extraRings: 1 },
       });
 
