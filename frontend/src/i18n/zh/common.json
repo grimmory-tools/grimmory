@@ -22,5 +22,8 @@
   "dismiss": "忽略",
   "discard": "丢弃",
   "review": "审查",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

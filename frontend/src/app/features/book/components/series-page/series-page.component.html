@@ -280,11 +280,13 @@
                   <i class="pi pi-objects-column"></i>
                   {{ t('booksInSeries') }}
                 </h3>
+                @let cardSize = currentCardSize;
                 <div class="series-items-grid" #Container
-                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                  [style.grid-template-columns]="'repeat(auto-fill, minmax(' + cardSize.width + 'px, 1fr))'">
                   @for (book of books; track book; let i = $index) {
                     <div class="grid-item"
-                      [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+                      [style.width.px]="cardSize.width"
+                      [style.height.px]="cardSize.height">
                       <app-book-card
                           [index]="i"
                           [book]="book"

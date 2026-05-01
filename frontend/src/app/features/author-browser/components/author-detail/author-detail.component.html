@@ -104,23 +104,31 @@
                     <p>{{ t('noBooksFound') }}</p>
                   </div>
                 } @else {
-                  <cdk-virtual-scroll-viewport autosize [minBufferPx]="600" [maxBufferPx]="1200" class="books-virtual-scroller">
-                    <div *cdkVirtualFor="let row of bookRows(); let rowIdx = index" class="books-grid"
-                      [ngStyle]="{'grid-template-columns': 'repeat(' + gridColumns() + ', 1fr)'}">
-                      @for (book of row; let j = $index; track book.id) {
-                        <div class="virtual-scroller-item"
-                          [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
-                          <app-book-card
-                            [index]="rowIdx * gridColumns() + j"
-                            [book]="book"
-                            [isSeriesCollapsed]="false"
-                            [priorityImage]="rowIdx === 0 && j === 0"
+                  <div #scrollElement class="author-books-scroller virtual-scroller">
+                    <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
+                      @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
+                        @if (books[virtualItem.index]; as book) {
+                          <div
+                            class="virtual-cell"
+                            [style.width.px]="virtualGrid.itemWidth()"
+                            [style.height.px]="virtualItem.size"
+                            [style.transform]="virtualGrid.itemTransform(virtualItem)">
+                            <div class="virtual-scroller-item"
+                              [style.width.px]="currentCardSize.width"
+                              [style.height.px]="currentCardSize.height">
+                              <app-book-card
+                                [index]="virtualItem.index"
+                                [book]="book"
+                                [isSeriesCollapsed]="false"
+                                [priorityImage]="rowIdx === 0 && j === 0"
                             [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                          </app-book-card>
-                        </div>
+                              </app-book-card>
+                            </div>
+                          </div>
+                        }
                       }
                     </div>
-                  </cdk-virtual-scroll-viewport>
+                  </div>
                 }
               </div>
             }
