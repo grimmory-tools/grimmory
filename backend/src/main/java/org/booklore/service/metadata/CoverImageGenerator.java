@@ -648,7 +648,7 @@ public class CoverImageGenerator {
             if (fm.stringWidth(word) > maxW) {
                 if (!cur.isEmpty()) {
                     lines.add(cur.toString().trim());
-                    cur = new StringBuilder(32);
+                    cur.setLength(0);
                 }
                 lines.addAll(breakWord(word, fm, maxW));
                 continue;
@@ -660,7 +660,8 @@ public class CoverImageGenerator {
                 cur.append(" ").append(word);
             } else {
                 lines.add(cur.toString().trim());
-                cur = new StringBuilder(word);
+                cur.setLength(0);
+                cur.append(word);
             }
         }
 
@@ -684,7 +685,7 @@ public class CoverImageGenerator {
         for (char c : word.toCharArray()) {
             if (fm.stringWidth(cur.toString() + c) > maxW && !cur.isEmpty()) {
                 parts.add(cur.toString());
-                cur = new StringBuilder(32);
+                cur.setLength(0);
             }
             cur.append(c);
         }
