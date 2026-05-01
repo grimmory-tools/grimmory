@@ -392,6 +392,16 @@
           min-height: 0;
         }
 
+        .pages-wrapper {
+          display: block;
+        }
+
+        .previous-page-layer,
+        .current-page-layer {
+          justify-content: flex-start;
+          align-items: flex-start;
+        }
+
         .page-image {
           width: auto;
           height: auto;
@@ -400,13 +410,6 @@
         }
 
         &.two-page-view {
-          .pages-wrapper {
-            display: block;
-            width: max-content;
-            min-width: 100%;
-            height: max-content;
-          }
-
           .previous-page-layer,
           .current-page-layer {
             display: grid;
