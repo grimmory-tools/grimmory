@@ -49,7 +49,14 @@ export function parseStoredAnnotations(jsonString: string | null | undefined): A
     // New format: { format: 'embedpdf', version: 1, annotations: [...] }
     if (parsed && parsed.format === 'embedpdf' && Array.isArray(parsed.annotations)) {
       const storedItems = parsed.annotations as SerializableAnnotationTransferItem[];
-      return storedItems.map(restoreArrayBuffers);
+      return storedItems.reduce<AnnotationTransferItem[]>((acc, item) => {
+        try {
+          acc.push(restoreArrayBuffers(item));
+        } catch {
+          // Skip malformed entries, keep valid annotations
+        }
+        return acc;
+      }, []);
     }
 
     // Legacy pdf.js format: raw array of editor annotations
