@@ -415,15 +415,6 @@
   max-height: 280px;
   overflow-y: auto;
   padding: 0.25rem;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 2px;
-  }
 }
 
 .queue-item {

@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -54,7 +53,7 @@ public class PathService {
                     .filter(Files::isDirectory)
                     .map(p -> directory.resolve(p.getFileName()).toString())
                     .sorted()
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             log.error("Error accessing path {}: {}", path, e.getMessage(), e);
             return Collections.emptyList();

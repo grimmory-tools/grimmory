@@ -464,7 +464,7 @@ public class OpdsBookService {
         List<BookEntity> orderedEntities = idPage.getContent().stream()
                 .map(bookMap::get)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         if (userId != null) {
             orderedEntities = contentRestrictionService.applyRestrictions(orderedEntities, userId);
@@ -480,7 +480,7 @@ public class OpdsBookService {
     private Page<Book> applyBookFilters(Page<Book> books, Long userId) {
         List<Book> filtered = books.getContent().stream()
                 .map(book -> filterBook(book, userId))
-                .collect(Collectors.toList());
+                .toList();
         return new PageImpl<>(filtered, books.getPageable(), books.getTotalElements());
     }
 

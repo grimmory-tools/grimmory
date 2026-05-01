@@ -136,7 +136,7 @@ public interface AppBookMapper {
         }
         return shelves.stream()
                 .map(this::toShelfSummary)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     default AppShelfSummary toShelfSummary(ShelfEntity shelf) {
@@ -280,7 +280,7 @@ public interface AppBookMapper {
                 .filter(bf -> bf.getBookType() != null)
                 .map(bf -> bf.getBookType().name())
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Named("mapFiles")
@@ -319,7 +319,7 @@ public interface AppBookMapper {
                             .isPrimary(bf.getId().equals(primaryId))
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     default AppLibrarySummary toLibrarySummary(LibraryEntity library, long bookCount) {
@@ -333,7 +333,7 @@ public interface AppBookMapper {
                             .id(lp.getId())
                             .path(lp.getPath())
                             .build())
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return AppLibrarySummary.builder()
                 .id(library.getId())

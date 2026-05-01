@@ -101,7 +101,7 @@ class PdfMetadataExtractorTest {
 
     @Test
     void extractMetadata_minimalPdf_usesFilenameAsTitle() throws Exception {
-        File pdf = createPdf(ignored -> {});
+        File pdf = createPdf(_ -> {});
         BookMetadata meta = extractor.extractMetadata(pdf);
         assertThat(meta.getTitle()).isEqualTo("test");
         assertThat(meta.getPageCount()).isEqualTo(1);

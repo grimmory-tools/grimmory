@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -50,7 +49,7 @@ public class AppShelfController {
 
         List<AppShelfSummary> summaries = shelves.stream()
                 .map(mobileBookMapper::toShelfSummaryFromEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(summaries);
     }
@@ -88,7 +87,7 @@ public class AppShelfController {
 
         List<AppMagicShelfSummary> summaries = allShelves.stream()
                 .map(mobileBookMapper::toMagicShelfSummary)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(summaries);
     }
