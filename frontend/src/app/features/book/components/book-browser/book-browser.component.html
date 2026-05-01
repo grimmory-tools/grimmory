@@ -326,7 +326,7 @@
                     (checkboxClick)="onCheckboxClicked($event)"
                     [isSelected]="bookSelectionService.isBookSelected(book)"
                     [useSquareCovers]="isAudiobookOnlyLibrary()"
-                    [priorityImage]="i === 0"
+                    [priorityImage]="virtualItem.index === 0"
                         [overlayPreferenceService]="bookCardOverlayPreferenceService">
                   </app-book-card>
                 </div>
