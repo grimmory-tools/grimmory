@@ -464,14 +464,13 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                     JsonNode valueNode = fieldObj.get("#value#");
                     if (valueNode == null || valueNode.isNull()) continue;
 
-                    String value = valueNode.asText().trim();
-                    if (value.isEmpty() || "null".equals(value)) continue;
-
-                    if ("#moods".equals(fieldName)) {
-                        extractSetField(value, moodsSet);
-                    } else if ("#extra_tags".equals(fieldName)) {
-                        extractSetField(value, tagsSet);
+                    if ("#moods".equals(fieldName) || "#extra_tags".equals(fieldName)) {
+                        String value = valueNode.isArray() ? valueNode.toString() : valueNode.asText().trim();
+                        if (value.isEmpty() || "null".equals(value)) continue;
+                        extractSetField(value, "#moods".equals(fieldName) ? moodsSet : tagsSet);
                     } else {
+                        String value = valueNode.asText().trim();
+                        if (value.isEmpty() || "null".equals(value)) continue;
                         BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = CALIBRE_FIELD_MAPPINGS.get(fieldName);
                         if (mapper != null) {
                             mapper.accept(builder, value);
