@@ -67,7 +67,7 @@ public class KoboEntitlementService {
                                 .readingState(getReadingStateForBook(book))
                                 .build())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<? extends Entitlement> generateChangedEntitlements(Set<Long> bookIds, String token, boolean removed) {
@@ -95,7 +95,7 @@ public class KoboEntitlementService {
                                         .build())
                                 .build();
                     })
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return books.stream()
                 .filter(bookEntity -> bookEntity.getPrimaryBookFile() != null && bookEntity.getPrimaryBookFile().getBookType() == BookFileType.EPUB)
@@ -105,7 +105,7 @@ public class KoboEntitlementService {
                                 .bookMetadata(mapToKoboMetadata(book, token))
                                 .build())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ChangedReadingState> generateChangedReadingStates(List<UserBookProgressEntity> progressEntries) {

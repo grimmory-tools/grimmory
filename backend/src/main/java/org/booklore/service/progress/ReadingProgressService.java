@@ -1,7 +1,6 @@
 package org.booklore.service.progress;
 
-import
-        org.booklore.config.security.service.AuthenticationService;
+import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.progress.AudiobookProgress;
@@ -500,7 +499,7 @@ public class ReadingProgressService {
                         .readStatusModifiedTime(existingBookIds.contains(bookId) ? now : null)
                         .dateFinished(null)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BookLoreUserEntity findUserOrThrow(Long userId) {

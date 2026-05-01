@@ -99,6 +99,7 @@ jobs:
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Authenticate to Docker Hub
+        if: ${{ vars.DOCKERHUB_REGISTRY != '' }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -111,27 +112,63 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Build and push Docker image
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        with:
+          images: |
+            ${{ vars.DOCKERHUB_REGISTRY }}
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=nightly
+            type=raw,value=${{ env.nightly_tag }}
+
+      - name: Build and push Stable image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            grimmory/grimmory:${{ env.nightly_tag }}
-            grimmory/grimmory:nightly
-            ghcr.io/grimmory-tools/grimmory:${{ env.nightly_tag }}
-            ghcr.io/grimmory-tools/grimmory:nightly
+          tags: ${{ steps.meta.outputs.tags }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             APP_VERSION=${{ env.nightly_tag }}
             APP_REVISION=${{ env.commit_sha }}
           cache-from: |
             type=gha,scope=image-shared
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
           cache-to: |
             type=gha,scope=image-shared,mode=max
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
+
+  export-openapi:
+    name: Export Nightly OpenAPI Artifact
+    needs: [resolve_ref]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Workflow Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+
+      - name: Export OpenAPI JSON
+        uses: ./.github/actions/export-openapi
+        with:
+          checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+          app_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
+
+      - name: Upload Nightly OpenAPI Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openapi-${{ needs.resolve_ref.outputs.nightly_tag }}
+          path: backend/build/openapi/grimmory-openapi.json
+          retention-days: 30
 
   generate-notes:
     name: Nightly Changelog
@@ -148,13 +185,28 @@ jobs:
       release_type: ${{ steps.notes.outputs.release_type }}
       released: ${{ steps.notes.outputs.released }}
       to_sha: ${{ steps.notes.outputs.to_sha }}
+      available: ${{ steps.webhook_secrets_check.outputs.available }}
     steps:
+      - name: Check Discord Webhook secrets
+        id: webhook_secrets_check
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK != '' && secrets.DISCORD_NIGHTLY_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          # Check here rather than in the `if`.
+          # Github actions does not support the `secrets` context in `if` blocks.
+          if [[ -n "${DISCORD_WEBHOOK}" ]]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout Workflow Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 1
 
       - name: Build Full Changelog
+        if: ${{ steps.webhook_secrets_check.outputs.available == 'true' }}
         id: notes
         uses: ./.github/actions/compute-release-notes
         with:
@@ -165,8 +217,8 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.generate-notes.outputs.predicted_version != '' }}
-    needs: [resolve_ref, build-and-push, generate-notes]
+    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
+    needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:

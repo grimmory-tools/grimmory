@@ -60,7 +60,7 @@ describe('CbxQuickSettingsService', () => {
       fitMode: CbxFitMode.FIT_PAGE,
       scrollMode: CbxScrollMode.PAGINATED,
       pageViewMode: CbxPageViewMode.SINGLE_PAGE,
-      pageSpread: CbxPageSpread.ODD,
+      pageSpread: CbxPageSpread.EVEN,
       backgroundColor: CbxBackgroundColor.GRAY,
       readingDirection: CbxReadingDirection.LTR,
       slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,

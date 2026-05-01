@@ -241,7 +241,7 @@ class View {
         })
         // Foliate recommends disabling scripts for untrusted book content:
         // https://github.com/johnfactotum/foliate-js#security
-        this.#iframe.setAttribute('sandbox', 'allow-same-origin')
+        this.#iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts')
         this.#iframe.setAttribute('scrolling', 'no')
     }
     get element() {
@@ -360,7 +360,9 @@ class View {
         }
     }
     expand() {
-        const { documentElement } = this.document
+        const documentElement = this.document?.documentElement
+        // If the document element isn't set we probably have disconnected the paginator
+        if (!documentElement) return;
         if (this.#column) {
             const side = this.#vertical ? 'height' : 'width'
             const otherSide = this.#vertical ? 'width' : 'height'
@@ -415,8 +417,8 @@ class View {
     get overlayer() {
         return this.#overlayer
     }
-    destroy() {
-        if (this.document) this.#observer.unobserve(this.document.body)
+    disconnectedCallback() {
+      this.#observer.disconnect()
     }
 }
 
@@ -665,7 +667,7 @@ export class Paginator extends HTMLElement {
     }
     #createView() {
         if (this.#view) {
-            this.#view.destroy()
+            this.#view.disconnectedCallback()
             this.#container.removeChild(this.#view.element)
         }
         this.#view = new View({
@@ -1118,9 +1120,9 @@ export class Paginator extends HTMLElement {
     focusView() {
         this.#view.document.defaultView.focus()
     }
-    destroy() {
-        this.#observer.unobserve(this)
-        this.#view.destroy()
+    disconnectedCallback() {
+        this.#observer.disconnect();
+        this.#view?.disconnectedCallback()
         this.#view = null
         this.sections[this.#index]?.unload?.()
         this.#mediaQuery.removeEventListener('change', this.#mediaQueryListener)

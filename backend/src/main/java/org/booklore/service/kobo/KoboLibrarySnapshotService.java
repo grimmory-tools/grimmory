@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -143,7 +142,7 @@ public class KoboLibrarySnapshotService {
                     snapshotBook.setMetadataUpdatedAt(book.getMetadataUpdatedAt());
                     return snapshotBook;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isBookOwnedByUser(BookEntity book, Long userId) {

@@ -3,6 +3,7 @@ package org.booklore.service.reader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
+import org.booklore.exception.ApiError;
 import org.booklore.service.ArchiveService;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class ChapterCacheService {
      * which can cause SIGSEGV / out-of-memory crashes in the native heap.
      */
     public void prepareCbxCache(String cacheKey, Path cbxPath, List<String> entries) throws IOException {
-        ReentrantLock lock = cacheLocks.computeIfAbsent(cacheKey, ignored -> new ReentrantLock());
+        ReentrantLock lock = cacheLocks.computeIfAbsent(cacheKey, _ -> new ReentrantLock());
         lock.lock();
         try {
             Path cacheDir = getCacheDir(cacheKey);
@@ -102,7 +103,7 @@ public class ChapterCacheService {
 
     private Path getCacheDir(String cacheKey) {
         if (cacheKey == null || cacheKey.contains("..") || cacheKey.contains("/") || cacheKey.contains("\\")) {
-            throw org.booklore.exception.ApiError.INVALID_INPUT.createException("Invalid cache key: " + cacheKey);
+            throw ApiError.INVALID_INPUT.createException("Invalid cache key: " + cacheKey);
         }
         return Paths.get(appProperties.getPathConfig(), "cache", "chapters", cacheKey);
     }
