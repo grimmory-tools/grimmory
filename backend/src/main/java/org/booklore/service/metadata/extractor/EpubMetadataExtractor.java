@@ -232,7 +232,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             try {
                                 builderMeta.seriesNumber(Float.parseFloat(content));
                                 seriesIndexFound = true;
-                            } catch (NumberFormatException ignored) {
+                            } catch (NumberFormatException _) {
                             }
                         }
 
@@ -243,7 +243,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                                 JSONObject jsonroot = new JSONObject(content);
                                 Object value = jsonroot.opt("#value#");
                                 safeParseInt(String.valueOf(value), builderMeta::pageCount);
-                            } catch (JSONException ignored) {
+                            } catch (JSONException _) {
                             }
                         } else if ("calibre:user_metadata".equals(prop)) {
                             try {
@@ -428,14 +428,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static void safeParseInt(String value, java.util.function.IntConsumer setter) {
         try {
             setter.accept(Integer.parseInt(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
 
     private static void safeParseDouble(String value, java.util.function.DoubleConsumer setter) {
         try {
             setter.accept(Double.parseDouble(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
     
@@ -531,19 +531,19 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
         try {
             return LocalDate.parse(value);
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
 
         try {
             return OffsetDateTime.parse(value).toLocalDate();
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
 
         // Try parsing first 10 characters for ISO date format with extra content
         if (value.length() >= 10) {
             try {
                 return LocalDate.parse(value.substring(0, 10));
-            } catch (Exception ignored) {
+            } catch (Exception _) {
             }
         }
 

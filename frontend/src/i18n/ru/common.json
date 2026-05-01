@@ -22,5 +22,8 @@
   "dismiss": "Отклонить",
   "discard": "Отменить изменения",
   "review": "Просмотреть",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

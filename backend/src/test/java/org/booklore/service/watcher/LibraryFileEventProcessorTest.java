@@ -250,7 +250,7 @@ class LibraryFileEventProcessorTest {
             } finally {
                 try (var stream = Files.walk(outsideFolder)) {
                     stream.sorted(java.util.Comparator.reverseOrder()).forEach(p -> {
-                        try { Files.deleteIfExists(p); } catch (IOException ignored) {}
+                        try { Files.deleteIfExists(p); } catch (IOException _) {}
                     });
                 }
             }

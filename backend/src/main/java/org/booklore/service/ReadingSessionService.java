@@ -83,7 +83,7 @@ public class ReadingSessionService {
                         .count(e.getValue())
                         .build())
                 .sorted(Comparator.comparing(ReadingSessionHeatmapResponse::getDate))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static int toSundayFirstDow(DayOfWeek dow) {
@@ -158,7 +158,7 @@ public class ReadingSessionService {
                         .totalSessions(dto.getTotalSessions())
                         .totalDurationSeconds(dto.getTotalDurationSeconds())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ReadingSpeedResponse> getReadingSpeedForYear(int year) {
@@ -175,7 +175,7 @@ public class ReadingSessionService {
                         .avgProgressPerMinute(dto.getAvgProgressPerMinute())
                         .totalSessions(dto.getTotalSessions())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<PeakHoursResponse> getPeakReadingHours(Integer year, Integer month) {
@@ -198,7 +198,7 @@ public class ReadingSessionService {
                         .sessionCount(e.getValue()[0])
                         .totalDurationSeconds(e.getValue()[1])
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<FavoriteReadingDaysResponse> getFavoriteReadingDays(Integer year, Integer month) {
@@ -226,7 +226,7 @@ public class ReadingSessionService {
                             .build();
                 })
                 .sorted(Comparator.comparingInt(FavoriteReadingDaysResponse::getDayOfWeek))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<GenreStatisticsResponse> getGenreStatistics() {
@@ -248,7 +248,7 @@ public class ReadingSessionService {
                             .averageSessionsPerBook(Math.round(avgSessionsPerBook * 100.0) / 100.0)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CompletionTimelineResponse> getCompletionTimeline(int year) {
@@ -286,7 +286,7 @@ public class ReadingSessionService {
                     int cmp = b.getYear().compareTo(a.getYear());
                     return cmp != 0 ? cmp : b.getMonth().compareTo(a.getMonth());
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Page<ReadingSessionResponse> getReadingSessionsForBook(Long bookId, int page, int size) {
@@ -331,7 +331,7 @@ public class ReadingSessionService {
                         .month(dto.getMonth())
                         .count(dto.getCount())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<PageTurnerScoreResponse> getPageTurnerScores() {
@@ -351,7 +351,7 @@ public class ReadingSessionService {
                         ? book.getMetadata().getCategories().stream()
                         .map(CategoryEntity::getName)
                         .sorted()
-                        .collect(Collectors.toList())
+                        .toList()
                         : List.of();
                 bookCategories.put(book.getId(), categories);
             });
@@ -366,7 +366,7 @@ public class ReadingSessionService {
 
                     List<Double> durations = bookSessions.stream()
                             .map(s -> s.getDurationSeconds() != null ? s.getDurationSeconds().doubleValue() : 0.0)
-                            .collect(Collectors.toList());
+                            .toList();
 
                     List<Double> gaps = new ArrayList<>();
                     for (int i = 1; i < bookSessions.size(); i++) {
@@ -412,7 +412,7 @@ public class ReadingSessionService {
                             .build();
                 })
                 .sorted(Comparator.comparingInt(PageTurnerScoreResponse::getGripScore).reversed())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static final int COMPLETION_RACE_BOOK_LIMIT = 10;
@@ -445,7 +445,7 @@ public class ReadingSessionService {
                         .sessionDate(dto.getSessionDate())
                         .endProgress(dto.getEndProgress())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ReadingSessionHeatmapResponse> getReadingDates() {
@@ -466,7 +466,7 @@ public class ReadingSessionService {
                         .rating(dto.getRating())
                         .count(dto.getCount())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         // Status distribution
         List<BookDistributionsResponse.StatusBucket> statusBuckets = userBookProgressRepository.findStatusDistributionByUser(userId)
@@ -475,7 +475,7 @@ public class ReadingSessionService {
                         .status(dto.getStatus().name())
                         .count(dto.getCount())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         // Progress distribution — coalesce to max across sources, then bucket
         List<ProgressPercentDto> progressRows = userBookProgressRepository.findAllProgressPercentsByUser(userId);
@@ -544,7 +544,7 @@ public class ReadingSessionService {
                             .dayOfWeek(toSundayFirstDow(zdt.getDayOfWeek()))
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ReadingStreakResponse getReadingStreak() {
@@ -626,7 +626,7 @@ public class ReadingSessionService {
                         .maxProgress(dto.getMaxProgress())
                         .readStatus(dto.getReadStatus())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private double linearRegressionSlope(List<Double> values) {
@@ -671,7 +671,7 @@ public class ReadingSessionService {
                         .sessions(e.getValue()[0])
                         .durationMinutes(Math.round(e.getValue()[1] / 60.0))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<WeeklyListeningTrendResponse> getWeeklyListeningTrend(int weeks) {
@@ -701,7 +701,7 @@ public class ReadingSessionService {
                             .sessions(entry.getValue()[1])
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ListeningCompletionResponse getListeningCompletion() {
@@ -736,7 +736,7 @@ public class ReadingSessionService {
                 .totalAudiobooks(totalAudiobooks)
                 .completed(completed)
                 .inProgressCount(inProgressCount)
-                .inProgress(inProgress.stream().limit(10).collect(Collectors.toList()))
+                .inProgress(inProgress.stream().limit(10).toList())
                 .build();
     }
 
@@ -766,7 +766,7 @@ public class ReadingSessionService {
                             .totalListeningSeconds(listeningSeconds)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ListeningFinishFunnelResponse getListeningFinishFunnel() {
@@ -819,7 +819,7 @@ public class ReadingSessionService {
                         .sessionCount(e.getValue()[0])
                         .totalDurationSeconds(e.getValue()[1])
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<GenreStatisticsResponse> getListeningGenreStatistics() {
@@ -839,7 +839,7 @@ public class ReadingSessionService {
                             .averageSessionsPerBook(Math.round(avgSessionsPerBook * 100.0) / 100.0)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ListeningAuthorResponse> getListeningAuthorStats() {
@@ -852,7 +852,7 @@ public class ReadingSessionService {
                         .totalSessions(dto.getTotalSessions())
                         .totalDurationSeconds(dto.getTotalDurationSeconds())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<SessionScatterResponse> getListeningSessionScatter() {
@@ -869,7 +869,7 @@ public class ReadingSessionService {
                             .dayOfWeek(toSundayFirstDow(zdt.getDayOfWeek()))
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<LongestAudiobookResponse> getListeningLongestBooks() {
@@ -890,6 +890,6 @@ public class ReadingSessionService {
                             .progressPercent(Math.round(maxProg * 10.0) / 10.0)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

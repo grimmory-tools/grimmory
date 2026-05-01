@@ -127,7 +127,7 @@ public final class NativeLibraries {
     }
 
     public static void ensureInitialized() {
-        NativeLibraries ignored = Holder.INSTANCE;
+        NativeLibraries _ = Holder.INSTANCE;
     }
 
     public boolean isAvailable(Library library) {
