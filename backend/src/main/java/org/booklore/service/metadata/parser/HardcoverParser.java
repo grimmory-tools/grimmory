@@ -236,7 +236,7 @@ public class HardcoverParser implements BookParser {
             if (book.getFeaturedBookSeries().getPosition() != null) {
                 try {
                     metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries().getPosition())));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException _) {
                 }
             }
         }
@@ -321,7 +321,7 @@ public class HardcoverParser implements BookParser {
         if (doc.getFeaturedSeries().getPosition() != null) {
             try {
                 metadata.setSeriesNumber(Float.parseFloat(String.valueOf(doc.getFeaturedSeries().getPosition())));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException _) {
             }
         }
     }

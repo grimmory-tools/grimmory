@@ -1,33 +1,28 @@
-import {Component, computed, DestroyRef, effect, HostListener, inject, OnInit, signal, ViewChild} from '@angular/core';
-import {computeGridColumns} from '../../../../shared/util/viewport.util';
-import {NgStyle} from '@angular/common';
+import {Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnInit, signal, viewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {filter} from 'rxjs/operators';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
-import {Slider} from 'primeng/slider';
 import {Popover} from 'primeng/popover';
 import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {Tooltip} from 'primeng/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {CdkVirtualScrollViewport, CdkVirtualForOf} from '@angular/cdk/scrolling';
-import {CdkAutoSizeVirtualScroll} from '@angular/cdk-experimental/scrolling';
-import {BookBrowserScrollService} from '../../../book/components/book-browser/book-browser-scroll.service';
+import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {MessageService} from 'primeng/api';
 import {AuthorService} from '../../service/author.service';
 import {AuthorSummary, EnrichedAuthor, AuthorFilters, DEFAULT_AUTHOR_FILTERS} from '../../model/author.model';
 import {AuthorCardComponent} from '../author-card/author-card.component';
-import {chunk} from '../../../../shared/util/array.util';
-import {AuthorScalePreferenceService} from '../../service/author-scale-preference.service';
 import {AuthorSelectionService, AuthorCheckboxClickEvent} from '../../service/author-selection.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
-import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
 import {BookService} from '../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../book/model/book.model';
+import {createVirtualGrid, scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
+import {GridDensityButtonsComponent} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {LocalStorageService} from '../../../../shared/service/local-storage.service';
+import {ScalePreference} from '../../../../shared/util/scale-preference.util';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -59,21 +54,17 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
   templateUrl: './author-browser.component.html',
   styleUrls: ['./author-browser.component.scss'],
   imports: [
-    NgStyle,
     FormsModule,
     ProgressSpinner,
     InputText,
     Select,
-    Slider,
     Popover,
     Button,
     Divider,
     Tooltip,
     TranslocoDirective,
+    GridDensityButtonsComponent,
     AuthorCardComponent,
-    CdkVirtualScrollViewport,
-    CdkVirtualForOf,
-    CdkAutoSizeVirtualScroll,
   ]
 })
 export class AuthorBrowserComponent implements OnInit {
@@ -82,39 +73,32 @@ export class AuthorBrowserComponent implements OnInit {
   private static readonly BASE_HEIGHT = 290;
   private static readonly MOBILE_BASE_WIDTH = 140;
   private static readonly MOBILE_BASE_HEIGHT = 250;
+  private static readonly SCALE_STORAGE_KEY = 'authorScalePreference';
+  private static readonly MIN_SCALE = 0.7;
+  private static readonly MAX_SCALE = 1.3;
 
   private authorService = inject(AuthorService);
   private bookService = inject(BookService);
   private messageService = inject(MessageService);
   private pageTitle = inject(PageTitleService);
-  private scrollService = inject(BookBrowserScrollService);
+  private scrollService = inject(RouteScrollPositionService);
   private t = inject(TranslocoService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private localStorageService = inject(LocalStorageService);
   protected userService = inject(UserService);
-  protected authorScaleService = inject(AuthorScalePreferenceService);
   protected selectionService = inject(AuthorSelectionService);
 
-  virtualScroller: CdkVirtualScrollViewport | undefined;
-
-  @ViewChild('scroll')
-  set scrollViewport(vp: CdkVirtualScrollViewport | undefined) {
-    this.virtualScroller = vp;
-    this.viewportResizeObserver?.disconnect();
-    if (vp) {
-      const el = vp.elementRef.nativeElement as HTMLElement;
-      this.viewportWidth.set(el.clientWidth);
-      this.viewportResizeObserver = new ResizeObserver(entries => {
-        this.viewportWidth.set(entries[0]?.contentRect.width ?? el.clientWidth);
-      });
-      this.viewportResizeObserver.observe(el);
-    }
-  }
-
   private static readonly GRID_GAP = 20;
-  private readonly viewportWidth = signal(0);
-  private viewportResizeObserver: ResizeObserver | undefined;
+  private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
+  private readonly initialScrollOffset = () => this.scrollService.getPosition(this.scrollService.keyFor(this.activatedRoute)) ?? 0;
+  private readonly scalePreference = new ScalePreference(this.localStorageService, {
+    storageKey: AuthorBrowserComponent.SCALE_STORAGE_KEY,
+    minScale: AuthorBrowserComponent.MIN_SCALE,
+    maxScale: AuthorBrowserComponent.MAX_SCALE,
+  });
+  private readonly scaleFactor = this.scalePreference.scaleFactor;
 
   readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
   thumbnailCacheBusters = new Map<number, number>();
@@ -204,29 +188,25 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   readonly isMobile = computed(() => this.screenWidth() <= 767);
-
-  readonly cardWidth = computed(() => {
-    const base = this.isMobile()
-      ? AuthorBrowserComponent.MOBILE_BASE_WIDTH
-      : AuthorBrowserComponent.BASE_WIDTH;
-    return Math.round(base * this.authorScaleService.scaleFactor());
-  });
-
-  readonly cardHeight = computed(() => {
-    const base = this.isMobile()
+  private readonly baseCardWidth = computed(() => this.isMobile()
+    ? AuthorBrowserComponent.MOBILE_BASE_WIDTH
+    : AuthorBrowserComponent.BASE_WIDTH
+  );
+  private readonly cardAspectRatio = computed(() => {
+    const baseHeight = this.isMobile()
       ? AuthorBrowserComponent.MOBILE_BASE_HEIGHT
       : AuthorBrowserComponent.BASE_HEIGHT;
-    return Math.round(base * this.authorScaleService.scaleFactor());
+    return baseHeight / this.baseCardWidth();
   });
-
-  readonly gridColumnMinWidth = computed(() => `${this.cardWidth()}px`);
-
-  readonly gridColumns = computed(() => {
-    return computeGridColumns(this.viewportWidth(), this.cardWidth() || 165, AuthorBrowserComponent.GRID_GAP);
-  });
-
-  readonly authorRows = computed(() => {
-    return chunk(this.filteredAuthors(), this.gridColumns());
+  private readonly minCardWidth = computed(() => Math.round(this.baseCardWidth() * this.scaleFactor()));
+  readonly virtualGrid = createVirtualGrid({
+    items: this.filteredAuthors,
+    scrollElement: this.scrollElement,
+    minItemWidth: this.minCardWidth,
+    gap: AuthorBrowserComponent.GRID_GAP,
+    initialOffset: this.initialScrollOffset,
+    fillItemWidth: true,
+    estimateItemHeight: itemWidth => Math.round(itemWidth * this.cardAspectRatio()),
   });
 
   sortOptions: SortOption[] = [];
@@ -238,7 +218,6 @@ export class AuthorBrowserComponent implements OnInit {
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
-    this.destroyRef.onDestroy(() => this.viewportResizeObserver?.disconnect());
 
     this.sortOptions = [
       {label: this.t.translate('authorBrowser.sort.name'), value: 'name'},
@@ -259,11 +238,36 @@ export class AuthorBrowserComponent implements OnInit {
       this.sortDirection.set(dirParam === 'asc' || dirParam === 'desc' ? dirParam : DEFAULT_SORT_DIRECTIONS[sortParam]);
     }
 
-    this.setupScrollPositionTracking();
+    this.scrollService.trackRoute({
+      scrollElement: this.scrollElement,
+      route: this.activatedRoute,
+      destroyRef: this.destroyRef,
+      dismissOverlaysBeforeSave: true,
+    });
     this.destroyRef.onDestroy(() => this.selectionService.deselectAll());
   }
 
+  adjustDesktopGridDensity(direction: 'smaller' | 'larger'): void {
+    const currentColumns = this.virtualGrid.gridColumns();
+    const columns = Math.max(1, direction === 'smaller'
+      ? currentColumns + 1
+      : currentColumns - 1);
+    const viewportWidth = this.virtualGrid.viewportWidth() || this.screenWidth();
+    this.virtualGrid.updatePreservingScrollPosition(() => {
+      this.setScale(scaleForGridColumns(
+        viewportWidth,
+        AuthorBrowserComponent.GRID_GAP,
+        columns,
+        this.baseCardWidth(),
+        AuthorBrowserComponent.MIN_SCALE,
+        AuthorBrowserComponent.MAX_SCALE
+      ));
+    });
+  }
 
+  private setScale(scale: number): void {
+    this.scalePreference.setScale(scale);
+  }
 
   onSearchChange(value: string): void {
     this.searchTerm.set(value);
@@ -522,33 +526,6 @@ export class AuthorBrowserComponent implements OnInit {
 
       return true;
     });
-  }
-
-  private getScrollPositionKey(): string {
-    const path = this.activatedRoute.snapshot.routeConfig?.path ?? '';
-    return this.scrollService.createKey(path, this.activatedRoute.snapshot.params);
-  }
-
-  private setupScrollPositionTracking(): void {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationStart),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => {
-      this.dismissBodyMenus();
-      this.saveScrollPosition();
-    });
-  }
-
-  private dismissBodyMenus(): void {
-    document.querySelectorAll('.p-tieredmenu-overlay').forEach(el => el.remove());
-  }
-
-  private saveScrollPosition(): void {
-    if (this.virtualScroller) {
-      const key = this.getScrollPositionKey();
-      const position = this.virtualScroller.measureScrollOffset('top') ?? 0;
-      this.scrollService.savePosition(key, position);
-    }
   }
 
   private removeAuthorsFromList(ids: number[]): void {

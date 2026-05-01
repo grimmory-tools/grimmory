@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 public class ArchiveService {
     private static final int LOCK_STRIPE_COUNT = 256;
     private final ReentrantLock[] lockStripes = IntStream.range(0, LOCK_STRIPE_COUNT)
-            .mapToObj(ignored -> new ReentrantLock())
+            .mapToObj(_ -> new ReentrantLock())
             .toArray(ReentrantLock[]::new);
 
     // Route through the JVM-wide serialized native loader.
@@ -106,7 +107,7 @@ public class ArchiveService {
                 } catch (Exception e) {
                     // If it's a format NativeArchive doesn't support (e.g. RAR if it's ZIP-only),
                     // or any other error, we fall back to nightcompress.
-                    log.warn("NativeArchive streaming failed for {} (entry: {}), falling back to nightcompress. Reason: {}", 
+                    log.warn("NativeArchive streaming failed for {} (entry: {}), falling back to nightcompress. Reason: {}",
                             path.getFileName(), entryName, e.getMessage(), e);
                 }
             }
@@ -119,7 +120,13 @@ public class ArchiveService {
             // the `transferTo` on an output stream to copy data around.
             try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
                 if (inputStream != null) {
+                    try {
                     return inputStream.transferTo(outputStream);
+                } finally {
+                    // NightCompress fails with a SIGSEGV if you do not read the
+                    // entirety of the input stream from the zip.
+                    inputStream.transferTo(OutputStream.nullOutputStream());
+                }
                 }
             } catch (Exception e) {
                 throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
@@ -225,22 +232,32 @@ public class ArchiveService {
                     throw e;
                 } catch (Exception e) {
                     Files.deleteIfExists(tmp);
-                    log.warn("NativeArchive extraction failed for {} (entry: {}), falling back to nightcompress. Reason: {}", 
+                    log.warn("NativeArchive extraction failed for {} (entry: {}), falling back to nightcompress. Reason: {}",
                             path.getFileName(), entryName, e.getMessage(), e);
                 }
             }
 
             requireAvailable();
 
-            try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
-                if (inputStream != null) {
-                    return Files.copy(inputStream, outputPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                }
+            boolean hasCreatedFile = false;
+            try (OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+                hasCreatedFile = true;
+
+                return transferEntryTo(path, entryName, outputStream);
             } catch (Exception e) {
+                if (hasCreatedFile) {
+                    try {
+                        Files.deleteIfExists(outputPath);
+                    } catch (Exception ce) {
+                        e.addSuppressed(ce);
+                    }
+                }
+
                 throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
             }
-
-            throw new IOException("Entry not found in archive");
+        } catch (Exception e) {
+            throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
+        }
         } finally {
             lock.unlock();
         }

@@ -138,6 +138,12 @@
             <div
               class="directory-item"
               [class.selected]="isFolderSelected(folder)"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="getFolderName(folder)"
+              (click)="onRowClick(folder)"
+              (keydown.enter)="onRowClick(folder)"
+              (keydown.space)="onRowClick(folder)"
             >
               <div class="directory-checkbox">
                 <p-checkbox
@@ -146,14 +152,11 @@
                   [(ngModel)]="selectedFoldersMap[folder]"
                   (ngModelChange)="onCheckboxChange(folder, $event)"
                   (click)="$event.stopPropagation()"
+                  (keydown.enter)="$event.stopPropagation()"
+                  (keydown.space)="$event.stopPropagation()"
                 />
               </div>
-              <label
-                [for]="'folder-' + folder"
-                class="directory-label"
-                tabindex="0"
-                (click)="onRowClick(folder)"
-                (keydown.enter)="onRowClick(folder)">
+              <div class="directory-label">
                 <div class="directory-icon-wrapper">
                   <i class="pi pi-folder directory-icon"></i>
                 </div>
@@ -162,7 +165,7 @@
                   <span class="directory-path">{{ folder }}</span>
                 </div>
                 <i class="pi pi-chevron-right navigate-icon"></i>
-              </label>
+              </div>
             </div>
           }
         </div>

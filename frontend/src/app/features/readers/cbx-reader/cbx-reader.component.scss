@@ -274,16 +274,8 @@
         object-fit: contain;
         box-shadow: 0 8px 32px rgb(0 0 0 / 60%);
         border-radius: 4px;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.02);
-        }
 
         &.previous-image {
-          &:hover {
-            transform: none;
-          }
         }
       }
 
@@ -299,22 +291,30 @@
           max-height: none;
         }
 
+        .pages-wrapper {
+          min-height: 100%;
+        }
+
+        .current-page-layer {
+          margin-block: auto;
+        }
+
         .page-image {
           width: 100%;
           height: auto;
-
-          &:hover {
-            transform: scale(1.02);
-          }
         }
 
         &.two-page-view {
-          .pages-wrapper,
           .previous-page-layer,
           .current-page-layer {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
+            width: 100%;
+          }
+
+          .single-page-layer {
+            grid-template-columns: 1fr;
           }
 
           .page-image {
@@ -325,27 +325,55 @@
       }
 
       &.fit-height {
-        .pages-wrapper,
-        .previous-page-layer,
+        overflow: auto;
+        align-items: stretch;
+        touch-action: pan-x pan-y;
+
+        .pages-wrapper {
+          width: max-content;
+          min-width: 100%;
+          min-height: 100%;
+          height: auto;
+        }
+
         .current-page-layer {
-          width: auto;
-          max-width: 100%;
+          width: max-content;
+          height: auto;
+          margin-inline: auto;
         }
 
         .page-image {
           width: auto;
-          height: 100%;
-
-          &:hover {
-            transform: scale(1.02);
-          }
+          height: calc(100dvh - 1rem);
+          max-width: none;
         }
 
         &.two-page-view {
+          .pages-wrapper {
+            display: block;
+          }
+
+          .previous-page-layer,
+          .current-page-layer {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            width: max-content;
+            height: auto;
+            margin-inline: auto;
+          }
+
           .page-image {
             width: auto;
-            height: 100%;
-            max-width: calc(50% - 0.5rem);
+            height: calc(100dvh - 1rem);
+            max-width: none;
+          }
+
+          .single-page-layer {
+            grid-template-columns: max-content;
+
+            .page-image {
+              max-width: none;
+            }
           }
         }
       }
@@ -364,14 +392,35 @@
           min-height: 0;
         }
 
+        .pages-wrapper {
+          display: block;
+        }
+
+        .previous-page-layer,
+        .current-page-layer {
+          justify-content: flex-start;
+          align-items: flex-start;
+        }
+
         .page-image {
           width: auto;
           height: auto;
           max-width: none;
           max-height: none;
+        }
 
-          &:hover {
-            transform: none;
+        &.two-page-view {
+          .previous-page-layer,
+          .current-page-layer {
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            width: max-content;
+            height: max-content;
+            justify-content: start;
+          }
+
+          .single-page-layer {
+            grid-template-columns: max-content;
           }
         }
       }
@@ -382,10 +431,6 @@
           max-height: 100%;
           width: auto;
           height: auto;
-
-          &:hover {
-            transform: scale(1.02);
-          }
         }
 
         &.two-page-view {
@@ -394,6 +439,12 @@
             max-height: 100%;
             width: auto;
             height: auto;
+          }
+
+          .single-page-layer {
+            .page-image {
+              max-width: 100%;
+            }
           }
         }
       }
@@ -404,10 +455,6 @@
           max-height: 100%;
           width: auto;
           height: auto;
-
-          &:hover {
-            transform: scale(1.02);
-          }
         }
 
         &.two-page-view {
@@ -416,6 +463,12 @@
             max-height: 100%;
             width: auto;
             height: auto;
+          }
+
+          .single-page-layer {
+            .page-image {
+              max-width: 100%;
+            }
           }
         }
       }

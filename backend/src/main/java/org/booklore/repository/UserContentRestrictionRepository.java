@@ -4,8 +4,10 @@ import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.ContentRestrictionMode;
 import org.booklore.model.enums.ContentRestrictionType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +23,15 @@ public interface UserContentRestrictionRepository extends JpaRepository<UserCont
     Optional<UserContentRestrictionEntity> findByUserIdAndRestrictionTypeAndValue(
             Long userId, ContentRestrictionType restrictionType, String value);
 
-    void deleteByUserId(Long userId);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("DELETE FROM UserContentRestrictionEntity r WHERE r.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 
-    void deleteByUserIdAndRestrictionType(Long userId, ContentRestrictionType type);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("DELETE FROM UserContentRestrictionEntity r WHERE r.user.id = :userId AND r.restrictionType = :type")
+    void deleteByUserIdAndRestrictionType(@Param("userId") Long userId, @Param("type") ContentRestrictionType type);
 
     @Query("SELECT r FROM UserContentRestrictionEntity r WHERE r.user.id = :userId AND r.restrictionType = :type AND r.mode = :mode")
     List<UserContentRestrictionEntity> findByUserIdAndTypeAndMode(

@@ -14,7 +14,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -85,7 +84,7 @@ public class BookLoreUserTransformer {
             bookLoreUser.setAssignedLibraries(
                     userEntity.getLibraries().stream()
                             .map(libraryMapper::toLibrary)
-                            .collect(Collectors.toList())
+                            .toList()
             );
         } else {
             bookLoreUser.setAssignedLibraries(Collections.emptyList());

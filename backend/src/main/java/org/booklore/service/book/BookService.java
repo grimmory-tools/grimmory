@@ -166,7 +166,7 @@ public class BookService {
                     fileProgressMap.get(bookEntity.getId())
             );
             return book;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public Book getBook(long bookId, boolean withDescription) {

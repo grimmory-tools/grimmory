@@ -22,5 +22,8 @@
   "dismiss": "Відхилити",
   "discard": "Відкинути",
   "review": "Перевірити",
-  "libraryPathInaccessible": "Шлях до бібліотеки недоступний"
+  "libraryPathInaccessible": "Шлях до бібліотеки недоступний",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }
