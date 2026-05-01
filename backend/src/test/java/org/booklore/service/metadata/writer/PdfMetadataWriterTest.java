@@ -66,7 +66,7 @@ class PdfMetadataWriterTest {
                     .forEach(p -> {
                         try {
                             Files.deleteIfExists(p);
-                        } catch (Exception ignore) {
+                        } catch (Exception _) {
                         }
                     });
         }

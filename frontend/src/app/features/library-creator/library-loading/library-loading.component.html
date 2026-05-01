@@ -8,12 +8,12 @@
 
       <div class="library-loader-body">
         <div class="book-title">
-          @if (!isComplete) {
+          @if (!isComplete()) {
             <ng-container>
-              {{ t('processing') }} <strong>{{ truncatedTitle }}</strong>
+              {{ t('processing') }} <strong>{{ bookTitle() }}</strong>
             </ng-container>
           }
-          @if (isComplete) {
+          @if (isComplete()) {
             <strong class="complete-message">
               <i class="pi pi-check-circle"></i>
               {{ t('complete') }}
@@ -22,15 +22,15 @@
         </div>
 
         <div class="progress-info">
-          <span>{{ current }} / {{ total }}</span>
-          <span>{{ percentage }}%</span>
+          <span>{{ current() }} / {{ total() }}</span>
+          <span>{{ percentage() }}%</span>
         </div>
 
         <div class="progress-bar-container">
-          <div class="progress-bar-fill" [style.width.%]="percentage"></div>
+          <div class="progress-bar-fill" [style.width.%]="percentage()"></div>
         </div>
 
-        @if (!isComplete) {
+        @if (!isComplete()) {
           <div class="loader-animation">
             <div class="dot"></div>
             <div class="dot"></div>
@@ -39,7 +39,7 @@
         }
       </div>
 
-      @if (isComplete) {
+      @if (isComplete()) {
         <div class="library-loader-footer">
           <button class="reload-button" (click)="onReload()">
             <i class="pi pi-bookmark"></i>

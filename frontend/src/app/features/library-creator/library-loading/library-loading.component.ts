@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { computed, signal, Component } from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
+
+const MAX_TITLE_LENGTH = 50;
 
 @Component({
   selector: 'app-library-loading',
@@ -9,27 +11,26 @@ import {TranslocoDirective} from '@jsverse/transloco';
   styleUrl: './library-loading.component.scss'
 })
 export class LibraryLoadingComponent {
-  bookTitle = '';
-  current = 0;
-  total = 0;
-  isComplete = false;
+  bookTitle = signal('');
+  current = signal(0);
+  total = signal(0);
+  isComplete = signal(false);
 
-  get percentage(): number {
-    return this.total > 0 ? Math.round((this.current / this.total) * 100) : 0;
-  }
+  readonly percentage = computed(() => this.total() > 0 ? Math.round((this.current() / this.total()) * 100) : 0);
 
-  get truncatedTitle(): string {
-    const maxLength = 50;
-    return this.bookTitle.length <= maxLength
-      ? this.bookTitle
-      : this.bookTitle.substring(0, maxLength) + '...';
+  truncateTitle(title: string): string {
+    if (title.length > MAX_TITLE_LENGTH) {
+      return title.substring(0, MAX_TITLE_LENGTH) + "...";
+    }
+
+    return title;
   }
 
   updateProgress(bookTitle: string, current: number, total: number): void {
-    this.bookTitle = bookTitle;
-    this.current = current;
-    this.total = total;
-    this.isComplete = current >= total;
+    this.bookTitle.set(this.truncateTitle(bookTitle));
+    this.current.set(current);
+    this.total.set(total);
+    this.isComplete.set(current >= total);
   }
 
   onReload(): void {

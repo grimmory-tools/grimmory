@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxComicInfoComplianceTest {
 
+    private static final Pattern EMPTY_LINES_PATTERN = Pattern.compile("(?s).*\\n\\s*\\n\\s*<.*");
     private CbxMetadataWriter writer;
     private Path tempDir;
 
@@ -62,7 +64,7 @@ class CbxComicInfoComplianceTest {
                     .forEach(p -> {
                         try {
                             Files.deleteIfExists(p);
-                        } catch (Exception ignore) {
+                        } catch (Exception _) {
                         }
                     });
         }
@@ -117,7 +119,7 @@ class CbxComicInfoComplianceTest {
         assertOrder(xmlContent, "Web", "PageCount");
 
         // 2. Verify Formatting
-        assertFalse(xmlContent.matches("(?s).*\\n\\s*\\n\\s*<.*"), "Should not have empty lines between elements");
+        assertFalse(EMPTY_LINES_PATTERN.matcher(xmlContent).matches(), "Should not have empty lines between elements");
         
         // 3. Verify HTML Stripping in Summary
         assertTrue(xmlContent.contains("<Summary>On his own and out of options, Hughie resorts to extreme measures...</Summary>"));

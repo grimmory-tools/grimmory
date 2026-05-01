@@ -76,7 +76,7 @@ public class BookFileAttachmentService {
 
             List<BookFileEntity> sourceBookFiles = sourceBook.getBookFiles().stream()
                     .filter(BookFileEntity::isBookFormat)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (sourceBookFiles.isEmpty()) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Source book " + sourceBook.getId() + " has no book format files to attach");
