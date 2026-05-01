@@ -325,28 +325,32 @@
       }
 
       &.fit-height {
-        .pages-wrapper,
-        .previous-page-layer,
+        overflow: auto;
+        align-items: stretch;
+        touch-action: pan-x pan-y;
+
+        .pages-wrapper {
+          width: max-content;
+          min-width: 100%;
+          min-height: 100%;
+          height: auto;
+        }
+
         .current-page-layer {
-          width: auto;
-          max-width: 100%;
+          width: max-content;
+          height: auto;
+          margin-inline: auto;
         }
 
         .page-image {
           width: auto;
-          height: 100%;
+          height: calc(100dvh - 1rem);
+          max-width: none;
         }
 
         &.two-page-view {
-          overflow: auto;
-          align-items: stretch;
-          touch-action: pan-x pan-y;
-
           .pages-wrapper {
-            width: max-content;
-            min-width: 100%;
-            min-height: 100%;
-            height: auto;
+            display: block;
           }
 
           .previous-page-layer,
@@ -368,7 +372,7 @@
             grid-template-columns: max-content;
 
             .page-image {
-              max-width: 100%;
+              max-width: none;
             }
           }
         }
