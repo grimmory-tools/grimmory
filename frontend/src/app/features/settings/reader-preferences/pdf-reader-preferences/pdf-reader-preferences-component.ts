@@ -57,7 +57,7 @@ export class PdfReaderPreferencesComponent {
   }
 
   get selectedScrollLayout(): 'vertical' | 'horizontal' {
-    return this.userSettings.pdfReaderSetting.scrollLayout || 'vertical';
+    return this.userSettings.pdfReaderSetting.scrollLayout ?? 'vertical';
   }
 
   set selectedScrollLayout(value: 'vertical' | 'horizontal') {

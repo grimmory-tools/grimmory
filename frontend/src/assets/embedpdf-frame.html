@@ -492,8 +492,7 @@
         };
 
         if (typeof scrollPlugin.onLayoutReady === 'function') {
-          const unsub = scrollPlugin.onLayoutReady(() => {
-            if (typeof unsub === 'function') unsub();
+          scrollPlugin.onLayoutReady(() => {
             restorePage();
           });
         }

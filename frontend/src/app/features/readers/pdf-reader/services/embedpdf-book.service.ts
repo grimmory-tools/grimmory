@@ -31,7 +31,7 @@ export type PdfScrollLayout = 'vertical' | 'horizontal';
 type ScrollLayoutMethod = (layout: PdfScrollLayout) => void;
 type ReadScrollLayoutMethod = () => string;
 
-interface ScrollLayoutCapability {
+interface ScrollLayoutCapability extends Omit<ScrollCapability, 'onLayoutReady' | 'setScrollStrategy'> {
   onLayoutReady?: (cb: () => void) => () => void;
   setScrollStrategy?: ScrollLayoutMethod;
   setScrollMode?: ScrollLayoutMethod;
@@ -212,7 +212,7 @@ export class EmbedPdfBookService {
         this.pageChange$.next(ev);
       });
 
-      const scrollWithLayoutReady = this.scroll as ScrollCapability & ScrollLayoutCapability;
+      const scrollWithLayoutReady = this.scroll as ScrollLayoutCapability;
       if (typeof scrollWithLayoutReady.onLayoutReady === 'function') {
         this.layoutReadyUnsub = scrollWithLayoutReady.onLayoutReady(() => {
           this.zone.run(() => this.layoutReady$.next());
@@ -283,10 +283,6 @@ export class EmbedPdfBookService {
       clearTimeout(timeoutId);
       restorePage();
     });
-  }
-
-  getScrollLayout(): PdfScrollLayout {
-    return this.readScrollLayoutFromPlugin() ?? this.scrollLayout;
   }
 
   scrollToPage(pageNumber: number, behavior: 'instant' | 'smooth' = 'smooth'): void {
@@ -486,7 +482,7 @@ export class EmbedPdfBookService {
 
   private applyScrollLayout(layout: PdfScrollLayout): void {
     if (!this.scroll) return;
-    const scrollLayoutCap = this.scroll as ScrollCapability & ScrollLayoutCapability;
+    const scrollLayoutCap = this.scroll as ScrollLayoutCapability;
 
     if (typeof scrollLayoutCap.setScrollStrategy === 'function') {
       scrollLayoutCap.setScrollStrategy(layout);
@@ -501,28 +497,6 @@ export class EmbedPdfBookService {
     if (typeof scrollLayoutCap.setLayoutMode === 'function') {
       scrollLayoutCap.setLayoutMode(layout);
     }
-  }
-
-  private readScrollLayoutFromPlugin(): PdfScrollLayout | null {
-    if (!this.scroll) return null;
-    const scrollLayoutCap = this.scroll as ScrollCapability & ScrollLayoutCapability;
-
-    if (typeof scrollLayoutCap.getScrollStrategy === 'function') {
-      const strategy = scrollLayoutCap.getScrollStrategy();
-      return strategy === 'horizontal' ? 'horizontal' : 'vertical';
-    }
-
-    if (typeof scrollLayoutCap.getScrollMode === 'function') {
-      const mode = scrollLayoutCap.getScrollMode();
-      return mode === 'horizontal' ? 'horizontal' : 'vertical';
-    }
-
-    if (typeof scrollLayoutCap.getLayoutMode === 'function') {
-      const mode = scrollLayoutCap.getLayoutMode();
-      return mode === 'horizontal' ? 'horizontal' : 'vertical';
-    }
-
-    return null;
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
@@ -729,7 +703,7 @@ export class EmbedPdfBookService {
       Object.defineProperty(window, 'devicePixelRatio', w.__grimmoryOrigDprDescriptor);
       delete w.__grimmoryOrigDprDescriptor;
     } else if (Object.getOwnPropertyDescriptor(window, 'devicePixelRatio')?.configurable) {
-      Reflect.deleteProperty(window as Window & typeof globalThis, 'devicePixelRatio');
+      Reflect.deleteProperty(window, 'devicePixelRatio');
     }
   }
 
