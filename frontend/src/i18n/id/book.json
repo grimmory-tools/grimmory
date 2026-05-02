@@ -48,6 +48,7 @@
       "noBooks": "Tidak ada buku di koleksi ini!",
       "failedLibrary": "Gagal memuat buku perpustakaan!",
       "failedShelf": "Gagal memuat rak buku!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} Saringan Aktif"
     },
     "tooltip": {

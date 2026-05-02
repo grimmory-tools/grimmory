@@ -283,7 +283,7 @@ export class BookTableRowComponent {
       case 'hardcoverReviewCount':
         return metadata[field] ?? '';
       case 'isbn':
-        return metadata.isbn13 || metadata.isbn10 || '';
+        return metadata.isbn13 ?? metadata.isbn10 ?? '';
       default:
         return '';
     }
@@ -314,7 +314,11 @@ export class BookTableRowComponent {
   }
 
   private getMetadataValue(metadata: BookMetadata, field: string): unknown {
-    return (metadata as Record<string, unknown>)[field];
+    return this.isKeyOf(metadata, field) ? metadata[field] : undefined;
+  }
+
+  private isKeyOf<T extends object>(value: T, field: PropertyKey): field is keyof T {
+    return Object.prototype.hasOwnProperty.call(value, field);
   }
 
   private isAudiobook(): boolean {

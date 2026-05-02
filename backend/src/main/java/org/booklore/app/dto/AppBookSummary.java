@@ -25,7 +25,6 @@ public class AppBookSummary {
     private String seriesName;
     private Float seriesNumber;
     private Long libraryId;
-    private String libraryName;
     private Instant addedOn;
     private Instant lastReadTime;
     private Float readProgress;

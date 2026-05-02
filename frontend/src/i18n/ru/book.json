@@ -48,6 +48,7 @@
       "noBooks": "В этой коллекции нет книг!",
       "failedLibrary": "Не удалось загрузить книги библиотеки!",
       "failedShelf": "Не удалось загрузить книги полки!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} активных фильтров"
     },
     "tooltip": {

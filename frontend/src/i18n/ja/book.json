@@ -48,6 +48,7 @@
       "noBooks": "このコレクションには本がありません！",
       "failedLibrary": "ライブラリの本の読み込みに失敗しました！",
       "failedShelf": "シェルフの本の読み込みに失敗しました！",
+      "failedBooks": "",
       "activeFilters": "{{ count }}件のアクティブフィルター"
     },
     "tooltip": {

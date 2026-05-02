@@ -48,6 +48,7 @@
       "noBooks": "Cette collection ne contient aucun livre !",
       "failedLibrary": "Échec du chargement des livres de la bibliothèque !",
       "failedShelf": "Échec du chargement des livres de l'étagère !",
+      "failedBooks": "",
       "activeFilters": "{{ count }} filtres actifs"
     },
     "tooltip": {

@@ -222,11 +222,15 @@ export class AppBooksApiService {
   }
 }
 
+/**
+ * Maps a server-side AppBookSummary to a Book-shaped object
+ * compatible with book browser card and table views.
+ */
 function summaryToBook(summary: AppBookSummary): Book {
   return {
     id: summary.id,
     libraryId: summary.libraryId,
-    libraryName: summary.libraryName,
+    libraryName: '',
     readStatus: summaryToReadStatus(summary.readStatus),
     personalRating: summary.personalRating,
     addedOn: summary.addedOn ?? undefined,

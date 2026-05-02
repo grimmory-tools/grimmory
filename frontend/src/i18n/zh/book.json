@@ -48,6 +48,7 @@
       "noBooks": "此集合没有图书！",
       "failedLibrary": "加载书库图书失败！",
       "failedShelf": "加载书架图书失败！",
+      "failedBooks": "",
       "activeFilters": "{{ count }} 个活跃筛选条件"
     },
     "tooltip": {

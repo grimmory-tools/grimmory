@@ -48,6 +48,7 @@
       "noBooks": "Ova kolekcija nema knjiga!",
       "failedLibrary": "Učitavanje knjiga zbirke nije uspjelo!",
       "failedShelf": "Učitavanje knjiga police nije uspjelo!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktivnih filtera"
     },
     "tooltip": {

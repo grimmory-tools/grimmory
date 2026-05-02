@@ -48,6 +48,7 @@
       "noBooks": "Ta zbirka nima knjig!",
       "failedLibrary": "Napaka pri nalaganju knjig iz knjižnice!",
       "failedShelf": "Napaka pri nalaganju knjig s police!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktivnih filtrov"
     },
     "tooltip": {

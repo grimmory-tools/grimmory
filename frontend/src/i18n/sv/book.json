@@ -48,6 +48,7 @@
       "noBooks": "Denna samling har inga böcker!",
       "failedLibrary": "Kunde inte ladda bibliotekets böcker!",
       "failedShelf": "Kunde inte ladda hyllans böcker!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktiva filter"
     },
     "tooltip": {

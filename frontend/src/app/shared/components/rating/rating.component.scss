@@ -14,6 +14,26 @@
   align-items: center;
   gap: var(--app-rating-gap);
   line-height: 1;
+
+  &.app-rating-excellent {
+    --app-rating-color: rgb(34 197 94);
+  }
+
+  &.app-rating-good {
+    --app-rating-color: rgb(52 211 153);
+  }
+
+  &.app-rating-mixed {
+    --app-rating-color: rgb(234 179 8);
+  }
+
+  &.app-rating-low {
+    --app-rating-color: rgb(249 115 22);
+  }
+
+  &.app-rating-poor {
+    --app-rating-color: rgb(239 68 68);
+  }
 }
 
 .app-rating-star {

@@ -28,7 +28,6 @@ public interface AppBookMapper {
     @Mapping(target = "seriesName", source = "book.metadata.seriesName")
     @Mapping(target = "seriesNumber", source = "book.metadata.seriesNumber")
     @Mapping(target = "libraryId", source = "book.library.id")
-    @Mapping(target = "libraryName", source = "book.library.name")
     @Mapping(target = "addedOn", source = "book.addedOn")
     @Mapping(target = "lastReadTime", source = "progress.lastReadTime")
     @Mapping(target = "readProgress", source = "progress", qualifiedByName = "mapReadProgress")

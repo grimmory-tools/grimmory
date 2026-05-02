@@ -48,6 +48,7 @@
       "noBooks": "",
       "failedLibrary": "",
       "failedShelf": "",
+      "failedBooks": "",
       "activeFilters": ""
     },
     "tooltip": {
