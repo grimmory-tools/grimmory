@@ -314,6 +314,7 @@ export class BookBrowserComponent implements AfterViewInit {
   private readonly virtualGridColumns = computed(() => this.isMobile() ? this.gridMobileColumnCount() : undefined);
   readonly virtualRowCount = computed(() => this.bookCountIncludingUnloadedPages(this.books().length));
   private readonly hasUnloadedBooks = computed(() => this.books().length < this.virtualRowCount());
+  readonly loadedBookCount = computed(() => this.appBooksApi.books().length);
   readonly virtualGrid = createVirtualGrid({
     items: this.books,
     scrollElement: this.scrollElement,
@@ -334,25 +335,26 @@ export class BookBrowserComponent implements AfterViewInit {
     filterMode: this.selectedFilterMode(),
     sort: this.sortCriteria(),
   }));
-  private gridLastLoadRequestCount = 0;
+  private gridLastLoadRequestLoadedBookCount = 0;
   private gridLastSeenQueryToken: unknown;
   private readonly gridPaginatorEffect = effect(() => {
     if (this.currentViewMode() !== VIEW_MODES.GRID) return;
 
     const queryToken = this.bookQueryToken();
     if (queryToken !== this.gridLastSeenQueryToken) {
-      this.gridLastLoadRequestCount = 0;
+      this.gridLastLoadRequestLoadedBookCount = 0;
       this.gridLastSeenQueryToken = queryToken;
     }
 
     const items = this.books();
+    const loadedBookCount = this.loadedBookCount();
     const lastVirtualItem = this.virtualGrid.virtualizer.getVirtualItems().at(-1);
     if (!lastVirtualItem || items.length === 0) return;
     if (lastVirtualItem.index < items.length - 1) return;
     if (!this.hasUnloadedBooks() || this.appBooksApi.isFetchingNextPage()) return;
-    if (this.gridLastLoadRequestCount === items.length) return;
+    if (this.gridLastLoadRequestLoadedBookCount === loadedBookCount) return;
 
-    this.gridLastLoadRequestCount = items.length;
+    this.gridLastLoadRequestLoadedBookCount = loadedBookCount;
     this.appBooksApi.fetchNextPage();
   });
   readonly isFetchingNextBooksPage = this.appBooksApi.isFetchingNextPage;

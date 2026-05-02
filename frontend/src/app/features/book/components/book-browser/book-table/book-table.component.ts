@@ -82,6 +82,7 @@ export class BookTableComponent {
   readonly books = input<Book[]>([]);
   readonly visibleColumns = input<BookTableColumn[]>([]);
   readonly virtualRowCount = input(0);
+  readonly loadedBookCount = input<number | null>(null);
   readonly isFetchingNextPage = input(false);
   readonly useSquareCovers = input(false);
   readonly bookQueryToken = input<unknown>(undefined);
@@ -190,23 +191,24 @@ export class BookTableComponent {
     queueMicrotask(() => this.rowVirtualizer.measure());
   });
 
-  private lastLoadRequestCount = 0;
+  private lastLoadRequestLoadedBookCount = 0;
   private lastSeenQueryToken: unknown;
   private readonly paginatorEffect = effect(() => {
     const queryToken = this.bookQueryToken();
     if (queryToken !== this.lastSeenQueryToken) {
-      this.lastLoadRequestCount = 0;
+      this.lastLoadRequestLoadedBookCount = 0;
       this.lastSeenQueryToken = queryToken;
     }
 
     const items = this.books();
+    const loadedBookCount = this.loadedBookCount() ?? items.length;
     const lastVirtualItem = this.rowVirtualizer.getVirtualItems().at(-1);
     if (!lastVirtualItem || items.length === 0) return;
     if (lastVirtualItem.index < items.length - PAGE_LOAD_AHEAD_ROWS) return;
     if (items.length >= this.virtualRowCount() || this.isFetchingNextPage()) return;
-    if (this.lastLoadRequestCount === items.length) return;
+    if (this.lastLoadRequestLoadedBookCount === loadedBookCount) return;
 
-    this.lastLoadRequestCount = items.length;
+    this.lastLoadRequestLoadedBookCount = loadedBookCount;
     this.loadNextPage.emit();
   });
 

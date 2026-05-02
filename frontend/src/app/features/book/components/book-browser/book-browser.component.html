@@ -272,6 +272,7 @@
         <app-book-table
           [books]="visibleBooks"
           [virtualRowCount]="virtualRowCount()"
+          [loadedBookCount]="loadedBookCount()"
           [isFetchingNextPage]="isFetchingNextBooksPage()"
           [bookQueryToken]="bookQueryToken()"
           (selectAllRequested)="selectAllBooks()"

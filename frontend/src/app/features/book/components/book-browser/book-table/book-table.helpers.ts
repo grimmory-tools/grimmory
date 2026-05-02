@@ -10,12 +10,55 @@ export const RATING_FIELDS = new Set([
   'audibleRating',
 ]);
 
+export const LOCK_FIELDS = [
+  'titleLocked',
+  'subtitleLocked',
+  'publisherLocked',
+  'publishedDateLocked',
+  'descriptionLocked',
+  'seriesNameLocked',
+  'seriesNumberLocked',
+  'seriesTotalLocked',
+  'isbn13Locked',
+  'isbn10Locked',
+  'asinLocked',
+  'comicvineIdLocked',
+  'goodreadsIdLocked',
+  'hardcoverIdLocked',
+  'hardcoverBookIdLocked',
+  'googleIdLocked',
+  'pageCountLocked',
+  'languageLocked',
+  'amazonRatingLocked',
+  'amazonReviewCountLocked',
+  'goodreadsRatingLocked',
+  'goodreadsReviewCountLocked',
+  'hardcoverRatingLocked',
+  'hardcoverReviewCountLocked',
+  'lubimyczytacIdLocked',
+  'lubimyczytacRatingLocked',
+  'ranobedbIdLocked',
+  'ranobedbRatingLocked',
+  'audibleIdLocked',
+  'audibleRatingLocked',
+  'audibleReviewCountLocked',
+  'coverUpdatedOnLocked',
+  'authorsLocked',
+  'categoriesLocked',
+  'moodsLocked',
+  'tagsLocked',
+  'coverLocked',
+  'audiobookCoverLocked',
+  'reviewsLocked',
+  'narratorLocked',
+  'abridgedLocked',
+  'ageRatingLocked',
+  'contentRatingLocked',
+] satisfies ReadonlyArray<keyof BookMetadata>;
+
 export function isMetadataFullyLocked(metadata: BookMetadata): boolean {
   if (typeof metadata.allMetadataLocked === 'boolean') {
     return metadata.allMetadataLocked;
   }
-  const lockedKeys = Object.keys(metadata).filter(key => key.endsWith('Locked') && key !== 'allMetadataLocked');
-  if (lockedKeys.length === 0) return false;
-  const metadataRecord = metadata as Record<string, unknown>;
-  return lockedKeys.every(key => metadataRecord[key] === true);
+  return LOCK_FIELDS.every(field => metadata[field] === true);
 }

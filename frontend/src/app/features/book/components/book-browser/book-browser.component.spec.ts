@@ -500,6 +500,40 @@ describe('BookBrowserComponent', () => {
     expect(fetchNextPageSpy).toHaveBeenCalled();
   });
 
+  it('keeps fetching grid pages when collapsed series hide newly loaded books', () => {
+    const {component, books, setHasNextPage} = createHarness({
+      books: [
+        makeBook(1, 1, 'Alpha', '2024-01-01T00:00:00Z'),
+        makeBook(2, 1, 'Bravo', '2024-02-01T00:00:00Z'),
+        makeBook(3, 1, 'Charlie', '2024-03-01T00:00:00Z'),
+      ],
+      totalElements: 100,
+    });
+    const appBooksApi = TestBed.inject(AppBooksApiService);
+    const filter = TestBed.inject(SeriesCollapseFilter);
+    vi.mocked(filter.collapseBooks).mockImplementation((items: Book[]) => items.slice(0, 3));
+    vi.spyOn(component.virtualGrid.virtualizer, 'getVirtualItems').mockReturnValue([
+      {index: 2, key: 3, start: 0, end: 241, size: 241, lane: 0}
+    ]);
+
+    component.currentViewMode.set(VIEW_MODES.TABLE);
+    TestBed.flushEffects();
+
+    setHasNextPage(true);
+    vi.mocked(filter.setCollapsed)(true);
+    const fetchNextPageSpy = vi.spyOn(appBooksApi, 'fetchNextPage');
+    component.currentViewMode.set(VIEW_MODES.GRID);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    books.update(current => [...current, makeBook(4, 1, 'Collapsed', '2024-04-01T00:00:00Z')]);
+    TestBed.flushEffects();
+
+    expect(component.books()).toHaveLength(3);
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('uses the known total book count while more pages are available', () => {
     const {component, setHasNextPage} = createHarness({totalElements: 100});
 
