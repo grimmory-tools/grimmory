@@ -107,6 +107,7 @@ interface BookBrowserHarness {
   isBooksLoading: WritableSignal<boolean>;
   paramMap$: BehaviorSubject<ParamMap>;
   setHasNextPage: (value: boolean) => void;
+  setIsFetchingNextPage: (value: boolean) => void;
   queryParamsService: {
     shouldForceExpandSeries: ReturnType<typeof vi.fn>;
     updateViewMode: ReturnType<typeof vi.fn>;
@@ -140,6 +141,7 @@ function createHarness(options?: {
   );
   const booksError = signal<string | null>(options?.booksError ?? null);
   const isBooksLoading = signal<boolean>(options?.isBooksLoading ?? false);
+  const isFetchingNextPage = signal(false);
   const hasNextPage = signal(false);
   const currentUser = signal(makeCurrentUser());
   const showFilter = signal(false);
@@ -313,7 +315,7 @@ function createHarness(options?: {
             totalElements,
             hasNextPage: hasNextPage.asReadonly(),
             isLoading: isBooksLoading.asReadonly(),
-            isFetchingNextPage: computed(() => false),
+            isFetchingNextPage: isFetchingNextPage.asReadonly(),
             isError: computed(() => !!booksError()),
             error: computed(() => booksError()),
             filterOptions: computed(() => null),
@@ -394,6 +396,7 @@ function createHarness(options?: {
     isBooksLoading,
     paramMap$,
     setHasNextPage: value => hasNextPage.set(value),
+    setIsFetchingNextPage: value => isFetchingNextPage.set(value),
     queryParamsService,
     routeSnapshot,
   };
@@ -498,6 +501,37 @@ describe('BookBrowserComponent', () => {
     TestBed.flushEffects();
 
     expect(fetchNextPageSpy).toHaveBeenCalled();
+  });
+
+  it('re-arms grid pagination after a next-page request completes without new books', () => {
+    const {component, books, setHasNextPage, setIsFetchingNextPage} = createHarness({totalElements: 100});
+    const appBooksApi = TestBed.inject(AppBooksApiService);
+
+    vi.spyOn(component.virtualGrid.virtualizer, 'getVirtualItems').mockReturnValue([
+      {index: 2, key: 3, start: 0, end: 241, size: 241, lane: 0}
+    ]);
+
+    component.currentViewMode.set(VIEW_MODES.TABLE);
+    TestBed.flushEffects();
+
+    setHasNextPage(true);
+    const fetchNextPageSpy = vi.spyOn(appBooksApi, 'fetchNextPage');
+    component.currentViewMode.set(VIEW_MODES.GRID);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    setIsFetchingNextPage(true);
+    TestBed.flushEffects();
+    setIsFetchingNextPage(false);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    books.update(current => [...current]);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(2);
   });
 
   it('keeps fetching grid pages when collapsed series hide newly loaded books', () => {

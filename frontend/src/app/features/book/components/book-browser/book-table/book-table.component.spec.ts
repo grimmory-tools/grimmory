@@ -196,7 +196,7 @@ describe('BookTableComponent', () => {
     expect(loadNextPageSpy).toHaveBeenCalledTimes(2);
   });
 
-  it('does not retry immediately when a next-page request completes without new rows', () => {
+  it('re-arms pagination after a next-page request completes without new rows', () => {
     const loadNextPageSpy = vi.fn();
     const books = Array.from({length: 50}, (_, index) => makeBook(index + 1, `Book ${index + 1}`));
     vi.spyOn(component.rowVirtualizer, 'getVirtualItems').mockReturnValue([
@@ -217,6 +217,11 @@ describe('BookTableComponent', () => {
     fixture.detectChanges();
 
     expect(loadNextPageSpy).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('virtualRowCount', 52);
+    fixture.detectChanges();
+
+    expect(loadNextPageSpy).toHaveBeenCalledTimes(2);
   });
 
   it('can request the next page again when loaded books grow but rendered rows do not', () => {

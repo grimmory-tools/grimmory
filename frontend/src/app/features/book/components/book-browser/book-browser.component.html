@@ -256,7 +256,17 @@
     @if (booksError()) {
       <div class="no-books-container">
         <p class="no-books-text">
-          {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
+          @switch (entityType()) {
+            @case (EntityType.LIBRARY) {
+              {{ t('labels.failedLibrary') }}
+            }
+            @case (EntityType.SHELF) {
+              {{ t('labels.failedShelf') }}
+            }
+            @default {
+              {{ t('labels.failedBooks') }}
+            }
+          }
         </p>
       </div>
     } @else {

@@ -335,14 +335,14 @@ export class BookBrowserComponent implements AfterViewInit {
     filterMode: this.selectedFilterMode(),
     sort: this.sortCriteria(),
   }));
-  private gridLastLoadRequestLoadedBookCount = 0;
+  private gridLastLoadRequestLoadedBookCount: number | undefined;
   private gridLastSeenQueryToken: unknown;
   private readonly gridPaginatorEffect = effect(() => {
     if (this.currentViewMode() !== VIEW_MODES.GRID) return;
 
     const queryToken = this.bookQueryToken();
     if (queryToken !== this.gridLastSeenQueryToken) {
-      this.gridLastLoadRequestLoadedBookCount = 0;
+      this.gridLastLoadRequestLoadedBookCount = undefined;
       this.gridLastSeenQueryToken = queryToken;
     }
 
@@ -352,7 +352,10 @@ export class BookBrowserComponent implements AfterViewInit {
     if (!lastVirtualItem || items.length === 0) return;
     if (lastVirtualItem.index < items.length - 1) return;
     if (!this.hasUnloadedBooks() || this.appBooksApi.isFetchingNextPage()) return;
-    if (this.gridLastLoadRequestLoadedBookCount === loadedBookCount) return;
+    if (this.gridLastLoadRequestLoadedBookCount === loadedBookCount) {
+      this.gridLastLoadRequestLoadedBookCount = undefined;
+      return;
+    }
 
     this.gridLastLoadRequestLoadedBookCount = loadedBookCount;
     this.appBooksApi.fetchNextPage();

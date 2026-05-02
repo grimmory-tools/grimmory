@@ -191,12 +191,12 @@ export class BookTableComponent {
     queueMicrotask(() => this.rowVirtualizer.measure());
   });
 
-  private lastLoadRequestLoadedBookCount = 0;
+  private lastLoadRequestLoadedBookCount: number | undefined;
   private lastSeenQueryToken: unknown;
   private readonly paginatorEffect = effect(() => {
     const queryToken = this.bookQueryToken();
     if (queryToken !== this.lastSeenQueryToken) {
-      this.lastLoadRequestLoadedBookCount = 0;
+      this.lastLoadRequestLoadedBookCount = undefined;
       this.lastSeenQueryToken = queryToken;
     }
 
@@ -206,7 +206,10 @@ export class BookTableComponent {
     if (!lastVirtualItem || items.length === 0) return;
     if (lastVirtualItem.index < items.length - PAGE_LOAD_AHEAD_ROWS) return;
     if (items.length >= this.virtualRowCount() || this.isFetchingNextPage()) return;
-    if (this.lastLoadRequestLoadedBookCount === loadedBookCount) return;
+    if (this.lastLoadRequestLoadedBookCount === loadedBookCount) {
+      this.lastLoadRequestLoadedBookCount = undefined;
+      return;
+    }
 
     this.lastLoadRequestLoadedBookCount = loadedBookCount;
     this.loadNextPage.emit();
