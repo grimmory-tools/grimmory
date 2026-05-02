@@ -43,6 +43,9 @@ interface ScrollLayoutCapability extends Omit<ScrollCapability, 'onLayoutReady' 
 
 interface DocumentOpenedEvent {
   id: string;
+  document?: {
+    pageCount: number;
+  } | null;
   pageCount?: number;
 }
 
@@ -227,7 +230,8 @@ export class EmbedPdfBookService {
       this.documentOpenedUnsub = dm.onDocumentOpened((ev: DocumentOpenedEvent) => {
         this.zone.run(() => {
           this.currentDocumentId = ev.id;
-          this.documentOpened$.next({pageCount: ev?.pageCount ?? this.scroll?.getTotalPages() ?? 0});
+          const pageCount = ev.document?.pageCount ?? ev.pageCount ?? this.scroll?.getTotalPages() ?? 0;
+          this.documentOpened$.next({pageCount});
         });
       });
     } else {

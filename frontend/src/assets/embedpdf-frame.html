@@ -360,8 +360,9 @@
         const dm = registry.getPlugin('document-manager')?.provides();
         if (dm) {
           dm.onDocumentOpened?.((ev) => {
-            log('Document opened, pages:', ev?.pageCount);
-            parent.postMessage({ type: 'documentOpened', pageCount: ev?.pageCount }, myOrigin);
+            const pageCount = ev?.document?.pageCount ?? ev?.pageCount;
+            log('Document opened, pages:', pageCount);
+            parent.postMessage({ type: 'documentOpened', pageCount }, myOrigin);
           });
           dm.onDocumentError?.((ev) => {
             log('Document error:', ev);
