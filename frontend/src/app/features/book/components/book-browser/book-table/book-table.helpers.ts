@@ -1,6 +1,6 @@
 import {BookMetadata} from '../../../model/book.model';
 
-export const RATING_FIELDS = new Set([
+const RATING_FIELD_KEYS = [
   'rating',
   'amazonRating',
   'goodreadsRating',
@@ -8,7 +8,9 @@ export const RATING_FIELDS = new Set([
   'ranobedbRating',
   'lubimyczytacRating',
   'audibleRating',
-]);
+] satisfies readonly (keyof BookMetadata)[];
+
+export const RATING_FIELDS = new Set<keyof BookMetadata>(RATING_FIELD_KEYS);
 
 export const LOCK_FIELDS = [
   'titleLocked',

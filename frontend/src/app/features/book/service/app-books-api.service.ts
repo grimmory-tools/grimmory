@@ -15,7 +15,7 @@ import {Book, BOOK_TYPES, BookFile, BookType, ReadStatus} from '../model/book.mo
 
 const PAGE_SIZE = 50;
 const BOOK_TYPE_SET = new Set<BookType>(BOOK_TYPES);
-const READ_STATUSES = new Set<string>(Object.values(ReadStatus));
+const READ_STATUSES = new Set<ReadStatus>(Object.values(ReadStatus) as ReadStatus[]);
 
 @Injectable({providedIn: 'root'})
 export class AppBooksApiService {
@@ -298,7 +298,8 @@ function summaryToBookType(value: string | null): BookType | undefined {
 }
 
 function summaryToReadStatus(value: string | null): ReadStatus {
-  return value != null && READ_STATUSES.has(value) ? value as ReadStatus : ReadStatus.UNREAD;
+  const readStatus = value as ReadStatus;
+  return value != null && READ_STATUSES.has(readStatus) ? readStatus : ReadStatus.UNREAD;
 }
 
 function summaryToPrimaryFileExtension(summary: AppBookSummary): string | undefined {
