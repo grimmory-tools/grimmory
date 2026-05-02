@@ -20,6 +20,7 @@ export interface AppBookSummary {
   seriesName: string | null;
   seriesNumber: number | null;
   libraryId: number;
+  libraryName: string;
   addedOn: string | null;
   lastReadTime: string | null;
   readProgress: number | null;

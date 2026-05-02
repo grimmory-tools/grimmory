@@ -619,7 +619,12 @@
   },
   "table": {
     "bookCoverAlt": "Обкладинка книги",
-    "statusPrefix": "Статус: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Статус: {{ status }}",
     "locked": "Заблоковано",
     "unlocked": "Розблоковано",
     "toast": {

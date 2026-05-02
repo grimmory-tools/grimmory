@@ -611,7 +611,12 @@
   },
   "table": {
     "bookCoverAlt": "Copertina libro",
-    "statusPrefix": "Stato: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Stato: {{ status }}",
     "locked": "Bloccato",
     "unlocked": "Sbloccato",
     "toast": {

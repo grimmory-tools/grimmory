@@ -612,7 +612,12 @@
   },
   "table": {
     "bookCoverAlt": "图书封面",
-    "statusPrefix": "状态：",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "状态：{{ status }}",
     "locked": "已锁定",
     "unlocked": "已解锁",
     "toast": {

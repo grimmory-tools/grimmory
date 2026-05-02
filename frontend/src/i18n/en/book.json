@@ -665,8 +665,13 @@
     }
   },
   "table": {
+    "label": "Books table",
     "bookCoverAlt": "Book Cover",
-    "statusPrefix": "Status: ",
+    "selectBook": "Select {{ title }}",
+    "selectBookFallback": "Select book",
+    "noRating": "No rating",
+    "ratingOutOf": "{{ rating }} out of {{ max }}",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Locked",
     "unlocked": "Unlocked",
     "toast": {

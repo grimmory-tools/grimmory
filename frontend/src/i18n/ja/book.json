@@ -611,7 +611,12 @@
   },
   "table": {
     "bookCoverAlt": "ブックカバー",
-    "statusPrefix": "状態: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "状態: {{ status }}",
     "locked": "ロック済み",
     "unlocked": "ロック解除",
     "toast": {

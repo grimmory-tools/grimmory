@@ -11,9 +11,11 @@ import {
   AppFilterOptions,
   AppPageResponse,
 } from '../model/app-book.model';
-import {Book, BookFile, BookType, ReadStatus} from '../model/book.model';
+import {Book, BOOK_TYPES, BookFile, BookType, ReadStatus} from '../model/book.model';
 
 const PAGE_SIZE = 50;
+const BOOK_TYPE_SET = new Set<BookType>(BOOK_TYPES);
+const READ_STATUSES = new Set<string>(Object.values(ReadStatus));
 
 @Injectable({providedIn: 'root'})
 export class AppBooksApiService {
@@ -220,18 +222,15 @@ export class AppBooksApiService {
   }
 }
 
-/**
- * Maps a server-side AppBookSummary to a Book-shaped object
- * compatible with BookCardComponent's @Input() book property.
- */
 function summaryToBook(summary: AppBookSummary): Book {
   return {
     id: summary.id,
     libraryId: summary.libraryId,
-    readStatus: (summary.readStatus as ReadStatus) ?? ReadStatus.UNSET,
-    personalRating: summary.personalRating ?? 0,
-    addedOn: summary.addedOn,
-    lastReadTime: summary.lastReadTime,
+    libraryName: summary.libraryName,
+    readStatus: summaryToReadStatus(summary.readStatus),
+    personalRating: summary.personalRating,
+    addedOn: summary.addedOn ?? undefined,
+    lastReadTime: summary.lastReadTime ?? undefined,
     isPhysical: summary.isPhysical ?? false,
     fileSizeKb: summary.fileSizeKb ?? undefined,
     metadataMatchScore: summary.metadataMatchScore,
@@ -240,7 +239,7 @@ function summaryToBook(summary: AppBookSummary): Book {
       title: summary.title,
       authors: summary.authors ?? [],
       publisher: summary.publisher ?? undefined,
-      seriesName: summary.seriesName,
+      seriesName: summary.seriesName ?? undefined,
       seriesNumber: summary.seriesNumber,
       categories: summary.categories ?? [],
       tags: summary.tags ?? [],
@@ -249,8 +248,8 @@ function summaryToBook(summary: AppBookSummary): Book {
       narrator: summary.narrator ?? undefined,
       isbn13: summary.isbn13 ?? undefined,
       isbn10: summary.isbn10 ?? undefined,
-      coverUpdatedOn: summary.coverUpdatedOn,
-      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
+      coverUpdatedOn: summary.coverUpdatedOn ?? undefined,
+      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn ?? undefined,
       publishedDate: summary.publishedDate ?? undefined,
       pageCount: summary.pageCount,
       ageRating: summary.ageRating,
@@ -270,32 +269,39 @@ function summaryToBook(summary: AppBookSummary): Book {
     primaryFile: summaryToPrimaryFile(summary),
     pdfProgress: summary.readProgress != null
       ? {page: 0, percentage: summary.readProgress}
-      : null,
-    epubProgress: null,
-    cbxProgress: null,
+      : undefined,
     shelves: [],
-  } as unknown as Book;
+  };
 }
 
-function summaryToPrimaryFile(summary: AppBookSummary): Partial<BookFile> | null {
-  if (!summary.primaryFileType) return null;
+function summaryToPrimaryFile(summary: AppBookSummary): BookFile | undefined {
+  if (summary.primaryFileId == null) return undefined;
 
-  const primaryFile: Partial<BookFile> = {
+  const primaryFile: BookFile = {
+    id: summary.primaryFileId,
     bookId: summary.id,
-    bookType: summary.primaryFileType,
-    extension: summaryToPrimaryFileExtension(summary, summary.primaryFileType),
+    extension: summaryToPrimaryFileExtension(summary),
     fileSizeKb: summary.fileSizeKb ?? undefined,
     fileName: summary.primaryFileName ?? undefined,
   };
 
-  if (summary.primaryFileId != null) {
-    primaryFile.id = summary.primaryFileId;
+  const bookType = summaryToBookType(summary.primaryFileType);
+  if (bookType) {
+    primaryFile.bookType = bookType;
   }
 
   return primaryFile;
 }
 
-function summaryToPrimaryFileExtension(summary: AppBookSummary, bookType: BookType): string | undefined {
+function summaryToBookType(value: string | null): BookType | undefined {
+  return value != null && BOOK_TYPE_SET.has(value as BookType) ? value as BookType : undefined;
+}
+
+function summaryToReadStatus(value: string | null): ReadStatus {
+  return value != null && READ_STATUSES.has(value) ? value as ReadStatus : ReadStatus.UNREAD;
+}
+
+function summaryToPrimaryFileExtension(summary: AppBookSummary): string | undefined {
   const fileName = summary.primaryFileName;
   if (fileName) {
     const dotIndex = fileName.lastIndexOf('.');
@@ -304,5 +310,5 @@ function summaryToPrimaryFileExtension(summary: AppBookSummary, bookType: BookTy
     }
   }
 
-  return bookType.toLowerCase();
+  return summary.primaryFileType?.toLowerCase();
 }

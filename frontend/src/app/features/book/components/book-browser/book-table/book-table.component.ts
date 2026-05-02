@@ -1,370 +1,323 @@
-import {Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output} from '@angular/core';
-import {TableModule} from 'primeng/table';
-import {DatePipe, NgClass} from '@angular/common';
-import {Rating} from 'primeng/rating';
+import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, input, output, signal, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CdkConnectedOverlay, ConnectedPosition} from '@angular/cdk/overlay';
 import {FormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
-import {Book, BookMetadata, ReadStatus} from '../../../model/book.model';
-import {SortOption} from '../../../model/sort.model';
-import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
-import {Button} from 'primeng/button';
-import {BookService} from '../../../service/book.service';
-import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
-import {MessageService} from 'primeng/api';
-import {RouterLink} from '@angular/router';
-import {UserService} from '../../../../settings/user-management/user.service';
-import {ReadStatusHelper} from '../../../helpers/read-status.helper';
+import {ActivatedRoute} from '@angular/router';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {finalize} from 'rxjs';
+import {ColumnDef, ColumnSizingState, Header, createAngularTable, functionalUpdate, getCoreRowModel} from '@tanstack/angular-table';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {injectVirtualizer} from '@tanstack/angular-virtual';
+import {Checkbox} from 'primeng/checkbox';
+import {Book, BookMetadata} from '../../../model/book.model';
+import {RouteScrollPositionService} from '../../../../../shared/service/route-scroll-position.service';
+import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
+import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
+import {patchAppBooksMetadataLockInCache} from '../../../service/book-query-cache';
+import {MessageService} from 'primeng/api';
+import {BookSelectionService} from '../book-selection.service';
+import {BookTableRowComponent, type BookTableRowCoverPreview, type BookTableSelectionChange} from './book-table-row.component';
+import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
+
+interface BookTableColumn {
+  field: string;
+  header: string;
+}
+
+const ROW_HEIGHT = 46;
+const RENDER_OVERSCAN_ROWS = 16;
+const RESIZE_OVERSCAN_ROWS = 2;
+const PAGE_LOAD_AHEAD_ROWS = 40;
+const DEFAULT_COLUMN_SIZES: Record<string, number> = {
+  readStatus: 72,
+  title: 260,
+  fileName: 240,
+  authors: 220,
+  categories: 220,
+  pageCount: 120,
+  seriesNumber: 120,
+};
+const DEFAULT_RATING_COLUMN_SIZE = 148;
+const DEFAULT_REVIEW_COUNT_COLUMN_SIZE = 120;
+const DEFAULT_TEXT_COLUMN_SIZE = 180;
+const MIN_COLUMN_SIZES: Record<string, number> = {
+  readStatus: 64,
+  pageCount: 96,
+  seriesNumber: 96,
+};
+const DEFAULT_MIN_COLUMN_SIZE = 120;
+const MAX_COLUMN_SIZES: Record<string, number> = {
+  title: 420,
+  fileName: 420,
+  authors: 360,
+  categories: 360,
+};
+const DEFAULT_MAX_COLUMN_SIZE = 280;
+const COVER_OVERLAY_POSITIONS: ConnectedPosition[] = [
+  {originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: 8},
+  {originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -8},
+  {originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top', offsetX: 8},
+  {originX: 'end', originY: 'bottom', overlayX: 'start', overlayY: 'bottom', offsetX: 8},
+];
 
 @Component({
   selector: 'app-book-table',
   standalone: true,
   templateUrl: './book-table.component.html',
   imports: [
-    TableModule,
-    Rating,
+    CdkConnectedOverlay,
+    BookTableRowComponent,
+    Checkbox,
     FormsModule,
-    Button,
-    Tooltip,
-    NgClass,
-    RouterLink,
     TranslocoDirective,
     CoverPlaceholderComponent
   ],
   styleUrls: ['./book-table.component.scss'],
-  providers: [DatePipe]
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
-  selectedBooks: Book[] = [];
-  selectedBookIds = new Set<number>();
+export class BookTableComponent {
+  readonly selectAllRequested = output<void>();
+  readonly loadNextPage = output<void>();
 
-  @Output() selectedBooksChange = new EventEmitter<Set<number>>();
-  @Output() selectAllRequested = new EventEmitter<void>();
-  @Input() books: Book[] = [];
-  @Input() sortOption: SortOption | null = null;
-  @Input() visibleColumns: { field: string; header: string }[] = [];
-  @Input() preselectedBookIds = new Set<number>();
+  readonly books = input<Book[]>([]);
+  readonly visibleColumns = input<BookTableColumn[]>([]);
+  readonly virtualRowCount = input(0);
+  readonly isFetchingNextPage = input(false);
+  readonly useSquareCovers = input(false);
+  readonly bookQueryToken = input<unknown>(undefined);
 
-  protected urlHelper = inject(UrlHelperService);
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private messageService = inject(MessageService);
-  private userService = inject(UserService);
-  private datePipe = inject(DatePipe);
-  private readStatusHelper = inject(ReadStatusHelper);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly scrollService = inject(RouteScrollPositionService);
+  protected readonly bookSelectionService = inject(BookSelectionService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly messageService = inject(MessageService);
+  private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
-  private elementRef = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
+  private readonly initialScrollOffset = () => this.scrollService.getPosition(this.scrollService.keyFor(this.activatedRoute, 'table')) ?? 0;
 
-  private metadataCenterViewMode: 'route' | 'dialog' = 'route';
-  private resizeListener = this.setScrollHeight.bind(this);
+  private readonly columnSizing = signal<ColumnSizingState>({});
+  protected readonly coverPreview = signal<BookTableRowCoverPreview | null>(null);
+  private readonly pendingLockBookIds = signal<Set<number>>(new Set());
 
-  readonly allColumns: { field: string; header: string }[] = [
-    {field: 'readStatus', header: this.t.translate('book.columnPref.columns.readStatus')},
-    {field: 'title', header: this.t.translate('book.columnPref.columns.title')},
-    {field: 'authors', header: this.t.translate('book.columnPref.columns.authors')},
-    {field: 'publisher', header: this.t.translate('book.columnPref.columns.publisher')},
-    {field: 'seriesName', header: this.t.translate('book.columnPref.columns.seriesName')},
-    {field: 'seriesNumber', header: this.t.translate('book.columnPref.columns.seriesNumber')},
-    {field: 'categories', header: this.t.translate('book.columnPref.columns.categories')},
-    {field: 'publishedDate', header: this.t.translate('book.columnPref.columns.publishedDate')},
-    {field: 'lastReadTime', header: this.t.translate('book.columnPref.columns.lastReadTime')},
-    {field: 'addedOn', header: this.t.translate('book.columnPref.columns.addedOn')},
-    {field: 'fileName', header: this.t.translate('book.columnPref.columns.fileName')},
-    {field: 'fileSizeKb', header: this.t.translate('book.columnPref.columns.fileSizeKb')},
-    {field: 'language', header: this.t.translate('book.columnPref.columns.language')},
-    {field: 'isbn', header: this.t.translate('book.columnPref.columns.isbn')},
-    {field: 'pageCount', header: this.t.translate('book.columnPref.columns.pageCount')},
-    {field: 'amazonRating', header: this.t.translate('book.columnPref.columns.amazonRating')},
-    {field: 'amazonReviewCount', header: this.t.translate('book.columnPref.columns.amazonReviewCount')},
-    {field: 'goodreadsRating', header: this.t.translate('book.columnPref.columns.goodreadsRating')},
-    {field: 'goodreadsReviewCount', header: this.t.translate('book.columnPref.columns.goodreadsReviewCount')},
-    {field: 'hardcoverRating', header: this.t.translate('book.columnPref.columns.hardcoverRating')},
-    {field: 'hardcoverReviewCount', header: this.t.translate('book.columnPref.columns.hardcoverReviewCount')},
-    {field: 'ranobedbRating', header: this.t.translate('book.columnPref.columns.ranobedbRating')},
-  ];
+  protected readonly coverOverlayPositions = COVER_OVERLAY_POSITIONS;
 
-  scrollHeight = 'calc(100dvh - 160px)';
+  private readonly columnDefs = computed<ColumnDef<Book>[]>(() => [
+    {id: 'select', header: '', size: 42, minSize: 42, maxSize: 42, enableResizing: false},
+    {id: 'lock', header: '', size: 42, minSize: 42, maxSize: 42, enableResizing: false},
+    {id: 'cover', header: '', size: 56, minSize: 56, maxSize: 56, enableResizing: false},
+    ...this.visibleColumns().map(column => ({
+      id: column.field,
+      header: column.header,
+      size: this.defaultColumnSize(column.field),
+      minSize: this.minColumnSize(column.field),
+      maxSize: this.maxColumnSize(column.field),
+    })),
+  ]);
 
-  ngOnInit(): void {
-    const user = this.userService.currentUser();
-    if (user) {
-      this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
+  readonly table = createAngularTable(() => ({
+    data: this.books(),
+    columns: this.columnDefs(),
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: book => String(book.id),
+    columnResizeMode: 'onChange',
+    state: {
+      columnSizing: this.columnSizing(),
+    },
+    onColumnSizingChange: updater => {
+      this.columnSizing.update(current => functionalUpdate(updater, current));
+    },
+  }));
+
+  readonly visibleCellIds = computed(() => ['select', 'lock', 'cover', ...this.visibleColumns().map(column => column.field)]);
+  readonly ariaRowCount = computed(() => this.rowCount() + 1);
+  readonly ariaColumnCount = computed(() => this.visibleCellIds().length);
+  readonly isColumnResizing = computed(() => Boolean(this.table.getState().columnSizingInfo.isResizingColumn));
+  readonly rowCount = computed(() => Math.max(this.virtualRowCount(), this.books().length));
+  readonly columnSizeVars = computed<Record<string, number | string>>(() => {
+    this.columnSizing();
+    this.visibleColumns();
+
+    const headers = this.table.getFlatHeaders();
+    const styles = headers.reduce<Record<string, number | string>>((columnStyles, header) => {
+      columnStyles[`--book-table-col-${header.column.id}-size`] = header.column.getSize();
+      return columnStyles;
+    }, {});
+
+    styles['--book-table-grid-template'] = this.table.getVisibleFlatColumns()
+      .map(column => `calc(var(--book-table-col-${column.id}-size) * 1px)`)
+      .join(' ');
+
+    return styles;
+  });
+  readonly tableWidth = computed(() => {
+    this.columnSizing();
+    this.visibleColumns();
+    return this.table.getVisibleFlatColumns().reduce((width, column) => width + column.getSize(), 0);
+  });
+  readonly allLoadedBooksSelected = computed(() => {
+    const books = this.books();
+    return books.length > 0 && books.every(book => this.bookSelectionService.isBookSelected(book));
+  });
+  readonly someBooksSelected = computed(() => {
+    return this.bookSelectionService.selectedCount() > 0 && !this.allLoadedBooksSelected();
+  });
+
+  readonly rowVirtualizer = injectVirtualizer<HTMLElement, HTMLElement>(() => ({
+    scrollElement: this.scrollElement(),
+    count: this.rowCount(),
+    estimateSize: () => ROW_HEIGHT,
+    overscan: this.isColumnResizing() ? RESIZE_OVERSCAN_ROWS : RENDER_OVERSCAN_ROWS,
+    initialOffset: this.initialScrollOffset,
+    getItemKey: index => this.books()[index]?.id ?? `loading-${index}`,
+  }));
+
+  constructor() {
+    this.scrollService.trackRoute({
+      scrollElement: this.scrollElement,
+      route: this.activatedRoute,
+      destroyRef: this.destroyRef,
+      keySuffix: 'table',
+      dismissOverlaysBeforeSave: true,
+      beforeSave: () => this.clearCoverPreview(),
+    });
+  }
+
+  private readonly measureRowsEffect = effect(() => {
+    this.rowCount();
+    this.visibleColumns();
+    queueMicrotask(() => this.rowVirtualizer.measure());
+  });
+
+  private lastLoadRequestCount = 0;
+  private lastSeenQueryToken: unknown;
+  private readonly paginatorEffect = effect(() => {
+    const queryToken = this.bookQueryToken();
+    if (queryToken !== this.lastSeenQueryToken) {
+      this.lastLoadRequestCount = 0;
+      this.lastSeenQueryToken = queryToken;
     }
 
-    this.selectedBookIds = new Set(this.preselectedBookIds);
-    this.syncSelectedBooks();
-    this.setScrollHeight();
-    window.addEventListener('resize', this.resizeListener);
+    const items = this.books();
+    const lastVirtualItem = this.rowVirtualizer.getVirtualItems().at(-1);
+    if (!lastVirtualItem || items.length === 0) return;
+    if (lastVirtualItem.index < items.length - PAGE_LOAD_AHEAD_ROWS) return;
+    if (items.length >= this.virtualRowCount() || this.isFetchingNextPage()) return;
+    if (this.lastLoadRequestCount === items.length) return;
+
+    this.lastLoadRequestCount = items.length;
+    this.loadNextPage.emit();
+  });
+
+  private defaultColumnSize(field: string): number {
+    const defaultSize = DEFAULT_COLUMN_SIZES[field];
+    if (defaultSize !== undefined) return defaultSize;
+    if (RATING_FIELDS.has(field)) return DEFAULT_RATING_COLUMN_SIZE;
+    if (field.endsWith('ReviewCount')) return DEFAULT_REVIEW_COUNT_COLUMN_SIZE;
+    return DEFAULT_TEXT_COLUMN_SIZE;
   }
 
-  setScrollHeight() {
-    const isMobile = window.innerWidth <= 768;
-    this.scrollHeight = isMobile
-      ? 'calc(100dvh - 125px)'
-      : 'calc(100dvh - 150px)';
+  private minColumnSize(field: string): number {
+    return MIN_COLUMN_SIZES[field] ?? DEFAULT_MIN_COLUMN_SIZE;
   }
 
-  ngOnChanges(changes: import('@angular/core').SimpleChanges) {
-    if (changes['preselectedBookIds'] || changes['books']) {
-      this.selectedBookIds = new Set(this.preselectedBookIds);
-      this.syncSelectedBooks();
+  private maxColumnSize(field: string): number {
+    return MAX_COLUMN_SIZES[field] ?? DEFAULT_MAX_COLUMN_SIZE;
+  }
+
+  isRowSelected(book: Book): boolean {
+    return this.bookSelectionService.isBookSelected(book);
+  }
+
+  startColumnResize(header: Header<Book, unknown>, event: MouseEvent | TouchEvent): void {
+    event.stopPropagation();
+    if (event.cancelable) {
+      event.preventDefault();
     }
-  }
-
-  private syncSelectedBooks(): void {
-    // Only include in 'selectedBooks' the objects that are actually in 'this.books'
-    // so that p-table correctly shows them as selected in the UI.
-    this.selectedBooks = this.books.filter(book => this.isBookSelected(book));
-  }
-
-  private getSelectableBookIds(book: Book): number[] {
-    return book.seriesBooks?.length
-      ? book.seriesBooks.map(seriesBook => seriesBook.id)
-      : [book.id];
-  }
-
-  private isBookSelected(book: Book): boolean {
-    return this.getSelectableBookIds(book).every(bookId => this.selectedBookIds.has(bookId));
+    header.getResizeHandler()(event);
   }
 
   scrollToTop(): void {
-    const tableElement = this.elementRef.nativeElement.querySelector('.p-datatable-wrapper');
-    if (tableElement instanceof HTMLElement) {
-      tableElement.scrollTop = 0;
+    const scrollElement = this.scrollElement()?.nativeElement;
+    if (scrollElement) {
+      scrollElement.scrollTop = 0;
     }
+    this.rowVirtualizer.scrollToOffset(0);
   }
 
-  selectAllBooks(): void {
-    // We delegate the "Select All" logic to the parent component
-    // which can fetch all book IDs from the API.
-    this.selectAllRequested.emit();
-  }
-
-  clearSelectedBooks(): void {
-    this.selectedBookIds.clear();
-    this.selectedBooks = [];
-    this.selectedBooksChange.emit(this.selectedBookIds);
-  }
-
-  onRowSelect(event: { data?: Book | Book[] }): void {
-    if (event.data && !Array.isArray(event.data)) {
-      this.getSelectableBookIds(event.data).forEach(bookId => this.selectedBookIds.add(bookId));
-      this.selectedBooksChange.emit(new Set(this.selectedBookIds));
-    }
-  }
-
-  onRowUnselect(event: { data?: Book | Book[] }): void {
-    if (event.data && !Array.isArray(event.data)) {
-      this.getSelectableBookIds(event.data).forEach(bookId => this.selectedBookIds.delete(bookId));
-      this.selectedBooksChange.emit(new Set(this.selectedBookIds));
-    }
-  }
-
-  onHeaderCheckboxToggle(event: { checked: boolean }): void {
-    if (event.checked) {
+  onHeaderCheckboxChange(checked: boolean): void {
+    if (checked) {
       this.selectAllRequested.emit();
-    } else {
-      this.clearSelectedBooks();
+      return;
+    }
+
+    this.bookSelectionService.deselectAll();
+  }
+
+  onBookSelectionChange(change: BookTableSelectionChange): void {
+    this.bookSelectionService.handleBookSelection(change.book, change.checked);
+  }
+
+  showCoverPreview(preview: BookTableRowCoverPreview): void {
+    this.coverPreview.set(preview);
+  }
+
+  clearCoverPreview(): void {
+    this.coverPreview.set(null);
+  }
+
+  hideCoverPreview(bookId: number): void {
+    if (this.coverPreview()?.book.id === bookId) {
+      this.clearCoverPreview();
     }
   }
 
-  getStarColor(rating: number): string {
-    if (rating >= 4.5) {
-      return 'rgb(34, 197, 94)';
-    } else if (rating >= 4) {
-      return 'rgb(52, 211, 153)';
-    } else if (rating >= 3.5) {
-      return 'rgb(234, 179, 8)';
-    } else if (rating >= 2.5) {
-      return 'rgb(249, 115, 22)';
-    } else {
-      return 'rgb(239, 68, 68)';
-    }
-  }
-
-  getAuthorNames(authors: string[]): string {
-    return authors?.join(', ') || '';
-  }
-
-  getGenres(genres: string[]) {
-    return genres?.join(', ') || '';
-  }
-
-  trackByBookId(index: number, book: Book): number {
-    return book.id;
-  }
-
-  isMetadataFullyLocked(metadata: BookMetadata): boolean {
-    const lockedKeys = Object.keys(metadata).filter(key => key.endsWith('Locked'));
-    if (lockedKeys.length === 0) return false;
-    return lockedKeys.every(key => metadata[key] === true);
-  }
-
-  formatFileSize(kb?: number): string {
-    if (kb == null || isNaN(kb)) return '-';
-    const mb = kb / 1024;
-    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${mb.toFixed(2)} MB`;
-  }
-
-  getReadStatusIcon(readStatus: ReadStatus | undefined): string {
-    return this.readStatusHelper.getReadStatusIcon(readStatus);
-  }
-
-  getReadStatusClass(readStatus: ReadStatus | undefined): string {
-    return this.readStatusHelper.getReadStatusClass(readStatus);
-  }
-
-  getReadStatusTooltip(readStatus: ReadStatus | undefined): string {
-    return this.readStatusHelper.getReadStatusTooltip(readStatus);
-  }
-
-  shouldShowStatusIcon(readStatus: ReadStatus | undefined): boolean {
-    return this.readStatusHelper.shouldShowStatusIcon(readStatus);
-  }
-
-  getCellClickableValue(metadata: BookMetadata, book: Book, field: string) {
-    const filterKeys: Record<string, string> = {
-      'authors': 'author',
-      'publisher': 'publisher',
-      'categories': 'category',
-      'language': 'language',
-      'title': 'title',
-      'isbn': 'isbn'
-    } as const;
-
-    let data: string[] = [metadata[field] as string];
-
-    switch (field) {
-      case 'title':
-        return [
-          {
-            url: this.urlHelper.getBookUrl(book),
-            anchor: metadata.title ?? book.fileName
-          }
-        ];
-
-      case 'categories':
-        data = metadata.categories ?? [];
-        break;
-
-      case 'authors':
-        data = metadata.authors ?? [];
-        break;
-
-      case 'seriesName':
-        return [
-          {
-            url: this.urlHelper.filterBooksBy('series', metadata.seriesName ?? ''),
-            anchor: metadata.seriesName
-          }
-        ]
-      case 'isbn':
-        return [
-          {
-            url: '',
-            anchor: this.getCellValue(metadata, book, 'isbn')
-          }
-        ];
-    }
-
-    return data.map(item => {
-      return {
-        url: this.urlHelper.filterBooksBy(filterKeys[field] ?? field, item),
-        anchor: item
-      }
-    });
-  }
-
-  getCellValue(metadata: BookMetadata, book: Book, field: string): string | number {
-    switch (field) {
-      case 'readStatus':
-        return this.readStatusHelper.getReadStatusTooltip(book?.readStatus);
-
-      case 'title':
-        return metadata.title ?? '';
-
-      case 'authors':
-        return this.getAuthorNames(metadata.authors!);
-
-      case 'publisher':
-        return metadata.publisher ?? '';
-
-      case 'seriesName':
-        return metadata.seriesName ?? '';
-
-      case 'seriesNumber':
-        return metadata.seriesNumber ?? '';
-
-      case 'categories':
-        return this.getGenres(metadata.categories!);
-
-      case 'publishedDate':
-        return metadata.publishedDate ? this.datePipe.transform(metadata.publishedDate, 'dd-MMM-yyyy') ?? '' : '';
-
-      case 'lastReadTime':
-        return book.lastReadTime ? this.datePipe.transform(book.lastReadTime, 'dd-MMM-yyyy') ?? '' : '';
-
-      case 'addedOn':
-        return book.addedOn ? this.datePipe.transform(book.addedOn, 'dd-MMM-yyyy') ?? '' : '';
-
-      case 'fileName':
-        return book.primaryFile?.fileName ?? '';
-
-      case 'fileSizeKb':
-        return this.formatFileSize(book.fileSizeKb);
-
-      case 'language':
-        return metadata.language ?? '';
-
-      case 'pageCount':
-        return metadata.pageCount ?? '';
-
-      case 'amazonRating':
-      case 'goodreadsRating':
-      case 'hardcoverRating':
-      case 'ranobedbRating': {
-        const rating = metadata[field];
-        return typeof rating === 'number' ? rating.toFixed(1) : '';
-      }
-
-      case 'amazonReviewCount':
-      case 'goodreadsReviewCount':
-      case 'hardcoverReviewCount':
-        return metadata[field] ?? '';
-
-      case 'isbn':
-        return metadata.isbn13 || metadata.isbn10 || '';
-
-      default:
-        return '';
-    }
+  isMetadataLockPending(bookId: number): boolean {
+    return this.pendingLockBookIds().has(bookId);
   }
 
   toggleMetadataLock(metadata: BookMetadata): void {
-    const lockKeys = Object.keys(metadata).filter(key => key.endsWith('Locked'));
-    const allLocked = lockKeys.every(key => metadata[key] === true);
-    const lockAction = allLocked ? 'UNLOCK' : 'LOCK';
+    if (this.isMetadataLockPending(metadata.bookId)) return;
 
-    this.bookMetadataManageService.toggleAllLock(new Set([metadata.bookId]), lockAction).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedSummary') : this.t.translate('book.table.toast.metadataUnlockedSummary'),
-          detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedDetail') : this.t.translate('book.table.toast.metadataUnlockedDetail'),
-        });
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedSummary') : this.t.translate('book.table.toast.unlockFailedSummary'),
-          detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedDetail') : this.t.translate('book.table.toast.unlockFailedDetail'),
-        });
-      }
-    });
+    const lockAction = isMetadataFullyLocked(metadata) ? 'UNLOCK' : 'LOCK';
+    this.setMetadataLockPending(metadata.bookId, true);
+
+    this.bookMetadataManageService.toggleAllLock(new Set([metadata.bookId]), lockAction)
+      .pipe(
+        finalize(() => this.setMetadataLockPending(metadata.bookId, false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {
+          patchAppBooksMetadataLockInCache(this.queryClient, metadata.bookId, lockAction === 'LOCK');
+          this.messageService.add({
+            severity: 'success',
+            summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedSummary') : this.t.translate('book.table.toast.metadataUnlockedSummary'),
+            detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedDetail') : this.t.translate('book.table.toast.metadataUnlockedDetail'),
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedSummary') : this.t.translate('book.table.toast.unlockFailedSummary'),
+            detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedDetail') : this.t.translate('book.table.toast.unlockFailedDetail'),
+          });
+        }
+      });
   }
 
-  ngOnDestroy(): void {
-    window.removeEventListener('resize', this.resizeListener);
+  private setMetadataLockPending(bookId: number, pending: boolean): void {
+    this.pendingLockBookIds.update(current => {
+      if (current.has(bookId) === pending) return current;
+
+      const next = new Set(current);
+      if (pending) {
+        next.add(bookId);
+      } else {
+        next.delete(bookId);
+      }
+      return next;
+    });
   }
 }

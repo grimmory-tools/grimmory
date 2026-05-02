@@ -1,0 +1,44 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+
+  --app-rating-color: var(--p-rating-icon-active-color, var(--p-primary-color));
+  --app-rating-empty-color: var(--p-rating-icon-color, var(--p-text-muted-color));
+  --app-rating-gap: var(--p-rating-gap, 0.25rem);
+  --app-rating-size: 18px;
+}
+
+.app-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-rating-gap);
+  line-height: 1;
+}
+
+.app-rating-star {
+  --app-rating-star-fill: 0%;
+
+  position: relative;
+  display: inline-flex;
+  width: var(--app-rating-size);
+  height: var(--app-rating-size);
+  line-height: 0;
+}
+
+.app-rating-star svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.app-rating-star-empty {
+  color: var(--app-rating-empty-color);
+}
+
+.app-rating-star-filled {
+  position: absolute;
+  inset: 0;
+  fill: var(--app-rating-color);
+  clip-path: inset(0 calc(100% - var(--app-rating-star-fill)) 0 0);
+}

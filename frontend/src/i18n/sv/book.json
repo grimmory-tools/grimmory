@@ -619,7 +619,12 @@
   },
   "table": {
     "bookCoverAlt": "Bokomslag",
-    "statusPrefix": "Status: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Låst",
     "unlocked": "Upplåst",
     "toast": {

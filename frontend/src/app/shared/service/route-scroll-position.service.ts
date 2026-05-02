@@ -7,6 +7,7 @@ interface TrackRouteOptions {
   scrollElement: Signal<ElementRef<HTMLElement> | undefined>;
   route: ActivatedRoute;
   destroyRef: DestroyRef;
+  keySuffix?: string;
   dismissOverlaysBeforeSave?: boolean;
   beforeSave?: () => void;
 }
@@ -47,13 +48,14 @@ export class RouteScrollPositionService {
     return paramPairs ? `${path}:${paramPairs}` : path;
   }
 
-  keyFor(route: ActivatedRoute): string {
+  keyFor(route: ActivatedRoute, suffix?: string): string {
     const path = route.snapshot.pathFromRoot
       .flatMap(snapshot => snapshot.url)
       .map(segment => segment.path)
       .filter(Boolean)
       .join('/');
-    return this.createKey(path, route.snapshot.params);
+    const key = this.createKey(path, route.snapshot.params);
+    return suffix ? `${key}:${suffix}` : key;
   }
 
   dismissBodyOverlays(): void {
@@ -71,7 +73,7 @@ export class RouteScrollPositionService {
       options.beforeSave?.();
       const element = options.scrollElement()?.nativeElement;
       if (element) {
-        this.savePosition(this.keyFor(options.route), element.scrollTop);
+        this.savePosition(this.keyFor(options.route, options.keySuffix), element.scrollTop);
       }
     });
   }
