@@ -25,6 +25,10 @@
   min-height: 0;
 }
 
+.tabs-wrapper > p-tabs > p-tablist {
+  flex: 0 0 auto;
+}
+
 .dialog-mode {
   border: 1px solid var(--p-content-border-color);
   border-radius: 0 0 0.75rem 0.75rem !important;

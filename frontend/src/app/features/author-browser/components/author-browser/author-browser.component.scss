@@ -1,4 +1,6 @@
 .author-browser-page {
+  --browser-gutter-inline: 2.1rem;
+
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -16,7 +18,7 @@
 }
 
 .browse-header {
-  padding: 0.75rem 2.1rem 0;
+  padding: 0.75rem var(--browser-gutter-inline) 0;
 }
 
 .browse-title {
@@ -144,12 +146,12 @@
   flex: 1 1 auto;
   width: 100%;
   min-height: 0;
-  padding: 1rem 0;
+  padding: 1rem var(--browser-gutter-inline);
   box-sizing: border-box;
   overflow-y: auto;
 
   @media (width <= 768px) {
-    padding: 0.5rem;
+    padding-block: 0.5rem;
   }
 }
 
@@ -252,11 +254,13 @@
 
 @media (width <= 767px) {
   .author-browser-page {
+    --browser-gutter-inline: 0.5rem;
+
     padding: 1.5rem 0 0;
   }
 
   .browse-header {
-    padding: 0.5rem 0.5rem 0;
+    padding-top: 0.5rem;
   }
 
   .browse-controls {
