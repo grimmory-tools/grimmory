@@ -54,7 +54,7 @@ export const LOCK_FIELDS = [
   'abridgedLocked',
   'ageRatingLocked',
   'contentRatingLocked',
-] satisfies ReadonlyArray<keyof BookMetadata>;
+] satisfies readonly (keyof BookMetadata)[];
 
 export function isMetadataFullyLocked(metadata: BookMetadata): boolean {
   if (typeof metadata.allMetadataLocked === 'boolean') {
