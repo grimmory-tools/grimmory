@@ -413,7 +413,7 @@ class BookCoverServiceTest {
             try {
                 when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})); // JPEG
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
-            } catch (Exception ignored) {}
+            } catch (Exception _) {}
 
             service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
 
@@ -474,7 +474,7 @@ class BookCoverServiceTest {
             try {
                 when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
-            } catch (Exception ignored) {}
+            } catch (Exception _) {}
 
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
 
@@ -492,7 +492,7 @@ class BookCoverServiceTest {
             try {
                 when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
-            } catch (Exception ignored) {}
+            } catch (Exception _) {}
 
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
 

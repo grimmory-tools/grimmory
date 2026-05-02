@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 public class ArchiveService {
     private static final int LOCK_STRIPE_COUNT = 256;
     private final ReentrantLock[] lockStripes = IntStream.range(0, LOCK_STRIPE_COUNT)
-            .mapToObj(ignored -> new ReentrantLock())
+            .mapToObj(_ -> new ReentrantLock())
             .toArray(ReentrantLock[]::new);
 
     // Route through the JVM-wide serialized native loader.
@@ -97,7 +98,13 @@ public class ArchiveService {
         lock.lock();
         try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
             if (inputStream != null) {
-                return inputStream.transferTo(outputStream);
+                try {
+                    return inputStream.transferTo(outputStream);
+                } finally {
+                    // NightCompress fails with a SIGSEGV if you do not read the
+                    // entirety of the input stream from the zip.
+                    inputStream.transferTo(OutputStream.nullOutputStream());
+                }
             }
         } catch (Exception e) {
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
@@ -185,16 +192,24 @@ public class ArchiveService {
         requireAvailable();
         ReentrantLock lock = getFileLock(path);
         lock.lock();
-        try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
-            if (inputStream != null) {
-                return Files.copy(inputStream, outputPath);
-            }
+
+        boolean hasCreatedFile = false;
+        try (OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            hasCreatedFile = true;
+
+            return transferEntryTo(path, entryName, outputStream);
         } catch (Exception e) {
+            if (hasCreatedFile) {
+                try {
+                    Files.deleteIfExists(outputPath);
+                } catch (Exception ce) {
+                    e.addSuppressed(ce);
+                }
+            }
+
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
         } finally {
             lock.unlock();
         }
-
-        throw new IOException("Entry not found in archive");
     }
 }

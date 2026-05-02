@@ -112,23 +112,6 @@ $transition-normal: 200ms ease;
   @media (width <= 768px) {
     padding: 16px;
   }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 15%);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgb(255 255 255 / 25%);
-    }
-  }
 }
 
 .metadata-container {

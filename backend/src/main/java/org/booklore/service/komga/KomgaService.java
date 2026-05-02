@@ -30,7 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -50,7 +50,7 @@ public class KomgaService {
     public List<KomgaLibraryDto> getAllLibraries() {
         return libraryRepository.findAll().stream()
                 .map(komgaMapper::toKomgaLibraryDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public KomgaLibraryDto getLibraryById(Long libraryId) {
@@ -258,7 +258,7 @@ public class KomgaService {
             // Return all books without pagination
             content = seriesBooks.stream()
                     .map(book -> komgaMapper.toKomgaBookDto(book))
-                    .collect(Collectors.toList());
+                    .toList();
             actualPage = 0;
             actualSize = totalElements;
             totalPages = totalElements > 0 ? 1 : 0;
@@ -270,7 +270,7 @@ public class KomgaService {
             
             content = seriesBooks.subList(fromIndex, toIndex).stream()
                     .map(book -> komgaMapper.toKomgaBookDto(book))
-                    .collect(Collectors.toList());
+                    .toList();
             actualPage = page;
             actualSize = size;
         }
@@ -300,7 +300,7 @@ public class KomgaService {
         
         List<KomgaBookDto> content = bookPage.getContent().stream()
                 .map(book -> komgaMapper.toKomgaBookDto(book))
-                .collect(Collectors.toList());
+                .toList();
         
         return KomgaPageableDto.<KomgaBookDto>builder()
                 .content(content)
@@ -364,7 +364,7 @@ public class KomgaService {
         List<KomgaCollectionDto> allCollections = magicShelves.stream()
                 .map(shelf -> komgaMapper.toKomgaCollectionDto(shelf, 0))
                 .sorted(Comparator.comparing(KomgaCollectionDto::getName))
-                .collect(Collectors.toList());
+                .toList();
         
         log.debug("Mapped to {} collection DTOs", allCollections.size());
         

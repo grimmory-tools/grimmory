@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -139,7 +140,7 @@ public class BookQueryService {
     private List<Book> mapBooksToDto(List<BookEntity> books, boolean includeDescription, Long userId, boolean stripForListView) {
         return books.stream()
                 .map(book -> mapBookToDto(book, includeDescription, userId, stripForListView))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Book mapBookToDto(BookEntity bookEntity, boolean includeDescription, Long userId, boolean stripForListView) {

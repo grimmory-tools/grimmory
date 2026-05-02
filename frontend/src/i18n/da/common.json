@@ -22,5 +22,8 @@
   "dismiss": "",
   "discard": "",
   "review": "",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

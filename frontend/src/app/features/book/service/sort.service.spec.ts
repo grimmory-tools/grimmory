@@ -43,6 +43,16 @@ describe('SortService', () => {
     expect(service.applySort(books, sortOption).map(book => book.id)).toEqual([1, 2]);
   });
 
+  it('sorts by primaryFile file name if file name is missing', () => {
+    const books = [
+      makeBook(2, {fileName: undefined, primaryFile: { id: 2, bookId: 2, fileName: 'Book 2' }, metadata: {bookId: 2, title: 'Book 10'}}),
+      makeBook(1, {fileName: 'Book 1', primaryFile: { id: 1, bookId: 1, fileName: 'Book 3' }, metadata: {bookId: 1, title: 'Book 2'}}),
+    ];
+    const sortOption: SortOption = {label: 'File Name', field: 'fileName', direction: SortDirection.ASCENDING};
+
+    expect(service.applySort(books, sortOption).map(book => book.id)).toEqual([1, 2]);
+  });
+
   it('sorts by array fields and read status rank', () => {
     const books = [
       makeBook(1, {metadata: {bookId: 1, authors: ['Jane Zed']}, readStatus: ReadStatus.READ}),

@@ -35,6 +35,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
     private static final Pattern PDF_DATE_TIME_PATTERN = Pattern.compile("\\d{8,}");
     private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile("\\d{6}");
+    private static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
 
     @Override
     public byte[] extractCover(File file) {
@@ -259,7 +260,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 if (StringUtils.isNotBlank(tags)) {
                     Arrays.stream(tags.split(";")).map(String::trim).forEach(knownNonCategories::add);
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception _) {}
             
             subjects.removeAll(knownNonCategories);
             
@@ -551,7 +552,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                         1
                 );
             }
-            if (s.matches("\\d{4}")) {
+            if (YEAR_PATTERN.matcher(s).matches()) {
                 return LocalDate.of(Integer.parseInt(s.substring(0, 4)), 1, 1);
             }
         } catch (Exception e) {

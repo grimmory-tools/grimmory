@@ -171,7 +171,7 @@ public class RanobeDbParser implements BookParser {
         } else {
             return searchResponse.getBooks().stream()
                     .map(book -> searchResultToBookMetadata(book.getId()))
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 

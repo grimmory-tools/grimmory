@@ -70,17 +70,6 @@
 .notes-scroll-container {
   overflow: auto hidden;
   height: 100%;
-
-  &::-webkit-scrollbar {
-    height: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgb(30 30 30 / 50%);
-    border-radius: 10px;
-  }
-
-  scrollbar-width: thin;
 }
 
 .notes-horizontal-list {
@@ -267,10 +256,6 @@
   @media (width <= 480px) {
     max-height: 120px;
     font-size: 0.85rem;
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
   }
 }
 

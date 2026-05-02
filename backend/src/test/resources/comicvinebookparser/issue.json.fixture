@@ -1,0 +1,80 @@
+{
+  "error": "OK",
+  "limit": 1,
+  "offset": 0,
+  "number_of_page_results": 1,
+  "number_of_total_results": 1,
+  "status_code": 1,
+  "results": {
+    "aliases": null,
+    "api_detail_url": "https://comicvine.gamespot.com/api/issue/4000-400275/",
+    "associated_images": [],
+    "character_credits": [],
+    "character_died_in": [],
+    "concept_credits": [],
+    "cover_date": "2009-03-01",
+    "date_added": "2013-04-30 06:58:54",
+    "date_last_updated": "2013-09-18 11:45:32",
+    "deck": null,
+    "description": "<p><em>Two people. A train station. An unattended Briefcase.</em></p><p><em>Prejudice versus Preservation.</em></p><p><em>In the war on terror, will suspicion and fear win out?</em></p>",
+    "first_appearance_characters": null,
+    "first_appearance_concepts": null,
+    "first_appearance_locations": null,
+    "first_appearance_objects": null,
+    "first_appearance_storyarcs": null,
+    "first_appearance_teams": null,
+    "has_staff_review": false,
+    "id": 400275,
+    "image": {
+      "icon_url": "https://comicvine.gamespot.com/a/uploads/square_avatar/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "medium_url": "https://comicvine.gamespot.com/a/uploads/scale_medium/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "screen_url": "https://comicvine.gamespot.com/a/uploads/screen_medium/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "screen_large_url": "https://comicvine.gamespot.com/a/uploads/screen_kubrick/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "small_url": "https://comicvine.gamespot.com/a/uploads/scale_small/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "super_url": "https://comicvine.gamespot.com/a/uploads/scale_large/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "thumb_url": "https://comicvine.gamespot.com/a/uploads/scale_avatar/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "tiny_url": "https://comicvine.gamespot.com/a/uploads/square_mini/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "original_url": "https://comicvine.gamespot.com/a/uploads/original/14/149950/3016257-the%20example%20%233%20%282009%29%20-%20page%201.jpg",
+      "image_tags": "All Images"
+    },
+    "issue_number": "1",
+    "location_credits": [],
+    "name": null,
+    "object_credits": [],
+    "person_credits": [
+      {
+        "api_detail_url": "https://comicvine.gamespot.com/api/person/4040-44855/",
+        "id": 44855,
+        "name": "Colin Wilson",
+        "site_detail_url": "https://comicvine.gamespot.com/colin-wilson/4040-44855/",
+        "role": "artist, cover"
+      },
+      {
+        "api_detail_url": "https://comicvine.gamespot.com/api/person/4040-58661/",
+        "id": 58661,
+        "name": "Justin Randall",
+        "site_detail_url": "https://comicvine.gamespot.com/justin-randall/4040-58661/",
+        "role": "cover"
+      },
+      {
+        "api_detail_url": "https://comicvine.gamespot.com/api/person/4040-57043/",
+        "id": 57043,
+        "name": "Tom Taylor",
+        "site_detail_url": "https://comicvine.gamespot.com/tom-taylor/4040-57043/",
+        "role": "writer"
+      }
+    ],
+    "site_detail_url": "https://comicvine.gamespot.com/the-example-1/4000-400275/",
+    "store_date": null,
+    "story_arc_credits": [],
+    "team_credits": [],
+    "team_disbanded_in": [],
+    "volume": {
+      "api_detail_url": "https://comicvine.gamespot.com/api/volume/4050-60593/",
+      "id": 60593,
+      "name": "The Example",
+      "site_detail_url": "https://comicvine.gamespot.com/the-example/4050-60593/"
+    }
+  },
+  "version": "1.0"
+}

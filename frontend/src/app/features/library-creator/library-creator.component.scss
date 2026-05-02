@@ -63,23 +63,6 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
-  }
 }
 
 // Sections
@@ -323,15 +306,6 @@
   gap: 0.625rem;
   max-height: 180px;
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 2px;
-  }
 }
 
 .folder-item {
