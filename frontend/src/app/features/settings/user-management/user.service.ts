@@ -131,6 +131,7 @@ export interface PdfReaderSetting {
   pageSpread: PageSpread;
   pageZoom: string;
   showSidebar: boolean;
+  scrollLayout?: 'vertical' | 'horizontal';
 }
 
 export enum PdfPageViewMode {
