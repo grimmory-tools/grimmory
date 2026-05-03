@@ -15,6 +15,34 @@ spec:
     matchLabels:
       {{- include "grimmory.selectorLabels" . | nindent 6 }}
   template:
+    {{- $dbHost := "" }}
+    {{- $dbPort := 0 }}
+    {{- $dbName := "" }}
+    {{- $dbUserName := "" }}
+    {{- $dbPasswordSecretName := "" }}
+    {{- $dbPasswordSecretKey := "" }}
+    {{- if .Values.mariadb.enabled }}
+    {{- $dbHost = printf "%s-mariadb" .Release.Name  }}
+    {{- $dbPort = .Values.mariadb.service.port }}
+    {{- $dbName = .Values.mariadb.auth.database }}
+    {{- $dbUserName = .Values.mariadb.auth.username }}
+    {{- if .Values.mariadb.auth.existingSecret }}
+    {{- $dbPasswordSecretName = .Values.mariadb.auth.existingSecret }}
+    {{- $dbPasswordSecretKey = .Values.mariadb.auth.secretKeys.userPasswordKey }}
+    {{- else }}
+    {{- $dbPasswordSecretName = printf "%s-mariadb" .Release.Name }}
+    {{- $dbPasswordSecretKey = "mariadb-password" }}
+    {{- end }}
+    {{- else }}
+    {{- with .Values.externalDatabase }}
+    {{- $dbHost = required "externalDatabase.host is required" .host }}
+    {{- $dbPort = .port | default 3306 }}
+    {{- $dbName = required "externalDatabase.database is required" .database }}
+    {{- $dbUserName = required "externalDatabase.username is required" .username }}
+    {{- $dbPasswordSecretName = required "externalDatabase.existingSecret is required" .existingSecret }}
+    {{- $dbPasswordSecretKey = required "externalDatabase.existingSecretPasswordKey is required" .existingSecretPasswordKey }}
+    {{- end }}
+    {{- end }}
     metadata:
       {{- with .Values.podAnnotations }}
       annotations:
@@ -42,8 +70,8 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for database on port {{ .Values.mariadb.service.port }}..."
-              until nc -z -v -w5 {{ .Release.Name }}-mariadb {{ .Values.mariadb.service.port }}; do
+              echo "Waiting for database at {{ $dbHost }} port {{ $dbPort }}..."
+              until nc -z -v -w5 {{ $dbHost }} {{ $dbPort }}; do
                 echo "Waiting for database..."
                 sleep 2
               done
@@ -69,9 +97,9 @@ spec:
               #protocol: TCP
           env:
             - name: DATABASE_URL
-              value: jdbc:mariadb://{{ .Release.Name }}-mariadb:{{ .Values.mariadb.service.port }}/{{ .Values.mariadb.auth.database }}
+              value: jdbc:mariadb://{{ $dbHost }}:{{ $dbPort }}/{{ $dbName }}
             - name: DATABASE_USERNAME
-              value: {{ .Values.mariadb.auth.username }}
+              value: {{ $dbUserName }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
