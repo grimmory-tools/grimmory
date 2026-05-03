@@ -43,7 +43,7 @@ services:
 
   mariadb:
     image: lscr.io/linuxserver/mariadb:11.4.8
-    container_name: mariadb
+    container_name: grimmory_mariadb
     environment:
       - PUID=1000
       - PGID=1000
