@@ -512,6 +512,7 @@ public class ReadingProgressService {
         if (percentage == null) return;
 
         koreaderUserRepository.findByBookLoreUserId(user.getId())
+                .filter(KoreaderUserEntity::isSyncEnabled)
                 .filter(KoreaderUserEntity::isSyncWithBookloreReader)
                 .ifPresent(koreaderUser -> {
                     float koreaderPercent = percentage / 100.0f;
@@ -526,7 +527,7 @@ public class ReadingProgressService {
                                     book.getFullFilePath(), progress.getEpubProgress());
                             progress.setKoreaderProgress(xpointer);
                         } catch (Exception e) {
-                            log.warn("Failed to convert CFI to XPointer for KOReader sync: {}", e.getMessage());
+                            log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
                         }
                     }
                 });
