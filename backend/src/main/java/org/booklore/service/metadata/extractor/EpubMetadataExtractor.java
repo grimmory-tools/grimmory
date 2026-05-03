@@ -454,31 +454,33 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     private void extractCalibreUserMetadata(JsonNode userMetadata, BookMetadata.BookMetadataBuilder builder,
                                              Set<String> moodsSet, Set<String> tagsSet) {
-        if (userMetadata instanceof ObjectNode objectNode) {
-            for (Map.Entry<String, JsonNode> field : objectNode.properties()) {
-                String fieldName = field.getKey();
-                try {
-                    JsonNode fieldObj = field.getValue();
-                    if (fieldObj == null || !fieldObj.isObject()) continue;
+        if (!(userMetadata instanceof ObjectNode objectNode)) {
+            return;
+        }
+        for (Map.Entry<String, JsonNode> field : objectNode.properties()) {
+            String fieldName = field.getKey();
+            try {
+                JsonNode fieldObj = field.getValue();
+                if (fieldObj == null || !fieldObj.isObject()) continue;
 
-                    JsonNode valueNode = fieldObj.get("#value#");
-                    if (valueNode == null || valueNode.isNull()) continue;
+                JsonNode valueNode = fieldObj.get("#value#");
+                if (valueNode == null || valueNode.isNull()) continue;
 
-                    if ("#moods".equals(fieldName) || "#extra_tags".equals(fieldName)) {
-                        String value = valueNode.isArray() ? valueNode.toString() : valueNode.asText().trim();
-                        if (value.isEmpty() || "null".equals(value)) continue;
-                        extractSetField(value, "#moods".equals(fieldName) ? moodsSet : tagsSet);
-                    } else {
-                        String value = valueNode.asText().trim();
-                        if (value.isEmpty() || "null".equals(value)) continue;
-                        BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = CALIBRE_FIELD_MAPPINGS.get(fieldName);
-                        if (mapper != null) {
-                            mapper.accept(builder, value);
-                        }
+
+                if ("#moods".equals(fieldName) || "#extra_tags".equals(fieldName)) {
+                    String value = valueNode.isArray() ? valueNode.toString() : valueNode.asText().trim();
+                    if (value.isEmpty() || "null".equals(value)) continue;
+                    extractSetField(value, "#moods".equals(fieldName) ? moodsSet : tagsSet);
+                } else {
+                    String value = valueNode.asText().trim();
+                    if (value.isEmpty() || "null".equals(value)) continue;
+                    BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = CALIBRE_FIELD_MAPPINGS.get(fieldName);
+                    if (mapper != null) {
+                        mapper.accept(builder, value);
                     }
-                } catch (Exception e) {
-                    log.debug("Failed to extract Calibre field '{}': {}", fieldName, e.getMessage());
                 }
+            } catch (Exception e) {
+                log.debug("Failed to extract Calibre field '{}': {}", fieldName, e.getMessage());
             }
         }
     }
