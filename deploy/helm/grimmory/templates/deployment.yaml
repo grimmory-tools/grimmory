@@ -71,7 +71,7 @@ spec:
             - -c
             - |
               echo "Waiting for database at {{ $dbHost }} port {{ $dbPort }}..."
-              until nc -z -v -w5 {{ $dbHost }} {{ $dbPort }}; do
+              until nc -z -v -w5 '{{ $dbHost }}' {{ $dbPort }}; do
                 echo "Waiting for database..."
                 sleep 2
               done
