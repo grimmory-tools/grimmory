@@ -270,11 +270,10 @@ public class ReadingProgressService {
             progress.setDateFinished(request.getDateFinished());
         }
 
-        syncKoreaderFromBookloreProgress(userEntity, book, progress, percentage);
-
         userBookProgressRepository.save(progress);
 
         if (percentage != null) {
+            syncKoreaderFromBookloreProgress(userEntity, book, progress, percentage);
             hardcoverSyncService.syncProgressToHardcover(book.getId(), percentage, user.getId());
         }
     }
@@ -508,8 +507,7 @@ public class ReadingProgressService {
     }
 
     private void syncKoreaderFromBookloreProgress(BookLoreUserEntity user, BookEntity book,
-                                                   UserBookProgressEntity progress, Float percentage) {
-        if (percentage == null) return;
+                                                   UserBookProgressEntity progress, float percentage) {
 
         koreaderUserRepository.findByBookLoreUserId(user.getId())
                 .filter(KoreaderUserEntity::isSyncEnabled)
