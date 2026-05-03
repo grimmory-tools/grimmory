@@ -10,29 +10,25 @@
 
 <!-- Required. List the main changes. Use bullets if helpful. -->
 
-## Testing
+## Manual Testing Steps
 
-<!-- Required. Paste the commands you ran and the result. Use `Not run - <reason>` if needed. -->
-
-### Manual testing steps
-
-<!-- Required. List the exact steps you used to verify behavior. Use `None` if not applicable. -->
+<!-- Required. List the exact steps you used to verify behaviour/test against regressions. -->
 
 1.
 2.
 3.
 
-## AI Disclosure
-
-<!-- Required. Use `None` if no AI tools were used. Example: Codex - helped refactor a service and draft tests; I reviewed all changes. -->
-
 ## Screenshots (Optional)
 
-<!-- If the UI changed, attach screenshots or a short recording. If it didn't, just say 'N/A' -->
+<!-- If the UI changed at all, attach before/after screenshots, or a short recording. If it didn't, you can delete this section. -->
 
 ## Additional Context (Optional)
 
 <!-- Add anything reviewers should know that does not fit above. -->
+
+## AI Disclosure
+
+<!-- Required. Use `None` if no AI tools were used. Example: Codex - helped refactor a service and draft tests; I reviewed all changes. -->
 
 ## Checklist
 
