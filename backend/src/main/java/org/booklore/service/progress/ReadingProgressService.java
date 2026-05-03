@@ -20,7 +20,7 @@ import org.booklore.model.enums.UserPermission;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateService;
-import org.booklore.util.koreader.EpubCfiService;
+import org.booklore.service.koreader.KoreaderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,8 +47,7 @@ public class ReadingProgressService {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final KoboReadingStateService koboReadingStateService;
-    private final KoreaderUserRepository koreaderUserRepository;
-    private final EpubCfiService epubCfiService;
+    private final KoreaderService koreaderService;
     private final HardcoverSyncService hardcoverSyncService;
 
     // ==================== Methods from UserProgressService ====================
@@ -273,7 +272,7 @@ public class ReadingProgressService {
         userBookProgressRepository.save(progress);
 
         if (percentage != null) {
-            syncKoreaderFromBookloreProgress(userEntity, book, progress, percentage);
+            koreaderService.syncProgressToKoreader(book.getId(), percentage, user.getId());
             hardcoverSyncService.syncProgressToHardcover(book.getId(), percentage, user.getId());
         }
     }
@@ -504,31 +503,6 @@ public class ReadingProgressService {
                         .dateFinished(null)
                         .build())
                 .toList();
-    }
-
-    private void syncKoreaderFromBookloreProgress(BookLoreUserEntity user, BookEntity book,
-                                                   UserBookProgressEntity progress, float percentage) {
-
-        koreaderUserRepository.findByBookLoreUserId(user.getId())
-                .filter(KoreaderUserEntity::isSyncEnabled)
-                .filter(KoreaderUserEntity::isSyncWithBookloreReader)
-                .ifPresent(koreaderUser -> {
-                    float koreaderPercent = percentage / 100.0f;
-                    progress.setKoreaderProgressPercent(koreaderPercent);
-                    progress.setKoreaderLastSyncTime(Instant.now());
-
-                    BookFileEntity primaryFile = book.getPrimaryBookFile();
-                    if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
-                            && progress.getEpubProgress() != null) {
-                        try {
-                            String xpointer = epubCfiService.convertCfiToProgressXPointer(
-                                    book.getFullFilePath(), progress.getEpubProgress());
-                            progress.setKoreaderProgress(xpointer);
-                        } catch (Exception e) {
-                            log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
-                        }
-                    }
-                });
     }
 
     private BookLoreUserEntity findUserOrThrow(Long userId) {

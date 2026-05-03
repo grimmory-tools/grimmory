@@ -16,14 +16,13 @@ import org.booklore.model.enums.ResetProgressType;
 import org.booklore.repository.*;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.hardcover.HardcoverSyncService;
-import org.booklore.util.koreader.EpubCfiService;
+import org.booklore.service.koreader.KoreaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
@@ -49,9 +48,7 @@ class ReadingProgressServiceTest {
     @Mock
     private HardcoverSyncService hardcoverSyncService;
     @Mock
-    private KoreaderUserRepository koreaderUserRepository;
-    @Mock
-    private EpubCfiService epubCfiService;
+    private KoreaderService koreaderService;
 
     @InjectMocks
     private ReadingProgressService readingProgressService;
@@ -59,7 +56,6 @@ class ReadingProgressServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(koreaderUserRepository.findByBookLoreUserId(anyLong())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -294,21 +290,14 @@ class ReadingProgressServiceTest {
     }
 
     @Test
-    void updateReadProgress_shouldSyncToKoreaderWhenEnabled() {
+    void updateReadProgress_shouldDelegateKoreaderSync() {
         long bookId = 1L;
         BookEntity book = new BookEntity();
         book.setId(bookId);
-
-        LibraryPathEntity libraryPath = new LibraryPathEntity();
-        libraryPath.setPath("/library");
-        book.setLibraryPath(libraryPath);
-
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
-        primaryFile.setFileName("book.epub");
-        primaryFile.setFileSubPath("subdir");
         book.setBookFiles(List.of(primaryFile));
 
         BookLoreUser user = mock(BookLoreUser.class);
@@ -319,15 +308,6 @@ class ReadingProgressServiceTest {
         BookLoreUserEntity userEntity = new BookLoreUserEntity();
         userEntity.setId(2L);
         when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
-
-        KoreaderUserEntity koreaderUser = KoreaderUserEntity.builder()
-                .syncEnabled(true)
-                .syncWithBookloreReader(true)
-                .build();
-        when(koreaderUserRepository.findByBookLoreUserId(2L)).thenReturn(Optional.of(koreaderUser));
-
-        when(epubCfiService.convertCfiToProgressXPointer(any(Path.class), eq("cfi")))
-                .thenReturn("/6/8!/4/2/6/1:15");
 
         UserBookProgressEntity progress = new UserBookProgressEntity();
         when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
@@ -341,21 +321,18 @@ class ReadingProgressServiceTest {
 
         readingProgressService.updateReadProgress(req);
 
-        assertEquals(1.0f, progress.getKoreaderProgressPercent());
-        assertEquals("/6/8!/4/2/6/1:15", progress.getKoreaderProgress());
-        assertNotNull(progress.getKoreaderLastSyncTime());
-        verify(epubCfiService).convertCfiToProgressXPointer(any(Path.class), eq("cfi"));
+        verify(koreaderService).syncProgressToKoreader(bookId, 100f, 2L);
     }
 
     @Test
-    void updateReadProgress_shouldNotSyncToKoreaderWhenDisabled() {
+    void updateReadProgress_shouldDelegateKoreaderSyncWithCorrectPercentage() {
         long bookId = 1L;
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setId(1L);
         primaryFile.setBook(book);
-        primaryFile.setBookType(BookFileType.EPUB);
+        primaryFile.setBookType(BookFileType.PDF);
         book.setBookFiles(List.of(primaryFile));
 
         BookLoreUser user = mock(BookLoreUser.class);
@@ -367,11 +344,6 @@ class ReadingProgressServiceTest {
         userEntity.setId(2L);
         when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
 
-        KoreaderUserEntity koreaderUser = KoreaderUserEntity.builder()
-                .syncWithBookloreReader(false)
-                .build();
-        when(koreaderUserRepository.findByBookLoreUserId(2L)).thenReturn(Optional.of(koreaderUser));
-
         UserBookProgressEntity progress = new UserBookProgressEntity();
         when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
 
@@ -379,19 +351,16 @@ class ReadingProgressServiceTest {
 
         ReadProgressRequest req = new ReadProgressRequest();
         req.setBookId(bookId);
-        EpubProgress epubProgress = EpubProgress.builder().cfi("cfi").percentage(100f).build();
-        req.setEpubProgress(epubProgress);
+        PdfProgress pdfProgress = PdfProgress.builder().page(10).percentage(50f).build();
+        req.setPdfProgress(pdfProgress);
 
         readingProgressService.updateReadProgress(req);
 
-        assertNull(progress.getKoreaderProgressPercent());
-        assertNull(progress.getKoreaderProgress());
-        assertNull(progress.getKoreaderLastSyncTime());
-        verify(epubCfiService, never()).convertCfiToProgressXPointer(any(Path.class), anyString());
+        verify(koreaderService).syncProgressToKoreader(bookId, 50f, 2L);
     }
 
     @Test
-    void updateReadProgress_shouldNotSyncToKoreaderWhenGlobalSyncDisabled() {
+    void updateReadProgress_shouldNotDelegateKoreaderSyncWhenPercentageNull() {
         long bookId = 1L;
         BookEntity book = new BookEntity();
         book.setId(bookId);
@@ -410,28 +379,14 @@ class ReadingProgressServiceTest {
         userEntity.setId(2L);
         when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
 
-        KoreaderUserEntity koreaderUser = KoreaderUserEntity.builder()
-                .syncEnabled(false)
-                .syncWithBookloreReader(true)
-                .build();
-        when(koreaderUserRepository.findByBookLoreUserId(2L)).thenReturn(Optional.of(koreaderUser));
-
-        UserBookProgressEntity progress = new UserBookProgressEntity();
-        when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
-
-        when(userBookFileProgressRepository.findByUserIdAndBookFileId(2L, 1L)).thenReturn(Optional.empty());
+        when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.empty());
 
         ReadProgressRequest req = new ReadProgressRequest();
         req.setBookId(bookId);
-        EpubProgress epubProgress = EpubProgress.builder().cfi("cfi").percentage(100f).build();
-        req.setEpubProgress(epubProgress);
 
         readingProgressService.updateReadProgress(req);
 
-        assertNull(progress.getKoreaderProgressPercent());
-        assertNull(progress.getKoreaderProgress());
-        assertNull(progress.getKoreaderLastSyncTime());
-        verify(epubCfiService, never()).convertCfiToProgressXPointer(any(Path.class), anyString());
+        verify(koreaderService, never()).syncProgressToKoreader(anyLong(), anyFloat(), anyLong());
     }
 
     @Test
