@@ -22,19 +22,19 @@
 2.
 3.
 
-## 🤖 AI Disclosure
+## AI Disclosure
 
 <!-- Required. Use `None` if no AI tools were used. Example: Codex - helped refactor a service and draft tests; I reviewed all changes. -->
 
-## 📸 Screenshots (Optional)
+## Screenshots (Optional)
 
 <!-- If the UI changed, attach screenshots or a short recording. If it didn't, just say 'N/A' -->
 
-## 💬 Additional Context (Optional)
+## Additional Context (Optional)
 
 <!-- Add anything reviewers should know that does not fit above. -->
 
-## ✅ Checklist
+## Checklist
 
 - [ ] This PR links and implements an accepted issue.
 - [ ] This PR is a single focused change.
