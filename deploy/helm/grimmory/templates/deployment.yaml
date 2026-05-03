@@ -28,7 +28,7 @@ spec:
     {{- $dbUserName = .Values.mariadb.auth.username }}
     {{- if .Values.mariadb.auth.existingSecret }}
     {{- $dbPasswordSecretName = .Values.mariadb.auth.existingSecret }}
-    {{- $dbPasswordSecretKey = .Values.mariadb.auth.secretKeys.userPasswordKey }}
+    {{- $dbPasswordSecretKey = required "mariadb.auth.secretKeys.userPasswordKey is required when using an existing secret for MariaDB" .Values.mariadb.auth.secretKeys.userPasswordKey }}
     {{- else }}
     {{- $dbPasswordSecretName = printf "%s-mariadb" .Release.Name }}
     {{- $dbPasswordSecretKey = "mariadb-password" }}
