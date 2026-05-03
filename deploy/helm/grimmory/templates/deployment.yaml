@@ -1,3 +1,9 @@
+{{- if and .Values.mariadb.enabled .Values.externalDatabase.host }}
+{{- fail "mariadb.enabled and externalDatabase are mutually exclusive: disable the bundled MariaDB subchart or remove the externalDatabase" }}
+{{- end }}
+{{- if and (not .Values.mariadb.enabled) (not .Values.externalDatabase.host) }}
+{{- fail "At least one database must be set" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
