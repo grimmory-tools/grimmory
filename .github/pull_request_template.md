@@ -34,6 +34,7 @@
 
 - [ ] This PR links and implements an accepted issue.
 - [ ] This PR is a single focused change.
+- [ ] There are new or updated tests validating this change.
 - [ ] I ran `just ui check` and `just api check`.
 - [ ] I have added screenshots if there were any UI changes.
 - [ ] I have disclosed any AI usage as per the organization AI Policy above.
