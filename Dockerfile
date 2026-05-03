@@ -81,7 +81,9 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseStringDeduplication \
     -XX:ShenandoahUncommitDelay=5000 \
     -XX:ShenandoahGuaranteedGCInterval=30000 \
-    -XX:MaxDirectMemorySize=256m"
+    -XX:MaxDirectMemorySize=256m \
+    --enable-native-access=ALL-UNNAMED \
+    --enable-preview"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop
@@ -117,4 +119,4 @@ ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["java", "--enable-native-access=ALL-UNNAMED", "--enable-preview", "-jar", "/app/app.jar"]
+CMD ["java", "-jar", "/app/app.jar"]
