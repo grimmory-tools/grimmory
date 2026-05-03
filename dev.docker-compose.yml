@@ -51,7 +51,6 @@ services:
       - "${FRONTEND_PORT:-4200}:4200"
   backend_db:
     image: mariadb:11.4
-    container_name: grimmory_backend_db
     volumes:
       - backend_db:/var/lib/mysql
     restart: unless-stopped
