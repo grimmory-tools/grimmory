@@ -97,22 +97,14 @@ spec:
               #protocol: TCP
           env:
             - name: DATABASE_URL
-              value: jdbc:mariadb://{{ $dbHost }}:{{ $dbPort }}/{{ $dbName }}
+              value: {{ printf "jdbc:mariadb://%s:%v/%s" $dbHost $dbPort $dbName | quote }}
             - name: DATABASE_USERNAME
-              value: {{ $dbUserName }}
+              value: {{ $dbUserName | quote }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  {{- if .Values.mariadb.auth.existingSecret }}
-                  name: {{ .Values.mariadb.auth.existingSecret }}
-                  {{- else }}
-                  name: {{ .Release.Name }}-mariadb
-                  {{- end }}
-                  key: mariadb-password
-          {{- with .Values.startupProbe }}
-          startupProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+                  name: {{ $dbPasswordSecretName | quote }}
+                  key: {{ $dbPasswordSecretKey | quote }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
