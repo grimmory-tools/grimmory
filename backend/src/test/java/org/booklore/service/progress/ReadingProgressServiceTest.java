@@ -16,6 +16,7 @@ import org.booklore.model.enums.ResetProgressType;
 import org.booklore.repository.*;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.hardcover.HardcoverSyncService;
+import org.booklore.util.koreader.EpubCfiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -46,6 +47,10 @@ class ReadingProgressServiceTest {
     private KoboReadingStateService koboReadingStateService;
     @Mock
     private HardcoverSyncService hardcoverSyncService;
+    @Mock
+    private KoreaderUserRepository koreaderUserRepository;
+    @Mock
+    private EpubCfiService epubCfiService;
 
     @InjectMocks
     private ReadingProgressService readingProgressService;
@@ -53,6 +58,7 @@ class ReadingProgressServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(koreaderUserRepository.findByBookLoreUserId(anyLong())).thenReturn(Optional.empty());
     }
 
     @Test
