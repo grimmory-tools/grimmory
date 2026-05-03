@@ -125,6 +125,25 @@
     "black": "Noir",
     "white": "Blanc"
   },
+  "offline": {
+    "title": "Lecture hors ligne",
+    "description": "Lisez vos livres sans connexion internet. Les livres sont stockés sur votre appareil via le stockage du navigateur.",
+    "enabled": "Activer la lecture hors ligne",
+    "enabledDesc": "Les livres récemment ouverts sont automatiquement mis en cache pour un accès hors ligne via le stockage OPFS.",
+    "maxBooks": "Max. de livres en cache",
+    "maxBooksDesc": "Les livres dépassant cette limite sont supprimés en commençant par les moins récemment lus.",
+    "unit": "livres",
+    "storageLabel": "Stockage",
+    "storageDesc": "Utilisation actuelle du stockage pour les livres mis en cache.",
+    "storageNote": "Les appareils iOS peuvent appliquer des limites de stockage plus strictes pour les sites web vs. les PWAs installées.",
+    "clearButton": "Effacer tous les livres en cache",
+    "clearButtonDesc": "Supprime les fichiers de livres téléchargés. La progression de lecture et les préférences sont conservées.",
+    "notAvailable": "La lecture hors ligne n'est pas prise en charge sur ce navigateur.",
+    "cleared": "Livres en cache effacés",
+    "clearedDetail": "Tous les fichiers de livres en cache ont été supprimés avec succès.",
+    "clearError": "Échec de l'effacement",
+    "clearErrorDetail": "Impossible d'effacer les livres en cache. Veuillez réessayer."
+  },
   "toast": {
     "preferencesUpdated": "Préférences mises à jour",
     "preferencesUpdatedDetail": "Vos préférences ont été enregistrées avec succès."

@@ -16,6 +16,8 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { FormsModule } from "@angular/forms";
 import { ReadingSessionService } from '../../../shared/service/reading-session.service';
 import { WakeLockService } from '../../../shared/service/wake-lock.service';
+import { OfflineProgressQueueService } from '../../../shared/service/offline-progress-queue.service';
+import { RecentlyReadService } from '../../../shared/service/recently-read.service';
 import { ReaderHeaderFooterVisibilityManager } from '../ebook-reader';
 
 import { CbxHeaderComponent } from './layout/header/cbx-header.component';
@@ -218,6 +220,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private cbxReaderService = inject(CbxReaderService);
   private bookService = inject(BookService);
+  private offlineProgressQueue = inject(OfflineProgressQueueService);
+  private recentlyRead = inject(RecentlyReadService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
@@ -344,6 +348,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
             }
             this.bookType.set(resolvedBookType);
             this.currentBook.set(book);
+            this.recentlyRead.recordBookOpened(this.bookId()!, {
+              title: book.metadata?.title as string | undefined,
+              author: book.metadata?.['author'] as string | undefined,
+              fileType: resolvedBookType,
+            });
 
             // Determine which file ID to use for progress tracking
             if (this.altBookType()) {
@@ -1586,7 +1595,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       ? Math.round(((this.currentPage() + 1) / this.pages().length) * 1000) / 10
       : 0;
 
-    this.bookService.saveCbxProgress(this.bookId()!, this.currentPage() + 1, percentage, this.bookFileId()!).subscribe();
+    if (navigator.onLine) {
+      this.bookService.saveCbxProgress(this.bookId()!, this.currentPage() + 1, percentage, this.bookFileId()!).subscribe();
+    } else {
+      this.offlineProgressQueue.queue(this.bookId()!, 'cbx', {page: this.currentPage() + 1, percentage, bookFileId: this.bookFileId()!});
+    }
   }
 
   private updateSessionProgress(): void {

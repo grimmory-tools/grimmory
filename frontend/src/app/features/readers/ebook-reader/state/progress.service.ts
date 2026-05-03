@@ -3,6 +3,7 @@ import {Subject} from 'rxjs';
 import {TranslocoService} from '@jsverse/transloco';
 import {BookPatchService} from '../../../book/service/book-patch.service';
 import {ReadingSessionService} from '../../../../shared/service/reading-session.service';
+import {OfflineProgressQueueService} from '../../../../shared/service/offline-progress-queue.service';
 import {PageInfo, ThemeInfo} from '../core/view-manager.service';
 import {ReaderViewManagerService} from '../core/view-manager.service';
 import {ReaderStateService} from './reader-state.service';
@@ -48,6 +49,7 @@ export interface RelocateProgressData {
 export class ReaderProgressService {
   private bookPatchService = inject(BookPatchService);
   private readingSessionService = inject(ReadingSessionService);
+  private offlineProgressQueue = inject(OfflineProgressQueueService);
   private readonly t = inject(TranslocoService);
   private viewManager = inject(ReaderViewManagerService);
   private stateService = inject(ReaderStateService);
@@ -108,7 +110,11 @@ export class ReaderProgressService {
     }
 
     if (cfi && percentage !== null) {
-      this.bookPatchService.saveEpubProgress(this.bookId, cfi, href ?? '', percentage, this.bookFileId);
+      if (navigator.onLine) {
+        this.bookPatchService.saveEpubProgress(this.bookId, cfi, href ?? '', percentage, this.bookFileId);
+      } else {
+        this.offlineProgressQueue.queue(this.bookId, 'epub', {cfi, href: href ?? undefined, percentage, bookFileId: this.bookFileId});
+      }
       this.readingSessionService.updateProgress(cfi, percentage);
     }
 

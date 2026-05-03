@@ -3,6 +3,8 @@ import { LocalStorageService } from "./local-storage.service";
 
 export interface LocalSettings {
   cacheStorageEnabled: boolean;
+  offlineReadingEnabled: boolean;
+  maxOfflineBooks: number;
 }
 
 @Injectable({
@@ -14,6 +16,8 @@ export class LocalSettingsService {
 
   public readonly defaultSettings: LocalSettings = {
     cacheStorageEnabled: true,
+    offlineReadingEnabled: false,
+    maxOfflineBooks: 5,
   };
 
   protected settings: LocalSettings;

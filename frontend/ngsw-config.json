@@ -44,6 +44,26 @@
         "maxAge": "0u",
         "timeout": "0u"
       }
+    },
+    {
+      "name": "book-content",
+      "urls": ["/api/v1/books/*/content*"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "7d",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "book-covers",
+      "urls": ["/api/v1/books/*/cover*", "/api/v1/books/*/thumbnail*"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "30d",
+        "timeout": "5s"
+      }
     }
   ]
 }

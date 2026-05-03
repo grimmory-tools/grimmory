@@ -34,6 +34,7 @@ import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {RelocateProgressData} from './state/progress.service';
 import {WakeLockService} from '../../../shared/service/wake-lock.service';
+import {RecentlyReadService} from '../../../shared/service/recently-read.service';
 import {ViewEvent} from './core/view-manager.service';
 
 interface PendingInitialChapterRestore {
@@ -96,6 +97,7 @@ export class EbookReaderComponent implements OnInit {
   private noteService = inject(ReaderNoteService);
   private wakeLockService = inject(WakeLockService);
   private messageService = inject(MessageService);
+  private recentlyRead = inject(RecentlyReadService);
 
   public sidebarService = inject(ReaderSidebarService);
   public leftSidebarService = inject(ReaderLeftSidebarService);
@@ -214,6 +216,11 @@ export class EbookReaderComponent implements OnInit {
     ]).pipe(
       switchMap(([, book]) => {
         this.book.set(book);
+        this.recentlyRead.recordBookOpened(this.bookId, {
+          title: book.metadata?.title as string | undefined,
+          author: book.metadata?.['author'] as string | undefined,
+          fileType: book.primaryFile?.bookType,
+        });
         const bookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
         if (!bookType) {
           return throwError(() => new Error('Book type not found'));

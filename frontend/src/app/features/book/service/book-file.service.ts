@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable, throwError, from} from 'rxjs';
+import {Observable, throwError, from, firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
 import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, DuplicateDetectionRequest, DuplicateGroup} from '../model/book.model';
@@ -8,6 +8,8 @@ import {MessageService} from 'primeng/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
 import {CacheStorageService} from '../../../shared/service/cache-storage.service';
 import {LocalSettingsService} from '../../../shared/service/local-settings.service';
+import {OfflineStorageService} from '../../../shared/service/offline-storage.service';
+import {RecentlyReadService} from '../../../shared/service/recently-read.service';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {patchBookInCacheWith, patchBooksInCache, removeBooksFromCache} from './book-query-cache';
@@ -25,6 +27,8 @@ export class BookFileService {
   private queryClient = inject(QueryClient);
   private cacheStorageService = inject(CacheStorageService);
   private localSettingsService = inject(LocalSettingsService);
+  private offlineStorage = inject(OfflineStorageService);
+  private recentlyRead = inject(RecentlyReadService);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
@@ -32,7 +36,32 @@ export class BookFileService {
     if (bookType) {
       url += `?bookType=${bookType}`;
     }
-    if (this.localSettingsService.get().cacheStorageEnabled)
+    const localSettings = this.localSettingsService.get();
+
+    if (localSettings.offlineReadingEnabled) {
+      const fileType = bookType ?? 'EPUB';
+      return from(
+        this.offlineStorage.getBookContent(bookId, fileType).then(async (cached) => {
+          if (cached) {
+            this.recentlyRead.recordBookOpened(bookId);
+            return cached;
+          }
+          const httpResponse = await firstValueFrom(
+            this.http.get(url, {responseType: 'blob' as 'json'})
+          ) as Blob;
+          this.offlineStorage.cacheBook(bookId, httpResponse, fileType,
+            `${bookId}.${fileType.toLowerCase()}`, {
+              title: String(bookId), fileType,
+              fileName: `${bookId}.${fileType.toLowerCase()}`,
+              cachedAt: new Date().toISOString()
+            }).catch(() => undefined);
+          this.recentlyRead.recordBookOpened(bookId);
+          return httpResponse;
+        })
+      );
+    }
+
+    if (localSettings.cacheStorageEnabled)
       return from(this.cacheStorageService.getCache(url).then(response => response.blob()));
     return this.http.get<Blob>(url, {responseType: 'blob' as 'json'});
   }

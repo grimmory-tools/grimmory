@@ -23,6 +23,8 @@ import { MessageService } from 'primeng/api';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { CacheStorageService } from '../../../shared/service/cache-storage.service'
 import { LocalSettingsService } from '../../../shared/service/local-settings.service';
+import { OfflineProgressQueueService } from '../../../shared/service/offline-progress-queue.service';
+import { RecentlyReadService } from '../../../shared/service/recently-read.service';
 import { ReadingSessionService } from '../../../shared/service/reading-session.service';
 import { WakeLockService } from '../../../shared/service/wake-lock.service';
 import { Location } from '@angular/common';
@@ -184,6 +186,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
   private wakeLockService = inject(WakeLockService);
+  private offlineProgressQueue = inject(OfflineProgressQueueService);
+  private recentlyRead = inject(RecentlyReadService);
   readonly embedPdfBook = inject(EmbedPdfBookService);
   readonly pdfBookmarkService = inject(PdfBookmarkService);
   private readonly ngZone = inject(NgZone);
@@ -374,6 +378,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
         this.pageTitle.setBookPageTitle(pdfMeta);
         this.bookTitle.set(pdfMeta.metadata?.title || '');
+        this.recentlyRead.recordBookOpened(this.bookId, {
+          title: pdfMeta.metadata?.title as string | undefined,
+          author: pdfMeta.metadata?.['author'] as string | undefined,
+          fileType: 'PDF',
+        });
 
         const globalOrIndividual = myself.userSettings.perBookSetting.pdf;
         let zoomVal: string;
@@ -1122,7 +1131,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     const currentPage = this.page();
     const total = this.totalPages();
     const percentage = total > 0 ? Math.round((currentPage / total) * 1000) / 10 : 0;
-    this.bookService.savePdfProgress(this.bookId, currentPage, percentage, this.bookFileId).subscribe();
+    if (navigator.onLine) {
+      this.bookService.savePdfProgress(this.bookId, currentPage, percentage, this.bookFileId).subscribe();
+    } else {
+      this.offlineProgressQueue.queue(this.bookId, 'pdf', {page: currentPage, percentage, bookFileId: this.bookFileId});
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,82 @@
+<ng-container *transloco="let t; prefix: 'settingsReader.offline'">
+  <div class="offline-settings-container">
+    <div class="settings-card">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-cloud-download"></i>
+          {{ t('title') }}
+        </h3>
+        <p class="section-description">
+          {{ t('description') }}
+        </p>
+      </div>
+
+      @if (!opfsAvailable()) {
+        <div class="settings-info-notice">
+          {{ t('notAvailable') }}
+        </div>
+      }
+
+      <div class="settings-content">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ t('enabled') }}</span>
+            <span class="setting-description">{{ t('enabledDesc') }}</span>
+          </div>
+          <div class="setting-control">
+            <p-toggleswitch [(ngModel)]="settings.offlineReadingEnabled" (onChange)="onToggleChange()"></p-toggleswitch>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ t('maxBooks') }}</span>
+            <span class="setting-description">{{ t('maxBooksDesc') }}</span>
+          </div>
+          <div class="setting-control">
+            <p-inputNumber [(ngModel)]="settings.maxOfflineBooks" [min]="1" [max]="50" (onInput)="onMaxBooksChange()">
+            </p-inputNumber>
+            <span class="setting-unit">{{ t('unit') }}</span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ t('storageLabel') }}</span>
+            <span class="setting-description">{{ t('storageDesc') }}</span>
+          </div>
+          <div class="setting-control storage-info">
+            @if (isLoadingStorage()) {
+              <span>---</span>
+            } @else {
+              <div class="storage-bar-wrapper">
+                <div class="storage-bar">
+                  <div class="storage-bar-fill" [style.width.%]="storageQuotaBytes() > 0 ? (storageUsageBytes() / storageQuotaBytes() * 100) : 0"></div>
+                </div>
+                <span class="storage-text">
+                  {{ storageUsageBytes() / (1024 * 1024) | number:'1.1-1' }} MB / {{ storageQuotaBytes() / (1024 * 1024 * 1024) | number:'1.1-1' }} GB
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="settings-info-notice">
+          {{ t('storageNote') }}
+        </div>
+
+        <div class="setting-item action-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ t('clearButton') }}</span>
+            <span class="setting-description">{{ t('clearButtonDesc') }}</span>
+          </div>
+          <div class="setting-control">
+            <p-button type="button" [label]="t('clearButton')" icon="pi pi-trash" severity="danger" [outlined]="true"
+              [disabled]="isClearing()" [loading]="isClearing()" (onClick)="clearAllBooks()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

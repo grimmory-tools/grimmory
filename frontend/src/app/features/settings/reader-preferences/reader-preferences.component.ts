@@ -10,13 +10,14 @@ import {CbxReaderPreferencesComponent} from './cbx-reader-preferences/cbx-reader
 import {CustomFontsComponent} from '../custom-fonts/custom-fonts.component';
 import {SettingsApplicationModeComponent} from './settings-application-mode/settings-application-mode.component';
 import {LocalSettingsComponent} from "./local-settings/local-settings.component";
+import {OfflineSettingsComponent} from "./offline-settings/offline-settings.component";
 
 @Component({
   selector: 'app-reader-preferences',
   templateUrl: './reader-preferences.component.html',
   standalone: true,
   styleUrls: ['./reader-preferences.component.scss'],
-  imports: [FormsModule, TranslocoDirective, EpubReaderPreferencesComponent, PdfReaderPreferencesComponent, CbxReaderPreferencesComponent, CustomFontsComponent, SettingsApplicationModeComponent, LocalSettingsComponent]
+  imports: [FormsModule, TranslocoDirective, EpubReaderPreferencesComponent, PdfReaderPreferencesComponent, CbxReaderPreferencesComponent, CustomFontsComponent, SettingsApplicationModeComponent, LocalSettingsComponent, OfflineSettingsComponent]
 })
 export class ReaderPreferences {
   private readonly userService = inject(UserService);

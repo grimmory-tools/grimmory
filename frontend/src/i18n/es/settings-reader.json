@@ -125,6 +125,25 @@
     "black": "Negro",
     "white": "Blanco"
   },
+  "offline": {
+    "title": "Lectura sin conexión",
+    "description": "Lee tus libros sin conexión a internet. Los libros se almacenan en tu dispositivo mediante el almacenamiento del navegador.",
+    "enabled": "Activar lectura sin conexión",
+    "enabledDesc": "Los libros abiertos recientemente se almacenan en caché automáticamente para acceso sin conexión mediante almacenamiento OPFS.",
+    "maxBooks": "Máximo de libros en caché",
+    "maxBooksDesc": "Los libros que superen este límite se eliminan empezando por los leídos menos recientemente.",
+    "unit": "libros",
+    "storageLabel": "Almacenamiento",
+    "storageDesc": "Uso actual de almacenamiento para libros en caché.",
+    "storageNote": "Los dispositivos iOS pueden aplicar límites de almacenamiento más estrictos para sitios web vs. PWAs instaladas.",
+    "clearButton": "Borrar todos los libros en caché",
+    "clearButtonDesc": "Elimina los archivos de libros descargados. El progreso de lectura y las preferencias se conservan.",
+    "notAvailable": "La lectura sin conexión no es compatible con este navegador.",
+    "cleared": "Libros en caché borrados",
+    "clearedDetail": "Todos los archivos de libros en caché se han eliminado correctamente.",
+    "clearError": "Error al borrar",
+    "clearErrorDetail": "No se pudieron borrar los libros en caché. Inténtalo de nuevo."
+  },
   "toast": {
     "preferencesUpdated": "Preferencias actualizadas",
     "preferencesUpdatedDetail": "Tus preferencias se han guardado correctamente."

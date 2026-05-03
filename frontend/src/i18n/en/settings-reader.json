@@ -128,6 +128,25 @@
     "black": "Black",
     "white": "White"
   },
+  "offline": {
+    "title": "Offline Reading",
+    "description": "Read your books without an internet connection. Books are stored on your device via browser storage.",
+    "enabled": "Enable Offline Reading",
+    "enabledDesc": "Recently opened books are automatically cached for offline access using OPFS storage.",
+    "maxBooks": "Max Books to Cache",
+    "maxBooksDesc": "Books beyond this limit are removed starting with the least recently read.",
+    "unit": "books",
+    "storageLabel": "Storage",
+    "storageDesc": "Current storage usage for cached books.",
+    "storageNote": "iOS devices may enforce stricter storage limits for websites vs. installed PWAs.",
+    "clearButton": "Clear All Cached Books",
+    "clearButtonDesc": "Removes downloaded book files. Reading progress and preferences are preserved.",
+    "notAvailable": "Offline reading is not supported on this browser.",
+    "cleared": "Cached Books Cleared",
+    "clearedDetail": "All cached book files have been removed successfully.",
+    "clearError": "Clear Failed",
+    "clearErrorDetail": "Unable to clear cached books. Please try again."
+  },
   "toast": {
     "preferencesUpdated": "Preferences Updated",
     "preferencesUpdatedDetail": "Your preferences have been saved successfully."
