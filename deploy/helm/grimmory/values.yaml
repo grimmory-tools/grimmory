@@ -15,6 +15,37 @@ mariadb:
     #   userPasswordKey: mariadb-password
   service:
     port: 3306
+
+# Mutually exclusive with the bundled mariadb subchart above.
+# Set mariadb.enabled to false and externalDatabase.enabled to true to use this.
+externalDatabase:
+  enabled: false
+
+  ## Database host
+  host: ""
+
+  ## Database port
+  port: 3306
+
+  ## Database user
+  username: grimmory
+
+  ## Database password
+  password: ""
+
+  ## Database name
+  database: grimmory
+
+  ## Use an existing secret
+  existingSecret:
+    enabled: false
+    # secretName: nameofsecret
+    # usernameKey: db-username
+    # passwordKey: db-password
+    # hostnameKey: db-hostname
+    # portKey: db-port
+    # databaseKey: db-name
+
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: grimmory/grimmory
