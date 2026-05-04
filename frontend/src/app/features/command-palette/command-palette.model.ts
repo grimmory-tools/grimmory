@@ -16,6 +16,7 @@ export interface PaletteBookMeta {
   seriesName: string | null;
   seriesNumber: number | null;
   year: string | null;
+  isAudiobook: boolean;
 }
 
 export interface PaletteItem {

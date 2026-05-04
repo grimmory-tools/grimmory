@@ -286,6 +286,7 @@ export class CommandPaletteService {
     const publishedDate = metadata?.publishedDate ?? '';
     const year = publishedDate && /^\d{4}/.test(publishedDate) ? publishedDate.slice(0, 4) : null;
     const haystack = [title, metadata?.seriesName ?? '', ...authors].filter(Boolean).join(' ');
+    const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
 
     return {
       id: `book:${book.id}`,
@@ -296,11 +297,14 @@ export class CommandPaletteService {
       route: ['/book', book.id],
       queryParams: { tab: 'view' },
       bookMeta: {
-        thumbnailUrl: this.urlHelper.getThumbnailUrl(book.id, metadata?.coverUpdatedOn),
+        thumbnailUrl: isAudiobook
+          ? this.urlHelper.getAudiobookThumbnailUrl(book.id, metadata?.audiobookCoverUpdatedOn)
+          : this.urlHelper.getThumbnailUrl(book.id, metadata?.coverUpdatedOn),
         authors,
         seriesName: metadata?.seriesName ?? null,
         seriesNumber: metadata?.seriesNumber ?? null,
         year,
+        isAudiobook,
       },
     };
   }
