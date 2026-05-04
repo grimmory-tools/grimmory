@@ -1,6 +1,15 @@
 {
   "title": "Preferenze di visualizzazione",
   "description": "Personalizza come vengono visualizzati i libri nella tua libreria, incluso il layout a griglia, le opzioni di ordinamento e il comportamento della barra laterale.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Preferenze di visualizzazione e ordinamento libreria e scaffale",
     "sectionDesc": "Configura le preferenze predefinite e per libreria/scaffale per l'ordinamento e la modalità di visualizzazione (griglia o tabella) nel browser.",

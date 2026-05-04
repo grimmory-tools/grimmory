@@ -1,40 +1,12 @@
 @use "variables";
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  height: 100%;
-  font-size: variables.$scale;
-}
-
-body {
-  font-family: var(--font-family), serif;
-  color: var(--text-color);
-  background-color: var(--ground-background);
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  text-decoration: none;
-  color: var(--primary-color);
-}
-
 .layout-wrapper {
+  display: grid;
+  grid-template: "sidebar main" minmax(0, 1fr) / var(--sidebar-width, 225px) minmax(0, 1fr);
+  height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
   scroll-behavior: smooth;
-  background-color: var(--ground-background);
-}
-
-p {
-  color: var(--text-color);
-}
-
-p.p-secondary {
-  color: var(--text-secondary-color);
+  background-color: var(--app-background);
+  transition: grid-template-columns variables.$transition-duration;
 }

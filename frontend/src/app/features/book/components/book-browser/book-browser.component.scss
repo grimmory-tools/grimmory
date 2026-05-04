@@ -1,82 +1,30 @@
-.skeleton-grid {
-  display: grid;
-  gap: 21px;
-  place-items: start center;
-  width: 100%;
-
-  @media (width <= 767px) {
-    gap: 8px;
-  }
-}
-
-.skeleton-card {
-  background: var(--p-content-border-color);
-  border-radius: 8px;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-  will-change: opacity;
-}
-
-.table-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-}
-
-.table-skeleton-header,
-.table-skeleton-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1rem;
-  align-items: center;
-}
-
-.table-skeleton-row {
-  min-height: 2.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-
-.table-skeleton-cell {
-  height: 0.875rem;
-  border-radius: 999px;
-  background: var(--p-content-border-color);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-
-  &.table-skeleton-cell-header {
-    height: 0.75rem;
-    opacity: 0.75;
-  }
-
-  &.table-skeleton-cell-short {
-    width: 70%;
-  }
-}
-
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skeleton-card,
-  .table-skeleton-cell {
-    animation: none;
-    will-change: auto;
-  }
-}
-
 // Layout containers
 .book-browser-container {
   position: relative;
   display: flex;
   flex-direction: row;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .book-browser-main {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  min-height: 0;
+}
+
+.book-browser-content {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
 }
 
 // Header bar
@@ -86,16 +34,13 @@
   justify-content: space-between;
   gap: 0.25rem;
   padding: 0.35rem;
-  border-radius: 0.75rem 0.75rem 0 0;
-  margin-bottom: 0.5rem;
   margin-right: 2px;
   background-color: var(--card-background);
-  border: 1px solid var(--p-content-border-color);
+  border-bottom: 1px solid var(--p-content-border-color);
 
   @media (width >= 768px) {
     gap: 1rem;
     padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
   }
 }
 
@@ -401,19 +346,30 @@
 // Virtual scroller and grid
 .virtual-scroller {
   width: 100%;
-  height: calc(100dvh - 10.9rem);
-  padding: 1rem 0;
+  height: 100%;
+  padding: 1rem;
   box-sizing: border-box;
   overflow-y: auto;
-
-  @media (width <= 768px) {
-    height: calc(100dvh - 9rem);
-    padding: 0.75rem;
-  }
 }
 
 .virtual-loader-cell {
+  border-radius: 8px;
+  background: var(--p-content-border-color);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
   pointer-events: none;
+  will-change: opacity;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .virtual-loader-cell {
+    animation: none;
+    will-change: auto;
+  }
 }
 
 // No books state
@@ -433,8 +389,8 @@
   border-radius: 0.5rem;
 }
 
-// Topbar items (icon buttons)
-.topbar-item {
+// Toolbar actions (icon buttons)
+.toolbar-item {
   display: inline-flex;
   align-items: center;
   justify-content: center;

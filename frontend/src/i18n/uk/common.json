@@ -25,5 +25,6 @@
   "libraryPathInaccessible": "Шлях до бібліотеки недоступний",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

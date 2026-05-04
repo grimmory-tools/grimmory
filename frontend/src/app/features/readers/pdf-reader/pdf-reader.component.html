@@ -16,13 +16,6 @@
   }
 
   @if (viewerMode() === 'document') {
-    @if (docViewerReady()) {
-    <button class="embed-close-btn icon-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
-      (click)="closeReader()">
-      <app-reader-icon name="close" [size]="18" />
-    </button>
-    }
-
     @if (isDocViewerInfoVisible()) {
     <div class="doc-viewer-info">
       <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
@@ -41,13 +34,7 @@
   <!-- Book header toolbar -->
   <div class="pdf-header-toolbar" [class.chrome-hidden]="!headerVisible()">
     <div class="header-left">
-      <button class="icon-btn" [title]="'readerPdf.toolbar.sidebar' | transloco" (click)="toggleSidebar()">
-        <!-- sidebar/menu icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" />
-        </svg>
-      </button>
+      <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'sidebar' }"></ng-container>
     </div>
 
     <span class="book-title">{{ bookTitle() }}</span>
@@ -55,79 +42,21 @@
     <div class="header-right">
       <!-- Desktop toolbar actions (hidden on mobile) -->
       <div class="desktop-actions">
-        <!-- Search -->
-        <button class="icon-btn" [class.active]="isSearchOpen()"
-          [title]="'readerPdf.toolbar.search' | transloco" (click)="toggleSearch()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-          </svg>
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'search' }"></ng-container>
         <div class="separator"></div>
 
-        <!-- Annotation tools -->
-        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool() === 'highlight'"
-          [title]="'readerPdf.toolbar.highlight' | transloco" (click)="toggleAnnotationTool('highlight')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
-          </svg>
-        </button>
-        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool() === 'freeText'"
-          [title]="'readerPdf.toolbar.freeText' | transloco" (click)="toggleAnnotationTool('freeText')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 6.1H3" /><path d="M21 12.1H3" /><path d="M15.1 18H3" />
-          </svg>
-        </button>
-        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool() === 'ink'"
-          [title]="'readerPdf.toolbar.draw' | transloco" (click)="toggleAnnotationTool('ink')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-          </svg>
-        </button>
-        <button class="icon-btn annotation-tool-btn" [class.active]="isPanActive()"
-          [title]="'readerPdf.toolbar.pan' | transloco" (click)="togglePanMode()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" /><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10" />
-            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
-            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-6.6-3.3l-4.7-5.3a2 2 0 0 1 0-2.8l.3-.3a2 2 0 0 1 2.8 0L8 14" />
-          </svg>
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'highlight' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'freeText' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'ink' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'pan' }"></ng-container>
         <div class="separator"></div>
 
-        <!-- Bookmark toggle -->
-        <button class="icon-btn bookmark-btn" [class.bookmarked]="isCurrentPageBookmarked()"
-          [title]="isCurrentPageBookmarked() ? ('readerPdf.toolbar.removeBookmark' | transloco) : ('readerPdf.toolbar.addBookmark' | transloco)"
-          (click)="toggleBookmark()">
-          @if (isCurrentPageBookmarked()) {
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-          </svg>
-          }
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'bookmark' }"></ng-container>
         <div class="separator"></div>
 
-        <!-- Zoom controls -->
-        <button class="icon-btn" [title]="'readerPdf.toolbar.zoomOut' | transloco" (click)="embedPdfBook.zoomOut()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M8 11h6" />
-          </svg>
-        </button>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomOut' }"></ng-container>
         <div class="zoom-menu-wrapper">
-          <button class="icon-btn zoom-label-btn" (click)="toggleZoomMenu()">
+          <button class="icon-btn zoom-label-btn" [attr.aria-label]="'readerPdf.toolbar.zoomPreset' | transloco" (click)="toggleZoomMenu()">
             <span class="zoom-label">{{ zoom() }}</span>
           </button>
           @if (isZoomMenuOpen()) {
@@ -140,101 +69,28 @@
           </div>
           }
         </div>
-        <button class="icon-btn" [title]="'readerPdf.toolbar.zoomIn' | transloco" (click)="embedPdfBook.zoomIn()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M11 8v6" /><path d="M8 11h6" />
-          </svg>
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomIn' }"></ng-container>
         <div class="separator"></div>
 
-        <!-- Spread mode -->
-        <button class="icon-btn" [title]="'readerPdf.toolbar.spreadMode' | transloco" (click)="cycleSpreadMode()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            @if (spreadMode() === 'none') {
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            } @else {
-            <rect x="2" y="3" width="9" height="18" rx="1" /><rect x="13" y="3" width="9" height="18" rx="1" />
-            }
-          </svg>
-        </button>
-
-        <!-- Rotate -->
-        <button class="icon-btn" [title]="'readerPdf.toolbar.rotatePage' | transloco" (click)="rotateClockwise()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
-          </svg>
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'spreadMode' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'scrollLayout' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'rotate' }"></ng-container>
         <div class="separator"></div>
 
-        <!-- Theme toggle -->
-        <button class="icon-btn"
-          [title]="isDarkTheme() ? ('readerPdf.toolbar.switchToLightMode' | transloco) : ('readerPdf.toolbar.switchToDarkMode' | transloco)"
-          (click)="toggleDarkTheme()">
-          @if (isDarkTheme()) {
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2" /><path d="M12 20v2" />
-            <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
-            <path d="M2 12h2" /><path d="M20 12h2" />
-            <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-          </svg>
-          }
-        </button>
-
-        <!-- Fullscreen -->
-        <button class="icon-btn" (click)="toggleFullscreen()"
-          [title]="isFullscreen() ? ('readerPdf.toolbar.exitFullscreen' | transloco) : ('readerPdf.toolbar.fullscreen' | transloco)">
-          @if (isFullscreen()) {
-          <app-reader-icon name="fullscreen-exit" [size]="18" />
-          } @else {
-          <app-reader-icon name="fullscreen" [size]="18" />
-          }
-        </button>
-
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'theme' }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'fullscreen' }"></ng-container>
         <div class="separator"></div>
       </div>
 
-      <!-- Mobile: bookmark + overflow menu (shown on mobile only) -->
+      <!-- Mobile actions -->
       <div class="mobile-actions">
-        <button class="icon-btn bookmark-btn" [class.bookmarked]="isCurrentPageBookmarked()"
-          [attr.aria-label]="isCurrentPageBookmarked() ? ('readerPdf.toolbar.removeBookmark' | transloco) : ('readerPdf.toolbar.addBookmark' | transloco)"
-          (click)="toggleBookmark()">
-          @if (isCurrentPageBookmarked()) {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-          </svg>
-          }
-        </button>
-
-        <button class="icon-btn overflow-btn" [attr.aria-label]="'readerPdf.toolbar.moreOptions' | transloco" (click)="toggleToolbarOverflow()">
-          <!-- More/ellipsis icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
-          </svg>
-        </button>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'bookmark', iconSize: 20 }"></ng-container>
+        <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'overflow', iconSize: 20 }"></ng-container>
       </div>
 
       <!-- Close button (always visible) -->
-      <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
-        (click)="closeReader()">
+      <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
+        [disabled]="isClosingReader()" (pointerdown)="onCloseReaderPointerDown($event)" (click)="onCloseReaderClick($event)">
         <app-reader-icon name="close" [size]="20" />
       </button>
     </div>
@@ -244,83 +100,32 @@
   @if (isToolbarOverflowOpen()) {
   <div class="toolbar-overflow-backdrop" role="presentation" (click)="closeToolbarOverflow()"></div>
   <div class="toolbar-overflow-menu" tabindex="-1" (keydown.escape)="closeToolbarOverflow()" #overflowMenu>
-    <button class="overflow-item" (click)="toggleSearch(); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.search' | transloco }}</span>
-    </button>
-    <button class="overflow-item" (click)="toggleAnnotationTool('highlight'); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.highlight' | transloco }}</span>
-    </button>
-    <button class="overflow-item" (click)="toggleAnnotationTool('ink'); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.draw' | transloco }}</span>
-    </button>
-    <button class="overflow-item" [class.active]="isPanActive()" (click)="togglePanMode(); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" /><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10" />
-        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
-        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-6.6-3.3l-4.7-5.3a2 2 0 0 1 0-2.8l.3-.3a2 2 0 0 1 2.8 0L8 14" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.pan' | transloco }}</span>
-    </button>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'sidebar', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'search', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'highlight', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'freeText', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'ink', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'pan', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'scrollLayout', isOverflow: true }"></ng-container>
     <div class="overflow-divider"></div>
-    <button class="overflow-item" (click)="toggleDarkTheme(); closeToolbarOverflow()">
-      @if (isDarkTheme()) {
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2" /><path d="M12 20v2" />
-        <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
-        <path d="M2 12h2" /><path d="M20 12h2" />
-        <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
-      </svg>
-      } @else {
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-      </svg>
-      }
-      <span>{{ isDarkTheme() ? ('readerPdf.toolbar.switchToLightMode' | transloco) : ('readerPdf.toolbar.switchToDarkMode' | transloco) }}</span>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'bookmark', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'spreadMode', isOverflow: true }"></ng-container>
+    <div class="overflow-divider"></div>
+    @for (preset of zoomPresets; track preset.value) {
+    <button class="overflow-item" [class.active]="zoom() === preset.value" (click)="setZoomPreset(preset.value); closeToolbarOverflow()">
+      <app-reader-icon name="magnifier" [size]="18" />
+      <span>{{ preset.label }}</span>
     </button>
-    <button class="overflow-item" (click)="rotateClockwise(); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.rotatePage' | transloco }}</span>
-    </button>
-    <button class="overflow-item" (click)="embedPdfBook.zoomIn(); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M11 8v6" /><path d="M8 11h6" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.zoomIn' | transloco }}</span>
-    </button>
-    <button class="overflow-item" (click)="embedPdfBook.zoomOut(); closeToolbarOverflow()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M8 11h6" />
-      </svg>
-      <span>{{ 'readerPdf.toolbar.zoomOut' | transloco }}</span>
-    </button>
-    <button class="overflow-item" (click)="toggleFullscreen(); closeToolbarOverflow()">
-      @if (isFullscreen()) {
-      <app-reader-icon name="fullscreen-exit" [size]="18" />
-      } @else {
-      <app-reader-icon name="fullscreen" [size]="18" />
-      }
-      <span>{{ isFullscreen() ? ('readerPdf.toolbar.exitFullscreen' | transloco) : ('readerPdf.toolbar.fullscreen' | transloco) }}</span>
+    }
+    <div class="overflow-divider"></div>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'theme', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'rotate', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomIn', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomOut', isOverflow: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'fullscreen', isOverflow: true }"></ng-container>
+    <button class="overflow-item" [disabled]="isClosingReader()" (click)="onCloseReaderClick($event); closeToolbarOverflow()">
+      <app-reader-icon name="close" [size]="18" />
+      <span>{{ 'readerPdf.toolbar.closePdfReader' | transloco }}</span>
     </button>
   </div>
   }
@@ -329,10 +134,7 @@
   @if (isSearchOpen()) {
   <div class="search-bar" [class.chrome-hidden]="!headerVisible()">
     <div class="search-input-wrapper">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-      </svg>
+      <app-reader-icon name="search" [size]="14" />
       <input type="text" class="search-input" #searchInput
         [ngModel]="searchQuery()" (ngModelChange)="onSearchQueryChange($event)"
         [attr.aria-label]="'readerPdf.toolbar.searchPlaceholder' | transloco"
@@ -340,10 +142,10 @@
         (keyup.enter)="onSearchNext()"
         (keyup.escape)="closeSearch()" />
     </div>
-    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchPrevious' | transloco" (click)="onSearchPrevious()">
+    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchPrevious' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchPrevious' | transloco" (click)="onSearchPrevious()">
       <app-reader-icon name="chevron-left" [size]="14" />
     </button>
-    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
+    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
       <app-reader-icon name="chevron-right" [size]="14" />
     </button>
     <button class="icon-btn search-close" [attr.aria-label]="'readerPdf.toolbar.closeSearch' | transloco" (click)="closeSearch()">
@@ -353,7 +155,7 @@
   }
 
   <!-- Book viewer container -->
-  <div #bookViewerContainer id="book-viewer" class="book-viewer-container"></div>
+  <div #bookViewerContainer id="book-viewer" class="book-viewer-container" [class.horizontal-scroll]="scrollLayout() === 'horizontal'"></div>
 
   <!-- Sidebar -->
   <app-pdf-sidebar
@@ -373,11 +175,11 @@
   <div class="pdf-footer" [class.visible]="footerVisible()">
     <div class="page-nav-left">
       <button class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
-        [title]="'readerPdf.footer.firstPage' | transloco">
+        [title]="'readerPdf.footer.firstPage' | transloco" [attr.aria-label]="'readerPdf.footer.firstPage' | transloco">
         <app-reader-icon name="chevron-first" [size]="16" />
       </button>
       <button class="nav-btn" (click)="goToPreviousPage()" [disabled]="page() <= 1"
-        [title]="'readerPdf.footer.previousPage' | transloco">
+        [title]="'readerPdf.footer.previousPage' | transloco" [attr.aria-label]="'readerPdf.footer.previousPage' | transloco">
         <app-reader-icon name="chevron-left" [size]="16" />
       </button>
       <div class="page-info">
@@ -385,11 +187,11 @@
         <span class="total"> {{ 'readerPdf.footer.of' | transloco }} {{ totalPages() }}</span>
       </div>
       <button class="nav-btn" (click)="goToNextPage()" [disabled]="page() >= totalPages()"
-        [title]="'readerPdf.footer.nextPage' | transloco">
+        [title]="'readerPdf.footer.nextPage' | transloco" [attr.aria-label]="'readerPdf.footer.nextPage' | transloco">
         <app-reader-icon name="chevron-right" [size]="16" />
       </button>
       <button class="nav-btn" (click)="goToLastPage()" [disabled]="page() >= totalPages()"
-        [title]="'readerPdf.footer.lastPage' | transloco">
+        [title]="'readerPdf.footer.lastPage' | transloco" [attr.aria-label]="'readerPdf.footer.lastPage' | transloco">
         <app-reader-icon name="chevron-last" [size]="16" />
       </button>
     </div>
@@ -431,3 +233,176 @@
 
 </div>
 }
+
+<!-- Action Button Template -->
+<ng-template #actionBtn let-id="id" let-isOverflow="isOverflow" let-iconSize="iconSize">
+  @let size = iconSize || 18;
+  @switch (id) {
+    @case ('sidebar') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'sidebar',
+        icon: 'sidebar',
+        title: 'readerPdf.toolbar.sidebar',
+        active: sidebarOpen(),
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('search') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'search',
+        icon: 'search',
+        title: 'readerPdf.toolbar.search',
+        active: isSearchOpen(),
+        pressed: isSearchOpen(),
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('highlight') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'highlight',
+        icon: 'highlight',
+        title: 'readerPdf.toolbar.highlight',
+        active: activeAnnotationTool() === 'highlight',
+        pressed: activeAnnotationTool() === 'highlight',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('freeText') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'freeText',
+        icon: 'free-text',
+        title: 'readerPdf.toolbar.freeText',
+        active: activeAnnotationTool() === 'freeText',
+        pressed: activeAnnotationTool() === 'freeText',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('ink') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'ink',
+        icon: 'draw',
+        title: 'readerPdf.toolbar.draw',
+        active: activeAnnotationTool() === 'ink',
+        pressed: activeAnnotationTool() === 'ink',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('pan') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'pan',
+        icon: 'pan',
+        title: 'readerPdf.toolbar.pan',
+        active: isPanActive(),
+        pressed: isPanActive(),
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('bookmark') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'bookmark',
+        icon: 'bookmark',
+        title: isCurrentPageBookmarked() ? 'readerPdf.toolbar.removeBookmark' : 'readerPdf.toolbar.addBookmark',
+        active: isCurrentPageBookmarked(),
+        pressed: isCurrentPageBookmarked(),
+        className: 'bookmark-btn',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('zoomOut') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'zoomOut',
+        icon: 'zoom-out',
+        title: 'readerPdf.toolbar.zoomOut',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('zoomIn') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'zoomIn',
+        icon: 'zoom-in',
+        title: 'readerPdf.toolbar.zoomIn',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('spreadMode') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'spreadMode',
+        icon: spreadMode() === 'none' ? 'spread-none' : 'spread-double',
+        title: 'readerPdf.toolbar.spreadMode',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('scrollLayout') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'scrollLayout',
+        icon: scrollLayout() === 'horizontal' ? 'scroll-horizontal' : 'scroll-vertical',
+        title: scrollLayout() === 'horizontal' ? 'readerPdf.toolbar.scrollLayoutHorizontal' : 'readerPdf.toolbar.scrollLayoutVertical',
+        pressed: scrollLayout() === 'horizontal',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('rotate') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'rotate',
+        icon: 'rotate',
+        title: 'readerPdf.toolbar.rotatePage',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('theme') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'theme',
+        icon: isDarkTheme() ? 'sun' : 'moon',
+        title: isDarkTheme() ? 'readerPdf.toolbar.switchToLightMode' : 'readerPdf.toolbar.switchToDarkMode',
+        pressed: isDarkTheme(),
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('fullscreen') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'fullscreen',
+        icon: isFullscreen() ? 'fullscreen-exit' : 'fullscreen',
+        title: isFullscreen() ? 'readerPdf.toolbar.exitFullscreen' : 'readerPdf.toolbar.fullscreen',
+        isOverflow: isOverflow,
+        size: size
+      }"></ng-container>
+    }
+    @case ('overflow') {
+      <ng-container *ngTemplateOutlet="btnBase; context: {
+        id: 'overflow',
+        icon: 'dots-horizontal',
+        title: 'readerPdf.toolbar.moreOptions',
+        className: 'overflow-btn',
+        size: size
+      }"></ng-container>
+    }
+  }
+</ng-template>
+
+<ng-template #btnBase let-id="id" let-icon="icon" let-title="title" let-active="active" let-pressed="pressed" let-className="className" let-isOverflow="isOverflow" let-size="size">
+  @if (isOverflow) {
+    <button class="overflow-item" [class.active]="active" (click)="performAction(id); closeToolbarOverflow()">
+      <app-reader-icon [name]="icon" [size]="18" />
+      <span>{{ title | transloco }}</span>
+    </button>
+  } @else {
+    <button class="icon-btn" [class]="className" [class.active]="active" [class.bookmarked]="icon === 'bookmark' && active"
+      [title]="title | transloco" [attr.aria-label]="title | transloco"
+      [attr.aria-pressed]="pressed" (click)="performAction(id)">
+      <app-reader-icon [name]="icon" [size]="size" />
+    </button>
+  }
+</ng-template>

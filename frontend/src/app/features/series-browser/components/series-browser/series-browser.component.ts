@@ -120,7 +120,6 @@ export class SeriesBrowserComponent implements OnInit {
     minItemWidth: this.minCardWidth,
     gap: SeriesBrowserComponent.GRID_GAP,
     initialOffset: this.initialScrollOffset,
-    fillItemWidth: true,
     estimateItemHeight: itemWidth => Math.round(itemWidth * this.cardAspectRatio()),
   });
   readonly currentCardScale = computed(() => this.virtualGrid.itemWidth() / this.baseCardWidth());

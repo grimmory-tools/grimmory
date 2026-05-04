@@ -48,6 +48,7 @@
       "noBooks": "Denna samling har inga böcker!",
       "failedLibrary": "Kunde inte ladda bibliotekets böcker!",
       "failedShelf": "Kunde inte ladda hyllans böcker!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktiva filter"
     },
     "tooltip": {
@@ -619,7 +620,12 @@
   },
   "table": {
     "bookCoverAlt": "Bokomslag",
-    "statusPrefix": "Status: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Låst",
     "unlocked": "Upplåst",
     "toast": {

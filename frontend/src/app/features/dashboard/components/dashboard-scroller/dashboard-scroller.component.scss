@@ -4,8 +4,8 @@
   margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
-  background: rgb(30 30 45 / 40%);
-  border: color-mix(in srgb, var(--p-surface-500), transparent 50%) 1px solid;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
 }
 
 .dashboard-scroller-title {
@@ -14,7 +14,7 @@
   font-weight: 800;
   margin-bottom: 1rem;
   padding: 0;
-  background: linear-gradient(135deg, #fff, #e2e8f0, #3b82f6);
+  background: linear-gradient(135deg, var(--text-color), var(--text-color-secondary), var(--primary-color));
   background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;

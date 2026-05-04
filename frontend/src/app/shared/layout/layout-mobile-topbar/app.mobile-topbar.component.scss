@@ -1,0 +1,81 @@
+:host {
+  display: contents;
+}
+
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5rem;
+  z-index: 100;
+  background-color: var(--app-background);
+  border-bottom: 1px solid var(--content-border-color);
+  padding: 0 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mobile-topbar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.4rem;
+  color: var(--text-color);
+}
+
+.mobile-topbar-brand-icon {
+  width: auto;
+  height: 1.75rem;
+  flex-shrink: 0;
+  transform: translateY(1px);
+}
+
+.mobile-topbar-brand-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mobile-topbar-button {
+  flex-shrink: 0;
+}
+
+.mobile-topbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 6px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background-color: var(--surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+@media (width <= 767px) {
+  .mobile-topbar {
+    display: flex;
+  }
+}

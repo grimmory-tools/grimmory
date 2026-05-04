@@ -48,6 +48,7 @@
       "noBooks": "У цій колекції немає книг!",
       "failedLibrary": "Не вдалося завантажити книги з бібліотеки!",
       "failedShelf": "Не вдалося завантажити книги з полиці!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} активних фільтрів"
     },
     "tooltip": {
@@ -619,7 +620,12 @@
   },
   "table": {
     "bookCoverAlt": "Обкладинка книги",
-    "statusPrefix": "Статус: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Статус: {{ status }}",
     "locked": "Заблоковано",
     "unlocked": "Розблоковано",
     "toast": {
