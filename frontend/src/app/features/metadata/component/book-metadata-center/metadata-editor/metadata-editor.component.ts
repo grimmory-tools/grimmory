@@ -1114,8 +1114,8 @@ export class MetadataEditorComponent implements OnInit {
     this.closeDialogButtonClicked.emit();
   }
 
-  openCoverSearch() {
-    const ref = this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'ebook');
+  async openCoverSearch() {
+    const ref = await this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'ebook');
     ref?.onClose.pipe(
       take(1),
       filter(result => !!result),
@@ -1204,8 +1204,8 @@ export class MetadataEditorComponent implements OnInit {
     return this.bookMetadataManageService.getUploadAudiobookCoverUrl(this.currentBookId);
   }
 
-  openAudiobookCoverSearch() {
-    const ref = this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'audiobook');
+  async openAudiobookCoverSearch() {
+    const ref = await this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'audiobook');
     ref?.onClose.pipe(
       take(1),
       filter(result => !!result),

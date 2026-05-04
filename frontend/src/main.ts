@@ -4,7 +4,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { RxStompService } from './app/shared/websocket/rx-stomp.service';
 import { rxStompServiceFactory } from './app/shared/websocket/rx-stomp-service-factory';
-import { provideRouter, RouteReuseStrategy } from '@angular/router';
+import { PreloadAllModules, provideRouter, RouteReuseStrategy, withPreloading } from '@angular/router';
 import { CustomReuseStrategy } from './app/core/custom-reuse-strategy';
 import { providePrimeNG } from 'primeng/config';
 import { bootstrapApplication } from '@angular/platform-browser';
@@ -17,8 +17,6 @@ import { GlobalErrorHandler } from './app/core/errors/global-error-handler';
 import { PwaUpdateService } from './app/core/services/pwa-update.service';
 import { initializeAuthFactory } from './app/core/security/auth-initializer';
 import { StartupService } from './app/shared/service/startup.service';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
@@ -28,7 +26,6 @@ import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-exper
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
-    provideCharts(withDefaultRegisterables(), ChartDataLabels),
     provideTanStackQuery(new QueryClient({
       defaultOptions: {
         queries: {
@@ -48,7 +45,7 @@ bootstrapApplication(AppComponent, {
     }),
     provideHttpClient(withInterceptors([AuthInterceptorService])),
     provideAppInitializer(initializeAuthFactory()),
-    provideRouter(routes),
+    provideRouter(routes, withPreloading(PreloadAllModules)),
     DialogService,
     MessageService,
     ConfirmationService,

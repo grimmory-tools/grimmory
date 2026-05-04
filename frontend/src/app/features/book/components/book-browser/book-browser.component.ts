@@ -932,8 +932,8 @@ export class BookBrowserComponent implements AfterViewInit {
       });
   }
 
-  openShelfAssigner(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
+  async openShelfAssigner() {
+    this.dynamicDialogRef = await this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.assigned) {
@@ -943,8 +943,8 @@ export class BookBrowserComponent implements AfterViewInit {
     }
   }
 
-  lockUnlockMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
+  async lockUnlockMetadata() {
+    this.dynamicDialogRef = await this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -965,8 +965,8 @@ export class BookBrowserComponent implements AfterViewInit {
     this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
   }
 
-  bulkEditMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
+  async bulkEditMetadata() {
+    this.dynamicDialogRef = await this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -974,8 +974,8 @@ export class BookBrowserComponent implements AfterViewInit {
     }
   }
 
-  multiBookEditMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
+  async multiBookEditMetadata() {
+    this.dynamicDialogRef = await this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -1069,7 +1069,7 @@ export class BookBrowserComponent implements AfterViewInit {
     this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
   }
 
-  attachFilesToBook(): void {
+  async attachFilesToBook() {
     const selectedBookIds = Array.from(this.selectedBooks());
     const sourceBooks = this.books().filter(book =>
       selectedBookIds.includes(book.id)
@@ -1095,7 +1095,7 @@ export class BookBrowserComponent implements AfterViewInit {
       return;
     }
 
-    this.dynamicDialogRef = this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
+    this.dynamicDialogRef = await this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.success) {

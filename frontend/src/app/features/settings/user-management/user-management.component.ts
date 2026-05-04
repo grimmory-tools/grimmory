@@ -100,8 +100,8 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  openCreateUserDialog() {
-    this.ref = this.dialogLauncherService.openCreateUserDialog();
+  async openCreateUserDialog() {
+    this.ref = await this.dialogLauncherService.openCreateUserDialog();
     this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.loadUsers();

@@ -29,8 +29,8 @@ describe('DialogLauncherService', () => {
     service = TestBed.inject(DialogLauncherService);
   });
 
-  it('merges the default dialog options with caller overrides', () => {
-    service.openDialog(LibraryCreatorComponent, {
+  it('merges the default dialog options with caller overrides', async () => {
+    await service.openDialog(LibraryCreatorComponent, {
       showHeader: false,
       data: {mode: 'create'},
     });
@@ -51,8 +51,8 @@ describe('DialogLauncherService', () => {
     );
   });
 
-  it('opens the dashboard settings dialog with the expected style class', () => {
-    service.openDashboardSettingsDialog();
+  it('opens the dashboard settings dialog with the expected style class', async () => {
+    await service.openDashboardSettingsDialog();
 
     expect(dialogService.open).toHaveBeenCalledWith(
       DashboardSettingsComponent,
@@ -63,8 +63,8 @@ describe('DialogLauncherService', () => {
     );
   });
 
-  it('passes the library id into the library edit dialog', () => {
-    service.openLibraryEditDialog(12);
+  it('passes the library id into the library edit dialog', async () => {
+    await service.openLibraryEditDialog(12);
 
     expect(dialogService.open).toHaveBeenCalledWith(
       LibraryCreatorComponent,

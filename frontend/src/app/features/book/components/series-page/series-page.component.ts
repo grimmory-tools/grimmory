@@ -594,8 +594,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     });
   }
 
-  openShelfAssigner(): void {
-    this.dialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks);
+  async openShelfAssigner() {
+    this.dialogRef = await this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks);
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result.assigned) {
@@ -605,8 +605,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
-  lockUnlockMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks);
+  async lockUnlockMetadata() {
+    this.dialogRef = await this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks);
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -626,8 +626,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks);
   }
 
-  bulkEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks);
+  async bulkEditMetadata() {
+    this.dialogRef = await this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks);
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -635,8 +635,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
-  multiBookEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks);
+  async multiBookEditMetadata() {
+    this.dialogRef = await this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks);
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
