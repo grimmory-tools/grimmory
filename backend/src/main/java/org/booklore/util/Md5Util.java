@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 @UtilityClass
 public class Md5Util {
@@ -16,11 +17,7 @@ public class Md5Util {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(32);
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
+            return HexFormat.of().formatHex(digest);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
