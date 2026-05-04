@@ -1,4 +1,4 @@
-import { signal, WritableSignal } from '@angular/core';
+import { computed, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -52,9 +52,12 @@ describe('AppMenuComponent', () => {
   let component: AppMenuComponent;
   let commandPaletteService: { open: ReturnType<typeof vi.fn> };
   let currentUser: WritableSignal<TestUser | null>;
+  const sidebarCollapsed = signal(false);
+  const isDesktop = signal(true);
   const layoutService = {
-    sidebarCollapsed: signal(false),
-    isDesktop: signal(true),
+    sidebarCollapsed,
+    isDesktop,
+    desktopSidebarCollapsed: computed(() => isDesktop() && sidebarCollapsed()),
     librarySort: signal({ field: 'name', order: 'desc' }),
     shelfSort: signal({ field: 'name', order: 'asc' }),
     magicShelfSort: signal({ field: 'name', order: 'asc' }),

@@ -1,4 +1,4 @@
-@media (width >= 992px) {
+@media (width >= 768px) {
   .layout-wrapper {
     &.layout-sidebar-hidden {
       grid-template-columns: 0 minmax(0, 1fr);
@@ -16,7 +16,7 @@
   }
 }
 
-@media (width <= 991px) {
+@media (width <= 767px) {
   .blocked-scroll {
     overflow: hidden;
   }
