@@ -351,7 +351,7 @@
   white-space: nowrap;
 }
 
-@media (width <= 991px) {
+@media (width <= 767px) {
   .sidebar-header {
     align-items: flex-start;
     margin-bottom: var(--space-3);

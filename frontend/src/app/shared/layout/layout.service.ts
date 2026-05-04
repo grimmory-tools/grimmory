@@ -18,6 +18,7 @@ import {
 export const SIDEBAR_MIN_WIDTH = 175;
 export const SIDEBAR_MAX_WIDTH = 400;
 export const SIDEBAR_DEFAULT_WIDTH = 225;
+const DESKTOP_MIN_WIDTH = 768;
 const SIDEBAR_EXPANDED_STATE_KEY = 'sidebarExpandedState';
 const SIDEBAR_TRANSITION_MS = 220;
 
@@ -147,7 +148,7 @@ export class LayoutService {
   }
 
   private computeIsDesktop(): boolean {
-    return (this.document.defaultView?.innerWidth ?? 992) > 991;
+    return (this.document.defaultView?.innerWidth ?? DESKTOP_MIN_WIDTH) >= DESKTOP_MIN_WIDTH;
   }
 
   private readonly onResize = (): void => {

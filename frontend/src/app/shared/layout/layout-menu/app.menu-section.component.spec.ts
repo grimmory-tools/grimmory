@@ -11,6 +11,7 @@ describe('AppMenuSectionComponent', () => {
 
   const layoutService = {
     sidebarCollapsed: signal(false),
+    isDesktop: signal(true),
     sidebarExpandedState: signal<Readonly<Record<string, boolean>>>({}),
     isSidebarExpanded: vi.fn((key: string, defaultExpanded: boolean) => {
       const value = layoutService.sidebarExpandedState()[key];
@@ -37,6 +38,8 @@ describe('AppMenuSectionComponent', () => {
     component = fixture.componentInstance;
 
     layoutService.sidebarExpandedState.set({});
+    layoutService.sidebarCollapsed.set(false);
+    layoutService.isDesktop.set(true);
     layoutService.isSidebarExpanded.mockClear();
     layoutService.setSidebarExpanded.mockClear();
   });
