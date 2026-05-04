@@ -66,6 +66,7 @@ public class BookReviewUpdateService {
     }
 
     private BookReviewEntity createReviewEntity(BookReview review, BookMetadataEntity entity) {
+        // Some fields are truncated to properly fit in the entity field's max length.
         return BookReviewEntity.builder()
                 .bookMetadata(entity)
                 .metadataProvider(review.getMetadataProvider())
