@@ -1137,15 +1137,16 @@ export class BookBrowserComponent implements AfterViewInit {
 
   private adjustMobileGridDensity(direction: GridDensityDirection): void {
     const currentColumns = this.gridMobileColumnCount();
-    this.setMobileColumns(direction === 'smaller'
+    const nextColumns = direction === 'smaller'
       ? currentColumns + 1
-      : currentColumns - 1);
+      : currentColumns - 1;
+
+    this.setMobileColumns(this.toMobileGridColumns(nextColumns));
   }
 
-  private setMobileColumns(columns: unknown): void {
-    const normalizedColumns = this.toMobileGridColumns(columns);
-    this.gridMobileColumnCount.set(normalizedColumns);
-    this.localStorageService.set(MOBILE_COLUMNS_STORAGE_KEY, normalizedColumns);
+  private setMobileColumns(columns: number): void {
+    this.gridMobileColumnCount.set(columns);
+    this.localStorageService.set(MOBILE_COLUMNS_STORAGE_KEY, columns);
   }
 
   private adjustDesktopGridDensity(direction: GridDensityDirection): void {
@@ -1169,7 +1170,7 @@ export class BookBrowserComponent implements AfterViewInit {
   private loadMobileColumnsPreference(): void {
     const saved = this.localStorageService.get<unknown>(MOBILE_COLUMNS_STORAGE_KEY);
     if (saved !== null) {
-      this.setMobileColumns(saved);
+      this.setMobileColumns(this.toMobileGridColumns(saved));
     }
   }
 
