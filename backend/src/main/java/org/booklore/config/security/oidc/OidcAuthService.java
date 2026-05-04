@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -38,6 +39,7 @@ public class OidcAuthService {
 
     private static final String MOBILE_SCHEME = "booklore://";
     private static final String OAUTH2_CALLBACK_PATH = "/oauth2-callback";
+    private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/+$");
 
     private final AppSettingService appSettingService;
     private final OidcTokenClient oidcTokenClient;
@@ -154,7 +156,7 @@ public class OidcAuthService {
     private String resolveRequestOrigin(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
         if (origin != null && !origin.isBlank()) {
-            return origin.replaceAll("/+$", "");
+            return TRAILING_SLASH_PATTERN.matcher(origin).replaceAll("");
         }
         String scheme = request.getScheme();
         String host = request.getServerName();

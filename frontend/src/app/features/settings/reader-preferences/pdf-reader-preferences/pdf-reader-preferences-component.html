@@ -49,5 +49,30 @@
         </p>
       </div>
     </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-label-row">
+          <span class="setting-label">{{ t('scrollLayout') }}</span>
+          <div class="button-group">
+            @for (layout of scrollLayouts; track layout) {
+              <button
+                type="button"
+                class="option-button"
+                [class.selected]="selectedScrollLayout === layout.key"
+                (click)="selectedScrollLayout = layout.key"
+                [pTooltip]="t(layout.translationKey)"
+                tooltipPosition="bottom">
+                <i [class]="layout.icon"></i>
+                <span class="option-text">{{ t(layout.translationKey) }}</span>
+              </button>
+            }
+          </div>
+        </div>
+        <p class="setting-description">
+          {{ t('scrollLayoutDesc') }}
+        </p>
+      </div>
+    </div>
   </div>
 </ng-container>

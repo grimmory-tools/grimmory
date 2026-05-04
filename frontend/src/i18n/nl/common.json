@@ -22,5 +22,8 @@
   "dismiss": "Sluiten",
   "discard": "Verwerpen",
   "review": "Beoordelen",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "decreaseCardSize": "",
+  "increaseCardSize": "",
+  "cardSizeControls": ""
 }

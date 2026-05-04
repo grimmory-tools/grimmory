@@ -365,10 +365,6 @@ export class SeriesPageComponent implements AfterViewChecked {
     return this.coverScalePreferenceService.currentCardSize();
   }
 
-  get gridColumnMinWidth(): string {
-    return this.coverScalePreferenceService.gridColumnMinWidth();
-  }
-
   goToAuthorBooks(author: string): void {
     this.authorService.getAuthorByName(author).subscribe({
       next: (authorDetails) => {

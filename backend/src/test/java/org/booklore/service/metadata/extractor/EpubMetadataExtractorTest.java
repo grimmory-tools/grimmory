@@ -703,6 +703,19 @@ class EpubMetadataExtractorTest {
         }
 
         @Test
+        void extractsMoodsFromUserMetadataArray() throws IOException {
+            String json = """
+                    {"#moods": {"#value#": ["dark", "atmospheric"]}}""";
+            String opf = wrapOpf("""
+                    <dc:title>Book</dc:title>
+                    <meta property="calibre:user_metadata">%s</meta>
+                    """.formatted(json));
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getMoods()).containsExactlyInAnyOrder("dark", "atmospheric");
+        }
+
+        @Test
         void extractsExtraTagsFromUserMetadata() throws IOException {
             String json = """
                     {"#extra_tags": {"#value#": "tag1, tag2, tag3"}}""";

@@ -28,16 +28,37 @@ public class AppBookSummary {
     private Instant addedOn;
     private Instant lastReadTime;
     private Float readProgress;
+    private Long primaryFileId;
     private String primaryFileType;
+    private String primaryFileName;
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;
     private Boolean isPhysical;
 
     // Metadata for filtering
+    private String publisher;
+    private List<String> categories;
+    private List<String> tags;
+    private List<String> moods;
+    private String language;
+    private String narrator;
+    private String isbn13;
+    private String isbn10;
     private LocalDate publishedDate;
     private Integer pageCount;
     private Integer ageRating;
     private String contentRating;
     private Float metadataMatchScore;
     private Long fileSizeKb;
+    private Double amazonRating;
+    private Integer amazonReviewCount;
+    private Double goodreadsRating;
+    private Integer goodreadsReviewCount;
+    private Double hardcoverRating;
+    private Integer hardcoverReviewCount;
+    private Double ranobedbRating;
+    private Double lubimyczytacRating;
+    private Double audibleRating;
+    private Integer audibleReviewCount;
+    private Boolean allMetadataLocked;
 }

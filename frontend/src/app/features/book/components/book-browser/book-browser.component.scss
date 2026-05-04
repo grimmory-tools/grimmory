@@ -1,85 +1,18 @@
-// Skeleton loader — opacity animation runs on the compositor thread
-// so it stays smooth while the main thread computes books.
-.skeleton-grid {
-  display: grid;
-  gap: 21px;
-  align-items: start;
-  width: 100%;
-
-  @media (width <= 767px) {
-    gap: 0.5rem 8px;
-    padding: 0 0.5rem;
-  }
-}
-
-.skeleton-card {
-  background: var(--p-content-border-color);
-  border-radius: 8px;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-  will-change: opacity;
-}
-
-.table-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-}
-
-.table-skeleton-header,
-.table-skeleton-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1rem;
-  align-items: center;
-}
-
-.table-skeleton-row {
-  min-height: 2.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-
-.table-skeleton-cell {
-  height: 0.875rem;
-  border-radius: 999px;
-  background: var(--p-content-border-color);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-
-  &.table-skeleton-cell-header {
-    height: 0.75rem;
-    opacity: 0.75;
-  }
-
-  &.table-skeleton-cell-short {
-    width: 70%;
-  }
-}
-
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skeleton-card,
-  .table-skeleton-cell {
-    animation: none;
-    will-change: auto;
-  }
-}
-
 // Layout containers
 .book-browser-container {
   position: relative;
   display: flex;
   flex-direction: row;
+  min-width: 0;
+  width: 100%;
 }
 
 .book-browser-main {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
 }
 
 // Header bar
@@ -219,38 +152,6 @@
 
 .display-settings-label {
   font-weight: 500;
-}
-
-.scale-value-display {
-  text-align: center;
-}
-
-.column-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.column-option-btn {
-  flex: 1;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--p-content-border-color);
-  border-radius: 6px;
-  background-color: var(--card-background);
-  color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    border-color: var(--primary-color);
-  }
-
-  &.active {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: var(--primary-color-text);
-  }
 }
 
 // Sort button wrapper
@@ -437,40 +338,33 @@
 .virtual-scroller {
   width: 100%;
   height: calc(100dvh - 10.9rem);
-  padding: 1rem;
+  padding: 1rem 0;
   box-sizing: border-box;
   overflow-y: auto;
 
   @media (width <= 768px) {
     height: calc(100dvh - 9rem);
+    padding: 0.75rem;
   }
 }
 
-.book-grid {
-  display: grid;
-  gap: 21px;
-  align-items: start;
-  width: 100%;
-
-  @media (width <= 767px) {
-    gap: 0.5rem 8px;
-    padding: 0 0.5rem;
-  }
+.virtual-loader-cell {
+  border-radius: 8px;
+  background: var(--p-content-border-color);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+  will-change: opacity;
 }
 
-.scroll-sentinel {
-  height: 1px;
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
-.virtual-scroller-item {
-  position: relative;
-  margin-bottom: 21px;
-  contain: strict;
-  content-visibility: auto;
-  contain-intrinsic-size: auto var(--virtual-scroller-item-height, 220px);
-
-  @media (width <= 767px) {
-    margin-bottom: 0.5rem;
+@media (prefers-reduced-motion: reduce) {
+  .virtual-loader-cell {
+    animation: none;
+    will-change: auto;
   }
 }
 
@@ -607,13 +501,4 @@
       margin-left: 1rem;
     }
   }
-}
-
-// Book state container
-.book-state-wrapper {
-  position: relative;
-}
-
-.book-state-content-refreshing {
-  pointer-events: none;
 }

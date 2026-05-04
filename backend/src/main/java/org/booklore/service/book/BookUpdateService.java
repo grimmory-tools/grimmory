@@ -233,7 +233,7 @@ public class BookUpdateService {
         BookLoreUserEntity userEntity = findUserOrThrow(userId);
         List<UserBookProgressEntity> newProgressEntities = newProgressBookIds.stream()
                 .map(bookId -> createProgressEntity(userEntity, bookId, status, now, dateFinished))
-                .collect(Collectors.toList());
+                .toList();
 
         userBookProgressRepository.saveAll(newProgressEntities);
     }
@@ -262,7 +262,7 @@ public class BookUpdateService {
         BookLoreUserEntity userEntity = findUserOrThrow(userId);
         List<UserBookProgressEntity> newProgressEntities = newProgressBookIds.stream()
                 .map(bookId -> createProgressEntityWithRating(userEntity, bookId, rating))
-                .collect(Collectors.toList());
+                .toList();
 
         userBookProgressRepository.saveAll(newProgressEntities);
     }
@@ -306,7 +306,7 @@ public class BookUpdateService {
 
         return bookEntities.stream()
                 .map(bookEntity -> buildBook(bookEntity, userId, progressMap, fileProgressMap))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Book buildBook(BookEntity bookEntity, Long userId,
@@ -350,7 +350,7 @@ public class BookUpdateService {
                         .readStatusModifiedTime(now)
                         .dateFinished(dateFinished)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<PersonalRatingUpdateResponse> buildRatingUpdateResponses(List<Long> bookIds, Integer rating) {
@@ -359,7 +359,7 @@ public class BookUpdateService {
                         .bookId(bookId)
                         .personalRating(rating)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {

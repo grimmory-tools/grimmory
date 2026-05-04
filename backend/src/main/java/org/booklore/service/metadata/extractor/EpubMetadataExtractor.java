@@ -1,5 +1,9 @@
 package org.booklore.service.metadata.extractor;
 
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;
 import org.grimmory.epub4j.domain.Book;
@@ -14,8 +18,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.service.metadata.BookLoreMetadata;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,6 +48,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern ISBN_SEPARATOR_PATTERN = Pattern.compile("[- ]");
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
+
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     static {
         MEDIA_TYPES.addAll(Arrays.asList(MediaTypes.mediaTypes));
@@ -232,7 +236,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             try {
                                 builderMeta.seriesNumber(Float.parseFloat(content));
                                 seriesIndexFound = true;
-                            } catch (NumberFormatException ignored) {
+                            } catch (NumberFormatException _) {
                             }
                         }
 
@@ -240,16 +244,19 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             safeParseInt(content, builderMeta::pageCount);
                         } else if ("calibre:user_metadata:#pagecount".equals(name)) {
                             try {
-                                JSONObject jsonroot = new JSONObject(content);
-                                Object value = jsonroot.opt("#value#");
-                                safeParseInt(String.valueOf(value), builderMeta::pageCount);
-                            } catch (JSONException ignored) {
+                                JsonNode jsonRoot = OBJECT_MAPPER.readTree(content);
+                                JsonNode valueNode = jsonRoot.get("#value#");
+                                if (valueNode != null && !valueNode.isNull()) {
+                                    safeParseInt(valueNode.asText(), builderMeta::pageCount);
+                                }
+                            } catch (Exception e) {
+                                log.debug("Failed to parse calibre:user_metadata:#pagecount: {}", e.getMessage());
                             }
                         } else if ("calibre:user_metadata".equals(prop)) {
                             try {
-                                extractCalibreUserMetadata(new JSONObject(content), builderMeta, moods, tags);
-                            } catch (JSONException e) {
-                                log.warn("Failed to parse Calibre user_metadata JSON: {}", e.getMessage());
+                                extractCalibreUserMetadata(OBJECT_MAPPER.readTree(content), builderMeta, moods, tags);
+                            } catch (Exception e) {
+                                log.debug("Failed to parse calibre:user_metadata: {}", e.getMessage());
                             }
                         }
 
@@ -428,14 +435,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static void safeParseInt(String value, java.util.function.IntConsumer setter) {
         try {
             setter.accept(Integer.parseInt(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
 
     private static void safeParseDouble(String value, java.util.function.DoubleConsumer setter) {
         try {
             setter.accept(Double.parseDouble(value));
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
     }
     
@@ -445,26 +452,28 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
-    private void extractCalibreUserMetadata(JSONObject userMetadata, BookMetadata.BookMetadataBuilder builder,
+    private void extractCalibreUserMetadata(JsonNode userMetadata, BookMetadata.BookMetadataBuilder builder,
                                              Set<String> moodsSet, Set<String> tagsSet) {
-        Iterator<String> keys = userMetadata.keys();
-        while (keys.hasNext()) {
-            String fieldName = keys.next();
+        if (!(userMetadata instanceof ObjectNode objectNode)) {
+            return;
+        }
+        for (Map.Entry<String, JsonNode> field : objectNode.properties()) {
+            String fieldName = field.getKey();
             try {
-                JSONObject fieldObj = userMetadata.optJSONObject(fieldName);
-                if (fieldObj == null) continue;
+                JsonNode fieldObj = field.getValue();
+                if (fieldObj == null || !fieldObj.isObject()) continue;
 
-                Object rawValue = fieldObj.opt("#value#");
-                if (rawValue == null) continue;
+                JsonNode valueNode = fieldObj.get("#value#");
+                if (valueNode == null || valueNode.isNull()) continue;
 
-                String value = String.valueOf(rawValue).trim();
-                if (value.isEmpty() || "null".equals(value)) continue;
 
-                if ("#moods".equals(fieldName)) {
-                    extractSetField(value, moodsSet);
-                } else if ("#extra_tags".equals(fieldName)) {
-                    extractSetField(value, tagsSet);
+                if ("#moods".equals(fieldName) || "#extra_tags".equals(fieldName)) {
+                    String value = valueNode.isArray() ? valueNode.toString() : valueNode.asText().trim();
+                    if (value.isEmpty() || "null".equals(value)) continue;
+                    extractSetField(value, "#moods".equals(fieldName) ? moodsSet : tagsSet);
                 } else {
+                    String value = valueNode.asText().trim();
+                    if (value.isEmpty() || "null".equals(value)) continue;
                     BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = CALIBRE_FIELD_MAPPINGS.get(fieldName);
                     if (mapper != null) {
                         mapper.accept(builder, value);
@@ -531,19 +540,19 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
         try {
             return LocalDate.parse(value);
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
 
         try {
             return OffsetDateTime.parse(value).toLocalDate();
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
 
         // Try parsing first 10 characters for ISO date format with extra content
         if (value.length() >= 10) {
             try {
                 return LocalDate.parse(value.substring(0, 10));
-            } catch (Exception ignored) {
+            } catch (Exception _) {
             }
         }
 

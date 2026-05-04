@@ -109,24 +109,6 @@
   overflow: auto hidden;
   padding-bottom: 8px;
   height: 100%;
-
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--ground-background);
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
-  }
 }
 
 .reviews-horizontal-list {
@@ -356,24 +338,6 @@
 
   &--blurred {
     filter: blur(4px);
-  }
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--ground-background);
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 2px;
-
-    &:hover {
-      background: var(--primary-color);
-    }
   }
 }
 

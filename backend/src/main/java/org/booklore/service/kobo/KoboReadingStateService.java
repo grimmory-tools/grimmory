@@ -30,7 +30,6 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -70,7 +69,7 @@ public class KoboReadingStateService {
                         .statisticsResult(KoboReadingStateResponse.Result.success())
                         .statusInfoResult(KoboReadingStateResponse.Result.success())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return KoboReadingStateResponse.builder()
                 .requestResult("Success")
@@ -120,7 +119,7 @@ public class KoboReadingStateService {
 
                     return savedState;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -391,17 +390,17 @@ public class KoboReadingStateService {
         try {
             Instant instant = Instant.parse(trimmed).truncatedTo(ChronoUnit.SECONDS);
             return KOBO_TIMESTAMP_FORMAT.format(instant);
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         try {
             OffsetDateTime offsetDateTime = OffsetDateTime.parse(trimmed);
             return KOBO_TIMESTAMP_FORMAT.format(offsetDateTime.toInstant().truncatedTo(ChronoUnit.SECONDS));
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         try {
             LocalDateTime localDateTime = LocalDateTime.parse(trimmed, LOCAL_TIMESTAMP_FORMAT);
             return KOBO_TIMESTAMP_FORMAT.format(localDateTime.toInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS));
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         return value;
     }
@@ -506,16 +505,16 @@ public class KoboReadingStateService {
         String trimmed = value.trim();
         try {
             return Instant.parse(trimmed);
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         try {
             return OffsetDateTime.parse(trimmed).toInstant();
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         try {
             LocalDateTime localDateTime = LocalDateTime.parse(trimmed, LOCAL_TIMESTAMP_FORMAT);
             return localDateTime.toInstant(ZoneOffset.UTC);
-        } catch (Exception ignored) {
+        } catch (Exception _) {
         }
         return null;
     }

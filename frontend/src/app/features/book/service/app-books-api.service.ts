@@ -11,9 +11,11 @@ import {
   AppFilterOptions,
   AppPageResponse,
 } from '../model/app-book.model';
-import {Book, BookType, ReadStatus} from '../model/book.model';
+import {Book, BOOK_TYPES, BookFile, BookType, ReadStatus} from '../model/book.model';
 
 const PAGE_SIZE = 50;
+const BOOK_TYPE_SET = new Set<BookType>(BOOK_TYPES);
+const READ_STATUSES = new Set<ReadStatus>(Object.values(ReadStatus) as ReadStatus[]);
 
 @Injectable({providedIn: 'root'})
 export class AppBooksApiService {
@@ -62,16 +64,6 @@ export class AppBooksApiService {
     const data = this.booksQuery.data();
     if (!data) return [];
     return data.pages.flatMap(page => page.content.map(summaryToBook));
-  }, {
-    equal: (a, b) => {
-      if (a.length !== b.length) return false;
-      for (let i = 0; i < a.length; i++) {
-        if (a[i].id !== b[i].id) return false;
-        if (a[i].metadata?.coverUpdatedOn !== b[i].metadata?.coverUpdatedOn) return false;
-        if (a[i].metadata?.audiobookCoverUpdatedOn !== b[i].metadata?.audiobookCoverUpdatedOn) return false;
-      }
-      return true;
-    }
   });
 
   readonly totalElements = computed(() => {
@@ -232,16 +224,17 @@ export class AppBooksApiService {
 
 /**
  * Maps a server-side AppBookSummary to a Book-shaped object
- * compatible with BookCardComponent's @Input() book property.
+ * compatible with book browser card and table views.
  */
 function summaryToBook(summary: AppBookSummary): Book {
   return {
     id: summary.id,
     libraryId: summary.libraryId,
-    readStatus: (summary.readStatus as ReadStatus) ?? ReadStatus.UNSET,
-    personalRating: summary.personalRating ?? 0,
-    addedOn: summary.addedOn,
-    lastReadTime: summary.lastReadTime,
+    libraryName: '',
+    readStatus: summaryToReadStatus(summary.readStatus),
+    personalRating: summary.personalRating,
+    addedOn: summary.addedOn ?? undefined,
+    lastReadTime: summary.lastReadTime ?? undefined,
     isPhysical: summary.isPhysical ?? false,
     fileSizeKb: summary.fileSizeKb ?? undefined,
     metadataMatchScore: summary.metadataMatchScore,
@@ -249,23 +242,78 @@ function summaryToBook(summary: AppBookSummary): Book {
       bookId: summary.id,
       title: summary.title,
       authors: summary.authors ?? [],
-      seriesName: summary.seriesName,
+      publisher: summary.publisher ?? undefined,
+      seriesName: summary.seriesName ?? undefined,
       seriesNumber: summary.seriesNumber,
-      coverUpdatedOn: summary.coverUpdatedOn,
-      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
+      categories: summary.categories ?? [],
+      tags: summary.tags ?? [],
+      moods: summary.moods ?? [],
+      language: summary.language ?? undefined,
+      narrator: summary.narrator ?? undefined,
+      isbn13: summary.isbn13 ?? undefined,
+      isbn10: summary.isbn10 ?? undefined,
+      coverUpdatedOn: summary.coverUpdatedOn ?? undefined,
+      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn ?? undefined,
       publishedDate: summary.publishedDate ?? undefined,
       pageCount: summary.pageCount,
       ageRating: summary.ageRating,
       contentRating: summary.contentRating,
+      amazonRating: summary.amazonRating,
+      amazonReviewCount: summary.amazonReviewCount,
+      goodreadsRating: summary.goodreadsRating,
+      goodreadsReviewCount: summary.goodreadsReviewCount,
+      hardcoverRating: summary.hardcoverRating,
+      hardcoverReviewCount: summary.hardcoverReviewCount,
+      ranobedbRating: summary.ranobedbRating,
+      lubimyczytacRating: summary.lubimyczytacRating,
+      audibleRating: summary.audibleRating,
+      audibleReviewCount: summary.audibleReviewCount,
+      allMetadataLocked: summary.allMetadataLocked ?? false,
     },
-    primaryFile: summary.primaryFileType
-      ? {bookType: summary.primaryFileType as BookType, extension: summary.primaryFileType.toLowerCase()}
-      : null,
+    primaryFile: summaryToPrimaryFile(summary),
     pdfProgress: summary.readProgress != null
       ? {page: 0, percentage: summary.readProgress}
-      : null,
-    epubProgress: null,
-    cbxProgress: null,
+      : undefined,
     shelves: [],
-  } as unknown as Book;
+  };
+}
+
+function summaryToPrimaryFile(summary: AppBookSummary): BookFile | undefined {
+  if (summary.primaryFileId == null) return undefined;
+
+  const primaryFile: BookFile = {
+    id: summary.primaryFileId,
+    bookId: summary.id,
+    extension: summaryToPrimaryFileExtension(summary),
+    fileSizeKb: summary.fileSizeKb ?? undefined,
+    fileName: summary.primaryFileName ?? undefined,
+  };
+
+  const bookType = summaryToBookType(summary.primaryFileType);
+  if (bookType) {
+    primaryFile.bookType = bookType;
+  }
+
+  return primaryFile;
+}
+
+function summaryToBookType(value: string | null): BookType | undefined {
+  return value != null && BOOK_TYPE_SET.has(value as BookType) ? value as BookType : undefined;
+}
+
+function summaryToReadStatus(value: string | null): ReadStatus {
+  const readStatus = value as ReadStatus;
+  return value != null && READ_STATUSES.has(readStatus) ? readStatus : ReadStatus.UNREAD;
+}
+
+function summaryToPrimaryFileExtension(summary: AppBookSummary): string | undefined {
+  const fileName = summary.primaryFileName;
+  if (fileName) {
+    const dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex >= 0 && dotIndex < fileName.length - 1) {
+      return fileName.slice(dotIndex + 1).toLowerCase();
+    }
+  }
+
+  return summary.primaryFileType?.toLowerCase();
 }

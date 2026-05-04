@@ -124,38 +124,28 @@
                 @if (isMobile()) {
                   <div class="display-settings-section">
                     <span class="display-settings-label">{{ t('labels.gridColumns') }}</span>
-                    <div class="column-options">
+                    <div class="browser-grid-options">
                       <button
                         type="button"
-                        class="column-option-btn"
-                        [class.active]="mobileColumnCount() === 2"
+                        class="browser-grid-option-btn"
+                        [class.active]="gridMobileColumnCount() === 2"
                         (click)="setMobileColumns(2)">2</button>
                       <button
                         type="button"
-                        class="column-option-btn"
-                        [class.active]="mobileColumnCount() === 3"
+                        class="browser-grid-option-btn"
+                        [class.active]="gridMobileColumnCount() === 3"
                         (click)="setMobileColumns(3)">3</button>
                       <button
                         type="button"
-                        class="column-option-btn"
-                        [class.active]="mobileColumnCount() === 4"
+                        class="browser-grid-option-btn"
+                        [class.active]="gridMobileColumnCount() === 4"
                         (click)="setMobileColumns(4)">4</button>
                     </div>
                   </div>
                 } @else {
                   <div class="display-settings-section">
                     <span class="display-settings-label">{{ t('labels.gridItemSize') }}</span>
-                    <p-slider
-                      [ngModel]="coverScalePreferenceService.scaleFactor()"
-                      (ngModelChange)="coverScalePreferenceService.setScale($event)"
-                      [min]="0.5"
-                      [max]="1.5"
-                      [step]="0.01"
-                      [style]="{ width: '100%' }">
-                    </p-slider>
-                    <div class="scale-value-display">
-                      {{ coverScalePreferenceService.scaleFactor().toFixed(2) }}x
-                    </div>
+                    <app-grid-density-buttons (densityChange)="adjustDesktopGridDensity($event)"/>
                   </div>
                 }
                 <div class="display-settings-section">
@@ -263,90 +253,79 @@
       </div>
     </div>
 
-    @if (showTableLoadingPlaceholder()) {
-      <div class="table-skeleton" aria-hidden="true">
-        <div class="table-skeleton-header">
-          @for (column of tableSkeletonColumns; track column) {
-            <div class="table-skeleton-cell table-skeleton-cell-header"></div>
-          }
-        </div>
-
-        @for (row of tableSkeletonRows; track row) {
-          <div class="table-skeleton-row">
-            @for (column of tableSkeletonColumns; track column) {
-              <div class="table-skeleton-cell" [class.table-skeleton-cell-short]="column !== 0"></div>
-            }
-          </div>
-        }
-      </div>
-    } @else if (showGridLoadingPlaceholder()) {
-      <div class="skeleton-grid"
-        [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth() + ', 1fr))'}">
-        @for (item of skeletonSlots; track item) {
-          <div class="skeleton-card"
-            [ngStyle]="{width: currentCardSize().width + 'px', height: currentCardSize().height + 'px'}">
-          </div>
-        }
-      </div>
-    } @else if (booksError()) {
+    @if (booksError()) {
       <div class="no-books-container">
         <p class="no-books-text">
-          {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
+          @switch (entityType()) {
+            @case (EntityType.LIBRARY) {
+              {{ t('labels.failedLibrary') }}
+            }
+            @case (EntityType.SHELF) {
+              {{ t('labels.failedShelf') }}
+            }
+            @default {
+              {{ t('labels.failedBooks') }}
+            }
+          }
         </p>
       </div>
-    } @else if (books(); as books) {
-      <div class="book-state-wrapper">
-        <div
-          class="book-state-content"
-          [attr.aria-busy]="isBooksRefreshing() ? 'true' : 'false'"
-          [class.book-state-content-refreshing]="isBooksRefreshing()"
-          [attr.inert]="isBooksRefreshing() ? '' : null">
-          @if (books.length === 0 && !isBooksLoading()) {
-            <div class="no-books-container">
-              <p class="no-books-text">
-                {{ t('labels.noBooks') }}
-              </p>
-            </div>
-          }
-          @if (currentViewMode() === 'table' && books.length > 0) {
-            <app-book-table
-              [books]="books"
-              [preselectedBookIds]="selectedBooks()"
-              (selectedBooksChange)="onSelectedBooksChange($event)"
-              (selectAllRequested)="selectAllBooks()"
-              [sortOption]="this.bookSorter.selectedSort!"
-              [visibleColumns]="visibleColumns()"
-            ></app-book-table>
-          }
-          @if (currentViewMode() === 'grid') {
-            <div class="virtual-scroller" #scrollContainer>
-              <div class="scroll-height-anchor" [ngStyle]="{'min-height': estimatedTotalHeight() + 'px'}">
-                <div class="book-grid"
-                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth() + ', 1fr))'}">
-                  @for (book of books; track book.id; let i = $index) {
-                    <div
-                      class="virtual-scroller-item"
-                      [ngStyle]="{width: currentCardSize().width + 'px', height: currentCardSize().height + 'px'}">
-                      <app-book-card
-                        [index]="i"
-                        [book]="book"
-                        [isCheckboxEnabled]="true"
-                        [seriesViewEnabled]="seriesViewEnabled()"
-                        [onBookSelect]="onBookCardSelect"
-                        [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
-                        (checkboxClick)="onCheckboxClicked($event)"
-                        [isSelected]="bookSelectionService.isBookSelected(book)"
-                        [useSquareCovers]="isAudiobookOnlyLibrary()"
-                        [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                      </app-book-card>
-                    </div>
-                  }
+    } @else {
+      @let visibleBooks = books();
+      @if (visibleBooks.length === 0 && !isBooksLoading()) {
+        <div class="no-books-container">
+          <p class="no-books-text">
+            {{ t('labels.noBooks') }}
+          </p>
+        </div>
+      }
+      @if (currentViewMode() === 'table' && (visibleBooks.length > 0 || showTableLoadingPlaceholder())) {
+        <app-book-table
+          [books]="visibleBooks"
+          [virtualRowCount]="virtualRowCount()"
+          [loadedBookCount]="loadedBookCount()"
+          [isFetchingNextPage]="isFetchingNextBooksPage()"
+          [bookQueryToken]="bookQueryToken()"
+          (selectAllRequested)="selectAllBooks()"
+          (loadNextPage)="loadNextBooksPage()"
+          [visibleColumns]="visibleColumns()"
+          [useSquareCovers]="isAudiobookOnlyLibrary()"
+        ></app-book-table>
+      }
+      @if (currentViewMode() === 'grid') {
+        <div #scrollElement class="virtual-scroller">
+          <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
+            @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
+              @if (visibleBooks[virtualItem.index]; as book) {
+                <div
+                  class="virtual-cell"
+                  [style.width.px]="virtualGrid.itemWidth()"
+                  [style.height.px]="virtualItem.size"
+                  [style.transform]="virtualGrid.itemTransform(virtualItem)">
+                  <app-book-card
+                    [index]="virtualItem.index"
+                    [book]="book"
+                    [isCheckboxEnabled]="true"
+                    [seriesViewEnabled]="seriesViewEnabled()"
+                    [onBookSelect]="onBookCardSelect"
+                    [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
+                    (checkboxClick)="onCheckboxClicked($event)"
+                    [isSelected]="bookSelectionService.isBookSelected(book)"
+                    [useSquareCovers]="isAudiobookOnlyLibrary()"
+                    [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                  </app-book-card>
                 </div>
-                <div class="scroll-sentinel" #scrollSentinel></div>
-              </div>
-            </div>
-          }
-          @if (userService.currentUser(); as currentUser) {
+              } @else {
+                <div
+                  class="virtual-cell virtual-loader-cell"
+                  [style.width.px]="virtualGrid.itemWidth()"
+                  [style.height.px]="virtualItem.size"
+                  [style.transform]="virtualGrid.itemTransform(virtualItem)"></div>
+              }
+            }
+          </div>
+        </div>
+      }
+      @if (userService.currentUser(); as currentUser) {
             <div class="book-browser-footer" [class.footer-hidden]="selectedCount() === 0">
                 <div class="footer-content">
                   <div class="footer-left">
@@ -469,8 +448,6 @@
                 </div>
             </div>
           }
-        </div>
-      </div>
     }
   </div>
 
