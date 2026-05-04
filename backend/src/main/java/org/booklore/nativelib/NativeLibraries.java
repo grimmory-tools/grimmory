@@ -20,7 +20,11 @@ public final class NativeLibraries {
     public enum Library {
         PDFIUM,
         LIBARCHIVE,
-        EPUB4J_NATIVE
+        EPUB4J_NATIVE,
+        GUMBO,
+        IMAGE_CODEC,
+        PUGIXML,
+        UCHARDET
     }
 
     private static final Map<Library, Probe> PROBES;
@@ -37,8 +41,6 @@ public final class NativeLibraries {
             return true;
         }));
 
-        probes.put(Library.LIBARCHIVE, new Probe("libarchive", com.github.gotson.nightcompress.Archive::isAvailable));
-
         probes.put(Library.EPUB4J_NATIVE, new Probe("epub4j-native", () -> {
             Boolean clean = tryInvokeStaticBoolean(
                     "org.grimmory.epub4j.native_parsing.EpubNativeLibrary"
@@ -53,6 +55,24 @@ public final class NativeLibraries {
             );
             return true;
         }));
+
+        probes.put(Library.LIBARCHIVE, new Probe("libarchive", com.github.gotson.nightcompress.Archive::isAvailable));
+
+        probes.put(Library.GUMBO, new Probe("gumbo", () ->
+                Boolean.TRUE.equals(tryInvokeStaticBoolean("org.grimmory.epub4j.native_parsing.GumboLibrary"))
+        ));
+
+        probes.put(Library.IMAGE_CODEC, new Probe("image-codec", () ->
+                Boolean.TRUE.equals(tryInvokeStaticBoolean("org.grimmory.epub4j.native_parsing.ImageCodecLibrary"))
+        ));
+
+        probes.put(Library.PUGIXML, new Probe("pugixml", () ->
+                Boolean.TRUE.equals(tryInvokeStaticBoolean("org.grimmory.epub4j.native_parsing.PugixmlLibrary"))
+        ));
+
+        probes.put(Library.UCHARDET, new Probe("uchardet", () ->
+                Boolean.TRUE.equals(tryInvokeStaticBoolean("org.grimmory.epub4j.native_parsing.UchardetLibrary"))
+        ));
 
         PROBES = Collections.unmodifiableMap(probes);
     }
@@ -144,6 +164,22 @@ public final class NativeLibraries {
 
     public boolean isEpubNativeAvailable() {
         return isAvailable(Library.EPUB4J_NATIVE);
+    }
+
+    public boolean isGumboAvailable() {
+        return isAvailable(Library.GUMBO);
+    }
+
+    public boolean isImageCodecAvailable() {
+        return isAvailable(Library.IMAGE_CODEC);
+    }
+
+    public boolean isPugixmlAvailable() {
+        return isAvailable(Library.PUGIXML);
+    }
+
+    public boolean isUchardetAvailable() {
+        return isAvailable(Library.UCHARDET);
     }
 
     private record Probe(String name, CheckedBooleanSupplier fn) {}
