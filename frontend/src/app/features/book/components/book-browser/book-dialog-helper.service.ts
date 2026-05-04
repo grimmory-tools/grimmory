@@ -69,25 +69,15 @@ export class BookDialogHelperService {
     });
   }
 
-async openMetadataRefreshDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
-  return this.openMetadataRefreshDialogWithContext({
-    metadataRefreshType: MetadataRefreshType.BOOKS,
-    bookIds: Array.from(bookIds)
-  });
-}
+  async openMetadataRefreshDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
+    return this.openMetadataRefreshDialogWithContext({
+      metadataRefreshType: MetadataRefreshType.BOOKS,
+      bookIds: Array.from(bookIds)
+    });
+  }
 
-async openMetadataRefreshDialogWithContext(context: MetadataRefreshDialogContext): Promise<DynamicDialogRef | null> {
-  const {MultiBookMetadataFetchComponent} = await import('../../../metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component');
-  return this.openDialog(MultiBookMetadataFetchComponent, {
-    showHeader: false,
-    styleClass: `${DialogSize.FULL} ${DialogStyle.MINIMAL}`,
-    data: {
-      bookIds: context.bookIds ?? [],
-      libraryId: context.libraryId,
-      metadataRefreshType: context.metadataRefreshType,
-    },
-  });
-}
+  async openMetadataRefreshDialogWithContext(context: MetadataRefreshDialogContext): Promise<DynamicDialogRef | null> {
+    const {MultiBookMetadataFetchComponent} = await import('../../../metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component');
     return this.openDialog(MultiBookMetadataFetchComponent, {
       showHeader: false,
       styleClass: `${DialogSize.FULL} ${DialogStyle.MINIMAL}`,

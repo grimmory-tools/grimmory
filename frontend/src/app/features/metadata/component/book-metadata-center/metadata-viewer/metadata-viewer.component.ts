@@ -687,8 +687,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     }
   }
 
-  assignShelf(bookId: number) {
-    this.bookDialogHelperService.openShelfAssignerDialog((this.bookService.findBookById(bookId) as Book), null);
+  async assignShelf(bookId: number) {
+    await this.bookDialogHelperService.openShelfAssignerDialog((this.bookService.findBookById(bookId) as Book), null);
   }
 
   updateReadStatus(status: ReadStatus): void {

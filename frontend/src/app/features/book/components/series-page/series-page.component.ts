@@ -622,8 +622,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     }).subscribe();
   }
 
-  fetchMetadata(): void {
-    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks);
+  async fetchMetadata() {
+    await this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks);
   }
 
   async bulkEditMetadata() {
@@ -724,8 +724,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     });
   }
 
-  moveFiles() {
-    this.dialogHelperService.openFileMoverDialog(this.selectedBooks);
+  async moveFiles() {
+    await this.dialogHelperService.openFileMoverDialog(this.selectedBooks);
   }
 
   user() {

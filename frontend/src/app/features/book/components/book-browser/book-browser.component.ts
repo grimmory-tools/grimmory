@@ -961,8 +961,8 @@ export class BookBrowserComponent implements AfterViewInit {
     }).subscribe();
   }
 
-  fetchMetadata(): void {
-    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
+  async fetchMetadata() {
+    await this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
   }
 
   async bulkEditMetadata() {
@@ -1065,8 +1065,8 @@ export class BookBrowserComponent implements AfterViewInit {
     });
   }
 
-  moveFiles(): void {
-    this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
+  async moveFiles() {
+    await this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
   }
 
   async attachFilesToBook() {
