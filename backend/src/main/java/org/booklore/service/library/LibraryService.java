@@ -334,22 +334,27 @@ public class LibraryService {
 
     private boolean isProcessableFile(Path file, Set<BookFileType> allowedFormats) {
         String mime = MimeDetector.detectSafe(file);
+        String fileName = file.getFileName().toString().toLowerCase(Locale.ROOT);
+        int dot = fileName.lastIndexOf('.');
+        String extension = dot >= 0 && dot < fileName.length() - 1 ? fileName.substring(dot + 1) : "";
         for (BookFileType fileType : BookFileType.values()) {
             if (allowedFormats != null && !allowedFormats.contains(fileType)) {
                 continue;
             }
-            if (matchesBookTypeMime(fileType, mime)) return true;
+            if (matchesBookTypeMime(fileType, mime, extension)) return true;
         }
         return false;
     }
 
-    private boolean matchesBookTypeMime(BookFileType fileType, String mime) {
+    private boolean matchesBookTypeMime(BookFileType fileType, String mime, String extension) {
         if (mime == null || mime.isBlank() || "application/octet-stream".equals(mime)) return false;
         return switch (fileType) {
             case PDF -> "application/pdf".equals(mime);
             case EPUB -> "application/epub+zip".equals(mime);
-            case CBX -> mime.contains("zip") || mime.contains("rar") || mime.contains("7z");
-            case FB2 -> "application/x-fictionbook+xml".equals(mime) || "application/xml".equals(mime) || "text/xml".equals(mime);
+            case CBX -> (mime.contains("zip") || mime.contains("rar") || mime.contains("7z"))
+                    && fileType.supports(extension);
+            case FB2 -> ("application/x-fictionbook+xml".equals(mime) || "application/xml".equals(mime) || "text/xml".equals(mime))
+                    && fileType.supports(extension);
             case MOBI -> mime.contains("mobipocket") || mime.contains("x-mobipocket");
             case AZW3 -> mime.contains("kindle") || mime.contains("x-kindle");
             case AUDIOBOOK -> MimeDetector.isAudio(mime);
