@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -37,7 +37,7 @@ public class CustomFontService {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_CHARS_PATTERN = Pattern.compile("[<>\"'`]");
-    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]*>");
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^<>]*>");
     private static final Pattern CONTROL_CHARS_PATTERN = Pattern.compile("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]");
     private final CustomFontRepository customFontRepository;
     private final UserRepository userRepository;
@@ -117,7 +117,7 @@ public class CustomFontService {
         List<CustomFontEntity> fonts = customFontRepository.findByUserId(userId);
         return fonts.stream()
                 .map(customFontMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -264,7 +264,7 @@ public class CustomFontService {
         FontFormat detectedFormat = null;
         try {
             detectedFormat = FontFormat.fromMimeType(detectedMime);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException _) {
             // Tika may return a generic MIME treated as unknown format below
         }
 

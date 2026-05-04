@@ -499,7 +499,7 @@ public class ReadingProgressService {
                         .readStatusModifiedTime(existingBookIds.contains(bookId) ? now : null)
                         .dateFinished(null)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BookLoreUserEntity findUserOrThrow(Long userId) {

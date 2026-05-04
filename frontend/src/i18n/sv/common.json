@@ -25,5 +25,6 @@
   "libraryPathInaccessible": "Bibliotekssökvägen är otillgänglig",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

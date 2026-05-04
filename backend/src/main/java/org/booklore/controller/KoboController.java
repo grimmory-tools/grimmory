@@ -227,6 +227,31 @@ public class KoboController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Get user profile", description = "Get Kobo user configuration.")
+    @ApiResponse(responseCode = "200", description = "Retrieved Kobo User configuration")
+    @GetMapping("/v1/user/profile")
+    public ResponseEntity<?> getUserProfile() {
+        if (isForwardingToKoboStore()) {
+            return koboServerProxy.proxyCurrentRequest(null, false);
+        }
+
+        return ResponseEntity.ok()
+                .body(KoboUserProfile.builder().build());
+
+    }
+
+    @Operation(summary = "Get Kobo Deals", description = "Get promotional deals on Kobo entitlements.")
+    @ApiResponse(responseCode = "200", description = "Deals Retrieved successfully")
+    @GetMapping("/v1/deals")
+    public ResponseEntity<?> getDeals() {
+        if (isForwardingToKoboStore()) {
+            return koboServerProxy.proxyCurrentRequest(null, false);
+        }
+
+        return ResponseEntity.ok()
+                .body(KoboDeals.builder().build());
+
+    }
 
     @Operation(summary = "Catch-all for Kobo API", description = "Catch-all endpoint for unhandled Kobo API requests.")
     @ApiResponse(responseCode = "200", description = "Request proxied successfully")

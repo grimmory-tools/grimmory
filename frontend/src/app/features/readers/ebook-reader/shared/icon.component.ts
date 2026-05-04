@@ -35,7 +35,22 @@ export type ReaderIconName =
   | 'direction-ltr'
   | 'direction-rtl'
   | 'magnifier'
-  | 'link';
+  | 'link'
+  | 'sidebar'
+  | 'highlight'
+  | 'free-text'
+  | 'draw'
+  | 'pan'
+  | 'spread-none'
+  | 'spread-double'
+  | 'scroll-horizontal'
+  | 'scroll-vertical'
+  | 'rotate'
+  | 'sun'
+  | 'moon'
+  | 'dots-horizontal'
+  | 'zoom-in'
+  | 'zoom-out';
 
 interface IconPath {
   d: string;
@@ -203,6 +218,78 @@ const ICONS: Record<ReaderIconName, IconPath[]> = {
   'link': [
     {d: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'},
     {d: 'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'}
+  ],
+  'sidebar': [
+    {d: 'M3 3h18v18H3z'},
+    {d: 'M9 3v18'}
+  ],
+  'highlight': [
+    {d: 'm9 11-6 6v3h9l3-3'},
+    {d: 'm22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4'}
+  ],
+  'free-text': [
+    {d: 'M17 6.1H3'},
+    {d: 'M21 12.1H3'},
+    {d: 'M15.1 18H3'}
+  ],
+  'draw': [
+    {d: 'M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'}
+  ],
+  'pan': [
+    {d: 'M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0'},
+    {d: 'M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10'},
+    {d: 'M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8'},
+    {d: 'M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-6.6-3.3l-4.7-5.3a2 2 0 0 1 0-2.8l.3-.3a2 2 0 0 1 2.8 0L8 14'}
+  ],
+  'spread-none': [
+    {d: 'M3 3h18v18H3z'}
+  ],
+  'spread-double': [
+    {d: 'M2 3h9v18H2z'},
+    {d: 'M13 3h9v18H13z'}
+  ],
+  'scroll-horizontal': [
+    {d: 'M4 12h16'},
+    {d: 'm16 8 4 4-4 4'},
+    {d: 'M2 3h3v18H2z'}
+  ],
+  'scroll-vertical': [
+    {d: 'M3 2h18v9H3z'},
+    {d: 'M3 13h18v9H3z'}
+  ],
+  'rotate': [
+    {d: 'M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8'},
+    {d: '21,3 21,8 16,8', type: 'polyline'}
+  ],
+  'sun': [
+    {d: 'M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0', type: 'path'},
+    {d: 'M12 2v2'},
+    {d: 'M12 20v2'},
+    {d: 'm4.93 4.93 1.41 1.41'},
+    {d: 'm17.66 17.66 1.41 1.41'},
+    {d: 'M2 12h2'},
+    {d: 'M20 12h2'},
+    {d: 'm6.34 17.66-1.41 1.41'},
+    {d: 'm19.07 4.93-1.41 1.41'}
+  ],
+  'moon': [
+    {d: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'}
+  ],
+  'dots-horizontal': [
+    {d: 'M12,12 m-1,0 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0', type: 'path'},
+    {d: 'M19,12 m-1,0 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0', type: 'path'},
+    {d: 'M5,12 m-1,0 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0', type: 'path'}
+  ],
+  'zoom-in': [
+    {d: 'M11 11m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0', type: 'path'},
+    {d: 'M21 21l-4.35-4.35'},
+    {d: 'M11 8v6'},
+    {d: 'M8 11h6'}
+  ],
+  'zoom-out': [
+    {d: 'M11 11m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0', type: 'path'},
+    {d: 'M21 21l-4.35-4.35'},
+    {d: 'M8 11h6'}
   ]
 };
 

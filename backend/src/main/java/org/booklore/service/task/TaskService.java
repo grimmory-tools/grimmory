@@ -129,7 +129,7 @@ public class TaskService {
                     }
                     return metadata;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void executeCronTask(TaskType taskType) {

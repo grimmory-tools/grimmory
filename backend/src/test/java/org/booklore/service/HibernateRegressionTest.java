@@ -585,7 +585,7 @@ class HibernateRegressionTest {
 
             List<String> pathStrings = loaded.getLibraryPaths().stream()
                     .map(LibraryPathEntity::getPath)
-                    .collect(Collectors.toList());
+                    .toList();
 
             assertThat(pathStrings).containsExactlyInAnyOrder("/books", "/audiobooks");
         }

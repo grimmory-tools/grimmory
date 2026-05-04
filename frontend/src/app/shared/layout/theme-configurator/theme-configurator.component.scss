@@ -1,1 +1,49 @@
-/* Intentionally empty: theme configurator uses shared PrimeNG styling hooks. */
+@use '../../styles/settings-shared' as settings;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: settings.$settings-section-body-gap;
+  width: 100%;
+}
+
+.setting-item {
+  @include settings.settings-item;
+}
+
+.setting-header-standalone {
+  @include settings.settings-item-header-standalone;
+}
+
+.setting-label {
+  @include settings.settings-label;
+}
+
+.setting-options {
+  @include settings.settings-options;
+}
+
+.color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  button {
+    border: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    outline: transparent solid 2px;
+    outline-offset: 1px;
+
+    &:focus-visible {
+      outline-color: var(--primary-color);
+    }
+
+    &.active-color {
+      outline-color: var(--primary-color);
+    }
+  }
+}

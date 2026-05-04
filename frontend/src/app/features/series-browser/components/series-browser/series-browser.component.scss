@@ -1,13 +1,24 @@
+.series-browser-page {
+  --browser-gutter-inline: 2.1rem;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 1.1rem 0 0;
+}
+
 .loading-state {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  height: calc(100dvh - 6.7rem);
+  min-height: 0;
 }
 
 // Browse Header
 .browse-header {
-  padding: 0.75rem 1rem 0;
+  padding: 0.75rem var(--browser-gutter-inline) 0;
 }
 
 .browse-title {
@@ -98,32 +109,23 @@
 
 // Virtual scroller and grid
 .virtual-scroller {
+  flex: 1 1 auto;
   width: 100%;
-  height: calc(100dvh - 12.5rem);
-  padding: 1rem;
+  min-height: 0;
+  padding: 1rem var(--browser-gutter-inline);
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
-
-  &::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgb(20 20 30 / 50%);
-    border-radius: 10px;
-  }
 
   @media (width <= 768px) {
-    height: calc(100dvh - 13rem);
-    padding: 0.5rem;
-
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
+    padding-block: 0.5rem;
   }
+}
+
+.virtual-scroller-item {
+  position: relative;
+  overflow: visible;
+  transition: width 0.2s ease, height 0.2s ease;
 }
 
 // Empty state
@@ -149,8 +151,14 @@
 }
 
 @media (width <= 767px) {
+  .series-browser-page {
+    --browser-gutter-inline: 0.5rem;
+
+    padding: 1.5rem 0 0;
+  }
+
   .browse-header {
-    padding: 0.5rem 0.5rem 0;
+    padding-top: 0.5rem;
   }
 
   .browse-controls {

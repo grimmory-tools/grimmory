@@ -1,0 +1,15 @@
+<ng-container *transloco="let t; prefix: 'settingsView.theme'">
+  <div class="settings-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-palette"></i>
+        {{ t('sectionTitle') }}
+      </h3>
+      <p class="section-description">{{ t('sectionDesc') }}</p>
+    </div>
+
+    <div class="section-body">
+      <app-theme-configurator></app-theme-configurator>
+    </div>
+  </div>
+</ng-container>

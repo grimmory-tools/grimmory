@@ -64,7 +64,7 @@ public class AppAuthorService {
         Root<AuthorEntity> countRoot = countCq.from(AuthorEntity.class);
         countCq.select(cb.countDistinct(countRoot.get(AuthorEntity_.id)));
         countCq.where(spec.toPredicate(countRoot, countCq, cb));
-        
+
         long totalElements = entityManager.createQuery(countCq).getSingleResult();
 
         if (totalElements == 0) {
@@ -74,7 +74,7 @@ public class AppAuthorService {
         // Data query with book count using Tuple for DTO projection
         CriteriaQuery<Tuple> dataCq = cb.createTupleQuery();
         Root<AuthorEntity> dataRoot = dataCq.from(AuthorEntity.class);
-        
+
         // Pass the effective library filter for book count
         Collection<Long> countLibraryIds = libraryId != null ? List.of(libraryId) : accessibleLibraryIds;
         Expression<Long> bookCount = AppAuthorSpecification.bookCount(dataRoot, cb, countLibraryIds);
@@ -114,14 +114,29 @@ public class AppAuthorService {
         List<Tuple> results = dataQuery.getResultList();
 
         List<AppAuthorSummary> summaries = results.stream()
-                .map(tuple -> AppAuthorSummary.builder()
-                        .id(tuple.get("id", Long.class))
-                        .name(tuple.get("name", String.class))
-                        .asin(tuple.get("asin", String.class))
-                        .bookCount(tuple.get("bookCount", Long.class).intValue())
-                        .hasPhoto(tuple.get("hasPhoto", Boolean.class))
-                        .build())
+                .map(row -> {
+                    AuthorEntity author = (AuthorEntity) row[0];
+                    long bookCount = (Long) row[1];
+                    boolean authorHasPhoto = Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId())));
+                    return AppAuthorSummary.builder()
+                            .id(author.getId())
+                            .name(author.getName())
+                            .asin(author.getAsin())
+                            .bookCount((int) bookCount)
+                            .hasPhoto(authorHasPhoto)
+                            .build();
+                })
                 .toList();
+
+        // Post-filter by hasPhoto if requested
+        if (hasPhoto != null) {
+            summaries = summaries.stream()
+                    .filter(s -> s.isHasPhoto() == hasPhoto)
+                    .toList();
+            // Adjust total count for hasPhoto filter — requires a separate count
+            long filteredTotal = countAuthorsWithPhotoFilter(accessibleLibraryIds, libraryId, search, hasPhoto);
+            return AppPageResponse.of(summaries, pageNum, pageSize, filteredTotal);
+        }
 
         return AppPageResponse.of(summaries, pageNum, pageSize, totalElements);
     }

@@ -4,11 +4,32 @@
 .main-container {
   @include settings.settings-page-container;
 
+  gap: 0;
   overflow-y: hidden;
-  height: calc(100dvh - 5rem);
+  padding: 0;
+}
 
-  @media (width >= 768px) {
-    height: calc(100dvh - 5.6rem);
+.main-container > .settings-header,
+.main-container > .settings-card {
+  margin-inline: 1.1rem;
+}
+
+.main-container > .settings-header {
+  margin-top: 1.1rem;
+}
+
+.main-container > .settings-card {
+  margin-top: 1.5rem;
+}
+
+@media (width <= 768px) {
+  .main-container > .settings-header,
+  .main-container > .settings-card {
+    margin-inline: 0.5rem;
+  }
+
+  .main-container > .settings-header {
+    margin-top: 0.5rem;
   }
 }
 
@@ -20,6 +41,11 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: 1.5rem 1.1rem 0;
+
+  @media (width <= 768px) {
+    padding: 1.5rem 0.5rem 0;
+  }
 }
 
 @include settings.settings-page-header;

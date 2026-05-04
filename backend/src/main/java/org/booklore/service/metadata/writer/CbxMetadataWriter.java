@@ -449,7 +449,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         // Ensure 2-space indentation if possible
         try {
             marshaller.setProperty("com.sun.xml.bind.indentString", "  ");
-        } catch (Exception ignored) {
+        } catch (Exception _) {
             log.debug("Custom indentation property not supported via 'com.sun.xml.bind.indentString'");
         }
         

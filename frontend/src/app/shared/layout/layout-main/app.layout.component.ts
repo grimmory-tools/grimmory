@@ -1,45 +1,75 @@
 import { DOCUMENT, NgClass } from '@angular/common';
-import { computed, Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
+import { computed, Component, DestroyRef, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { LayoutService } from '../layout.service';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
+import { LayoutService, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH } from '../layout.service';
 import { AppMenuComponent } from '../layout-menu/app.menu.component';
-import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
+import { AppMobileTopbarComponent } from '../layout-mobile-topbar/app.mobile-topbar.component';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { LocalStorageService } from '../../service/local-storage.service';
+
+const SIDEBAR_COLLAPSED_WIDTH = 'var(--sidebar-collapsed-width)';
+const SIDEBAR_KEYBOARD_STEP = 16;
+const SIDEBAR_KEYBOARD_PAGE_STEP = 48;
 
 @Component({
   selector: 'app-layout',
   imports: [
     RouterOutlet,
     AppMenuComponent,
-    AppTopBarComponent,
+    AppMobileTopbarComponent,
+    CdkTrapFocus,
     NgClass,
     TranslocoDirective
   ],
   templateUrl: './app.layout.component.html'
 })
-export class AppLayoutComponent implements OnInit {
+export class AppLayoutComponent {
   readonly layoutService = inject(LayoutService);
+  readonly sidebarMinWidth = SIDEBAR_MIN_WIDTH;
+  readonly sidebarMaxWidth = SIDEBAR_MAX_WIDTH;
+
   private readonly router = inject(Router);
-  private readonly localStorageService = inject(LocalStorageService);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
+  private resizeStartX = 0;
+  private resizeStartWidth = 0;
+  private isResizing = false;
+  private keyboardResizing = false;
+
   readonly containerClass = computed(() => ({
-    'layout-static': true,
-    'layout-static-inactive': !this.layoutService.sidebarOpen(),
-    'layout-mobile-active': this.layoutService.mobileSidebarOpen()
+    'layout-sidebar-hidden': this.sidebarHidden(),
+    'layout-mobile-active': this.layoutService.mobileDrawerOpen(),
+    'layout-collapsed': this.layoutService.sidebarCollapsed() && this.layoutService.isDesktop()
   }));
 
+  readonly sidebarHidden = computed(() => this.layoutService.isDesktop() && !this.layoutService.sidebarVisible());
+  readonly storedSidebarWidth = computed(() => `${this.layoutService.sidebarWidth()}px`);
+
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.keyboardResizing) {
+        this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
+      }
+      this.cleanupResize(false);
+    });
+
     effect((onCleanup) => {
       const body = this.document.body;
-      body.classList.toggle('blocked-scroll', this.layoutService.mobileSidebarOpen());
+      body.classList.toggle('blocked-scroll', this.layoutService.mobileDrawerOpen());
       onCleanup(() => {
         body.classList.remove('blocked-scroll');
       });
+    });
+
+    effect(() => {
+      const collapsed = this.layoutService.sidebarCollapsed();
+      const isDesktop = this.layoutService.isDesktop();
+      const storedWidth = this.layoutService.sidebarWidth();
+      const width = (collapsed && isDesktop) ? SIDEBAR_COLLAPSED_WIDTH : `${storedWidth}px`;
+      this.document.documentElement.style.setProperty('--sidebar-width', width);
     });
 
     this.router.events
@@ -52,12 +82,86 @@ export class AppLayoutComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {
-    const width = this.localStorageService.get<number>('sidebarWidth') ?? 225;
-    this.document.documentElement.style.setProperty('--sidebar-width', `${width}px`);
-  }
-
   closeMobileSidebar(): void {
     this.layoutService.closeMobileSidebar();
+  }
+
+  startResize(event: MouseEvent): void {
+    if (this.layoutService.sidebarCollapsed() || !this.layoutService.isDesktop()) {
+      return;
+    }
+    event.preventDefault();
+    this.isResizing = true;
+    this.resizeStartX = event.clientX;
+    this.resizeStartWidth = this.layoutService.sidebarWidth();
+    this.document.body.classList.add('layout-resizing-cursor');
+    this.document.addEventListener('mousemove', this.onResizeMove);
+    this.document.addEventListener('mouseup', this.onResizeEnd);
+  }
+
+  onResizeKeydown(event: KeyboardEvent): void {
+    if (this.layoutService.sidebarCollapsed() || !this.layoutService.isDesktop()) {
+      return;
+    }
+
+    const nextWidth = this.getKeyboardResizeWidth(event.key, this.layoutService.sidebarWidth());
+    if (nextWidth === null) return;
+
+    event.preventDefault();
+    this.keyboardResizing = true;
+    this.layoutService.setSidebarWidth(nextWidth, false);
+  }
+
+  onResizeKeyup(event: KeyboardEvent): void {
+    if (!this.layoutService.isDesktop()) return;
+    if (!this.isResizeKey(event.key)) return;
+    this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
+    this.keyboardResizing = false;
+  }
+
+  private readonly onResizeMove = (event: MouseEvent) => {
+    if (!this.isResizing) return;
+    const dx = event.clientX - this.resizeStartX;
+    this.layoutService.setSidebarWidth(this.resizeStartWidth + dx, false);
+  };
+
+  private readonly onResizeEnd = () => {
+    this.cleanupResize(true);
+  };
+
+  private isResizeKey(key: string): boolean {
+    return this.getKeyboardResizeWidth(key, 0) !== null;
+  }
+
+  private getKeyboardResizeWidth(key: string, currentWidth: number): number | null {
+    switch (key) {
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        return currentWidth - SIDEBAR_KEYBOARD_STEP;
+      case 'ArrowRight':
+      case 'ArrowUp':
+        return currentWidth + SIDEBAR_KEYBOARD_STEP;
+      case 'PageDown':
+        return currentWidth - SIDEBAR_KEYBOARD_PAGE_STEP;
+      case 'PageUp':
+        return currentWidth + SIDEBAR_KEYBOARD_PAGE_STEP;
+      case 'Home':
+        return SIDEBAR_MIN_WIDTH;
+      case 'End':
+        return SIDEBAR_MAX_WIDTH;
+      default:
+        return null;
+    }
+  }
+
+  private cleanupResize(persistWidth: boolean): void {
+    if (!this.isResizing) return;
+    this.isResizing = false;
+    if (persistWidth) {
+      this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
+    }
+    this.document.body.classList.remove('layout-resizing-cursor');
+    this.document.removeEventListener('mousemove', this.onResizeMove);
+    this.document.removeEventListener('mouseup', this.onResizeEnd);
   }
 }

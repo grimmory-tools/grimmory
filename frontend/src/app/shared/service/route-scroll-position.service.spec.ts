@@ -55,6 +55,21 @@ describe('RouteScrollPositionService', () => {
     expect(service.keyFor(route)).toBe('authors/42:id=42');
   });
 
+  it('can suffix route keys for independent view scroll positions', () => {
+    const route = {
+      snapshot: {
+        pathFromRoot: [
+          {url: []},
+          {url: [{path: 'books'}]},
+        ],
+        params: {libraryId: '1'},
+      },
+    } as unknown as ActivatedRoute;
+
+    expect(service.keyFor(route, 'grid')).toBe('books:libraryId=1:grid');
+    expect(service.keyFor(route, 'table')).toBe('books:libraryId=1:table');
+  });
+
   it('encodes route key values and falls back to the path when params are empty', () => {
     expect(service.createKey('/books', {slug: 'one-two', type: 'magic&shelf'})).toBe('/books:slug=one-two;type=magic%26shelf');
     expect(service.createKey('/books', {})).toBe('/books');
