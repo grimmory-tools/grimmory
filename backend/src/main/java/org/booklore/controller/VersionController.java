@@ -17,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -31,7 +32,7 @@ public class VersionController {
     @GetMapping
     public ResponseEntity<VersionInfo> getVersionInfo(WebRequest request) {
         VersionInfo info = versionService.getVersionInfo();
-        String etag = Integer.toHexString(info.hashCode());
+        String etag = info.getCurrent() + ":" + info.getLatest();
         if (request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
@@ -52,7 +53,9 @@ public class VersionController {
                     .body(List.of());
         }
 
-        String etag = Integer.toHexString(changelog.hashCode());
+        String etag = changelog.stream()
+                .map(note -> note.version() + ":" + note.publishedAt())
+                .collect(Collectors.joining("|"));
         if (request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }

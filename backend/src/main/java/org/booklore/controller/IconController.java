@@ -53,15 +53,19 @@ public class IconController {
     @GetMapping("/{svgName}/content")
     public ResponseEntity<String> getSvgIconContent(WebRequest request, @Parameter(description = "SVG icon name") @PathVariable String svgName) {
         String svgContent = iconService.getSvgIcon(svgName);
-        String etag = Integer.toHexString(svgContent.hashCode());
-        if (request.checkNotModified(etag)) {
+        long lastModified = iconService.getIconLastModified(svgName);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
-        return ResponseEntity.ok()
+        var builder = ResponseEntity.ok()
                 .contentType(MediaType.valueOf("image/svg+xml"))
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(svgContent);
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(svgContent);
     }
 
     @Operation(summary = "Get paginated icon names", description = "Retrieve a paginated list of icon names (default 50 per page).")

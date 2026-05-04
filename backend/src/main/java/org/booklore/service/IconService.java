@@ -268,6 +268,20 @@ public class IconService {
         }
     }
 
+    public long getIconLastModified(String name) {
+        String filename = normalizeFilename(name);
+        Path filePath = getIconsSvgPath().resolve(filename);
+        if (!Files.exists(filePath)) {
+            return 0L;
+        }
+        try {
+            return Files.getLastModifiedTime(filePath).toMillis();
+        } catch (IOException e) {
+            log.warn("Failed to check icon last modified for {}: {}", name, e.getMessage());
+            return 0L;
+        }
+    }
+
     public Map<String, String> getAllIconsContent() {
         Path iconsPath = getIconsSvgPath();
 

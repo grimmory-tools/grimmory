@@ -41,10 +41,12 @@ public class PdfReaderController {
         }
 
         List<Integer> pages = pdfReaderService.getAvailablePages(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(pages);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(pages);
     }
 
     @Operation(summary = "Get book info for a PDF book", description = "Retrieve book information including page count and hierarchical outline/table of contents.")
@@ -63,9 +65,11 @@ public class PdfReaderController {
         }
 
         PdfBookInfo info = pdfReaderService.getBookInfo(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(info);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(info);
     }
 }

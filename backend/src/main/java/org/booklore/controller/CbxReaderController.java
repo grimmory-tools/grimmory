@@ -34,17 +34,20 @@ public class CbxReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
             WebRequest request) {
-        String etag = Long.toHexString(cbxReaderService.getLastModified(bookId, bookType));
+        long lastModified = cbxReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
         List<Integer> pages = cbxReaderService.getAvailablePages(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(pages);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(pages);
     }
 
     @Operation(summary = "Get page info for a CBX book", description = "Retrieve page information including display names for a CBX book.")
@@ -55,17 +58,20 @@ public class CbxReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
             WebRequest request) {
-        String etag = Long.toHexString(cbxReaderService.getLastModified(bookId, bookType));
+        long lastModified = cbxReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
         List<CbxPageInfo> info = cbxReaderService.getPageInfo(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(info);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(info);
     }
 
     @Operation(summary = "Get page dimensions for a CBX book", description = "Retrieve width, height, and wide flag for each page in a CBX book.")
@@ -76,16 +82,19 @@ public class CbxReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
             WebRequest request) {
-        String etag = Long.toHexString(cbxReaderService.getLastModified(bookId, bookType));
+        long lastModified = cbxReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
         List<CbxPageDimension> dimensions = cbxReaderService.getPageDimensions(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(dimensions);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(dimensions);
     }
 }

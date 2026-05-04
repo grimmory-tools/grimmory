@@ -75,15 +75,24 @@ public class CustomFontController {
         Resource resource = customFontService.getFontFile(fontId, user.getId());
         FontFormat format = customFontService.getFontFormat(fontId, user.getId());
 
-        String etag = resource.getFilename();
-        if (request.checkNotModified(etag)) {
+        String etag;
+        try {
+            long lastModified = resource.lastModified();
+            etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+        } catch (java.io.IOException e) {
+            etag = resource.getFilename() != null ? resource.getFilename() : String.valueOf(fontId);
+        }
+
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
-        return ResponseEntity.ok()
+        var builder = ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(format.getMimeType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-                .eTag(etag)
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline");
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        return builder.body(resource);
     }
 }
