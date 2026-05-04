@@ -47,7 +47,7 @@
       <div class="toolbar-actions">
         <div class="toolbar-icons">
           @if (isFilterActive()) {
-            <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="clearFilter()" (keydown.enter)="clearFilter()">
+            <a class="toolbar-item" role="button" tabindex="0" (click)="clearFilter()" (keydown.enter)="clearFilter()">
               <i
                 class="pi pi-filter-slash filter-clear-icon"
                 [pTooltip]="t('tooltip.clearFilters')"
@@ -58,7 +58,7 @@
 
           @if (currentViewMode() === 'table') {
             <div>
-              <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="columnPopover.toggle($event)" (keydown.enter)="columnPopover.toggle($event)">
+              <a class="toolbar-item" role="button" tabindex="0" (click)="columnPopover.toggle($event)" (keydown.enter)="columnPopover.toggle($event)">
                 <i
                   class="pi pi-eye"
                   [pTooltip]="t('tooltip.visibleColumns')"
@@ -90,7 +90,7 @@
               </p-popover>
             </div>
           }
-          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
+          <a class="toolbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
             <i
               [class]="viewIcon()"
               [pTooltip]="t('tooltip.toggleView')"
@@ -99,7 +99,7 @@
           </a>
           <div>
             <a
-              class="topbar-items topbar-item"
+              class="toolbar-item"
               role="button"
               tabindex="0"
               (click)="seriesCollapseOverlay.toggle($event)"
@@ -164,7 +164,7 @@
           </div>
 
           <div class="sort-button-wrapper">
-            <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="sortPopover.toggle($event)" (keydown.enter)="sortPopover.toggle($event)">
+            <a class="toolbar-item" role="button" tabindex="0" (click)="sortPopover.toggle($event)" (keydown.enter)="sortPopover.toggle($event)">
               <i
                 class="pi pi-sort"
                 [pTooltip]="t('tooltip.selectSorting')"
@@ -191,7 +191,7 @@
         <div class="mobile-search-wrapper">
           <button
             type="button"
-            class="topbar-items topbar-item"
+            class="toolbar-item"
             (click)="searchDropdown.toggle($event)"
             [pTooltip]="t('tooltip.search')"
             tooltipPosition="top"
@@ -243,7 +243,7 @@
           }
         </div>
 
-        <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
+        <a class="toolbar-item" role="button" tabindex="0" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
           <i
             [ngClass]="showFilter() ? 'pi pi-filter-fill' : 'pi pi-filter'"
             [pTooltip]="t('tooltip.toggleSidebar')"
@@ -270,62 +270,63 @@
         </p>
       </div>
     } @else {
-      @let visibleBooks = books();
-      @if (visibleBooks.length === 0 && !isBooksLoading()) {
-        <div class="no-books-container">
-          <p class="no-books-text">
-            {{ t('labels.noBooks') }}
-          </p>
-        </div>
-      }
-      @if (currentViewMode() === 'table' && (visibleBooks.length > 0 || showTableLoadingPlaceholder())) {
-        <app-book-table
-          [books]="visibleBooks"
-          [virtualRowCount]="virtualRowCount()"
-          [loadedBookCount]="loadedBookCount()"
-          [isFetchingNextPage]="isFetchingNextBooksPage()"
-          [bookQueryToken]="bookQueryToken()"
-          (selectAllRequested)="selectAllBooks()"
-          (loadNextPage)="loadNextBooksPage()"
-          [visibleColumns]="visibleColumns()"
-          [useSquareCovers]="isAudiobookOnlyLibrary()"
-        ></app-book-table>
-      }
-      @if (currentViewMode() === 'grid') {
-        <div #scrollElement class="virtual-scroller">
-          <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
-            @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
-              @if (visibleBooks[virtualItem.index]; as book) {
-                <div
-                  class="virtual-cell"
-                  [style.width.px]="virtualGrid.itemWidth()"
-                  [style.height.px]="virtualItem.size"
-                  [style.transform]="virtualGrid.itemTransform(virtualItem)">
-                  <app-book-card
-                    [index]="virtualItem.index"
-                    [book]="book"
-                    [isCheckboxEnabled]="true"
-                    [seriesViewEnabled]="seriesViewEnabled()"
-                    [onBookSelect]="onBookCardSelect"
-                    [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
-                    (checkboxClick)="onCheckboxClicked($event)"
-                    [isSelected]="bookSelectionService.isBookSelected(book)"
-                    [useSquareCovers]="isAudiobookOnlyLibrary()"
-                    [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                  </app-book-card>
-                </div>
-              } @else {
-                <div
-                  class="virtual-cell virtual-loader-cell"
-                  [style.width.px]="virtualGrid.itemWidth()"
-                  [style.height.px]="virtualItem.size"
-                  [style.transform]="virtualGrid.itemTransform(virtualItem)"></div>
-              }
-            }
+      <div class="book-browser-content">
+        @let visibleBooks = books();
+        @if (visibleBooks.length === 0 && !isBooksLoading()) {
+          <div class="no-books-container">
+            <p class="no-books-text">
+              {{ t('labels.noBooks') }}
+            </p>
           </div>
-        </div>
-      }
-      @if (userService.currentUser(); as currentUser) {
+        }
+        @if (currentViewMode() === 'table' && (visibleBooks.length > 0 || showTableLoadingPlaceholder())) {
+          <app-book-table
+            [books]="visibleBooks"
+            [virtualRowCount]="virtualRowCount()"
+            [loadedBookCount]="loadedBookCount()"
+            [isFetchingNextPage]="isFetchingNextBooksPage()"
+            [bookQueryToken]="bookQueryToken()"
+            (selectAllRequested)="selectAllBooks()"
+            (loadNextPage)="loadNextBooksPage()"
+            [visibleColumns]="visibleColumns()"
+            [useSquareCovers]="isAudiobookOnlyLibrary()"
+          ></app-book-table>
+        }
+        @if (currentViewMode() === 'grid') {
+          <div #scrollElement class="virtual-scroller">
+            <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
+              @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
+                @if (visibleBooks[virtualItem.index]; as book) {
+                  <div
+                    class="virtual-cell"
+                    [style.width.px]="virtualGrid.itemWidth()"
+                    [style.height.px]="virtualItem.size"
+                    [style.transform]="virtualGrid.itemTransform(virtualItem)">
+                    <app-book-card
+                      [index]="virtualItem.index"
+                      [book]="book"
+                      [isCheckboxEnabled]="true"
+                      [seriesViewEnabled]="seriesViewEnabled()"
+                      [onBookSelect]="onBookCardSelect"
+                      [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
+                      (checkboxClick)="onCheckboxClicked($event)"
+                      [isSelected]="bookSelectionService.isBookSelected(book)"
+                      [useSquareCovers]="isAudiobookOnlyLibrary()"
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                    </app-book-card>
+                  </div>
+                } @else {
+                  <div
+                    class="virtual-cell virtual-loader-cell"
+                    [style.width.px]="virtualGrid.itemWidth()"
+                    [style.height.px]="virtualItem.size"
+                    [style.transform]="virtualGrid.itemTransform(virtualItem)"></div>
+                }
+              }
+            </div>
+          </div>
+        }
+        @if (userService.currentUser(); as currentUser) {
             <div class="book-browser-footer" [class.footer-hidden]="selectedCount() === 0">
                 <div class="footer-content">
                   <div class="footer-left">
@@ -448,6 +449,7 @@
                 </div>
             </div>
           }
+      </div>
     }
   </div>
 

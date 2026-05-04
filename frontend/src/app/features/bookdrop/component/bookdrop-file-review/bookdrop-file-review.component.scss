@@ -1,17 +1,9 @@
 .main-card {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 6.1rem);
-  border-radius: 0.75rem;
+  height: 100%;
   overflow: hidden;
-  background: var(--card-background);
-  border: 1px solid var(--p-content-border-color);
-
-  @media (width <= 768px) {
-    height: calc(100dvh - 4.4rem);
-    border-radius: 0;
-    border-width: 1px 0 0;
-  }
+  background: var(--page-background);
 }
 
 .header {
@@ -22,7 +14,7 @@
   justify-content: space-between;
   border-bottom: 1px solid var(--p-content-border-color);
   gap: 1rem;
-  
+
   @media (width <= 768px) {
     padding: 1rem;
   }
@@ -41,7 +33,7 @@
   p {
     font-size: 0.875rem;
     color: rgb(156 163 175);
-    
+
     strong {
       color: var(--primary-color);
     }
@@ -82,7 +74,6 @@
   align-items: center;
   justify-content: center;
   z-index: 50;
-  border-radius: 0.75rem;
 }
 
 .loading-content {
@@ -119,7 +110,6 @@
   align-items: center;
   justify-content: center;
   z-index: 50;
-  border-radius: 0.75rem;
 
   > * + * {
     margin-top: 0.75rem;
@@ -217,7 +207,7 @@ p-inputgroup.disabled {
   display: flex;
   gap: 1rem;
   align-items: center;
-  
+
   @media (width <= 640px) {
     flex-wrap: wrap;
     width: 100%;

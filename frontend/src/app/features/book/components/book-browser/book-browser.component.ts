@@ -54,8 +54,9 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {SortService} from '../../service/sort.service';
 import {AppBooksApiService} from '../../service/app-books-api.service';
 import {AppBookFilters} from '../../model/app-book.model';
-import {createVirtualGrid, scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
+import {createVirtualGrid, scaleForGridColumns, type VirtualGridMetrics} from '../../../../shared/util/virtual-grid.util';
 import {GridDensityButtonsComponent} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {LayoutService} from '../../../../shared/layout/layout.service';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -111,6 +112,7 @@ export class BookBrowserComponent implements AfterViewInit {
   private appBooksApi = inject(AppBooksApiService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(RouteScrollPositionService);
+  private layoutService = inject(LayoutService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -322,8 +324,10 @@ export class BookBrowserComponent implements AfterViewInit {
     gap: this.virtualGridGap,
     columns: this.virtualGridColumns,
     count: this.virtualRowCount,
+    minimumCount: metrics => this.minimumLoadingGridItemCount(metrics),
     initialOffset: this.initialScrollOffset,
     fillItemWidth: true,
+    deferViewportUpdates: this.layoutService.sidebarTransitioning,
     estimateItemHeight: itemWidth => this.isMobile()
       ? this.mobileCardSizeForWidth(itemWidth).height
       : this.cardSizeForWidth(itemWidth).height,
@@ -513,6 +517,18 @@ export class BookBrowserComponent implements AfterViewInit {
       return Math.max(this.appBooksApi.totalElements(), renderedBookCount);
     }
     return renderedBookCount + 1;
+  }
+
+  private minimumLoadingGridItemCount({viewportHeight, columns, itemHeight, gap}: VirtualGridMetrics): number {
+    if (!this.showBooksLoadingPlaceholder() || this.currentViewMode() !== VIEW_MODES.GRID) {
+      return 0;
+    }
+    if (viewportHeight <= 0 || itemHeight <= 0) {
+      return INITIAL_LOADING_ROW_COUNT;
+    }
+
+    const visibleRows = Math.ceil((viewportHeight + gap) / (itemHeight + gap));
+    return Math.max(INITIAL_LOADING_ROW_COUNT, (visibleRows + 1) * columns);
   }
 
   readonly viewIcon = computed(() =>

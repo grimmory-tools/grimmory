@@ -205,7 +205,6 @@ export class AuthorBrowserComponent implements OnInit {
     minItemWidth: this.minCardWidth,
     gap: AuthorBrowserComponent.GRID_GAP,
     initialOffset: this.initialScrollOffset,
-    fillItemWidth: true,
     estimateItemHeight: itemWidth => Math.round(itemWidth * this.cardAspectRatio()),
   });
 

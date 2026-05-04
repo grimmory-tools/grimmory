@@ -1,0 +1,45 @@
+@let currentItem = item();
+
+@if (isExpandable) {
+  <button
+    type="button"
+    class="layout-menuitem-root-text root-item-with-dropdown"
+    [attr.aria-label]="currentItem.label"
+    [attr.aria-expanded]="expanded"
+    (click)="toggleExpand()"
+  >
+    <span class="root-item-label-container">
+      <span>{{ currentItem.label }}</span>
+    </span>
+    <span class="expand-icon-button" aria-hidden="true">
+      <i
+        [ngClass]="{ 'pi': true, 'pi-angle-up': expanded, 'pi-angle-down': !expanded }"
+        class="expand-icon"
+        aria-hidden="true"
+      ></i>
+    </span>
+  </button>
+  <div class="sidebar-section-divider" aria-hidden="true"></div>
+} @else {
+  <div class="layout-menuitem-root-text root-item">
+    <div>{{ currentItem.label }}</div>
+  </div>
+}
+
+<div
+  class="submenu-container"
+  [class.expanded]="submenuVisible"
+  [attr.aria-hidden]="!submenuVisible"
+  [attr.inert]="submenuVisible ? null : ''"
+>
+  <ul>
+    @for (child of visibleChildren(); track child.id; let i = $index) {
+      <li
+        app-menu-item-row
+        [item]="child"
+        [index]="i"
+        [parentKey]="key()"
+      ></li>
+    }
+  </ul>
+</div>

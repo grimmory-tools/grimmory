@@ -12,6 +12,8 @@ import {UserService} from '../../settings/user-management/user.service';
 import {AuthService} from '../../../shared/service/auth.service';
 
 const SHELVES_QUERY_KEY = ['shelves'] as const;
+const KOBO_SHELF_NAME = 'Kobo';
+const KOBO_SHELF_ICON = 'pi pi-tablet';
 
 @Injectable({providedIn: 'root'})
 export class ShelfService {
@@ -53,7 +55,7 @@ export class ShelfService {
   private getShelvesQueryOptions() {
     return queryOptions({
       queryKey: SHELVES_QUERY_KEY,
-      queryFn: () => lastValueFrom(this.http.get<Shelf[]>(this.url))
+      queryFn: async () => this.decorateShelves(await lastValueFrom(this.http.get<Shelf[]>(this.url)))
     });
   }
 
@@ -108,6 +110,42 @@ export class ShelfService {
 
   getUnshelvedBookCountValue(): number {
     return this.bookService.books().filter(book => !book.shelves || book.shelves.length === 0).length;
+  }
+
+  readonly bookCountByShelfId = computed(() => {
+    const currentUserId = this.userService.getCurrentUser()?.id;
+    const counts = new Map<number, number>();
+
+    for (const book of this.bookService.books()) {
+      for (const shelf of book.shelves ?? []) {
+        if (shelf.id != null) {
+          counts.set(shelf.id, (counts.get(shelf.id) ?? 0) + 1);
+        }
+      }
+    }
+
+    for (const shelf of this.shelves()) {
+      if (shelf.userId !== currentUserId && shelf.id != null) {
+        counts.set(shelf.id, shelf.bookCount ?? 0);
+      }
+    }
+
+    return counts;
+  });
+
+  readonly unshelvedBookCount = computed(() =>
+    this.bookService.books().filter(book => !book.shelves || book.shelves.length === 0).length
+  );
+
+  private decorateShelves(shelves: Shelf[]): Shelf[] {
+    return shelves.map((shelf) => ({
+      ...shelf,
+      systemKey: this.getSystemKey(shelf),
+    }));
+  }
+
+  private getSystemKey(shelf: Shelf): Shelf['systemKey'] {
+    return shelf.name === KOBO_SHELF_NAME && shelf.icon === KOBO_SHELF_ICON ? 'kobo' : null;
   }
 
 }

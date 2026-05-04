@@ -19,6 +19,7 @@ import { LibraryLoadingService } from "./features/library-creator/library-loadin
 import { AuthService } from "./shared/service/auth.service";
 import { ConfirmationService } from "primeng/api";
 import { MessageService } from "primeng/api";
+import { CommandPaletteService } from "./features/command-palette/command-palette.service";
 
 interface StompMessage {
   body: string;
@@ -53,6 +54,16 @@ describe("AppComponent", () => {
   let libraryService: {
     largeLibraryLoading: ReturnType<typeof signal>;
     setLargeLibraryLoading: ReturnType<typeof vi.fn>;
+  };
+  let commandPaletteService: {
+    toggle: ReturnType<typeof vi.fn>;
+    open: ReturnType<typeof vi.fn>;
+    hide: ReturnType<typeof vi.fn>;
+    registerOverlayController: ReturnType<typeof vi.fn>;
+    isOpen: ReturnType<typeof signal>;
+    query: ReturnType<typeof signal>;
+    visibleItems: ReturnType<typeof signal>;
+    groups: ReturnType<typeof signal>;
   };
 
   function createTopicStream(topic: string): Subject<StompMessage> {
@@ -92,6 +103,16 @@ describe("AppComponent", () => {
       largeLibraryLoading: signal(largeLibraryLoading),
       setLargeLibraryLoading: vi.fn(),
     };
+    commandPaletteService = {
+      toggle: vi.fn(),
+      open: vi.fn(),
+      hide: vi.fn(),
+      registerOverlayController: vi.fn(() => vi.fn()),
+      isOpen: signal(false),
+      query: signal(''),
+      visibleItems: signal([]),
+      groups: signal([]),
+    };
 
     TestBed.configureTestingModule({
       imports: [TranslocoTestingModule.forRoot({ langs: {} })],
@@ -114,6 +135,7 @@ describe("AppComponent", () => {
         { provide: LibraryHealthService, useValue: libraryHealthService },
         { provide: LibraryLoadingService, useValue: libraryLoadingService },
         { provide: AuthService, useValue: authService },
+        { provide: CommandPaletteService, useValue: commandPaletteService },
         ConfirmationService,
         MessageService],
     });
