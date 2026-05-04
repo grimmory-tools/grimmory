@@ -60,6 +60,38 @@ describe('MetadataFetchOptionsComponent', () => {
     expect(component.currentMetadataOptions).toEqual(defaultMetadataRefreshOptions);
   });
 
+  it('gives precedence to dialogData Input over dynamicDialogConfig.data', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: DynamicDialogConfig,
+          useValue: {
+            data: {
+              libraryId: 7,
+              bookIds: [1, 2],
+              metadataRefreshType: MetadataRefreshType.LIBRARY,
+            },
+          },
+        },
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ]
+    });
+
+    const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    component.dialogData = {
+      libraryId: 9,
+      bookIds: [10],
+      metadataRefreshType: MetadataRefreshType.BOOKS,
+    };
+    component.ngOnInit();
+
+    expect(component.libraryId).toBe(9);
+    expect(component.bookIds).toEqual([10]);
+    expect(component.metadataRefreshType).toBe(MetadataRefreshType.BOOKS);
+  });
+
   it('submits a metadata refresh task and closes the dialog', () => {
     TestBed.configureTestingModule({
       providers: [

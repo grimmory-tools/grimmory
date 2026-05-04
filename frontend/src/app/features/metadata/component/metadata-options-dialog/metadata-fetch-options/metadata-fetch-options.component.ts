@@ -43,7 +43,7 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.applyContext(this.dynamicDialogConfig.data ?? {});
+    this.applyContext(this.dialogData ?? this.dynamicDialogConfig.data ?? {});
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -1,4 +1,4 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, effect, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshOptions} from '../../model/request/metadata-refresh-options.model';
@@ -18,7 +18,13 @@ import {Button} from 'primeng/button';
   styleUrl: './multi-book-metadata-fetch-component.scss',
   imports: [MetadataFetchOptionsComponent, FormsModule, Button],
 })
-export class MultiBookMetadataFetchComponent {
+export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
+  @Input() dialogData?: {
+    libraryId?: number | null;
+    bookIds?: number[];
+    metadataRefreshType?: MetadataRefreshType;
+  };
+
   bookIds: number[] = [];
   libraryId: number | null = null;
   booksToShow: Book[] = [];
@@ -32,18 +38,33 @@ export class MultiBookMetadataFetchComponent {
   expanded = false;
 
   constructor() {
-    const data = this.dynamicDialogConfig.data ?? {};
-    this.bookIds = data.bookIds ?? [];
-    this.libraryId = data.libraryId ?? null;
-    this.metadataRefreshType = data.metadataRefreshType ?? MetadataRefreshType.BOOKS;
-    this.booksToShow = this.bookService.getBooksByIds(this.bookIds);
-
     effect(() => {
       const settings = this.appSettingsService.appSettings();
       if (settings) {
         this.currentMetadataOptions = settings.defaultMetadataRefreshOptions;
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.applyContext(this.dialogData ?? this.dynamicDialogConfig.data ?? {});
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['dialogData']?.currentValue) {
+      this.applyContext(changes['dialogData'].currentValue);
+    }
+  }
+
+  private applyContext(context: {
+    libraryId?: number | null;
+    bookIds?: number[];
+    metadataRefreshType?: MetadataRefreshType;
+  }): void {
+    this.bookIds = context.bookIds ?? [];
+    this.libraryId = context.libraryId ?? null;
+    this.metadataRefreshType = context.metadataRefreshType ?? MetadataRefreshType.BOOKS;
+    this.booksToShow = this.bookService.getBooksByIds(this.bookIds);
   }
 
   get isLibraryRefresh(): boolean {

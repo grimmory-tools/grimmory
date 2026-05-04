@@ -129,7 +129,10 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              this.dialogLauncherService.openLibraryMetadataFetchDialog(libraryId);
+              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                metadataRefreshType: MetadataRefreshType.LIBRARY,
+                libraryId
+              });
             }
           },
           {
@@ -204,25 +207,6 @@ export class LibraryShelfMenuService {
             }
           }
         ]
-
-              this.libraryService.deleteLibrary(libraryId)
-                .pipe(finalize(() => this.loadingService.hide(loader)))
-                .subscribe({
-                  complete: () => {
-                    this.router.navigate(['/']);
-                    this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryDeletedDetail')});
-                  },
-                  error: () => {
-                    this.messageService.add({
-                      severity: 'error',
-                      summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                      detail: this.t.translate('book.shelfMenuService.toast.libraryDeleteFailedDetail'),
-                    });
-                  }
-                });
-            }
-          });
-        }
       }
     ];
   }
