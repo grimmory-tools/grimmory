@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { DestroyRef, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -52,6 +52,7 @@ export class LayoutService {
   readonly sidebarCollapsed = signal(this.localStorage.get<boolean>('sidebarCollapsed') ?? false);
   readonly sidebarWidth = signal(this.clampSidebarWidth(this.localStorage.get<number>('sidebarWidth') ?? SIDEBAR_DEFAULT_WIDTH));
   readonly isDesktop = signal(this.computeIsDesktop());
+  readonly desktopSidebarCollapsed = computed(() => this.isDesktop() && this.sidebarCollapsed());
   readonly sidebarExpandedState = signal<Readonly<Record<string, boolean>>>(
     readBooleanRecord(this.localStorage, SIDEBAR_EXPANDED_STATE_KEY)
   );

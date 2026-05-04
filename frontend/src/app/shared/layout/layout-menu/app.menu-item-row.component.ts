@@ -35,9 +35,6 @@ export class AppMenuItemRowComponent {
 
   private readonly userService = inject(UserService);
   readonly layoutService = inject(LayoutService);
-  readonly desktopSidebarCollapsed = computed(() =>
-    this.layoutService.isDesktop() && this.layoutService.sidebarCollapsed()
-  );
 
   readonly isRouteActive = computed(() => {
     const route = this.item().routerLink?.[0];

@@ -144,9 +144,6 @@ export class AppMenuComponent {
   });
 
   readonly hasUpdate = computed(() => hasAppUpdate(this.version()));
-  readonly desktopSidebarCollapsed = computed(() =>
-    this.layoutService.isDesktop() && this.layoutService.sidebarCollapsed()
-  );
 
   readonly userMenuItems = computed<MenuItem[]>(() => {
     this.activeLang();
@@ -218,7 +215,7 @@ export class AppMenuComponent {
 
     // `above` collapses to `below` when the sidebar is narrow, because the
     // anchored left offset assumes an expanded footer row.
-    const anchorAbove = anchor.placement === 'above' && !this.desktopSidebarCollapsed();
+    const anchorAbove = anchor.placement === 'above' && !this.layoutService.desktopSidebarCollapsed();
     if (anchorAbove) {
       const bottom = Math.max(window.innerHeight - rect.top + 8, 8);
       panel.style.setProperty('--sidebar-popover-bottom', `${bottom}px`);

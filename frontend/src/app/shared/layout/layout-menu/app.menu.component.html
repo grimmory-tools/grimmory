@@ -63,7 +63,7 @@
       type="button"
       class="sidebar-action-link sidebar-search-button"
       [pTooltip]="t('search')"
-      [tooltipDisabled]="!desktopSidebarCollapsed()"
+      [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
       tooltipPosition="right"
       (click)="openSearch()"
     >
@@ -133,7 +133,7 @@
           [attr.aria-label]="t('profile')"
           aria-haspopup="menu"
           [pTooltip]="user.name || user.username"
-          [tooltipDisabled]="!desktopSidebarCollapsed()"
+          [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
           tooltipPosition="right"
           (click)="openSidebarOverlay($event, userMenu, 'below')"
         >
@@ -152,7 +152,7 @@
           [attr.aria-label]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
           [pTooltip]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
-          [tooltipDisabled]="!desktopSidebarCollapsed()"
+          [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"
         >
@@ -195,7 +195,7 @@
           [attr.aria-label]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
           [pTooltip]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
-          [tooltipDisabled]="!desktopSidebarCollapsed()"
+          [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"
         >
