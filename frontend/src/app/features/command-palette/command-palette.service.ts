@@ -2,12 +2,12 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { catchError, debounceTime, distinctUntilChanged, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { AppBookSummary } from '../book/model/app-book.model';
 import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
-import { normalizeSearchTerm } from '../book/components/book-browser/filters/HeaderFilter';
-import { AppBooksApiService } from '../book/service/app-books-api.service';
+import { filterBooksBySearchTerm, normalizeSearchTerm } from '../book/components/book-browser/filters/HeaderFilter';
+import { Book } from '../book/model/book.model';
+import { BookService } from '../book/service/book.service';
 import { LibraryService } from '../book/service/library.service';
 import { ShelfService } from '../book/service/shelf.service';
 import { MagicShelfService } from '../magic-shelf/service/magic-shelf.service';
@@ -33,30 +33,16 @@ interface CommandPaletteOverlayController {
   focusInput(): void;
 }
 
-interface RemoteSearchState {
-  query: string;
-  items: PaletteItem[];
-  isLoading: boolean;
-}
-
-const BOOK_RESULT_LIMIT = 25;
-const MIN_REMOTE_SEARCH_LENGTH = 2;
-const REMOTE_SEARCH_DEBOUNCE_MS = 200;
-
-function emptyRemoteSearchState(query = ''): RemoteSearchState {
-  return {
-    query,
-    items: [],
-    isLoading: false,
-  };
-}
+const BOOK_RESULT_LIMIT = 50;
+const MIN_BOOK_SEARCH_LENGTH = 2;
+const BOOK_SEARCH_DEBOUNCE_MS = 200;
 
 @Injectable({ providedIn: 'root' })
 export class CommandPaletteService {
   private readonly router = inject(Router);
   private readonly t = inject(TranslocoService);
   private readonly userService = inject(UserService);
-  private readonly appBooksApi = inject(AppBooksApiService);
+  private readonly bookService = inject(BookService);
   private readonly shelfService = inject(ShelfService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly libraryService = inject(LibraryService);
@@ -73,18 +59,23 @@ export class CommandPaletteService {
   private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   private readonly translate = (key: string): string => this.t.translate(key);
   private readonly trimmedQuery = computed(() => this.query().trim());
-  private readonly debouncedRemoteQuery = toSignal(
+  private readonly debouncedBookQuery = toSignal(
     toObservable(this.trimmedQuery).pipe(
-      debounceTime(REMOTE_SEARCH_DEBOUNCE_MS),
+      debounceTime(BOOK_SEARCH_DEBOUNCE_MS),
       distinctUntilChanged(),
     ),
     { initialValue: this.trimmedQuery() },
   );
-  private readonly bookSearchState = this.createRemoteSearchState((query) =>
-    this.appBooksApi.searchBooks(query, BOOK_RESULT_LIMIT).pipe(
-      map((response) => response.content.map((book) => this.toPaletteBookItem(book))),
-    )
-  );
+  private readonly localBookItems = computed<PaletteItem[]>(() => {
+    const query = this.debouncedBookQuery();
+    if (query.length < MIN_BOOK_SEARCH_LENGTH) {
+      return [];
+    }
+
+    return filterBooksBySearchTerm(this.bookService.books(), query)
+      .slice(0, BOOK_RESULT_LIMIT)
+      .map((book) => this.toPaletteBookItem(book));
+  });
 
   registerOverlayController(controller: CommandPaletteOverlayController): () => void {
     this.overlayController = controller;
@@ -190,11 +181,11 @@ export class CommandPaletteService {
 
   readonly isSearching = computed(() => {
     const raw = this.trimmedQuery();
-    if (raw.length < MIN_REMOTE_SEARCH_LENGTH) {
+    if (raw.length < MIN_BOOK_SEARCH_LENGTH) {
       return false;
     }
 
-    return this.isRemoteSearchPending(raw, this.bookSearchState());
+    return raw !== this.debouncedBookQuery();
   });
 
   private filterItems(source: PaletteItem[], tokens: string[], cap: number): PaletteItem[] {
@@ -275,7 +266,7 @@ export class CommandPaletteService {
   );
 
   private readonly visibleBookItems = computed<PaletteItem[]>(() =>
-    this.visibleRemoteItems(this.bookSearchState())
+    this.trimmedQuery().length >= MIN_BOOK_SEARCH_LENGTH ? this.localBookItems() : []
   );
 
   private iconSelectionFor(
@@ -288,24 +279,27 @@ export class CommandPaletteService {
     return { type: 'PRIME_NG', value };
   }
 
-  private toPaletteBookItem(book: AppBookSummary): PaletteItem {
-    const publishedDate = book.publishedDate ?? '';
+  private toPaletteBookItem(book: Book): PaletteItem {
+    const metadata = book.metadata;
+    const title = metadata?.title ?? book.primaryFile?.fileName ?? book.fileName ?? '';
+    const authors = metadata?.authors ?? [];
+    const publishedDate = metadata?.publishedDate ?? '';
     const year = publishedDate && /^\d{4}/.test(publishedDate) ? publishedDate.slice(0, 4) : null;
-    const haystack = [book.title, book.seriesName ?? '', ...book.authors].filter(Boolean).join(' ');
+    const haystack = [title, metadata?.seriesName ?? '', ...authors].filter(Boolean).join(' ');
 
     return {
       id: `book:${book.id}`,
       kind: 'book',
-      title: book.title,
+      title,
       icon: { type: 'PRIME_NG', value: 'pi-book' },
       searchText: normalizeSearchTerm(haystack),
       route: ['/book', book.id],
       queryParams: { tab: 'view' },
       bookMeta: {
-        thumbnailUrl: this.urlHelper.getThumbnailUrl(book.id, book.coverUpdatedOn ?? undefined),
-        authors: book.authors,
-        seriesName: book.seriesName,
-        seriesNumber: book.seriesNumber,
+        thumbnailUrl: this.urlHelper.getThumbnailUrl(book.id, metadata?.coverUpdatedOn),
+        authors,
+        seriesName: metadata?.seriesName ?? null,
+        seriesNumber: metadata?.seriesNumber ?? null,
         year,
       },
     };
@@ -323,52 +317,4 @@ export class CommandPaletteService {
     };
   }
 
-  private createRemoteSearchState(searchFn: (query: string) => Observable<PaletteItem[]>) {
-    /* Keep the last resolved items in closure so in-flight searches can show
-       stale results instead of collapsing the palette to empty. */
-    let lastItems: PaletteItem[] = [];
-    return toSignal(
-      toObservable(this.debouncedRemoteQuery).pipe(
-        switchMap((query) => {
-          if (query.length < MIN_REMOTE_SEARCH_LENGTH) {
-            lastItems = [];
-            return of<RemoteSearchState>({ query, items: [], isLoading: false });
-          }
-
-          const previousItems = lastItems;
-          return searchFn(query).pipe(
-            map((items) => {
-              lastItems = items;
-              return { query, items, isLoading: false } satisfies RemoteSearchState;
-            }),
-            startWith<RemoteSearchState>({
-              query,
-              items: previousItems,
-              isLoading: true,
-            }),
-            catchError(() => {
-              lastItems = [];
-              return of<RemoteSearchState>({ query, items: [], isLoading: false });
-            }),
-          );
-        }),
-      ),
-      { initialValue: emptyRemoteSearchState(this.trimmedQuery()) },
-    );
-  }
-
-  private visibleRemoteItems(state: RemoteSearchState): PaletteItem[] {
-    const raw = this.trimmedQuery();
-    if (raw.length < MIN_REMOTE_SEARCH_LENGTH) {
-      return [];
-    }
-
-    /* Keep previous items visible while a new search is in flight so the
-       palette doesn't jump; isSearching() drives the dimmed state. */
-    return state.items;
-  }
-
-  private isRemoteSearchPending(raw: string, state: RemoteSearchState): boolean {
-    return raw !== state.query || state.isLoading;
-  }
 }
