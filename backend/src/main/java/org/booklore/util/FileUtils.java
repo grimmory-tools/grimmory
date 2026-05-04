@@ -332,9 +332,9 @@ public class FileUtils {
         }
 
         boolean allSingleFileFormats = audioFiles.stream().allMatch(f -> {
-            String name = f.getFileName().toString().toLowerCase();
-            int dot = name.lastIndexOf('.');
-            return dot > 0 && SINGLE_FILE_AUDIOBOOK_EXTENSIONS.contains(name.substring(dot + 1));
+            String mime = MimeDetector.detectByExtension(f.getFileName().toString());
+            return "audio/mp4".equals(mime) || "audio/x-m4a".equals(mime) || "audio/x-m4b".equals(mime)
+                    || "audio/aac".equals(mime) || "audio/x-m4p".equals(mime);
         });
 
         if (!allSingleFileFormats) {

@@ -1,6 +1,7 @@
 package org.booklore.service.kobo;
 
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,12 @@ public class KepubConversionService {
     }
 
     private void validateInputs(File epubFile) {
-        if (epubFile == null || !epubFile.isFile() || !epubFile.getName().endsWith(".epub")) {
+        if (epubFile == null || !epubFile.isFile()) {
             throw new IllegalArgumentException("Invalid EPUB file: " + epubFile);
+        }
+        String mime = MimeDetector.detectSafe(epubFile.toPath());
+        if (!"application/epub+zip".equals(mime)) {
+            throw new IllegalArgumentException("Invalid EPUB MIME type: " + mime);
         }
     }
 

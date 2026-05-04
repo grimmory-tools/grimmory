@@ -37,6 +37,13 @@ public class MimeDetector {
     }
 
     /**
+     * Detects MIME type based on the filename extension.
+     */
+    public String detectByExtension(String fileName) {
+        return TIKA.detect(fileName);
+    }
+
+    /**
      * Best-effort detection that returns {@code "application/octet-stream"} instead of throwing.
      */
     public String detectSafe(Path path) {

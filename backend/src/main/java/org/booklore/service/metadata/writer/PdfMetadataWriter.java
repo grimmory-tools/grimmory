@@ -13,6 +13,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.BookLoreMetadata;
+import org.booklore.util.MimeDetector;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -42,7 +43,12 @@ public class PdfMetadataWriter implements MetadataWriter {
             return;
         }
 
-        if (!file.exists() || !file.getName().toLowerCase().endsWith(".pdf")) {
+        if (!file.exists()) {
+            log.warn("Invalid PDF file: {}", file.getAbsolutePath());
+            return;
+        }
+        String mime = MimeDetector.detectSafe(file.toPath());
+        if (!"application/pdf".equals(mime)) {
             log.warn("Invalid PDF file: {}", file.getAbsolutePath());
             return;
         }

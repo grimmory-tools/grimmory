@@ -5,6 +5,7 @@ import lombok.*;
 import org.booklore.convertor.AudioFileChapterListConverter;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.util.ArchiveUtils;
+import org.booklore.util.MimeDetector;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -134,8 +135,8 @@ public class BookFileEntity {
             return files
                     .filter(java.nio.file.Files::isRegularFile)
                     .filter(p -> {
-                        String name = p.getFileName().toString().toLowerCase();
-                        return name.endsWith(".mp3") || name.endsWith(".m4a") || name.endsWith(".m4b") || name.endsWith(".opus");
+                        String mime = MimeDetector.detectSafe(p);
+                        return MimeDetector.isAudio(mime);
                     })
                     .sorted()
                     .findFirst()
