@@ -215,7 +215,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       label: this.t.translate('metadata.viewer.menuShelf'),
       icon: 'pi pi-folder',
       command: () => {
-        this.assignShelf(book.id).catch(() => {
+        this.assignShelf(book).catch(() => {
           this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
         });
       }
@@ -699,8 +699,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     }
   }
 
-  async assignShelf(bookId: number) {
-    await this.bookDialogHelperService.openShelfAssignerDialog((this.bookService.findBookById(bookId) as Book), null);
+  async assignShelf(book: Book) {
+    await this.bookDialogHelperService.openShelfAssignerDialog(book, null);
   }
 
   updateReadStatus(status: ReadStatus): void {
