@@ -52,10 +52,12 @@ describe('AppMenuComponent', () => {
   let component: AppMenuComponent;
   let commandPaletteService: { open: ReturnType<typeof vi.fn> };
   let currentUser: WritableSignal<TestUser | null>;
+  const sidebarCollapsed = signal(false);
+  const isDesktop = signal(true);
   const layoutService = {
-    sidebarCollapsed: signal(false),
-    isDesktop: signal(true),
-    desktopSidebarCollapsed: computed(() => layoutService.isDesktop() && layoutService.sidebarCollapsed()),
+    sidebarCollapsed,
+    isDesktop,
+    desktopSidebarCollapsed: computed(() => isDesktop() && sidebarCollapsed()),
     librarySort: signal({ field: 'name', order: 'desc' }),
     shelfSort: signal({ field: 'name', order: 'asc' }),
     magicShelfSort: signal({ field: 'name', order: 'asc' }),
