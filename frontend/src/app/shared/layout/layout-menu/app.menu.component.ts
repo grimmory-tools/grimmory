@@ -20,7 +20,7 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
-import type { MenuItem } from 'primeng/api';
+import { MessageService, type MenuItem } from 'primeng/api';
 import { AppVersion, VersionService } from '../../service/version.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
@@ -69,6 +69,7 @@ export class AppMenuComponent {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly authService = inject(AuthService);
+  private readonly messageService = inject(MessageService);
   readonly layoutService = inject(LayoutService);
   private readonly userService = inject(UserService);
   private readonly magicShelfService = inject(MagicShelfService);
@@ -129,10 +130,10 @@ export class AppMenuComponent {
     if (!user) return [];
 
     const actions = buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: async () => await this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: async () => await this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: async () => await this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: async () => await this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog().catch(err => this.handleDialogLoadError(err)),
+      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog().catch(err => this.handleDialogLoadError(err)),
+      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog().catch(err => this.handleDialogLoadError(err)),
+      uploadBook: () => this.dialogLauncherService.openFileUploadDialog().catch(err => this.handleDialogLoadError(err)),
     });
     const bookdrop = findPageNavItem('bookdrop', this.translate, user.permissions);
     return this.toMenuItems(bookdrop ? [...actions, bookdrop] : actions);
@@ -247,5 +248,13 @@ export class AppMenuComponent {
       this.anchorByOverlay.set(overlay, { trigger: event.currentTarget, placement });
     }
     overlay.toggle(event);
+  }
+  private handleDialogLoadError(err: unknown) {
+    console.error('Failed to load dialog', err);
+    this.messageService.add({
+      severity: 'error',
+      summary: this.translate('common.error'),
+      detail: this.translate('common.dialogLoadError')
+    });
   }
 }

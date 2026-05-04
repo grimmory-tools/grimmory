@@ -214,7 +214,11 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     items.push({
       label: this.t.translate('metadata.viewer.menuShelf'),
       icon: 'pi pi-folder',
-      command: async () => await this.assignShelf(book.id)
+      command: () => {
+        this.assignShelf(book.id).catch(() => {
+          this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
+        });
+      }
     });
 
     if (permissions?.canManageLibrary || permissions?.admin) {
@@ -234,8 +238,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuUploadFile'),
         icon: 'pi pi-upload',
-        command: async () => {
-          await this.bookDialogHelperService.openAdditionalFileUploaderDialog(book);
+        command: () => {
+          this.bookDialogHelperService.openAdditionalFileUploaderDialog(book).catch(() => {
+            this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
+          });
         },
       });
     }
@@ -246,8 +252,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuOrganizeFiles'),
         icon: 'pi pi-arrows-h',
-        command: async () => {
-          await this.openFileMoverDialog(book.id);
+        command: () => {
+          this.openFileMoverDialog(book.id).catch(() => {
+            this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
+          });
         },
       });
     }
@@ -265,8 +273,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
           {
             label: this.t.translate('metadata.viewer.menuCustomSend'),
             icon: 'pi pi-cog',
-            command: async () => {
-              await this.bookDialogHelperService.openCustomSendDialog(book);
+            command: () => {
+              this.bookDialogHelperService.openCustomSendDialog(book).catch(() => {
+                this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
+              });
             }
           }
         ]
@@ -280,8 +290,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuAttachToAnotherBook'),
         icon: 'pi pi-link',
-        command: async () => {
-          await this.bookDialogHelperService.openBookFileAttacherDialog(book);
+        command: () => {
+          this.bookDialogHelperService.openBookFileAttacherDialog(book).catch(() => {
+            this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') });
+          });
         },
       });
     }

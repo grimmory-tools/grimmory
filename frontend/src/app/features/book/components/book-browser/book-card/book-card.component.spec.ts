@@ -187,11 +187,11 @@ describe('BookCardComponent', () => {
       confirm: vi.fn(),
     };
     bookDialogHelperService = {
-      openShelfAssignerDialog: vi.fn(),
-      openBookDetailsDialog: vi.fn(),
-      openCustomSendDialog: vi.fn(),
-      openMetadataRefreshDialog: vi.fn(),
-      openFileMoverDialog: vi.fn(),
+      openShelfAssignerDialog: vi.fn(() => Promise.resolve(null)),
+      openBookDetailsDialog: vi.fn(() => Promise.resolve(null)),
+      openCustomSendDialog: vi.fn(() => Promise.resolve(null)),
+      openMetadataRefreshDialog: vi.fn(() => Promise.resolve(null)),
+      openFileMoverDialog: vi.fn(() => Promise.resolve(null)),
     };
     bookNavigationService = {
       availableBookIds: vi.fn(() => []),

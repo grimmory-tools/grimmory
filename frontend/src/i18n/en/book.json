@@ -302,7 +302,8 @@
       "magicShelfDeletedDetail": "Magic shelf was deleted",
       "magicShelfDeleteFailedDetail": "Failed to delete shelf",
       "magicShelfJsonCopiedDetail": "Magic shelf JSON copied to clipboard",
-      "failedSummary": "Failed"
+      "failedSummary": "Failed",
+      "dialogLoadFailedDetail": "An error occurred while loading the dialog. Please try again."
     },
     "loading": {
       "deletingLibrary": "Deleting library '{{ name }}'..."

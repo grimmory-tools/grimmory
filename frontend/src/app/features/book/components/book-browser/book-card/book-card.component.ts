@@ -418,7 +418,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: async () => await this.bookDialogHelperService.openCustomSendDialog(this.book())
+            command: () => void this.bookDialogHelperService.openCustomSendDialog(this.book()).catch(() =>
+              this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+            )
           }
         ]
       });
@@ -451,7 +453,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: async () => await this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
+            command: () => void this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])).catch(() =>
+              this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+            ),
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -504,7 +508,9 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: async () => await this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
+        command: () => void this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id])).catch(() =>
+          this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+        )
       });
     }
 
@@ -595,8 +601,10 @@ export class BookCardComponent {
     return items;
   }
 
-  private async openShelfDialog() {
-    await this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
+  private openShelfDialog(): void {
+    void this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null).catch(() =>
+      this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+    );
   }
 
   openSeriesInfo(): void {
