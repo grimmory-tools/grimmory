@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "org.booklore"
-version = System.getenv("APP_VERSION") ?: "0.0.1-SNAPSHOT"
+version = (System.getenv("APP_VERSION") ?: "0.0.1-SNAPSHOT").replace(Regex("^v"), "")
 
 val defaultFrontendDistDir = file("${rootDir}/../frontend/dist/grimmory/browser")
 val configuredFrontendDistDir = providers.gradleProperty("frontendDistDir")
