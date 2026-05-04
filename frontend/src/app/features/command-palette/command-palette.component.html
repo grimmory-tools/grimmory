@@ -51,7 +51,7 @@
                   >
                     @if (item.kind === 'book' && item.bookMeta; as bookMeta) {
                       <ng-container *transloco="let tb; prefix: 'book.searcher'">
-                        <div class="command-palette-book-cover">
+                        <div class="command-palette-book-cover" [class.square-cover]="bookMeta.isAudiobook">
                           @if (bookMeta.thumbnailUrl) {
                             <img [src]="bookMeta.thumbnailUrl" alt="" />
                           } @else {

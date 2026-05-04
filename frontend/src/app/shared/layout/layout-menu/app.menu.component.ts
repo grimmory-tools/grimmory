@@ -215,7 +215,7 @@ export class AppMenuComponent {
 
     // `above` collapses to `below` when the sidebar is narrow, because the
     // anchored left offset assumes an expanded footer row.
-    const anchorAbove = anchor.placement === 'above' && !this.layoutService.sidebarCollapsed();
+    const anchorAbove = anchor.placement === 'above' && !this.layoutService.desktopSidebarCollapsed();
     if (anchorAbove) {
       const bottom = Math.max(window.innerHeight - rect.top + 8, 8);
       panel.style.setProperty('--sidebar-popover-bottom', `${bottom}px`);

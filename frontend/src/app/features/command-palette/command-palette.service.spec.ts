@@ -18,15 +18,17 @@ import { DialogLauncherService } from '../../shared/services/dialog-launcher.ser
 
 import { CommandPaletteService } from './command-palette.service';
 
-function makeBook(id: number, title: string, authors: string[] = []): Book {
+function makeBook(id: number, title: string, authors: string[] = [], overrides: Partial<Book> = {}): Book {
   return {
     id,
     libraryId: 1,
     libraryName: 'Library',
+    ...overrides,
     metadata: {
       bookId: id,
       title,
       authors,
+      ...overrides.metadata,
     },
   } as Book;
 }
@@ -34,6 +36,10 @@ function makeBook(id: number, title: string, authors: string[] = []): Book {
 describe('CommandPaletteService', () => {
   let service: CommandPaletteService;
   let books = signal<Book[]>([]);
+  let urlHelper: {
+    getThumbnailUrl: ReturnType<typeof vi.fn>;
+    getAudiobookThumbnailUrl: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -45,6 +51,10 @@ describe('CommandPaletteService', () => {
       makeBook(2, 'The Fellowship of the Ring', ['J.R.R. Tolkien']),
       makeBook(3, 'Dune', ['Frank Herbert']),
     ]);
+    urlHelper = {
+      getThumbnailUrl: vi.fn(() => null),
+      getAudiobookThumbnailUrl: vi.fn(() => null),
+    };
 
     TestBed.configureTestingModule({
       imports: [getTranslocoModule()],
@@ -55,7 +65,7 @@ describe('CommandPaletteService', () => {
         { provide: MagicShelfService, useValue: { shelves: signal([]) } },
         { provide: LibraryService, useValue: { libraries: signal([]) } },
         { provide: UserService, useValue: { currentUser: signal({ permissions: {} }) } },
-        { provide: UrlHelperService, useValue: { getThumbnailUrl: vi.fn(() => null) } },
+        { provide: UrlHelperService, useValue: urlHelper },
         { provide: IconService, useValue: { getSvgIconContent: vi.fn(() => of('')) } },
         {
           provide: DialogLauncherService,
@@ -114,5 +124,32 @@ describe('CommandPaletteService', () => {
 
     expect(service.groups()).toEqual([]);
     expect(service.visibleItems()).toEqual([]);
+  });
+
+  it('uses square audiobook metadata and audiobook thumbnails for audiobook results', async () => {
+    urlHelper.getAudiobookThumbnailUrl.mockReturnValue('/audio-thumb.jpg');
+    books.set([
+      makeBook(4, 'Audio Sample', ['Narrator'], {
+        primaryFile: { id: 4, bookId: 4, bookType: 'AUDIOBOOK' },
+        metadata: {
+          bookId: 4,
+          title: 'Audio Sample',
+          authors: ['Narrator'],
+          audiobookCoverUpdatedOn: 'audio-updated',
+        },
+      }),
+    ]);
+
+    service.query.set('audio');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+
+    const book = service.groups().find((group) => group.kind === 'book')?.items[0];
+
+    expect(book?.bookMeta?.isAudiobook).toBe(true);
+    expect(book?.bookMeta?.thumbnailUrl).toBe('/audio-thumb.jpg');
+    expect(urlHelper.getAudiobookThumbnailUrl).toHaveBeenCalledWith(4, 'audio-updated');
+    expect(urlHelper.getThumbnailUrl).not.toHaveBeenCalled();
   });
 });
