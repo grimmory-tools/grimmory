@@ -1142,10 +1142,10 @@ export class BookBrowserComponent implements AfterViewInit {
       : currentColumns - 1);
   }
 
-  private setMobileColumns(columns: number): void {
-    const clampedColumns = Math.min(MAX_MOBILE_GRID_COLUMNS, Math.max(MIN_MOBILE_GRID_COLUMNS, columns));
-    this.gridMobileColumnCount.set(clampedColumns);
-    this.localStorageService.set(MOBILE_COLUMNS_STORAGE_KEY, clampedColumns);
+  private setMobileColumns(columns: unknown): void {
+    const normalizedColumns = this.toMobileGridColumns(columns);
+    this.gridMobileColumnCount.set(normalizedColumns);
+    this.localStorageService.set(MOBILE_COLUMNS_STORAGE_KEY, normalizedColumns);
   }
 
   private adjustDesktopGridDensity(direction: GridDensityDirection): void {
@@ -1167,9 +1167,17 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   private loadMobileColumnsPreference(): void {
-    const saved = this.localStorageService.get<number>(MOBILE_COLUMNS_STORAGE_KEY);
-    if (saved !== null && saved >= MIN_MOBILE_GRID_COLUMNS && saved <= MAX_MOBILE_GRID_COLUMNS) {
-      this.gridMobileColumnCount.set(saved);
+    const saved = this.localStorageService.get<unknown>(MOBILE_COLUMNS_STORAGE_KEY);
+    if (saved !== null) {
+      this.setMobileColumns(saved);
     }
+  }
+
+  private toMobileGridColumns(value: unknown): number {
+    const columns = Number(value);
+    if (!Number.isFinite(columns)) {
+      return DEFAULT_MOBILE_GRID_COLUMNS;
+    }
+    return Math.min(MAX_MOBILE_GRID_COLUMNS, Math.max(MIN_MOBILE_GRID_COLUMNS, Math.round(columns)));
   }
 }
