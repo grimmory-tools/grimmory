@@ -36,177 +36,176 @@ export class LibraryShelfMenuService {
 
   initializeLibraryMenuItems(entity: Library | null): MenuItem[] {
     const libraryId = entity?.id;
-    const disableLibraryActions = libraryId == null;
 
     return [
       {
-        label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
-        icon: 'pi pi-book',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
-        }
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
-        icon: 'pi pi-barcode',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
-        }
-      },
-      {
-        separator: true
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.editLibrary'),
-        icon: 'pi pi-pen-to-square',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.dialogLauncherService.openLibraryEditDialog(libraryId);
-        }
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.rescanLibrary'),
-        icon: 'pi pi-refresh',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.confirmationService.confirm({
-            message: this.t.translate('book.shelfMenuService.confirm.rescanLibraryMessage', {name: entity?.name}),
-            header: this.t.translate('book.shelfMenuService.confirm.header'),
-            icon: undefined,
-            acceptLabel: this.t.translate('book.shelfMenuService.confirm.rescanLabel'),
-            rejectLabel: this.t.translate('common.cancel'),
-            acceptIcon: undefined,
-            rejectIcon: undefined,
-            acceptButtonStyleClass: undefined,
-            rejectButtonStyleClass: undefined,
-            rejectButtonProps: {
-              label: this.t.translate('common.cancel'),
-              severity: 'secondary',
-            },
-            acceptButtonProps: {
-              label: this.t.translate('book.shelfMenuService.confirm.rescanLabel'),
-              severity: 'success',
-            },
-            accept: () => {
-              this.libraryService.refreshLibrary(libraryId).subscribe({
-                complete: () => {
-                  this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshSuccessDetail')});
+        label: this.t.translate('book.shelfMenuService.library.optionsLabel'),
+        items: [
+          {
+            label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
+            icon: 'pi pi-book',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
+            }
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
+            icon: 'pi pi-barcode',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
+            }
+          },
+          {
+            separator: true
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.editLibrary'),
+            icon: 'pi pi-pen-to-square',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.dialogLauncherService.openLibraryEditDialog(libraryId);
+            }
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.rescanLibrary'),
+            icon: 'pi pi-refresh',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.confirmationService.confirm({
+                message: this.t.translate('book.shelfMenuService.confirm.rescanLibraryMessage', {name: entity?.name}),
+                header: this.t.translate('book.shelfMenuService.confirm.header'),
+                icon: undefined,
+                acceptLabel: this.t.translate('book.shelfMenuService.confirm.rescanLabel'),
+                rejectLabel: this.t.translate('common.cancel'),
+                acceptIcon: undefined,
+                rejectIcon: undefined,
+                acceptButtonStyleClass: undefined,
+                rejectButtonStyleClass: undefined,
+                rejectButtonProps: {
+                  label: this.t.translate('common.cancel'),
+                  severity: 'secondary',
                 },
-                error: () => {
-                  this.messageService.add({
-                    severity: 'error',
-                    summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                    detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshFailedDetail'),
+                acceptButtonProps: {
+                  label: this.t.translate('book.shelfMenuService.confirm.rescanLabel'),
+                  severity: 'success',
+                },
+                accept: () => {
+                  this.libraryService.refreshLibrary(libraryId).subscribe({
+                    complete: () => {
+                      this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshSuccessDetail')});
+                    },
+                    error: () => {
+                      this.messageService.add({
+                        severity: 'error',
+                        summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                        detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshFailedDetail'),
+                      });
+                    }
                   });
                 }
               });
             }
-          });
-        }
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
-        icon: 'pi pi-sync',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.dialogLauncherService.openLibraryMetadataFetchDialog(libraryId);
-        }
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.autoFetchMetadata'),
-        icon: 'pi pi-bolt',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.taskHelperService.refreshMetadataTask({
-            refreshType: MetadataRefreshType.LIBRARY,
-            libraryId
-          }).subscribe();
-        }
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
-        icon: 'pi pi-copy',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
-        }
-      },
-      {
-        separator: true
-      },
-      {
-        label: this.t.translate('book.shelfMenuService.library.deleteLibrary'),
-        icon: 'pi pi-trash',
-        disabled: disableLibraryActions,
-        command: () => {
-          if (libraryId == null) {
-            return;
-          }
-
-          this.confirmationService.confirm({
-            message: this.t.translate('book.shelfMenuService.confirm.deleteLibraryMessage', {name: entity?.name}),
-            header: this.t.translate('book.shelfMenuService.confirm.header'),
-            acceptLabel: this.t.translate('common.yes'),
-            rejectLabel: this.t.translate('common.cancel'),
-            rejectButtonProps: {
-              label: this.t.translate('common.cancel'),
-              severity: 'secondary',
-            },
-            acceptButtonProps: {
-              label: this.t.translate('common.yes'),
-              severity: 'danger',
-            },
-            accept: () => {
-              const loader = this.loadingService.show(this.t.translate('book.shelfMenuService.loading.deletingLibrary', {name: entity?.name}));
-
-              this.libraryService.deleteLibrary(libraryId)
-                .pipe(finalize(() => this.loadingService.hide(loader)))
-                .subscribe({
-                  complete: () => {
-                    this.router.navigate(['/']);
-                    this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryDeletedDetail')});
-                  },
-                  error: () => {
-                    this.messageService.add({
-                      severity: 'error',
-                      summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                      detail: this.t.translate('book.shelfMenuService.toast.libraryDeleteFailedDetail'),
-                    });
-                  }
-                });
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
+            icon: 'pi pi-sync',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                metadataRefreshType: MetadataRefreshType.LIBRARY,
+                libraryId
+              });
             }
-          });
-        }
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.autoFetchMetadata'),
+            icon: 'pi pi-bolt',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.taskHelperService.refreshMetadataTask({
+                refreshType: MetadataRefreshType.LIBRARY,
+                libraryId
+              }).subscribe();
+            }
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
+            icon: 'pi pi-copy',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
+            }
+          },
+          {
+            separator: true
+          },
+          {
+            label: this.t.translate('book.shelfMenuService.library.deleteLibrary'),
+            icon: 'pi pi-trash',
+            disabled: libraryId == null,
+            command: () => {
+              if (libraryId == null) {
+                return;
+              }
+              this.confirmationService.confirm({
+                message: this.t.translate('book.shelfMenuService.confirm.deleteLibraryMessage', {name: entity?.name}),
+                header: this.t.translate('book.shelfMenuService.confirm.header'),
+                acceptLabel: this.t.translate('common.yes'),
+                rejectLabel: this.t.translate('common.cancel'),
+                rejectButtonProps: {
+                  label: this.t.translate('common.cancel'),
+                  severity: 'secondary',
+                },
+                acceptButtonProps: {
+                  label: this.t.translate('common.yes'),
+                  severity: 'danger',
+                },
+                accept: () => {
+                  const loader = this.loadingService.show(this.t.translate('book.shelfMenuService.loading.deletingLibrary', {name: entity?.name}));
+
+                  this.libraryService.deleteLibrary(libraryId)
+                    .pipe(finalize(() => this.loadingService.hide(loader)))
+                    .subscribe({
+                      complete: () => {
+                        this.router.navigate(['/']);
+                        this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryDeletedDetail')});
+                      },
+                      error: () => {
+                        this.messageService.add({
+                          severity: 'error',
+                          summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                          detail: this.t.translate('book.shelfMenuService.toast.libraryDeleteFailedDetail'),
+                        });
+                      }
+                    });
+                }
+              });
+            }
+          }
+        ]
       }
     ];
   }
