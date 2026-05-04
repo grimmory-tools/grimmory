@@ -1,6 +1,7 @@
 package org.booklore.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -11,7 +12,10 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
+@RequiredArgsConstructor
 public class CacheConfig {
+
+    private final CacheProperties cacheProperties;
 
     @Bean
     public CacheManager cacheManager() {
@@ -31,8 +35,8 @@ public class CacheConfig {
                 "changelog"
         );
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofHours(24))
-                .maximumSize(1000));
+                .expireAfterWrite(cacheProperties.getTtl())
+                .maximumSize(cacheProperties.getMaximumSize()));
         return cacheManager;
     }
 }

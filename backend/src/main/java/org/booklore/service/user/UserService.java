@@ -47,6 +47,7 @@ public class UserService {
                 .toList();
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "libraries-by-user", key = "#id")
     @Transactional
     public BookLoreUser updateUser(Long id, UserUpdateRequest updateRequest) {
         BookLoreUserEntity user = userRepository.findByIdWithDetails(id).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(id));
@@ -69,6 +70,7 @@ public class UserService {
         return bookLoreUserTransformer.toDTO(user);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "libraries-by-user", key = "#id")
     @Transactional
     public void deleteUser(Long id) {
         BookLoreUserEntity userToDelete = userRepository.findById(id).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(id));

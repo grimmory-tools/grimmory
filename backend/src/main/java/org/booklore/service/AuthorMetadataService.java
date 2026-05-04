@@ -367,8 +367,8 @@ public class AuthorMetadataService {
         return details;
     }
 
-    @Cacheable(value = "author-by-name", key = "#name?.toLowerCase()")
-    AuthorDetails getAuthorByNameInternal(String name) {
+    @Cacheable(value = "author-by-name", key = "#name?.toLowerCase() + '-' + @authenticationService.getAuthenticatedUser().id")
+    public AuthorDetails getAuthorByNameInternal(String name) {
         AuthorEntity author = authorRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(name));
         return toAuthorDetails(author);
@@ -380,7 +380,7 @@ public class AuthorMetadataService {
     }
 
     @Cacheable(value = "author-by-id", key = "#authorId")
-    AuthorDetails getAuthorDetailsInternal(Long authorId) {
+    public AuthorDetails getAuthorDetailsInternal(Long authorId) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
         return toAuthorDetails(author);
