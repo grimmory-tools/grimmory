@@ -118,6 +118,21 @@ public class SidecarMetadataReader {
         return Files.exists(sidecarPath);
     }
 
+    public long getSidecarLastModified(Path bookPath) {
+        if (bookPath == null) {
+            return 0L;
+        }
+        Path sidecarPath = getSidecarPath(bookPath);
+        try {
+            if (Files.exists(sidecarPath)) {
+                return Files.getLastModifiedTime(sidecarPath).toMillis();
+            }
+        } catch (IOException e) {
+            log.warn("Failed to get last modified time for sidecar {}: {}", sidecarPath, e.getMessage());
+        }
+        return 0L;
+    }
+
     public Path getSidecarPath(Path bookPath) {
         String fileName = bookPath.getFileName().toString();
         int dotIndex = fileName.lastIndexOf('.');

@@ -11,10 +11,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Tag(name = "Icons", description = "Endpoints for managing SVG icons")
@@ -46,10 +51,16 @@ public class IconController {
     @Operation(summary = "Get SVG icon content", description = "Retrieve the SVG content of an icon by its name.")
     @ApiResponse(responseCode = "200", description = "SVG icon content retrieved successfully")
     @GetMapping("/{svgName}/content")
-    public ResponseEntity<String> getSvgIconContent(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<String> getSvgIconContent(WebRequest request, @Parameter(description = "SVG icon name") @PathVariable String svgName) {
         String svgContent = iconService.getSvgIcon(svgName);
+        String etag = Integer.toHexString(svgContent.hashCode());
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
         return ResponseEntity.ok()
-                .header("Content-Type", "image/svg+xml")
+                .contentType(MediaType.valueOf("image/svg+xml"))
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
+                .eTag(etag)
                 .body(svgContent);
     }
 
@@ -75,8 +86,15 @@ public class IconController {
     @Operation(summary = "Get all icon contents", description = "Retrieve all SVG icons as a map of icon names to their content.")
     @ApiResponse(responseCode = "200", description = "All icon contents retrieved successfully")
     @GetMapping("/all/content")
-    public ResponseEntity<Map<String, String>> getAllIconsContent() {
+    public ResponseEntity<Map<String, String>> getAllIconsContent(WebRequest request) {
+        String etag = Long.toHexString(iconService.getIconsLastModified());
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
         Map<String, String> iconsMap = iconService.getAllIconsContent();
-        return ResponseEntity.ok(iconsMap);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
+                .eTag(etag)
+                .body(iconsMap);
     }
 }
