@@ -202,6 +202,13 @@ public class AppBookSpecification {
         return (root, query, cb) -> cb.isNotEmpty(root.get("bookFiles"));
     }
 
+    public static Specification<BookEntity> hasDigitalFileOrIsPhysical() {
+        return (root, query, cb) -> cb.or(
+                cb.isNotEmpty(root.get("bookFiles")),
+                cb.equal(root.get("isPhysical"), true)
+        );
+    }
+
     public static Specification<BookEntity> hasAudiobookFile() {
         return (root, query, cb) -> {
             Subquery<Long> subquery = query.subquery(Long.class);

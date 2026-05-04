@@ -32,7 +32,9 @@ public class KoboInitializationService {
             Map.entry("library_search", new String[]{"v1", "library", "search"}),
             Map.entry("library_sync", new String[]{"v1", "library", "sync"}),
             Map.entry("post_analytics_event", new String[]{"v1", "analytics", "event"}),
-            Map.entry("reading_state", new String[]{"v1", "library", "{Ids}", "state"})
+            Map.entry("reading_state", new String[]{"v1", "library", "{Ids}", "state"}),
+            Map.entry("user_profile", new String[]{"v1", "user", "profile"}),
+            Map.entry("deals", new String[]{"v1", "deals"})
     );
 
     private boolean isForwardingToKoboStore() {

@@ -25,5 +25,6 @@
   "libraryPathInaccessible": "Könyvtár elérési útvonal elérhetetlen",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

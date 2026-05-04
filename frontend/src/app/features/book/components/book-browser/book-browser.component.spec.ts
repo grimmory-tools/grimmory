@@ -33,6 +33,8 @@ import {SortService} from '../../service/sort.service';
 import {TranslocoService} from '@jsverse/transloco';
 import {AppBooksApiService} from '../../service/app-books-api.service';
 import {AppBookFilters, AppBookSort} from '../../model/app-book.model';
+import {LayoutService} from '../../../../shared/layout/layout.service';
+import {type VirtualGridMetrics} from '../../../../shared/util/virtual-grid.util';
 
 function makeBook(id: number, libraryId: number, title: string, addedOn: string): Book {
   return {
@@ -261,6 +263,7 @@ function createHarness(options?: {
         },
       },
       {provide: AppSettingsService, useValue: {appSettings: vi.fn(() => null)}},
+      {provide: LayoutService, useValue: {sidebarTransitioning: signal(false)}},
       {
         provide: ActivatedRoute,
         useValue: {
@@ -468,6 +471,23 @@ describe('BookBrowserComponent', () => {
 
     expect(component.showBooksLoadingPlaceholder()).toBe(false);
     expect(component.showTableLoadingPlaceholder()).toBe(false);
+  });
+
+  it('sizes grid loading placeholders to fill the viewport', () => {
+    const {component} = createHarness({books: [], isBooksLoading: true});
+    const loadingGrid = component as unknown as {
+      minimumLoadingGridItemCount(metrics: VirtualGridMetrics): number;
+    };
+
+    component.currentViewMode.set(VIEW_MODES.GRID);
+
+    expect(loadingGrid.minimumLoadingGridItemCount({
+      viewportWidth: 960,
+      viewportHeight: 900,
+      columns: 6,
+      itemHeight: 200,
+      gap: 20,
+    })).toBe(36);
   });
 
   it('calls SeriesCollapseFilter.collapseBooks when computing books', () => {

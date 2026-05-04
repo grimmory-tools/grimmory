@@ -1,32 +1,35 @@
+/*
+ * App-owned design tokens.
+ *
+ * Keep this file to CSS variables that define app-level color,
+ * spacing, type, radius, focus, shadow, and motion decisions. Do not add
+ * selectors, component rules, or PrimeNG overrides here.
+ *
+ * These values are the static defaults. AppConfigService updates the
+ * palette-backed primary and surface tokens at runtime when the saved theme
+ * configuration is applied.
+ */
+
 :root {
-  /* Primary */
-  --primary-color: #4ade80;
-  --primary-color-rgb: 74, 222, 128;
-  --primary-contrast-color: #1a1e21;
-  --primary-hover-color: #86efac;
-  --primary-text-color: #4ade80;
-  --primary-text-color-dark: #14532d;
+  /*
+   * Palette tokens
+   *
+   * Raw shade scales from the selected theme palettes. Prefer semantic tokens
+   * below for ordinary app styling; use shade tokens when a design needs a
+   * specific step in the palette, such as a gradient or tonal variant.
+   */
+  --primary-50: #fff7ed;
+  --primary-100: #ffedd5;
+  --primary-200: #fed7aa;
+  --primary-300: #fdba74;
+  --primary-400: #fb923c;
+  --primary-500: #f97316;
+  --primary-600: #ea580c;
+  --primary-700: #c2410c;
+  --primary-800: #9a3412;
+  --primary-900: #7c2d12;
+  --primary-950: #431407;
 
-  /* Text */
-  --text-color: #ffffff;
-  --text-color-secondary: #b4bcc7;
-  --text-secondary-color: #919ca9;
-  --text-muted-color: #919ca9;
-  --high-contrast-text-color: #ffffff;
-
-  /* Surfaces */
-  --ground-background: #0d1012;
-  --overlay-background: #1a1e21;
-  --card-background: #1a1e21;
-  --content-background: #1a1e21;
-  --code-background: #1a1e21;
-
-  /* Borders */
-  --border-color: #464f56;
-  --content-border-color: #464f56;
-  --card-border: 1px solid transparent;
-
-  /* Surface scale */
   --surface-0: #ffffff;
   --surface-50: #f4f6f8;
   --surface-100: #e6e9ed;
@@ -40,14 +43,116 @@
   --surface-900: #1a1e21;
   --surface-950: #0d1012;
 
+  /*
+   * Semantic tokens
+   *
+   * App-level decisions derived from the palette scales. New native app,
+   * layout, and page styles should use these by default.
+   */
+  --primary-color: var(--primary-400);
+  --primary-color-rgb: 249, 115, 22;
+  --primary-contrast-color: #1a1e21;
+  --primary-hover-color: var(--primary-300);
+  --primary-text-color: var(--primary-400);
+  --primary-text-color-dark: var(--primary-900);
+
+  /* Text */
+  --text-color: #ffffff;
+  --text-color-secondary: #b4bcc7;
+  --text-secondary-color: #919ca9;
+  --text-muted-color: #919ca9;
+  --high-contrast-text-color: #ffffff;
+
+  /* App surfaces */
+  --app-background: #0d1012;
+  --page-background: color-mix(in srgb, var(--surface-900) 82%, var(--surface-950));
+  --surface-content: #1a1e21;
+  --surface-card: color-mix(in srgb, var(--surface-900) 62%, var(--surface-800));
+  --surface-toolbar: color-mix(in srgb, var(--app-background) 70%, var(--surface-content));
+  --surface-overlay: #1a1e21;
+
+  /* Borders */
+  --border-subtle: #34393e;
+  --border-strong: #464f56;
+
   /* Interaction */
-  --surface-hover: color-mix(in srgb, var(--surface-400) 12%, transparent);
-  --surface-border: var(--surface-700);
+  --state-hover: color-mix(in srgb, var(--surface-400) 12%, transparent);
+  --state-active: color-mix(in srgb, var(--primary-color) 8%, transparent);
 
   /* Focus */
   --focus-ring-offset: 2px;
   --focus-ring: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent);
 
   /* Typography */
+  --font-size-root: 14px;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+
+  /* Radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 25%);
+  --shadow-overlay: 0 30px 80px -20px rgb(0 0 0 / 70%), 0 10px 30px -10px rgb(0 0 0 / 50%);
+
+  /* Native page shell */
+  --page-gutter-block: var(--space-5);
+  --page-gutter-inline: var(--space-5);
+  --page-header-gap: var(--space-4);
+  --page-content-gap: var(--space-4);
+
+  /*
+   * Compatibility aliases
+   *
+   * Existing app styles still use these names. Prefer the canonical semantic
+   * tokens above for new native layout and page CSS.
+   */
+  --ground-background: var(--app-background);
+  --overlay-background: var(--surface-overlay);
+  --card-background: var(--surface-card);
+  --content-background: var(--surface-content);
+  --code-background: var(--surface-content);
+  --border-color: var(--border-subtle);
+  --content-border-color: var(--border-subtle);
+  --card-border: 1px solid transparent;
+  --surface-hover: var(--state-hover);
+  --surface-border: var(--border-subtle);
+
+  /* Book format colors */
+  --book-type-pdf-color: #dc2626;
+  --book-type-epub-color: #16a34a;
+  --book-type-cbx-color: #3b82f6;
+  --book-type-cbz-color: #06b6d4;
+  --book-type-cbr-color: #f97316;
+  --book-type-cb7-color: #8b5cf6;
+  --book-type-fb2-color: #ec4899;
+  --book-type-mobi-color: #6366f1;
+  --book-type-azw3-color: #14b8a6;
+  --book-type-audiobook-color: #eab308;
+  --book-type-m4b-color: #eab308;
+  --book-type-mp3-color: #84cc16;
+  --book-type-m4a-color: #f43f5e;
+  --book-type-opus-color: #06b6d4;
+  --book-type-physical-color: #8b5cf6;
 }
