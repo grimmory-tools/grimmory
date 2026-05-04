@@ -194,6 +194,10 @@ dependencies {
     testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 hibernate {
     enhancement {
         enableAssociationManagement = false
