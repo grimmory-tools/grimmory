@@ -1,4 +1,4 @@
-import { signal, WritableSignal } from '@angular/core';
+import { computed, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -55,6 +55,7 @@ describe('AppMenuComponent', () => {
   const layoutService = {
     sidebarCollapsed: signal(false),
     isDesktop: signal(true),
+    desktopSidebarCollapsed: computed(() => layoutService.isDesktop() && layoutService.sidebarCollapsed()),
     librarySort: signal({ field: 'name', order: 'desc' }),
     shelfSort: signal({ field: 'name', order: 'asc' }),
     magicShelfSort: signal({ field: 'name', order: 'asc' }),
