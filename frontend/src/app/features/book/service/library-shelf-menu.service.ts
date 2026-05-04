@@ -36,7 +36,6 @@ export class LibraryShelfMenuService {
 
   initializeLibraryMenuItems(entity: Library | null): MenuItem[] {
     const libraryId = entity?.id;
-    const disableLibraryActions = libraryId == null;
 
     return [
       {
