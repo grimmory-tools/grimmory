@@ -33,7 +33,7 @@ public class UserContentRestrictionEntity {
     @Enumerated(EnumType.STRING)
     private ContentRestrictionMode mode;
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "\"value\"", nullable = false)
     private String value;
 
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -7,9 +7,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import org.booklore.config.AppProperties;
 import org.booklore.config.BookmarkProperties;
+import org.booklore.config.CacheProperties;
 
 @EnableScheduling
-@EnableConfigurationProperties({AppProperties.class, BookmarkProperties.class})
+@EnableConfigurationProperties({AppProperties.class, BookmarkProperties.class, CacheProperties.class})
 @SpringBootApplication
 public class BookloreApplication {
 
