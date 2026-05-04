@@ -12,6 +12,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.projection.BookEmbeddingProjection;
 import org.booklore.service.book.BookQueryService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class BookRecommendationService {
 
     private static final int MAX_BOOKS_PER_AUTHOR = 3;
 
+    @Cacheable(value = "recommendations", key = "#bookId + '-' + #limit + '-' + @authenticationService.getAuthenticatedUser().id")
     @Transactional
     public List<BookRecommendation> getRecommendations(Long bookId, int limit) {
         BookEntity book = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
