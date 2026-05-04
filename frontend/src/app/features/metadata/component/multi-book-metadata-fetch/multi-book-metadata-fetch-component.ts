@@ -51,8 +51,8 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['dialogData']?.currentValue) {
-      this.applyContext(changes['dialogData'].currentValue);
+    if ('dialogData' in changes) {
+      this.applyContext(changes['dialogData'].currentValue ?? {});
     }
   }
 
