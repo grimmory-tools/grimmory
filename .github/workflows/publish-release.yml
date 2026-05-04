@@ -73,6 +73,45 @@ jobs:
             type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
 
+  publish-helm-chart:
+    name: Publish Helm Chart to GHCR
+    needs:
+      - build-and-release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          ref: ${{ github.sha }}
+
+      - name: Set Up Helm
+        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
+
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Package and Push Helm Chart
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -eu
+          VERSION="${RELEASE_TAG#v}"
+          helm dependency update deploy/helm/grimmory
+          helm package deploy/helm/grimmory \
+            --version "${VERSION}" \
+            --app-version "${RELEASE_TAG}"
+          helm push "grimmory-${VERSION}.tgz" "oci://ghcr.io/${{ github.repository_owner }}/helm-charts"
+
   prepare-release-notification:
     name: Prepare Stable Release Notification
     needs:
@@ -132,6 +171,7 @@ jobs:
     name: Notify Discord Release
     needs:
       - prepare-release-notification
+      - publish-helm-chart
     if: ${{ needs.prepare-release-notification.outputs.available == 'true' }}
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml

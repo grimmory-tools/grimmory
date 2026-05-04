@@ -128,17 +128,17 @@
                       <button
                         type="button"
                         class="browser-grid-option-btn"
-                        [class.active]="mobileColumnCount() === 2"
+                        [class.active]="gridMobileColumnCount() === 2"
                         (click)="setMobileColumns(2)">2</button>
                       <button
                         type="button"
                         class="browser-grid-option-btn"
-                        [class.active]="mobileColumnCount() === 3"
+                        [class.active]="gridMobileColumnCount() === 3"
                         (click)="setMobileColumns(3)">3</button>
                       <button
                         type="button"
                         class="browser-grid-option-btn"
-                        [class.active]="mobileColumnCount() === 4"
+                        [class.active]="gridMobileColumnCount() === 4"
                         (click)="setMobileColumns(4)">4</button>
                     </div>
                   </div>
@@ -253,38 +253,20 @@
       </div>
     </div>
 
-    @if (showTableLoadingPlaceholder()) {
-      <div class="table-skeleton" aria-hidden="true">
-        <div class="table-skeleton-header">
-          @for (column of tableSkeletonColumns; track column) {
-            <div class="table-skeleton-cell table-skeleton-cell-header"></div>
-          }
-        </div>
-
-        @for (row of tableSkeletonRows; track row) {
-          <div class="table-skeleton-row">
-            @for (column of tableSkeletonColumns; track column) {
-              <div class="table-skeleton-cell" [class.table-skeleton-cell-short]="column !== 0"></div>
-            }
-          </div>
-        }
-      </div>
-    } @else if (showGridLoadingPlaceholder()) {
-      <div #scrollElement class="virtual-scroller">
-        <div class="skeleton-grid"
-          [style.grid-template-columns]="'repeat(auto-fill, minmax(' + skeletonMinCardWidth() + ', 1fr))'">
-          @for (item of skeletonSlots; track item) {
-            <div class="skeleton-card"
-              [style.width.px]="currentCardSize().width"
-              [style.height.px]="currentCardSize().height">
-            </div>
-          }
-        </div>
-      </div>
-    } @else if (booksError()) {
+    @if (booksError()) {
       <div class="no-books-container">
         <p class="no-books-text">
-          {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
+          @switch (entityType()) {
+            @case (EntityType.LIBRARY) {
+              {{ t('labels.failedLibrary') }}
+            }
+            @case (EntityType.SHELF) {
+              {{ t('labels.failedShelf') }}
+            }
+            @default {
+              {{ t('labels.failedBooks') }}
+            }
+          }
         </p>
       </div>
     } @else {
@@ -296,14 +278,17 @@
           </p>
         </div>
       }
-      @if (currentViewMode() === 'table' && visibleBooks.length > 0) {
+      @if (currentViewMode() === 'table' && (visibleBooks.length > 0 || showTableLoadingPlaceholder())) {
         <app-book-table
           [books]="visibleBooks"
-          [preselectedBookIds]="selectedBooks()"
-          (selectedBooksChange)="onSelectedBooksChange($event)"
+          [virtualRowCount]="virtualRowCount()"
+          [loadedBookCount]="loadedBookCount()"
+          [isFetchingNextPage]="isFetchingNextBooksPage()"
+          [bookQueryToken]="bookQueryToken()"
           (selectAllRequested)="selectAllBooks()"
-          [sortOption]="this.bookSorter.selectedSort!"
+          (loadNextPage)="loadNextBooksPage()"
           [visibleColumns]="visibleColumns()"
+          [useSquareCovers]="isAudiobookOnlyLibrary()"
         ></app-book-table>
       }
       @if (currentViewMode() === 'grid') {
