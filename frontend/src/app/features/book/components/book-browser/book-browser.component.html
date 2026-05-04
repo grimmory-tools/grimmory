@@ -446,6 +446,8 @@
     [showFilter]="showFilter()"
     class="filter-overlay-container"
     [ngClass]="{ 'active': showFilter() }"
+    [entity]="entity()"
+    [entityType]="entityType()"
     [style.display]="showFilter() ? '' : 'none'"
     (filterSelected)="onFilterSelected($event)"
     (filterModeChanged)="onFilterModeChanged($event)">
