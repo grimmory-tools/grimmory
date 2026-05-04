@@ -318,4 +318,42 @@ class BookReviewUpdateServiceTest {
         assertThat(created.getCountry()).isEqualTo("US");
         assertThat(created.getBookMetadata()).isSameAs(entity);
     }
+
+    @Test
+    void reviewEntityFieldsAreTruncatedCorrectly() {
+        BookMetadataEntity entity = entityWithReviews(new HashSet<>());
+        BookReview review = BookReview.builder()
+                .metadataProvider(MetadataProvider.Hardcover)
+                .reviewerName("A".repeat(1024))
+                .title("A".repeat(1024))
+                .country("A".repeat(1024))
+                .build();
+
+        BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+
+        BookReviewEntity created = entity.getReviews().iterator().next();
+        assertThat(created.getReviewerName()).hasSize(512);
+        assertThat(created.getTitle()).hasSize(512);
+        assertThat(created.getCountry()).hasSize(512);
+    }
+
+    @Test
+    void reviewEntityFieldsNullAreNotTruncated() {
+        BookMetadataEntity entity = entityWithReviews(new HashSet<>());
+        BookReview review = BookReview.builder()
+                .metadataProvider(MetadataProvider.Hardcover)
+                .reviewerName(null)
+                .title(null)
+                .country(null)
+                .build();
+
+        BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+
+        BookReviewEntity created = entity.getReviews().iterator().next();
+        assertThat(created.getReviewerName()).isNull();
+        assertThat(created.getTitle()).isNull();
+        assertThat(created.getCountry()).isNull();
+    }
 }

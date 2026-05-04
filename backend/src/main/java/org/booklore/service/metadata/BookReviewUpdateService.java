@@ -60,19 +60,24 @@ public class BookReviewUpdateService {
         entity.getReviews().addAll(newReviews);
     }
 
+    private static String truncate(String input, int maxLength) {
+        if (input == null) return null;
+        return input.length() <= maxLength ? input : input.substring(0, maxLength);
+    }
+
     private BookReviewEntity createReviewEntity(BookReview review, BookMetadataEntity entity) {
         return BookReviewEntity.builder()
                 .bookMetadata(entity)
                 .metadataProvider(review.getMetadataProvider())
-                .reviewerName(review.getReviewerName())
-                .title(review.getTitle())
+                .reviewerName(truncate(review.getReviewerName(), 512))
+                .title(truncate(review.getTitle(), 512))
                 .rating(review.getRating())
                 .date(review.getDate())
                 .body(review.getBody())
                 .spoiler(review.getSpoiler())
                 .followersCount(review.getFollowersCount())
                 .textReviewsCount(review.getTextReviewsCount())
-                .country(review.getCountry())
+                .country(truncate(review.getCountry(), 512))
                 .build();
     }
 
