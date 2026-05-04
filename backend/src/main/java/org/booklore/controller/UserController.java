@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<BookLoreUser> getMyself() {
         return ResponseEntity.ok()
-                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .cacheControl(CacheControl.noStore())
                 .body(userService.getMyself());
     }
 

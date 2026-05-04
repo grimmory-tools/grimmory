@@ -18,9 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.Duration;
 import java.util.Map;
-import java.util.Optional;
 
 @Tag(name = "Sidecar Metadata", description = "Endpoints for managing sidecar JSON metadata files")
 @RequestMapping("/api/v1")
@@ -50,11 +48,14 @@ public class SidecarController {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
-        return sidecarResponse.getMetadata().map(metadata -> ResponseEntity.ok()
-                        .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                        .eTag(etag)
-                        .body(metadata))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        SidecarMetadata metadata = sidecarResponse.getMetadata();
+        if (metadata == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .eTag(etag)
+                .body(metadata);
     }
 
     @Operation(summary = "Get sidecar sync status", description = "Get the synchronization status between database and sidecar file")

@@ -7,6 +7,7 @@ import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
+import org.booklore.model.dto.sidecar.SidecarResponse;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.enums.MetadataReplaceMode;
@@ -46,24 +47,24 @@ public class SidecarService {
         return sidecarReader.readSidecarMetadata(bookPath);
     }
 
-    public org.booklore.model.dto.sidecar.SidecarResponse getSidecarResponse(Long bookId) {
+    public SidecarResponse getSidecarResponse(Long bookId) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         Path bookPath = book.getFullFilePath();
         if (bookPath == null) {
-            return org.booklore.model.dto.sidecar.SidecarResponse.builder()
+            return SidecarResponse.builder()
                     .lastModified(0L)
-                    .metadata(Optional.empty())
+                    .metadata(null)
                     .build();
         }
 
         long lastModified = sidecarReader.getSidecarLastModified(bookPath);
-        Optional<SidecarMetadata> metadata = lastModified == 0L
-                ? Optional.empty()
-                : sidecarReader.readSidecarMetadata(bookPath);
+        SidecarMetadata metadata = lastModified == 0L
+                ? null
+                : sidecarReader.readSidecarMetadata(bookPath).orElse(null);
 
-        return org.booklore.model.dto.sidecar.SidecarResponse.builder()
+        return SidecarResponse.builder()
                 .lastModified(lastModified)
                 .metadata(metadata)
                 .build();

@@ -72,7 +72,7 @@ public class EpubReaderController {
 
         if (etag != null && request.checkNotModified(etag)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            response.setHeader(HttpHeaders.ETAG, etag);
+            response.setHeader(HttpHeaders.ETAG, "\"" + etag + "\"");
             return;
         }
 
@@ -99,7 +99,7 @@ public class EpubReaderController {
         response.setHeader(HttpHeaders.CACHE_CONTROL,
                 CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate().getHeaderValue());
         if (etag != null) {
-            response.setHeader(HttpHeaders.ETAG, etag);
+            response.setHeader(HttpHeaders.ETAG, "\"" + etag + "\"");
         }
 
         try {

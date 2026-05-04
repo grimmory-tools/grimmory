@@ -41,7 +41,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+
+import java.time.Duration;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -74,7 +77,7 @@ public class BookController {
             @Parameter(description = "Remove other metadata fields from the response")
             @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
         return ResponseEntity.ok()
-                .header("Cache-Control", "private, max-age=60")
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePrivate())
                 .body(bookService.getBookDTOs(withDescription, stripForListView));
     }
 

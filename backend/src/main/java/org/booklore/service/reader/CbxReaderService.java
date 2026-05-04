@@ -229,13 +229,13 @@ public class CbxReaderService {
             CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
             return metadata.lastModified();
         } catch (IOException e) {
+            log.warn("Failed to get last modified for CBX book {}: {}", bookId, e.getMessage());
             return 0L;
         }
     }
 
     /**
      * Reads image dimensions for all pages using only image headers (a few KB
-     * per page) instead of loading the full image.
      * <p>
      * For ZIP/CBZ archives the fast path uses {@link java.util.zip.ZipFile}
      * which supports random access, so each entry stream feeds directly into

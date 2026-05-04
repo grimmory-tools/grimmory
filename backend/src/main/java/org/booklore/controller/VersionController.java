@@ -33,7 +33,7 @@ public class VersionController {
         VersionInfo info = versionService.getVersionInfo();
         String etag = Integer.toHexString(info.hashCode());
         if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())
@@ -54,7 +54,7 @@ public class VersionController {
 
         String etag = Integer.toHexString(changelog.hashCode());
         if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())

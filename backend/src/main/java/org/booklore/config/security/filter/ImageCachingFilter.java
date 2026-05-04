@@ -20,7 +20,7 @@ public class ImageCachingFilter extends OncePerRequestFilter {
             (uri.contains("/cover") || uri.contains("/thumbnail") || uri.contains("/backup-cover") ||
              uri.contains("/cbx/pages/"))) {
             response.setHeader(HttpHeaders.CACHE_CONTROL, "private, max-age=3600");
-            response.setHeader(HttpHeaders.EXPIRES, String.valueOf(System.currentTimeMillis() + 3600_000));
+            response.setDateHeader(HttpHeaders.EXPIRES, System.currentTimeMillis() + 3600_000);
         }
         filterChain.doFilter(request, response);
     }

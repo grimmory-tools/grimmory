@@ -40,13 +40,14 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
-        String etag = hash != null ? hash : String.valueOf(bookId);
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (hash != null && request.checkNotModified(hash)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
-                .eTag(etag)
+                .cacheControl(hash != null
+                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
+                        : CacheControl.noCache())
+                .eTag(hash)
                 .body(bookService.getBookThumbnail(bookId));
     }
 
@@ -56,13 +57,14 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
-        String etag = hash != null ? hash : String.valueOf(bookId);
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (hash != null && request.checkNotModified(hash)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
-                .eTag(etag)
+                .cacheControl(hash != null
+                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
+                        : CacheControl.noCache())
+                .eTag(hash)
                 .body(bookService.getBookCover(bookId));
     }
 
@@ -72,13 +74,14 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
-        String etag = hash != null ? hash : String.valueOf(bookId);
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (hash != null && request.checkNotModified(hash)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
-                .eTag(etag)
+                .cacheControl(hash != null
+                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
+                        : CacheControl.noCache())
+                .eTag(hash)
                 .body(bookService.getAudiobookThumbnail(bookId));
     }
 
@@ -88,13 +91,14 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
-        String etag = hash != null ? hash : String.valueOf(bookId);
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (hash != null && request.checkNotModified(hash)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
-                .eTag(etag)
+                .cacheControl(hash != null
+                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
+                        : CacheControl.noCache())
+                .eTag(hash)
                 .body(bookService.getAudiobookCover(bookId));
     }
 

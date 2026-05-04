@@ -29,7 +29,7 @@ public class PublicAppSettingController {
     @GetMapping
     public ResponseEntity<PublicAppSetting> getPublicSettings(WebRequest request) {
         PublicAppSetting settings = appSettingService.getPublicSettings();
-        String etag = Long.toHexString(settings.hashCode());
+        String etag = Integer.toHexString(settings.hashCode());
 
         if (request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
