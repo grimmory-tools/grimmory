@@ -40,13 +40,20 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
+        Long lastModified = bookService.getBookThumbnailLastModified(bookId);
+        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        }
         if (hash != null && request.checkNotModified(hash)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
-        return ResponseEntity.ok()
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash)
-                .body(bookService.getBookThumbnail(bookId));
+                .eTag(hash);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(bookService.getBookThumbnail(bookId));
     }
 
     @Operation(summary = "Get book cover", description = "Retrieve the cover image for a specific book.")
@@ -55,13 +62,20 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
+        Long lastModified = bookService.getBookCoverLastModified(bookId);
+        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        }
         if (hash != null && request.checkNotModified(hash)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
-        return ResponseEntity.ok()
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash)
-                .body(bookService.getBookCover(bookId));
+                .eTag(hash);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(bookService.getBookCover(bookId));
     }
 
     @Operation(summary = "Get audiobook thumbnail", description = "Retrieve the audiobook thumbnail image for a specific book.")
@@ -70,13 +84,20 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
+        Long lastModified = bookService.getAudiobookThumbnailLastModified(bookId);
+        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        }
         if (hash != null && request.checkNotModified(hash)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
-        return ResponseEntity.ok()
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash)
-                .body(bookService.getAudiobookThumbnail(bookId));
+                .eTag(hash);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(bookService.getAudiobookThumbnail(bookId));
     }
 
     @Operation(summary = "Get audiobook cover", description = "Retrieve the audiobook cover image for a specific book.")
@@ -85,13 +106,20 @@ public class BookMediaController {
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
+        Long lastModified = bookService.getAudiobookCoverLastModified(bookId);
+        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        }
         if (hash != null && request.checkNotModified(hash)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
-        return ResponseEntity.ok()
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash)
-                .body(bookService.getAudiobookCover(bookId));
+                .eTag(hash);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(bookService.getAudiobookCover(bookId));
     }
 
     @Operation(summary = "Get CBX page as image", description = "Retrieve a specific page from a CBX book as an image.")
@@ -116,7 +144,7 @@ public class BookMediaController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
+            .cacheControl(CacheControl.noCache().cachePrivate())
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(photo);
     }
@@ -130,7 +158,7 @@ public class BookMediaController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate())
+            .cacheControl(CacheControl.noCache().cachePrivate())
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(thumbnail);
     }

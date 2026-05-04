@@ -314,10 +314,33 @@ public class BookService {
                 .orElse(null);
     }
 
+    public Long getBookThumbnailLastModified(long bookId) {
+        return getFileLastModified(fileService.getThumbnailFile(bookId));
+    }
+
+    public Long getBookCoverLastModified(long bookId) {
+        return getFileLastModified(fileService.getCoverFile(bookId));
+    }
+
     public String getAudiobookCoverHash(long bookId) {
         return bookRepository.findById(bookId)
                 .map(BookEntity::getAudiobookCoverHash)
                 .orElse(null);
+    }
+
+    public Long getAudiobookThumbnailLastModified(long bookId) {
+        return getFileLastModified(fileService.getAudiobookThumbnailFile(bookId));
+    }
+
+    public Long getAudiobookCoverLastModified(long bookId) {
+        return getFileLastModified(fileService.getAudiobookCoverFile(bookId));
+    }
+
+    private Long getFileLastModified(String filePath) {
+        if (filePath == null) {
+            return null;
+        }
+        return FileUtils.getFileLastModified(Path.of(filePath));
     }
 
     public Resource getAudiobookThumbnail(long bookId) {
