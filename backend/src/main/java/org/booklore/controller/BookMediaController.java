@@ -36,20 +36,28 @@ public class BookMediaController {
 
     @Operation(summary = "Get book thumbnail", description = "Retrieve the thumbnail image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Book thumbnail returned successfully")
+    @ApiResponse(responseCode = "304", description = "Resource not modified")
     @GetMapping("/book/{bookId}/thumbnail")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
         Long lastModified = bookService.getBookThumbnailLastModified(bookId);
-        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
-        }
-        if (hash != null && request.checkNotModified(hash)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        long lastModifiedTs = lastModified != null ? lastModified : -1L;
+        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
+            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
+            if (hash != null) {
+                notModifiedBuilder.eTag(hash);
+            }
+            if (lastModified != null) {
+                notModifiedBuilder.lastModified(lastModified);
+            }
+            return notModifiedBuilder.build();
         }
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash);
+                .cacheControl(CacheControl.noCache().cachePrivate());
+        if (hash != null) {
+            builder.eTag(hash);
+        }
         if (lastModified != null) {
             builder.lastModified(lastModified);
         }
@@ -58,20 +66,28 @@ public class BookMediaController {
 
     @Operation(summary = "Get book cover", description = "Retrieve the cover image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Book cover returned successfully")
+    @ApiResponse(responseCode = "304", description = "Resource not modified")
     @GetMapping("/book/{bookId}/cover")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getBookCoverHash(bookId);
         Long lastModified = bookService.getBookCoverLastModified(bookId);
-        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
-        }
-        if (hash != null && request.checkNotModified(hash)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        long lastModifiedTs = lastModified != null ? lastModified : -1L;
+        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
+            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
+            if (hash != null) {
+                notModifiedBuilder.eTag(hash);
+            }
+            if (lastModified != null) {
+                notModifiedBuilder.lastModified(lastModified);
+            }
+            return notModifiedBuilder.build();
         }
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash);
+                .cacheControl(CacheControl.noCache().cachePrivate());
+        if (hash != null) {
+            builder.eTag(hash);
+        }
         if (lastModified != null) {
             builder.lastModified(lastModified);
         }
@@ -80,20 +96,28 @@ public class BookMediaController {
 
     @Operation(summary = "Get audiobook thumbnail", description = "Retrieve the audiobook thumbnail image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Audiobook thumbnail returned successfully")
+    @ApiResponse(responseCode = "304", description = "Resource not modified")
     @GetMapping("/book/{bookId}/audiobook-thumbnail")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
         Long lastModified = bookService.getAudiobookThumbnailLastModified(bookId);
-        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
-        }
-        if (hash != null && request.checkNotModified(hash)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        long lastModifiedTs = lastModified != null ? lastModified : -1L;
+        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
+            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
+            if (hash != null) {
+                notModifiedBuilder.eTag(hash);
+            }
+            if (lastModified != null) {
+                notModifiedBuilder.lastModified(lastModified);
+            }
+            return notModifiedBuilder.build();
         }
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash);
+                .cacheControl(CacheControl.noCache().cachePrivate());
+        if (hash != null) {
+            builder.eTag(hash);
+        }
         if (lastModified != null) {
             builder.lastModified(lastModified);
         }
@@ -102,20 +126,28 @@ public class BookMediaController {
 
     @Operation(summary = "Get audiobook cover", description = "Retrieve the audiobook cover image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Audiobook cover returned successfully")
+    @ApiResponse(responseCode = "304", description = "Resource not modified")
     @GetMapping("/book/{bookId}/audiobook-cover")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
         String hash = bookService.getAudiobookCoverHash(bookId);
         Long lastModified = bookService.getAudiobookCoverLastModified(bookId);
-        if (hash != null && lastModified != null && request.checkNotModified(hash, lastModified)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
-        }
-        if (hash != null && request.checkNotModified(hash)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
+        long lastModifiedTs = lastModified != null ? lastModified : -1L;
+        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
+            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
+            if (hash != null) {
+                notModifiedBuilder.eTag(hash);
+            }
+            if (lastModified != null) {
+                notModifiedBuilder.lastModified(lastModified);
+            }
+            return notModifiedBuilder.build();
         }
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(hash);
+                .cacheControl(CacheControl.noCache().cachePrivate());
+        if (hash != null) {
+            builder.eTag(hash);
+        }
         if (lastModified != null) {
             builder.lastModified(lastModified);
         }
