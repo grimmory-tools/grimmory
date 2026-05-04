@@ -48,6 +48,7 @@
       "noBooks": "This collection has no books!",
       "failedLibrary": "Failed to load library's books!",
       "failedShelf": "Failed to load shelf's books!",
+      "failedBooks": "Failed to load books!",
       "activeFilters": "{{ count }} Active Filters"
     },
     "tooltip": {
@@ -665,8 +666,13 @@
     }
   },
   "table": {
+    "label": "Books table",
     "bookCoverAlt": "Book Cover",
-    "statusPrefix": "Status: ",
+    "selectBook": "Select {{ title }}",
+    "selectBookFallback": "Select book",
+    "noRating": "No rating",
+    "ratingOutOf": "{{ rating }} out of {{ max }}",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Locked",
     "unlocked": "Unlocked",
     "toast": {

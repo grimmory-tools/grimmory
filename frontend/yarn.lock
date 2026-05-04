@@ -3693,6 +3693,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/angular-table@npm:^8.21.4":
+  version: 8.21.4
+  resolution: "@tanstack/angular-table@npm:8.21.4"
+  dependencies:
+    "@tanstack/table-core": "npm:8.21.3"
+    tslib: "npm:^2.6.2"
+  peerDependencies:
+    "@angular/core": ">=17"
+  checksum: 10c0/5bac4e850b04b25dca98ce37356d9ae431bf8b22a983988ebf6251636c9cb2d7f7cd0949d036c75a60383926987d87d0e53c229b8c1114c3cba9ccaf61705e07
+  languageName: node
+  linkType: hard
+
 "@tanstack/angular-virtual@npm:^4.0.13":
   version: 4.0.13
   resolution: "@tanstack/angular-virtual@npm:4.0.13"
@@ -3716,6 +3728,13 @@ __metadata:
   version: 5.100.1
   resolution: "@tanstack/query-devtools@npm:5.100.1"
   checksum: 10c0/d35bec159ad4747162b6272e7acea86ba873c9533440cd2bea67b7024ad9ca7b7a23ebbe972d403ef2173a510345aba2489d8ed0b13c1a414ee934947afda486
+  languageName: node
+  linkType: hard
+
+"@tanstack/table-core@npm:8.21.3":
+  version: 8.21.3
+  resolution: "@tanstack/table-core@npm:8.21.3"
+  checksum: 10c0/40e3560e6d55e07cc047024aa7f83bd47a9323d21920d4adabba8071fd2d21230c48460b26cedf392588f8265b9edc133abb1b0d6d0adf4dae0970032900a8c9
   languageName: node
   linkType: hard
 
@@ -6129,6 +6148,7 @@ __metadata:
     "@stomp/rx-stomp": "npm:^2.3.0"
     "@stomp/stompjs": "npm:^7.3.0"
     "@tanstack/angular-query-experimental": "npm:5.100.1"
+    "@tanstack/angular-table": "npm:^8.21.4"
     "@tanstack/angular-virtual": "npm:^4.0.13"
     "@testing-library/angular": "npm:^19.2.1"
     "@testing-library/dom": "npm:^10.4.1"
@@ -9034,7 +9054,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62

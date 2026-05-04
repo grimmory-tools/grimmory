@@ -1,5 +1,5 @@
 import {Injectable, NgZone, inject} from '@angular/core';
-import {ReplaySubject, Subject} from 'rxjs';
+import {ReplaySubject, Subject, skip, take} from 'rxjs';
 import type {
   EmbedPdfContainer,
   PluginRegistry,
@@ -19,10 +19,46 @@ import type {
   I18nCapability,
 } from '@embedpdf/snippet';
 
+
 export interface PdfOutlineItem {
   title: string;
   pageIndex: number;
   children: PdfOutlineItem[];
+}
+
+export type PdfScrollLayout = 'vertical' | 'horizontal';
+
+type ScrollLayoutMethod = (layout: PdfScrollLayout) => void;
+type ReadScrollLayoutMethod = () => string;
+
+interface ScrollLayoutCapability extends Omit<ScrollCapability, 'onLayoutReady' | 'setScrollStrategy'> {
+  onLayoutReady?: (cb: () => void) => () => void;
+  setScrollStrategy?: ScrollLayoutMethod;
+  setScrollMode?: ScrollLayoutMethod;
+  setLayoutMode?: ScrollLayoutMethod;
+  getScrollStrategy?: ReadScrollLayoutMethod;
+  getScrollMode?: ReadScrollLayoutMethod;
+  getLayoutMode?: ReadScrollLayoutMethod;
+}
+
+interface DocumentOpenedEvent {
+  id: string;
+  document?: {
+    pageCount: number;
+  } | null;
+  pageCount?: number;
+}
+
+interface DocumentManagerCapability {
+  onDocumentOpened?: (cb: (ev: DocumentOpenedEvent) => void) => () => void;
+}
+
+interface GrimmoryWindowState {
+  __grimmoryOrigDprDescriptor?: PropertyDescriptor;
+  __grimmoryShimsApplied?: boolean;
+  __grimmoryOrigBlob?: typeof Blob;
+  __grimmoryOrigWorker?: typeof Worker;
+  __grimmoryOrigRelease?: typeof Element.prototype.releasePointerCapture;
 }
 
 @Injectable()
@@ -40,6 +76,7 @@ export class EmbedPdfBookService {
   private rotate: RotateCapability | null = null;
   private pan: PanCapability | null = null;
   private i18n: I18nCapability | null = null;
+  private scrollLayout: PdfScrollLayout = 'vertical';
 
   private currentDocumentId: string | null = null;
 
@@ -49,6 +86,11 @@ export class EmbedPdfBookService {
   private layoutReadyUnsub?: () => void;
   private documentOpenedUnsub?: () => void;
   private resizeObserver?: ResizeObserver;
+
+
+  private getMutableWindow(): Window & typeof globalThis & GrimmoryWindowState {
+    return window as Window & typeof globalThis & GrimmoryWindowState;
+  }
 
   pageChange$ = new Subject<PageChangeEvent>();
   annotationEvent$ = new Subject<AnnotationEvent>();
@@ -78,7 +120,6 @@ export class EmbedPdfBookService {
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
     const requestedLocale = localeCode || 'en';
-    const isSmallViewport = window.innerWidth <= 768;
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -122,7 +163,8 @@ export class EmbedPdfBookService {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        defaultImageQuality: isSmallViewport ? 0.85 : 0.92,
+        // Keep book-viewer text crisp across viewport sizes.
+        defaultImageQuality: 0.92,
       },
       tiling: this.getTilingConfig(),
     }) ?? null;
@@ -140,6 +182,7 @@ export class EmbedPdfBookService {
 
     const scrollPlugin = this.registry.getPlugin('scroll');
     this.scroll = scrollPlugin?.provides?.() as ScrollCapability ?? null;
+    this.applyScrollLayout(this.scrollLayout);
 
     const zoomPlugin = this.registry.getPlugin('zoom');
     this.zoom = zoomPlugin?.provides?.() as ZoomCapability ?? null;
@@ -172,10 +215,9 @@ export class EmbedPdfBookService {
         this.pageChange$.next(ev);
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof (this.scroll as any).onLayoutReady === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.layoutReadyUnsub = (this.scroll as any).onLayoutReady(() => {
+      const scrollWithLayoutReady = this.scroll as ScrollLayoutCapability;
+      if (typeof scrollWithLayoutReady.onLayoutReady === 'function') {
+        this.layoutReadyUnsub = scrollWithLayoutReady.onLayoutReady(() => {
           this.zone.run(() => this.layoutReady$.next());
         });
       }
@@ -183,13 +225,13 @@ export class EmbedPdfBookService {
 
     // Listen for document opened via document-manager plugin
     const dmPlugin = this.registry.getPlugin('document-manager');
-    const dm = dmPlugin?.provides?.() as Record<string, unknown> | null;
-    if (dm && typeof dm['onDocumentOpened'] === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.documentOpenedUnsub = (dm['onDocumentOpened'] as (cb: (ev: any) => void) => () => void)((ev: {id: string, pageCount?: number}) => {
+    const dm = dmPlugin?.provides?.() as DocumentManagerCapability | null;
+    if (dm && typeof dm.onDocumentOpened === 'function') {
+      this.documentOpenedUnsub = dm.onDocumentOpened((ev: DocumentOpenedEvent) => {
         this.zone.run(() => {
           this.currentDocumentId = ev.id;
-          this.documentOpened$.next({pageCount: ev?.pageCount ?? this.scroll?.getTotalPages() ?? 0});
+          const pageCount = ev.document?.pageCount ?? ev.pageCount ?? this.scroll?.getTotalPages() ?? 0;
+          this.documentOpened$.next({pageCount});
         });
       });
     } else {
@@ -220,6 +262,31 @@ export class EmbedPdfBookService {
 
   setLocale(localeCode: string): void {
     this.applyLocale(localeCode || 'en');
+  }
+
+  setScrollLayout(layout: PdfScrollLayout): void {
+    const page = this.currentPage;
+    this.scrollLayout = layout;
+    this.applyScrollLayout(layout);
+
+    // EmbedPDF layout changes are asynchronous and can reset the current page internally.
+    // We wait for the layout engine to settle before restoring the page position.
+    let handled = false;
+    const restorePage = () => {
+      if (handled) return;
+      handled = true;
+      this.scrollToPage(page, 'instant');
+    };
+
+    // Use a short timeout as fallback
+    const timeoutId = setTimeout(restorePage, 100);
+
+    // If the engine supports onLayoutReady, it will fire layoutReady$.
+    // We skip the current replayed value and wait for the next emission.
+    this.layoutReady$.pipe(skip(1), take(1)).subscribe(() => {
+      clearTimeout(timeoutId);
+      restorePage();
+    });
   }
 
   scrollToPage(pageNumber: number, behavior: 'instant' | 'smooth' = 'smooth'): void {
@@ -378,6 +445,7 @@ export class EmbedPdfBookService {
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
 
+
     this.pageChange$.complete();
     this.annotationEvent$.complete();
     this.documentOpened$.complete();
@@ -414,6 +482,25 @@ export class EmbedPdfBookService {
     }
 
     this.i18n.setLocale('en');
+  }
+
+  private applyScrollLayout(layout: PdfScrollLayout): void {
+    if (!this.scroll) return;
+    const scrollLayoutCap = this.scroll as ScrollLayoutCapability;
+
+    if (typeof scrollLayoutCap.setScrollStrategy === 'function') {
+      scrollLayoutCap.setScrollStrategy(layout);
+      return;
+    }
+
+    if (typeof scrollLayoutCap.setScrollMode === 'function') {
+      scrollLayoutCap.setScrollMode(layout);
+      return;
+    }
+
+    if (typeof scrollLayoutCap.setLayoutMode === 'function') {
+      scrollLayoutCap.setLayoutMode(layout);
+    }
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
@@ -472,14 +559,14 @@ export class EmbedPdfBookService {
     const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
 
-    // On small screens, we CAP the DPR at 2.0.
+    // On small screens, enforce DPR 2.0 to avoid low-DPR blur while still
+    // avoiding the memory spikes caused by very high DPR values.
     // Modern phones often have DPR 3.0+, which combined with annotation layers
     // exceeds the browser's texture memory budget, leading to "emergency" downsampling (blurriness).
-    const targetDpr = isSmallViewport ? Math.min(currentDpr, 2) : Math.max(currentDpr, 2.5);
+    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
 
     if (currentDpr !== targetDpr) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const w = window as any;
+      const w = this.getMutableWindow();
       w.__grimmoryOrigDprDescriptor = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
       Object.defineProperty(window, 'devicePixelRatio', {
         get: () => targetDpr,
@@ -497,7 +584,7 @@ export class EmbedPdfBookService {
   private getTilingConfig(): {tileSize: number; overlapPx: number; extraRings: number} {
     const isSmallViewport = window.innerWidth <= 768;
     return isSmallViewport
-      ? {tileSize: 512, overlapPx: 2, extraRings: 0}
+      ? {tileSize: 640, overlapPx: 2, extraRings: 1}
       : {tileSize: 1024, overlapPx: 2, extraRings: 1};
   }
 
@@ -511,15 +598,14 @@ export class EmbedPdfBookService {
    * Idempotent — safe to call multiple times.
    */
   private applyWorkerShims(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
+    const w = this.getMutableWindow();
     if (w.__grimmoryShimsApplied) return;
     w.__grimmoryShimsApplied = true;
 
     // --- Blob shim ---
     const OrigBlob = window.Blob;
     w.__grimmoryOrigBlob = OrigBlob;
-    w.Blob = function PatchedBlob(parts: BlobPart[], opts?: BlobPropertyBag) {
+    const PatchedBlob = function (parts: BlobPart[], opts?: BlobPropertyBag): Blob {
       if (parts?.length >= 1 && typeof parts[0] === 'string') {
         const src = parts[0] as string;
         if (src.includes('wasmInit') && src.includes('runner.prepare()')) {
@@ -539,14 +625,15 @@ export class EmbedPdfBookService {
         }
       }
       return new OrigBlob(parts, opts);
-    };
-    w.Blob.prototype = OrigBlob.prototype;
-    Object.setPrototypeOf(w.Blob, OrigBlob);
+    } as unknown as typeof Blob;
+    PatchedBlob.prototype = OrigBlob.prototype;
+    Object.setPrototypeOf(PatchedBlob, OrigBlob);
+    w.Blob = PatchedBlob;
 
     // --- Worker shim ---
     const OrigWorker = window.Worker;
     w.__grimmoryOrigWorker = OrigWorker;
-    w.Worker = function PatchedWorker(url: string | URL, opts?: WorkerOptions) {
+    const PatchedWorker = function (url: string | URL, opts?: WorkerOptions): Worker {
       const worker = new OrigWorker(url, opts);
       const urlStr = typeof url === 'string' ? url : url.toString();
       if (urlStr.startsWith('blob:') && opts?.type === 'module') {
@@ -566,14 +653,14 @@ export class EmbedPdfBookService {
         });
       }
       return worker;
-    };
-    w.Worker.prototype = OrigWorker.prototype;
-    Object.setPrototypeOf(w.Worker, OrigWorker);
+    } as unknown as typeof Worker;
+    PatchedWorker.prototype = OrigWorker.prototype;
+    Object.setPrototypeOf(PatchedWorker, OrigWorker);
+    w.Worker = PatchedWorker;
   }
 
   private restoreWorkerShims(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
+    const w = this.getMutableWindow();
     if (!w.__grimmoryShimsApplied) return;
     if (w.__grimmoryOrigBlob) {
       window.Blob = w.__grimmoryOrigBlob;
@@ -593,8 +680,7 @@ export class EmbedPdfBookService {
    * already been released by the time the cleanup call fires.
    */
   private patchReleasePointerCapture(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
+    const w = this.getMutableWindow();
     if (w.__grimmoryOrigRelease) return;
     const orig = Element.prototype.releasePointerCapture;
     w.__grimmoryOrigRelease = orig;
@@ -608,8 +694,7 @@ export class EmbedPdfBookService {
   }
 
   private restoreReleasePointerCapture(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
+    const w = this.getMutableWindow();
     if (w.__grimmoryOrigRelease) {
       Element.prototype.releasePointerCapture = w.__grimmoryOrigRelease;
       delete w.__grimmoryOrigRelease;
@@ -617,14 +702,12 @@ export class EmbedPdfBookService {
   }
 
   private restoreDevicePixelRatio(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
+    const w = this.getMutableWindow();
     if (w.__grimmoryOrigDprDescriptor) {
       Object.defineProperty(window, 'devicePixelRatio', w.__grimmoryOrigDprDescriptor);
       delete w.__grimmoryOrigDprDescriptor;
     } else if (Object.getOwnPropertyDescriptor(window, 'devicePixelRatio')?.configurable) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any)['devicePixelRatio'];
+      Reflect.deleteProperty(window, 'devicePixelRatio');
     }
   }
 
@@ -636,12 +719,23 @@ export class EmbedPdfBookService {
         if (attempt < 25) setTimeout(() => waitForShadow(attempt + 1), 200);
         return;
       }
-      if (shadow.querySelector('style[data-grimmory-book]')) return;
+      if (shadow.querySelector('style[data-grimmory-book]')) {
+        return;
+      }
 
       const style = document.createElement('style');
       style.setAttribute('data-grimmory-book', '');
       style.textContent = `
         /* ── Grimmory book-mode overrides ── */
+
+        /* Center PDF content vertically and horizontally when smaller than viewport */
+        [class*="bg-bg-app"] {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        [class*="bg-bg-app"] > * {
+          margin: auto !important;
+        }
 
         /* Force high-quality image rendering for PDF tiles */
         img {
@@ -673,24 +767,7 @@ export class EmbedPdfBookService {
           display: none !important;
         }
 
-        /* Hide the built-in footer/status bar */
-        [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"] {
-          display: none !important;
-        }
-
-        /* Hide bottom notification / popup bar */
-        [class*="fixed"][class*="bottom-"],
-        [class*="absolute"][class*="bottom-"],
-        [class*="snackbar"],
-        [class*="toast"],
-        [class*="notification"],
-        [class*="bottom-bar"],
-        [class*="status-bar"],
-        [class*="statusbar"],
-        footer,
-        [class*="footer"] {
-          display: none !important;
-        }
+        /* Keep viewer popups/menus visible; only hide explicit file controls. */
 
         /* Hide open/close document buttons */
         [data-epdf-i="open-document"],
@@ -700,6 +777,14 @@ export class EmbedPdfBookService {
           display: none !important;
         }
 
+        /* ── Hide EmbedPDF built-in footer / status bar ── */
+        [data-epdf-i*="footer"],
+        [data-epdf-i*="status"],
+        [data-overlay-id="page-controls"],
+        [data-overlay-id*="overlay"],
+        [role="contentinfo"] {
+          display: none !important;
+        }
 
         /* Improve annotation layer rendering on touch devices.
            FreeText annotation overlays can bleed through when the
@@ -726,6 +811,8 @@ export class EmbedPdfBookService {
     };
     waitForShadow();
   }
+
+
 
   private setupResizeObserver(target: HTMLElement): void {
     if (typeof ResizeObserver === 'undefined') return;

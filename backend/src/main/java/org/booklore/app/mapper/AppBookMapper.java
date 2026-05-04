@@ -31,16 +31,37 @@ public interface AppBookMapper {
     @Mapping(target = "addedOn", source = "book.addedOn")
     @Mapping(target = "lastReadTime", source = "progress.lastReadTime")
     @Mapping(target = "readProgress", source = "progress", qualifiedByName = "mapReadProgress")
+    @Mapping(target = "primaryFileId", source = "book", qualifiedByName = "mapPrimaryFileId")
     @Mapping(target = "primaryFileType", source = "book", qualifiedByName = "mapPrimaryFileType")
+    @Mapping(target = "primaryFileName", source = "book", qualifiedByName = "mapPrimaryFileName")
     @Mapping(target = "coverUpdatedOn", source = "book.metadata.coverUpdatedOn")
     @Mapping(target = "audiobookCoverUpdatedOn", source = "book.metadata.audiobookCoverUpdatedOn")
     @Mapping(target = "isPhysical", source = "book.isPhysical")
+    @Mapping(target = "publisher", source = "book.metadata.publisher")
+    @Mapping(target = "categories", source = "book.metadata.categories", qualifiedByName = "mapCategoryNames")
+    @Mapping(target = "tags", source = "book.metadata.tags", qualifiedByName = "mapTagNames")
+    @Mapping(target = "moods", source = "book.metadata.moods", qualifiedByName = "mapMoodNames")
+    @Mapping(target = "language", source = "book.metadata.language")
+    @Mapping(target = "narrator", source = "book.metadata.narrator")
+    @Mapping(target = "isbn13", source = "book.metadata.isbn13")
+    @Mapping(target = "isbn10", source = "book.metadata.isbn10")
     @Mapping(target = "publishedDate", source = "book.metadata.publishedDate")
     @Mapping(target = "pageCount", source = "book.metadata.pageCount")
     @Mapping(target = "ageRating", source = "book.metadata.ageRating")
     @Mapping(target = "contentRating", source = "book.metadata.contentRating")
     @Mapping(target = "metadataMatchScore", source = "book.metadataMatchScore")
     @Mapping(target = "fileSizeKb", source = "book", qualifiedByName = "mapFileSizeKb")
+    @Mapping(target = "amazonRating", source = "book.metadata.amazonRating")
+    @Mapping(target = "amazonReviewCount", source = "book.metadata.amazonReviewCount")
+    @Mapping(target = "goodreadsRating", source = "book.metadata.goodreadsRating")
+    @Mapping(target = "goodreadsReviewCount", source = "book.metadata.goodreadsReviewCount")
+    @Mapping(target = "hardcoverRating", source = "book.metadata.hardcoverRating")
+    @Mapping(target = "hardcoverReviewCount", source = "book.metadata.hardcoverReviewCount")
+    @Mapping(target = "ranobedbRating", source = "book.metadata.ranobedbRating")
+    @Mapping(target = "lubimyczytacRating", source = "book.metadata.lubimyczytacRating")
+    @Mapping(target = "audibleRating", source = "book.metadata.audibleRating")
+    @Mapping(target = "audibleReviewCount", source = "book.metadata.audibleReviewCount")
+    @Mapping(target = "allMetadataLocked", source = "book.metadata", qualifiedByName = "mapAllMetadataLocked")
     AppBookSummary toSummary(BookEntity book, UserBookProgressEntity progress);
 
     @Mapping(target = "id", source = "book.id")
@@ -114,6 +135,39 @@ public interface AppBookMapper {
                 .collect(Collectors.toSet());
     }
 
+    @Named("mapCategoryNames")
+    default List<String> mapCategoryNames(Set<CategoryEntity> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return categories.stream()
+                .map(CategoryEntity::getName)
+                .sorted()
+                .toList();
+    }
+
+    @Named("mapTagNames")
+    default List<String> mapTagNames(Set<TagEntity> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return tags.stream()
+                .map(TagEntity::getName)
+                .sorted()
+                .toList();
+    }
+
+    @Named("mapMoodNames")
+    default List<String> mapMoodNames(Set<MoodEntity> moods) {
+        if (moods == null || moods.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return moods.stream()
+                .map(MoodEntity::getName)
+                .sorted()
+                .toList();
+    }
+
     @Named("mapThumbnailUrl")
     default String mapThumbnailUrl(BookEntity book) {
         if (book == null || book.getId() == null) {
@@ -127,6 +181,11 @@ public interface AppBookMapper {
         if (book == null) return null;
         BookFileEntity primaryFile = book.getPrimaryBookFile();
         return primaryFile != null ? primaryFile.getFileSizeKb() : null;
+    }
+
+    @Named("mapAllMetadataLocked")
+    default Boolean mapAllMetadataLocked(BookMetadataEntity metadata) {
+        return metadata != null && metadata.areAllFieldsLocked();
     }
 
     @Named("mapShelves")
@@ -269,6 +328,24 @@ public interface AppBookMapper {
             return primaryFile.getBookType().name();
         }
         return null;
+    }
+
+    @Named("mapPrimaryFileId")
+    default Long mapPrimaryFileId(BookEntity book) {
+        if (book == null) {
+            return null;
+        }
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        return primaryFile != null ? primaryFile.getId() : null;
+    }
+
+    @Named("mapPrimaryFileName")
+    default String mapPrimaryFileName(BookEntity book) {
+        if (book == null) {
+            return null;
+        }
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        return primaryFile != null ? primaryFile.getFileName() : null;
     }
 
     @Named("mapFileTypes")

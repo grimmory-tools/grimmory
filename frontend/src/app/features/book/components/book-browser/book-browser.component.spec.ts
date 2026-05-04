@@ -107,6 +107,7 @@ interface BookBrowserHarness {
   isBooksLoading: WritableSignal<boolean>;
   paramMap$: BehaviorSubject<ParamMap>;
   setHasNextPage: (value: boolean) => void;
+  setIsFetchingNextPage: (value: boolean) => void;
   queryParamsService: {
     shouldForceExpandSeries: ReturnType<typeof vi.fn>;
     updateViewMode: ReturnType<typeof vi.fn>;
@@ -140,6 +141,7 @@ function createHarness(options?: {
   );
   const booksError = signal<string | null>(options?.booksError ?? null);
   const isBooksLoading = signal<boolean>(options?.isBooksLoading ?? false);
+  const isFetchingNextPage = signal(false);
   const hasNextPage = signal(false);
   const currentUser = signal(makeCurrentUser());
   const showFilter = signal(false);
@@ -313,7 +315,7 @@ function createHarness(options?: {
             totalElements,
             hasNextPage: hasNextPage.asReadonly(),
             isLoading: isBooksLoading.asReadonly(),
-            isFetchingNextPage: computed(() => false),
+            isFetchingNextPage: isFetchingNextPage.asReadonly(),
             isError: computed(() => !!booksError()),
             error: computed(() => booksError()),
             filterOptions: computed(() => null),
@@ -394,6 +396,7 @@ function createHarness(options?: {
     isBooksLoading,
     paramMap$,
     setHasNextPage: value => hasNextPage.set(value),
+    setIsFetchingNextPage: value => isFetchingNextPage.set(value),
     queryParamsService,
     routeSnapshot,
   };
@@ -464,7 +467,6 @@ describe('BookBrowserComponent', () => {
     });
 
     expect(component.showBooksLoadingPlaceholder()).toBe(false);
-    expect(component.showGridLoadingPlaceholder()).toBe(false);
     expect(component.showTableLoadingPlaceholder()).toBe(false);
   });
 
@@ -480,7 +482,7 @@ describe('BookBrowserComponent', () => {
   });
 
   it('triggers next page fetch when the virtual grid reaches the loaded rows', () => {
-    const {component, setHasNextPage} = createHarness();
+    const {component, setHasNextPage} = createHarness({totalElements: 100});
     const appBooksApi = TestBed.inject(AppBooksApiService);
 
     vi.runOnlyPendingTimers();
@@ -501,7 +503,72 @@ describe('BookBrowserComponent', () => {
     expect(fetchNextPageSpy).toHaveBeenCalled();
   });
 
-  it('uses the known total book count for virtual grid size while more pages are available', () => {
+  it('re-arms grid pagination after a next-page request completes without new books', () => {
+    const {component, books, setHasNextPage, setIsFetchingNextPage} = createHarness({totalElements: 100});
+    const appBooksApi = TestBed.inject(AppBooksApiService);
+
+    vi.spyOn(component.virtualGrid.virtualizer, 'getVirtualItems').mockReturnValue([
+      {index: 2, key: 3, start: 0, end: 241, size: 241, lane: 0}
+    ]);
+
+    component.currentViewMode.set(VIEW_MODES.TABLE);
+    TestBed.flushEffects();
+
+    setHasNextPage(true);
+    const fetchNextPageSpy = vi.spyOn(appBooksApi, 'fetchNextPage');
+    component.currentViewMode.set(VIEW_MODES.GRID);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    setIsFetchingNextPage(true);
+    TestBed.flushEffects();
+    setIsFetchingNextPage(false);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    books.update(current => [...current]);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps fetching grid pages when collapsed series hide newly loaded books', () => {
+    const {component, books, setHasNextPage} = createHarness({
+      books: [
+        makeBook(1, 1, 'Alpha', '2024-01-01T00:00:00Z'),
+        makeBook(2, 1, 'Bravo', '2024-02-01T00:00:00Z'),
+        makeBook(3, 1, 'Charlie', '2024-03-01T00:00:00Z'),
+      ],
+      totalElements: 100,
+    });
+    const appBooksApi = TestBed.inject(AppBooksApiService);
+    const filter = TestBed.inject(SeriesCollapseFilter);
+    vi.mocked(filter.collapseBooks).mockImplementation((items: Book[]) => items.slice(0, 3));
+    vi.spyOn(component.virtualGrid.virtualizer, 'getVirtualItems').mockReturnValue([
+      {index: 2, key: 3, start: 0, end: 241, size: 241, lane: 0}
+    ]);
+
+    component.currentViewMode.set(VIEW_MODES.TABLE);
+    TestBed.flushEffects();
+
+    setHasNextPage(true);
+    vi.mocked(filter.setCollapsed)(true);
+    const fetchNextPageSpy = vi.spyOn(appBooksApi, 'fetchNextPage');
+    component.currentViewMode.set(VIEW_MODES.GRID);
+    TestBed.flushEffects();
+
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(1);
+
+    books.update(current => [...current, makeBook(4, 1, 'Collapsed', '2024-04-01T00:00:00Z')]);
+    TestBed.flushEffects();
+
+    expect(component.books()).toHaveLength(3);
+    expect(fetchNextPageSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('uses the known total book count while more pages are available', () => {
     const {component, setHasNextPage} = createHarness({totalElements: 100});
 
     setHasNextPage(true);
@@ -509,7 +576,21 @@ describe('BookBrowserComponent', () => {
     vi.runOnlyPendingTimers();
     TestBed.flushEffects();
 
+    expect(component.virtualRowCount()).toBe(100);
     expect(component.virtualGrid.virtualizer.options().count).toBe(100);
+  });
+
+  it('uses one unloaded slot for collapsed series while more pages are available', () => {
+    const {component, setHasNextPage} = createHarness({totalElements: 100});
+    const filter = TestBed.inject(SeriesCollapseFilter);
+    filter.setCollapsed(true);
+    setHasNextPage(true);
+
+    vi.runOnlyPendingTimers();
+    TestBed.flushEffects();
+
+    expect(component.virtualRowCount()).toBe(component.books().length + 1);
+    expect(component.virtualGrid.virtualizer.options().count).toBe(component.books().length + 1);
   });
 
   it('uses the rendered book count once pagination is exhausted', () => {
@@ -521,6 +602,7 @@ describe('BookBrowserComponent', () => {
     TestBed.flushEffects();
 
     expect(component.books()).toHaveLength(1);
+    expect(component.virtualRowCount()).toBe(1);
     expect(component.virtualGrid.virtualizer.options().count).toBe(1);
   });
 });

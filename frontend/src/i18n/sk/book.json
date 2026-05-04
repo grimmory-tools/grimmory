@@ -48,6 +48,7 @@
       "noBooks": "",
       "failedLibrary": "",
       "failedShelf": "",
+      "failedBooks": "",
       "activeFilters": ""
     },
     "tooltip": {
@@ -611,7 +612,12 @@
   },
   "table": {
     "bookCoverAlt": "",
-    "statusPrefix": "",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "{{ status }}",
     "locked": "",
     "unlocked": "",
     "toast": {

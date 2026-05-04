@@ -48,6 +48,7 @@
       "noBooks": "Diese Sammlung enthält keine Bücher!",
       "failedLibrary": "Bücher der Bibliothek konnten nicht geladen werden!",
       "failedShelf": "Bücher des Regals konnten nicht geladen werden!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktive Filter"
     },
     "tooltip": {
@@ -619,7 +620,12 @@
   },
   "table": {
     "bookCoverAlt": "Buchcover",
-    "statusPrefix": "Status: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Gesperrt",
     "unlocked": "Entsperrt",
     "toast": {

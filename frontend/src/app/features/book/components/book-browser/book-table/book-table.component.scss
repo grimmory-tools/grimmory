@@ -1,110 +1,192 @@
-.read-status-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: bold;
-  width: 20px;
-  height: 20px;
-  margin: 0 auto;
+:host {
+  display: block;
+  min-height: 0;
+
+  --book-table-border-color: var(--p-datatable-border-color, color-mix(in srgb, var(--p-content-border-color) 82%, black));
+  --book-table-header-background: var(--p-datatable-header-cell-background, var(--p-content-background));
+  --book-table-header-color: var(--p-datatable-header-cell-color, var(--p-text-color));
+  --book-table-header-padding: var(--p-datatable-header-cell-padding, 0.75rem 1rem);
+  --book-table-header-weight: var(--p-datatable-column-title-font-weight, 600);
+  --book-table-row-background: var(--p-datatable-row-background, var(--p-content-background));
+  --book-table-row-color: var(--p-datatable-row-color, var(--p-text-color));
+  --book-table-row-hover-background: var(--p-datatable-row-hover-background, var(--p-content-hover-background));
+  --book-table-row-hover-color: var(--p-datatable-row-hover-color, var(--p-text-color));
+  --book-table-row-striped-background: var(--p-datatable-row-striped-background, var(--p-surface-950));
+  --book-table-cell-border-color: var(--p-datatable-body-cell-border-color, var(--book-table-border-color));
+  --book-table-cell-padding: var(--p-datatable-body-cell-padding, 0.75rem 1rem);
+  --book-table-rating-gap: var(--p-rating-gap, 0.25rem);
+  --book-table-lock-unlocked-color: var(--color-lock-unlocked, #16a34a);
+  --book-table-lock-locked-color: var(--color-lock-locked, #dc2626);
+  --book-table-status-read-color: #22c55e;
+  --book-table-status-reading-color: #3b82f6;
+  --book-table-status-re-reading-color: #06b6d4;
+  --book-table-status-partially-read-color: #f59e0b;
+  --book-table-status-paused-color: #eab308;
+  --book-table-status-abandoned-color: #ef4444;
+  --book-table-status-wont-read-color: #ec4899;
 }
 
-.status-read {
-  color: #22c55e;
-}
+.book-table-scroll {
+  box-sizing: border-box;
+  height: calc(100dvh - 150px);
+  border: 1px solid var(--book-table-border-color);
+  overflow: auto;
+  background: var(--book-table-row-background);
 
-.status-reading {
-  color: #3b82f6;
-}
-
-.status-re-reading {
-  color: #06b6d4;
-}
-
-.status-partially-read {
-  color: #f59e0b;
-}
-
-.status-paused {
-  color: #eab308;
-}
-
-.status-abandoned {
-  color: #ef4444;
-}
-
-.status-wont-read {
-  color: #ec4899;
-}
-
-.cover-header-cell {
-  max-width: 3.5rem;
-  min-width: 3.5rem;
-}
-
-.cell-center {
-  text-align: center;
-}
-
-.cover-thumbnail {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
-.tooltip-cover-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tooltip-cover-image {
-  width: 40rem;
-  aspect-ratio: 5 / 7;
-}
-
-.tooltip-cover-title {
-  font-size: 0.875rem;
-  text-wrap: balance;
-  text-align: center;
-}
-
-.cell-status {
-  text-align: center;
-  min-width: 4rem;
-  max-width: 4rem;
-}
-
-.cell-rating {
-  min-width: 10rem;
-  max-width: 10rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.rating-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.cell-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: right;
-  min-width: 6rem;
-  max-width: 12rem;
-}
-
-.cell-link {
-  &:hover {
-    text-decoration: underline;
-    color: #60a5fa;
+  @media (width <= 768px) {
+    height: calc(100dvh - 125px);
   }
 }
 
-::ng-deep .cover-tooltip > .p-tooltip-text {
-  padding: 0.25rem;
+.book-table {
+  min-width: 100%;
+  position: relative;
+}
+
+.book-table-header-row,
+.book-table-row {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: var(--book-table-grid-template);
+  min-width: 100%;
+}
+
+.book-table-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 46px;
+  background: var(--book-table-header-background);
+  border-bottom: 1px solid var(--book-table-border-color);
+}
+
+.book-table-header-cell,
+.book-table-cell {
+  box-sizing: border-box;
+  height: inherit;
+  min-width: 0;
+  border-right: 1px solid var(--book-table-cell-border-color);
+}
+
+.book-table-header-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: var(--book-table-header-padding);
+  color: var(--book-table-header-color);
+  font-weight: normal;
+  text-align: start;
+  white-space: nowrap;
+
+  .p-datatable-column-title {
+    overflow: hidden;
+    font-weight: var(--book-table-header-weight);
+    text-overflow: ellipsis;
+  }
+}
+
+.column-resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.book-table-body {
+  position: relative;
+}
+
+.book-table-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid var(--book-table-cell-border-color);
+  background: var(--book-table-row-background);
+  color: var(--book-table-row-color);
+}
+
+.book-table-row-striped {
+  background: var(--book-table-row-striped-background);
+}
+
+.book-table-cell {
+  display: flex;
+  align-items: center;
+  padding: var(--book-table-cell-padding);
+  overflow: hidden;
+  color: inherit;
+  line-height: 1.2;
+  text-align: start;
+}
+
+.book-table-checkbox {
+  display: inline-flex;
+  line-height: 0;
+  vertical-align: top;
+}
+
+.cover-preview {
+  width: 14rem;
+  max-height: calc(100dvh - 2rem);
+  border-radius: 6px;
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 42%),
+    0 4px 14px rgb(0 0 0 / 32%);
+  overflow: hidden;
+}
+
+.cover-preview-image {
+  width: 100%;
+  max-height: calc(100dvh - 6rem);
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  border-radius: inherit;
+
+  &.square-cover {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.cell-action,
+.cell-cover {
+  justify-content: center;
+  padding-inline: 0.5rem;
+}
+
+.cell-cover {
+  overflow: visible;
+}
+
+.book-table-row-loading {
+  pointer-events: none;
+}
+
+.loading-line {
+  display: block;
+  width: 85%;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-text-color) 14%, transparent);
+  animation: loading-line-pulse 1.5s ease-in-out infinite;
+}
+
+.loading-line-short {
+  width: 48%;
+}
+
+@keyframes loading-line-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-line {
+    animation: none;
+  }
 }
