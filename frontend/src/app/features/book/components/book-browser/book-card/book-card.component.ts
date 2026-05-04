@@ -418,7 +418,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: () => this.bookDialogHelperService.openCustomSendDialog(this.book())
+            command: async () => await this.bookDialogHelperService.openCustomSendDialog(this.book())
           }
         ]
       });
@@ -451,7 +451,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: () => this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
+            command: async () => await this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -504,7 +504,7 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: () => this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
+        command: async () => await this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
       });
     }
 
@@ -595,8 +595,8 @@ export class BookCardComponent {
     return items;
   }
 
-  private openShelfDialog(): void {
-    this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
+  private async openShelfDialog() {
+    await this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
   }
 
   openSeriesInfo(): void {
@@ -609,7 +609,7 @@ export class BookCardComponent {
     }
   }
 
-  openBookInfo(book: Book): void {
+  async openBookInfo(book: Book) {
     const allBookIds = this.bookNavigationService.availableBookIds();
     if (allBookIds.length > 0) {
       this.bookNavigationService.setNavigationContext(allBookIds, book.id);
@@ -620,7 +620,7 @@ export class BookCardComponent {
         queryParams: {tab: 'view'}
       });
     } else {
-      this.bookDialogHelperService.openBookDetailsDialog(book.id);
+      await this.bookDialogHelperService.openBookDetailsDialog(book.id);
     }
   }
 

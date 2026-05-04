@@ -129,10 +129,10 @@ export class AppMenuComponent {
     if (!user) return [];
 
     const actions = buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: async () => await this.dialogLauncherService.openLibraryCreateDialog(),
+      createShelf: async () => await this.bookDialogHelperService.openShelfCreatorDialog(),
+      createMagicShelf: async () => await this.dialogLauncherService.openMagicShelfCreateDialog(),
+      uploadBook: async () => await this.dialogLauncherService.openFileUploadDialog(),
     });
     const bookdrop = findPageNavItem('bookdrop', this.translate, user.permissions);
     return this.toMenuItems(bookdrop ? [...actions, bookdrop] : actions);

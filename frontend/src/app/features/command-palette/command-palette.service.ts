@@ -211,10 +211,10 @@ export class CommandPaletteService {
     const user = this.userService.currentUser();
     if (!user) return [];
     return buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: async () => await this.dialogLauncherService.openLibraryCreateDialog(),
+      createShelf: async () => await this.bookDialogHelperService.openShelfCreatorDialog(),
+      createMagicShelf: async () => await this.dialogLauncherService.openMagicShelfCreateDialog(),
+      uploadBook: async () => await this.dialogLauncherService.openFileUploadDialog(),
     }).map((item) => this.toPaletteNavItem(item, 'action'));
   });
 

@@ -45,22 +45,22 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
             icon: 'pi pi-book',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
+              await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
             icon: 'pi pi-barcode',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
+              await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
             }
           },
           {
@@ -124,11 +124,11 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
             icon: 'pi pi-sync',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+              await this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
                 metadataRefreshType: MetadataRefreshType.LIBRARY,
                 libraryId
               });
@@ -152,11 +152,11 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
             icon: 'pi pi-copy',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
+              await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
             }
           },
           {

@@ -47,7 +47,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
     ReadingJourneyChartComponent,
     TranslocoDirective
   ],
-  providers: [provideCharts(withDefaultRegisterables(), ChartDataLabels)],
+  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
   templateUrl: './library-stats.component.html',
   styleUrls: ['./library-stats.component.scss']
 })

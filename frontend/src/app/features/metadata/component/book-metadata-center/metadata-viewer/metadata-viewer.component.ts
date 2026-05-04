@@ -214,7 +214,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     items.push({
       label: this.t.translate('metadata.viewer.menuShelf'),
       icon: 'pi pi-folder',
-      command: () => this.assignShelf(book.id)
+      command: async () => await this.assignShelf(book.id)
     });
 
     if (permissions?.canManageLibrary || permissions?.admin) {
@@ -234,8 +234,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuUploadFile'),
         icon: 'pi pi-upload',
-        command: () => {
-          this.bookDialogHelperService.openAdditionalFileUploaderDialog(book);
+        command: async () => {
+          await this.bookDialogHelperService.openAdditionalFileUploaderDialog(book);
         },
       });
     }
@@ -246,8 +246,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuOrganizeFiles'),
         icon: 'pi pi-arrows-h',
-        command: () => {
-          this.openFileMoverDialog(book.id);
+        command: async () => {
+          await this.openFileMoverDialog(book.id);
         },
       });
     }
@@ -265,8 +265,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
           {
             label: this.t.translate('metadata.viewer.menuCustomSend'),
             icon: 'pi pi-cog',
-            command: () => {
-              this.bookDialogHelperService.openCustomSendDialog(book);
+            command: async () => {
+              await this.bookDialogHelperService.openCustomSendDialog(book);
             }
           }
         ]
@@ -280,8 +280,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       items.push({
         label: this.t.translate('metadata.viewer.menuAttachToAnotherBook'),
         icon: 'pi pi-link',
-        command: () => {
-          this.bookDialogHelperService.openBookFileAttacherDialog(book);
+        command: async () => {
+          await this.bookDialogHelperService.openBookFileAttacherDialog(book);
         },
       });
     }
@@ -1251,8 +1251,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     this.editDateFinished = null;
   }
 
-  openFileMoverDialog(bookId: number): void {
-    this.bookDialogHelperService.openFileMoverDialog(new Set([bookId]));
+  async openFileMoverDialog(bookId: number) {
+    await this.bookDialogHelperService.openFileMoverDialog(new Set([bookId]));
   }
 
   protected readonly ResetProgressTypes = ResetProgressTypes;

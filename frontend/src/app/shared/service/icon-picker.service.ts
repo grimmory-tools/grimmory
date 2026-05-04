@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {from, Observable, switchMap} from 'rxjs';
+import {EMPTY, from, Observable, switchMap} from 'rxjs';
 import {DialogLauncherService} from '../services/dialog-launcher.service';
 
 export interface IconSelection {
@@ -13,7 +13,12 @@ export class IconPickerService {
 
   open(): Observable<IconSelection> {
     return from(this.dialogLauncherService.openIconPickerDialog()).pipe(
-      switchMap(ref => ref!.onClose)
-    ) as Observable<IconSelection>;
+      switchMap(ref => {
+        if (!ref) {
+          return EMPTY;
+        }
+        return ref.onClose as Observable<IconSelection>;
+      })
+    );
   }
 }

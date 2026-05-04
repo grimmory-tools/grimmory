@@ -64,7 +64,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
     SessionArchetypesChartComponent,
     TranslocoDirective
   ],
-  providers: [provideCharts(withDefaultRegisterables(), ChartDataLabels)],
+  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss']
 })
