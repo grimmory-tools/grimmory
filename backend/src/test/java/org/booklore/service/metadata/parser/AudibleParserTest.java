@@ -94,7 +94,9 @@ public class AudibleParserTest {
                 "https://www.audible.com/search?keywords=" + keyword,
                 """
                 <html><body>
+                <div data-widget="productList">
                 <a href="https://www.audible.com/pd/something/SEARCHASIN">Example</a>
+                </div>
                 </body></html>
                 """
         );
