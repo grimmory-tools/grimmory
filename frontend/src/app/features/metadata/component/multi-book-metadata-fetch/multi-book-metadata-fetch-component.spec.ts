@@ -43,6 +43,7 @@ describe('MultiBookMetadataFetchComponent', () => {
 
   it('reads dialog data and resolves the books to show on construction', () => {
     const component = TestBed.runInInjectionContext(() => new MultiBookMetadataFetchComponent());
+    component.ngOnInit();
 
     expect(component.bookIds).toEqual([3, 5]);
     expect(component.metadataRefreshType).toBe(MetadataRefreshType.BOOKS);
@@ -53,8 +54,21 @@ describe('MultiBookMetadataFetchComponent', () => {
     ]);
   });
 
+  it('gives precedence to dialogData Input over dynamicDialogConfig.data', () => {
+    const component = TestBed.runInInjectionContext(() => new MultiBookMetadataFetchComponent());
+    component.dialogData = {
+      bookIds: [10],
+      metadataRefreshType: MetadataRefreshType.BOOKS,
+    };
+    component.ngOnInit();
+
+    expect(component.bookIds).toEqual([10]);
+    expect(getBooksByIds).toHaveBeenCalledWith([10]);
+  });
+
   it('adopts the default metadata refresh options when app settings become available', () => {
     const component = TestBed.runInInjectionContext(() => new MultiBookMetadataFetchComponent());
+    component.ngOnInit();
 
     expect(component.currentMetadataOptions).toBeUndefined();
 

@@ -55,7 +55,7 @@ import {SortService} from '../../service/sort.service';
 import {AppBooksApiService} from '../../service/app-books-api.service';
 import {AppBookFilters} from '../../model/app-book.model';
 import {createVirtualGrid, scaleForGridColumns, type VirtualGridMetrics} from '../../../../shared/util/virtual-grid.util';
-import {GridDensityButtonsComponent} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {GridDensityButtonsComponent, type GridDensityDirection} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 
 export enum EntityType {
@@ -68,6 +68,8 @@ export enum EntityType {
 
 const INITIAL_LOADING_ROW_COUNT = 24;
 const DEFAULT_MOBILE_GRID_COLUMNS = 3;
+const MIN_MOBILE_GRID_COLUMNS = 2;
+const MAX_MOBILE_GRID_COLUMNS = 4;
 const MOBILE_COLUMNS_STORAGE_KEY = 'mobileColumnsPreference';
 
 @Component({
@@ -84,7 +86,6 @@ const MOBILE_COLUMNS_STORAGE_KEY = 'mobileColumnsPreference';
   providers: [SeriesCollapseFilter],
 })
 export class BookBrowserComponent implements AfterViewInit {
-
   protected userService = inject(UserService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected columnPreferenceService = inject(TableColumnPreferenceService);
@@ -478,6 +479,12 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   readonly isMobile = computed(() => this.screenWidth() < this.MOBILE_BREAKPOINT);
+  readonly gridDensitySmallerDisabled = computed(() =>
+    this.isMobile() && this.gridMobileColumnCount() >= MAX_MOBILE_GRID_COLUMNS
+  );
+  readonly gridDensityLargerDisabled = computed(() =>
+    this.isMobile() && this.gridMobileColumnCount() <= MIN_MOBILE_GRID_COLUMNS
+  );
 
   private cardSizeForWidth(width: number): { width: number; height: number } {
     const cardWidth = Math.round(width);
@@ -1119,12 +1126,30 @@ export class BookBrowserComponent implements AfterViewInit {
     return libraryIds.size === 1;
   }
 
-  setMobileColumns(columns: number): void {
+  adjustGridDensity(direction: GridDensityDirection): void {
+    if (this.isMobile()) {
+      this.adjustMobileGridDensity(direction);
+      return;
+    }
+
+    this.adjustDesktopGridDensity(direction);
+  }
+
+  private adjustMobileGridDensity(direction: GridDensityDirection): void {
+    const currentColumns = this.gridMobileColumnCount();
+    const nextColumns = direction === 'smaller'
+      ? currentColumns + 1
+      : currentColumns - 1;
+
+    this.setMobileColumns(this.toMobileGridColumns(nextColumns));
+  }
+
+  private setMobileColumns(columns: number): void {
     this.gridMobileColumnCount.set(columns);
     this.localStorageService.set(MOBILE_COLUMNS_STORAGE_KEY, columns);
   }
 
-  adjustDesktopGridDensity(direction: 'smaller' | 'larger'): void {
+  private adjustDesktopGridDensity(direction: GridDensityDirection): void {
     const currentColumns = this.virtualGrid.gridColumns();
     const columns = Math.max(1, direction === 'smaller'
       ? currentColumns + 1
@@ -1143,9 +1168,17 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   private loadMobileColumnsPreference(): void {
-    const saved = this.localStorageService.get<number>(MOBILE_COLUMNS_STORAGE_KEY);
-    if (saved !== null && [2, 3, 4].includes(saved)) {
-      this.gridMobileColumnCount.set(saved);
+    const saved = this.localStorageService.get<unknown>(MOBILE_COLUMNS_STORAGE_KEY);
+    if (saved !== null) {
+      this.setMobileColumns(this.toMobileGridColumns(saved));
     }
+  }
+
+  private toMobileGridColumns(value: unknown): number {
+    const columns = Number(value);
+    if (!Number.isFinite(columns)) {
+      return DEFAULT_MOBILE_GRID_COLUMNS;
+    }
+    return Math.min(MAX_MOBILE_GRID_COLUMNS, Math.max(MIN_MOBILE_GRID_COLUMNS, Math.round(columns)));
   }
 }

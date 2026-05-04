@@ -88,7 +88,6 @@ describe('LibraryShelfMenuService', () => {
   };
   const dialogLauncherService = {
     openLibraryEditDialog: vi.fn(),
-    openLibraryMetadataFetchDialog: vi.fn(),
     openShelfEditDialog: vi.fn(),
     openMagicShelfEditDialog: vi.fn(),
   };
@@ -103,6 +102,7 @@ describe('LibraryShelfMenuService', () => {
     openAddPhysicalBookDialog: vi.fn(),
     openBulkIsbnImportDialog: vi.fn(),
     openDuplicateMergerDialog: vi.fn(),
+    openMetadataRefreshDialogWithContext: vi.fn(),
   };
   const translocoService = {
     translate: vi.fn((key: string) => key),
@@ -143,7 +143,6 @@ describe('LibraryShelfMenuService', () => {
     userService.getCurrentUser.mockClear();
     router.navigate.mockClear();
     dialogLauncherService.openLibraryEditDialog.mockClear();
-    dialogLauncherService.openLibraryMetadataFetchDialog.mockClear();
     dialogLauncherService.openShelfEditDialog.mockClear();
     dialogLauncherService.openMagicShelfEditDialog.mockClear();
     magicShelfService.deleteShelf.mockClear();
@@ -152,6 +151,7 @@ describe('LibraryShelfMenuService', () => {
     bookDialogHelperService.openAddPhysicalBookDialog.mockClear();
     bookDialogHelperService.openBulkIsbnImportDialog.mockClear();
     bookDialogHelperService.openDuplicateMergerDialog.mockClear();
+    bookDialogHelperService.openMetadataRefreshDialogWithContext.mockClear();
     translocoService.translate.mockClear();
   });
 
@@ -179,7 +179,7 @@ describe('LibraryShelfMenuService', () => {
     expect(bookDialogHelperService.openBulkIsbnImportDialog).not.toHaveBeenCalled();
     expect(bookDialogHelperService.openDuplicateMergerDialog).not.toHaveBeenCalled();
     expect(dialogLauncherService.openLibraryEditDialog).not.toHaveBeenCalled();
-    expect(dialogLauncherService.openLibraryMetadataFetchDialog).not.toHaveBeenCalled();
+    expect(bookDialogHelperService.openMetadataRefreshDialogWithContext).not.toHaveBeenCalled();
     expect(taskHelperService.refreshMetadataTask).not.toHaveBeenCalled();
     expect(confirmationService.confirm).not.toHaveBeenCalled();
   });
@@ -199,7 +199,10 @@ describe('LibraryShelfMenuService', () => {
     expect(bookDialogHelperService.openAddPhysicalBookDialog).toHaveBeenCalledWith(42);
     expect(bookDialogHelperService.openBulkIsbnImportDialog).toHaveBeenCalledWith(42);
     expect(dialogLauncherService.openLibraryEditDialog).toHaveBeenCalledWith(42);
-    expect(dialogLauncherService.openLibraryMetadataFetchDialog).toHaveBeenCalledWith(42);
+    expect(bookDialogHelperService.openMetadataRefreshDialogWithContext).toHaveBeenCalledWith({
+      metadataRefreshType: MetadataRefreshType.LIBRARY,
+      libraryId: 42
+    });
     expect(taskHelperService.refreshMetadataTask).toHaveBeenCalledWith({
       refreshType: MetadataRefreshType.LIBRARY,
       libraryId: 42,

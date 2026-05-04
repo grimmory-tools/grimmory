@@ -121,33 +121,13 @@
                     <label for="collapse-series-checkbox" class="display-settings-label">{{ t('labels.collapseSeries') }}</label>
                   </div>
                 </div>
-                @if (isMobile()) {
-                  <div class="display-settings-section">
-                    <span class="display-settings-label">{{ t('labels.gridColumns') }}</span>
-                    <div class="browser-grid-options">
-                      <button
-                        type="button"
-                        class="browser-grid-option-btn"
-                        [class.active]="gridMobileColumnCount() === 2"
-                        (click)="setMobileColumns(2)">2</button>
-                      <button
-                        type="button"
-                        class="browser-grid-option-btn"
-                        [class.active]="gridMobileColumnCount() === 3"
-                        (click)="setMobileColumns(3)">3</button>
-                      <button
-                        type="button"
-                        class="browser-grid-option-btn"
-                        [class.active]="gridMobileColumnCount() === 4"
-                        (click)="setMobileColumns(4)">4</button>
-                    </div>
-                  </div>
-                } @else {
-                  <div class="display-settings-section">
-                    <span class="display-settings-label">{{ t('labels.gridItemSize') }}</span>
-                    <app-grid-density-buttons (densityChange)="adjustDesktopGridDensity($event)"/>
-                  </div>
-                }
+                <div class="display-settings-section">
+                  <span class="display-settings-label">{{ t('labels.gridItemSize') }}</span>
+                  <app-grid-density-buttons
+                    [smallerDisabled]="gridDensitySmallerDisabled()"
+                    [largerDisabled]="gridDensityLargerDisabled()"
+                    (densityChange)="adjustGridDensity($event)"/>
+                </div>
                 <div class="display-settings-section">
                   <div class="display-settings-checkbox-row">
                     <p-checkbox

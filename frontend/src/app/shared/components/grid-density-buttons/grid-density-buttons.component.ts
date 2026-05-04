@@ -1,4 +1,4 @@
-import {Component, output} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 export type GridDensityDirection = 'smaller' | 'larger';
@@ -10,5 +10,7 @@ export type GridDensityDirection = 'smaller' | 'larger';
   templateUrl: './grid-density-buttons.component.html',
 })
 export class GridDensityButtonsComponent {
+  readonly smallerDisabled = input(false);
+  readonly largerDisabled = input(false);
   readonly densityChange = output<GridDensityDirection>();
 }
