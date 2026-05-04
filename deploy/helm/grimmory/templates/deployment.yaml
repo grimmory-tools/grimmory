@@ -10,34 +10,6 @@ spec:
     matchLabels:
       {{- include "grimmory.selectorLabels" . | nindent 6 }}
   template:
-    {{- $dbHost := "" }}
-    {{- $dbPort := 0 }}
-    {{- $dbName := "" }}
-    {{- $dbUserName := "" }}
-    {{- $dbPasswordSecretName := "" }}
-    {{- $dbPasswordSecretKey := "" }}
-    {{- if .Values.mariadb.enabled }}
-    {{- $dbHost = printf "%s-mariadb" .Release.Name  }}
-    {{- $dbPort = .Values.mariadb.service.port }}
-    {{- $dbName = .Values.mariadb.auth.database }}
-    {{- $dbUserName = .Values.mariadb.auth.username }}
-    {{- if .Values.mariadb.auth.existingSecret }}
-    {{- $dbPasswordSecretName = .Values.mariadb.auth.existingSecret }}
-    {{- $dbPasswordSecretKey = required "mariadb.auth.secretKeys.userPasswordKey is required when using an existing secret for MariaDB" .Values.mariadb.auth.secretKeys.userPasswordKey }}
-    {{- else }}
-    {{- $dbPasswordSecretName = printf "%s-mariadb" .Release.Name }}
-    {{- $dbPasswordSecretKey = "mariadb-password" }}
-    {{- end }}
-    {{- else }}
-    {{- with .Values.externalDatabase }}
-    {{- $dbHost = required "externalDatabase.host is required" .host }}
-    {{- $dbPort = .port | default 3306 }}
-    {{- $dbName = required "externalDatabase.database is required" .database }}
-    {{- $dbUserName = required "externalDatabase.username is required" .username }}
-    {{- $dbPasswordSecretName = required "externalDatabase.existingSecret is required" .existingSecret }}
-    {{- $dbPasswordSecretKey = required "externalDatabase.existingSecretPasswordKey is required" .existingSecretPasswordKey }}
-    {{- end }}
-    {{- end }}
     metadata:
       {{- with .Values.podAnnotations }}
       annotations:
@@ -65,19 +37,14 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for database at {{ $dbHost }} port {{ $dbPort }}..."
-              until nc -z -v -w5 '{{ $dbHost }}' {{ $dbPort }}; do
+              echo "Waiting for database at {{ include "grimmory.dbHost" . }} port {{ include "grimmory.dbPort" . }}..."
+              until nc -z -v -w5 '{{ include "grimmory.dbHost" . }}' {{ include "grimmory.dbPort" . }}; do
                 echo "Waiting for database..."
                 sleep 2
               done
               echo "Database is available!"
           resources:
-            requests:
-              cpu: 10m
-              memory: 16Mi
-            limits:
-              cpu: 50m
-              memory: 32Mi
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -92,14 +59,14 @@ spec:
               #protocol: TCP
           env:
             - name: DATABASE_URL
-              value: {{ printf "jdbc:mariadb://%s:%v/%s" $dbHost $dbPort $dbName | quote }}
+              value: {{ printf "jdbc:mariadb://%s:%v/%s" (include "grimmory.dbHost" .) (include "grimmory.dbPort" .) (include "grimmory.dbName" .) | quote }}
             - name: DATABASE_USERNAME
-              value: {{ $dbUserName | quote }}
+              value: {{ include "grimmory.dbUserName" . | quote }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $dbPasswordSecretName | quote }}
-                  key: {{ $dbPasswordSecretKey | quote }}
+                  name: {{ include "grimmory.dbPasswordSecretName" . | quote }}
+                  key: {{ include "grimmory.dbPasswordSecretKey" . | quote }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
