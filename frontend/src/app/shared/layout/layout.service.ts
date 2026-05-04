@@ -19,6 +19,7 @@ export const SIDEBAR_MIN_WIDTH = 175;
 export const SIDEBAR_MAX_WIDTH = 400;
 export const SIDEBAR_DEFAULT_WIDTH = 225;
 const SIDEBAR_EXPANDED_STATE_KEY = 'sidebarExpandedState';
+const SIDEBAR_TRANSITION_MS = 220;
 
 function readBooleanRecord(storage: LocalStorageService, key: string): Record<string, boolean> {
   const stored = storage.get<unknown>(key);
@@ -53,12 +54,15 @@ export class LayoutService {
   readonly sidebarExpandedState = signal<Readonly<Record<string, boolean>>>(
     readBooleanRecord(this.localStorage, SIDEBAR_EXPANDED_STATE_KEY)
   );
+  private readonly _sidebarTransitioning = signal(false);
+  readonly sidebarTransitioning = this._sidebarTransitioning.asReadonly();
   private readonly _librarySort = signal<SortPref>(DEFAULT_LIBRARY_SORT, { equal: sortPrefEqual });
   readonly librarySort = this._librarySort.asReadonly();
   private readonly _shelfSort = signal<SortPref>(DEFAULT_SHELF_SORT, { equal: sortPrefEqual });
   readonly shelfSort = this._shelfSort.asReadonly();
   private readonly _magicShelfSort = signal<SortPref>(DEFAULT_MAGIC_SHELF_SORT, { equal: sortPrefEqual });
   readonly magicShelfSort = this._magicShelfSort.asReadonly();
+  private sidebarTransitionTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     effect(() => {
@@ -75,6 +79,9 @@ export class LayoutService {
     this.document.defaultView?.addEventListener('resize', this.onResize);
     this.destroyRef.onDestroy(() => {
       this.document.defaultView?.removeEventListener('resize', this.onResize);
+      if (this.sidebarTransitionTimeoutId) {
+        clearTimeout(this.sidebarTransitionTimeoutId);
+      }
     });
 
     this.router.events
@@ -148,8 +155,24 @@ export class LayoutService {
   };
 
   private setSidebarCollapsed(collapsed: boolean): void {
+    if (collapsed !== this.sidebarCollapsed() && this.isDesktop()) {
+      this.startSidebarTransition();
+    }
+
     this.sidebarCollapsed.set(collapsed);
     this.localStorage.set('sidebarCollapsed', collapsed);
+  }
+
+  private startSidebarTransition(): void {
+    if (this.sidebarTransitionTimeoutId) {
+      clearTimeout(this.sidebarTransitionTimeoutId);
+    }
+
+    this._sidebarTransitioning.set(true);
+    this.sidebarTransitionTimeoutId = setTimeout(() => {
+      this._sidebarTransitioning.set(false);
+      this.sidebarTransitionTimeoutId = undefined;
+    }, SIDEBAR_TRANSITION_MS);
   }
 
   private changeScale(value: number): void {

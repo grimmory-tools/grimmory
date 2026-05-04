@@ -294,12 +294,10 @@ $transition-fast: 150ms ease;
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
 
   &.horizontal-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
   }
 
   embedpdf-container {

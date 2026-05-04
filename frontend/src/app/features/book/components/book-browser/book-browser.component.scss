@@ -18,6 +18,15 @@
   min-height: 0;
 }
 
+.book-browser-content {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
 // Header bar
 .book-browser-header {
   display: flex;
@@ -25,7 +34,6 @@
   justify-content: space-between;
   gap: 0.25rem;
   padding: 0.35rem;
-  margin-bottom: 0.5rem;
   margin-right: 2px;
   background-color: var(--card-background);
   border-bottom: 1px solid var(--p-content-border-color);
@@ -33,7 +41,6 @@
   @media (width >= 768px) {
     gap: 1rem;
     padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
   }
 }
 

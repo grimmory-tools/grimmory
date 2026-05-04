@@ -104,6 +104,23 @@ describe('LayoutService', () => {
     expect(localStorageService.set).toHaveBeenCalledWith('sidebarCollapsed', true);
   });
 
+  it('tracks the desktop sidebar collapse transition', () => {
+    vi.useFakeTimers();
+    try {
+      service.isDesktop.set(true);
+
+      service.toggleSidebarCollapsed();
+
+      expect(service.sidebarTransitioning()).toBe(true);
+
+      vi.advanceTimersByTime(220);
+
+      expect(service.sidebarTransitioning()).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('hydrates sidebar sort preferences from the current user', () => {
     expect(service.librarySort()).toEqual({ field: 'id', order: 'desc' });
     expect(service.shelfSort()).toEqual({ field: 'name', order: 'asc' });
