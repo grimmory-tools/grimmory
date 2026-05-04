@@ -20,6 +20,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,11 +53,12 @@ public class AppAuthorService {
 
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
+        Collection<Long> effectiveLibraryIds = resolveEffectiveLibraryIds(accessibleLibraryIds, libraryId);
 
         int pageNum = page != null && page >= 0 ? page : 0;
         int pageSize = size != null && size > 0 ? Math.min(size, MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
 
-        Specification<AuthorEntity> spec = buildSpecification(accessibleLibraryIds, libraryId, search, hasPhoto);
+        Specification<AuthorEntity> spec = buildSpecification(effectiveLibraryIds, search, hasPhoto);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -76,16 +79,15 @@ public class AppAuthorService {
         Root<AuthorEntity> dataRoot = dataCq.from(AuthorEntity.class);
 
         // Pass the effective library filter for book count
-        Collection<Long> countLibraryIds = libraryId != null ? List.of(libraryId) : accessibleLibraryIds;
-        Expression<Long> bookCount = AppAuthorSpecification.bookCount(dataRoot, cb, countLibraryIds);
+        Expression<Long> bookCountExpr = AppAuthorSpecification.bookCount(dataCq, dataRoot, cb, effectiveLibraryIds);
 
-        dataCq.multiselect(
+        dataCq.select(cb.tuple(
             dataRoot.get(AuthorEntity_.id).alias("id"),
             dataRoot.get(AuthorEntity_.name).alias("name"),
             dataRoot.get(AuthorEntity_.asin).alias("asin"),
             dataRoot.get(AuthorEntity_.hasPhoto).alias("hasPhoto"),
-            bookCount.alias("bookCount")
-        );
+            bookCountExpr.alias("bookCount")
+        ));
         dataCq.where(spec.toPredicate(dataRoot, dataCq, cb));
         dataCq.groupBy(dataRoot);
 
@@ -95,7 +97,7 @@ public class AppAuthorService {
             default -> false;
         };
         Expression<?> sortExpr = switch (normalizedSort) {
-            case "bookcount", "book_count" -> bookCount;
+            case "bookcount", "book_count" -> bookCountExpr;
             case "recent", "id" -> dataRoot.get(AuthorEntity_.id);
             default -> dataRoot.get(AuthorEntity_.name);
         };
@@ -115,28 +117,24 @@ public class AppAuthorService {
 
         List<AppAuthorSummary> summaries = results.stream()
                 .map(row -> {
-                    AuthorEntity author = (AuthorEntity) row[0];
-                    long bookCount = (Long) row[1];
-                    boolean authorHasPhoto = Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId())));
+                    Long id = row.get("id", Long.class);
+                    String name = row.get("name", String.class);
+                    String asin = row.get("asin", String.class);
+                    Long count = row.get("bookCount", Long.class);
+                    boolean dbHasPhoto = Boolean.TRUE.equals(row.get("hasPhoto", Boolean.class));
+
+                    // Check actual file existence for final summary report
+                    boolean actualHasPhoto = Files.exists(Paths.get(fileService.getAuthorThumbnailFile(id)));
+
                     return AppAuthorSummary.builder()
-                            .id(author.getId())
-                            .name(author.getName())
-                            .asin(author.getAsin())
-                            .bookCount((int) bookCount)
-                            .hasPhoto(authorHasPhoto)
+                            .id(id)
+                            .name(name)
+                            .asin(asin)
+                            .bookCount(count != null ? count.intValue() : 0)
+                            .hasPhoto(actualHasPhoto)
                             .build();
                 })
                 .toList();
-
-        // Post-filter by hasPhoto if requested
-        if (hasPhoto != null) {
-            summaries = summaries.stream()
-                    .filter(s -> s.isHasPhoto() == hasPhoto)
-                    .toList();
-            // Adjust total count for hasPhoto filter — requires a separate count
-            long filteredTotal = countAuthorsWithPhotoFilter(accessibleLibraryIds, libraryId, search, hasPhoto);
-            return AppPageResponse.of(summaries, pageNum, pageSize, filteredTotal);
-        }
 
         return AppPageResponse.of(summaries, pageNum, pageSize, totalElements);
     }
@@ -200,12 +198,20 @@ public class AppAuthorService {
         return entityManager.createQuery(cq).getSingleResult().intValue();
     }
 
+    private Collection<Long> resolveEffectiveLibraryIds(Set<Long> accessibleLibraryIds, Long libraryId) {
+        if (libraryId == null) {
+            return accessibleLibraryIds;
+        }
+        if (accessibleLibraryIds == null) {
+            return List.of(libraryId); // admin
+        }
+        return accessibleLibraryIds.contains(libraryId) ? List.of(libraryId) : List.of();
+    }
 
-    private Specification<AuthorEntity> buildSpecification(Set<Long> accessibleLibraryIds, Long libraryId, String search, Boolean hasPhoto) {
-        Collection<Long> effectiveLibraryIds = libraryId != null ? List.of(libraryId) : accessibleLibraryIds;
+    private Specification<AuthorEntity> buildSpecification(Collection<Long> effectiveLibraryIds, String search, Boolean hasPhoto) {
         Specification<AuthorEntity> spec = AppAuthorSpecification.visibleTo(effectiveLibraryIds);
 
-        if (libraryId == null && accessibleLibraryIds != null && accessibleLibraryIds.isEmpty()) {
+        if (effectiveLibraryIds != null && effectiveLibraryIds.isEmpty()) {
             // Non-admin user with no library access: force empty result.
             spec = spec.and((root, query, cb) -> cb.disjunction());
         }

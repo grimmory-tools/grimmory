@@ -17,8 +17,8 @@ public class AppAuthorSpecification {
      * Factory for the book count expression.
      * Note: This adds a JOIN to the query it is used in and filters by visibility.
      */
-    public static Expression<Long> bookCount(Root<AuthorEntity> root, CriteriaBuilder cb, Collection<Long> libraryIds) {
-        Subquery<Long> sq = cb.createQuery().subquery(Long.class);
+    public static Expression<Long> bookCount(CommonAbstractCriteria query, Root<AuthorEntity> root, CriteriaBuilder cb, Collection<Long> libraryIds) {
+        Subquery<Long> sq = query.subquery(Long.class);
         Root<BookMetadataEntity> bm = sq.from(BookMetadataEntity.class);
         Join<BookMetadataEntity, BookEntity> book = bm.join(BookMetadataEntity_.book);
 
