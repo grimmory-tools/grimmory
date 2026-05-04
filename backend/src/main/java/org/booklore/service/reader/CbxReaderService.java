@@ -223,15 +223,10 @@ public class CbxReaderService {
         }
     }
 
-    public long getLastModified(Long bookId, String bookType) {
+    public long getLastModified(Long bookId, String bookType) throws IOException {
         Path cbxPath = getBookPath(bookId, bookType);
-        try {
-            CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
-            return metadata.lastModified();
-        } catch (IOException e) {
-            log.warn("Failed to get last modified for CBX book {}: {}", bookId, e.getMessage());
-            return 0L;
-        }
+        CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
+        return metadata.lastModified();
     }
 
     /**

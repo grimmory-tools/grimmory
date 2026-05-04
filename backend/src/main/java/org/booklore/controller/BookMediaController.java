@@ -44,9 +44,7 @@ public class BookMediaController {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(hash != null
-                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
-                        : CacheControl.noCache())
+                .cacheControl(CacheControl.noCache().cachePrivate())
                 .eTag(hash)
                 .body(bookService.getBookThumbnail(bookId));
     }
@@ -61,9 +59,7 @@ public class BookMediaController {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(hash != null
-                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
-                        : CacheControl.noCache())
+                .cacheControl(CacheControl.noCache().cachePrivate())
                 .eTag(hash)
                 .body(bookService.getBookCover(bookId));
     }
@@ -78,9 +74,7 @@ public class BookMediaController {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(hash != null
-                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
-                        : CacheControl.noCache())
+                .cacheControl(CacheControl.noCache().cachePrivate())
                 .eTag(hash)
                 .body(bookService.getAudiobookThumbnail(bookId));
     }
@@ -95,9 +89,7 @@ public class BookMediaController {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(hash).build();
         }
         return ResponseEntity.ok()
-                .cacheControl(hash != null
-                        ? CacheControl.maxAge(30, TimeUnit.DAYS).cachePrivate()
-                        : CacheControl.noCache())
+                .cacheControl(CacheControl.noCache().cachePrivate())
                 .eTag(hash)
                 .body(bookService.getAudiobookCover(bookId));
     }

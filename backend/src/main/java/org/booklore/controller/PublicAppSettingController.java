@@ -36,7 +36,7 @@ public class PublicAppSettingController {
         }
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic().mustRevalidate())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())
                 .eTag(etag)
                 .body(settings);
     }

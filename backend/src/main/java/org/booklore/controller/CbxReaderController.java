@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class CbxReaderController {
     public ResponseEntity<List<Integer>> listPages(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
+            WebRequest request) throws IOException {
         long lastModified = cbxReaderService.getLastModified(bookId, bookType);
         String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
@@ -57,7 +58,7 @@ public class CbxReaderController {
     public ResponseEntity<List<CbxPageInfo>> getPageInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
+            WebRequest request) throws IOException {
         long lastModified = cbxReaderService.getLastModified(bookId, bookType);
         String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
@@ -81,7 +82,7 @@ public class CbxReaderController {
     public ResponseEntity<List<CbxPageDimension>> getPageDimensions(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
+            WebRequest request) throws IOException {
         long lastModified = cbxReaderService.getLastModified(bookId, bookType);
         String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
