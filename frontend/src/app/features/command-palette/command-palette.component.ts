@@ -13,7 +13,7 @@ import { IconDisplayComponent } from '../../shared/components/icon-display/icon-
 import { PaletteItem } from './command-palette.model';
 import { CommandPaletteService } from './command-palette.service';
 
-const MOBILE_MEDIA_QUERY = '(max-width: 991px)';
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)';
 const MOBILE_TOPBAR_HEIGHT = '3.5rem';
 
 @Component({

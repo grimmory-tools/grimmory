@@ -60,7 +60,7 @@
   display: none;
 }
 
-@media (width <= 991px) {
+@media (width <= 767px) {
   .layout-sidebar-resize-handle {
     display: none;
   }
@@ -145,9 +145,9 @@ body.layout-resizing-cursor {
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    height: var(--sidebar-section-min-height);
-    min-height: var(--sidebar-section-min-height);
-    margin: var(--sidebar-section-spacing-before) 0 var(--sidebar-section-spacing-after);
+    height: auto;
+    min-height: 0;
+    margin: var(--sidebar-section-spacing-before) 0;
   }
 
   .sidebar-section-divider::before {

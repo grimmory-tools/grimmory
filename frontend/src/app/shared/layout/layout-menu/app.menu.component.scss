@@ -302,6 +302,8 @@
 }
 
 .sidebar-collapse-button {
+  width: 2.75rem;
+  height: 2.75rem;
   margin-left: auto;
 }
 
@@ -351,7 +353,7 @@
   white-space: nowrap;
 }
 
-@media (width <= 991px) {
+@media (width <= 767px) {
   .sidebar-header {
     align-items: flex-start;
     margin-bottom: var(--space-3);

@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { DestroyRef, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -18,6 +18,7 @@ import {
 export const SIDEBAR_MIN_WIDTH = 175;
 export const SIDEBAR_MAX_WIDTH = 400;
 export const SIDEBAR_DEFAULT_WIDTH = 225;
+const DESKTOP_MIN_WIDTH = 768;
 const SIDEBAR_EXPANDED_STATE_KEY = 'sidebarExpandedState';
 const SIDEBAR_TRANSITION_MS = 220;
 
@@ -51,6 +52,7 @@ export class LayoutService {
   readonly sidebarCollapsed = signal(this.localStorage.get<boolean>('sidebarCollapsed') ?? false);
   readonly sidebarWidth = signal(this.clampSidebarWidth(this.localStorage.get<number>('sidebarWidth') ?? SIDEBAR_DEFAULT_WIDTH));
   readonly isDesktop = signal(this.computeIsDesktop());
+  readonly desktopSidebarCollapsed = computed(() => this.isDesktop() && this.sidebarCollapsed());
   readonly sidebarExpandedState = signal<Readonly<Record<string, boolean>>>(
     readBooleanRecord(this.localStorage, SIDEBAR_EXPANDED_STATE_KEY)
   );
@@ -147,7 +149,7 @@ export class LayoutService {
   }
 
   private computeIsDesktop(): boolean {
-    return (this.document.defaultView?.innerWidth ?? 992) > 991;
+    return (this.document.defaultView?.innerWidth ?? DESKTOP_MIN_WIDTH) >= DESKTOP_MIN_WIDTH;
   }
 
   private readonly onResize = (): void => {

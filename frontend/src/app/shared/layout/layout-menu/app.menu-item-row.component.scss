@@ -53,7 +53,7 @@ a.menu-item-link {
   }
 }
 
-.menu-item-link:focus-visible .menu-item-chrome {
+.menu-item-container:has(.menu-item-link:focus-visible) {
   background-color: var(--surface-hover);
   box-shadow: var(--sidebar-focus-ring);
   border-radius: var(--sidebar-row-radius);
@@ -155,6 +155,10 @@ a.menu-item-link.active-route {
   justify-content: center;
 }
 
+.entity-menu-count {
+  font-variant-numeric: tabular-nums;
+}
+
 .entity-menu-icon {
   display: none;
 }
@@ -173,6 +177,7 @@ a.menu-item-link.active-route {
   color: var(--text-color-secondary);
   padding-right: var(--space-3);
   font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .library-health-dot {

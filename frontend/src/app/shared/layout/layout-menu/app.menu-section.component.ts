@@ -36,7 +36,7 @@ export class AppMenuSectionComponent {
   }
 
   get submenuVisible(): boolean {
-    return this.layoutService.sidebarCollapsed() || this.expanded;
+    return (this.layoutService.isDesktop() && this.layoutService.sidebarCollapsed()) || this.expanded;
   }
 
   toggleExpand(): void {

@@ -10,7 +10,7 @@
       type="button"
       class="menu-item-link"
       [pTooltip]="currentItem.label"
-      [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+      [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
       tooltipPosition="right"
       (click)="runAction($event)"
     >
@@ -33,7 +33,7 @@
       [attr.aria-current]="isRouteActive() ? 'page' : null"
       [routerLink]="currentItem.routerLink"
       [pTooltip]="currentItem.label"
-      [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+      [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
       tooltipPosition="right"
       tabindex="0"
     >

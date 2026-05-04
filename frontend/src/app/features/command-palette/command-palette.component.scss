@@ -134,6 +134,10 @@
   background: var(--surface-800);
   box-shadow: var(--shadow-sm);
 
+  &.square-cover {
+    height: 32px;
+  }
+
   img {
     width: 100%;
     height: 100%;
@@ -224,7 +228,7 @@
   color: var(--text-color);
 }
 
-@media (width <= 991px) {
+@media (width <= 767px) {
   .command-palette-shell {
     width: 100vw;
   }
