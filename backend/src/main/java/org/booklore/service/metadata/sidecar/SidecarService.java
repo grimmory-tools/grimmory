@@ -64,6 +64,9 @@ public class SidecarService {
         SidecarMetadata metadata = lastModified == null
                 ? null
                 : sidecarReader.readSidecarMetadata(bookPath).orElse(null);
+        if (metadata == null) {
+            lastModified = null;
+        }
 
         return SidecarResponse.builder()
                 .lastModified(lastModified)
