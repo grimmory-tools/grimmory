@@ -1,6 +1,6 @@
 import {describe, it} from 'vitest';
 
-// NOTE(frontend-seam): Real coverage here needs seams around ngx-extended-pdf-viewer,
+// NOTE(frontend-seam): Real coverage here needs seams around the embedpdf viewer,
 // reader-session lifecycle, route-driven book loading, and annotation persistence so the
 // component can be tested without booting the full PDF runtime and browser document hooks.
 describe.skip('PdfReaderComponent', () => {

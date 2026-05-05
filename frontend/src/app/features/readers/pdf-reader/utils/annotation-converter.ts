@@ -99,7 +99,7 @@ export function serializeAnnotations(items: AnnotationTransferItem[]): string {
 
 /**
  * Best-effort conversion of legacy pdf.js editor annotations.
- * These are the serialized annotations from ngx-extended-pdf-viewer's
+ * These are the serialized annotations from the legacy ngx-extended-pdf-viewer's
  * getSerializedAnnotations() which outputs pdf.js editor format.
  *
  * This is a lossy conversion not all annotation types or properties
