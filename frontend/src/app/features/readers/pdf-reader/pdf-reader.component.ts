@@ -1311,7 +1311,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
 
     this.hasWarmedPdfiumAssets = true;
-    void this.cacheStorageService.prewarmStaticAssets(PdfReaderComponent.PDFIUM_RUNTIME_ASSET_PATHS);
+    this.cacheStorageService
+      .prewarmStaticAssets(PdfReaderComponent.PDFIUM_RUNTIME_ASSET_PATHS)
+      .catch(err => console.warn('[PDF Reader] PDFium asset prewarm failed:', err));
   }
 
   private async resolvePdfiumWasmUrl(): Promise<string> {
@@ -1325,6 +1327,13 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
 
     const wasmUrl = await this.cacheStorageService.getStaticAssetObjectUrl(PdfReaderComponent.PDFIUM_WASM_PATH);
+    // A concurrent call may have already populated the cached blob URL while we were awaiting.
+    if (this.pdfiumWasmBlobUrl) {
+      if (wasmUrl !== this.pdfiumWasmBlobUrl && wasmUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(wasmUrl);
+      }
+      return this.pdfiumWasmBlobUrl;
+    }
     if (wasmUrl.startsWith('blob:')) {
       this.pdfiumWasmBlobUrl = wasmUrl;
     }
