@@ -126,12 +126,12 @@ describe('CacheStorageService static asset helpers', () => {
   });
 
   it('handles prewarm race conditions by only firing one fetch for multiple rapid calls', async () => {
-    let resolveFetch: (res: Response) => void = () => {};
+    let resolveFetch: (res: Response) => void = () => { /* initialized in promise */ };
     const fetchPromise = new Promise<Response>((resolve) => {
       resolveFetch = resolve;
     });
 
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockReturnValue(fetchPromise as any);
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockReturnValue(fetchPromise as unknown as Promise<Response>);
 
     // Fire two calls rapidly
     const p1 = service.prewarmStaticAssets(['/assets/pdfium/pdfium.wasm']);

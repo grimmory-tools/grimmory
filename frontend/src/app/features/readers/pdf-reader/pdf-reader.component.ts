@@ -49,11 +49,8 @@ type EmbedPdfMessage =
 export class PdfReaderComponent implements OnInit, OnDestroy {
   private static readonly PDFIUM_RUNTIME_ASSET_PATHS = [
     '/assets/pdfium/index.browser.js',
-    '/assets/pdfium/index.browser.js.map',
     '/assets/pdfium/index.cjs',
-    '/assets/pdfium/index.cjs.map',
     '/assets/pdfium/index.js',
-    '/assets/pdfium/index.js.map',
     '/assets/pdfium/pdfium.wasm',
   ];
   private static readonly PDFIUM_WASM_PATH = '/assets/pdfium/pdfium.wasm';
