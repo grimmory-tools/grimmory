@@ -22,7 +22,7 @@ ARG APP_REVISION=unknown
 
 WORKDIR /workspace/backend
 
-COPY backend/gradlew backend/gradlew.bat backend/build.gradle.kts backend/settings.gradle.kts ./
+COPY backend/gradlew backend/gradlew.bat backend/build.gradle.kts backend/settings.gradle.kts backend/gradle.lockfile ./
 COPY backend/gradle ./gradle
 RUN chmod +x ./gradlew
 
