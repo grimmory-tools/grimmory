@@ -1,6 +1,15 @@
 {
   "title": "Preferensi Tampilan",
   "description": "",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "",
     "sectionDesc": "",

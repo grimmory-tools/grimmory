@@ -48,6 +48,7 @@
       "noBooks": "Ebben a gyűjteményben nem találhatóak könyvek!",
       "failedLibrary": "Nem sikerült betölteni a könyvtárban lévő könyveket!",
       "failedShelf": "Nem sikerült betölteni a polcon lévő könyveket!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktív szűrő"
     },
     "tooltip": {
@@ -614,7 +615,12 @@
   },
   "table": {
     "bookCoverAlt": "",
-    "statusPrefix": "",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "{{ status }}",
     "locked": "",
     "unlocked": "",
     "toast": {

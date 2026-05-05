@@ -1,0 +1,112 @@
+<ng-template #paletteTpl>
+  <ng-container *transloco="let t; prefix: 'layout.commandPalette'">
+    <div class="command-palette-shell" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" [attr.aria-label]="t('ariaLabel')">
+      <div class="command-palette" [style.max-height.px]="availableHeightPx()">
+        <!-- iOS needs both type="search" and a form with an action attribute. -->
+        <form ngNoForm action="." class="command-palette-form" (submit)="$event.preventDefault()">
+          <div class="command-palette-input-row">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input
+              #paletteInput
+              type="search"
+              name="q"
+              class="command-palette-input"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="none"
+              enterkeyhint="search"
+              [placeholder]="t('placeholder')"
+              [attr.aria-label]="t('ariaLabel')"
+              [ngModel]="svc.query()"
+              (ngModelChange)="onQueryChange($event)"
+              (keydown)="onKeydown($event)"
+            />
+          </div>
+        </form>
+
+        @let groups = svc.groups();
+        @let hasQuery = svc.query().trim().length > 0;
+        @let isSearching = svc.isSearching();
+
+        @if (hasQuery) {
+          <div class="command-palette-results" role="listbox">
+            @if (!isSearching && groups.length === 0) {
+              <div class="command-palette-empty">{{ t('empty') }}</div>
+            }
+
+            @for (group of groups; track group.kind) {
+              <div class="command-palette-group" role="group" [attr.aria-label]="t(groupLabelKey(group.kind))">
+                <div class="command-palette-group-label" aria-hidden="true">{{ t(groupLabelKey(group.kind)) }}</div>
+                @for (item of group.items; track item.id) {
+                  <button
+                    type="button"
+                    class="command-palette-item"
+                    [class.active]="activeItem()?.id === item.id"
+                    [class.book-item]="item.kind === 'book' && !!item.bookMeta"
+                    [id]="itemDomId(item)"
+                    role="option"
+                    [attr.aria-selected]="activeItem()?.id === item.id"
+                    (mouseenter)="onItemHover(item)"
+                    (click)="svc.select(item)"
+                  >
+                    @if (item.kind === 'book' && item.bookMeta; as bookMeta) {
+                      <ng-container *transloco="let tb; prefix: 'book.searcher'">
+                        <div class="command-palette-book-cover" [class.square-cover]="bookMeta.isAudiobook">
+                          @if (bookMeta.thumbnailUrl) {
+                            <img [src]="bookMeta.thumbnailUrl" alt="" />
+                          } @else {
+                            <app-cover-placeholder
+                              [title]="item.title"
+                              [author]="bookMeta.authors.join(', ')"
+                              size="sm"
+                            ></app-cover-placeholder>
+                          }
+                        </div>
+                        <div class="command-palette-book-details">
+                          <div class="command-palette-book-title">{{ item.title }}</div>
+                          <div class="command-palette-book-meta">
+                            @if (bookMeta.authors.length) {
+                              <span>{{ tb('byPrefix') }} {{ bookMeta.authors.join(', ') }}</span>
+                            }
+                            @if (bookMeta.seriesName) {
+                              <span>{{ bookMeta.seriesName }}@if (bookMeta.seriesNumber) { #{{ bookMeta.seriesNumber }} }</span>
+                            }
+                            @if (bookMeta.year) {
+                              <span>{{ bookMeta.year }}</span>
+                            }
+                          </div>
+                        </div>
+                      </ng-container>
+                    } @else {
+                      @if (item.icon) {
+                        <app-icon-display
+                          class="command-palette-item-icon"
+                          [icon]="item.icon"
+                          size="18px"
+                          [displayEmpty]="true"
+                        ></app-icon-display>
+                      }
+                      <span class="command-palette-item-title">{{ item.title }}</span>
+                      @if (item.subtitle) {
+                        <span class="command-palette-item-subtitle">{{ item.subtitle }}</span>
+                      }
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="command-palette-hint" aria-hidden="true">
+            <span class="command-palette-hint-item">
+              <kbd>↑↓</kbd> {{ t('hintNavigate') }}
+            </span>
+            <span class="command-palette-hint-item">
+              <kbd>↵</kbd> {{ t('hintSelect') }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-container>
+</ng-template>

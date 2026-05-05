@@ -19,6 +19,12 @@ import {AddPhysicalBookDialogComponent} from '../add-physical-book-dialog/add-ph
 import {BulkIsbnImportDialogComponent} from '../bulk-isbn-import-dialog/bulk-isbn-import-dialog.component';
 import {DuplicateMergerComponent} from '../duplicate-merger/duplicate-merger.component';
 
+interface MetadataRefreshDialogContext {
+  metadataRefreshType: MetadataRefreshType;
+  bookIds?: number[];
+  libraryId?: number;
+}
+
 @Injectable({providedIn: 'root'})
 export class BookDialogHelperService {
 
@@ -75,12 +81,20 @@ export class BookDialogHelperService {
   }
 
   openMetadataRefreshDialog(bookIds: Set<number>): DynamicDialogRef | null {
+    return this.openMetadataRefreshDialogWithContext({
+      metadataRefreshType: MetadataRefreshType.BOOKS,
+      bookIds: Array.from(bookIds)
+    });
+  }
+
+  openMetadataRefreshDialogWithContext(context: MetadataRefreshDialogContext): DynamicDialogRef | null {
     return this.openDialog(MultiBookMetadataFetchComponent, {
       showHeader: false,
       styleClass: `${DialogSize.FULL} ${DialogStyle.MINIMAL}`,
       data: {
-        bookIds: Array.from(bookIds),
-        metadataRefreshType: MetadataRefreshType.BOOKS,
+        bookIds: context.bookIds ?? [],
+        libraryId: context.libraryId,
+        metadataRefreshType: context.metadataRefreshType,
       },
     });
   }

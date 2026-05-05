@@ -1,128 +1,113 @@
-<ng-container *transloco="let t; prefix: 'book.table'">
-<p-table
-  [value]="books"
-  [columns]="visibleColumns"
-  [dataKey]="'id'"
-  [resizableColumns]="true"
-  [reorderableColumns]="true"
-  columnResizeMode="expand"
-  [rowTrackBy]="trackByBookId"
-  [metaKeySelection]="true"
-  showGridlines
-  stripedRows
-  [scrollable]="true"
-  [scrollHeight]="scrollHeight"
-  [virtualScroll]="true"
-  [virtualScrollItemSize]="46"
-  [(selection)]="selectedBooks"
-  (onHeaderCheckboxToggle)="onHeaderCheckboxToggle($event)"
-  (onRowSelect)="onRowSelect($event)"
-  (onRowUnselect)="onRowUnselect($event)"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th>
-        <p-tableHeaderCheckbox/>
-      </th>
-      <th></th>
-      <th class="cover-header-cell"></th>
-      @for (col of visibleColumns; track col.field) {
-        <th pResizableColumn>{{ col.header }}</th>
-      }
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-book>
-    @if (book.metadata; as metadata) {
-      <tr style="height:46px">
-        <td>
-          <p-tableCheckbox [value]="book"/>
-        </td>
-        <td class="cell-center">
-          <p-button
-            [icon]="isMetadataFullyLocked(metadata) ? 'pi pi-lock' : 'pi pi-lock-open'"
-            [severity]="isMetadataFullyLocked(metadata) ? 'danger' : 'success'"
-            [text]="true"
-            [title]="isMetadataFullyLocked(metadata) ? t('locked') : t('unlocked')"
-            size="small"
-            [style]="{ width: '1.5rem', height: '1.5rem', padding: '0', fontSize: '0.75rem' }"
-            (click)="toggleMetadataLock(metadata)">
-          </p-button>
-        </td>
-        <td>
-          <a [routerLink]="urlHelper.getBookUrl(book)">
-            @if (urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn); as coverUrl) {
-              <img
-                [attr.src]="coverUrl"
-                [alt]="t('bookCoverAlt')"
-                class="cover-thumbnail"
-                tooltipPosition="left"
-                [pTooltip]="tooltipContent"
-                tooltipStyleClass="cover-tooltip"
-              />
-            } @else {
-              <app-cover-placeholder class="cover-thumbnail" [title]="metadata.title ?? ''" [author]="(metadata.authors ?? []).join(', ')" size="sm" />
-            }
-          </a>
-          <ng-template #tooltipContent>
-            <div class="tooltip-cover-container">
-              @if (urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn); as coverUrl) {
-                <img
-                  [attr.src]="coverUrl"
-                  [alt]="t('bookCoverAlt')"
-                  class="tooltip-cover-image"
-                />
+<ng-container *transloco="let t">
+  <div
+    #scrollElement
+    class="book-table-scroll p-datatable p-component p-datatable-scrollable p-datatable-striped p-datatable-gridlines p-datatable-resizable"
+    role="grid"
+    (scroll)="clearCoverPreview()"
+    (wheel)="clearCoverPreview()"
+    [attr.aria-label]="t('book.table.label')"
+    [attr.aria-rowcount]="ariaRowCount()"
+    [attr.aria-colcount]="ariaColumnCount()">
+    <div class="book-table p-datatable-table p-datatable-scrollable-table p-datatable-resizable-table" [style]="columnSizeVars()" [style.width.px]="tableWidth()">
+      @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+        <div class="book-table-header-row" role="row" aria-rowindex="1">
+          @for (header of headerGroup.headers; track header.id; let columnIndex = $index) {
+            <div
+              class="book-table-header-cell p-datatable-header-cell p-datatable-resizable-column"
+              role="columnheader"
+              [attr.aria-colindex]="columnIndex + 1"
+              [class.cell-action]="header.column.id === 'select' || header.column.id === 'lock'"
+              [class.cell-cover]="header.column.id === 'cover'">
+              @if (header.column.id === 'select') {
+                <p-checkbox
+                  class="book-table-checkbox"
+                  [binary]="true"
+                  [ngModel]="allLoadedBooksSelected()"
+                  [indeterminate]="someBooksSelected()"
+                  (ngModelChange)="onHeaderCheckboxChange($event)"
+                  [ariaLabel]="t('book.browser.tooltip.selectAll')"></p-checkbox>
               } @else {
-                <app-cover-placeholder class="tooltip-cover-image" [title]="metadata.title ?? ''" [author]="(metadata.authors ?? []).join(', ')" />
+                <span class="p-datatable-column-title">{{ header.column.columnDef.header }}</span>
               }
-              <em class="tooltip-cover-title">{{ metadata.title }}</em>
-            </div>
-          </ng-template>
-        </td>
 
-        @for (col of visibleColumns; track col.field) {
-          @if (col.field === 'readStatus') {
-            <td class="cell-status">
-              @if (shouldShowStatusIcon(book.readStatus)) {
-                <div class="read-status-indicator"
-                     [ngClass]="getReadStatusClass(book.readStatus)"
-                     [pTooltip]="t('statusPrefix') + getReadStatusTooltip(book.readStatus)"
-                     tooltipPosition="top">
-                  <i [class]="getReadStatusIcon(book.readStatus)"></i>
+              @if (header.column.getCanResize()) {
+                <span
+                  class="column-resizer p-datatable-column-resizer"
+                  (mousedown)="startColumnResize(header, $event)"
+                  (touchstart)="startColumnResize(header, $event)"
+                  aria-hidden="true"></span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="book-table-body" [style.height.px]="rowVirtualizer.getTotalSize()">
+        @for (virtualRow of rowVirtualizer.getVirtualItems(); track virtualRow.key) {
+          @if (books()[virtualRow.index]; as book) {
+            <app-book-table-row
+              [book]="book"
+              [cellIds]="visibleCellIds()"
+              [rowIndex]="virtualRow.index"
+              [rowHeight]="virtualRow.size"
+              [rowStart]="virtualRow.start"
+              [isSelected]="isRowSelected(book)"
+              [isLockPending]="isMetadataLockPending(book.id)"
+              [useSquareCovers]="useSquareCovers()"
+              (selectionChange)="onBookSelectionChange($event)"
+              (metadataLockToggleRequested)="toggleMetadataLock($event)"
+              (coverPreviewShow)="showCoverPreview($event)"
+              (coverPreviewHide)="hideCoverPreview($event)" />
+          } @else {
+            <div
+              class="book-table-row book-table-row-loading"
+              role="row"
+              aria-busy="true"
+              [attr.aria-rowindex]="virtualRow.index + 2"
+              [class.book-table-row-striped]="virtualRow.index % 2 === 0"
+              [style.height.px]="virtualRow.size"
+              [style.transform]="'translateY(' + virtualRow.start + 'px)'">
+              @for (columnId of visibleCellIds(); track columnId; let columnIndex = $index) {
+                <div
+                  class="book-table-cell"
+                  role="gridcell"
+                  [attr.aria-colindex]="columnIndex + 1"
+                  [class.cell-action]="columnId === 'select' || columnId === 'lock'"
+                  [class.cell-cover]="columnId === 'cover'">
+                  <span class="loading-line" [class.loading-line-short]="columnId !== 'title'"></span>
                 </div>
               }
-            </td>
-          } @else if (col.field === 'amazonRating' || col.field === 'goodreadsRating' || col.field === 'hardcoverRating' || col.field === 'ranobedbRating') {
-            <td class="cell-rating">
-              <span class="rating-wrapper">
-                <p-rating
-                  [(ngModel)]="metadata[col.field]"
-                  readonly
-                  stars="5"
-                  [style.--p-rating-icon-active-color]="getStarColor(metadata[col.field])"
-                ></p-rating>
-                @if (metadata[col.field] !== null && metadata[col.field] !== undefined) {
-                  <span>({{ metadata[col.field]?.toFixed(1) }})</span>
-                }
-              </span>
-            </td>
-          } @else {
-            <td
-              [title]="getCellValue(metadata, book, col.field)"
-              class="cell-text">
-              @if(['title', 'authors', 'publisher', 'seriesName', 'categories', 'language'].includes(col.field)) {
-                @for (item of getCellClickableValue(metadata, book, col.field); track $index; let isLast = $last) {
-                  <a [routerLink]="item.url" class="cell-link">
-                    {{ item.anchor }}</a>@if (!isLast) {<span>, </span>}
-                }
-              } @else {
-                {{ getCellValue(metadata, book, col.field) }}
-              }
-            </td>
+            </div>
           }
         }
-      </tr>
-    }
-  </ng-template>
-</p-table>
+      </div>
+    </div>
+  </div>
+
+  @if (coverPreview(); as preview) {
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="preview.origin"
+      [cdkConnectedOverlayOpen]="true"
+      [cdkConnectedOverlayPositions]="coverOverlayPositions"
+      [cdkConnectedOverlayViewportMargin]="8"
+      [cdkConnectedOverlayPush]="true"
+      [cdkConnectedOverlayFlexibleDimensions]="true">
+      <div class="cover-preview">
+        @if (preview.coverUrl; as coverUrl) {
+          <img
+            [attr.src]="coverUrl"
+            [alt]="t('book.table.bookCoverAlt')"
+            class="cover-preview-image"
+            [class.square-cover]="preview.useSquareCover" />
+        } @else {
+          <app-cover-placeholder
+            class="cover-preview-image"
+            [class.square-cover]="preview.useSquareCover"
+            [title]="preview.metadata.title ?? ''"
+            [author]="(preview.metadata.authors ?? []).join(', ')" />
+        }
+      </div>
+    </ng-template>
+  }
 </ng-container>

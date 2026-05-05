@@ -129,3 +129,22 @@ export function patchAppBooksCoverInCache(
     }
   );
 }
+
+export function patchAppBooksMetadataLockInCache(queryClient: QueryClient, bookId: number, allMetadataLocked: boolean): void {
+  queryClient.setQueriesData<InfiniteData<AppPageResponse<AppBookSummary>>>(
+    {queryKey: APP_BOOKS_QUERY_PREFIX},
+    current => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        pages: current.pages.map(page => ({
+          ...page,
+          content: page.content.map(summary =>
+            summary.id === bookId ? {...summary, allMetadataLocked} : summary
+          ),
+        })),
+      };
+    }
+  );
+}

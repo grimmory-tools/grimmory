@@ -114,26 +114,25 @@
 
 .main-container {
   width: 100%;
-  padding: 1rem;
-  height: calc(100dvh - 10.5rem);
-  border-width: 1px;
-  border-radius: 0.5rem;
+  box-sizing: border-box;
+  padding: 1rem 0;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-
-  @media (width >= 768px) {
-    height: calc(100dvh - 6.125rem);
-  }
 }
 
 .enclosing-container {
-  border-color: var(--p-content-border-color);
   background: var(--p-content-background);
 }
 
 .settings-header {
   margin-top: 0.75rem;
   flex-shrink: 0;
+
+  @media (width >= 768px) {
+    padding: 0 1rem;
+  }
 }
 
 .settings-title {
@@ -257,7 +256,6 @@
   border: 1px solid rgb(128 128 128 / 20%);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--ground-background);
   display: flex;
   flex-direction: column;
   flex: 1;

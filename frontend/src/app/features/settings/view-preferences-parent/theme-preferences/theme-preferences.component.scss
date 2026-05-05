@@ -1,0 +1,21 @@
+@use '../../../../shared/styles/settings-shared' as settings;
+
+.settings-card {
+  @include settings.settings-card;
+}
+
+.section-header {
+  @include settings.settings-section-header;
+}
+
+.section-title {
+  @include settings.settings-section-title;
+}
+
+.section-description {
+  @include settings.settings-section-description;
+}
+
+.section-body {
+  @include settings.settings-section-body;
+}
