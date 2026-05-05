@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
@@ -26,6 +28,7 @@ import java.util.Map;
 @Tag(name = "Icons", description = "Endpoints for managing SVG icons")
 @AllArgsConstructor
 @RestController
+@Validated
 @RequestMapping("/api/v1/icons")
 public class IconController {
 
@@ -52,7 +55,12 @@ public class IconController {
     @Operation(summary = "Get SVG icon content", description = "Retrieve the SVG content of an icon by its name.")
     @ApiResponse(responseCode = "200", description = "SVG icon content retrieved successfully")
     @GetMapping("/{svgName}/content")
-    public ResponseEntity<String> getSvgIconContent(WebRequest request, @Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<String> getSvgIconContent(
+            WebRequest request,
+            @Parameter(description = "SVG icon name")
+            @PathVariable
+            @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "Invalid icon name format")
+            String svgName) {
         Instant lastModified = iconService.getIconLastModified(svgName);
         String etag = (lastModified != null) ? "\"" + lastModified.toEpochMilli() + "\"" : null;
 
@@ -86,7 +94,11 @@ public class IconController {
     @ApiResponse(responseCode = "200", description = "SVG icon deleted successfully")
     @DeleteMapping("/{svgName}")
     @PreAuthorize("@securityUtil.canManageIcons() or @securityUtil.isAdmin()")
-    public ResponseEntity<?> deleteSvgIcon(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<?> deleteSvgIcon(
+            @Parameter(description = "SVG icon name")
+            @PathVariable
+            @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "Invalid icon name format")
+            String svgName) {
         iconService.deleteSvgIcon(svgName);
         return ResponseEntity.ok().build();
     }
