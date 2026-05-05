@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -641,7 +642,7 @@ public class OpdsFeedService {
     }
 
     private String now() {
-        return DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.now());
+        return DateTimeFormatter.ISO_INSTANT.format(Instant.now());
     }
 
     private boolean hasValidFilePath(BookFile bookFile) {

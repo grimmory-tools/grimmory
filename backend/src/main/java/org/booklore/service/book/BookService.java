@@ -35,11 +35,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -314,11 +316,11 @@ public class BookService {
                 .orElse(null);
     }
 
-    public Long getBookThumbnailLastModified(long bookId) {
+    public Instant getBookThumbnailLastModified(long bookId) {
         return getFileLastModified(fileService.getThumbnailFile(bookId));
     }
 
-    public Long getBookCoverLastModified(long bookId) {
+    public Instant getBookCoverLastModified(long bookId) {
         return getFileLastModified(fileService.getCoverFile(bookId));
     }
 
@@ -328,15 +330,15 @@ public class BookService {
                 .orElse(null);
     }
 
-    public Long getAudiobookThumbnailLastModified(long bookId) {
+    public Instant getAudiobookThumbnailLastModified(long bookId) {
         return getFileLastModified(fileService.getAudiobookThumbnailFile(bookId));
     }
 
-    public Long getAudiobookCoverLastModified(long bookId) {
+    public Instant getAudiobookCoverLastModified(long bookId) {
         return getFileLastModified(fileService.getAudiobookCoverFile(bookId));
     }
 
-    private Long getFileLastModified(String filePath) {
+    private Instant getFileLastModified(String filePath) {
         if (filePath == null) {
             return null;
         }
@@ -407,7 +409,7 @@ public class BookService {
         if (!file.exists()) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath);
         }
-        Long lastModified = FileUtils.getFileLastModified(Path.of(filePath));
+        Instant lastModified = FileUtils.getFileLastModified(Path.of(filePath));
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
 
         if (lastModified != null) {
@@ -420,7 +422,7 @@ public class BookService {
                 .body(new FileSystemResource(file));
     }
 
-    public void replaceBookContent(long bookId, String bookType, java.io.InputStream content) throws IOException {
+    public void replaceBookContent(long bookId, String bookType, InputStream content) throws IOException {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -506,9 +508,9 @@ public class BookService {
         if (!Files.exists(path)) return;
 
         try (var walk = Files.walk(path)) {
-            walk.sorted(java.util.Comparator.reverseOrder())
+            walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
-                    .forEach(java.io.File::delete);
+                    .forEach(File::delete);
         }
     }
 

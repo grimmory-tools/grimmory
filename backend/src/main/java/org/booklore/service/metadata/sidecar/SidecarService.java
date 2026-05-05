@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,13 +55,13 @@ public class SidecarService {
         Path bookPath = book.getFullFilePath();
         if (bookPath == null) {
             return SidecarResponse.builder()
-                    .lastModified(0L)
+                    .lastModified(null)
                     .metadata(null)
                     .build();
         }
 
-        long lastModified = sidecarReader.getSidecarLastModified(bookPath);
-        SidecarMetadata metadata = lastModified == 0L
+        Instant lastModified = sidecarReader.getSidecarLastModified(bookPath);
+        SidecarMetadata metadata = lastModified == null
                 ? null
                 : sidecarReader.readSidecarMetadata(bookPath).orElse(null);
 
@@ -70,13 +71,13 @@ public class SidecarService {
                 .build();
     }
 
-    public long getLastModified(Long bookId) {
+    public Instant getLastModified(Long bookId) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         Path bookPath = book.getFullFilePath();
         if (bookPath == null) {
-            return 0L;
+            return null;
         }
 
         return sidecarReader.getSidecarLastModified(bookPath);

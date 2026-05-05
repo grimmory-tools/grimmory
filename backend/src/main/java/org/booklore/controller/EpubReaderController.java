@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/epub")
@@ -42,18 +43,19 @@ public class EpubReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType,
             WebRequest request) throws IOException {
-        long lastModified = epubReaderService.getLastModified(bookId, bookType);
-        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+        Instant lastModified = epubReaderService.getLastModified(bookId, bookType);
 
-        if (etag != null && request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
 
         EpubBookInfo info = epubReaderService.getBookInfo(bookId, bookType);
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(info);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(info);
     }
 
     @Operation(summary = "Get file from EPUB", description = "Retrieve a specific file from within the EPUB archive (HTML, CSS, images, fonts, etc.).")
@@ -67,12 +69,11 @@ public class EpubReaderController {
             WebRequest request,
             HttpServletResponse response) throws IOException {
 
-        long lastModified = epubReaderService.getLastModified(bookId, bookType);
-        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+        Instant lastModified = epubReaderService.getLastModified(bookId, bookType);
 
-        if (etag != null && request.checkNotModified(etag)) {
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            response.setHeader(HttpHeaders.ETAG, "\"" + etag + "\"");
+            response.setDateHeader(HttpHeaders.LAST_MODIFIED, lastModified.toEpochMilli());
             return;
         }
 
@@ -98,8 +99,8 @@ public class EpubReaderController {
         response.setHeader("Content-Security-Policy", "script-src 'none'");
         response.setHeader(HttpHeaders.CACHE_CONTROL,
                 CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate().getHeaderValue());
-        if (etag != null) {
-            response.setHeader(HttpHeaders.ETAG, "\"" + etag + "\"");
+        if (lastModified != null) {
+            response.setDateHeader(HttpHeaders.LAST_MODIFIED, lastModified.toEpochMilli());
         }
 
         try {

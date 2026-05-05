@@ -18,10 +18,14 @@ import org.grimmory.epub4j.epub.EpubReader;
 import org.grimmory.epub4j.native_parsing.NativeArchive;
 import org.springframework.stereotype.Service;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -67,15 +71,15 @@ public class EpubReaderService {
     );
 
     private final BookRepository bookRepository;
-    private final com.github.benmanes.caffeine.cache.Cache<String, CachedEpubMetadata> metadataCache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+    private final Cache<String, CachedEpubMetadata> metadataCache = Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
-    private record CachedEpubMetadata(EpubBookInfo bookInfo, long lastModified,
+    private record CachedEpubMetadata(EpubBookInfo bookInfo, Instant lastModified,
                                       Set<String> validPaths,
                                       Map<String, EpubManifestItem> manifestByHref) {
-        CachedEpubMetadata(EpubBookInfo bookInfo, long lastModified) {
+        CachedEpubMetadata(EpubBookInfo bookInfo, Instant lastModified) {
             this(bookInfo, lastModified, buildValidPaths(bookInfo), buildManifestByHref(bookInfo));
         }
 
@@ -172,7 +176,7 @@ public class EpubReaderService {
         }
     }
 
-    public long getLastModified(Long bookId, String bookType) throws IOException {
+    public Instant getLastModified(Long bookId, String bookType) throws IOException {
         Path epubPath = getBookPath(bookId, bookType);
         CachedEpubMetadata metadata = getCachedMetadata(epubPath);
         return metadata.lastModified;
@@ -194,10 +198,10 @@ public class EpubReaderService {
 
     private CachedEpubMetadata getCachedMetadata(Path epubPath) throws IOException {
         String cacheKey = epubPath.toString();
-        long currentModified = Files.getLastModifiedTime(epubPath).toMillis();
+        Instant currentModified = Files.getLastModifiedTime(epubPath).toInstant();
         CachedEpubMetadata cached = metadataCache.getIfPresent(cacheKey);
 
-        if (cached != null && cached.lastModified() == currentModified) {
+        if (cached != null && cached.lastModified().equals(currentModified)) {
             log.debug("Cache hit for EPUB: {}", epubPath.getFileName());
             return cached;
         }
@@ -208,7 +212,7 @@ public class EpubReaderService {
         return newMetadata;
     }
 
-    private CachedEpubMetadata parseEpubMetadata(Path epubPath, long lastModified) throws IOException {
+    private CachedEpubMetadata parseEpubMetadata(Path epubPath, Instant lastModified) throws IOException {
         try {
             Book book = new EpubReader().readEpubLazy(epubPath, "UTF-8");
             EpubBookInfo bookInfo = mapBookToInfo(book);

@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +39,7 @@ public class IconService {
 
     private final Cache<String, String> svgCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(java.time.Duration.ofHours(1))
+            .expireAfterAccess(Duration.ofHours(1))
             .build();
 
     private static final String ICONS_DIR = "icons";
@@ -240,10 +242,10 @@ public class IconService {
         return svgCache;
     }
 
-    public long getIconsLastModified() {
+    public Instant getIconsLastModified() {
         Path iconsPath = getIconsSvgPath();
         if (!Files.exists(iconsPath)) {
-            return 0L;
+            return null;
         }
 
         try {
@@ -260,25 +262,25 @@ public class IconService {
                         })
                         .max()
                         .orElse(0L);
-                return Math.max(dirMtime, maxFileMtime);
+                return Instant.ofEpochMilli(Math.max(dirMtime, maxFileMtime));
             }
         } catch (IOException e) {
             log.error("Failed to check icons directory last modified: {}", e.getMessage());
-            return 0L;
+            return null;
         }
     }
 
-    public long getIconLastModified(String name) {
+    public Instant getIconLastModified(String name) {
         String filename = normalizeFilename(name);
         Path filePath = getIconsSvgPath().resolve(filename);
         if (!Files.exists(filePath)) {
-            return 0L;
+            return null;
         }
         try {
-            return Files.getLastModifiedTime(filePath).toMillis();
+            return Files.getLastModifiedTime(filePath).toInstant();
         } catch (IOException e) {
             log.warn("Failed to check icon last modified for {}: {}", name, e.getMessage());
-            return 0L;
+            return null;
         }
     }
 

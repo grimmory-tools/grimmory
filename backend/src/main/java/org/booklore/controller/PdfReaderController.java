@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -32,19 +34,18 @@ public class PdfReaderController {
     public ResponseEntity<List<Integer>> listPages(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) throws java.io.IOException {
-        long lastModified = pdfReaderService.getLastModified(bookId, bookType);
-        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+            WebRequest request) throws IOException {
+        Instant lastModified = pdfReaderService.getLastModified(bookId, bookType);
 
-        if (etag != null && request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
 
         List<Integer> pages = pdfReaderService.getAvailablePages(bookId, bookType);
         var builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
-        if (etag != null) {
-            builder.eTag(etag);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
         }
         return builder.body(pages);
     }
@@ -56,19 +57,18 @@ public class PdfReaderController {
     public ResponseEntity<PdfBookInfo> getBookInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) throws java.io.IOException {
-        long lastModified = pdfReaderService.getLastModified(bookId, bookType);
-        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+            WebRequest request) throws IOException {
+        Instant lastModified = pdfReaderService.getLastModified(bookId, bookType);
 
-        if (etag != null && request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
 
         PdfBookInfo info = pdfReaderService.getBookInfo(bookId, bookType);
         var builder = ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
-        if (etag != null) {
-            builder.eTag(etag);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
         }
         return builder.body(info);
     }

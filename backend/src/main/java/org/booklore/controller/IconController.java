@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 @Tag(name = "Icons", description = "Endpoints for managing SVG icons")
@@ -53,17 +54,16 @@ public class IconController {
     @GetMapping("/{svgName}/content")
     public ResponseEntity<String> getSvgIconContent(WebRequest request, @Parameter(description = "SVG icon name") @PathVariable String svgName) {
         String svgContent = iconService.getSvgIcon(svgName);
-        long lastModified = iconService.getIconLastModified(svgName);
-        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+        Instant lastModified = iconService.getIconLastModified(svgName);
 
-        if (etag != null && request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
         var builder = ResponseEntity.ok()
                 .contentType(MediaType.valueOf("image/svg+xml"))
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
-        if (etag != null) {
-            builder.eTag(etag);
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
         }
         return builder.body(svgContent);
     }
@@ -91,14 +91,16 @@ public class IconController {
     @ApiResponse(responseCode = "200", description = "All icon contents retrieved successfully")
     @GetMapping("/all/content")
     public ResponseEntity<Map<String, String>> getAllIconsContent(WebRequest request) {
-        String etag = Long.toHexString(iconService.getIconsLastModified());
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        Instant lastModified = iconService.getIconsLastModified();
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
         Map<String, String> iconsMap = iconService.getAllIconsContent();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
-                .eTag(etag)
-                .body(iconsMap);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(iconsMap);
     }
 }

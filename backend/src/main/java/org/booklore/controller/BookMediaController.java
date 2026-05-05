@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Tag(name = "Book Media", description = "Endpoints for retrieving book media such as covers, thumbnails, and pages")
 @AllArgsConstructor
@@ -40,28 +43,11 @@ public class BookMediaController {
     @GetMapping("/book/{bookId}/thumbnail")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
-        String hash = bookService.getBookCoverHash(bookId);
-        Long lastModified = bookService.getBookThumbnailLastModified(bookId);
-        long lastModifiedTs = lastModified != null ? lastModified : -1L;
-        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
-            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
-            if (hash != null) {
-                notModifiedBuilder.eTag(hash);
-            }
-            if (lastModified != null) {
-                notModifiedBuilder.lastModified(lastModified);
-            }
-            return notModifiedBuilder.build();
-        }
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate());
-        if (hash != null) {
-            builder.eTag(hash);
-        }
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
-        }
-        return builder.body(bookService.getBookThumbnail(bookId));
+        return buildConditionalMediaResponse(
+                bookService.getBookCoverHash(bookId),
+                bookService.getBookThumbnailLastModified(bookId),
+                request,
+                () -> bookService.getBookThumbnail(bookId));
     }
 
     @Operation(summary = "Get book cover", description = "Retrieve the cover image for a specific book.")
@@ -70,28 +56,11 @@ public class BookMediaController {
     @GetMapping("/book/{bookId}/cover")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
-        String hash = bookService.getBookCoverHash(bookId);
-        Long lastModified = bookService.getBookCoverLastModified(bookId);
-        long lastModifiedTs = lastModified != null ? lastModified : -1L;
-        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
-            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
-            if (hash != null) {
-                notModifiedBuilder.eTag(hash);
-            }
-            if (lastModified != null) {
-                notModifiedBuilder.lastModified(lastModified);
-            }
-            return notModifiedBuilder.build();
-        }
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate());
-        if (hash != null) {
-            builder.eTag(hash);
-        }
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
-        }
-        return builder.body(bookService.getBookCover(bookId));
+        return buildConditionalMediaResponse(
+                bookService.getBookCoverHash(bookId),
+                bookService.getBookCoverLastModified(bookId),
+                request,
+                () -> bookService.getBookCover(bookId));
     }
 
     @Operation(summary = "Get audiobook thumbnail", description = "Retrieve the audiobook thumbnail image for a specific book.")
@@ -100,28 +69,11 @@ public class BookMediaController {
     @GetMapping("/book/{bookId}/audiobook-thumbnail")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
-        String hash = bookService.getAudiobookCoverHash(bookId);
-        Long lastModified = bookService.getAudiobookThumbnailLastModified(bookId);
-        long lastModifiedTs = lastModified != null ? lastModified : -1L;
-        if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
-            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
-            if (hash != null) {
-                notModifiedBuilder.eTag(hash);
-            }
-            if (lastModified != null) {
-                notModifiedBuilder.lastModified(lastModified);
-            }
-            return notModifiedBuilder.build();
-        }
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate());
-        if (hash != null) {
-            builder.eTag(hash);
-        }
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
-        }
-        return builder.body(bookService.getAudiobookThumbnail(bookId));
+        return buildConditionalMediaResponse(
+                bookService.getAudiobookCoverHash(bookId),
+                bookService.getAudiobookThumbnailLastModified(bookId),
+                request,
+                () -> bookService.getAudiobookThumbnail(bookId));
     }
 
     @Operation(summary = "Get audiobook cover", description = "Retrieve the audiobook cover image for a specific book.")
@@ -130,28 +82,28 @@ public class BookMediaController {
     @GetMapping("/book/{bookId}/audiobook-cover")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookCover(@Parameter(description = "ID of the book") @PathVariable long bookId, WebRequest request) {
-        String hash = bookService.getAudiobookCoverHash(bookId);
-        Long lastModified = bookService.getAudiobookCoverLastModified(bookId);
-        long lastModifiedTs = lastModified != null ? lastModified : -1L;
+        return buildConditionalMediaResponse(
+                bookService.getAudiobookCoverHash(bookId),
+                bookService.getAudiobookCoverLastModified(bookId),
+                request,
+                () -> bookService.getAudiobookCover(bookId));
+    }
+
+    private ResponseEntity<Resource> buildConditionalMediaResponse(
+            String hash, Instant lastModified, WebRequest request,
+            Supplier<Resource> resourceSupplier) {
+        long lastModifiedTs = lastModified != null ? lastModified.toEpochMilli() : -1L;
         if ((hash != null || lastModified != null) && request.checkNotModified(hash, lastModifiedTs)) {
-            ResponseEntity.BodyBuilder notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
-            if (hash != null) {
-                notModifiedBuilder.eTag(hash);
-            }
-            if (lastModified != null) {
-                notModifiedBuilder.lastModified(lastModified);
-            }
+            var notModifiedBuilder = ResponseEntity.status(HttpStatus.NOT_MODIFIED);
+            if (hash != null) notModifiedBuilder.eTag(hash);
+            if (lastModified != null) notModifiedBuilder.lastModified(lastModified);
             return notModifiedBuilder.build();
         }
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().cachePrivate());
-        if (hash != null) {
-            builder.eTag(hash);
-        }
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
-        }
-        return builder.body(bookService.getAudiobookCover(bookId));
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate());
+        if (hash != null) builder.eTag(hash);
+        if (lastModified != null) builder.lastModified(lastModified);
+        return builder.body(resourceSupplier.get());
     }
 
     @Operation(summary = "Get CBX page as image", description = "Retrieve a specific page from a CBX book as an image.")
@@ -176,7 +128,7 @@ public class BookMediaController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
-            .cacheControl(CacheControl.noCache().cachePrivate())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(photo);
     }
@@ -190,7 +142,7 @@ public class BookMediaController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
-            .cacheControl(CacheControl.noCache().cachePrivate())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(thumbnail);
     }
@@ -204,7 +156,7 @@ public class BookMediaController {
         return (file != null)
                 ? ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePrivate())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(file)
                 : ResponseEntity.noContent().build();

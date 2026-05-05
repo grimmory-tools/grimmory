@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import java.time.Instant;
 import java.util.Map;
 
 @Tag(name = "Sidecar Metadata", description = "Endpoints for managing sidecar JSON metadata files")
@@ -38,14 +39,13 @@ public class SidecarController {
     @GetMapping("/books/{bookId}/sidecar")
     public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId, WebRequest request) {
         SidecarResponse sidecarResponse = sidecarService.getSidecarResponse(bookId);
-        long lastModified = sidecarResponse.getLastModified();
-        if (lastModified == 0L) {
+        Instant lastModified = sidecarResponse.getLastModified();
+        if (lastModified == null) {
             return ResponseEntity.notFound().build();
         }
 
-        String etag = Long.toHexString(lastModified);
-        if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        if (request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
         }
 
         SidecarMetadata metadata = sidecarResponse.getMetadata();
@@ -54,7 +54,7 @@ public class SidecarController {
         }
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .eTag(etag)
+                .lastModified(lastModified)
                 .body(metadata);
     }
 

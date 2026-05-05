@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -44,12 +45,12 @@ public class PdfReaderService {
             .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
-    private record CachedPdfMetadata(int pageCount, long lastModified, List<PdfOutlineItem> outline) {}
+    private record CachedPdfMetadata(int pageCount, Instant lastModified, List<PdfOutlineItem> outline) {}
 
     public void initCache(Long bookId, String bookType) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified.toEpochMilli());
 
         Path cacheDir = chapterCacheService.getCachedPage(cacheKey, 1).getParent();
         if (!Files.exists(cacheDir)) {
@@ -62,7 +63,7 @@ public class PdfReaderService {
             cacheEmpty = stream.findAny().isEmpty();
         }
 
-        if (!cacheEmpty && Math.abs(cacheMtime - metadata.lastModified) <= MTIME_TOLERANCE_MS) {
+        if (!cacheEmpty && Math.abs(cacheMtime - metadata.lastModified.toEpochMilli()) <= MTIME_TOLERANCE_MS) {
             return;
         }
 
@@ -112,7 +113,7 @@ public class PdfReaderService {
         }
     }
 
-    public long getLastModified(Long bookId, String bookType) throws IOException {
+    public Instant getLastModified(Long bookId, String bookType) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
         return metadata.lastModified;
@@ -125,7 +126,7 @@ public class PdfReaderService {
     public void streamPageImage(Long bookId, String bookType, int page, OutputStream outputStream) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified.toEpochMilli());
 
         if (chapterCacheService.hasPage(cacheKey, page)) {
             Files.copy(chapterCacheService.getCachedPage(cacheKey, page), outputStream);
@@ -175,32 +176,31 @@ public class PdfReaderService {
             throw new FileNotFoundException("Page " + page + " out of range [1-" + pageCount + "]");
         }
     }
-
-    private CachedPdfMetadata getCachedMetadata(Path pdfPath) throws IOException {
-        String cacheKey = pdfPath.toString();
-        long currentModified = Files.getLastModifiedTime(pdfPath).toMillis();
-        CachedPdfMetadata cached = metadataCache.getIfPresent(cacheKey);
-        if (cached != null && cached.lastModified == currentModified) {
-            log.debug("Cache hit for PDF: {}", pdfPath.getFileName());
-            return cached;
-        }
-        log.debug("Cache miss for PDF: {}, scanning...", pdfPath.getFileName());
-        CachedPdfMetadata newMetadata = scanPdfMetadata(pdfPath);
-        metadataCache.put(cacheKey, newMetadata);
-        return newMetadata;
+private CachedPdfMetadata getCachedMetadata(Path pdfPath) throws IOException {
+    String cacheKey = pdfPath.toString();
+    Instant currentModified = Files.getLastModifiedTime(pdfPath).toInstant();
+    CachedPdfMetadata cached = metadataCache.getIfPresent(cacheKey);
+    if (cached != null && cached.lastModified.equals(currentModified)) {
+        log.debug("Cache hit for PDF: {}", pdfPath.getFileName());
+        return cached;
     }
+    log.debug("Cache miss for PDF: {}, scanning...", pdfPath.getFileName());
+    CachedPdfMetadata newMetadata = scanPdfMetadata(pdfPath);
+    metadataCache.put(cacheKey, newMetadata);
+    return newMetadata;
+}
 
-    private CachedPdfMetadata scanPdfMetadata(Path pdfPath) throws IOException {
-        if (!Files.isReadable(pdfPath)) {
-            throw new FileNotFoundException("PDF file is not readable: " + pdfPath);
-        }
-        long lastModified = Files.getLastModifiedTime(pdfPath).toMillis();
-        try (PdfDocument doc = PdfDocument.open(pdfPath)) {
-            int pageCount = doc.pageCount();
-            List<PdfOutlineItem> outline = extractOutline(doc);
-            return new CachedPdfMetadata(pageCount, lastModified, outline);
-        }
+private CachedPdfMetadata scanPdfMetadata(Path pdfPath) throws IOException {
+    if (!Files.isReadable(pdfPath)) {
+        throw new FileNotFoundException("PDF file is not readable: " + pdfPath);
     }
+    Instant lastModified = Files.getLastModifiedTime(pdfPath).toInstant();
+    try (PdfDocument doc = PdfDocument.open(pdfPath)) {
+        int pageCount = doc.pageCount();
+        List<PdfOutlineItem> outline = extractOutline(doc);
+        return new CachedPdfMetadata(pageCount, lastModified, outline);
+    }
+}
 
     private List<PdfOutlineItem> extractOutline(PdfDocument doc) {
         List<PdfOutlineItem> outline = new ArrayList<>();
