@@ -481,6 +481,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       this.suppressProgressSave = true;
 
       const wasmUrl = await this.resolvePdfiumWasmUrl();
+      if (this.pdfFetchAbortController.signal.aborted || currentBookId !== this.bookId || this.viewerMode() !== 'book') {
+        return;
+      }
 
       await this.embedPdfBook.init(
         targetEl,
@@ -1033,8 +1036,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       this.embedPdfIframe = iframe;
       this.pendingPdfBuffer = pdfBuffer;
       const wasmUrl = await this.resolvePdfiumWasmUrl();
+      if (this.viewerMode() !== 'document' || this.embedPdfIframe !== iframe || !iframe.contentWindow) {
+        return;
+      }
 
-      iframe.contentWindow!.postMessage({
+      iframe.contentWindow.postMessage({
         type: 'init',
         wasmUrl,
         theme: this.isDarkTheme() ? 'dark' : 'light',
