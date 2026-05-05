@@ -13,16 +13,16 @@ public class KoreaderUserDetails implements UserDetails {
     @Getter
     private final boolean syncEnabled;
     @Getter
-    private final boolean syncWithGrimmoryReader;
+    private final boolean syncWithWebReader;
     @Getter
     private final Long bookLoreUserId;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public KoreaderUserDetails(String username, String password, boolean syncEnabled, boolean syncWithGrimmoryReader, Long bookLoreUserId, Collection<? extends GrantedAuthority> authorities) {
+    public KoreaderUserDetails(String username, String password, boolean syncEnabled, boolean syncWithWebReader, Long bookLoreUserId, Collection<? extends GrantedAuthority> authorities) {
         this.username = username;
         this.password = password;
         this.syncEnabled = syncEnabled;
-        this.syncWithGrimmoryReader = syncWithGrimmoryReader;
+        this.syncWithWebReader = syncWithWebReader;
         this.bookLoreUserId = bookLoreUserId;
         this.authorities = authorities;
     }

@@ -33,7 +33,7 @@ export class KoreaderSettingsComponent {
   editMode = true;
   showPassword = false;
   koReaderSyncEnabled = false;
-  syncWithGrimmoryReader = false;
+  syncWithWebReader = false;
   koReaderUsername = '';
   koReaderPassword = '';
   credentialsSaved = false;
@@ -70,7 +70,7 @@ export class KoreaderSettingsComponent {
         this.koReaderUsername = koreaderUser.username;
         this.koReaderPassword = koreaderUser.password;
         this.koReaderSyncEnabled = koreaderUser.syncEnabled;
-        this.syncWithGrimmoryReader = koreaderUser.syncWithGrimmoryReader ?? false;
+        this.syncWithWebReader = koreaderUser.syncWithWebReader ?? false;
         this.credentialsSaved = true;
       },
       error: err => {
@@ -113,12 +113,12 @@ export class KoreaderSettingsComponent {
     });
   }
 
-  onToggleSyncWithGrimmoryReader(enabled: boolean) {
-    this.koreaderService.toggleSyncProgressWithGrimmoryReader(enabled).pipe(
+  onToggleSyncWithWebReader(enabled: boolean) {
+    this.koreaderService.toggleSyncProgressWithWebReader(enabled).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
-        this.syncWithGrimmoryReader = enabled;
+        this.syncWithWebReader = enabled;
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('settingsDevice.koreader.syncUpdated'),

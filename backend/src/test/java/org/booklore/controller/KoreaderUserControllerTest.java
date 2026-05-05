@@ -62,9 +62,17 @@ class KoreaderUserControllerTest {
     }
 
     @Test
-    void toggleSyncProgressWithGrimmory_returnsNoContent() {
-        doNothing().when(koreaderUserService).toggleSyncProgressWithGrimmory(true);
-        ResponseEntity<Void> resp = controller.toggleSyncProgressWithGrimmory(true);
+    void toggleSyncProgressWithWebReader_returnsNoContent() {
+        doNothing().when(koreaderUserService).toggleSyncProgressWithWebReader(true);
+        ResponseEntity<Void> resp = controller.toggleSyncProgressWithWebReader(true);
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
+        assertNull(resp.getBody());
+    }
+
+    @Test
+    void toggleSyncProgressWithBooklore_delegatesToWebReader_andReturnsNoContent() {
+        doNothing().when(koreaderUserService).toggleSyncProgressWithWebReader(true);
+        ResponseEntity<Void> resp = controller.toggleSyncProgressWithBooklore(true);
         assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
         assertNull(resp.getBody());
     }

@@ -69,14 +69,14 @@ describe('KoreaderService', () => {
       username: 'reader',
       password: 'secret123',
       syncEnabled: false,
-      syncWithGrimmoryReader: true,
+      syncWithWebReader: true,
     });
 
     expect(responseBody).toEqual({
       username: 'reader',
       password: 'secret123',
       syncEnabled: false,
-      syncWithGrimmoryReader: true,
+      syncWithWebReader: true,
     });
   });
 
@@ -91,10 +91,10 @@ describe('KoreaderService', () => {
     request.flush(null);
   });
 
-  it('patches the Grimmory sync-progress toggle using the enabled query parameter', () => {
+  it('patches the web-reader sync-progress toggle using the enabled query parameter', () => {
     let completed = false;
 
-    service.toggleSyncProgressWithGrimmoryReader(false).subscribe(() => {
+    service.toggleSyncProgressWithWebReader(false).subscribe(() => {
       completed = true;
     });
 

@@ -51,10 +51,10 @@
                 <div class="setting-label-row">
                   <span class="setting-label">{{ t('koreader.syncWithGrimmory') }}</span>
                   <p-toggle-switch
-                    name="syncWithGrimmoryReader"
-                    [(ngModel)]="syncWithGrimmoryReader"
-                    (ngModelChange)="onToggleSyncWithGrimmoryReader($event)"
-                    inputId="syncWithGrimmoryReader"
+                    name="syncWithWebReader"
+                    [(ngModel)]="syncWithWebReader"
+                    (ngModelChange)="onToggleSyncWithWebReader($event)"
+                    inputId="syncWithWebReader"
                     [disabled]="!credentialsSaved || !koReaderSyncEnabled">
                   </p-toggle-switch>
                 </div>

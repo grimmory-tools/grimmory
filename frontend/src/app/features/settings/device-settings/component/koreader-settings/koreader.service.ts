@@ -8,7 +8,7 @@ export interface KoreaderUser {
   username: string;
   password: string;
   syncEnabled: boolean;
-  syncWithGrimmoryReader?: boolean;
+  syncWithWebReader?: boolean;
 }
 
 @Injectable({
@@ -35,7 +35,7 @@ export class KoreaderService {
     });
   }
 
-  toggleSyncProgressWithGrimmoryReader(enabled: boolean): Observable<void> {
+  toggleSyncProgressWithWebReader(enabled: boolean): Observable<void> {
     return this.http.patch<void>(`${this.url}/me/sync-progress-with-grimmory`, null, {
       params: {enabled: enabled.toString()}
     });
