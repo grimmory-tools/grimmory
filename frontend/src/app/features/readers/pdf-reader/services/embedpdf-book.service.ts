@@ -105,7 +105,7 @@ export class EmbedPdfBookService {
     return this.scroll?.getTotalPages() ?? 0;
   }
 
-  async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light', localeCode: string): Promise<void> {
+  async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light', localeCode: string, wasmUrlOverride?: string): Promise<void> {
     // Recreate event streams so the service is reusable after destroy()
     this.pageChange$ = new Subject<PageChangeEvent>();
     this.annotationEvent$ = new Subject<AnnotationEvent>();
@@ -118,7 +118,7 @@ export class EmbedPdfBookService {
 
     const EmbedPDF = (await import('@embedpdf/snippet')).default;
 
-    const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
+    const wasmUrl = wasmUrlOverride || new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
     const requestedLocale = localeCode || 'en';
 
     this.container = EmbedPDF.init({

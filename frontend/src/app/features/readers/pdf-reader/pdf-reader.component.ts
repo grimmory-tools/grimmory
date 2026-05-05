@@ -47,6 +47,16 @@ type EmbedPdfMessage =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PdfReaderComponent implements OnInit, OnDestroy {
+  private static readonly PDFIUM_RUNTIME_ASSET_PATHS = [
+    '/assets/pdfium/index.browser.js',
+    '/assets/pdfium/index.browser.js.map',
+    '/assets/pdfium/index.cjs',
+    '/assets/pdfium/index.cjs.map',
+    '/assets/pdfium/index.js',
+    '/assets/pdfium/index.js.map',
+    '/assets/pdfium/pdfium.wasm',
+  ];
+  private static readonly PDFIUM_WASM_PATH = '/assets/pdfium/pdfium.wasm';
 
   // --- Template-bound signals ---
   readonly isLoading = signal(true);
@@ -172,6 +182,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private lastAnnotationData: string | null = null;
   private annotationsDirty = false;
   private pdfBlobUrl: string | null = null;
+  private pdfiumWasmBlobUrl: string | null = null;
+  private hasWarmedPdfiumAssets = false;
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
@@ -413,6 +425,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.bookData = bookData;
         this.isInitialScrollDone.set(false);
         this.isLoading.set(false);
+        this.warmPdfiumAssetsIfEnabled();
 
         // Schedule viewer initialization after the template renders the container
         afterNextRender(() => {
@@ -470,11 +483,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
       this.suppressProgressSave = true;
 
+      const wasmUrl = await this.resolvePdfiumWasmUrl();
+
       await this.embedPdfBook.init(
         targetEl,
         pdfUrl,
         this.isDarkTheme() ? 'dark' : 'light',
-        this.t.getActiveLang()
+        this.t.getActiveLang(),
+        wasmUrl
       );
       this.bookViewerInitialized = true;
       this.embedPdfBook.setScrollLayout(this.scrollLayout());
@@ -1019,10 +1035,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
       this.embedPdfIframe = iframe;
       this.pendingPdfBuffer = pdfBuffer;
+      const wasmUrl = await this.resolvePdfiumWasmUrl();
 
       iframe.contentWindow!.postMessage({
         type: 'init',
-        wasmUrl: '/assets/pdfium/pdfium.wasm',
+        wasmUrl,
         theme: this.isDarkTheme() ? 'dark' : 'light',
         locale: this.t.getActiveLang()
       }, location.origin);
@@ -1262,6 +1279,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.touchCleanup?.();
 
     this.revokePdfBlobUrl();
+    this.revokePdfiumWasmBlobUrl();
     this.cachedPdfBuffer = null;
     if (this.bookData?.startsWith('blob:')) {
       URL.revokeObjectURL(this.bookData);
@@ -1275,6 +1293,39 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.pdfBlobUrl);
       this.pdfBlobUrl = null;
     }
+  }
+
+  private revokePdfiumWasmBlobUrl(): void {
+    if (this.pdfiumWasmBlobUrl) {
+      URL.revokeObjectURL(this.pdfiumWasmBlobUrl);
+      this.pdfiumWasmBlobUrl = null;
+    }
+  }
+
+  private warmPdfiumAssetsIfEnabled(): void {
+    if (!this.localSettingsService.get().cacheStorageEnabled || this.hasWarmedPdfiumAssets) {
+      return;
+    }
+
+    this.hasWarmedPdfiumAssets = true;
+    void this.cacheStorageService.prewarmStaticAssets(PdfReaderComponent.PDFIUM_RUNTIME_ASSET_PATHS);
+  }
+
+  private async resolvePdfiumWasmUrl(): Promise<string> {
+    if (!this.localSettingsService.get().cacheStorageEnabled) {
+      this.revokePdfiumWasmBlobUrl();
+      return PdfReaderComponent.PDFIUM_WASM_PATH;
+    }
+
+    if (this.pdfiumWasmBlobUrl) {
+      return this.pdfiumWasmBlobUrl;
+    }
+
+    const wasmUrl = await this.cacheStorageService.getStaticAssetObjectUrl(PdfReaderComponent.PDFIUM_WASM_PATH);
+    if (wasmUrl.startsWith('blob:')) {
+      this.pdfiumWasmBlobUrl = wasmUrl;
+    }
+    return wasmUrl;
   }
 
   // --- Chrome auto-hide ---

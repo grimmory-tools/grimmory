@@ -331,6 +331,9 @@
       viewer = EmbedPDF.init({
         type: 'container',
         target: target,
+        wasmUrl: typeof msg.wasmUrl === 'string' && msg.wasmUrl
+          ? msg.wasmUrl
+          : '/assets/pdfium/pdfium.wasm',
         i18n: {
           defaultLocale: msg.locale || 'en',
           fallbackLocale: 'en',

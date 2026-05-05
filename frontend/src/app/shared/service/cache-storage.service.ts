@@ -9,6 +9,8 @@ export class CacheStorageService {
   private static readonly CACHE_NAME = "storage";
 
   private http = inject(HttpClient);
+  private inFlightPrewarms = new Map<string, Promise<void>>();
+
 
   async getCache(uri: string, noValidate: boolean = false): Promise<Response> {
     const cachedResponse = await this.attemptToGetAndValidateCache(uri, noValidate);
@@ -123,6 +125,46 @@ export class CacheStorageService {
     }
   }
 
+  async prewarmStaticAssets(uris: string[]): Promise<void> {
+    const uniqueUris = [...new Set(uris)];
+    await Promise.allSettled(uniqueUris.map((uri) => this.prewarmStaticAsset(uri)));
+  }
+
+  /**
+   * Returns a URL for the requested static asset.
+   * If the asset is cached, it returns a blob URL created via URL.createObjectURL().
+   *
+   * @IMPORTANT The consumer is responsible for calling URL.revokeObjectURL() on the returned string
+   * if it is a blob URL (starts with "blob:").
+   */
+  async getStaticAssetObjectUrl(uri: string): Promise<string> {
+
+    const absoluteUri = this.toAbsoluteUrl(uri);
+
+    try {
+      const cached = await this.match(absoluteUri);
+      if (cached) {
+        const blob = await cached.blob();
+        return URL.createObjectURL(blob);
+      }
+
+      const response = await fetch(absoluteUri, {
+        credentials: "same-origin",
+      });
+
+
+      if (!response.ok) {
+        return uri;
+      }
+
+      void this.put(absoluteUri, response.clone());
+      return URL.createObjectURL(await response.blob());
+
+    } catch {
+      return uri;
+    }
+  }
+
   async getCacheSizeInBytes(): Promise<number> {
     try {
       const cache = await this.openCache();
@@ -142,6 +184,47 @@ export class CacheStorageService {
       return await caches.open(CacheStorageService.CACHE_NAME);
     } catch {
       return null;
+    }
+  }
+
+  private async prewarmStaticAsset(uri: string): Promise<void> {
+    const absoluteUri = this.toAbsoluteUrl(uri);
+
+    const existing = this.inFlightPrewarms.get(absoluteUri);
+    if (existing) return existing;
+
+    const promise = (async () => {
+      try {
+        if (await this.has(absoluteUri)) {
+          return;
+        }
+
+        const response = await fetch(absoluteUri, {
+          credentials: "same-origin",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        await this.put(absoluteUri, response.clone());
+      } catch {
+        // Silently fail — caching is best-effort
+      } finally {
+        this.inFlightPrewarms.delete(absoluteUri);
+      }
+    })();
+
+    this.inFlightPrewarms.set(absoluteUri, promise);
+    return promise;
+  }
+
+
+  private toAbsoluteUrl(uri: string): string {
+    try {
+      return new URL(uri, window.location.origin).href;
+    } catch {
+      return uri;
     }
   }
 }
