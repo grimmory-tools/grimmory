@@ -769,7 +769,7 @@ class BookCoverServiceTest {
             book.setBookFiles(List.of(ebookFile));
             book.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.findAllRegenerationInfo(false)).thenReturn(List.of(new BookQueryService.BookRegenerationInfo(book.getId(), "Test Book")));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
             when(transactionTemplate.execute(any())).thenAnswer(inv -> {
@@ -800,12 +800,7 @@ class BookCoverServiceTest {
             locked.setBookFiles(List.of(ebookFile));
             locked.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.findAllRegenerationInfo(false)).thenReturn(List.of(new BookQueryService.BookRegenerationInfo(locked.getId(), "Test Book")));
-
-            when(transactionTemplate.execute(any())).thenAnswer(inv -> {
-                var callback = inv.getArgument(0, TransactionCallback.class);
-                return callback.doInTransaction(null);
-            });
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(locked));
 
             doAnswer(inv -> {
                 inv.<Runnable>getArgument(0).run();
@@ -833,7 +828,7 @@ class BookCoverServiceTest {
             withoutCover.setBookFiles(List.of(ebookFile2));
             withoutCover.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.findAllRegenerationInfo(true)).thenReturn(List.of(new BookQueryService.BookRegenerationInfo(withoutCover.getId(), "Test Book")));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(withCover, withoutCover));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
             when(transactionTemplate.execute(any())).thenAnswer(inv -> {
@@ -863,7 +858,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             book.setBookFiles(new ArrayList<>());
 
-            when(bookQueryService.findAllRegenerationInfo(false)).thenReturn(new ArrayList<>());
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
             doAnswer(inv -> {
                 inv.<Runnable>getArgument(0).run();
@@ -885,7 +880,7 @@ class BookCoverServiceTest {
                     .bookFiles(new ArrayList<>())
                     .build();
 
-            when(bookQueryService.findAllRegenerationInfo(false)).thenReturn(new ArrayList<>());
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
             doAnswer(inv -> {
                 inv.<Runnable>getArgument(0).run();

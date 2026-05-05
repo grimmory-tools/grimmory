@@ -301,7 +301,7 @@ public class BookCoverService {
      * Regenerate covers for a set of books.
      */
     public void regenerateCoversForBooks(Set<Long> bookIds) {
-        List<BookQueryService.BookRegenerationInfo> unlockedBooks = getUnlockedBookRegenerationInfos(bookIds);
+        List<BookCoverInfo> unlockedBooks = getUnlockedBookRegenerationInfos(bookIds);
         String username = getCurrentUsername();
         taskExecutor.execute(() -> processBulkCoverRegeneration(unlockedBooks, username));
     }
@@ -322,14 +322,20 @@ public class BookCoverService {
         String username = getCurrentUsername();
         taskExecutor.execute(() -> {
             try {
-                List<BookQueryService.BookRegenerationInfo> books = bookQueryService.findAllRegenerationInfo(missingOnly);
+                List<BookCoverInfo> books = bookQueryService.getAllFullBookEntitiesWithFiles().stream()
+                        .filter(book -> book.getMetadata() != null)
+                        .filter(book -> !isCoverLocked(book))
+                        .filter(book -> book.getPrimaryBookFile() != null)
+                        .filter(book -> !missingOnly || book.getBookCoverHash() == null)
+                        .map(book -> new BookCoverInfo(book.getId(), book.getMetadata().getTitle()))
+                        .toList();
                 int total = books.size();
                 String label = missingOnly ? "missing" : "all";
                 sendNotification(username, Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " books (" + label + ")"));
 
                 int current = 1;
 
-                for (BookQueryService.BookRegenerationInfo bookInfo : books) {
+                for (BookCoverInfo bookInfo : books) {
                     try {
                         String progress = "(" + current + "/" + total + ") ";
                         sendNotification(username, Topic.LOG, LogNotification.info(progress + "Regenerating cover for: " + bookInfo.title()));
@@ -410,14 +416,14 @@ public class BookCoverService {
         }
     }
 
-    private void processBulkCoverRegeneration(List<BookQueryService.BookRegenerationInfo> books, String username) {
+    private void processBulkCoverRegeneration(List<BookCoverInfo> books, String username) {
         try {
             int total = books.size();
             sendNotification(username, Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " selected book(s)"));
 
             int current = 1;
 
-            for (BookQueryService.BookRegenerationInfo bookInfo : books) {
+            for (BookCoverInfo bookInfo : books) {
                 try {
                     String progress = "(" + current + "/" + total + ") ";
                     sendNotification(username, Topic.LOG, LogNotification.info(progress + "Regenerating cover for: " + bookInfo.title()));
@@ -550,12 +556,12 @@ public class BookCoverService {
                 .toList();
     }
 
-    private List<BookQueryService.BookRegenerationInfo> getUnlockedBookRegenerationInfos(Set<Long> bookIds) {
+    private List<BookCoverInfo> getUnlockedBookRegenerationInfos(Set<Long> bookIds) {
         return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
                 .filter(book -> book.getMetadata() != null)
                 .filter(book -> !isCoverLocked(book))
                 .filter(book -> book.getPrimaryBookFile() != null)
-                .map(book -> new BookQueryService.BookRegenerationInfo(book.getId(), book.getMetadata().getTitle()))
+                .map(book -> new BookCoverInfo(book.getId(), book.getMetadata().getTitle()))
                 .toList();
     }
 
