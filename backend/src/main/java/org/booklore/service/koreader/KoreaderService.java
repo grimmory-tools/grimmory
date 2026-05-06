@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.progress.KoreaderProgress;
+import org.booklore.model.dto.response.KoreaderBookResponse;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.*;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Map;
 
 @Slf4j
@@ -62,6 +64,29 @@ public class KoreaderService {
                 .percentage(progress.getKoreaderProgressPercent())
                 .device("BookLore")
                 .device_id("BookLore")
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public KoreaderBookResponse getBookByHash(String bookHash) {
+        KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
+        BookEntity book = findBookByHash(bookHash);
+        BookLoreUserEntity user = findBookLoreUser(authDetails.getBookLoreUserId());
+
+        if (!userCanAccessBook(user, book)) {
+            throw ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash);
+        }
+
+        BookMetadataEntity metadata = book.getMetadata();
+        return KoreaderBookResponse.builder()
+                .id(book.getId())
+                .title(metadata != null ? metadata.getTitle() : null)
+                .authors(metadata != null
+                        ? metadata.getAuthors().stream().map(AuthorEntity::getName).toList()
+                        : null)
+                .isbn10(metadata != null ? metadata.getIsbn10() : null)
+                .isbn13(metadata != null ? metadata.getIsbn13() : null)
+                .pagecount(metadata != null ? metadata.getPageCount() : null)
                 .build();
     }
 
@@ -214,8 +239,17 @@ public class KoreaderService {
     }
 
     private BookEntity findBookByHash(String bookHash) {
-        return bookRepository.findByCurrentHash(bookHash)
+        return bookRepository.findByCurrentOrInitialHash(bookHash)
                 .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash));
+    }
+
+    private boolean userCanAccessBook(BookLoreUserEntity user, BookEntity book) {
+        if (user.getPermissions() != null && user.getPermissions().isPermissionAdmin()) {
+            return true;
+        }
+        return user.getLibraries().stream()
+                .map(LibraryEntity::getId)
+                .anyMatch(id -> Objects.equals(id, book.getLibrary().getId()));
     }
 
     private BookLoreUserEntity findBookLoreUser(long userId) {

@@ -5,9 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.Library;
 import org.booklore.model.dto.CompletionRaceSessionDto;
 import org.booklore.model.dto.PageTurnerSessionDto;
 import org.booklore.model.dto.request.ReadingSessionRequest;
+import org.booklore.model.dto.request.ReadingSessionBatchRequest;
+import org.booklore.model.dto.request.ReadingSessionItemRequest;
 import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.response.*;
 import org.booklore.model.entity.BookEntity;
@@ -97,6 +100,7 @@ public class ReadingSessionService {
 
         BookLoreUserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
         BookEntity book = bookRepository.findById(request.getBookId()).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
+        validateBookAccess(book, authenticatedUser);
 
         ReadingSessionEntity session = ReadingSessionEntity.builder()
                 .user(userEntity)
@@ -116,6 +120,52 @@ public class ReadingSessionService {
         readingSessionRepository.save(session);
 
         log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), request.getDurationSeconds());
+    }
+
+    @Transactional
+    public ReadingSessionBatchResponse recordSessionsBatch(ReadingSessionBatchRequest request) {
+        BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
+        Long userId = authenticatedUser.getId();
+
+        BookLoreUserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+        BookEntity book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
+        validateBookAccess(book, authenticatedUser);
+
+        for (ReadingSessionItemRequest item : request.getSessions()) {
+            validateBatchSessionItem(item);
+        }
+
+        List<ReadingSessionEntity> sessionEntities = request.getSessions().stream()
+                .map(item -> ReadingSessionEntity.builder()
+                        .user(userEntity)
+                        .book(book)
+                        .bookType(request.getBookType())
+                        .startTime(item.getStartTime())
+                        .endTime(item.getEndTime())
+                        .durationSeconds(item.getDurationSeconds())
+                        .durationFormatted(item.getDurationFormatted())
+                        .startProgress(item.getStartProgress())
+                        .endProgress(item.getEndProgress())
+                        .progressDelta(item.getProgressDelta())
+                        .startLocation(item.getStartLocation())
+                        .endLocation(item.getEndLocation())
+                        .build())
+                .toList();
+
+        List<ReadingSessionEntity> savedSessions = readingSessionRepository.saveAll(sessionEntities);
+        return ReadingSessionBatchResponse.builder()
+                .totalRequested(request.getSessions().size())
+                .successCount(savedSessions.size())
+                .results(savedSessions.stream()
+                        .map(session -> ReadingSessionBatchResponse.SessionResult.builder()
+                                .sessionId(session.getId())
+                                .startTime(session.getStartTime())
+                                .endTime(session.getEndTime())
+                                .build())
+                        .toList())
+                .build();
     }
 
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForYear(int year) {
@@ -315,6 +365,53 @@ public class ReadingSessionService {
                 .endLocation(session.getEndLocation())
                 .createdAt(session.getCreatedAt())
                 .build());
+    }
+
+    private void validateBatchSessionItem(ReadingSessionItemRequest item) {
+        if (item.getEndTime().isBefore(item.getStartTime())) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("End time must be after start time");
+        }
+        validateProgressValue(item.getStartProgress(), "Start progress");
+        validateProgressValue(item.getEndProgress(), "End progress");
+        if (item.getStartProgress() != null && item.getEndProgress() != null && item.getProgressDelta() != null) {
+            double expectedDelta = item.getEndProgress() - item.getStartProgress();
+            if (Math.abs(expectedDelta - item.getProgressDelta()) > 0.01d) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException(
+                        String.format(
+                                "Progress delta (%.2f) does not match calculated delta (%.2f) from start (%.2f) to end (%.2f)",
+                                item.getProgressDelta(), expectedDelta, item.getStartProgress(), item.getEndProgress()
+                        )
+                );
+            }
+        }
+        if (item.getDurationSeconds() != null && item.getDurationSeconds() < 0) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    String.format("Duration must be non-negative, got: %d seconds", item.getDurationSeconds())
+            );
+        }
+    }
+
+    private void validateProgressValue(Float value, String label) {
+        if (value == null) {
+            return;
+        }
+        if (value < 0 || value > 100) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    String.format("%s must be between 0 and 100, got: %.2f", label, value)
+            );
+        }
+    }
+
+    private void validateBookAccess(BookEntity book, BookLoreUser authenticatedUser) {
+        if (authenticatedUser.getPermissions() != null && authenticatedUser.getPermissions().isAdmin()) {
+            return;
+        }
+        boolean hasAccess = authenticatedUser.getAssignedLibraries().stream()
+                .map(Library::getId)
+                .anyMatch(id -> Objects.equals(id, book.getLibrary().getId()));
+        if (!hasAccess) {
+            throw ApiError.BOOK_NOT_FOUND.createException(book.getId());
+        }
     }
 
     public List<BookCompletionHeatmapResponse> getBookCompletionHeatmap() {

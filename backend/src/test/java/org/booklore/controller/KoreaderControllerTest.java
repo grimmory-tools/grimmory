@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import org.booklore.model.dto.progress.KoreaderProgress;
+import org.booklore.model.dto.response.KoreaderBookResponse;
 import org.booklore.service.koreader.KoreaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,22 @@ class KoreaderControllerTest {
         assertEquals(HttpStatus.OK, resp.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, resp.getHeaders().getContentType());
         assertEquals(progress, resp.getBody());
+    }
+
+    @Test
+    void getBookByHash_returnsBook() {
+        KoreaderBookResponse book = KoreaderBookResponse.builder()
+                .id(12L)
+                .title("Test Book")
+                .isbn13("9781234567890")
+                .pagecount(321)
+                .build();
+        when(koreaderService.getBookByHash("hash")).thenReturn(book);
+
+        ResponseEntity<KoreaderBookResponse> resp = controller.getBookByHash("hash");
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+        assertEquals(book, resp.getBody());
     }
 
     @Test

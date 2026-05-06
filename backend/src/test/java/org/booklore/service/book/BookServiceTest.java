@@ -7,6 +7,7 @@ import org.booklore.exception.APIException;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.ReadProgressRequest;
+import org.booklore.model.dto.response.BookSearchResult;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.entity.*;
@@ -171,6 +172,60 @@ class BookServiceTest {
         when(bookRepository.findByIdWithBookFiles(99L)).thenReturn(Optional.empty());
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
         assertThrows(APIException.class, () -> bookService.getBook(99L, true));
+    }
+
+    @Test
+    void getBookByHash_usesCurrentOrInitialHash() {
+        BookLoreUser.UserPermissions perms = new BookLoreUser.UserPermissions();
+        perms.setAdmin(false);
+        BookLoreUser scopedUser = BookLoreUser.builder()
+                .id(1L)
+                .permissions(perms)
+                .assignedLibraries(List.of(Library.builder().id(7L).build()))
+                .isDefaultPassword(false)
+                .build();
+
+        LibraryEntity library = new LibraryEntity();
+        library.setId(7L);
+        BookEntity entity = new BookEntity();
+        entity.setId(33L);
+        entity.setLibrary(library);
+        when(bookRepository.findByCurrentOrInitialHash("hash")).thenReturn(Optional.of(entity));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(scopedUser);
+
+        Book mappedBook = Book.builder()
+                .id(33L)
+                .primaryFile(BookFile.builder().bookType(BookFileType.EPUB).build())
+                .metadata(BookMetadata.builder().build())
+                .shelves(Set.of())
+                .build();
+        when(bookRepository.findByIdWithBookFiles(33L)).thenReturn(Optional.of(entity));
+        when(userBookProgressRepository.findByUserIdAndBookId(1L, 33L)).thenReturn(Optional.of(new UserBookProgressEntity()));
+        when(bookMapper.toBook(entity)).thenReturn(mappedBook);
+
+        Book result = bookService.getBookByHash("hash", false);
+
+        assertEquals(33L, result.getId());
+        verify(bookRepository).findByCurrentOrInitialHash("hash");
+    }
+
+    @Test
+    void searchBooks_isbnExactMatchReturnsScoreOne() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Exact Match");
+        metadata.setIsbn13("9781234567890");
+        metadata.setAuthors(List.of(AuthorEntity.builder().name("Author").build()));
+        BookEntity entity = new BookEntity();
+        entity.setId(99L);
+        entity.setMetadata(metadata);
+        when(bookRepository.findAllWithMetadata()).thenReturn(List.of(entity));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
+
+        List<BookSearchResult> results = bookService.searchBooks(null, "978-1234567890");
+
+        assertEquals(1, results.size());
+        assertEquals(99L, results.getFirst().getId());
+        assertEquals(1d, results.getFirst().getMatchScore());
     }
 
     @Test

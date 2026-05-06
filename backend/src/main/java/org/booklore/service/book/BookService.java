@@ -8,6 +8,7 @@ import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.ReadProgressRequest;
+import org.booklore.model.dto.response.BookSearchResult;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.entity.*;
@@ -192,6 +193,40 @@ public class BookService {
         return book;
     }
 
+    public Book getBookByHash(String md5Hash, boolean withDescription) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        BookEntity bookEntity = bookRepository.findByCurrentOrInitialHash(md5Hash)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book with hash " + md5Hash + " not found"));
+
+        boolean hasAccess = isAdmin || user.getAssignedLibraries().stream()
+                .map(Library::getId)
+                .anyMatch(libraryId -> Objects.equals(libraryId, bookEntity.getLibrary().getId()));
+        if (!hasAccess) {
+            throw ApiError.GENERIC_NOT_FOUND.createException("Book with hash " + md5Hash + " not found");
+        }
+
+        return getBook(bookEntity.getId(), withDescription);
+    }
+
+    public List<BookSearchResult> searchBooks(String title, String isbn) {
+        String normalizedTitle = normalizeBlank(title);
+        String normalizedIsbn = normalizeIsbn(isbn);
+        if (normalizedTitle == null && normalizedIsbn == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one search parameter must be provided");
+        }
+
+        List<BookEntity> candidates = getAccessibleSearchCandidates();
+        return candidates.stream()
+                .map(book -> toSearchResult(book, normalizedTitle, normalizedIsbn))
+                .filter(Objects::nonNull)
+                .sorted(Comparator
+                        .comparing(BookSearchResult::getMatchScore, Comparator.reverseOrder())
+                        .thenComparing(BookSearchResult::getTitle, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+                .toList();
+    }
+
 
     public BookViewerSettings getBookViewerSetting(long bookId, long bookFileId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -255,6 +290,116 @@ public class BookService {
             throw ApiError.UNSUPPORTED_BOOK_TYPE.createException();
         }
         return settingsBuilder.build();
+    }
+
+    private List<BookEntity> getAccessibleSearchCandidates() {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        if (user.getPermissions().isAdmin()) {
+            return bookRepository.findAllWithMetadata();
+        }
+        return bookRepository.findAllWithMetadataByLibraryIds(getUserLibraryIds(user));
+    }
+
+    private BookSearchResult toSearchResult(BookEntity book, String titleQuery, String isbnQuery) {
+        BookMetadataEntity metadata = book.getMetadata();
+        if (metadata == null) {
+            return null;
+        }
+
+        Double score = null;
+        if (isbnQuery != null) {
+            score = computeIsbnMatchScore(isbnQuery, metadata);
+        } else if (titleQuery != null) {
+            score = computeTitleMatchScore(titleQuery, metadata);
+        }
+
+        if (score == null || score <= 0d) {
+            return null;
+        }
+
+        String author = metadata.getAuthors() != null && !metadata.getAuthors().isEmpty()
+                ? metadata.getAuthors().getFirst().getName()
+                : null;
+        return BookSearchResult.builder()
+                .id(book.getId())
+                .title(metadata.getTitle())
+                .author(author)
+                .isbn10(metadata.getIsbn10())
+                .isbn13(metadata.getIsbn13())
+                .matchScore(score)
+                .build();
+    }
+
+    private Double computeIsbnMatchScore(String isbnQuery, BookMetadataEntity metadata) {
+        String isbn10 = normalizeIsbn(metadata.getIsbn10());
+        String isbn13 = normalizeIsbn(metadata.getIsbn13());
+        if (isbnQuery.equals(isbn10) || isbnQuery.equals(isbn13)) {
+            return 1d;
+        }
+        return null;
+    }
+
+    private Double computeTitleMatchScore(String titleQuery, BookMetadataEntity metadata) {
+        String candidate = normalizeTitle(metadata.getTitle());
+        if (candidate == null) {
+            return null;
+        }
+        if (candidate.equals(titleQuery)) {
+            return 1d;
+        }
+        if (candidate.contains(titleQuery) || titleQuery.contains(candidate)) {
+            double ratio = (double) Math.min(candidate.length(), titleQuery.length())
+                    / Math.max(candidate.length(), titleQuery.length());
+            return 0.8d + (0.19d * ratio);
+        }
+
+        Set<String> queryTokens = tokenSet(titleQuery);
+        Set<String> candidateTokens = tokenSet(candidate);
+        if (queryTokens.isEmpty() || candidateTokens.isEmpty()) {
+            return null;
+        }
+
+        long overlap = queryTokens.stream().filter(candidateTokens::contains).count();
+        if (overlap == 0) {
+            return null;
+        }
+        double jaccard = (double) overlap / (queryTokens.size() + candidateTokens.size() - overlap);
+        return 0.4d + (0.5d * jaccard);
+    }
+
+    private Set<String> tokenSet(String value) {
+        return Arrays.stream(value.split("\\s+"))
+                .map(String::trim)
+                .filter(token -> !token.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private String normalizeBlank(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String normalizeTitle(String value) {
+        String trimmed = normalizeBlank(value);
+        if (trimmed == null) {
+            return null;
+        }
+        return trimmed.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private String normalizeIsbn(String value) {
+        String trimmed = normalizeBlank(value);
+        if (trimmed == null) {
+            return null;
+        }
+        String normalized = trimmed.toUpperCase(Locale.ROOT).replaceAll("[^0-9X]", "");
+        return normalized.isEmpty() ? null : normalized;
     }
 
     @Transactional

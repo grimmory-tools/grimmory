@@ -1,6 +1,8 @@
 package org.booklore.controller;
 
+import org.booklore.model.dto.request.ReadingSessionBatchRequest;
 import org.booklore.model.dto.request.ReadingSessionRequest;
+import org.booklore.model.dto.response.ReadingSessionBatchResponse;
 import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.booklore.service.ReadingSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +36,18 @@ public class ReadingSessionController {
     public ResponseEntity<Void> recordReadingSession(@RequestBody @Valid ReadingSessionRequest request) {
         readingSessionService.recordSession(request);
         return ResponseEntity.accepted().build();
+    }
+
+    @Operation(summary = "Record multiple reading sessions", description = "Batch insert reading sessions for a single book.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reading sessions recorded successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid payload"),
+            @ApiResponse(responseCode = "404", description = "Book not found")
+    })
+    @PostMapping("/batch")
+    public ResponseEntity<ReadingSessionBatchResponse> recordBatchSessions(
+            @RequestBody @Valid ReadingSessionBatchRequest request) {
+        return ResponseEntity.ok(readingSessionService.recordSessionsBatch(request));
     }
 
     @Operation(summary = "Get reading sessions for a book", description = "Returns paginated reading sessions for a specific book for the authenticated user")

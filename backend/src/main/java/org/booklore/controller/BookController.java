@@ -14,6 +14,7 @@ import org.booklore.model.dto.request.ReadStatusUpdateRequest;
 import org.booklore.model.dto.request.ShelvesAssignmentRequest;
 import org.booklore.model.dto.response.AttachBookFileResponse;
 import org.booklore.model.dto.response.BookDeletionResponse;
+import org.booklore.model.dto.response.BookSearchResult;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.dto.response.DuplicateGroup;
 import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
@@ -84,6 +85,15 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookDTOsPaged(pageable));
     }
 
+    @Operation(summary = "Search books by title or ISBN", description = "Search accessible books by title or ISBN.")
+    @ApiResponse(responseCode = "200", description = "Search results returned successfully")
+    @GetMapping("/search")
+    public ResponseEntity<List<BookSearchResult>> searchBooks(
+            @Parameter(description = "Title to search for") @RequestParam(required = false) String title,
+            @Parameter(description = "ISBN-10 or ISBN-13 to search for") @RequestParam(required = false) String isbn) {
+        return ResponseEntity.ok(bookService.searchBooks(title, isbn));
+    }
+
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book details returned successfully"),
@@ -95,6 +105,18 @@ public class BookController {
             @Parameter(description = "ID of the book to retrieve") @PathVariable long bookId,
             @Parameter(description = "Include book description in the response") @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
         return ResponseEntity.ok(bookService.getBook(bookId, withDescription));
+    }
+
+    @Operation(summary = "Get book by hash", description = "Retrieve a book by its current or initial file hash.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book details returned successfully"),
+            @ApiResponse(responseCode = "404", description = "Book not found")
+    })
+    @GetMapping("/by-hash/{md5Hash}")
+    public ResponseEntity<Book> getBookByHash(
+            @Parameter(description = "MD5 hash of the book file") @PathVariable String md5Hash,
+            @Parameter(description = "Include book description in the response") @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
+        return ResponseEntity.ok(bookService.getBookByHash(md5Hash, withDescription));
     }
 
     @Operation(summary = "Create a physical book", description = "Create a physical book without digital files. Requires library management permission or admin.")

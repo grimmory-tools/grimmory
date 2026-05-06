@@ -1,10 +1,12 @@
 package org.booklore.controller;
 
 import org.booklore.model.dto.progress.KoreaderProgress;
+import org.booklore.model.dto.response.KoreaderBookResponse;
 import org.booklore.service.koreader.KoreaderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -48,6 +50,17 @@ public class KoreaderController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(progress);
+    }
+
+    @Operation(summary = "Get book by hash", description = "Retrieve KOReader-compatible book details by hash.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book returned successfully"),
+            @ApiResponse(responseCode = "404", description = "Book not found")
+    })
+    @GetMapping("/books/by-hash/{bookHash}")
+    public ResponseEntity<KoreaderBookResponse> getBookByHash(
+            @Parameter(description = "Book hash") @PathVariable String bookHash) {
+        return ResponseEntity.ok(koreaderService.getBookByHash(bookHash));
     }
 
     @Operation(summary = "Update KoReader progress", description = "Update reading progress for a book.")

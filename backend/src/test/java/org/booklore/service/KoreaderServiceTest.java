@@ -7,9 +7,14 @@ import static org.mockito.Mockito.*;
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.progress.KoreaderProgress;
+import org.booklore.model.dto.response.KoreaderBookResponse;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoreaderUserEntity;
+import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.entity.UserPermissionsEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
@@ -106,7 +111,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(99L);
-        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("h")).thenReturn(Optional.of(book));
         var prog = new UserBookProgressEntity();
         prog.setKoreaderProgress("p");
         prog.setKoreaderProgressPercent(0.5F);
@@ -122,14 +127,14 @@ class KoreaderServiceTest {
     @Test
     void getProgress_bookNotFound() {
         when(details.isSyncEnabled()).thenReturn(true);
-        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.empty());
+        when(bookRepo.findByCurrentOrInitialHash("h")).thenReturn(Optional.empty());
         assertThrows(APIException.class, () -> service.getProgress("h"));
     }
 
     @Test
     void getProgress_noProgress() {
         when(details.isSyncEnabled()).thenReturn(true);
-        when(bookRepo.findByCurrentHash("h"))
+        when(bookRepo.findByCurrentOrInitialHash("h"))
                 .thenReturn(Optional.of(new BookEntity()));
         when(progressRepo.findByUserIdAndBookId(anyLong(), isNull()))
                 .thenReturn(Optional.empty());
@@ -147,7 +152,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(100L);
-        when(bookRepo.findByCurrentHash("hash123")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("hash123")).thenReturn(Optional.of(book));
 
         var prog = new UserBookProgressEntity();
         prog.setKoreaderProgress("progress/path");
@@ -169,7 +174,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(101L);
-        when(bookRepo.findByCurrentHash("hash456")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("hash456")).thenReturn(Optional.of(book));
 
         var prog = new UserBookProgressEntity();
         prog.setKoreaderProgress("progress/path2");
@@ -190,7 +195,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(7L);
-        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("h")).thenReturn(Optional.of(book));
         var user = new BookLoreUserEntity();
         user.setId(42L);
         when(userRepo.findById(42L)).thenReturn(Optional.of(user));
@@ -216,7 +221,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(8L);
-        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("h")).thenReturn(Optional.of(book));
         var user = new BookLoreUserEntity();
         user.setId(42L);
         when(userRepo.findById(42L)).thenReturn(Optional.of(user));
@@ -238,7 +243,7 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(true);
         var book = new BookEntity();
         book.setId(8L);
-        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(bookRepo.findByCurrentOrInitialHash("h")).thenReturn(Optional.of(book));
         var user = new BookLoreUserEntity();
         user.setId(42L);
         when(userRepo.findById(42L)).thenReturn(Optional.of(user));
@@ -256,6 +261,45 @@ class KoreaderServiceTest {
         assertEquals("y", existing.getKoreaderProgress());
         assertEquals(0.4F, existing.getKoreaderProgressPercent());
         verify(hardcoverSyncService, never()).syncProgressToHardcover(any(), any(), any());
+    }
+
+    @Test
+    void getBookByHash_returnsPluginCompatiblePayload() {
+        when(details.isSyncEnabled()).thenReturn(true);
+
+        LibraryEntity library = new LibraryEntity();
+        library.setId(10L);
+
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Hash Title");
+        metadata.setIsbn10("1234567890");
+        metadata.setIsbn13("9781234567890");
+        metadata.setPageCount(456);
+        metadata.setAuthors(java.util.List.of(AuthorEntity.builder().name("Author One").build()));
+
+        BookEntity book = new BookEntity();
+        book.setId(77L);
+        book.setLibrary(library);
+        book.setMetadata(metadata);
+
+        UserPermissionsEntity permissions = new UserPermissionsEntity();
+        permissions.setPermissionAdmin(false);
+        BookLoreUserEntity user = new BookLoreUserEntity();
+        user.setId(42L);
+        user.setPermissions(permissions);
+        user.setLibraries(java.util.Set.of(library));
+
+        when(bookRepo.findByCurrentOrInitialHash("hash")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user));
+
+        KoreaderBookResponse response = service.getBookByHash("hash");
+
+        assertEquals(77L, response.getId());
+        assertEquals("Hash Title", response.getTitle());
+        assertEquals("1234567890", response.getIsbn10());
+        assertEquals("9781234567890", response.getIsbn13());
+        assertEquals(456, response.getPagecount());
+        assertEquals(java.util.List.of("Author One"), response.getAuthors());
     }
 
     @Test
