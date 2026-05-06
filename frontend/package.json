@@ -36,7 +36,7 @@
     "@embedpdf/snippet": "2.14.1",
     "@jsverse/transloco": "^8.3.0",
     "@primeuix/themes": "^2.0.3",
-    "@stomp/rx-stomp": "^2.3.0",
+    "@stomp/rx-stomp": "^2.4.0",
     "@stomp/stompjs": "^7.3.0",
     "@tanstack/angular-query-experimental": "5.100.1",
     "@tanstack/angular-table": "^8.21.4",

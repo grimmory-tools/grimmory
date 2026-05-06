@@ -3659,14 +3659,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stomp/rx-stomp@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@stomp/rx-stomp@npm:2.3.0"
+"@stomp/rx-stomp@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@stomp/rx-stomp@npm:2.4.0"
   peerDependencies:
     "@stomp/stompjs": ^7.2.0
     rxjs: ^7.2.0
-    uuid: ">=9.0.0 <12.0.0"
-  checksum: 10c0/7ee45e48108c305d27b5ce69c775353a8db8a451a3cfb54b5bf22d4be86635a5d77de8739943149a30f558cd34bb4e52a9cfdcb0a7a7ddea4cb1d385d8a35210
+    uuid: ">=9.0.0 <15.0.0"
+  checksum: 10c0/d5467dcc3d194bc55b300b222e1f37150a2368accf1cf4f8c2a14c375f69644780b5a37ebee47412212fe268bd43a018055a61391d9b448e7e4a254082d88f7e
   languageName: node
   linkType: hard
 
@@ -6145,7 +6145,7 @@ __metadata:
     "@jsverse/transloco": "npm:^8.3.0"
     "@playwright/test": "npm:^1.59.1"
     "@primeuix/themes": "npm:^2.0.3"
-    "@stomp/rx-stomp": "npm:^2.3.0"
+    "@stomp/rx-stomp": "npm:^2.4.0"
     "@stomp/stompjs": "npm:^7.3.0"
     "@tanstack/angular-query-experimental": "npm:5.100.1"
     "@tanstack/angular-table": "npm:^8.21.4"
