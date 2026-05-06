@@ -4719,12 +4719,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chartjs-chart-matrix@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "chartjs-chart-matrix@npm:3.0.2"
+"chartjs-chart-matrix@npm:3.0.0":
+  version: 3.0.0
+  resolution: "chartjs-chart-matrix@npm:3.0.0"
   peerDependencies:
     chart.js: ">=3.0.0"
-  checksum: 10c0/e331460fb196e4fe55c6fda57ec6c36508e35293dd878b3a32204c407d517bf4e47bce33850641335506698dbbf34999d583d5559d04e78306262e394c41203b
+  checksum: 10c0/3a02b620ee2d36396645d0f3c930597071e4c642bdc0bccbe3ec96e40b8ca988a78264e06a9b76ffa1deefb70cf91d35fde419d68751a7fde1e804f062874dd0
   languageName: node
   linkType: hard
 
@@ -6076,7 +6076,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:^4.1.5"
     angular-eslint: "npm:^21.3.1"
     chart.js: "npm:^4.5.1"
-    chartjs-chart-matrix: "npm:^3.0.2"
+    chartjs-chart-matrix: "npm:3.0.0"
     chartjs-plugin-datalabels: "npm:^2.2.0"
     date-fns: "npm:^4.1.0"
     dompurify: "npm:^3.4.2"

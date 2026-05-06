@@ -42,7 +42,7 @@
     "@tanstack/angular-table": "^8.21.4",
     "@tanstack/angular-virtual": "^5.0.0",
     "chart.js": "^4.5.1",
-    "chartjs-chart-matrix": "^3.0.2",
+    "chartjs-chart-matrix": "3.0.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.4.2",
