@@ -329,7 +329,7 @@ export class AuthorBrowserComponent implements OnInit {
   private loadMobileColumnsPreference(): void {
     const saved = this.localStorageService.get<unknown>(AuthorBrowserComponent.MOBILE_COLUMNS_STORAGE_KEY);
     if (saved !== null) {
-      this.setMobileColumns(this.toMobileGridColumns(saved));
+      this.gridMobileColumnCount.set(this.toMobileGridColumns(saved));
     }
   }
 
