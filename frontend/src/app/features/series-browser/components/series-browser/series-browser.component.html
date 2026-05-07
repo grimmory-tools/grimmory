@@ -46,17 +46,18 @@
             class="sort-dropdown">
           </p-select>
 
-          @if (!isMobile()) {
-            <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
-              <i class="pi pi-sliders-h"></i>
-            </button>
-            <p-popover #displaySettingsPopover>
-              <div class="display-settings-content">
-                <span class="display-settings-label">{{ t('cardSize') }}</span>
-                <app-grid-density-buttons (densityChange)="adjustDesktopGridDensity($event)"/>
-              </div>
-            </p-popover>
-          }
+          <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
+            <i class="pi pi-sliders-h"></i>
+          </button>
+          <p-popover #displaySettingsPopover>
+            <div class="display-settings-content">
+              <span class="display-settings-label">{{ t('cardSize') }}</span>
+              <app-grid-density-buttons
+                [smallerDisabled]="gridDensitySmallerDisabled()"
+                [largerDisabled]="gridDensityLargerDisabled()"
+                (densityChange)="adjustGridDensity($event)"/>
+            </div>
+          </p-popover>
         </div>
       </div>
     </div>
@@ -77,15 +78,11 @@
                   [style.width.px]="virtualGrid.itemWidth()"
                   [style.height.px]="virtualItem.size"
                   [style.transform]="virtualGrid.itemTransform(virtualItem)">
-                  <div class="virtual-scroller-item"
-                    [style.width.px]="virtualGrid.itemWidth()"
-                    [style.height.px]="virtualGrid.itemHeight()"
-                    [style.--card-scale]="currentCardScale()">
-                    <app-series-card
-                      [series]="series"
-                      (cardClick)="navigateToSeries($event)">
-                    </app-series-card>
-                  </div>
+                  <app-series-card
+                    [series]="series"
+                    [style.--card-scale]="currentCardScale()"
+                    (cardClick)="navigateToSeries($event)">
+                  </app-series-card>
                 </div>
               }
             }

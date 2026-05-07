@@ -48,17 +48,18 @@
             }
           </button>
 
-          @if (!isMobile()) {
-            <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
-              <i class="pi pi-sliders-h"></i>
-            </button>
-            <p-popover #displaySettingsPopover>
-              <div class="display-settings-content">
-                <span class="display-settings-label">{{ t('cardSize') }}</span>
-                <app-grid-density-buttons (densityChange)="adjustDesktopGridDensity($event)"/>
-              </div>
-            </p-popover>
-          }
+          <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
+            <i class="pi pi-sliders-h"></i>
+          </button>
+          <p-popover #displaySettingsPopover>
+            <div class="display-settings-content">
+              <span class="display-settings-label">{{ t('cardSize') }}</span>
+              <app-grid-density-buttons
+                [smallerDisabled]="gridDensitySmallerDisabled()"
+                [largerDisabled]="gridDensityLargerDisabled()"
+                (densityChange)="adjustGridDensity($event)"/>
+            </div>
+          </p-popover>
 
           <p-popover #filterPopover>
             <div class="filter-popover-content">

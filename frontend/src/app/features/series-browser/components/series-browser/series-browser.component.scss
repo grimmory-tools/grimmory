@@ -1,3 +1,5 @@
+@use "../../../../../assets/layout/styles/layout/variables";
+
 .series-browser-page {
   --browser-gutter-inline: 2.1rem;
 
@@ -117,15 +119,9 @@
   overflow: hidden auto;
   scrollbar-gutter: stable;
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     padding-block: 0.5rem;
   }
-}
-
-.virtual-scroller-item {
-  position: relative;
-  overflow: visible;
-  transition: width 0.2s ease, height 0.2s ease;
 }
 
 // Empty state
@@ -150,7 +146,7 @@
   }
 }
 
-@media (width <= 767px) {
+@media #{variables.$mobile-shell-media-query} {
   .series-browser-page {
     --browser-gutter-inline: 0.5rem;
 
