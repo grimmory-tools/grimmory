@@ -24,7 +24,7 @@ Before cutting a stable release, make sure:
 - The commits that should be released are already on `main`.
 - Those commits follow conventional commit semantics.
 - `RELEASE_BOT_TOKEN` is configured if branch protection requires more than the default `github.token`.
-- `DOCKER_USERNAME` and `DOCKER_PASSWORD` are configured for Docker Hub publishing.
+- If `DOCKERHUB_REGISTRY` is set, `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are configured for Docker Hub publishing.
 
 ## What Triggers a Stable Release
 
