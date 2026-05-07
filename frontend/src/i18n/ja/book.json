@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "適用されたフィルターをクリア",
       "visibleColumns": "表示列",
-      "displaySettings": "表示設定",
       "selectSorting": "ソートを選択",
       "toggleView": "グリッドとテーブル表示を切替",
       "search": "検索",

@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Limpiar filtros aplicados",
       "visibleColumns": "Columnas visibles",
-      "displaySettings": "Ajustes de visualización",
       "selectSorting": "Seleccionar ordenamiento",
       "toggleView": "Alternar entre vista de cuadrícula y tabla",
       "search": "Buscar",

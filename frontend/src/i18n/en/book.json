@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Clear applied filters",
       "visibleColumns": "Visible columns",
-      "displaySettings": "Display settings",
       "selectSorting": "Select sorting",
       "toggleView": "Toggle between Grid and Table view",
       "search": "Search",

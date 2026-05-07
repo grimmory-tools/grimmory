@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Toegepaste filters wissen",
       "visibleColumns": "Zichtbare kolommen",
-      "displaySettings": "Weergave-instellingen",
       "selectSorting": "Selecteer sortering",
       "toggleView": "Schakel tussen raster- en tabelweergave",
       "search": "Zoeken",

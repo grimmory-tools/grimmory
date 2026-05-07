@@ -104,7 +104,7 @@
               tabindex="0"
               (click)="seriesCollapseOverlay.toggle($event)"
               (keydown.enter)="seriesCollapseOverlay.toggle($event)"
-              [pTooltip]="t('tooltip.displaySettings')"
+              [pTooltip]="'common.displaySettings' | transloco"
               tooltipPosition="top">
               <i class="pi pi-cog"></i>
             </a>

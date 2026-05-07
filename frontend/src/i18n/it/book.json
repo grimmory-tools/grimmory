@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Cancella filtri applicati",
       "visibleColumns": "Colonne visibili",
-      "displaySettings": "Impostazioni visualizzazione",
       "selectSorting": "Seleziona ordinamento",
       "toggleView": "Alterna tra vista a griglia e tabella",
       "search": "Cerca",

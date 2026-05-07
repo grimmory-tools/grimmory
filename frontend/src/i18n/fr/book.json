@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Effacer les filtres appliqués",
       "visibleColumns": "Colonnes visibles",
-      "displaySettings": "Paramètres d'affichage",
       "selectSorting": "Sélectionner le tri",
       "toggleView": "Basculer entre vue grille et tableau",
       "search": "Rechercher",

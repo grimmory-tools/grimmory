@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Очистити застосовані фільтри",
       "visibleColumns": "Видимі стовпці",
-      "displaySettings": "Налаштування відображення",
       "selectSorting": "Вибрати сортування",
       "toggleView": "Переключити вигляд (сітка/таблиця)",
       "search": "Пошук",

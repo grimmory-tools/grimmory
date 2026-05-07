@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Angewendete Filter löschen",
       "visibleColumns": "Sichtbare Spalten",
-      "displaySettings": "Anzeigeeinstellungen",
       "selectSorting": "Sortierung auswählen",
       "toggleView": "Zwischen Raster- und Tabellenansicht wechseln",
       "search": "Suchen",

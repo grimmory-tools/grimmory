@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Limpar filtros aplicados",
       "visibleColumns": "Colunas visíveis",
-      "displaySettings": "Configurações de exibição",
       "selectSorting": "Selecionar ordenação",
       "toggleView": "Alternar entre visualização em Grade e Tabela",
       "search": "Pesquisar",

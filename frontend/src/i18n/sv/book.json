@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Rensa tillämpade filter",
       "visibleColumns": "Synliga kolumner",
-      "displaySettings": "Visningsinställningar",
       "selectSorting": "Välj sortering",
       "toggleView": "Växla mellan rutnäts- och tabellvy",
       "search": "Sök",

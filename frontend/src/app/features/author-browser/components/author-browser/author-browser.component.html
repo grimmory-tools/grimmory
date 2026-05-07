@@ -48,19 +48,28 @@
             }
           </button>
 
-          @if (!isMobile()) {
-            <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
-              <i class="pi pi-sliders-h"></i>
-            </button>
-            <p-popover #displaySettingsPopover>
-              <div class="display-settings-content">
-                <span class="display-settings-label">{{ t('cardSize') }}</span>
-                <app-grid-density-buttons (densityChange)="adjustDesktopGridDensity($event)"/>
-              </div>
-            </p-popover>
-          }
+          <button
+            type="button"
+            class="display-settings-btn"
+            [attr.aria-label]="'common.displaySettings' | transloco"
+            [title]="'common.displaySettings' | transloco"
+            (click)="displaySettingsPopover.toggle($event)">
+            <i class="pi pi-sliders-h"></i>
+          </button>
+        </div>
+      </div>
 
-          <p-popover #filterPopover>
+      <p-popover #displaySettingsPopover>
+        <div class="display-settings-content">
+          <span class="display-settings-label">{{ t('cardSize') }}</span>
+          <app-grid-density-buttons
+            [smallerDisabled]="gridDensitySmallerDisabled()"
+            [largerDisabled]="gridDensityLargerDisabled()"
+            (densityChange)="adjustGridDensity($event)"/>
+        </div>
+      </p-popover>
+
+      <p-popover #filterPopover>
             <div class="filter-popover-content">
               <div class="filter-group">
                 <span class="filter-label">{{ t('filters.matchStatus') }}</span>
@@ -172,9 +181,7 @@
                 </p-button>
               }
             </div>
-          </p-popover>
-        </div>
-      </div>
+      </p-popover>
     </div>
 
     @if (filteredAuthors(); as authorList) {

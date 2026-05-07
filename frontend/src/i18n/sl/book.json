@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Počisti uporabljene filtre",
       "visibleColumns": "Vidni stolpci",
-      "displaySettings": "Nastavitve prikaza",
       "selectSorting": "Izberi razvrščanje",
       "toggleView": "Preklopi med mrežnim in tabelarnim prikazom",
       "search": "Išči",
