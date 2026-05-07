@@ -1,3 +1,5 @@
+@use "../layout/styles/layout/variables";
+
 /*
  * PrimeNG compatibility layer.
  *
@@ -9,6 +11,17 @@
  * Native app/page/layout CSS should use app-owned tokens from tokens.css.
  * PrimeNG components can continue to use Prime's --p-* tokens.
  */
+
+@mixin sidebar-fixed-overlay {
+  position: fixed !important;
+  top: var(--sidebar-popover-top, 0.75rem) !important;
+  bottom: auto !important;
+  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.5rem)) !important;
+  max-height: var(--sidebar-popover-max-height, calc(100vh - 1rem)) !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  transform: none !important;
+}
 
 .p-dialog {
   --card-background: var(--surface-content);
@@ -156,12 +169,7 @@
 .sidebar-flyout-popover.p-popover,
 .sidebar-more-menu.p-menu,
 .sidebar-user-menu.p-menu {
-  position: fixed !important;
-  top: auto !important;
-  bottom: var(--sidebar-popover-bottom, 0.75rem) !important;
-  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.5rem)) !important;
-  margin: 0 !important;
-  transform: none !important;
+  @include sidebar-fixed-overlay;
 
   &::before,
   &::after {
@@ -246,5 +254,41 @@
   .sidebar-user-update {
     color: var(--primary-color);
     font-weight: 500;
+  }
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .sidebar-entity-menu.p-menu {
+    @include sidebar-fixed-overlay;
+  }
+
+  .sidebar-entity-menu.p-menu,
+  .sidebar-more-menu.p-menu,
+  .sidebar-user-menu.p-menu,
+  .sidebar-flyout-popover.p-popover .p-menu,
+  .sidebar-flyout-popover.p-popover .p-tieredmenu {
+    > .p-menu-list,
+    .p-menu-list,
+    > .p-tieredmenu-root-list,
+    .p-tieredmenu-root-list,
+    .p-tieredmenu-submenu {
+      padding-block: var(--space-2) !important;
+    }
+
+    .p-menu-item-content > .p-menu-item-link,
+    .p-menu-item-link,
+    .p-tieredmenu-item-content > .p-tieredmenu-item-link,
+    .p-tieredmenu-item-link {
+      min-height: 3rem !important;
+      padding: var(--space-3) var(--space-4) !important;
+      gap: var(--space-3) !important;
+    }
+  }
+
+  .sidebar-user-menu.p-menu {
+    .sidebar-user-menu-header,
+    .sidebar-user-menu-footer {
+      padding: var(--space-3) var(--space-4);
+    }
   }
 }

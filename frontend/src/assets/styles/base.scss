@@ -1,3 +1,5 @@
+@use "../layout/styles/layout/variables";
+
 /*
  * Document defaults.
  *
@@ -8,6 +10,8 @@
  */
 
 html {
+  --mobile-shell-active: 0;
+
   height: 100%;
   font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   font-size: var(--font-size-root);
@@ -22,6 +26,17 @@ body {
   font-family: var(--font-family), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  html {
+    --mobile-shell-active: 1;
+  }
+
+  html,
+  body {
+    background-color: var(--page-background);
+  }
 }
 
 a {
