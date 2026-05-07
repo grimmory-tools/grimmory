@@ -58,3 +58,4 @@ backend/src/main/resources/application-local.yaml
 /tools/release/node_modules
 /tools/release/.yarn/
 .worktrees/
+.claude/settings.local.json
