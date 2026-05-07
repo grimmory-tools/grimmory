@@ -287,6 +287,75 @@ class ReadingProgressServiceTest {
     }
 
     @Test
+    void updateReadProgress_withClearDateFinished_shouldSetDateFinishedToNull() {
+        long bookId = 1L;
+        BookEntity book = new BookEntity();
+        book.setId(bookId);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setId(1L);
+        primaryFile.setBook(book);
+        primaryFile.setBookType(BookFileType.EPUB);
+        book.setBookFiles(List.of(primaryFile));
+
+        BookLoreUser user = mock(BookLoreUser.class);
+        when(user.getId()).thenReturn(2L);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
+
+        BookLoreUserEntity userEntity = new BookLoreUserEntity();
+        userEntity.setId(2L);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setDateFinished(Instant.now().minusSeconds(3600));
+        when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
+
+        ReadProgressRequest req = new ReadProgressRequest();
+        req.setBookId(bookId);
+        req.setClearDateFinished(true);
+
+        readingProgressService.updateReadProgress(req);
+
+        assertNull(progress.getDateFinished());
+        verify(userBookProgressRepository).save(progress);
+    }
+
+    @Test
+    void updateReadProgress_withoutClearFlag_shouldNotTouchExistingDateFinished() {
+        long bookId = 1L;
+        BookEntity book = new BookEntity();
+        book.setId(bookId);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setId(1L);
+        primaryFile.setBook(book);
+        primaryFile.setBookType(BookFileType.EPUB);
+        book.setBookFiles(List.of(primaryFile));
+
+        BookLoreUser user = mock(BookLoreUser.class);
+        when(user.getId()).thenReturn(2L);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
+
+        BookLoreUserEntity userEntity = new BookLoreUserEntity();
+        userEntity.setId(2L);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
+
+        Instant existingDate = Instant.now().minusSeconds(3600);
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setDateFinished(existingDate);
+        when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
+        when(userBookFileProgressRepository.findByUserIdAndBookFileId(2L, 1L)).thenReturn(Optional.empty());
+
+        ReadProgressRequest req = new ReadProgressRequest();
+        req.setBookId(bookId);
+        req.setEpubProgress(EpubProgress.builder().cfi("cfi").percentage(50f).build());
+
+        readingProgressService.updateReadProgress(req);
+
+        assertEquals(existingDate, progress.getDateFinished());
+    }
+
+    @Test
     void resetProgress_booklore_shouldCallBulkReset() {
         BookLoreUser user = mock(BookLoreUser.class);
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);

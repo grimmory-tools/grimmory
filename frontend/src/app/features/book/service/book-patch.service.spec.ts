@@ -119,6 +119,18 @@ describe('BookPatchService', () => {
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books', 'detail', 5]});
   });
 
+  it('sends clearDateFinished flag when date is null', () => {
+    service.updateDateFinished(5, null).subscribe();
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/progress'));
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      bookId: 5,
+      clearDateFinished: true,
+    });
+    request.flush(null);
+  });
+
   it('updates the read status for multiple books and patches cached fields', () => {
     service.updateBookReadStatus([1, 2], ReadStatus.READ).subscribe();
 
