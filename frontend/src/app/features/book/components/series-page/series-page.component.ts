@@ -8,7 +8,6 @@ import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/b
 import {BookService} from "../../service/book.service";
 import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
 import {BookCardComponent} from "../book-browser/book-card/book-card.component";
-import {CoverScalePreferenceService} from "../book-browser/cover-scale-preference.service";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "primeng/tabs";
 import {ProgressSpinner} from "primeng/progressspinner";
 import {ProgressBar} from "primeng/progressbar";
@@ -26,12 +25,14 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from "primeng/tooltip";
 import {Divider} from "primeng/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
-import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
+import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
+import {LayoutService} from '../../../../shared/layout/layout.service';
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -93,10 +94,13 @@ interface SeriesStats {
 })
 export class SeriesPageComponent implements AfterViewChecked {
 
+  private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
+  private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
+  private readonly SERIES_GRID_GAP = 16;
+  private readonly MOBILE_GRID_COLUMNS = 2;
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
   private bookMetadataManageService = inject(BookMetadataManageService);
-  protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   private metadataCenterViewMode: "route" | "dialog" = "route";
   private dialogRef?: DynamicDialogRef | null;
   private router = inject(Router);
@@ -112,8 +116,10 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
   private authorService = inject(AuthorService);
+  private layoutService = inject(LayoutService);
 
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
+  private readonly seriesGridScroll = viewChild<ElementRef<HTMLElement>>('seriesGridScroll');
   tab: string = "view";
   isExpanded = false;
   isOverflowing = false;
@@ -128,6 +134,10 @@ export class SeriesPageComponent implements AfterViewChecked {
   // Menu items
   protected metadataMenuItems: MenuItem[] | undefined;
   protected moreActionsMenuItems: MenuItem[] | undefined;
+  protected readonly seriesViewEnabled = false;
+  protected readonly seriesCardsCollapsed = false;
+  protected readonly seriesCardsUseSquareCovers = false;
+  protected readonly onSeriesBookCardSelect = this.handleBookSelect.bind(this);
 
   private seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
@@ -144,6 +154,19 @@ export class SeriesPageComponent implements AfterViewChecked {
       const bNum = b.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
       return aNum - bNum;
     });
+  });
+  private readonly minSeriesCardWidth = computed(() => this.DEFAULT_SERIES_CARD_WIDTH);
+  private readonly seriesGridColumns = computed(() =>
+    this.layoutService.isDesktop() ? undefined : this.MOBILE_GRID_COLUMNS
+  );
+  protected readonly seriesVirtualGrid = createVirtualGrid({
+    items: this.filteredBooks,
+    scrollElement: this.seriesGridScroll,
+    minItemWidth: this.minSeriesCardWidth,
+    gap: this.SERIES_GRID_GAP,
+    columns: this.seriesGridColumns,
+    fillItemWidth: true,
+    estimateItemHeight: itemWidth => this.seriesCardSizeForWidth(itemWidth).height,
   });
 
   coverBook = computed(() => this.filteredBooks()[0] ?? null);
@@ -361,8 +384,13 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   }
 
-  get currentCardSize() {
-    return this.coverScalePreferenceService.currentCardSize();
+  private seriesCardSizeForWidth(width: number): { width: number; height: number } {
+    const cardWidth = Math.round(width);
+    const aspectRatio = this.DEFAULT_SERIES_CARD_HEIGHT / this.DEFAULT_SERIES_CARD_WIDTH;
+    return {
+      width: cardWidth,
+      height: Math.round(cardWidth * aspectRatio),
+    };
   }
 
   goToAuthorBooks(author: string): void {

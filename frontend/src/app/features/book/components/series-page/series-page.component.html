@@ -279,29 +279,39 @@
                   <i class="pi pi-objects-column"></i>
                   {{ t('booksInSeries') }}
                 </h3>
-                @let cardSize = currentCardSize;
-                <div class="series-items-grid" #Container
-                  [style.grid-template-columns]="'repeat(auto-fill, minmax(' + cardSize.width + 'px, 1fr))'">
-                  @for (book of books; track book; let i = $index) {
-                    <div class="grid-item"
-                      [style.width.px]="cardSize.width"
-                      [style.height.px]="cardSize.height">
-                      <app-book-card
-                          [index]="i"
-                          [book]="book"
-                          [isCheckboxEnabled]="true"
-                          [isSelected]="isBookSelected(book)"
-                          (checkboxClick)="onCheckboxClicked($event)"
-                          [onBookSelect]="handleBookSelect.bind(this)"
-                          [isSeriesCollapsed]="false"
-                          [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                      </app-book-card>
+                @if (books.length === 0) {
+                  <div class="empty-state">{{ t('noBooksFound') }}</div>
+                } @else {
+                  <div
+                    #seriesGridScroll
+                    class="series-items-grid virtual-scroller"
+                    [style.--series-grid-total-height.px]="seriesVirtualGrid.virtualizer.getTotalSize()">
+                    <div class="virtual-content" [style.height.px]="seriesVirtualGrid.virtualizer.getTotalSize()">
+                      @for (virtualItem of seriesVirtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
+                        @if (books[virtualItem.index]; as book) {
+                          <div
+                            class="virtual-cell"
+                            [style.width.px]="seriesVirtualGrid.itemWidth()"
+                            [style.height.px]="virtualItem.size"
+                            [style.transform]="seriesVirtualGrid.itemTransform(virtualItem)">
+                            <app-book-card
+                              [index]="virtualItem.index"
+                              [book]="book"
+                              [isCheckboxEnabled]="true"
+                              [seriesViewEnabled]="seriesViewEnabled"
+                              [onBookSelect]="onSeriesBookCardSelect"
+                              [isSeriesCollapsed]="seriesCardsCollapsed"
+                              (checkboxClick)="onCheckboxClicked($event)"
+                              [isSelected]="isBookSelected(book)"
+                              [useSquareCovers]="seriesCardsUseSquareCovers"
+                              [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                            </app-book-card>
+                          </div>
+                        }
+                      }
                     </div>
-                  }
-                  @if (books.length === 0) {
-                    <div class="empty-state">{{ t('noBooksFound') }}</div>
-                  }
-                </div>
+                  </div>
+                }
 
               </div>
 
