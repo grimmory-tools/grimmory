@@ -1,7 +1,7 @@
 @use "../../../../../assets/layout/styles/layout/variables";
 
 .series-browser-page {
-  --browser-gutter-inline: 2.1rem;
+  --browser-gutter-inline: var(--page-gutter-inline);
 
   display: flex;
   flex-direction: column;
@@ -148,7 +148,7 @@
 
 @media #{variables.$mobile-shell-media-query} {
   .series-browser-page {
-    --browser-gutter-inline: 0.5rem;
+    --browser-gutter-inline: var(--space-4);
 
     padding: 1.5rem 0 0;
   }
@@ -166,12 +166,17 @@
   }
 
   .filter-sort-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px;
     width: 100%;
   }
 
   .filter-dropdown,
   .sort-dropdown {
-    flex: 1;
     min-width: 0;
+  }
+
+  .display-settings-btn {
+    width: 36px;
   }
 }

@@ -7,7 +7,7 @@ import {Popover} from 'primeng/popover';
 import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {Tooltip} from 'primeng/tooltip';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {MessageService} from 'primeng/api';
 import {AuthorService} from '../../service/author.service';
@@ -64,6 +64,7 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
     Divider,
     Tooltip,
     TranslocoDirective,
+    TranslocoPipe,
     GridDensityButtonsComponent,
     AuthorCardComponent,
   ]
@@ -202,10 +203,14 @@ export class AuthorBrowserComponent implements OnInit {
 
   readonly isMobile = computed(() => !this.layoutService.isDesktop());
   readonly gridDensitySmallerDisabled = computed(() =>
-    this.isMobile() && this.gridMobileColumnCount() >= AuthorBrowserComponent.MAX_MOBILE_GRID_COLUMNS
+    this.isMobile()
+      ? this.gridMobileColumnCount() >= AuthorBrowserComponent.MAX_MOBILE_GRID_COLUMNS
+      : this.scaleFactor() <= AuthorBrowserComponent.MIN_SCALE
   );
   readonly gridDensityLargerDisabled = computed(() =>
-    this.isMobile() && this.gridMobileColumnCount() <= AuthorBrowserComponent.MIN_MOBILE_GRID_COLUMNS
+    this.isMobile()
+      ? this.gridMobileColumnCount() <= AuthorBrowserComponent.MIN_MOBILE_GRID_COLUMNS
+      : this.scaleFactor() >= AuthorBrowserComponent.MAX_SCALE
   );
   private readonly baseCardWidth = computed(() => this.isMobile()
     ? AuthorBrowserComponent.MOBILE_BASE_WIDTH

@@ -4,7 +4,7 @@ import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
 import {Popover} from 'primeng/popover';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {SeriesDataService} from '../../service/series-data.service';
 import {SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from '../series-card/series-card.component';
@@ -41,6 +41,7 @@ interface SortOption {
     Select,
     Popover,
     TranslocoDirective,
+    TranslocoPipe,
     GridDensityButtonsComponent,
     SeriesCardComponent,
   ]
@@ -115,10 +116,14 @@ export class SeriesBrowserComponent implements OnInit {
 
   readonly isMobile = computed(() => !this.layoutService.isDesktop());
   readonly gridDensitySmallerDisabled = computed(() =>
-    this.isMobile() && this.gridMobileColumnCount() >= SeriesBrowserComponent.MAX_MOBILE_GRID_COLUMNS
+    this.isMobile()
+      ? this.gridMobileColumnCount() >= SeriesBrowserComponent.MAX_MOBILE_GRID_COLUMNS
+      : this.scaleFactor() <= SeriesBrowserComponent.MIN_SCALE
   );
   readonly gridDensityLargerDisabled = computed(() =>
-    this.isMobile() && this.gridMobileColumnCount() <= SeriesBrowserComponent.MIN_MOBILE_GRID_COLUMNS
+    this.isMobile()
+      ? this.gridMobileColumnCount() <= SeriesBrowserComponent.MIN_MOBILE_GRID_COLUMNS
+      : this.scaleFactor() >= SeriesBrowserComponent.MAX_SCALE
   );
 
   private readonly baseCardWidth = computed(() => this.isMobile()
