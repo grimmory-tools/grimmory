@@ -23,7 +23,6 @@ public class ReadingSessionRequest {
     @NotNull
     private Instant endTime;
 
-    @NotNull
     private Integer durationSeconds;
 
     private String durationFormatted;

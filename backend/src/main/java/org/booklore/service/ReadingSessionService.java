@@ -14,6 +14,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.ReadingSessionEntity;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ReadingSessionRepository;
@@ -26,11 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -90,32 +87,69 @@ public class ReadingSessionService {
         return (dow.getValue() % 7) + 1;
     }
 
+    private String getDurationFormatted(int duration) {
+        int hours = duration / 3600;
+        int minutes = (duration % 3600) / 60;
+        int seconds = duration % 60;
+
+        if (hours > 0) {
+            return String.format("%dh %dm %ds", hours, minutes, seconds);
+        } else if (minutes > 0) {
+            return String.format("%dm %ds", minutes, seconds);
+        } else {
+            return String.format("%ds", seconds);
+        }
+    }
+
     @Transactional
     public void recordSession(ReadingSessionRequest request) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
         BookLoreUserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
-        BookEntity book = bookRepository.findById(request.getBookId()).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
+        BookEntity book = bookRepository.findByIdWithBookFiles(request.getBookId()).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
+
+        BookFileType bookType = request.getBookType();
+        if (bookType == null && book.getPrimaryBookFile() != null) {
+            bookType = book.getPrimaryBookFile().getBookType();
+        }
+
+        Integer durationSeconds = request.getDurationSeconds();
+        if (durationSeconds == null) {
+            // We don't need to check if request start / end time are non-null because
+            // that's enforced by the request model.
+            Duration duration = request.getStartTime().until(request.getEndTime());
+            durationSeconds = Math.abs(Math.toIntExact(duration.getSeconds()));
+        }
+
+        String durationFormatted = request.getDurationFormatted();
+        if (durationFormatted == null) {
+            durationFormatted = getDurationFormatted(durationSeconds);
+        }
+
+        Float progressDelta = request.getProgressDelta();
+        if (progressDelta == null && request.getStartProgress() != null && request.getEndProgress() != null) {
+            progressDelta = Math.abs(request.getEndProgress() - request.getStartProgress());
+        }
 
         ReadingSessionEntity session = ReadingSessionEntity.builder()
                 .user(userEntity)
                 .book(book)
-                .bookType(request.getBookType())
+                .bookType(bookType)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .durationSeconds(request.getDurationSeconds())
-                .durationFormatted(request.getDurationFormatted())
+                .durationSeconds(durationSeconds)
+                .durationFormatted(durationFormatted)
                 .startProgress(request.getStartProgress())
                 .endProgress(request.getEndProgress())
-                .progressDelta(request.getProgressDelta())
+                .progressDelta(progressDelta)
                 .startLocation(request.getStartLocation())
                 .endLocation(request.getEndLocation())
                 .build();
 
         readingSessionRepository.save(session);
 
-        log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), request.getDurationSeconds());
+        log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), durationSeconds);
     }
 
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForYear(int year) {
