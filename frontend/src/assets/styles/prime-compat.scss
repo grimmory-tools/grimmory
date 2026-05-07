@@ -260,6 +260,10 @@
 @media #{variables.$mobile-shell-media-query} {
   .sidebar-entity-menu.p-menu {
     @include sidebar-fixed-overlay;
+
+    .p-menu-submenu-label {
+      display: none !important;
+    }
   }
 
   .sidebar-entity-menu.p-menu,
