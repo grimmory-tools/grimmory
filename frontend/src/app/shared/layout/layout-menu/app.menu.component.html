@@ -1,5 +1,30 @@
 <ng-container *transloco="let t; prefix: 'layout.menu'">
 <div class="menu-container">
+  <ng-template #sidebarUserMenuStart>
+    @if (currentUser(); as menuUser) {
+      <div class="sidebar-user-menu-header">
+        <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+        <span class="sidebar-user-meta">
+          <span class="sidebar-user-name">{{ menuUser.name || menuUser.username }}</span>
+          @if (menuUser.name) {
+            <span class="sidebar-user-handle">&#64;{{ menuUser.username }}</span>
+          }
+        </span>
+      </div>
+    }
+  </ng-template>
+
+  <ng-template #sidebarUserMenuEnd>
+    @if (version(); as v) {
+      <div class="sidebar-user-menu-footer">
+        <span>Grimmory v{{ v.current }}</span>
+        @if (hasUpdate()) {
+          <span class="sidebar-user-update">{{ t('update') }}</span>
+        }
+      </div>
+    }
+  </ng-template>
+
   <div class="sidebar-header">
     <a class="sidebar-brand" [routerLink]="['/dashboard']" [attr.aria-label]="t('goToDashboard')">
       <span class="sidebar-brand-mark" aria-hidden="true">
@@ -50,6 +75,75 @@
 
     <button
       type="button"
+      class="sidebar-icon-button sidebar-mobile-landscape-action"
+      [pTooltip]="t('add')"
+      [tooltipDisabled]="!layoutService.isDesktop()"
+      tooltipPosition="bottom"
+      [attr.aria-label]="t('add')"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
+      (click)="openSidebarOverlay($event, addMenu, 'below')"
+    >
+      <i class="pi pi-plus" aria-hidden="true"></i>
+    </button>
+
+    <button
+      type="button"
+      class="sidebar-icon-button sidebar-mobile-landscape-action"
+      [attr.aria-label]="t('notifications')"
+      [pTooltip]="t('notifications')"
+      [tooltipDisabled]="!layoutService.isDesktop()"
+      tooltipPosition="bottom"
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="notificationsOpen() ? 'true' : 'false'"
+      (click)="openSidebarOverlay($event, notificationsPopover, 'below')"
+    >
+      <i class="pi pi-bell" aria-hidden="true"></i>
+    </button>
+
+    <button
+      type="button"
+      class="sidebar-icon-button sidebar-mobile-landscape-action"
+      [attr.aria-label]="t('more')"
+      [pTooltip]="t('more')"
+      [tooltipDisabled]="!layoutService.isDesktop()"
+      tooltipPosition="bottom"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="moreMenuOpen() ? 'true' : 'false'"
+      (click)="openSidebarOverlay($event, moreMenu, 'below')"
+    >
+      <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+    </button>
+
+    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="addMenuOpen.set(true); applySidebarOverlayPosition(addMenu)" (onHide)="addMenuOpen.set(false)"/>
+    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="notificationsOpen.set(true); applySidebarOverlayPosition(notificationsPopover)" (onHide)="notificationsOpen.set(false)">
+      <app-unified-notification-popover-component></app-unified-notification-popover-component>
+    </p-popover>
+    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="moreMenuOpen.set(true); applySidebarOverlayPosition(moreMenu)" (onHide)="moreMenuOpen.set(false)"/>
+
+    @if (currentUser(); as user) {
+      <button
+        type="button"
+        class="sidebar-icon-button sidebar-mobile-user-button"
+        [attr.aria-label]="t('profile')"
+        aria-haspopup="menu"
+        (click)="openSidebarOverlay($event, mobileUserMenu, 'below')"
+      >
+        <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+      </button>
+
+      <p-menu #mobileUserMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applySidebarOverlayPosition(mobileUserMenu)">
+        <ng-template pTemplate="start">
+          <ng-container [ngTemplateOutlet]="sidebarUserMenuStart"></ng-container>
+        </ng-template>
+        <ng-template pTemplate="end">
+          <ng-container [ngTemplateOutlet]="sidebarUserMenuEnd"></ng-container>
+        </ng-template>
+      </p-menu>
+    }
+
+    <button
+      type="button"
       class="sidebar-icon-button sidebar-mobile-close-button"
       [attr.aria-label]="'layout.closeNavigation' | transloco"
       (click)="closeMobileSidebar()"
@@ -87,6 +181,7 @@
         type="button"
         class="sidebar-action-link sidebar-footer-action sidebar-toolbar-button"
         [pTooltip]="t('add')"
+        [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         [attr.aria-label]="t('add')"
         (click)="openSidebarOverlay($event, addMenu, 'above')"
@@ -100,6 +195,7 @@
         class="sidebar-action-link sidebar-footer-action"
         [attr.aria-label]="t('notifications')"
         [pTooltip]="t('notifications')"
+        [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         (click)="openSidebarOverlay($event, notificationsPopover, layoutService.isDesktop() ? 'below' : 'above')"
       >
@@ -112,6 +208,7 @@
         class="sidebar-action-link sidebar-footer-action"
         [attr.aria-label]="t('more')"
         [pTooltip]="t('more')"
+        [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         (click)="openSidebarOverlay($event, moreMenu, 'above')"
       >
@@ -119,12 +216,6 @@
         <span>{{ t('more') }}</span>
       </button>
     </div>
-    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applyOverlayBottom(addMenu)"/>
-    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="applyOverlayBottom(notificationsPopover)">
-      <app-unified-notification-popover-component></app-unified-notification-popover-component>
-    </p-popover>
-    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applyOverlayBottom(moreMenu)"/>
-
     @if (currentUser(); as user) {
       <div class="sidebar-footer-bottom">
         <button
@@ -164,27 +255,12 @@
           ></i>
         </button>
       </div>
-      <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applyOverlayBottom(userMenu)">
+      <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applySidebarOverlayPosition(userMenu)">
         <ng-template pTemplate="start">
-          <div class="sidebar-user-menu-header">
-            <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
-            <span class="sidebar-user-meta">
-              <span class="sidebar-user-name">{{ user.name || user.username }}</span>
-              @if (user.name) {
-                <span class="sidebar-user-handle">&#64;{{ user.username }}</span>
-              }
-            </span>
-          </div>
+          <ng-container [ngTemplateOutlet]="sidebarUserMenuStart"></ng-container>
         </ng-template>
         <ng-template pTemplate="end">
-          @if (version(); as v) {
-            <div class="sidebar-user-menu-footer">
-              <span>Grimmory v{{ v.current }}</span>
-              @if (hasUpdate()) {
-                <span class="sidebar-user-update">{{ t('update') }}</span>
-              }
-            </div>
-          }
+          <ng-container [ngTemplateOutlet]="sidebarUserMenuEnd"></ng-container>
         </ng-template>
       </p-menu>
     } @else {

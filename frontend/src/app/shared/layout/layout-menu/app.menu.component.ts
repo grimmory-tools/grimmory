@@ -1,4 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppMenuSectionComponent } from './app.menu-section.component';
 import { Popover } from 'primeng/popover';
@@ -55,7 +56,7 @@ function detectSearchShortcut(userAgent: string): string {
 
 @Component({
   selector: 'app-menu',
-  imports: [AppMenuSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip],
+  imports: [AppMenuSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip, NgTemplateOutlet],
   templateUrl: './app.menu.component.html',
   styleUrl: './app.menu.component.scss',
 })
@@ -76,6 +77,7 @@ export class AppMenuComponent {
   private readonly authorService = inject(AuthorService);
   private readonly versionService = inject(VersionService);
   private readonly t = inject(TranslocoService);
+  private readonly renderer = inject(Renderer2);
 
   readonly currentUser = this.userService.currentUser;
   readonly version = toSignal<AppVersion | null>(
@@ -144,6 +146,9 @@ export class AppMenuComponent {
   });
 
   readonly hasUpdate = computed(() => hasAppUpdate(this.version()));
+  protected readonly addMenuOpen = signal(false);
+  protected readonly notificationsOpen = signal(false);
+  protected readonly moreMenuOpen = signal(false);
 
   readonly userMenuItems = computed<MenuItem[]>(() => {
     this.activeLang();
@@ -199,35 +204,42 @@ export class AppMenuComponent {
     this.layoutService.closeMobileSidebar();
   }
 
-  // Each overlay remembers its own trigger so the position can be re-read when the
-  // panel renders. Scoping the offset to each panel (instead of a shared variable on
-  // <html>) means a closing overlay holds its place while a new one opens elsewhere.
   private readonly anchorByOverlay = new WeakMap<Menu | Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
 
-  protected applyOverlayBottom(overlay: Menu | Popover): void {
+  protected applySidebarOverlayPosition(overlay: Menu | Popover): void {
     const anchor = this.anchorByOverlay.get(overlay);
     const panel = overlay.container;
     if (!anchor || !panel) return;
 
+    window.requestAnimationFrame(() => {
+      this.positionSidebarOverlay(anchor, panel);
+    });
+  }
+
+  private positionSidebarOverlay(
+    anchor: { trigger: HTMLElement; placement: 'above' | 'below' },
+    panel: HTMLElement,
+  ): void {
     const rect = anchor.trigger.getBoundingClientRect();
     const panelWidth = panel.offsetWidth;
+    const panelHeight = panel.offsetHeight;
     const left = Math.max(Math.min(rect.left, window.innerWidth - panelWidth - 8), 8);
+    const maxTop = Math.max(window.innerHeight - panelHeight - 8, 8);
 
-    // `above` collapses to `below` when the sidebar is narrow, because the
-    // anchored left offset assumes an expanded footer row.
     const anchorAbove = anchor.placement === 'above' && !this.layoutService.desktopSidebarCollapsed();
-    if (anchorAbove) {
-      const bottom = Math.max(window.innerHeight - rect.top + 8, 8);
-      panel.style.setProperty('--sidebar-popover-bottom', `${bottom}px`);
-      panel.style.setProperty('--sidebar-popover-left', `${left}px`);
+    const requestedTop = anchorAbove
+      ? rect.top - panelHeight - 8
+      : rect.bottom + 8;
+    const top = Math.max(Math.min(requestedTop, maxTop), 8);
+
+    const flags = RendererStyleFlags2.DashCase;
+    this.renderer.setStyle(panel, '--sidebar-popover-top', `${top}px`, flags);
+    this.renderer.setStyle(panel, '--sidebar-popover-max-height', `${Math.max(window.innerHeight - top - 8, 0)}px`, flags);
+
+    if (anchorAbove || !this.layoutService.isDesktop()) {
+      this.renderer.setStyle(panel, '--sidebar-popover-left', `${left}px`, flags);
     } else {
-      const bottom = Math.max(window.innerHeight - rect.bottom, 8);
-      panel.style.setProperty('--sidebar-popover-bottom', `${bottom}px`);
-      if (this.layoutService.isDesktop()) {
-        panel.style.removeProperty('--sidebar-popover-left');
-      } else {
-        panel.style.setProperty('--sidebar-popover-left', `${left}px`);
-      }
+      this.renderer.removeStyle(panel, '--sidebar-popover-left', flags);
     }
   }
 

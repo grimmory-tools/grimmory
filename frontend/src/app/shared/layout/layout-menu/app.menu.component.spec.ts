@@ -109,6 +109,10 @@ describe('AppMenuComponent', () => {
     component = fixture.componentInstance;
     layoutService.isDesktop.set(true);
     layoutService.closeMobileSidebar.mockReset();
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback: FrameRequestCallback): number => {
+      callback(0);
+      return 0;
+    });
   });
 
   afterEach(() => {
@@ -133,13 +137,13 @@ describe('AppMenuComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(100, 148, 40));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applyOverlayBottom(overlay: MenuOverlay): void };
+    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applyOverlayBottom(overlay);
+    menuHarness.applySidebarOverlayPosition(overlay);
 
     expect(overlay.toggle).toHaveBeenCalled();
-    expect(container.style.getPropertyValue('--sidebar-popover-bottom')).toBe(`${window.innerHeight - 100 + 8}px`);
+    expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('92px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe('40px');
   });
 
@@ -148,12 +152,12 @@ describe('AppMenuComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(220, 260, 24));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applyOverlayBottom(overlay: MenuOverlay): void };
+    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'below');
-    menuHarness.applyOverlayBottom(overlay);
+    menuHarness.applySidebarOverlayPosition(overlay);
 
-    expect(container.style.getPropertyValue('--sidebar-popover-bottom')).toBe(`${window.innerHeight - 260}px`);
+    expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('268px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe('');
   });
 
@@ -189,12 +193,12 @@ describe('AppMenuComponent', () => {
     const container = document.createElement('div');
     Object.defineProperty(container, 'offsetWidth', { value: 120, configurable: true });
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applyOverlayBottom(overlay: MenuOverlay): void };
+    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applyOverlayBottom(overlay);
+    menuHarness.applySidebarOverlayPosition(overlay);
 
-    expect(container.style.getPropertyValue('--sidebar-popover-bottom')).toBe(`${window.innerHeight - 220 + 8}px`);
+    expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('212px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe(`${window.innerWidth - 128}px`);
   });
 });
