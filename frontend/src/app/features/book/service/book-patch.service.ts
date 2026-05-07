@@ -193,10 +193,10 @@ export class BookPatchService {
   }
 
   updateDateFinished(bookId: number, dateFinished: string | null): Observable<void> {
-    return this.http.post<void>(`${this.url}/progress`, {
-      bookId,
-      dateFinished
-    }).pipe(
+    const body = dateFinished != null
+      ? {bookId, dateFinished}
+      : {bookId, clearDateFinished: true};
+    return this.http.post<void>(`${this.url}/progress`, body).pipe(
       tap(() => {
         patchBookFieldsInCache(this.queryClient, [{bookId, fields: {dateFinished: dateFinished || undefined}}]);
       })

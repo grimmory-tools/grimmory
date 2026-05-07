@@ -265,6 +265,8 @@ public class ReadingProgressService {
         }
         if (request.getDateFinished() != null) {
             progress.setDateFinished(request.getDateFinished());
+        } else if (request.isClearDateFinished()) {
+            progress.setDateFinished(null);
         }
 
         userBookProgressRepository.save(progress);

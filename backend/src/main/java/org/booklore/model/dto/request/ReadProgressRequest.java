@@ -26,9 +26,10 @@ public class ReadProgressRequest {
     private AudiobookProgress audiobookProgress;
 
     private Instant dateFinished;
+    private boolean clearDateFinished;
 
     @AssertTrue(message = "At least one progress field must be provided")
     public boolean isProgressValid() {
-        return fileProgress != null || epubProgress != null || pdfProgress != null || cbxProgress != null || audiobookProgress != null || dateFinished != null;
+        return fileProgress != null || epubProgress != null || pdfProgress != null || cbxProgress != null || audiobookProgress != null || dateFinished != null || clearDateFinished;
     }
 }
