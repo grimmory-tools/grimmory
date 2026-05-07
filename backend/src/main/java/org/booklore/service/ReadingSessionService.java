@@ -119,7 +119,7 @@ public class ReadingSessionService {
             // We don't need to check if request start / end time are non-null because
             // that's enforced by the request model.
             Duration duration = request.getStartTime().until(request.getEndTime());
-            durationSeconds = Math.abs(Math.toIntExact(duration.getSeconds()));
+            durationSeconds = Math.toIntExact(Math.abs(duration.getSeconds()));
         }
 
         String durationFormatted = request.getDurationFormatted();
