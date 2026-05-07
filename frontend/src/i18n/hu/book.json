@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Szűrők eltávolítása",
       "visibleColumns": "Látható oszlopok",
-      "displaySettings": "Megjelenítés beállításai",
       "selectSorting": "Rendezés kiválasztása",
       "toggleView": "Válts Rácsos és Táblázatos megjelenítés között",
       "search": "Keresés",

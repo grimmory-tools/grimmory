@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "清除已应用的筛选条件",
       "visibleColumns": "可见列",
-      "displaySettings": "显示设置",
       "selectSorting": "选择排序",
       "toggleView": "在网格视图和表格视图之间切换",
       "search": "搜索",

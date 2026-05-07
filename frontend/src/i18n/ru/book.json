@@ -54,7 +54,6 @@
     "tooltip": {
       "clearFilters": "Очистить применённые фильтры",
       "visibleColumns": "Видимые столбцы",
-      "displaySettings": "Настройки отображения",
       "selectSorting": "Выбрать сортировку",
       "toggleView": "Переключить между видом сетки и таблицы",
       "search": "Поиск",

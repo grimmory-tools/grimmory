@@ -49,7 +49,7 @@ import {BookBrowserEntityService, EntityInfo} from './book-browser-entity.servic
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 import {SortService} from '../../service/sort.service';
 import {createVirtualGrid, scaleForGridColumns, type VirtualGridMetrics} from '../../../../shared/util/virtual-grid.util';
@@ -81,7 +81,7 @@ const MOBILE_COLUMNS_STORAGE_KEY = 'mobileColumnsPreference';
   imports: [
     Button, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, Popover,
-    Checkbox, Divider, MultiSelect, TieredMenu, Badge, MultiSortPopoverComponent, TranslocoDirective, GridDensityButtonsComponent,
+    Checkbox, Divider, MultiSelect, TieredMenu, Badge, MultiSortPopoverComponent, TranslocoDirective, TranslocoPipe, GridDensityButtonsComponent,
   ],
   providers: [SeriesCollapseFilter],
 })
