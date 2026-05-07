@@ -62,11 +62,11 @@ export class AppMenuItemRowComponent {
       ? event.currentTarget
       : null;
     menu.toggle(event);
-    this.menuOpen.update((open) => !open);
     event.stopPropagation();
   }
 
   positionContextMenu(menu: Menu): void {
+    this.menuOpen.set(true);
     if (this.layoutService.isDesktop()) return;
 
     const trigger = this.contextMenuTrigger;

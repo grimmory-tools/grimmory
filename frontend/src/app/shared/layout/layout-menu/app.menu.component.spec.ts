@@ -109,6 +109,10 @@ describe('AppMenuComponent', () => {
     component = fixture.componentInstance;
     layoutService.isDesktop.set(true);
     layoutService.closeMobileSidebar.mockReset();
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback: FrameRequestCallback): number => {
+      callback(0);
+      return 0;
+    });
   });
 
   afterEach(() => {

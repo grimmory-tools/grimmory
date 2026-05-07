@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Renderer2, RendererStyleFlags2, computed, inject } from '@angular/core';
+import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppMenuSectionComponent } from './app.menu-section.component';
 import { Popover } from 'primeng/popover';
@@ -146,6 +146,9 @@ export class AppMenuComponent {
   });
 
   readonly hasUpdate = computed(() => hasAppUpdate(this.version()));
+  protected readonly addMenuOpen = signal(false);
+  protected readonly notificationsOpen = signal(false);
+  protected readonly moreMenuOpen = signal(false);
 
   readonly userMenuItems = computed<MenuItem[]>(() => {
     this.activeLang();
@@ -208,6 +211,15 @@ export class AppMenuComponent {
     const panel = overlay.container;
     if (!anchor || !panel) return;
 
+    window.requestAnimationFrame(() => {
+      this.positionSidebarOverlay(anchor, panel);
+    });
+  }
+
+  private positionSidebarOverlay(
+    anchor: { trigger: HTMLElement; placement: 'above' | 'below' },
+    panel: HTMLElement,
+  ): void {
     const rect = anchor.trigger.getBoundingClientRect();
     const panelWidth = panel.offsetWidth;
     const panelHeight = panel.offsetHeight;

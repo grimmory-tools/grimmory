@@ -81,7 +81,7 @@
       tooltipPosition="bottom"
       [attr.aria-label]="t('add')"
       aria-haspopup="menu"
-      [attr.aria-expanded]="addMenu.visible ? 'true' : 'false'"
+      [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
       (click)="openSidebarOverlay($event, addMenu, 'below')"
     >
       <i class="pi pi-plus" aria-hidden="true"></i>
@@ -95,7 +95,7 @@
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
       aria-haspopup="dialog"
-      [attr.aria-expanded]="notificationsPopover.overlayVisible ? 'true' : 'false'"
+      [attr.aria-expanded]="notificationsOpen() ? 'true' : 'false'"
       (click)="openSidebarOverlay($event, notificationsPopover, 'below')"
     >
       <i class="pi pi-bell" aria-hidden="true"></i>
@@ -109,17 +109,17 @@
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
       aria-haspopup="menu"
-      [attr.aria-expanded]="moreMenu.visible ? 'true' : 'false'"
+      [attr.aria-expanded]="moreMenuOpen() ? 'true' : 'false'"
       (click)="openSidebarOverlay($event, moreMenu, 'below')"
     >
       <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
     </button>
 
-    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applySidebarOverlayPosition(addMenu)"/>
-    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="applySidebarOverlayPosition(notificationsPopover)">
+    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="addMenuOpen.set(true); applySidebarOverlayPosition(addMenu)" (onHide)="addMenuOpen.set(false)"/>
+    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="notificationsOpen.set(true); applySidebarOverlayPosition(notificationsPopover)" (onHide)="notificationsOpen.set(false)">
       <app-unified-notification-popover-component></app-unified-notification-popover-component>
     </p-popover>
-    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applySidebarOverlayPosition(moreMenu)"/>
+    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="moreMenuOpen.set(true); applySidebarOverlayPosition(moreMenu)" (onHide)="moreMenuOpen.set(false)"/>
 
     @if (currentUser(); as user) {
       <button
