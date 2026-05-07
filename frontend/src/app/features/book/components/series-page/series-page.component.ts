@@ -25,13 +25,12 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from "primeng/tooltip";
 import {Divider} from "primeng/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
-import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild, viewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
-import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 
 interface ReadStatusSegment {
@@ -96,7 +95,8 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
   private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
-  private readonly SERIES_GRID_GAP = 16;
+  private readonly DESKTOP_SERIES_GRID_GAP = 21;
+  private readonly MOBILE_SERIES_GRID_GAP = 8;
   private readonly MOBILE_GRID_COLUMNS = 2;
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
@@ -118,8 +118,9 @@ export class SeriesPageComponent implements AfterViewChecked {
   private authorService = inject(AuthorService);
   private layoutService = inject(LayoutService);
 
-  @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
-  private readonly seriesGridScroll = viewChild<ElementRef<HTMLElement>>('seriesGridScroll');
+  private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
+  private readonly seriesGridElement = viewChild<ElementRef<HTMLElement>>('seriesGrid');
+  private readonly seriesGridWidth = signal(0);
   tab: string = "view";
   isExpanded = false;
   isOverflowing = false;
@@ -155,19 +156,23 @@ export class SeriesPageComponent implements AfterViewChecked {
       return aNum - bNum;
     });
   });
-  private readonly minSeriesCardWidth = computed(() => this.DEFAULT_SERIES_CARD_WIDTH);
-  private readonly seriesGridColumns = computed(() =>
-    this.layoutService.isDesktop() ? undefined : this.MOBILE_GRID_COLUMNS
-  );
-  protected readonly seriesVirtualGrid = createVirtualGrid({
-    items: this.filteredBooks,
-    scrollElement: this.seriesGridScroll,
-    minItemWidth: this.minSeriesCardWidth,
-    gap: this.SERIES_GRID_GAP,
-    columns: this.seriesGridColumns,
-    fillItemWidth: true,
-    estimateItemHeight: itemWidth => this.seriesCardSizeForWidth(itemWidth).height,
+  protected readonly seriesGridColumns = computed(() => {
+    if (!this.layoutService.isDesktop()) {
+      return this.MOBILE_GRID_COLUMNS;
+    }
+
+    return this.seriesGridColumnCount(this.seriesGridWidth());
   });
+  protected readonly seriesGridGap = computed(() =>
+    this.layoutService.isDesktop() ? this.DESKTOP_SERIES_GRID_GAP : this.MOBILE_SERIES_GRID_GAP
+  );
+  protected readonly seriesGridCardWidth = computed(() => this.seriesGridItemWidth(
+    this.seriesGridWidth(),
+    this.seriesGridColumns()
+  ));
+  protected readonly seriesGridCardHeight = computed(() =>
+    this.seriesCardSizeForWidth(this.seriesGridCardWidth()).height
+  );
 
   coverBook = computed(() => this.filteredBooks()[0] ?? null);
   private firstBookId = computed(() => this.coverBook()?.id ?? null);
@@ -382,6 +387,47 @@ export class SeriesPageComponent implements AfterViewChecked {
       this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.currentUser());
     });
 
+    effect((onCleanup) => {
+      const element = this.seriesGridElement()?.nativeElement;
+      if (!element) return;
+
+      const updateGridWidth = () => {
+        this.seriesGridWidth.set(this.getElementContentWidth(element));
+      };
+      updateGridWidth();
+
+      if (typeof ResizeObserver === 'undefined') return;
+
+      const resizeObserver = new ResizeObserver(updateGridWidth);
+      resizeObserver.observe(element);
+      onCleanup(() => resizeObserver.disconnect());
+    });
+  }
+
+  private getElementContentWidth(element: HTMLElement): number {
+    const style = getComputedStyle(element);
+    const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    return Math.max(0, Math.round(element.clientWidth - horizontalPadding));
+  }
+
+  private seriesGridColumnCount(containerWidth: number): number {
+    if (containerWidth <= 0) {
+      return 1;
+    }
+
+    return Math.max(
+      1,
+      Math.floor((containerWidth + this.seriesGridGap()) / (this.DEFAULT_SERIES_CARD_WIDTH + this.seriesGridGap()))
+    );
+  }
+
+  private seriesGridItemWidth(containerWidth: number, columns: number): number {
+    if (containerWidth <= 0 || columns <= 0) {
+      return this.DEFAULT_SERIES_CARD_WIDTH;
+    }
+
+    const totalGap = (columns - 1) * this.seriesGridGap();
+    return Math.max(1, (containerWidth - totalGap) / columns);
   }
 
   private seriesCardSizeForWidth(width: number): { width: number; height: number } {
@@ -440,8 +486,10 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    if (!this.isExpanded && this.descriptionContentRef) {
-      const el = this.descriptionContentRef.nativeElement;
+    if (!this.isExpanded) {
+      const el = this.descriptionContentRef()?.nativeElement;
+      if (!el) return;
+
       this.isOverflowing = el.scrollHeight > el.clientHeight;
     }
   }

@@ -279,44 +279,35 @@
                   <i class="pi pi-objects-column"></i>
                   {{ t('booksInSeries') }}
                 </h3>
-                @if (books.length === 0) {
-                  <div class="empty-state">{{ t('noBooksFound') }}</div>
-                } @else {
-                  <div
-                    #seriesGridScroll
-                    class="series-items-grid virtual-scroller"
-                    [style.--series-grid-total-height.px]="seriesVirtualGrid.virtualizer.getTotalSize()">
-                    <div class="virtual-content" [style.height.px]="seriesVirtualGrid.virtualizer.getTotalSize()">
-                      @for (virtualItem of seriesVirtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
-                        @if (books[virtualItem.index]; as book) {
-                          <div
-                            class="virtual-cell"
-                            [style.width.px]="seriesVirtualGrid.itemWidth()"
-                            [style.height.px]="virtualItem.size"
-                            [style.transform]="seriesVirtualGrid.itemTransform(virtualItem)">
-                            <app-book-card
-                              [index]="virtualItem.index"
-                              [book]="book"
-                              [isCheckboxEnabled]="true"
-                              [seriesViewEnabled]="seriesViewEnabled"
-                              [onBookSelect]="onSeriesBookCardSelect"
-                              [isSeriesCollapsed]="seriesCardsCollapsed"
-                              (checkboxClick)="onCheckboxClicked($event)"
-                              [isSelected]="isBookSelected(book)"
-                              [useSquareCovers]="seriesCardsUseSquareCovers"
-                              [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                            </app-book-card>
-                          </div>
-                        }
-                      }
-                    </div>
-                  </div>
-                }
+                <div
+                  #seriesGrid
+                  class="series-items-grid"
+                  [style.--series-grid-columns]="seriesGridColumns()"
+                  [style.--series-grid-card-width.px]="seriesGridCardWidth()"
+                  [style.--series-grid-card-height.px]="seriesGridCardHeight()"
+                  [style.--series-grid-gap.px]="seriesGridGap()">
+                  @for (book of books; track book.id; let index = $index) {
+                    <app-book-card
+                      [index]="index"
+                      [book]="book"
+                      [isCheckboxEnabled]="true"
+                      [seriesViewEnabled]="seriesViewEnabled"
+                      [onBookSelect]="onSeriesBookCardSelect"
+                      [isSeriesCollapsed]="seriesCardsCollapsed"
+                      (checkboxClick)="onCheckboxClicked($event)"
+                      [isSelected]="isBookSelected(book)"
+                      [useSquareCovers]="seriesCardsUseSquareCovers"
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                    </app-book-card>
+                  }
+                </div>
 
               </div>
 
             </div>
-        }
+          } @else {
+            <div class="empty-state">{{ t('noBooksFound') }}</div>
+          }
 
       </p-tabpanel>
 
