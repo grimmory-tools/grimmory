@@ -1,6 +1,5 @@
 import { computed, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getTranslocoModule } from '../../../core/testing/transloco-testing';
@@ -16,7 +15,6 @@ import { SeriesDataService } from '../../../features/series-browser/service/seri
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
 import { AuthService } from '../../service/auth.service';
-import { VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
 
@@ -99,7 +97,6 @@ describe('AppSidebarComponent', () => {
         { provide: MagicShelfService, useValue: { shelves: signal([]), bookCountByMagicShelfId: signal(new Map()) } },
         { provide: SeriesDataService, useValue: { allSeries: signal([]) } },
         { provide: AuthorService, useValue: { allAuthors: signal([]) } },
-        { provide: VersionService, useValue: { getVersion: vi.fn(() => of(null)) } },
       ],
     });
 
