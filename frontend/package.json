@@ -23,6 +23,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^21.2.12",
+    "@angular/aria": "~21.2.10",
     "@angular/cdk": "^21.2.10",
     "@angular/common": "^21.2.12",
     "@angular/compiler": "^21.2.12",
