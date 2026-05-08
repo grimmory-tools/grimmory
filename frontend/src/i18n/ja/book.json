@@ -43,7 +43,6 @@
       "save": "保存",
       "collapseSeries": "シリーズを折りたたむ",
       "gridColumns": "グリッド列数",
-      "gridItemSize": "グリッドアイテムサイズ",
       "bookTypeOverlay": "本の種類オーバーレイ",
       "noBooks": "このコレクションには本がありません！",
       "failedLibrary": "ライブラリの本の読み込みに失敗しました！",

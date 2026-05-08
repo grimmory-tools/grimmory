@@ -3,7 +3,6 @@
   "browseAllAuthors": "Browse All Authors",
   "searchPlaceholder": "Search by author name...",
   "noAuthorsFound": "No authors match your search.",
-  "cardSize": "Card Size",
   "sort": {
     "name": "Name",
     "bookCount": "Book Count",

@@ -43,7 +43,6 @@
       "save": "Enregistrer",
       "collapseSeries": "Regrouper les séries",
       "gridColumns": "Colonnes de la grille",
-      "gridItemSize": "Taille des éléments",
       "bookTypeOverlay": "Superposition du type de livre",
       "noBooks": "Cette collection ne contient aucun livre !",
       "failedLibrary": "Échec du chargement des livres de la bibliothèque !",

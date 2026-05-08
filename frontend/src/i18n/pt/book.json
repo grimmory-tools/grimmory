@@ -43,7 +43,6 @@
       "save": "Salvar",
       "collapseSeries": "Recolher séries",
       "gridColumns": "Colunas da grade",
-      "gridItemSize": "Tamanho do item da grade",
       "bookTypeOverlay": "Sobreposição de tipo de livro",
       "noBooks": "Esta coleção não possui livros!",
       "failedLibrary": "Falha ao carregar os livros da biblioteca!",

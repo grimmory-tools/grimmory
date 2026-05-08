@@ -6,7 +6,6 @@
   "booksRead": "books read",
   "noSeriesFound": "No series match your search or filters.",
   "noSeriesInCategory": "No series found in this category.",
-  "cardSize": "Card Size",
   "filters": {
     "all": "All",
     "notStarted": "Not Started",

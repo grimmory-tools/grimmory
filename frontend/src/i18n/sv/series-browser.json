@@ -6,7 +6,6 @@
   "booksRead": "böcker lästa",
   "noSeriesFound": "Inga serier matchar din sökning eller dina filter.",
   "noSeriesInCategory": "Inga serier hittades i denna kategori.",
-  "cardSize": "Kortstorlek",
   "filters": {
     "all": "Alla",
     "notStarted": "Ej påbörjad",
