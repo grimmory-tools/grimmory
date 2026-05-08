@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -45,8 +47,17 @@ public class KoreaderAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!user.getPasswordMD5().equalsIgnoreCase(key)) {
-            log.info("KOReader user password not match");
+        try {
+            byte[] expectedMD5Bytes = HexFormat.of().parseHex(user.getPasswordMD5());
+            byte[] actualMD5Bytes = HexFormat.of().parseHex(key);
+
+            if (!MessageDigest.isEqual(expectedMD5Bytes, actualMD5Bytes)) {
+                log.info("KOReader user password not match");
+                chain.doFilter(request, response);
+                return;
+            }
+        } catch (IllegalArgumentException e) {
+            log.info("Problem comparing Koreader md5 checksums: {}", e.getMessage());
             chain.doFilter(request, response);
             return;
         }
