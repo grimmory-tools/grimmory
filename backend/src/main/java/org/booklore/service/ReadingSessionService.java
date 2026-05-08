@@ -888,7 +888,7 @@ public class ReadingSessionService {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         ZoneId zone = ZoneId.systemDefault();
 
-        return readingSessionRepository.findListeningTimestampsByUserPaged(userId, PageRequest.of(0, 1000))
+        return readingSessionRepository.findListeningTimestampsByUserPaged(userId, PageRequest.of(0, 500))
                 .stream()
                 .map(dto -> {
                     var zdt = dto.getStartTime().atZone(zone);
