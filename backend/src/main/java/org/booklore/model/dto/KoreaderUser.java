@@ -12,5 +12,5 @@ public class KoreaderUser {
     private String password;
     private String passwordMD5;
     private boolean syncEnabled;
-    private boolean syncWithBookloreReader;
+    private boolean syncWithWebReader;
 }

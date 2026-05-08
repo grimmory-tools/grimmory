@@ -51,13 +51,26 @@ public class KoreaderUserController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Toggle sync progress with Booklore reader", description = "Enable or disable syncing reading progress with Booklore reader.")
+    @Operation(summary = "Toggle sync progress with web reader", description = "Enable or disable syncing reading progress with the web reader.")
+    @ApiResponse(responseCode = "204", description = "Sync progress toggled successfully")
+    @PatchMapping("/me/sync-progress-with-grimmory")
+    @PreAuthorize("@securityUtil.canSyncKoReader() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> toggleSyncProgressWithWebReader(
+            @Parameter(description = "Enable or disable sync progress") @RequestParam boolean enabled) {
+        koreaderUserService.toggleSyncProgressWithWebReader(enabled);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "[Deprecated] Toggle sync progress with web reader",
+            description = "Deprecated alias for /me/sync-progress-with-grimmory. Use the new endpoint; this one will be removed in a future release.",
+            deprecated = true)
     @ApiResponse(responseCode = "204", description = "Sync progress toggled successfully")
     @PatchMapping("/me/sync-progress-with-booklore")
     @PreAuthorize("@securityUtil.canSyncKoReader() or @securityUtil.isAdmin()")
+    @Deprecated(forRemoval = true)
     public ResponseEntity<Void> toggleSyncProgressWithBooklore(
             @Parameter(description = "Enable or disable sync progress") @RequestParam boolean enabled) {
-        koreaderUserService.toggleSyncProgressWithBooklore(enabled);
-        return ResponseEntity.noContent().build();
+        return toggleSyncProgressWithWebReader(enabled);
     }
 }
