@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * Integration tests verifying Hibernate entity relationships, lazy loading,
@@ -74,7 +76,7 @@ class HibernateRegressionTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @org.springframework.boot.test.context.TestConfiguration
+    @TestConfiguration
     public static class TestConfig {
         @Bean("flyway")
         @Primary
@@ -311,7 +313,7 @@ class HibernateRegressionTest {
             // Intentionally NOT setting library back-reference
 
             Assertions.assertThrows(
-                    org.springframework.dao.DataIntegrityViolationException.class,
+                    DataIntegrityViolationException.class,
                     () -> {
                         libraryRepository.saveAndFlush(library);
                         entityManager.flush();

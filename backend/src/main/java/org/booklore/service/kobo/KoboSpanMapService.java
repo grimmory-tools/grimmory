@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class KoboSpanMapService {
     private final KoboSpanMapExtractionService koboSpanMapExtractionService;
 
     @Transactional
-    public void computeAndStoreIfNeeded(BookFileEntity bookFile, File kepubFile) throws java.io.IOException {
+    public void computeAndStoreIfNeeded(BookFileEntity bookFile, File kepubFile) throws IOException {
         if (bookFile == null || bookFile.getId() == null) {
             return;
         }

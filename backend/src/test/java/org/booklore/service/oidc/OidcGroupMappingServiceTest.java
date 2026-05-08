@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import java.util.Arrays;
 
 @ExtendWith(MockitoExtension.class)
 class OidcGroupMappingServiceTest {
@@ -415,6 +416,6 @@ class OidcGroupMappingServiceTest {
     private List<Long> parseJsonLongs(String json) {
         if (json == null || json.equals("[]")) return List.of();
         var parts = json.replace("[", "").replace("]", "").split(",");
-        return java.util.Arrays.stream(parts).map(String::trim).map(Long::valueOf).toList();
+        return Arrays.stream(parts).map(String::trim).map(Long::valueOf).toList();
     }
 }

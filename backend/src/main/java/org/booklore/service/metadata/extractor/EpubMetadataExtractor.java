@@ -34,6 +34,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
 
 @Slf4j
 @Component
@@ -432,14 +434,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
-    private static void safeParseInt(String value, java.util.function.IntConsumer setter) {
+    private static void safeParseInt(String value, IntConsumer setter) {
         try {
             setter.accept(Integer.parseInt(value));
         } catch (NumberFormatException _) {
         }
     }
 
-    private static void safeParseDouble(String value, java.util.function.DoubleConsumer setter) {
+    private static void safeParseDouble(String value, DoubleConsumer setter) {
         try {
             setter.accept(Double.parseDouble(value));
         } catch (NumberFormatException _) {
@@ -592,7 +594,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         String combined = basePath + href;
 
         // Normalize path components to handle ".." and "."
-        java.util.LinkedList<String> parts = new java.util.LinkedList<>();
+        LinkedList<String> parts = new LinkedList<>();
         for (String part : combined.split("/")) {
             if ("..".equals(part)) {
                 if (!parts.isEmpty()) parts.removeLast();

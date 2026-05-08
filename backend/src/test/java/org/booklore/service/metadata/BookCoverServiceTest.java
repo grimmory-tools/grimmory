@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import java.io.IOException;
 
 @ExtendWith(MockitoExtension.class)
 class BookCoverServiceTest {
@@ -442,7 +443,7 @@ class BookCoverServiceTest {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
-            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{1, 2, 3}));
+            when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -472,7 +473,7 @@ class BookCoverServiceTest {
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
             try {
-                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}));
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
@@ -490,7 +491,7 @@ class BookCoverServiceTest {
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
             try {
-                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
@@ -507,7 +508,7 @@ class BookCoverServiceTest {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
-            when(file.getInputStream()).thenThrow(new java.io.IOException("Test error"));
+            when(file.getInputStream()).thenThrow(new IOException("Test error"));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -744,7 +745,7 @@ class BookCoverServiceTest {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
-            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
+            when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
             when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
 
             doAnswer(inv -> {
@@ -910,7 +911,7 @@ class BookCoverServiceTest {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
-            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
+            when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(10);
             

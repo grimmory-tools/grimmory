@@ -130,7 +130,7 @@ class BookMarkServiceTest {
         when(bookMarkRepository.existsByCfiAndBookIdAndUserId("new-cfi", bookId, userId)).thenReturn(false); // No duplicate
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty()); // Book doesn't exist
 
-        assertThrows(jakarta.persistence.EntityNotFoundException.class, () -> bookMarkService.createBookmark(request));
+        assertThrows(EntityNotFoundException.class, () -> bookMarkService.createBookmark(request));
         verify(bookMarkRepository, never()).save(any());
     }
 

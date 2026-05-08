@@ -35,6 +35,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 
 @SpringBootTest(classes = {BookloreApplication.class})
 @Transactional
@@ -1486,10 +1489,10 @@ class BookRuleEvaluatorServiceIntegrationTest {
         @Test
         void thisPeriod_week_matchesThisWeekBook() {
             // Use midweek (Wednesday) of the current week to avoid boundary issues on Monday
-            LocalDate thisWeekWednesday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).plusDays(2);
+            LocalDate thisWeekWednesday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).plusDays(2);
             // If Wednesday is in the future (we're Mon/Tue), just use today
             LocalDate safeDate = thisWeekWednesday.isAfter(LocalDate.now()) ? LocalDate.now() : thisWeekWednesday;
-            Instant thisWeekInstant = safeDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().plus(12, ChronoUnit.HOURS);
+            Instant thisWeekInstant = safeDate.atStartOfDay(ZoneId.systemDefault()).toInstant().plus(12, ChronoUnit.HOURS);
 
             BookEntity thisWeekBook = createBook("This Week Book");
             thisWeekBook.setAddedOn(thisWeekInstant);

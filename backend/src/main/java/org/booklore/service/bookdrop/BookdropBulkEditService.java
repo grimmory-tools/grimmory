@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @Slf4j
 @Service
@@ -122,7 +123,7 @@ public class BookdropBulkEditService {
 
     private void updateArrayField(String fieldName, Set<String> enabledFields,
                                   List<String> currentValue, List<String> newValue,
-                                  java.util.function.Consumer<List<String>> setter, boolean mergeArrays) {
+                                  Consumer<List<String>> setter, boolean mergeArrays) {
         if (enabledFields.contains(fieldName) && newValue != null) {
             if (mergeArrays && currentValue != null) {
                 List<String> merged = new ArrayList<>(currentValue);
@@ -138,7 +139,7 @@ public class BookdropBulkEditService {
 
     private void updateArrayField(String fieldName, Set<String> enabledFields,
                                   Set<String> currentValue, Set<String> newValue,
-                                  java.util.function.Consumer<Set<String>> setter, boolean mergeArrays) {
+                                  Consumer<Set<String>> setter, boolean mergeArrays) {
         if (enabledFields.contains(fieldName) && newValue != null) {
             if (mergeArrays && currentValue != null) {
                 Set<String> merged = new LinkedHashSet<>(currentValue);

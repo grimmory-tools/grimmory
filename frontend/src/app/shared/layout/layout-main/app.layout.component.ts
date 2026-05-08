@@ -5,7 +5,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { LayoutService, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH } from '../layout.service';
-import { AppMenuComponent } from '../layout-menu/app.menu.component';
+import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
 import { AppMobileTopbarComponent } from '../layout-mobile-topbar/app.mobile-topbar.component';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -17,7 +17,7 @@ const SIDEBAR_KEYBOARD_PAGE_STEP = 48;
   selector: 'app-layout',
   imports: [
     RouterOutlet,
-    AppMenuComponent,
+    AppSidebarComponent,
     AppMobileTopbarComponent,
     CdkTrapFocus,
     NgClass,

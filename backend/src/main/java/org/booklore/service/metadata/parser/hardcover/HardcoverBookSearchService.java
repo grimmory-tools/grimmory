@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClientResponseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -91,7 +92,7 @@ public class HardcoverBookSearchService {
                         }
                       }
                     }""");
-        body.setVariables(java.util.Map.of("isbn", isbn));
+        body.setVariables(Map.of("isbn", isbn));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
@@ -117,7 +118,7 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("query BookSearch($q: String!, $limit: Int!) { search(query: $q, query_type: \"Book\", per_page: $limit, page: 1) { results } }");
-        body.setVariables(java.util.Map.of("q", query, "limit", sanitizedPerPage));
+        body.setVariables(Map.of("q", query, "limit", sanitizedPerPage));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
@@ -138,7 +139,7 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("query BookDetails($id: Int!) { books_by_pk(id: $id) { id title cached_tags } }");
-        body.setVariables(java.util.Map.of("id", bookId));
+        body.setVariables(Map.of("id", bookId));
 
         HardcoverBookDetailsResponse response = executeRequest(body, HardcoverBookDetailsResponse.class, apiToken);
         if (response == null || response.getData() == null) {

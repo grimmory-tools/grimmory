@@ -46,7 +46,7 @@ public class ShelfService {
             throw ApiError.SHELF_ALREADY_EXISTS.createException(request.getName());
         }
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
-            throw new org.springframework.security.access.AccessDeniedException("Only admins can create public shelves");
+            throw new AccessDeniedException("Only admins can create public shelves");
         }
         ShelfEntity shelfEntity = ShelfEntity.builder()
                 .icon(request.getIcon())

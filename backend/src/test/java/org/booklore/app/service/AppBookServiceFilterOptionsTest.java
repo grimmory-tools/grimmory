@@ -39,6 +39,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import jakarta.persistence.criteria.Predicate;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -237,12 +238,12 @@ class AppBookServiceFilterOptionsTest {
         when(magicShelfBookService.toSpecification(eq(userId), eq(magicShelfId)))
                 .thenReturn(mockSpec);
 
-        jakarta.persistence.criteria.Predicate mockPredicate = mock(jakarta.persistence.criteria.Predicate.class);
+        Predicate mockPredicate = mock(Predicate.class);
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         CriteriaQuery<Long> cq = mock(CriteriaQuery.class);
         Root<BookEntity> root = mock(Root.class);
         Path<Long> idPath = mock(Path.class);
-        jakarta.persistence.TypedQuery<Long> typedQuery = mock(jakarta.persistence.TypedQuery.class);
+        TypedQuery<Long> typedQuery = mock(TypedQuery.class);
 
         when(entityManager.getCriteriaBuilder()).thenReturn(cb);
         when(cb.createQuery(Long.class)).thenReturn(cq);

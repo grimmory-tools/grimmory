@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import java.net.URLDecoder;
 
 class EpubMetadataWriterTest {
 
@@ -692,7 +693,7 @@ class EpubMetadataWriterTest {
             zos.write(ncxContent.getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
 
-            String decodedCoverPath = java.net.URLDecoder.decode("cover%C3%A1.png", java.nio.charset.StandardCharsets.UTF_8);
+            String decodedCoverPath = URLDecoder.decode("cover%C3%A1.png", StandardCharsets.UTF_8);
             zos.putNextEntry(new ZipEntry("OEBPS/" + decodedCoverPath));
             zos.write(coverImage);
             zos.closeEntry();

@@ -27,6 +27,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.util.Comparator;
 
 class LibraryFileEventProcessorTest {
 
@@ -249,7 +250,7 @@ class LibraryFileEventProcessorTest {
                 verify(bookFileTransactionalHandler, never()).handleNewBookFile(anyLong(), any());
             } finally {
                 try (var stream = Files.walk(outsideFolder)) {
-                    stream.sorted(java.util.Comparator.reverseOrder()).forEach(p -> {
+                    stream.sorted(Comparator.reverseOrder()).forEach(p -> {
                         try { Files.deleteIfExists(p); } catch (IOException _) {}
                     });
                 }

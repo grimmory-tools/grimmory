@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AppMenuSectionComponent } from './app.menu-section.component';
+import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { Popover } from 'primeng/popover';
 import { Menu } from 'primeng/menu';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
@@ -55,12 +55,12 @@ function detectSearchShortcut(userAgent: string): string {
 }
 
 @Component({
-  selector: 'app-menu',
-  imports: [AppMenuSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip, NgTemplateOutlet],
-  templateUrl: './app.menu.component.html',
-  styleUrl: './app.menu.component.scss',
+  selector: 'app-sidebar',
+  imports: [AppSidebarSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip, NgTemplateOutlet],
+  templateUrl: './app.sidebar.component.html',
+  styleUrl: './app.sidebar.component.scss',
 })
-export class AppMenuComponent {
+export class AppSidebarComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly libraryHealthService = inject(LibraryHealthService);
   private readonly shelfService = inject(ShelfService);

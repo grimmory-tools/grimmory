@@ -23,6 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.nio.channels.UnresolvedAddressException;
 
 @Service
 @Slf4j
@@ -450,9 +453,9 @@ public class LubimyCzytacParser implements BookParser {
     private boolean isConnectivityError(Exception e) {
         Throwable cause = e;
         while (cause != null) {
-            if (e instanceof java.net.ConnectException ||
-                    e instanceof java.nio.channels.UnresolvedAddressException ||
-                    e instanceof java.net.SocketTimeoutException) {
+            if (e instanceof ConnectException ||
+                    e instanceof UnresolvedAddressException ||
+                    e instanceof SocketTimeoutException) {
                 return true;
             }
             cause = cause.getCause();

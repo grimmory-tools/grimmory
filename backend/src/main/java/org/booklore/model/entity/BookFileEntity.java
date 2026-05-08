@@ -132,7 +132,7 @@ public class BookFileEntity {
         Path folderPath = getFullFilePath();
         try (var files = Files.list(folderPath)) {
             return files
-                    .filter(java.nio.file.Files::isRegularFile)
+                    .filter(Files::isRegularFile)
                     .filter(p -> {
                         String name = p.getFileName().toString().toLowerCase();
                         return name.endsWith(".mp3") || name.endsWith(".m4a") || name.endsWith(".m4b") || name.endsWith(".opus");

@@ -13,9 +13,9 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
 @Component({
   // Attribute selector so the row renders into its host <li> inside a <ul>.
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: '[app-menu-item-row]',
-  templateUrl: './app.menu-item-row.component.html',
-  styleUrls: ['./app.menu-item-row.component.scss'],
+  selector: '[appSidebarItemRow]',
+  templateUrl: './app.sidebar-item-row.component.html',
+  styleUrls: ['./app.sidebar-item-row.component.scss'],
   imports: [
     RouterLink,
     Menu,
@@ -25,7 +25,7 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppMenuItemRowComponent {
+export class AppSidebarItemRowComponent {
   readonly item = input.required<SidebarLeaf>();
   readonly index = input.required<number>();
   readonly parentKey = input.required<string>();

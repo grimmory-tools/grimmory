@@ -41,6 +41,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.time.temporal.ChronoUnit;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
@@ -193,7 +194,7 @@ class AuthenticationServiceTest {
         verify(refreshTokenRepository).save(refreshTokenCaptor.capture());
         RefreshTokenEntity saved = refreshTokenCaptor.getValue();
         Instant expectedExpiry = before.plusMillis(customExpirationMs);
-        assertThat(saved.getExpiryDate()).isCloseTo(expectedExpiry, within(5, java.time.temporal.ChronoUnit.SECONDS));
+        assertThat(saved.getExpiryDate()).isCloseTo(expectedExpiry, within(5, ChronoUnit.SECONDS));
     }
 
     @Test
@@ -213,7 +214,7 @@ class AuthenticationServiceTest {
         verify(refreshTokenRepository).save(refreshTokenCaptor.capture());
         RefreshTokenEntity saved = refreshTokenCaptor.getValue();
         Instant expectedExpiry = before.plusMillis(JwtUtils.refreshTokenExpirationMs);
-        assertThat(saved.getExpiryDate()).isCloseTo(expectedExpiry, within(5, java.time.temporal.ChronoUnit.SECONDS));
+        assertThat(saved.getExpiryDate()).isCloseTo(expectedExpiry, within(5, ChronoUnit.SECONDS));
     }
 
     @Test
