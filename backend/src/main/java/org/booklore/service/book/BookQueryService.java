@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,7 +99,7 @@ public class BookQueryService {
             if (embeddingJson != null && book.getMetadata() != null) {
                 if (!Objects.equals(book.getMetadata().getEmbeddingVector(), embeddingJson)) {
                     book.getMetadata().setEmbeddingVector(embeddingJson);
-                    book.getMetadata().setEmbeddingUpdatedAt(java.time.Instant.now());
+                    book.getMetadata().setEmbeddingUpdatedAt(Instant.now());
                 }
             }
         }

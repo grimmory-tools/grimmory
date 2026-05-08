@@ -130,7 +130,7 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
         WHERE ubp.user.id = :userId
           AND ubp.book.id IN :bookIds
     """)
-    int bulkResetBookloreProgress(@Param("userId") Long userId, @Param("bookIds") List<Long> bookIds, @Param("modifiedTime") java.time.Instant modifiedTime);
+    int bulkResetBookloreProgress(@Param("userId") Long userId, @Param("bookIds") List<Long> bookIds, @Param("modifiedTime") Instant modifiedTime);
 
     @Modifying
     @Transactional

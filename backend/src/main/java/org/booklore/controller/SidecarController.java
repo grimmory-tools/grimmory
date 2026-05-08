@@ -8,14 +8,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
+import org.booklore.model.dto.sidecar.SidecarResponse;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.service.metadata.sidecar.SidecarService;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 
 @Tag(name = "Sidecar Metadata", description = "Endpoints for managing sidecar JSON metadata files")
 @RequestMapping("/api/v1")
@@ -28,14 +32,30 @@ public class SidecarController {
     @Operation(summary = "Get sidecar content", description = "Get the content of the sidecar JSON file for a book")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sidecar content returned successfully"),
+            @ApiResponse(responseCode = "304", description = "Not modified"),
             @ApiResponse(responseCode = "404", description = "Book or sidecar file not found")
     })
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/books/{bookId}/sidecar")
-    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId) {
-        Optional<SidecarMetadata> sidecar = sidecarService.getSidecarContent(bookId);
-        return sidecar.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId, WebRequest request) {
+        SidecarResponse sidecarResponse = sidecarService.getSidecarResponse(bookId);
+        Instant lastModified = sidecarResponse.getLastModified();
+        if (lastModified == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
+        }
+
+        SidecarMetadata metadata = sidecarResponse.getMetadata();
+        if (metadata == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .lastModified(lastModified)
+                .body(metadata);
     }
 
     @Operation(summary = "Get sidecar sync status", description = "Get the synchronization status between database and sidecar file")

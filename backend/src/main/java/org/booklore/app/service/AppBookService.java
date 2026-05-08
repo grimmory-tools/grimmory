@@ -38,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -66,7 +68,7 @@ public class AppBookService {
     private final EntityManager entityManager;
 
     private final Cache<String, AppFilterOptions> filterOptionsCache = Caffeine.newBuilder()
-            .expireAfterWrite(java.time.Duration.ofSeconds(30))
+            .expireAfterWrite(Duration.ofSeconds(30))
             .maximumSize(50)
             .build();
 

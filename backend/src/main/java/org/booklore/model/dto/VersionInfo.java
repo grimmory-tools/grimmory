@@ -1,10 +1,12 @@
 package org.booklore.model.dto;
 
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 
 @Getter
+@EqualsAndHashCode
 public class VersionInfo {
     private final String current;
     private final String latest;

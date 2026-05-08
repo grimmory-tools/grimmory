@@ -10,8 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -19,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/epub")
@@ -35,8 +41,21 @@ public class EpubReaderController {
     @GetMapping("/{bookId}/info")
     public ResponseEntity<EpubBookInfo> getBookInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
-            @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType) {
-        return ResponseEntity.ok(epubReaderService.getBookInfo(bookId, bookType));
+            @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType,
+            WebRequest request) throws IOException {
+        Instant lastModified = epubReaderService.getLastModified(bookId, bookType);
+
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
+        }
+
+        EpubBookInfo info = epubReaderService.getBookInfo(bookId, bookType);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(info);
     }
 
     @Operation(summary = "Get file from EPUB", description = "Retrieve a specific file from within the EPUB archive (HTML, CSS, images, fonts, etc.).")
@@ -47,8 +66,16 @@ public class EpubReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @PathVariable String filePath,
             @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType,
-            HttpServletRequest request,
+            WebRequest request,
             HttpServletResponse response) throws IOException {
+
+        Instant lastModified = epubReaderService.getLastModified(bookId, bookType);
+
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            response.setDateHeader(HttpHeaders.LAST_MODIFIED, lastModified.toEpochMilli());
+            return;
+        }
 
         String cleanPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
         cleanPath = URLDecoder.decode(cleanPath, StandardCharsets.UTF_8);
@@ -70,7 +97,11 @@ public class EpubReaderController {
         // Defense in depth for untrusted EPUB resources. See Foliate's security guidance:
         // https://github.com/johnfactotum/foliate-js#security
         response.setHeader("Content-Security-Policy", "script-src 'none'");
-        response.setHeader("Cache-Control", "private, max-age=3600");
+        response.setHeader(HttpHeaders.CACHE_CONTROL,
+                CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate().getHeaderValue());
+        if (lastModified != null) {
+            response.setDateHeader(HttpHeaders.LAST_MODIFIED, lastModified.toEpochMilli());
+        }
 
         try {
             epubReaderService.streamFile(bookId, bookType, cleanPath, response.getOutputStream());

@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +39,7 @@ public class IconService {
 
     private final Cache<String, String> svgCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(java.time.Duration.ofHours(1))
+            .expireAfterAccess(Duration.ofHours(1))
             .build();
 
     private static final String ICONS_DIR = "icons";
@@ -238,6 +240,48 @@ public class IconService {
 
     Cache<String, String> getSvgCache() {
         return svgCache;
+    }
+
+    public Instant getIconsLastModified() {
+        Path iconsPath = getIconsSvgPath();
+        if (!Files.exists(iconsPath)) {
+            return null;
+        }
+
+        try {
+            long dirMtime = Files.getLastModifiedTime(iconsPath).toMillis();
+            try (Stream<Path> paths = Files.list(iconsPath)) {
+                long maxFileMtime = paths.filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(SVG_EXTENSION))
+                        .mapToLong(path -> {
+                            try {
+                                return Files.getLastModifiedTime(path).toMillis();
+                            } catch (IOException e) {
+                                return 0L;
+                            }
+                        })
+                        .max()
+                        .orElse(0L);
+                return Instant.ofEpochMilli(Math.max(dirMtime, maxFileMtime));
+            }
+        } catch (IOException e) {
+            log.error("Failed to check icons directory last modified: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    public Instant getIconLastModified(String name) {
+        String filename = normalizeFilename(name);
+        Path filePath = getIconsSvgPath().resolve(filename);
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+        try {
+            return Files.getLastModifiedTime(filePath).toInstant();
+        } catch (IOException e) {
+            log.warn("Failed to check icon last modified for {}: {}", name, e.getMessage());
+            return null;
+        }
     }
 
     public Map<String, String> getAllIconsContent() {

@@ -7,6 +7,7 @@ import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
+import org.booklore.model.dto.sidecar.SidecarResponse;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.enums.MetadataReplaceMode;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +46,44 @@ public class SidecarService {
         }
 
         return sidecarReader.readSidecarMetadata(bookPath);
+    }
+
+    public SidecarResponse getSidecarResponse(Long bookId) {
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        Path bookPath = book.getFullFilePath();
+        if (bookPath == null) {
+            return SidecarResponse.builder()
+                    .lastModified(null)
+                    .metadata(null)
+                    .build();
+        }
+
+        Instant lastModified = sidecarReader.getSidecarLastModified(bookPath);
+        SidecarMetadata metadata = lastModified == null
+                ? null
+                : sidecarReader.readSidecarMetadata(bookPath).orElse(null);
+        if (metadata == null) {
+            lastModified = null;
+        }
+
+        return SidecarResponse.builder()
+                .lastModified(lastModified)
+                .metadata(metadata)
+                .build();
+    }
+
+    public Instant getLastModified(Long bookId) {
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        Path bookPath = book.getFullFilePath();
+        if (bookPath == null) {
+            return null;
+        }
+
+        return sidecarReader.getSidecarLastModified(bookPath);
     }
 
     public SidecarSyncStatus getSyncStatus(Long bookId) {

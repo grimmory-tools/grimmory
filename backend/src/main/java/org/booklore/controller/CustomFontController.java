@@ -12,12 +12,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 @Tag(name = "Custom Fonts", description = "Endpoints for managing custom fonts for EPUB reader")
@@ -68,13 +72,28 @@ public class CustomFontController {
     @ApiResponse(responseCode = "404", description = "Font not found or access denied")
     @GetMapping("/{fontId}/file")
     @PreAuthorize("@securityUtil.canManageFonts() or @securityUtil.isAdmin()")
-    public ResponseEntity<Resource> getFontFile(@PathVariable Long fontId) {
+    public ResponseEntity<Resource> getFontFile(@PathVariable Long fontId, WebRequest request) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Resource resource = customFontService.getFontFile(fontId, user.getId());
         FontFormat format = customFontService.getFontFormat(fontId, user.getId());
-        return ResponseEntity.ok()
+
+        Instant lastModified;
+        try {
+            lastModified = Instant.ofEpochMilli(resource.lastModified());
+        } catch (IOException e) {
+            lastModified = null;
+        }
+
+        if (lastModified != null && request.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).build();
+        }
+
+        var builder = ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(format.getMimeType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline");
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(resource);
     }
 }
