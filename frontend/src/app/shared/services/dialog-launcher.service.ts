@@ -151,7 +151,7 @@ export class DialogLauncherService {
   }
 
   async openVersionChangelogDialog(): Promise<DynamicDialogRef | null> {
-    const {VersionChangelogDialogComponent} = await import('../layout/layout-menu/version-changelog-dialog/version-changelog-dialog.component');
+    const {VersionChangelogDialogComponent} = await import('../layout/layout-sidebar/version-changelog-dialog/version-changelog-dialog.component');
     return this.openDialog(VersionChangelogDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.LG} ${DialogStyle.MINIMAL}`,
