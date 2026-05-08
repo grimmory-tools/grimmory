@@ -81,6 +81,10 @@ public class BookQueryService {
         return bookRepository.findAllFullBooks();
     }
 
+    public List<BookEntity> getAllFullBookEntitiesWithFiles() {
+        return bookRepository.findAllFullBooksWithFiles();
+    }
+
     @Transactional
     public void saveAll(List<BookEntity> books) {
         bookRepository.saveAll(books);

@@ -1,3 +1,5 @@
+@use "../../../../../assets/layout/styles/layout/variables";
+
 .metadata-manager {
   padding: 1.5rem;
   display: flex;
@@ -120,6 +122,10 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+
+  @media #{variables.$mobile-shell-media-query} {
+    padding: var(--space-4);
+  }
 }
 
 .enclosing-container {

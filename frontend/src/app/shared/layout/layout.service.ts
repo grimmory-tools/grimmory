@@ -18,9 +18,9 @@ import {
 export const SIDEBAR_MIN_WIDTH = 175;
 export const SIDEBAR_MAX_WIDTH = 400;
 export const SIDEBAR_DEFAULT_WIDTH = 225;
-const DESKTOP_MIN_WIDTH = 768;
 const SIDEBAR_EXPANDED_STATE_KEY = 'sidebarExpandedState';
 const SIDEBAR_TRANSITION_MS = 220;
+export const MOBILE_SHELL_ACTIVE_PROPERTY = '--mobile-shell-active';
 
 function readBooleanRecord(storage: LocalStorageService, key: string): Record<string, boolean> {
   const stored = storage.get<unknown>(key);
@@ -149,11 +149,21 @@ export class LayoutService {
   }
 
   private computeIsDesktop(): boolean {
-    return (this.document.defaultView?.innerWidth ?? DESKTOP_MIN_WIDTH) >= DESKTOP_MIN_WIDTH;
+    const view = this.document.defaultView;
+    if (!view) return true;
+
+    return view
+      .getComputedStyle(this.document.documentElement)
+      .getPropertyValue(MOBILE_SHELL_ACTIVE_PROPERTY)
+      .trim() !== '1';
   }
 
   private readonly onResize = (): void => {
-    this.isDesktop.set(this.computeIsDesktop());
+    const isDesktop = this.computeIsDesktop();
+    this.isDesktop.set(isDesktop);
+    if (isDesktop) {
+      this.closeMobileSidebar();
+    }
   };
 
   private setSidebarCollapsed(collapsed: boolean): void {

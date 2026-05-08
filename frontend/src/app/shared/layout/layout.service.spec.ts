@@ -20,6 +20,8 @@ describe('LayoutService', () => {
     },
   } as never);
   const updateUserSetting = vi.fn();
+  let resizeListener: (() => void) | undefined;
+  let mobileShellActive = false;
   const localStorageService = {
     get: vi.fn((key: string) => {
       if (key === 'sidebarCollapsed') {
@@ -35,6 +37,18 @@ describe('LayoutService', () => {
 
   beforeEach(() => {
     routerEvents = new Subject<unknown>();
+    resizeListener = undefined;
+    mobileShellActive = false;
+    vi.spyOn(window, 'addEventListener').mockImplementation((type, listener) => {
+      if (type === 'resize') {
+        resizeListener = listener as () => void;
+      }
+    });
+    vi.spyOn(window, 'removeEventListener').mockImplementation(vi.fn());
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({
+      getPropertyValue: (property: string) =>
+        property === '--mobile-shell-active' && mobileShellActive ? '1' : '',
+    }) as CSSStyleDeclaration);
     TestBed.configureTestingModule({
       providers: [
         LayoutService,
@@ -79,6 +93,21 @@ describe('LayoutService', () => {
     service.onMenuToggle();
     expect(service.mobileDrawerOpen()).toBe(true);
     service.onMenuToggle();
+    expect(service.mobileDrawerOpen()).toBe(false);
+  });
+
+  it('derives desktop state from the mobile shell CSS state', () => {
+    expect(service.isDesktop()).toBe(true);
+
+    mobileShellActive = true;
+    resizeListener?.();
+    expect(service.isDesktop()).toBe(false);
+
+    service.mobileDrawerOpen.set(true);
+    mobileShellActive = false;
+    resizeListener?.();
+
+    expect(service.isDesktop()).toBe(true);
     expect(service.mobileDrawerOpen()).toBe(false);
   });
 
@@ -145,12 +174,10 @@ describe('LayoutService', () => {
   });
 
   it('cleans up global listeners and router events when destroyed', () => {
-    const removeEventListener = vi.spyOn(window, 'removeEventListener');
-
     TestBed.resetTestingModule();
     routerEvents.next(new NavigationEnd(1, '/series', '/series'));
 
-    expect(removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(window.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
     expect(service.currentPath()).toBe('/dashboard');
   });
 });

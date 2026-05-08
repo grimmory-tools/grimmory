@@ -23,7 +23,12 @@
             [displayEmpty]="true"
           ></app-icon-display>
         </span>
-        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+        <span class="layout-menuitem-text menu-item-text">
+          <span class="menu-item-label">{{ currentItem.label }}</span>
+          @if (currentItem.bookCount) {
+            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          }
+        </span>
       </span>
     </button>
   } @else if (currentItem.routerLink) {
@@ -55,7 +60,12 @@
             [displayEmpty]="true"
           ></app-icon-display>
         </span>
-        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+        <span class="layout-menuitem-text menu-item-text">
+          <span class="menu-item-label">{{ currentItem.label }}</span>
+          @if (currentItem.bookCount) {
+            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          }
+        </span>
       </span>
     </a>
   }
@@ -74,9 +84,17 @@
           <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
         </span>
       </button>
-      <p-menu #entitymenu [model]="currentItem.contextMenuItems" [popup]="true" appendTo="body" (onHide)="closeContextMenu()"></p-menu>
+      <p-menu
+        #entitymenu
+        [model]="currentItem.contextMenuItems"
+        [popup]="true"
+        appendTo="body"
+        styleClass="sidebar-entity-menu"
+        (onShow)="positionContextMenu(entitymenu)"
+        (onHide)="closeContextMenu()"
+      ></p-menu>
     } @else if (currentItem.bookCount) {
-      <p class="book-count">{{ formatCount(currentItem.bookCount) }}</p>
+      <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
     }
   </span>
 </div>

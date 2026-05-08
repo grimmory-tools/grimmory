@@ -1,3 +1,5 @@
+@use "../../../../assets/layout/styles/layout/variables";
+
 :host {
   display: block;
   list-style: none;
@@ -52,9 +54,20 @@
 
 .expand-icon {
   color: var(--surface-500);
+}
 
-  &:hover {
+@media (hover: hover) and (pointer: fine) {
+  .expand-icon:hover {
     color: var(--surface-200);
+  }
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .root-item-with-dropdown:focus-visible {
+    background-color: transparent;
+    box-shadow: none;
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
   }
 }
 
@@ -93,7 +106,7 @@
   }
 }
 
-@media (width <= 767px) {
+@media #{variables.$mobile-shell-media-query} {
   .expand-icon-button {
     opacity: 1;
     width: 2rem;

@@ -1,4 +1,5 @@
 @use "mixins";
+@use "variables";
 
 :root {
   --sidebar-collapsed-width: 61px;
@@ -60,7 +61,7 @@
   display: none;
 }
 
-@media (width <= 767px) {
+@media #{variables.$mobile-shell-media-query} {
   .layout-sidebar-resize-handle {
     display: none;
   }

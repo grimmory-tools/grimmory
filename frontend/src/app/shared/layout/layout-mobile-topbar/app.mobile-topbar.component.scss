@@ -1,3 +1,5 @@
+@use "../../../../assets/layout/styles/layout/variables";
+
 :host {
   display: contents;
 }
@@ -8,11 +10,16 @@
   top: 0;
   left: 0;
   right: 0;
+  box-sizing: border-box;
   height: 3.5rem;
   z-index: 100;
   background-color: var(--app-background);
   border-bottom: 1px solid var(--content-border-color);
-  padding: 0 0.75rem;
+  padding:
+    0
+    calc(0.75rem + env(safe-area-inset-right))
+    0
+    calc(0.75rem + env(safe-area-inset-left));
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
@@ -74,7 +81,7 @@
   }
 }
 
-@media (width <= 767px) {
+@media #{variables.$mobile-shell-media-query} {
   .mobile-topbar {
     display: flex;
   }
