@@ -25,12 +25,13 @@ import {BookCardOverlayPreferenceService} from '../book-card-overlay-preference.
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
+import {ButtonDirective} from 'primeng/button';
 
 @Component({
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
   styleUrls: ['./book-card.component.scss'],
-  imports: [Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverPlaceholderComponent],
+  imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverPlaceholderComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

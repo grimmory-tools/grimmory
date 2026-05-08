@@ -261,15 +261,15 @@
                     <span>{{ t('synopsis') }}</span>
                   </div>
                   <div class="description-body">
-                    <div #descriptionContent [ngClass]="{ 'line-clamp-7': !isExpanded }"
+                    <div #descriptionContent [ngClass]="{ 'line-clamp-7': !isExpanded() }"
                       class="description-content">
                       <div class="description-html"
                         [innerHTML]="firstDescription() || t('noDescription')"></div>
                     </div>
-                    @if (isExpanded || isOverflowing) {
+                    @if (isExpanded() || isOverflowing()) {
                       <button class="expand-toggle" (click)="toggleExpand()">
-                        {{ isExpanded ? t('showLess') : t('showMore') }}
-                        <i class="pi" [ngClass]="isExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                        {{ isExpanded() ? t('showLess') : t('showMore') }}
+                        <i class="pi" [ngClass]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                       </button>
                     }
                   </div>
@@ -279,34 +279,35 @@
                   <i class="pi pi-objects-column"></i>
                   {{ t('booksInSeries') }}
                 </h3>
-                @let cardSize = currentCardSize;
-                <div class="series-items-grid" #Container
-                  [style.grid-template-columns]="'repeat(auto-fill, minmax(' + cardSize.width + 'px, 1fr))'">
-                  @for (book of books; track book; let i = $index) {
-                    <div class="grid-item"
-                      [style.width.px]="cardSize.width"
-                      [style.height.px]="cardSize.height">
-                      <app-book-card
-                          [index]="i"
-                          [book]="book"
-                          [isCheckboxEnabled]="true"
-                          [isSelected]="isBookSelected(book)"
-                          (checkboxClick)="onCheckboxClicked($event)"
-                          [onBookSelect]="handleBookSelect.bind(this)"
-                          [isSeriesCollapsed]="false"
-                          [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                      </app-book-card>
-                    </div>
-                  }
-                  @if (books.length === 0) {
-                    <div class="empty-state">{{ t('noBooksFound') }}</div>
+                <div
+                  #seriesGrid
+                  class="series-items-grid"
+                  [style.--series-grid-columns]="seriesGridColumns()"
+                  [style.--series-grid-card-width.px]="seriesGridCardWidth()"
+                  [style.--series-grid-card-height.px]="seriesGridCardHeight()"
+                  [style.--series-grid-gap.px]="seriesGridGap()">
+                  @for (book of books; track book.id; let index = $index) {
+                    <app-book-card
+                      [index]="index"
+                      [book]="book"
+                      [isCheckboxEnabled]="true"
+                      [seriesViewEnabled]="seriesViewEnabled"
+                      [onBookSelect]="onSeriesBookCardSelect"
+                      [isSeriesCollapsed]="seriesCardsCollapsed"
+                      (checkboxClick)="onCheckboxClicked($event)"
+                      [isSelected]="isBookSelected(book)"
+                      [useSquareCovers]="seriesCardsUseSquareCovers"
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                    </app-book-card>
                   }
                 </div>
 
               </div>
 
             </div>
-        }
+          } @else {
+            <div class="empty-state">{{ t('noBooksFound') }}</div>
+          }
 
       </p-tabpanel>
 
@@ -398,23 +399,23 @@
 
     </p-tabpanels>
   </p-tabs>
-  @if (selectedBooks.size > 0) {
+  @if (selectedBooks().size > 0) {
     @if (currentUser(); as user) {
       <div class="book-browser-footer" [animate.enter]="'slide-in-up'" [animate.leave]="'slide-out-down'">
         <div class="footer-content">
           <div class="footer-left">
             <div class="selected-count-badge">
               <i class="pi pi-check-circle badge-icon"></i>
-              <span class="badge-count" style="color: var(--primary-color)">{{ selectedBooks.size }}</span>
+              <span class="badge-count" style="color: var(--primary-color)">{{ selectedBooks().size }}</span>
               <span class="badge-label">{{ t('selected') }}</span>
             </div>
           </div>
           <div class="footer-center">
               <div class="footer-action-group">
                 @if (hasMetadataMenuItems) {
-                  <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body"/>
+                  <p-tieredMenu #metadataMenu [model]="metadataMenuItems()" [popup]="true" appendTo="body"/>
                   <p-button
-                    (click)="menu.toggle($event)"
+                    (click)="metadataMenu.toggle($event)"
                     [pTooltip]="t('tooltip.metadataActions')"
                     tooltipPosition="top"
                     outlined="true"
@@ -453,14 +454,14 @@
                 @if (hasMoreActionsItems) {
                   <div class="more-actions-wrapper">
                     <p-button
-                      (click)="menu.toggle($event)"
+                      (click)="moreActionsMenu.toggle($event)"
                       [pTooltip]="t('tooltip.moreActions')"
                       tooltipPosition="top"
                       outlined="true"
                       severity="info"
                       icon="pi pi-ellipsis-v">
                     </p-button>
-                    <p-tieredMenu #menu [model]="moreActionsMenuItems" [popup]="true" appendTo="body"/>
+                    <p-tieredMenu #moreActionsMenu [model]="moreActionsMenuItems()" [popup]="true" appendTo="body"/>
                   </div>
                 }
               </div>

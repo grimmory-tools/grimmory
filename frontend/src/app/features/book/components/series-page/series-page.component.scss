@@ -1,3 +1,5 @@
+@use "../../../../../assets/layout/styles/layout/variables";
+
 .tabpanels-responsive {
   flex: 1 1 auto;
   min-height: 0;
@@ -19,10 +21,21 @@
   min-height: 0;
 }
 
+.series-wrapper > p-tabs > p-tablist {
+  flex: 0 0 auto;
+}
+
+.series-wrapper > p-tabs > p-tabpanels > p-tabpanel {
+  @media #{variables.$mobile-shell-media-query} {
+    padding-inline: var(--space-4);
+  }
+}
+
 .series-main {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  min-height: 100%;
 }
 
 .series-details {
@@ -39,9 +52,10 @@
   padding: 0.5rem;
   align-items: stretch;
 
-  @media (width <= 767px) {
+  @media #{variables.$mobile-shell-media-query} {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    padding-inline: 0;
     text-align: center;
   }
 }
@@ -280,6 +294,10 @@
 
   &:hover {
     box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  }
+
+  @media #{variables.$mobile-shell-media-query} {
+    margin-inline: 0;
   }
 }
 
@@ -548,12 +566,29 @@
 // ── Book grid ──
 
 .series-items-grid {
+  --series-grid-columns: 1;
+  --series-grid-card-width: 135px;
+  --series-grid-card-height: 220px;
+  --series-grid-gap: 21px;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(1px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(var(--series-grid-columns), minmax(0, var(--series-grid-card-width)));
+  gap: var(--series-grid-gap);
   align-items: start;
+  justify-content: start;
   width: 100%;
-  overflow-y: auto;
+  padding-inline: 0.5rem;
+  box-sizing: border-box;
+
+  @media #{variables.$mobile-shell-media-query} {
+    padding-inline: 0;
+  }
+}
+
+.series-items-grid > app-book-card {
+  display: block;
+  width: 100%;
+  height: var(--series-grid-card-height);
 }
 
 // ── Book list tab ──
@@ -563,6 +598,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem;
+  min-height: 100%;
 }
 
 .book-list-card {
