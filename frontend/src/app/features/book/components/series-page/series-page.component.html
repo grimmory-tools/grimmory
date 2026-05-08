@@ -32,7 +32,7 @@
                 <div class="series-hero">
                   @if (coverBook(); as coverBook) {
                     <div class="hero-cover-section">
-                      @if (getBookThumbnailUrl(coverBook); as coverUrl) {
+                      @if (getBookCoverUrl(coverBook); as coverUrl) {
                         <img
                           [src]="coverUrl"
                           class="hero-cover-img"

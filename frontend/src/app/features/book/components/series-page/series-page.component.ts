@@ -471,6 +471,13 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
+  getBookCoverUrl(book: Book): string | null {
+    const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
+    return isAudiobook
+      ? this.urlHelper.getAudiobookCoverUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)
+      : this.urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn);
+  }
+
   getBookThumbnailUrl(book: Book): string | null {
     const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
     return isAudiobook
