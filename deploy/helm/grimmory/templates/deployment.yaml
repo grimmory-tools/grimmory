@@ -1,5 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
+{{- include "grimmory.validate-database" . }}
 metadata:
   name: {{ include "grimmory.fullname" . }}
   labels:
@@ -36,19 +37,14 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for database on port {{ .Values.mariadb.service.port }}..."
-              until nc -z -v -w5 {{ .Release.Name }}-mariadb {{ .Values.mariadb.service.port }}; do
+              echo "Waiting for database at {{ include "grimmory.dbHost" . }} port {{ include "grimmory.dbPort" . }}..."
+              until nc -z -v -w5 '{{ include "grimmory.dbHost" . }}' {{ include "grimmory.dbPort" . }}; do
                 echo "Waiting for database..."
                 sleep 2
               done
               echo "Database is available!"
           resources:
-            requests:
-              cpu: 10m
-              memory: 16Mi
-            limits:
-              cpu: 50m
-              memory: 32Mi
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -63,22 +59,14 @@ spec:
               #protocol: TCP
           env:
             - name: DATABASE_URL
-              value: jdbc:mariadb://{{ .Release.Name }}-mariadb:{{ .Values.mariadb.service.port }}/{{ .Values.mariadb.auth.database }}
+              value: {{ printf "jdbc:mariadb://%s:%v/%s" (include "grimmory.dbHost" .) (include "grimmory.dbPort" .) (include "grimmory.dbName" .) | quote }}
             - name: DATABASE_USERNAME
-              value: {{ .Values.mariadb.auth.username }}
+              value: {{ include "grimmory.dbUserName" . | quote }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  {{- if .Values.mariadb.auth.existingSecret }}
-                  name: {{ .Values.mariadb.auth.existingSecret }}
-                  {{- else }}
-                  name: {{ .Release.Name }}-mariadb
-                  {{- end }}
-                  key: mariadb-password
-          {{- with .Values.startupProbe }}
-          startupProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+                  name: {{ include "grimmory.dbPasswordSecretName" . | quote }}
+                  key: {{ include "grimmory.dbPasswordSecretKey" . | quote }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

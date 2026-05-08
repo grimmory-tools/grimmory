@@ -23,3 +23,4 @@ dependencies:
   - name: mariadb
     version: 0.16.0
     repository: oci://registry-1.docker.io/cloudpirates
+    condition: mariadb.enabled
