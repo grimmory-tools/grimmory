@@ -3,6 +3,7 @@ package org.booklore.controller;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.AccessTokenDto;
 import org.booklore.model.dto.UserCreateRequest;
 import org.booklore.model.dto.request.RefreshTokenRequest;
 import org.booklore.model.dto.request.UserLoginRequest;
@@ -22,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Authentication", description = "Endpoints for user authentication, registration, and token management")
@@ -53,7 +53,7 @@ public class AuthenticationController {
     @Operation(summary = "Login user", description = "Authenticate a user and return JWT tokens.")
     @ApiResponse(responseCode = "200", description = "User authenticated successfully")
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(
+    public ResponseEntity<AccessTokenDto> loginUser(
             @Parameter(description = "User login request") @RequestBody @Valid UserLoginRequest loginRequest) {
         return authenticationService.loginUser(loginRequest);
     }
@@ -61,7 +61,7 @@ public class AuthenticationController {
     @Operation(summary = "Refresh JWT token", description = "Refresh the JWT token using a valid refresh token.")
     @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshToken(
+    public ResponseEntity<AccessTokenDto> refreshToken(
             @Parameter(description = "Refresh token request") @Valid @RequestBody RefreshTokenRequest request) {
         return authenticationService.refreshToken(request.getRefreshToken());
     }
@@ -72,7 +72,7 @@ public class AuthenticationController {
         @ApiResponse(responseCode = "403", description = "Remote authentication is disabled")
     })
     @GetMapping("/remote")
-    public ResponseEntity<Map<String, String>> loginRemote(
+    public ResponseEntity<AccessTokenDto> loginRemote(
             @Parameter(description = "Authentication headers") @RequestHeader HttpHeaders headers) {
         if (!appProperties.getRemoteAuth().isEnabled()) {
             throw ApiError.REMOTE_AUTH_DISABLED.createException();

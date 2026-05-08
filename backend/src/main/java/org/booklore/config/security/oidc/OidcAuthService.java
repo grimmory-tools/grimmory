@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.AccessTokenDto;
 import org.booklore.model.dto.settings.OidcAutoProvisionDetails;
 import org.booklore.model.dto.settings.OidcProviderDetails;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -26,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,7 +55,7 @@ public class OidcAuthService {
     private static final ConcurrentMap<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
 
     @Transactional
-    public ResponseEntity<Map<String, String>> exchangeCodeForTokens(
+    public ResponseEntity<AccessTokenDto> exchangeCodeForTokens(
             String code,
             String codeVerifier,
             String redirectUri,
@@ -101,7 +101,7 @@ public class OidcAuthService {
         persistOidcSession(user, userClaims.subject(), providerDetails.getIssuerUri(), tokenResponse, idToken, claims);
 
         String durationStr = appSettingService.getSettingValue("oidc_session_duration_hours");
-        ResponseEntity<Map<String, String>> response;
+        ResponseEntity<AccessTokenDto> response;
         if (durationStr != null && !durationStr.isBlank()) {
             try {
                 long durationMs = Long.parseLong(durationStr) * 3_600_000L;

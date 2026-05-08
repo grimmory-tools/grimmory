@@ -62,9 +62,11 @@ export class AuthService {
     );
   }
 
-  saveInternalTokens(accessToken: string, refreshToken: string): void {
+  saveInternalTokens(accessToken: string, refreshToken: string, accessTokenExpiry: number = 3600): void {
+
     localStorage.setItem('accessToken_Internal', accessToken);
     localStorage.setItem('refreshToken_Internal', refreshToken);
+    localStorage.setItem('accessToken_Internal_Expiry', (Date.now() + accessTokenExpiry).toString());
     this.token.set(accessToken);
   }
 
