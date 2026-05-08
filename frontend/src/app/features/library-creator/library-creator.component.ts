@@ -215,8 +215,8 @@ export class LibraryCreatorComponent {
     return this.allBookFormats.some(f => this.getFormatWarning(f.type) !== null);
   }
 
-  openDirectoryPicker(): void {
-    const ref = this.dialogLauncherService.openDirectoryPickerDialog();
+  async openDirectoryPicker(): Promise<void> {
+    const ref = await this.dialogLauncherService.openDirectoryPickerDialog();
     ref?.onClose.subscribe((selectedFolders: string[] | null) => {
       if (selectedFolders && selectedFolders.length > 0) {
         this.folders.update(current => {

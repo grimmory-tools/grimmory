@@ -2,6 +2,7 @@ import { computed, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MessageService } from 'primeng/api';
 
 import { getTranslocoModule } from '../../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
@@ -86,19 +87,20 @@ describe('AppMenuComponent', () => {
         {
           provide: DialogLauncherService,
           useValue: {
-            openLibraryCreateDialog: vi.fn(),
-            openMagicShelfCreateDialog: vi.fn(),
-            openFileUploadDialog: vi.fn(),
+            openLibraryCreateDialog: vi.fn(() => Promise.resolve(null)),
+            openMagicShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
+            openFileUploadDialog: vi.fn(() => Promise.resolve(null)),
           },
         },
         { provide: CommandPaletteService, useValue: commandPaletteService },
-        { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn() } },
+        { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)) } },
         { provide: AuthService, useValue: { logout: vi.fn() } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
         { provide: MagicShelfService, useValue: { shelves: signal([]), bookCountByMagicShelfId: signal(new Map()) } },
         { provide: SeriesDataService, useValue: { allSeries: signal([]) } },
         { provide: AuthorService, useValue: { allAuthors: signal([]) } },
+        { provide: MessageService, useValue: { add: vi.fn() } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => of(null)) } },
       ],
     });

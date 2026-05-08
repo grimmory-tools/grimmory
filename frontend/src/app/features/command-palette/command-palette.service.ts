@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
@@ -50,6 +51,7 @@ export class CommandPaletteService {
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly iconService = inject(IconService);
   private readonly urlHelper = inject(UrlHelperService);
+  private readonly messageService = inject(MessageService);
 
   private readonly _isOpen = signal(false);
   readonly isOpen = this._isOpen.asReadonly();
@@ -131,7 +133,13 @@ export class CommandPaletteService {
     this.hide();
     queueMicrotask(() => {
       if (item.command) {
-        item.command();
+        void Promise.resolve(item.command()).catch(() => {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translate('common.error'),
+            detail: this.translate('common.dialogLoadError')
+          });
+        });
         return;
       }
       if (item.route) {
@@ -211,10 +219,10 @@ export class CommandPaletteService {
     const user = this.userService.currentUser();
     if (!user) return [];
     return buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog().catch(err => this.handleDialogLoadError(err)),
+      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog().catch(err => this.handleDialogLoadError(err)),
+      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog().catch(err => this.handleDialogLoadError(err)),
+      uploadBook: () => this.dialogLauncherService.openFileUploadDialog().catch(err => this.handleDialogLoadError(err)),
     }).map((item) => this.toPaletteNavItem(item, 'action'));
   });
 
@@ -321,4 +329,12 @@ export class CommandPaletteService {
     };
   }
 
+  private handleDialogLoadError(err: unknown) {
+    console.error('Failed to load dialog', err);
+    this.messageService.add({
+      severity: 'error',
+      summary: this.translate('common.error'),
+      detail: this.translate('common.dialogLoadError')
+    });
+  }
 }

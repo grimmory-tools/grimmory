@@ -28,5 +28,6 @@
   "cardSizeControls": "Card size controls",
   "on": "On",
   "off": "Off",
-  "moreActionsFor": "More actions for {{label}}"
+  "moreActionsFor": "More actions for {{label}}",
+  "dialogLoadError": "An error occurred while loading the dialog. Please try again."
 }

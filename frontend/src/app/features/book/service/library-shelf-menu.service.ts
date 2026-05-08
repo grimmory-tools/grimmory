@@ -45,22 +45,38 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
             icon: 'pi pi-book',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
+              try {
+                await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
+              } catch {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
+                });
+              }
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
             icon: 'pi pi-barcode',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
+              try {
+                await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
+              } catch {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
+                });
+              }
             }
           },
           {
@@ -124,14 +140,22 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
             icon: 'pi pi-sync',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
-                metadataRefreshType: MetadataRefreshType.LIBRARY,
-                libraryId
-              });
+              try {
+                await this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                  metadataRefreshType: MetadataRefreshType.LIBRARY,
+                  libraryId
+                });
+              } catch {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
+                });
+              }
             }
           },
           {
@@ -152,11 +176,19 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
             icon: 'pi pi-copy',
             disabled: libraryId == null,
-            command: () => {
+            command: async () => {
               if (libraryId == null) {
                 return;
               }
-              this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
+              try {
+                await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
+              } catch {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
+                });
+              }
             }
           },
           {

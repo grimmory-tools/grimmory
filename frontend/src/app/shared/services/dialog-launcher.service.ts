@@ -1,20 +1,7 @@
 import {inject, Injectable, Type} from '@angular/core';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';
-import {BookUploaderComponent} from '../components/book-uploader/book-uploader.component';
-import {UserProfileDialogComponent} from '../../features/settings/user-profile-dialog/user-profile-dialog.component';
-import {MagicShelfComponent} from '../../features/magic-shelf/component/magic-shelf-component';
-import {DashboardSettingsComponent} from '../../features/dashboard/components/dashboard-settings/dashboard-settings.component';
-import {VersionChangelogDialogComponent} from '../layout/layout-menu/version-changelog-dialog/version-changelog-dialog.component';
-import {CreateUserDialogComponent} from '../../features/settings/user-management/create-user-dialog/create-user-dialog.component';
-import {CreateEmailRecipientDialogComponent} from '../../features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component';
-import {CreateEmailProviderDialogComponent} from '../../features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component';
-import {DirectoryPickerComponent} from '../components/directory-picker/directory-picker.component';
-import {BookdropFinalizeResultDialogComponent} from '../../features/bookdrop/component/bookdrop-finalize-result-dialog/bookdrop-finalize-result-dialog.component';
+import {MetadataRefreshType} from '../../features/metadata/model/request/metadata-refresh-type.enum';
 import {BookdropFinalizeResult} from '../../features/bookdrop/service/bookdrop.service';
-import {MetadataReviewDialogComponent} from '../../features/metadata/component/metadata-review-dialog/metadata-review-dialog-component';
-import {ShelfEditDialogComponent} from '../../features/book/components/shelf-edit-dialog/shelf-edit-dialog.component';
-import {IconPickerComponent} from '../components/icon-picker/icon-picker-component';
 
 /**
  * Dialog size classes - use these to control dialog dimensions
@@ -60,28 +47,32 @@ export class DialogLauncherService {
     });
   }
 
-  openDashboardSettingsDialog(): DynamicDialogRef | null {
+  async openDashboardSettingsDialog(): Promise<DynamicDialogRef | null> {
+    const {DashboardSettingsComponent} = await import('../../features/dashboard/components/dashboard-settings/dashboard-settings.component');
     return this.openDialog(DashboardSettingsComponent, {
       showHeader: false,
       styleClass: `${DialogSize.XL} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openLibraryCreateDialog(): DynamicDialogRef | null {
+  async openLibraryCreateDialog(): Promise<DynamicDialogRef | null> {
+    const {LibraryCreatorComponent} = await import('../../features/library-creator/library-creator.component');
     return this.openDialog(LibraryCreatorComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openDirectoryPickerDialog(): DynamicDialogRef | null {
+  async openDirectoryPickerDialog(): Promise<DynamicDialogRef | null> {
+    const {DirectoryPickerComponent} = await import('../components/directory-picker/directory-picker.component');
     return this.openDialog(DirectoryPickerComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openLibraryEditDialog(libraryId: number): DynamicDialogRef | null {
+  async openLibraryEditDialog(libraryId: number): Promise<DynamicDialogRef | null> {
+    const {LibraryCreatorComponent} = await import('../../features/library-creator/library-creator.component');
     return this.openDialog(LibraryCreatorComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
@@ -92,7 +83,20 @@ export class DialogLauncherService {
     });
   }
 
-  openShelfEditDialog(shelfId: number): DynamicDialogRef | null {
+  async openLibraryMetadataFetchDialog(libraryId: number): Promise<DynamicDialogRef | null> {
+    const {MetadataFetchOptionsComponent} = await import('../../features/metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component');
+    return this.openDialog(MetadataFetchOptionsComponent, {
+      showHeader: false,
+      styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
+      data: {
+        libraryId: libraryId,
+        metadataRefreshType: MetadataRefreshType.LIBRARY,
+      },
+    });
+  }
+
+  async openShelfEditDialog(shelfId: number): Promise<DynamicDialogRef | null> {
+    const {ShelfEditDialogComponent} = await import('../../features/book/components/shelf-edit-dialog/shelf-edit-dialog.component');
     return this.openDialog(ShelfEditDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
@@ -102,35 +106,40 @@ export class DialogLauncherService {
     })
   }
 
-  openFileUploadDialog(): DynamicDialogRef | null {
+  async openFileUploadDialog(): Promise<DynamicDialogRef | null> {
+    const {BookUploaderComponent} = await import('../components/book-uploader/book-uploader.component');
     return this.openDialog(BookUploaderComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openCreateUserDialog(): DynamicDialogRef | null {
+  async openCreateUserDialog(): Promise<DynamicDialogRef | null> {
+    const {CreateUserDialogComponent} = await import('../../features/settings/user-management/create-user-dialog/create-user-dialog.component');
     return this.openDialog(CreateUserDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.LG} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openUserProfileDialog(): DynamicDialogRef | null {
+  async openUserProfileDialog(): Promise<DynamicDialogRef | null> {
+    const {UserProfileDialogComponent} = await import('../../features/settings/user-profile-dialog/user-profile-dialog.component');
     return this.openDialog(UserProfileDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openMagicShelfCreateDialog(): DynamicDialogRef | null {
+  async openMagicShelfCreateDialog(): Promise<DynamicDialogRef | null> {
+    const {MagicShelfComponent} = await import('../../features/magic-shelf/component/magic-shelf-component');
     return this.openDialog(MagicShelfComponent, {
       showHeader: false,
       styleClass: `${DialogSize.XL} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openMagicShelfEditDialog(shelfId: number): DynamicDialogRef | null {
+  async openMagicShelfEditDialog(shelfId: number): Promise<DynamicDialogRef | null> {
+    const {MagicShelfComponent} = await import('../../features/magic-shelf/component/magic-shelf-component');
     return this.openDialog(MagicShelfComponent, {
       showHeader: false,
       styleClass: `${DialogSize.XL} ${DialogStyle.MINIMAL}`,
@@ -141,28 +150,32 @@ export class DialogLauncherService {
     })
   }
 
-  openVersionChangelogDialog(): DynamicDialogRef | null {
+  async openVersionChangelogDialog(): Promise<DynamicDialogRef | null> {
+    const {VersionChangelogDialogComponent} = await import('../layout/layout-menu/version-changelog-dialog/version-changelog-dialog.component');
     return this.openDialog(VersionChangelogDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.LG} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openEmailRecipientDialog(): DynamicDialogRef | null {
+  async openEmailRecipientDialog(): Promise<DynamicDialogRef | null> {
+    const {CreateEmailRecipientDialogComponent} = await import('../../features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component');
     return this.openDialog(CreateEmailRecipientDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openEmailProviderDialog(): DynamicDialogRef | null {
+  async openEmailProviderDialog(): Promise<DynamicDialogRef | null> {
+    const {CreateEmailProviderDialogComponent} = await import('../../features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component');
     return this.openDialog(CreateEmailProviderDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
-  openBookdropFinalizeResultDialog(result: BookdropFinalizeResult): DynamicDialogRef | null {
+  async openBookdropFinalizeResultDialog(result: BookdropFinalizeResult): Promise<DynamicDialogRef | null> {
+    const {BookdropFinalizeResultDialogComponent} = await import('../../features/bookdrop/component/bookdrop-finalize-result-dialog/bookdrop-finalize-result-dialog.component');
     return this.openDialog(BookdropFinalizeResultDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
@@ -172,7 +185,8 @@ export class DialogLauncherService {
     });
   }
 
-  openMetadataReviewDialog(taskId: string): DynamicDialogRef | null {
+  async openMetadataReviewDialog(taskId: string): Promise<DynamicDialogRef | null> {
+    const {MetadataReviewDialogComponent} = await import('../../features/metadata/component/metadata-review-dialog/metadata-review-dialog-component');
     return this.openDialog(MetadataReviewDialogComponent, {
       showHeader: false,
       styleClass: `${DialogSize.FULL} ${DialogStyle.MINIMAL}`,
@@ -182,7 +196,8 @@ export class DialogLauncherService {
     });
   }
 
-  openIconPickerDialog(): DynamicDialogRef | null {
+  async openIconPickerDialog(): Promise<DynamicDialogRef | null> {
+    const {IconPickerComponent} = await import('../components/icon-picker/icon-picker-component');
     return this.openDialog(IconPickerComponent, {
       showHeader: false,
       styleClass: `${DialogSize.LG} ${DialogStyle.MINIMAL}`,

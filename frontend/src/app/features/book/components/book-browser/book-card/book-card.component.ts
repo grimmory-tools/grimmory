@@ -418,7 +418,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: () => this.bookDialogHelperService.openCustomSendDialog(this.book())
+            command: () => void this.bookDialogHelperService.openCustomSendDialog(this.book()).catch(() =>
+              this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+            )
           }
         ]
       });
@@ -451,7 +453,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: () => this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
+            command: () => void this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])).catch(() =>
+              this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+            ),
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -504,7 +508,9 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: () => this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
+        command: () => void this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id])).catch(() =>
+          this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+        )
       });
     }
 
@@ -596,7 +602,9 @@ export class BookCardComponent {
   }
 
   private openShelfDialog(): void {
-    this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
+    void this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null).catch(() =>
+      this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('common.dialogLoadError') })
+    );
   }
 
   openSeriesInfo(): void {
@@ -609,7 +617,7 @@ export class BookCardComponent {
     }
   }
 
-  openBookInfo(book: Book): void {
+  async openBookInfo(book: Book) {
     const allBookIds = this.bookNavigationService.availableBookIds();
     if (allBookIds.length > 0) {
       this.bookNavigationService.setNavigationContext(allBookIds, book.id);
@@ -620,7 +628,7 @@ export class BookCardComponent {
         queryParams: {tab: 'view'}
       });
     } else {
-      this.bookDialogHelperService.openBookDetailsDialog(book.id);
+      await this.bookDialogHelperService.openBookDetailsDialog(book.id);
     }
   }
 
