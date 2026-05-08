@@ -51,9 +51,9 @@ export class OidcCallbackComponent implements OnInit {
     this.oidcService.exchangeCode(code, pkceState.codeVerifier, pkceState.nonce, pkceState.state).subscribe({
       next: (response) => {
         sessionStorage.removeItem('oidc_redirect_count');
-        this.authService.saveInternalTokens(response.accessToken, response.refreshToken);
+        this.authService.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
         this.authService.initializeWebSocketConnection();
-        if (response.isDefaultPassword === 'true') {
+        if (response.isDefaultPassword) {
           this.router.navigate(['/change-password']);
         } else {
           this.router.navigate(['/dashboard']);
