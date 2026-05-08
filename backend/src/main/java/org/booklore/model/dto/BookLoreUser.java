@@ -190,6 +190,7 @@ public class BookLoreUser {
         public static class PdfReaderSetting {
             private String pageSpread;
             private String pageZoom;
+            private String scrollLayout;
         }
 
         @Data

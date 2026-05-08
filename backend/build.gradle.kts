@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "org.booklore"
-version = System.getenv("APP_VERSION") ?: "0.0.1-SNAPSHOT"
+version = (System.getenv("APP_VERSION") ?: "0.0.1-SNAPSHOT").replace(Regex("^v"), "")
 
 val defaultFrontendDistDir = file("${rootDir}/../frontend/dist/grimmory/browser")
 val configuredFrontendDistDir = providers.gradleProperty("frontendDistDir")
@@ -105,7 +105,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("com.nimbusds:nimbus-jose-jwt:10.9")
@@ -188,12 +187,15 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
     testImplementation("org.assertj:assertj-core:3.27.7")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
     testRuntimeOnly("com.h2database:h2")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
 
     // PDFBox for test PDF creation only (production code uses PDFium4j)
     testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
+}
+
+dependencyLocking {
+    lockAllConfigurations()
 }
 
 hibernate {

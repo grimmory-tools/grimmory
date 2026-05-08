@@ -1,0 +1,23 @@
+@use "../layout/styles/layout/variables";
+
+/*
+ * Native CDK overlay hooks.
+ *
+ * CDK overlay panes/backdrops are attached outside component style scopes, so
+ * shared overlay classes that are not PrimeNG-specific live here.
+ */
+
+.command-palette-backdrop {
+  background: rgb(0 0 0 / 56%);
+}
+
+.cdk-overlay-pane.command-palette-panel {
+  display: flex;
+  pointer-events: auto;
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .cdk-overlay-backdrop.command-palette-backdrop {
+    top: 3.5rem;
+  }
+}

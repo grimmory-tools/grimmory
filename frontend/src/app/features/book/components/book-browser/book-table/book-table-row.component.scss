@@ -1,0 +1,179 @@
+:host {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: var(--book-table-grid-template);
+  position: absolute;
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  border-bottom: 1px solid var(--book-table-cell-border-color);
+  background: var(--book-table-row-background);
+  color: var(--book-table-row-color);
+}
+
+:host(.book-table-row-striped) {
+  background: var(--book-table-row-striped-background);
+}
+
+:host(:hover) {
+  z-index: 3;
+  background: var(--book-table-row-hover-background);
+  color: var(--book-table-row-hover-color);
+}
+
+.book-table-cell {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: inherit;
+  min-width: 0;
+  padding: var(--book-table-cell-padding);
+  border-right: 1px solid var(--book-table-cell-border-color);
+  overflow: hidden;
+  color: inherit;
+  line-height: 1.2;
+  text-align: start;
+}
+
+.book-table-checkbox {
+  display: inline-flex;
+  line-height: 0;
+  vertical-align: top;
+}
+
+.metadata-lock-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: var(--book-table-lock-unlocked-color);
+  background: transparent;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--book-table-lock-unlocked-color) 16%, transparent);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.65;
+  }
+
+  &.metadata-lock-button-locked {
+    color: var(--book-table-lock-locked-color);
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--book-table-lock-locked-color) 16%, transparent);
+    }
+  }
+}
+
+.cover-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cover-thumbnail {
+  height: 2rem;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  border-radius: 4px;
+
+  &.square-cover {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.read-status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.status-read {
+  color: var(--book-table-status-read-color);
+}
+
+.status-reading {
+  color: var(--book-table-status-reading-color);
+}
+
+.status-re-reading {
+  color: var(--book-table-status-re-reading-color);
+}
+
+.status-partially-read {
+  color: var(--book-table-status-partially-read-color);
+}
+
+.status-paused {
+  color: var(--book-table-status-paused-color);
+}
+
+.status-abandoned {
+  color: var(--book-table-status-abandoned-color);
+}
+
+.status-wont-read {
+  color: var(--book-table-status-wont-read-color);
+}
+
+.cell-status,
+.cell-number {
+  justify-content: center;
+  text-align: center;
+}
+
+.cell-rating {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.cell-action,
+.cell-cover {
+  justify-content: center;
+  padding-inline: 0.5rem;
+}
+
+.cell-cover {
+  overflow: visible;
+}
+
+.cell-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rating-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--book-table-rating-gap);
+  min-width: 7rem;
+}
+
+.rating-value {
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-link {
+  overflow: hidden;
+  color: var(--p-primary-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

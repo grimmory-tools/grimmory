@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; overflow: hidden; }
@@ -14,6 +14,17 @@
 <div id="viewer"></div>
 <script>
   (function () {
+    const isSmallViewport = window.innerWidth <= 768;
+    const currentDpr = window.devicePixelRatio || 1;
+    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
+
+    if (currentDpr !== targetDpr) {
+      Object.defineProperty(window, 'devicePixelRatio', {
+        get: () => targetDpr,
+        configurable: true,
+      });
+    }
+
     const OrigWorker = window.Worker;
     window.Worker = function PatchedWorker(url, opts) {
       console.log('[Shim] Worker created, url type=' + typeof url +
@@ -113,6 +124,8 @@
     }, myOrigin);
   }
 
+
+
   function injectGrimmoryStyles(targetEl, attempt) {
     if (attempt === undefined) attempt = 0;
     const container = targetEl.querySelector('embedpdf-container');
@@ -121,7 +134,9 @@
       if (attempt < 25) setTimeout(() => injectGrimmoryStyles(targetEl, attempt + 1), 200);
       return;
     }
-    if (shadow.querySelector('style[data-grimmory]')) return;
+    if (shadow.querySelector('style[data-grimmory]')) {
+      return;
+    }
 
     const style = document.createElement('style');
     style.setAttribute('data-grimmory', '');
@@ -152,7 +167,7 @@
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
         height: 38px !important;
-        padding-right: 88px !important;
+        padding-right: 64px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
@@ -164,23 +179,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
       }
 
-      [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"] {
-        display: none !important;
-      }
-
-      /* Hide bottom notification / popup bar */
-      [class*="fixed"][class*="bottom-"],
-      [class*="absolute"][class*="bottom-"],
-      [class*="snackbar"],
-      [class*="toast"],
-      [class*="notification"],
-      [class*="bottom-bar"],
-      [class*="status-bar"],
-      [class*="statusbar"],
-      footer,
-      [class*="footer"] {
-        display: none !important;
-      }
+      /* Keep viewer popups/menus visible; only hide explicit file controls. */
 
       [data-epdf-i="open-document"],
       [data-epdf-i="close-document"],
@@ -269,11 +268,29 @@
         border: 1px solid #d0d0d0 !important;
       }
 
+      /* Center PDF content vertically and horizontally when smaller than viewport */
+      [class*="bg-bg-app"] {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      [class*="bg-bg-app"] > * {
+        margin: auto !important;
+      }
+
       /* Force high-quality image rendering for PDF tiles */
       img {
         image-rendering: high-quality;
         -webkit-font-smoothing: antialiased;
       }
+      /* ── Hide EmbedPDF built-in footer / status bar ── */
+      [data-epdf-i*="footer"],
+      [data-epdf-i*="status"],
+      [data-overlay-id="page-controls"],
+      [data-overlay-id*="overlay"],
+      [role="contentinfo"] {
+        display: none !important;
+      }
+
       /* ── Silence non-editable selection menus EXCEPT for navigation links ── */
 
       /* If the menu has no user-editing tools OR navigation, hide the whole menu. */
@@ -297,7 +314,10 @@
   }
 
   window.addEventListener('message', async (event) => {
+    if (event.origin !== myOrigin) return;
+    if (event.source !== parent) return;
     const msg = event.data;
+    if (!msg || typeof msg.type !== 'string') return;
 
     if (msg.type === 'init') {
       log('Init requested');
@@ -306,6 +326,7 @@
         viewer.destroy();
         viewer = null;
       }
+      const isSmallViewport = window.innerWidth <= 768;
 
       viewer = EmbedPDF.init({
         type: 'container',
@@ -325,8 +346,10 @@
         zoom: {
           defaultZoomLevel: 'fit-page',
         },
-        render: { defaultImageQuality: 2 },
-        tiling: { tileSize: 1024, overlapPx: 2, extraRings: 1 },
+        render: { defaultImageQuality: isSmallViewport ? 0.85 : 0.92 },
+        tiling: isSmallViewport
+          ? { tileSize: 640, overlapPx: 2, extraRings: 1 }
+          : { tileSize: 1024, overlapPx: 2, extraRings: 1 },
       });
 
       injectGrimmoryStyles(target);
@@ -337,8 +360,9 @@
         const dm = registry.getPlugin('document-manager')?.provides();
         if (dm) {
           dm.onDocumentOpened?.((ev) => {
-            log('Document opened, pages:', ev?.pageCount);
-            parent.postMessage({ type: 'documentOpened', pageCount: ev?.pageCount }, myOrigin);
+            const pageCount = ev?.document?.pageCount ?? ev?.pageCount;
+            log('Document opened, pages:', pageCount);
+            parent.postMessage({ type: 'documentOpened', pageCount }, myOrigin);
           });
           dm.onDocumentError?.((ev) => {
             log('Document error:', ev);
@@ -447,6 +471,45 @@
     if (msg.type === 'prevPage') {
       const scrollPlugin = registry?.getPlugin('scroll')?.provides();
       scrollPlugin?.scrollToPreviousPage('smooth');
+    }
+
+    if (msg.type === 'setScrollLayout') {
+      const scrollPlugin = registry?.getPlugin('scroll')?.provides();
+      if (scrollPlugin) {
+        const page = scrollPlugin.getCurrentPage();
+        if (typeof scrollPlugin.setScrollStrategy === 'function') {
+          scrollPlugin.setScrollStrategy(msg.layout);
+        } else if (typeof scrollPlugin.setScrollMode === 'function') {
+          scrollPlugin.setScrollMode(msg.layout);
+        } else if (typeof scrollPlugin.setLayoutMode === 'function') {
+          scrollPlugin.setLayoutMode(msg.layout);
+        }
+
+        let handled = false;
+        const restorePage = () => {
+          if (handled) return;
+          handled = true;
+          scrollPlugin.scrollToPage({ pageNumber: page, behavior: 'instant' });
+        };
+
+        if (typeof scrollPlugin.onLayoutReady === 'function') {
+          scrollPlugin.onLayoutReady(() => {
+            restorePage();
+          });
+        }
+        setTimeout(restorePage, 100);
+      }
+    }
+
+    if (msg.type === 'setPanMode') {
+      const panPlugin = registry?.getPlugin('pan')?.provides();
+      if (panPlugin) {
+        if (msg.enable) {
+          panPlugin.enablePan();
+        } else {
+          panPlugin.disablePan();
+        }
+      }
     }
   });
 

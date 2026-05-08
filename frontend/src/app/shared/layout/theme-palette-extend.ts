@@ -1,7 +1,17 @@
 import Aura from '@primeuix/themes/aura';
+import { definePreset } from '@primeuix/themes';
 
 type ColorPalette = Record<string, string>;
 
+/*
+ * PrimeNG theme bridge.
+ *
+ * App-owned CSS tokens define the native shell/page foundation. This file only
+ * extends Prime's Aura preset so Prime components can use the same app-selected
+ * palettes and the same app-owned page background.
+ */
+
+/* Extra primary palettes exposed to the theme configurator and Prime runtime. */
 const customPalettes: Record<string, ColorPalette> = {
   coralSunset: {
     50: '#fef7f0',
@@ -219,4 +229,13 @@ if (!Aura.primitive) {
 
 Object.assign(Aura.primitive, customPalettes);
 
-export default Aura;
+const AppPrimePreset = definePreset(Aura, {
+  semantic: {
+    colorScheme: {
+      light: { content: { background: 'var(--page-background)' } },
+      dark: { content: { background: 'var(--page-background)' } }
+    }
+  }
+});
+
+export default AppPrimePreset;

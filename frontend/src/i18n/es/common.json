@@ -25,5 +25,6 @@
   "libraryPathInaccessible": "Ruta de biblioteca inaccesible",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

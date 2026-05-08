@@ -30,6 +30,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -768,11 +769,11 @@ class BookCoverServiceTest {
             book.setBookFiles(List.of(ebookFile));
             book.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(book));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
             when(transactionTemplate.execute(any())).thenAnswer(inv -> {
-                var callback = inv.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
+                var callback = inv.getArgument(0, TransactionCallback.class);
                 return callback.doInTransaction(null);
             });
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -799,7 +800,7 @@ class BookCoverServiceTest {
             locked.setBookFiles(List.of(ebookFile));
             locked.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(locked));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(locked));
 
             doAnswer(inv -> {
                 inv.<Runnable>getArgument(0).run();
@@ -827,11 +828,11 @@ class BookCoverServiceTest {
             withoutCover.setBookFiles(List.of(ebookFile2));
             withoutCover.setLibrary(LibraryEntity.builder().build());
 
-            when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(withCover, withoutCover));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(withCover, withoutCover));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
             when(transactionTemplate.execute(any())).thenAnswer(inv -> {
-                var callback = inv.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
+                var callback = inv.getArgument(0, TransactionCallback.class);
                 return callback.doInTransaction(null);
             });
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(withoutCover));
@@ -846,6 +847,7 @@ class BookCoverServiceTest {
 
             service.regenerateCovers(true);
 
+            // Now it is 1 call because the initial query is moved to bookQueryService (which is mocked)
             verify(transactionTemplate, times(1)).execute(any());
             verify(bookRepository).save(withoutCover);
             verify(bookRepository, never()).findById(1L);
@@ -856,7 +858,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             book.setBookFiles(new ArrayList<>());
 
-            when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(book));
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
             doAnswer(inv -> {
                 inv.<Runnable>getArgument(0).run();
@@ -865,6 +867,57 @@ class BookCoverServiceTest {
 
             service.regenerateCovers(false);
 
+            // Fetching list is moved to bookQueryService
+            verify(transactionTemplate, never()).execute(any());
+            verify(bookRepository, never()).save(any());
+        }
+
+        @Test
+        void skipsBooksWithNoMetadata() {
+            BookEntity book = BookEntity.builder()
+                    .id(1L)
+                    .metadata(null)
+                    .bookFiles(new ArrayList<>())
+                    .build();
+
+            when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
+
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
+
+            service.regenerateCovers(false);
+
+            verify(transactionTemplate, never()).execute(any());
+            verify(bookRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    class LockStatusEdgeCases {
+        @Test
+        void unlockedMethodsHandleNullMetadata() throws Exception {
+            BookEntity book = BookEntity.builder().id(1L).metadata(null).build();
+            when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of(book));
+
+            // Test getUnlockedBookCoverInfos via updateCoverFromFileForBooks (async)
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
+            
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(false);
+            when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(10);
+            
+            service.updateCoverFromFileForBooks(Set.of(1L), file);
+            
+            verify(bookQueryService).findAllWithMetadataByIds(any());
+            // Should not proceed to transaction if filtered out
             verify(transactionTemplate, never()).execute(any());
         }
     }

@@ -1,16 +1,15 @@
+@use "../../../../../assets/layout/styles/layout/variables";
+
 .main-card {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 6.1rem);
-  border-radius: 0.75rem;
+  box-sizing: border-box;
+  height: 100%;
   overflow: hidden;
-  background: var(--card-background);
-  border: 1px solid var(--p-content-border-color);
+  background: var(--page-background);
 
-  @media (width <= 768px) {
-    height: calc(100dvh - 4.4rem);
-    border-radius: 0;
-    border-width: 1px 0 0;
+  @media #{variables.$mobile-shell-media-query} {
+    padding: var(--space-4);
   }
 }
 
@@ -22,8 +21,8 @@
   justify-content: space-between;
   border-bottom: 1px solid var(--p-content-border-color);
   gap: 1rem;
-  
-  @media (width <= 768px) {
+
+  @media #{variables.$mobile-shell-media-query} {
     padding: 1rem;
   }
 }
@@ -41,13 +40,13 @@
   p {
     font-size: 0.875rem;
     color: rgb(156 163 175);
-    
+
     strong {
       color: var(--primary-color);
     }
   }
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     flex-shrink: 1;
 
     p {
@@ -57,7 +56,7 @@
 }
 
 .header-actions {
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     display: flex;
   }
 }
@@ -82,7 +81,6 @@
   align-items: center;
   justify-content: center;
   z-index: 50;
-  border-radius: 0.75rem;
 }
 
 .loading-content {
@@ -119,7 +117,6 @@
   align-items: center;
   justify-content: center;
   z-index: 50;
-  border-radius: 0.75rem;
 
   > * + * {
     margin-top: 0.75rem;
@@ -168,7 +165,7 @@
     width: 8rem;
   }
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     width: 100%;
 
     label {
@@ -182,7 +179,7 @@
 }
 
 ::ng-deep .p-select-overlay {
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     max-width: 70vw;
 
     .p-select-option {
@@ -217,7 +214,7 @@ p-inputgroup.disabled {
   display: flex;
   gap: 1rem;
   align-items: center;
-  
+
   @media (width <= 640px) {
     flex-wrap: wrap;
     width: 100%;
@@ -295,7 +292,7 @@ p-inputgroup.disabled {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
   }
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     display: none !important;
   }
 }
@@ -315,7 +312,7 @@ div.cover-image {
   text-overflow: ellipsis;
   white-space: wrap;
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     max-width: 100%;
   }
 }
@@ -340,7 +337,7 @@ div.cover-image {
   justify-content: flex-end;
   align-items: center;
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     width: 100%;
   }
 }
@@ -349,7 +346,7 @@ div.cover-image {
 .path-select {
   width: 8rem;
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     flex-basis: 50%;
   }
 }
@@ -367,7 +364,7 @@ div.cover-image {
 }
 
 .footer {
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     flex-wrap: wrap;
 
     ::ng-deep .p-button-label {
@@ -415,7 +412,7 @@ div.cover-image {
     padding: 0;
   }
 
-  @media (width <= 768px) {
+  @media #{variables.$mobile-shell-media-query} {
     ::ng-deep .p-paginator .p-paginator-jtp-dropdown span {
       font-size: var(--p-select-sm-font-size);
       padding-block: var(--p-select-sm-padding-y);

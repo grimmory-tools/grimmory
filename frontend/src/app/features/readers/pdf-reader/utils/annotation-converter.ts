@@ -11,6 +11,31 @@ export interface StoredAnnotations {
   annotations: AnnotationTransferItem[];
 }
 
+type AnnotationWithOpacity = AnnotationTransferItem['annotation'] & {
+  type?: number;
+  opacity?: number;
+};
+
+interface SerializableCtx {
+  data?: ArrayBuffer | string;
+  _dataEncoding?: 'base64';
+  [key: string]: unknown;
+}
+
+interface SerializableAnnotationTransferItem {
+  annotation?: AnnotationWithOpacity;
+  ctx?: SerializableCtx;
+  [key: string]: unknown;
+}
+
+function toSerializableAnnotationTransferItem(item: AnnotationTransferItem): SerializableAnnotationTransferItem {
+  return item as unknown as SerializableAnnotationTransferItem;
+}
+
+function toAnnotationTransferItem(item: SerializableAnnotationTransferItem): AnnotationTransferItem {
+  return item as AnnotationTransferItem;
+}
+
 /**
  * Detect and parse stored annotation data.
  * Returns EmbedPDF AnnotationTransferItems ready for import, or empty array.
@@ -23,7 +48,15 @@ export function parseStoredAnnotations(jsonString: string | null | undefined): A
 
     // New format: { format: 'embedpdf', version: 1, annotations: [...] }
     if (parsed && parsed.format === 'embedpdf' && Array.isArray(parsed.annotations)) {
-      return parsed.annotations.map(restoreArrayBuffers);
+      const storedItems = parsed.annotations as SerializableAnnotationTransferItem[];
+      return storedItems.reduce<AnnotationTransferItem[]>((acc, item) => {
+        try {
+          acc.push(restoreArrayBuffers(item));
+        } catch {
+          // Skip malformed entries, keep valid annotations
+        }
+        return acc;
+      }, []);
     }
 
     // Legacy pdf.js format: raw array of editor annotations
@@ -42,24 +75,24 @@ export function parseStoredAnnotations(jsonString: string | null | undefined): A
  * Handles ArrayBuffer fields (e.g. stamp ctx.data) by encoding to base64.
  */
 export function serializeAnnotations(items: AnnotationTransferItem[]): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const serializable = items.map((item: any) => {
-    if (item.ctx?.data instanceof ArrayBuffer) {
+  const serializable = items.map((item): SerializableAnnotationTransferItem => {
+    const itemRecord = toSerializableAnnotationTransferItem(item);
+    if (itemRecord.ctx?.data instanceof ArrayBuffer) {
       return {
-        ...item,
+        ...itemRecord,
         ctx: {
-          ...item.ctx,
-          data: arrayBufferToBase64(item.ctx.data),
+          ...itemRecord.ctx,
+          data: arrayBufferToBase64(itemRecord.ctx.data),
           _dataEncoding: 'base64',
         },
       };
     }
-    return item;
+    return itemRecord;
   });
   const wrapped = {
     format: 'embedpdf' as const,
     version: 1 as const,
-    annotations: serializable as AnnotationTransferItem[],
+    annotations: serializable,
   };
   return JSON.stringify(wrapped);
 }
@@ -235,24 +268,28 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function restoreArrayBuffers(item: any): AnnotationTransferItem {
+function restoreArrayBuffers(item: SerializableAnnotationTransferItem): AnnotationTransferItem {
+  const next: SerializableAnnotationTransferItem = {
+    ...item,
+    annotation: item.annotation ? {...item.annotation} : undefined,
+  };
+
   // Cap opacity for highlights to prevent solid blocks
-  if (item.annotation?.type === 9) {
-    const rawOpacity = item.annotation.opacity ?? 0.4;
-    item.annotation.opacity = Math.min(rawOpacity, 0.6);
+  if (next.annotation?.type === 9) {
+    const rawOpacity = next.annotation.opacity ?? 0.4;
+    next.annotation.opacity = Math.min(rawOpacity, 0.6);
   }
 
-  if (item.ctx?._dataEncoding === 'base64' && typeof item.ctx.data === 'string') {
+  if (next.ctx?._dataEncoding === 'base64' && typeof next.ctx.data === 'string') {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {_dataEncoding: _, ...rest} = item.ctx;
-    return {
-      ...item,
+    const {_dataEncoding: _, ...rest} = next.ctx;
+    return toAnnotationTransferItem({
+      ...next,
       ctx: {
         ...rest,
-        data: base64ToArrayBuffer(item.ctx.data),
+        data: base64ToArrayBuffer(next.ctx.data),
       },
-    };
+    });
   }
-  return item;
+  return toAnnotationTransferItem(next);
 }

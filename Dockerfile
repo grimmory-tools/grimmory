@@ -22,7 +22,7 @@ ARG APP_REVISION=unknown
 
 WORKDIR /workspace/backend
 
-COPY backend/gradlew backend/gradlew.bat backend/build.gradle.kts backend/settings.gradle.kts ./
+COPY backend/gradlew backend/gradlew.bat backend/build.gradle.kts backend/settings.gradle.kts backend/gradle.lockfile ./
 COPY backend/gradle ./gradle
 RUN chmod +x ./gradlew
 
@@ -47,9 +47,9 @@ ARG KEPUBIFY_VERSION="4.0.4"
 ARG KEPUBIFY_AMD64_CHECKSUM="sha256:37d7628d26c5c906f607f24b36f781f306075e7073a6fe7820a751bb60431fc5"
 
 ADD \
-      --checksum="${KEPUBIFY_AMD64_CHECKSUM}" \
-      --chmod=755 \
-      https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-64bit /kepubify
+    --checksum="${KEPUBIFY_AMD64_CHECKSUM}" \
+    --chmod=755 \
+    https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-64bit /kepubify
 
 FROM scratch AS kepubify-layer-arm64
 
@@ -57,9 +57,9 @@ ARG KEPUBIFY_VERSION="4.0.4"
 ARG KEPUBIFY_ARM64_CHECKSUM="sha256:5a15b8f6f6a96216c69330601bca29638cfee50f7bf48712795cff88ae2d03a3"
 
 ADD \
-      --checksum="${KEPUBIFY_ARM64_CHECKSUM}" \
-      --chmod=755 \
-      https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-arm64 /kepubify
+    --checksum="${KEPUBIFY_ARM64_CHECKSUM}" \
+    --chmod=755 \
+    https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-arm64 /kepubify
 
 FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
 
@@ -81,7 +81,9 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseStringDeduplication \
     -XX:ShenandoahUncommitDelay=5000 \
     -XX:ShenandoahGuaranteedGCInterval=30000 \
-    -XX:MaxDirectMemorySize=256m"
+    -XX:MaxDirectMemorySize=256m \
+    --enable-native-access=ALL-UNNAMED \
+    --enable-preview"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop
@@ -101,20 +103,24 @@ ARG APP_VERSION=development
 ARG APP_REVISION=unknown
 
 LABEL org.opencontainers.image.title="Grimmory" \
-      org.opencontainers.image.description="Grimmory: a self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo and KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics." \
-      org.opencontainers.image.source="https://github.com/grimmory-tools/grimmory" \
-      org.opencontainers.image.url="https://github.com/grimmory-tools/grimmory" \
-      org.opencontainers.image.documentation="https://grimmory.org/docs/getting-started" \
-      org.opencontainers.image.version=$APP_VERSION \
-      org.opencontainers.image.revision=$APP_REVISION \
-      org.opencontainers.image.licenses="AGPL-3.0" \
-      org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
+    org.opencontainers.image.description="Grimmory: a self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo and KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics." \
+    org.opencontainers.image.source="https://github.com/grimmory-tools/grimmory" \
+    org.opencontainers.image.url="https://github.com/grimmory-tools/grimmory" \
+    org.opencontainers.image.documentation="https://grimmory.org/docs/getting-started" \
+    org.opencontainers.image.version=$APP_VERSION \
+    org.opencontainers.image.revision=$APP_REVISION \
+    org.opencontainers.image.licenses="AGPL-3.0" \
+    org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
 
 ENV APP_VERSION=${APP_VERSION} \
     APP_REVISION=${APP_REVISION}
 
 ARG BOOKLORE_PORT=6060
+ENV BOOKLORE_PORT=${BOOKLORE_PORT}
 EXPOSE ${BOOKLORE_PORT}
+
+HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=5 \
+  CMD wget -q --spider http://localhost:${BOOKLORE_PORT}/api/v1/healthcheck
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["java", "--enable-native-access=ALL-UNNAMED", "--enable-preview", "-jar", "/app/app.jar"]

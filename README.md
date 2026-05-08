@@ -15,7 +15,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/grimmory/grimmory?color=2496ED&style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/grimmory/grimmory)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/9YJ7HB4n8T)
 
-[Documentation](https://grimmory.org/docs) · [Quick Start](docs/QUICKSTART.md) · [Discord](https://discord.gg/9YJ7HB4n8T) · [Releases](https://github.com/grimmory-tools/grimmory/releases)
+[Documentation](https://grimmory.org/docs) · [Quick Start](#quick-start) · [Discord](https://discord.gg/9YJ7HB4n8T) · [Releases](https://github.com/grimmory-tools/grimmory/releases)
 
 <!-- ![Grimmory Demo](assets/demo.gif) -->
 
@@ -144,7 +144,6 @@ services:
 
   mariadb:
     image: lscr.io/linuxserver/mariadb:11.4.5
-    container_name: mariadb
     environment:
       - PUID=${DB_USER_ID}
       - PGID=${DB_GROUP_ID}

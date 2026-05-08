@@ -1,0 +1,298 @@
+@use "../layout/styles/layout/variables";
+
+/*
+ * PrimeNG compatibility layer.
+ *
+ * Put only global PrimeNG adjustments here: rules that target Prime overlays,
+ * document-level Prime output, or shared helper classes used across unrelated
+ * components. Prime tweaks that belong to one component, dialog, or Sass mixin
+ * should stay with that component or mixin until that surface is migrated.
+ *
+ * Native app/page/layout CSS should use app-owned tokens from tokens.css.
+ * PrimeNG components can continue to use Prime's --p-* tokens.
+ */
+
+@mixin sidebar-fixed-overlay {
+  position: fixed !important;
+  top: var(--sidebar-popover-top, 0.75rem) !important;
+  bottom: auto !important;
+  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.5rem)) !important;
+  max-height: var(--sidebar-popover-max-height, calc(100vh - 1rem)) !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  transform: none !important;
+}
+
+.p-dialog {
+  --card-background: var(--surface-content);
+
+  @media (width <= 768px) {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 95dvh !important;
+  }
+}
+
+.dialog-xs.p-dialog {
+  width: 90vw;
+  max-width: 400px;
+}
+
+.dialog-sm.p-dialog {
+  width: 90vw;
+  max-width: 550px;
+}
+
+.dialog-md.p-dialog {
+  width: 90vw;
+  max-width: 700px;
+}
+
+.dialog-lg.p-dialog {
+  width: 90vw;
+  max-width: 900px;
+}
+
+.dialog-xl.p-dialog {
+  width: 95vw;
+  max-width: 1200px;
+}
+
+.dialog-full.p-dialog {
+  width: 95vw;
+  max-width: 95vw;
+  height: 95dvh;
+  max-height: 95dvh;
+
+  .p-dialog-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
+.dialog-minimal.p-dialog {
+  border: none;
+
+  .p-dialog-content {
+    padding: 0;
+  }
+}
+
+.dynamic-dialog-minimal.p-dialog {
+  border: none;
+
+  .p-dialog-content {
+    padding: 0;
+  }
+}
+
+.dialog-maximal.p-dialog {
+  width: 95vw;
+  max-width: 1200px;
+  height: 95dvh;
+  max-height: 95dvh;
+}
+
+.dialog-medium.p-dialog {
+  width: 90vw;
+  max-width: 900px;
+  height: 90dvh;
+  max-height: 90dvh;
+}
+
+.p-confirmdialog {
+  width: 90vw;
+  max-width: 500px;
+
+  .p-confirmdialog-message {
+    overflow-wrap: break-word;
+    white-space: pre-line;
+  }
+}
+
+.p-toast {
+  top: 4rem !important;
+}
+
+.p-inputchips,
+.p-inputchips .p-inputchips-input,
+.p-inputchips input.p-inputtext {
+  width: 100% !important;
+}
+
+.footer-menu .p-tieredmenu-submenu {
+  top: auto !important;
+  bottom: 0;
+}
+
+.chart-info-tooltip.p-tooltip {
+  --p-tooltip-max-width: 25rem;
+}
+
+.progress-incomplete .p-progressbar-value {
+  background-color: #3b82f6;
+}
+
+.progress-complete .p-progressbar-value {
+  background-color: #22c55e;
+}
+
+.progress-incomplete-ko .p-progressbar-value {
+  background-color: #fbbf24;
+}
+
+.progress-complete-ko .p-progressbar-value {
+  background-color: #8b5cf6;
+}
+
+.progress-incomplete-kobo .p-progressbar-value {
+  background-color: #bf0000;
+}
+
+.progress-complete-kobo .p-progressbar-value {
+  background-color: #f65c9c;
+}
+
+.cover-progress-bar {
+  --p-progressbar-border-radius: 0 !important;
+}
+
+.custom-button-padding .p-button {
+  padding-block: 0.25rem !important;
+}
+
+.book-details-dialog .p-dialog-header {
+  padding: 1rem 1.25rem !important;
+}
+
+.sidebar-flyout-popover.p-popover,
+.sidebar-more-menu.p-menu,
+.sidebar-user-menu.p-menu {
+  @include sidebar-fixed-overlay;
+
+  &::before,
+  &::after {
+    display: none !important;
+  }
+}
+
+.sidebar-footer-popover.p-popover,
+.sidebar-footer-popover.p-menu {
+  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.5rem)) !important;
+}
+
+@media (width <= 991px) {
+  .sidebar-flyout-popover.p-popover {
+    max-width: calc(100vw - 1rem) !important;
+  }
+}
+
+.sidebar-user-menu.p-menu {
+  min-width: 220px;
+
+  .sidebar-user-menu-header,
+  .sidebar-user-menu-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-user-menu-header {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .sidebar-user-menu-footer {
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color-secondary);
+    font-size: var(--text-xs);
+  }
+
+  .sidebar-user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+    color: var(--primary-color);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .sidebar-user-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .sidebar-user-name {
+    overflow: hidden;
+    color: var(--text-color);
+    font-size: var(--text-base);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sidebar-user-handle {
+    overflow: hidden;
+    color: var(--text-color-secondary);
+    font-size: var(--text-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sidebar-user-update {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .sidebar-entity-menu.p-menu {
+    @include sidebar-fixed-overlay;
+
+    .p-menu-submenu-label {
+      display: none !important;
+    }
+  }
+
+  .sidebar-entity-menu.p-menu,
+  .sidebar-more-menu.p-menu,
+  .sidebar-user-menu.p-menu,
+  .sidebar-flyout-popover.p-popover .p-menu,
+  .sidebar-flyout-popover.p-popover .p-tieredmenu {
+    > .p-menu-list,
+    .p-menu-list,
+    > .p-tieredmenu-root-list,
+    .p-tieredmenu-root-list,
+    .p-tieredmenu-submenu {
+      padding-block: var(--space-2) !important;
+    }
+
+    .p-menu-item-content > .p-menu-item-link,
+    .p-menu-item-link,
+    .p-tieredmenu-item-content > .p-tieredmenu-item-link,
+    .p-tieredmenu-item-link {
+      min-height: 3rem !important;
+      padding: var(--space-3) var(--space-4) !important;
+      gap: var(--space-3) !important;
+    }
+  }
+
+  .sidebar-user-menu.p-menu {
+    .sidebar-user-menu-header,
+    .sidebar-user-menu-footer {
+      padding: var(--space-3) var(--space-4);
+    }
+  }
+}

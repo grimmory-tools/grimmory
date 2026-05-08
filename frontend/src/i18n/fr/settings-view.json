@@ -1,6 +1,15 @@
 {
   "title": "Préférences d'affichage",
   "description": "Personnalisez l'affichage des livres dans votre bibliothèque, y compris la disposition de la grille, les options de tri et le comportement de la barre latérale.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Préférences d'affichage et de tri des bibliothèques et étagères",
     "sectionDesc": "Configurez les préférences par défaut et par bibliothèque/étagère pour le tri et le mode d'affichage (grille ou tableau) dans le navigateur.",

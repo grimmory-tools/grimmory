@@ -48,6 +48,7 @@
       "noBooks": "Ta kolekcja nie zawiera książek!",
       "failedLibrary": "Nie udało się załadować książek biblioteki!",
       "failedShelf": "Nie udało się załadować książek półki!",
+      "failedBooks": "",
       "activeFilters": "{{ count }} aktywnych filtrów"
     },
     "tooltip": {
@@ -611,7 +612,12 @@
   },
   "table": {
     "bookCoverAlt": "Okładka książki",
-    "statusPrefix": "Status: ",
+    "label": "",
+    "selectBook": "",
+    "selectBookFallback": "",
+    "noRating": "",
+    "ratingOutOf": "",
+    "statusWithPrefix": "Status: {{ status }}",
     "locked": "Zablokowane",
     "unlocked": "Odblokowane",
     "toast": {

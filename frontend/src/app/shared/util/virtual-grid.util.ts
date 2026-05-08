@@ -1,6 +1,6 @@
 import {ElementRef, Signal, computed, effect, signal} from '@angular/core';
 import {injectVirtualizer} from '@tanstack/angular-virtual';
-import {observeElementRect, type VirtualItem} from '@tanstack/virtual-core';
+import {observeElementRect, type Rect, type VirtualItem} from '@tanstack/virtual-core';
 
 const DEFAULT_OVERSCAN_ROWS = 2;
 const DEFAULT_ITEM_SIZE = 1;
@@ -13,9 +13,19 @@ export interface VirtualGridOptions {
   gap: number | Signal<number>;
   overscan?: number;
   count?: Signal<number>;
+  minimumCount?: (metrics: VirtualGridMetrics) => number;
   columns?: Signal<number | undefined>;
   initialOffset?: () => number;
   fillItemWidth?: boolean;
+  deferViewportUpdates?: Signal<boolean>;
+}
+
+export interface VirtualGridMetrics {
+  viewportWidth: number;
+  viewportHeight: number;
+  columns: number;
+  itemHeight: number;
+  gap: number;
 }
 
 function getScrollContentWidth(element: HTMLElement | null): number {
@@ -67,7 +77,19 @@ export function scaleForGridColumns(
  */
 export function createVirtualGrid(options: VirtualGridOptions) {
   const viewportWidth = signal(0);
+  const viewportHeight = signal(0);
   const gap = computed(() => typeof options.gap === 'number' ? options.gap : options.gap());
+  let pendingViewport: { rect: Rect; width: number; height: number } | undefined;
+  let flushPendingViewport: (() => void) | undefined;
+
+  const setViewportSizeIfChanged = (width: number, height: number): void => {
+    if (viewportWidth() === width && viewportHeight() === height) {
+      return;
+    }
+
+    viewportWidth.set(width);
+    viewportHeight.set(height);
+  };
 
   const gridColumns = computed(() => {
     const columns = options.columns?.();
@@ -106,20 +128,70 @@ export function createVirtualGrid(options: VirtualGridOptions) {
     const remainingWidth = viewportWidth() - (columns * itemWidth());
     return Math.max(gap(), remainingWidth / (columns - 1));
   });
+  const minimumCount = computed(() => {
+    const getMinimumCount = options.minimumCount;
+    if (!getMinimumCount) {
+      return 0;
+    }
+
+    return toSafeInteger(getMinimumCount({
+      viewportWidth: viewportWidth(),
+      viewportHeight: viewportHeight(),
+      columns: gridColumns(),
+      itemHeight: itemHeight(),
+      gap: columnGap(),
+    }));
+  });
 
   const virtualizer = injectVirtualizer<HTMLElement, HTMLElement>(() => ({
     scrollElement: options.scrollElement(),
-    count: toSafeInteger(options.count?.() ?? options.items().length),
+    count: toSafeInteger(Math.max(options.count?.() ?? options.items().length, minimumCount())),
     estimateSize: () => toSafeSize(itemHeight(), DEFAULT_ITEM_SIZE),
     overscan: toSafeInteger(options.overscan ?? gridColumns() * DEFAULT_OVERSCAN_ROWS, DEFAULT_OVERSCAN_ROWS),
     gap: toSafeSize(columnGap(), DEFAULT_ITEM_SIZE),
     lanes: toSafeInteger(gridColumns(), 1),
     initialOffset: () => options.initialOffset?.() ?? 0,
-    observeElementRect: (instance, callback) => observeElementRect(instance, rect => {
-      callback(rect);
-      viewportWidth.set(Math.round(getScrollContentWidth(instance.scrollElement)));
-    }),
+    observeElementRect: (instance, callback) => {
+      const applyViewport = (rect: Rect, width: number, height: number): void => {
+        callback(rect);
+        setViewportSizeIfChanged(width, height);
+      };
+
+      flushPendingViewport = () => {
+        if (!pendingViewport) {
+          return;
+        }
+
+        const {rect, width, height} = pendingViewport;
+        pendingViewport = undefined;
+        applyViewport(rect, width, height);
+      };
+
+      const cleanup = observeElementRect(instance, rect => {
+        const width = Math.round(getScrollContentWidth(instance.scrollElement));
+        const height = Math.round(rect.height);
+        if (options.deferViewportUpdates?.()) {
+          pendingViewport = {rect, width, height};
+          return;
+        }
+
+        pendingViewport = undefined;
+        applyViewport(rect, width, height);
+      });
+
+      return () => {
+        pendingViewport = undefined;
+        flushPendingViewport = undefined;
+        cleanup?.();
+      };
+    },
   }));
+
+  effect(() => {
+    if (!options.deferViewportUpdates?.()) {
+      queueMicrotask(() => flushPendingViewport?.());
+    }
+  });
 
   // Reset measured sizes when geometry changes; otherwise density toggles flash.
   effect(() => {

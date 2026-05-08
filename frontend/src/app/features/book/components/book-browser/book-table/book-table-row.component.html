@@ -1,0 +1,100 @@
+<ng-container *transloco="let t">
+  @let currentBook = book();
+  @let currentMetadata = metadata();
+  @let metadataLocked = isMetadataLocked();
+  @let lockPending = isLockPending();
+  @let squareCover = useSquareCover();
+  @let imageUrl = coverUrl();
+  @let coverLabel = currentMetadata.title || currentBook.fileName || t('book.table.bookCoverAlt');
+
+  @for (cell of cells(); track cell.id; let columnIndex = $index) {
+    <div
+      class="book-table-cell"
+      role="gridcell"
+      [attr.aria-colindex]="columnIndex + 1"
+      [ngClass]="cell.className"
+      [attr.title]="getCellTitle(cell)">
+      @switch (cell.kind) {
+        @case ('select') {
+          <p-checkbox
+            class="book-table-checkbox"
+            [binary]="true"
+            [ngModel]="isSelected()"
+            (ngModelChange)="onSelectionChange($event)"
+            [ariaLabel]="currentMetadata.title ? t('book.table.selectBook', {title: currentMetadata.title}) : t('book.table.selectBookFallback')"></p-checkbox>
+        }
+        @case ('lock') {
+          <button
+            type="button"
+            class="metadata-lock-button"
+            [class.metadata-lock-button-locked]="metadataLocked"
+            [disabled]="lockPending"
+            [title]="metadataLocked ? t('book.table.locked') : t('book.table.unlocked')"
+            [attr.aria-label]="metadataLocked ? t('book.table.locked') : t('book.table.unlocked')"
+            [attr.aria-pressed]="metadataLocked"
+            [attr.aria-busy]="lockPending"
+            (click)="metadataLockToggleRequested.emit(currentMetadata)">
+            <i [class]="lockPending ? 'pi pi-spin pi-spinner' : (metadataLocked ? 'pi pi-lock' : 'pi pi-lock-open')"></i>
+          </button>
+        }
+        @case ('cover') {
+          <a
+            cdkOverlayOrigin
+            #coverOrigin="cdkOverlayOrigin"
+            [routerLink]="urlHelper.getBookUrl(currentBook)"
+            class="cover-link"
+            [attr.aria-label]="coverLabel"
+            (mouseenter)="showCoverPreview(coverOrigin)"
+            (mouseleave)="coverPreviewHide.emit(currentBook.id)"
+            (focusin)="showCoverPreview(coverOrigin)"
+            (focusout)="coverPreviewHide.emit(currentBook.id)">
+            @if (imageUrl) {
+              <img
+                [attr.src]="imageUrl"
+                alt=""
+                class="cover-thumbnail"
+                [class.square-cover]="squareCover" />
+            } @else {
+              <app-cover-placeholder
+                class="cover-thumbnail"
+                aria-hidden="true"
+                [class.square-cover]="squareCover"
+                [title]="currentMetadata.title ?? ''"
+                [author]="(currentMetadata.authors ?? []).join(', ')"
+                size="sm" />
+            }
+          </a>
+        }
+        @case ('readStatus') {
+          @if (showReadStatus()) {
+            <div
+              class="read-status-indicator"
+              [ngClass]="readStatusClass()"
+              [pTooltip]="t('book.table.statusWithPrefix', {status: readStatusTooltip()})"
+              tooltipPosition="top">
+              <i [class]="readStatusIcon()"></i>
+            </div>
+          }
+        }
+        @case ('rating') {
+          <span class="rating-wrapper" [title]="cell.rating === null ? '' : cell.display">
+            <app-rating
+              [value]="cell.rating"
+              [ariaLabel]="cell.rating === null ? t('book.table.noRating') : t('book.table.ratingOutOf', {rating: cell.display, max: 5})" />
+            @if (cell.rating !== null) {
+              <span class="rating-value">({{ cell.display }})</span>
+            }
+          </span>
+        }
+        @case ('clickable') {
+          @for (item of cell.links; track $index; let isLast = $last) {
+            <a [routerLink]="item.url" class="cell-link">{{ item.anchor }}</a>@if (!isLast) {<span>, </span>}
+          }
+        }
+        @case ('text') {
+          {{ cell.value }}
+        }
+      }
+    </div>
+  }
+</ng-container>
