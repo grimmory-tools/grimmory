@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
+import java.time.LocalDateTime;
 
 @Repository
 public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEntity, Long> {
@@ -85,8 +86,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             """)
     List<ReadingSpeedDto> findReadingSpeedByUserAndYear(
             @Param("userId") Long userId,
-            @Param("periodStart") java.time.LocalDateTime periodStart,
-            @Param("periodEnd") java.time.LocalDateTime periodEnd);
+            @Param("periodStart") LocalDateTime periodStart,
+            @Param("periodEnd") LocalDateTime periodEnd);
 
     @Query("""
             SELECT rs.startTime as startTime,

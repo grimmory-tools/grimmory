@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class IconService {
 
     private final Cache<String, String> svgCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(java.time.Duration.ofHours(1))
+            .expireAfterAccess(Duration.ofHours(1))
             .build();
 
     private static final String ICONS_DIR = "icons";

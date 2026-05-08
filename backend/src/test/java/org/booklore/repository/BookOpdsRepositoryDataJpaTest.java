@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import org.springframework.boot.test.context.TestConfiguration;
 
 
 
@@ -57,7 +58,7 @@ class BookOpdsRepositoryDataJpaTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @org.springframework.boot.test.context.TestConfiguration
+    @TestConfiguration
     public static class TestConfig {
         @Bean("flyway")
         @Primary

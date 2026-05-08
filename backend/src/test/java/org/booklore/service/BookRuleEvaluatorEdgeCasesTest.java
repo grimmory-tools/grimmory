@@ -30,6 +30,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
+import org.flywaydb.core.Flyway;
 
 @SpringBootTest(classes = {BookloreApplication.class})
 @Transactional
@@ -58,8 +59,8 @@ class BookRuleEvaluatorEdgeCasesTest {
     static class TestConfig {
         @Bean("flyway")
         @Primary
-        public org.flywaydb.core.Flyway flyway() {
-            return mock(org.flywaydb.core.Flyway.class);
+        public Flyway flyway() {
+            return mock(Flyway.class);
         }
 
         @Bean

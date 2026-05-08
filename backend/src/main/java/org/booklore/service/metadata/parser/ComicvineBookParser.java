@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.text.DecimalFormat;
 
 @Slf4j
 @Service
@@ -982,7 +983,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 if (d == Math.floor(d)) {
                     return String.valueOf((int) d);
                 } else {
-                    return new java.text.DecimalFormat("0.#####").format(d);
+                    return new DecimalFormat("0.#####").format(d);
                 }
             } else {
                 return String.valueOf(Integer.parseInt(issueNumber));

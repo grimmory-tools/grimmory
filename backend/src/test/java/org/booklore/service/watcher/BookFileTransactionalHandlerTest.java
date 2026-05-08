@@ -31,6 +31,8 @@ import java.util.concurrent.ScheduledFuture;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BookFileTransactionalHandlerTest {
 
@@ -141,7 +143,7 @@ class BookFileTransactionalHandlerTest {
         void libraryNotFound_throws() {
             when(libraryRepository.findById(99L)).thenReturn(Optional.empty());
 
-            org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+            assertThrows(Exception.class,
                     () -> handler.handleNewBookFile(99L, Path.of("/library/sub/test.epub")));
         }
 
@@ -158,8 +160,8 @@ class BookFileTransactionalHandlerTest {
             handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
 
             verify(bookFilePersistenceService).save(book);
-            org.assertj.core.api.Assertions.assertThat(book.getDeleted()).isFalse();
-            org.assertj.core.api.Assertions.assertThat(book.getDeletedAt()).isNull();
+            assertThat(book.getDeleted()).isFalse();
+            assertThat(book.getDeletedAt()).isNull();
         }
 
         @Test
@@ -190,7 +192,7 @@ class BookFileTransactionalHandlerTest {
 
             verify(pendingDeletionPool).cancelByPath(any());
             verify(bookFilePersistenceService).save(book);
-            org.assertj.core.api.Assertions.assertThat(bookFile.getCurrentHash()).isEqualTo("hash123");
+            assertThat(bookFile.getCurrentHash()).isEqualTo("hash123");
         }
 
         @Test
@@ -559,7 +561,7 @@ class BookFileTransactionalHandlerTest {
         void libraryNotFound_throws() {
             when(libraryRepository.findById(99L)).thenReturn(Optional.empty());
 
-            org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+            assertThrows(Exception.class,
                     () -> handler.handleNewFolderAudiobook(99L, Path.of("/library/audiobook")));
         }
 

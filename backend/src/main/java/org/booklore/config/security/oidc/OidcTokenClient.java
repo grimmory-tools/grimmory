@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import org.springframework.web.client.RestClientException;
 
 @Slf4j
 @Service
@@ -75,7 +76,7 @@ public class OidcTokenClient {
                     (String) response.get("token_type"),
                     response.get("expires_in") instanceof Number n ? n.intValue() : null
             );
-        } catch (org.springframework.web.client.RestClientException e) {
+        } catch (RestClientException e) {
             log.error("OIDC token exchange failed: {}", e.getMessage());
             throw ApiError.OIDC_PROVIDER_UNREACHABLE.createException(e.getMessage());
         }
@@ -99,7 +100,7 @@ public class OidcTokenClient {
                     .exchange(userinfoEndpoint, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
 
             return response.getBody() != null ? response.getBody() : Map.of();
-        } catch (org.springframework.web.client.RestClientException e) {
+        } catch (RestClientException e) {
             log.warn("Failed to fetch userinfo: {}", e.getMessage());
             return Map.of();
         }

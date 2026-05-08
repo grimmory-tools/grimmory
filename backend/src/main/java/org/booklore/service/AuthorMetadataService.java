@@ -41,6 +41,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -86,7 +92,7 @@ public class AuthorMetadataService {
         return authorParserMap.values().stream()
                 .flatMap(provider -> {
                     List<AuthorSearchResult> results = provider.searchAuthors(name, region);
-                    return results != null ? results.stream() : java.util.stream.Stream.empty();
+                    return results != null ? results.stream() : Stream.empty();
                 })
                 .toList();
     }
@@ -94,7 +100,7 @@ public class AuthorMetadataService {
     public List<AuthorSearchResult> lookupAuthorByAsin(String asin, String region) {
         return authorParserMap.values().stream()
                 .map(provider -> provider.getAuthorByAsin(asin, region))
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -166,14 +172,14 @@ public class AuthorMetadataService {
                                     .build();
                         })
                         .subscribeOn(Schedulers.boundedElastic())
-                        .delayElement(java.time.Duration.ofMillis(
-                                java.util.concurrent.ThreadLocalRandom.current().nextLong(250, 750)))
+                        .delayElement(Duration.ofMillis(
+                                ThreadLocalRandom.current().nextLong(250, 750)))
                         .onErrorResume(e -> {
                             log.warn("Failed to auto-match author ID {}: {}", authorId, e.getMessage());
                             return Mono.empty();
                         })
                 )
-                .filter(java.util.Objects::nonNull);
+                .filter(Objects::nonNull);
     }
 
     @Transactional
@@ -246,13 +252,13 @@ public class AuthorMetadataService {
         validatePhoto(file);
 
         try {
-            java.awt.image.BufferedImage image = FileService.readImage(file.getInputStream());
+            BufferedImage image = FileService.readImage(file.getInputStream());
             if (image == null) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to decode image");
             }
             fileService.saveAuthorImages(image, authorId);
             image.flush();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
         }
     }

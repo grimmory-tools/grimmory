@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jakarta.persistence.Query;
 
 @Service
 @AllArgsConstructor
@@ -317,7 +318,7 @@ public class AppSeriesService {
         return "";
     }
 
-    private void setLibraryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId) {
+    private void setLibraryParams(Query query, Set<Long> accessibleLibraryIds, Long libraryId) {
         if (libraryId != null) {
             query.setParameter("libraryId", libraryId);
         } else if (accessibleLibraryIds != null) {

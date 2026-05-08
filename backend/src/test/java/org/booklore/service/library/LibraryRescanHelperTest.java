@@ -136,7 +136,7 @@ class LibraryRescanHelperTest {
     @Test
     void handleRescanOptions_shouldSkipNullBooks() {
         BookEntity book1 = createBookEntity(1L, "book1.epub", BookFileType.EPUB);
-        java.util.List<BookEntity> books = new ArrayList<>();
+        List<BookEntity> books = new ArrayList<>();
         books.add(book1);
         books.add(null);
 

@@ -42,6 +42,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.InputStream;
 
 @Slf4j
 @AllArgsConstructor
@@ -385,7 +386,7 @@ public class BookService {
                 .body(new FileSystemResource(file));
     }
 
-    public void replaceBookContent(long bookId, String bookType, java.io.InputStream content) throws IOException {
+    public void replaceBookContent(long bookId, String bookType, InputStream content) throws IOException {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -471,9 +472,9 @@ public class BookService {
         if (!Files.exists(path)) return;
 
         try (var walk = Files.walk(path)) {
-            walk.sorted(java.util.Comparator.reverseOrder())
+            walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
-                    .forEach(java.io.File::delete);
+                    .forEach(File::delete);
         }
     }
 

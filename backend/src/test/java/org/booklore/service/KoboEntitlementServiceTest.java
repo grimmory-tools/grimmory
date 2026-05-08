@@ -65,6 +65,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.util.ArrayList;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -476,7 +477,7 @@ class KoboEntitlementServiceTest {
     private BookEntity createEpubBookEntity(Long id) {
         BookEntity book = new BookEntity();
         book.setId(id);
-        book.setBookFiles(new java.util.ArrayList<>());
+        book.setBookFiles(new ArrayList<>());
 
         BookFileEntity bookFile = BookFileEntity.builder()
                 .book(book)

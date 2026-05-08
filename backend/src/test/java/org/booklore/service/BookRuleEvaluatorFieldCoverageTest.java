@@ -1111,11 +1111,11 @@ class BookRuleEvaluatorFieldCoverageTest {
         @Test
         void withinLast_weeks_matchesRecentBook() {
             BookEntity recent = createBook("Recent Book");
-            recent.setAddedOn(Instant.now().minus(5, java.time.temporal.ChronoUnit.DAYS));
+            recent.setAddedOn(Instant.now().minus(5, ChronoUnit.DAYS));
             em.merge(recent);
 
             BookEntity old = createBook("Old Book");
-            old.setAddedOn(Instant.now().minus(30, java.time.temporal.ChronoUnit.DAYS));
+            old.setAddedOn(Instant.now().minus(30, ChronoUnit.DAYS));
             em.merge(old);
             em.flush();
             em.clear();
@@ -1128,11 +1128,11 @@ class BookRuleEvaluatorFieldCoverageTest {
         @Test
         void olderThan_weeks_matchesOldBook() {
             BookEntity old = createBook("Old Book");
-            old.setAddedOn(Instant.now().minus(30, java.time.temporal.ChronoUnit.DAYS));
+            old.setAddedOn(Instant.now().minus(30, ChronoUnit.DAYS));
             em.merge(old);
 
             BookEntity recent = createBook("Recent Book");
-            recent.setAddedOn(Instant.now().minus(3, java.time.temporal.ChronoUnit.DAYS));
+            recent.setAddedOn(Instant.now().minus(3, ChronoUnit.DAYS));
             em.merge(recent);
             em.flush();
             em.clear();
@@ -1383,12 +1383,12 @@ class BookRuleEvaluatorFieldCoverageTest {
         void thisPeriod_year_matchesThisYearFinished() {
             BookEntity thisYear = createBook("Recently Finished");
             UserBookProgressEntity p1 = createProgress(thisYear, ReadStatus.READ);
-            p1.setDateFinished(Instant.now().minus(10, java.time.temporal.ChronoUnit.DAYS));
+            p1.setDateFinished(Instant.now().minus(10, ChronoUnit.DAYS));
             em.merge(p1);
 
             BookEntity lastYear = createBook("Finished Last Year");
             UserBookProgressEntity p2 = createProgress(lastYear, ReadStatus.READ);
-            p2.setDateFinished(Instant.now().minus(400, java.time.temporal.ChronoUnit.DAYS));
+            p2.setDateFinished(Instant.now().minus(400, ChronoUnit.DAYS));
             em.merge(p2);
             em.flush();
             em.clear();

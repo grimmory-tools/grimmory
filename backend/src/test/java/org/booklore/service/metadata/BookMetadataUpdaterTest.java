@@ -35,6 +35,8 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @ExtendWith(MockitoExtension.class)
 class BookMetadataUpdaterTest {
@@ -627,17 +629,17 @@ class BookMetadataUpdaterTest {
     @Test
     void updateFileNameIfConverted_noChangeWhenOriginalExists() {
         BookFileEntity bookFile = BookFileEntity.builder().fileName("test.cbr").build();
-        java.nio.file.Path tempDir;
+        Path tempDir;
         try {
-            tempDir = java.nio.file.Files.createTempDirectory("test-metadata-");
-            java.nio.file.Path original = tempDir.resolve("test.cbr");
-            java.nio.file.Files.createFile(original);
+            tempDir = Files.createTempDirectory("test-metadata-");
+            Path original = tempDir.resolve("test.cbr");
+            Files.createFile(original);
 
             updater.updateFileNameIfConverted(bookFile, original);
 
             assertThat(bookFile.getFileName()).isEqualTo("test.cbr");
-            java.nio.file.Files.deleteIfExists(original);
-            java.nio.file.Files.deleteIfExists(tempDir);
+            Files.deleteIfExists(original);
+            Files.deleteIfExists(tempDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -647,16 +649,16 @@ class BookMetadataUpdaterTest {
     void updateFileNameIfConverted_updatesToCbzWhenOriginalGoneAndCbzExists() {
         BookFileEntity bookFile = BookFileEntity.builder().fileName("test.cbr").build();
         try {
-            java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-");
-            java.nio.file.Path original = tempDir.resolve("test.cbr");
-            java.nio.file.Path cbz = tempDir.resolve("test.cbz");
-            java.nio.file.Files.createFile(cbz);
+            Path tempDir = Files.createTempDirectory("test-metadata-");
+            Path original = tempDir.resolve("test.cbr");
+            Path cbz = tempDir.resolve("test.cbz");
+            Files.createFile(cbz);
 
             updater.updateFileNameIfConverted(bookFile, original);
 
             assertThat(bookFile.getFileName()).isEqualTo("test.cbz");
-            java.nio.file.Files.deleteIfExists(cbz);
-            java.nio.file.Files.deleteIfExists(tempDir);
+            Files.deleteIfExists(cbz);
+            Files.deleteIfExists(tempDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1814,13 +1816,13 @@ class BookMetadataUpdaterTest {
         void noChangeWhenNeitherOriginalNorCbzExists() {
             BookFileEntity bookFile = BookFileEntity.builder().fileName("test.cbr").build();
             try {
-                java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-");
-                java.nio.file.Path original = tempDir.resolve("test.cbr");
+                Path tempDir = Files.createTempDirectory("test-metadata-");
+                Path original = tempDir.resolve("test.cbr");
 
                 updater.updateFileNameIfConverted(bookFile, original);
 
                 assertThat(bookFile.getFileName()).isEqualTo("test.cbr");
-                java.nio.file.Files.deleteIfExists(tempDir);
+                Files.deleteIfExists(tempDir);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -1830,16 +1832,16 @@ class BookMetadataUpdaterTest {
         void handlesFileNameWithNoExtension() {
             BookFileEntity bookFile = BookFileEntity.builder().fileName("testfile").build();
             try {
-                java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("test-metadata-");
-                java.nio.file.Path original = tempDir.resolve("testfile");
-                java.nio.file.Path cbz = tempDir.resolve("testfile.cbz");
-                java.nio.file.Files.createFile(cbz);
+                Path tempDir = Files.createTempDirectory("test-metadata-");
+                Path original = tempDir.resolve("testfile");
+                Path cbz = tempDir.resolve("testfile.cbz");
+                Files.createFile(cbz);
 
                 updater.updateFileNameIfConverted(bookFile, original);
 
                 assertThat(bookFile.getFileName()).isEqualTo("testfile.cbz");
-                java.nio.file.Files.deleteIfExists(cbz);
-                java.nio.file.Files.deleteIfExists(tempDir);
+                Files.deleteIfExists(cbz);
+                Files.deleteIfExists(tempDir);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

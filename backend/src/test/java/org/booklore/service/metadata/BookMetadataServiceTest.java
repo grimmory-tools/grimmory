@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import org.springframework.transaction.TransactionStatus;
 
 @ExtendWith(MockitoExtension.class)
 class BookMetadataServiceTest {
@@ -519,7 +520,7 @@ class BookMetadataServiceTest {
             when(bookRepository.findByIdFull(1L)).thenReturn(Optional.of(book1));
             when(bookRepository.findByIdFull(2L)).thenReturn(Optional.of(book2));
 
-            var txStatus = mock(org.springframework.transaction.TransactionStatus.class);
+            var txStatus = mock(TransactionStatus.class);
             when(transactionManager.getTransaction(any())).thenReturn(txStatus);
 
             service.bulkUpdateMetadata(request, true, false, true);
@@ -540,7 +541,7 @@ class BookMetadataServiceTest {
             MetadataClearFlags clearFlags = new MetadataClearFlags();
             when(metadataClearFlagsMapper.toClearFlags(request)).thenReturn(clearFlags);
 
-            var txStatus = mock(org.springframework.transaction.TransactionStatus.class);
+            var txStatus = mock(TransactionStatus.class);
             when(transactionManager.getTransaction(any())).thenReturn(txStatus);
 
             BookEntity book2 = BookEntity.builder().id(2L).build();
@@ -563,7 +564,7 @@ class BookMetadataServiceTest {
             MetadataClearFlags clearFlags = new MetadataClearFlags();
             when(metadataClearFlagsMapper.toClearFlags(request)).thenReturn(clearFlags);
 
-            var txStatus = mock(org.springframework.transaction.TransactionStatus.class);
+            var txStatus = mock(TransactionStatus.class);
             when(transactionManager.getTransaction(any())).thenReturn(txStatus);
 
             BookEntity book = BookEntity.builder().id(1L).build();

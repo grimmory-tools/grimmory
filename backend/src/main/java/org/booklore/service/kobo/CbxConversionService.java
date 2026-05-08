@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
+import java.util.zip.CRC32;
 
 /**
  * Service for converting comic book archive files (CBX) to EPUB format.
@@ -568,7 +569,7 @@ public class CbxConversionService {
     }
 
     private long calculateCrc32(byte[] data) {
-        java.util.zip.CRC32 crc32 = new java.util.zip.CRC32();
+        CRC32 crc32 = new CRC32();
         crc32.update(data);
         return crc32.getValue();
     }

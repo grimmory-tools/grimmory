@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -274,7 +275,7 @@ public class OpdsFeedService {
                     escapeXml(author),
                     escapeXml(author),
                     now(),
-                    escapeXml("/api/v1/opds/catalog?author=" + java.net.URLEncoder.encode(author, java.nio.charset.StandardCharsets.UTF_8)),
+                    escapeXml("/api/v1/opds/catalog?author=" + URLEncoder.encode(author, StandardCharsets.UTF_8)),
                     escapeXml(author)
             ));
         }
@@ -311,7 +312,7 @@ public class OpdsFeedService {
                     escapeXml(series),
                     escapeXml(series),
                     now(),
-                    escapeXml("/api/v1/opds/catalog?series=" + java.net.URLEncoder.encode(series, java.nio.charset.StandardCharsets.UTF_8)),
+                    escapeXml("/api/v1/opds/catalog?series=" + URLEncoder.encode(series, StandardCharsets.UTF_8)),
                     escapeXml(series)
             ));
         }
@@ -641,7 +642,7 @@ public class OpdsFeedService {
     }
 
     private String now() {
-        return DateTimeFormatter.ISO_INSTANT.format(java.time.Instant.now());
+        return DateTimeFormatter.ISO_INSTANT.format(Instant.now());
     }
 
     private boolean hasValidFilePath(BookFile bookFile) {
