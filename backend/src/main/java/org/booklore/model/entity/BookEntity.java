@@ -137,7 +137,7 @@ public class BookEntity {
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this).equals(Hibernate.getClass(o))) return false;
+        if (o == null || !Hibernate.getClass(this).equals(Hibernate.getClass(o))) return false;
         BookEntity that = (BookEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
