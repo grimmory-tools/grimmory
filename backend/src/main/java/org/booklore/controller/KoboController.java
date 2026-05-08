@@ -46,6 +46,7 @@ public class KoboController {
     private final KoboInitializationService koboInitializationService;
     private final BookService bookService;
     private final KoboReadingStateService koboReadingStateService;
+    private final KoboRatingService koboRatingService;
     private final KoboEntitlementService koboEntitlementService;
     private final KoboDeviceAuthService koboDeviceAuthService;
     private final KoboLibrarySyncService koboLibrarySyncService;
@@ -251,6 +252,25 @@ public class KoboController {
         return ResponseEntity.ok()
                 .body(KoboDeals.builder().build());
 
+    }
+
+    @Operation(summary = "Update Rating", description = "Updates the personal rating for a book given the Kobo star rating.")
+    @ApiResponse(responseCode = "200", description = "Personal rating has been updated.")
+    @PostMapping("/v1/products/{bookId}/rating/{rating}")
+    public ResponseEntity<?> putRating(
+            @AuthenticationPrincipal BookLoreUser user,
+            @Parameter(description = "Book ID") @PathVariable String bookId,
+            @Parameter(description = "Book Rating") @PathVariable int rating
+    ) {
+        if (StringUtils.isNumeric(bookId)) {
+            return koboRatingService.updatePersonalRating(user, Long.parseLong(bookId), rating);
+        }
+
+        if (isForwardingToKoboStore()) {
+            return koboServerProxy.proxyCurrentRequest();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Catch-all for Kobo API", description = "Catch-all endpoint for unhandled Kobo API requests.")
