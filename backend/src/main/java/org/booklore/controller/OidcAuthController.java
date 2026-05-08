@@ -11,6 +11,7 @@ import org.booklore.config.security.oidc.OidcAuthService;
 import org.booklore.config.security.oidc.OidcCallbackRequest;
 import org.booklore.config.security.oidc.OidcStateService;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.AccessTokenDto;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +53,7 @@ public class OidcAuthController {
             operationId = "oidcHandleCallback"
     )
     @PostMapping("/callback")
-    public ResponseEntity<Map<String, String>> handleCallback(
+    public ResponseEntity<AccessTokenDto> handleCallback(
             @RequestBody @Valid OidcCallbackRequest request,
             HttpServletRequest httpRequest) {
         log.info("OIDC callback received");
@@ -90,20 +91,24 @@ public class OidcAuthController {
         oidcAuthService.validateAppRedirectUri(appRedirectUri);
 
         try {
-            ResponseEntity<Map<String, String>> tokenResponse = oidcAuthService.exchangeCodeForTokens(
+            ResponseEntity<AccessTokenDto> tokenResponse = oidcAuthService.exchangeCodeForTokens(
                     code, codeVerifier, redirectUri, nonce, httpRequest);
-            Map<String, String> tokens = tokenResponse.getBody();
+            AccessTokenDto tokens = tokenResponse.getBody();
 
             if (tokens == null) {
                 throw ApiError.GENERIC_UNAUTHORIZED.createException("Failed to obtain tokens");
             }
 
             StringBuilder fragment = new StringBuilder();
-            fragment.append("access_token=").append(URLEncoder.encode(tokens.get("accessToken"), StandardCharsets.UTF_8));
-            fragment.append("&refresh_token=").append(URLEncoder.encode(tokens.get("refreshToken"), StandardCharsets.UTF_8));
+            fragment.append("access_token=").append(URLEncoder.encode(tokens.getAccessToken(), StandardCharsets.UTF_8));
+            fragment.append("&refresh_token=").append(URLEncoder.encode(tokens.getRefreshToken(), StandardCharsets.UTF_8));
 
-            if (tokens.containsKey("isDefaultPassword")) {
-                fragment.append("&is_default_password=").append(URLEncoder.encode(tokens.get("isDefaultPassword"), StandardCharsets.UTF_8));
+            if (tokens.getIsDefaultPassword() != null) {
+                fragment.append("&is_default_password=").append(URLEncoder.encode(tokens.getIsDefaultPassword().toString(), StandardCharsets.UTF_8));
+            }
+
+            if (tokens.getExpires() != null) {
+                fragment.append("&expires_in=").append(URLEncoder.encode(tokens.getExpires().toString(), StandardCharsets.UTF_8));
             }
 
             String redirectUrl = appRedirectUri + "#" + fragment;
@@ -128,7 +133,7 @@ public class OidcAuthController {
             operationId = "oidcHandleMobileCallback"
     )
     @PostMapping("/mobile/callback")
-    public ResponseEntity<Map<String, String>> handleMobileCallback(
+    public ResponseEntity<AccessTokenDto> handleMobileCallback(
             @RequestParam("code") String code,
             @RequestParam("code_verifier") String codeVerifier,
             @RequestParam("redirect_uri") String redirectUri,

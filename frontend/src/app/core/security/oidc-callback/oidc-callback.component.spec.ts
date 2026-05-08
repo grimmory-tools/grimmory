@@ -110,12 +110,12 @@ describe('OidcCallbackComponent', () => {
     oidcService.exchangeCode.mockReturnValue(of({
       accessToken: 'access',
       refreshToken: 'refresh',
-      isDefaultPassword: 'true',
+      isDefaultPassword: true,
     }));
 
     configureComponent('?code=code-123&state=state-123');
 
-    expect(authService.saveInternalTokens).toHaveBeenCalledWith('access', 'refresh');
+    expect(authService.saveInternalTokens).toHaveBeenCalledWith('access', 'refresh', undefined, true);
     expect(authService.initializeWebSocketConnection).toHaveBeenCalledOnce();
     expect(sessionStorage.getItem('oidc_redirect_count')).toBeNull();
     expect(router.navigate).toHaveBeenCalledWith(['/change-password']);
@@ -130,12 +130,12 @@ describe('OidcCallbackComponent', () => {
     oidcService.exchangeCode.mockReturnValue(of({
       accessToken: 'access',
       refreshToken: 'refresh',
-      isDefaultPassword: 'false',
+      isDefaultPassword: false,
     }));
 
     configureComponent('?code=code-123&state=state-123');
 
-    expect(authService.saveInternalTokens).toHaveBeenCalledWith('access', 'refresh');
+    expect(authService.saveInternalTokens).toHaveBeenCalledWith('access', 'refresh', undefined, false);
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 

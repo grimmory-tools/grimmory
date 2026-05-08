@@ -132,7 +132,7 @@ describe('OidcService', () => {
 
   it('posts the callback payload to exchange an OIDC code for tokens', () => {
     const {service, http} = createService();
-    http.post.mockReturnValue(of({accessToken: 'access', refreshToken: 'refresh', isDefaultPassword: 'false'}));
+    http.post.mockReturnValue(of({accessToken: 'access', refreshToken: 'refresh', isDefaultPassword: false}));
 
     service.exchangeCode('code-123', 'verifier', 'nonce', 'state').subscribe();
 
