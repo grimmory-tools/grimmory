@@ -168,9 +168,9 @@
   </div>
 
   <div class="sidebar-nav">
-    <ul class="layout-menu">
+    <ul class="layout-sidebar-menu">
       @for (section of sections(); track section.id) {
-        <li app-menu-section [item]="section"></li>
+        <li appSidebarSection [item]="section"></li>
       }
     </ul>
   </div>

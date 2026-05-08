@@ -20,7 +20,7 @@ import { VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
 
-import { AppMenuComponent } from './app.menu.component';
+import { AppSidebarComponent } from './app.sidebar.component';
 
 interface MenuOverlay {
   container: HTMLElement;
@@ -47,9 +47,9 @@ interface TestUser {
   permissions: Record<string, boolean>;
 }
 
-describe('AppMenuComponent', () => {
-  let fixture: ComponentFixture<AppMenuComponent>;
-  let component: AppMenuComponent;
+describe('AppSidebarComponent', () => {
+  let fixture: ComponentFixture<AppSidebarComponent>;
+  let component: AppSidebarComponent;
   let commandPaletteService: { open: ReturnType<typeof vi.fn> };
   let currentUser: WritableSignal<TestUser | null>;
   const sidebarCollapsed = signal(false);
@@ -69,7 +69,7 @@ describe('AppMenuComponent', () => {
     currentUser = signal<TestUser | null>(null);
 
     TestBed.configureTestingModule({
-      imports: [AppMenuComponent, getTranslocoModule()],
+      imports: [AppSidebarComponent, getTranslocoModule()],
       providers: [
         { provide: LibraryService, useValue: { libraries: signal([]), bookCountByLibraryId: signal(new Map()) } },
         { provide: LibraryHealthService, useValue: { isUnhealthy: vi.fn(() => false) } },
@@ -103,9 +103,9 @@ describe('AppMenuComponent', () => {
       ],
     });
 
-    TestBed.overrideComponent(AppMenuComponent, { set: { template: '' } });
+    TestBed.overrideComponent(AppSidebarComponent, { set: { template: '' } });
 
-    fixture = TestBed.createComponent(AppMenuComponent);
+    fixture = TestBed.createComponent(AppSidebarComponent);
     component = fixture.componentInstance;
     layoutService.isDesktop.set(true);
     layoutService.closeMobileSidebar.mockReset();

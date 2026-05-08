@@ -53,7 +53,7 @@
 }
 
 .sidebar-brand-mark {
-  /* Shown only in collapsed state (see _menu.scss). */
+  /* Shown only in collapsed state (see _sidebar.scss). */
   display: none;
   align-items: center;
 
@@ -153,7 +153,7 @@
   overflow-y: auto;
   min-height: 0;
 
-  .layout-root-menuitem + .layout-root-menuitem {
+  .layout-sidebar-root-item + .layout-sidebar-root-item {
     margin-top: var(--sidebar-group-gap);
   }
 }
@@ -418,7 +418,7 @@
       calc(0px - var(--sidebar-shell-padding-inline-end) - env(safe-area-inset-right));
   }
 
-  .sidebar-nav > .layout-menu {
+  .sidebar-nav > .layout-sidebar-menu {
     box-sizing: border-box;
     padding-inline:
       calc(var(--sidebar-shell-padding-inline-start) + env(safe-area-inset-left))
@@ -517,7 +517,7 @@
         calc(0px - var(--sidebar-shell-padding-inline-end));
     }
 
-    .sidebar-nav > .layout-menu {
+    .sidebar-nav > .layout-sidebar-menu {
       padding-inline:
         calc(var(--sidebar-shell-padding-inline-start) + env(safe-area-inset-left))
         var(--sidebar-shell-padding-inline-end);

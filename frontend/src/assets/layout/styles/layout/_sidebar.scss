@@ -113,11 +113,11 @@ body.layout-resizing-cursor {
 .layout-wrapper.layout-collapsed {
   /* Hide all text/trailing content. Icons keep their expanded padding so the
      left edge → icon spacing is identical in both states. */
-  .menu-item-text,
+  .sidebar-item-text,
   .book-count,
-  .menu-item-chevron,
+  .sidebar-item-chevron,
   .entity-menu-button,
-  .menu-item-end-content,
+  .sidebar-item-end-content,
   .sidebar-action-link span,
   .sidebar-user-trigger .sidebar-user-meta,
   .sidebar-search-shortcut {
@@ -138,7 +138,7 @@ body.layout-resizing-cursor {
   }
 
   /* Section headings swap for thin dividers. */
-  .layout-root-menuitem > .layout-menuitem-root-text {
+  .layout-sidebar-root-item > .layout-sidebar-root-text {
     display: none;
   }
 
@@ -229,7 +229,7 @@ body.layout-resizing-cursor {
 }
 
 
-.layout-menu {
+.layout-sidebar-menu {
   margin: 0;
   padding: 0;
   list-style-type: none;
@@ -240,13 +240,13 @@ body.layout-resizing-cursor {
     list-style-type: none;
   }
 
-  .layout-menuitem-text {
+  .layout-sidebar-item-text {
     display: flex;
     justify-content: space-between;
     width: 100%;
   }
 
-  .layout-root-menuitem > .layout-menuitem-root-text {
+  .layout-sidebar-root-item > .layout-sidebar-root-text {
     box-sizing: border-box;
     font-size: var(--sidebar-section-font-size);
     font-weight: var(--sidebar-section-font-weight);
