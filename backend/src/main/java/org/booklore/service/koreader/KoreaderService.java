@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class KoreaderService {
     private final KoreaderUserRepository koreaderUserRepository;
     private final HardcoverSyncService hardcoverSyncService;
     private final EpubCfiService epubCfiService;
-    private final org.booklore.repository.AnnotationRepository annotationRepository;
+    private final AnnotationRepository annotationRepository;
     private final AnnotationSidecarService annotationSidecarService;
 
     public ResponseEntity<Map<String, String>> authorizeUser() {
@@ -71,12 +72,19 @@ public class KoreaderService {
     public String getAnnotations(String bookHash) {
         KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
         BookEntity book = findBookByHash(bookHash);
-        List<org.booklore.model.entity.AnnotationEntity> annotations = annotationRepository
+        List<AnnotationEntity> annotations = annotationRepository
                 .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), authDetails.getBookLoreUserId());
         log.info("getAnnotations: {} annotations for userId={} bookHash={}",
                 annotations.size(), authDetails.getBookLoreUserId(), bookHash);
+        Path bookPath;
+        try {
+            bookPath = book.getFullFilePath();
+        } catch (Exception e) {
+            log.warn("Cannot resolve path for book {}, annotations Lua will have no position data", book.getId());
+            bookPath = null;
+        }
         return annotationSidecarService.buildAnnotationsLua(
-                book.getFullFilePath(), annotations,
+                bookPath, annotations,
                 authDetails.getUsername(), authDetails.getBookLoreUserId(), book.getId());
     }
 

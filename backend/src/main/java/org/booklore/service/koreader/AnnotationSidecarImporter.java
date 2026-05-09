@@ -37,8 +37,6 @@ import java.util.stream.Stream;
 @Service
 public class AnnotationSidecarImporter {
 
-    private static final String SIDECAR_GLOB = "metadata.epub.*.lua";
-
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final AnnotationRepository annotationRepository;

@@ -79,8 +79,7 @@ public class AnnotationSidecarService {
                     .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), user.getId());
 
             if (annotations.isEmpty() && notes.isEmpty()) {
-                if (Files.exists(sidecarPath)) {
-                    Files.delete(sidecarPath);
+                if (Files.deleteIfExists(sidecarPath)) {
                     log.info("Deleted annotation sidecar (no annotations remain): {}", sidecarPath);
                 }
                 return;
@@ -114,7 +113,7 @@ public class AnnotationSidecarService {
         return sdrDir.resolve("metadata.epub." + username + ".lua");
     }
 
-    private record HighlightEntry(AnnotationEntity ann, XPointerResult xp,
+    private record HighlightEntry(AnnotationEntity ann,
                                    String pos0, String pos1, String page,
                                    String drawer, String datetime) {}
 
@@ -138,7 +137,7 @@ public class AnnotationSidecarService {
                 String datetime = ann.getCreatedAt() != null
                         ? ann.getCreatedAt().format(DATETIME_FMT)
                         : "1970-01-01 00:00:00";
-                highlightEntries.add(new HighlightEntry(ann, xp, pos0, pos1, page, drawer, datetime));
+                highlightEntries.add(new HighlightEntry(ann, pos0, pos1, page, drawer, datetime));
             } catch (Exception e) {
                 log.warn("Skipping annotation {} (CFI conversion failed): {}", ann.getId(), e.getMessage());
             }
@@ -274,8 +273,10 @@ public class AnnotationSidecarService {
     }
 
     private static String luaString(String value) {
-        // Escape backslashes and double quotes, wrap in double quotes
-        String escaped = value.replace("\\", "\\\\").replace("\"", "\\\"");
+        String escaped = value.replace("\\", "\\\\")
+                              .replace("\"", "\\\"")
+                              .replace("\n", "\\n")
+                              .replace("\r", "\\r");
         return "\"" + escaped + "\"";
     }
 
