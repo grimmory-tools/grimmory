@@ -31,8 +31,6 @@ public class SidecarAnnotationParser {
     private static final Pattern NUMBER_FIELD =
             Pattern.compile("\\[\"(\\w+)\"]\\s*=\\s*(-?\\d+)");
 
-    // ── public API ────────────────────────────────────────────────────────────
-
     public record ParsedSidecar(
             String username,
             Long userId,
@@ -97,8 +95,6 @@ public class SidecarAnnotationParser {
 
         return new ParsedSidecar(username, userId, bookId, schemaVersion, highlights);
     }
-
-    // ── private helpers ───────────────────────────────────────────────────────
 
     private static ParsedHighlight parseHighlight(String block) {
         // Field names don't collide between KOReader and booklore blocks, so

@@ -123,8 +123,6 @@ public class AnnotationSidecarImporter {
         return new ImportResult(booksScanned, sidecarFiles, imported, skipped, failed);
     }
 
-    // ── private helpers ───────────────────────────────────────────────────────
-
     private List<Path> findSidecarFiles(Path sdrDir) {
         try (Stream<Path> stream = Files.list(sdrDir)) {
             return stream
