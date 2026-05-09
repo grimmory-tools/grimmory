@@ -1,11 +1,17 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
+import { MenuTrigger } from '@angular/aria/menu';
 import { Popover } from 'primeng/popover';
-import { Menu } from 'primeng/menu';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
+import { MenuComponent } from '../../components/menu/menu.component';
+import { MenuEntry } from '../../components/menu/menu-item.model';
+import {
+  ABOVE_ALIGN_LEFT,
+  BELOW_ALIGN_LEFT,
+  BESIDE_RIGHT_BOTTOM,
+} from '../../components/menu/menu-positions';
 import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
@@ -21,10 +27,7 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
-import type { MenuItem } from 'primeng/api';
-import { AppVersion, VersionService } from '../../service/version.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildQuickActionNavItems, findPageNavItem } from '../navigation/nav-catalog';
 import {
@@ -46,17 +49,23 @@ function computeInitials(name: string | null | undefined, username: string | nul
   return parts[0][0].toUpperCase();
 }
 
-function hasAppUpdate(version: AppVersion | null): boolean {
-  return !!version && !!version.latest && version.latest !== version.current;
-}
-
 function detectSearchShortcut(userAgent: string): string {
   return /Mac|iPhone|iPad|iPod/i.test(userAgent) ? '⌘K' : 'Ctrl+K';
 }
 
 @Component({
   selector: 'app-sidebar',
-  imports: [AppSidebarSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip, NgTemplateOutlet],
+  imports: [
+    AppSidebarSectionComponent,
+    Popover,
+    UnifiedNotificationBoxComponent,
+    MenuComponent,
+    RouterLink,
+    TranslocoDirective,
+    TranslocoPipe,
+    Tooltip,
+    MenuTrigger,
+  ],
   templateUrl: './app.sidebar.component.html',
   styleUrl: './app.sidebar.component.scss',
 })
@@ -75,15 +84,10 @@ export class AppSidebarComponent {
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly seriesDataService = inject(SeriesDataService);
   private readonly authorService = inject(AuthorService);
-  private readonly versionService = inject(VersionService);
   private readonly t = inject(TranslocoService);
   private readonly renderer = inject(Renderer2);
 
   readonly currentUser = this.userService.currentUser;
-  readonly version = toSignal<AppVersion | null>(
-    this.versionService.getVersion().pipe(catchError(() => of(null))),
-    { initialValue: null },
-  );
   private readonly allAuthors = this.authorService.allAuthors;
   private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   private readonly translate = (key: string): string => this.t.translate(key);
@@ -125,7 +129,7 @@ export class AppSidebarComponent {
     ];
   });
 
-  readonly addMenuItems = computed<MenuItem[]>(() => {
+  readonly addMenuItems = computed<MenuEntry[]>(() => {
     this.activeLang();
     const user = this.currentUser();
     if (!user) return [];
@@ -137,7 +141,7 @@ export class AppSidebarComponent {
       uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
     });
     const bookdrop = findPageNavItem('bookdrop', this.translate, user.permissions);
-    return this.toMenuItems(bookdrop ? [...actions, bookdrop] : actions);
+    return this.toMenuEntries(bookdrop ? [...actions, bookdrop] : actions);
   });
 
   readonly userInitials = computed(() => {
@@ -145,30 +149,33 @@ export class AppSidebarComponent {
     return user ? computeInitials(user.name, user.username) : '';
   });
 
-  readonly hasUpdate = computed(() => hasAppUpdate(this.version()));
-  protected readonly addMenuOpen = signal(false);
   protected readonly notificationsOpen = signal(false);
-  protected readonly moreMenuOpen = signal(false);
 
-  readonly userMenuItems = computed<MenuItem[]>(() => {
+  protected readonly mobileMenuPositions = BELOW_ALIGN_LEFT;
+  protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
+  protected readonly footerMenuPositions = computed(() =>
+    this.layoutService.desktopSidebarCollapsed() ? BESIDE_RIGHT_BOTTOM : ABOVE_ALIGN_LEFT,
+  );
+
+  readonly userMenuItems = computed<MenuEntry[]>(() => {
     this.activeLang();
     const user = this.currentUser();
     if (!user) return [];
 
-    const items: MenuItem[] = [];
+    const items: MenuEntry[] = [];
 
     if (!user.permissions.demoUser) {
       items.push({
         label: this.t.translate('layout.menu.account'),
         icon: 'pi pi-user',
-        command: () => this.dialogLauncherService.openUserProfileDialog(),
+        action: () => this.dialogLauncherService.openUserProfileDialog(),
       });
     }
 
     items.push({
       label: this.t.translate('layout.menu.documentation'),
       icon: 'pi pi-info-circle',
-      command: () => window.open(DOCUMENTATION_URL, '_blank', 'noopener,noreferrer'),
+      action: () => window.open(DOCUMENTATION_URL, '_blank', 'noopener,noreferrer'),
     });
 
     items.push({ separator: true });
@@ -176,19 +183,19 @@ export class AppSidebarComponent {
     items.push({
       label: this.t.translate('layout.menu.logout'),
       icon: 'pi pi-sign-out',
-      command: () => this.authService.logout(),
+      action: () => this.authService.logout(),
     });
 
     return items;
   });
 
-  readonly moreMenuItems = computed<MenuItem[]>(() => {
+  readonly moreMenuItems = computed<MenuEntry[]>(() => {
     this.activeLang();
     const user = this.currentUser();
     if (!user) return [];
 
     const perms = user.permissions;
-    return this.toMenuItems([
+    return this.toMenuEntries([
       findPageNavItem('settings', this.translate, perms),
       findPageNavItem('libraryStats', this.translate, perms),
       findPageNavItem('readingStats', this.translate, perms),
@@ -204,9 +211,9 @@ export class AppSidebarComponent {
     this.layoutService.closeMobileSidebar();
   }
 
-  private readonly anchorByOverlay = new WeakMap<Menu | Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
+  private readonly anchorByOverlay = new WeakMap<Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
 
-  protected applySidebarOverlayPosition(overlay: Menu | Popover): void {
+  protected applySidebarOverlayPosition(overlay: Popover): void {
     const anchor = this.anchorByOverlay.get(overlay);
     const panel = overlay.container;
     if (!anchor || !panel) return;
@@ -243,18 +250,18 @@ export class AppSidebarComponent {
     }
   }
 
-  private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
-    return items.flatMap((item) =>
+  private toMenuEntries(items: readonly (NavItem | null | undefined)[]): MenuEntry[] {
+    return items.flatMap((item): MenuEntry[] =>
       item ? [{
         label: item.label,
         icon: item.icon ? `pi ${item.icon}` : undefined,
         routerLink: item.routerLink,
-        command: item.action ? () => item.action?.() : undefined,
+        action: item.action,
       }] : []
     );
   }
 
-  openSidebarOverlay(event: MouseEvent, overlay: Menu | Popover, placement: 'above' | 'below'): void {
+  openSidebarOverlay(event: MouseEvent, overlay: Popover, placement: 'above' | 'below'): void {
     if (event.currentTarget instanceof HTMLElement) {
       this.anchorByOverlay.set(overlay, { trigger: event.currentTarget, placement });
     }

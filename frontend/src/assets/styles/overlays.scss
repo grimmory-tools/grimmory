@@ -21,3 +21,90 @@
     top: 3.5rem;
   }
 }
+
+.menu-panel {
+  --menu-panel-padding: 4px;
+  --menu-panel-gap: 1px;
+  --menu-panel-min-width: 12rem;
+  --menu-panel-radius: 8px;
+  --menu-item-padding-block: 4px;
+  --menu-item-padding-inline: 10px;
+  --menu-item-min-height: 28px;
+  --menu-item-gap: 8px;
+  --menu-item-radius: 5px;
+  --menu-item-icon-size: 16px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--menu-panel-gap);
+  min-width: var(--menu-panel-min-width);
+  padding: var(--menu-panel-padding);
+  background: var(--page-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--menu-panel-radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+  color: var(--text-color);
+  font: inherit;
+  font-size: var(--text-base);
+}
+
+.menu-panel .menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--menu-item-gap);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--menu-item-min-height);
+  padding: var(--menu-item-padding-block) var(--menu-item-padding-inline);
+  border: 0;
+  background: transparent;
+  border-radius: var(--menu-item-radius);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-panel .menu-item:hover {
+  background-color: var(--surface-hover);
+}
+
+.menu-panel .menu-item:focus-visible {
+  background-color: var(--surface-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 50%, transparent);
+  outline: none;
+}
+
+.menu-panel .menu-item[aria-disabled="true"] {
+  color: var(--text-color-secondary);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.menu-panel .menu-item i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--menu-item-icon-size);
+  height: var(--menu-item-icon-size);
+  font-size: var(--text-base);
+  color: var(--surface-500);
+}
+
+.menu-panel .menu-separator {
+  margin: var(--menu-panel-padding) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .menu-panel {
+    --menu-panel-padding: 6px;
+    --menu-panel-gap: 2px;
+    --menu-item-padding-block: 8px;
+    --menu-item-padding-inline: 12px;
+    --menu-item-min-height: 40px;
+    --menu-item-gap: 10px;
+  }
+}
