@@ -43,7 +43,6 @@
       "save": "保存",
       "collapseSeries": "折叠系列",
       "gridColumns": "网格列数",
-      "gridItemSize": "网格项大小",
       "bookTypeOverlay": "图书类型标识",
       "noBooks": "此集合没有图书！",
       "failedLibrary": "加载书库图书失败！",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "清除已应用的筛选条件",
       "visibleColumns": "可见列",
-      "displaySettings": "显示设置",
       "selectSorting": "选择排序",
       "toggleView": "在网格视图和表格视图之间切换",
       "search": "搜索",

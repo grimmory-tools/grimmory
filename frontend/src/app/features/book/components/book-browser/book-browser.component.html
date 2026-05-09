@@ -104,7 +104,7 @@
               tabindex="0"
               (click)="seriesCollapseOverlay.toggle($event)"
               (keydown.enter)="seriesCollapseOverlay.toggle($event)"
-              [pTooltip]="t('tooltip.displaySettings')"
+              [pTooltip]="'common.displaySettings' | transloco"
               tooltipPosition="top">
               <i class="pi pi-cog"></i>
             </a>
@@ -122,7 +122,7 @@
                   </div>
                 </div>
                 <div class="display-settings-section">
-                  <span class="display-settings-label">{{ t('labels.gridItemSize') }}</span>
+                  <span class="display-settings-label">{{ 'common.cardSize' | transloco }}</span>
                   <app-grid-density-buttons
                     [smallerDisabled]="gridDensitySmallerDisabled()"
                     [largerDisabled]="gridDensityLargerDisabled()"

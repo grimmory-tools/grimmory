@@ -43,7 +43,6 @@
       "save": "Mentés",
       "collapseSeries": "Sorozatok összevonása",
       "gridColumns": "Rácsnézet oszlopai",
-      "gridItemSize": "Rácsnézet elem mérete",
       "bookTypeOverlay": "Fájlformátum overlay",
       "noBooks": "Ebben a gyűjteményben nem találhatóak könyvek!",
       "failedLibrary": "Nem sikerült betölteni a könyvtárban lévő könyveket!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Szűrők eltávolítása",
       "visibleColumns": "Látható oszlopok",
-      "displaySettings": "Megjelenítés beállításai",
       "selectSorting": "Rendezés kiválasztása",
       "toggleView": "Válts Rácsos és Táblázatos megjelenítés között",
       "search": "Keresés",

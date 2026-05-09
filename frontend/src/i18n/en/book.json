@@ -43,7 +43,6 @@
       "save": "Save",
       "collapseSeries": "Collapse series",
       "gridColumns": "Grid columns",
-      "gridItemSize": "Grid item size",
       "bookTypeOverlay": "File format overlay",
       "noBooks": "This collection has no books!",
       "failedLibrary": "Failed to load library's books!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Clear applied filters",
       "visibleColumns": "Visible columns",
-      "displaySettings": "Display settings",
       "selectSorting": "Select sorting",
       "toggleView": "Toggle between Grid and Table view",
       "search": "Search",

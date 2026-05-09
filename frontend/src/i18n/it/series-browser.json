@@ -6,7 +6,6 @@
   "booksRead": "libri letti",
   "noSeriesFound": "Nessuna serie corrisponde alla tua ricerca o ai filtri.",
   "noSeriesInCategory": "Nessuna serie trovata in questa categoria.",
-  "cardSize": "Dimensione scheda",
   "filters": {
     "all": "Tutte",
     "notStarted": "Non iniziate",
