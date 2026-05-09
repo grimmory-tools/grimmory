@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, ConnectedPosition } from '@angular/cdk/overlay';
 import { Menu as AriaMenu, MenuContent, MenuItem as AriaMenuItem } from '@angular/aria/menu';
 import { MenuEntry, MenuItem, isMenuSeparator } from './menu-item.model';
 import { SUBMENU_RIGHT } from './menu-positions';
 
-type OriginInput = CdkOverlayOrigin | ElementRef | HTMLElement;
+type OriginInput = HTMLElement | ElementRef;
 
 @Component({
   selector: 'app-menu',

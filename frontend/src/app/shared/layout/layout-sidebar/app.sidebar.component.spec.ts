@@ -20,7 +20,7 @@ import { LayoutService } from '../layout.service';
 
 import { AppSidebarComponent } from './app.sidebar.component';
 
-interface MenuOverlay {
+interface PopoverOverlay {
   container: HTMLElement;
   toggle: (event: MouseEvent) => void;
 }
@@ -134,10 +134,10 @@ describe('AppSidebarComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(100, 148, 40));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(overlay.toggle).toHaveBeenCalled();
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('92px');
@@ -149,10 +149,10 @@ describe('AppSidebarComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(220, 260, 24));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'below');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('268px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe('');
@@ -190,10 +190,10 @@ describe('AppSidebarComponent', () => {
     const container = document.createElement('div');
     Object.defineProperty(container, 'offsetWidth', { value: 120, configurable: true });
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('212px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe(`${window.innerWidth - 128}px`);
