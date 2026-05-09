@@ -524,30 +524,28 @@
               </div>
             }
 
-            @if (selectedReadStatus === ReadStatus.READ) {
+            @if (selectedReadStatus === ReadStatus.READ && book?.dateFinished) {
               <div class="metadata-item">
-                @if (book?.dateFinished) {
-                  <span class="metadata-key">{{ t('finishedOnLabel') }}</span>
-                  @if (!isEditingDateFinished) {
-                    <span class="metadata-value-group">
-                      <span class="metadata-value">{{ formatDate(book.dateFinished) }}</span>
-                      <i class="pi pi-pencil edit-icon" role="button" tabindex="0" (click)="toggleDateFinishedEdit(book)" (keydown.enter)="toggleDateFinishedEdit(book)"></i>
-                    </span>
-                  } @else {
-                    <span class="metadata-value-group">
-                      <p-datepicker
-                        [(ngModel)]="editDateFinished"
-                        dateFormat="dd-M-yy"
-                        size="small"
-                        [showIcon]="true"
-                        [iconDisplay]="'input'"
-                        appendTo="body"
-                        [style]="{ 'width': '125px', 'font-size': '12px' }">
-                      </p-datepicker>
-                      <p-button rounded icon="pi pi-check" size="small" severity="success" text (onClick)="saveDateFinished(book)" [pTooltip]="t('saveDate')"></p-button>
-                      <p-button rounded icon="pi pi-times" size="small" severity="danger" text (onClick)="cancelDateFinishedEdit()" [pTooltip]="'common.cancel' | transloco"></p-button>
-                    </span>
-                  }
+                <span class="metadata-key">{{ t('finishedOnLabel') }}</span>
+                @if (!isEditingDateFinished) {
+                  <span class="metadata-value-group">
+                    <span class="metadata-value">{{ formatDate(book.dateFinished) }}</span>
+                    <i class="pi pi-pencil edit-icon" role="button" tabindex="0" (click)="toggleDateFinishedEdit(book)" (keydown.enter)="toggleDateFinishedEdit(book)"></i>
+                  </span>
+                } @else {
+                  <span class="metadata-value-group">
+                    <p-datepicker
+                      [(ngModel)]="editDateFinished"
+                      dateFormat="dd-M-yy"
+                      size="small"
+                      [showIcon]="true"
+                      [iconDisplay]="'input'"
+                      appendTo="body"
+                      [style]="{ 'width': '125px', 'font-size': '12px' }">
+                    </p-datepicker>
+                    <p-button rounded icon="pi pi-check" size="small" severity="success" text (onClick)="saveDateFinished(book)" [pTooltip]="t('saveDate')"></p-button>
+                    <p-button rounded icon="pi pi-times" size="small" severity="danger" text (onClick)="cancelDateFinishedEdit()" [pTooltip]="'common.cancel' | transloco"></p-button>
+                  </span>
                 }
               </div>
             }
