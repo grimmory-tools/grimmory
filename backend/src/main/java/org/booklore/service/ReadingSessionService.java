@@ -103,6 +103,17 @@ public class ReadingSessionService {
         }
     }
 
+    private int getDuration(ReadingSessionRequest request) {
+        if (request.getDurationSeconds() == null) {
+            // We don't need to check if request start / end time are non-null because
+            // that's enforced by the request model.
+            Duration duration = request.getStartTime().until(request.getEndTime());
+            return Math.toIntExact(Math.abs(duration.getSeconds()));
+        }
+
+        return request.getDurationSeconds();
+    }
+
     @Transactional
     public void recordSession(ReadingSessionRequest request) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
@@ -116,13 +127,7 @@ public class ReadingSessionService {
             bookType = book.getPrimaryBookFile().getBookType();
         }
 
-        Integer durationSeconds = request.getDurationSeconds();
-        if (durationSeconds == null) {
-            // We don't need to check if request start / end time are non-null because
-            // that's enforced by the request model.
-            Duration duration = request.getStartTime().until(request.getEndTime());
-            durationSeconds = Math.toIntExact(Math.abs(duration.getSeconds()));
-        }
+        int durationSeconds = getDuration(request);
 
         String durationFormatted = request.getDurationFormatted();
         if (durationFormatted == null) {
