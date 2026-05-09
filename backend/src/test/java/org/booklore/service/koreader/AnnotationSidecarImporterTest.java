@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -92,7 +91,7 @@ class AnnotationSidecarImporterTest {
     void importAll_networkStorage_skips() {
         when(appProperties.isLocalStorage()).thenReturn(false);
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
-        assertEquals(0, result.booksScanned());
+        assertThat(result.booksScanned()).isZero();
         verifyNoInteractions(bookRepository);
     }
 
@@ -107,8 +106,8 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(1, result.booksScanned());
-        assertEquals(0, result.sidecarFiles());
+        assertThat(result.booksScanned()).isEqualTo(1);
+        assertThat(result.sidecarFiles()).isZero();
         verifyNoInteractions(annotationRepository);
     }
 
@@ -122,7 +121,7 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(0, result.sidecarFiles());
+        assertThat(result.sidecarFiles()).isZero();
         verifyNoInteractions(annotationRepository);
     }
 
@@ -138,7 +137,7 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(1, result.skipped());
+        assertThat(result.skipped()).isEqualTo(1);
         verify(annotationRepository, never()).save(any());
     }
 
@@ -158,16 +157,16 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(1, result.imported());
-        assertEquals(0, result.skipped());
+        assertThat(result.imported()).isEqualTo(1);
+        assertThat(result.skipped()).isZero();
         ArgumentCaptor<AnnotationEntity> cap = ArgumentCaptor.forClass(AnnotationEntity.class);
         verify(annotationRepository).save(cap.capture());
         AnnotationEntity saved = cap.getValue();
-        assertEquals("highlighted text", saved.getText());
-        assertEquals("my note", saved.getNote());
-        assertEquals("#FFFF00", saved.getColor());
-        assertEquals("highlight", saved.getStyle());
-        assertEquals("epubcfi(/6/2!/4/2/2:5)", saved.getCfi());
+        assertThat(saved.getText()).isEqualTo("highlighted text");
+        assertThat(saved.getNote()).isEqualTo("my note");
+        assertThat(saved.getColor()).isEqualTo("#FFFF00");
+        assertThat(saved.getStyle()).isEqualTo("highlight");
+        assertThat(saved.getCfi()).isEqualTo("epubcfi(/6/2!/4/2/2:5)");
     }
 
     @Test
@@ -183,8 +182,8 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(0, result.imported());
-        assertEquals(1, result.skipped());
+        assertThat(result.imported()).isZero();
+        assertThat(result.skipped()).isEqualTo(1);
         verify(annotationRepository, never()).save(any());
     }
 
@@ -205,8 +204,8 @@ class AnnotationSidecarImporterTest {
 
         AnnotationSidecarImporter.ImportResult result = importer.importAll();
 
-        assertEquals(0, result.imported());
-        assertEquals(1, result.skipped());
+        assertThat(result.imported()).isZero();
+        assertThat(result.skipped()).isEqualTo(1);
     }
 
     // ── filename helper ───────────────────────────────────────────────────────
@@ -216,26 +215,24 @@ class AnnotationSidecarImporterTest {
 
         @Test
         void extractUsername_normalFilename() {
-            assertEquals("alice", AnnotationSidecarImporter.extractUsernameFromFilename(
-                    "metadata.epub.alice.lua"));
+            assertThat(AnnotationSidecarImporter.extractUsernameFromFilename("metadata.epub.alice.lua"))
+                    .isEqualTo("alice");
         }
 
         @Test
         void extractUsername_usernameWithDots() {
-            assertEquals("first.last", AnnotationSidecarImporter.extractUsernameFromFilename(
-                    "metadata.epub.first.last.lua"));
+            assertThat(AnnotationSidecarImporter.extractUsernameFromFilename("metadata.epub.first.last.lua"))
+                    .isEqualTo("first.last");
         }
 
         @Test
         void extractUsername_wrongPrefix_returnsNull() {
-            assertNull(AnnotationSidecarImporter.extractUsernameFromFilename(
-                    "metadata.lua"));
+            assertThat(AnnotationSidecarImporter.extractUsernameFromFilename("metadata.lua")).isNull();
         }
 
         @Test
         void extractUsername_emptyUsername_returnsNull() {
-            assertNull(AnnotationSidecarImporter.extractUsernameFromFilename(
-                    "metadata.epub..lua"));
+            assertThat(AnnotationSidecarImporter.extractUsernameFromFilename("metadata.epub..lua")).isNull();
         }
     }
 

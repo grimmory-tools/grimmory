@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class SidecarAnnotationParserTest {
 
@@ -72,38 +71,38 @@ class SidecarAnnotationParserTest {
         void parse_fullSidecar_extractsMeta() {
             ParsedSidecar result = SidecarAnnotationParser.parse(FULL_SIDECAR);
 
-            assertNotNull(result);
-            assertEquals("alice", result.username());
-            assertEquals(7L, result.userId());
-            assertEquals(42L, result.bookId());
-            assertEquals(1, result.schemaVersion());
+            assertThat(result).isNotNull();
+            assertThat(result.username()).isEqualTo("alice");
+            assertThat(result.userId()).isEqualTo(7L);
+            assertThat(result.bookId()).isEqualTo(42L);
+            assertThat(result.schemaVersion()).isEqualTo(1);
         }
 
         @Test
         void parse_schemaVersionFromComment() {
             ParsedSidecar result = SidecarAnnotationParser.parse(FULL_SIDECAR);
-            assertEquals(1, result.schemaVersion());
+            assertThat(result.schemaVersion()).isEqualTo(1);
         }
 
         @Test
         void parse_noMeta_returnsNullFields() {
             ParsedSidecar result = SidecarAnnotationParser.parse(KOREADER_SIDECAR);
 
-            assertNotNull(result);
-            assertNull(result.username());
-            assertNull(result.userId());
-            assertNull(result.bookId());
-            assertNull(result.schemaVersion());
+            assertThat(result).isNotNull();
+            assertThat(result.username()).isNull();
+            assertThat(result.userId()).isNull();
+            assertThat(result.bookId()).isNull();
+            assertThat(result.schemaVersion()).isNull();
         }
 
         @Test
         void parse_nullInput_returnsNull() {
-            assertNull(SidecarAnnotationParser.parse(null));
+            assertThat(SidecarAnnotationParser.parse(null)).isNull();
         }
 
         @Test
         void parse_blankInput_returnsNull() {
-            assertNull(SidecarAnnotationParser.parse("   "));
+            assertThat(SidecarAnnotationParser.parse("   ")).isNull();
         }
     }
 
@@ -113,43 +112,43 @@ class SidecarAnnotationParserTest {
         @Test
         void parse_fullSidecar_extractsOneHighlight() {
             ParsedSidecar result = SidecarAnnotationParser.parse(FULL_SIDECAR);
-            assertEquals(1, result.highlights().size());
+            assertThat(result.highlights()).hasSize(1);
         }
 
         @Test
         void parse_fullSidecar_koreaderFields() {
             ParsedHighlight h = SidecarAnnotationParser.parse(FULL_SIDECAR).highlights().get(0);
 
-            assertEquals("/body/DocFragment[1]/body/p/text().5", h.pos0());
-            assertEquals("/body/DocFragment[1]/body/p/text().20", h.pos1());
-            assertEquals("highlighted text", h.text());
-            assertEquals("Chapter One", h.chapter());
-            assertEquals("lighten", h.drawer());
-            assertEquals("2024-01-15 10:30:00", h.datetime());
+            assertThat(h.pos0()).isEqualTo("/body/DocFragment[1]/body/p/text().5");
+            assertThat(h.pos1()).isEqualTo("/body/DocFragment[1]/body/p/text().20");
+            assertThat(h.text()).isEqualTo("highlighted text");
+            assertThat(h.chapter()).isEqualTo("Chapter One");
+            assertThat(h.drawer()).isEqualTo("lighten");
+            assertThat(h.datetime()).isEqualTo("2024-01-15 10:30:00");
         }
 
         @Test
         void parse_fullSidecar_bookloreExtensionFields() {
             ParsedHighlight h = SidecarAnnotationParser.parse(FULL_SIDECAR).highlights().get(0);
 
-            assertEquals(42L, h.bookloreId());
-            assertEquals("#FFFF00", h.color());
-            assertEquals("highlight", h.style());
-            assertEquals("a personal note", h.note());
-            assertEquals(3L, h.bookloreVersion());
+            assertThat(h.bookloreId()).isEqualTo(42L);
+            assertThat(h.color()).isEqualTo("#FFFF00");
+            assertThat(h.style()).isEqualTo("highlight");
+            assertThat(h.note()).isEqualTo("a personal note");
+            assertThat(h.bookloreVersion()).isEqualTo(3L);
         }
 
         @Test
         void parse_koreaderSidecar_noExtensionFields() {
             ParsedHighlight h = SidecarAnnotationParser.parse(KOREADER_SIDECAR).highlights().get(0);
 
-            assertEquals("/body/DocFragment[2]/body/p/text().0", h.pos0());
-            assertEquals("/body/DocFragment[2]/body/p/text().10", h.pos1());
-            assertEquals("underscore", h.drawer());
-            assertNull(h.bookloreId());
-            assertNull(h.color());
-            assertNull(h.style());
-            assertNull(h.note());
+            assertThat(h.pos0()).isEqualTo("/body/DocFragment[2]/body/p/text().0");
+            assertThat(h.pos1()).isEqualTo("/body/DocFragment[2]/body/p/text().10");
+            assertThat(h.drawer()).isEqualTo("underscore");
+            assertThat(h.bookloreId()).isNull();
+            assertThat(h.color()).isNull();
+            assertThat(h.style()).isNull();
+            assertThat(h.note()).isNull();
         }
 
         @Test
@@ -175,9 +174,9 @@ class SidecarAnnotationParserTest {
                     """;
 
             ParsedSidecar result = SidecarAnnotationParser.parse(lua);
-            assertEquals(2, result.highlights().size());
-            assertEquals("first", result.highlights().get(0).text());
-            assertEquals("second", result.highlights().get(1).text());
+            assertThat(result.highlights()).hasSize(2);
+            assertThat(result.highlights().get(0).text()).isEqualTo("first");
+            assertThat(result.highlights().get(1).text()).isEqualTo("second");
         }
 
         @Test
@@ -211,7 +210,7 @@ class SidecarAnnotationParserTest {
                     """;
 
             ParsedHighlight h = SidecarAnnotationParser.parse(lua).highlights().get(0);
-            assertEquals("text with \"quotes\" and \\ backslash", h.text());
+            assertThat(h.text()).isEqualTo("text with \"quotes\" and \\ backslash");
         }
     }
 
