@@ -31,7 +31,7 @@ export class MenuComponent {
 
   protected onSelected(item: MenuItem): void {
     if (item.routerLink) {
-      this.router.navigate(item.routerLink as readonly unknown[]);
+      this.router.navigate(item.routerLink);
       return;
     }
     item.action?.();
