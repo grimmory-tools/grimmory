@@ -23,6 +23,8 @@
   "discard": "Förkasta",
   "review": "Granska",
   "libraryPathInaccessible": "Bibliotekssökvägen är otillgänglig",
+  "displaySettings": "Visningsinställningar",
+  "cardSize": "Kortstorlek",
   "decreaseCardSize": "",
   "increaseCardSize": "",
   "cardSizeControls": "",

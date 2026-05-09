@@ -23,6 +23,8 @@
   "discard": "Отменить изменения",
   "review": "Просмотреть",
   "libraryPathInaccessible": "",
+  "displaySettings": "Настройки отображения",
+  "cardSize": "Размер карточки",
   "decreaseCardSize": "",
   "increaseCardSize": "",
   "cardSizeControls": "",

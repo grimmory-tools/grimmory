@@ -43,7 +43,6 @@
       "save": "Guardar",
       "collapseSeries": "Contraer series",
       "gridColumns": "Columnas de cuadrícula",
-      "gridItemSize": "Tamaño de elemento",
       "bookTypeOverlay": "Indicador de formato de archivo",
       "noBooks": "¡Esta colección no tiene libros!",
       "failedLibrary": "¡Error al cargar los libros de la biblioteca!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Limpiar filtros aplicados",
       "visibleColumns": "Columnas visibles",
-      "displaySettings": "Ajustes de visualización",
       "selectSorting": "Seleccionar ordenamiento",
       "toggleView": "Alternar entre vista de cuadrícula y tabla",
       "search": "Buscar",
