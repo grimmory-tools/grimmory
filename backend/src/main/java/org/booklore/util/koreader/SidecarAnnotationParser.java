@@ -54,6 +54,16 @@ public class SidecarAnnotationParser {
             Long bookloreVersion
     ) {}
 
+    /**
+     * Parses a KOReader annotation sidecar Lua string into structured data.
+     *
+     * <p>Handles both native KOReader sidecars (no {@code booklore} blocks) and
+     * Grimmory-enhanced sidecars. Highlight entries that cannot be parsed are
+     * skipped with a warning rather than failing the whole file.
+     *
+     * @param lua the raw Lua source of the sidecar file; may be {@code null}
+     * @return the parsed sidecar, or {@code null} if {@code lua} is null or blank
+     */
     public static ParsedSidecar parse(String lua) {
         if (lua == null || lua.isBlank()) {
             return null;

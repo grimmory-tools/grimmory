@@ -1,6 +1,8 @@
 import {defineConfig} from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
 
+process.env['TZ'] = 'UTC';
+
 const shouldEnforceCoverageGate = process.env['COVERAGE_GATE'] === '1';
 
 export default defineConfig({

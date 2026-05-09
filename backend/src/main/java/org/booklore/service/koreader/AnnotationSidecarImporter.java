@@ -54,6 +54,13 @@ public class AnnotationSidecarImporter {
         }
     }
 
+    /**
+     * Scans all books in the library for KOReader annotation sidecar files and imports
+     * any annotations not already present in the database.
+     *
+     * @return a summary of how many books were scanned and how many annotations were
+     *         imported, skipped (duplicates or unknown user), or failed
+     */
     public ImportResult importAll() {
         if (!appProperties.isLocalStorage()) {
             log.info("Sidecar import skipped: local storage not configured");
@@ -196,6 +203,14 @@ public class AnnotationSidecarImporter {
         return true;
     }
 
+    /**
+     * Extracts the username from a sidecar filename of the form
+     * {@code metadata.epub.<username>.lua}.
+     *
+     * @param filename the sidecar filename (basename only, no directory path)
+     * @return the extracted username, or {@code null} if the filename does not match
+     *         the expected pattern or the username segment is empty
+     */
     static String extractUsernameFromFilename(String filename) {
         // metadata.epub.<username>.lua
         if (!filename.startsWith("metadata.epub.") || !filename.endsWith(".lua")) {
