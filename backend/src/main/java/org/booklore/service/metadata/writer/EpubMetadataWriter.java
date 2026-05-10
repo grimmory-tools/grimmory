@@ -530,42 +530,186 @@ public class EpubMetadataWriter implements MetadataWriter {
             }
 
             // Update all references in the EPUB to the new cover filename
-            updateInternalReferences(tempDir, decodedCoverHref, newDecodedHref);
+            updateInternalReferences(tempDir, currentCoverFilePath, newCoverFilePath);
         }
 
         Files.createDirectories(newCoverFilePath.getParent());
         Files.write(newCoverFilePath, coverData);
     }
 
-    private void updateInternalReferences(Path tempDir, String oldHref, String newHref) throws IOException {
-        String oldFilename = FilenameUtils.getName(oldHref);
-        String newFilename = FilenameUtils.getName(newHref);
-
-        if (Objects.equals(oldFilename, newFilename)) {
+    private void updateInternalReferences(Path tempDir, Path oldCoverPath, Path newCoverPath) throws IOException {
+        if (oldCoverPath.equals(newCoverPath)) {
             return;
         }
 
-        log.info("Updating internal references from {} to {}", oldFilename, newFilename);
+        log.info("Updating internal references from {} to {}", oldCoverPath, newCoverPath);
 
         try (var pathStream = Files.walk(tempDir)) {
-            pathStream
+            List<Path> files = pathStream
                 .filter(Files::isRegularFile)
                 .filter(path -> {
-                    String name = path.toString().toLowerCase();
+                    String name = path.getFileName().toString().toLowerCase();
                     return name.endsWith(".xhtml") || name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".svg") || name.endsWith(".opf");
                 })
-                .forEach(path -> {
-                    try {
-                        String content = Files.readString(path, StandardCharsets.UTF_8);
-                        if (content.contains(oldFilename)) {
-                            String newContent = content.replace(oldFilename, newFilename);
-                            Files.writeString(path, newContent, StandardCharsets.UTF_8);
-                            log.debug("Updated references in file: {}", path);
+                .toList();
+
+            for (Path file : files) {
+                updateReferencesInFile(file, oldCoverPath, newCoverPath);
+            }
+        }
+    }
+
+    private void updateReferencesInFile(Path file, Path oldCoverPath, Path newCoverPath) throws IOException {
+        String name = file.getFileName().toString().toLowerCase();
+        if (name.endsWith(".css")) {
+            updateCssReferences(file, oldCoverPath, newCoverPath);
+        } else {
+            updateXmlReferences(file, oldCoverPath, newCoverPath);
+        }
+    }
+
+    private void updateXmlReferences(Path file, Path oldCoverPath, Path newCoverPath) throws IOException {
+        try {
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+            Document doc = builder.parse(file.toFile());
+            boolean changed = false;
+
+            String[] attrs = {"src", "href", "xlink:href", "poster"};
+            NodeList allElements = doc.getElementsByTagName("*");
+            for (int i = 0; i < allElements.getLength(); i++) {
+                Element el = (Element) allElements.item(i);
+                for (String attr : attrs) {
+                    if (el.hasAttribute(attr)) {
+                        String val = el.getAttribute(attr);
+                        if (isReferenceTo(file, val, oldCoverPath)) {
+                            String newRelPath = getRelativeReference(file, newCoverPath, val.contains("%"));
+                            el.setAttribute(attr, newRelPath);
+                            changed = true;
                         }
-                    } catch (IOException e) {
-                        log.warn("Failed to update references in file {}: {}", path, e.getMessage());
+                    } else if (attr.contains(":")) {
+                        // Handle namespaced attributes like xlink:href
+                        String ns = "http://www.w3.org/1999/xlink";
+                        String localName = attr.substring(attr.indexOf(":") + 1);
+                        if (el.hasAttributeNS(ns, localName)) {
+                            String val = el.getAttributeNS(ns, localName);
+                            if (isReferenceTo(file, val, oldCoverPath)) {
+                                String newRelPath = getRelativeReference(file, newCoverPath, val.contains("%"));
+                                el.setAttributeNS(ns, attr, newRelPath);
+                                changed = true;
+                            }
+                        }
                     }
-                });
+                }
+            }
+
+            if (changed) {
+                saveXmlDocument(doc, file);
+                log.debug("Updated XML references in file: {}", file);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse XML file {} for reference update, falling back to regex: {}", file, e.getMessage());
+            updateReferencesRegex(file, oldCoverPath, newCoverPath);
+        }
+    }
+
+    private void updateCssReferences(Path file, Path oldCoverPath, Path newCoverPath) throws IOException {
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        String updatedContent = updateReferencesRegexString(content, file, oldCoverPath, newCoverPath);
+        if (!content.equals(updatedContent)) {
+            Files.writeString(file, updatedContent, StandardCharsets.UTF_8);
+            log.debug("Updated CSS references in file: {}", file);
+        }
+    }
+
+    private void updateReferencesRegex(Path file, Path oldCoverPath, Path newCoverPath) throws IOException {
+        String content = Files.readString(file, StandardCharsets.UTF_8);
+        String updatedContent = updateReferencesRegexString(content, file, oldCoverPath, newCoverPath);
+        if (!content.equals(updatedContent)) {
+            Files.writeString(file, updatedContent, StandardCharsets.UTF_8);
+            log.debug("Updated references (via regex) in file: {}", file);
+        }
+    }
+
+    private String updateReferencesRegexString(String content, Path file, Path oldCoverPath, Path newCoverPath) {
+        // Regex for src="..." href="..." url(...) etc.
+        // Group 1: attribute name
+        // Group 2: quote for attribute
+        // Group 3: attribute URI
+        // Group 4: quote for url()
+        // Group 5: url() URI
+        Pattern pattern = Pattern.compile("(?i)\\b(src|href|poster|xlink:href)\\s*=\\s*(['\"]?)([^'\" >]+)\\2|url\\s*\\(\\s*(['\"]?)([^'\" \\)]+)\\4\\s*\\)");
+        StringBuilder sb = new StringBuilder();
+        var matcher = pattern.matcher(content);
+        int lastEnd = 0;
+        while (matcher.find()) {
+            sb.append(content, lastEnd, matcher.start());
+            String attrName = matcher.group(1);
+            String quote = matcher.group(2) != null ? matcher.group(2) : (matcher.group(4) != null ? matcher.group(4) : "");
+            String uri = matcher.group(1) != null ? matcher.group(3) : matcher.group(5);
+
+            if (uri != null && isReferenceTo(file, uri, oldCoverPath)) {
+                String newRelPath = getRelativeReference(file, newCoverPath, uri.contains("%"));
+                if (attrName != null) {
+                    sb.append(attrName).append("=").append(quote).append(newRelPath).append(quote);
+                } else {
+                    sb.append("url(").append(quote).append(newRelPath).append(quote).append(")");
+                }
+            } else {
+                sb.append(matcher.group());
+            }
+            lastEnd = matcher.end();
+        }
+        sb.append(content.substring(lastEnd));
+        return sb.toString();
+    }
+
+    private boolean isReferenceTo(Path baseFile, String reference, Path targetFile) {
+        try {
+            if (reference.startsWith("http:") || reference.startsWith("https:") || reference.startsWith("data:")) {
+                return false;
+            }
+            String decoded = URLDecoder.decode(reference, StandardCharsets.UTF_8);
+            Path baseDir = baseFile.getParent();
+            Path resolved;
+            if (decoded.startsWith("/")) {
+                // In some EPUBs, references might start with / to mean root of the ZIP
+                // Find the tempDir root
+                Path root = baseFile;
+                while (root.getParent() != null && !Files.exists(root.resolve("mimetype"))) {
+                    root = root.getParent();
+                }
+                resolved = root.resolve(decoded.substring(1)).normalize();
+            } else {
+                resolved = baseDir.resolve(decoded).normalize();
+            }
+            return resolved.equals(targetFile);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String getRelativeReference(Path baseFile, Path targetFile, boolean encode) {
+        Path rel = baseFile.getParent().relativize(targetFile);
+        String s = rel.toString().replace(File.separatorChar, '/');
+        if (encode) {
+            return URLEncoder.encode(s, StandardCharsets.UTF_8).replace("+", "%20").replace("%2F", "/");
+        }
+        return s;
+    }
+
+    private void saveXmlDocument(Document doc, Path file) throws Exception {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        if (doc.getDoctype() != null) {
+            String publicId = doc.getDoctype().getPublicId();
+            String systemId = doc.getDoctype().getSystemId();
+            if (publicId != null) transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, publicId);
+            if (systemId != null) transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, systemId);
+        }
+        try (OutputStream out = Files.newOutputStream(file)) {
+            transformer.transform(new DOMSource(doc), new StreamResult(out));
         }
     }
 

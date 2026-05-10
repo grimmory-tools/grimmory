@@ -722,5 +722,113 @@ class EpubMetadataWriterTest {
                 (byte) 0xAE, 0x42, 0x60, (byte) 0x82
         };
     }
+
+    @Nested
+    @DisplayName("Cover Rewrite Tests")
+    class CoverRewriteTests {
+        @Test
+        @DisplayName("Should rewrite cover references in XHTML and CSS when cover extension changes")
+        void replaceCover_rewritesReferences() throws IOException {
+            // 1. Create an EPUB with a JPEG cover and references to it
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Test Book</dc:title>
+                            <meta name="cover" content="cover-image"/>
+                        </metadata>
+                        <manifest>
+                            <item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
+                            <item id="chapter1" href="text/chapter1.xhtml" media-type="application/xhtml+xml"/>
+                            <item id="style" href="styles/main.css" media-type="text/css"/>
+                        </manifest>
+                        <spine>
+                            <itemref idref="chapter1"/>
+                        </spine>
+                    </package>
+                    """;
+
+            String xhtmlContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <img src="../images/cover.jpg" alt="cover"/>
+                        <!-- Test with encoded reference -->
+                        <img src="../images/cover%2Ejpg" alt="cover encoded"/>
+                        <!-- Test with absolute path within EPUB (relative to OEBPS root) -->
+                        <img src="/OEBPS/images/cover.jpg" alt="cover absolute"/>
+                    </body>
+                    </html>
+                    """;
+
+            String cssContent = """
+                    body {
+                        background-image: url('../images/cover.jpg');
+                    }
+                    """;
+
+            File epubFile = tempDir.resolve("test_rewrite.epub").toFile();
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epubFile))) {
+                zos.putNextEntry(new ZipEntry("mimetype"));
+                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
+                zos.write("""
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                            <rootfiles>
+                                <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+                            </rootfiles>
+                        </container>
+                        """.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("OEBPS/content.opf"));
+                zos.write(opfContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("OEBPS/images/cover.jpg"));
+                zos.write(new byte[]{1, 2, 3});
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("OEBPS/text/chapter1.xhtml"));
+                zos.write(xhtmlContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("OEBPS/styles/main.css"));
+                zos.write(cssContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+            }
+
+            bookEntity.getPrimaryBookFile().setFileName("test_rewrite.epub");
+
+            // 2. Replace cover with a WebP image
+            byte[] webpImage = new byte[]{'R', 'I', 'F', 'F', 32, 0, 0, 0, 'W', 'E', 'B', 'P', 'V', 'P', '8', ' '};
+            MultipartFile multipartFile = new MockMultipartFile("cover.webp", "cover.webp", "image/webp", webpImage);
+
+            writer.replaceCoverImageFromUpload(bookEntity, multipartFile);
+
+            // 3. Verify references are updated
+            try (ZipFile zf = new ZipFile(epubFile)) {
+                // Check OPF
+                String opf = readOpfContent(epubFile);
+                assertThat(opf).contains("images/cover.webp");
+                assertThat(opf).contains("image/webp");
+
+                // Check XHTML
+                ZipEntry xhtmlEntry = zf.getEntry("OEBPS/text/chapter1.xhtml");
+                String xhtml = new String(zf.getInputStream(xhtmlEntry).readAllBytes(), StandardCharsets.UTF_8);
+                assertThat(xhtml).contains("cover.webp");
+                assertThat(xhtml).doesNotContain("cover.jpg");
+
+                // Check CSS
+                ZipEntry cssEntry = zf.getEntry("OEBPS/styles/main.css");
+                String css = new String(zf.getInputStream(cssEntry).readAllBytes(), StandardCharsets.UTF_8);
+                assertThat(css).contains("cover.webp");
+                assertThat(css).doesNotContain("cover.jpg");
+            }
+        }
+    }
 }
 
