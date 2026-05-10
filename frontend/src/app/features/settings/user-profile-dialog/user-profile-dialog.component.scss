@@ -137,10 +137,11 @@
   .field-input {
     width: 100%;
 
-    &:disabled {
-      background-color: var(--surface-100);
+    &.p-inputtext:disabled {
+      background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%) !important;
       color: var(--text-color-secondary);
-      opacity: 0.6;
+      -webkit-text-fill-color: var(--text-color-secondary);
+      opacity: 1;
       cursor: not-allowed;
     }
   }
