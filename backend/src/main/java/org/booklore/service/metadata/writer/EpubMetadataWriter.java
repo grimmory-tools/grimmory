@@ -529,12 +529,43 @@ public class EpubMetadataWriter implements MetadataWriter {
                 Files.delete(currentCoverFilePath);
             }
 
+            // Update guide/reference hrefs (and any other in-OPF refs) in memory so the
+            // later transformer.transform of opfDoc preserves them.
+            updateOpfHrefReferences(opfDoc, opfPath, currentCoverFilePath, newCoverFilePath);
+
             // Update all references in the EPUB to the new cover filename
             updateInternalReferences(tempDir, currentCoverFilePath, newCoverFilePath);
         }
 
         Files.createDirectories(newCoverFilePath.getParent());
         Files.write(newCoverFilePath, coverData);
+    }
+
+    private void updateOpfHrefReferences(Document opfDoc, Path opfPath, Path oldCoverPath, Path newCoverPath) {
+        String[] attrs = {"src", "href", "xlink:href", "poster"};
+        NodeList allElements = opfDoc.getElementsByTagName("*");
+        for (int i = 0; i < allElements.getLength(); i++) {
+            Element el = (Element) allElements.item(i);
+            for (String attr : attrs) {
+                if (el.hasAttribute(attr)) {
+                    String val = el.getAttribute(attr);
+                    if (isReferenceTo(opfPath, val, oldCoverPath)) {
+                        String newRelPath = getRelativeReference(opfPath, newCoverPath, val.contains("%"));
+                        el.setAttribute(attr, newRelPath);
+                    }
+                } else if (attr.contains(":")) {
+                    String ns = "http://www.w3.org/1999/xlink";
+                    String localName = attr.substring(attr.indexOf(":") + 1);
+                    if (el.hasAttributeNS(ns, localName)) {
+                        String val = el.getAttributeNS(ns, localName);
+                        if (isReferenceTo(opfPath, val, oldCoverPath)) {
+                            String newRelPath = getRelativeReference(opfPath, newCoverPath, val.contains("%"));
+                            el.setAttributeNS(ns, attr, newRelPath);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void updateInternalReferences(Path tempDir, Path oldCoverPath, Path newCoverPath) throws IOException {
@@ -549,7 +580,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 .filter(Files::isRegularFile)
                 .filter(path -> {
                     String name = path.getFileName().toString().toLowerCase();
-                    return name.endsWith(".xhtml") || name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".svg") || name.endsWith(".opf");
+                    return name.endsWith(".xhtml") || name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".svg");
                 })
                 .toList();
 
