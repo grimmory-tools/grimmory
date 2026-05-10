@@ -57,16 +57,36 @@ function detectSearchShortcut(userAgent: string): string {
   return /Mac|iPhone|iPad|iPod/i.test(userAgent) ? '⌘K' : 'Ctrl+K';
 }
 
+type SemanticVersion = readonly [number, number, number];
+
+function parseSemanticVersion(version: string | undefined): SemanticVersion | null {
+  const match = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(version?.trim() ?? '');
+  return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
+}
+
 function formatVersionLabel(version: string): string {
   const value = version.trim();
   if (!value) return 'unknown';
-  if (value === 'development') return 'dev';
-  if (value === 'unknown' || value.startsWith('v')) return value;
-  return `v${value}`;
+  const semanticVersion = parseSemanticVersion(value);
+  return semanticVersion ? `v${semanticVersion.join('.')}` : value;
 }
 
 function isSemanticVersion(version: string | undefined): boolean {
-  return /^v\d+\.\d+\.\d+$/.test(version ?? '');
+  return parseSemanticVersion(version) !== null;
+}
+
+function isNewerVersion(latest: string | undefined, current: string | undefined): boolean {
+  const latestVersion = parseSemanticVersion(latest);
+  const currentVersion = parseSemanticVersion(current);
+  if (!latestVersion || !currentVersion) return false;
+
+  for (let index = 0; index < latestVersion.length; index++) {
+    if (latestVersion[index] !== currentVersion[index]) {
+      return latestVersion[index] > currentVersion[index];
+    }
+  }
+
+  return false;
 }
 
 @Component({
@@ -117,7 +137,7 @@ export class AppSidebarComponent {
     const version = this.versionInfo();
     return isSemanticVersion(version?.current)
       && isSemanticVersion(version?.latest)
-      && version?.latest !== version?.current;
+      && isNewerVersion(version?.latest, version?.current);
   });
   private readonly translate = (key: string): string => this.t.translate(key);
   protected readonly userPopoverOpen = signal(false);
