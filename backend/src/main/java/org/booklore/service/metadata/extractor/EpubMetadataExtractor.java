@@ -605,7 +605,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             throw new IOException("Empty full-path in container.xml");
         }
 
-        return opfPath;
+        return URLDecoder.decode(opfPath, StandardCharsets.UTF_8);
     }
 
     private Document parseXmlFromContainer(EpubContainer container, String path) throws IOException, ParserConfigurationException, SAXException {
