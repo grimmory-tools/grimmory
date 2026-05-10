@@ -1205,6 +1205,45 @@ class EpubMetadataExtractorTest {
     }
 
     @Nested
+    class AlternativeOpfNames {
+
+        @Test
+        void handlesOpfAtNonStandardPath() throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title>Package OPF</dc:title>
+                    """);
+            // Mimic user's container.xml with single quotes
+            String containerXml = """
+                    <?xml version='1.0' encoding='utf-8'?>
+                    <container xmlns='urn:oasis:names:tc:opendocument:xmlns:container' version='1.0'>
+                    <rootfiles>
+                    <rootfile full-path='OEBPS/package.opf' media-type='application/oebps-package+xml'/>
+                    </rootfiles>
+                    </container>""";
+            
+            File epub = tempDir.resolve("package-opf.epub").toFile();
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
+                zos.putNextEntry(new ZipEntry("mimetype"));
+                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
+                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+
+                zos.putNextEntry(new ZipEntry("OEBPS/package.opf"));
+                zos.write(opf.getBytes(StandardCharsets.UTF_8));
+                zos.closeEntry();
+            }
+
+            BookMetadata metadata = extractor.extractMetadata(epub);
+
+            assertThat(metadata).isNotNull();
+            assertThat(metadata.getTitle()).isEqualTo("Package OPF");
+        }
+    }
+
+    @Nested
     class FullMetadataIntegration {
 
         @Test
