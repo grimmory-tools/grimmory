@@ -53,6 +53,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -323,11 +324,11 @@ class BookDropServiceTest {
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.walk(any(Path.class))).thenReturn(java.util.stream.Stream.of(tempDir));
+            filesMock.when(() -> Files.walk(any(Path.class))).thenReturn(Stream.of(tempDir));
             filesMock.when(() -> Files.isDirectory(any(Path.class))).thenReturn(false);
             filesMock.when(() -> Files.isRegularFile(any(Path.class))).thenReturn(true);
             filesMock.when(() -> Files.deleteIfExists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.list(any(Path.class))).thenReturn(java.util.stream.Stream.empty());
+            filesMock.when(() -> Files.list(any(Path.class))).thenReturn(Stream.empty());
 
             bookDropService.discardSelectedFiles(true, excludedIds, null);
 
@@ -348,11 +349,11 @@ class BookDropServiceTest {
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.walk(any(Path.class))).thenReturn(java.util.stream.Stream.of(tempDir));
+            filesMock.when(() -> Files.walk(any(Path.class))).thenReturn(Stream.of(tempDir));
             filesMock.when(() -> Files.isDirectory(any(Path.class))).thenReturn(false);
             filesMock.when(() -> Files.isRegularFile(any(Path.class))).thenReturn(true);
             filesMock.when(() -> Files.deleteIfExists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.list(any(Path.class))).thenReturn(java.util.stream.Stream.empty());
+            filesMock.when(() -> Files.list(any(Path.class))).thenReturn(Stream.empty());
 
             bookDropService.discardSelectedFiles(false, null, selectedIds);
 

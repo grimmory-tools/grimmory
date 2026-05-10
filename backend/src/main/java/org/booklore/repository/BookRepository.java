@@ -143,6 +143,10 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllFullBooks();
 
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "library", "bookFiles"})
+    @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false)")
+    List<BookEntity> findAllFullBooksWithFiles();
+
     @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) AND b.id > :afterId ORDER BY b.id")
     List<BookEntity> findBooksForMigrationBatch(@Param("afterId") long afterId, Pageable pageable);
 

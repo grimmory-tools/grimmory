@@ -1,5 +1,5 @@
 <div
-  class="menu-item-container"
+  class="sidebar-item-container"
   [class.active-route-container]="isRouteActive()"
   [class.menu-open]="menuOpen()"
 >
@@ -8,27 +8,32 @@
   @if (currentItem.action) {
     <button
       type="button"
-      class="menu-item-link"
+      class="sidebar-item-link"
       [pTooltip]="currentItem.label"
       [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
       tooltipPosition="right"
       (click)="runAction($event)"
     >
-      <span class="menu-item-chrome">
-        <span class="menu-item-leading">
+      <span class="sidebar-item-chrome">
+        <span class="sidebar-item-leading">
           <app-icon-display
             [icon]="getIconSelection()"
-            iconClass="layout-menuitem-icon"
+            iconClass="layout-sidebar-item-icon"
             size="18px"
             [displayEmpty]="true"
           ></app-icon-display>
         </span>
-        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+        <span class="layout-sidebar-item-text sidebar-item-text">
+          <span class="sidebar-item-label">{{ currentItem.label }}</span>
+          @if (currentItem.bookCount) {
+            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          }
+        </span>
       </span>
     </button>
   } @else if (currentItem.routerLink) {
     <a
-      class="menu-item-link"
+      class="sidebar-item-link"
       [class.active-route]="isRouteActive()"
       [attr.aria-current]="isRouteActive() ? 'page' : null"
       [routerLink]="currentItem.routerLink"
@@ -37,8 +42,8 @@
       tooltipPosition="right"
       tabindex="0"
     >
-      <span class="menu-item-chrome">
-        <span class="menu-item-leading">
+      <span class="sidebar-item-chrome">
+        <span class="sidebar-item-leading">
           @if (currentItem.unhealthy) {
             <span
               class="library-health-dot"
@@ -50,17 +55,22 @@
           }
           <app-icon-display
             [icon]="getIconSelection()"
-            iconClass="layout-menuitem-icon"
+            iconClass="layout-sidebar-item-icon"
             size="18px"
             [displayEmpty]="true"
           ></app-icon-display>
         </span>
-        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+        <span class="layout-sidebar-item-text sidebar-item-text">
+          <span class="sidebar-item-label">{{ currentItem.label }}</span>
+          @if (currentItem.bookCount) {
+            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          }
+        </span>
       </span>
     </a>
   }
 
-  <span class="menu-item-end-content">
+  <span class="sidebar-item-end-content">
     @if (shouldShowContextMenuButton()) {
       <button
         type="button"
@@ -74,9 +84,17 @@
           <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
         </span>
       </button>
-      <p-menu #entitymenu [model]="currentItem.contextMenuItems" [popup]="true" appendTo="body" (onHide)="closeContextMenu()"></p-menu>
+      <p-menu
+        #entitymenu
+        [model]="currentItem.contextMenuItems"
+        [popup]="true"
+        appendTo="body"
+        styleClass="sidebar-entity-menu"
+        (onShow)="positionContextMenu(entitymenu)"
+        (onHide)="closeContextMenu()"
+      ></p-menu>
     } @else if (currentItem.bookCount) {
-      <p class="book-count">{{ formatCount(currentItem.bookCount) }}</p>
+      <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
     }
   </span>
 </div>

@@ -38,6 +38,10 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.util.function.Consumer;
+import org.assertj.core.api.Assertions;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -53,7 +57,7 @@ class FileMoveServiceTest {
     @Mock private BookMapper bookMapper;
     @Mock private NotificationService notificationService;
     @Mock private EntityManager entityManager;
-    @Mock private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
+    @Mock private TransactionTemplate transactionTemplate;
     @Mock private SidecarMetadataWriter sidecarMetadataWriter;
 
     private FileMoveService service;
@@ -65,7 +69,7 @@ class FileMoveServiceTest {
                                 LibraryRepository libraryRepository, FileMoveHelper fileMoveHelper,
                                 MonitoringRegistrationService monitoringRegistrationService, LibraryMapper libraryMapper,
                                 BookMapper bookMapper, NotificationService notificationService, EntityManager entityManager,
-                                org.springframework.transaction.support.TransactionTemplate transactionTemplate,
+                                TransactionTemplate transactionTemplate,
                                 SidecarMetadataWriter sidecarMetadataWriter) {
             super(appProperties, bookRepository, bookFileRepository, libraryRepository, fileMoveHelper,
                     monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter);
@@ -83,7 +87,7 @@ class FileMoveServiceTest {
         
         // Mock simple execution for transaction template
         doAnswer(invocation -> {
-            java.util.function.Consumer<org.springframework.transaction.TransactionStatus> action = invocation.getArgument(0);
+            Consumer<TransactionStatus> action = invocation.getArgument(0);
             action.accept(null);
             return null;
         }).when(transactionTemplate).executeWithoutResult(any());
@@ -1197,7 +1201,7 @@ class FileMoveServiceTest {
             move.setTargetLibraryPathId(20L);
             request.setMoves(List.of(move));
 
-            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.bulkMoveFiles(request))
+            Assertions.assertThatThrownBy(() -> service.bulkMoveFiles(request))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("File move operations are only supported on local storage");
         }

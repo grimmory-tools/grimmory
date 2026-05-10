@@ -21,6 +21,14 @@
               (ngModelChange)="onQueryChange($event)"
               (keydown)="onKeydown($event)"
             />
+            <button
+              type="button"
+              class="command-palette-close-button"
+              [attr.aria-label]="'close' | transloco"
+              (click)="svc.hide()"
+            >
+              <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
           </div>
         </form>
 

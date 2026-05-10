@@ -8,7 +8,6 @@ import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/b
 import {BookService} from "../../service/book.service";
 import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
 import {BookCardComponent} from "../book-browser/book-card/book-card.component";
-import {CoverScalePreferenceService} from "../book-browser/cover-scale-preference.service";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "primeng/tabs";
 import {ProgressSpinner} from "primeng/progressspinner";
 import {ProgressBar} from "primeng/progressbar";
@@ -26,12 +25,13 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from "primeng/tooltip";
 import {Divider} from "primeng/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
-import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild} from '@angular/core';
+import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
+import {LayoutService} from '../../../../shared/layout/layout.service';
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -68,6 +68,7 @@ interface SeriesStats {
   standalone: true,
   templateUrl: "./series-page.component.html",
   styleUrls: ["./series-page.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe,
     KeyValuePipe,
@@ -93,10 +94,14 @@ interface SeriesStats {
 })
 export class SeriesPageComponent implements AfterViewChecked {
 
+  private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
+  private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
+  private readonly DESKTOP_SERIES_GRID_GAP = 21;
+  private readonly MOBILE_SERIES_GRID_GAP = 8;
+  private readonly MOBILE_GRID_COLUMNS = 2;
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
   private bookMetadataManageService = inject(BookMetadataManageService);
-  protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   private metadataCenterViewMode: "route" | "dialog" = "route";
   private dialogRef?: DynamicDialogRef | null;
   private router = inject(Router);
@@ -112,22 +117,29 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
   private authorService = inject(AuthorService);
+  private layoutService = inject(LayoutService);
 
-  @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
+  private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
+  private readonly seriesGridElement = viewChild<ElementRef<HTMLElement>>('seriesGrid');
+  private readonly seriesGridWidth = signal(0);
   tab: string = "view";
-  isExpanded = false;
-  isOverflowing = false;
+  readonly isExpanded = signal(false);
+  readonly isOverflowing = signal(false);
   protected appSettings = this.appSettingsService.appSettings;
   protected currentUser = this.userService.currentUser;
   protected isBooksLoading = this.bookService.isBooksLoading;
 
   // Selection state
-  selectedBooks = new Set<number>();
-  lastSelectedIndex: number | null = null;
+  readonly selectedBooks = signal(new Set<number>());
+  readonly lastSelectedIndex = signal<number | null>(null);
 
   // Menu items
-  protected metadataMenuItems: MenuItem[] | undefined;
-  protected moreActionsMenuItems: MenuItem[] | undefined;
+  protected readonly metadataMenuItems = signal<MenuItem[] | undefined>(undefined);
+  protected readonly moreActionsMenuItems = signal<MenuItem[] | undefined>(undefined);
+  protected readonly seriesViewEnabled = false;
+  protected readonly seriesCardsCollapsed = false;
+  protected readonly seriesCardsUseSquareCovers = false;
+  protected readonly onSeriesBookCardSelect = this.handleBookSelect.bind(this);
 
   private seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
@@ -145,6 +157,23 @@ export class SeriesPageComponent implements AfterViewChecked {
       return aNum - bNum;
     });
   });
+  protected readonly seriesGridColumns = computed(() => {
+    if (!this.layoutService.isDesktop()) {
+      return this.MOBILE_GRID_COLUMNS;
+    }
+
+    return this.seriesGridColumnCount(this.seriesGridWidth());
+  });
+  protected readonly seriesGridGap = computed(() =>
+    this.layoutService.isDesktop() ? this.DESKTOP_SERIES_GRID_GAP : this.MOBILE_SERIES_GRID_GAP
+  );
+  protected readonly seriesGridCardWidth = computed(() => this.seriesGridItemWidth(
+    this.seriesGridWidth(),
+    this.seriesGridColumns()
+  ));
+  protected readonly seriesGridCardHeight = computed(() =>
+    this.seriesCardSizeForWidth(this.seriesGridCardWidth()).height
+  );
 
   coverBook = computed(() => this.filteredBooks()[0] ?? null);
   private firstBookId = computed(() => this.coverBook()?.id ?? null);
@@ -347,7 +376,7 @@ export class SeriesPageComponent implements AfterViewChecked {
         return;
       }
 
-      this.metadataMenuItems = this.bookMenuService.getMetadataMenuItems(
+      this.metadataMenuItems.set(this.bookMenuService.getMetadataMenuItems(
         () => this.autoFetchMetadata(),
         () => this.fetchMetadata(),
         () => this.bulkEditMetadata(),
@@ -355,14 +384,60 @@ export class SeriesPageComponent implements AfterViewChecked {
         () => this.regenerateCoversForSelected(),
         () => this.generateCustomCoversForSelected(),
         user
-      );
-      this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.currentUser());
+      ));
+      this.moreActionsMenuItems.set(this.bookMenuService.getMoreActionsMenu(this.selectedBooks(), user));
     });
 
+    effect((onCleanup) => {
+      const element = this.seriesGridElement()?.nativeElement;
+      if (!element) return;
+
+      const updateGridWidth = () => {
+        this.seriesGridWidth.set(this.getElementContentWidth(element));
+      };
+      updateGridWidth();
+
+      if (typeof ResizeObserver === 'undefined') return;
+
+      const resizeObserver = new ResizeObserver(updateGridWidth);
+      resizeObserver.observe(element);
+      onCleanup(() => resizeObserver.disconnect());
+    });
   }
 
-  get currentCardSize() {
-    return this.coverScalePreferenceService.currentCardSize();
+  private getElementContentWidth(element: HTMLElement): number {
+    const style = getComputedStyle(element);
+    const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    return Math.max(0, Math.round(element.clientWidth - horizontalPadding));
+  }
+
+  private seriesGridColumnCount(containerWidth: number): number {
+    if (containerWidth <= 0) {
+      return 1;
+    }
+
+    return Math.max(
+      1,
+      Math.floor((containerWidth + this.seriesGridGap()) / (this.DEFAULT_SERIES_CARD_WIDTH + this.seriesGridGap()))
+    );
+  }
+
+  private seriesGridItemWidth(containerWidth: number, columns: number): number {
+    if (containerWidth <= 0 || columns <= 0) {
+      return this.DEFAULT_SERIES_CARD_WIDTH;
+    }
+
+    const totalGap = (columns - 1) * this.seriesGridGap();
+    return Math.max(1, (containerWidth - totalGap) / columns);
+  }
+
+  private seriesCardSizeForWidth(width: number): { width: number; height: number } {
+    const cardWidth = Math.round(width);
+    const aspectRatio = this.DEFAULT_SERIES_CARD_HEIGHT / this.DEFAULT_SERIES_CARD_WIDTH;
+    return {
+      width: cardWidth,
+      height: Math.round(cardWidth * aspectRatio),
+    };
   }
 
   goToAuthorBooks(author: string): void {
@@ -412,14 +487,16 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    if (!this.isExpanded && this.descriptionContentRef) {
-      const el = this.descriptionContentRef.nativeElement;
-      this.isOverflowing = el.scrollHeight > el.clientHeight;
+    if (!this.isExpanded()) {
+      const el = this.descriptionContentRef()?.nativeElement;
+      if (!el) return;
+
+      this.isOverflowing.set(el.scrollHeight > el.clientHeight);
     }
   }
 
   toggleExpand(): void {
-    this.isExpanded = !this.isExpanded;
+    this.isExpanded.update(isExpanded => !isExpanded);
   }
 
   getStatusLabel(value: string | ReadStatus | null | undefined): string {
@@ -522,26 +599,31 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   isBookSelected(book: Book): boolean {
-    return this.getSelectableBookIds(book).every(id => this.selectedBooks.has(id));
+    return this.getSelectableBookIds(book).every(id => this.selectedBooks().has(id));
   }
 
   handleBookSelection(book: Book, selected: boolean) {
     const ids = this.getSelectableBookIds(book);
-    if (selected) {
-      ids.forEach(id => this.selectedBooks.add(id));
-    } else {
-      ids.forEach(id => this.selectedBooks.delete(id));
-    }
+    this.selectedBooks.update(selectedBooks => {
+      const nextSelectedBooks = new Set(selectedBooks);
+      if (selected) {
+        ids.forEach(id => nextSelectedBooks.add(id));
+      } else {
+        ids.forEach(id => nextSelectedBooks.delete(id));
+      }
+      return nextSelectedBooks;
+    });
   }
 
   onCheckboxClicked(event: { index: number; book: Book; selected: boolean; shiftKey: boolean }) {
     const {index, book, selected, shiftKey} = event;
-    if (!shiftKey || this.lastSelectedIndex === null) {
+    const lastSelectedIndex = this.lastSelectedIndex();
+    if (!shiftKey || lastSelectedIndex === null) {
       this.handleBookSelection(book, selected);
-      this.lastSelectedIndex = index;
+      this.lastSelectedIndex.set(index);
     } else {
-      const start = Math.min(this.lastSelectedIndex, index);
-      const end = Math.max(this.lastSelectedIndex, index);
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
       const isUnselectingRange = !selected;
       const books = this.filteredBooks();
       for (let i = start; i <= end; i++) {
@@ -550,29 +632,30 @@ export class SeriesPageComponent implements AfterViewChecked {
         this.handleBookSelection(book, !isUnselectingRange);
       }
     }
-    this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
   }
 
   handleBookSelect(book: Book, selected: boolean): void {
     this.handleBookSelection(book, selected);
-    this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
   }
 
   selectAllBooks(): void {
-    for (const book of this.filteredBooks()) {
-      this.getSelectableBookIds(book).forEach(id => this.selectedBooks.add(id));
-    }
-    this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
+    this.selectedBooks.update(selectedBooks => {
+      const nextSelectedBooks = new Set(selectedBooks);
+      for (const book of this.filteredBooks()) {
+        this.getSelectableBookIds(book).forEach(id => nextSelectedBooks.add(id));
+      }
+      return nextSelectedBooks;
+    });
   }
 
   deselectAllBooks(): void {
-    this.selectedBooks.clear();
-    this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
+    this.selectedBooks.set(new Set());
   }
 
   confirmDeleteBooks(): void {
+    const selectedBooks = this.selectedBooks();
     this.confirmationService.confirm({
-      message: this.t.translate('book.browser.confirm.deleteMessage', {count: this.selectedBooks.size}),
+      message: this.t.translate('book.browser.confirm.deleteMessage', {count: selectedBooks.size}),
       header: this.t.translate('book.browser.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
@@ -582,31 +665,31 @@ export class SeriesPageComponent implements AfterViewChecked {
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {
-        const count = this.selectedBooks.size;
+        const count = selectedBooks.size;
         const loader = this.loadingService.show(this.t.translate('book.browser.loading.deleting', {count}));
 
-        this.bookService.deleteBooks(this.selectedBooks)
+        this.bookService.deleteBooks(selectedBooks)
           .pipe(finalize(() => this.loadingService.hide(loader)))
           .subscribe(() => {
-            this.selectedBooks.clear();
+            this.deselectAllBooks();
           });
       }
     });
   }
 
   openShelfAssigner(): void {
-    this.dialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks);
+    this.dialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
-        if (result.assigned) {
-          this.selectedBooks.clear();
+        if (result?.assigned) {
+          this.deselectAllBooks();
         }
       });
     }
   }
 
   lockUnlockMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks);
+    this.dialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -615,19 +698,20 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   autoFetchMetadata(): void {
-    if (!this.selectedBooks || this.selectedBooks.size === 0) return;
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
     this.taskHelperService.refreshMetadataTask({
       refreshType: MetadataRefreshType.BOOKS,
-      bookIds: Array.from(this.selectedBooks),
+      bookIds: Array.from(selectedBooks),
     }).subscribe();
   }
 
   fetchMetadata(): void {
-    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks);
+    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
   }
 
   bulkEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks);
+    this.dialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -636,7 +720,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   multiBookEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks);
+    this.dialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -645,8 +729,9 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   regenerateCoversForSelected(): void {
-    if (!this.selectedBooks || this.selectedBooks.size === 0) return;
-    const count = this.selectedBooks.size;
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    const count = selectedBooks.size;
     this.confirmationService.confirm({
       message: this.t.translate('book.browser.confirm.regenCoverMessage', {count}),
       header: this.t.translate('book.browser.confirm.regenCoverHeader'),
@@ -662,7 +747,7 @@ export class SeriesPageComponent implements AfterViewChecked {
         severity: 'secondary'
       },
       accept: () => {
-        this.bookMetadataManageService.regenerateCoversForBooks(Array.from(this.selectedBooks)).subscribe({
+        this.bookMetadataManageService.regenerateCoversForBooks(Array.from(selectedBooks)).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -685,8 +770,9 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   generateCustomCoversForSelected(): void {
-    if (!this.selectedBooks || this.selectedBooks.size === 0) return;
-    const count = this.selectedBooks.size;
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    const count = selectedBooks.size;
     this.confirmationService.confirm({
       message: this.t.translate('book.browser.confirm.customCoverMessage', {count}),
       header: this.t.translate('book.browser.confirm.customCoverHeader'),
@@ -702,7 +788,7 @@ export class SeriesPageComponent implements AfterViewChecked {
         severity: 'secondary'
       },
       accept: () => {
-        this.bookMetadataManageService.generateCustomCoversForBooks(Array.from(this.selectedBooks)).subscribe({
+        this.bookMetadataManageService.generateCustomCoversForBooks(Array.from(selectedBooks)).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -725,7 +811,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   moveFiles() {
-    this.dialogHelperService.openFileMoverDialog(this.selectedBooks);
+    this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
   }
 
   user() {
@@ -733,10 +819,10 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   get hasMetadataMenuItems(): boolean {
-    return (this.metadataMenuItems?.length ?? 0) > 0;
+    return (this.metadataMenuItems()?.length ?? 0) > 0;
   }
 
   get hasMoreActionsItems(): boolean {
-    return (this.moreActionsMenuItems?.length ?? 0) > 0;
+    return (this.moreActionsMenuItems()?.length ?? 0) > 0;
   }
 }

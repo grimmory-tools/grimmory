@@ -23,8 +23,8 @@ public interface ShelfRepository extends JpaRepository<ShelfEntity, Long> {
     @Query("SELECT s FROM ShelfEntity s WHERE s.id = :id")
     Optional<ShelfEntity> findByIdWithUser(@Param("id") Long id);
 
-    @org.springframework.data.jpa.repository.Query("SELECT s FROM ShelfEntity s WHERE s.user.id = :userId OR s.isPublic = true")
-    List<ShelfEntity> findByUserIdOrPublicShelfTrue(@org.springframework.data.repository.query.Param("userId") Long userId);
+    @Query("SELECT s FROM ShelfEntity s WHERE s.user.id = :userId OR s.isPublic = true")
+    List<ShelfEntity> findByUserIdOrPublicShelfTrue(@Param("userId") Long userId);
 
     List<ShelfEntity> findByUserIdInAndName(List<Long> userIds, String name);
 }

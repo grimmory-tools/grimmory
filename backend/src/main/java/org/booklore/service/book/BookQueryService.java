@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
@@ -80,6 +81,10 @@ public class BookQueryService {
 
     public List<BookEntity> getAllFullBookEntities() {
         return bookRepository.findAllFullBooks();
+    }
+
+    public List<BookEntity> getAllFullBookEntitiesWithFiles() {
+        return bookRepository.findAllFullBooksWithFiles();
     }
 
     @Transactional

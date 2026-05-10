@@ -33,6 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import java.net.http.HttpHeaders;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class KoboServerProxyTest {
@@ -78,7 +80,7 @@ class KoboServerProxyTest {
     private void setupSuccessfulProxyResponse() throws Exception {
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn("{}");
-        when(httpResponse.headers()).thenReturn(java.net.http.HttpHeaders.of(
+        when(httpResponse.headers()).thenReturn(HttpHeaders.of(
                 Collections.emptyMap(),
                 (k, v) -> true
         ));
@@ -154,8 +156,8 @@ class KoboServerProxyTest {
         when(bookloreSyncTokenGenerator.fromRequestHeaders(any())).thenReturn(mockSyncToken);
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn("{}");
-        when(httpResponse.headers()).thenReturn(java.net.http.HttpHeaders.of(
-                Map.of(KoboHeaders.X_KOBO_SYNCTOKEN, java.util.List.of("new-kobo-token")),
+        when(httpResponse.headers()).thenReturn(HttpHeaders.of(
+                Map.of(KoboHeaders.X_KOBO_SYNCTOKEN, List.of("new-kobo-token")),
                 (k, v) -> true
         ));
         when(objectMapper.readTree(anyString())).thenReturn(mock(JsonNode.class));
@@ -177,8 +179,8 @@ class KoboServerProxyTest {
 
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn("{}");
-        when(httpResponse.headers()).thenReturn(java.net.http.HttpHeaders.of(
-                Map.of("X-Kobo-Response", java.util.List.of("test")),
+        when(httpResponse.headers()).thenReturn(HttpHeaders.of(
+                Map.of("X-Kobo-Response", List.of("test")),
                 (k, v) -> true
         ));
         when(objectMapper.readTree(anyString())).thenReturn(mock(JsonNode.class));
@@ -211,7 +213,7 @@ class KoboServerProxyTest {
 
         when(httpResponse.statusCode()).thenReturn(400);
         when(httpResponse.body()).thenReturn("{\"error\":\"Bad Request\"}");
-        when(httpResponse.headers()).thenReturn(java.net.http.HttpHeaders.of(
+        when(httpResponse.headers()).thenReturn(HttpHeaders.of(
                 Collections.emptyMap(),
                 (k, v) -> true
         ));

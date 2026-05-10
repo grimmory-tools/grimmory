@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.booklore.model.entity.BookdropFileEntity.Status.PENDING_REVIEW;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Assertions;
 
 @ExtendWith(MockitoExtension.class)
 class BookdropMetadataServiceTest {
@@ -93,7 +94,7 @@ class BookdropMetadataServiceTest {
     void attachInitialMetadata_shouldThrowWhenFileMissing() {
         when(bookdropFileRepository.findById(99L)).thenReturn(Optional.empty());
 
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> bookdropMetadataService.attachInitialMetadata(99L));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> bookdropMetadataService.attachInitialMetadata(99L));
     }
 
     @Test

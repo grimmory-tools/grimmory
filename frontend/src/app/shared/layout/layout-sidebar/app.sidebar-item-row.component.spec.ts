@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AppMenuItemRowComponent } from './app.menu-item-row.component';
+import { AppSidebarItemRowComponent } from './app.sidebar-item-row.component';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { LayoutService } from '../layout.service';
 
-describe('AppMenuItemRowComponent', () => {
-  let fixture: ComponentFixture<AppMenuItemRowComponent>;
-  let component: AppMenuItemRowComponent;
+describe('AppSidebarItemRowComponent', () => {
+  let fixture: ComponentFixture<AppSidebarItemRowComponent>;
+  let component: AppSidebarItemRowComponent;
 
   const layoutService = {
     sidebarCollapsed: signal(false),
@@ -17,7 +17,7 @@ describe('AppMenuItemRowComponent', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [AppMenuItemRowComponent],
+      imports: [AppSidebarItemRowComponent],
       providers: [
         {
           provide: UserService,
@@ -34,16 +34,16 @@ describe('AppMenuItemRowComponent', () => {
       ],
     });
 
-    TestBed.overrideComponent(AppMenuItemRowComponent, { set: { template: '' } });
+    TestBed.overrideComponent(AppSidebarItemRowComponent, { set: { template: '' } });
 
-    fixture = TestBed.createComponent(AppMenuItemRowComponent);
+    fixture = TestBed.createComponent(AppSidebarItemRowComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('index', 0);
     fixture.componentRef.setInput('parentKey', 'home-0');
     layoutService.sidebarCollapsed.set(false);
   });
 
-  function setItem(item: Parameters<ComponentFixture<AppMenuItemRowComponent>['componentRef']['setInput']>[1]): void {
+  function setItem(item: Parameters<ComponentFixture<AppSidebarItemRowComponent>['componentRef']['setInput']>[1]): void {
     fixture.componentRef.setInput('item', item);
   }
 

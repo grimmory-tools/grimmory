@@ -401,8 +401,8 @@ class BookAdditionalFileRepositoryTest {
 
         Throwable current = thrown;
         while (current != null) {
-            if (current instanceof org.hibernate.exception.ConstraintViolationException ||
-                current instanceof java.sql.SQLIntegrityConstraintViolationException ||
+            if (current instanceof ConstraintViolationException ||
+                current instanceof SQLIntegrityConstraintViolationException ||
                 current.getClass().getName().contains("ConstraintViolation")) {
                 isConstraintViolation = true;
             }

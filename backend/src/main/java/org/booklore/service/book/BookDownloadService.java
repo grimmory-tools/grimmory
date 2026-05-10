@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.io.ByteArrayOutputStream;
+import org.springframework.core.io.ByteArrayResource;
 
 @Slf4j
 @AllArgsConstructor
@@ -332,7 +334,7 @@ public class BookDownloadService {
     }
 
     private ResponseEntity<Resource> downloadFolderAsZip(Path folderPath, String folderName) throws IOException {
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             // Get all files in the folder, sorted by name
@@ -350,7 +352,7 @@ public class BookDownloadService {
         }
 
         byte[] zipBytes = baos.toByteArray();
-        Resource resource = new org.springframework.core.io.ByteArrayResource(zipBytes);
+        Resource resource = new ByteArrayResource(zipBytes);
 
         String zipFileName = folderName + ".zip";
 

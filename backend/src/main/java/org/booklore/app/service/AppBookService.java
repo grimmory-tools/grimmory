@@ -48,6 +48,8 @@ import java.util.stream.Collectors;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.persistence.Query;
+import java.time.Duration;
 
 @Service
 @Transactional(readOnly = true)
@@ -1177,7 +1179,7 @@ public class AppBookService {
         return sb.toString();
     }
 
-    private void setFilterQueryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+    private void setFilterQueryParams(Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
         if (libraryId != null) {
             query.setParameter("libraryId", libraryId);
         } else if (accessibleLibraryIds != null) {

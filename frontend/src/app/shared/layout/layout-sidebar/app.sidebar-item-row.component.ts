@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Renderer2, RendererStyleFlags2, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Menu } from 'primeng/menu';
 import { Tooltip } from 'primeng/tooltip';
@@ -13,9 +13,9 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
 @Component({
   // Attribute selector so the row renders into its host <li> inside a <ul>.
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: '[app-menu-item-row]',
-  templateUrl: './app.menu-item-row.component.html',
-  styleUrls: ['./app.menu-item-row.component.scss'],
+  selector: '[appSidebarItemRow]',
+  templateUrl: './app.sidebar-item-row.component.html',
+  styleUrls: ['./app.sidebar-item-row.component.scss'],
   imports: [
     RouterLink,
     Menu,
@@ -25,7 +25,7 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppMenuItemRowComponent {
+export class AppSidebarItemRowComponent {
   readonly item = input.required<SidebarLeaf>();
   readonly index = input.required<number>();
   readonly parentKey = input.required<string>();
@@ -35,6 +35,8 @@ export class AppMenuItemRowComponent {
 
   private readonly userService = inject(UserService);
   readonly layoutService = inject(LayoutService);
+  private readonly renderer = inject(Renderer2);
+  private contextMenuTrigger: HTMLElement | null = null;
 
   readonly isRouteActive = computed(() => {
     const route = this.item().routerLink?.[0];
@@ -56,13 +58,43 @@ export class AppMenuItemRowComponent {
   }
 
   openContextMenu(event: Event, menu: Menu): void {
+    this.contextMenuTrigger = event.currentTarget instanceof HTMLElement
+      ? event.currentTarget
+      : null;
     menu.toggle(event);
-    this.menuOpen.update((open) => !open);
     event.stopPropagation();
+  }
+
+  positionContextMenu(menu: Menu): void {
+    this.menuOpen.set(true);
+    if (this.layoutService.isDesktop()) return;
+
+    const trigger = this.contextMenuTrigger;
+    const panel = menu.container;
+    if (!trigger || !(panel instanceof HTMLElement)) return;
+
+    const gutter = 8;
+    const rect = trigger.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth;
+    const panelHeight = panel.offsetHeight;
+    const spaceAbove = rect.top - gutter;
+    const spaceBelow = window.innerHeight - rect.bottom - gutter;
+    const placeBelow = spaceBelow >= panelHeight || spaceBelow >= spaceAbove;
+    const availableHeight = Math.max(placeBelow ? spaceBelow : spaceAbove, 0);
+    const left = Math.max(Math.min(rect.right + gutter, window.innerWidth - panelWidth - gutter), gutter);
+    const top = placeBelow
+      ? rect.bottom + gutter
+      : rect.top - Math.min(panelHeight, availableHeight) - gutter;
+
+    const flags = RendererStyleFlags2.DashCase;
+    this.renderer.setStyle(panel, '--sidebar-popover-left', `${left}px`, flags);
+    this.renderer.setStyle(panel, '--sidebar-popover-top', `${Math.max(top, gutter)}px`, flags);
+    this.renderer.setStyle(panel, '--sidebar-popover-max-height', `${availableHeight}px`, flags);
   }
 
   closeContextMenu(): void {
     this.menuOpen.set(false);
+    this.contextMenuTrigger = null;
   }
 
   getIconSelection(): IconSelection | null {

@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.io.File;
 
 @Slf4j
 @AllArgsConstructor
@@ -89,9 +90,9 @@ public class AdditionalFileService {
         if (!Files.exists(path)) return;
 
         try (var walk = Files.walk(path)) {
-            walk.sorted(java.util.Comparator.reverseOrder())
+            walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
-                    .forEach(java.io.File::delete);
+                    .forEach(File::delete);
         }
     }
 

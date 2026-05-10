@@ -4,17 +4,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AppLayoutComponent } from './app.layout.component';
-import { AppMenuComponent } from '../layout-menu/app.menu.component';
+import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
 import { AppMobileTopbarComponent } from '../layout-mobile-topbar/app.mobile-topbar.component';
 import { LocalStorageService } from '../../service/local-storage.service';
 import { LayoutService } from '../layout.service';
 
 @Component({
-  selector: 'app-menu',
+  selector: 'app-sidebar',
   standalone: true,
   template: '',
 })
-class StubMenuComponent {}
+class StubSidebarComponent {}
 
 @Component({
   selector: 'app-mobile-topbar',
@@ -66,10 +66,10 @@ describe('AppLayoutComponent', () => {
 
     TestBed.overrideComponent(AppLayoutComponent, {
       remove: {
-        imports: [AppMenuComponent, AppMobileTopbarComponent],
+        imports: [AppSidebarComponent, AppMobileTopbarComponent],
       },
       add: {
-        imports: [StubMenuComponent, StubMobileTopbarComponent],
+        imports: [StubSidebarComponent, StubMobileTopbarComponent],
       },
     });
 

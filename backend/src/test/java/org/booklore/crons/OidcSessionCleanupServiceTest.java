@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
+import org.mockito.ArgumentMatchers;
 
 @ExtendWith(MockitoExtension.class)
 class OidcSessionCleanupServiceTest {
@@ -63,7 +64,7 @@ class OidcSessionCleanupServiceTest {
         oidcSessionCleanupService.cleanupOidcSessions();
 
         InOrder inOrder = inOrder(oidcSessionRepository);
-        inOrder.verify(oidcSessionRepository).deleteByRevokedTrueAndCreatedAtBefore(org.mockito.ArgumentMatchers.any(Instant.class));
-        inOrder.verify(oidcSessionRepository).deleteByCreatedAtBefore(org.mockito.ArgumentMatchers.any(Instant.class));
+        inOrder.verify(oidcSessionRepository).deleteByRevokedTrueAndCreatedAtBefore(ArgumentMatchers.any(Instant.class));
+        inOrder.verify(oidcSessionRepository).deleteByCreatedAtBefore(ArgumentMatchers.any(Instant.class));
     }
 }

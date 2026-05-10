@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.io.IOException;
 
 @Tag(name = "Books", description = "Endpoints for managing books, their metadata, progress, and recommendations")
 @RequestMapping("/api/v1/books")
@@ -180,7 +181,7 @@ public class BookController {
     public ResponseEntity<Void> replaceBookContent(
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
-            HttpServletRequest request) throws java.io.IOException {
+            HttpServletRequest request) throws IOException {
         bookService.replaceBookContent(bookId, bookType, request.getInputStream());
         return ResponseEntity.noContent().build();
     }

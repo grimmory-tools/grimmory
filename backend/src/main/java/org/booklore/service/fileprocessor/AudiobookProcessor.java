@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.booklore.util.FileService.truncate;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -155,9 +157,9 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
 
     private File getAudioFileForMetadata(BookEntity bookEntity, boolean isFolderBased) {
         if (isFolderBased) {
-            java.nio.file.Path folderPath = bookEntity.getFullFilePath();
+            Path folderPath = bookEntity.getFullFilePath();
             return FileUtils.getFirstAudioFileInFolder(folderPath)
-                    .map(java.nio.file.Path::toFile)
+                    .map(Path::toFile)
                     .orElse(null);
         } else {
             return FileUtils.getBookFullPath(bookEntity).toFile();
@@ -179,11 +181,11 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             return null;
         }
 
-        java.nio.file.Path filePath;
+        Path filePath;
         if (subPath == null || subPath.isEmpty()) {
-            filePath = java.nio.file.Paths.get(libraryPath, fileName).normalize();
+            filePath = Paths.get(libraryPath, fileName).normalize();
         } else {
-            filePath = java.nio.file.Paths.get(libraryPath, subPath, fileName).normalize();
+            filePath = Paths.get(libraryPath, subPath, fileName).normalize();
         }
 
         log.debug("Constructed audiobook path: {}, isFolderBased: {}", filePath, bookFile.isFolderBased());
@@ -193,7 +195,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             if (audioFile.isEmpty()) {
                 log.debug("No audio file found in folder: {}", filePath);
             }
-            return audioFile.map(java.nio.file.Path::toFile).orElse(null);
+            return audioFile.map(Path::toFile).orElse(null);
         } else {
             return filePath.toFile();
         }

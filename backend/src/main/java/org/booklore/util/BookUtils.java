@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.regex.Pattern;
+import java.text.Normalizer;
 
 @UtilityClass
 public class BookUtils {
@@ -52,7 +53,7 @@ public class BookUtils {
         if (term == null) {
             return null;
         }
-        String s = java.text.Normalizer.normalize(term, java.text.Normalizer.Form.NFD);
+        String s = Normalizer.normalize(term, Normalizer.Form.NFD);
         s = DIACRITICAL_MARKS_PATTERN.matcher(s).replaceAll("");
         s = s.replace("ø", "o").replace("Ø", "O")
                 .replace("ł", "l").replace("Ł", "L")

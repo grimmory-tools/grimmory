@@ -2,3 +2,4 @@
 $scale: 14px;                    /* main font size */ 
 $border-radius: 12px;            /* border radius of layout element e.g. card, sidebar */ 
 $transition-duration: .2s;       /* transition duration of layout elements e.g. sidebar */
+$mobile-shell-media-query: "(width <= 599px), ((width <= 959px) and (height <= 500px) and (pointer: coarse) and (hover: none))";
