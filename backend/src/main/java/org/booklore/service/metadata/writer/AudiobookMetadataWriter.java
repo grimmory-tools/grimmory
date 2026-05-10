@@ -181,6 +181,10 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         try {
             String detectedMime = MimeDetector.detect(new ByteArrayInputStream(coverData));
             String extension = getExtensionForMime(detectedMime);
+            if (extension == null) {
+                log.warn("Unsupported audiobook cover MIME type: {}", detectedMime);
+                return;
+            }
             String filename = "cover" + extension;
             Path coverPath = folderPath.resolve(filename);
 
@@ -203,10 +207,11 @@ public class AudiobookMetadataWriter implements MetadataWriter {
 
     private String getExtensionForMime(String mime) {
         return switch (mime) {
+            case "image/jpeg" -> ".jpg";
             case "image/png" -> ".png";
             case "image/webp" -> ".webp";
             case "image/avif" -> ".avif";
-            default -> ".jpg";
+            default -> null;
         };
     }
 

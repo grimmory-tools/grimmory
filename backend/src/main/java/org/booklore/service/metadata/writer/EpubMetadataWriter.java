@@ -2,6 +2,7 @@ package org.booklore.service.metadata.writer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -485,47 +486,95 @@ public class EpubMetadataWriter implements MetadataWriter {
 
         Path opfDir = opfPath.getParent();
         Path currentCoverFilePath = opfDir.resolve(decodedCoverHref).normalize();
+        
+        // Security check: ensure current cover path is within the extracted EPUB directory
+        if (!currentCoverFilePath.startsWith(tempDir)) {
+            throw new IOException("Cover href resolves outside extracted EPUB: " + coverHref);
+        }
+
+        if (!Objects.equals(detectedMime, currentMime)) {
+            log.info("Updating cover media-type from {} to {}", currentMime, detectedMime);
+            existingCoverItem.setAttribute("media-type", detectedMime);
+        }
+
+        String currentExt = "";
+        int lastDot = decodedCoverHref.lastIndexOf('.');
+        if (lastDot != -1) {
+            currentExt = decodedCoverHref.substring(lastDot);
+        }
+
+        String newExt = getExtensionForMimeEPUB(detectedMime);
+        if (newExt == null) {
+            throw new IOException("Unsupported cover MIME type for EPUB: " + detectedMime);
+        }
 
         String newHref = coverHref;
         Path newCoverFilePath = currentCoverFilePath;
 
-        if (!detectedMime.equals(currentMime)) {
-            log.info("Updating cover media-type from {} to {}", currentMime, detectedMime);
-            existingCoverItem.setAttribute("media-type", detectedMime);
+        if (!newExt.equalsIgnoreCase(currentExt)) {
+            String newDecodedHref = decodedCoverHref.substring(0, decodedCoverHref.length() - currentExt.length()) + newExt;
+            // Simple URL encoding for the new href, focusing on keeping it clean and preserving forward slashes
+            newHref = URLEncoder.encode(newDecodedHref, StandardCharsets.UTF_8).replace("+", "%20").replace("%2F", "/");
+            existingCoverItem.setAttribute("href", newHref);
+            newCoverFilePath = opfDir.resolve(newDecodedHref).normalize();
 
-            String currentExt = "";
-            int lastDot = decodedCoverHref.lastIndexOf('.');
-            if (lastDot != -1) {
-                currentExt = decodedCoverHref.substring(lastDot);
+            // Security check: ensure new cover path is within the extracted EPUB directory
+            if (!newCoverFilePath.startsWith(tempDir)) {
+                throw new IOException("Updated cover href resolves outside extracted EPUB: " + newHref);
             }
 
-            String newExt = getExtensionForMime(detectedMime);
-            if (!newExt.isEmpty() && !newExt.equalsIgnoreCase(currentExt)) {
-                String newDecodedHref = decodedCoverHref.substring(0, decodedCoverHref.length() - currentExt.length()) + newExt;
-                // Simple URL encoding for the new href, focusing on keeping it clean and preserving forward slashes
-                newHref = URLEncoder.encode(newDecodedHref, StandardCharsets.UTF_8).replace("+", "%20").replace("%2F", "/");
-                existingCoverItem.setAttribute("href", newHref);
-                newCoverFilePath = opfDir.resolve(newDecodedHref).normalize();
-                
-                log.info("Updating cover href from {} to {}", coverHref, newHref);
-                
-                if (Files.exists(currentCoverFilePath)) {
-                    Files.delete(currentCoverFilePath);
-                }
+            log.info("Updating cover href from {} to {}", coverHref, newHref);
+
+            if (Files.exists(currentCoverFilePath)) {
+                Files.delete(currentCoverFilePath);
             }
+
+            // Update all references in the EPUB to the new cover filename
+            updateInternalReferences(tempDir, decodedCoverHref, newDecodedHref);
         }
 
         Files.createDirectories(newCoverFilePath.getParent());
         Files.write(newCoverFilePath, coverData);
     }
 
-    private String getExtensionForMime(String mime) {
+    private void updateInternalReferences(Path tempDir, String oldHref, String newHref) throws IOException {
+        String oldFilename = FilenameUtils.getName(oldHref);
+        String newFilename = FilenameUtils.getName(newHref);
+
+        if (Objects.equals(oldFilename, newFilename)) {
+            return;
+        }
+
+        log.info("Updating internal references from {} to {}", oldFilename, newFilename);
+
+        try (var pathStream = Files.walk(tempDir)) {
+            pathStream
+                .filter(Files::isRegularFile)
+                .filter(path -> {
+                    String name = path.toString().toLowerCase();
+                    return name.endsWith(".xhtml") || name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".svg") || name.endsWith(".opf");
+                })
+                .forEach(path -> {
+                    try {
+                        String content = Files.readString(path, StandardCharsets.UTF_8);
+                        if (content.contains(oldFilename)) {
+                            String newContent = content.replace(oldFilename, newFilename);
+                            Files.writeString(path, newContent, StandardCharsets.UTF_8);
+                            log.debug("Updated references in file: {}", path);
+                        }
+                    } catch (IOException e) {
+                        log.warn("Failed to update references in file {}: {}", path, e.getMessage());
+                    }
+                });
+        }
+    }
+
+    private String getExtensionForMimeEPUB(String mime) {
         return switch (mime) {
             case "image/jpeg" -> ".jpg";
             case "image/png" -> ".png";
             case "image/webp" -> ".webp";
-            case "image/avif" -> ".avif";
-            default -> "";
+            default -> null;
         };
     }
 

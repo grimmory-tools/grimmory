@@ -35,6 +35,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -447,7 +448,7 @@ class BookCoverServiceTest {
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
-                    .hasMessageContaining("JPEG and PNG");
+                    .hasMessageContaining("JPEG, PNG, WebP and AVIF");
         }
 
         @Test
@@ -492,6 +493,48 @@ class BookCoverServiceTest {
             when(file.getSize()).thenReturn(1024L);
             try {
                 when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
+                when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
+            } catch (Exception _) {}
+
+            when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
+
+            service.updateCoverFromFileForBooks(Set.of(1L), file);
+        }
+
+        @Test
+        void acceptsWebpFile() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(false);
+            when(file.getSize()).thenReturn(1024L);
+            try {
+                byte[] webpHeader = new byte[12];
+                System.arraycopy("RIFF".getBytes(StandardCharsets.UTF_8), 0, webpHeader, 0, 4);
+                System.arraycopy("WEBP".getBytes(StandardCharsets.UTF_8), 0, webpHeader, 8, 4);
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(webpHeader));
+                when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
+            } catch (Exception _) {}
+
+            when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
+
+            service.updateCoverFromFileForBooks(Set.of(1L), file);
+        }
+
+        @Test
+        void acceptsAvifFile() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(false);
+            when(file.getSize()).thenReturn(1024L);
+            try {
+                byte[] avifHeader = new byte[12];
+                avifHeader[4] = 'f'; avifHeader[5] = 't'; avifHeader[6] = 'y'; avifHeader[7] = 'p';
+                avifHeader[8] = 'a'; avifHeader[9] = 'v'; avifHeader[10] = 'i'; avifHeader[11] = 'f';
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(avifHeader));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
