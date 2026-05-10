@@ -3,7 +3,6 @@
   "browseAllAuthors": "Brskaj po vseh avtorjih",
   "searchPlaceholder": "Iskanje po imenu avtorja...",
   "noAuthorsFound": "Noben avtor ne ustreza vašemu iskanju.",
-  "cardSize": "Velikost kartice",
   "sort": {
     "name": "Naziv",
     "bookCount": "Število knjig",

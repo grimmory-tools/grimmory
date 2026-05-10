@@ -126,7 +126,7 @@ export class LoginComponent implements OnInit {
   login(): void {
     this.authService.internalLogin({username: this.username, password: this.password}).subscribe({
       next: (response) => {
-        if (response.isDefaultPassword === 'true') {
+        if (response.isDefaultPassword) {
           this.router.navigate(['/change-password']);
         } else {
           this.router.navigate(['/dashboard']);

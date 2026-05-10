@@ -13,7 +13,8 @@ interface OidcPkceState {
 interface OidcTokenResponse {
   accessToken: string;
   refreshToken: string;
-  isDefaultPassword: string;
+  isDefaultPassword?: boolean;
+  expires?: number
 }
 
 @Injectable({providedIn: 'root'})

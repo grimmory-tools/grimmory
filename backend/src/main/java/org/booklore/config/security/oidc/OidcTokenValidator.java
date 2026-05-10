@@ -32,6 +32,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.text.ParseException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Slf4j
 @Service
@@ -125,7 +128,7 @@ public class OidcTokenValidator {
                 if (azp != null && !azp.equals(clientId)) {
                     throw ApiError.OIDC_INVALID_TOKEN.createException("ID token authorized party mismatch");
                 }
-            } catch (java.text.ParseException e) {
+            } catch (ParseException e) {
                 throw ApiError.OIDC_INVALID_TOKEN.createException("Failed to parse azp claim");
             }
         }
@@ -157,7 +160,7 @@ public class OidcTokenValidator {
             if (!expectedNonce.equals(tokenNonce)) {
                 throw ApiError.OIDC_INVALID_TOKEN.createException("ID token nonce mismatch");
             }
-        } catch (java.text.ParseException e) {
+        } catch (ParseException e) {
             throw ApiError.OIDC_INVALID_TOKEN.createException("Failed to parse nonce claim");
         }
     }
@@ -184,7 +187,7 @@ public class OidcTokenValidator {
             }
         } catch (APIException e) {
             throw e;
-        } catch (java.text.ParseException | NoSuchAlgorithmException e) {
+        } catch (ParseException | NoSuchAlgorithmException e) {
             log.warn("Failed to validate at_hash: {}", e.getMessage());
         }
     }
@@ -228,10 +231,10 @@ public class OidcTokenValidator {
         }
     }
 
-    private static java.net.URL uriToUrl(URI uri) {
+    private static URL uriToUrl(URI uri) {
         try {
             return uri.toURL();
-        } catch (java.net.MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new IllegalStateException("Invalid JWKS URI: " + uri, e);
         }
     }

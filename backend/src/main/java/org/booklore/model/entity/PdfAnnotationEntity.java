@@ -41,7 +41,7 @@ public class PdfAnnotationEntity {
     @Column(name = "data", nullable = false, columnDefinition = "LONGTEXT")
     private String data;
 
-    @jakarta.persistence.Version
+    @Version
     @Column(name = "version", nullable = false)
     private Long version;
 

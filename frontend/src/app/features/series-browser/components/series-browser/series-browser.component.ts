@@ -4,7 +4,7 @@ import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
 import {Popover} from 'primeng/popover';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {SeriesDataService} from '../../service/series-data.service';
 import {SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from '../series-card/series-card.component';
@@ -12,11 +12,13 @@ import {BookService} from '../../../book/service/book.service';
 import {ReadStatus} from '../../../book/model/book.model';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {createVirtualGrid, scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
+import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
-import {GridDensityButtonsComponent} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {GridDensityButtonsComponent, type GridDensityDirection} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
 import {ScalePreference} from '../../../../shared/util/scale-preference.util';
+import {LayoutService} from '../../../../shared/layout/layout.service';
+import {createGridDensity} from '../../../../shared/util/grid-density.util';
 
 interface FilterOption {
   label: string;
@@ -40,6 +42,7 @@ interface SortOption {
     Select,
     Popover,
     TranslocoDirective,
+    TranslocoPipe,
     GridDensityButtonsComponent,
     SeriesCardComponent,
   ]
@@ -51,7 +54,11 @@ export class SeriesBrowserComponent implements OnInit {
   private static readonly MOBILE_BASE_WIDTH = 180;
   private static readonly MOBILE_BASE_HEIGHT = 250;
   private static readonly GRID_GAP = 20;
+  private static readonly DEFAULT_MOBILE_GRID_COLUMNS = 2;
+  private static readonly MIN_MOBILE_GRID_COLUMNS = 2;
+  private static readonly MAX_MOBILE_GRID_COLUMNS = 3;
   private static readonly SCALE_STORAGE_KEY = 'seriesScalePreference';
+  private static readonly MOBILE_COLUMNS_STORAGE_KEY = 'seriesMobileColumnsPreference';
   private static readonly MIN_SCALE = 0.7;
   private static readonly MAX_SCALE = 1.3;
 
@@ -64,6 +71,7 @@ export class SeriesBrowserComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private scrollService = inject(RouteScrollPositionService);
   private localStorageService = inject(LocalStorageService);
+  private layoutService = inject(LayoutService);
 
   readonly isBooksLoading = this.bookService.isBooksLoading;
   private readonly searchTerm = signal('');
@@ -93,6 +101,27 @@ export class SeriesBrowserComponent implements OnInit {
   });
   private readonly scaleFactor = this.scalePreference.scaleFactor;
   readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  readonly isMobile = computed(() => !this.layoutService.isDesktop());
+  private readonly baseCardWidth = computed(() => this.isMobile()
+    ? SeriesBrowserComponent.MOBILE_BASE_WIDTH
+    : SeriesBrowserComponent.BASE_WIDTH
+  );
+  private readonly gridDensity = createGridDensity(this.localStorageService, {
+    useFixedColumns: this.isMobile,
+    screenWidth: this.screenWidth,
+    storageKey: SeriesBrowserComponent.MOBILE_COLUMNS_STORAGE_KEY,
+    defaultColumns: SeriesBrowserComponent.DEFAULT_MOBILE_GRID_COLUMNS,
+    minColumns: SeriesBrowserComponent.MIN_MOBILE_GRID_COLUMNS,
+    maxColumns: SeriesBrowserComponent.MAX_MOBILE_GRID_COLUMNS,
+    scale: this.scaleFactor,
+    minScale: SeriesBrowserComponent.MIN_SCALE,
+    maxScale: SeriesBrowserComponent.MAX_SCALE,
+    gap: SeriesBrowserComponent.GRID_GAP,
+    baseWidth: this.baseCardWidth,
+    setScale: scale => this.scalePreference.setScale(scale),
+  });
+  readonly gridDensitySmallerDisabled = this.gridDensity.smallerDisabled;
+  readonly gridDensityLargerDisabled = this.gridDensity.largerDisabled;
   filterOptions: FilterOption[] = [];
   sortOptions: SortOption[] = [];
 
@@ -101,24 +130,22 @@ export class SeriesBrowserComponent implements OnInit {
     this.screenWidth.set(window.innerWidth);
   }
 
-  readonly isMobile = computed(() => this.screenWidth() <= 767);
-
-  private readonly baseCardWidth = computed(() => this.isMobile()
-    ? SeriesBrowserComponent.MOBILE_BASE_WIDTH
-    : SeriesBrowserComponent.BASE_WIDTH
-  );
   private readonly cardAspectRatio = computed(() => {
     const baseHeight = this.isMobile()
       ? SeriesBrowserComponent.MOBILE_BASE_HEIGHT
       : SeriesBrowserComponent.BASE_HEIGHT;
     return baseHeight / this.baseCardWidth();
   });
-  private readonly minCardWidth = computed(() => Math.round(this.baseCardWidth() * this.scaleFactor()));
+  private readonly minCardWidth = computed(() => this.isMobile()
+    ? 1
+    : Math.round(this.baseCardWidth() * this.scaleFactor())
+  );
   readonly virtualGrid = createVirtualGrid({
     items: this.filteredSeries,
     scrollElement: this.scrollElement,
     minItemWidth: this.minCardWidth,
-    gap: SeriesBrowserComponent.GRID_GAP,
+    gap: this.gridDensity.gap,
+    columns: this.gridDensity.columns,
     initialOffset: this.initialScrollOffset,
     fillItemWidth: true,
     estimateItemHeight: itemWidth => Math.round(itemWidth * this.cardAspectRatio()),
@@ -175,26 +202,8 @@ export class SeriesBrowserComponent implements OnInit {
     this.sortBy.set(value);
   }
 
-  adjustDesktopGridDensity(direction: 'smaller' | 'larger'): void {
-    const currentColumns = this.virtualGrid.gridColumns();
-    const columns = Math.max(1, direction === 'smaller'
-      ? currentColumns + 1
-      : currentColumns - 1);
-    const viewportWidth = this.virtualGrid.viewportWidth() || this.screenWidth();
-    this.virtualGrid.updatePreservingScrollPosition(() => {
-      this.setScale(scaleForGridColumns(
-        viewportWidth,
-        SeriesBrowserComponent.GRID_GAP,
-        columns,
-        this.baseCardWidth(),
-        SeriesBrowserComponent.MIN_SCALE,
-        SeriesBrowserComponent.MAX_SCALE
-      ));
-    });
-  }
-
-  private setScale(scale: number): void {
-    this.scalePreference.setScale(scale);
+  adjustGridDensity(direction: GridDensityDirection): void {
+    this.gridDensity.adjust(direction, this.virtualGrid);
   }
 
   navigateToSeries(series: SeriesSummary): void {

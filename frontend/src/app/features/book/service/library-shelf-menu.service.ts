@@ -35,6 +35,8 @@ export class LibraryShelfMenuService {
   private readonly t = inject(TranslocoService);
 
   initializeLibraryMenuItems(entity: Library | null): MenuItem[] {
+    const libraryId = entity?.id;
+
     return [
       {
         label: this.t.translate('book.shelfMenuService.library.optionsLabel'),
@@ -42,15 +44,23 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
             icon: 'pi pi-book',
+            disabled: libraryId == null,
             command: () => {
-              this.bookDialogHelperService.openAddPhysicalBookDialog(entity?.id as number);
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
             icon: 'pi pi-barcode',
+            disabled: libraryId == null,
             command: () => {
-              this.bookDialogHelperService.openBulkIsbnImportDialog(entity?.id as number);
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
             }
           },
           {
@@ -59,14 +69,22 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.editLibrary'),
             icon: 'pi pi-pen-to-square',
+            disabled: libraryId == null,
             command: () => {
-              this.dialogLauncherService.openLibraryEditDialog((entity?.id as number));
+              if (libraryId == null) {
+                return;
+              }
+              this.dialogLauncherService.openLibraryEditDialog(libraryId);
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.rescanLibrary'),
             icon: 'pi pi-refresh',
+            disabled: libraryId == null,
             command: () => {
+              if (libraryId == null) {
+                return;
+              }
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.rescanLibraryMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),
@@ -86,11 +104,6 @@ export class LibraryShelfMenuService {
                   severity: 'success',
                 },
                 accept: () => {
-                  const libraryId = entity?.id;
-                  if (libraryId == null) {
-                    return;
-                  }
-
                   this.libraryService.refreshLibrary(libraryId).subscribe({
                     complete: () => {
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshSuccessDetail')});
@@ -110,25 +123,40 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
             icon: 'pi pi-sync',
+            disabled: libraryId == null,
             command: () => {
-              this.dialogLauncherService.openLibraryMetadataFetchDialog((entity?.id as number));
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                metadataRefreshType: MetadataRefreshType.LIBRARY,
+                libraryId
+              });
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.autoFetchMetadata'),
             icon: 'pi pi-bolt',
+            disabled: libraryId == null,
             command: () => {
+              if (libraryId == null) {
+                return;
+              }
               this.taskHelperService.refreshMetadataTask({
                 refreshType: MetadataRefreshType.LIBRARY,
-                libraryId: entity?.id ?? undefined
+                libraryId
               }).subscribe();
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
             icon: 'pi pi-copy',
+            disabled: libraryId == null,
             command: () => {
-              this.bookDialogHelperService.openDuplicateMergerDialog(entity?.id as number);
+              if (libraryId == null) {
+                return;
+              }
+              this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
             }
           },
           {
@@ -137,7 +165,11 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.deleteLibrary'),
             icon: 'pi pi-trash',
+            disabled: libraryId == null,
             command: () => {
+              if (libraryId == null) {
+                return;
+              }
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.deleteLibraryMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),
@@ -153,12 +185,6 @@ export class LibraryShelfMenuService {
                 },
                 accept: () => {
                   const loader = this.loadingService.show(this.t.translate('book.shelfMenuService.loading.deletingLibrary', {name: entity?.name}));
-                  const libraryId = entity?.id;
-
-                  if (libraryId == null) {
-                    this.loadingService.hide(loader);
-                    return;
-                  }
 
                   this.libraryService.deleteLibrary(libraryId)
                     .pipe(finalize(() => this.loadingService.hide(loader)))
@@ -186,144 +212,153 @@ export class LibraryShelfMenuService {
 
   initializeShelfMenuItems(entity: Shelf | null): MenuItem[] {
     const user = this.userService.getCurrentUser();
+    const shelfId = entity?.id;
     const isOwner = entity?.userId === user?.id;
     const isPublicShelf = entity?.publicShelf ?? false;
-    const disableOptions = !isOwner;
+    const disableOptions = !isOwner || shelfId == null;
 
-    return [
+    const items: MenuItem[] = [
       {
-        label: (isPublicShelf ? this.t.translate('book.shelfMenuService.shelf.publicShelfPrefix') : '') + (disableOptions ? this.t.translate('book.shelfMenuService.shelf.readOnly') : this.t.translate('book.shelfMenuService.shelf.optionsLabel')),
-        items: [
-          {
-            label: this.t.translate('book.shelfMenuService.shelf.editShelf'),
-            icon: 'pi pi-pen-to-square',
-            disabled: disableOptions,
-            command: () => {
-              this.dialogLauncherService.openShelfEditDialog((entity?.id as number));
-            }
-          },
-          {
-            separator: true
-          },
-          {
-            label: this.t.translate('book.shelfMenuService.shelf.deleteShelf'),
-            icon: 'pi pi-trash',
-            disabled: disableOptions,
-            command: () => {
-              this.confirmationService.confirm({
-                message: this.t.translate('book.shelfMenuService.confirm.deleteShelfMessage', {name: entity?.name}),
-                header: this.t.translate('book.shelfMenuService.confirm.header'),
-                acceptLabel: this.t.translate('common.yes'),
-                rejectLabel: this.t.translate('common.cancel'),
-                acceptButtonProps: {
-                  label: this.t.translate('common.yes'),
-                  severity: 'danger'
-                },
-                rejectButtonProps: {
-                  label: this.t.translate('common.cancel'),
-                  severity: 'secondary'
-                },
-                accept: () => {
-                  const shelfId = entity?.id;
-                  if (shelfId == null) {
-                    return;
-                  }
+        label: this.t.translate('book.shelfMenuService.shelf.editShelf'),
+        icon: 'pi pi-pen-to-square',
+        disabled: disableOptions,
+        command: () => {
+          if (shelfId == null) {
+            return;
+          }
 
-                  this.shelfService.deleteShelf(shelfId).subscribe({
-                    complete: () => {
-                      this.router.navigate(['/']);
-                      this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.shelfDeletedDetail')});
-                    },
-                    error: () => {
-                      this.messageService.add({
-                        severity: 'error',
-                        summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                        detail: this.t.translate('book.shelfMenuService.toast.shelfDeleteFailedDetail'),
-                      });
-                    }
+          this.dialogLauncherService.openShelfEditDialog(shelfId);
+        }
+      },
+      {
+        separator: true
+      },
+      {
+        label: this.t.translate('book.shelfMenuService.shelf.deleteShelf'),
+        icon: 'pi pi-trash',
+        disabled: disableOptions,
+        command: () => {
+          if (shelfId == null) {
+            return;
+          }
+
+          this.confirmationService.confirm({
+            message: this.t.translate('book.shelfMenuService.confirm.deleteShelfMessage', {name: entity?.name}),
+            header: this.t.translate('book.shelfMenuService.confirm.header'),
+            acceptLabel: this.t.translate('common.yes'),
+            rejectLabel: this.t.translate('common.cancel'),
+            acceptButtonProps: {
+              label: this.t.translate('common.yes'),
+              severity: 'danger'
+            },
+            rejectButtonProps: {
+              label: this.t.translate('common.cancel'),
+              severity: 'secondary'
+            },
+            accept: () => {
+              this.shelfService.deleteShelf(shelfId).subscribe({
+                complete: () => {
+                  this.router.navigate(['/']);
+                  this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.shelfDeletedDetail')});
+                },
+                error: () => {
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                    detail: this.t.translate('book.shelfMenuService.toast.shelfDeleteFailedDetail'),
                   });
                 }
               });
             }
-          }
-        ]
+          });
+        }
       }
     ];
+
+    /* Keep the grouped label only when it conveys state (public/read-only). */
+    if (isPublicShelf || disableOptions) {
+      const prefix = isPublicShelf ? this.t.translate('book.shelfMenuService.shelf.publicShelfPrefix') : '';
+      const suffix = disableOptions
+        ? this.t.translate('book.shelfMenuService.shelf.readOnly')
+        : this.t.translate('book.shelfMenuService.shelf.optionsLabel');
+      return [{ label: prefix + suffix, items }];
+    }
+
+    return items;
   }
 
   initializeMagicShelfMenuItems(entity: MagicShelf | null): MenuItem[] {
     const isAdmin = this.userService.getCurrentUser()?.permissions.admin ?? false;
+    const magicShelfId = entity?.id;
     const isPublicShelf = entity?.isPublic ?? false;
-    const disableOptions = isPublicShelf && !isAdmin;
+    const disableOptions = magicShelfId == null || (isPublicShelf && !isAdmin);
 
     return [
       {
-        label: this.t.translate('book.shelfMenuService.magicShelf.optionsLabel'),
-        items: [
-          {
-            label: this.t.translate('book.shelfMenuService.magicShelf.editMagicShelf'),
-            icon: 'pi pi-pen-to-square',
-            disabled: disableOptions,
-            command: () => {
-              this.dialogLauncherService.openMagicShelfEditDialog((entity?.id as number));
-            }
-          },
-          {
-            label: this.t.translate('book.shelfMenuService.magicShelf.exportJson'),
-            icon: 'pi pi-copy',
-            command: () => {
-              if (entity?.filterJson) {
-                navigator.clipboard.writeText(entity.filterJson).then(() => {
-                  this.messageService.add({severity: 'success', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfJsonCopiedDetail')});
-                });
-              }
-            }
-          },
-          {
-            separator: true
-          },
-          {
-            label: this.t.translate('book.shelfMenuService.magicShelf.deleteMagicShelf'),
-            icon: 'pi pi-trash',
-            disabled: disableOptions,
-            command: () => {
-              this.confirmationService.confirm({
-                message: this.t.translate('book.shelfMenuService.confirm.deleteMagicShelfMessage', {name: entity?.name}),
-                header: this.t.translate('book.shelfMenuService.confirm.header'),
-                acceptLabel: this.t.translate('common.yes'),
-                rejectLabel: this.t.translate('common.cancel'),
-                acceptButtonProps: {
-                  label: this.t.translate('common.yes'),
-                  severity: 'danger'
-                },
-                rejectButtonProps: {
-                  label: this.t.translate('common.cancel'),
-                  severity: 'secondary'
-                },
-                accept: () => {
-                  const shelfId = entity?.id;
-                  if (shelfId == null) {
-                    return;
-                  }
+        label: this.t.translate('book.shelfMenuService.magicShelf.editMagicShelf'),
+        icon: 'pi pi-pen-to-square',
+        disabled: disableOptions,
+        command: () => {
+          if (magicShelfId == null) {
+            return;
+          }
 
-                  this.magicShelfService.deleteShelf(shelfId).subscribe({
-                    complete: () => {
-                      this.router.navigate(['/']);
-                      this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeletedDetail')});
-                    },
-                    error: () => {
-                      this.messageService.add({
-                        severity: 'error',
-                        summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                        detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeleteFailedDetail'),
-                      });
-                    }
+          this.dialogLauncherService.openMagicShelfEditDialog(magicShelfId);
+        }
+      },
+      {
+        label: this.t.translate('book.shelfMenuService.magicShelf.exportJson'),
+        icon: 'pi pi-copy',
+        command: () => {
+          if (entity?.filterJson) {
+            navigator.clipboard.writeText(entity.filterJson).then(() => {
+              this.messageService.add({severity: 'success', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfJsonCopiedDetail')});
+            });
+          }
+        }
+      },
+      {
+        separator: true
+      },
+      {
+        label: this.t.translate('book.shelfMenuService.magicShelf.deleteMagicShelf'),
+        icon: 'pi pi-trash',
+        disabled: disableOptions,
+        command: () => {
+          if (magicShelfId == null) {
+            return;
+          }
+
+          this.confirmationService.confirm({
+            message: this.t.translate('book.shelfMenuService.confirm.deleteMagicShelfMessage', {name: entity?.name}),
+            header: this.t.translate('book.shelfMenuService.confirm.header'),
+            acceptLabel: this.t.translate('common.yes'),
+            rejectLabel: this.t.translate('common.cancel'),
+            acceptButtonProps: {
+              label: this.t.translate('common.yes'),
+              severity: 'danger'
+            },
+            rejectButtonProps: {
+              label: this.t.translate('common.cancel'),
+              severity: 'secondary'
+            },
+            accept: () => {
+              this.magicShelfService.deleteShelf(magicShelfId).subscribe({
+                complete: () => {
+                  this.router.navigate(['/']);
+                  this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeletedDetail')});
+                },
+                error: () => {
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
+                    detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeleteFailedDetail'),
                   });
                 }
               });
             }
-          }
-        ]
+          });
+        }
       }
     ];
   }

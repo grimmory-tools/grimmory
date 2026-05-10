@@ -1,6 +1,15 @@
 {
   "title": "Preferencias de vista",
   "description": "Personaliza cómo se muestran los libros en tu biblioteca, incluyendo el diseño de cuadrícula, opciones de ordenación y comportamiento de la barra lateral.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Preferencias de vista y ordenación de biblioteca y estantes",
     "sectionDesc": "Configura las preferencias predeterminadas y por biblioteca/estante para la ordenación y el modo de vista (cuadrícula o tabla) en el navegador.",

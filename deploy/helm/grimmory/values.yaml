@@ -89,13 +89,28 @@ resources: {}
 #   cpu: 100m
 #   memory: 128Mi
 
-# # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# This is to setup the startup, liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+startupProbe:
+  httpGet:
+    path: /api/v1/healthcheck
+    port: http
+  failureThreshold: 5
+  periodSeconds: 30
+  timeoutSeconds: 5
 livenessProbe:
-  tcpSocket:
+  httpGet:
+    path: /api/v1/healthcheck
     port: http
+  failureThreshold: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
 readinessProbe:
-  tcpSocket:
+  httpGet:
+    path: /api/v1/healthcheck
     port: http
+  failureThreshold: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
 # If you want to bring your own persistence (such as a hostPath),
 # disable these and do so in extraVolumes/extraVolumeMounts
 persistence:

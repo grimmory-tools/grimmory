@@ -130,6 +130,16 @@ export class LibraryService {
     return this.bookService.books().filter(book => book.libraryId === libraryId).length;
   }
 
+  readonly bookCountByLibraryId = computed(() => {
+    const counts = new Map<number, number>();
+    for (const book of this.bookService.books()) {
+      if (book.libraryId != null) {
+        counts.set(book.libraryId, (counts.get(book.libraryId) ?? 0) + 1);
+      }
+    }
+    return counts;
+  });
+
   setLargeLibraryLoading(isLoading: boolean, expectedCount: number): void {
     this.largeLibraryLoading.set({ isLoading, expectedCount });
   }

@@ -6,7 +6,6 @@
   "booksRead": "prebranih knjig",
   "noSeriesFound": "Nobena zbirka ne ustreza tvojemu iskanju ali filtrom.",
   "noSeriesInCategory": "V tej kategoriji ni najdenih zbirk.",
-  "cardSize": "Velikost kartice",
   "filters": {
     "all": "Vse",
     "notStarted": "Še nezačeto",

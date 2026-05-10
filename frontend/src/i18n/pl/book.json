@@ -43,7 +43,6 @@
       "save": "Zapisz",
       "collapseSeries": "Zwiń serie",
       "gridColumns": "Kolumny siatki",
-      "gridItemSize": "Rozmiar elementu siatki",
       "bookTypeOverlay": "Nakładka typu książki",
       "noBooks": "Ta kolekcja nie zawiera książek!",
       "failedLibrary": "Nie udało się załadować książek biblioteki!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Wyczyść zastosowane filtry",
       "visibleColumns": "Widoczne kolumny",
-      "displaySettings": "Ustawienia wyświetlania",
       "selectSorting": "Wybierz sortowanie",
       "toggleView": "Przełącz między widokiem siatki i tabeli",
       "search": "Szukaj",

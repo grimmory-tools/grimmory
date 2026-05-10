@@ -77,7 +77,7 @@ The Project Representative may delegate specific ownership responsibilities to a
 
 **Removal or replacement:** The Project Representative may step down at any time. They may be replaced at any time by a **2/3 supermajority vote of Core Maintainers**, following a 72-hour discussion period.
 
-<!-- The current Project Representative is listed in [`MAINTAINERS.md`](MAINTAINERS.md). -->
+The current Project Representative is [@zachyale](https://github.com/zachyale).
 
 ---
 

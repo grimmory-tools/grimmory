@@ -1,6 +1,15 @@
 {
   "title": "Nastavitve pogleda",
   "description": "Prilagodi način prikaza knjig v svoji knjižnici, vključno z mrežo, možnostmi razvrščanja in obnašanjem stranske vrstice.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Nastavitve pogleda in razvrščanja knjižnic ter polic",
     "sectionDesc": "Konfiguriraj privzete nastavitve in specifične povozitve za razvrščanje ter način pogleda (mreža ali tabela) v brskalniku.",

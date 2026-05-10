@@ -16,22 +16,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AudibleParserTest {
     @Mock private AppSettingService mockAppSettingService;
 
-    @InjectMocks
     private AudibleParser audibleParser;
 
     private MockedStatic<Jsoup> mockJsoup;
@@ -81,6 +88,16 @@ public class AudibleParserTest {
         return mockConnection;
     }
 
+    private String readFixture(String fixtureName) throws IOException {
+        String filename = "audible/" + fixtureName + ".fixture";
+
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
+            assert is != null;
+
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
     private void mockJsoupConnect(String url, String html) throws Exception {
         Document document = Parser.parse(html, "");
         Connection connection = getConnection(document);
@@ -94,15 +111,29 @@ public class AudibleParserTest {
                 "https://www.audible.com/search?keywords=" + keyword,
                 """
                 <html><body>
+                <div data-widget="productList">
                 <a href="https://www.audible.com/pd/something/SEARCHASIN">Example</a>
+                </div>
                 </body></html>
                 """
         );
 
     }
 
+    private void mockExampleProductPage() throws Exception {
+        mockJsoupConnect(
+                "https://www.audible.com/pd/B0FQSDKVQ8",
+                readFixture("example-book-B0FQSDKVQ8.html")
+        );
+    }
+
     @BeforeEach
     public void setup() throws Exception {
+        audibleParser = new AudibleParser(
+                mockAppSettingService,
+                new ObjectMapper()
+        );
+
         when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("com"));
 
         mockJsoup = mockStatic(Jsoup.class);
@@ -174,6 +205,55 @@ public class AudibleParserTest {
         audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
         mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/SEARCHASIN"));
+    }
+
+    @Test
+    public void fetchTopMetadata_ignoresNonSearchResults_withResults() throws Exception {
+        mockExampleProductPage();
+
+        mockJsoupConnect(
+                "https://www.audible.com/search?keywords=Example",
+                """
+                <html><body>
+                <a href="https://www.audible.com/pd/something/AAAAAAAAAA">Example</a>
+                <div data-widget="productList">
+                <a href="https://www.audible.com/pd/something/B0FQSDKVQ8">Example</a>
+                </div>
+                </body></html>
+                """
+        );
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
+
+        BookMetadata bookMetadata = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertNotNull(bookMetadata);
+        assertEquals("B0FQSDKVQ8", bookMetadata.getAsin());
+        assertEquals("PLC Programming for Industrial Automation", bookMetadata.getTitle());
+    }
+
+    @Test
+    public void fetchTopMetadata_ignoresNonSearchResults_noResults() throws Exception {
+        mockExampleProductPage();
+
+        mockJsoupConnect(
+                "https://www.audible.com/search?keywords=Example",
+                """
+                <html><body>
+                <a href="https://www.audible.com/pd/something/B0FQSDKVQ8">Example</a>
+                <div data-widget="productList">
+                </div>
+                </body></html>
+                """
+        );
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
+
+        BookMetadata bookMetadata = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertNull(bookMetadata);
     }
 
     @Test

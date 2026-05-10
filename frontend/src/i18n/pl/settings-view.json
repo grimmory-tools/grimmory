@@ -1,6 +1,15 @@
 {
   "title": "Preferencje widoku",
   "description": "Dostosuj sposób wyświetlania książek w bibliotece, w tym układ siatki, opcje sortowania i zachowanie paska bocznego.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Preferencje widoku i sortowania biblioteki i półki",
     "sectionDesc": "Skonfiguruj domyślne i indywidualne preferencje sortowania i trybu widoku (siatka lub tabela) w przeglądarce dla każdej biblioteki/półki.",

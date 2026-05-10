@@ -1,5 +1,8 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
   min-height: 0;
 
   --book-table-border-color: var(--p-datatable-border-color, color-mix(in srgb, var(--p-content-border-color) 82%, black));
@@ -28,14 +31,10 @@
 
 .book-table-scroll {
   box-sizing: border-box;
-  height: calc(100dvh - 150px);
-  border: 1px solid var(--book-table-border-color);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   background: var(--book-table-row-background);
-
-  @media (width <= 768px) {
-    height: calc(100dvh - 125px);
-  }
 }
 
 .book-table {

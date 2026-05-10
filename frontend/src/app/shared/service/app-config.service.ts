@@ -7,9 +7,18 @@ import { AppState } from '../model/app-state.model';
 
 type ColorPalette = Record<string, string>;
 
+const COLOR_STOPS = ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+
 interface Palette {
   name: string;
   palette: ColorPalette;
+}
+
+interface ResolvedThemePalettes {
+  primary: ColorPalette;
+  surface: ColorPalette;
+  appPrimary: ColorPalette;
+  isNoir: boolean;
 }
 
 @Injectable({
@@ -376,16 +385,27 @@ export class AppConfigService {
     return this.surfaces.find(s => s.name === surface)?.palette ?? {};
   }
 
-  getPresetExt(): object {
-    const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
+  private resolveThemePalettes(): ResolvedThemePalettes {
     const primaryName = this.appState().primary ?? 'orange';
+    const surfaceName = this.appState().surface ?? 'ash';
     const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
-    const color = presetPalette[primaryName] ?? {};
+    const primary = presetPalette[primaryName] ?? presetPalette['orange'] ?? {};
+    const surface = this.getSurfacePalette(surfaceName);
+    const isNoir = primaryName === 'noir';
 
-    if (primaryName === 'noir') {
+    return {
+      primary,
+      surface,
+      appPrimary: isNoir ? surface : primary,
+      isNoir,
+    };
+  }
+
+  private buildPrimePreset(theme: ResolvedThemePalettes): object {
+    if (theme.isNoir) {
       return {
         semantic: {
-          primary: { ...surfacePalette },
+          primary: { ...theme.surface },
           colorScheme: {
             dark: {
               primary: {
@@ -408,7 +428,7 @@ export class AppConfigService {
 
     return {
       semantic: {
-        primary: color,
+        primary: theme.primary,
         colorScheme: {
           dark: {
             primary: {
@@ -429,26 +449,17 @@ export class AppConfigService {
     };
   }
 
-  getFaviconGradient(): { start: string; end: string } {
-    const primaryName = this.appState().primary ?? 'orange';
-    const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
-    const fallbackPalette = presetPalette['orange'] ?? {};
-
-    if (primaryName === 'noir') {
-      const surfaceName = this.appState().surface ?? 'ash';
-      const surfacePalette = this.getSurfacePalette(surfaceName);
-
+  private getFaviconGradient(theme: ResolvedThemePalettes): { start: string; end: string } {
+    if (theme.isNoir) {
       return {
-        start: surfacePalette['50'] ?? surfacePalette['0'] ?? '#f4f6f8',
-        end: surfacePalette['300'] ?? surfacePalette['200'] ?? '#b4bcc7'
+        start: theme.surface['50'] ?? theme.surface['0'] ?? '#f4f6f8',
+        end: theme.surface['300'] ?? theme.surface['200'] ?? '#b4bcc7'
       };
     }
 
-    const colorPalette = presetPalette[primaryName] ?? fallbackPalette;
-
     return {
-      start: colorPalette['300'] ?? colorPalette['500'] ?? '#fdba74',
-      end: colorPalette['500'] ?? colorPalette['700'] ?? '#f97316'
+      start: theme.primary['300'] ?? theme.primary['500'] ?? '#fdba74',
+      end: theme.primary['500'] ?? theme.primary['700'] ?? '#f97316'
     };
   }
 
@@ -457,48 +468,75 @@ export class AppConfigService {
       return;
     }
 
-    const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
-    const preset = this.getPresetExt();
-    $t().preset(Aura).preset(preset).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
-    this.applyDesignTokens();
-    const faviconGradient = this.getFaviconGradient();
+    const theme = this.resolveThemePalettes();
+    this.applyPrimeTheme(theme);
+    this.applyDesignTokens(theme);
+    const faviconGradient = this.getFaviconGradient(theme);
     this.faviconService.updateFavicon(faviconGradient.start, faviconGradient.end);
   }
 
-  private applyDesignTokens(): void {
-    const style = this.document.documentElement.style;
-    const primaryName = this.appState().primary ?? 'orange';
-    const surfaceName = this.appState().surface ?? 'ash';
-    const surface = this.getSurfacePalette(surfaceName);
-    const primary = ((Aura.primitive ?? {}) as Record<string, ColorPalette>)[primaryName] ?? {};
-    const isNoir = primaryName === 'noir';
+  private applyPrimeTheme(theme: ResolvedThemePalettes): void {
+    $t()
+      .preset(Aura)
+      .preset(this.buildPrimePreset(theme))
+      .surfacePalette(theme.surface)
+      .use({ useDefaultOptions: true });
+  }
 
-    const primary400 = isNoir ? surface['50'] : primary['400'];
-    const primary500 = isNoir ? surface['50'] : (primary['500'] ?? primary['400']);
+  private applyDesignTokens(theme: ResolvedThemePalettes): void {
+    const style = this.document.documentElement.style;
+    const appBackground = theme.surface['950'] ?? '#0d1012';
+    const surfaceContent = theme.surface['900'] ?? '#1a1e21';
+    const pageBackground = `color-mix(in srgb, ${surfaceContent} 82%, ${appBackground})`;
+    const surfaceCard = `color-mix(in srgb, ${surfaceContent} 62%, ${theme.surface['800'] ?? '#34393e'})`;
+    const borderSubtle = theme.surface['800'] ?? '#34393e';
+    const borderStrong = theme.surface['700'] ?? '#464f56';
+
+    const primary400 = theme.isNoir ? theme.surface['50'] : theme.primary['400'];
+    const primary500 = theme.isNoir ? theme.surface['50'] : (theme.primary['500'] ?? theme.primary['400']);
 
     style.setProperty('--primary-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-color-rgb', this.toRgbChannels(primary500));
-    style.setProperty('--primary-contrast-color', isNoir ? (surface['950'] ?? '#0d1012') : (surface['900'] ?? '#1a1e21'));
-    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#fdba74'));
+    style.setProperty('--primary-contrast-color', theme.isNoir ? (theme.surface['950'] ?? '#0d1012') : (theme.surface['900'] ?? '#1a1e21'));
+    style.setProperty('--primary-hover-color', theme.isNoir ? (theme.surface['200'] ?? '#d3d8de') : (theme.primary['300'] ?? primary400 ?? '#fdba74'));
     style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
-    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#9a3412'));
+    style.setProperty('--primary-text-color-dark', theme.isNoir ? (theme.surface['950'] ?? '#0d1012') : (theme.primary['900'] ?? '#9a3412'));
 
-    style.setProperty('--ground-background', surface['950'] ?? '#0d1012');
-    style.setProperty('--overlay-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--card-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--content-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--code-background', surface['900'] ?? '#1a1e21');
+    style.setProperty('--app-background', appBackground);
+    style.setProperty('--page-background', pageBackground);
+    style.setProperty('--surface-content', surfaceContent);
+    style.setProperty('--surface-card', surfaceCard);
+    style.setProperty('--surface-toolbar', `color-mix(in srgb, ${appBackground} 70%, ${surfaceContent})`);
+    style.setProperty('--surface-overlay', surfaceContent);
+    style.setProperty('--border-subtle', borderSubtle);
+    style.setProperty('--border-strong', borderStrong);
+    style.setProperty('--state-hover', 'color-mix(in srgb, var(--surface-400) 12%, transparent)');
+    style.setProperty('--state-active', 'color-mix(in srgb, var(--primary-color) 8%, transparent)');
 
-    style.setProperty('--border-color', surface['700'] ?? '#464f56');
-    style.setProperty('--content-border-color', surface['700'] ?? '#464f56');
-    style.setProperty('--text-color', surface['0'] ?? '#ffffff');
-    style.setProperty('--text-color-secondary', surface['300'] ?? '#b4bcc7');
-    style.setProperty('--text-secondary-color', surface['400'] ?? '#919ca9');
-    style.setProperty('--text-muted-color', surface['400'] ?? '#919ca9');
-    style.setProperty('--high-contrast-text-color', surface['0'] ?? '#ffffff');
+    style.setProperty('--ground-background', 'var(--app-background)');
+    style.setProperty('--overlay-background', 'var(--surface-overlay)');
+    style.setProperty('--card-background', 'var(--surface-card)');
+    style.setProperty('--content-background', 'var(--surface-content)');
+    style.setProperty('--code-background', 'var(--surface-content)');
+    style.setProperty('--border-color', 'var(--border-subtle)');
+    style.setProperty('--content-border-color', 'var(--border-subtle)');
+    style.setProperty('--surface-hover', 'var(--state-hover)');
+    style.setProperty('--surface-border', 'var(--border-subtle)');
+    style.setProperty('--text-color', theme.surface['0'] ?? '#ffffff');
+    style.setProperty('--text-color-secondary', theme.surface['300'] ?? '#b4bcc7');
+    style.setProperty('--text-secondary-color', theme.surface['400'] ?? '#919ca9');
+    style.setProperty('--text-muted-color', theme.surface['400'] ?? '#919ca9');
+    style.setProperty('--high-contrast-text-color', theme.surface['0'] ?? '#ffffff');
 
-    Object.entries(surface).forEach(([stop, value]) => {
+    Object.entries(theme.surface).forEach(([stop, value]) => {
       style.setProperty(`--surface-${stop}`, value);
+    });
+
+    COLOR_STOPS.forEach((stop) => {
+      const value = theme.appPrimary[stop];
+      if (value) {
+        style.setProperty(`--primary-${stop}`, value);
+      }
     });
   }
 

@@ -1,6 +1,15 @@
 {
   "title": "Weergavevoorkeuren",
   "description": "Pas aan hoe boeken in uw bibliotheek worden weergegeven, inclusief rasterindeling, sorteeropties en zijbalkgedrag.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "",
     "sectionDesc": "",

@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.persistence.Query;
+import java.time.Duration;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,7 +68,7 @@ public class AppBookService {
     private final EntityManager entityManager;
 
     private final Cache<String, AppFilterOptions> filterOptionsCache = Caffeine.newBuilder()
-            .expireAfterWrite(java.time.Duration.ofSeconds(30))
+            .expireAfterWrite(Duration.ofSeconds(30))
             .maximumSize(50)
             .build();
 
@@ -247,7 +249,7 @@ public class AppBookService {
 
         Specification<BookEntity> spec = AppBookSpecification.combine(
                 AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFile(),
+                AppBookSpecification.hasDigitalFileOrIsPhysical(),
                 AppBookSpecification.inLibraries(accessibleLibraryIds),
                 AppBookSpecification.searchText(query)
         );
@@ -311,7 +313,7 @@ public class AppBookService {
 
         Specification<BookEntity> spec = AppBookSpecification.combine(
                 AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFile(),
+                AppBookSpecification.hasDigitalFileOrIsPhysical(),
                 AppBookSpecification.inLibraries(accessibleLibraryIds),
                 AppBookSpecification.addedWithinDays(30)
         );
@@ -404,7 +406,7 @@ public class AppBookService {
         List<AppBookSummary> summaries = orderedBookIds.stream()
                 .map(bookEntitiesById::get)
                 .filter(Objects::nonNull)
-                .filter(BookEntity::hasFiles)
+                .filter(b -> b.hasFiles() || Boolean.TRUE.equals(b.getIsPhysical()))
                 .map(bookEntity -> mobileBookMapper.toSummary(bookEntity, progressMap.get(bookEntity.getId())))
                 .toList();
 
@@ -573,7 +575,7 @@ public class AppBookService {
                 "FROM UserBookProgressEntity ubp " +
                 "WHERE ubp.user.id = :userId AND ubp.personalRating IS NOT NULL " +
                 "AND ubp.book.id IN (SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) " +
-                "AND b.bookFiles IS NOT EMPTY " +
+                "AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true) " +
                 scopeClause + ") " +
                 "GROUP BY 1 ORDER BY 1 DESC";
         var prQ = entityManager.createQuery(personalRatingQuery, Tuple.class);
@@ -624,7 +626,7 @@ public class AppBookService {
         String creatorJpql = "SELECT cr.name, mapping.role, COUNT(DISTINCT b.id) FROM BookEntity b"
                 + " JOIN b.metadata m JOIN m.comicMetadata cm JOIN cm.creatorMappings mapping JOIN mapping.creator cr"
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + " " + scopeClause
                 + " GROUP BY cr.name, mapping.role ORDER BY COUNT(DISTINCT b.id) DESC";
         var creatorQ = entityManager.createQuery(creatorJpql, Tuple.class);
@@ -800,7 +802,7 @@ public class AppBookService {
 
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (req.libraryId() != null && accessibleLibraryIds.contains(req.libraryId())) {
@@ -1105,7 +1107,7 @@ public class AppBookService {
     private Specification<BookEntity> buildBaseSpecification(Set<Long> accessibleLibraryIds, Long libraryId) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (libraryId != null && !accessibleLibraryIds.contains(libraryId)) {
@@ -1155,7 +1157,7 @@ public class AppBookService {
         String jpql = "SELECT " + selectExpr + ", COUNT(DISTINCT b.id) FROM BookEntity b"
                 + " " + joins
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + (extraWhere.isEmpty() ? "" : " " + extraWhere)
                 + " " + scopeClause
                 + " GROUP BY " + selectExpr + " ORDER BY COUNT(DISTINCT b.id) DESC";
@@ -1175,7 +1177,7 @@ public class AppBookService {
         return sb.toString();
     }
 
-    private void setFilterQueryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+    private void setFilterQueryParams(Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
         if (libraryId != null) {
             query.setParameter("libraryId", libraryId);
         } else if (accessibleLibraryIds != null) {
@@ -1208,7 +1210,7 @@ public class AppBookService {
                 + " AND ubp.book.id IN ("
                 + "   SELECT b.id FROM BookEntity b"
                 + "   WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + "   AND b.bookFiles IS NOT EMPTY"
+                + "   AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + " " + scopeClause
                 + " )"
                 + " GROUP BY ubp.readStatus ORDER BY COUNT(DISTINCT ubp.book.id) DESC";
@@ -1223,7 +1225,7 @@ public class AppBookService {
 
         String baseQuery = "SELECT COUNT(DISTINCT b.id) FROM BookEntity b"
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + " AND b.id NOT IN ("
                 + "   SELECT ubp.book.id FROM UserBookProgressEntity ubp WHERE ubp.user.id = :userId"
                 + " )"
@@ -1262,7 +1264,7 @@ public class AppBookService {
             String scopeClause, Set<Long> accessibleLibraryIds,
             Long libraryId, Long shelfId, Set<Long> magicBookIds) {
         String jpql = "SELECT " + caseExpr + ", COUNT(DISTINCT b.id) FROM BookEntity b " + joins +
-                " WHERE (b.deleted IS NULL OR b.deleted = false) AND b.bookFiles IS NOT EMPTY "
+                " WHERE (b.deleted IS NULL OR b.deleted = false) AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true) "
                 + extraWhere + " " + scopeClause +
                 " GROUP BY 1";
         var q = entityManager.createQuery(jpql, Tuple.class);

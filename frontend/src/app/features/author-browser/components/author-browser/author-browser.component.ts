@@ -7,7 +7,7 @@ import {Popover} from 'primeng/popover';
 import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {Tooltip} from 'primeng/tooltip';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {MessageService} from 'primeng/api';
 import {AuthorService} from '../../service/author.service';
@@ -19,10 +19,12 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
 import {BookService} from '../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../book/model/book.model';
-import {createVirtualGrid, scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
-import {GridDensityButtonsComponent} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
+import {GridDensityButtonsComponent, type GridDensityDirection} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
 import {ScalePreference} from '../../../../shared/util/scale-preference.util';
+import {LayoutService} from '../../../../shared/layout/layout.service';
+import {createGridDensity} from '../../../../shared/util/grid-density.util';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -63,6 +65,7 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
     Divider,
     Tooltip,
     TranslocoDirective,
+    TranslocoPipe,
     GridDensityButtonsComponent,
     AuthorCardComponent,
   ]
@@ -73,7 +76,11 @@ export class AuthorBrowserComponent implements OnInit {
   private static readonly BASE_HEIGHT = 290;
   private static readonly MOBILE_BASE_WIDTH = 140;
   private static readonly MOBILE_BASE_HEIGHT = 250;
+  private static readonly DEFAULT_MOBILE_GRID_COLUMNS = 3;
+  private static readonly MIN_MOBILE_GRID_COLUMNS = 2;
+  private static readonly MAX_MOBILE_GRID_COLUMNS = 4;
   private static readonly SCALE_STORAGE_KEY = 'authorScalePreference';
+  private static readonly MOBILE_COLUMNS_STORAGE_KEY = 'authorMobileColumnsPreference';
   private static readonly MIN_SCALE = 0.7;
   private static readonly MAX_SCALE = 1.3;
 
@@ -87,8 +94,22 @@ export class AuthorBrowserComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private localStorageService = inject(LocalStorageService);
+  private layoutService = inject(LayoutService);
   protected userService = inject(UserService);
   protected selectionService = inject(AuthorSelectionService);
+
+  constructor() {
+    effect(() => {
+      const authors = this.authorService.allAuthors();
+      if (authors !== null) {
+        this.allAuthorsState.set(authors);
+      }
+    });
+
+    effect(() => {
+      this.selectionService.setCurrentAuthors(this.filteredAuthors());
+    });
+  }
 
   private static readonly GRID_GAP = 20;
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
@@ -172,38 +193,48 @@ export class AuthorBrowserComponent implements OnInit {
     result = this.applyFilters(result, this.filters());
     return this.applySort(result, this.sortBy(), this.sortDirection());
   });
-  private readonly syncAuthorsEffect = effect(() => {
-    const authors = this.authorService.allAuthors();
-    if (authors !== null) {
-      this.allAuthorsState.set(authors);
-    }
-  });
-  private readonly syncSelectionEffect = effect(() => {
-    this.selectionService.setCurrentAuthors(this.filteredAuthors());
-  });
-
   @HostListener('window:resize')
   onResize(): void {
     this.screenWidth.set(window.innerWidth);
   }
 
-  readonly isMobile = computed(() => this.screenWidth() <= 767);
+  readonly isMobile = computed(() => !this.layoutService.isDesktop());
   private readonly baseCardWidth = computed(() => this.isMobile()
     ? AuthorBrowserComponent.MOBILE_BASE_WIDTH
     : AuthorBrowserComponent.BASE_WIDTH
   );
+  private readonly gridDensity = createGridDensity(this.localStorageService, {
+    useFixedColumns: this.isMobile,
+    screenWidth: this.screenWidth,
+    storageKey: AuthorBrowserComponent.MOBILE_COLUMNS_STORAGE_KEY,
+    defaultColumns: AuthorBrowserComponent.DEFAULT_MOBILE_GRID_COLUMNS,
+    minColumns: AuthorBrowserComponent.MIN_MOBILE_GRID_COLUMNS,
+    maxColumns: AuthorBrowserComponent.MAX_MOBILE_GRID_COLUMNS,
+    scale: this.scaleFactor,
+    minScale: AuthorBrowserComponent.MIN_SCALE,
+    maxScale: AuthorBrowserComponent.MAX_SCALE,
+    gap: AuthorBrowserComponent.GRID_GAP,
+    baseWidth: this.baseCardWidth,
+    setScale: scale => this.scalePreference.setScale(scale),
+  });
+  readonly gridDensitySmallerDisabled = this.gridDensity.smallerDisabled;
+  readonly gridDensityLargerDisabled = this.gridDensity.largerDisabled;
   private readonly cardAspectRatio = computed(() => {
     const baseHeight = this.isMobile()
       ? AuthorBrowserComponent.MOBILE_BASE_HEIGHT
       : AuthorBrowserComponent.BASE_HEIGHT;
     return baseHeight / this.baseCardWidth();
   });
-  private readonly minCardWidth = computed(() => Math.round(this.baseCardWidth() * this.scaleFactor()));
+  private readonly minCardWidth = computed(() => this.isMobile()
+    ? 1
+    : Math.round(this.baseCardWidth() * this.scaleFactor())
+  );
   readonly virtualGrid = createVirtualGrid({
     items: this.filteredAuthors,
     scrollElement: this.scrollElement,
     minItemWidth: this.minCardWidth,
-    gap: AuthorBrowserComponent.GRID_GAP,
+    gap: this.gridDensity.gap,
+    columns: this.gridDensity.columns,
     initialOffset: this.initialScrollOffset,
     fillItemWidth: true,
     estimateItemHeight: itemWidth => Math.round(itemWidth * this.cardAspectRatio()),
@@ -247,26 +278,8 @@ export class AuthorBrowserComponent implements OnInit {
     this.destroyRef.onDestroy(() => this.selectionService.deselectAll());
   }
 
-  adjustDesktopGridDensity(direction: 'smaller' | 'larger'): void {
-    const currentColumns = this.virtualGrid.gridColumns();
-    const columns = Math.max(1, direction === 'smaller'
-      ? currentColumns + 1
-      : currentColumns - 1);
-    const viewportWidth = this.virtualGrid.viewportWidth() || this.screenWidth();
-    this.virtualGrid.updatePreservingScrollPosition(() => {
-      this.setScale(scaleForGridColumns(
-        viewportWidth,
-        AuthorBrowserComponent.GRID_GAP,
-        columns,
-        this.baseCardWidth(),
-        AuthorBrowserComponent.MIN_SCALE,
-        AuthorBrowserComponent.MAX_SCALE
-      ));
-    });
-  }
-
-  private setScale(scale: number): void {
-    this.scalePreference.setScale(scale);
+  adjustGridDensity(direction: GridDensityDirection): void {
+    this.gridDensity.adjust(direction, this.virtualGrid);
   }
 
   onSearchChange(value: string): void {

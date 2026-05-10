@@ -1,6 +1,15 @@
 {
   "title": "Preferências de Visualização",
   "description": "Personalize como os livros são exibidos na sua biblioteca, incluindo layout da grade, opções de ordenação e comportamento da barra lateral.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Preferências de Visualização e Ordenação de Biblioteca e Prateleira",
     "sectionDesc": "Configure preferências padrão e por biblioteca/prateleira para ordenação e modo de visualização (grade ou tabela) no navegador.",

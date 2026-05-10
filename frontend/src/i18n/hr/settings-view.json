@@ -1,6 +1,15 @@
 {
   "title": "Postavke prikaza",
   "description": "Prilagodite kako se knjige prikazuju u vašoj knjižnici, uključujući raspored mreže, opcije sortiranja i ponašanje bočne trake.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Postavke prikaza i sortiranja zbirki i polica",
     "sectionDesc": "Konfigurirajte zadane i specifične postavke za sortiranje i način prikaza (mreža ili tablica) u pregledniku za svaku knjižnicu/policu.",

@@ -1,6 +1,15 @@
 {
   "title": "视图偏好",
   "description": "自定义书库中书籍的显示方式，包括网格布局、排序选项和侧边栏行为。",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "书库和书架视图与排序偏好",
     "sectionDesc": "配置浏览器中排序和视图模式（网格或表格）的默认和每个书库/书架偏好。",

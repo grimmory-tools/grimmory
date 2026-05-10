@@ -24,6 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
+import org.jsoup.nodes.Document;
 
 @Service
 @Slf4j
@@ -173,7 +174,7 @@ public class KoboSpanMapExtractionService {
             return new ExtractedChapter(zipEntry.getName(), spineIndex, 1, List.of());
         }
 
-        org.jsoup.nodes.Document document = Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
+        Document document = Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
         List<KoboSpanPositionMap.Span> spans = document.select("span.koboSpan[id]").stream()
                 .map(span -> {
                     if (span.id().isBlank() || span.sourceRange() == null) {

@@ -23,7 +23,10 @@
   "discard": "Buang",
   "review": "Tinjau",
   "libraryPathInaccessible": "",
+  "displaySettings": "Pengaturan tampilan",
+  "cardSize": "",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

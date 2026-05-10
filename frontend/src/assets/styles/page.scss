@@ -1,0 +1,56 @@
+/*
+ * Native route page contract.
+ *
+ * Use these classes when a routed page owns its page canvas and scroll area.
+ * Keep them structural: background, padding, flow, and responsive rhythm.
+ * Controls, cards, tables, and PrimeNG component styling belong elsewhere.
+ */
+
+.app-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-content-gap);
+  min-height: 100%;
+  padding: var(--page-gutter-block) var(--page-gutter-inline);
+  overflow: auto;
+  background-color: var(--page-background);
+  color: var(--text-color);
+}
+
+.app-page-flush {
+  padding: 0;
+}
+
+.app-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--page-header-gap);
+  min-width: 0;
+}
+
+.app-page-title {
+  margin: 0;
+  color: var(--high-contrast-text-color);
+}
+
+.app-page-description {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--text-color-secondary);
+}
+
+.app-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-content-gap);
+  min-width: 0;
+}
+
+@media (width <= 768px) {
+  .app-page {
+    --page-gutter-block: var(--space-4);
+    --page-gutter-inline: var(--space-4);
+  }
+}

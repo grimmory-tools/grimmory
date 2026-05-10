@@ -1,0 +1,52 @@
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin()"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions()"
+  [cdkConnectedOverlayViewportMargin]="8"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayFlexibleDimensions]="true"
+>
+  <div ngMenu #inner="ngMenu" class="menu-panel" (itemSelected)="onSelected($event)">
+    <ng-template ngMenuContent>
+      @for (entry of items(); track $index) {
+        @if (isSeparator(entry)) {
+          <div role="separator" class="menu-separator"></div>
+        } @else if (entry.children?.length) {
+          <button
+            ngMenuItem
+            #aria="ngMenuItem"
+            #subTrigger
+            type="button"
+            class="menu-item"
+            [value]="entry"
+            [submenu]="subMenu.menuRef()"
+            [disabled]="entry.disabled ?? false"
+          >
+            @if (entry.icon) { <i [class]="entry.icon" aria-hidden="true"></i> }
+            <span>{{ entry.label }}</span>
+            <i class="pi pi-chevron-right menu-chevron" aria-hidden="true"></i>
+          </button>
+          <app-menu
+            #subMenu="appMenu"
+            [origin]="subTrigger"
+            [open]="aria.expanded() ?? false"
+            [items]="entry.children ?? []"
+            [positions]="submenuPositions"
+          ></app-menu>
+        } @else {
+          <button
+            ngMenuItem
+            type="button"
+            class="menu-item"
+            [value]="entry"
+            [disabled]="entry.disabled ?? false"
+          >
+            @if (entry.icon) { <i [class]="entry.icon" aria-hidden="true"></i> }
+            <span>{{ entry.label }}</span>
+          </button>
+        }
+      }
+    </ng-template>
+  </div>
+</ng-template>

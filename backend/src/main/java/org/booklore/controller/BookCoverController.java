@@ -24,6 +24,8 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
+import jakarta.validation.constraints.NotEmpty;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -144,7 +146,7 @@ public class BookCoverController {
     @PreAuthorize("@securityUtil.canBulkEditMetadata() or @securityUtil.isAdmin()")
     public void bulkUploadCover(
             @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file,
-            @Parameter(description = "Comma-separated book IDs") @RequestParam("bookIds") @jakarta.validation.constraints.NotEmpty java.util.Set<Long> bookIds) {
+            @Parameter(description = "Comma-separated book IDs") @RequestParam("bookIds") @NotEmpty Set<Long> bookIds) {
         bookCoverService.updateCoverFromFileForBooks(bookIds, file);
     }
 

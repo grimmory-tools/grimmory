@@ -49,7 +49,7 @@ public class BookNoteV2Entity {
     @Column(name = "chapter_title", length = 500)
     private String chapterTitle;
 
-    @jakarta.persistence.Version
+    @Version
     @Column(name = "version", nullable = false)
     private Long version;
 

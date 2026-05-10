@@ -37,7 +37,7 @@ public class CustomFontService {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_CHARS_PATTERN = Pattern.compile("[<>\"'`]");
-    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]*>");
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^<>]*>");
     private static final Pattern CONTROL_CHARS_PATTERN = Pattern.compile("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]");
     private final CustomFontRepository customFontRepository;
     private final UserRepository userRepository;

@@ -23,7 +23,10 @@
   "discard": "Zavrzi",
   "review": "Preglej",
   "libraryPathInaccessible": "Pot do knjižnice ni dostopna",
+  "displaySettings": "Nastavitve prikaza",
+  "cardSize": "Velikost kartice",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

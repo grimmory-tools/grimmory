@@ -1,17 +1,20 @@
-@use "variables";
-
-.layout-main-container {
+.layout-main {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
-  justify-content: space-between;
-  padding: 5rem 1.1rem 1.1rem 3.6rem;
-  transition: margin-left variables.$transition-duration;
-  position: fixed;
-  width: 100%;
-  width: -webkit-fill-available;
+  grid-area: main;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--page-background);
 }
 
-.layout-main {
+.layout-main > router-outlet + * {
+  display: block;
   flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
 }

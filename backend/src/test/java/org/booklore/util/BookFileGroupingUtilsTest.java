@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import java.util.ArrayList;
 
 class BookFileGroupingUtilsTest {
 
@@ -864,7 +865,7 @@ class BookFileGroupingUtilsTest {
         pathEntity.setId(1L);
         pathEntity.setPath("/library");
 
-        List<LibraryFile> files = new java.util.ArrayList<>();
+        List<LibraryFile> files = new ArrayList<>();
         String[] titles = {
                 "1. The Lightning Thief.m4b",
                 "2. The Sea of Monsters.m4b",

@@ -19,9 +19,9 @@
         <div class="setting-options">
           <p-select
             size="small"
-            [options]="sortingOptions"
-            [(ngModel)]="selectedLibrarySorting"
-            (ngModelChange)="onLibrarySortingChange()"
+            [options]="sortingOptions()"
+            [ngModel]="selectedLibrarySorting()"
+            (ngModelChange)="onLibrarySortingChange($event)"
             appendTo="body"
             optionLabel="label"
             optionValue="value"
@@ -38,9 +38,9 @@
         <div class="setting-options">
           <p-select
             size="small"
-            [options]="sortingOptions"
-            [(ngModel)]="selectedShelfSorting"
-            (ngModelChange)="onShelfSortingChange()"
+            [options]="sortingOptions()"
+            [ngModel]="selectedShelfSorting()"
+            (ngModelChange)="onShelfSortingChange($event)"
             appendTo="body"
             optionLabel="label"
             optionValue="value"
@@ -57,9 +57,9 @@
         <div class="setting-options">
           <p-select
             size="small"
-            [options]="sortingOptions"
-            [(ngModel)]="selectedMagicShelfSorting"
-            (ngModelChange)="onMagicShelfSortingChange()"
+            [options]="sortingOptions()"
+            [ngModel]="selectedMagicShelfSorting()"
+            (ngModelChange)="onMagicShelfSortingChange($event)"
             appendTo="body"
             optionLabel="label"
             optionValue="value"

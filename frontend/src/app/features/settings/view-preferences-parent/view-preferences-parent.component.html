@@ -35,10 +35,9 @@
               <div class="slider-container">
                 <p-slider
                   [(ngModel)]="sidebarWidth"
-                  [min]="175"
-                  [max]="400"
+                  [min]="SIDEBAR_MIN_WIDTH"
+                  [max]="SIDEBAR_MAX_WIDTH"
                   [step]="1"
-                  (onChange)="onSidebarWidthChange()"
                   (onSlideEnd)="saveSidebarWidth()">
                 </p-slider>
               </div>

@@ -75,6 +75,10 @@ spec:
                   name: {{ .Release.Name }}-mariadb
                   {{- end }}
                   key: mariadb-password
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

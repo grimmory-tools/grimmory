@@ -43,7 +43,6 @@
       "save": "Shrani",
       "collapseSeries": "Strni zbirke",
       "gridColumns": "Stolpci mreže",
-      "gridItemSize": "Velikost elementov",
       "bookTypeOverlay": "Oznaka formata knjige",
       "noBooks": "Ta zbirka nima knjig!",
       "failedLibrary": "Napaka pri nalaganju knjig iz knjižnice!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Počisti uporabljene filtre",
       "visibleColumns": "Vidni stolpci",
-      "displaySettings": "Nastavitve prikaza",
       "selectSorting": "Izberi razvrščanje",
       "toggleView": "Preklopi med mrežnim in tabelarnim prikazom",
       "search": "Išči",

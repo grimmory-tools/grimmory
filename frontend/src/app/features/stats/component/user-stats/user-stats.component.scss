@@ -1,8 +1,9 @@
 .user-stats-container {
   max-width: 1800px;
   margin: 0 auto;
+  box-sizing: border-box;
   padding: 0.5rem;
-  height: calc(100dvh - 6.25rem);
+  height: 100%;
   overflow-y: auto;
 }
 

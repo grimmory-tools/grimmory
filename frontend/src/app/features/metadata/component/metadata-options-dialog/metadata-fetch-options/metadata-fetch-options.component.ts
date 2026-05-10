@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MetadataRefreshRequest} from '../../../model/request/metadata-refresh-request.model';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
@@ -18,10 +18,16 @@ import {TranslocoDirective} from '@jsverse/transloco';
   ],
   styleUrl: './metadata-fetch-options.component.scss'
 })
-export class MetadataFetchOptionsComponent {
-  libraryId!: number;
-  bookIds!: number[];
-  metadataRefreshType!: MetadataRefreshType;
+export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
+  @Input() dialogData?: {
+    libraryId?: number | null;
+    bookIds?: number[];
+    metadataRefreshType?: MetadataRefreshType;
+  };
+
+  libraryId?: number;
+  bookIds: number[] = [];
+  metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
 
   private dynamicDialogConfig = inject(DynamicDialogConfig);
@@ -30,12 +36,19 @@ export class MetadataFetchOptionsComponent {
   private appSettingsService = inject(AppSettingsService);
 
   constructor() {
-    this.libraryId = this.dynamicDialogConfig.data.libraryId;
-    this.bookIds = this.dynamicDialogConfig.data.bookIds;
-    this.metadataRefreshType = this.dynamicDialogConfig.data.metadataRefreshType;
     const settings = this.appSettingsService.appSettings();
     if (settings) {
       this.currentMetadataOptions = settings.defaultMetadataRefreshOptions;
+    }
+  }
+
+  ngOnInit(): void {
+    this.applyContext(this.dialogData ?? this.dynamicDialogConfig.data ?? {});
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('dialogData' in changes) {
+      this.applyContext(changes['dialogData'].currentValue ?? {});
     }
   }
 
@@ -48,5 +61,15 @@ export class MetadataFetchOptionsComponent {
     };
     this.taskHelperService.refreshMetadataTask(metadataRefreshRequest).subscribe();
     this.dynamicDialogRef.close();
+  }
+
+  private applyContext(context: {
+    libraryId?: number | null;
+    bookIds?: number[];
+    metadataRefreshType?: MetadataRefreshType;
+  }): void {
+    this.libraryId = context.libraryId ?? undefined;
+    this.bookIds = context.bookIds ?? [];
+    this.metadataRefreshType = context.metadataRefreshType ?? MetadataRefreshType.BOOKS;
   }
 }

@@ -24,7 +24,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-          ref: develop
 
       - name: Record Resolved Commit
         id: resolve
@@ -39,22 +38,6 @@ jobs:
           nightly_tag="nightly-${build_date}-${short_sha}"
           base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
           from_ref="$base_tag"
-          previous_nightly_sha=""
-          if previous_nightly_json="$(
-            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1"
-          )"; then
-            previous_nightly_sha="$(printf '%s' "$previous_nightly_json" | jq -r '.workflow_runs[0].head_sha // ""')"
-          else
-            echo "::warning::Unable to resolve previous nightly run; using ${base_tag}"
-          fi
-
-          if [ -n "$previous_nightly_sha" ] \
-            && git rev-parse --verify --quiet "${previous_nightly_sha}^{commit}" >/dev/null \
-            && git merge-base --is-ancestor "$previous_nightly_sha" HEAD; then
-            from_ref="$previous_nightly_sha"
-          elif [ -n "$previous_nightly_sha" ]; then
-            echo "::warning::Ignoring unusable nightly baseline ${previous_nightly_sha}; using ${base_tag}"
-          fi
 
           echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -102,8 +85,8 @@ jobs:
         if: ${{ vars.DOCKERHUB_REGISTRY != '' }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Authenticate to GitHub Container Registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0

@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jakarta.persistence.Query;
 
 @Service
 @AllArgsConstructor
@@ -80,7 +81,7 @@ public class AppSeriesService {
                 + " FROM BookEntity b JOIN b.metadata m"
                 + " LEFT JOIN b.userBookProgress p ON p.user.id = :userId"
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + " AND m.seriesName IS NOT NULL"
                 + libraryClause
                 + searchClause
@@ -103,7 +104,7 @@ public class AppSeriesService {
         String countQuery = "SELECT COUNT(DISTINCT m.seriesName) FROM BookEntity b JOIN b.metadata m"
                 + (inProgressOnly ? " LEFT JOIN b.userBookProgress p ON p.user.id = :userId" : "")
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + " AND m.seriesName IS NOT NULL"
                 + libraryClause
                 + searchClause;
@@ -114,7 +115,7 @@ public class AppSeriesService {
                     + "SELECT m.seriesName FROM BookEntity b JOIN b.metadata m"
                     + " LEFT JOIN b.userBookProgress p ON p.user.id = :userId"
                     + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                    + " AND b.bookFiles IS NOT EMPTY"
+                    + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                     + " AND m.seriesName IS NOT NULL"
                     + libraryClause
                     + searchClause
@@ -125,7 +126,7 @@ public class AppSeriesService {
             String countAlt = "SELECT m.seriesName FROM BookEntity b JOIN b.metadata m"
                     + " LEFT JOIN b.userBookProgress p ON p.user.id = :userId"
                     + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                    + " AND b.bookFiles IS NOT EMPTY"
+                    + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                     + " AND m.seriesName IS NOT NULL"
                     + libraryClause
                     + searchClause
@@ -178,7 +179,7 @@ public class AppSeriesService {
                 + " JOIN FETCH b.metadata m"
                 + " WHERE m.seriesName IN :seriesNames"
                 + " AND (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND (b.bookFiles IS NOT EMPTY OR b.isPhysical = true)"
                 + libraryClause;
 
         var booksQ = entityManager.createQuery(booksQuery, BookEntity.class);
@@ -317,7 +318,7 @@ public class AppSeriesService {
         return "";
     }
 
-    private void setLibraryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId) {
+    private void setLibraryParams(Query query, Set<Long> accessibleLibraryIds, Long libraryId) {
         if (libraryId != null) {
             query.setParameter("libraryId", libraryId);
         } else if (accessibleLibraryIds != null) {
@@ -362,7 +363,7 @@ public class AppSeriesService {
     private Specification<BookEntity> buildSeriesBooksSpec(Set<Long> accessibleLibraryIds, Long libraryId, String seriesName) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
         specs.add(AppBookSpecification.inSeries(seriesName));
 
         if (accessibleLibraryIds != null) {
