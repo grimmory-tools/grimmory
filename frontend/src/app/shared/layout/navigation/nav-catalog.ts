@@ -133,7 +133,7 @@ const SECONDARY_PAGE_DEFINITIONS: readonly PageDefinition[] = [
   },
 ] as const;
 
-const ACTION_DEFINITIONS: readonly ActionDefinition[] = [
+const CREATE_ACTION_DEFINITIONS: readonly ActionDefinition[] = [
   {
     id: 'createLibrary',
     labelKey: 'layout.menu.createLibrary',
@@ -153,6 +153,10 @@ const ACTION_DEFINITIONS: readonly ActionDefinition[] = [
     icon: 'pi-sparkles',
     run: (handlers) => handlers.createMagicShelf,
   },
+] as const;
+
+const ACTION_DEFINITIONS: readonly ActionDefinition[] = [
+  ...CREATE_ACTION_DEFINITIONS,
   {
     id: 'uploadBook',
     labelKey: 'layout.menu.uploadBook',
@@ -198,6 +202,21 @@ export function buildQuickActionNavItems(
   handlers: ShellActionHandlers,
 ): NavItem[] {
   return ACTION_DEFINITIONS
+    .filter((definition) => isVisible(definition, permissions))
+    .map((definition) => ({
+      id: definition.id,
+      label: translate(definition.labelKey),
+      icon: definition.icon,
+      action: definition.run(handlers),
+    }));
+}
+
+export function buildCreateActionNavItems(
+  translate: TranslateFn,
+  permissions: ShellNavPermissions,
+  handlers: ShellActionHandlers,
+): NavItem[] {
+  return CREATE_ACTION_DEFINITIONS
     .filter((definition) => isVisible(definition, permissions))
     .map((definition) => ({
       id: definition.id,

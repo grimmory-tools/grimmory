@@ -6,7 +6,7 @@ import { LibraryShelfMenuService } from '../../../features/book/service/library-
 import { SortPref } from '../sidebar-sort-preferences';
 
 import { SidebarLeaf, SidebarSection } from '../navigation/nav-item.model';
-import { buildHomeNavItems } from '../navigation/nav-catalog';
+import { buildHomeNavItems, findPageNavItem, ShellNavPermissions } from '../navigation/nav-catalog';
 
 export interface HomeCounts {
   allBooks: number;
@@ -57,6 +57,27 @@ export function buildHomeSection(translate: TranslateFn, counts: HomeCounts): Si
       ...item,
       bookCount: homeItemBookCount(item.id, counts),
     })),
+  }];
+}
+
+export function buildToolsSection(
+  translate: TranslateFn,
+  permissions: ShellNavPermissions,
+): SidebarSection[] {
+  const items = [
+    findPageNavItem('libraryStats', translate, permissions),
+    findPageNavItem('metadataManager', translate, permissions),
+    findPageNavItem('bookdrop', translate, permissions),
+  ].filter((item): item is SidebarLeaf => !!item);
+
+  if (items.length === 0) return [];
+
+  return [{
+    id: 'tools',
+    menuKey: 'tools',
+    label: translate('layout.menu.tools'),
+    expandable: true,
+    items,
   }];
 }
 
