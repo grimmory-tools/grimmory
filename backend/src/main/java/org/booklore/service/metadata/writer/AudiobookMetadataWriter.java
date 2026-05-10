@@ -19,13 +19,20 @@ import org.jaudiotagger.tag.images.ArtworkFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.booklore.util.MimeDetector;
+import org.jaudiotagger.audio.AudioFile;
 
 @Slf4j
 @Component
@@ -129,7 +136,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
                         tag.deleteArtworkField();
                         Artwork artwork = ArtworkFactory.getNew();
                         artwork.setBinaryData(coverData);
-                        artwork.setMimeType(detectMimeType(coverData));
+                        artwork.setMimeType(MimeDetector.detect(new ByteArrayInputStream(coverData)));
                         tag.setField(artwork);
                         hasChanges[0] = true;
                     } catch (Exception e) {
@@ -172,7 +179,8 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
 
         try {
-            String extension = detectImageExtension(coverData);
+            String detectedMime = MimeDetector.detect(new ByteArrayInputStream(coverData));
+            String extension = getExtensionForMime(detectedMime);
             String filename = "cover" + extension;
             Path coverPath = folderPath.resolve(filename);
 
@@ -186,18 +194,20 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     }
 
     private void deleteExistingCovers(Path folderPath) throws IOException {
-        String[] coverNames = {"cover.jpg", "cover.jpeg", "cover.png", "folder.jpg", "folder.jpeg", "folder.png"};
+        String[] coverNames = {"cover.jpg", "cover.jpeg", "cover.png", "cover.webp", "cover.avif", "folder.jpg", "folder.jpeg", "folder.png", "folder.webp", "folder.avif"};
         for (String name : coverNames) {
             Path existing = folderPath.resolve(name);
             Files.deleteIfExists(existing);
         }
     }
 
-    private String detectImageExtension(byte[] data) {
-        if (data.length > 3 && data[0] == (byte) 0x89 && data[1] == (byte) 0x50 && data[2] == (byte) 0x4E && data[3] == (byte) 0x47) {
-            return ".png";
-        }
-        return ".jpg";
+    private String getExtensionForMime(String mime) {
+        return switch (mime) {
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            case "image/avif" -> ".avif";
+            default -> ".jpg";
+        };
     }
 
     private void setTagField(Tag tag, FieldKey key, String value, boolean[] hasChanges) {
@@ -280,7 +290,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             tag.deleteArtworkField();
             Artwork artwork = ArtworkFactory.getNew();
             artwork.setBinaryData(coverData);
-            artwork.setMimeType(detectMimeType(coverData));
+            artwork.setMimeType(MimeDetector.detect(new ByteArrayInputStream(coverData)));
             tag.setField(artwork);
             f.commit();
 
@@ -335,12 +345,5 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
             return null;
         }
-    }
-
-    private String detectMimeType(byte[] data) {
-        if (data.length > 3 && data[0] == (byte) 0x89 && data[1] == (byte) 0x50 && data[2] == (byte) 0x4E && data[3] == (byte) 0x47) {
-            return "image/png";
-        }
-        return "image/jpeg";
     }
 }

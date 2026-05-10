@@ -531,8 +531,8 @@ public class BookCoverService {
         // Detect MIME from content byte never trust the client-supplied Content-Type header
         try (var inputStream = file.getInputStream()) {
             String detectedMime = MimeDetector.detect(inputStream);
-            if (!"image/jpeg".equals(detectedMime) && !"image/png".equals(detectedMime)) {
-                throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed (detected: " + detectedMime + ")");
+            if (!"image/jpeg".equals(detectedMime) && !"image/png".equals(detectedMime) && !"image/webp".equals(detectedMime) && !"image/avif".equals(detectedMime)) {
+                throw ApiError.INVALID_INPUT.createException("Only JPEG, PNG, WebP and AVIF files are allowed (detected: " + detectedMime + ")");
             }
         } catch (IOException e) {
             throw ApiError.INVALID_INPUT.createException("Failed to read uploaded file for MIME detection");

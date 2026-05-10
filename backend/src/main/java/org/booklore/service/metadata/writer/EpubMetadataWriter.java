@@ -28,6 +28,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,6 +48,7 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.booklore.util.MimeDetector;
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;
 import java.util.function.Predicate;
@@ -464,8 +467,11 @@ public class EpubMetadataWriter implements MetadataWriter {
             throw new IOException("No cover item found in manifest");
         }
 
+        String detectedMime = MimeDetector.detect(new ByteArrayInputStream(coverData));
+        String currentMime = existingCoverItem.getAttribute("media-type");
         String coverHref = existingCoverItem.getAttribute("href");
         String decodedCoverHref = URLDecoder.decode(coverHref, StandardCharsets.UTF_8);
+
         if (decodedCoverHref == null || decodedCoverHref.isBlank()) {
             throw new IOException("Cover item has no href attribute");
         }
@@ -478,10 +484,49 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
 
         Path opfDir = opfPath.getParent();
-        Path coverFilePath = opfDir.resolve(decodedCoverHref).normalize();
+        Path currentCoverFilePath = opfDir.resolve(decodedCoverHref).normalize();
 
-        Files.createDirectories(coverFilePath.getParent());
-        Files.write(coverFilePath, coverData);
+        String newHref = coverHref;
+        Path newCoverFilePath = currentCoverFilePath;
+
+        if (!detectedMime.equals(currentMime)) {
+            log.info("Updating cover media-type from {} to {}", currentMime, detectedMime);
+            existingCoverItem.setAttribute("media-type", detectedMime);
+
+            String currentExt = "";
+            int lastDot = decodedCoverHref.lastIndexOf('.');
+            if (lastDot != -1) {
+                currentExt = decodedCoverHref.substring(lastDot);
+            }
+
+            String newExt = getExtensionForMime(detectedMime);
+            if (!newExt.isEmpty() && !newExt.equalsIgnoreCase(currentExt)) {
+                String newDecodedHref = decodedCoverHref.substring(0, decodedCoverHref.length() - currentExt.length()) + newExt;
+                // Simple URL encoding for the new href, focusing on keeping it clean and preserving forward slashes
+                newHref = URLEncoder.encode(newDecodedHref, StandardCharsets.UTF_8).replace("+", "%20").replace("%2F", "/");
+                existingCoverItem.setAttribute("href", newHref);
+                newCoverFilePath = opfDir.resolve(newDecodedHref).normalize();
+                
+                log.info("Updating cover href from {} to {}", coverHref, newHref);
+                
+                if (Files.exists(currentCoverFilePath)) {
+                    Files.delete(currentCoverFilePath);
+                }
+            }
+        }
+
+        Files.createDirectories(newCoverFilePath.getParent());
+        Files.write(newCoverFilePath, coverData);
+    }
+
+    private String getExtensionForMime(String mime) {
+        return switch (mime) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            case "image/avif" -> ".avif";
+            default -> "";
+        };
     }
 
     private Path findOpfPath(Path tempDir) throws IOException, ParserConfigurationException, SAXException {
