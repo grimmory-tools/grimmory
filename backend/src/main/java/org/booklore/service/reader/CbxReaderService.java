@@ -94,7 +94,7 @@ public class CbxReaderService {
     public void initCache(Long bookId, String bookType) throws IOException {
         Path cbxPath = getBookPath(bookId, bookType);
         CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified().toEpochMilli());
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified());
         chapterCacheService.prepareCbxCache(cacheKey, cbxPath, metadata.imageEntries());
 
         if (metadata.pageDimensions() == null) {
@@ -111,7 +111,7 @@ public class CbxReaderService {
      * (native extraction per request).
      */
     private void submitBackgroundCacheInit(Long bookId, String bookType, Instant lastModified) {
-        String key = bookId + ":" + bookType + ":" + lastModified.toEpochMilli();
+        String key = bookId + ":" + bookType + ":" + versionToken(lastModified);
         if (cacheInitSubmitted.add(key)) {
             cacheExecutor.submit(() -> {
                 try {
@@ -203,7 +203,7 @@ public class CbxReaderService {
             }
 
             // Try disk cache first (fast, memory-safe)
-            String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified().toEpochMilli());
+            String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified());
             if (chapterCacheService.hasPage(cacheKey, 1) && chapterCacheService.hasPage(cacheKey, metadata.imageEntries().size())) {
                 List<CbxPageDimension> dimensions = computeDimensionsFromDiskCache(cacheKey, metadata.imageEntries().size());
                 CachedArchiveMetadata updated = new CachedArchiveMetadata(metadata.imageEntries(), dimensions, metadata.lastModified());
@@ -360,7 +360,7 @@ public class CbxReaderService {
         // Tier 1: Check L1 Memory Map (OS File Cache) via open ZipFile
         // This is the fastest path for ZIP/CBZ
         try {
-            ZipFile zip = getZipFile(cbxPath, metadata.lastModified().toEpochMilli());
+            ZipFile zip = getZipFile(cbxPath, metadata.lastModified());
             if (zip != null) {
                 String entryName = metadata.imageEntries().get(page - 1);
                 ZipEntry entry = zip.getEntry(entryName);
@@ -376,7 +376,7 @@ public class CbxReaderService {
         }
 
         // Tier 2: Check L3 Disk Cache (extracted files)
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified().toEpochMilli());
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified());
         if (chapterCacheService.hasPage(cacheKey, page)) {
             Path cached = chapterCacheService.getCachedPage(cacheKey, page);
             Files.copy(cached, outputStream);
@@ -388,8 +388,8 @@ public class CbxReaderService {
         archiveService.transferEntryTo(cbxPath, entryName, outputStream);
     }
 
-    private ZipFile getZipFile(Path cbxPath, long lastModified) {
-        String cacheKey = cbxPath.toString() + ":" + lastModified;
+    private ZipFile getZipFile(Path cbxPath, Instant lastModified) {
+        String cacheKey = cbxPath + ":" + versionToken(lastModified);
         return zipHandleCache.get(cacheKey, _ -> {
             try {
                 if (isZipPath(cbxPath)) {
@@ -402,14 +402,19 @@ public class CbxReaderService {
         });
     }
 
-    private String getCacheKey(Long bookId, String bookType, long lastModified) {
+    private String getCacheKey(Long bookId, String bookType, Instant lastModified) {
+        String version = versionToken(lastModified);
         if (bookType != null) {
             // Ensure we use the safe enum name to prevent path traversal
             BookFileType type = BookFileType.fromName(bookType)
                     .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
-            return bookId + "_" + type.name() + "_" + lastModified;
+            return bookId + "_" + type.name() + "_" + version;
         }
-        return bookId + "_" + lastModified;
+        return bookId + "_" + version;
+    }
+
+    private static String versionToken(Instant instant) {
+        return instant.getEpochSecond() + "_" + instant.getNano();
     }
 
     private Path getBookPath(Long bookId, String bookType) {

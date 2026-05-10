@@ -250,20 +250,21 @@ public class IconService {
         }
 
         try {
-            long dirMtime = Files.getLastModifiedTime(iconsPath).toMillis();
+            Instant dirMtime = Files.getLastModifiedTime(iconsPath).toInstant();
             try (Stream<Path> paths = Files.list(iconsPath)) {
-                long maxFileMtime = paths.filter(Files::isRegularFile)
+                Instant maxFileMtime = paths.filter(Files::isRegularFile)
                         .filter(path -> path.toString().endsWith(SVG_EXTENSION))
-                        .mapToLong(path -> {
+                        .map(path -> {
                             try {
-                                return Files.getLastModifiedTime(path).toMillis();
+                                return Files.getLastModifiedTime(path).toInstant();
                             } catch (IOException e) {
-                                return 0L;
+                                log.warn("Failed to get last modified time for {}: {}", path, e.getMessage());
+                                return Instant.EPOCH;
                             }
                         })
-                        .max()
-                        .orElse(0L);
-                return Instant.ofEpochMilli(Math.max(dirMtime, maxFileMtime));
+                        .max(Instant::compareTo)
+                        .orElse(Instant.EPOCH);
+                return dirMtime.isAfter(maxFileMtime) ? dirMtime : maxFileMtime;
             }
         } catch (IOException e) {
             log.error("Failed to check icons directory last modified: {}", e.getMessage());
