@@ -80,13 +80,9 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
   const currentVersion = parseSemanticVersion(current);
   if (!latestVersion || !currentVersion) return false;
 
-  for (let index = 0; index < latestVersion.length; index++) {
-    if (latestVersion[index] !== currentVersion[index]) {
-      return latestVersion[index] > currentVersion[index];
-    }
-  }
-
-  return false;
+  if (latestVersion[0] !== currentVersion[0]) return latestVersion[0] > currentVersion[0];
+  if (latestVersion[1] !== currentVersion[1]) return latestVersion[1] > currentVersion[1];
+  return latestVersion[2] > currentVersion[2];
 }
 
 @Component({
