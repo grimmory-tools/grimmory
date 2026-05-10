@@ -1,4 +1,4 @@
-import {computed, signal} from '@angular/core';
+import {computed, signal, untracked} from '@angular/core';
 
 export type DeferredRenderMode = 'reset' | 'refresh';
 
@@ -20,7 +20,7 @@ export class DeferredRenderState<T> {
       this._value.set(undefined);
       this._isRefreshing.set(false);
     } else {
-      this._isRefreshing.set(this._value() !== undefined);
+      this._isRefreshing.set(untracked(() => this._value() !== undefined));
     }
 
     return this.activeRequestId;
