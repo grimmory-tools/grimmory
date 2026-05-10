@@ -1,4 +1,5 @@
 @use '../../../shared/styles/panel-shared' as panel;
+@use '../../../../assets/layout/styles/layout/variables';
 
 .user-profile-dialog {
   min-width: 300px;
@@ -33,7 +34,7 @@
   max-height: 60vh;
   overflow-y: auto;
 
-  @media (width <= 480px) {
+  @media #{variables.$mobile-shell-media-query} {
     padding: 1rem;
     gap: 1.25rem;
   }
@@ -212,7 +213,7 @@
   }
 }
 
-@media (width <= 480px) {
+@media #{variables.$mobile-shell-media-query} {
   .language-select {
     width: 100%;
   }
