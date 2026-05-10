@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +27,17 @@ public class VersionController {
     @ApiResponse(responseCode = "200", description = "Version info returned successfully")
     @GetMapping
     public ResponseEntity<VersionInfo> getVersionInfo() {
-        return ResponseEntity.ok(versionService.getVersionInfo());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(versionService.getVersionInfo());
     }
 
     @Operation(summary = "Get changelog since current version", description = "Retrieve the changelog since the current version.")
     @ApiResponse(responseCode = "200", description = "Changelog returned successfully")
     @GetMapping("/changelog")
     public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent() {
-        return ResponseEntity.ok(versionService.getChangelogSinceCurrentVersion());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(versionService.getChangelogSinceCurrentVersion());
     }
 }

@@ -33,9 +33,23 @@ describe('VersionService', () => {
       expect(version).toEqual({current: '1.0.0', latest: '1.0.1'});
     });
 
-    const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/version`);
+    const request = httpTestingController.expectOne(req =>
+      req.url === `${API_CONFIG.BASE_URL}/api/v1/version` && req.params.has('_')
+    );
     expect(request.request.method).toBe('GET');
     request.flush({current: '1.0.0', latest: '1.0.1'});
+  });
+
+  it('returns unknown version details when the version request fails', () => {
+    service.getVersion().subscribe(version => {
+      expect(version).toEqual({current: 'unknown', latest: 'unknown'});
+    });
+
+    const request = httpTestingController.expectOne(req =>
+      req.url === `${API_CONFIG.BASE_URL}/api/v1/version` && req.params.has('_')
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush('Version unavailable', {status: 500, statusText: 'Server Error'});
   });
 
   it('fetches the changelog entries', () => {

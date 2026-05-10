@@ -9,6 +9,7 @@ import {
   buildLibrarySection,
   buildMagicShelfSection,
   buildShelfSection,
+  buildToolsSection,
 } from './sidebar-sections';
 
 const translate = (key: string): string => key;
@@ -66,6 +67,29 @@ describe('buildHomeSection', () => {
       authors: 7,
       notebook: undefined,
     });
+  });
+});
+
+describe('buildToolsSection', () => {
+  it('returns no section when the user has no tool permissions', () => {
+    expect(buildToolsSection(translate, {})).toEqual([]);
+  });
+
+  it('builds a permission-gated tools section', () => {
+    const [section] = buildToolsSection(translate, {
+      canAccessLibraryStats: true,
+      canEditMetadata: true,
+      canAccessBookdrop: true,
+      canAccessUserStats: true,
+    });
+
+    expect(section.id).toBe('tools');
+    expect(section.expandable).toBe(true);
+    expect(section.items.map((item) => item.id)).toEqual([
+      'libraryStats',
+      'metadataManager',
+      'bookdrop',
+    ]);
   });
 });
 
