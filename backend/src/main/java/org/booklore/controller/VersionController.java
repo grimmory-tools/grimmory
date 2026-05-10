@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Version", description = "Endpoints for retrieving application version and changelog")
 public class VersionController {
 
+    private static final Duration CACHE_TTL = Duration.ofHours(1);
     private final VersionService versionService;
 
     @Operation(summary = "Get application version", description = "Retrieve the current application version.")
@@ -32,12 +32,15 @@ public class VersionController {
     @GetMapping
     public ResponseEntity<VersionInfo> getVersionInfo(WebRequest request) {
         VersionInfo info = versionService.getVersionInfo();
-        String etag = info.getCurrent() + ":" + info.getLatest();
+        String latestPart = info.getLatest() != null ? info.getLatest() : "unknown";
+        String etag = info.getCurrent() + ":" + latestPart;
+
         if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            return null;
         }
+
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.maxAge(CACHE_TTL).cachePrivate().mustRevalidate())
                 .eTag(etag)
                 .body(info);
     }
@@ -47,20 +50,17 @@ public class VersionController {
     @GetMapping("/changelog")
     public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent(WebRequest request) {
         List<ReleaseNote> changelog = versionService.getChangelogSinceCurrentVersion();
-        if (changelog == null) {
-            return ResponseEntity.ok()
-                    .cacheControl(CacheControl.noCache())
-                    .body(List.of());
-        }
 
         String etag = changelog.stream()
                 .map(note -> note.version() + ":" + note.publishedAt())
                 .collect(Collectors.joining("|"));
+
         if (request.checkNotModified(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            return null;
         }
+
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())
+                .cacheControl(CacheControl.maxAge(CACHE_TTL).cachePrivate().mustRevalidate())
                 .eTag(etag)
                 .body(changelog);
     }
