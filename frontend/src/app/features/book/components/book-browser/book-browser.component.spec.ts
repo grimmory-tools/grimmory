@@ -255,7 +255,7 @@ function createHarness(options?: {
         },
       },
       {provide: AppSettingsService, useValue: {appSettings: vi.fn(() => null)}},
-      {provide: LayoutService, useValue: {sidebarTransitioning: signal(false)}},
+      {provide: LayoutService, useValue: {isDesktop: signal(true), sidebarTransitioning: signal(false)}},
       {
         provide: ActivatedRoute,
         useValue: {

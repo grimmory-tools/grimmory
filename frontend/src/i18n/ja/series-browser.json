@@ -6,7 +6,6 @@
   "booksRead": "冊読了",
   "noSeriesFound": "検索やフィルターに一致するシリーズがありません。",
   "noSeriesInCategory": "このカテゴリにシリーズが見つかりません。",
-  "cardSize": "カードサイズ",
   "filters": {
     "all": "すべて",
     "notStarted": "未開始",

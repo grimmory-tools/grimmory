@@ -43,7 +43,6 @@
       "save": "Сохранить",
       "collapseSeries": "Свернуть серии",
       "gridColumns": "Столбцы сетки",
-      "gridItemSize": "Размер элемента сетки",
       "bookTypeOverlay": "Наложение типа книги",
       "noBooks": "В этой коллекции нет книг!",
       "failedLibrary": "Не удалось загрузить книги библиотеки!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Очистить применённые фильтры",
       "visibleColumns": "Видимые столбцы",
-      "displaySettings": "Настройки отображения",
       "selectSorting": "Выбрать сортировку",
       "toggleView": "Переключить между видом сетки и таблицы",
       "search": "Поиск",

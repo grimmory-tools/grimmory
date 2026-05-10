@@ -1,6 +1,6 @@
 import { computed, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MessageService } from 'primeng/api';
 
@@ -17,13 +17,13 @@ import { SeriesDataService } from '../../../features/series-browser/service/seri
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
 import { AuthService } from '../../service/auth.service';
-import { VersionService } from '../../service/version.service';
+import { AppVersion, VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
 
 import { AppSidebarComponent } from './app.sidebar.component';
 
-interface MenuOverlay {
+interface PopoverOverlay {
   container: HTMLElement;
   toggle: (event: MouseEvent) => void;
 }
@@ -53,6 +53,7 @@ describe('AppSidebarComponent', () => {
   let component: AppSidebarComponent;
   let commandPaletteService: { open: ReturnType<typeof vi.fn> };
   let currentUser: WritableSignal<TestUser | null>;
+  let versionInfo: BehaviorSubject<AppVersion>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
   const layoutService = {
@@ -68,6 +69,7 @@ describe('AppSidebarComponent', () => {
   beforeEach(() => {
     commandPaletteService = { open: vi.fn() };
     currentUser = signal<TestUser | null>(null);
+    versionInfo = new BehaviorSubject<AppVersion>({ current: '1.2.3', latest: '1.2.3' });
 
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
@@ -95,6 +97,7 @@ describe('AppSidebarComponent', () => {
         { provide: CommandPaletteService, useValue: commandPaletteService },
         { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)) } },
         { provide: AuthService, useValue: { logout: vi.fn() } },
+        { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
         { provide: MagicShelfService, useValue: { shelves: signal([]), bookCountByMagicShelfId: signal(new Map()) } },
@@ -139,10 +142,10 @@ describe('AppSidebarComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(100, 148, 40));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(overlay.toggle).toHaveBeenCalled();
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('92px');
@@ -154,10 +157,10 @@ describe('AppSidebarComponent', () => {
     vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(createRect(220, 260, 24));
     const container = document.createElement('div');
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'below');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('268px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe('');
@@ -187,6 +190,32 @@ describe('AppSidebarComponent', () => {
     expect(component.userInitials()).toBe('');
   });
 
+  it('normalizes semantic version labels with or without a leading v', () => {
+    const sidebar = component as unknown as { appVersionLabel: () => string };
+
+    versionInfo.next({ current: '1.2.3', latest: '1.2.3' });
+    expect(sidebar.appVersionLabel()).toBe('v1.2.3');
+
+    versionInfo.next({ current: 'v1.2.3', latest: '1.2.3' });
+    expect(sidebar.appVersionLabel()).toBe('v1.2.3');
+
+    versionInfo.next({ current: 'development', latest: 'v1.2.3' });
+    expect(sidebar.appVersionLabel()).toBe('development');
+  });
+
+  it('compares update versions numerically after normalizing a leading v', () => {
+    const sidebar = component as unknown as { updateAvailable: () => boolean };
+
+    versionInfo.next({ current: '1.2.3', latest: 'v1.2.3' });
+    expect(sidebar.updateAvailable()).toBe(false);
+
+    versionInfo.next({ current: 'v1.10.0', latest: 'v1.2.0' });
+    expect(sidebar.updateAvailable()).toBe(false);
+
+    versionInfo.next({ current: '1.2.3', latest: 'v1.2.4' });
+    expect(sidebar.updateAvailable()).toBe(true);
+  });
+
   it('anchors notifications above the trigger and keeps them inside the viewport on mobile', () => {
     layoutService.isDesktop.set(false);
 
@@ -195,10 +224,10 @@ describe('AppSidebarComponent', () => {
     const container = document.createElement('div');
     Object.defineProperty(container, 'offsetWidth', { value: 120, configurable: true });
     const overlay = { container, toggle: vi.fn() };
-    const menuHarness = component as unknown as { applySidebarOverlayPosition(overlay: MenuOverlay): void };
+    const popoverHarness = component as unknown as { applySidebarOverlayPosition(overlay: PopoverOverlay): void };
 
     component.openSidebarOverlay({ currentTarget: trigger } as unknown as MouseEvent, overlay as never, 'above');
-    menuHarness.applySidebarOverlayPosition(overlay);
+    popoverHarness.applySidebarOverlayPosition(overlay);
 
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('212px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe(`${window.innerWidth - 128}px`);

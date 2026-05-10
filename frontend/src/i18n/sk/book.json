@@ -43,7 +43,6 @@
       "save": "",
       "collapseSeries": "",
       "gridColumns": "",
-      "gridItemSize": "",
       "bookTypeOverlay": "",
       "noBooks": "",
       "failedLibrary": "",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "",
       "visibleColumns": "",
-      "displaySettings": "",
       "selectSorting": "",
       "toggleView": "",
       "search": "",
