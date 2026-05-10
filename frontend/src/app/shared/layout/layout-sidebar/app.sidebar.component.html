@@ -1,30 +1,5 @@
 <ng-container *transloco="let t; prefix: 'layout.menu'">
 <div class="menu-container">
-  <ng-template #sidebarUserMenuStart>
-    @if (currentUser(); as menuUser) {
-      <div class="sidebar-user-menu-header">
-        <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
-        <span class="sidebar-user-meta">
-          <span class="sidebar-user-name">{{ menuUser.name || menuUser.username }}</span>
-          @if (menuUser.name) {
-            <span class="sidebar-user-handle">&#64;{{ menuUser.username }}</span>
-          }
-        </span>
-      </div>
-    }
-  </ng-template>
-
-  <ng-template #sidebarUserMenuEnd>
-    @if (version(); as v) {
-      <div class="sidebar-user-menu-footer">
-        <span>Grimmory v{{ v.current }}</span>
-        @if (hasUpdate()) {
-          <span class="sidebar-user-update">{{ t('update') }}</span>
-        }
-      </div>
-    }
-  </ng-template>
-
   <div class="sidebar-header">
     <a class="sidebar-brand" [routerLink]="['/dashboard']" [attr.aria-label]="t('goToDashboard')">
       <span class="sidebar-brand-mark" aria-hidden="true">
@@ -75,17 +50,40 @@
 
     <button
       type="button"
+      ngMenuTrigger
+      #addMobileTrigger="ngMenuTrigger"
+      #addMobileOrigin
+      [menu]="addMobileMenu.menuRef()"
       class="sidebar-icon-button sidebar-mobile-landscape-action"
       [pTooltip]="t('add')"
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
       [attr.aria-label]="t('add')"
-      aria-haspopup="menu"
-      [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
-      (click)="openSidebarOverlay($event, addMenu, 'below')"
     >
       <i class="pi pi-plus" aria-hidden="true"></i>
     </button>
+
+    <app-menu
+      #addMobileMenu="appMenu"
+      [origin]="addMobileOrigin"
+      [open]="addMobileTrigger.expanded()"
+      [items]="addMenuItems()"
+      [positions]="mobileMenuPositions"
+    ></app-menu>
+
+    @if (canUploadBooks()) {
+      <button
+        type="button"
+        class="sidebar-icon-button sidebar-mobile-landscape-action"
+        [attr.aria-label]="t('uploadBook')"
+        [pTooltip]="t('uploadBook')"
+        [tooltipDisabled]="!layoutService.isDesktop()"
+        tooltipPosition="bottom"
+        (click)="openUploadDialog()"
+      >
+        <i class="pi pi-upload" aria-hidden="true"></i>
+      </button>
+    }
 
     <button
       type="button"
@@ -101,45 +99,23 @@
       <i class="pi pi-bell" aria-hidden="true"></i>
     </button>
 
-    <button
-      type="button"
-      class="sidebar-icon-button sidebar-mobile-landscape-action"
-      [attr.aria-label]="t('more')"
-      [pTooltip]="t('more')"
-      [tooltipDisabled]="!layoutService.isDesktop()"
-      tooltipPosition="bottom"
-      aria-haspopup="menu"
-      [attr.aria-expanded]="moreMenuOpen() ? 'true' : 'false'"
-      (click)="openSidebarOverlay($event, moreMenu, 'below')"
-    >
-      <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
-    </button>
-
-    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="addMenuOpen.set(true); applySidebarOverlayPosition(addMenu)" (onHide)="addMenuOpen.set(false)"/>
     <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="notificationsOpen.set(true); applySidebarOverlayPosition(notificationsPopover)" (onHide)="notificationsOpen.set(false)">
       <app-unified-notification-popover-component></app-unified-notification-popover-component>
     </p-popover>
-    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="moreMenuOpen.set(true); applySidebarOverlayPosition(moreMenu)" (onHide)="moreMenuOpen.set(false)"/>
 
     @if (currentUser(); as user) {
       <button
         type="button"
+        cdkOverlayOrigin
+        #userMobileOrigin="cdkOverlayOrigin"
         class="sidebar-icon-button sidebar-mobile-user-button"
         [attr.aria-label]="t('profile')"
-        aria-haspopup="menu"
-        (click)="openSidebarOverlay($event, mobileUserMenu, 'below')"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="userPopoverOpen() ? 'true' : 'false'"
+        (click)="toggleUserPopover(userMobileOrigin)"
       >
         <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
       </button>
-
-      <p-menu #mobileUserMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applySidebarOverlayPosition(mobileUserMenu)">
-        <ng-template pTemplate="start">
-          <ng-container [ngTemplateOutlet]="sidebarUserMenuStart"></ng-container>
-        </ng-template>
-        <ng-template pTemplate="end">
-          <ng-container [ngTemplateOutlet]="sidebarUserMenuEnd"></ng-container>
-        </ng-template>
-      </p-menu>
     }
 
     <button
@@ -179,16 +155,42 @@
     <div class="sidebar-footer-actions">
       <button
         type="button"
+        ngMenuTrigger
+        #addFooterTrigger="ngMenuTrigger"
+        #addFooterOrigin
+        [menu]="addFooterMenu.menuRef()"
         class="sidebar-action-link sidebar-footer-action sidebar-toolbar-button"
         [pTooltip]="t('add')"
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         [attr.aria-label]="t('add')"
-        (click)="openSidebarOverlay($event, addMenu, 'above')"
       >
         <i class="pi pi-plus" aria-hidden="true"></i>
         <span>{{ t('add') }}</span>
       </button>
+
+      <app-menu
+        #addFooterMenu="appMenu"
+        [origin]="addFooterOrigin"
+        [open]="addFooterTrigger.expanded()"
+        [items]="addMenuItems()"
+        [positions]="footerMenuPositions()"
+      ></app-menu>
+
+      @if (canUploadBooks()) {
+        <button
+          type="button"
+          class="sidebar-action-link sidebar-footer-action"
+          [attr.aria-label]="t('uploadBook')"
+          [pTooltip]="t('uploadBook')"
+          [tooltipDisabled]="!layoutService.isDesktop()"
+          tooltipPosition="top"
+          (click)="openUploadDialog()"
+        >
+          <i class="pi pi-upload" aria-hidden="true"></i>
+          <span>{{ t('uploadBook') }}</span>
+        </button>
+      }
 
       <button
         type="button"
@@ -203,30 +205,21 @@
         <span>{{ t('notifications') }}</span>
       </button>
 
-      <button
-        type="button"
-        class="sidebar-action-link sidebar-footer-action"
-        [attr.aria-label]="t('more')"
-        [pTooltip]="t('more')"
-        [tooltipDisabled]="!layoutService.isDesktop()"
-        tooltipPosition="top"
-        (click)="openSidebarOverlay($event, moreMenu, 'above')"
-      >
-        <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
-        <span>{{ t('more') }}</span>
-      </button>
     </div>
     @if (currentUser(); as user) {
       <div class="sidebar-footer-bottom">
         <button
           type="button"
+          cdkOverlayOrigin
+          #userFooterOrigin="cdkOverlayOrigin"
           class="sidebar-user-trigger"
           [attr.aria-label]="t('profile')"
-          aria-haspopup="menu"
           [pTooltip]="user.name || user.username"
           [tooltipDisabled]="!layoutService.desktopSidebarCollapsed()"
           tooltipPosition="right"
-          (click)="openSidebarOverlay($event, userMenu, 'below')"
+          aria-haspopup="dialog"
+          [attr.aria-expanded]="userPopoverOpen() ? 'true' : 'false'"
+          (click)="toggleUserPopover(userFooterOrigin)"
         >
           <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
           <span class="sidebar-user-meta">
@@ -255,14 +248,6 @@
           ></i>
         </button>
       </div>
-      <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applySidebarOverlayPosition(userMenu)">
-        <ng-template pTemplate="start">
-          <ng-container [ngTemplateOutlet]="sidebarUserMenuStart"></ng-container>
-        </ng-template>
-        <ng-template pTemplate="end">
-          <ng-container [ngTemplateOutlet]="sidebarUserMenuEnd"></ng-container>
-        </ng-template>
-      </p-menu>
     } @else {
       <div class="sidebar-footer-bottom">
         <button
@@ -285,5 +270,99 @@
       </div>
     }
   </div>
+
+  @if (currentUser(); as user) {
+    @if (userPopoverOrigin(); as userOrigin) {
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="userOrigin"
+        [cdkConnectedOverlayOpen]="userPopoverOpen()"
+        [cdkConnectedOverlayPositions]="aboveMenuPositions"
+        [cdkConnectedOverlayViewportMargin]="8"
+        [cdkConnectedOverlayPush]="true"
+        [cdkConnectedOverlayFlexibleDimensions]="true"
+        [cdkConnectedOverlayHasBackdrop]="true"
+        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+        cdkConnectedOverlayPanelClass="user-account-popover-pane"
+        (backdropClick)="closeUserPopover()"
+        (detach)="closeUserPopover()"
+        (overlayKeydown)="onUserPopoverKeydown($event)"
+      >
+        <section
+          class="user-account-popover"
+          role="dialog"
+          aria-modal="true"
+          cdkTrapFocus
+          cdkTrapFocusAutoCapture
+          [attr.aria-label]="'settingsProfile.title' | transloco"
+        >
+          <header class="user-account-popover-header">
+            <div class="user-account-popover-title-row">
+              <h2>Grimmory <span>{{ appVersionLabel() }}</span></h2>
+              <button
+                type="button"
+                class="user-account-popover-icon-button"
+                cdkFocusInitial
+                [attr.aria-label]="t('documentation')"
+                (click)="openDocumentation()"
+              >
+                <i class="pi pi-question-circle" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="user-account-popover-header-actions">
+              <button
+                type="button"
+                class="user-account-popover-settings"
+                (click)="openSettings()"
+              >
+                <i class="pi pi-cog" aria-hidden="true"></i>
+                <span>{{ t('settings') }}</span>
+              </button>
+
+              @if (updateAvailable()) {
+                <button
+                  type="button"
+                  class="user-account-popover-update"
+                  (click)="openChangelogDialog()"
+                >
+                  <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
+                  <span>{{ t('updateAvailable') }}</span>
+                </button>
+              }
+            </div>
+          </header>
+
+          <div class="user-account-popover-body">
+            @if (!user.permissions.demoUser) {
+              <button type="button" class="menu-item user-account-popover-action" (click)="openAccountSettings()">
+                <i class="pi pi-user-edit" aria-hidden="true"></i>
+                <span>{{ 'settingsProfile.title' | transloco }}</span>
+              </button>
+            }
+
+            @if (canAccessReadingStats()) {
+              <button
+                type="button"
+                class="menu-item user-account-popover-action"
+                (click)="openReadingStats()"
+              >
+                <i class="pi pi-chart-bar" aria-hidden="true"></i>
+                <span>{{ t('readingStats') }}</span>
+              </button>
+            }
+          </div>
+
+          <footer class="user-account-popover-footer">
+            <button type="button" class="menu-item user-account-popover-logout" (click)="logout()">
+              <i class="pi pi-sign-out" aria-hidden="true"></i>
+              <span>{{ t('logout') }}</span>
+            </button>
+          </footer>
+        </section>
+      </ng-template>
+    }
+  }
 </div>
+
 </ng-container>

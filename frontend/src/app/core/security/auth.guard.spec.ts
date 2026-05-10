@@ -5,10 +5,6 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {AuthService} from '../../shared/service/auth.service';
 import {AuthGuard} from './auth.guard';
 
-function buildToken(payload: Record<string, unknown>): string {
-  return `header.${btoa(JSON.stringify(payload))}.signature`;
-}
-
 describe('AuthGuard', () => {
   const route = {} as ActivatedRouteSnapshot;
   const state = {} as RouterStateSnapshot;
@@ -19,6 +15,8 @@ describe('AuthGuard', () => {
 
   const authService = {
     getInternalAccessToken: vi.fn<() => string | null>(),
+    getInternalAccessTokenExpiry: vi.fn<() => number | null>(),
+    getIsDefaultPassword: vi.fn<() => boolean>(),
   };
 
   beforeEach(() => {
@@ -27,6 +25,8 @@ describe('AuthGuard', () => {
     router.createUrlTree.mockClear();
     router.navigate.mockClear();
     authService.getInternalAccessToken.mockReset();
+    authService.getInternalAccessTokenExpiry.mockReset();
+    authService.getIsDefaultPassword.mockReset();
 
     TestBed.configureTestingModule({
       providers: [
@@ -41,9 +41,8 @@ describe('AuthGuard', () => {
   });
 
   it('allows navigation for a valid non-default-password token', () => {
-    authService.getInternalAccessToken.mockReturnValue(
-      buildToken({exp: Math.floor(Date.now() / 1000) + 3600})
-    );
+    authService.getInternalAccessToken.mockReturnValue('bearer token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() + 3600000);
 
     const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
@@ -62,9 +61,8 @@ describe('AuthGuard', () => {
 
   it('returns a login UrlTree for expired tokens', () => {
     localStorage.setItem('accessToken_Internal', 'stale-token');
-    authService.getInternalAccessToken.mockReturnValue(
-      buildToken({exp: Math.floor(Date.now() / 1000) - 10})
-    );
+    authService.getInternalAccessToken.mockReturnValue('stale-token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() - 10000);
 
     const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
@@ -74,24 +72,13 @@ describe('AuthGuard', () => {
   });
 
   it('redirects to the change-password flow for default-password tokens', () => {
-    authService.getInternalAccessToken.mockReturnValue(
-      buildToken({exp: Math.floor(Date.now() / 1000) + 3600, isDefaultPassword: true})
-    );
+    authService.getInternalAccessToken.mockReturnValue('bearer token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() + 3600000);
+    authService.getIsDefaultPassword.mockReturnValue(true);
 
     const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/change-password']);
-  });
-
-  it('clears the token and redirects to login for malformed tokens', () => {
-    localStorage.setItem('accessToken_Internal', 'bad-token');
-    authService.getInternalAccessToken.mockReturnValue('bad-token');
-
-    const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
-
-    expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
-    expect(localStorage.getItem('accessToken_Internal')).toBeNull();
   });
 });

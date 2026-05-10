@@ -7,6 +7,13 @@ import { createRxStompConfig } from '../websocket/rx-stomp.config';
 import { Router } from '@angular/router';
 import { PostLoginInitializerService } from '../../core/services/post-login-initializer.service';
 
+interface AccessTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  isDefaultPassword?: boolean;
+  expires?: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,11 +34,11 @@ export class AuthService {
   readonly token = signal<string | null>(this.getInternalAccessToken());
   readonly isAuthenticated = computed(() => !!this.token());
 
-  internalLogin(credentials: { username: string; password: string }): Observable<{ accessToken: string; refreshToken: string, isDefaultPassword: string }> {
-    return this.http.post<{ accessToken: string; refreshToken: string, isDefaultPassword: string }>(`${this.apiUrl}/login`, credentials).pipe(
+  internalLogin(credentials: { username: string; password: string }): Observable<AccessTokenResponse> {
+    return this.http.post<AccessTokenResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
         if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken);
+          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
           this.initializeWebSocketConnection();
           this.handleSuccessfulAuth();
         }
@@ -39,22 +46,22 @@ export class AuthService {
     );
   }
 
-  internalRefreshToken(): Observable<{ accessToken: string; refreshToken: string }> {
+  internalRefreshToken(): Observable<AccessTokenResponse> {
     const refreshToken = this.getInternalRefreshToken();
-    return this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+    return this.http.post<AccessTokenResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap((response) => {
         if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken);
+          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
         }
       })
     );
   }
 
-  remoteLogin(): Observable<{ accessToken: string; refreshToken: string, isDefaultPassword: string }> {
-    return this.http.get<{ accessToken: string; refreshToken: string, isDefaultPassword: string }>(`${this.apiUrl}/remote`).pipe(
+  remoteLogin(): Observable<AccessTokenResponse> {
+    return this.http.get<AccessTokenResponse>(`${this.apiUrl}/remote`).pipe(
       tap((response) => {
         if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken);
+          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
           this.initializeWebSocketConnection();
           this.handleSuccessfulAuth();
         }
@@ -62,10 +69,23 @@ export class AuthService {
     );
   }
 
-  saveInternalTokens(accessToken: string, refreshToken: string): void {
+  saveInternalTokens(accessToken: string, refreshToken: string, accessTokenExpiry: number = 3600, isDefaultPassword: boolean = false): void {
+
     localStorage.setItem('accessToken_Internal', accessToken);
+    localStorage.setItem('accessToken_Internal_Expiry', (Date.now() + (accessTokenExpiry * 1000)).toString());
     localStorage.setItem('refreshToken_Internal', refreshToken);
+    localStorage.setItem('authenticationIsDefaultPassword_Internal', isDefaultPassword ? 'true' : 'false')
     this.token.set(accessToken);
+  }
+
+  getIsDefaultPassword(): boolean {
+    const isDefaultPassword = localStorage.getItem('authenticationIsDefaultPassword_Internal') ?? 'false';
+    return isDefaultPassword === 'true';
+  }
+
+  getInternalAccessTokenExpiry(): number | null {
+    const expiry = Number.parseInt(localStorage.getItem('accessToken_Internal_Expiry') ?? '');
+    return Number.isNaN(expiry) ? null : expiry;
   }
 
   getInternalAccessToken(): string | null {
@@ -121,7 +141,10 @@ export class AuthService {
 
   private clearSession(): void {
     localStorage.removeItem('accessToken_Internal');
+    localStorage.removeItem('accessToken_Internal_Expiry');
     localStorage.removeItem('refreshToken_Internal');
+    localStorage.removeItem('authenticationIsDefaultPassword_Internal');
+
     this.token.set(null);
     this._postLoginInitialized.set(false);
     this.getRxStompService().deactivate();

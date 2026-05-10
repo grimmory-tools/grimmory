@@ -193,7 +193,7 @@ export async function installLoginAndBooksRoutes(
       await asJson(route, {
         accessToken: createJwt(),
         refreshToken: 'refresh-token',
-        isDefaultPassword: 'false',
+        isDefaultPassword: false,
       });
       return;
     }

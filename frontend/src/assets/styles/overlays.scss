@@ -21,3 +21,261 @@
     top: 3.5rem;
   }
 }
+
+.menu-panel,
+.user-account-popover {
+  --menu-panel-padding: 4px;
+  --menu-panel-gap: 1px;
+  --menu-panel-min-width: 12rem;
+  --menu-panel-radius: 8px;
+  --menu-item-padding-block: 4px;
+  --menu-item-padding-inline: 10px;
+  --menu-item-min-height: 28px;
+  --menu-item-gap: 8px;
+  --menu-item-radius: 5px;
+  --menu-item-icon-size: 16px;
+}
+
+.menu-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--menu-panel-gap);
+  min-width: var(--menu-panel-min-width);
+  padding: var(--menu-panel-padding);
+  background: var(--page-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--menu-panel-radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+  color: var(--text-color);
+  font: inherit;
+  font-size: var(--text-base);
+}
+
+.menu-panel .menu-item,
+.user-account-popover .menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--menu-item-gap);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--menu-item-min-height);
+  padding: var(--menu-item-padding-block) var(--menu-item-padding-inline);
+  border: 0;
+  background: transparent;
+  border-radius: var(--menu-item-radius);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-panel .menu-item:hover,
+.user-account-popover .menu-item:hover {
+  background-color: var(--surface-hover);
+}
+
+.menu-panel .menu-item:focus-visible,
+.user-account-popover .menu-item:focus-visible {
+  background-color: var(--surface-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 50%, transparent);
+  outline: none;
+}
+
+.menu-panel .menu-item[aria-disabled="true"],
+.user-account-popover .menu-item[aria-disabled="true"] {
+  color: var(--text-color-secondary);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.menu-panel .menu-item i,
+.user-account-popover .menu-item i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--menu-item-icon-size);
+  height: var(--menu-item-icon-size);
+  font-size: var(--text-base);
+  color: var(--surface-500);
+}
+
+.menu-panel .menu-separator {
+  margin: var(--menu-panel-padding) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  .menu-panel,
+  .user-account-popover {
+    --menu-panel-padding: 6px;
+    --menu-panel-gap: 2px;
+    --menu-item-padding-block: 8px;
+    --menu-item-padding-inline: 12px;
+    --menu-item-min-height: 40px;
+    --menu-item-gap: 10px;
+  }
+}
+
+.cdk-overlay-pane.user-account-popover-pane {
+  pointer-events: auto;
+}
+
+.user-account-popover {
+  display: flex;
+  flex-direction: column;
+  width: min(17.5rem, calc(100vw - 1rem));
+  overflow: hidden;
+  background: var(--page-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--menu-panel-radius);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 28%),
+    0 4px 16px rgb(0 0 0 / 18%);
+  color: var(--text-color);
+  font: inherit;
+}
+
+.user-account-popover-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--surface-hover), var(--page-background) 35%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-account-popover-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.user-account-popover-header h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.user-account-popover-header h2 span {
+  color: var(--text-color-secondary);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.user-account-popover-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--surface-500);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.user-account-popover-icon-button:hover,
+.user-account-popover-icon-button:focus-visible {
+  background: var(--surface-hover);
+  color: var(--text-color);
+  outline: none;
+}
+
+.user-account-popover-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.user-account-popover .user-account-popover-settings,
+.user-account-popover .user-account-popover-update {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  gap: var(--menu-item-gap);
+  min-height: var(--menu-item-min-height);
+  padding: var(--menu-item-padding-block) var(--menu-item-padding-inline);
+  border: 1px solid var(--border-color);
+  border-radius: var(--menu-item-radius);
+  background: transparent;
+  color: var(--text-color);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-account-popover .user-account-popover-settings:hover,
+.user-account-popover .user-account-popover-settings:focus-visible {
+  background: var(--surface-hover);
+  color: var(--text-color);
+  outline: none;
+}
+
+.user-account-popover .user-account-popover-update {
+  border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: var(--primary-color);
+}
+
+.user-account-popover .user-account-popover-update:hover,
+.user-account-popover .user-account-popover-update:focus-visible {
+  background: color-mix(in srgb, var(--primary-color) 26%, transparent);
+  color: var(--primary-color);
+  outline: none;
+}
+
+.user-account-popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.375rem;
+}
+
+.user-account-popover .user-account-popover-action {
+  background: transparent;
+  color: var(--text-color);
+}
+
+.user-account-popover-footer {
+  padding: 0.375rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.user-account-popover .user-account-popover-logout {
+  background: transparent;
+  color: var(--p-red-400);
+}
+
+.user-account-popover .user-account-popover-settings i,
+.user-account-popover .user-account-popover-update i,
+.user-account-popover .user-account-popover-logout i {
+  color: currentcolor;
+}
+
+.user-account-popover .user-account-popover-logout:hover,
+.user-account-popover .user-account-popover-logout:focus-visible {
+  background: color-mix(in srgb, var(--p-red-500) 12%, transparent);
+  outline: none;
+}

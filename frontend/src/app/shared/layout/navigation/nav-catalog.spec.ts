@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { buildAllNavPages, buildHomeNavItems, buildQuickActionNavItems, findPageNavItem } from './nav-catalog';
+import {
+  buildAllNavPages,
+  buildCreateActionNavItems,
+  buildHomeNavItems,
+  buildQuickActionNavItems,
+  findPageNavItem,
+} from './nav-catalog';
 
 const translate = (key: string): string => key;
 
@@ -74,6 +80,24 @@ describe('nav-catalog', () => {
       'createShelf',
       'createMagicShelf',
       'uploadBook',
+    ]);
+  });
+
+  it('builds create-only actions without upload', () => {
+    const handlers = {
+      createLibrary: vi.fn(),
+      createShelf: vi.fn(),
+      createMagicShelf: vi.fn(),
+      uploadBook: vi.fn(),
+    };
+
+    expect(buildCreateActionNavItems(translate, {
+      canManageLibrary: true,
+      canUpload: true,
+    }, handlers).map((item) => item.id)).toEqual([
+      'createLibrary',
+      'createShelf',
+      'createMagicShelf',
     ]);
   });
 });

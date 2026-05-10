@@ -115,7 +115,21 @@ class VersionServiceTest {
             VersionInfo info = spyService.getVersionInfo();
 
             assertThat(info.getCurrent())
-                    .isEqualTo(service.appVersion);
+                    .isEqualTo(service.getAppVersion());
+            assertThat(info.getLatest())
+                    .isEqualTo("v9.9.9");
+        }
+
+        @Test
+        void usesFallbackIfMissingPackageVersion() {
+            Mockito.doReturn("v9.9.9")
+                    .when(spyService)
+                    .fetchLatestGitHubReleaseVersion();
+
+            VersionInfo info = spyService.getVersionInfo();
+
+            assertThat(info.getCurrent())
+                    .isEqualTo(service.getAppVersion());
             assertThat(info.getLatest())
                     .isEqualTo("v9.9.9");
         }
@@ -144,7 +158,7 @@ class VersionServiceTest {
 
             Mockito.doReturn(List.of(note))
                     .when(spyService)
-                    .fetchReleaseNotesSince(service.appVersion);
+                    .fetchReleaseNotesSince(service.getAppVersion());
 
             List<ReleaseNote> result = spyService.getChangelogSinceCurrentVersion();
             assertThat(result).hasSize(1).containsExactly(note);
@@ -154,7 +168,7 @@ class VersionServiceTest {
         void returnsEmptyListWhenNoNewReleases() {
             Mockito.doReturn(List.of())
                     .when(spyService)
-                    .fetchReleaseNotesSince(service.appVersion);
+                    .fetchReleaseNotesSince(service.getAppVersion());
 
             var result = spyService.getChangelogSinceCurrentVersion();
             assertThat(result).isEmpty();

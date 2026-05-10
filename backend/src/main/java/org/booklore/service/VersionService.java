@@ -13,14 +13,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class VersionService {
-
-    @Value("${app.version:unknown}")
-    String appVersion;
-
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
+    private static final String DEVELOPMENT_VERSION = "development";
     private static final String GITHUB_REPO = "grimmory-tools/grimmory";
     private static final String BASE_URI = "https://api.github.com/repos/" + GITHUB_REPO;
     private static final int MAX_RELEASES = 15;
@@ -30,6 +29,20 @@ public class VersionService {
             .build();
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    public String getAppVersion() {
+        String appVersion = getClass().getPackage().getImplementationVersion();
+
+        if (appVersion == null) {
+            return DEVELOPMENT_VERSION;
+        }
+
+        // If in X.Y.Z format, prefix with a `v` to match the tag.
+        if (VERSION_PATTERN.matcher(appVersion).matches()) {
+            appVersion = "v" + appVersion;
+        }
+
+        return appVersion;
+    }
 
     public VersionInfo getVersionInfo() {
         String latest = "unknown";
@@ -38,11 +51,12 @@ public class VersionService {
         } catch (Exception e) {
             log.warn("Error fetching latest release version");
         }
-        return new VersionInfo(appVersion, latest);
+
+        return new VersionInfo(getAppVersion(), latest);
     }
 
     public List<ReleaseNote> getChangelogSinceCurrentVersion() {
-        return fetchReleaseNotesSince(appVersion);
+        return fetchReleaseNotesSince(getAppVersion());
     }
 
 
@@ -63,7 +77,7 @@ public class VersionService {
     }
 
     public List<ReleaseNote> fetchReleaseNotesSince(String currentVersion) {
-        if ("development".equals(currentVersion)) {
+        if (DEVELOPMENT_VERSION.equals(currentVersion)) {
             log.warn("Skipping fetch of release notes because current version is '{}', which is a local development build.", currentVersion);
             return List.of();
         }

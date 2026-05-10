@@ -1,7 +1,6 @@
 app:
   path-config: '/app/data'
   bookdrop-folder: '/bookdrop'
-  version: ${APP_VERSION:development}
   api-docs:
     enabled: ${API_DOCS_ENABLED:false}
 

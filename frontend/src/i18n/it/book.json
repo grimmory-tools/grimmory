@@ -43,7 +43,6 @@
       "save": "Salva",
       "collapseSeries": "Comprimi serie",
       "gridColumns": "Colonne griglia",
-      "gridItemSize": "Dimensione elemento griglia",
       "bookTypeOverlay": "Overlay tipo libro",
       "noBooks": "Questa collezione non ha libri!",
       "failedLibrary": "Impossibile caricare i libri della libreria!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Cancella filtri applicati",
       "visibleColumns": "Colonne visibili",
-      "displaySettings": "Impostazioni visualizzazione",
       "selectSorting": "Seleziona ordinamento",
       "toggleView": "Alterna tra vista a griglia e tabella",
       "search": "Cerca",

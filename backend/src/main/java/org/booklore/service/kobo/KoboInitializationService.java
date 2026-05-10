@@ -34,6 +34,7 @@ public class KoboInitializationService {
             Map.entry("post_analytics_event", new String[]{"v1", "analytics", "event"}),
             Map.entry("reading_state", new String[]{"v1", "library", "{Ids}", "state"}),
             Map.entry("user_profile", new String[]{"v1", "user", "profile"}),
+            Map.entry("user_ratings", new String[]{"v1", "products", "{ProductId}", "rating", "{Rating}"}),
             Map.entry("deals", new String[]{"v1", "deals"})
     );
 

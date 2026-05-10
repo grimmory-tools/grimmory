@@ -43,7 +43,6 @@
       "save": "Simpan",
       "collapseSeries": "",
       "gridColumns": "",
-      "gridItemSize": "",
       "bookTypeOverlay": "",
       "noBooks": "Tidak ada buku di koleksi ini!",
       "failedLibrary": "Gagal memuat buku perpustakaan!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Bersikan saringan yang diterapkan",
       "visibleColumns": "",
-      "displaySettings": "Pengaturan tampilan",
       "selectSorting": "Pilih pengurutan",
       "toggleView": "",
       "search": "Cari",

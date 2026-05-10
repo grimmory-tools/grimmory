@@ -1,11 +1,19 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
+import { MenuTrigger } from '@angular/aria/menu';
 import { Popover } from 'primeng/popover';
-import { Menu } from 'primeng/menu';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
+import { MenuComponent } from '../../components/menu/menu.component';
+import { MenuEntry } from '../../components/menu/menu-item.model';
+import {
+  ABOVE_ALIGN_LEFT,
+  BELOW_ALIGN_LEFT,
+  BESIDE_RIGHT_BOTTOM,
+} from '../../components/menu/menu-positions';
 import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
@@ -21,18 +29,17 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
-import type { MenuItem } from 'primeng/api';
-import { AppVersion, VersionService } from '../../service/version.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
-import { buildQuickActionNavItems, findPageNavItem } from '../navigation/nav-catalog';
+import { buildCreateActionNavItems } from '../navigation/nav-catalog';
 import {
   buildHomeSection,
   buildLibrarySection,
   buildMagicShelfSection,
   buildShelfSection,
+  buildToolsSection,
 } from './sidebar-sections';
+import { VersionService } from '../../service/version.service';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 
@@ -46,17 +53,54 @@ function computeInitials(name: string | null | undefined, username: string | nul
   return parts[0][0].toUpperCase();
 }
 
-function hasAppUpdate(version: AppVersion | null): boolean {
-  return !!version && !!version.latest && version.latest !== version.current;
-}
-
 function detectSearchShortcut(userAgent: string): string {
   return /Mac|iPhone|iPad|iPod/i.test(userAgent) ? '⌘K' : 'Ctrl+K';
 }
 
+type SemanticVersion = readonly [number, number, number];
+
+function parseSemanticVersion(version: string | undefined): SemanticVersion | null {
+  const match = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(version?.trim() ?? '');
+  return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
+}
+
+function formatVersionLabel(version: string): string {
+  const value = version.trim();
+  if (!value) return 'unknown';
+  const semanticVersion = parseSemanticVersion(value);
+  return semanticVersion ? `v${semanticVersion.join('.')}` : value;
+}
+
+function isSemanticVersion(version: string | undefined): boolean {
+  return parseSemanticVersion(version) !== null;
+}
+
+function isNewerVersion(latest: string | undefined, current: string | undefined): boolean {
+  const latestVersion = parseSemanticVersion(latest);
+  const currentVersion = parseSemanticVersion(current);
+  if (!latestVersion || !currentVersion) return false;
+
+  if (latestVersion[0] !== currentVersion[0]) return latestVersion[0] > currentVersion[0];
+  if (latestVersion[1] !== currentVersion[1]) return latestVersion[1] > currentVersion[1];
+  return latestVersion[2] > currentVersion[2];
+}
+
 @Component({
   selector: 'app-sidebar',
-  imports: [AppSidebarSectionComponent, Popover, Menu, UnifiedNotificationBoxComponent, RouterLink, TranslocoDirective, TranslocoPipe, Tooltip, NgTemplateOutlet],
+  imports: [
+    AppSidebarSectionComponent,
+    Popover,
+    UnifiedNotificationBoxComponent,
+    MenuComponent,
+    RouterLink,
+    TranslocoDirective,
+    TranslocoPipe,
+    Tooltip,
+    MenuTrigger,
+    CdkTrapFocus,
+    CdkConnectedOverlay,
+    CdkOverlayOrigin,
+  ],
   templateUrl: './app.sidebar.component.html',
   styleUrl: './app.sidebar.component.scss',
 })
@@ -70,23 +114,38 @@ export class AppSidebarComponent {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   readonly layoutService = inject(LayoutService);
   private readonly userService = inject(UserService);
+  private readonly versionService = inject(VersionService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly seriesDataService = inject(SeriesDataService);
   private readonly authorService = inject(AuthorService);
-  private readonly versionService = inject(VersionService);
   private readonly t = inject(TranslocoService);
   private readonly renderer = inject(Renderer2);
 
   readonly currentUser = this.userService.currentUser;
-  readonly version = toSignal<AppVersion | null>(
-    this.versionService.getVersion().pipe(catchError(() => of(null))),
-    { initialValue: null },
-  );
   private readonly allAuthors = this.authorService.allAuthors;
-  private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly versionInfo = toSignal(this.versionService.getVersion(), { initialValue: null });
+  protected readonly appVersionLabel = computed(() => formatVersionLabel(this.versionInfo()?.current ?? '...'));
+  protected readonly updateAvailable = computed(() => {
+    const version = this.versionInfo();
+    return isSemanticVersion(version?.current)
+      && isSemanticVersion(version?.latest)
+      && isNewerVersion(version?.latest, version?.current);
+  });
   private readonly translate = (key: string): string => this.t.translate(key);
+  protected readonly userPopoverOpen = signal(false);
+  protected readonly userPopoverOrigin = signal<CdkOverlayOrigin | null>(null);
+  protected readonly canAccessReadingStats = computed(() => {
+    const user = this.currentUser();
+    return !!user && (user.permissions.admin || user.permissions.canAccessUserStats);
+  });
+  protected readonly canUploadBooks = computed(() => {
+    const user = this.currentUser();
+    return !!user && (user.permissions.admin || user.permissions.canUpload);
+  });
 
   readonly searchShortcutLabel = detectSearchShortcut(
     typeof navigator !== 'undefined' ? navigator.userAgent : ''
@@ -122,22 +181,22 @@ export class AppSidebarComponent {
         this.translate,
         { menuItems: this.libraryShelfMenuService },
       ),
+      ...buildToolsSection(this.translate, this.currentUser()?.permissions ?? {}),
     ];
   });
 
-  readonly addMenuItems = computed<MenuItem[]>(() => {
+  readonly addMenuItems = computed<MenuEntry[]>(() => {
     this.activeLang();
     const user = this.currentUser();
     if (!user) return [];
 
-    const actions = buildQuickActionNavItems(this.translate, user.permissions, {
+    const actions = buildCreateActionNavItems(this.translate, user.permissions, {
       createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
       createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
       createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
       uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
     });
-    const bookdrop = findPageNavItem('bookdrop', this.translate, user.permissions);
-    return this.toMenuItems(bookdrop ? [...actions, bookdrop] : actions);
+    return this.toMenuEntries(actions);
   });
 
   readonly userInitials = computed(() => {
@@ -145,56 +204,13 @@ export class AppSidebarComponent {
     return user ? computeInitials(user.name, user.username) : '';
   });
 
-  readonly hasUpdate = computed(() => hasAppUpdate(this.version()));
-  protected readonly addMenuOpen = signal(false);
   protected readonly notificationsOpen = signal(false);
-  protected readonly moreMenuOpen = signal(false);
 
-  readonly userMenuItems = computed<MenuItem[]>(() => {
-    this.activeLang();
-    const user = this.currentUser();
-    if (!user) return [];
-
-    const items: MenuItem[] = [];
-
-    if (!user.permissions.demoUser) {
-      items.push({
-        label: this.t.translate('layout.menu.account'),
-        icon: 'pi pi-user',
-        command: () => this.dialogLauncherService.openUserProfileDialog(),
-      });
-    }
-
-    items.push({
-      label: this.t.translate('layout.menu.documentation'),
-      icon: 'pi pi-info-circle',
-      command: () => window.open(DOCUMENTATION_URL, '_blank', 'noopener,noreferrer'),
-    });
-
-    items.push({ separator: true });
-
-    items.push({
-      label: this.t.translate('layout.menu.logout'),
-      icon: 'pi pi-sign-out',
-      command: () => this.authService.logout(),
-    });
-
-    return items;
-  });
-
-  readonly moreMenuItems = computed<MenuItem[]>(() => {
-    this.activeLang();
-    const user = this.currentUser();
-    if (!user) return [];
-
-    const perms = user.permissions;
-    return this.toMenuItems([
-      findPageNavItem('settings', this.translate, perms),
-      findPageNavItem('libraryStats', this.translate, perms),
-      findPageNavItem('readingStats', this.translate, perms),
-      findPageNavItem('metadataManager', this.translate, perms),
-    ]);
-  });
+  protected readonly mobileMenuPositions = BELOW_ALIGN_LEFT;
+  protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
+  protected readonly footerMenuPositions = computed(() =>
+    this.layoutService.desktopSidebarCollapsed() ? BESIDE_RIGHT_BOTTOM : ABOVE_ALIGN_LEFT,
+  );
 
   openSearch(): void {
     this.commandPaletteService.open();
@@ -204,9 +220,64 @@ export class AppSidebarComponent {
     this.layoutService.closeMobileSidebar();
   }
 
-  private readonly anchorByOverlay = new WeakMap<Menu | Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
+  protected toggleUserPopover(origin: CdkOverlayOrigin): void {
+    if (this.userPopoverOpen() && this.userPopoverOrigin() === origin) {
+      this.closeUserPopover();
+      return;
+    }
 
-  protected applySidebarOverlayPosition(overlay: Menu | Popover): void {
+    this.userPopoverOrigin.set(origin);
+    this.userPopoverOpen.set(true);
+  }
+
+  protected closeUserPopover(): void {
+    this.userPopoverOpen.set(false);
+  }
+
+  protected openDocumentation(): void {
+    window.open(DOCUMENTATION_URL, '_blank', 'noopener,noreferrer');
+    this.closeUserPopover();
+  }
+
+  protected openAccountSettings(): void {
+    this.dialogLauncherService.openUserProfileDialog();
+    this.closeUserPopover();
+  }
+
+  protected openSettings(): void {
+    this.router.navigate(['/settings']);
+    this.closeUserPopover();
+  }
+
+  protected openChangelogDialog(): void {
+    this.dialogLauncherService.openVersionChangelogDialog();
+    this.closeUserPopover();
+  }
+
+  protected openReadingStats(): void {
+    this.router.navigate(['/reading-stats']);
+    this.closeUserPopover();
+  }
+
+  protected openUploadDialog(): void {
+    this.dialogLauncherService.openFileUploadDialog();
+  }
+
+  protected logout(): void {
+    this.authService.logout();
+    this.closeUserPopover();
+  }
+
+  protected onUserPopoverKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeUserPopover();
+    }
+  }
+
+  private readonly anchorByOverlay = new WeakMap<Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
+
+  protected applySidebarOverlayPosition(overlay: Popover): void {
     const anchor = this.anchorByOverlay.get(overlay);
     const panel = overlay.container;
     if (!anchor || !panel) return;
@@ -243,18 +314,18 @@ export class AppSidebarComponent {
     }
   }
 
-  private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
-    return items.flatMap((item) =>
+  private toMenuEntries(items: readonly (NavItem | null | undefined)[]): MenuEntry[] {
+    return items.flatMap((item): MenuEntry[] =>
       item ? [{
         label: item.label,
         icon: item.icon ? `pi ${item.icon}` : undefined,
         routerLink: item.routerLink,
-        command: item.action ? () => item.action?.() : undefined,
+        action: item.action,
       }] : []
     );
   }
 
-  openSidebarOverlay(event: MouseEvent, overlay: Menu | Popover, placement: 'above' | 'below'): void {
+  openSidebarOverlay(event: MouseEvent, overlay: Popover, placement: 'above' | 'below'): void {
     if (event.currentTarget instanceof HTMLElement) {
       this.anchorByOverlay.set(overlay, { trigger: event.currentTarget, placement });
     }

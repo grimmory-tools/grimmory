@@ -43,7 +43,6 @@
       "save": "Speichern",
       "collapseSeries": "Serien zusammenklappen",
       "gridColumns": "Rasterspalten",
-      "gridItemSize": "Rasterelementgröße",
       "bookTypeOverlay": "Dateiformat-Overlay",
       "noBooks": "Diese Sammlung enthält keine Bücher!",
       "failedLibrary": "Bücher der Bibliothek konnten nicht geladen werden!",
@@ -54,7 +53,6 @@
     "tooltip": {
       "clearFilters": "Angewendete Filter löschen",
       "visibleColumns": "Sichtbare Spalten",
-      "displaySettings": "Anzeigeeinstellungen",
       "selectSorting": "Sortierung auswählen",
       "toggleView": "Zwischen Raster- und Tabellenansicht wechseln",
       "search": "Suchen",

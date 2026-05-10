@@ -396,6 +396,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular/aria@npm:~21.2.10":
+  version: 21.2.10
+  resolution: "@angular/aria@npm:21.2.10"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/cdk": 21.2.10
+    "@angular/core": ^21.0.0 || ^22.0.0
+  checksum: 10c0/35420152f7213ef8924fa34530ce611f812de176c00782a2538e2472c8950b55b156bfc157af76139febf3a156a643a20289808a9a90884055e5615901946f47
+  languageName: node
+  linkType: hard
+
 "@angular/build@npm:^21.2.10":
   version: 21.2.10
   resolution: "@angular/build@npm:21.2.10"
@@ -5708,9 +5720,9 @@ __metadata:
   linkType: hard
 
 "fast-uri@npm:^3.0.1":
-  version: 3.1.0
-  resolution: "fast-uri@npm:3.1.0"
-  checksum: 10c0/44364adca566f70f40d1e9b772c923138d47efeac2ae9732a872baafd77061f26b097ba2f68f0892885ad177becd065520412b8ffeec34b16c99433c5b9e2de7
+  version: 3.1.2
+  resolution: "fast-uri@npm:3.1.2"
+  checksum: 10c0/5b35641895959f3f7ab7a7b1b5542bded159346f25ec9f256817b206d50b64eda5828e90d605a2e2fc645c90519a7259c2bab2c942ee728c88b88e5be21b090d
   languageName: node
   linkType: hard
 
@@ -6047,6 +6059,7 @@ __metadata:
     "@angular-devkit/architect": "npm:0.2102.10"
     "@angular-devkit/schematics": "npm:21.2.10"
     "@angular/animations": "npm:^21.2.12"
+    "@angular/aria": "npm:~21.2.10"
     "@angular/build": "npm:^21.2.10"
     "@angular/cdk": "npm:^21.2.10"
     "@angular/cli": "npm:^21.2.10"
