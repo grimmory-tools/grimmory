@@ -28,7 +28,7 @@ public class VersionController {
     @GetMapping
     public ResponseEntity<VersionInfo> getVersionInfo() {
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
+                .cacheControl(CacheControl.noCache())
                 .body(versionService.getVersionInfo());
     }
 
@@ -37,7 +37,7 @@ public class VersionController {
     @GetMapping("/changelog")
     public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent() {
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
+                .cacheControl(CacheControl.noCache())
                 .body(versionService.getChangelogSinceCurrentVersion());
     }
 }
