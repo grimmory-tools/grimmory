@@ -590,7 +590,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private String findOpfPath(EpubContainer container) throws IOException, ParserConfigurationException, SAXException {
         String containerXmlPath = "META-INF/container.xml";
         if (!container.exists(containerXmlPath)) {
-            throw new IOException("META-INF/container.xml not found");
+            return "OEBPS/content.opf";
         }
 
         Document containerDoc = parseXmlFromContainer(container, containerXmlPath);
