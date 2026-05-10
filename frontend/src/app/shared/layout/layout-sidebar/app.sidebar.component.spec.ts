@@ -104,7 +104,6 @@ describe('AppSidebarComponent', () => {
         { provide: SeriesDataService, useValue: { allSeries: signal([]) } },
         { provide: AuthorService, useValue: { allAuthors: signal([]) } },
         { provide: MessageService, useValue: { add: vi.fn() } },
-        { provide: VersionService, useValue: { getVersion: vi.fn(() => of(null)) } },
       ],
     });
 

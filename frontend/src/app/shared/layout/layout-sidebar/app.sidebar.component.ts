@@ -29,8 +29,8 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
-import { MessageService, type MenuItem } from 'primeng/api';
-import { AppVersion, VersionService } from '../../service/version.service';
+import { MessageService } from 'primeng/api';
+import { VersionService } from '../../service/version.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
@@ -41,7 +41,6 @@ import {
   buildShelfSection,
   buildToolsSection,
 } from './sidebar-sections';
-import { VersionService } from '../../service/version.service';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 
@@ -124,6 +123,8 @@ export class AppSidebarComponent {
   private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
   private readonly renderer = inject(Renderer2);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
