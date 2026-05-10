@@ -119,6 +119,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
         // Last resort: scan container for cover-like images
         try (EpubContainer container = EpubContainers.open(epubFile.toPath())) {
+            // NOTE: this will moved to org.grimmory.epub4j in the near future
+            // most of the parsing done here, can be safely replaced with methods already existing in epub4j
             String opfName = findOpfPath(container);
             Document opf = parseXmlFromContainer(container, opfName);
 
