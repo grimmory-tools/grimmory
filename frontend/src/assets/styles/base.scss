@@ -21,7 +21,7 @@ body {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--app-background);
+  background-color: var(--surface-app);
   color: var(--text-color);
   font-family: var(--font-family), serif;
   -webkit-font-smoothing: antialiased;
@@ -35,7 +35,7 @@ body {
 
   html,
   body {
-    background-color: var(--page-background);
+    background-color: var(--surface-page);
   }
 }
 

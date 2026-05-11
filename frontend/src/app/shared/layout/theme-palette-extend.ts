@@ -232,8 +232,8 @@ Object.assign(Aura.primitive, customPalettes);
 const AppPrimePreset = definePreset(Aura, {
   semantic: {
     colorScheme: {
-      light: { content: { background: 'var(--page-background)' } },
-      dark: { content: { background: 'var(--page-background)' } }
+      light: { content: { background: 'var(--surface-page)' } },
+      dark: { content: { background: 'var(--surface-page)' } }
     }
   }
 });

@@ -502,8 +502,8 @@ export class AppConfigService {
     style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-text-color-dark', theme.isNoir ? (theme.surface['950'] ?? '#0d1012') : (theme.primary['900'] ?? '#9a3412'));
 
-    style.setProperty('--app-background', appBackground);
-    style.setProperty('--page-background', pageBackground);
+    style.setProperty('--surface-app', appBackground);
+    style.setProperty('--surface-page', pageBackground);
     style.setProperty('--surface-content', surfaceContent);
     style.setProperty('--surface-card', surfaceCard);
     style.setProperty('--surface-toolbar', `color-mix(in srgb, ${appBackground} 70%, ${surfaceContent})`);
@@ -513,7 +513,7 @@ export class AppConfigService {
     style.setProperty('--state-hover', 'color-mix(in srgb, var(--surface-400) 12%, transparent)');
     style.setProperty('--state-active', 'color-mix(in srgb, var(--primary-color) 8%, transparent)');
 
-    style.setProperty('--ground-background', 'var(--app-background)');
+    style.setProperty('--ground-background', 'var(--surface-app)');
     style.setProperty('--overlay-background', 'var(--surface-overlay)');
     style.setProperty('--card-background', 'var(--surface-card)');
     style.setProperty('--content-background', 'var(--surface-content)');

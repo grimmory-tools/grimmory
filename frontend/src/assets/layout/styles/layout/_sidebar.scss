@@ -41,7 +41,7 @@
   user-select: none;
   transition: transform var(--transition-base),
     width var(--transition-base);
-  background-color: var(--app-background);
+  background-color: var(--surface-app);
   border-right: 1px solid var(--border-color);
   padding: var(--space-3) var(--sidebar-shell-padding-inline-end) var(--space-3) var(--sidebar-shell-padding-inline-start);
 }

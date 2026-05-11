@@ -1,0 +1,55 @@
+.app-control-group {
+  --app-control-group-radius: var(--control-radius);
+
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  > * {
+    border-radius: 0;
+  }
+
+  > .app-text-field {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  > * + * {
+    margin-left: -1px;
+  }
+
+  > :first-child {
+    border-top-left-radius: var(--app-control-group-radius);
+    border-bottom-left-radius: var(--app-control-group-radius);
+  }
+
+  > :last-child {
+    border-top-right-radius: var(--app-control-group-radius);
+    border-bottom-right-radius: var(--app-control-group-radius);
+  }
+
+  > .app-button {
+    --app-button-padding-x: 1rem;
+  }
+
+  > .app-button-icon {
+    width: calc(var(--app-button-height) + 0.375rem);
+  }
+
+  > .app-button-primary {
+    z-index: 1;
+  }
+
+  > .app-text-field:hover,
+  > .app-text-field:focus,
+  > .app-button:hover,
+  > .app-button:focus-visible,
+  > .app-button:active {
+    z-index: 2;
+  }
+}
+
+.app-control-group-inline {
+  display: inline-flex;
+  width: auto;
+}

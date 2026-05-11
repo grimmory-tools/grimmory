@@ -289,14 +289,14 @@
         (overlayKeydown)="onUserPopoverKeydown($event)"
       >
         <section
-          class="user-account-popover"
+          class="user-account-popover surface-page"
           role="dialog"
           aria-modal="true"
           cdkTrapFocus
           cdkTrapFocusAutoCapture
           [attr.aria-label]="'settingsProfile.title' | transloco"
         >
-          <header class="user-account-popover-header">
+          <header class="user-account-popover-header surface-card">
             <div class="user-account-popover-title-row">
               <h2>Grimmory <span>{{ appVersionLabel() }}</span></h2>
               <button
@@ -312,8 +312,8 @@
 
             <div class="user-account-popover-header-actions">
               <button
+                appButton
                 type="button"
-                class="user-account-popover-settings"
                 (click)="openSettings()"
               >
                 <i class="pi pi-cog" aria-hidden="true"></i>
@@ -322,8 +322,9 @@
 
               @if (updateAvailable()) {
                 <button
+                  appButton
+                  variant="primary"
                   type="button"
-                  class="user-account-popover-update"
                   (click)="openChangelogDialog()"
                 >
                   <i class="pi pi-arrow-up-right" aria-hidden="true"></i>

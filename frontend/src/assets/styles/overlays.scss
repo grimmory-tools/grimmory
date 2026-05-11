@@ -24,16 +24,16 @@
 
 .menu-panel,
 .user-account-popover {
-  --menu-panel-padding: 4px;
+  --menu-panel-padding: var(--space-1);
   --menu-panel-gap: 1px;
   --menu-panel-min-width: 12rem;
-  --menu-panel-radius: 8px;
   --menu-item-padding-block: 4px;
   --menu-item-padding-inline: 10px;
   --menu-item-min-height: 28px;
-  --menu-item-gap: 8px;
+  --menu-item-gap: var(--control-gap);
   --menu-item-radius: 5px;
-  --menu-item-icon-size: 16px;
+  --menu-item-focus-ring: var(--control-focus-ring-color);
+  --menu-item-danger-bg-hover: color-mix(in srgb, var(--p-red-500) 12%, transparent);
 }
 
 .menu-panel {
@@ -42,9 +42,9 @@
   gap: var(--menu-panel-gap);
   min-width: var(--menu-panel-min-width);
   padding: var(--menu-panel-padding);
-  background: var(--page-background);
+  background: var(--surface-page);
   border: 1px solid var(--border-color);
-  border-radius: var(--menu-panel-radius);
+  border-radius: var(--control-radius);
   box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
   color: var(--text-color);
   font: inherit;
@@ -78,7 +78,7 @@
 .menu-panel .menu-item:focus-visible,
 .user-account-popover .menu-item:focus-visible {
   background-color: var(--surface-hover);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 50%, transparent);
+  box-shadow: inset 0 0 0 1px var(--menu-item-focus-ring);
   outline: none;
 }
 
@@ -95,8 +95,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--menu-item-icon-size);
-  height: var(--menu-item-icon-size);
+  width: var(--control-icon-size);
+  height: var(--control-icon-size);
   font-size: var(--text-base);
   color: var(--surface-500);
 }
@@ -127,9 +127,8 @@
   flex-direction: column;
   width: min(17.5rem, calc(100vw - 1rem));
   overflow: hidden;
-  background: var(--page-background);
   border: 1px solid var(--border-color);
-  border-radius: var(--menu-panel-radius);
+  border-radius: var(--control-radius);
   box-shadow:
     0 18px 48px rgb(0 0 0 / 28%),
     0 4px 16px rgb(0 0 0 / 18%);
@@ -144,7 +143,6 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0.75rem;
-  background: color-mix(in srgb, var(--surface-hover), var(--page-background) 35%);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -207,45 +205,6 @@
   gap: 0.5rem;
 }
 
-.user-account-popover .user-account-popover-settings,
-.user-account-popover .user-account-popover-update {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-self: flex-start;
-  gap: var(--menu-item-gap);
-  min-height: var(--menu-item-min-height);
-  padding: var(--menu-item-padding-block) var(--menu-item-padding-inline);
-  border: 1px solid var(--border-color);
-  border-radius: var(--menu-item-radius);
-  background: transparent;
-  color: var(--text-color);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.user-account-popover .user-account-popover-settings:hover,
-.user-account-popover .user-account-popover-settings:focus-visible {
-  background: var(--surface-hover);
-  color: var(--text-color);
-  outline: none;
-}
-
-.user-account-popover .user-account-popover-update {
-  border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
-  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
-  color: var(--primary-color);
-}
-
-.user-account-popover .user-account-popover-update:hover,
-.user-account-popover .user-account-popover-update:focus-visible {
-  background: color-mix(in srgb, var(--primary-color) 26%, transparent);
-  color: var(--primary-color);
-  outline: none;
-}
-
 .user-account-popover-body {
   display: flex;
   flex-direction: column;
@@ -268,14 +227,12 @@
   color: var(--p-red-400);
 }
 
-.user-account-popover .user-account-popover-settings i,
-.user-account-popover .user-account-popover-update i,
 .user-account-popover .user-account-popover-logout i {
   color: currentcolor;
 }
 
 .user-account-popover .user-account-popover-logout:hover,
 .user-account-popover .user-account-popover-logout:focus-visible {
-  background: color-mix(in srgb, var(--p-red-500) 12%, transparent);
+  background: var(--menu-item-danger-bg-hover);
   outline: none;
 }

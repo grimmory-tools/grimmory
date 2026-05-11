@@ -7,6 +7,7 @@ import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
+import { AppButtonDirective } from '../../components/button/app-button.directive';
 import { MenuComponent } from '../../components/menu/menu.component';
 import { MenuEntry } from '../../components/menu/menu-item.model';
 import {
@@ -89,6 +90,7 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
   selector: 'app-sidebar',
   imports: [
     AppSidebarSectionComponent,
+    AppButtonDirective,
     Popover,
     UnifiedNotificationBoxComponent,
     MenuComponent,

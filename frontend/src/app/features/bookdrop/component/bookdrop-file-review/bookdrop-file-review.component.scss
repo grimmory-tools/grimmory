@@ -6,7 +6,7 @@
   box-sizing: border-box;
   height: 100%;
   overflow: hidden;
-  background: var(--page-background);
+  background: var(--surface-page);
 
   @media #{variables.$mobile-shell-media-query} {
     padding: var(--space-4);
