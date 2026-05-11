@@ -131,6 +131,20 @@ export function patchAppBooksCoverInCache(
 }
 
 export function patchAppBooksMetadataLockInCache(queryClient: QueryClient, bookId: number, allMetadataLocked: boolean): void {
+  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+    current?.map(book =>
+      book.id === bookId
+        ? {
+          ...book,
+          metadata: {
+            ...(book.metadata ?? {bookId}),
+            allMetadataLocked,
+          },
+        }
+        : book
+    ) ?? current
+  );
+
   queryClient.setQueriesData<InfiniteData<AppPageResponse<AppBookSummary>>>(
     {queryKey: APP_BOOKS_QUERY_PREFIX},
     current => {
