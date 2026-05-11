@@ -23,7 +23,10 @@
   "discard": "丢弃",
   "review": "审查",
   "libraryPathInaccessible": "",
+  "displaySettings": "显示设置",
+  "cardSize": "卡片大小",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

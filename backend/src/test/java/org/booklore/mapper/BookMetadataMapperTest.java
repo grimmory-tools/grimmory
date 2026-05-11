@@ -8,6 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.ArrayList;
+import java.util.HashSet;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class BookMetadataMapperTest {
@@ -29,14 +33,14 @@ public class BookMetadataMapperTest {
 
     private BookMetadataMapperImpl bookMetadataMapper;
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     void setUp() {
         bookMetadataMapper = new BookMetadataMapperImpl();
-        org.springframework.test.util.ReflectionTestUtils.setField(bookMetadataMapper, "authorMapper", authorMapper);
-        org.springframework.test.util.ReflectionTestUtils.setField(bookMetadataMapper, "categoryMapper", categoryMapper);
-        org.springframework.test.util.ReflectionTestUtils.setField(bookMetadataMapper, "moodMapper", moodMapper);
-        org.springframework.test.util.ReflectionTestUtils.setField(bookMetadataMapper, "tagMapper", tagMapper);
-        org.springframework.test.util.ReflectionTestUtils.setField(bookMetadataMapper, "comicMetadataMapper", comicMetadataMapper);
+        ReflectionTestUtils.setField(bookMetadataMapper, "authorMapper", authorMapper);
+        ReflectionTestUtils.setField(bookMetadataMapper, "categoryMapper", categoryMapper);
+        ReflectionTestUtils.setField(bookMetadataMapper, "moodMapper", moodMapper);
+        ReflectionTestUtils.setField(bookMetadataMapper, "tagMapper", tagMapper);
+        ReflectionTestUtils.setField(bookMetadataMapper, "comicMetadataMapper", comicMetadataMapper);
     }
 
     @Test
@@ -46,10 +50,10 @@ public class BookMetadataMapperTest {
         entity.setHardcoverId("hc-id");
         entity.setHardcoverRating(4.5);
         entity.setGoodreadsId("gr-id");
-        entity.setAuthors(new java.util.ArrayList<>());
-        entity.setCategories(new java.util.HashSet<>());
-        entity.setMoods(new java.util.HashSet<>());
-        entity.setTags(new java.util.HashSet<>());
+        entity.setAuthors(new ArrayList<>());
+        entity.setCategories(new HashSet<>());
+        entity.setMoods(new HashSet<>());
+        entity.setTags(new HashSet<>());
 
         BookMetadata dto = bookMetadataMapper.toBookMetadata(entity);
 

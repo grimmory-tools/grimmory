@@ -23,7 +23,10 @@
   "discard": "Відкинути",
   "review": "Перевірити",
   "libraryPathInaccessible": "Шлях до бібліотеки недоступний",
+  "displaySettings": "Налаштування відображення",
+  "cardSize": "Розмір картки",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

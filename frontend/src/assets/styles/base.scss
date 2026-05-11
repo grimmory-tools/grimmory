@@ -1,0 +1,153 @@
+@use "../layout/styles/layout/variables";
+
+/*
+ * Document defaults.
+ *
+ * This file owns browser-level app defaults: root sizing, body canvas,
+ * baseline typography, links, scrollbars, and user preference handling.
+ * Page structure belongs in page.scss; component styling belongs with the
+ * component.
+ */
+
+html {
+  --mobile-shell-active: 0;
+
+  height: 100%;
+  font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  font-size: var(--font-size-root);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--app-background);
+  color: var(--text-color);
+  font-family: var(--font-family), serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media #{variables.$mobile-shell-media-query} {
+  html {
+    --mobile-shell-active: 1;
+  }
+
+  html,
+  body {
+    background-color: var(--page-background);
+  }
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 1.5rem 0 1rem;
+  color: var(--high-contrast-text-color);
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.2;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0 0 1rem;
+  color: var(--text-color);
+  line-height: 1.5;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+p.p-secondary {
+  color: var(--text-secondary-color);
+}
+
+mark {
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--radius-lg);
+  background: #fff8e1;
+  font-family: monospace;
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding: 0 2rem;
+  border-left: 4px solid #90a4ae;
+}
+
+hr {
+  margin: 1rem 0;
+  border-top: solid var(--border-color);
+  border-width: 1px 0 0;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(128 128 128 / 50%) rgb(0 0 0 / 10%);
+
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgb(0 0 0 / 10%);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgb(128 128 128 / 50%);
+
+    &:hover {
+      background: rgb(128 128 128 / 70%);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

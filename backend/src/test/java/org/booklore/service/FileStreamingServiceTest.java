@@ -22,6 +22,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import jakarta.servlet.WriteListener;
 
 class FileStreamingServiceTest {
 
@@ -544,7 +545,7 @@ class FileStreamingServiceTest {
             }
 
             @Override
-            public void setWriteListener(jakarta.servlet.WriteListener writeListener) {
+            public void setWriteListener(WriteListener writeListener) {
             }
 
             @Override

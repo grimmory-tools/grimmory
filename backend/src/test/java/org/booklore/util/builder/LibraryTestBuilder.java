@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import java.time.Instant;
 
 /**
  * Test builder for creating Library-related test objects.
@@ -196,7 +197,7 @@ public class LibraryTestBuilder {
                 .id(id)
                 .library(getLibraryEntity())
                 .libraryPath(getLibraryEntity().getLibraryPaths().getLast())
-                .addedOn(java.time.Instant.now())
+                .addedOn(Instant.now())
                 .metadata(metadata)
                 .bookFiles(new ArrayList<>())
                 .build();
@@ -210,7 +211,7 @@ public class LibraryTestBuilder {
                 .fileSizeKb(1024L)
                 .initialHash(hash)
                 .currentHash(hash)
-                .addedOn(java.time.Instant.now())
+                .addedOn(Instant.now())
                 .build();
         bookEntity.getBookFiles().add(primaryFile);
 
@@ -300,7 +301,7 @@ public class LibraryTestBuilder {
                 .id(id) // Simple ID generation based on index
                 .library(libraryFile.getLibraryPathEntity().getLibrary())
                 .libraryPath(libraryFile.getLibraryPathEntity())
-                .addedOn(java.time.Instant.now())
+                .addedOn(Instant.now())
                 .metadata(metadata)
                 .bookFiles(new ArrayList<>())
                 .build();
@@ -314,7 +315,7 @@ public class LibraryTestBuilder {
                 .fileSizeKb(1024L)
                 .initialHash(hash)
                 .currentHash(hash)
-                .addedOn(java.time.Instant.now())
+                .addedOn(Instant.now())
                 .build();
         bookEntity.getBookFiles().add(primaryFile);
 

@@ -1,6 +1,15 @@
 {
   "title": "View Preferences",
   "description": "Customize how books are displayed in your library, including grid layout, sorting options, and sidebar behavior.",
+  "language": {
+    "sectionTitle": "Language",
+    "sectionDesc": "Choose the language used throughout the interface in this browser.",
+    "label": "Interface language"
+  },
+  "theme": {
+    "sectionTitle": "Theme",
+    "sectionDesc": "Pick your preferred primary and surface colors for this browser."
+  },
   "librarySort": {
     "sectionTitle": "Library and Shelf View & Sort Preferences",
     "sectionDesc": "Configure default and per-library/shelf preferences for sorting and view mode (grid or table) in the browser.",
@@ -118,7 +127,7 @@
   "layout": {
     "sectionTitle": "Layout",
     "sidebarWidth": "Sidebar Width: {{value}}px",
-    "sidebarWidthDesc": "Controls the width of the navigation sidebar and the book filter panel.",
+    "sidebarWidthDesc": "Controls the width of the navigation sidebar and the book filter panel in this browser.",
     "saved": "Preferences Updated",
     "savedDetail": "Your sidebar width preference has been saved."
   }

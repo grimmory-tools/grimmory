@@ -9,6 +9,10 @@ import {BookFilterMode, DEFAULT_VISIBLE_FILTERS, UserService, VisibleFilterType}
 import {Filter, FILTER_LABEL_KEYS, FilterType} from './book-filter.config';
 import {BookFilterService} from './book-filter.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Library} from '../../../model/library.model';
+import {Shelf} from '../../../model/shelf.model';
+import {MagicShelf} from '../../../../magic-shelf/service/magic-shelf.service';
+import {EntityType} from '../book-browser.component';
 
 interface FilterModeOption {
   label: string;
@@ -31,16 +35,15 @@ interface FilterModeOption {
 export class BookFilterComponent {
   readonly showFilter = input(false);
 
+  readonly entity = input<Library | Shelf | MagicShelf | null>(null);
+  readonly entityType = input<EntityType>(EntityType.ALL_BOOKS);
+
   readonly filterSelected = output<Record<string, unknown> | null>();
   readonly filterModeChanged = output<BookFilterMode>();
 
   private readonly filterService = inject(BookFilterService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
-
-  /** Stable reference to the singleton filter signals — never recreated. */
-  readonly filterSignals: Record<FilterType, Signal<Filter[]>> = this.filterService.filterSignals;
-  readonly filterTypes: FilterType[] = Object.keys(this.filterSignals) as FilterType[];
 
   readonly activeFilters = signal<Record<string, unknown[]>>({});
   readonly expandedPanels = signal<number[]>([]);
@@ -63,6 +66,16 @@ export class BookFilterComponent {
 
   private readonly _selectedFilterMode = signal<BookFilterMode>('and');
   readonly selectedFilterMode = this._selectedFilterMode.asReadonly();
+
+  filterSignals: Record<FilterType, Signal<Filter[]>> = this.filterService.createFilterSignals(
+    this.entity,
+    this.entityType,
+    this.activeFilters,
+    this.selectedFilterMode
+  );
+  get filterTypes(): FilterType[] {
+    return Object.keys(this.filterSignals) as FilterType[];
+  }
 
   private readonly syncUserSettings = effect(() => {
     const user = this.userService.currentUser();

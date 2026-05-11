@@ -33,17 +33,21 @@ services:
       - ./data:/app/data
       - ./books:/books
       - ./bookdrop:/bookdrop
-    healthcheck:
-      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
-      interval: 60s
-      retries: 5
-      start_period: 60s
-      timeout: 10s
+    # Uncomment the block below if you need to override the defaults:
+    #healthcheck:
+    #  test: wget -q --spider http://localhost:6060/api/v1/healthcheck
+    #  interval: 60s
+    #  retries: 5
+    #  start_period: 60s
+    #  timeout: 10s
+    #
+    # Uncomment the block below if you want to disable healthchecks:
+    #healthcheck:
+    #  disable: true
     restart: unless-stopped
 
   mariadb:
     image: lscr.io/linuxserver/mariadb:11.4.8
-    container_name: mariadb
     environment:
       - PUID=1000
       - PGID=1000

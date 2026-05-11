@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -577,7 +578,7 @@ public class BookRuleEvaluatorService {
     private Predicate buildStringPredicate(RuleField field, CriteriaQuery<?> query, Root<BookEntity> root,
                                            Join<BookEntity, UserBookProgressEntity> progressJoin,
                                            CriteriaBuilder cb,
-                                           java.util.function.Function<Expression<String>, Predicate> predicateBuilder) {
+                                           Function<Expression<String>, Predicate> predicateBuilder) {
         if (isArrayField(field)) {
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<BookEntity> subRoot = subquery.from(BookEntity.class);
@@ -728,7 +729,7 @@ public class BookRuleEvaluatorService {
     }
 
     private Predicate buildFieldInPredicate(RuleField ruleField,
-                                            java.util.function.Function<Expression<?>, Expression<?>> fieldTransformer,
+                                            Function<Expression<?>, Expression<?>> fieldTransformer,
                                             List<String> ruleList,
                                             CriteriaBuilder cb,
                                             Root<BookEntity> root,

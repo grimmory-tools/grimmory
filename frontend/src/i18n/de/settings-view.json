@@ -1,6 +1,15 @@
 {
   "title": "Ansichtseinstellungen",
   "description": "Passen Sie an, wie Bücher in Ihrer Bibliothek angezeigt werden, einschließlich Rasterlayout, Sortieroptionen und Seitenleistenverhalten.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Bibliotheks- und Regal-Ansicht & Sortiereinstellungen",
     "sectionDesc": "Konfigurieren Sie Standard- und bibliotheks-/regalspezifische Einstellungen für Sortierung und Ansichtsmodus (Raster oder Tabelle) im Browser.",

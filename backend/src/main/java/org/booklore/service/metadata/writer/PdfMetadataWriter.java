@@ -363,7 +363,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 
-    private static final java.util.regex.Pattern TIMESTAMP_PATTERN = java.util.regex.Pattern.compile(
+    private static final Pattern TIMESTAMP_PATTERN = Pattern.compile(
             "<xmp:(MetadataDate|ModifyDate)>[^<]*</xmp:(MetadataDate|ModifyDate)>");
 
     private boolean isXmpMetadataDifferent(String existingXmp, String newXmp) {

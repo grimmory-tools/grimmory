@@ -154,7 +154,7 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             enforceRateLimit();
             Document doc = fetchDocument(queryUrl);
 
-            Elements allLinks = doc.select("a[href*='/pd/']");
+            Elements allLinks = doc.select("[data-widget='productList'] a[href*='/pd/']");
             for (Element link : allLinks) {
                 String href = link.attr("href");
                 Matcher matcher = ASIN_PATH_PATTERN.matcher(href);

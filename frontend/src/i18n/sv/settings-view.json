@@ -1,6 +1,15 @@
 {
   "title": "Vyinställningar",
   "description": "Anpassa hur böcker visas i ditt bibliotek, inklusive rutnätslayout, sorteringsalternativ och sidopanelens beteende.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "Biblioteks- och hyllvy- och sorteringsinställningar",
     "sectionDesc": "Konfigurera standard- och per-biblioteks-/hyllinställningar för sortering och visningsläge (rutnät eller tabell) i webbläsaren.",

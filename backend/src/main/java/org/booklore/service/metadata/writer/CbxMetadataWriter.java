@@ -46,7 +46,7 @@ public class CbxMetadataWriter implements MetadataWriter {
     static {
         try {
             JAXB_CONTEXT = JAXBContext.newInstance(ComicInfo.class);
-        } catch (jakarta.xml.bind.JAXBException e) {
+        } catch (JAXBException e) {
             throw new RuntimeException("Failed to initialize JAXB Context", e);
         }
     }

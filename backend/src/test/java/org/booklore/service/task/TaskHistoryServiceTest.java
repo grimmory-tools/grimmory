@@ -18,6 +18,7 @@ import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import java.lang.reflect.Field;
 
 class TaskHistoryServiceTest {
 
@@ -278,7 +279,7 @@ class TaskHistoryServiceTest {
 
         hiddenTypes.forEach(type -> {
             try {
-                java.lang.reflect.Field field = TaskType.class.getDeclaredField("hiddenFromUI");
+                Field field = TaskType.class.getDeclaredField("hiddenFromUI");
                 field.setAccessible(true);
                 field.set(type, true);
             } catch (Exception _) {

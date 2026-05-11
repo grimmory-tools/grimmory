@@ -61,7 +61,7 @@ public class BookMarkEntity {
     @Column(name = "priority")
     private Integer priority;
 
-    @jakarta.persistence.Version
+    @Version
     @Column(name = "version", nullable = false)
     private Long version;
 

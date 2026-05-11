@@ -1,6 +1,15 @@
 {
   "title": "Predvoľby zobrazenia",
   "description": "Prispôsobte zobrazenie kníh vo vašej knižnici, vrátane rozloženia mriežky, možností triedenia a správania bočného panela.",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "",
     "sectionDesc": "",

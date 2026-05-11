@@ -1,6 +1,15 @@
 {
   "title": "表示設定",
   "description": "グリッドレイアウト、ソートオプション、サイドバーの動作など、ライブラリでの本の表示方法をカスタマイズします。",
+  "language": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "label": ""
+  },
+  "theme": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
   "librarySort": {
     "sectionTitle": "ライブラリとシェルフの表示・ソート設定",
     "sectionDesc": "ブラウザでのソートと表示モード（グリッドまたはテーブル）のデフォルトおよびライブラリ/シェルフごとの設定を構成します。",

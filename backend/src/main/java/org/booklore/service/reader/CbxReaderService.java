@@ -354,10 +354,10 @@ public class CbxReaderService {
         // Tier 1: Check L1 Memory Map (OS File Cache) via open ZipFile
         // This is the fastest path for ZIP/CBZ
         try {
-            java.util.zip.ZipFile zip = getZipFile(cbxPath, metadata.lastModified());
+            ZipFile zip = getZipFile(cbxPath, metadata.lastModified());
             if (zip != null) {
                 String entryName = metadata.imageEntries().get(page - 1);
-                java.util.zip.ZipEntry entry = zip.getEntry(entryName);
+                ZipEntry entry = zip.getEntry(entryName);
                 if (entry != null) {
                     try (InputStream is = zip.getInputStream(entry)) {
                         is.transferTo(outputStream);
@@ -387,7 +387,7 @@ public class CbxReaderService {
         return zipHandleCache.get(cacheKey, _ -> {
             try {
                 if (isZipPath(cbxPath)) {
-                    return new java.util.zip.ZipFile(cbxPath.toFile());
+                    return new ZipFile(cbxPath.toFile());
                 }
             } catch (IOException e) {
                 log.warn("Failed to open ZipFile for {}: {}", cbxPath, e.getMessage());

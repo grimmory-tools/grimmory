@@ -67,7 +67,7 @@ describe('AuthService', () => {
     const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/login`);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ username: 'admin', password: 'secret' });
-    request.flush({ accessToken: 'access', refreshToken: 'refresh', isDefaultPassword: 'false' });
+    request.flush({ accessToken: 'access', refreshToken: 'refresh', isDefaultPassword: false });
 
     expect(service.getInternalAccessToken()).toBe('access');
     expect(service.getInternalRefreshToken()).toBe('refresh');
@@ -95,7 +95,7 @@ describe('AuthService', () => {
 
     const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/remote`);
     expect(request.request.method).toBe('GET');
-    request.flush({ accessToken: 'remote-access', refreshToken: 'remote-refresh', isDefaultPassword: 'false' });
+    request.flush({ accessToken: 'remote-access', refreshToken: 'remote-refresh', isDefaultPassword: false });
 
     expect(service.getInternalAccessToken()).toBe('remote-access');
     expect(rxStompService.activate).toHaveBeenCalledOnce();

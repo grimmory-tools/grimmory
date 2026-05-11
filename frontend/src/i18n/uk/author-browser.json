@@ -3,7 +3,6 @@
   "browseAllAuthors": "Переглянути всіх авторів",
   "searchPlaceholder": "Пошук за іменем автора...",
   "noAuthorsFound": "Авторів за вашим запитом не знайдено.",
-  "cardSize": "Розмір картки",
   "sort": {
     "name": "Ім'я",
     "bookCount": "Кількість книг",

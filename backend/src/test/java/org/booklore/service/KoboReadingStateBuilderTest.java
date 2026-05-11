@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import java.util.Optional;
 
 @DisplayName("KoboReadingStateBuilder Tests")
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +51,7 @@ class KoboReadingStateBuilderTest {
         KoboSyncSettings settings = new KoboSyncSettings();
         settings.setTwoWayProgressSync(true);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
-        when(bookmarkLocationResolver.resolve(any(), any(), any())).thenReturn(java.util.Optional.empty());
+        when(bookmarkLocationResolver.resolve(any(), any(), any())).thenReturn(Optional.empty());
         builder = new KoboReadingStateBuilder(koboSettingsService, bookmarkLocationResolver);
     }
 
@@ -276,7 +277,7 @@ class KoboReadingStateBuilderTest {
             fileProgress.setPositionHref("OPS/chapter3.xhtml");
 
             when(bookmarkLocationResolver.resolve(progress, fileProgress, null))
-                    .thenReturn(java.util.Optional.of(
+                    .thenReturn(Optional.of(
                             new KoboBookmarkLocationResolver.ResolvedBookmarkLocation(
                                     "kobo.12.18",
                                     "KoboSpan",

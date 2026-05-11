@@ -23,7 +23,10 @@
   "discard": "Descartar",
   "review": "Revisar",
   "libraryPathInaccessible": "Ruta de biblioteca inaccesible",
+  "displaySettings": "Ajustes de visualización",
+  "cardSize": "Tamaño de tarjeta",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

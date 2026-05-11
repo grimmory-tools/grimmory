@@ -23,7 +23,10 @@
   "discard": "Verwerfen",
   "review": "Überprüfen",
   "libraryPathInaccessible": "Der Pfad zur Bibliothek ist nicht zugreifbar",
+  "displaySettings": "Anzeigeeinstellungen",
+  "cardSize": "Kartengröße",
   "decreaseCardSize": "",
   "increaseCardSize": "",
-  "cardSizeControls": ""
+  "cardSizeControls": "",
+  "moreActionsFor": ""
 }

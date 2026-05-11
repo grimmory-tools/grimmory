@@ -26,6 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 class DuckDuckGoCoverServiceTest {
@@ -98,22 +103,22 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void tokenPattern_noMatchMeansNoResults() {
-        java.util.regex.Pattern tokenPattern = java.util.regex.Pattern.compile("vqd=\"(\\d+-\\d+)\"");
-        java.util.regex.Matcher matcher = tokenPattern.matcher("no token here");
+        Pattern tokenPattern = Pattern.compile("vqd=\"(\\d+-\\d+)\"");
+        Matcher matcher = tokenPattern.matcher("no token here");
         assertThat(matcher.find()).isFalse();
     }
 
     @Test
     void tokenPattern_matchesValidToken() {
-        java.util.regex.Pattern tokenPattern = java.util.regex.Pattern.compile("vqd=\"(\\d+-\\d+)\"");
-        java.util.regex.Matcher matcher = tokenPattern.matcher("vqd=\"12345-67890\"");
+        Pattern tokenPattern = Pattern.compile("vqd=\"(\\d+-\\d+)\"");
+        Matcher matcher = tokenPattern.matcher("vqd=\"12345-67890\"");
         assertThat(matcher.find()).isTrue();
         assertThat(matcher.group(1)).isEqualTo("12345-67890");
     }
 
     @Test
     void tokenPattern_doesNotMatchInvalidToken() {
-        java.util.regex.Pattern tokenPattern = java.util.regex.Pattern.compile("vqd=\"(\\d+-\\d+)\"");
+        Pattern tokenPattern = Pattern.compile("vqd=\"(\\d+-\\d+)\"");
         assertThat(tokenPattern.matcher("vqd=\"abcde\"").find()).isFalse();
         assertThat(tokenPattern.matcher("vqd=\"12345\"").find()).isFalse();
         assertThat(tokenPattern.matcher("other content").find()).isFalse();
@@ -170,7 +175,7 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void coverImageFiltering_removesSmallImages() {
-        List<CoverImage> images = new java.util.ArrayList<>(List.of(
+        List<CoverImage> images = new ArrayList<>(List.of(
                 new CoverImage("url1", 200, 300, 1),
                 new CoverImage("url2", 400, 600, 2),
                 new CoverImage("url3", 349, 500, 3),
@@ -186,7 +191,7 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void coverImageFiltering_removesWideThanTallForBooks() {
-        List<CoverImage> images = new java.util.ArrayList<>(List.of(
+        List<CoverImage> images = new ArrayList<>(List.of(
                 new CoverImage("url1", 400, 600, 1),
                 new CoverImage("url2", 600, 400, 2),
                 new CoverImage("url3", 500, 500, 3)
@@ -203,7 +208,7 @@ class DuckDuckGoCoverServiceTest {
         var method = DuckDuckGoCoverService.class.getDeclaredMethod("isApproximatelySquare", int.class, int.class);
         method.setAccessible(true);
 
-        List<CoverImage> images = new java.util.ArrayList<>(List.of(
+        List<CoverImage> images = new ArrayList<>(List.of(
                 new CoverImage("url1", 500, 500, 1),
                 new CoverImage("url2", 500, 800, 2),
                 new CoverImage("url3", 480, 520, 3)
@@ -224,7 +229,7 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void siteFilteredImages_limitedToSeven() {
-        List<CoverImage> images = new java.util.ArrayList<>();
+        List<CoverImage> images = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             images.add(new CoverImage("url" + i, 500, 700, i));
         }
@@ -238,7 +243,7 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void generalImages_limitedToTen() {
-        List<CoverImage> images = new java.util.ArrayList<>();
+        List<CoverImage> images = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             images.add(new CoverImage("url" + i, 500, 700, i));
         }
@@ -257,15 +262,15 @@ class DuckDuckGoCoverServiceTest {
                 new CoverImage("https://goodreads.com/img2", 500, 700, 2)
         );
 
-        List<CoverImage> generalImages = new java.util.ArrayList<>(List.of(
+        List<CoverImage> generalImages = new ArrayList<>(List.of(
                 new CoverImage("https://amazon.com/img1", 500, 700, 1),
                 new CoverImage("https://other.com/img3", 500, 700, 2),
                 new CoverImage("https://example.com/img4", 500, 700, 3)
         ));
 
-        java.util.Set<String> siteUrls = siteImages.stream()
+        Set<String> siteUrls = siteImages.stream()
                 .map(CoverImage::getUrl)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
         generalImages.removeIf(dto -> siteUrls.contains(dto.getUrl()));
 
         assertThat(generalImages).hasSize(2);
@@ -275,7 +280,7 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void resultIndexing_setsSequentialIndices() {
-        List<CoverImage> allImages = new java.util.ArrayList<>(List.of(
+        List<CoverImage> allImages = new ArrayList<>(List.of(
                 new CoverImage("url1", 500, 700, 0),
                 new CoverImage("url2", 600, 800, 0),
                 new CoverImage("url3", 400, 600, 0)
@@ -293,8 +298,8 @@ class DuckDuckGoCoverServiceTest {
 
     @Test
     void imagePrioritization_amazonAndGoodreadsFirst() {
-        List<CoverImage> priority = new java.util.ArrayList<>();
-        List<CoverImage> others = new java.util.ArrayList<>();
+        List<CoverImage> priority = new ArrayList<>();
+        List<CoverImage> others = new ArrayList<>();
 
         List<String> links = List.of(
                 "https://other.com/img1",
@@ -312,7 +317,7 @@ class DuckDuckGoCoverServiceTest {
             }
         }
 
-        List<CoverImage> all = new java.util.ArrayList<>(priority);
+        List<CoverImage> all = new ArrayList<>(priority);
         all.addAll(others);
 
         assertThat(all.get(0).getUrl()).contains("amazon");

@@ -107,7 +107,7 @@ describe('initializeAuthFactory', () => {
     authService.remoteLogin.mockReturnValue(of({
       accessToken: 'access',
       refreshToken: 'refresh',
-      isDefaultPassword: 'false',
+      isDefaultPassword: false,
     }));
 
     const injector = Injector.create({

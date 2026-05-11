@@ -164,7 +164,7 @@ describe('LoginComponent', () => {
 
   it('navigates to change-password when the server marks the password as default', () => {
     configureComponent();
-    authService.internalLogin.mockReturnValue(of({isDefaultPassword: 'true'}));
+    authService.internalLogin.mockReturnValue(of({isDefaultPassword: true}));
 
     component.username = 'admin';
     component.password = 'password';
@@ -175,7 +175,7 @@ describe('LoginComponent', () => {
 
   it('navigates to the dashboard after a successful non-default-password login', () => {
     configureComponent();
-    authService.internalLogin.mockReturnValue(of({isDefaultPassword: 'false'}));
+    authService.internalLogin.mockReturnValue(of({isDefaultPassword: false}));
 
     component.username = 'admin';
     component.password = 'password';

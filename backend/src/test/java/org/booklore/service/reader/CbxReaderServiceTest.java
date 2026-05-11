@@ -42,7 +42,7 @@ class CbxReaderServiceTest {
     CbxReaderService cbxReaderService;
 
     @Mock
-    com.github.benmanes.caffeine.cache.Cache<String, java.util.zip.ZipFile> mockZipCache;
+    Cache<String, ZipFile> mockZipCache;
 
     @Captor
     ArgumentCaptor<Long> longCaptor;

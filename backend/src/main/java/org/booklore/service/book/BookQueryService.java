@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
@@ -81,6 +82,10 @@ public class BookQueryService {
         return bookRepository.findAllFullBooks();
     }
 
+    public List<BookEntity> getAllFullBookEntitiesWithFiles() {
+        return bookRepository.findAllFullBooksWithFiles();
+    }
+
     @Transactional
     public void saveAll(List<BookEntity> books) {
         bookRepository.saveAll(books);
@@ -94,7 +99,7 @@ public class BookQueryService {
             if (embeddingJson != null && book.getMetadata() != null) {
                 if (!Objects.equals(book.getMetadata().getEmbeddingVector(), embeddingJson)) {
                     book.getMetadata().setEmbeddingVector(embeddingJson);
-                    book.getMetadata().setEmbeddingUpdatedAt(java.time.Instant.now());
+                    book.getMetadata().setEmbeddingUpdatedAt(Instant.now());
                 }
             }
         }

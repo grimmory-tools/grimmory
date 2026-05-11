@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.nio.file.Files;
+import org.grimmory.epub4j.domain.Author;
 
 class EpubContentReaderTest {
 
@@ -71,7 +73,7 @@ class EpubContentReaderTest {
     private File createTestEpub(String filename, boolean withSpine) throws IOException {
         Book book = new Book();
         book.getMetadata().addTitle("Test Book");
-        book.getMetadata().addAuthor(new org.grimmory.epub4j.domain.Author("Test Author"));
+        book.getMetadata().addAuthor(new Author("Test Author"));
 
         if (withSpine) {
             Resource chapter1 = new Resource(CHAPTER1_CONTENT.getBytes(StandardCharsets.UTF_8), "chapter1.xhtml");
@@ -171,7 +173,7 @@ class EpubContentReaderTest {
         @Test
         void getSpineItemContent_invalidEpubFile_throwsException() throws IOException {
             File invalidFile = tempDir.resolve("invalid.epub").toFile();
-            java.nio.file.Files.writeString(invalidFile.toPath(), "not an epub");
+            Files.writeString(invalidFile.toPath(), "not an epub");
 
             assertThrows(
                     EpubContentReader.EpubReadException.class,

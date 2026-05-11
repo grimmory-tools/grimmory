@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
@@ -19,13 +19,15 @@ import {LibraryHealthService} from './features/book/service/library-health.servi
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
 import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
+import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
+import {CommandPaletteService} from './features/command-palette/command-palette.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
-  imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe]
+  imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe, CommandPaletteComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -46,6 +48,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private libraryHealthService = inject(LibraryHealthService);
   private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
+  private commandPaletteService = inject(CommandPaletteService);
+  private destroyRef = inject(DestroyRef);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
     this.loading.set(!ready);
@@ -68,7 +72,18 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
+    document.addEventListener('keydown', this.onGlobalKeydown);
+    this.destroyRef.onDestroy(() => document.removeEventListener('keydown', this.onGlobalKeydown));
   }
+
+  private onGlobalKeydown = (event: KeyboardEvent): void => {
+    if (event.repeat) return;
+    const combo = (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey;
+    if (!combo) return;
+    if (event.key !== 'k' && event.key !== 'K') return;
+    event.preventDefault();
+    this.commandPaletteService.toggle();
+  };
 
   private onOnline = () => {
     this.offline.set(false);

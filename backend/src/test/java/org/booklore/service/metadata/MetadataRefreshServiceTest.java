@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.time.LocalDate;
 
 @ExtendWith(MockitoExtension.class)
 class MetadataRefreshServiceTest {
@@ -1132,7 +1133,7 @@ class MetadataRefreshServiceTest {
                     .description("Desc")
                     .publisher("Pub")
                     .authors(List.of("Auth"))
-                    .publishedDate(java.time.LocalDate.of(2020, 1, 1))
+                    .publishedDate(LocalDate.of(2020, 1, 1))
                     .seriesName("Series")
                     .seriesNumber(1.0f)
                     .seriesTotal(5)
@@ -1159,7 +1160,7 @@ class MetadataRefreshServiceTest {
             assertThat(result.getDescription()).isEqualTo("Desc");
             assertThat(result.getPublisher()).isEqualTo("Pub");
             assertThat(result.getAuthors()).containsExactly("Auth");
-            assertThat(result.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2020, 1, 1));
+            assertThat(result.getPublishedDate()).isEqualTo(LocalDate.of(2020, 1, 1));
             assertThat(result.getSeriesName()).isEqualTo("Series");
             assertThat(result.getSeriesNumber()).isEqualTo(1f);
             assertThat(result.getSeriesTotal()).isEqualTo(5);
@@ -1177,7 +1178,7 @@ class MetadataRefreshServiceTest {
                     .description("Amazon Desc")
                     .authors(List.of("Author A"))
                     .publisher("Amazon Pub")
-                    .publishedDate(java.time.LocalDate.of(2021, 6, 15))
+                    .publishedDate(LocalDate.of(2021, 6, 15))
                     .seriesName("Amazon Series")
                     .seriesNumber(2f)
                     .seriesTotal(10)
@@ -1209,7 +1210,7 @@ class MetadataRefreshServiceTest {
             assertThat(result.getDescription()).isEqualTo("Amazon Desc");
             assertThat(result.getAuthors()).containsExactly("Author A");
             assertThat(result.getPublisher()).isEqualTo("Amazon Pub");
-            assertThat(result.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2021, 6, 15));
+            assertThat(result.getPublishedDate()).isEqualTo(LocalDate.of(2021, 6, 15));
             assertThat(result.getSeriesName()).isEqualTo("Amazon Series");
             assertThat(result.getSeriesNumber()).isEqualTo(2f);
             assertThat(result.getSeriesTotal()).isEqualTo(10);
