@@ -1082,7 +1082,18 @@ class PdfMetadataExtractorTest {
         assertThat(meta.getSubtitle()).isEqualTo("\u0151\u00E1\u00FC\u0151\u00FC\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u00E1");
         assertThat(meta.getAuthors()).containsExactly("Andrzej Sapkowski", "David French");
         assertThat(meta.getDescription()).isEqualTo("World fantasy award lifetime achievement winner.");
-        assertThat(meta.getCategories()).contains("Science Fiction & Fantasy", "Adventure", "Fantasy", "Humor");
+        assertThat(meta.getCategories()).containsExactlyInAnyOrder(
+                "Science Fiction & Fantasy",
+                "Adventure",
+                "Science fiction",
+                "Adulte",
+                "Biography",
+                "Fantasy",
+                "Assassins",
+                "Aventure",
+                "Fiction",
+                "Humor"
+        );
         assertThat(meta.getPublisher()).isEqualTo("Orbit");
         assertThat(meta.getLanguage()).isEqualTo("en");
         assertThat(meta.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2013, 11, 6));

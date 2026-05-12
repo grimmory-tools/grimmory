@@ -145,166 +145,156 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             ? xmp.creators()
             : rawXmp.map(xmpData -> xmpData.readList(DC_NAMESPACE, "creator")).orElseGet(List::of);
         if (!creators.isEmpty()) {
-        metadataBuilder.authors(creators);
+            metadataBuilder.authors(creators);
         }
 
-            rawXmp.flatMap(xmpData -> xmpData.readFirstText(DC_NAMESPACE, "date"))
-                .map(this::parsePdfDate)
-                .ifPresent(metadataBuilder::publishedDate);
+        preferStructuredValue(xmp.date().map(Object::toString), rawXmp.flatMap(xmpData -> xmpData.readFirstText(DC_NAMESPACE, "date")))
+            .map(this::parsePdfDate)
+            .ifPresent(metadataBuilder::publishedDate);
 
-            // Categories, filtering out moods and tags that might be in dc:subject
+        // Moods and Tags (List/Bag with semicolon fallback)
+        Set<String> moodsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "moods"));
+        if (moodsSet.isEmpty()) {
+            findCustomField(xmp, rawXmp, "moods").ifPresent(m ->
+                Arrays.stream(m.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(moodsSet::add));
+        }
+        if (!moodsSet.isEmpty()) metadataBuilder.moods(moodsSet);
+
+        Set<String> tagsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "tags"));
+        if (tagsSet.isEmpty()) {
+            findCustomField(xmp, rawXmp, "tags").ifPresent(t ->
+                Arrays.stream(t.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(tagsSet::add));
+        }
+        if (!tagsSet.isEmpty()) metadataBuilder.tags(tagsSet);
+
+        // Categories, filtering out moods and tags that might be in dc:subject
         List<String> subjects = !xmp.subjects().isEmpty()
             ? xmp.subjects()
             : rawXmp.map(xmpData -> xmpData.readList(DC_NAMESPACE, "subject")).orElseGet(List::of);
         if (!subjects.isEmpty()) {
-        Set<String> categories = new HashSet<>(subjects);
-                Set<String> knownNonCategories = new HashSet<>();
-                
-                // Get moods and tags from booklore namespace to filter them out of subjects
-        List<String> moods = findCustomListField(xmp, rawXmp, "moods");
-                knownNonCategories.addAll(moods);
-
-        List<String> tags = findCustomListField(xmp, rawXmp, "tags");
-                knownNonCategories.addAll(tags);
-
-                // Custom semicolon-separated strings fallback
-        findCustomField(xmp, rawXmp, "moods")
-            .ifPresent(m -> Arrays.stream(m.split(";")).map(String::trim).forEach(knownNonCategories::add));
-        findCustomField(xmp, rawXmp, "tags")
-            .ifPresent(t -> Arrays.stream(t.split(";")).map(String::trim).forEach(knownNonCategories::add));
-
-                categories.removeAll(knownNonCategories);
-                if (!categories.isEmpty()) {
-                    metadataBuilder.categories(categories);
-                }
+            Set<String> categories = new HashSet<>(subjects);
+            categories.removeAll(moodsSet);
+            categories.removeAll(tagsSet);
+            if (!categories.isEmpty()) {
+                metadataBuilder.categories(categories);
             }
-
-            // Calibre
-            xmp.calibreSeries().ifPresent(metadataBuilder::seriesName);
-            xmp.calibreSeriesIndex().ifPresent(idx -> metadataBuilder.seriesNumber(idx.floatValue()));
-
-            // Booklore
-            findCustomField(xmp, rawXmp, "seriesName").ifPresent(metadataBuilder::seriesName);
-            findCustomField(xmp, rawXmp, "seriesNumber").ifPresent(val -> {
-                try { metadataBuilder.seriesNumber(Float.parseFloat(val)); } catch (Exception _) {}
-            });
-            findCustomField(xmp, rawXmp, "seriesTotal").ifPresent(val -> {
-                try { metadataBuilder.seriesTotal(Integer.parseInt(val)); } catch (Exception _) {}
-            });
-            
-            findCustomField(xmp, rawXmp, "subtitle").ifPresent(metadataBuilder::subtitle);
-
-            // Identifiers
-            findCustomField(xmp, rawXmp, "isbn13").ifPresent(val -> metadataBuilder.isbn13(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
-            findCustomField(xmp, rawXmp, "isbn10").ifPresent(val -> metadataBuilder.isbn10(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
-            findCustomField(xmp, rawXmp, "googleId").ifPresent(metadataBuilder::googleId);
-            findCustomField(xmp, rawXmp, "goodreadsId").ifPresent(metadataBuilder::goodreadsId);
-            findCustomField(xmp, rawXmp, "amazonId").ifPresent(metadataBuilder::asin);
-            findCustomField(xmp, rawXmp, "asin").ifPresent(metadataBuilder::asin);
-            findCustomField(xmp, rawXmp, "comicvineId").ifPresent(metadataBuilder::comicvineId);
-            findCustomField(xmp, rawXmp, "ranobedbId").ifPresent(metadataBuilder::ranobedbId);
-            findCustomField(xmp, rawXmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
-            findCustomField(xmp, rawXmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
-            findCustomField(xmp, rawXmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
-
-            // XMP Qualified Identifiers
-            for (QualifiedIdentifier qi : xmp.xmpIdentifiers()) {
-                String scheme = qi.scheme().toLowerCase(Locale.ROOT);
-                String value = qi.value();
-                switch (scheme) {
-                    case "isbn" -> {
-                        String cleaned = ISBN_CLEANUP_PATTERN.matcher(value).replaceAll("");
-                        if (cleaned.length() == 13) metadataBuilder.isbn13(cleaned);
-                        else if (cleaned.length() == 10) metadataBuilder.isbn10(cleaned);
-                        else metadataBuilder.isbn13(cleaned); // Fallback for odd lengths
-                    }
-                    case "isbn13" -> metadataBuilder.isbn13(ISBN_CLEANUP_PATTERN.matcher(value).replaceAll(""));
-                    case "isbn10" -> metadataBuilder.isbn10(ISBN_CLEANUP_PATTERN.matcher(value).replaceAll(""));
-                    case "google" -> metadataBuilder.googleId(value);
-                    case "amazon", "asin", "amazonid" -> metadataBuilder.asin(value);
-                    case "goodreads" -> metadataBuilder.goodreadsId(value);
-                    case "comicvine" -> metadataBuilder.comicvineId(value);
-                    case "ranobedb" -> metadataBuilder.ranobedbId(value);
-                    case "lubimyczytac" -> metadataBuilder.lubimyczytacId(value);
-                    case "hardcover" -> metadataBuilder.hardcoverId(value);
-                    case "hardcover_book_id" -> metadataBuilder.hardcoverBookId(value);
-                }
-            }
-
-            // Calibre fallback for un-prefixed series_index (some tools write it like this, and library skips them)
-            if (xmp.calibreSeriesIndex().isEmpty()) {
-                byte[] rawXmpBytes = doc.xmpMetadata();
-                if (rawXmpBytes != null) {
-                    String xmpStr = new String(rawXmpBytes, StandardCharsets.UTF_8);
-                    Matcher siMatcher = Pattern.compile("<series_index>([^<]+)</series_index>").matcher(xmpStr);
-                    if (siMatcher.find()) {
-                        try { metadataBuilder.seriesNumber(Float.parseFloat(siMatcher.group(1).trim())); } catch (Exception _) {}
-                    }
-                }
-            }
-
-            // Ratings
-            mapRating(xmp, rawXmp, "rating", "Rating", metadataBuilder::rating);
-            mapRating(xmp, rawXmp, "amazonRating", "AmazonRating", metadataBuilder::amazonRating);
-            mapRating(xmp, rawXmp, "goodreadsRating", "GoodreadsRating", metadataBuilder::goodreadsRating);
-            mapRating(xmp, rawXmp, "hardcoverRating", "HardcoverRating", metadataBuilder::hardcoverRating);
-            mapRating(xmp, rawXmp, "lubimyczytacRating", "LubimyczytacRating", metadataBuilder::lubimyczytacRating);
-            mapRating(xmp, rawXmp, "ranobedbRating", "RanobedbRating", metadataBuilder::ranobedbRating);
-
-            // Moods and Tags (List/Bag with semicolon fallback)
-            Set<String> moodsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "moods"));
-            if (moodsSet.isEmpty()) {
-                findCustomField(xmp, rawXmp, "moods").ifPresent(m ->
-                    Arrays.stream(m.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(moodsSet::add));
-            }
-            if (!moodsSet.isEmpty()) metadataBuilder.moods(moodsSet);
-
-            Set<String> tagsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "tags"));
-            if (tagsSet.isEmpty()) {
-                findCustomField(xmp, rawXmp, "tags").ifPresent(t ->
-                    Arrays.stream(t.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(tagsSet::add));
-            }
-            if (!tagsSet.isEmpty()) metadataBuilder.tags(tagsSet);
-
-        } catch (Exception e) {
-            log.error("Failed to load PDF file: {}", file.getPath(), e);
         }
 
-        return metadataBuilder.build();
-    }
+        // Calibre
+        xmp.calibreSeries().ifPresent(metadataBuilder::seriesName);
+        xmp.calibreSeriesIndex().ifPresent(idx -> metadataBuilder.seriesNumber(idx.floatValue()));
 
+        // Booklore
+        findCustomField(xmp, rawXmp, "seriesName").ifPresent(metadataBuilder::seriesName);
+        findCustomField(xmp, rawXmp, "seriesNumber").ifPresent(val -> {
+            try { metadataBuilder.seriesNumber(Float.parseFloat(val)); } catch (Exception _) {}
+        });
+        findCustomField(xmp, rawXmp, "seriesTotal").ifPresent(val -> {
+            try { metadataBuilder.seriesTotal(Integer.parseInt(val)); } catch (Exception _) {}
+        });
+        
+        findCustomField(xmp, rawXmp, "subtitle").ifPresent(metadataBuilder::subtitle);
 
-    private Optional<String> findCustomField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
-        Optional<String> val = xmp.findField(name);
-        if (val.isPresent()) return val;
-        // Try PascalCase
-        String pascal = name.substring(0, 1).toUpperCase() + name.substring(1);
-        val = xmp.findField(pascal);
-        if (val.isPresent()) return val;
-        return rawXmp.flatMap(xmpData -> xmpData.readFirstText(BOOKLORE_NAMESPACE, name)
-                .or(() -> xmpData.readFirstText(BOOKLORE_NAMESPACE, pascal)));
-    }
+        // Identifiers
+        findCustomField(xmp, rawXmp, "isbn13").ifPresent(val -> metadataBuilder.isbn13(cleanIsbn(val)));
+        findCustomField(xmp, rawXmp, "isbn10").ifPresent(val -> metadataBuilder.isbn10(cleanIsbn(val)));
+        findCustomField(xmp, rawXmp, "googleId").ifPresent(metadataBuilder::googleId);
+        findCustomField(xmp, rawXmp, "goodreadsId").ifPresent(metadataBuilder::goodreadsId);
+        findCustomField(xmp, rawXmp, "amazonId").ifPresent(metadataBuilder::asin);
+        findCustomField(xmp, rawXmp, "asin").ifPresent(metadataBuilder::asin);
+        findCustomField(xmp, rawXmp, "comicvineId").ifPresent(metadataBuilder::comicvineId);
+        findCustomField(xmp, rawXmp, "ranobedbId").ifPresent(metadataBuilder::ranobedbId);
+        findCustomField(xmp, rawXmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
+        findCustomField(xmp, rawXmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
+        findCustomField(xmp, rawXmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
 
-    private List<String> findCustomListField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
-        List<String> values = xmp.findListField(name);
-        if (!values.isEmpty()) {
-            return values;
-        }
-
-        String pascal = name.substring(0, 1).toUpperCase() + name.substring(1);
-        values = xmp.findListField(pascal);
-        if (!values.isEmpty()) {
-            return values;
-        }
-
-        return rawXmp.map(xmpData -> {
-            List<String> rawValues = xmpData.readList(BOOKLORE_NAMESPACE, name);
-            if (!rawValues.isEmpty()) {
-                return rawValues;
+        // XMP Qualified Identifiers
+        for (QualifiedIdentifier qi : xmp.xmpIdentifiers()) {
+            String scheme = qi.scheme().toLowerCase(Locale.ROOT);
+            String value = qi.value();
+            switch (scheme) {
+                case "isbn" -> {
+                    String cleaned = cleanIsbn(value);
+                    if (cleaned.length() == 13) metadataBuilder.isbn13(cleaned);
+                    else if (cleaned.length() == 10) metadataBuilder.isbn10(cleaned);
+                    else metadataBuilder.isbn13(cleaned); // Fallback for odd lengths
+                }
+                case "isbn13" -> metadataBuilder.isbn13(cleanIsbn(value));
+                case "isbn10" -> metadataBuilder.isbn10(cleanIsbn(value));
+                case "google" -> metadataBuilder.googleId(value);
+                case "amazon", "asin", "amazonid" -> metadataBuilder.asin(value);
+                case "goodreads" -> metadataBuilder.goodreadsId(value);
+                case "comicvine" -> metadataBuilder.comicvineId(value);
+                case "ranobedb" -> metadataBuilder.ranobedbId(value);
+                case "lubimyczytac" -> metadataBuilder.lubimyczytacId(value);
+                case "hardcover" -> metadataBuilder.hardcoverId(value);
+                case "hardcover_book_id" -> metadataBuilder.hardcoverBookId(value);
             }
-            return xmpData.readList(BOOKLORE_NAMESPACE, pascal);
-        }).orElseGet(List::of);
+        }
+
+        // Calibre fallback for un-prefixed series_index (some tools write it like this, and library skips them)
+        if (xmp.calibreSeriesIndex().isEmpty()) {
+            byte[] rawXmpBytes = doc.xmpMetadata();
+            if (rawXmpBytes != null) {
+                String xmpStr = new String(rawXmpBytes, StandardCharsets.UTF_8);
+                Matcher siMatcher = Pattern.compile("<series_index>([^<]+)</series_index>").matcher(xmpStr);
+                if (siMatcher.find()) {
+                    try { metadataBuilder.seriesNumber(Float.parseFloat(siMatcher.group(1).trim())); } catch (Exception _) {}
+                }
+            }
+        }
+
+        // Ratings
+        mapRating(xmp, rawXmp, "rating", "Rating", metadataBuilder::rating);
+        mapRating(xmp, rawXmp, "amazonRating", "AmazonRating", metadataBuilder::amazonRating);
+        mapRating(xmp, rawXmp, "goodreadsRating", "GoodreadsRating", metadataBuilder::goodreadsRating);
+        mapRating(xmp, rawXmp, "hardcoverRating", "HardcoverRating", metadataBuilder::hardcoverRating);
+        mapRating(xmp, rawXmp, "lubimyczytacRating", "LubimyczytacRating", metadataBuilder::lubimyczytacRating);
+        mapRating(xmp, rawXmp, "ranobedbRating", "RanobedbRating", metadataBuilder::ranobedbRating);
+
+    } catch (Exception e) {
+        log.error("Failed to load PDF file: {}", file.getPath(), e);
     }
+
+    return metadataBuilder.build();
+}
+
+
+private Optional<String> findCustomField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
+    Optional<String> val = xmp.findField(name);
+    if (val.isPresent()) return val;
+    // Try PascalCase
+    String pascal = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
+    val = xmp.findField(pascal);
+    if (val.isPresent()) return val;
+    return rawXmp.flatMap(xmpData -> xmpData.readFirstText(BOOKLORE_NAMESPACE, name)
+            .or(() -> xmpData.readFirstText(BOOKLORE_NAMESPACE, pascal)));
+}
+
+private List<String> findCustomListField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
+    List<String> values = xmp.findListField(name);
+    if (!values.isEmpty()) {
+        return values;
+    }
+
+    String pascal = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
+    values = xmp.findListField(pascal);
+    if (!values.isEmpty()) {
+        return values;
+    }
+
+    return rawXmp.map(xmpData -> {
+        List<String> rawValues = xmpData.readList(BOOKLORE_NAMESPACE, name);
+        if (!rawValues.isEmpty()) {
+            return rawValues;
+        }
+        return xmpData.readList(BOOKLORE_NAMESPACE, pascal);
+    }).orElseGet(List::of);
+}
+
+private static String cleanIsbn(String value) {
+    return ISBN_CLEANUP_PATTERN.matcher(value).replaceAll("");
+}
 
     private List<String> parseAuthors(String authorString) {
         if (authorString == null) return Collections.emptyList();
@@ -419,44 +409,40 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
         }
 
         private Optional<String> extractScalarValue(Element element) {
-            List<Element> listItems = childElements(element, RDF_NAMESPACE, "li");
-            if (!listItems.isEmpty()) {
-                for (Element item : listItems) {
-                    String lang = item.getAttribute("xml:lang");
-                    if ("x-default".equalsIgnoreCase(lang)) {
-                        return textValue(item);
+            NodeList liNodes = element.getElementsByTagNameNS(RDF_NAMESPACE, "li");
+            if (liNodes.getLength() > 0) {
+                Element first = null;
+                for (int i = 0; i < liNodes.getLength(); i++) {
+                    if (liNodes.item(i) instanceof Element item) {
+                        if (first == null) first = item;
+                        String lang = item.getAttribute("xml:lang");
+                        if ("x-default".equalsIgnoreCase(lang)) {
+                            return textValue(item);
+                        }
                     }
                 }
-                return textValue(listItems.getFirst());
+                if (first != null) return textValue(first);
             }
 
-            List<Element> rdfValues = childElements(element, RDF_NAMESPACE, "value");
-            if (!rdfValues.isEmpty()) {
-                return textValue(rdfValues.getFirst());
+            NodeList valueNodes = element.getElementsByTagNameNS(RDF_NAMESPACE, "value");
+            for (int i = 0; i < valueNodes.getLength(); i++) {
+                if (valueNodes.item(i) instanceof Element value) {
+                    return textValue(value);
+                }
             }
 
             return textValue(element);
         }
 
         private List<String> extractListValues(Element element) {
-            return childElements(element, RDF_NAMESPACE, "li").stream()
-                    .map(RawXmpMetadata::textValue)
-                    .flatMap(Optional::stream)
-                    .toList();
-        }
-
-        private List<Element> childElements(Element parent, String namespace, String localName) {
-            List<Element> elements = new ArrayList<>();
-            NodeList children = parent.getChildNodes();
-            for (int index = 0; index < children.getLength(); index++) {
-                Node child = children.item(index);
-                if (child instanceof Element element
-                        && namespace.equals(element.getNamespaceURI())
-                        && localName.equals(element.getLocalName())) {
-                    elements.add(element);
+            NodeList liNodes = element.getElementsByTagNameNS(RDF_NAMESPACE, "li");
+            List<String> values = new ArrayList<>(liNodes.getLength());
+            for (int index = 0; index < liNodes.getLength(); index++) {
+                if (liNodes.item(index) instanceof Element li) {
+                    textValue(li).ifPresent(values::add);
                 }
             }
-            return elements;
+            return values;
         }
 
         private static Optional<String> textValue(Element element) {
