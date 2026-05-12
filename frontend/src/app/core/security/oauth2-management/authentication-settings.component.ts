@@ -18,6 +18,7 @@ import {Select} from 'primeng/select';
 import {TableModule} from 'primeng/table';
 import {Dialog} from 'primeng/dialog';
 import {TagComponent} from '../../../shared/components/tag/tag.component';
+import {Chip} from 'primeng/chip';
 
 @Component({
   selector: 'app-authentication-settings',
@@ -38,11 +39,13 @@ import {TagComponent} from '../../../shared/components/tag/tag.component';
     Select,
     TableModule,
     Dialog,
-    TagComponent
+    TagComponent,
+    Chip
   ],
   styleUrls: ['./authentication-settings.component.scss']
 })
 export class AuthenticationSettingsComponent {
+  readonly defaultMobileRedirectUri = 'grimmory://oauth2-callback';
   availablePermissions = [
     {label: 'Upload Books', value: 'permissionUpload', selected: false, translationKey: 'perms.uploadBooks'},
     {label: 'Download Books', value: 'permissionDownload', selected: false, translationKey: 'perms.downloadBooks'},
@@ -82,6 +85,9 @@ export class AuthenticationSettingsComponent {
   sessionDurationHours: number | null = null;
   backchannelLogoutUri = `${window.location.origin}/api/v1/auth/oidc/backchannel-logout`;
   oidcForceOnlyMode = false;
+  mobileRedirectUris: string[] = [this.defaultMobileRedirectUri];
+  mobileRedirectUriInput = '';
+  mobileRedirectUriErrorKey: string | null = null;
 
   infoItems = [
     {labelKey: 'infoPanel.redirectUri', value: `${window.location.origin}/oauth2-callback`},
@@ -158,6 +164,11 @@ export class AuthenticationSettingsComponent {
     this.sessionDurationHours = settings.oidcSessionDurationHours ?? null;
     this.groupSyncMode = settings.oidcGroupSyncMode ?? 'DISABLED';
     this.oidcForceOnlyMode = settings.oidcForceOnlyMode ?? false;
+    this.mobileRedirectUris = settings.oidcMobileRedirectUris?.length
+      ? [...settings.oidcMobileRedirectUris]
+      : [this.defaultMobileRedirectUri];
+    this.mobileRedirectUriInput = '';
+    this.mobileRedirectUriErrorKey = null;
 
     this.oidcProvider = {
       providerName: settings.oidcProviderDetails?.providerName || '',
@@ -198,10 +209,18 @@ export class AuthenticationSettingsComponent {
   }
 
   saveOidcProvider(): void {
+    if (!this.validateMobileRedirectUris()) {
+      return;
+    }
+
     const payload: {key: AppSettingKey; newValue: unknown}[] = [
       {
         key: AppSettingKey.OIDC_PROVIDER_DETAILS,
         newValue: this.oidcProvider
+      },
+      {
+        key: AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+        newValue: this.mobileRedirectUris
       }
     ];
     if (this.oidcEnabled) {
@@ -257,6 +276,112 @@ export class AuthenticationSettingsComponent {
         detail: this.t.translate('settingsAuth.toast.sessionDurationError')
       })
     });
+  }
+
+  addMobileRedirectUriFromInput(): void {
+    const value = this.mobileRedirectUriInput.trim();
+    if (!value) {
+      this.mobileRedirectUriInput = '';
+      return;
+    }
+
+    const nextUris = [...this.mobileRedirectUris, value];
+    const validationError = this.getMobileRedirectUriValidationError(nextUris);
+    if (validationError) {
+      this.mobileRedirectUriErrorKey = validationError;
+      return;
+    }
+
+    this.mobileRedirectUris = nextUris;
+    this.mobileRedirectUriInput = '';
+    this.mobileRedirectUriErrorKey = null;
+  }
+
+  removeMobileRedirectUri(index: number): void {
+    this.mobileRedirectUris = this.mobileRedirectUris.filter((_, currentIndex) => currentIndex !== index);
+    this.mobileRedirectUriErrorKey = this.getMobileRedirectUriValidationError(this.mobileRedirectUris);
+  }
+
+  onMobileRedirectUriKeydown(event: KeyboardEvent): void {
+    if ((event.key === 'Enter' || event.key === ',') && this.mobileRedirectUriInput.trim()) {
+      event.preventDefault();
+      this.addMobileRedirectUriFromInput();
+      return;
+    }
+
+    if ((event.key === 'Backspace' || event.key === 'Delete')
+      && !this.mobileRedirectUriInput
+      && this.mobileRedirectUris.length > 0) {
+      event.preventDefault();
+      this.removeMobileRedirectUri(this.mobileRedirectUris.length - 1);
+    }
+  }
+
+  validateMobileRedirectUris(): boolean {
+    const pendingInput = this.mobileRedirectUriInput.trim();
+    if (pendingInput) {
+      const validationError = this.getMobileRedirectUriValidationError([...this.mobileRedirectUris, pendingInput]);
+      if (validationError) {
+        this.mobileRedirectUriErrorKey = validationError;
+        return false;
+      }
+
+      this.mobileRedirectUris = [...this.mobileRedirectUris, pendingInput];
+      this.mobileRedirectUriInput = '';
+    }
+
+    this.mobileRedirectUriErrorKey = this.getMobileRedirectUriValidationError(this.mobileRedirectUris);
+    return this.mobileRedirectUriErrorKey === null;
+  }
+
+  private getMobileRedirectUriValidationError(uris: string[]): string | null {
+    const normalizedUris = uris.map(uri => uri.trim());
+    const nonBlankUris = normalizedUris.filter(Boolean);
+
+    if (normalizedUris.some(uri => uri.length === 0)) {
+      return 'mobileRedirectUris.validation.blank';
+    }
+
+    if (nonBlankUris.includes('*') && nonBlankUris.length > 1) {
+      return 'mobileRedirectUris.validation.wildcardOnly';
+    }
+
+    const uniqueUris = new Set<string>();
+    for (const uri of nonBlankUris) {
+      if (uniqueUris.has(uri)) {
+        return 'mobileRedirectUris.validation.duplicate';
+      }
+      uniqueUris.add(uri);
+
+      if (uri !== '*') {
+        const validationError = this.getMobileRedirectUriShapeError(uri);
+        if (validationError) {
+          return validationError;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private getMobileRedirectUriShapeError(value: string): string | null {
+    const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value);
+    if (!hasScheme) {
+      return 'mobileRedirectUris.validation.schemeRequired';
+    }
+
+    try {
+      const uri = new URL(value);
+      if (uri.protocol === 'http:' || uri.protocol === 'https:') {
+        return 'mobileRedirectUris.validation.customSchemeRequired';
+      }
+      if (uri.hash) {
+        return 'mobileRedirectUris.validation.fragmentNotAllowed';
+      }
+      return null;
+    } catch {
+      return 'mobileRedirectUris.validation.invalid';
+    }
   }
 
   saveOidcAutoProvisionSettings(): void {
