@@ -42,6 +42,7 @@ public class OidcAuthService {
     private static final String DEFAULT_MOBILE_REDIRECT_URI = "grimmory://oauth2-callback";
     // TODO(grimmory-cleanup): Remove after the Booklore to Grimmory migration window closes.
     private static final String LEGACY_MOBILE_REDIRECT_URI = "booklore://oauth2-callback";
+    private static final String WILDCARD_REDIRECT_URI = "*";
     private static final String OAUTH2_CALLBACK_PATH = "/oauth2-callback";
     private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/+$");
 
@@ -179,7 +180,7 @@ public class OidcAuthService {
 
     private boolean isAllowedMobileRedirectUri(String redirectUri) {
         List<String> effectiveRedirectUris = getEffectiveMobileRedirectUris();
-        return effectiveRedirectUris.contains("*") || effectiveRedirectUris.contains(redirectUri);
+        return effectiveRedirectUris.contains(WILDCARD_REDIRECT_URI) || effectiveRedirectUris.contains(redirectUri);
     }
 
     private List<String> getEffectiveMobileRedirectUris() {
@@ -211,7 +212,7 @@ public class OidcAuthService {
                     && !"http".equalsIgnoreCase(scheme)
                     && !"https".equalsIgnoreCase(scheme)
                     && uri.getFragment() == null;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             return false;
         }
     }

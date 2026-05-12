@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @DependsOnDatabaseInitialization
 public class AppSettingService {
     private static final String DEFAULT_MOBILE_REDIRECT_URI = "grimmory://oauth2-callback";
+    private static final String WILDCARD_REDIRECT_URI = "*";
 
     private final AppProperties appProperties;
     private final SettingPersistenceHelper settingPersistenceHelper;
@@ -127,7 +128,7 @@ public class AppSettingService {
                 .map(value -> value == null ? null : String.valueOf(value).trim())
                 .toList();
 
-        if (redirectUris.contains("*") && redirectUris.size() > 1) {
+        if (redirectUris.contains(WILDCARD_REDIRECT_URI) && redirectUris.size() > 1) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Wildcard redirect URI must be the only value");
         }
 
@@ -136,7 +137,7 @@ public class AppSettingService {
             if (redirectUri == null || redirectUri.isBlank()) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI cannot be blank");
             }
-            if (!"*".equals(redirectUri)) {
+            if (!WILDCARD_REDIRECT_URI.equals(redirectUri)) {
                 validateMobileRedirectUriShape(redirectUri);
             }
             if (!uniqueUris.add(redirectUri)) {
@@ -160,7 +161,7 @@ public class AppSettingService {
             if (uri.getFragment() != null) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI must not contain a fragment");
             }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI is not a valid URI: " + redirectUri);
         }
     }
