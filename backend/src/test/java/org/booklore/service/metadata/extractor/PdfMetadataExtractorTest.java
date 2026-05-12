@@ -397,17 +397,17 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsSubtitle_pascalCaseFallback() throws Exception {
             File pdf = createPdfWithXmp("""
-                <booklore:Subtitle>Legacy Subtitle</booklore:Subtitle>
+                <booklore:Subtitle>Custom Subtitle</booklore:Subtitle>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
-            assertThat(meta.getSubtitle()).isEqualTo("Legacy Subtitle");
+            assertThat(meta.getSubtitle()).isEqualTo("Custom Subtitle");
         }
 
         @Test
         void subtitle_camelCaseTakesPrecedenceOverPascalCase() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:subtitle>New</booklore:subtitle>
-                <booklore:Subtitle>Legacy</booklore:Subtitle>
+                <booklore:Subtitle>Custom</booklore:Subtitle>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getSubtitle()).isEqualTo("New");
@@ -468,7 +468,7 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void extractsMoods_legacySemicolonFormat() throws Exception {
+        void extractsMoods_customSemicolonFormat() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:Moods>Dark; Suspenseful; Eerie</booklore:Moods>
                 """);
@@ -477,14 +477,14 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void moods_rdfBagTakesPrecedenceOverLegacy() throws Exception {
+        void moods_rdfBagTakesPrecedenceOverCustom() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:moods>
                   <rdf:Bag>
                     <rdf:li>FromBag</rdf:li>
                   </rdf:Bag>
                 </booklore:moods>
-                <booklore:Moods>FromLegacy</booklore:Moods>
+                <booklore:Moods>FromCustom</booklore:Moods>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getMoods()).containsExactly("FromBag");
@@ -505,7 +505,7 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void extractsTags_legacySemicolonFormat() throws Exception {
+        void extractsTags_customSemicolonFormat() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:Tags>Favorites; Must Read</booklore:Tags>
                 """);
@@ -514,14 +514,14 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void tags_rdfBagTakesPrecedenceOverLegacy() throws Exception {
+        void tags_rdfBagTakesPrecedenceOverCustom() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:tags>
                   <rdf:Bag>
                     <rdf:li>BagTag</rdf:li>
                   </rdf:Bag>
                 </booklore:tags>
-                <booklore:Tags>LegacyTag</booklore:Tags>
+                <booklore:Tags>CustomTag</booklore:Tags>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTags()).containsExactly("BagTag");

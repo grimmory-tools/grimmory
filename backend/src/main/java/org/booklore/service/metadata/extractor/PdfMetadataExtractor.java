@@ -161,16 +161,16 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 Set<String> knownNonCategories = new HashSet<>();
                 
                 // Get moods and tags from booklore namespace to filter them out of subjects
-        List<String> moods = findLegacyListField(xmp, rawXmp, "moods");
+        List<String> moods = findCustomListField(xmp, rawXmp, "moods");
                 knownNonCategories.addAll(moods);
 
-        List<String> tags = findLegacyListField(xmp, rawXmp, "tags");
+        List<String> tags = findCustomListField(xmp, rawXmp, "tags");
                 knownNonCategories.addAll(tags);
 
-                // Legacy semicolon-separated strings fallback
-        findLegacyField(xmp, rawXmp, "moods")
+                // Custom semicolon-separated strings fallback
+        findCustomField(xmp, rawXmp, "moods")
             .ifPresent(m -> Arrays.stream(m.split(";")).map(String::trim).forEach(knownNonCategories::add));
-        findLegacyField(xmp, rawXmp, "tags")
+        findCustomField(xmp, rawXmp, "tags")
             .ifPresent(t -> Arrays.stream(t.split(";")).map(String::trim).forEach(knownNonCategories::add));
 
                 categories.removeAll(knownNonCategories);
@@ -184,28 +184,28 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             xmp.calibreSeriesIndex().ifPresent(idx -> metadataBuilder.seriesNumber(idx.floatValue()));
 
             // Booklore
-            findLegacyField(xmp, rawXmp, "seriesName").ifPresent(metadataBuilder::seriesName);
-            findLegacyField(xmp, rawXmp, "seriesNumber").ifPresent(val -> {
+            findCustomField(xmp, rawXmp, "seriesName").ifPresent(metadataBuilder::seriesName);
+            findCustomField(xmp, rawXmp, "seriesNumber").ifPresent(val -> {
                 try { metadataBuilder.seriesNumber(Float.parseFloat(val)); } catch (Exception _) {}
             });
-            findLegacyField(xmp, rawXmp, "seriesTotal").ifPresent(val -> {
+            findCustomField(xmp, rawXmp, "seriesTotal").ifPresent(val -> {
                 try { metadataBuilder.seriesTotal(Integer.parseInt(val)); } catch (Exception _) {}
             });
             
-            findLegacyField(xmp, rawXmp, "subtitle").ifPresent(metadataBuilder::subtitle);
+            findCustomField(xmp, rawXmp, "subtitle").ifPresent(metadataBuilder::subtitle);
 
             // Identifiers
-            findLegacyField(xmp, rawXmp, "isbn13").ifPresent(val -> metadataBuilder.isbn13(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
-            findLegacyField(xmp, rawXmp, "isbn10").ifPresent(val -> metadataBuilder.isbn10(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
-            findLegacyField(xmp, rawXmp, "googleId").ifPresent(metadataBuilder::googleId);
-            findLegacyField(xmp, rawXmp, "goodreadsId").ifPresent(metadataBuilder::goodreadsId);
-            findLegacyField(xmp, rawXmp, "amazonId").ifPresent(metadataBuilder::asin);
-            findLegacyField(xmp, rawXmp, "asin").ifPresent(metadataBuilder::asin);
-            findLegacyField(xmp, rawXmp, "comicvineId").ifPresent(metadataBuilder::comicvineId);
-            findLegacyField(xmp, rawXmp, "ranobedbId").ifPresent(metadataBuilder::ranobedbId);
-            findLegacyField(xmp, rawXmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
-            findLegacyField(xmp, rawXmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
-            findLegacyField(xmp, rawXmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
+            findCustomField(xmp, rawXmp, "isbn13").ifPresent(val -> metadataBuilder.isbn13(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
+            findCustomField(xmp, rawXmp, "isbn10").ifPresent(val -> metadataBuilder.isbn10(ISBN_CLEANUP_PATTERN.matcher(val).replaceAll("")));
+            findCustomField(xmp, rawXmp, "googleId").ifPresent(metadataBuilder::googleId);
+            findCustomField(xmp, rawXmp, "goodreadsId").ifPresent(metadataBuilder::goodreadsId);
+            findCustomField(xmp, rawXmp, "amazonId").ifPresent(metadataBuilder::asin);
+            findCustomField(xmp, rawXmp, "asin").ifPresent(metadataBuilder::asin);
+            findCustomField(xmp, rawXmp, "comicvineId").ifPresent(metadataBuilder::comicvineId);
+            findCustomField(xmp, rawXmp, "ranobedbId").ifPresent(metadataBuilder::ranobedbId);
+            findCustomField(xmp, rawXmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
+            findCustomField(xmp, rawXmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
+            findCustomField(xmp, rawXmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
 
             // XMP Qualified Identifiers
             for (QualifiedIdentifier qi : xmp.xmpIdentifiers()) {
@@ -252,16 +252,16 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             mapRating(xmp, rawXmp, "ranobedbRating", "RanobedbRating", metadataBuilder::ranobedbRating);
 
             // Moods and Tags (List/Bag with semicolon fallback)
-            Set<String> moodsSet = new LinkedHashSet<>(findLegacyListField(xmp, rawXmp, "moods"));
+            Set<String> moodsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "moods"));
             if (moodsSet.isEmpty()) {
-                findLegacyField(xmp, rawXmp, "moods").ifPresent(m ->
+                findCustomField(xmp, rawXmp, "moods").ifPresent(m ->
                     Arrays.stream(m.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(moodsSet::add));
             }
             if (!moodsSet.isEmpty()) metadataBuilder.moods(moodsSet);
 
-            Set<String> tagsSet = new LinkedHashSet<>(findLegacyListField(xmp, rawXmp, "tags"));
+            Set<String> tagsSet = new LinkedHashSet<>(findCustomListField(xmp, rawXmp, "tags"));
             if (tagsSet.isEmpty()) {
-                findLegacyField(xmp, rawXmp, "tags").ifPresent(t ->
+                findCustomField(xmp, rawXmp, "tags").ifPresent(t ->
                     Arrays.stream(t.split(";")).map(String::trim).filter(StringUtils::isNotBlank).forEach(tagsSet::add));
             }
             if (!tagsSet.isEmpty()) metadataBuilder.tags(tagsSet);
@@ -274,7 +274,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
     }
 
 
-    private Optional<String> findLegacyField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
+    private Optional<String> findCustomField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
         Optional<String> val = xmp.findField(name);
         if (val.isPresent()) return val;
         // Try PascalCase
@@ -285,7 +285,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 .or(() -> xmpData.readFirstText(BOOKLORE_NAMESPACE, pascal)));
     }
 
-    private List<String> findLegacyListField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
+    private List<String> findCustomListField(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name) {
         List<String> values = xmp.findListField(name);
         if (!values.isEmpty()) {
             return values;
@@ -353,9 +353,9 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
         return null;
     }
 
-    private void mapRating(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String newName, String legacyName, Consumer<Double> setter) {
-        Optional<String> val = findLegacyField(xmp, rawXmp, newName);
-        if (val.isEmpty()) val = findLegacyField(xmp, rawXmp, legacyName);
+    private void mapRating(XmpMetadata xmp, Optional<RawXmpMetadata> rawXmp, String name, String fallbackName, Consumer<Double> setter) {
+        Optional<String> val = findCustomField(xmp, rawXmp, name);
+        if (val.isEmpty()) val = findCustomField(xmp, rawXmp, fallbackName);
         val.ifPresent(v -> {
             try {
                 setter.accept(Double.parseDouble(v));
