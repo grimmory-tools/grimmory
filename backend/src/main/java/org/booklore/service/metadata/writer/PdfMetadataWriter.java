@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.grimmory.pdfium4j.PdfDocument;
 import org.grimmory.pdfium4j.XmpMetadataWriter;
 import org.grimmory.pdfium4j.model.MetadataTag;
-import org.grimmory.pdfium4j.model.SaveOptions;
 import org.grimmory.pdfium4j.model.XmpMetadata;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -64,7 +63,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         try (PdfDocument doc = PdfDocument.open(filePath)) {
             applyMetadataToDocument(doc, metadataEntity, clear);
             tempPath = Files.createTempFile(parentDir, ".pdfmeta-", ".pdf");
-            doc.save(tempPath, SaveOptions.SKIP_VALIDATION);
+            doc.save(tempPath);
             Files.move(tempPath, filePath, StandardCopyOption.REPLACE_EXISTING);
             tempPath = null;
             log.info("Successfully embedded metadata into PDF: {}", file.getName());
@@ -218,23 +217,18 @@ public class PdfMetadataWriter implements MetadataWriter {
         // Booklore namespace simple fields
         addBookloreSimpleFields(customFields, helper, clear, metadata);
 
-        XmpMetadata xmpMeta = new XmpMetadata(
-                Optional.ofNullable(title[0]),
-                authors[0] != null ? authors[0] : List.of(),
-                Optional.ofNullable(description[0]),
-                subjects[0] != null ? subjects[0] : List.of(),
-                Optional.ofNullable(publisher[0]),
-                Optional.ofNullable(language[0]),
-                Optional.ofNullable(date[0]),
-                Optional.empty(),
-                List.of(),
-                Optional.empty(),
-                Map.of(),
-                customFields
-        );
+        XmpMetadata xmpMeta = XmpMetadata.builder()
+                .title(title[0])
+                .creators(authors[0] != null ? authors[0] : List.of())
+                .description(description[0])
+                .subjects(subjects[0] != null ? subjects[0] : List.of())
+                .publisher(publisher[0])
+                .language(language[0])
+                .date(date[0])
+                .customFields(customFields)
+                .build();
 
-        XmpMetadataWriter xmpWriter = new XmpMetadataWriter()
-                .registerNamespace(BookLoreMetadata.NS_PREFIX, BookLoreMetadata.NS_URI);
+        XmpMetadataWriter xmpWriter = new XmpMetadataWriter();
         String xmpPacket = xmpWriter.write(xmpMeta);
 
         // Inject RDF Bag elements for tags/moods (not supported as simple custom fields)

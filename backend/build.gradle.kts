@@ -176,7 +176,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.46")
 
     // --- Book & Image Processing ---
-    val pdfium4jVersion = if (useLocalLibs) "+" else "0.16.0"
+    val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
     implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
@@ -245,9 +245,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testRuntimeOnly("com.h2database:h2")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
-
-    // PDFBox for test PDF creation only (production code uses PDFium4j)
-    testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
 }
 
 dependencyLocking {
