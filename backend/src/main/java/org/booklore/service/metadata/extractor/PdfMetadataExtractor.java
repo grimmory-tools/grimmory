@@ -175,14 +175,24 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             Set<String> categories = new HashSet<>(subjects);
             categories.removeAll(moodsSet);
             categories.removeAll(tagsSet);
-            if (!categories.isEmpty()) {
-                metadataBuilder.categories(categories);
-            }
+            metadataBuilder.categories(categories);
         }
 
         // Calibre
         xmp.calibreSeries().ifPresent(metadataBuilder::seriesName);
         xmp.calibreSeriesIndex().ifPresent(idx -> metadataBuilder.seriesNumber(idx.floatValue()));
+
+        // Calibre fallback for un-prefixed series_index (some tools write it like this, and library skips them)
+        if (xmp.calibreSeriesIndex().isEmpty()) {
+            byte[] rawXmpBytes = doc.xmpMetadata();
+            if (rawXmpBytes != null) {
+                String xmpStr = new String(rawXmpBytes, StandardCharsets.UTF_8);
+                Matcher siMatcher = Pattern.compile("<series_index>([^<]+)</series_index>").matcher(xmpStr);
+                if (siMatcher.find()) {
+                    try { metadataBuilder.seriesNumber(Float.parseFloat(siMatcher.group(1).trim())); } catch (Exception _) {}
+                }
+            }
+        }
 
         // Booklore
         findCustomField(xmp, rawXmp, "seriesName").ifPresent(metadataBuilder::seriesName);
@@ -229,18 +239,6 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 case "lubimyczytac" -> metadataBuilder.lubimyczytacId(value);
                 case "hardcover" -> metadataBuilder.hardcoverId(value);
                 case "hardcover_book_id" -> metadataBuilder.hardcoverBookId(value);
-            }
-        }
-
-        // Calibre fallback for un-prefixed series_index (some tools write it like this, and library skips them)
-        if (xmp.calibreSeriesIndex().isEmpty()) {
-            byte[] rawXmpBytes = doc.xmpMetadata();
-            if (rawXmpBytes != null) {
-                String xmpStr = new String(rawXmpBytes, StandardCharsets.UTF_8);
-                Matcher siMatcher = Pattern.compile("<series_index>([^<]+)</series_index>").matcher(xmpStr);
-                if (siMatcher.find()) {
-                    try { metadataBuilder.seriesNumber(Float.parseFloat(siMatcher.group(1).trim())); } catch (Exception _) {}
-                }
             }
         }
 
