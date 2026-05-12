@@ -26,6 +26,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,7 +39,9 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class OidcAuthService {
 
-    private static final String MOBILE_SCHEME = "booklore://";
+    private static final String DEFAULT_MOBILE_REDIRECT_URI = "grimmory://oauth2-callback";
+    // TODO(grimmory-cleanup): Remove after the Booklore to Grimmory migration window closes.
+    private static final String LEGACY_MOBILE_REDIRECT_URI = "booklore://oauth2-callback";
     private static final String OAUTH2_CALLBACK_PATH = "/oauth2-callback";
     private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/+$");
 
@@ -123,8 +127,8 @@ public class OidcAuthService {
             throw ApiError.OIDC_INVALID_REDIRECT_URI.createException();
         }
 
-        if (redirectUri.startsWith(MOBILE_SCHEME)) {
-            if (!redirectUri.equals(MOBILE_SCHEME + "oauth2-callback")) {
+        if (isMobileRedirectUri(redirectUri)) {
+            if (!isAllowedMobileRedirectUri(redirectUri)) {
                 throw ApiError.OIDC_INVALID_REDIRECT_URI.createException();
             }
             return;
@@ -168,8 +172,47 @@ public class OidcAuthService {
     }
 
     public void validateAppRedirectUri(String appRedirectUri) {
-        if (appRedirectUri == null || !appRedirectUri.startsWith(MOBILE_SCHEME)) {
+        if (!isMobileRedirectUri(appRedirectUri)) {
             throw ApiError.OIDC_INVALID_REDIRECT_URI.createException();
+        }
+    }
+
+    private boolean isAllowedMobileRedirectUri(String redirectUri) {
+        List<String> effectiveRedirectUris = getEffectiveMobileRedirectUris();
+        return effectiveRedirectUris.contains("*") || effectiveRedirectUris.contains(redirectUri);
+    }
+
+    private List<String> getEffectiveMobileRedirectUris() {
+        List<String> configuredRedirectUris = appSettingService.getAppSettings().getOidcMobileRedirectUris();
+        List<String> effectiveRedirectUris = new ArrayList<>(
+                configuredRedirectUris == null || configuredRedirectUris.isEmpty()
+                        ? List.of(DEFAULT_MOBILE_REDIRECT_URI)
+                        : configuredRedirectUris
+        );
+
+        if (effectiveRedirectUris.contains(DEFAULT_MOBILE_REDIRECT_URI)
+                && !effectiveRedirectUris.contains(LEGACY_MOBILE_REDIRECT_URI)) {
+            effectiveRedirectUris.add(LEGACY_MOBILE_REDIRECT_URI);
+        }
+
+        return effectiveRedirectUris;
+    }
+
+    private boolean isMobileRedirectUri(String redirectUri) {
+        if (redirectUri == null || redirectUri.isBlank()) {
+            return false;
+        }
+
+        try {
+            URI uri = URI.create(redirectUri);
+            String scheme = uri.getScheme();
+            return scheme != null
+                    && !scheme.isBlank()
+                    && !"http".equalsIgnoreCase(scheme)
+                    && !"https".equalsIgnoreCase(scheme)
+                    && uri.getFragment() == null;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 

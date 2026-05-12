@@ -10,6 +10,7 @@ public enum AppSettingKey {
     // @formatter:off
     // ADMIN only (public settings)
     OIDC_PROVIDER_DETAILS               ("oidc_provider_details",                true,  true,  List.of(PermissionType.ADMIN)),
+    OIDC_MOBILE_REDIRECT_URIS           ("oidc_mobile_redirect_uris",            true,  false, List.of(PermissionType.ADMIN)),
     OIDC_ENABLED                        ("oidc_enabled",                         false, true,  List.of(PermissionType.ADMIN)),
     OIDC_AUTO_PROVISION_DETAILS         ("oidc_auto_provision_details",          true,  false, List.of(PermissionType.ADMIN)),
     OIDC_SESSION_DURATION_HOURS         ("oidc_session_duration_hours",          false, false, List.of(PermissionType.ADMIN)),

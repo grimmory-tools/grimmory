@@ -22,13 +22,17 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 
+import java.net.URI;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @DependsOnDatabaseInitialization
 public class AppSettingService {
+    private static final String DEFAULT_MOBILE_REDIRECT_URI = "grimmory://oauth2-callback";
 
     private final AppProperties appProperties;
     private final SettingPersistenceHelper settingPersistenceHelper;
@@ -56,6 +60,10 @@ public class AppSettingService {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
 
         validatePermission(key, user);
+
+        if (key == AppSettingKey.OIDC_MOBILE_REDIRECT_URIS) {
+            val = validateAndNormalizeOidcMobileRedirectUris(val);
+        }
 
         if (key == AppSettingKey.OIDC_FORCE_ONLY_MODE) {
             validateOidcForceOnlyMode(val);
@@ -107,6 +115,56 @@ public class AppSettingService {
         }
     }
 
+    private List<String> validateAndNormalizeOidcMobileRedirectUris(Object val) {
+        if (val == null) {
+            return List.of();
+        }
+        if (!(val instanceof List<?> rawValues)) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC mobile redirect URIs must be an array");
+        }
+
+        List<String> redirectUris = rawValues.stream()
+                .map(value -> value == null ? null : String.valueOf(value).trim())
+                .toList();
+
+        if (redirectUris.contains("*") && redirectUris.size() > 1) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Wildcard redirect URI must be the only value");
+        }
+
+        Set<String> uniqueUris = new LinkedHashSet<>();
+        for (String redirectUri : redirectUris) {
+            if (redirectUri == null || redirectUri.isBlank()) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI cannot be blank");
+            }
+            if (!"*".equals(redirectUri)) {
+                validateMobileRedirectUriShape(redirectUri);
+            }
+            if (!uniqueUris.add(redirectUri)) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Duplicate redirect URI: " + redirectUri);
+            }
+        }
+
+        return redirectUris;
+    }
+
+    private void validateMobileRedirectUriShape(String redirectUri) {
+        try {
+            URI uri = URI.create(redirectUri);
+            String scheme = uri.getScheme();
+            if (scheme == null || scheme.isBlank()) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI must include a scheme");
+            }
+            if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI must use a custom mobile scheme");
+            }
+            if (uri.getFragment() != null) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI must not contain a fragment");
+            }
+        } catch (IllegalArgumentException e) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Redirect URI is not a valid URI: " + redirectUri);
+        }
+    }
+
     @Cacheable("publicSettings")
     public PublicAppSetting getPublicSettings() {
         return buildPublicSetting();
@@ -144,6 +202,8 @@ public class AppSettingService {
         builder.libraryMetadataRefreshOptions(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.LIBRARY_METADATA_REFRESH_OPTIONS, new TypeReference<>() {
         }, List.of(), true));
         builder.oidcProviderDetails(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null, false));
+        builder.oidcMobileRedirectUris(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_MOBILE_REDIRECT_URIS, new TypeReference<>() {
+        }, List.of(DEFAULT_MOBILE_REDIRECT_URI), true));
         builder.oidcAutoProvisionDetails(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_AUTO_PROVISION_DETAILS, OidcAutoProvisionDetails.class, new OidcAutoProvisionDetails(), true));
         builder.metadataProviderSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.METADATA_PROVIDER_SETTINGS, MetadataProviderSettings.class, settingPersistenceHelper.getDefaultMetadataProviderSettings(), true));
         builder.metadataMatchWeights(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.METADATA_MATCH_WEIGHTS, MetadataMatchWeights.class, settingPersistenceHelper.getDefaultMetadataMatchWeights(), true));

@@ -540,6 +540,64 @@ class OidcAuthServiceTest {
     }
 
     @Test
+    void validateRedirectUri_allowsDerivedBookloreCallbackWhenGrimmoryCallbackIsConfigured() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        var tokenResponse = tokenResponse(null, "id-token");
+        var claims = new JWTClaimsSet.Builder().subject("sub-123").build();
+        var userClaims = userClaims("jdoe", "sub-123");
+        var user = existingOidcUser("jdoe", "sub-123");
+
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("booklore://oauth2-callback"), any()))
+                .thenReturn(tokenResponse);
+        when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
+                .thenReturn(claims);
+        when(oidcClaimExtractor.extractClaims(eq(claims), any(), eq(Map.of()))).thenReturn(userClaims);
+        when(userRepository.findByOidcIssuerAndOidcSubject(ISSUER_URI, "sub-123")).thenReturn(Optional.of(user));
+        when(appSettingService.getSettingValue("oidc_session_duration_hours")).thenReturn(null);
+        when(authenticationService.loginUser(user)).thenReturn(ResponseEntity.ok(AccessTokenDto.builder().build()));
+
+        var result = oidcAuthService.exchangeCodeForTokens(CODE, CODE_VERIFIER, "booklore://oauth2-callback", NONCE, mockRequest());
+
+        assertThat(result.getStatusCode().value()).isEqualTo(200);
+    }
+
+    @Test
+    void validateRedirectUri_rejectsUnlistedCustomMobileRedirect() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+
+        assertThatThrownBy(() -> oidcAuthService.exchangeCodeForTokens(CODE, CODE_VERIFIER, "grimmory://some-other-path", NONCE, mockRequest()))
+                .isInstanceOf(APIException.class);
+    }
+
+    @Test
+    void validateRedirectUri_allowsAnyConfiguredWildcardMobileRedirect() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("*"));
+        var tokenResponse = tokenResponse(null, "id-token");
+        var claims = new JWTClaimsSet.Builder().subject("sub-123").build();
+        var userClaims = userClaims("jdoe", "sub-123");
+        var user = existingOidcUser("jdoe", "sub-123");
+
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("grimmory://some-other-path"), any()))
+                .thenReturn(tokenResponse);
+        when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
+                .thenReturn(claims);
+        when(oidcClaimExtractor.extractClaims(eq(claims), any(), eq(Map.of()))).thenReturn(userClaims);
+        when(userRepository.findByOidcIssuerAndOidcSubject(ISSUER_URI, "sub-123")).thenReturn(Optional.of(user));
+        when(appSettingService.getSettingValue("oidc_session_duration_hours")).thenReturn(null);
+        when(authenticationService.loginUser(user)).thenReturn(ResponseEntity.ok(AccessTokenDto.builder().build()));
+
+        var result = oidcAuthService.exchangeCodeForTokens(CODE, CODE_VERIFIER, "grimmory://some-other-path", NONCE, mockRequest());
+
+        assertThat(result.getStatusCode().value()).isEqualTo(200);
+    }
+
+    @Test
     void validateRedirectUri_invalidMobileRedirectThrows() {
         var settings = enabledSettings();
         when(appSettingService.getAppSettings()).thenReturn(settings);
