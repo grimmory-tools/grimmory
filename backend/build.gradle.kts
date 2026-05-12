@@ -9,7 +9,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.3.3.Final"
+    id("org.hibernate.orm") version "7.3.4.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -169,7 +169,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.5.0")
+    implementation("org.flywaydb:flyway-mysql:12.6.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
