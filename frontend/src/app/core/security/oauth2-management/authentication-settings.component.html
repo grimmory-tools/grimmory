@@ -217,7 +217,7 @@
         </p>
         <div class="config-item full-width">
           <label for="mobileRedirectUriInput">{{ t('mobileRedirectUris.label') }}</label>
-          <div class="redirect-uri-input" [class.has-error]="mobileRedirectUriErrorKey">
+          <div class="redirect-uri-input">
             <div class="redirect-uri-chip-list">
               @for (redirectUri of mobileRedirectUris; track redirectUri; let index = $index) {
                 <p-chip
@@ -245,9 +245,6 @@
             {{ '. ' + t('mobileRedirectUris.hintSuffix') }}
             <code>{{ wildcardMobileRedirectUri }}</code>
           </span>
-          @if (mobileRedirectUriErrorKey) {
-            <span class="field-error">{{ t(mobileRedirectUriErrorKey) }}</span>
-          }
         </div>
       </div>
 

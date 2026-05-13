@@ -18,7 +18,7 @@ function createSettings(overrides: Partial<AppSettings> = {}): AppSettings {
     oidcEnabled: false,
     oidcAutoProvisionDetails: undefined,
     oidcProviderDetails: undefined,
-    oidcMobileRedirectUris: ['grimmory://oauth2-callback'],
+    oidcRedirectUris: ['grimmory://oauth2-callback'],
     oidcSessionDurationHours: null,
     oidcGroupSyncMode: null,
     oidcForceOnlyMode: false,
@@ -287,7 +287,7 @@ describe('AuthenticationSettingsComponent', () => {
         newValue: component.oidcProvider,
       },
       {
-        key: AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
       }
     ]);
@@ -301,7 +301,7 @@ describe('AuthenticationSettingsComponent', () => {
         newValue: component.oidcProvider,
       },
       {
-        key: AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
       },
       {
@@ -319,78 +319,23 @@ describe('AuthenticationSettingsComponent', () => {
 
     expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback', 'grimmory://auth/return']);
     expect(component.mobileRedirectUriInput).toBe('');
-    expect(component.mobileRedirectUriErrorKey).toBeNull();
   });
 
-  it('rejects duplicate mobile redirect URIs before saving', () => {
+  it('adds the pending mobile redirect URI before saving', () => {
+    appSettingsService.saveSettings.mockReturnValue(of(void 0));
     component.oidcProvider = completeProvider();
     component.mobileRedirectUris = ['grimmory://oauth2-callback'];
-    component.mobileRedirectUriInput = 'grimmory://oauth2-callback';
+    component.mobileRedirectUriInput = 'grimmory://auth/return';
 
     component.saveOidcProvider();
 
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.duplicate');
-    expect(appSettingsService.saveSettings).not.toHaveBeenCalled();
-  });
-
-  it('rejects wildcard mixed with specific redirect URIs', () => {
-    component.mobileRedirectUris = [component.wildcardMobileRedirectUri];
-    component.mobileRedirectUriInput = 'grimmory://oauth2-callback';
-
-    component.addMobileRedirectUriFromInput();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.wildcardOnly');
-    expect(component.mobileRedirectUris).toEqual([component.wildcardMobileRedirectUri]);
-  });
-
-  it('rejects blank mobile redirect URIs already present in the array being saved', () => {
-    component.oidcProvider = completeProvider();
-    component.mobileRedirectUris = ['grimmory://oauth2-callback', ' '];
-
-    component.saveOidcProvider();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.blank');
-    expect(appSettingsService.saveSettings).not.toHaveBeenCalled();
-  });
-
-  it('rejects malformed mobile redirect URIs', () => {
-    component.mobileRedirectUris = [];
-    component.mobileRedirectUriInput = 'grimmory://oauth2 callback';
-
-    component.addMobileRedirectUriFromInput();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.invalid');
-    expect(component.mobileRedirectUris).toEqual([]);
-  });
-
-  it('rejects mobile redirect URIs without a scheme', () => {
-    component.mobileRedirectUris = [];
-    component.mobileRedirectUriInput = 'oauth2-callback';
-
-    component.addMobileRedirectUriFromInput();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.schemeRequired');
-    expect(component.mobileRedirectUris).toEqual([]);
-  });
-
-  it('rejects http and https mobile redirect URIs', () => {
-    component.mobileRedirectUris = [];
-    component.mobileRedirectUriInput = 'https://example.com/oauth2-callback';
-
-    component.addMobileRedirectUriFromInput();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.customSchemeRequired');
-    expect(component.mobileRedirectUris).toEqual([]);
-  });
-
-  it('rejects mobile redirect URIs with fragments', () => {
-    component.mobileRedirectUris = [];
-    component.mobileRedirectUriInput = 'grimmory://oauth2-callback#done';
-
-    component.addMobileRedirectUriFromInput();
-
-    expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.fragmentNotAllowed');
-    expect(component.mobileRedirectUris).toEqual([]);
+    expect(appSettingsService.saveSettings).toHaveBeenCalledWith(expect.arrayContaining([
+      {
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
+        newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
+      }
+    ]));
+    expect(component.mobileRedirectUriInput).toBe('');
   });
 
   it('removes the last mobile redirect URI when delete is pressed on an empty input', () => {
@@ -404,6 +349,24 @@ describe('AuthenticationSettingsComponent', () => {
 
     expect(preventDefault).toHaveBeenCalledOnce();
     expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
+  });
+
+  it('surfaces backend redirect URI validation failures in the toast', () => {
+    component.oidcProvider = completeProvider();
+    component.mobileRedirectUris = ['grimmory://oauth2-callback'];
+    appSettingsService.saveSettings.mockReturnValue(
+      throwError(() => new HttpErrorResponse({
+        status: 400,
+        error: {message: 'Wildcard redirect URI must be the only value'}
+      }))
+    );
+
+    component.saveOidcProvider();
+
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error',
+      detail: 'Wildcard redirect URI must be the only value',
+    }));
   });
 
   it('saves the group sync mode and reports failures', () => {

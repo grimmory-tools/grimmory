@@ -54,16 +54,7 @@
     "placeholder": "Add a redirect URI or *",
     "hintPrefix": "The default redirect URI is",
     "hintSuffix": "To allow any URI, just use",
-    "removeLabel": "Remove {{uri}}",
-    "validation": {
-      "blank": "Redirect URI cannot be blank.",
-      "invalid": "Enter a valid mobile redirect URI.",
-      "schemeRequired": "Redirect URI must include a scheme.",
-      "customSchemeRequired": "Redirect URI must use a custom mobile scheme.",
-      "fragmentNotAllowed": "Redirect URI must not contain a fragment.",
-      "duplicate": "This redirect URI has already been added.",
-      "wildcardOnly": "If * is present, it must be the only value."
-    }
+    "removeLabel": "Remove {{uri}}"
   },
   "provisioning": {
     "sectionTitle": "User Provisioning",

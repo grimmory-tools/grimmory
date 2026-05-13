@@ -184,7 +184,7 @@ export interface AppSettings {
   remoteAuthEnabled: boolean;
   oidcEnabled: boolean;
   oidcProviderDetails: OidcProviderDetails;
-  oidcMobileRedirectUris: string[];
+  oidcRedirectUris: string[];
   oidcAutoProvisionDetails: OidcAutoProvisionDetails;
   maxFileUploadSizeInMb: number;
   metadataProviderSettings: MetadataProviderSettings;
@@ -234,7 +234,7 @@ export enum AppSettingKey {
   KOMGA_GROUP_UNKNOWN = 'KOMGA_GROUP_UNKNOWN',
   OIDC_ENABLED = 'OIDC_ENABLED',
   OIDC_PROVIDER_DETAILS = 'OIDC_PROVIDER_DETAILS',
-  OIDC_MOBILE_REDIRECT_URIS = 'OIDC_MOBILE_REDIRECT_URIS',
+  OIDC_REDIRECT_URIS = 'OIDC_REDIRECT_URIS',
   OIDC_AUTO_PROVISION_DETAILS = 'OIDC_AUTO_PROVISION_DETAILS',
   MAX_FILE_UPLOAD_SIZE_IN_MB = 'MAX_FILE_UPLOAD_SIZE_IN_MB',
   METADATA_PROVIDER_SETTINGS = 'METADATA_PROVIDER_SETTINGS',

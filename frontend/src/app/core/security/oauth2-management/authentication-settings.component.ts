@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, effect, inject} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
@@ -88,7 +89,6 @@ export class AuthenticationSettingsComponent {
   oidcForceOnlyMode = false;
   mobileRedirectUris: string[] = [this.defaultMobileRedirectUri];
   mobileRedirectUriInput = '';
-  mobileRedirectUriErrorKey: string | null = null;
 
   infoItems = [
     {labelKey: 'infoPanel.redirectUri', value: `${window.location.origin}/oauth2-callback`},
@@ -165,11 +165,10 @@ export class AuthenticationSettingsComponent {
     this.sessionDurationHours = settings.oidcSessionDurationHours ?? null;
     this.groupSyncMode = settings.oidcGroupSyncMode ?? 'DISABLED';
     this.oidcForceOnlyMode = settings.oidcForceOnlyMode ?? false;
-    this.mobileRedirectUris = settings.oidcMobileRedirectUris?.length
-      ? [...settings.oidcMobileRedirectUris]
+    this.mobileRedirectUris = settings.oidcRedirectUris?.length
+      ? [...settings.oidcRedirectUris]
       : [this.defaultMobileRedirectUri];
     this.mobileRedirectUriInput = '';
-    this.mobileRedirectUriErrorKey = null;
 
     this.oidcProvider = {
       providerName: settings.oidcProviderDetails?.providerName || '',
@@ -210,9 +209,7 @@ export class AuthenticationSettingsComponent {
   }
 
   saveOidcProvider(): void {
-    if (!this.validateMobileRedirectUris()) {
-      return;
-    }
+    this.addMobileRedirectUriFromInput();
 
     const payload: {key: AppSettingKey; newValue: unknown}[] = [
       {
@@ -220,7 +217,7 @@ export class AuthenticationSettingsComponent {
         newValue: this.oidcProvider
       },
       {
-        key: AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: this.mobileRedirectUris
       }
     ];
@@ -236,10 +233,10 @@ export class AuthenticationSettingsComponent {
         summary: this.t.translate('settingsAuth.toast.saved'),
         detail: this.t.translate('settingsAuth.toast.providerSaved')
       }),
-      error: () => this.messageService.add({
+      error: (error: HttpErrorResponse) => this.messageService.add({
         severity: 'error',
         summary: this.t.translate('common.error'),
-        detail: this.t.translate('settingsAuth.toast.providerError')
+        detail: error?.error?.message || this.t.translate('settingsAuth.toast.providerError')
       })
     });
   }
@@ -286,21 +283,12 @@ export class AuthenticationSettingsComponent {
       return;
     }
 
-    const nextUris = [...this.mobileRedirectUris, value];
-    const validationError = this.getMobileRedirectUriValidationError(nextUris);
-    if (validationError) {
-      this.mobileRedirectUriErrorKey = validationError;
-      return;
-    }
-
-    this.mobileRedirectUris = nextUris;
+    this.mobileRedirectUris = [...this.mobileRedirectUris, value];
     this.mobileRedirectUriInput = '';
-    this.mobileRedirectUriErrorKey = null;
   }
 
   removeMobileRedirectUri(index: number): void {
     this.mobileRedirectUris = this.mobileRedirectUris.filter((_, currentIndex) => currentIndex !== index);
-    this.mobileRedirectUriErrorKey = this.getMobileRedirectUriValidationError(this.mobileRedirectUris);
   }
 
   onMobileRedirectUriKeydown(event: KeyboardEvent): void {
@@ -315,73 +303,6 @@ export class AuthenticationSettingsComponent {
       && this.mobileRedirectUris.length > 0) {
       event.preventDefault();
       this.removeMobileRedirectUri(this.mobileRedirectUris.length - 1);
-    }
-  }
-
-  validateMobileRedirectUris(): boolean {
-    const pendingInput = this.mobileRedirectUriInput.trim();
-    if (pendingInput) {
-      const validationError = this.getMobileRedirectUriValidationError([...this.mobileRedirectUris, pendingInput]);
-      if (validationError) {
-        this.mobileRedirectUriErrorKey = validationError;
-        return false;
-      }
-
-      this.mobileRedirectUris = [...this.mobileRedirectUris, pendingInput];
-      this.mobileRedirectUriInput = '';
-    }
-
-    this.mobileRedirectUriErrorKey = this.getMobileRedirectUriValidationError(this.mobileRedirectUris);
-    return this.mobileRedirectUriErrorKey === null;
-  }
-
-  private getMobileRedirectUriValidationError(uris: string[]): string | null {
-    const normalizedUris = uris.map(uri => uri.trim());
-    const nonBlankUris = normalizedUris.filter(Boolean);
-
-    if (normalizedUris.some(uri => uri.length === 0)) {
-      return 'mobileRedirectUris.validation.blank';
-    }
-
-    if (nonBlankUris.includes(this.wildcardMobileRedirectUri) && nonBlankUris.length > 1) {
-      return 'mobileRedirectUris.validation.wildcardOnly';
-    }
-
-    const uniqueUris = new Set<string>();
-    for (const uri of nonBlankUris) {
-      if (uniqueUris.has(uri)) {
-        return 'mobileRedirectUris.validation.duplicate';
-      }
-      uniqueUris.add(uri);
-
-      if (uri !== this.wildcardMobileRedirectUri) {
-        const validationError = this.getMobileRedirectUriShapeError(uri);
-        if (validationError) {
-          return validationError;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private getMobileRedirectUriShapeError(value: string): string | null {
-    const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(value);
-    if (!hasScheme) {
-      return 'mobileRedirectUris.validation.schemeRequired';
-    }
-
-    try {
-      const uri = new URL(value);
-      if (uri.protocol === 'http:' || uri.protocol === 'https:') {
-        return 'mobileRedirectUris.validation.customSchemeRequired';
-      }
-      if (uri.hash) {
-        return 'mobileRedirectUris.validation.fragmentNotAllowed';
-      }
-      return null;
-    } catch {
-      return 'mobileRedirectUris.validation.invalid';
     }
   }
 
