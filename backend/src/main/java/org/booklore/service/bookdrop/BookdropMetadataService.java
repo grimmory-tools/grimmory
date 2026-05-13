@@ -127,7 +127,7 @@ public class BookdropMetadataService {
     }
 
     private BookdropFileEntity getOrThrow(Long id) {
-        return bookdropFileRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + id));
+        return bookdropFileRepository.findById(id).orElseThrow(() -> ApiError.BOOKDROP_FILE_NOT_FOUND.createException(id));
     }
 
     private BookMetadata cleanInitialMetadata(BookMetadata extracted) {
