@@ -643,7 +643,14 @@ export class BookdropFileReviewComponent implements OnInit {
 
     fileUi.selectedLibraryId = this.defaultLibraryId;
     fileUi.availablePaths = this.getAvailablePathsForLibrary(this.defaultLibraryId);
-    fileUi.selectedPathId = this.defaultPathId ?? null;
+
+    const hasDefaultPath =
+      this.defaultPathId != null &&
+      fileUi.availablePaths.some(path => path.id === this.defaultPathId);
+
+    fileUi.selectedPathId = hasDefaultPath
+      ? this.defaultPathId
+      : (fileUi.availablePaths.length === 1 ? fileUi.availablePaths[0].id : null);
   }
 
   private getAvailablePathsForLibrary(libraryId: string): { id: string; name: string }[] {
