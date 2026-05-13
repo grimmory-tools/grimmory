@@ -125,6 +125,10 @@ export class BookdropFileMetadataPickerComponent {
     return this.savedFields[field];
   }
 
+  hasFetchedMetadata(): boolean {
+    return this.metadataUtils.hasUsableMetadata(this.fetchedMetadata);
+  }
+
   resetField(field: string): void {
     this.metadataUtils.resetField(field, this.metadataForm, this.originalMetadata, this.copiedFields);
     if (field === 'thumbnailUrl') {

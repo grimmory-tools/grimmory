@@ -9,7 +9,6 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.SmartLifecycle;
@@ -209,8 +208,8 @@ public class BookdropEventHandlerService implements SmartLifecycle {
                             CompletableFuture.runAsync(() -> {
                                 try {
                                     bookdropMetadataService.attachFetchedMetadata(bookdropFileId);
-                                    // Send notification once fetched metadata is ready
-                                    bookdropNotificationService.sendBookdropFileAddedNotification(bookdropFileId);
+                                    // Notify the summary channel consumed by the frontend so cached rows refresh with fetched metadata.
+                                    bookdropNotificationService.sendBookdropFileSummaryNotification(bookdropFileId);
                                 } catch (Exception e) {
                                     log.error("Error attaching fetched metadata to bookdrop file: {}", bookdropFileId, e);
                                 }

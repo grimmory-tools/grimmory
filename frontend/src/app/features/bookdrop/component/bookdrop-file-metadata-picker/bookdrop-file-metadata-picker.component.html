@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'bookdrop.metadataPicker'">
-@if (fetchedMetadata && fetchedMetadata.title) {
+@if (hasFetchedMetadata()) {
   <form [formGroup]="metadataForm" class="metapicker">
     <div class="form-scroll">
       <div class="column-headers">

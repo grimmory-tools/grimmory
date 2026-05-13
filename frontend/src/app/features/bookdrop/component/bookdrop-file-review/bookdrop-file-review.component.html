@@ -201,14 +201,10 @@
                   class="pi metadata-status"
                   [ngClass]="{
                     'pi-check-circle copied': copiedFlags[file.file.id],
-                    'pi-check-circle no-metadata': !file.file.fetchedMetadata,
-                    'pi-exclamation-triangle not-applied': file.file.fetchedMetadata && !copiedFlags[file.file.id]
+                    'pi-check-circle no-metadata': !hasFetchedMetadata(file.file),
+                    'pi-exclamation-triangle not-applied': hasFetchedMetadata(file.file) && !copiedFlags[file.file.id]
                   }"
-                  [pTooltip]="copiedFlags[file.file.id]
-                    ? t('metadataAppliedTooltip')
-                    : (!file.file.fetchedMetadata || !file.file.fetchedMetadata.title)
-                      ? t('noMetadataTooltip')
-                      : t('metadataNotAppliedTooltip')"
+                  [pTooltip]="getMetadataTooltip(file.file)"
                   tooltipPosition="top">
                 </i>
 
@@ -237,14 +233,10 @@
 
                 <p-button
                   size="small"
-                  [variant]="file.file.fetchedMetadata?.title ? undefined : 'outlined'"
+                  [variant]="hasFetchedMetadata(file.file) ? undefined : 'outlined'"
                   [icon]="file.showDetails ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
                   (click)="file.showDetails = !file.showDetails"
-                  [pTooltip]="file.showDetails
-                    ? t('hideMetadataTooltip')
-                    : file.file.fetchedMetadata?.title
-                      ? t('reviewMetadataTooltip')
-                      : t('showMetadataTooltip')"
+                  [pTooltip]="getMetadataPanelTooltip(file.file, file.showDetails)"
                   tooltipPosition="left">
                 </p-button>
               </div>

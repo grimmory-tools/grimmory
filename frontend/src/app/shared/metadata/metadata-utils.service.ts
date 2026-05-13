@@ -7,6 +7,30 @@ import {BookMetadata} from '../../features/book/model/book.model';
 })
 export class MetadataUtilsService {
 
+  hasUsableMetadata(metadata?: BookMetadata | null, excludeFields: string[] = ['bookId']): boolean {
+    if (!metadata) {
+      return false;
+    }
+
+    return Object.entries(metadata)
+      .filter(([field]) => !excludeFields.includes(field))
+      .some(([, value]) => {
+        if (value === null || value === undefined) {
+          return false;
+        }
+
+        if (typeof value === 'string') {
+          return value.trim() !== '';
+        }
+
+        if (Array.isArray(value)) {
+          return value.length > 0;
+        }
+
+        return true;
+      });
+  }
+
   copyFieldToForm(
     field: string,
     fetchedMetadata: BookMetadata,

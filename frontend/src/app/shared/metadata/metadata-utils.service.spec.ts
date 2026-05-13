@@ -115,6 +115,14 @@ describe('MetadataUtilsService', () => {
     expect(service.isFetchedDifferent('title', form, fetched)).toBe(true);
   });
 
+  it('detects when fetched metadata has usable values even without a title', () => {
+    expect(service.hasUsableMetadata(undefined)).toBe(false);
+    expect(service.hasUsableMetadata({bookId: 1} as BookMetadata)).toBe(false);
+    expect(service.hasUsableMetadata({bookId: 1, title: '   '} as BookMetadata)).toBe(false);
+    expect(service.hasUsableMetadata({bookId: 1, subtitle: 'Found subtitle'} as BookMetadata)).toBe(true);
+    expect(service.hasUsableMetadata({bookId: 1, authors: ['Author']} as BookMetadata)).toBe(true);
+  });
+
   it('resets a field to the original value and clears copied and hovered flags', () => {
     const form = createForm();
     form.get('title')?.setValue('Edited Title');

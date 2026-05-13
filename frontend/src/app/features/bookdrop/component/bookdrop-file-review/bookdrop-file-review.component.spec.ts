@@ -276,6 +276,31 @@ describe('BookdropFileReviewComponent', () => {
     expect(component.totalRecords).toBe(3);
   });
 
+  it('updates an existing cached file on repeated notifications without double-counting totals', () => {
+    getPendingFiles.mockReturnValue(of({content: [], page: {totalElements: 0}}));
+
+    const component = createComponent();
+    component.ngOnInit();
+    component.currentPage = 0;
+
+    const firstNotification = makeFile(10);
+    fileAdded$.next(firstNotification);
+
+    expect(component.fileUiCache[10].file.id).toBe(10);
+    expect(component.totalRecords).toBe(1);
+
+    const secondNotification: BookdropFile = {
+      ...firstNotification,
+      fetchedMetadata: {bookId: 10, subtitle: 'Fetched subtitle'},
+      updatedAt: '2026-03-27T00:00:00Z',
+    };
+
+    fileAdded$.next(secondNotification);
+
+    expect(component.totalRecords).toBe(1);
+    expect(component.fileUiCache[10].file.fetchedMetadata?.subtitle).toBe('Fetched subtitle');
+  });
+
   it('validates that defaultPathId belongs to the selected library', () => {
     getPendingFiles.mockReturnValue(of({content: [], page: {totalElements: 0}}));
     libraries.set([

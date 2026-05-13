@@ -31,6 +31,7 @@ import {BookdropPatternExtractDialogComponent} from '../bookdrop-pattern-extract
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {BookdropFileService} from '../../service/bookdrop-file.service';
+import {MetadataUtilsService} from '../../../../shared/metadata';
 
 export interface BookdropFileUI {
   file: BookdropFile;
@@ -78,6 +79,7 @@ export class BookdropFileReviewComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private readonly metadataUtils = inject(MetadataUtilsService);
 
   @ViewChildren('metadataPicker') metadataPickers!: QueryList<BookdropFileMetadataPickerComponent>;
 
@@ -98,6 +100,7 @@ export class BookdropFileReviewComponent implements OnInit {
 
   selectAllAcrossPages = false;
   excludedFiles = new Set<number>();
+  private knownFileIds = new Set<number>();
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('bookdrop.fileReview.title'));
@@ -112,22 +115,29 @@ export class BookdropFileReviewComponent implements OnInit {
     this.bookdropFileService.fileAdded$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((file) => {
+        const alreadyKnown = this.knownFileIds.has(file.id);
+        this.knownFileIds.add(file.id);
+
+        const existing = this.fileUiCache[file.id];
+        if (existing) {
+          existing.file = file;
+          return;
+        }
+
         if (this.currentPage === 0) {
-          if (!this.fileUiCache[file.id]) {
-            const fresh = this.createFileUI(file);
+          const fresh = this.createFileUI(file);
 
-            this.applyDefaultLibrarySelection(fresh);
-            fresh.selected = this.selectAllAcrossPages && !this.excludedFiles.has(file.id);
+          this.applyDefaultLibrarySelection(fresh);
+          fresh.selected = this.selectAllAcrossPages && !this.excludedFiles.has(file.id);
 
-            this.fileUiCache[file.id] = fresh;
-            this.bookdropFileUis = [fresh, ...this.bookdropFileUis];
-            if (this.bookdropFileUis.length > this.pageSize) {
-              this.bookdropFileUis.pop();
-            }
-            this.totalRecords++;
+          this.fileUiCache[file.id] = fresh;
+          this.bookdropFileUis = [fresh, ...this.bookdropFileUis];
+          if (this.bookdropFileUis.length > this.pageSize) {
+            this.bookdropFileUis.pop();
           }
-        } else {
-          // If not on first page, just increment total count so pagination updates
+        }
+
+        if (!alreadyKnown) {
           this.totalRecords++;
         }
       });
@@ -196,12 +206,41 @@ export class BookdropFileReviewComponent implements OnInit {
     }
   }
 
+  hasFetchedMetadata(file: BookdropFile): boolean {
+    return this.metadataUtils.hasUsableMetadata(file.fetchedMetadata);
+  }
+
+  getMetadataTooltip(file: BookdropFile): string {
+    if (this.copiedFlags[file.id]) {
+      return this.t.translate('bookdrop.fileReview.metadataAppliedTooltip');
+    }
+
+    if (!this.hasFetchedMetadata(file)) {
+      return this.t.translate('bookdrop.fileReview.noMetadataTooltip');
+    }
+
+    return this.t.translate('bookdrop.fileReview.metadataNotAppliedTooltip');
+  }
+
+  getMetadataPanelTooltip(file: BookdropFile, expanded: boolean): string {
+    if (expanded) {
+      return this.t.translate('bookdrop.fileReview.hideMetadataTooltip');
+    }
+
+    if (this.hasFetchedMetadata(file)) {
+      return this.t.translate('bookdrop.fileReview.reviewMetadataTooltip');
+    }
+
+    return this.t.translate('bookdrop.fileReview.showMetadataTooltip');
+  }
+
   loadPage(page: number): void {
     this.bookdropService.getPendingFiles(page, this.pageSize)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
           this.bookdropFileUis = response.content.map(file => {
+            this.knownFileIds.add(file.id);
             const cached = this.fileUiCache[file.id];
             if (cached) {
               cached.file = file;
@@ -238,6 +277,7 @@ export class BookdropFileReviewComponent implements OnInit {
           .subscribe({
             next: response => {
               response.content.forEach(file => {
+                this.knownFileIds.add(file.id);
                 if (!this.fileUiCache[file.id]) {
                   const fresh = this.createFileUI(file);
 
