@@ -201,16 +201,16 @@ public class BookdropEventHandlerService implements SmartLifecycle {
 
                         // Send immediate notification so it appears in UI instantly with metadata
                         // Send both 'added' and 'summary' notifications to ensure frontend updates correctly
-                        bookdropNotificationService.sendBookdropFileAddedNotification(bookdropFileEntity);
-                        bookdropNotificationService.sendBookdropFileSummaryNotification(bookdropFileEntity);
+                        bookdropNotificationService.sendBookdropFileAddedNotification(bookdropFileEntity.getId());
+                        bookdropNotificationService.sendBookdropFileSummaryNotification(bookdropFileEntity.getId());
 
                         if (appSettingService.getAppSettings().isMetadataDownloadOnBookdrop()) {
                             final Long bookdropFileId = bookdropFileEntity.getId();
                             CompletableFuture.runAsync(() -> {
                                 try {
-                                    BookdropFileEntity updatedEntity = bookdropMetadataService.attachFetchedMetadata(bookdropFileId);
+                                    bookdropMetadataService.attachFetchedMetadata(bookdropFileId);
                                     // Send notification once fetched metadata is ready
-                                    bookdropNotificationService.sendBookdropFileAddedNotification(updatedEntity);
+                                    bookdropNotificationService.sendBookdropFileAddedNotification(bookdropFileId);
                                 } catch (Exception e) {
                                     log.error("Error attaching fetched metadata to bookdrop file: {}", bookdropFileId, e);
                                 }

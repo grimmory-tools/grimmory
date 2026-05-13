@@ -31,8 +31,8 @@ public class BookdropNotificationService {
     }
 
     @Transactional(readOnly = true)
-    public void sendBookdropFileSummaryNotification(BookdropFileEntity addedEntity) {
-        log.info("Sending bookdrop file summary notification. Added entity ID: {}", addedEntity != null ? addedEntity.getId() : "none");
+    public void sendBookdropFileSummaryNotification(Long addedEntityId) {
+        log.info("Sending bookdrop file summary notification. Added entity ID: {}", addedEntityId != null ? addedEntityId : "none");
         long pendingCount = bookdropFileRepository.countByStatus(BookdropFileEntity.Status.PENDING_REVIEW);
         long totalCount = bookdropFileRepository.count();
 
@@ -42,7 +42,9 @@ public class BookdropNotificationService {
                 Instant.now().toString()
         );
 
-        if (addedEntity != null) {
+        if (addedEntityId != null) {
+            BookdropFileEntity addedEntity = bookdropFileRepository.findById(addedEntityId)
+                    .orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + addedEntityId));
             summaryNotification.setAddedFile(bookdropFileMapper.toDto(addedEntity));
         }
 
@@ -50,8 +52,10 @@ public class BookdropNotificationService {
     }
 
     @Transactional(readOnly = true)
-    public void sendBookdropFileAddedNotification(BookdropFileEntity entity) {
-        log.info("Sending bookdrop file added notification for entity ID: {}", entity.getId());
+    public void sendBookdropFileAddedNotification(Long entityId) {
+        log.info("Sending bookdrop file added notification for entity ID: {}", entityId);
+        BookdropFileEntity entity = bookdropFileRepository.findById(entityId)
+                .orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + entityId));
         BookdropFile dto = bookdropFileMapper.toDto(entity);
         notificationService.sendMessageToPermissions(Topic.BOOKDROP_ADD, dto, Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP));
     }
