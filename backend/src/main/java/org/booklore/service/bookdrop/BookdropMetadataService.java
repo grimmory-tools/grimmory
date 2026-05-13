@@ -16,7 +16,9 @@ import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.util.FileService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -44,6 +46,7 @@ public class BookdropMetadataService {
     private final MetadataExtractorFactory metadataExtractorFactory;
     private final MetadataRefreshService metadataRefreshService;
     private final FileService fileService;
+    private final PlatformTransactionManager transactionManager;
 
     @Transactional
     public BookdropFileEntity attachInitialMetadata(Long bookdropFileId) throws JacksonException {
@@ -64,53 +67,88 @@ public class BookdropMetadataService {
         return bookdropFileRepository.save(entity);
     }
 
-    @Transactional
     public BookdropFileEntity attachFetchedMetadata(Long bookdropFileId) throws JacksonException {
-        BookdropFileEntity entity = getOrThrow(bookdropFileId);
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+
+        // Step 1: Read required data (Transactional)
+        final String[] data = tx.execute(status -> {
+            BookdropFileEntity entity = getOrThrow(bookdropFileId);
+            return new String[]{entity.getOriginalMetadata(), entity.getFileName()};
+        });
+
+        if (data == null) {
+            throw ApiError.BOOKDROP_FILE_NOT_FOUND.createException(bookdropFileId);
+        }
+
+        String originalMetadataJson = data[0];
+        String fileName = data[1];
+
+        if (originalMetadataJson == null || originalMetadataJson.isBlank()) {
+            log.warn("Original metadata is missing for bookdrop file: {}. Skipping online fetch.", bookdropFileId);
+            return tx.execute(status -> {
+                BookdropFileEntity entity = getOrThrow(bookdropFileId);
+                entity.setStatus(PENDING_REVIEW);
+                entity.setUpdatedAt(Instant.now());
+                return bookdropFileRepository.save(entity);
+            });
+        }
 
         AppSettings appSettings = appSettingService.getAppSettings();
-
         MetadataRefreshOptions refreshOptions = appSettings.getDefaultMetadataRefreshOptions();
+        BookMetadata initial = objectMapper.readValue(originalMetadataJson, BookMetadata.class);
 
-        BookMetadata initial = objectMapper.readValue(entity.getOriginalMetadata(), BookMetadata.class);
-
-        if (!hasSearchableMetadata(initial, entity)) {
-            log.info("Skipping online metadata fetch for '{}' — no reliable search data (title derived from filename, no ISBN or ASIN).", entity.getFileName());
-            entity.setStatus(PENDING_REVIEW);
-            entity.setUpdatedAt(Instant.now());
-            return bookdropFileRepository.save(entity);
+        if (!hasSearchableMetadata(initial, fileName)) {
+            log.info("Skipping online metadata fetch for '{}' — no reliable search data (title derived from filename, no ISBN or ASIN).", fileName);
+            return tx.execute(status -> {
+                BookdropFileEntity entity = getOrThrow(bookdropFileId);
+                entity.setStatus(PENDING_REVIEW);
+                entity.setUpdatedAt(Instant.now());
+                return bookdropFileRepository.save(entity);
+            });
         }
 
         List<MetadataProvider> providers = metadataRefreshService.prepareProviders(refreshOptions);
-        Book book = Book.builder()
-                .metadata(initial)
-                .build();
-
+        
+        // Rate limiting for GoodReads - OUTSIDE transaction
         if (providers.contains(MetadataProvider.GoodReads)) {
             try {
                 Thread.sleep(ThreadLocalRandom.current().nextLong(250, 1250));
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted during GoodReads rate-limiting delay for bookdrop file: {}", bookdropFileId);
+                return tx.execute(status -> {
+                    BookdropFileEntity entity = getOrThrow(bookdropFileId);
+                    entity.setStatus(PENDING_REVIEW);
+                    entity.setUpdatedAt(Instant.now());
+                    return bookdropFileRepository.save(entity);
+                });
             }
         }
 
+        // Fetch metadata - OUTSIDE transaction
+        Book book = Book.builder()
+                .metadata(initial)
+                .build();
         Map<MetadataProvider, BookMetadata> metadataMap = metadataRefreshService.fetchMetadataForBook(providers, book);
         BookMetadata fetchedMetadata = metadataRefreshService.buildFetchMetadata(initial, book.getId(), refreshOptions, metadataMap);
         String fetchedJson = objectMapper.writeValueAsString(fetchedMetadata);
 
-        entity.setFetchedMetadata(fetchedJson);
-        entity.setStatus(PENDING_REVIEW);
-        entity.setUpdatedAt(Instant.now());
-
-        return bookdropFileRepository.save(entity);
+        // Step 2: Save results (Transactional)
+        return tx.execute(status -> {
+            BookdropFileEntity entity = getOrThrow(bookdropFileId);
+            entity.setFetchedMetadata(fetchedJson);
+            entity.setStatus(PENDING_REVIEW);
+            entity.setUpdatedAt(Instant.now());
+            return bookdropFileRepository.save(entity);
+        });
     }
 
-    private boolean hasSearchableMetadata(BookMetadata metadata, BookdropFileEntity entity) {
+    private boolean hasSearchableMetadata(BookMetadata metadata, String fileName) {
         if (hasAnyKnownIdentifier(metadata)) {
             return true;
         }
         String title = metadata.getTitle();
-        String filenameFallback = FilenameUtils.getBaseName(entity.getFileName());
+        String filenameFallback = FilenameUtils.getBaseName(fileName);
         return title != null && !title.isBlank()
                 && !title.strip().equalsIgnoreCase(filenameFallback.strip());
     }

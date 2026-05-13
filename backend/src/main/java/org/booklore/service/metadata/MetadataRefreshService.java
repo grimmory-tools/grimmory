@@ -110,72 +110,94 @@ public class MetadataRefreshService {
                 }
 
                 int finalCompletedCount = completedCount;
+
+                // Step 1: Resolve metadata refresh options and providers (Transactional)
+                final MetadataRefreshOptions[] refreshOptionsWrapper = new MetadataRefreshOptions[1];
+                final List<MetadataProvider>[] providersWrapper = (List<MetadataProvider>[]) new List[1];
+                final Book[] bookDtoWrapper = new Book[1];
+                final boolean[] skipWrapper = new boolean[1];
+
                 txTemplate.execute(status -> {
                     BookEntity book = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId))
                             .stream().findFirst()
                             .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-                    try {
-                        if (book.getMetadata().areAllFieldsLocked()) {
-                            log.info("Skipping locked book: {}", getBookIdentifier(book));
-                            sendBatchProgressNotification(jobId, finalCompletedCount, totalBooks, "Skipped locked book: " + book.getMetadata().getTitle(), MetadataFetchTaskStatus.IN_PROGRESS, isReviewMode);
-                            return null;
-                        }
 
-                        MetadataRefreshOptions refreshOptions;
-                        List<MetadataProvider> providers;
+                    if (book.getMetadata().areAllFieldsLocked()) {
+                        log.info("Skipping locked book: {}", getBookIdentifier(book));
+                        sendBatchProgressNotification(jobId, finalCompletedCount, totalBooks, "Skipped locked book: " + book.getMetadata().getTitle(), MetadataFetchTaskStatus.IN_PROGRESS, isReviewMode);
+                        skipWrapper[0] = true;
+                        return null;
+                    }
 
-                        if (useRequestOptions) {
-                            refreshOptions = requestRefreshOptions;
-                            providers = fixedProviders;
-                        } else if (isLibraryRefresh) {
-                            refreshOptions = libraryRefreshOptions;
-                            providers = fixedProviders;
-                        } else {
-                            refreshOptions = resolveMetadataRefreshOptions(book.getLibrary().getId(), appSettings);
-                            providers = prepareProviders(refreshOptions);
-                        }
+                    if (useRequestOptions) {
+                        refreshOptionsWrapper[0] = requestRefreshOptions;
+                        providersWrapper[0] = fixedProviders;
+                    } else if (isLibraryRefresh) {
+                        refreshOptionsWrapper[0] = libraryRefreshOptions;
+                        providersWrapper[0] = fixedProviders;
+                    } else {
+                        refreshOptionsWrapper[0] = resolveMetadataRefreshOptions(book.getLibrary().getId(), appSettings);
+                        providersWrapper[0] = prepareProviders(refreshOptionsWrapper[0]);
+                    }
+                    bookDtoWrapper[0] = bookMapper.toBook(book);
+                    reportProgressIfNeeded(task, jobId, finalCompletedCount, totalBooks, book, isReviewMode);
+                    return null;
+                });
 
-                        reportProgressIfNeeded(task, jobId, finalCompletedCount, totalBooks, book, isReviewMode);
-                        Map<MetadataProvider, BookMetadata> metadataMap = fetchMetadataForBook(providers, book);
-                        if (providers.contains(GoodReads)) {
-                            try {
-                                Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1500));
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                status.setRollbackOnly();
-                                return null;
-                            }
+                if (skipWrapper[0]) {
+                    completedCount++;
+                    continue;
+                }
+
+                MetadataRefreshOptions refreshOptions = refreshOptionsWrapper[0];
+                List<MetadataProvider> providers = providersWrapper[0];
+                Book bookDto = bookDtoWrapper[0];
+
+                try {
+                    // Step 2: Fetch metadata - OUTSIDE transaction
+                    Map<MetadataProvider, BookMetadata> metadataMap = fetchMetadataForBook(providers, bookDto);
+                    
+                    // Rate limiting delay - OUTSIDE transaction
+                    if (providers.contains(GoodReads)) {
+                        try {
+                            Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1500));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            log.info("Metadata refresh interrupted for bookId: {}", bookId);
+                            break;
                         }
-                        BookMetadata fetched = null;
-                        boolean bookReviewMode = false;
-                        if (refreshOptions != null) {
-                            fetched = buildFetchMetadata(bookMapper.toBook(book).getMetadata(), book.getId(), refreshOptions, metadataMap);
-                            bookReviewMode = Boolean.TRUE.equals(refreshOptions.getReviewBeforeApply());
-                        }
+                    }
+
+                    // Step 3: Apply fetched metadata (Transactional)
+                    txTemplate.execute(status -> {
+                        BookEntity book = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId))
+                                .stream().findFirst()
+                                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+                        BookMetadata fetched = buildFetchMetadata(bookDto.getMetadata(), book.getId(), refreshOptions, metadataMap);
+                        boolean bookReviewMode = Boolean.TRUE.equals(refreshOptions.getReviewBeforeApply());
 
                         if (bookReviewMode) {
-                            saveProposal(task, book.getId(), fetched);
+                            try {
+                                saveProposal(task, book.getId(), fetched);
+                            } catch (JacksonException e) {
+                                throw new RuntimeException(e);
+                            }
                         } else {
-                            // Use the replaceMode from options - allows user to control whether to replace existing or only fill missing
-                            MetadataReplaceMode replaceMode = refreshOptions.getReplaceMode() != null 
-                                    ? refreshOptions.getReplaceMode() 
+                            MetadataReplaceMode replaceMode = refreshOptions.getReplaceMode() != null
+                                    ? refreshOptions.getReplaceMode()
                                     : MetadataReplaceMode.REPLACE_MISSING;
                             updateBookMetadata(book, fetched, refreshOptions.isRefreshCovers(), refreshOptions.isMergeCategories(), replaceMode);
                         }
 
+                        bookRepository.saveAndFlush(book);
                         sendBatchProgressNotification(jobId, finalCompletedCount + 1, totalBooks, "Processed: " + book.getMetadata().getTitle(), MetadataFetchTaskStatus.IN_PROGRESS, bookReviewMode);
-                    } catch (Exception e) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            log.info("Processing interrupted for book: {}", getBookIdentifier(book));
-                            status.setRollbackOnly();
-                            return null;
-                        }
-                        log.error("Metadata update failed for book: {}", getBookIdentifier(book), e);
-                        sendBatchProgressNotification(jobId, finalCompletedCount, totalBooks, String.format("Failed to process: %s - %s", book.getMetadata().getTitle(), e.getMessage()), MetadataFetchTaskStatus.ERROR, isReviewMode);
-                    }
-                    bookRepository.saveAndFlush(book);
-                    return null;
-                });
+                        return null;
+                    });
+                } catch (Exception e) {
+                    log.error("Metadata update failed for bookId: {}", bookId, e);
+                    sendBatchProgressNotification(jobId, finalCompletedCount, totalBooks, String.format("Failed to process book %d - %s", bookId, e.getMessage()), MetadataFetchTaskStatus.ERROR, isReviewMode);
+                }
                 completedCount++;
             }
 

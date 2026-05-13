@@ -28,7 +28,7 @@ describe('BookdropFileReviewComponent', () => {
   const openDialog = vi.fn();
   const openDirectoryPickerDialog = vi.fn();
   const setPageTitle = vi.fn();
-  const fileAdded$ = new Subject<never>();
+  const fileAdded$ = new Subject<BookdropFile>();
   const translate = vi.fn((key: string, params?: Record<string, unknown>) => {
     if (!params) {
       return key;
@@ -258,7 +258,7 @@ describe('BookdropFileReviewComponent', () => {
     component.selectAllAcrossPages = true;
 
     const added = makeFile(2);
-    fileAdded$.next(added as never);
+    fileAdded$.next(added);
 
     expect(component.bookdropFileUis[0].file.id).toBe(2);
     expect(component.totalRecords).toBe(2);
@@ -271,35 +271,35 @@ describe('BookdropFileReviewComponent', () => {
 
     component.excludedFiles.add(3);
     const excludedFile = makeFile(3);
-    fileAdded$.next(excludedFile as never);
+    fileAdded$.next(excludedFile);
     expect(component.fileUiCache[3].selected).toBe(false);
     expect(component.totalRecords).toBe(3);
   });
 
   it('validates that defaultPathId belongs to the selected library', () => {
+    getPendingFiles.mockReturnValue(of({content: [], page: {totalElements: 0}}));
     libraries.set([
       makeLibrary(1, 'Alpha', [10]),
       makeLibrary(2, 'Beta', [20]),
     ]);
 
     const component = createComponent();
+    component.ngOnInit();
     component.defaultLibraryId = '1';
     component.defaultPathId = '10';
 
-    const fileUi = makeFileUi(1);
-    // Use prototype access to call private method for testing, or rely on public side effects if possible.
-    // Since it's called during createFileUI which is called during loadPage/ngOnInit, we can test it through those.
-    
     // Test case 1: defaultPathId belongs to library
-    (component as any).applyDefaultLibrarySelection(fileUi);
-    expect(fileUi.selectedLibraryId).toBe('1');
-    expect(fileUi.selectedPathId).toBe('10');
+    fileAdded$.next(makeFile(1));
+    const fileUi1 = component.fileUiCache[1];
+    expect(fileUi1.selectedLibraryId).toBe('1');
+    expect(fileUi1.selectedPathId).toBe('10');
 
     // Test case 2: defaultPathId does NOT belong to library, falls back to the only available path
     component.defaultLibraryId = '2';
-    (component as any).applyDefaultLibrarySelection(fileUi);
-    expect(fileUi.selectedLibraryId).toBe('2');
-    expect(fileUi.selectedPathId).toBe('20'); // falls back to the only path in Beta
+    fileAdded$.next(makeFile(2));
+    const fileUi2 = component.fileUiCache[2];
+    expect(fileUi2.selectedLibraryId).toBe('2');
+    expect(fileUi2.selectedPathId).toBe('20'); // falls back to the only path in Beta
 
     // Test case 3: defaultPathId does NOT belong to library, library has multiple paths, falls back to null
     libraries.set([
@@ -308,8 +308,9 @@ describe('BookdropFileReviewComponent', () => {
     ]);
     component.defaultLibraryId = '2';
     component.defaultPathId = '10'; // stale path from Alpha
-    (component as any).applyDefaultLibrarySelection(fileUi);
-    expect(fileUi.selectedLibraryId).toBe('2');
-    expect(fileUi.selectedPathId).toBe(null);
+    fileAdded$.next(makeFile(3));
+    const fileUi3 = component.fileUiCache[3];
+    expect(fileUi3.selectedLibraryId).toBe('2');
+    expect(fileUi3.selectedPathId).toBe(null);
   });
 });
