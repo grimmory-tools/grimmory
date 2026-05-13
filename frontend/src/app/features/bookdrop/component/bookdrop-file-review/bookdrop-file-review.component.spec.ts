@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {FormGroup} from '@angular/forms';
 import {TranslocoService} from '@jsverse/transloco';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {of} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -13,6 +13,7 @@ import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {BookdropFileReviewComponent, BookdropFileUI} from './bookdrop-file-review.component';
 import {BookdropFile, BookdropFileStatus, BookdropService} from '../../service/bookdrop.service';
+import {BookdropFileService} from '../../service/bookdrop-file.service';
 import {Library} from '../../../book/model/library.model';
 import {LibraryService} from '../../../book/service/library.service';
 
@@ -27,6 +28,7 @@ describe('BookdropFileReviewComponent', () => {
   const openDialog = vi.fn();
   const openDirectoryPickerDialog = vi.fn();
   const setPageTitle = vi.fn();
+  const fileAdded$ = new Subject<never>();
   const translate = vi.fn((key: string, params?: Record<string, unknown>) => {
     if (!params) {
       return key;
@@ -113,6 +115,7 @@ describe('BookdropFileReviewComponent', () => {
         {provide: ActivatedRoute, useValue: {queryParams: of({}), snapshot: {queryParams: {}}}},
         {provide: PageTitleService, useValue: {setPageTitle}},
         {provide: TranslocoService, useValue: {translate}},
+        {provide: BookdropFileService, useValue: {fileAdded$}},
       ],
     });
 
