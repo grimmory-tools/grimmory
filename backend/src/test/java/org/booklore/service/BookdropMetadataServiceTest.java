@@ -23,6 +23,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -59,6 +61,10 @@ class BookdropMetadataServiceTest {
     private FileService fileService;
     @Mock
     private MetadataExtractorFactory metadataExtractorFactory;
+    @Mock
+    private PlatformTransactionManager transactionManager;
+    @Mock
+    private TransactionStatus transactionStatus;
 
     @InjectMocks
     private BookdropMetadataService bookdropMetadataService;
@@ -67,6 +73,7 @@ class BookdropMetadataServiceTest {
 
     @BeforeEach
     void setup() {
+        lenient().when(transactionManager.getTransaction(any())).thenReturn(transactionStatus);
         sampleFile = new BookdropFileEntity();
         sampleFile.setId(1L);
         sampleFile.setFileName("book.epub");
@@ -94,7 +101,7 @@ class BookdropMetadataServiceTest {
     void attachInitialMetadata_shouldThrowWhenFileMissing() {
         when(bookdropFileRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> bookdropMetadataService.attachInitialMetadata(99L));
+        Assertions.assertThrows(APIException.class, () -> bookdropMetadataService.attachInitialMetadata(99L));
     }
 
     @Test
