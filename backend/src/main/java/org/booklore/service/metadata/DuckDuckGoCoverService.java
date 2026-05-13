@@ -6,6 +6,7 @@ import org.booklore.exception.ApiError;
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.CoverFetchRequest;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -242,6 +243,13 @@ public class DuckDuckGoCoverService implements BookCoverProvider {
                     .headers(HTML_HEADERS)
                     .method(Connection.Method.GET)
                     .execute();
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == 404) {
+                log.warn("URL not found (404): {}", url);
+            } else {
+                log.error("HTTP error fetching URL. Status={}, URL=[{}]", e.getStatusCode(), url);
+            }
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("HTTP error " + e.getStatusCode() + " fetching URL: " + url);
         } catch (IOException e) {
             log.error("Error fetching url: {}", url, e);
             throw ApiError.INTERNAL_SERVER_ERROR.createException("Error fetching URL: " + url);

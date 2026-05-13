@@ -496,7 +496,11 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             Connection.Response response = connection.execute();
             return response.parse();
         } catch (HttpStatusException e) {
-            log.error("HTTP error fetching Audible URL. Status={}, URL=[{}]", e.getStatusCode(), url);
+            if (e.getStatusCode() == 404) {
+                log.warn("Audible URL not found (404): {}", url);
+            } else {
+                log.error("HTTP error fetching Audible URL. Status={}, URL=[{}]", e.getStatusCode(), url);
+            }
             throw new RuntimeException(e);
         } catch (IOException e) {
             log.error("Error fetching Audible URL: {}", url, e);
