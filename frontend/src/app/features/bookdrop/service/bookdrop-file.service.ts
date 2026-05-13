@@ -1,14 +1,16 @@
 import {effect, inject, Injectable, OnDestroy} from '@angular/core';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {BookdropFileApiService} from './bookdrop-file-api.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {UserService} from '../../settings/user-management/user.service';
+import {BookdropFile} from './bookdrop.service';
 
 export interface BookdropFileNotification {
   pendingCount: number;
   totalCount: number;
   lastUpdatedAt?: string;
+  addedFile?: BookdropFile;
 }
 
 @Injectable({
@@ -20,7 +22,10 @@ export class BookdropFileService implements OnDestroy {
     totalCount: 0
   });
 
+  private fileAddedSubject = new Subject<BookdropFile>();
+
   summary$ = this.summarySubject.asObservable();
+  fileAdded$ = this.fileAddedSubject.asObservable();
 
   hasPendingFiles$ = this.summary$.pipe(
     map(summary => summary.pendingCount > 0)
@@ -48,6 +53,9 @@ export class BookdropFileService implements OnDestroy {
 
   handleIncomingFile(summary: BookdropFileNotification): void {
     this.summarySubject.next(summary);
+    if (summary.addedFile) {
+      this.fileAddedSubject.next(summary.addedFile);
+    }
   }
 
   refresh(): void {
@@ -61,5 +69,6 @@ export class BookdropFileService implements OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     this.summarySubject.complete();
+    this.fileAddedSubject.complete();
   }
 }

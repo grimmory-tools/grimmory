@@ -5,6 +5,7 @@ import org.booklore.model.entity.BookdropFileEntity;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.bookdrop.BookdropNotificationService;
+import org.booklore.mapper.BookdropFileMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +19,7 @@ class BookdropNotificationServiceTest {
 
     private BookdropFileRepository bookdropFileRepository;
     private NotificationService notificationService;
+    private BookdropFileMapper bookdropFileMapper;
 
     private BookdropNotificationService bookdropNotificationService;
 
@@ -25,8 +27,9 @@ class BookdropNotificationServiceTest {
     void setup() {
         bookdropFileRepository = mock(BookdropFileRepository.class);
         notificationService = mock(NotificationService.class);
+        bookdropFileMapper = mock(BookdropFileMapper.class);
 
-        bookdropNotificationService = new BookdropNotificationService(bookdropFileRepository, notificationService);
+        bookdropNotificationService = new BookdropNotificationService(bookdropFileRepository, notificationService, bookdropFileMapper);
     }
 
     @Test

@@ -11,6 +11,7 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ import java.nio.file.WatchEvent;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
@@ -35,12 +39,14 @@ public class BookdropEventHandlerService implements SmartLifecycle {
     private final BookdropNotificationService bookdropNotificationService;
     private final AppSettingService appSettingService;
     private final BookdropMetadataService bookdropMetadataService;
+    private final Executor bookdropExecutor;
 
     private static final long STABILITY_CHECK_INTERVAL_MS = 500;
     private static final int STABILITY_REQUIRED_CHECKS = 3;
     private static final long STABILITY_MAX_WAIT_MS = 30_000;
 
     private final BlockingQueue<BookDropFileEvent> fileQueue = new LinkedBlockingQueue<>();
+    private final ConcurrentHashMap<String, Object> fileLocks = new ConcurrentHashMap<>();
     private volatile boolean running;
     private Thread workerThread;
 
@@ -49,12 +55,14 @@ public class BookdropEventHandlerService implements SmartLifecycle {
             NotificationService notificationService,
             BookdropNotificationService bookdropNotificationService,
             AppSettingService appSettingService,
-            BookdropMetadataService bookdropMetadataService) {
+            BookdropMetadataService bookdropMetadataService,
+            @Qualifier("bookdropExecutor") Executor bookdropExecutor) {
         this.bookdropFileRepository = bookdropFileRepository;
         this.notificationService = notificationService;
         this.bookdropNotificationService = bookdropNotificationService;
         this.appSettingService = appSettingService;
         this.bookdropMetadataService = bookdropMetadataService;
+        this.bookdropExecutor = bookdropExecutor;
     }
 
     @Override
@@ -97,7 +105,11 @@ public class BookdropEventHandlerService implements SmartLifecycle {
     }
 
     public void enqueueFile(Path file, WatchEvent.Kind<?> kind) {
-        BookDropFileEvent event = new BookDropFileEvent(file, kind);
+        enqueueFile(file, kind, false);
+    }
+
+    public void enqueueFile(Path file, WatchEvent.Kind<?> kind, boolean skipStabilityCheck) {
+        BookDropFileEvent event = new BookDropFileEvent(file, kind, skipStabilityCheck);
         if (!fileQueue.contains(event)) {
             fileQueue.offer(event);
         }
@@ -106,7 +118,8 @@ public class BookdropEventHandlerService implements SmartLifecycle {
     private void processQueue() {
         while (running) {
             try {
-                processFile(fileQueue.take());
+                BookDropFileEvent event = fileQueue.take();
+                processFile(event, event.isSkipStabilityCheck());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.info("File processing thread interrupted, shutting down.");
@@ -114,7 +127,7 @@ public class BookdropEventHandlerService implements SmartLifecycle {
         }
     }
 
-    public void processFile(BookDropFileEvent event) {
+    public void processFile(BookDropFileEvent event, boolean skipStabilityCheck) {
         Path file = event.getFile();
         WatchEvent.Kind<?> kind = event.getKind();
 
@@ -138,58 +151,88 @@ public class BookdropEventHandlerService implements SmartLifecycle {
                     return;
                 }
 
+                // Early check before stability wait
                 if (bookdropFileRepository.findByFilePath(filePath).isPresent()) {
                     log.info("File already exists in Bookdrop and is pending review or acceptance: {}", filePath);
                     return;
                 }
 
-                if (!waitForFileStability(file)) {
+                if (!skipStabilityCheck && !waitForFileStability(file)) {
                     log.warn("File did not stabilize within timeout, skipping: {}", file);
                     return;
                 }
 
-                log.info("Handling new bookdrop file: {}", file);
+                // Synchronize on the file path to prevent concurrent processing of the same file
+                Object lock = fileLocks.computeIfAbsent(filePath, k -> new Object());
+                try {
+                    synchronized (lock) {
+                        // Re-check after stability wait/locking to handle potential race conditions
+                        if (bookdropFileRepository.findByFilePath(filePath).isPresent()) {
+                            log.info("File already exists in Bookdrop (detected after stability check): {}", filePath);
+                            return;
+                        }
 
-                int queueSize = fileQueue.size();
-                notificationService.sendMessageToPermissions(
-                        Topic.LOG,
-                        LogNotification.info("Processing bookdrop file: " + fileName + " (" + queueSize + " files remaining)"),
-                        Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY)
-                );
+                        log.info("Handling new bookdrop file: {}", file);
 
-                BookdropFileEntity bookdropFileEntity = BookdropFileEntity.builder()
-                        .filePath(filePath)
-                        .fileName(fileName)
-                        .fileSize(Files.size(file))
-                        .status(BookdropFileEntity.Status.PENDING_REVIEW)
-                        .createdAt(Instant.now())
-                        .updatedAt(Instant.now())
-                        .build();
+                        int queueSize = fileQueue.size();
+                        notificationService.sendMessageToPermissions(
+                                Topic.LOG,
+                                LogNotification.info("Processing bookdrop file: " + fileName + " (" + queueSize + " files remaining)"),
+                                Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP)
+                        );
 
-                bookdropFileEntity = bookdropFileRepository.save(bookdropFileEntity);
+                        BookdropFileEntity bookdropFileEntity = BookdropFileEntity.builder()
+                                .filePath(filePath)
+                                .fileName(fileName)
+                                .fileSize(Files.size(file))
+                                .status(BookdropFileEntity.Status.PENDING_REVIEW)
+                                .createdAt(Instant.now())
+                                .updatedAt(Instant.now())
+                                .build();
 
-                if (appSettingService.getAppSettings().isMetadataDownloadOnBookdrop()) {
-                    bookdropMetadataService.attachInitialMetadata(bookdropFileEntity.getId());
-                    bookdropMetadataService.attachFetchedMetadata(bookdropFileEntity.getId());
-                } else {
-                    bookdropMetadataService.attachInitialMetadata(bookdropFileEntity.getId());
-                    log.info("Metadata download is disabled. Only initial metadata extracted for file: {}", bookdropFileEntity.getFileName());
-                }
+                        bookdropFileEntity = bookdropFileRepository.saveAndFlush(bookdropFileEntity);
 
-                bookdropNotificationService.sendBookdropFileSummaryNotification();
+                        // Extract initial metadata synchronously so it's available immediately
+                        try {
+                            bookdropFileEntity = bookdropMetadataService.attachInitialMetadata(bookdropFileEntity.getId());
+                        } catch (Exception e) {
+                            log.error("Error attaching initial metadata to bookdrop file: {}", bookdropFileEntity.getId(), e);
+                        }
 
-                if (fileQueue.isEmpty()) {
-                    notificationService.sendMessageToPermissions(
-                            Topic.LOG,
-                            LogNotification.info("All bookdrop files have finished processing"),
-                            Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY)
-                    );
-                } else {
-                    notificationService.sendMessageToPermissions(
-                            Topic.LOG,
-                            LogNotification.info("Finished processing bookdrop file: " + fileName + " (" + fileQueue.size() + " files remaining)"),
-                            Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY)
-                    );
+                        // Send immediate notification so it appears in UI instantly with metadata
+                        // Send both 'added' and 'summary' notifications to ensure frontend updates correctly
+                        bookdropNotificationService.sendBookdropFileAddedNotification(bookdropFileEntity);
+                        bookdropNotificationService.sendBookdropFileSummaryNotification(bookdropFileEntity);
+
+                        if (appSettingService.getAppSettings().isMetadataDownloadOnBookdrop()) {
+                            final Long bookdropFileId = bookdropFileEntity.getId();
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    BookdropFileEntity updatedEntity = bookdropMetadataService.attachFetchedMetadata(bookdropFileId);
+                                    // Send notification once fetched metadata is ready
+                                    bookdropNotificationService.sendBookdropFileAddedNotification(updatedEntity);
+                                } catch (Exception e) {
+                                    log.error("Error attaching fetched metadata to bookdrop file: {}", bookdropFileId, e);
+                                }
+                            }, bookdropExecutor);
+                        }
+
+                        if (fileQueue.isEmpty()) {
+                            notificationService.sendMessageToPermissions(
+                                    Topic.LOG,
+                                    LogNotification.info("All bookdrop files have finished processing"),
+                                    Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP)
+                            );
+                        } else {
+                            notificationService.sendMessageToPermissions(
+                                    Topic.LOG,
+                                    LogNotification.info("Finished processing bookdrop file: " + fileName + " (" + fileQueue.size() + " files remaining)"),
+                                    Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP)
+                            );
+                        }
+                    }
+                } finally {
+                    fileLocks.remove(filePath, lock);
                 }
 
             } catch (Exception e) {

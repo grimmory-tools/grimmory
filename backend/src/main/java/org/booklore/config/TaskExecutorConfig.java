@@ -38,4 +38,9 @@ public class TaskExecutorConfig {
         scheduler.setThreadNamePrefix("scheduler-");
         return scheduler;
     }
+
+    @Bean(name = "bookdropExecutor")
+    public Executor bookdropExecutor() {
+        return Executors.newVirtualThreadPerTaskExecutor();
+    }
 }

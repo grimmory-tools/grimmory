@@ -9,10 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "skipStabilityCheck")
 @ToString
 @RequiredArgsConstructor
 public class BookDropFileEvent {
     private final Path file;
     private final WatchEvent.Kind<?> kind;
+    private final boolean skipStabilityCheck;
+
+    public BookDropFileEvent(Path file, WatchEvent.Kind<?> kind) {
+        this(file, kind, false);
+    }
 }

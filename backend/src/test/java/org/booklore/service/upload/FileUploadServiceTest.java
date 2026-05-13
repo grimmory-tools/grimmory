@@ -22,6 +22,8 @@ import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.booklore.service.watcher.BookFileTransactionalHandler;
+import org.booklore.service.bookdrop.BookdropEventHandlerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,6 +76,10 @@ class FileUploadServiceTest {
     MonitoringRegistrationService monitoringRegistrationService;
     @Mock
     AuditService auditService;
+    @Mock
+    BookFileTransactionalHandler bookFileTransactionalHandler;
+    @Mock
+    BookdropEventHandlerService bookdropEventHandlerService;
 
     AppProperties appProperties;
     FileUploadService service;
@@ -91,7 +97,8 @@ class FileUploadServiceTest {
 
         service = new FileUploadService(
                 libraryRepository, bookRepository, bookAdditionalFileRepository,
-                appSettingService, appProperties, metadataExtractorFactory, additionalFileMapper, fileMovingHelper, monitoringRegistrationService, auditService
+                appSettingService, appProperties, metadataExtractorFactory, additionalFileMapper, fileMovingHelper, 
+                monitoringRegistrationService, auditService, bookFileTransactionalHandler, bookdropEventHandlerService
         );
     }
 

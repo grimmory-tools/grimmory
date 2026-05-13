@@ -25,6 +25,9 @@ import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.util.FileUtils;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.util.PathPatternResolver;
+import org.booklore.model.BookDropFileEvent;
+import org.booklore.service.bookdrop.BookdropEventHandlerService;
+import org.booklore.service.watcher.BookFileTransactionalHandler;
 import org.springframework.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,8 +38,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
 import java.nio.file.Paths;
@@ -61,6 +66,8 @@ public class FileUploadService {
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final AuditService auditService;
+    private final BookFileTransactionalHandler bookFileTransactionalHandler;
+    private final BookdropEventHandlerService bookdropEventHandlerService;
 
     @Transactional
     public void uploadFile(MultipartFile file, long libraryId, long pathId) {
@@ -88,6 +95,14 @@ public class FileUploadService {
 
             log.info("File uploaded to final location: {}", finalPath);
             auditService.log(AuditAction.BOOK_UPLOADED, "Library", libraryId, "Uploaded file: " + originalFileName);
+
+            CompletableFuture.runAsync(() -> {
+                try {
+                    bookFileTransactionalHandler.handleNewBookFile(libraryId, finalPath);
+                } catch (Exception e) {
+                    log.error("Error processing uploaded file in background: {}", finalPath, e);
+                }
+            });
 
         } catch (IOException e) {
             log.error("Failed to upload file: {}", originalFileName, e);
@@ -239,6 +254,7 @@ public class FileUploadService {
             moveFileToFinalLocation(tempPath, finalPath, dropFolder);
 
             log.info("File moved to book-drop folder: {}", finalPath);
+            bookdropEventHandlerService.enqueueFile(finalPath, StandardWatchEventKinds.ENTRY_CREATE, true);
             return null;
 
         } finally {

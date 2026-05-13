@@ -30,6 +30,7 @@ import {BookdropBulkEditDialogComponent, BulkEditResult} from '../bookdrop-bulk-
 import {BookdropPatternExtractDialogComponent} from '../bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {BookdropFileService} from '../../service/bookdrop-file.service';
 
 export interface BookdropFileUI {
   file: BookdropFile;
@@ -66,6 +67,7 @@ export interface BookdropFileUI {
 })
 export class BookdropFileReviewComponent implements OnInit {
   private readonly bookdropService = inject(BookdropService);
+  private readonly bookdropFileService = inject(BookdropFileService);
   private readonly libraryService = inject(LibraryService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -106,6 +108,34 @@ export class BookdropFileReviewComponent implements OnInit {
         this.loadPage(0);
       }))
       .subscribe();
+
+    this.bookdropFileService.fileAdded$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((file) => {
+        if (this.currentPage === 0) {
+          if (!this.fileUiCache[file.id]) {
+            const fresh = this.createFileUI(file);
+
+            if (this.defaultLibraryId) {
+              const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
+              const selectedPaths = selectedLib?.paths ?? [];
+              fresh.selectedLibraryId = this.defaultLibraryId;
+              fresh.availablePaths = selectedPaths.map(p => ({id: String(p.id ?? ''), name: p.path}));
+              fresh.selectedPathId = this.defaultPathId ?? null;
+            }
+
+            this.fileUiCache[file.id] = fresh;
+            this.bookdropFileUis = [fresh, ...this.bookdropFileUis];
+            if (this.bookdropFileUis.length > this.pageSize) {
+              this.bookdropFileUis.pop();
+            }
+            this.totalRecords++;
+          }
+        } else {
+          // If not on first page, just increment total count so pagination updates
+          this.totalRecords++;
+        }
+      });
 
     const settings = this.appSettingsService.appSettings();
     if (settings) {

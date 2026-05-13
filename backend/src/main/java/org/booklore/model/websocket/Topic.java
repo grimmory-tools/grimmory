@@ -14,6 +14,7 @@ public enum Topic {
     BOOK_METADATA_BATCH_UPDATE("/queue/book-metadata-batch-update"),
     BOOK_METADATA_BATCH_PROGRESS("/queue/book-metadata-batch-progress"),
     BOOKDROP_FILE("/queue/bookdrop-file"),
+    BOOKDROP_ADD("/queue/bookdrop-add"),
     LOG("/queue/log"),
     TASK_PROGRESS("/queue/task-progress"),
     LIBRARY_HEALTH("/topic/library-health"),
