@@ -116,13 +116,7 @@ export class BookdropFileReviewComponent implements OnInit {
           if (!this.fileUiCache[file.id]) {
             const fresh = this.createFileUI(file);
 
-            if (this.defaultLibraryId) {
-              const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
-              const selectedPaths = selectedLib?.paths ?? [];
-              fresh.selectedLibraryId = this.defaultLibraryId;
-              fresh.availablePaths = selectedPaths.map(p => ({id: String(p.id ?? ''), name: p.path}));
-              fresh.selectedPathId = this.defaultPathId ?? null;
-            }
+            this.applyDefaultLibrarySelection(fresh);
 
             this.fileUiCache[file.id] = fresh;
             this.bookdropFileUis = [fresh, ...this.bookdropFileUis];
@@ -214,13 +208,7 @@ export class BookdropFileReviewComponent implements OnInit {
             } else {
               const fresh = this.createFileUI(file);
 
-              if (this.defaultLibraryId) {
-                const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
-                const selectedPaths = selectedLib?.paths ?? [];
-                fresh.selectedLibraryId = this.defaultLibraryId;
-                fresh.availablePaths = selectedPaths.map(p => ({id: String(p.id ?? ''), name: p.path}));
-                fresh.selectedPathId = this.defaultPathId ?? null;
-              }
+              this.applyDefaultLibrarySelection(fresh);
 
               this.fileUiCache[file.id] = fresh;
               return fresh;
@@ -252,13 +240,7 @@ export class BookdropFileReviewComponent implements OnInit {
                 if (!this.fileUiCache[file.id]) {
                   const fresh = this.createFileUI(file);
 
-                  if (this.defaultLibraryId) {
-                    const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
-                    const selectedPaths = selectedLib?.paths ?? [];
-                    fresh.selectedLibraryId = this.defaultLibraryId;
-                    fresh.availablePaths = selectedPaths.map(p => ({id: String(p.id ?? ''), name: p.path}));
-                    fresh.selectedPathId = this.defaultPathId ?? null;
-                  }
+                  this.applyDefaultLibrarySelection(fresh);
 
                   this.fileUiCache[file.id] = fresh;
                 }
@@ -290,14 +272,9 @@ export class BookdropFileReviewComponent implements OnInit {
   applyLibraryDefaults(): void {
     if (!this.defaultLibraryId || !this.libraries) return;
 
-    const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
-    const selectedPaths = selectedLib?.paths ?? [];
-
     this.getSelectedFiles().map(fileUi => {
-      const cachedfUi = this.fileUiCache[fileUi.file.id];
-      cachedfUi.selectedLibraryId = this.defaultLibraryId;
-      cachedfUi.availablePaths = selectedPaths.map(path => ({id: String(path.id), name: path.path}));
-      cachedfUi.selectedPathId = this.defaultPathId ?? null;
+      const cachedUi = this.fileUiCache[fileUi.file.id];
+      this.applyDefaultLibrarySelection(cachedUi);
     });
   }
 
@@ -656,6 +633,21 @@ export class BookdropFileReviewComponent implements OnInit {
       copiedFields: {},
       savedFields: {}
     };
+  }
+
+  private applyDefaultLibrarySelection(fileUi: BookdropFileUI): void {
+    if (!this.defaultLibraryId) {
+      return;
+    }
+
+    fileUi.selectedLibraryId = this.defaultLibraryId;
+    fileUi.availablePaths = this.getAvailablePathsForLibrary(this.defaultLibraryId);
+    fileUi.selectedPathId = this.defaultPathId ?? null;
+  }
+
+  private getAvailablePathsForLibrary(libraryId: string): { id: string; name: string }[] {
+    const selectedLib = this.libraries.find(l => String(l.id) === libraryId);
+    return (selectedLib?.paths ?? []).map(p => ({id: String(p.id ?? ''), name: p.path}));
   }
 
   rescanBookdrop() {

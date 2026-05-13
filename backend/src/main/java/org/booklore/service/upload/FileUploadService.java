@@ -1,6 +1,5 @@
 package org.booklore.service.upload;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;
@@ -25,11 +24,10 @@ import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.util.FileUtils;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.util.PathPatternResolver;
-import org.booklore.model.BookDropFileEvent;
 import org.booklore.service.bookdrop.BookdropEventHandlerService;
 import org.booklore.service.watcher.BookFileTransactionalHandler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,11 +40,11 @@ import java.nio.file.StandardWatchEventKinds;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
 import java.nio.file.Paths;
 
-@RequiredArgsConstructor
 @Service
 @Slf4j
 public class FileUploadService {
@@ -68,6 +66,36 @@ public class FileUploadService {
     private final AuditService auditService;
     private final BookFileTransactionalHandler bookFileTransactionalHandler;
     private final BookdropEventHandlerService bookdropEventHandlerService;
+    private final Executor bookdropExecutor;
+
+    public FileUploadService(
+            LibraryRepository libraryRepository,
+            BookRepository bookRepository,
+            BookAdditionalFileRepository additionalFileRepository,
+            AppSettingService appSettingService,
+            AppProperties appProperties,
+            MetadataExtractorFactory metadataExtractorFactory,
+            AdditionalFileMapper additionalFileMapper,
+            FileMovingHelper fileMovingHelper,
+            MonitoringRegistrationService monitoringRegistrationService,
+            AuditService auditService,
+            BookFileTransactionalHandler bookFileTransactionalHandler,
+            BookdropEventHandlerService bookdropEventHandlerService,
+            @Qualifier("bookdropExecutor") Executor bookdropExecutor) {
+        this.libraryRepository = libraryRepository;
+        this.bookRepository = bookRepository;
+        this.additionalFileRepository = additionalFileRepository;
+        this.appSettingService = appSettingService;
+        this.appProperties = appProperties;
+        this.metadataExtractorFactory = metadataExtractorFactory;
+        this.additionalFileMapper = additionalFileMapper;
+        this.fileMovingHelper = fileMovingHelper;
+        this.monitoringRegistrationService = monitoringRegistrationService;
+        this.auditService = auditService;
+        this.bookFileTransactionalHandler = bookFileTransactionalHandler;
+        this.bookdropEventHandlerService = bookdropEventHandlerService;
+        this.bookdropExecutor = bookdropExecutor;
+    }
 
     @Transactional
     public void uploadFile(MultipartFile file, long libraryId, long pathId) {
@@ -102,7 +130,7 @@ public class FileUploadService {
                 } catch (Exception e) {
                     log.error("Error processing uploaded file in background: {}", finalPath, e);
                 }
-            });
+            }, bookdropExecutor);
 
         } catch (IOException e) {
             log.error("Failed to upload file: {}", originalFileName, e);

@@ -76,7 +76,7 @@ public class NotificationService {
 
         query.select(user.get("username")).where(cb.or(predicates));
         List<String> result = entityManager.createQuery(query).getResultList();
-        log.info("Found {} users with permissions {}: {}", result.size(), permissionTypes, result);
+        log.info("Found {} users with permissions {}", result.size(), permissionTypes);
         return result;
     }
 }

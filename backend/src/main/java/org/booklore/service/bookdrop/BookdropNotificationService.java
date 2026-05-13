@@ -43,9 +43,7 @@ public class BookdropNotificationService {
         );
 
         if (addedEntity != null) {
-            // Re-fetch or merge to ensure we are in a session if lazy loading is needed
-            BookdropFileEntity attachedEntity = bookdropFileRepository.findById(addedEntity.getId()).orElse(addedEntity);
-            summaryNotification.setAddedFile(bookdropFileMapper.toDto(attachedEntity));
+            summaryNotification.setAddedFile(bookdropFileMapper.toDto(addedEntity));
         }
 
         notificationService.sendMessageToPermissions(Topic.BOOKDROP_FILE, summaryNotification, Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP));
@@ -54,9 +52,7 @@ public class BookdropNotificationService {
     @Transactional(readOnly = true)
     public void sendBookdropFileAddedNotification(BookdropFileEntity entity) {
         log.info("Sending bookdrop file added notification for entity ID: {}", entity.getId());
-        // Re-fetch to ensure we are in a session if lazy loading is needed
-        BookdropFileEntity attachedEntity = bookdropFileRepository.findById(entity.getId()).orElse(entity);
-        BookdropFile dto = bookdropFileMapper.toDto(attachedEntity);
+        BookdropFile dto = bookdropFileMapper.toDto(entity);
         notificationService.sendMessageToPermissions(Topic.BOOKDROP_ADD, dto, Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP));
     }
 }
