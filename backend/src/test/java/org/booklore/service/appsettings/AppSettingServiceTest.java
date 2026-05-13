@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.ObjectMapper;
@@ -40,7 +39,6 @@ class AppSettingServiceTest {
 
     private SettingPersistenceHelper settingPersistenceHelper;
 
-    @InjectMocks
     private AppSettingService appSettingService;
 
     @BeforeEach
@@ -60,9 +58,9 @@ class AppSettingServiceTest {
     }
 
     @Test
-    void updateSetting_acceptsValidOidcMobileRedirectUris() throws Exception {
+    void updateSetting_acceptsValidOidcRedirectUris() throws Exception {
         appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("grimmory://oauth2-callback", "grimmory://auth/return")
         );
 
@@ -70,15 +68,31 @@ class AppSettingServiceTest {
         verify(appSettingsRepository).save(settingCaptor.capture());
 
         AppSettingEntity savedSetting = settingCaptor.getValue();
-        assertThat(savedSetting.getName()).isEqualTo(AppSettingKey.OIDC_MOBILE_REDIRECT_URIS.toString());
+        assertThat(savedSetting.getName()).isEqualTo(AppSettingKey.OIDC_REDIRECT_URIS.toString());
         assertThat(savedSetting.getVal()).isEqualTo("[\"grimmory://oauth2-callback\",\"grimmory://auth/return\"]");
-        verify(auditService).log(AuditAction.OIDC_CONFIG_CHANGED, "Updated setting: " + AppSettingKey.OIDC_MOBILE_REDIRECT_URIS);
+        verify(auditService).log(AuditAction.OIDC_CONFIG_CHANGED, "Updated setting: " + AppSettingKey.OIDC_REDIRECT_URIS);
+    }
+
+    @Test
+    void updateSetting_acceptsWildcardOidcRedirectUri() throws Exception {
+        appSettingService.updateSetting(
+                AppSettingKey.OIDC_REDIRECT_URIS,
+                List.of("*")
+        );
+
+        ArgumentCaptor<AppSettingEntity> settingCaptor = ArgumentCaptor.forClass(AppSettingEntity.class);
+        verify(appSettingsRepository).save(settingCaptor.capture());
+
+        AppSettingEntity savedSetting = settingCaptor.getValue();
+        assertThat(savedSetting.getName()).isEqualTo(AppSettingKey.OIDC_REDIRECT_URIS.toString());
+        assertThat(savedSetting.getVal()).isEqualTo("[\"*\"]");
+        verify(auditService).log(AuditAction.OIDC_CONFIG_CHANGED, "Updated setting: " + AppSettingKey.OIDC_REDIRECT_URIS);
     }
 
     @Test
     void updateSetting_rejectsWildcardCombinedWithOtherUris() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("*", "grimmory://oauth2-callback")
         ))
                 .hasMessageContaining("Wildcard redirect URI must be the only value");
@@ -89,7 +103,7 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsBlankOidcMobileRedirectUri() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of(" ")
         ))
                 .hasMessageContaining("Redirect URI cannot be blank");
@@ -100,10 +114,10 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsNonStringOidcMobileRedirectUriEntries() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of(42)
         ))
-                .hasMessageContaining("OIDC mobile redirect URIs must be an array of strings");
+                .hasMessageContaining("OIDC redirect URIs must be an array of strings");
 
         verify(appSettingsRepository, never()).save(any());
     }
@@ -111,7 +125,7 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsDuplicateOidcMobileRedirectUris() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("grimmory://oauth2-callback", "grimmory://oauth2-callback")
         ))
                 .hasMessageContaining("Duplicate redirect URI");
@@ -122,7 +136,7 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsHttpRedirectUri() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("https://example.com/oauth2-callback")
         ))
                 .hasMessageContaining("Redirect URI must use a custom mobile scheme");
@@ -133,7 +147,7 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsRedirectUriWithFragment() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("grimmory://oauth2-callback#done")
         ))
                 .hasMessageContaining("Redirect URI must not contain a fragment");
@@ -144,7 +158,7 @@ class AppSettingServiceTest {
     @Test
     void updateSetting_rejectsRedirectUriWithoutScheme() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
-                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                AppSettingKey.OIDC_REDIRECT_URIS,
                 List.of("oauth2-callback")
         ))
                 .hasMessageContaining("Redirect URI must include a scheme");

@@ -247,7 +247,7 @@ class OidcAuthServiceTest {
     @Test
     void validateAppRedirectUri_allowsConfiguredMobileRedirect() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("grimmory://auth/return"));
+        settings.setOidcRedirectUris(List.of("grimmory://auth/return"));
         when(appSettingService.getAppSettings()).thenReturn(settings);
 
         oidcAuthService.validateAppRedirectUri("grimmory://auth/return");
@@ -256,7 +256,7 @@ class OidcAuthServiceTest {
     @Test
     void validateAppRedirectUri_allowsDerivedLegacyCallbackWhenDefaultGrimmoryCallbackIsConfigured() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        settings.setOidcRedirectUris(List.of("grimmory://oauth2-callback"));
         when(appSettingService.getAppSettings()).thenReturn(settings);
 
         oidcAuthService.validateAppRedirectUri("booklore://oauth2-callback");
@@ -277,7 +277,7 @@ class OidcAuthServiceTest {
     @Test
     void validateAppRedirectUri_unlistedCustomSchemeThrows() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        settings.setOidcRedirectUris(List.of("grimmory://oauth2-callback"));
         when(appSettingService.getAppSettings()).thenReturn(settings);
 
         assertThatThrownBy(() -> oidcAuthService.validateAppRedirectUri("evil://oauth2-callback"))
@@ -565,7 +565,7 @@ class OidcAuthServiceTest {
     @Test
     void validateRedirectUri_allowsDerivedBookloreCallbackWhenGrimmoryCallbackIsConfigured() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        settings.setOidcRedirectUris(List.of("grimmory://oauth2-callback"));
         var tokenResponse = tokenResponse(null, "id-token");
         var claims = new JWTClaimsSet.Builder().subject("sub-123").build();
         var userClaims = userClaims("jdoe", "sub-123");
@@ -589,7 +589,7 @@ class OidcAuthServiceTest {
     @Test
     void validateRedirectUri_rejectsUnlistedCustomMobileRedirect() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        settings.setOidcRedirectUris(List.of("grimmory://oauth2-callback"));
         when(appSettingService.getAppSettings()).thenReturn(settings);
 
         assertThatThrownBy(() -> oidcAuthService.exchangeCodeForTokens(CODE, CODE_VERIFIER, "grimmory://some-other-path", NONCE, mockRequest()))
@@ -599,7 +599,7 @@ class OidcAuthServiceTest {
     @Test
     void validateRedirectUri_allowsAnyConfiguredWildcardMobileRedirect() {
         var settings = enabledSettings();
-        settings.setOidcMobileRedirectUris(List.of("*"));
+        settings.setOidcRedirectUris(List.of("*"));
         var tokenResponse = tokenResponse(null, "id-token");
         var claims = new JWTClaimsSet.Builder().subject("sub-123").build();
         var userClaims = userClaims("jdoe", "sub-123");

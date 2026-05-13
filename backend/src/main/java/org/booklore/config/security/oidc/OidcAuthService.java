@@ -184,7 +184,7 @@ public class OidcAuthService {
     }
 
     private List<String> getEffectiveMobileRedirectUris() {
-        List<String> configuredRedirectUris = appSettingService.getAppSettings().getOidcMobileRedirectUris();
+        List<String> configuredRedirectUris = appSettingService.getAppSettings().getOidcRedirectUris();
         List<String> effectiveRedirectUris = configuredRedirectUris == null || configuredRedirectUris.isEmpty()
                 ? new ArrayList<>(List.of(DEFAULT_MOBILE_REDIRECT_URI))
                 : new ArrayList<>(configuredRedirectUris);

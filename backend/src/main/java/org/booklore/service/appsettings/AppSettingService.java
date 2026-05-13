@@ -62,8 +62,8 @@ public class AppSettingService {
 
         validatePermission(key, user);
 
-        if (key == AppSettingKey.OIDC_MOBILE_REDIRECT_URIS) {
-            val = validateAndNormalizeOidcMobileRedirectUris(val);
+        if (key == AppSettingKey.OIDC_REDIRECT_URIS) {
+            val = validateAndNormalizeOidcRedirectUris(val);
         }
 
         if (key == AppSettingKey.OIDC_FORCE_ONLY_MODE) {
@@ -116,12 +116,12 @@ public class AppSettingService {
         }
     }
 
-    private List<String> validateAndNormalizeOidcMobileRedirectUris(Object val) {
+    private List<String> validateAndNormalizeOidcRedirectUris(Object val) {
         if (val == null) {
             return List.of();
         }
         if (!(val instanceof List<?> rawValues)) {
-            throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC mobile redirect URIs must be an array");
+            throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC redirect URIs must be an array");
         }
 
         List<String> redirectUris = rawValues.stream()
@@ -130,7 +130,7 @@ public class AppSettingService {
                         return null;
                     }
                     if (!(value instanceof String stringValue)) {
-                        throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC mobile redirect URIs must be an array of strings");
+                        throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC redirect URIs must be an array of strings");
                     }
                     return stringValue.trim();
                 })
@@ -211,7 +211,7 @@ public class AppSettingService {
         builder.libraryMetadataRefreshOptions(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.LIBRARY_METADATA_REFRESH_OPTIONS, new TypeReference<>() {
         }, List.of(), true));
         builder.oidcProviderDetails(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null, false));
-        builder.oidcMobileRedirectUris(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_MOBILE_REDIRECT_URIS, new TypeReference<>() {
+        builder.oidcRedirectUris(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_REDIRECT_URIS, new TypeReference<>() {
         }, List.of(DEFAULT_MOBILE_REDIRECT_URI), true));
         builder.oidcAutoProvisionDetails(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_AUTO_PROVISION_DETAILS, OidcAutoProvisionDetails.class, new OidcAutoProvisionDetails(), true));
         builder.metadataProviderSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.METADATA_PROVIDER_SETTINGS, MetadataProviderSettings.class, settingPersistenceHelper.getDefaultMetadataProviderSettings(), true));
