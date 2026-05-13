@@ -53,22 +53,22 @@ public interface UserBookFileProgressRepository extends JpaRepository<UserBookFi
             @Param("bookId") Long bookId
     );
 
-    @EntityGraph(attributePaths = {"bookFile", "bookFile.book", "bookFile.book.libraryPath", "bookFile.book.library"})
     @Query("""
         SELECT ubfp FROM UserBookFileProgressEntity ubfp
+        JOIN FETCH ubfp.bookFile bf
         WHERE ubfp.user.id = :userId
-          AND ubfp.bookFile.book.id IN :bookIds
+          AND bf.book.id IN :bookIds
     """)
     List<UserBookFileProgressEntity> findByUserIdAndBookFileBookIdIn(
             @Param("userId") Long userId,
             @Param("bookIds") Iterable<Long> bookIds
     );
 
-    @EntityGraph(attributePaths = {"bookFile", "bookFile.book", "bookFile.book.libraryPath", "bookFile.book.library"})
     @Query("""
         SELECT ubfp FROM UserBookFileProgressEntity ubfp
+        JOIN FETCH ubfp.bookFile bf
         WHERE ubfp.user.id = :userId
-          AND ubfp.bookFile.id IN :bookFileIds
+          AND bf.id IN :bookFileIds
     """)
     List<UserBookFileProgressEntity> findByUserIdAndBookFileIdIn(
             @Param("userId") Long userId,

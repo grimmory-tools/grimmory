@@ -8,6 +8,7 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.mapper.BookdropFileMapper;
+import org.booklore.exception.ApiError;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class BookdropNotificationService {
 
         if (addedEntityId != null) {
             BookdropFileEntity addedEntity = bookdropFileRepository.findById(addedEntityId)
-                    .orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + addedEntityId));
+                    .orElseThrow(() -> ApiError.BOOKDROP_FILE_NOT_FOUND.createException(addedEntityId));
             summaryNotification.setAddedFile(bookdropFileMapper.toDto(addedEntity));
         }
 
@@ -55,7 +56,7 @@ public class BookdropNotificationService {
     public void sendBookdropFileAddedNotification(Long entityId) {
         log.info("Sending bookdrop file added notification for entity ID: {}", entityId);
         BookdropFileEntity entity = bookdropFileRepository.findById(entityId)
-                .orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + entityId));
+                .orElseThrow(() -> ApiError.BOOKDROP_FILE_NOT_FOUND.createException(entityId));
         BookdropFile dto = bookdropFileMapper.toDto(entity);
         notificationService.sendMessageToPermissions(Topic.BOOKDROP_ADD, dto, Set.of(PermissionType.ADMIN, PermissionType.MANAGE_LIBRARY, PermissionType.ACCESS_BOOKDROP));
     }

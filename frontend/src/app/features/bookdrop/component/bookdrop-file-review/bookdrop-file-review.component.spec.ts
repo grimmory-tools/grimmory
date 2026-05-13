@@ -240,4 +240,39 @@ describe('BookdropFileReviewComponent', () => {
       detail: 'bookdrop.fileReview.toast.noFilesDeleteDetail',
     }));
   });
+
+  it('correctly handles live-added files via fileAdded$ stream', () => {
+    getPendingFiles.mockReturnValue(of({content: [], page: {totalElements: 0}}));
+    libraries.set([makeLibrary(1, 'Alpha', [10])]);
+    appSettings.set({uploadPattern: 'test-pattern'});
+
+    const component = createComponent();
+    component.ngOnInit();
+    component.defaultLibraryId = '1';
+    component.defaultPathId = '10';
+
+    const existingUi = makeFileUi(1, {selected: true});
+    component.fileUiCache = {1: existingUi};
+    component.bookdropFileUis = [existingUi];
+    component.totalRecords = 1;
+    component.selectAllAcrossPages = true;
+
+    const added = makeFile(2);
+    fileAdded$.next(added as never);
+
+    expect(component.bookdropFileUis[0].file.id).toBe(2);
+    expect(component.totalRecords).toBe(2);
+
+    const addedUi = component.fileUiCache[2];
+    expect(addedUi.selectedLibraryId).toBe('1');
+    expect(addedUi.selectedPathId).toBe('10');
+
+    expect(addedUi.selected).toBe(true);
+
+    component.excludedFiles.add(3);
+    const excludedFile = makeFile(3);
+    fileAdded$.next(excludedFile as never);
+    expect(component.fileUiCache[3].selected).toBe(false);
+    expect(component.totalRecords).toBe(3);
+  });
 });

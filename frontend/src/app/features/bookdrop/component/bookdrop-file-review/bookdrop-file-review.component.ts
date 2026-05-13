@@ -117,6 +117,7 @@ export class BookdropFileReviewComponent implements OnInit {
             const fresh = this.createFileUI(file);
 
             this.applyDefaultLibrarySelection(fresh);
+            fresh.selected = this.selectAllAcrossPages && !this.excludedFiles.has(file.id);
 
             this.fileUiCache[file.id] = fresh;
             this.bookdropFileUis = [fresh, ...this.bookdropFileUis];
