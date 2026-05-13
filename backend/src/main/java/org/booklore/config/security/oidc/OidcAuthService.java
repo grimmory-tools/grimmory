@@ -173,7 +173,7 @@ public class OidcAuthService {
     }
 
     public void validateAppRedirectUri(String appRedirectUri) {
-        if (!isMobileRedirectUri(appRedirectUri)) {
+        if (!isMobileRedirectUri(appRedirectUri) || !isAllowedMobileRedirectUri(appRedirectUri)) {
             throw ApiError.OIDC_INVALID_REDIRECT_URI.createException();
         }
     }

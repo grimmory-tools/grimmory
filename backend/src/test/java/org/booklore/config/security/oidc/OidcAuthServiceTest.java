@@ -245,8 +245,21 @@ class OidcAuthServiceTest {
     // --- validateAppRedirectUri ---
 
     @Test
-    void validateAppRedirectUri_validMobileRedirect() {
-        oidcAuthService.validateAppRedirectUri("booklore://some-path");
+    void validateAppRedirectUri_allowsConfiguredMobileRedirect() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("grimmory://auth/return"));
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+
+        oidcAuthService.validateAppRedirectUri("grimmory://auth/return");
+    }
+
+    @Test
+    void validateAppRedirectUri_allowsDerivedLegacyCallbackWhenDefaultGrimmoryCallbackIsConfigured() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+
+        oidcAuthService.validateAppRedirectUri("booklore://oauth2-callback");
     }
 
     @Test
@@ -258,6 +271,16 @@ class OidcAuthServiceTest {
     @Test
     void validateAppRedirectUri_nonMobileSchemeThrows() {
         assertThatThrownBy(() -> oidcAuthService.validateAppRedirectUri("https://example.com"))
+                .isInstanceOf(APIException.class);
+    }
+
+    @Test
+    void validateAppRedirectUri_unlistedCustomSchemeThrows() {
+        var settings = enabledSettings();
+        settings.setOidcMobileRedirectUris(List.of("grimmory://oauth2-callback"));
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+
+        assertThatThrownBy(() -> oidcAuthService.validateAppRedirectUri("evil://oauth2-callback"))
                 .isInstanceOf(APIException.class);
     }
 
