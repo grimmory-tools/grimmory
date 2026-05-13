@@ -185,11 +185,9 @@ public class OidcAuthService {
 
     private List<String> getEffectiveMobileRedirectUris() {
         List<String> configuredRedirectUris = appSettingService.getAppSettings().getOidcMobileRedirectUris();
-        List<String> effectiveRedirectUris = new ArrayList<>(
-                configuredRedirectUris == null || configuredRedirectUris.isEmpty()
-                        ? List.of(DEFAULT_MOBILE_REDIRECT_URI)
-                        : configuredRedirectUris
-        );
+        List<String> effectiveRedirectUris = configuredRedirectUris == null || configuredRedirectUris.isEmpty()
+                ? new ArrayList<>(List.of(DEFAULT_MOBILE_REDIRECT_URI))
+                : new ArrayList<>(configuredRedirectUris);
 
         if (effectiveRedirectUris.contains(DEFAULT_MOBILE_REDIRECT_URI)
                 && !effectiveRedirectUris.contains(LEGACY_MOBILE_REDIRECT_URI)) {

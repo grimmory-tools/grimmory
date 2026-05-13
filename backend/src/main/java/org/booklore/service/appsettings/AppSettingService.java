@@ -145,7 +145,7 @@ public class AppSettingService {
             }
         }
 
-        return redirectUris;
+        return List.copyOf(uniqueUris);
     }
 
     private void validateMobileRedirectUriShape(String redirectUri) {
