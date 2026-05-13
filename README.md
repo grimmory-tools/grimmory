@@ -168,7 +168,7 @@ services:
 docker compose up -d
 ```
 
-Open http://localhost:6060, create your admin account, and start building your library.
+Open http://localhost:6060, create your admin account, and start building your library. (**NOTE:** All libraries must be created within directories mounted on the host, e.g. the `/books/` directory in the sample `docker-compose.yml` above.)
 
 Additional deployment examples:
 
