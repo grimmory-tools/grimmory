@@ -46,6 +46,7 @@ import {Chip} from 'primeng/chip';
 })
 export class AuthenticationSettingsComponent {
   readonly defaultMobileRedirectUri = 'grimmory://oauth2-callback';
+  readonly wildcardMobileRedirectUri = '*';
   availablePermissions = [
     {label: 'Upload Books', value: 'permissionUpload', selected: false, translationKey: 'perms.uploadBooks'},
     {label: 'Download Books', value: 'permissionDownload', selected: false, translationKey: 'perms.downloadBooks'},
@@ -342,7 +343,7 @@ export class AuthenticationSettingsComponent {
       return 'mobileRedirectUris.validation.blank';
     }
 
-    if (nonBlankUris.includes('*') && nonBlankUris.length > 1) {
+    if (nonBlankUris.includes(this.wildcardMobileRedirectUri) && nonBlankUris.length > 1) {
       return 'mobileRedirectUris.validation.wildcardOnly';
     }
 
@@ -353,7 +354,7 @@ export class AuthenticationSettingsComponent {
       }
       uniqueUris.add(uri);
 
-      if (uri !== '*') {
+      if (uri !== this.wildcardMobileRedirectUri) {
         const validationError = this.getMobileRedirectUriShapeError(uri);
         if (validationError) {
           return validationError;

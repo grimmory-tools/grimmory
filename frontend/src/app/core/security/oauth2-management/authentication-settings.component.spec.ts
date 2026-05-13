@@ -334,13 +334,13 @@ describe('AuthenticationSettingsComponent', () => {
   });
 
   it('rejects wildcard mixed with specific redirect URIs', () => {
-    component.mobileRedirectUris = ['*'];
+    component.mobileRedirectUris = [component.wildcardMobileRedirectUri];
     component.mobileRedirectUriInput = 'grimmory://oauth2-callback';
 
     component.addMobileRedirectUriFromInput();
 
     expect(component.mobileRedirectUriErrorKey).toBe('mobileRedirectUris.validation.wildcardOnly');
-    expect(component.mobileRedirectUris).toEqual(['*']);
+    expect(component.mobileRedirectUris).toEqual([component.wildcardMobileRedirectUri]);
   });
 
   it('rejects blank mobile redirect URIs already present in the array being saved', () => {
