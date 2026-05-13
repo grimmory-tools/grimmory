@@ -98,6 +98,17 @@ class AppSettingServiceTest {
     }
 
     @Test
+    void updateSetting_rejectsNonStringOidcMobileRedirectUriEntries() {
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,
+                List.of(42)
+        ))
+                .hasMessageContaining("OIDC mobile redirect URIs must be an array of strings");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
     void updateSetting_rejectsDuplicateOidcMobileRedirectUris() {
         assertThatThrownBy(() -> appSettingService.updateSetting(
                 AppSettingKey.OIDC_MOBILE_REDIRECT_URIS,

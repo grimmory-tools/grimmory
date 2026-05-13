@@ -125,7 +125,15 @@ public class AppSettingService {
         }
 
         List<String> redirectUris = rawValues.stream()
-                .map(value -> value == null ? null : String.valueOf(value).trim())
+                .map(value -> {
+                    if (value == null) {
+                        return null;
+                    }
+                    if (!(value instanceof String stringValue)) {
+                        throw ApiError.GENERIC_BAD_REQUEST.createException("OIDC mobile redirect URIs must be an array of strings");
+                    }
+                    return stringValue.trim();
+                })
                 .toList();
 
         if (redirectUris.contains(WILDCARD_REDIRECT_URI) && redirectUris.size() > 1) {
