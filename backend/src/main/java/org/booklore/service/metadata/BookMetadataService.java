@@ -35,13 +35,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import org.booklore.model.dto.request.IsbnLookupRequest;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
@@ -90,19 +90,24 @@ public class BookMetadataService {
     }
 
     @Transactional(readOnly = true)
-    public Flux<BookMetadata> getProspectiveMetadataListForBookId(long bookId, FetchMetadataRequest request) {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+    public void fetchProspectiveMetadata(long bookId, FetchMetadataRequest request, Consumer<BookMetadata> onResult) {
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         Book book = bookMapper.toBook(bookEntity);
 
-        return Flux.fromIterable(request.getProviders())
-                .flatMap(provider ->
-                    Flux.defer(() -> getParser(provider).fetchMetadataStream(book, request))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .onErrorResume(e -> {
-                                log.error("Error fetching metadata from provider: {}", provider, e);
-                                return Flux.empty();
-                            })
-                );
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var futures = request.getProviders().stream()
+                    .map(provider -> CompletableFuture.runAsync(() -> {
+                        try {
+                            getParser(provider).fetchMetadata(book, request)
+                                    .forEach(onResult);
+                        } catch (Exception e) {
+                            log.error("Error fetching metadata from provider: {}", provider, e);
+                        }
+                    }, executor))
+                    .toArray(CompletableFuture[]::new);
+            CompletableFuture.allOf(futures).join();
+        }
     }
 
     public List<BookMetadata> fetchMetadataListFromAProvider(MetadataProvider provider, Book book, FetchMetadataRequest request) {

@@ -1,7 +1,6 @@
 package org.booklore.service.metadata;
 
 import org.booklore.exception.APIException;
-import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookMetadataMapper;
 import org.booklore.mapper.MetadataClearFlagsMapper;
@@ -37,17 +36,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import org.springframework.transaction.TransactionStatus;
 
@@ -589,7 +583,7 @@ class BookMetadataServiceTest {
                     .providers(List.of(MetadataProvider.Google))
                     .build();
 
-            assertThatThrownBy(() -> service.getProspectiveMetadataListForBookId(99L, request))
+            assertThatThrownBy(() -> service.fetchProspectiveMetadata(99L, request, _ -> {}))
                     .isInstanceOf(APIException.class);
         }
     }
