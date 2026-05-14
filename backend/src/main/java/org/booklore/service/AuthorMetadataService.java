@@ -33,6 +33,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
@@ -69,7 +70,8 @@ public class AuthorMetadataService {
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
 
-    @Setter(onMethod_ = {@Autowired, @Lazy})
+    @Autowired
+    @Lazy
     private AuthorMetadataService self;
 
     public List<AuthorSummary> getAllAuthors() {
@@ -167,6 +169,7 @@ public class AuthorMetadataService {
         throw ApiError.GENERIC_BAD_REQUEST.createException("No metadata found for author: " + author.getName());
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void streamAutoMatchAuthors(List<Long> authorIds, Consumer<AuthorSummary> onResult, BooleanSupplier isCancelled) {
         // Use a Semaphore to limit concurrency to avoid hitting rate limits too hard
         // but still allow some parallel processing (previously was strictly sequential)
@@ -191,6 +194,9 @@ public class AuthorMetadataService {
 
                         semaphore.acquire();
                         try {
+                            if (isCancelled.getAsBoolean()) {
+                                return;
+                            }
                             AuthorDetails details = self.quickMatchAuthor(authorId, "us");
                             onResult.accept(AuthorSummary.builder()
                                     .id(details.getId())
