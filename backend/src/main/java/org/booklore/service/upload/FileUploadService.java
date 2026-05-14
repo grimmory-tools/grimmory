@@ -1,7 +1,6 @@
 package org.booklore.service.upload;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;

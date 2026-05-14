@@ -11,7 +11,6 @@ import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.springframework.data.domain.Page;
