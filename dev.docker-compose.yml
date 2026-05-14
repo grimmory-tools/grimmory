@@ -14,6 +14,8 @@ services:
       - DATABASE_URL=jdbc:mariadb://backend_db:3306/grimmory
       - DATABASE_USERNAME=grimmory
       - DATABASE_PASSWORD=grimmory
+      - GRADLE_USER_HOME=/home/gradle/.gradle
+      - XDG_CACHE_HOME=/home/gradle/.cache
       - REMOTE_DEBUG_ENABLED=true
       - ALLOWED_ORIGINS=*
       - API_DOCS_ENABLED=true
@@ -25,8 +27,9 @@ services:
       - backend_db
     volumes:
       - './backend:/backend'
-      - /backend/build
-      - /backend/.gradle
+      - backend_build:/backend/build
+      - backend_gradle_cache:/home/gradle/.gradle
+      - backend_native_cache:/home/gradle/.cache
       - ./shared/data:/app/data
       - ./shared/books:/books
       - ./shared/bookdrop:/bookdrop
@@ -69,3 +72,6 @@ services:
 volumes:
   node_modules:
   backend_db:
+  backend_build:
+  backend_gradle_cache:
+  backend_native_cache:
