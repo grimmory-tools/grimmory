@@ -35,7 +35,6 @@ public class KoboEventsService {
     private static final String MONETIZATION_TYPE_SIDELOADED = "Sideloaded";
     private static final String EVENT_TYPE_OPEN_CONTENT = "OpenContent";
     private static final String EVENT_TYPE_LEAVE_CONTENT = "LeaveContent";
-    private static final String EVENT_TYPE_RATE_BOOK = "RateBook";
 
     private final AuthenticationService authenticationService;
     private final ReadingSessionService readingSessionService;
@@ -176,22 +175,6 @@ public class KoboEventsService {
         log.info(String.format("Stored kobo reading event for %d.  From %s to %s.  Pages turned %d.  Progress from %s to %s", bookId, startTime, endTime, event.getMetrics().getPagesTurned(), startProgress, endProgress));
     }
 
-    private void handleRateBook(String serial, KoboEventsContainer.Event event) {
-        Long bookId = getBookId(event);
-        if (bookId == null) {
-            return;
-        }
-
-        // Kobo tracks up to 5 stars, Grimmory uses 10
-        Integer stars = event.getMetrics().getStars();
-        if (stars == null) {
-            return;
-        }
-
-        bookUpdateService.updatePersonalRating(List.of(bookId), stars * 2);
-        log.info(String.format("Stored kobo rating event for %d.  Rated %d stars.", bookId, stars * 2));
-    }
-
     public void handleEvents(KoboEventsContainer eventsContainer) {
         String serial = eventsContainer.getSerialNumber();
         for (KoboEventsContainer.Event event : eventsContainer.getEvents()) {
@@ -201,9 +184,6 @@ public class KoboEventsService {
                     break;
                 case EVENT_TYPE_LEAVE_CONTENT:
                     handleLeaveContent(serial, event);
-                    break;
-                case EVENT_TYPE_RATE_BOOK:
-                    handleRateBook(serial, event);
                     break;
                 default:
                     log.debug("Unhandled event type: " + event.getEventType());
