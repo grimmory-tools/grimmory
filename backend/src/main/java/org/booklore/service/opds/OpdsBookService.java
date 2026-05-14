@@ -601,7 +601,7 @@ public class OpdsBookService {
     private String getFirstAuthor(Book book) {
         if (book.getMetadata() != null && book.getMetadata().getAuthors() != null 
             && !book.getMetadata().getAuthors().isEmpty()) {
-            return book.getMetadata().getAuthors().iterator().next();
+            return book.getMetadata().getAuthors().getFirst();
         }
         return "";
     }
