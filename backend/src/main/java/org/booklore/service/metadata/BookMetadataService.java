@@ -91,6 +91,9 @@ public class BookMetadataService {
     }
 
     public void fetchProspectiveMetadata(long bookId, FetchMetadataRequest request, Consumer<BookMetadata> onResult, AtomicBoolean cancelled) {
+        if (request == null || request.getProviders() == null || request.getProviders().isEmpty()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one metadata provider must be specified");
+        }
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         Book book = bookMapper.toBook(bookEntity);

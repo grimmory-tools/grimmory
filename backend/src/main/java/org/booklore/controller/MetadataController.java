@@ -40,7 +40,7 @@ public class MetadataController {
 
     @Operation(summary = "Get prospective metadata for a book", description = "Fetch prospective metadata for a book by its ID. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "200", description = "Prospective metadata returned successfully")
-    @PostMapping(value = "/{bookId}/metadata/prospective")
+    @PostMapping(value = "/{bookId}/metadata/prospective", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
     public SseEmitter getMetadataList(

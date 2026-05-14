@@ -587,5 +587,16 @@ class BookMetadataServiceTest {
             assertThatThrownBy(() -> service.fetchProspectiveMetadata(99L, request, _ -> {}, new AtomicBoolean(false)))
                     .isInstanceOf(APIException.class);
         }
+
+        @Test
+        void throwsWhenProvidersAreEmpty() {
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .providers(Collections.emptyList())
+                    .build();
+
+            assertThatThrownBy(() -> service.fetchProspectiveMetadata(1L, request, _ -> {}, new AtomicBoolean(false)))
+                    .isInstanceOf(APIException.class)
+                    .hasMessageContaining("At least one metadata provider must be specified");
+        }
     }
 }
