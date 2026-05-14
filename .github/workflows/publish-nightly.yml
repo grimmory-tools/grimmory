@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
+    inputs:
+      post_discord:
+        description: 'Post the Discord nightly announcement'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   resolve_ref:
@@ -155,7 +161,7 @@ jobs:
 
   generate-notes:
     name: Nightly Changelog
-    if: ${{ always() && needs.test-suite.result == 'success' }}
+    if: ${{ always() && needs.test-suite.result == 'success' && (github.event_name == 'schedule' || inputs.post_discord) }}
     needs: [resolve_ref, test-suite]
     runs-on: ubuntu-latest
     permissions:
@@ -200,7 +206,7 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.post_discord) && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
     needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
