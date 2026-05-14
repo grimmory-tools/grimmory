@@ -10,11 +10,13 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Shelf;
 import org.booklore.model.dto.kobo.Entitlement;
 import org.booklore.model.dto.kobo.KoboBookMetadata;
+import org.booklore.model.dto.kobo.KoboDeals;
 import org.booklore.model.dto.kobo.KoboEventsContainer;
 import org.booklore.model.dto.kobo.KoboReadingStateList;
 import org.booklore.model.dto.kobo.KoboReadingStateRequest;
 import org.booklore.model.dto.kobo.KoboResources;
 import org.booklore.model.dto.kobo.KoboTestResponse;
+import org.booklore.model.dto.kobo.KoboUserProfile;
 import org.booklore.service.ShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookDownloadService;
@@ -24,6 +26,7 @@ import org.booklore.service.kobo.KoboEntitlementService;
 import org.booklore.service.kobo.KoboEventsService;
 import org.booklore.service.kobo.KoboInitializationService;
 import org.booklore.service.kobo.KoboLibrarySyncService;
+import org.booklore.service.kobo.KoboRatingService;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.kobo.KoboServerProxy;
 import org.booklore.service.kobo.KoboThumbnailService;
@@ -252,6 +255,7 @@ public class KoboController {
 
         return ResponseEntity.ok().build();
     }
+
     @Operation(summary = "Get user profile", description = "Get Kobo user configuration.")
     @ApiResponse(responseCode = "200", description = "Retrieved Kobo User configuration")
     @GetMapping("/v1/user/profile")
