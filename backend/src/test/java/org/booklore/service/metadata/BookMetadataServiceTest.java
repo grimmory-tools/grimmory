@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -583,7 +584,7 @@ class BookMetadataServiceTest {
                     .providers(List.of(MetadataProvider.Google))
                     .build();
 
-            assertThatThrownBy(() -> service.fetchProspectiveMetadata(99L, request, _ -> {}))
+            assertThatThrownBy(() -> service.fetchProspectiveMetadata(99L, request, _ -> {}, new AtomicBoolean(false)))
                     .isInstanceOf(APIException.class);
         }
     }

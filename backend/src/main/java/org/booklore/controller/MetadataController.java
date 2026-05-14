@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @RestController
@@ -43,18 +44,27 @@ public class MetadataController {
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
     public SseEmitter getMetadataList(
-            @Parameter(description = "Fetch metadata request") @RequestBody(required = false) FetchMetadataRequest fetchMetadataRequest,
+            @Parameter(description = "Fetch metadata request") @Validated @RequestBody(required = false) FetchMetadataRequest fetchMetadataRequest,
             @Parameter(description = "ID of the book") @PathVariable Long bookId) {
         SseEmitter emitter = new SseEmitter();
+        AtomicBoolean cancelled = new AtomicBoolean(false);
+        emitter.onCompletion(() -> cancelled.set(true));
+        emitter.onTimeout(() -> cancelled.set(true));
+        emitter.onError(e -> cancelled.set(true));
+
         Thread.ofVirtual().start(() -> {
             try {
                 bookMetadataService.fetchProspectiveMetadata(bookId, fetchMetadataRequest, metadata -> {
+                    if (cancelled.get()) {
+                        return;
+                    }
                     try {
                         emitter.send(SseEmitter.event().data(metadata));
                     } catch (IOException e) {
                         log.debug("Client disconnected from metadata stream: {}", bookId);
+                        cancelled.set(true);
                     }
-                });
+                }, cancelled);
                 emitter.complete();
             } catch (Exception e) {
                 emitter.completeWithError(e);

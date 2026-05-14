@@ -38,6 +38,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.booklore.model.dto.request.IsbnLookupRequest;
@@ -89,8 +90,7 @@ public class BookMetadataService {
         return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
     }
 
-    @Transactional(readOnly = true)
-    public void fetchProspectiveMetadata(long bookId, FetchMetadataRequest request, Consumer<BookMetadata> onResult) {
+    public void fetchProspectiveMetadata(long bookId, FetchMetadataRequest request, Consumer<BookMetadata> onResult, AtomicBoolean cancelled) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         Book book = bookMapper.toBook(bookEntity);
@@ -98,11 +98,24 @@ public class BookMetadataService {
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             var futures = request.getProviders().stream()
                     .map(provider -> CompletableFuture.runAsync(() -> {
+                        if (cancelled.get()) {
+                            return;
+                        }
                         try {
-                            getParser(provider).fetchMetadata(book, request)
-                                    .forEach(onResult);
+                            getParser(provider).fetchMetadata(book, request).forEach(metadata -> {
+                                if (cancelled.get()) {
+                                    return;
+                                }
+                                try {
+                                    onResult.accept(metadata);
+                                } catch (Exception callbackEx) {
+                                    log.error("Error in callback while processing metadata from provider: {}", provider, callbackEx);
+                                }
+                            });
                         } catch (Exception e) {
-                            log.error("Error fetching metadata from provider: {}", provider, e);
+                            if (!cancelled.get()) {
+                                log.error("Error fetching metadata from provider: {}", provider, e);
+                            }
                         }
                     }, executor))
                     .toArray(CompletableFuture[]::new);
