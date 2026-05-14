@@ -25,31 +25,35 @@ public final class NativeLibraries {
         EPUB4J_NATIVE
     }
 
-    private static final Map<Library, Probe> PROBES = Map.of(
-            Library.PDFIUM, new Probe("PDFium", () -> {
-                Boolean clean = tryInvokeStaticBoolean("org.grimmory.pdfium4j.PdfiumLibrary");
-                if (clean != null) {
-                    return clean;
-                }
-                PdfiumLibrary.initialize();
-                return true;
-            }),
-            Library.LIBARCHIVE, new Probe("libarchive", Archive::isAvailable),
-            Library.EPUB4J_NATIVE, new Probe("epub4j-native", () -> {
-                Boolean clean = tryInvokeStaticBoolean(
-                        "org.grimmory.epub4j.native_parsing.EpubNativeLibrary"
-                );
-                if (clean != null) {
-                    return clean;
-                }
-                Class.forName(
-                        "org.grimmory.epub4j.native_parsing.PanamaConstants",
-                        true,
-                        NativeLibraries.class.getClassLoader()
-                );
-                return true;
-            })
-    );
+    private static final Map<Library, Probe> PROBES;
+
+    static {
+        var probes = new LinkedHashMap<Library, Probe>();
+        probes.put(Library.PDFIUM, new Probe("PDFium", () -> {
+            Boolean clean = tryInvokeStaticBoolean("org.grimmory.pdfium4j.PdfiumLibrary");
+            if (clean != null) {
+                return clean;
+            }
+            PdfiumLibrary.initialize();
+            return true;
+        }));
+        probes.put(Library.LIBARCHIVE, new Probe("libarchive", Archive::isAvailable));
+        probes.put(Library.EPUB4J_NATIVE, new Probe("epub4j-native", () -> {
+            Boolean clean = tryInvokeStaticBoolean(
+                    "org.grimmory.epub4j.native_parsing.EpubNativeLibrary"
+            );
+            if (clean != null) {
+                return clean;
+            }
+            Class.forName(
+                    "org.grimmory.epub4j.native_parsing.PanamaConstants",
+                    true,
+                    NativeLibraries.class.getClassLoader()
+            );
+            return true;
+        }));
+        PROBES = Collections.unmodifiableSequencedMap(probes);
+    }
 
     private final Map<Library, Boolean> status;
 
