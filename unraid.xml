@@ -13,7 +13,7 @@
     <Overview>Grimmory is a self-hosted application for managing your entire book collection in one place: organize, read, annotate, sync across devices, and share without relying on third-party services.</Overview>
     <Category>MediaApp:Books MediaServer:Books</Category>
     <WebUI>http://[IP]:[PORT:6060]/</WebUI>
-    <Icon>https://raw.githubusercontent.com/grimmory-tools/grimmory/main/assets/favicons/apple-touch-icon-144x144.png</Icon>
+    <Icon>https://github.com/grimmory-tools/grimmory/blob/develop/frontend/public/icons/icon-144x144.png?raw=true</Icon>
     <ExtraParams>--restart=unless-stopped</ExtraParams>
     <PostArgs/>
     <CPUset/>
