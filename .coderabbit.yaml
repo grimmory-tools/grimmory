@@ -79,6 +79,10 @@ reviews:
         - Null safety: prefer Optional, but do NOT overuse Optional in fields or method parameters.
         - Logging: use @Slf4j from Lombok and log descriptive messages with appropriate levels (info, warn, error, debug).
         - Exception Handling: use the ApiError enum (org.booklore.exception.ApiError) to create and throw exceptions via createException().
+        - Static Collections & Memory Leaks:
+          - Flag any static collection (List, Set, Map) initialized as a mutable structure (e.g., new ArrayList<>(), new HashMap<>()).
+          - Require immutable factory methods: List.of(), Set.of(), Map.of(), or Collections.unmodifiable*() if applicable.
+          - For static thread-safe lock maps, require Caffeine caches with weak values (.weakValues()) instead of ConcurrentHashMap to prevent long-term memory leaks.
 
         ## Spring Boot 4 / Spring Framework 7 rules
         - Spring Framework 7 uses the new programmatic bean registration model; prefer functional bean definitions where appropriate.

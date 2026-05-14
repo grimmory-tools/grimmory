@@ -381,12 +381,12 @@ public class FileUtils {
         return "";
     }
 
-    final private List<String> systemDirs = Arrays.asList(
-      // synology
-      "#recycle",
-      "@eaDir",
-      // calibre
-      ".caltrash"
+    private static final List<String> SYSTEM_DIRS = List.of(
+            // synology
+            "#recycle",
+            "@eaDir",
+            // calibre
+            ".caltrash"
     );
 
     private final Set<String> tempExtensions = Set.of(
@@ -400,7 +400,7 @@ public class FileUtils {
             return true;
         }
         for (Path part : path) {
-            if (systemDirs.contains(part.toString())) {
+            if (SYSTEM_DIRS.contains(part.toString())) {
                 return true;
             }
         }

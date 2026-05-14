@@ -32,7 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import java.util.concurrent.ConcurrentMap;
+
+import com.github.benmanes.caffeine.cache.Cache;
 
 @ExtendWith(MockitoExtension.class)
 class OidcAuthServiceTest {
@@ -62,8 +63,8 @@ class OidcAuthServiceTest {
         var field = OidcAuthService.class.getDeclaredField("userLocks");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        var locks = (ConcurrentMap<String, ?>) field.get(null);
-        locks.clear();
+        var locks = (Cache<String, ?>) field.get(null);
+        locks.invalidateAll();
     }
 
     // --- exchangeCodeForTokens ---

@@ -32,14 +32,17 @@ public class DefaultSettingInitializer {
             .maximumSize(1000)
             .expireAfterWrite(Duration.ofHours(24))
             .build();
-    private static final ConcurrentHashMap<Long, Lock> userLocks = new ConcurrentHashMap<>();
+    private static final Cache<Long, Lock> userLocks = Caffeine.newBuilder()
+            .weakValues()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
 
     @Transactional
     public void ensureDefaultSettings(BookLoreUser bookLoreUser) {
         if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) {
             return;
         }
-        Lock lock = userLocks.computeIfAbsent(bookLoreUser.getId(), _ -> new ReentrantLock());
+        Lock lock = userLocks.get(bookLoreUser.getId(), _ -> new ReentrantLock());
         lock.lock();
         try {
             if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) return;
@@ -52,7 +55,6 @@ public class DefaultSettingInitializer {
             initializedUsers.put(bookLoreUser.getId(), Boolean.TRUE);
         } finally {
             lock.unlock();
-            userLocks.remove(bookLoreUser.getId());
         }
     }
 
