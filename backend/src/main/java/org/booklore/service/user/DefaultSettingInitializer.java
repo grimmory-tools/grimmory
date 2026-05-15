@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.time.Duration;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -31,6 +33,11 @@ public class DefaultSettingInitializer {
             .maximumSize(1000)
             .expireAfterWrite(Duration.ofHours(24))
             .build();
+    private static final Cache<Long, Lock> userLocks = Caffeine.newBuilder()
+            .weakValues()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
+
     @Transactional
     public void ensureDefaultSettings(BookLoreUser bookLoreUser) {
         Long userId = bookLoreUser.getId();
@@ -38,24 +45,32 @@ public class DefaultSettingInitializer {
             return;
         }
 
-        BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Lock lock = userLocks.get(userId, _ -> new ReentrantLock());
+        lock.lock();
+        try {
+            if (initializedUsers.getIfPresent(userId) != null) return;
 
-        for (UserSettingKey key : settingsProvider.getAllKeys()) {
-            addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
-        }
-        patchPerBookSetting(user);
-        userRepository.save(user);
+            BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    initializedUsers.put(userId, Boolean.TRUE);
-                }
-            });
-        } else {
-            initializedUsers.put(userId, Boolean.TRUE);
+            for (UserSettingKey key : settingsProvider.getAllKeys()) {
+                addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
+            }
+            patchPerBookSetting(user);
+            userRepository.save(user);
+
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        initializedUsers.put(userId, Boolean.TRUE);
+                    }
+                });
+            } else {
+                initializedUsers.put(userId, Boolean.TRUE);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
