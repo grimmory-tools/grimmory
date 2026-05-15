@@ -286,7 +286,7 @@ public class EpubReaderService {
 
         List<Author> authors = md.getAuthors();
         if (authors != null && !authors.isEmpty()) {
-            Author first = authors.get(0);
+            Author first = authors.getFirst();
             String name = first.getFirstname();
             if (first.getLastname() != null && !first.getLastname().isEmpty()) {
                 name = (name != null && !name.isEmpty()) ? name + " " + first.getLastname() : first.getLastname();
@@ -298,13 +298,13 @@ public class EpubReaderService {
         if (language != null && !language.isEmpty()) metadata.put("language", language);
 
         List<String> publishers = md.getPublishers();
-        if (publishers != null && !publishers.isEmpty()) metadata.put("publisher", publishers.get(0));
+        if (publishers != null && !publishers.isEmpty()) metadata.put("publisher", publishers.getFirst());
 
         List<Identifier> identifiers = md.getIdentifiers();
-        if (identifiers != null && !identifiers.isEmpty()) metadata.put("identifier", identifiers.get(0).getValue());
+        if (identifiers != null && !identifiers.isEmpty()) metadata.put("identifier", identifiers.getFirst().getValue());
 
         List<String> descriptions = md.getDescriptions();
-        if (descriptions != null && !descriptions.isEmpty()) metadata.put("description", descriptions.get(0));
+        if (descriptions != null && !descriptions.isEmpty()) metadata.put("description", descriptions.getFirst());
 
         // EPUB3 rendition properties
         if (md.getRenditionLayout() != null) metadata.put("rendition:layout", md.getRenditionLayout());

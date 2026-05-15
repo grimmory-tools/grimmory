@@ -88,7 +88,7 @@ public class AudioMetadataService {
       if (metadata != null) {
         builder.title(metadata.getTitle());
         if (metadata.getAuthors() != null && !metadata.getAuthors().isEmpty()) {
-          builder.author(metadata.getAuthors().iterator().next().getName());
+          builder.author(metadata.getAuthors().getFirst().getName());
         }
       }
 
@@ -215,7 +215,7 @@ public class AudioMetadataService {
         title = bookTitle;
       }
       if (metadata.getAuthors() != null && !metadata.getAuthors().isEmpty()) {
-        author = metadata.getAuthors().iterator().next().getName();
+        author = metadata.getAuthors().getFirst().getName();
       }
     }
 
