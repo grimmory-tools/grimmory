@@ -1,6 +1,8 @@
 package org.booklore.service.user;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.BookLoreUser;
@@ -31,17 +33,30 @@ public class DefaultSettingInitializer {
             .build();
     @Transactional
     public void ensureDefaultSettings(BookLoreUser bookLoreUser) {
-        initializedUsers.get(bookLoreUser.getId(), userId -> {
-            BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Long userId = bookLoreUser.getId();
+        if (initializedUsers.getIfPresent(userId) != null) {
+            return;
+        }
 
-            for (UserSettingKey key : settingsProvider.getAllKeys()) {
-                addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
-            }
-            patchPerBookSetting(user);
-            userRepository.save(user);
-            return Boolean.TRUE;
-        });
+        BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        for (UserSettingKey key : settingsProvider.getAllKeys()) {
+            addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
+        }
+        patchPerBookSetting(user);
+        userRepository.save(user);
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    initializedUsers.put(userId, Boolean.TRUE);
+                }
+            });
+        } else {
+            initializedUsers.put(userId, Boolean.TRUE);
+        }
     }
 
     private void addSettingIfMissing(BookLoreUserEntity user, UserSettingKey key, Object value) {
