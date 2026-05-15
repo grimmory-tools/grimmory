@@ -117,7 +117,7 @@ public class SendEmailV2Service {
                 .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException(bookFileId));
     }
 
-    private JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
+    JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
         JavaMailSenderImpl dynamicMailSender = new JavaMailSenderImpl();
         dynamicMailSender.setHost(emailProvider.getHost());
         dynamicMailSender.setPort(emailProvider.getPort());
@@ -125,11 +125,14 @@ public class SendEmailV2Service {
         dynamicMailSender.setPassword(emailProvider.getPassword());
 
         Properties mailProps = dynamicMailSender.getJavaMailProperties();
-        mailProps.put("mail.smtp.auth", emailProvider.isAuth());
-
         ConnectionType connectionType = determineConnectionType(emailProvider);
-        configureConnectionType(mailProps, connectionType, emailProvider);
-        configureTimeouts(mailProps);
+        // Jakarta Mail's smtp and smtps transports read properties from disjoint namespaces:
+        // SMTPTransport reads only mail.smtp.*, SMTPSSLTransport reads only mail.smtps.*.
+        // Pick the prefix matching the active transport so auth/ssl/timeout settings apply.
+        String prefix = connectionType == ConnectionType.SSL ? "mail.smtps." : "mail.smtp.";
+        mailProps.put(prefix + "auth", emailProvider.isAuth());
+        configureConnectionType(mailProps, connectionType, emailProvider, prefix);
+        configureTimeouts(mailProps, prefix);
 
         String debugMode = System.getProperty("mail.debug", "false");
         mailProps.put("mail.debug", debugMode);
@@ -151,40 +154,40 @@ public class SendEmailV2Service {
         }
     }
 
-    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider) {
+    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider, String prefix) {
         switch (connectionType) {
             case SSL -> {
                 mailProps.put("mail.transport.protocol", "smtps");
-                mailProps.put("mail.smtp.ssl.enable", "true");
-                mailProps.put("mail.smtp.ssl.trust", emailProvider.getHost());
-                mailProps.put("mail.smtp.starttls.enable", "false");
-                mailProps.put("mail.smtp.ssl.protocols", "TLSv1.2,TLSv1.3");
-                mailProps.put("mail.smtp.ssl.checkserveridentity", "false");
-                mailProps.put("mail.smtp.ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                mailProps.put("mail.smtp.ssl.socketFactory.fallback", "false");
+                mailProps.put(prefix + "ssl.enable", "true");
+                mailProps.put(prefix + "ssl.trust", emailProvider.getHost());
+                mailProps.put(prefix + "starttls.enable", "false");
+                mailProps.put(prefix + "ssl.protocols", "TLSv1.2,TLSv1.3");
+                mailProps.put(prefix + "ssl.checkserveridentity", "false");
+                mailProps.put(prefix + "ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                mailProps.put(prefix + "ssl.socketFactory.fallback", "false");
             }
             case STARTTLS -> {
                 mailProps.put("mail.transport.protocol", "smtp");
-                mailProps.put("mail.smtp.starttls.enable", "true");
-                mailProps.put("mail.smtp.starttls.required", "true");
-                mailProps.put("mail.smtp.ssl.enable", "false");
+                mailProps.put(prefix + "starttls.enable", "true");
+                mailProps.put(prefix + "starttls.required", "true");
+                mailProps.put(prefix + "ssl.enable", "false");
             }
             case PLAIN -> {
                 mailProps.put("mail.transport.protocol", "smtp");
-                mailProps.put("mail.smtp.starttls.enable", "false");
-                mailProps.put("mail.smtp.ssl.enable", "false");
+                mailProps.put(prefix + "starttls.enable", "false");
+                mailProps.put(prefix + "ssl.enable", "false");
             }
         }
     }
 
-    private void configureTimeouts(Properties mailProps) {
+    private void configureTimeouts(Properties mailProps, String prefix) {
         String connectionTimeout = System.getProperty("mail.smtp.connectiontimeout", "60000");
         String socketTimeout = System.getProperty("mail.smtp.timeout", "60000");
         String writeTimeout = System.getProperty("mail.smtp.writetimeout", "60000");
 
-        mailProps.put("mail.smtp.connectiontimeout", connectionTimeout);
-        mailProps.put("mail.smtp.timeout", socketTimeout);
-        mailProps.put("mail.smtp.writetimeout", writeTimeout);
+        mailProps.put(prefix + "connectiontimeout", connectionTimeout);
+        mailProps.put(prefix + "timeout", socketTimeout);
+        mailProps.put(prefix + "writetimeout", writeTimeout);
     }
 
     private String generateEmailBody(String bookTitle) {

@@ -20,12 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -305,6 +308,74 @@ class SendEmailV2ServiceTest {
             // Error is caught and logged, not rethrown
             verify(notificationService, atLeastOnce()).sendMessage(any(), any());
         }
+    }
+
+    @Test
+    void setupMailSender_sslProvider_writesSmtpsAuthAndSslProperties() {
+        EmailProviderV2Entity sslProvider = EmailProviderV2Entity.builder()
+                .host("smtp.gmail.com")
+                .port(465)
+                .username("user@gmail.com")
+                .password("password")
+                .auth(true)
+                .startTls(false)
+                .build();
+
+        JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(sslProvider);
+        Properties props = sender.getJavaMailProperties();
+
+        assertEquals("smtps", props.get("mail.transport.protocol"));
+        // Regression for #1301: SMTPSSLTransport reads only mail.smtps.*,
+        // so auth/ssl/timeout properties must be visible under that prefix.
+        assertEquals(true, props.get("mail.smtps.auth"));
+        assertEquals("true", props.get("mail.smtps.ssl.enable"));
+        assertEquals("smtp.gmail.com", props.get("mail.smtps.ssl.trust"));
+        assertEquals("TLSv1.2,TLSv1.3", props.get("mail.smtps.ssl.protocols"));
+        assertEquals("60000", props.get("mail.smtps.connectiontimeout"));
+        assertEquals("60000", props.get("mail.smtps.timeout"));
+        assertEquals("60000", props.get("mail.smtps.writetimeout"));
+    }
+
+    @Test
+    void setupMailSender_starttlsProvider_writesSmtpProperties() {
+        EmailProviderV2Entity starttlsProvider = EmailProviderV2Entity.builder()
+                .host("smtp.example.com")
+                .port(587)
+                .username("user@example.com")
+                .password("password")
+                .auth(true)
+                .startTls(true)
+                .build();
+
+        JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(starttlsProvider);
+        Properties props = sender.getJavaMailProperties();
+
+        assertEquals("smtp", props.get("mail.transport.protocol"));
+        assertEquals(true, props.get("mail.smtp.auth"));
+        assertEquals("true", props.get("mail.smtp.starttls.enable"));
+        assertEquals("true", props.get("mail.smtp.starttls.required"));
+        assertEquals("false", props.get("mail.smtp.ssl.enable"));
+        assertEquals("60000", props.get("mail.smtp.connectiontimeout"));
+    }
+
+    @Test
+    void setupMailSender_plainProvider_writesSmtpProperties() {
+        EmailProviderV2Entity plainProvider = EmailProviderV2Entity.builder()
+                .host("smtp.example.com")
+                .port(25)
+                .username("user@example.com")
+                .password("password")
+                .auth(false)
+                .startTls(false)
+                .build();
+
+        JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(plainProvider);
+        Properties props = sender.getJavaMailProperties();
+
+        assertEquals("smtp", props.get("mail.transport.protocol"));
+        assertEquals(false, props.get("mail.smtp.auth"));
+        assertEquals("false", props.get("mail.smtp.starttls.enable"));
+        assertEquals("false", props.get("mail.smtp.ssl.enable"));
     }
 
     @Test
