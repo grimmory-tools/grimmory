@@ -694,10 +694,32 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     .header("x-requested-with", "XMLHttpRequest")
                     .method(Connection.Method.GET)
                     .execute();
-            return response.parse();
+            Document document = response.parse();
+            if (isAwsWafChallenge(document)) {
+                log.warn("GoodReads: AWS WAF challenge page returned for url: {}. Goodreads is blocking automated requests.", url);
+                throw new GoodreadsWafChallengeException("AWS WAF challenge page returned for url: " + url);
+            }
+            return document;
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);
+        }
+    }
+
+    static boolean isAwsWafChallenge(Document document) {
+        if (document == null) {
+            return false;
+        }
+        if (!document.select("script[src*=awswaf.com]").isEmpty()) {
+            return true;
+        }
+        String html = document.outerHtml();
+        return html.contains("awsWafCookieDomainList") || html.contains("AwsWafIntegration");
+    }
+
+    public static class GoodreadsWafChallengeException extends RuntimeException {
+        public GoodreadsWafChallengeException(String message) {
+            super(message);
         }
     }
 }
