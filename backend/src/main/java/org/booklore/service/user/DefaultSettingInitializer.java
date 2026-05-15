@@ -12,9 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.time.Duration;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -32,30 +29,19 @@ public class DefaultSettingInitializer {
             .maximumSize(1000)
             .expireAfterWrite(Duration.ofHours(24))
             .build();
-    private static final Cache<Long, Lock> userLocks = Caffeine.newBuilder()
-            .weakValues()
-            .expireAfterAccess(Duration.ofMinutes(10))
-            .build();
-
     @Transactional
     public void ensureDefaultSettings(BookLoreUser bookLoreUser) {
-        if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) {
-            return;
-        }
-        Lock lock = userLocks.get(bookLoreUser.getId(), _ -> new ReentrantLock());
-        lock.lock();
-        try {
-            if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) return;
-            BookLoreUserEntity user = userRepository.findByIdWithSettings(bookLoreUser.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        initializedUsers.get(bookLoreUser.getId(), userId -> {
+            BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
             for (UserSettingKey key : settingsProvider.getAllKeys()) {
                 addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
             }
             patchPerBookSetting(user);
             userRepository.save(user);
-            initializedUsers.put(bookLoreUser.getId(), Boolean.TRUE);
-        } finally {
-            lock.unlock();
-        }
+            return Boolean.TRUE;
+        });
     }
 
     private void addSettingIfMissing(BookLoreUserEntity user, UserSettingKey key, Object value) {
