@@ -1,28 +1,16 @@
 package org.booklore.service.metadata.extractor;
 
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.cos.COSString;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.model.MetadataTag;
+import org.grimmory.pdfium4j.model.PageSize;
 import org.booklore.model.dto.BookMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,14 +31,10 @@ class PdfMetadataExtractorTest {
 
     private File createPdf(PdfCustomizer customizer) throws Exception {
         File file = tempDir.resolve("test.pdf").toFile();
-        try (PDDocument doc = new PDDocument()) {
-            PDPage page = new PDPage();
-            doc.addPage(page);
-            try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
-                // empty page
-            }
+        try (PdfDocument doc = PdfDocument.create()) {
+            doc.insertBlankPage(0, PageSize.A4);
             customizer.customize(doc);
-            doc.save(file);
+            doc.save(file.toPath());
         }
         return file;
     }
@@ -73,15 +57,17 @@ class PdfMetadataExtractorTest {
                   </rdf:RDF>
                 </x:xmpmeta>
                 """.formatted(xmpFragment);
-            PDMetadata metadata = new PDMetadata(doc);
-            metadata.importXMPMetadata(xmp.getBytes(StandardCharsets.UTF_8));
-            doc.getDocumentCatalog().setMetadata(metadata);
+            doc.setXmpMetadata(xmp);
         });
     }
 
+        private File createPdfWithRawXmp(String xmp) throws Exception {
+          return createPdf(doc -> doc.setXmpMetadata(xmp));
+        }
+
     @FunctionalInterface
     interface PdfCustomizer {
-        void customize(PDDocument doc) throws Exception;
+        void customize(PdfDocument doc) throws Exception;
     }
 
     // --- Basic / edge cases ---
@@ -115,9 +101,7 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsTitle() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("My Book Title");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "My Book Title");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTitle()).isEqualTo("My Book Title");
@@ -126,9 +110,7 @@ class PdfMetadataExtractorTest {
         @Test
         void blankTitle_fallsBackToFilename() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("   ");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "   ");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTitle()).isEqualTo("test");
@@ -137,10 +119,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsAuthorsSplitByComma() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setAuthor("Alice, Bob");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.AUTHOR, "Alice, Bob");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getAuthors()).containsExactlyInAnyOrder("Alice", "Bob");
@@ -149,10 +129,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsAuthorsSplitByAmpersand() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setAuthor("Alice & Bob");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.AUTHOR, "Alice & Bob");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getAuthors()).containsExactlyInAnyOrder("Alice", "Bob");
@@ -161,10 +139,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsDescription_fromSubject() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setSubject("A great book about testing");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.SUBJECT, "A great book about testing");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getDescription()).isEqualTo("A great book about testing");
@@ -173,10 +149,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsPublisher_fromEbxPublisher() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.getCOSObject().setString(COSName.getPDFName("EBX_PUBLISHER"), "Penguin Books");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata("EBX_PUBLISHER", "Penguin Books");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getPublisher()).isEqualTo("Penguin Books");
@@ -185,11 +159,9 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsCreationDate_asPublishedDate() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                Calendar cal = new GregorianCalendar(2023, Calendar.JUNE, 15);
-                info.setCreationDate(cal);
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                // PDF date format: D:YYYYMMDDHHmmSS
+                doc.setMetadata(MetadataTag.CREATION_DATE, "D:20230615120000Z");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getPublishedDate()).isNotNull();
@@ -200,10 +172,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsKeywords_semicolonSeparated() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setKeywords("Fiction; Science; Adventure");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.KEYWORDS, "Fiction; Science; Adventure");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getCategories()).containsExactlyInAnyOrder("Fiction", "Science", "Adventure");
@@ -212,10 +182,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsKeywords_commaSeparated() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setKeywords("Fiction, Science");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.KEYWORDS, "Fiction, Science");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getCategories()).containsExactlyInAnyOrder("Fiction", "Science");
@@ -224,10 +192,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsCustomLanguageField() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("T");
-                info.setCustomMetadataValue("Language", "English");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata("Language", "English");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getLanguage()).isEqualTo("English");
@@ -251,9 +217,7 @@ class PdfMetadataExtractorTest {
         @Test
         void xmpTitle_overridesDocInfoTitle() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("DocInfo Title");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "DocInfo Title");
 
                 String xmp = """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -265,9 +229,7 @@ class PdfMetadataExtractorTest {
                       </rdf:RDF>
                     </x:xmpmeta>
                     """;
-                PDMetadata metadata = new PDMetadata(doc);
-                metadata.importXMPMetadata(xmp.getBytes(StandardCharsets.UTF_8));
-                doc.getDocumentCatalog().setMetadata(metadata);
+                doc.setXmpMetadata(xmp);
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTitle()).isEqualTo("XMP Title");
@@ -392,6 +354,15 @@ class PdfMetadataExtractorTest {
     class BookloreTests {
 
         @Test
+        void extractsSeriesName() throws Exception {
+            File pdf = createPdfWithXmp("""
+                <booklore:seriesName>Wheel of Time</booklore:seriesName>
+                """);
+            BookMetadata meta = extractor.extractMetadata(pdf);
+            assertThat(meta.getSeriesName()).isEqualTo("Wheel of Time");
+        }
+
+        @Test
         void extractsSeriesInfo() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:seriesName>Wheel of Time</booklore:seriesName>
@@ -426,17 +397,17 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsSubtitle_pascalCaseFallback() throws Exception {
             File pdf = createPdfWithXmp("""
-                <booklore:Subtitle>Legacy Subtitle</booklore:Subtitle>
+                <booklore:Subtitle>Custom Subtitle</booklore:Subtitle>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
-            assertThat(meta.getSubtitle()).isEqualTo("Legacy Subtitle");
+            assertThat(meta.getSubtitle()).isEqualTo("Custom Subtitle");
         }
 
         @Test
         void subtitle_camelCaseTakesPrecedenceOverPascalCase() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:subtitle>New</booklore:subtitle>
-                <booklore:Subtitle>Legacy</booklore:Subtitle>
+                <booklore:Subtitle>Custom</booklore:Subtitle>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getSubtitle()).isEqualTo("New");
@@ -497,7 +468,7 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void extractsMoods_legacySemicolonFormat() throws Exception {
+        void extractsMoods_customSemicolonFormat() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:Moods>Dark; Suspenseful; Eerie</booklore:Moods>
                 """);
@@ -506,14 +477,14 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void moods_rdfBagTakesPrecedenceOverLegacy() throws Exception {
+        void moods_rdfBagTakesPrecedenceOverCustom() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:moods>
                   <rdf:Bag>
                     <rdf:li>FromBag</rdf:li>
                   </rdf:Bag>
                 </booklore:moods>
-                <booklore:Moods>FromLegacy</booklore:Moods>
+                <booklore:Moods>FromCustom</booklore:Moods>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getMoods()).containsExactly("FromBag");
@@ -534,7 +505,7 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void extractsTags_legacySemicolonFormat() throws Exception {
+        void extractsTags_customSemicolonFormat() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:Tags>Favorites; Must Read</booklore:Tags>
                 """);
@@ -543,14 +514,14 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void tags_rdfBagTakesPrecedenceOverLegacy() throws Exception {
+        void tags_rdfBagTakesPrecedenceOverCustom() throws Exception {
             File pdf = createPdfWithXmp("""
                 <booklore:tags>
                   <rdf:Bag>
                     <rdf:li>BagTag</rdf:li>
                   </rdf:Bag>
                 </booklore:tags>
-                <booklore:Tags>LegacyTag</booklore:Tags>
+                <booklore:Tags>CustomTag</booklore:Tags>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTags()).containsExactly("BagTag");
@@ -864,11 +835,8 @@ class PdfMetadataExtractorTest {
         @Test
         void extractsCover_fromValidPdf() throws Exception {
             File pdf = createPdf(doc -> {
-                PDPage page = doc.getPage(0);
-                try (PDPageContentStream cs = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true)) {
-                    cs.addRect(10, 10, 100, 100);
-                    cs.fill();
-                }
+                // With PDFium4j we don't have easy drawing commands in this test,
+                // but a blank page should still render to a valid JPEG.
             });
             byte[] cover = extractor.extractCover(pdf);
             assertThat(cover).isNotNull();
@@ -893,10 +861,8 @@ class PdfMetadataExtractorTest {
         @Test
         void noXmpMetadata_usesOnlyDocInfo() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("DocInfo Only");
-                info.setAuthor("Solo Author");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "DocInfo Only");
+                doc.setMetadata(MetadataTag.AUTHOR, "Solo Author");
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTitle()).isEqualTo("DocInfo Only");
@@ -908,9 +874,7 @@ class PdfMetadataExtractorTest {
         @Test
         void emptyXmp_doesNotOverrideDocInfo() throws Exception {
             File pdf = createPdf(doc -> {
-                PDDocumentInformation info = new PDDocumentInformation();
-                info.setTitle("My Title");
-                doc.setDocumentInformation(info);
+                doc.setMetadata(MetadataTag.TITLE, "My Title");
 
                 String xmp = """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -920,9 +884,7 @@ class PdfMetadataExtractorTest {
                       </rdf:RDF>
                     </x:xmpmeta>
                     """;
-                PDMetadata metadata = new PDMetadata(doc);
-                metadata.importXMPMetadata(xmp.getBytes(StandardCharsets.UTF_8));
-                doc.getDocumentCatalog().setMetadata(metadata);
+                doc.setXmpMetadata(xmp);
             });
             BookMetadata meta = extractor.extractMetadata(pdf);
             assertThat(meta.getTitle()).isEqualTo("My Title");
@@ -949,10 +911,8 @@ class PdfMetadataExtractorTest {
     @Test
     void fullMetadata_allFieldsExtracted() throws Exception {
         File pdf = createPdf(doc -> {
-            PDDocumentInformation info = new PDDocumentInformation();
-            info.setTitle("Fallback Title");
-            info.setKeywords("Keyword1; Keyword2");
-            doc.setDocumentInformation(info);
+            doc.setMetadata(MetadataTag.TITLE, "Fallback Title");
+            doc.setMetadata(MetadataTag.KEYWORDS, "Keyword1; Keyword2");
 
             String xmp = """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1000,9 +960,7 @@ class PdfMetadataExtractorTest {
                   </rdf:RDF>
                 </x:xmpmeta>
                 """;
-            PDMetadata metadata = new PDMetadata(doc);
-            metadata.importXMPMetadata(xmp.getBytes(StandardCharsets.UTF_8));
-            doc.getDocumentCatalog().setMetadata(metadata);
+            doc.setXmpMetadata(xmp);
         });
 
         BookMetadata meta = extractor.extractMetadata(pdf);
@@ -1022,6 +980,140 @@ class PdfMetadataExtractorTest {
         assertThat(meta.getMoods()).containsExactlyInAnyOrder("Tense", "Hopeful");
         assertThat(meta.getTags()).containsExactly("Favorites");
         assertThat(meta.getAsin()).isEqualTo("B00TEST");
+        assertThat(meta.getPageCount()).isEqualTo(1);
+    }
+
+    @Test
+    void fullXmpPacketWithMultipleDescriptionsAndUnicode_extractsMetadata() throws Exception {
+        File pdf = createPdfWithRawXmp("""
+            <?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>
+            <x:xmpmeta xmlns:x="adobe:ns:meta/">
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description rdf:about=""
+                xmlns:dc="http://purl.org/dc/elements/1.1/">
+              <dc:title>
+                <rdf:Alt>
+                  <rdf:li xml:lang="x-default">\u00E1\u00E9\u0151\u00FA\u00E9\u0151\u00E1\u00FA\u00E9\u0151\u00E9\u0151\u00FArrvsevrsevser</rdf:li>
+                </rdf:Alt>
+              </dc:title>
+              <dc:creator>
+                <rdf:Seq>
+                  <rdf:li>Andrzej Sapkowski</rdf:li>
+                  <rdf:li>David French</rdf:li>
+                </rdf:Seq>
+              </dc:creator>
+              <dc:description>
+                <rdf:Alt>
+                  <rdf:li xml:lang="x-default">World fantasy award lifetime achievement winner.</rdf:li>
+                </rdf:Alt>
+              </dc:description>
+              <dc:subject>
+                <rdf:Bag>
+                  <rdf:li>Science Fiction &amp; Fantasy</rdf:li>
+                  <rdf:li>Adventure</rdf:li>
+                  <rdf:li>Science fiction</rdf:li>
+                  <rdf:li>Adulte</rdf:li>
+                  <rdf:li>Biography</rdf:li>
+                  <rdf:li>Fantasy</rdf:li>
+                  <rdf:li>Assassins</rdf:li>
+                  <rdf:li>Aventure</rdf:li>
+                  <rdf:li>Fiction</rdf:li>
+                  <rdf:li>Humor</rdf:li>
+                </rdf:Bag>
+              </dc:subject>
+              <dc:publisher>
+                <rdf:Bag>
+                  <rdf:li>Orbit</rdf:li>
+                </rdf:Bag>
+              </dc:publisher>
+              <dc:language>
+                <rdf:Bag>
+                  <rdf:li>en</rdf:li>
+                </rdf:Bag>
+              </dc:language>
+              <dc:date>
+                <rdf:Seq>
+                  <rdf:li>2013-11-06</rdf:li>
+                </rdf:Seq>
+              </dc:date>
+            </rdf:Description>
+            <rdf:Description rdf:about=""
+                xmlns:booklore="http://booklore.org/metadata/1.0/">
+              <booklore:googleId>GAg_swEACAAJ</booklore:googleId>
+              <booklore:pageCount>329</booklore:pageCount>
+              <booklore:hardcoverRating>3.9</booklore:hardcoverRating>
+              <booklore:subtitle>\u0151\u00E1\u00FC\u0151\u00FC\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u00E1</booklore:subtitle>
+              <booklore:goodreadsRating>4.0</booklore:goodreadsRating>
+              <booklore:seriesTotal>5</booklore:seriesTotal>
+              <booklore:isbn13>9780316441636</booklore:isbn13>
+              <booklore:isbn10>0678452202</booklore:isbn10>
+              <booklore:seriesNumber>0.6</booklore:seriesNumber>
+              <booklore:hardcoverBookId>461967</booklore:hardcoverBookId>
+              <booklore:seriesName>The Witcher</booklore:seriesName>
+              <booklore:goodreadsId>36099978</booklore:goodreadsId>
+              <booklore:hardcoverId>season-of-storms</booklore:hardcoverId>
+            </rdf:Description>
+            <rdf:Description rdf:about=""
+                xmlns:xmp="http://ns.adobe.com/xap/1.0/">
+              <xmp:MetadataDate>2026-05-12T11:22:50.667354886Z</xmp:MetadataDate>
+              <xmp:ModifyDate>2026-05-12T11:22:50.667354886Z</xmp:ModifyDate>
+              <xmp:CreateDate>2013-11-06</xmp:CreateDate>
+              <xmp:CreatorTool>Booklore</xmp:CreatorTool>
+            </rdf:Description>
+            <rdf:Description rdf:about=""
+                xmlns:booklore="http://booklore.org/metadata/1.0/">
+              <booklore:tags>
+                <rdf:Bag>
+                  <rdf:li>Loveable Characters</rdf:li>
+                  <rdf:li>Not Diverse Characters</rdf:li>
+                  <rdf:li>Plot Driven</rdf:li>
+                  <rdf:li>Weak Character Development</rdf:li>
+                </rdf:Bag>
+              </booklore:tags>
+            </rdf:Description>
+            </rdf:RDF>
+            </x:xmpmeta>
+            <?xpacket end="w"?>
+            """);
+
+        BookMetadata meta = extractor.extractMetadata(pdf);
+
+        assertThat(meta.getTitle()).isEqualTo("\u00E1\u00E9\u0151\u00FA\u00E9\u0151\u00E1\u00FA\u00E9\u0151\u00E9\u0151\u00FArrvsevrsevser");
+        assertThat(meta.getSubtitle()).isEqualTo("\u0151\u00E1\u00FC\u0151\u00FC\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u0151\u00E1\u00FC\u00E1");
+        assertThat(meta.getAuthors()).containsExactly("Andrzej Sapkowski", "David French");
+        assertThat(meta.getDescription()).isEqualTo("World fantasy award lifetime achievement winner.");
+        assertThat(meta.getCategories()).containsExactlyInAnyOrder(
+                "Science Fiction & Fantasy",
+                "Adventure",
+                "Science fiction",
+                "Adulte",
+                "Biography",
+                "Fantasy",
+                "Assassins",
+                "Aventure",
+                "Fiction",
+                "Humor"
+        );
+        assertThat(meta.getPublisher()).isEqualTo("Orbit");
+        assertThat(meta.getLanguage()).isEqualTo("en");
+        assertThat(meta.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2013, 11, 6));
+        assertThat(meta.getSeriesName()).isEqualTo("The Witcher");
+        assertThat(meta.getSeriesNumber()).isEqualTo(0.6f);
+        assertThat(meta.getSeriesTotal()).isEqualTo(5);
+        assertThat(meta.getIsbn13()).isEqualTo("9780316441636");
+        assertThat(meta.getIsbn10()).isEqualTo("0678452202");
+        assertThat(meta.getGoogleId()).isEqualTo("GAg_swEACAAJ");
+        assertThat(meta.getGoodreadsId()).isEqualTo("36099978");
+        assertThat(meta.getHardcoverId()).isEqualTo("season-of-storms");
+        assertThat(meta.getHardcoverBookId()).isEqualTo("461967");
+        assertThat(meta.getHardcoverRating()).isEqualTo(3.9);
+        assertThat(meta.getGoodreadsRating()).isEqualTo(4.0);
+        assertThat(meta.getTags()).containsExactlyInAnyOrder(
+                "Loveable Characters",
+                "Not Diverse Characters",
+                "Plot Driven",
+                "Weak Character Development"
+        );
         assertThat(meta.getPageCount()).isEqualTo(1);
     }
 }

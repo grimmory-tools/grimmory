@@ -41,6 +41,10 @@ build: api::build ui::build
 dev-up:
     {{ compose_cmd }} up
 
+# Force a rebuild of the Docker containers and start the stack.
+dev-rebuild:
+    {{ compose_cmd }} up --build
+
 # Start the Docker-based development stack in the background.
 dev-up-detached:
     {{ compose_cmd }} up -d

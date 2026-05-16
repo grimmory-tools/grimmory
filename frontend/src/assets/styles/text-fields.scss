@@ -1,0 +1,47 @@
+.app-text-field {
+  --app-text-field-height: var(--control-height);
+  --app-text-field-padding-x: var(--control-padding-x);
+  --app-text-field-radius: var(--control-radius);
+  --app-text-field-color: var(--text-color);
+  --app-text-field-bg: var(--control-bg);
+  --app-text-field-border: var(--control-border);
+  --app-text-field-border-hover: var(--control-border-hover);
+  --app-text-field-border-focus: var(--control-focus-border);
+
+  appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--app-text-field-height);
+  padding: 0 var(--app-text-field-padding-x);
+  border: 1px solid var(--app-text-field-border);
+  border-radius: var(--app-text-field-radius);
+  background: var(--app-text-field-bg);
+  background-clip: padding-box;
+  color: var(--app-text-field-color);
+  font: inherit;
+  font-size: var(--text-base);
+  line-height: 1.5;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &::placeholder {
+    color: var(--text-muted-color);
+  }
+
+  &:hover:not(:focus) {
+    border-color: var(--app-text-field-border-hover);
+  }
+
+  &:focus {
+    border-color: var(--app-text-field-border-focus);
+    outline: none;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: var(--control-disabled-opacity);
+  }
+}

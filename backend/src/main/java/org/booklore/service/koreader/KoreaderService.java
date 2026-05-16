@@ -74,7 +74,7 @@ public class KoreaderService {
         UserBookProgressEntity userProgress = getOrCreateUserProgress(user, book);
         Float previousProgressPercent = userProgress.getKoreaderProgressPercent();
         ReadStatus previousReadStatus = userProgress.getReadStatus();
-        updateProgressData(userProgress, koProgress, authDetails.isSyncWithBookloreReader(), book);
+        updateProgressData(userProgress, koProgress, authDetails.isSyncWithWebReader(), book);
 
         progressRepository.save(userProgress);
 
@@ -128,14 +128,14 @@ public class KoreaderService {
         }
     }
 
-    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, boolean syncWithBookloreReader, BookEntity book) {
+    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, boolean syncWithWebReader, BookEntity book) {
         userProgress.setKoreaderProgress(koProgress.getProgress());
         userProgress.setKoreaderProgressPercent(koProgress.getPercentage());
         userProgress.setKoreaderDevice(koProgress.getDevice());
         userProgress.setKoreaderDeviceId(koProgress.getDevice_id());
         userProgress.setKoreaderLastSyncTime(Instant.now());
         userProgress.setLastReadTime(Instant.now());
-        if (syncWithBookloreReader && koProgress.getProgress() != null) {
+        if (syncWithWebReader && koProgress.getProgress() != null) {
             try {
                 String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
 

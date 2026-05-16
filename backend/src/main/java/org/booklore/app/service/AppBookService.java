@@ -19,7 +19,6 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;

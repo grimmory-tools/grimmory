@@ -9,7 +9,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.3.3.Final"
+    id("org.hibernate.orm") version "7.3.4.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -68,13 +68,17 @@ fun pdfiumNativesClassifier(): String {
         "win" in osName -> "windows"
         "mac" in osName || "darwin" in osName -> "darwin"
         "nux" in osName || "linux" in osName -> {
-            val isMusl = try {
-                val libDir = File("/lib")
-                libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
-            } catch (_: Exception) {
-                try {
-                    File("/proc/self/maps").readText().contains("musl")
-                } catch (_: Exception) { false }
+            val libcOverride = (System.getenv("TARGETLIBC")
+                ?: project.findProperty("targetLibc")?.toString())?.lowercase()
+            val isMusl = when (libcOverride) {
+                "musl" -> true
+                "gnu", "glibc" -> false
+                else -> if (targetPlatform != null) false else runCatching {
+                    val libDir = File("/lib")
+                    libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
+                }.getOrElse {
+                    runCatching { File("/proc/self/maps").readText().contains("musl") }.getOrDefault(false)
+                }
             }
             if (isMusl) "linux-musl" else "linux"
         }
@@ -88,6 +92,56 @@ fun pdfiumNativesClassifier(): String {
     }
 
     return "natives-$osKey-$archKey"
+}
+
+fun epub4jNativesClassifier(): String {
+    // Support cross-compilation: check for explicit target overrides first
+    val targetPlatform = System.getenv("TARGETPLATFORM")
+        ?: project.findProperty("targetPlatform")?.toString()
+    val targetArch = System.getenv("TARGETARCH")
+        ?: project.findProperty("targetArch")?.toString()
+
+    val osName: String
+    val arch: String
+
+    if (targetPlatform != null) {
+        // Docker TARGETPLATFORM format: linux/amd64, linux/arm64
+        val parts = targetPlatform.split("/")
+        osName = parts.getOrElse(0) { "linux" }
+        arch = parts.getOrElse(1) { "amd64" }
+    } else {
+        osName = System.getProperty("os.name").lowercase()
+        arch = targetArch ?: System.getProperty("os.arch").lowercase()
+    }
+
+    val osKey = when {
+        "win" in osName -> "windows"
+        "mac" in osName || "darwin" in osName -> "macos"
+        "nux" in osName || "linux" in osName -> {
+            val libcOverride = (System.getenv("TARGETLIBC")
+                ?: project.findProperty("targetLibc")?.toString())?.lowercase()
+            val isMusl = when (libcOverride) {
+                "musl" -> true
+                "gnu", "glibc" -> false
+                else -> if (targetPlatform != null) false else runCatching {
+                    val libDir = File("/lib")
+                    libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
+                }.getOrElse {
+                    runCatching { File("/proc/self/maps").readText().contains("musl") }.getOrDefault(false)
+                }
+            }
+            if (isMusl) "linux-musl" else "linux"
+        }
+        else -> error("Unsupported OS: $osName")
+    }
+
+    val archKey = when (arch) {
+        "x86_64", "amd64" -> "x86_64"
+        "aarch64", "arm64" -> "aarch64"
+        else -> error("Unsupported architecture: $arch")
+    }
+
+    return "$osKey-$archKey"
 }
 
 configurations {
@@ -115,14 +169,14 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.5.0")
+    implementation("org.flywaydb:flyway-mysql:12.6.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
 
     // --- Book & Image Processing ---
-    val pdfium4jVersion = if (useLocalLibs) "+" else "0.16.0"
+    val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
     implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
@@ -133,12 +187,14 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
-    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.2.0"
+    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.4.0"
     implementation(epub4jCoords)
 
     // epub4j-native for native archive parsing
-    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:1.2.0"
+    val epub4jNativeVersion = "1.4.0"
+    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:$epub4jNativeVersion"
     implementation(epub4jNativeCoords)
+    runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
@@ -189,9 +245,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testRuntimeOnly("com.h2database:h2")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
-
-    // PDFBox for test PDF creation only (production code uses PDFium4j)
-    testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
 }
 
 dependencyLocking {

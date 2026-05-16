@@ -71,7 +71,7 @@ class KoreaderUserServiceTest {
 
         when(koreaderUserMapper.toDto(any(KoreaderUserEntity.class))).thenAnswer(invocation -> {
             KoreaderUserEntity u = invocation.getArgument(0);
-            return new KoreaderUser(u.getId(), u.getUsername(), u.getPassword(), u.getPasswordMD5(), u.isSyncEnabled(), u.isSyncWithBookloreReader());
+            return new KoreaderUser(u.getId(), u.getUsername(), u.getPassword(), u.getPasswordMD5(), u.isSyncEnabled(), u.isSyncWithWebReader());
         });
 
         KoreaderUser result = service.upsertUser("userA", "passA");

@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, effect, inject} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
@@ -18,6 +19,7 @@ import {Select} from 'primeng/select';
 import {TableModule} from 'primeng/table';
 import {Dialog} from 'primeng/dialog';
 import {TagComponent} from '../../../shared/components/tag/tag.component';
+import {Chip} from 'primeng/chip';
 
 @Component({
   selector: 'app-authentication-settings',
@@ -38,11 +40,14 @@ import {TagComponent} from '../../../shared/components/tag/tag.component';
     Select,
     TableModule,
     Dialog,
-    TagComponent
+    TagComponent,
+    Chip
   ],
   styleUrls: ['./authentication-settings.component.scss']
 })
 export class AuthenticationSettingsComponent {
+  readonly defaultMobileRedirectUri = 'grimmory://oauth2-callback';
+  readonly wildcardMobileRedirectUri = '*';
   availablePermissions = [
     {label: 'Upload Books', value: 'permissionUpload', selected: false, translationKey: 'perms.uploadBooks'},
     {label: 'Download Books', value: 'permissionDownload', selected: false, translationKey: 'perms.downloadBooks'},
@@ -82,6 +87,8 @@ export class AuthenticationSettingsComponent {
   sessionDurationHours: number | null = null;
   backchannelLogoutUri = `${window.location.origin}/api/v1/auth/oidc/backchannel-logout`;
   oidcForceOnlyMode = false;
+  mobileRedirectUris: string[] = [this.defaultMobileRedirectUri];
+  mobileRedirectUriInput = '';
 
   infoItems = [
     {labelKey: 'infoPanel.redirectUri', value: `${window.location.origin}/oauth2-callback`},
@@ -158,6 +165,10 @@ export class AuthenticationSettingsComponent {
     this.sessionDurationHours = settings.oidcSessionDurationHours ?? null;
     this.groupSyncMode = settings.oidcGroupSyncMode ?? 'DISABLED';
     this.oidcForceOnlyMode = settings.oidcForceOnlyMode ?? false;
+    this.mobileRedirectUris = settings.oidcRedirectUris?.length
+      ? [...settings.oidcRedirectUris]
+      : [this.defaultMobileRedirectUri];
+    this.mobileRedirectUriInput = '';
 
     this.oidcProvider = {
       providerName: settings.oidcProviderDetails?.providerName || '',
@@ -198,10 +209,16 @@ export class AuthenticationSettingsComponent {
   }
 
   saveOidcProvider(): void {
+    this.addMobileRedirectUriFromInput();
+
     const payload: {key: AppSettingKey; newValue: unknown}[] = [
       {
         key: AppSettingKey.OIDC_PROVIDER_DETAILS,
         newValue: this.oidcProvider
+      },
+      {
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
+        newValue: this.mobileRedirectUris
       }
     ];
     if (this.oidcEnabled) {
@@ -216,10 +233,10 @@ export class AuthenticationSettingsComponent {
         summary: this.t.translate('settingsAuth.toast.saved'),
         detail: this.t.translate('settingsAuth.toast.providerSaved')
       }),
-      error: () => this.messageService.add({
+      error: (error: HttpErrorResponse) => this.messageService.add({
         severity: 'error',
         summary: this.t.translate('common.error'),
-        detail: this.t.translate('settingsAuth.toast.providerError')
+        detail: error?.error?.message || this.t.translate('settingsAuth.toast.providerError')
       })
     });
   }
@@ -257,6 +274,36 @@ export class AuthenticationSettingsComponent {
         detail: this.t.translate('settingsAuth.toast.sessionDurationError')
       })
     });
+  }
+
+  addMobileRedirectUriFromInput(): void {
+    const value = this.mobileRedirectUriInput.trim();
+    if (!value) {
+      this.mobileRedirectUriInput = '';
+      return;
+    }
+
+    this.mobileRedirectUris = [...this.mobileRedirectUris, value];
+    this.mobileRedirectUriInput = '';
+  }
+
+  removeMobileRedirectUri(index: number): void {
+    this.mobileRedirectUris = this.mobileRedirectUris.filter((_, currentIndex) => currentIndex !== index);
+  }
+
+  onMobileRedirectUriKeydown(event: KeyboardEvent): void {
+    if ((event.key === 'Enter' || event.key === ',') && this.mobileRedirectUriInput.trim()) {
+      event.preventDefault();
+      this.addMobileRedirectUriFromInput();
+      return;
+    }
+
+    if ((event.key === 'Backspace' || event.key === 'Delete')
+      && !this.mobileRedirectUriInput
+      && this.mobileRedirectUris.length > 0) {
+      event.preventDefault();
+      this.removeMobileRedirectUri(this.mobileRedirectUris.length - 1);
+    }
   }
 
   saveOidcAutoProvisionSettings(): void {

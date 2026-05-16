@@ -289,7 +289,7 @@ public class GoogleParser implements BookParser {
             Float seriesNumber = null;
             
             if (seriesInfo.getVolumeSeries() != null && !seriesInfo.getVolumeSeries().isEmpty()) {
-                Integer orderNum = seriesInfo.getVolumeSeries().get(0).getOrderNumber();
+                Integer orderNum = seriesInfo.getVolumeSeries().getFirst().getOrderNumber();
                 if (orderNum != null) {
                     seriesNumber = orderNum.floatValue();
                 }

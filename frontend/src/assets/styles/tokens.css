@@ -55,6 +55,8 @@
   --primary-hover-color: var(--primary-300);
   --primary-text-color: var(--primary-400);
   --primary-text-color-dark: var(--primary-900);
+  --danger-color: #ef4444;
+  --danger-hover-color: #f87171;
 
   /* Text */
   --text-color: #ffffff;
@@ -64,12 +66,44 @@
   --high-contrast-text-color: #ffffff;
 
   /* App surfaces */
-  --app-background: #0d1012;
-  --page-background: color-mix(in srgb, var(--surface-900) 82%, var(--surface-950));
+  --surface-app: #0d1012;
+  --surface-page: color-mix(in srgb, var(--surface-900) 82%, var(--surface-950));
   --surface-content: #1a1e21;
   --surface-card: color-mix(in srgb, var(--surface-900) 62%, var(--surface-800));
-  --surface-toolbar: color-mix(in srgb, var(--app-background) 70%, var(--surface-content));
+  --surface-toolbar: color-mix(in srgb, var(--surface-app) 70%, var(--surface-content));
   --surface-overlay: #1a1e21;
+
+  --primary-bg: color-mix(in srgb, var(--primary-color) 15%, var(--surface-card));
+
+  --control-bg:         color-mix(in srgb, #fff 6%, var(--surface-app));
+  --control-primary-bg: var(--primary-bg);
+
+  --control-bg-hover-mix:             6%;
+  --control-border-mix:               12%;
+  --control-border-hover-mix:         18%;
+  --control-primary-bg-hover-mix:     12%;
+  --control-primary-border-mix:       25%;
+  --control-primary-border-hover-mix: 45%;
+  --control-focus-mix:                50%;
+
+  --control-bg-hover:             color-mix(in srgb, #fff var(--control-bg-hover-mix), var(--control-bg));
+  --control-border:               color-mix(in srgb, #fff var(--control-border-mix), var(--control-bg));
+  --control-border-hover:         color-mix(in srgb, #fff var(--control-border-hover-mix), var(--control-bg));
+  --control-primary-bg-hover:     color-mix(in srgb, var(--primary-color) var(--control-primary-bg-hover-mix), var(--control-primary-bg));
+  --control-primary-border:       color-mix(in srgb, var(--primary-color) var(--control-primary-border-mix), var(--control-primary-bg));
+  --control-primary-border-hover: color-mix(in srgb, var(--primary-color) var(--control-primary-border-hover-mix), var(--control-primary-bg));
+  --control-focus-border:         color-mix(in srgb, var(--primary-color) var(--control-focus-mix), var(--control-bg));
+  --control-focus-ring-color:     color-mix(in srgb, var(--primary-color) var(--control-focus-mix), transparent);
+
+  --control-height:        2.625rem;
+  --control-height-sm:     2.25rem;
+  --control-padding-x:     0.75rem;
+  --control-padding-x-sm:  0.875rem;
+  --control-icon-size:     1rem;
+  --control-icon-size-sm:  0.875rem;
+  --control-gap:           0.5rem;
+  --control-radius:        var(--radius-md);
+  --control-disabled-opacity: 0.5;
 
   /* Borders */
   --border-subtle: #34393e;
@@ -128,7 +162,7 @@
    * Existing app styles still use these names. Prefer the canonical semantic
    * tokens above for new native layout and page CSS.
    */
-  --ground-background: var(--app-background);
+  --ground-background: var(--surface-app);
   --overlay-background: var(--surface-overlay);
   --card-background: var(--surface-card);
   --content-background: var(--surface-content);

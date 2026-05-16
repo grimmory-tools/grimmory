@@ -43,10 +43,10 @@ describe('BookTableComponent', () => {
   let component: BookTableComponent;
   let bookSelectionService: BookSelectionService;
   let bookMetadataManageService: { toggleAllLock: ReturnType<typeof vi.fn> };
-  let queryClient: { setQueriesData: ReturnType<typeof vi.fn> };
+  let queryClient: { setQueryData: ReturnType<typeof vi.fn>; setQueriesData: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    queryClient = {setQueriesData: vi.fn()};
+    queryClient = {setQueryData: vi.fn(), setQueriesData: vi.fn()};
     bookMetadataManageService = {
       toggleAllLock: vi.fn(() => of(null)),
     };

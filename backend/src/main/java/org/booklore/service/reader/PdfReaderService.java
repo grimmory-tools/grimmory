@@ -226,7 +226,7 @@ private CachedPdfMetadata scanPdfMetadata(Path pdfPath) throws IOException {
             }
 
             // PDFium4j pageIndex is 0-based, PdfOutlineItem.pageNumber is 1-based
-            Integer pageNumber = bookmark.isInternal() ? bookmark.pageIndex() + 1 : null;
+            Integer pageNumber = (bookmark.pageIndex() >= 0) ? bookmark.pageIndex() + 1 : null;
 
             List<PdfOutlineItem> children = new ArrayList<>();
             for (Bookmark child : bookmark.children()) {

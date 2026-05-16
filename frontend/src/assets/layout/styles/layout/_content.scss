@@ -7,7 +7,7 @@
   min-height: 0;
   height: 100dvh;
   overflow: hidden;
-  background-color: var(--page-background);
+  background-color: var(--surface-page);
 }
 
 .layout-main > router-outlet + * {

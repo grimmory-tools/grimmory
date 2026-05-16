@@ -56,10 +56,10 @@ describe('AppConfigService', () => {
     expect(rootStyle.getPropertyValue('--primary-400')).toBe('#fb923c');
     expect(rootStyle.getPropertyValue('--primary-500')).toBe('#f97316');
     expect(rootStyle.getPropertyValue('--primary-color')).toBe('#fb923c');
-    expect(rootStyle.getPropertyValue('--app-background')).toBe('#0d1012');
-    expect(rootStyle.getPropertyValue('--page-background')).toBe('color-mix(in srgb, #1a1e21 82%, #0d1012)');
+    expect(rootStyle.getPropertyValue('--surface-app')).toBe('#0d1012');
+    expect(rootStyle.getPropertyValue('--surface-page')).toBe('color-mix(in srgb, #1a1e21 82%, #0d1012)');
     expect(rootStyle.getPropertyValue('--surface-content')).toBe('#1a1e21');
-    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--app-background)');
+    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--surface-app)');
     expect(rootStyle.getPropertyValue('--content-border-color')).toBe('var(--border-subtle)');
     expect(faviconServiceMock.updateFavicon).toHaveBeenCalledWith('#fdba74', '#f97316');
   });
@@ -76,9 +76,9 @@ describe('AppConfigService', () => {
     expect(rootStyle.getPropertyValue('--primary-300')).toBe('#f9be9e');
     expect(rootStyle.getPropertyValue('--primary-500')).toBe('#ef7550');
     expect(rootStyle.getPropertyValue('--primary-color-rgb')).toBe('239, 117, 80');
-    expect(rootStyle.getPropertyValue('--app-background')).toBe('#121518');
-    expect(rootStyle.getPropertyValue('--page-background')).toBe('color-mix(in srgb, #1f252c 82%, #121518)');
-    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--app-background)');
+    expect(rootStyle.getPropertyValue('--surface-app')).toBe('#121518');
+    expect(rootStyle.getPropertyValue('--surface-page')).toBe('color-mix(in srgb, #1f252c 82%, #121518)');
+    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--surface-app)');
     expect(rootStyle.getPropertyValue('--surface-card')).toBe('color-mix(in srgb, #1f252c 62%, #38424d)');
     expect(rootStyle.getPropertyValue('--card-background')).toBe('var(--surface-card)');
     expect(faviconServiceMock.updateFavicon).toHaveBeenLastCalledWith('#f9be9e', '#ef7550');
