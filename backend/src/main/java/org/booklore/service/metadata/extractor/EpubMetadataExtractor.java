@@ -18,11 +18,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.service.metadata.BookLoreMetadata;
+import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -115,8 +119,10 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
         // Last resort: scan container for cover-like images
         try (EpubContainer container = EpubContainers.open(epubFile.toPath())) {
-            Document opf = container.parseOpf();
-            String opfName = container.getOpfName();
+            // NOTE: this will moved to org.grimmory.epub4j in the near future
+            // most of the parsing done here, can be safely replaced with methods already existing in epub4j
+            String opfName = findOpfPath(container);
+            Document opf = parseXmlFromContainer(container, opfName);
 
             // Try OPF manifest for cover-image property
             NodeList items = opf.getElementsByTagName("item");
@@ -127,7 +133,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                     String href = URLDecoder.decode(item.getAttribute("href"), StandardCharsets.UTF_8);
                     String fullPath = resolvePath(opfName, href);
                     if (container.exists(fullPath)) {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
                         container.streamTo(fullPath, baos);
                         return baos.toByteArray();
                     }
@@ -146,7 +152,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                         String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
                         String fullPath = resolvePath(opfName, decodedHref);
                         if (container.exists(fullPath)) {
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
                             container.streamTo(fullPath, baos);
                             return baos.toByteArray();
                         }
@@ -159,7 +165,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                 String lower = name.toLowerCase();
                 if (lower.contains("cover") && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
                         lower.endsWith(".png") || lower.endsWith(".webp"))) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
                     container.streamTo(name, baos);
                     return baos.toByteArray();
                 }
@@ -174,7 +180,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     @Override
     public BookMetadata extractMetadata(File epubFile) {
         try (EpubContainer container = EpubContainers.open(epubFile.toPath())) {
-            Document doc = container.parseOpf();
+            String opfPath = findOpfPath(container);
+            Document doc = parseXmlFromContainer(container, opfPath);
 
             Element metadata = (Element) doc.getElementsByTagNameNS("*", "metadata").item(0);
             if (metadata == null) return null;
@@ -580,6 +587,38 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             log.warn("Failed to read data for resource", e);
             return null;
         }
+    }
+
+    private String findOpfPath(EpubContainer container) throws IOException, ParserConfigurationException, SAXException {
+        String containerXmlPath = "META-INF/container.xml";
+        if (!container.exists(containerXmlPath)) {
+            return "OEBPS/content.opf";
+        }
+
+        Document containerDoc = parseXmlFromContainer(container, containerXmlPath);
+        NodeList rootfiles = containerDoc.getElementsByTagNameNS("urn:oasis:names:tc:opendocument:xmlns:container", "rootfile");
+        if (rootfiles.getLength() == 0) {
+            throw new IOException("No <rootfile> found in container.xml");
+        }
+
+        // EPUB spec §3.5.1: first rootfile is the default rendition
+        String opfPath = ((Element) rootfiles.item(0)).getAttribute("full-path");
+        if (StringUtils.isBlank(opfPath)) {
+            throw new IOException("Empty full-path in container.xml");
+        }
+
+        return URLDecoder.decode(opfPath, StandardCharsets.UTF_8);
+    }
+
+    private Document parseXmlFromContainer(EpubContainer container, String path) throws IOException, ParserConfigurationException, SAXException {
+        if (!container.exists(path)) {
+            throw new IOException("File not found: " + path);
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
+        container.streamTo(path, baos);
+
+        return SecureXmlUtils.createSecureDocumentBuilder(true).parse(new ByteArrayInputStream(baos.toByteArray()));
     }
 
     private String resolvePath(String opfPath, String href) {

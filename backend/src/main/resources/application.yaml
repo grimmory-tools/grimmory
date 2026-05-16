@@ -109,8 +109,6 @@ logging:
   level:
     root: ${ROOT_LOG_LEVEL:INFO}
     org.booklore: ${LOG_LEVEL:INFO}
-    org.apache.fontbox: ERROR
-    org.apache.pdfbox: ERROR
     org.quartz.core.QuartzScheduler: WARN
     org.quartz.simpl.SimpleThreadPool: WARN
     org.quartz.simpl.RAMJobStore: WARN

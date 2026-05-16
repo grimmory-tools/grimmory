@@ -47,6 +47,15 @@
     "backchannelLogoutUri": "Back-Channel Logout URI",
     "backchannelLogoutHint": "Configure this URI in your OIDC provider to enable server-initiated session revocation."
   },
+  "mobileRedirectUris": {
+    "title": "Mobile Redirect URIs",
+    "description": "Whitelist the mobile redirect URIs your OIDC flow is allowed to return to.",
+    "label": "Allowed Mobile Redirect URIs",
+    "placeholder": "Add a redirect URI or *",
+    "hintPrefix": "The default redirect URI is",
+    "hintSuffix": "To allow any URI, just use",
+    "removeLabel": "Remove {{uri}}"
+  },
   "provisioning": {
     "sectionTitle": "User Provisioning",
     "sectionDesc": "Configure how new OIDC users are created and what permissions they receive.",

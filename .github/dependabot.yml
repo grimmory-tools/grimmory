@@ -27,6 +27,8 @@ updates:
       day: "friday"
       time: "03:00"
       timezone: "UTC"
+    cooldown:
+      default-days: 3
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -48,6 +50,8 @@ updates:
       day: "friday"
       time: "03:00"
       timezone: "UTC"
+    cooldown:
+      default-days: 3
     open-pull-requests-limit: 5
     labels:
       - "dependencies"

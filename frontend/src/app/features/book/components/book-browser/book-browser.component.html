@@ -21,7 +21,7 @@
                 {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive() || hasSearchTerm()) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
-            @if (!isBooksLoading() && seriesCollapseFilter.seriesCollapsed() && books(); as books) {
+            @if (!showBooksLoadingPlaceholder() && seriesCollapseFilter.seriesCollapsed() && books(); as books) {
               <p class="series-collapsed-info">
                 {{ t('labels.seriesCollapsedInfo', { count: books.length, itemWord: books.length === 1 ? t('labels.item') : t('labels.items') }) }}
               </p>
@@ -252,7 +252,7 @@
     } @else {
       <div class="book-browser-content">
         @let visibleBooks = books();
-        @if (visibleBooks.length === 0 && !isBooksLoading()) {
+        @if (visibleBooks.length === 0 && !showBooksLoadingPlaceholder()) {
           <div class="no-books-container">
             <p class="no-books-text">
               {{ t('labels.noBooks') }}

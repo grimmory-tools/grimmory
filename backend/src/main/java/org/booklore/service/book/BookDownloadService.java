@@ -164,7 +164,7 @@ public class BookDownloadService {
 
         // If only one file and it's not folder-based, download it directly
         if (allFiles.size() == 1) {
-            BookFileEntity singleFile = allFiles.get(0);
+            BookFileEntity singleFile = allFiles.getFirst();
             Path filePath = FileUtils.requirePathWithinBase(singleFile.getFullFilePath(), libraryRoot);
 
             if (!Files.exists(filePath)) {

@@ -31,7 +31,7 @@ describe('theme-palette-extend', () => {
     expect(auraPrimitive['skyBlue']['700']).toBe('#2e88e6');
     expect(auraPrimitive['dustyNeutral']['950']).toBe('#2f2821');
     expect(preset.primitive?.['coralSunset']['500']).toBe('#ef7550');
-    expect(preset.semantic?.colorScheme?.light?.content?.background).toBe('var(--page-background)');
-    expect(preset.semantic?.colorScheme?.dark?.content?.background).toBe('var(--page-background)');
+    expect(preset.semantic?.colorScheme?.light?.content?.background).toBe('var(--surface-page)');
+    expect(preset.semantic?.colorScheme?.dark?.content?.background).toBe('var(--surface-page)');
   });
 });

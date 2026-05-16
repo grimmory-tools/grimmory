@@ -24,7 +24,10 @@ class OpenApiConfigIntegrationTest {
                     OpenAPI openAPI = context.getBean(OpenAPI.class);
                     assertThat(openAPI.getInfo().getTitle()).isEqualTo("Grimmory API");
                     assertThat(openAPI.getInfo().getDescription())
-                            .isEqualTo("REST API documentation for managing libraries, readers, metadata, and device integrations in Grimmory.");
+                            .startsWith("> [!warning]\n> This documentation is auto-generated and public, but the API is unstable")
+                            .contains("https://github.com/grimmory-tools/grimmory")
+                            .contains("https://discord.gg/9YJ7HB4n8T")
+                            .endsWith("REST API documentation for managing libraries, readers, metadata, and device integrations in Grimmory.\n");
                     assertThat(openAPI.getInfo().getVersion()).isEqualTo("9.9.9-test");
                     assertThat(openAPI.getInfo().getContact().getName()).isEqualTo("Grimmory");
                     assertThat(openAPI.getInfo().getContact().getUrl())

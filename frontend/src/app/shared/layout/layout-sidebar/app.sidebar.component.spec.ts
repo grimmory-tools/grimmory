@@ -16,7 +16,10 @@ import { MagicShelfService } from '../../../features/magic-shelf/service/magic-s
 import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
+import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { AuthService } from '../../service/auth.service';
+import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
+import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { AppVersion, VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
@@ -54,6 +57,9 @@ describe('AppSidebarComponent', () => {
   let commandPaletteService: { open: ReturnType<typeof vi.fn> };
   let currentUser: WritableSignal<TestUser | null>;
   let versionInfo: BehaviorSubject<AppVersion>;
+  let activeTasks$: BehaviorSubject<Record<string, MetadataBatchProgressNotification>>;
+  let progressUpdates$: BehaviorSubject<MetadataBatchProgressNotification>;
+  let hasPendingFiles$: BehaviorSubject<boolean>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
   const layoutService = {
@@ -70,6 +76,16 @@ describe('AppSidebarComponent', () => {
     commandPaletteService = { open: vi.fn() };
     currentUser = signal<TestUser | null>(null);
     versionInfo = new BehaviorSubject<AppVersion>({ current: '1.2.3', latest: '1.2.3' });
+    activeTasks$ = new BehaviorSubject<Record<string, MetadataBatchProgressNotification>>({});
+    progressUpdates$ = new BehaviorSubject<MetadataBatchProgressNotification>({
+      taskId: 'initial',
+      completed: 0,
+      total: 1,
+      message: 'idle',
+      status: MetadataBatchStatus.COMPLETED,
+      review: false,
+    });
+    hasPendingFiles$ = new BehaviorSubject(false);
 
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
@@ -97,6 +113,8 @@ describe('AppSidebarComponent', () => {
         { provide: CommandPaletteService, useValue: commandPaletteService },
         { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)) } },
         { provide: AuthService, useValue: { logout: vi.fn() } },
+        { provide: MetadataProgressService, useValue: { activeTasks$, progressUpdates$ } },
+        { provide: BookdropFileService, useValue: { hasPendingFiles$ } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
@@ -230,5 +248,62 @@ describe('AppSidebarComponent', () => {
 
     expect(container.style.getPropertyValue('--sidebar-popover-top')).toBe('212px');
     expect(container.style.getPropertyValue('--sidebar-popover-left')).toBe(`${window.innerWidth - 128}px`);
+  });
+
+  it('aggregates metadata tasks and pending bookdrop files into the sidebar badge count', () => {
+    const sidebar = component as unknown as {
+      completedTaskCount: number;
+      shouldShowNotificationBadge: boolean;
+    };
+
+    activeTasks$.next({
+      taskA: {
+        taskId: 'taskA',
+        completed: 1,
+        total: 2,
+        message: 'Scanning',
+        status: MetadataBatchStatus.COMPLETED,
+        review: false,
+      },
+      taskB: {
+        taskId: 'taskB',
+        completed: 2,
+        total: 2,
+        message: 'Importing',
+        status: MetadataBatchStatus.ERROR,
+        review: true,
+      },
+    });
+    hasPendingFiles$.next(true);
+
+    expect(sidebar.completedTaskCount).toBe(3);
+    expect(sidebar.shouldShowNotificationBadge).toBe(true);
+  });
+
+  it('hides the badge while metadata progress is actively running', () => {
+    const sidebar = component as unknown as {
+      shouldShowNotificationBadge: boolean;
+    };
+
+    activeTasks$.next({
+      taskA: {
+        taskId: 'taskA',
+        completed: 1,
+        total: 3,
+        message: 'Updating metadata',
+        status: MetadataBatchStatus.IN_PROGRESS,
+        review: false,
+      },
+    });
+    progressUpdates$.next({
+      taskId: 'taskA',
+      completed: 1,
+      total: 3,
+      message: 'Updating metadata',
+      status: MetadataBatchStatus.IN_PROGRESS,
+      review: false,
+    });
+
+    expect(sidebar.shouldShowNotificationBadge).toBe(false);
   });
 });

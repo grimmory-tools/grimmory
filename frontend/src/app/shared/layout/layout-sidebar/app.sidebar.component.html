@@ -87,7 +87,7 @@
 
     <button
       type="button"
-      class="sidebar-icon-button sidebar-mobile-landscape-action"
+      class="sidebar-icon-button sidebar-mobile-landscape-action sidebar-notification-button"
       [attr.aria-label]="t('notifications')"
       [pTooltip]="t('notifications')"
       [tooltipDisabled]="!layoutService.isDesktop()"
@@ -96,7 +96,12 @@
       [attr.aria-expanded]="notificationsOpen() ? 'true' : 'false'"
       (click)="openSidebarOverlay($event, notificationsPopover, 'below')"
     >
-      <i class="pi pi-bell" aria-hidden="true"></i>
+      <span class="sidebar-notification-button-content">
+        <i class="pi pi-bell" aria-hidden="true"></i>
+        @if (shouldShowNotificationBadge) {
+          <span class="sidebar-notification-badge">{{ completedTaskCount }}</span>
+        }
+      </span>
     </button>
 
     <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="notificationsOpen.set(true); applySidebarOverlayPosition(notificationsPopover)" (onHide)="notificationsOpen.set(false)">
@@ -138,7 +143,7 @@
       (click)="openSearch()"
     >
       <i class="pi pi-search" aria-hidden="true"></i>
-      <span>{{ t('search') }}</span>
+      <span class="sidebar-action-label">{{ t('search') }}</span>
       <kbd class="sidebar-search-shortcut" aria-hidden="true">{{ searchShortcutLabel }}</kbd>
     </button>
   </div>
@@ -166,7 +171,7 @@
         [attr.aria-label]="t('add')"
       >
         <i class="pi pi-plus" aria-hidden="true"></i>
-        <span>{{ t('add') }}</span>
+        <span class="sidebar-footer-action-label">{{ t('add') }}</span>
       </button>
 
       <app-menu
@@ -188,21 +193,26 @@
           (click)="openUploadDialog()"
         >
           <i class="pi pi-upload" aria-hidden="true"></i>
-          <span>{{ t('uploadBook') }}</span>
+          <span class="sidebar-footer-action-label">{{ t('uploadBook') }}</span>
         </button>
       }
 
       <button
         type="button"
-        class="sidebar-action-link sidebar-footer-action"
+        class="sidebar-action-link sidebar-footer-action sidebar-notification-button"
         [attr.aria-label]="t('notifications')"
         [pTooltip]="t('notifications')"
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         (click)="openSidebarOverlay($event, notificationsPopover, layoutService.isDesktop() ? 'below' : 'above')"
       >
-        <i class="pi pi-bell" aria-hidden="true"></i>
-        <span>{{ t('notifications') }}</span>
+        <span class="sidebar-notification-button-content">
+          <i class="pi pi-bell" aria-hidden="true"></i>
+          @if (shouldShowNotificationBadge) {
+            <span class="sidebar-notification-badge">{{ completedTaskCount }}</span>
+          }
+        </span>
+        <span class="sidebar-footer-action-label">{{ t('notifications') }}</span>
       </button>
 
     </div>
@@ -289,14 +299,14 @@
         (overlayKeydown)="onUserPopoverKeydown($event)"
       >
         <section
-          class="user-account-popover"
+          class="user-account-popover surface-page"
           role="dialog"
           aria-modal="true"
           cdkTrapFocus
           cdkTrapFocusAutoCapture
           [attr.aria-label]="'settingsProfile.title' | transloco"
         >
-          <header class="user-account-popover-header">
+          <header class="user-account-popover-header surface-card">
             <div class="user-account-popover-title-row">
               <h2>Grimmory <span>{{ appVersionLabel() }}</span></h2>
               <button
@@ -312,8 +322,8 @@
 
             <div class="user-account-popover-header-actions">
               <button
+                appButton
                 type="button"
-                class="user-account-popover-settings"
                 (click)="openSettings()"
               >
                 <i class="pi pi-cog" aria-hidden="true"></i>
@@ -322,8 +332,9 @@
 
               @if (updateAvailable()) {
                 <button
+                  appButton
+                  variant="primary"
                   type="button"
-                  class="user-account-popover-update"
                   (click)="openChangelogDialog()"
                 >
                   <i class="pi pi-arrow-up-right" aria-hidden="true"></i>

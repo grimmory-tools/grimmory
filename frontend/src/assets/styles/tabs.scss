@@ -1,0 +1,218 @@
+app-tabs {
+  display: block;
+}
+
+.app-tabs-root {
+  display: contents;
+}
+
+.app-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.app-tabs-indicator {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  width: 0;
+  opacity: 0;
+}
+
+.app-tabs.is-measured .app-tabs-indicator {
+  opacity: 1;
+}
+
+.app-tabs.is-animated .app-tabs-indicator {
+  transition:
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--control-gap);
+  box-sizing: border-box;
+  border: 0;
+  background: none;
+  color: var(--text-color-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+
+  &:hover {
+    color: var(--text-color);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  &[aria-selected="true"]:focus-visible {
+    outline: none;
+  }
+}
+
+.app-tab-icon {
+  font-size: 0.875em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.app-tab-label {
+  line-height: 1;
+}
+
+app-tabs.placement-below {
+  display: flex;
+  align-items: flex-start;
+  height: var(--app-tabs-row-height, 3.5rem);
+  padding: 0.25rem 2rem 0;
+
+  @media (width <= 767px) {
+    padding: 0.25rem 1rem 0;
+  }
+}
+
+app-tabs.variant-underline {
+  --app-tabs-divider: color-mix(in srgb, var(--surface-border) 70%, transparent);
+
+  padding: 0;
+
+  .app-tabs {
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    gap: 1.5rem;
+    padding: 0 2rem;
+
+    &::after {
+      content: "";
+      position: absolute;
+      right: 2rem;
+      bottom: 0;
+      left: 2rem;
+      height: 1px;
+      background: var(--app-tabs-divider);
+      pointer-events: none;
+    }
+
+    @media (width <= 767px) {
+      gap: 1rem;
+      padding: 0 1rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::after {
+        right: 1rem;
+        left: 1rem;
+      }
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+
+  .app-tab {
+    min-width: 5rem;
+    padding: 0 1rem;
+
+    @media (width <= 767px) {
+      flex: 1 1 0;
+      min-width: 4rem;
+      padding: 0 0.875rem;
+    }
+
+    &[aria-selected="true"] {
+      color: var(--text-color);
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--primary-color);
+        border-radius: 2px 2px 0 0;
+        z-index: 1;
+      }
+    }
+  }
+
+  .app-tabs.is-measured .app-tab[aria-selected="true"]::before {
+    display: none;
+  }
+
+  .app-tabs-indicator {
+    bottom: 0;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 2px 2px 0 0;
+    z-index: 1;
+  }
+}
+
+app-tabs.variant-segmented {
+  .app-tabs {
+    gap: 0.125rem;
+    padding: var(--space-1);
+    border-radius: var(--radius-lg);
+    background: var(--control-bg);
+
+    @media (width <= 767px) {
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+
+  .app-tab {
+    height: 2rem;
+    padding: 0 1rem;
+    border-radius: var(--control-radius);
+
+    &:hover:not([aria-selected="true"]) {
+      background: var(--surface-hover);
+      color: var(--text-color);
+    }
+
+    &[aria-selected="true"] {
+      color: var(--primary-color);
+    }
+  }
+
+  .app-tabs.is-measured .app-tab[aria-selected="true"] {
+    background: transparent;
+  }
+
+  .app-tabs-indicator {
+    top: var(--space-1);
+    bottom: var(--space-1);
+    box-sizing: border-box;
+    background: var(--control-primary-bg);
+    border-radius: var(--control-radius);
+    box-shadow: 0 0 0 1px var(--control-primary-border);
+  }
+}

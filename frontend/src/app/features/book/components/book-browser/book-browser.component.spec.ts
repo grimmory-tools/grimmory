@@ -388,6 +388,7 @@ describe('BookBrowserComponent', () => {
     const {component} = createHarness();
 
     TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
 
     expect(component.books().map(book => book.id)).toEqual([2, 1]);
 
@@ -395,6 +396,7 @@ describe('BookBrowserComponent', () => {
       {label: 'Title', field: 'title', direction: SortDirection.ASCENDING},
     ]);
     TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
 
     expect(component.books().map(book => book.id)).toEqual([1, 2]);
   });
@@ -403,6 +405,7 @@ describe('BookBrowserComponent', () => {
     const {component, paramMap$, routeSnapshot} = createHarness();
 
     TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
 
     expect(component.books().map(book => book.id)).toEqual([2, 1]);
 
@@ -410,6 +413,7 @@ describe('BookBrowserComponent', () => {
     routeSnapshot.params = {libraryId: '2'};
     paramMap$.next(routeSnapshot.paramMap);
     TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
 
     expect(component.books().map(book => book.id)).toEqual([3]);
   });
@@ -422,6 +426,24 @@ describe('BookBrowserComponent', () => {
 
     expect(component.showBooksLoadingPlaceholder()).toBe(false);
     expect(component.showTableLoadingPlaceholder()).toBe(false);
+  });
+
+  it('keeps rendered books visible when loading starts after the first render', () => {
+    const renderedBooks = Array.from({length: 30}, (_, index) =>
+      makeBook(index + 1, 1, `Book ${index + 1}`, `2024-01-${String(index + 1).padStart(2, '0')}T00:00:00Z`)
+    );
+    const {component, isBooksLoading} = createHarness({books: renderedBooks});
+
+    TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
+
+    expect(component.books()).toHaveLength(30);
+    expect(component.virtualRowCount()).toBe(30);
+
+    isBooksLoading.set(true);
+
+    expect(component.showBooksLoadingPlaceholder()).toBe(false);
+    expect(component.virtualRowCount()).toBe(30);
   });
 
   it('sizes grid loading placeholders to fill the viewport', () => {

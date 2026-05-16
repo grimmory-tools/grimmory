@@ -18,6 +18,7 @@ function createSettings(overrides: Partial<AppSettings> = {}): AppSettings {
     oidcEnabled: false,
     oidcAutoProvisionDetails: undefined,
     oidcProviderDetails: undefined,
+    oidcRedirectUris: ['grimmory://oauth2-callback'],
     oidcSessionDurationHours: null,
     oidcGroupSyncMode: null,
     oidcForceOnlyMode: false,
@@ -127,6 +128,7 @@ describe('AuthenticationSettingsComponent', () => {
       name: 'given_name',
       groups: '',
     });
+    expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
     expect(groupMappingService.getAll).not.toHaveBeenCalled();
   });
 
@@ -174,6 +176,7 @@ describe('AuthenticationSettingsComponent', () => {
       name: 'displayName',
       groups: 'memberOf',
     });
+    expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
     expect(component.groupMappings).toEqual(mappings);
     expect(groupMappingService.getAll).toHaveBeenCalledOnce();
   });
@@ -272,6 +275,7 @@ describe('AuthenticationSettingsComponent', () => {
   it('saves OIDC provider settings with the session duration only when OIDC is enabled', () => {
     appSettingsService.saveSettings.mockReturnValue(of(void 0));
     component.oidcProvider = completeProvider();
+    component.mobileRedirectUris = ['grimmory://oauth2-callback', 'grimmory://auth/return'];
     component.oidcEnabled = false;
     component.sessionDurationHours = 24;
 
@@ -281,6 +285,10 @@ describe('AuthenticationSettingsComponent', () => {
       {
         key: AppSettingKey.OIDC_PROVIDER_DETAILS,
         newValue: component.oidcProvider,
+      },
+      {
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
+        newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
       }
     ]);
 
@@ -293,10 +301,72 @@ describe('AuthenticationSettingsComponent', () => {
         newValue: component.oidcProvider,
       },
       {
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
+        newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
+      },
+      {
         key: AppSettingKey.OIDC_SESSION_DURATION_HOURS,
         newValue: 24,
       }
     ]);
+  });
+
+  it('adds a mobile redirect URI from input and clears the field', () => {
+    component.mobileRedirectUris = ['grimmory://oauth2-callback'];
+    component.mobileRedirectUriInput = 'grimmory://auth/return';
+
+    component.addMobileRedirectUriFromInput();
+
+    expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback', 'grimmory://auth/return']);
+    expect(component.mobileRedirectUriInput).toBe('');
+  });
+
+  it('adds the pending mobile redirect URI before saving', () => {
+    appSettingsService.saveSettings.mockReturnValue(of(void 0));
+    component.oidcProvider = completeProvider();
+    component.mobileRedirectUris = ['grimmory://oauth2-callback'];
+    component.mobileRedirectUriInput = 'grimmory://auth/return';
+
+    component.saveOidcProvider();
+
+    expect(appSettingsService.saveSettings).toHaveBeenCalledWith(expect.arrayContaining([
+      {
+        key: AppSettingKey.OIDC_REDIRECT_URIS,
+        newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
+      }
+    ]));
+    expect(component.mobileRedirectUriInput).toBe('');
+  });
+
+  it('removes the last mobile redirect URI when delete is pressed on an empty input', () => {
+    component.mobileRedirectUris = ['grimmory://oauth2-callback', 'grimmory://auth/return'];
+    const preventDefault = vi.fn();
+
+    component.onMobileRedirectUriKeydown({
+      key: 'Delete',
+      preventDefault,
+    } as unknown as KeyboardEvent);
+
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
+  });
+
+  it('surfaces backend redirect URI validation failures in the toast', () => {
+    component.oidcProvider = completeProvider();
+    component.mobileRedirectUris = ['grimmory://oauth2-callback'];
+    appSettingsService.saveSettings.mockReturnValue(
+      throwError(() => new HttpErrorResponse({
+        status: 400,
+        error: {message: 'Wildcard redirect URI must be the only value'}
+      }))
+    );
+
+    component.saveOidcProvider();
+
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error',
+      detail: 'Wildcard redirect URI must be the only value',
+    }));
   });
 
   it('saves the group sync mode and reports failures', () => {

@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, viewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
@@ -58,6 +58,7 @@ import {filterBooksBySearchTerm} from './filters/HeaderFilter';
 import {filterBooksByFilters} from './filters/sidebar-filter';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 import {createGridDensity} from '../../../../shared/util/grid-density.util';
+import {DeferredRenderState} from './deferred-render-state';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -200,29 +201,51 @@ export class BookBrowserComponent implements AfterViewInit {
 
     return actions;
   });
-  // --- Layered pipeline: each computed only recomputes when its direct inputs change ---
-  private readonly entityBooks = computed(() => {
-    const {entityId, entityType} = this.entityInfo();
-    return this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
-  });
-  private readonly searchedBooks = computed(() =>
-    filterBooksBySearchTerm(this.entityBooks(), this.debouncedSearchTerm())
-  );
-  private readonly filteredBooks = computed(() =>
-    filterBooksByFilters(this.searchedBooks(), this.selectedFilter(), this.selectedFilterMode())
-  );
+  // Deferred pipeline: heavy filter/sort runs in a setTimeout so the page chrome
+  // and skeletons paint first, then real books replace them on the next task.
   private readonly forceExpandSeries = computed(() =>
     this.queryParamsService.shouldForceExpandSeries(this.queryParamMap())
   );
-  private readonly collapsedBooks = computed(() =>
-    this.seriesCollapseFilter.collapseBooks(
-      this.filteredBooks(), this.forceExpandSeries(), this.seriesCollapsed()
-    )
-  );
+  private readonly booksContextKey = computed(() => {
+    const {entityId, entityType} = this.entityInfo();
+    return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
+  });
+  private lastBooksContextKey: string | null = null;
+  private readonly booksRenderState = new DeferredRenderState<Book[]>();
+  readonly books = computed(() => this.booksRenderState.value() ?? []);
+  readonly hasRenderedBooks = this.booksRenderState.hasValue;
+  readonly isBooksRefreshing = this.booksRenderState.isRefreshing;
 
-  readonly books = computed(() =>
-    this.sortService.applyMultiSort(this.collapsedBooks(), this.sortCriteria())
-  );
+  private readonly computeBooksEffect = effect((onCleanup) => {
+    const contextKey = this.booksContextKey();
+    const allBooks = this.bookService.books();
+    const {entityId, entityType} = this.entityInfo();
+    const searchTerm = this.debouncedSearchTerm();
+    const filters = this.selectedFilter();
+    const filterMode = this.selectedFilterMode();
+    const collapsedFlag = this.seriesCollapsed();
+    const forceExpand = this.forceExpandSeries();
+    const sortCriteria = this.sortCriteria();
+
+    const sameContext = contextKey === this.lastBooksContextKey;
+    const shouldRefresh = sameContext && untracked(() => this.hasRenderedBooks());
+    const requestId = this.booksRenderState.begin(shouldRefresh ? 'refresh' : 'reset');
+    this.lastBooksContextKey = contextKey;
+
+    const timeoutId = globalThis.setTimeout(() => {
+      const entityBooks = this.entityService.getBooksByEntity(allBooks, entityId, entityType);
+      const searched = filterBooksBySearchTerm(entityBooks, searchTerm);
+      const filtered = filterBooksByFilters(searched, filters, filterMode);
+      const collapsed = this.seriesCollapseFilter.collapseBooks(filtered, forceExpand, collapsedFlag);
+      const sorted = this.sortService.applyMultiSort(collapsed, sortCriteria);
+      this.booksRenderState.commit(requestId, sorted);
+    });
+
+    onCleanup(() => {
+      globalThis.clearTimeout(timeoutId);
+      this.booksRenderState.cancel(requestId);
+    });
+  });
 
   readonly isBooksLoading = this.bookService.isBooksLoading;
   readonly booksError = this.bookService.booksError;
@@ -447,7 +470,7 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   readonly showBooksLoadingPlaceholder = computed(() =>
-    !this.booksError() && this.isBooksLoading() && this.books().length === 0
+    !this.booksError() && (!this.hasRenderedBooks() || (this.isBooksLoading() && this.books().length === 0))
   );
 
   readonly showTableLoadingPlaceholder = computed(() =>
@@ -666,9 +689,13 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   selectAllBooks(): void {
-    this.bookSelectionService.selectAll(
-      this.filteredBooks().map(b => b.id)
+    const {entityId, entityType} = this.entityInfo();
+    const entityBooks = this.entityService.getBooksByEntity(
+      this.bookService.books(), entityId, entityType
     );
+    const searched = filterBooksBySearchTerm(entityBooks, this.debouncedSearchTerm());
+    const filtered = filterBooksByFilters(searched, this.selectedFilter(), this.selectedFilterMode());
+    this.bookSelectionService.selectAll(filtered.map(b => b.id));
   }
 
   loadNextBooksPage(): void {

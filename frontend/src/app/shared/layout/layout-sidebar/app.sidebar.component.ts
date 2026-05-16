@@ -1,4 +1,4 @@
-import { Component, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { MenuTrigger } from '@angular/aria/menu';
@@ -7,6 +7,7 @@ import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
+import { AppButtonDirective } from '../../components/button/app-button.directive';
 import { MenuComponent } from '../../components/menu/menu.component';
 import { MenuEntry } from '../../components/menu/menu-item.model';
 import {
@@ -31,7 +32,7 @@ import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/tr
 import { Tooltip } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { VersionService } from '../../service/version.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
 import {
@@ -41,6 +42,10 @@ import {
   buildShelfSection,
   buildToolsSection,
 } from './sidebar-sections';
+import { VersionService } from '../../service/version.service';
+import { MetadataProgressService } from '../../service/metadata-progress.service';
+import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
+import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 
@@ -90,6 +95,7 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
   selector: 'app-sidebar',
   imports: [
     AppSidebarSectionComponent,
+    AppButtonDirective,
     Popover,
     UnifiedNotificationBoxComponent,
     MenuComponent,
@@ -123,8 +129,11 @@ export class AppSidebarComponent {
   private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
   private readonly renderer = inject(Renderer2);
-  private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
+private readonly router = inject(Router);
+private readonly messageService = inject(MessageService);
+private readonly destroyRef = inject(DestroyRef);
+private readonly metadataProgressService = inject(MetadataProgressService);
+private readonly bookdropFileService = inject(BookdropFileService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
@@ -207,15 +216,41 @@ export class AppSidebarComponent {
   });
 
   protected readonly notificationsOpen = signal(false);
+  protected progressHighlight = false;
+  protected completedTaskCount = 0;
+  protected hasPendingBookdropFiles = false;
 
   protected readonly mobileMenuPositions = BELOW_ALIGN_LEFT;
   protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
   protected readonly footerMenuPositions = computed(() =>
     this.layoutService.desktopSidebarCollapsed() ? BESIDE_RIGHT_BOTTOM : ABOVE_ALIGN_LEFT,
   );
+  private readonly latestTasks: Record<string, MetadataBatchProgressNotification> = {};
+
+  constructor() {
+    this.subscribeToMetadataProgress();
+
+    this.metadataProgressService.activeTasks$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((tasks) => {
+        this.replaceLatestTasks(tasks);
+        this.updateCompletedTaskCount();
+      });
+
+    this.bookdropFileService.hasPendingFiles$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hasPending) => {
+        this.hasPendingBookdropFiles = hasPending;
+        this.updateCompletedTaskCount();
+      });
+  }
 
   openSearch(): void {
     this.commandPaletteService.open();
+  }
+
+  protected get shouldShowNotificationBadge(): boolean {
+    return this.completedTaskCount > 0 && !this.progressHighlight;
   }
 
   closeMobileSidebar(): void {
@@ -333,12 +368,33 @@ export class AppSidebarComponent {
     }
     overlay.toggle(event);
   }
-  private handleDialogLoadError(err: unknown) {
-    console.error('Failed to load dialog', err);
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translate('common.error'),
-      detail: this.translate('common.dialogLoadError')
+private handleDialogLoadError(err: unknown) {
+  console.error('Failed to load dialog', err);
+  this.messageService.add({
+    severity: 'error',
+    summary: this.translate('common.error'),
+    detail: this.translate('common.dialogLoadError')
+  });
+}
+
+private subscribeToMetadataProgress(): void {
+  this.metadataProgressService.progressUpdates$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe((progress) => {
+      this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
     });
+}
+
+private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
+  for (const key of Object.keys(this.latestTasks)) {
+    delete this.latestTasks[key];
   }
+  Object.assign(this.latestTasks, tasks);
+}
+
+private updateCompletedTaskCount(): void {
+  const metadataTaskCount = Object.keys(this.latestTasks).length;
+  const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
+  this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
+}
 }

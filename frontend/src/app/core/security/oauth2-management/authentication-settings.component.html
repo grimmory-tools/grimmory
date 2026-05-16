@@ -210,6 +210,44 @@
         </div>
       </div>
 
+      <div class="claims-section">
+        <h4 class="subsection-title">{{ t('mobileRedirectUris.title') }}</h4>
+        <p class="subsection-description">
+          {{ t('mobileRedirectUris.description') }}
+        </p>
+        <div class="config-item full-width">
+          <label for="mobileRedirectUriInput">{{ t('mobileRedirectUris.label') }}</label>
+          <div class="redirect-uri-input">
+            <div class="redirect-uri-chip-list">
+              @for (redirectUri of mobileRedirectUris; track redirectUri; let index = $index) {
+                <p-chip
+                  class="redirect-uri-chip"
+                  [label]="redirectUri"
+                  [removable]="true"
+                  [attr.aria-label]="t('mobileRedirectUris.removeLabel', {uri: redirectUri})"
+                  (onRemove)="removeMobileRedirectUri(index)">
+                </p-chip>
+              }
+              <input
+                pInputText
+                pSize="small"
+                id="mobileRedirectUriInput"
+                [(ngModel)]="mobileRedirectUriInput"
+                [placeholder]="mobileRedirectUris.length === 0 ? t('mobileRedirectUris.placeholder') : ''"
+                (keydown)="onMobileRedirectUriKeydown($event)"
+                (blur)="addMobileRedirectUriFromInput()"
+              />
+            </div>
+          </div>
+          <span class="field-hint">
+            {{ t('mobileRedirectUris.hintPrefix') }}
+            <code>{{ defaultMobileRedirectUri }}</code>
+            {{ '. ' + t('mobileRedirectUris.hintSuffix') }}
+            <code>{{ wildcardMobileRedirectUri }}</code>
+          </span>
+        </div>
+      </div>
+
       <div class="provider-actions-row">
         <div class="test-results-inline">
           @if (testConnectionResult) {

@@ -9,6 +9,33 @@
   display: none;
 }
 
+.surface-app,
+.surface-page,
+.surface-card {
+  --control-bg-hover: color-mix(in srgb, #fff var(--control-bg-hover-mix), var(--control-bg));
+  --control-border: color-mix(in srgb, #fff var(--control-border-mix), var(--control-bg));
+  --control-border-hover: color-mix(in srgb, #fff var(--control-border-hover-mix), var(--control-bg));
+  --control-focus-border: color-mix(in srgb, var(--primary-color) var(--control-focus-mix), var(--control-bg));
+}
+
+.surface-app {
+  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-app));
+
+  background: var(--surface-app);
+}
+
+.surface-page {
+  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-page));
+
+  background: var(--surface-page);
+}
+
+.surface-card {
+  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-card));
+
+  background: var(--surface-card);
+}
+
 .gradient-divider {
   flex-shrink: 0;
   height: 1px;

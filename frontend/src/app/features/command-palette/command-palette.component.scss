@@ -267,7 +267,7 @@
 
   .command-palette {
     max-height: 100dvh;
-    background: var(--app-background);
+    background: var(--surface-app);
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -277,7 +277,7 @@
     box-sizing: border-box;
     flex-shrink: 0;
     height: 3.5rem;
-    background: var(--app-background);
+    background: var(--surface-app);
     border-bottom: 1px solid var(--border-color);
 
     &:has(+ .command-palette-results) .command-palette-input-row {
@@ -314,7 +314,7 @@
 
   .command-palette-results,
   .command-palette-empty {
-    background: var(--page-background);
+    background: var(--surface-page);
   }
 
   .command-palette-empty {

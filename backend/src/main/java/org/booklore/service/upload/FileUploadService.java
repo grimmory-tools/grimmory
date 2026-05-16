@@ -1,7 +1,6 @@
 package org.booklore.service.upload;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
@@ -202,7 +201,7 @@ public class FileUploadService {
             throw new IllegalStateException("Cannot upload file to physical book: library has no paths configured");
         }
         // Use the first library path for physical books
-        return book.getLibrary().getLibraryPaths().iterator().next();
+        return book.getLibrary().getLibraryPaths().getFirst();
     }
 
     private BookFileEntity createAdditionalFileEntityWithSubPath(BookEntity book, String fileName, String fileSubPath, boolean isBook, BookFileType bookType, long fileSize, String fileHash, String description) {

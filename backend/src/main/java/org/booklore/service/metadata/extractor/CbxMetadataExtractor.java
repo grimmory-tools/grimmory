@@ -11,7 +11,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Path;
