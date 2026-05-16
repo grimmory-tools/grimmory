@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.grimmory.pdfium4j.PdfPage;
 import org.springframework.stereotype.Service;
 import org.booklore.exception.ApiError;
+import org.booklore.exception.APIException;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -397,8 +398,8 @@ public class VipsImageService {
         VImage vimg = VImage.newFromMemory(arena, segment, w, h, 4, VipsBandFormat.FORMAT_UCHAR.getRawValue());
 
         // Reorder BGR(A/X) to RGB and discard alpha/padding
-        return VImage
-                .bandjoin(arena, List.of(vimg.extractBand(1), vimg.extractBand(0)))
+        return vimg.extractBand(2)               // Red
+                .bandjoin(arena, List.of(vimg.extractBand(1), vimg.extractBand(0))) // Green, Blue
                 .copy(VipsOption.Enum("interpretation", VipsInterpretation.INTERPRETATION_sRGB));
     }
 
@@ -472,6 +473,8 @@ public class VipsImageService {
             return callable.call(arena);
         } catch (VipsError e) {
             throw ApiError.FILE_READ_ERROR.createException("libvips error: " + e.getMessage());
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             throw ApiError.FILE_READ_ERROR.createException("Image processing failed: " + e.getMessage());
         }
