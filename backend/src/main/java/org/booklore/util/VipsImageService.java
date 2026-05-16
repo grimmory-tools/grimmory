@@ -11,9 +11,9 @@ import app.photofox.vipsffm.enums.VipsInterpretation;
 import lombok.extern.slf4j.Slf4j;
 import org.grimmory.pdfium4j.PdfPage;
 import org.springframework.stereotype.Service;
+import org.booklore.exception.ApiError;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.foreign.Arena;
@@ -43,31 +43,21 @@ public class VipsImageService {
         this.nativeLibraryManager = nativeLibraryManager;
     }
 
-    public ImageDimensions readDimensions(byte[] data) throws IOException {
-        ensureAvailable();
-        try (Arena arena = Arena.ofConfined()) {
+    public ImageDimensions readDimensions(byte[] data) {
+        return runWithArena(arena -> {
             VImage img = VImage.newFromBytes(arena, data).autorot();
             return new ImageDimensions(img.getWidth(), img.getHeight());
-        } catch (VipsError e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+        });
     }
 
-    public ImageDimensions readDimensions(InputStream is) throws IOException {
-        ensureAvailable();
-        try (Arena arena = Arena.ofConfined()) {
+    public ImageDimensions readDimensions(InputStream is) {
+        return runWithArena(arena -> {
             VImage img = VImage.newFromSource(arena, VSource.newFromInputStream(arena, is)).autorot();
             return new ImageDimensions(img.getWidth(), img.getHeight());
-        } catch (VipsError e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+        });
     }
 
-    public ImageDimensions readDimensionsFromFile(Path path) throws IOException {
+    public ImageDimensions readDimensionsFromFile(Path path) {
         return runWithArena(arena -> {
             VImage img = VImage.newFromFile(arena, path.toString()).autorot();
             return new ImageDimensions(img.getWidth(), img.getHeight());
@@ -98,7 +88,7 @@ public class VipsImageService {
         }
     }
 
-    public void flattenResizeAndSave(byte[] data, Path out, int maxW, int maxH) throws IOException {
+    public void flattenResizeAndSave(byte[] data, Path out, int maxW, int maxH) {
         runWithArena(arena -> {
             VBlob blob = VBlob.newFromBytes(arena, data);
             VImage img = VImage.thumbnailBuffer(arena, blob, maxW, VipsOption.Int(OPTION_HEIGHT, maxH));
@@ -109,7 +99,7 @@ public class VipsImageService {
         });
     }
 
-    public void flattenResizeAndSave(Path in, Path out, int maxW, int maxH) throws IOException {
+    public void flattenResizeAndSave(Path in, Path out, int maxW, int maxH) {
         runWithArena(arena -> {
             VImage img = VImage.thumbnail(arena, in.toString(), maxW, VipsOption.Int(OPTION_HEIGHT, maxH));
             img = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
@@ -119,7 +109,7 @@ public class VipsImageService {
         });
     }
 
-    public void processStreamToJpeg(InputStream is, OutputStream os, int maxW, int maxH) throws IOException {
+    public void processStreamToJpeg(InputStream is, OutputStream os, int maxW, int maxH) {
         runWithArena(arena -> {
             VSource source = VSource.newFromInputStream(arena, is);
             VImage img = VImage.thumbnailSource(arena, source, maxW, VipsOption.Int(OPTION_HEIGHT, maxH));
@@ -138,7 +128,7 @@ public class VipsImageService {
                                              int maxW, int maxH, int thumbW, int thumbH,
                                              boolean verticalCrop, boolean horizontalCrop,
                                              double threshold, boolean smartCrop,
-                                             double targetAspectRatio, double smartCropMargin) throws IOException {
+                                             double targetAspectRatio, double smartCropMargin) {
         return runWithArena(arena -> {
             VSource source = VSource.newFromInputStream(arena, is);
             return processCoverPipeline(VImage.newFromSource(arena, source), coverOut, thumbOut,
@@ -151,7 +141,7 @@ public class VipsImageService {
                                              int maxW, int maxH, int thumbW, int thumbH,
                                              boolean verticalCrop, boolean horizontalCrop,
                                              double threshold, boolean smartCrop,
-                                             double targetAspectRatio, double smartCropMargin) throws IOException {
+                                             double targetAspectRatio, double smartCropMargin) {
         return runWithArena(arena -> processCoverPipeline(VImage.newFromFile(arena, in.toString()), coverOut, thumbOut,
                 maxW, maxH, thumbW, thumbH, verticalCrop, horizontalCrop, threshold, smartCrop,
                 targetAspectRatio, smartCropMargin));
@@ -161,7 +151,7 @@ public class VipsImageService {
                                                 int maxW, int maxH, int thumbW, int thumbH,
                                                 boolean verticalCrop, boolean horizontalCrop,
                                                 double threshold, boolean smartCrop,
-                                                double targetAspectRatio, double smartCropMargin) throws IOException {
+                                                double targetAspectRatio, double smartCropMargin) {
         return runWithArena(arena -> {
             VImage img = renderPdfPageAsVipsImage(arena, page, 150); // Use 150 DPI for covers
             return processCoverPipeline(img, coverOut, thumbOut,
@@ -175,10 +165,11 @@ public class VipsImageService {
                                                         boolean verticalCrop, boolean horizontalCrop,
                                                         double threshold, boolean smartCrop,
                                                         double targetAspectRatio, double smartCropMargin) {
-        img = img.autorot().colourspace(VipsInterpretation.INTERPRETATION_sRGB);
+        VImage croppedImage = img;
+        croppedImage = croppedImage.autorot().colourspace(VipsInterpretation.INTERPRETATION_sRGB);
 
-        int width = img.getWidth();
-        int height = img.getHeight();
+        int width = croppedImage.getWidth();
+        int height = croppedImage.getHeight();
         double heightToWidthRatio = (double) height / width;
         double widthToHeightRatio = (double) width / height;
 
@@ -187,32 +178,32 @@ public class VipsImageService {
             int croppedHeight = (int) (width * targetAspectRatio);
             int startY = 0;
             if (smartCrop) {
-                var output = img.findTrim(VipsOption.Int("threshold", 10));
+                var output = croppedImage.findTrim(VipsOption.Int("threshold", 10));
                 int margin = (int) (croppedHeight * smartCropMargin);
                 startY = Math.max(0, output.top() - margin);
                 startY = Math.min(startY, height - croppedHeight);
             }
-            img = img.extractArea(0, startY, width, croppedHeight);
+            croppedImage = croppedImage.extractArea(0, startY, width, croppedHeight);
         } else if (horizontalCrop && widthToHeightRatio > threshold) {
             int croppedWidth = (int) (height / targetAspectRatio);
             int startX = (width - croppedWidth) / 2; // Center crop for horizontal
             if (smartCrop) {
-                var output = img.findTrim(VipsOption.Int("threshold", 10));
+                var output = croppedImage.findTrim(VipsOption.Int("threshold", 10));
                 int margin = (int) (croppedWidth * smartCropMargin);
                 startX = Math.max(0, output.left() - margin);
                 startX = Math.min(startX, width - croppedWidth);
             }
-            img = img.extractArea(startX, 0, croppedWidth, height);
+            croppedImage = croppedImage.extractArea(startX, 0, croppedWidth, height);
         }
 
         // Flatten if needed before scaling
-        img = flattenIfHasAlpha(img);
+        croppedImage = flattenIfHasAlpha(croppedImage);
 
         // Resize to cover size
-        VImage coverImg = img;
-        if (img.getWidth() > maxW || img.getHeight() > maxH) {
-            double scale = Math.min((double) maxW / img.getWidth(), (double) maxH / img.getHeight());
-            coverImg = img.resize(scale);
+        VImage coverImg = croppedImage;
+        if (croppedImage.getWidth() > maxW || croppedImage.getHeight() > maxH) {
+            double scale = Math.min((double) maxW / croppedImage.getWidth(), (double) maxH / croppedImage.getHeight());
+            coverImg = croppedImage.resize(scale);
         }
 
         coverImg.jpegsave(coverOut.toString(), VipsOption.Int(OPTION_QUALITY, 85), VipsOption.Boolean(OPTION_STRIP, true), VipsOption.Boolean(OPTION_OPTIMIZE_CODING, true));
@@ -225,7 +216,7 @@ public class VipsImageService {
     }
 
     public ImageDimensions processAudiobookCoverUnified(Path in, Path coverOut, Path thumbOut,
-                                                      int maxSquareSize, int thumbSize) throws IOException {
+                                                      int maxSquareSize, int thumbSize) {
         return runWithArena(arena -> {
             VImage img = VImage.newFromFile(arena, in.toString()).autorot();
             img = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
@@ -254,7 +245,7 @@ public class VipsImageService {
     }
 
     public ImageDimensions processPhotoUnified(Path in, Path photoOut, Path thumbOut,
-                                              int maxW, int maxH, int thumbW, int thumbH) throws IOException {
+                                              int maxW, int maxH, int thumbW, int thumbH) {
         return runWithArena(arena -> {
             VImage img = VImage.newFromFile(arena, in.toString()).autorot();
             return processPhotoPipeline(img, photoOut, thumbOut, maxW, maxH, thumbW, thumbH);
@@ -262,7 +253,7 @@ public class VipsImageService {
     }
 
     public ImageDimensions processPhotoUnified(InputStream is, Path photoOut, Path thumbOut,
-                                              int maxW, int maxH, int thumbW, int thumbH) throws IOException {
+                                              int maxW, int maxH, int thumbW, int thumbH) {
         return runWithArena(arena -> {
             VSource source = VSource.newFromInputStream(arena, is);
             VImage img = VImage.newFromSource(arena, source).autorot();
@@ -271,14 +262,14 @@ public class VipsImageService {
     }
 
     private static ImageDimensions processPhotoPipeline(VImage img, Path photoOut, Path thumbOut,
-                                                        int maxW, int maxH, int thumbW, int thumbH) throws Exception {
-        img = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
+                                                        int maxW, int maxH, int thumbW, int thumbH) {
+        VImage colorSpaceImage = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
 
         // Resize to original photo size (maxW, maxH)
-        VImage photoImg = img;
-        if (img.getWidth() > maxW || img.getHeight() > maxH) {
-            double scale = Math.min((double) maxW / img.getWidth(), (double) maxH / img.getHeight());
-            photoImg = img.resize(scale);
+        VImage photoImg = colorSpaceImage;
+        if (colorSpaceImage.getWidth() > maxW || colorSpaceImage.getHeight() > maxH) {
+            double scale = Math.min((double) maxW / colorSpaceImage.getWidth(), (double) maxH / colorSpaceImage.getHeight());
+            photoImg = colorSpaceImage.resize(scale);
         }
         photoImg = flattenIfHasAlpha(photoImg);
         photoImg.jpegsave(photoOut.toString(), VipsOption.Int(OPTION_QUALITY, 85), VipsOption.Boolean(OPTION_STRIP, true), VipsOption.Boolean(OPTION_OPTIMIZE_CODING, true));
@@ -301,6 +292,11 @@ public class VipsImageService {
             cropY = (height - cropH) / 2;
         }
 
+        cropW = Math.clamp(cropW, 1, width);
+        cropH = Math.clamp(cropH, 1, height);
+        cropX = Math.clamp(cropX, 0, width - cropW);
+        cropY = Math.clamp(cropY, 0, height - cropH);
+
         VImage thumbImg = photoImg.extractArea(cropX, cropY, cropW, cropH);
         thumbImg = thumbImg.resize((double) thumbW / cropW);
         thumbImg.jpegsave(thumbOut.toString(), VipsOption.Int(OPTION_QUALITY, 80), VipsOption.Boolean(OPTION_STRIP, true), VipsOption.Boolean(OPTION_OPTIMIZE_CODING, true));
@@ -308,7 +304,7 @@ public class VipsImageService {
         return new ImageDimensions(photoImg.getWidth(), photoImg.getHeight());
     }
 
-    public void transcodeStreamToJpeg(InputStream is, OutputStream os, int quality) throws IOException {
+    public void transcodeStreamToJpeg(InputStream is, OutputStream os, int quality) {
         runWithArena(arena -> {
             VImage img = VImage.newFromSource(arena, VSource.newFromInputStream(arena, is)).autorot();
             img = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
@@ -317,11 +313,11 @@ public class VipsImageService {
         });
     }
 
-    public byte[] encodeAsPng(byte[] data) throws IOException {
+    public byte[] encodeAsPng(byte[] data) {
         return runWithArena(arena -> VImage.newFromBytes(arena, data).autorot().pngsaveBuffer().getBytes());
     }
 
-    public byte[] downscaleAndEncodeJpeg(BufferedImage img, int targetW, int targetH, int q) throws IOException {
+    public byte[] downscaleAndEncodeJpeg(BufferedImage img, int targetW, int targetH, int q) {
         return runWithArena(arena -> {
             VImage vimg = bufferedImageToVips(arena, img);
             // We delegate downscaling to libvips.thumbnailImage even for BufferedImage inputs.
@@ -332,9 +328,24 @@ public class VipsImageService {
         });
     }
 
+    private static final long MAX_RASTER_BYTES = 512L * 1024 * 1024; // tune as needed
+
+    private static long checkedRasterBytes(int width, int height, int bands) {
+        if (width <= 0 || height <= 0 || bands <= 0) {
+            throw new IllegalArgumentException("Invalid raster dimensions");
+        }
+        long stride = Math.multiplyExact((long) width, bands);
+        long total = Math.multiplyExact(stride, (long) height);
+        if (total > MAX_RASTER_BYTES) {
+            throw new IllegalArgumentException("Raster too large: " + total + " bytes");
+        }
+        return total;
+    }
+
     private static VImage bufferedImageToVips(Arena arena, BufferedImage img) {
         int w = img.getWidth(), h = img.getHeight();
-        byte[] pixels = new byte[w * h * 3];
+        int pixelBytes = Math.toIntExact(checkedRasterBytes(w, h, 3));
+        byte[] pixels = new byte[pixelBytes];
         int[] rgbPixels = img.getRGB(0, 0, w, h, null, 0, w);
         for (int i = 0; i < rgbPixels.length; i++) {
             int rgb = rgbPixels[i];
@@ -354,19 +365,19 @@ public class VipsImageService {
     }
 
 
-    public byte[] renderPageToJpeg(PdfPage page, int dpi, int quality) throws IOException {
+    public byte[] renderPageToJpeg(PdfPage page, int dpi, int quality) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(64 * 1024);
         renderPageToJpeg(page, dpi, quality, baos);
         return baos.toByteArray();
     }
 
-    public byte[] renderPdfPageToJpeg(Path path, int page, int dpi, int quality) throws IOException {
+    public byte[] renderPdfPageToJpeg(Path path, int page, int dpi, int quality) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(128 * 1024);
         renderPdfPageToJpeg(path, page, dpi, quality, baos);
         return baos.toByteArray();
     }
 
-    public void renderPdfPageToJpeg(Path path, int page, int dpi, int quality, OutputStream os) throws IOException {
+    public void renderPdfPageToJpeg(Path path, int page, int dpi, int quality, OutputStream os) {
         runWithArena(arena -> {
             // Using VIPS native pdfload via path specifier is much faster than
             // manual rasterization as it allows for internal streaming and optimizations.
@@ -384,7 +395,7 @@ public class VipsImageService {
         });
     }
 
-    public void renderPageToJpeg(PdfPage page, int dpi, int quality, OutputStream outputStream) throws IOException {
+    public void renderPageToJpeg(PdfPage page, int dpi, int quality, OutputStream outputStream) {
         runWithArena(arena -> {
             VImage vimg = flattenIfHasAlpha(renderPdfPageAsVipsImage(arena, page, dpi));
             vimg.jpegsaveTarget(
@@ -401,8 +412,10 @@ public class VipsImageService {
         var size = page.size();
         int w = size.widthPixels(dpi);
         int h = size.heightPixels(dpi);
-        int stride = w * 4;
-        MemorySegment segment = arena.allocate((long) stride * h);
+        long strideLong = Math.multiplyExact(w, 4L);
+        long totalBytes = checkedRasterBytes(w, h, 4);
+        MemorySegment segment = arena.allocate(totalBytes);
+        int stride = Math.toIntExact(strideLong);
         // FPDF_REVERSE_BYTE_ORDER (0x10) makes PDFium write RGBA instead of its native BGRA.
         // No band reordering needed, just tell vips the 4-band buffer is sRGB+alpha.
         page.renderTo(segment, w, h, stride, FPDF_REVERSE_BYTE_ORDER, 0xFFFFFFFF);
@@ -411,20 +424,20 @@ public class VipsImageService {
     }
 
 
-    private <T> T runWithArena(VipsCallable<T> callable) throws IOException {
+    private <T> T runWithArena(VipsCallable<T> callable) {
         ensureAvailable();
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
         } catch (VipsError e) {
-            throw new IOException(e.getMessage(), e);
+            throw ApiError.FILE_READ_ERROR.createException("libvips error: " + e.getMessage());
         } catch (Exception e) {
-            throw new IOException(e);
+            throw ApiError.FILE_READ_ERROR.createException("Image processing failed: " + e.getMessage());
         }
     }
 
-    private void ensureAvailable() throws IOException {
+    private void ensureAvailable() {
         if (!nativeLibraryManager.isVipsAvailable()) {
-            throw new IOException("libvips is unavailable (degraded mode)");
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("libvips is unavailable (degraded mode)");
         }
     }
 
