@@ -176,6 +176,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.46")
 
     // --- Book & Image Processing ---
+    implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.8")
+
     val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
     implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
@@ -261,7 +263,7 @@ hibernate {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     maxHeapSize = "2560m"
-    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview", "--add-modules", "jdk.management")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 

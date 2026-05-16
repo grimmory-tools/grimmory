@@ -25,6 +25,10 @@ public class NativeLibraryManager {
         return libs.isEpubNativeAvailable();
     }
 
+    public boolean isVipsAvailable() {
+        return libs.isVipsAvailable();
+    }
+
     public boolean isAvailable(NativeLibraries.Library library) {
         return libs.isAvailable(library);
     }
