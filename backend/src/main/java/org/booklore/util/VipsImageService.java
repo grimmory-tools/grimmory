@@ -13,7 +13,9 @@ import org.grimmory.pdfium4j.PdfPage;
 import org.springframework.stereotype.Service;
 import org.booklore.exception.ApiError;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.foreign.Arena;
@@ -21,6 +23,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.file.Path;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import org.booklore.nativelib.NativeLibraryManager;
 
 @Slf4j
@@ -165,6 +168,10 @@ public class VipsImageService {
                                                         boolean verticalCrop, boolean horizontalCrop,
                                                         double threshold, boolean smartCrop,
                                                         double targetAspectRatio, double smartCropMargin) {
+        if (targetAspectRatio <= 0) {
+            throw ApiError.INVALID_INPUT.createException("targetAspectRatio must be > 0");
+        }
+
         VImage croppedImage = img;
         croppedImage = croppedImage.autorot().colourspace(VipsInterpretation.INTERPRETATION_sRGB);
 
@@ -176,6 +183,7 @@ public class VipsImageService {
         // Perform cropping if needed
         if (verticalCrop && heightToWidthRatio > threshold) {
             int croppedHeight = (int) (width * targetAspectRatio);
+            croppedHeight = Math.clamp(croppedHeight, 1, height);
             int startY = 0;
             if (smartCrop) {
                 var output = croppedImage.findTrim(VipsOption.Int("threshold", 10));
@@ -186,6 +194,7 @@ public class VipsImageService {
             croppedImage = croppedImage.extractArea(0, startY, width, croppedHeight);
         } else if (horizontalCrop && widthToHeightRatio > threshold) {
             int croppedWidth = (int) (height / targetAspectRatio);
+            croppedWidth = Math.clamp(croppedWidth, 1, width);
             int startX = (width - croppedWidth) / 2; // Center crop for horizontal
             if (smartCrop) {
                 var output = croppedImage.findTrim(VipsOption.Int("threshold", 10));
@@ -308,6 +317,7 @@ public class VipsImageService {
         runWithArena(arena -> {
             VImage img = VImage.newFromSource(arena, VSource.newFromInputStream(arena, is)).autorot();
             img = img.colourspace(VipsInterpretation.INTERPRETATION_sRGB);
+            img = flattenIfHasAlpha(img);
             img.jpegsaveTarget(VTarget.newFromOutputStream(arena, os), VipsOption.Int(OPTION_QUALITY, quality), VipsOption.Boolean(OPTION_STRIP, true), VipsOption.Boolean(OPTION_OPTIMIZE_CODING, true));
             return null;
         });
@@ -328,35 +338,67 @@ public class VipsImageService {
         });
     }
 
-    private static final long MAX_RASTER_BYTES = 512L * 1024 * 1024; // tune as needed
+    private static final long MAX_RASTER_BYTES = 512L * 1024 * 1024; // 512MB
+    private static final int VIPS_MAX_COORD = 10_000_000; // libvips default limit
 
+    /**
+     * Guards against excessive memory allocation and "pixel bombs".
+     * Checks dimensions against individual coordinate limits and total byte size.
+     */
     private static long checkedRasterBytes(int width, int height, int bands) {
-        if (width <= 0 || height <= 0 || bands <= 0) {
-            throw new IllegalArgumentException("Invalid raster dimensions");
+        if (width <= 0 || width > VIPS_MAX_COORD || height <= 0 || height > VIPS_MAX_COORD) {
+            throw ApiError.INVALID_INPUT.createException(
+                    String.format("Invalid raster dimensions: %dx%d (limit: %d)", width, height, VIPS_MAX_COORD));
         }
-        long stride = Math.multiplyExact((long) width, bands);
-        long total = Math.multiplyExact(stride, (long) height);
-        if (total > MAX_RASTER_BYTES) {
-            throw new IllegalArgumentException("Raster too large: " + total + " bytes");
+        if (bands <= 0 || bands > 4) {
+            throw ApiError.INVALID_INPUT.createException("Invalid number of bands: " + bands);
         }
-        return total;
+
+        try {
+            long total = Math.multiplyExact(Math.multiplyExact(width, (long) height), (long) bands);
+            if (total > MAX_RASTER_BYTES) {
+                throw ApiError.FILE_TOO_LARGE.createException(MAX_RASTER_BYTES / (1024 * 1024));
+            }
+            return total;
+        } catch (ArithmeticException e) {
+            throw ApiError.FILE_TOO_LARGE.createException("Raster size overflow");
+        }
     }
 
     private static VImage bufferedImageToVips(Arena arena, BufferedImage img) {
         int w = img.getWidth(), h = img.getHeight();
-        int pixelBytes = Math.toIntExact(checkedRasterBytes(w, h, 3));
-        byte[] pixels = new byte[pixelBytes];
-        int[] rgbPixels = img.getRGB(0, 0, w, h, null, 0, w);
-        for (int i = 0; i < rgbPixels.length; i++) {
-            int rgb = rgbPixels[i];
-            int base = i * 3;
-            pixels[base] = (byte) ((rgb >> 16) & 0xFF);
-            pixels[base + 1] = (byte) ((rgb >> 8) & 0xFF);
-            pixels[base + 2] = (byte) (rgb & 0xFF);
+
+        // Use direct transfer for compatible image types
+        if (img.getType() == BufferedImage.TYPE_INT_RGB || img.getType() == BufferedImage.TYPE_INT_ARGB) {
+            return fastBufferedImageToVips(arena, img);
         }
-        MemorySegment segment = arena.allocate(pixels.length);
-        MemorySegment.copy(pixels, 0, segment, ValueLayout.JAVA_BYTE, 0, pixels.length);
-        return VImage.newFromMemory(arena, segment, w, h, 3, VipsBandFormat.FORMAT_UCHAR.getRawValue())
+
+        // Fallback for other types: draw into a compatible buffer first
+        BufferedImage compatible = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = compatible.createGraphics();
+        g.drawImage(img, 0, 0, null);
+        g.dispose();
+        return fastBufferedImageToVips(arena, compatible);
+    }
+
+    private static VImage fastBufferedImageToVips(Arena arena, BufferedImage img) {
+        int w = img.getWidth(), h = img.getHeight();
+        // checkedRasterBytes ensures dimensions are safe
+        checkedRasterBytes(w, h, 4); // treat as 4-band BGRX/BGRA
+
+        // Access the underlying integer array directly
+        int[] data = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+
+        // Allocate off-heap and copy in one native call
+        MemorySegment segment = arena.allocate((long) data.length * 4);
+        MemorySegment.copy(data, 0, segment, ValueLayout.JAVA_INT, 0, data.length);
+
+        // TYPE_INT_RGB/ARGB in Java is 0xRRGGBB / 0xAARRGGBB.
+        VImage vimg = VImage.newFromMemory(arena, segment, w, h, 4, VipsBandFormat.FORMAT_UCHAR.getRawValue());
+
+        // Reorder BGR(A/X) to RGB and discard alpha/padding
+        return VImage
+                .bandjoin(arena, List.of(vimg.extractBand(1), vimg.extractBand(0)))
                 .copy(VipsOption.Enum("interpretation", VipsInterpretation.INTERPRETATION_sRGB));
     }
 
