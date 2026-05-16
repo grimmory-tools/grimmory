@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.grimmory.pdfium4j.model.XmpMetadata.QualifiedIdentifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;

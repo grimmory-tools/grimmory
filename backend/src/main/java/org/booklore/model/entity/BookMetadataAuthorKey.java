@@ -2,7 +2,6 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;
-import lombok.AccessLevel;
 
 import java.io.Serial;
 import java.io.Serializable;

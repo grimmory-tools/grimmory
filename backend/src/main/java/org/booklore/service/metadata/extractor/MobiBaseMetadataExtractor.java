@@ -207,7 +207,7 @@ public abstract class MobiBaseMetadataExtractor implements FileMetadataExtractor
             return null;
         }
 
-        PalmDBRecord record0 = palmDB.records.get(0);
+        PalmDBRecord record0 = palmDB.records.getFirst();
         raf.seek(record0.offset);
 
         MobiHeader header = new MobiHeader();
