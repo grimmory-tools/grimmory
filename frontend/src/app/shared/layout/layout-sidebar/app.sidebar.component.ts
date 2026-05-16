@@ -42,7 +42,6 @@ import {
   buildShelfSection,
   buildToolsSection,
 } from './sidebar-sections';
-import { VersionService } from '../../service/version.service';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
