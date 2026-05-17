@@ -1,5 +1,6 @@
 package org.booklore.service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,16 @@ public class FileStreamingService {
 
     @Value("${app.streaming.min-sendfile-size:49152}")
     private int minSendfileSize = 49152; // 48 KB
+
+    @PostConstruct
+    public void validateProperties() {
+        if (bufferSize <= 0) {
+            throw new IllegalArgumentException("app.streaming.buffer-size must be greater than 0");
+        }
+        if (minSendfileSize < 0) {
+            throw new IllegalArgumentException("app.streaming.min-sendfile-size must be non-negative");
+        }
+    }
 
     /**
      * Streams a file with HTTP Range support for seeking.
@@ -96,7 +107,12 @@ public class FileStreamingService {
         boolean isHead = "HEAD".equalsIgnoreCase(method);
 
         if ((ifNoneMatch == null || ifNoneMatch.isBlank()) && (isGet || isHead)) {
-            long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+            long ifModifiedSince;
+            try {
+                ifModifiedSince = request.getDateHeader("If-Modified-Since");
+            } catch (IllegalArgumentException _) {
+                ifModifiedSince = -1;
+            }
             if (ifModifiedSince != -1 && lastModified / 1000 <= ifModifiedSince / 1000) {
                 response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                 return;

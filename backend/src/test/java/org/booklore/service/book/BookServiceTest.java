@@ -284,7 +284,7 @@ class BookServiceTest {
     void getBookThumbnail_fileMissing_returnsDefault() {
         when(fileService.getThumbnailFile(1L)).thenReturn("/tmp/nonexistent.jpg");
         Resource res = bookService.getBookThumbnail(1L);
-        assertNotNull(res);
+        assertTrue(res instanceof ByteArrayResource);
     }
 
     @Test

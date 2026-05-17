@@ -587,6 +587,50 @@ class FileStreamingServiceTest {
     }
 
     @Test
+    void streamWithRangeSupport_ifModifiedSinceMalformed_streamsNormally() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getDateHeader("If-Modified-Since")).thenThrow(new IllegalArgumentException("Invalid date"));
+        when(request.getHeader("If-None-Match")).thenReturn(null);
+        when(request.getHeader("Range")).thenReturn(null);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void validateProperties_invalidBufferSize_throwsException() {
+        // Use reflection or a setter if available, but here I'll use a new instance and manual call
+        // since I can't easily set private fields without reflection or spring.
+        // Actually, I can just use reflection since it's a test.
+        assertThrows(IllegalArgumentException.class, () -> {
+            FileStreamingService service = new FileStreamingService();
+            java.lang.reflect.Field field = FileStreamingService.class.getDeclaredField("bufferSize");
+            field.setAccessible(true);
+            field.set(service, 0);
+            service.validateProperties();
+        });
+    }
+
+    @Test
+    void validateProperties_invalidMinSendfileSize_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            FileStreamingService service = new FileStreamingService();
+            java.lang.reflect.Field field = FileStreamingService.class.getDeclaredField("minSendfileSize");
+            field.setAccessible(true);
+            field.set(service, -1);
+            service.validateProperties();
+        });
+    }
+
+    @Test
     void streamWithRangeSupport_sendfileSupported_setsRequestAttributesAndWritesNoBody() throws IOException {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
