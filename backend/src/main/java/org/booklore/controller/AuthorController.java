@@ -165,7 +165,7 @@ public class AuthorController {
                         log.debug("Client disconnected from auto-match stream");
                         active.set(false);
                     }
-                }, active::get);
+                }, () -> !active.get());
                 if (active.compareAndSet(true, false)) {
                     emitter.complete();
                 }
@@ -217,7 +217,7 @@ public class AuthorController {
                         log.debug("Client disconnected from author photos stream");
                         active.set(false);
                     }
-                }, active::get);
+                }, () -> !active.get());
                 if (active.compareAndSet(true, false)) {
                     emitter.complete();
                 }

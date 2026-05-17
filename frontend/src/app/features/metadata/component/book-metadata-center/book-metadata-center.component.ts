@@ -67,7 +67,9 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
   private readonly fetchRecommendations = effect(() => {
     const bookId = this.currentBookId();
     if (bookId == null) {
-      this.recommendedBooks = [];
+      setTimeout(() => {
+        this.recommendedBooks = [];
+      });
       return;
     }
 
@@ -156,9 +158,11 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
     this.bookService.getBookRecommendations(bookId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(recommendations => {
-        this.recommendedBooks = recommendations.sort(
-          (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-        );
+        setTimeout(() => {
+          this.recommendedBooks = recommendations.sort(
+            (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
+          );
+        });
       });
   }
 

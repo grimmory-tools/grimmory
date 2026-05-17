@@ -180,7 +180,7 @@ public class BookCoverController {
                         log.debug("Client disconnected from book covers stream: {}", bookId);
                         active.set(false);
                     }
-                }, active::get);
+                }, () -> !active.get());
                 if (active.compareAndSet(true, false)) {
                     emitter.complete();
                 }
