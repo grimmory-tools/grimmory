@@ -21,7 +21,7 @@ public class TomcatStreamingConfig {
             if (connector.getProtocolHandler() instanceof AbstractHttp11Protocol<?> protocol) {
                 protocol.setUseSendfile(true);
 
-                log.info("Tomcat sendfile enabled for HTTP/1.1 connections: {}", protocol.getUseSendfile());
+                log.info("Tomcat sendfile configured for HTTP/1.1 connections.");
             }
         };
     }

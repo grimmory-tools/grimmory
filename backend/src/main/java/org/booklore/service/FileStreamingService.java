@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,14 +36,11 @@ public class FileStreamingService {
             .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
             .withZone(ZoneId.of("GMT"));
 
-    private static final int BUFFER_SIZE = 128 * 1024; // 128 KB
-    private static final int MIN_SENDFILE_SIZE = 48 * 1024; // 48 KB
+    @Value("${app.streaming.buffer-size:131072}")
+    private int bufferSize = 131072; // 128 KB
 
-    // Tomcat sendfile attribute keys (org.apache.catalina.connector.Request)
-    private static final String SENDFILE_SUPPORTED = "org.apache.tomcat.sendfile.support";
-    private static final String SENDFILE_FILENAME  = "org.apache.tomcat.sendfile.filename";
-    private static final String SENDFILE_START     = "org.apache.tomcat.sendfile.start";
-    private static final String SENDFILE_END       = "org.apache.tomcat.sendfile.end";
+    @Value("${app.streaming.min-sendfile-size:49152}")
+    private int minSendfileSize = 49152; // 48 KB
 
     /**
      * Streams a file with HTTP Range support for seeking.
@@ -74,7 +72,7 @@ public class FileStreamingService {
         String rangeHeader = request.getHeader("Range");
 
         // Initialize response buffer size and headers for media streaming
-        response.setBufferSize(BUFFER_SIZE);
+        response.setBufferSize(bufferSize);
         response.setHeader("Accept-Ranges", "bytes");
         response.setContentType(contentType);
         response.setHeader("ETag", etag);
@@ -164,7 +162,7 @@ public class FileStreamingService {
         }
     }
 
-    private static void streamFullContent(
+    private void streamFullContent(
             HttpServletRequest request,
             HttpServletResponse response,
             Path filePath,
@@ -175,14 +173,14 @@ public class FileStreamingService {
         streamContent(request, response, filePath, 0, fileSize);
     }
 
-    private static void streamContent(
+    private void streamContent(
             HttpServletRequest request,
             HttpServletResponse response,
             Path filePath,
             long start,
             long length
     ) throws IOException {
-        if (length >= MIN_SENDFILE_SIZE && tryTomcatSendfile(request, filePath, start, length)) {
+        if (length >= minSendfileSize && tryTomcatSendfile(request, filePath, start, length)) {
             return;
         }
         OutputStream out = response.getOutputStream();
@@ -191,13 +189,13 @@ public class FileStreamingService {
         }
     }
 
-    private static boolean tryTomcatSendfile(
+    private boolean tryTomcatSendfile(
             HttpServletRequest request,
             Path filePath,
             long start,
             long length
     ) {
-        Object supported = request.getAttribute(SENDFILE_SUPPORTED);
+        Object supported = request.getAttribute("org.apache.tomcat.sendfile.support");
         if (!Boolean.TRUE.equals(supported)) {
             return false;
         }
@@ -205,9 +203,9 @@ public class FileStreamingService {
         // Once sendfile attributes are set, the application MUST NOT 
         // write any data to the response body. Tomcat will handle the transfer.
         try {
-            request.setAttribute(SENDFILE_FILENAME, filePath.toRealPath().toString());
-            request.setAttribute(SENDFILE_START, start);
-            request.setAttribute(SENDFILE_END, Math.addExact(start, length));
+            request.setAttribute("org.apache.tomcat.sendfile.filename", filePath.toRealPath().toString());
+            request.setAttribute("org.apache.tomcat.sendfile.start", start);
+            request.setAttribute("org.apache.tomcat.sendfile.end", Math.addExact(start, length));
             return true;
         } catch (IOException | ArithmeticException e) {
             log.debug("Sendfile fallback: {}", e.getMessage());
@@ -292,7 +290,7 @@ public class FileStreamingService {
     }
 
 
-    private static void copyToResponse(
+    private void copyToResponse(
             FileChannel source,
             long position,
             long count,
@@ -327,13 +325,13 @@ public class FileStreamingService {
         out.flush();
     }
 
-    private static void copyWithHeapBuffer(
+    private void copyWithHeapBuffer(
             FileChannel source,
             long position,
             long count,
             OutputStream out
     ) throws IOException {
-        byte[] buf = new byte[BUFFER_SIZE];
+        byte[] buf = new byte[bufferSize];
         ByteBuffer bb = ByteBuffer.wrap(buf);
         long remaining = count;
         long offset = position;

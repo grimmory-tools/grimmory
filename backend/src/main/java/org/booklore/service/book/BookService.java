@@ -29,7 +29,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -518,14 +517,14 @@ public class BookService {
                 for (File file : files) {
                     try {
                         Files.delete(file.toPath());
-                        log.info("Deleted ignored file: {}", file.getAbsolutePath());
+                        log.debug("Deleted ignored file: {}", file.getAbsolutePath());
                     } catch (IOException e) {
                         log.warn("Failed to delete ignored file: {}", file.getAbsolutePath());
                     }
                 }
                 try {
                     Files.delete(dir);
-                    log.info("Deleted empty directory: {}", dir);
+                    log.debug("Deleted empty directory: {}", dir);
                 } catch (IOException e) {
                     log.warn("Failed to delete directory: {}", dir, e);
                     break;
