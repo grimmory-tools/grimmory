@@ -1,6 +1,5 @@
 package org.booklore.service;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -37,14 +36,19 @@ public class FileStreamingService {
             .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
             .withZone(ZoneId.of("GMT"));
 
-    @Value("${app.streaming.buffer-size:131072}")
-    private int bufferSize = 131072; // 128 KB
+    private final int bufferSize;
+    private final int minSendfileSize;
 
-    @Value("${app.streaming.min-sendfile-size:49152}")
-    private int minSendfileSize = 49152; // 48 KB
+    public FileStreamingService(
+            @Value("${app.streaming.buffer-size:131072}") int bufferSize,
+            @Value("${app.streaming.min-sendfile-size:49152}") int minSendfileSize
+    ) {
+        this.bufferSize = bufferSize;
+        this.minSendfileSize = minSendfileSize;
+        validateProperties();
+    }
 
-    @PostConstruct
-    public void validateProperties() {
+    void validateProperties() {
         if (bufferSize <= 0) {
             throw new IllegalArgumentException("app.streaming.buffer-size must be greater than 0");
         }
@@ -253,12 +257,14 @@ public class FileStreamingService {
     /**
      * Validates the If-Range header against current ETag and lastModified.
      * If-Range can be a strong ETag OR an HTTP-date.
+     * Since we use weak ETags, If-Range comparison against ETag will always fail,
+     * forcing a full content delivery.
      */
     private static boolean validateIfRange(String ifRange, String etag, long lastModified) {
         if (!ifRange.isBlank() && ifRange.charAt(0) == '"') {
             // If-Range MUST use strong comparison only.
-            // Do NOT use isWeakMatch() here.
-            return etag.equals(ifRange);
+            // Weak ETags (starting with W/) never match a strong validator.
+            return !etag.isEmpty() && etag.charAt(0) == '\"' && etag.equals(ifRange);
         } else {
             try {
                 Instant ifRangeDate = Instant.from(HTTP_DATE_FORMAT.parse(ifRange));

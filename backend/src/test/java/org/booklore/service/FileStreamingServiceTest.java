@@ -36,7 +36,7 @@ class FileStreamingServiceTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        fileStreamingService = new FileStreamingService();
+        fileStreamingService = new FileStreamingService(131072, 49152);
 
         // Create a test file with known content
         testContent = new byte[10000];
@@ -280,7 +280,7 @@ class FileStreamingServiceTest {
     }
 
     @Test
-    void streamWithRangeSupport_ifRangeMatchingEtag_servesRange() throws IOException {
+    void streamWithRangeSupport_ifRangeMatchingEtag_servesFullContentDueToWeakEtag() throws IOException {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
         var outputStream = new ByteArrayOutputStream();
@@ -293,9 +293,10 @@ class FileStreamingServiceTest {
 
         fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
 
-        verify(response).setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-        verify(response).setContentLengthLong(100);
-        assertEquals(100, outputStream.size());
+        // Weak ETag does NOT match for If-Range, should serve full content (200 OK)
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(testContent.length);
+        assertArrayEquals(testContent, outputStream.toByteArray());
     }
 
     @Test
@@ -607,27 +608,16 @@ class FileStreamingServiceTest {
 
     @Test
     void validateProperties_invalidBufferSize_throwsException() {
-        // Use reflection or a setter if available, but here I'll use a new instance and manual call
-        // since I can't easily set private fields without reflection or spring.
-        // Actually, I can just use reflection since it's a test.
-        assertThrows(IllegalArgumentException.class, () -> {
-            FileStreamingService service = new FileStreamingService();
-            java.lang.reflect.Field field = FileStreamingService.class.getDeclaredField("bufferSize");
-            field.setAccessible(true);
-            field.set(service, 0);
-            service.validateProperties();
-        });
+        assertThrows(IllegalArgumentException.class, () -> 
+            new FileStreamingService(0, 49152)
+        );
     }
 
     @Test
     void validateProperties_invalidMinSendfileSize_throwsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            FileStreamingService service = new FileStreamingService();
-            java.lang.reflect.Field field = FileStreamingService.class.getDeclaredField("minSendfileSize");
-            field.setAccessible(true);
-            field.set(service, -1);
-            service.validateProperties();
-        });
+        assertThrows(IllegalArgumentException.class, () -> 
+            new FileStreamingService(131072, -1)
+        );
     }
 
     @Test
