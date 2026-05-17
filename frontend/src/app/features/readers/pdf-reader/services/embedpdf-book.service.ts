@@ -556,14 +556,12 @@ export class EmbedPdfBookService {
    * the page tiles.
    */
   private ensureHighDpiRendering(): void {
-    const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
 
-    // On small screens, enforce DPR 2.0 to avoid low-DPR blur while still
-    // avoiding the memory spikes caused by very high DPR values.
-    // Modern phones often have DPR 3.0+, which combined with annotation layers
-    // exceeds the browser's texture memory budget, leading to "emergency" downsampling (blurriness).
-    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
+    // Ensure DPR is at least 2.0 to avoid pixelation on standard low-DPI screens,
+    // while fully preserving the native high-density DPR (e.g. 3.0+) on mobile devices
+    // to ensure text and lines remain perfectly sharp.
+    const targetDpr = Math.max(currentDpr, 2.0);
 
     if (currentDpr !== targetDpr) {
       const w = this.getMutableWindow();

@@ -14,9 +14,8 @@
 <div id="viewer"></div>
 <script>
   (function () {
-    const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
-    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
+    const targetDpr = Math.max(currentDpr, 2.0);
 
     if (currentDpr !== targetDpr) {
       Object.defineProperty(window, 'devicePixelRatio', {
@@ -346,7 +345,7 @@
         zoom: {
           defaultZoomLevel: 'fit-page',
         },
-        render: { defaultImageQuality: isSmallViewport ? 0.85 : 0.92 },
+        render: { defaultImageQuality: 0.92 },
         tiling: isSmallViewport
           ? { tileSize: 640, overlapPx: 2, extraRings: 1 }
           : { tileSize: 1024, overlapPx: 2, extraRings: 1 },
