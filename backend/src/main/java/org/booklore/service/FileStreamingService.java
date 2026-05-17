@@ -374,12 +374,11 @@ public class FileStreamingService {
     }
 
     /**
-     * Strong ETag derived from file size and last-modified epoch millis.
-     * Sufficient for static-file identity without content hashing overhead.
+     * Weak ETag derived from file size and last-modified epoch millis.
+     * Suitable for cache revalidation; not a byte-identity validator.
      */
-
     public static String generateETag(long fileSize, long lastModified) {
-        return "\"%x-%x\"".formatted(fileSize, lastModified);
+        return "W/\"%x-%x\"".formatted(fileSize, lastModified);
     }
 
     // Byte-range parser

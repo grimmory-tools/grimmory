@@ -256,7 +256,7 @@ class FileStreamingServiceTest {
         var response = mock(HttpServletResponse.class);
 
         String etag = computeExpectedETag(testFile);
-        String weakEtag = "W/" + etag;
+        String weakEtag = etag.startsWith("W/") ? etag : "W/" + etag;
         when(request.getHeader("If-None-Match")).thenReturn(weakEtag);
 
         fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
