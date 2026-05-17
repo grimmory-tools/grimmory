@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
@@ -19,10 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/books")
 @AllArgsConstructor
@@ -38,10 +42,34 @@ public class MetadataController {
     @PostMapping(value = "/{bookId}/metadata/prospective", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public Flux<BookMetadata> getMetadataList(
-            @Parameter(description = "Fetch metadata request") @RequestBody(required = false) FetchMetadataRequest fetchMetadataRequest,
+    public SseEmitter getMetadataList(
+            @Parameter(description = "Fetch metadata request") @Validated @RequestBody(required = false) FetchMetadataRequest fetchMetadataRequest,
             @Parameter(description = "ID of the book") @PathVariable Long bookId) {
-        return bookMetadataService.getProspectiveMetadataListForBookId(bookId, fetchMetadataRequest);
+        SseEmitter emitter = new SseEmitter();
+        AtomicBoolean cancelled = new AtomicBoolean(false);
+        emitter.onCompletion(() -> cancelled.set(true));
+        emitter.onTimeout(() -> cancelled.set(true));
+        emitter.onError(e -> cancelled.set(true));
+
+        Thread.ofVirtual().start(() -> {
+            try {
+                bookMetadataService.fetchProspectiveMetadata(bookId, fetchMetadataRequest, metadata -> {
+                    if (cancelled.get()) {
+                        return;
+                    }
+                    try {
+                        emitter.send(SseEmitter.event().data(metadata));
+                    } catch (IOException e) {
+                        log.debug("Client disconnected from metadata stream: {}", bookId);
+                        cancelled.set(true);
+                    }
+                }, cancelled);
+                emitter.complete();
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        });
+        return emitter;
     }
 
     @Operation(summary = "Update book metadata", description = "Update metadata for a book. Requires metadata edit permission or admin.")
