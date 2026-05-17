@@ -1,7 +1,5 @@
 package org.booklore.service.book;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
 import org.booklore.mapper.BookMapper;
@@ -15,6 +13,9 @@ import org.booklore.repository.*;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
+import org.booklore.service.FileStreamingService;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +26,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.nio.file.Files;
@@ -75,6 +74,8 @@ class BookServiceTest {
     private BookUpdateService bookUpdateService;
     @Mock
     private AuditService auditService;
+    @Mock
+    private FileStreamingService fileStreamingService;
 
     @InjectMocks
     private BookService bookService;
@@ -283,6 +284,7 @@ class BookServiceTest {
     void getBookThumbnail_fileMissing_returnsDefault() {
         when(fileService.getThumbnailFile(1L)).thenReturn("/tmp/nonexistent.jpg");
         Resource res = bookService.getBookThumbnail(1L);
+        assertNotNull(res);
     }
 
     @Test
@@ -325,40 +327,6 @@ class BookServiceTest {
         ResponseEntity<Resource> result = bookService.downloadBook(1L);
 
         assertEquals(response, result);
-    }
-
-    @Test
-    void getBookContent_returnsResource() throws Exception {
-        BookEntity entity = new BookEntity();
-        entity.setId(10L);
-        when(bookRepository.findByIdWithBookFiles(10L)).thenReturn(Optional.of(entity));
-        Path path = Paths.get("/tmp/bookcontent.txt");
-        Files.write(path, "hello".getBytes());
-        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(path);
-            ResponseEntity<Resource> response = bookService.getBookContent(10L);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertArrayEquals("hello".getBytes(), response.getBody().getInputStream().readAllBytes());
-        } finally {
-            Files.deleteIfExists(path);
-        }
-    }
-
-    @Test
-    void getBookContent_bookNotFound_throwsException() {
-        when(bookRepository.findByIdWithBookFiles(404L)).thenReturn(Optional.empty());
-        assertThrows(APIException.class, () -> bookService.getBookContent(404L));
-    }
-
-    @Test
-    void getBookContent_fileNotFound_throwsException() {
-        BookEntity entity = new BookEntity();
-        entity.setId(12L);
-        when(bookRepository.findByIdWithBookFiles(12L)).thenReturn(Optional.of(entity));
-        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(Path.of("/tmp/nonexistentfile.txt"));
-            assertThrows(APIException.class, () -> bookService.getBookContent(12L));
-        }
     }
 
     @Test
@@ -465,5 +433,79 @@ class BookServiceTest {
         Set<Shelf> result = bookService.filterShelvesByUserId(null, 1L);
         assertTrue(result.isEmpty());
     }
-    
+
+    @Test
+    void streamBookContent_happyPath_success() throws Exception {
+        long bookId = 1L;
+        BookEntity entity = new BookEntity();
+        entity.setId(bookId);
+        // bookType is null → primary path via FileUtils.getBookFullPath, bookFiles not accessed
+        entity.setBookFiles(List.of());
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(entity));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(pdfPath);
+
+            bookService.streamBookContent(bookId, null, request, response);
+
+            verify(fileStreamingService).streamWithRangeSupport(
+                    eq(pdfPath),
+                    eq("application/pdf"),
+                    eq(request),
+                    eq(response)
+            );
+        }
+    }
+
+    @Test
+    void streamBookContent_bookNotFound_throwsException() {
+        long bookId = 99L;
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.empty());
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThrows(APIException.class, () -> 
+            bookService.streamBookContent(bookId, null, request, response)
+        );
+    }
+
+    @Test
+    void streamBookContent_specificTypeNotFound_throwsException() {
+        long bookId = 1L;
+        BookEntity entity = new BookEntity();
+        entity.setId(bookId);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBook(entity);
+        primaryFile.setBookType(BookFileType.PDF);
+        entity.setBookFiles(List.of(primaryFile));
+
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(entity));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThrows(APIException.class, () -> 
+            bookService.streamBookContent(bookId, "epub", request, response)
+        );
+    }
+
+    @Test
+    void streamBookContent_invalidBookType_throwsException() {
+        long bookId = 1L;
+        BookEntity entity = new BookEntity();
+        entity.setId(bookId);
+
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(entity));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThrows(APIException.class, () -> 
+            bookService.streamBookContent(bookId, "invalid_type", request, response)
+        );
+    }
 }

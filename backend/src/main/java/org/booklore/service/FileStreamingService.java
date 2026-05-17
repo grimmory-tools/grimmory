@@ -9,12 +9,15 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.EOFException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -32,10 +35,21 @@ public class FileStreamingService {
             .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
             .withZone(ZoneId.of("GMT"));
 
+    private static final int BUFFER_SIZE = 128 * 1024; // 128 KB
+    private static final int MIN_SENDFILE_SIZE = 48 * 1024; // 48 KB
+
+    // Tomcat sendfile attribute keys (org.apache.catalina.connector.Request)
+    private static final String SENDFILE_SUPPORTED = "org.apache.tomcat.sendfile.support";
+    private static final String SENDFILE_FILENAME  = "org.apache.tomcat.sendfile.filename";
+    private static final String SENDFILE_START     = "org.apache.tomcat.sendfile.start";
+    private static final String SENDFILE_END       = "org.apache.tomcat.sendfile.end";
+
     /**
      * Streams a file with HTTP Range support for seeking.
-     * Uses Java NIO FileChannel for zero-copy transfer (sendfile) where supported.
-     * Supports conditional requests via ETag / If-None-Match and If-Range (RFC 7233).
+     * Uses Java NIO FileChannel or Tomcat sendfile where supported.
+     * Supports conditional requests via strong ETag / If-None-Match,
+     * If-Modified-Since, and If-Range validation for efficient caching and seeking.
+     * Multi-range requests are intentionally served as full 200 OK responses
      */
     public void streamWithRangeSupport(
             Path filePath,
@@ -44,63 +58,81 @@ public class FileStreamingService {
             HttpServletResponse response
     ) throws IOException {
 
-        // Single syscall: existence check + size + last-modified
+        // Atomic retrieval of file metadata
         BasicFileAttributes attrs;
         try {
             attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
         } catch (NoSuchFileException _) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath.toString());
+        } catch (AccessDeniedException e) {
+            throw ApiError.PERMISSION_DENIED.createException(e.getMessage());
         }
 
         long fileSize = attrs.size();
-        Instant lastModified = attrs.lastModifiedTime().toInstant();
+        long lastModified = attrs.lastModifiedTime().toMillis();
         String etag = generateETag(fileSize, lastModified);
         String rangeHeader = request.getHeader("Range");
 
-        // Standard headers for media streaming
+        // Initialize response buffer size and headers for media streaming
+        response.setBufferSize(BUFFER_SIZE);
         response.setHeader("Accept-Ranges", "bytes");
         response.setContentType(contentType);
         response.setHeader("ETag", etag);
-        response.setDateHeader("Last-Modified", lastModified.toEpochMilli());
+        response.setDateHeader("Last-Modified", lastModified);
         // Allow caching with mandatory revalidation via ETag eliminates
         // redundant byte transfers on seeks while keeping access-control checks.
-        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Cache-Control", "private, no-cache, must-revalidate");
         response.setHeader("Content-Disposition", "inline");
 
-        // Conditional: If-None-Match, 304
+        // Handle ETag-based conditional revalidation
         String ifNoneMatch = request.getHeader("If-None-Match");
         if (evaluateIfNoneMatch(ifNoneMatch, etag)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             return;
         }
 
-        // HEAD request 200 with Content-Length, no body
-        if ("HEAD".equalsIgnoreCase(request.getMethod())) {
+        // Handle date-based conditional revalidation
+        // Only defined for GET and HEAD
+        String method = request.getMethod();
+        boolean isGet = "GET".equalsIgnoreCase(method);
+        boolean isHead = "HEAD".equalsIgnoreCase(method);
+
+        if ((ifNoneMatch == null || ifNoneMatch.isBlank()) && (isGet || isHead)) {
+            long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+            if (ifModifiedSince != -1 && lastModified / 1000 <= ifModifiedSince / 1000) {
+                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                return;
+            }
+        }
+
+        // Respond to HEAD requests with metadata only
+        if (isHead) {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentLengthLong(fileSize);
             return;
         }
 
-        try (var fileChannel = FileChannel.open(filePath, StandardOpenOption.READ)) {
-
+        try {
             String ifRange = request.getHeader("If-Range");
             if (rangeHeader != null && ifRange != null && !validateIfRange(ifRange, etag, lastModified)) {
-                // If-Range failed: return full file
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentLengthLong(fileSize);
-                transferFile(fileChannel, 0, fileSize, response.getOutputStream());
+                // Precondition failed: fall back to full content delivery
+                streamFullContent(request, response, filePath, fileSize);
                 return;
             }
 
-            // NO RANGE
+            // Full content delivery
             if (rangeHeader == null) {
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentLengthLong(fileSize);
-                transferFile(fileChannel, 0, fileSize, response.getOutputStream());
+                streamFullContent(request, response, filePath, fileSize);
                 return;
             }
 
-            // RANGE
+            // Serve full content for multi-range requests
+            if (hasMultipleRanges(rangeHeader)) {
+                streamFullContent(request, response, filePath, fileSize);
+                return;
+            }
+
+            // Partial content delivery
             Range range = parseRange(rangeHeader, fileSize);
             if (range == null) {
                 response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
@@ -113,10 +145,13 @@ public class FileStreamingService {
             response.setHeader("Content-Range", "bytes " + range.start + "-" + range.end + "/" + fileSize);
             response.setContentLengthLong(length);
 
-            transferFile(fileChannel, range.start, length, response.getOutputStream());
+            streamContent(request, response, filePath, range.start, length);
 
-        } catch (NoSuchFileException _) {
-            throw ApiError.FILE_NOT_FOUND.createException(filePath.toString());
+        } catch (AccessDeniedException e) {
+            log.warn("Access denied during file streaming: {}", filePath, e);
+            if (!response.isCommitted()) {
+                throw ApiError.PERMISSION_DENIED.createException(e.getMessage());
+            }
         } catch (IOException e) {
             if (isClientDisconnect(e)) {
                 log.debug("Client disconnected during streaming: {}", e.getMessage());
@@ -129,20 +164,92 @@ public class FileStreamingService {
         }
     }
 
+    private static void streamFullContent(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Path filePath,
+            long fileSize
+    ) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentLengthLong(fileSize);
+        streamContent(request, response, filePath, 0, fileSize);
+    }
+
+    private static void streamContent(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Path filePath,
+            long start,
+            long length
+    ) throws IOException {
+        if (length >= MIN_SENDFILE_SIZE && tryTomcatSendfile(request, filePath, start, length)) {
+            return;
+        }
+        OutputStream out = response.getOutputStream();
+        try (var fileChannel = FileChannel.open(filePath, StandardOpenOption.READ)) {
+            copyToResponse(fileChannel, start, length, out);
+        }
+    }
+
+    private static boolean tryTomcatSendfile(
+            HttpServletRequest request,
+            Path filePath,
+            long start,
+            long length
+    ) {
+        Object supported = request.getAttribute(SENDFILE_SUPPORTED);
+        if (!Boolean.TRUE.equals(supported)) {
+            return false;
+        }
+
+        // Once sendfile attributes are set, the application MUST NOT 
+        // write any data to the response body. Tomcat will handle the transfer.
+        try {
+            request.setAttribute(SENDFILE_FILENAME, filePath.toRealPath().toString());
+            request.setAttribute(SENDFILE_START, start);
+            request.setAttribute(SENDFILE_END, Math.addExact(start, length));
+            return true;
+        } catch (IOException | ArithmeticException e) {
+            log.debug("Sendfile fallback: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private static boolean hasMultipleRanges(String header) {
+        if (header == null || header.length() < 7 || !header.regionMatches(true, 0, "bytes=", 0, 6)) {
+            return false;
+        }
+        // Skip whitespace after "bytes="
+        int pos = 6;
+        while (pos < header.length() && header.charAt(pos) <= ' ') pos++;
+        
+        // Find comma
+        while (pos < header.length()) {
+            if (header.charAt(pos) == ',') {
+                // Found a comma, check if there's anything after it
+                do pos++;
+                while (pos < header.length() && header.charAt(pos) <= ' ');
+                return pos < header.length();
+            }
+            pos++;
+        }
+        return false;
+    }
+
     /**
      * Validates the If-Range header against current ETag and lastModified.
-     * RFC 7233: If-Range can be a strong ETag OR an HTTP-date.
+     * If-Range can be a strong ETag OR an HTTP-date.
      */
-    private boolean validateIfRange(String ifRange, String etag, Instant lastModified) {
-        if (!ifRange.isEmpty() && ifRange.charAt(0) == '\"') {
-            // ETag comparison (Strong match required)
+    private static boolean validateIfRange(String ifRange, String etag, long lastModified) {
+        if (!ifRange.isBlank() && ifRange.charAt(0) == '"') {
+            // If-Range MUST use strong comparison only.
+            // Do NOT use isWeakMatch() here.
             return etag.equals(ifRange);
         } else {
-            // HTTP-date comparison
             try {
                 Instant ifRangeDate = Instant.from(HTTP_DATE_FORMAT.parse(ifRange));
-                // Exact match on seconds required by RFC
-                return lastModified.getEpochSecond() == ifRangeDate.getEpochSecond();
+                // Exact second-precision equality is required for If-Range date validators.
+                return lastModified / 1000 == ifRangeDate.getEpochSecond();
             } catch (DateTimeParseException e) {
                 log.trace("Failed to parse If-Range date: {}", ifRange);
                 return false;
@@ -152,69 +259,97 @@ public class FileStreamingService {
 
     /**
      * Evaluates the If-None-Match header against the current ETag.
-     * RFC 7232: If-None-Match can be "*", a single entity-tag, or a list of them.
+     * If-None-Match can be "*", a single entity-tag, or a list of them.
      */
-    private boolean evaluateIfNoneMatch(String ifNoneMatch, String currentEtag) {
-        if (ifNoneMatch == null || ifNoneMatch.isBlank()) {
-            return false;
-        }
+    private static boolean evaluateIfNoneMatch(String ifNoneMatch, String currentEtag) {
+        if (ifNoneMatch == null || ifNoneMatch.isBlank()) return false;
 
-        String trimmedValue = ifNoneMatch.trim();
-        if ("*".equals(trimmedValue)) {
-            return true;
-        }
+        int start = 0, len = ifNoneMatch.length();
+        while (start < len) {
+            int end = ifNoneMatch.indexOf(',', start);
+            if (end == -1) end = len;
 
-        // Split by comma. Entity-tags are [weak] opaque-tag.
-        String[] parts = trimmedValue.split(",");
-        for (String part : parts) {
-            String tag = part.trim();
-            if (tag.isEmpty()) {
-                continue;
+            // Trim whitespace
+            int s = start, e = end;
+            while (s < e && ifNoneMatch.charAt(s) <= ' ') s++;
+            while (e > s && ifNoneMatch.charAt(e - 1) <= ' ') e--;
+
+            if (e > s) {
+                if (e - s == 1 && ifNoneMatch.charAt(s) == '*') return true;
+                if (isWeakMatch(ifNoneMatch, s, e, currentEtag)) return true;
             }
-            if (isWeakMatch(tag, currentEtag)) {
-                return true;
-            }
+            start = end + 1;
         }
         return false;
     }
 
-    /**
-     * Weak comparison of two ETags.
-     * RFC 7232 Section 2.3.2: Two entity-tags are a weak match if their opaque-tags are equal,
-     * regardless of whether either or both have a "W/" prefix.
-     */
-    private boolean isWeakMatch(String tag1, String tag2) {
-        String opaque1 = tag1.startsWith("W/") ? tag1.substring(2) : tag1;
-        String opaque2 = tag2.startsWith("W/") ? tag2.substring(2) : tag2;
-        return opaque1.equals(opaque2);
+    private static boolean isWeakMatch(String input, int start, int end, String etag) {
+        // Strip optional W/ prefix from both sides before comparing opaque-tags
+        int s = (end - start >= 2 && input.charAt(start) == 'W' && input.charAt(start + 1) == '/') ? start + 2 : start;
+        int cs = etag.startsWith("W/") ? 2 : 0;
+        int matchLen = end - s;
+        return matchLen == etag.length() - cs && input.regionMatches(s, etag, cs, matchLen);
     }
 
-    /**
-     * Zero-copy transfer from file channel to output stream via NIO.
-     * Delegates to sendfile(2) on Linux / equivalent on macOS when the
-     * servlet container's OutputStream maps to a socket channel.
-     * Closes the output stream upon completion as the channel wrapper propagates close.
-     */
-    private void transferFile(FileChannel source, long position, long count, OutputStream out) throws IOException {
-        try (WritableByteChannel destination = Channels.newChannel(out)) {
-            long remaining = count;
-            long currentPos = position;
-            int zeroTransferCount = 0;
 
-            while (remaining > 0) {
-                long transferred = source.transferTo(currentPos, remaining, destination);
-                if (transferred <= 0) {
-                    ++zeroTransferCount;
-                    if (zeroTransferCount > 100) {
-                        throw new IOException("File transfer stalled with " + remaining + " bytes remaining");
-                    }
-                    Thread.onSpinWait();
-                    continue;
-                }
-                zeroTransferCount = 0;
-                currentPos += transferred;
-                remaining -= transferred;
+    private static void copyToResponse(
+            FileChannel source,
+            long position,
+            long count,
+            OutputStream out
+    ) throws IOException {
+        if (count < 8192) {
+            copyWithHeapBuffer(source, position, count, out);
+            out.flush();
+            return;
+        }
+        WritableByteChannel outChannel = Channels.newChannel(out);
+        long remaining = count;
+        long offset = position;
+        int zeroCount = 0;
+
+        // Try zero-copy first (works on many servlet containers)
+        while (remaining > 0) {
+            long n = source.transferTo(offset, remaining, outChannel);
+            if (n > 0) {
+                offset += n;
+                remaining -= n;
+                zeroCount = 0;
+                continue;
             }
+
+            if (++zeroCount >= 3) {
+                // transferTo repeatedly returned 0 - fall back to heap copy.
+                copyWithHeapBuffer(source, offset, remaining, out);
+                break;
+            }
+        }
+        out.flush();
+    }
+
+    private static void copyWithHeapBuffer(
+            FileChannel source,
+            long position,
+            long count,
+            OutputStream out
+    ) throws IOException {
+        byte[] buf = new byte[BUFFER_SIZE];
+        ByteBuffer bb = ByteBuffer.wrap(buf);
+        long remaining = count;
+        long offset = position;
+
+        while (remaining > 0) {
+            bb.clear();
+            bb.limit((int) Math.min(buf.length, remaining));
+
+            int read = source.read(bb, offset);
+            if (read < 0) {
+                throw new EOFException("Unexpected EOF at position " + offset);
+            }
+
+            out.write(buf, 0, read);
+            offset += read;
+            remaining -= read;
         }
     }
 
@@ -222,64 +357,59 @@ public class FileStreamingService {
      * Strong ETag derived from file size and last-modified epoch millis.
      * Sufficient for static-file identity without content hashing overhead.
      */
-    String generateETag(long fileSize, Instant lastModified) {
-        return "\"" + Long.toHexString(fileSize) + "-" + Long.toHexString(lastModified.toEpochMilli()) + "\"";
+
+    public static String generateETag(long fileSize, long lastModified) {
+        return "\"%x-%x\"".formatted(fileSize, lastModified);
     }
 
-    // RANGE PARSER (not) RFC 7233 compliant
-    Range parseRange(String header, long size) {
-        if (header == null || !header.startsWith("bytes=")) {
-            return null;
-        }
+    // Byte-range parser
+    static Range parseRange(String header, long size) {
+        if (size <= 0) return null;
+        if (header == null || header.length() < 6 || !header.regionMatches(true, 0, "bytes=", 0, 6)) return null;
 
-        String value = header.substring(6).trim();
-        String[] parts = value.split(",", 2);
-        String range = parts[0].trim();
+        int startPos = 6, len = header.length();
+        while (startPos < len && header.charAt(startPos) <= ' ') startPos++;
+        if (startPos >= len) return null;
 
-        int dash = range.indexOf('-');
-        if (dash < 0) return null;
+        // Only parse the first range if multiple are provided
+        int comma = header.indexOf(',', startPos);
+        int endPos = (comma >= 0) ? comma : len;
+        while (endPos > startPos && header.charAt(endPos - 1) <= ' ') endPos--;
+
+        int dash = header.indexOf('-', startPos);
+        if (dash < 0 || dash >= endPos) return null;
 
         try {
-            // suffix-byte-range-spec: "-<length>"
-            if (dash == 0) {
-                long suffix = Long.parseLong(range.substring(1));
-                if (suffix <= 0) return null;
-                suffix = Math.min(suffix, size);
-                return new Range(size - suffix, size - 1);
+            if (dash == startPos) { // Suffix: "-N"
+                long suffix = Long.parseLong(header, dash + 1, endPos, 10);
+                return suffix <= 0 ? null : new Range(size - Math.min(suffix, size), size - 1);
             }
 
-            long start = Long.parseLong(range.substring(0, dash));
-
-            // open-ended: "<start>-"
-            if (dash == range.length() - 1) {
-                if (start >= size) return null;
-                return new Range(start, size - 1);
+            long start = Long.parseLong(header, startPos, dash, 10);
+            if (dash == endPos - 1) { // Open-ended: "N-"
+                return start >= size ? null : new Range(start, size - 1);
             }
 
-            // "<start>-<end>"
-            long end = Long.parseLong(range.substring(dash + 1));
-            if (start > end || start >= size) return null;
-            end = Math.min(end, size - 1);
-
-            return new Range(start, end);
-
+            long end = Long.parseLong(header, dash + 1, endPos, 10); // Bounded: "N-M"
+            if (start > end) return null;
+            return (start >= size) ? null : new Range(start, Math.min(end, size - 1));
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
-    // DISCONNECT DETECTION
-    boolean isClientDisconnect(IOException e) {
+    // Client disconnection detection
+    static boolean isClientDisconnect(IOException e) {
         return switch (e) {
-            case SocketTimeoutException _, AsyncRequestNotUsableException _ -> true;
+            case EOFException _, SocketTimeoutException _, AsyncRequestNotUsableException _ -> true;
             case IOException io when io.getMessage() != null -> {
-                String msg = io.getMessage();
-                yield msg.contains("Broken pipe")
-                        || msg.contains("Connection reset")
+                String msg = io.getMessage().toLowerCase(Locale.ROOT);
+                yield msg.contains("broken pipe")
+                        || msg.contains("connection reset")
                         || msg.contains("connection was aborted")
-                        || msg.contains("An established connection was aborted")
-                        || msg.contains("Response not usable")
-                        || msg.contains("SocketTimeout")
+                        || msg.contains("an established connection was aborted")
+                        || msg.contains("response not usable")
+                        || msg.contains("sockettimeout")
                         || msg.contains("timed out");
             }
             default -> false;

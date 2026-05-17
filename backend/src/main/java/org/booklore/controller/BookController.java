@@ -158,11 +158,12 @@ public class BookController {
     })
     @GetMapping("/{bookId}/content")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> getBookContent(
+    public void getBookContent(
             @Parameter(description = "ID of the book") @PathVariable long bookId,
-            @Parameter(description = "Optional book type for alternative format (e.g., EPUB, PDF, MOBI)") @RequestParam(required = false) String bookType
-            ) {
-        return bookService.getBookContent(bookId, bookType);
+            @Parameter(description = "Optional book type for alternative format (e.g., EPUB, PDF, MOBI)") @RequestParam(required = false) String bookType,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        bookService.streamBookContent(bookId, bookType, request, response);
     }
 
     @Operation(summary = "Replace book content", description = "Overwrite the primary PDF file for a book with the uploaded content. Used by the document viewer to persist annotation changes.")
