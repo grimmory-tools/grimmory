@@ -24,8 +24,7 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.service.metadata.parser.AuthorParser;
 import org.booklore.util.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,10 +68,7 @@ public class AuthorMetadataService {
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
-
-    @Autowired
-    @Lazy
-    private AuthorMetadataService self;
+    private final ObjectProvider<AuthorMetadataService> selfProvider;
 
     public List<AuthorSummary> getAllAuthors() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -197,7 +193,7 @@ public class AuthorMetadataService {
                             if (isCancelled.getAsBoolean()) {
                                 return;
                             }
-                            AuthorDetails details = self.quickMatchAuthor(authorId, "us");
+                            AuthorDetails details = selfProvider.getObject().quickMatchAuthor(authorId, "us");
                             onResult.accept(AuthorSummary.builder()
                                     .id(details.getId())
                                     .name(details.getName())
