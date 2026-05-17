@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.FuzzyScore;
 
 import java.util.*;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -170,8 +169,8 @@ public class BookFileGroupingUtils {
                 continue;
             }
 
-            String fileSubPath = filesInFolder.get(0).getFileSubPath();
-            Long libraryPathId = filesInFolder.get(0).getLibraryPathEntity().getId();
+            String fileSubPath = filesInFolder.getFirst().getFileSubPath();
+            Long libraryPathId = filesInFolder.getFirst().getLibraryPathEntity().getId();
 
             // Root-level files: use exact grouping
             if (fileSubPath == null || fileSubPath.isEmpty()) {
@@ -362,7 +361,7 @@ public class BookFileGroupingUtils {
         Map<String, List<LibraryFile>> result = new LinkedHashMap<>();
 
         if (files.size() == 1) {
-            LibraryFile file = files.get(0);
+            LibraryFile file = files.getFirst();
             String key = libraryPathId + ":" + fileSubPath + ":single:" + extractGroupingKey(file.getFileName());
             result.put(key, new ArrayList<>(List.of(file)));
             return result;
@@ -413,7 +412,7 @@ public class BookFileGroupingUtils {
             List<LibraryFile> clusterFiles = cluster.getValue();
             // Use the first file's key as the group key
             String groupKey = libraryPathId + ":" + fileSubPath + ":cluster:" +
-                    extractGroupingKey(clusterFiles.get(0).getFileName());
+                    extractGroupingKey(clusterFiles.getFirst().getFileName());
             result.put(groupKey, clusterFiles);
 
             if (clusterFiles.size() > 1) {

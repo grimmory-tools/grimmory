@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
-import java.util.Set;
 import java.util.function.Predicate;
 
 public class RequestLoggingFilter extends CommonsRequestLoggingFilter {

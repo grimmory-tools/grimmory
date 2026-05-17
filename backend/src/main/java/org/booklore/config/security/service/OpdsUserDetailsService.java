@@ -2,7 +2,6 @@ package org.booklore.config.security.service;
 
 import lombok.RequiredArgsConstructor;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
-import org.booklore.exception.ApiError;
 import org.booklore.mapper.OpdsUserV2Mapper;
 import org.booklore.model.dto.OpdsUserV2;
 import org.booklore.model.entity.OpdsUserV2Entity;

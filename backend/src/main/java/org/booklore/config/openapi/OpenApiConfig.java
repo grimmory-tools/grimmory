@@ -15,6 +15,13 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(name = "app.api-docs.enabled", havingValue = "true", matchIfMissing = false)
 public class OpenApiConfig {
 
+    static final String API_DESCRIPTION = """
+            > [!warning]
+            > This documentation is auto-generated and public, but the API is unstable; to join the conversation around changes to the API, visit our [GitHub](https://github.com/grimmory-tools/grimmory) or [Discord](https://discord.gg/9YJ7HB4n8T).
+
+            REST API documentation for managing libraries, readers, metadata, and device integrations in Grimmory.
+            """;
+
     private final AppProperties appProperties;
 
     @Bean
@@ -22,7 +29,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Grimmory API")
-                        .description("REST API documentation for managing libraries, readers, metadata, and device integrations in Grimmory.")
+                        .description(API_DESCRIPTION)
                         .version(appProperties.getVersion())
                         .contact(new Contact()
                                 .name("Grimmory")

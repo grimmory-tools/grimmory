@@ -29,7 +29,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
