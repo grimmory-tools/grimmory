@@ -598,5 +598,48 @@ class BookMetadataServiceTest {
                     .isInstanceOf(APIException.class)
                     .hasMessageContaining("At least one metadata provider must be specified");
         }
+
+        @Test
+        void handlesExceptionWhenCancelled() {
+            BookParser parser = mock(BookParser.class);
+            parserMap.put(MetadataProvider.Google, parser);
+            BookEntity bookEntity = BookEntity.builder().id(1L).build();
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+            when(bookMapper.toBook(any())).thenReturn(Book.builder().build());
+
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .providers(List.of(MetadataProvider.Google))
+                    .build();
+
+            AtomicBoolean cancelled = new AtomicBoolean(true);
+            // Since it's already cancelled, the parser should not even be called
+            service.fetchProspectiveMetadata(1L, request, _ -> {}, cancelled);
+
+            verify(parser, never()).fetchMetadata(any(), any());
+        }
+
+        @Test
+        void handlesExceptionDuringExecutionWhenCancelled() {
+            BookParser parser = mock(BookParser.class);
+            parserMap.put(MetadataProvider.Google, parser);
+            BookEntity bookEntity = BookEntity.builder().id(1L).build();
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+            when(bookMapper.toBook(any())).thenReturn(Book.builder().build());
+
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .providers(List.of(MetadataProvider.Google))
+                    .build();
+
+            AtomicBoolean cancelled = new AtomicBoolean(false);
+            when(parser.fetchMetadata(any(), any())).thenAnswer(_ -> {
+                cancelled.set(true);
+                throw new RuntimeException("test exception");
+            });
+
+            service.fetchProspectiveMetadata(1L, request, _ -> {}, cancelled);
+
+            // Should complete without throwing exception to the caller
+            verify(parser).fetchMetadata(any(), any());
+        }
     }
 }

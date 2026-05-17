@@ -118,6 +118,8 @@ public class BookMetadataService {
                         } catch (Exception e) {
                             if (!cancelled.get()) {
                                 log.error("Error fetching metadata from provider: {}", provider, e);
+                            } else {
+                                log.error("Error fetching metadata from provider (cancelled): {}", provider, e);
                             }
                         }
                     }, executor))
