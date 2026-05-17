@@ -28,9 +28,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +51,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -330,10 +329,14 @@ public class AuthorMetadataService {
         return toAuthorDetails(author);
     }
 
-    public Flux<CoverImage> searchAuthorPhotos(String name) {
+    public void streamAuthorPhotos(String name, Consumer<CoverImage> onResult, BooleanSupplier isCancelled) {
         String searchTerm = name + " author photo portrait";
-        return duckDuckGoCoverService.searchImages(searchTerm)
-                .take(50);
+        AtomicInteger count = new AtomicInteger(0);
+        duckDuckGoCoverService.streamImages(searchTerm, image -> {
+            if (count.getAndIncrement() < 50) {
+                onResult.accept(image);
+            }
+        }, () -> isCancelled.getAsBoolean() || count.get() >= 50);
     }
 
     @Transactional
