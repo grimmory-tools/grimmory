@@ -201,10 +201,10 @@ private readonly bookdropFileService = inject(BookdropFileService);
     if (!user) return [];
 
     const actions = buildCreateActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: () => void this.dialogLauncherService.openLibraryCreateDialog().catch(() => undefined),
+      createShelf: () => void this.bookDialogHelperService.openShelfCreatorDialog().catch(() => undefined),
+      createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
+      uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
     });
     return this.toMenuEntries(actions);
   });
@@ -276,29 +276,28 @@ private readonly bookdropFileService = inject(BookdropFileService);
   }
 
   protected openAccountSettings(): void {
-    this.dialogLauncherService.openUserProfileDialog();
-    this.closeUserPopover();
+   void this.dialogLauncherService.openUserProfileDialog().catch(() => undefined);
+   this.closeUserPopover();
   }
 
   protected openSettings(): void {
-    this.router.navigate(['/settings']);
-    this.closeUserPopover();
+   this.router.navigate(['/settings']);
+   this.closeUserPopover();
   }
 
   protected openChangelogDialog(): void {
-    this.dialogLauncherService.openVersionChangelogDialog();
-    this.closeUserPopover();
+   void this.dialogLauncherService.openVersionChangelogDialog().catch(() => undefined);
+   this.closeUserPopover();
   }
 
   protected openReadingStats(): void {
-    this.router.navigate(['/reading-stats']);
-    this.closeUserPopover();
+   this.router.navigate(['/reading-stats']);
+   this.closeUserPopover();
   }
 
   protected openUploadDialog(): void {
-    this.dialogLauncherService.openFileUploadDialog();
+   void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined);
   }
-
   protected logout(): void {
     this.authService.logout();
     this.closeUserPopover();

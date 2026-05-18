@@ -419,7 +419,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: () => void this.bookDialogHelperService.openCustomSendDialog(this.book())
+            command: () => void this.bookDialogHelperService.openCustomSendDialog(this.book()).catch(() => undefined)
           }
         ]
       });
@@ -452,7 +452,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: () => void this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
+            command: () => void this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])).catch(() => undefined),
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -505,7 +505,7 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: () => void this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
+        command: () => void this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id])).catch(() => undefined)
       });
     }
 
@@ -597,7 +597,7 @@ export class BookCardComponent {
   }
 
   private openShelfDialog(): void {
-    void this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
+    void this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null).catch(() => undefined);
   }
 
   openSeriesInfo(): void {
@@ -621,7 +621,7 @@ export class BookCardComponent {
         queryParams: {tab: 'view'}
       });
     } else {
-      await this.bookDialogHelperService.openBookDetailsDialog(book.id);
+      await this.bookDialogHelperService.openBookDetailsDialog(book.id).catch(() => undefined);
     }
   }
 

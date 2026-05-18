@@ -23,9 +23,9 @@ describe('BookdropFileReviewComponent', () => {
   const discardFiles = vi.fn();
   const finalizeImport = vi.fn();
   const rescan = vi.fn();
-  const openBookdropFinalizeResultDialog = vi.fn();
-  const openDialog = vi.fn();
-  const openDirectoryPickerDialog = vi.fn();
+  const openBookdropFinalizeResultDialog = vi.fn(() => Promise.resolve(null));
+  const openDialog = vi.fn(() => Promise.resolve(null));
+  const openDirectoryPickerDialog = vi.fn(() => Promise.resolve(null));
   const setPageTitle = vi.fn();
   const translate = vi.fn((key: string, params?: Record<string, unknown>) => {
     if (!params) {

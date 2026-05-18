@@ -49,7 +49,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
+              await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId).catch(() => undefined);
             }
           },
           {
@@ -60,7 +60,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
+              await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId).catch(() => undefined);
             }
           },
           {
@@ -74,7 +74,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              this.dialogLauncherService.openLibraryEditDialog(libraryId);
+              void this.dialogLauncherService.openLibraryEditDialog(libraryId).catch(() => undefined);
             }
           },
           {
@@ -131,7 +131,7 @@ export class LibraryShelfMenuService {
               await this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
                 metadataRefreshType: MetadataRefreshType.LIBRARY,
                 libraryId
-              });
+              }).catch(() => undefined);
             }
           },
           {
@@ -156,7 +156,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
+              await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId).catch(() => undefined);
             }
           },
           {
@@ -227,7 +227,7 @@ export class LibraryShelfMenuService {
             return;
           }
 
-          this.dialogLauncherService.openShelfEditDialog(shelfId);
+          void this.dialogLauncherService.openShelfEditDialog(shelfId).catch(() => undefined);
         }
       },
       {
@@ -303,7 +303,7 @@ export class LibraryShelfMenuService {
             return;
           }
 
-          this.dialogLauncherService.openMagicShelfEditDialog(magicShelfId);
+          void this.dialogLauncherService.openMagicShelfEditDialog(magicShelfId).catch(() => undefined);
         }
       },
       {

@@ -133,7 +133,7 @@ export class CommandPaletteService {
     this.hide();
     queueMicrotask(() => {
       if (item.command) {
-        void item.command();
+        void Promise.resolve(item.command()).catch(() => undefined);
         return;
       }
       if (item.route) {
@@ -213,10 +213,10 @@ export class CommandPaletteService {
     const user = this.userService.currentUser();
     if (!user) return [];
     return buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: () => void this.dialogLauncherService.openLibraryCreateDialog().catch(() => undefined),
+      createShelf: () => void this.bookDialogHelperService.openShelfCreatorDialog().catch(() => undefined),
+      createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
+      uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
     }).map((item) => this.toPaletteNavItem(item, 'action'));
   });
 

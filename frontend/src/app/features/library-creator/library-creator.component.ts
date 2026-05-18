@@ -216,7 +216,7 @@ export class LibraryCreatorComponent {
   }
 
   async openDirectoryPicker(): Promise<void> {
-    const ref = await this.dialogLauncherService.openDirectoryPickerDialog();
+    const ref = await this.dialogLauncherService.openDirectoryPickerDialog().catch(() => null);
     ref?.onClose.subscribe((selectedFolders: string[] | null) => {
       if (selectedFolders && selectedFolders.length > 0) {
         this.folders.update(current => {
