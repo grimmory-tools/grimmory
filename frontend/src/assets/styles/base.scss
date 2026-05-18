@@ -18,6 +18,7 @@ html {
 }
 
 body {
+  height: 100%;
   min-height: 100%;
   margin: 0;
   padding: 0;
@@ -26,6 +27,17 @@ body {
   font-family: var(--font-family), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+picture,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+picture {
+  display: block;
 }
 
 @media #{variables.$mobile-shell-media-query} {
@@ -44,6 +56,11 @@ a {
   text-decoration: none;
 }
 
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
 h1,
 h2,
 h3,
@@ -55,6 +72,7 @@ h6 {
   font-family: inherit;
   font-weight: 500;
   line-height: 1.2;
+  overflow-wrap: break-word;
 
   &:first-child {
     margin-top: 0;
@@ -89,6 +107,7 @@ p {
   margin: 0 0 1rem;
   color: var(--text-color);
   line-height: 1.5;
+  overflow-wrap: break-word;
 
   &:last-child {
     margin-bottom: 0;
