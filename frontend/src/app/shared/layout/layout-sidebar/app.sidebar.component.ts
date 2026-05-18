@@ -319,6 +319,13 @@ export class AppSidebarComponent {
     }
   }
 
+  protected onNotificationsPopoverKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeNotificationsPopover();
+    }
+  }
+
   private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
     return items.flatMap((item): MenuItem[] =>
       item ? [{

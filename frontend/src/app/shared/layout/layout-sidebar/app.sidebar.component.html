@@ -294,7 +294,11 @@
         class="sidebar-notification-popover surface-page"
         role="dialog"
         aria-modal="true"
+        tabindex="-1"
+        cdkTrapFocus
+        cdkTrapFocusAutoCapture
         [attr.aria-label]="t('notifications')"
+        (keydown)="onNotificationsPopoverKeydown($event)"
       >
         <app-unified-notification-popover-component></app-unified-notification-popover-component>
       </section>

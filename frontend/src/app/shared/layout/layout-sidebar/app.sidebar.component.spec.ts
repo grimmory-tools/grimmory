@@ -228,6 +228,25 @@ describe('AppSidebarComponent', () => {
     expect(sidebar.notificationPopoverOrigin()).toBe(secondOrigin);
   });
 
+  it('closes the notifications overlay when Escape is pressed inside the dialog', () => {
+    const origin = {} as CdkOverlayOrigin;
+    const event = new KeyboardEvent('keydown', { key: 'Escape' });
+    const preventDefault = vi.spyOn(event, 'preventDefault');
+    const sidebar = component as unknown as {
+      notificationsOpen: () => boolean;
+      notificationPopoverOrigin: () => CdkOverlayOrigin | null;
+      toggleFooterNotificationsPopover(origin: CdkOverlayOrigin): void;
+      onNotificationsPopoverKeydown(event: KeyboardEvent): void;
+    };
+
+    sidebar.toggleFooterNotificationsPopover(origin);
+    sidebar.onNotificationsPopoverKeydown(event);
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(sidebar.notificationsOpen()).toBe(false);
+    expect(sidebar.notificationPopoverOrigin()).toBeNull();
+  });
+
   it('aggregates metadata tasks and pending bookdrop files into the sidebar badge count', () => {
     const sidebar = component as unknown as {
       completedTaskCount: number;
