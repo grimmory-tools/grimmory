@@ -130,7 +130,7 @@ public class SendEmailV2Service {
         // SMTPTransport reads only mail.smtp.*, SMTPSSLTransport reads only mail.smtps.*.
         // Pick the prefix matching the active transport so auth/ssl/timeout settings apply.
         String prefix = connectionType == ConnectionType.SSL ? "mail.smtps." : "mail.smtp.";
-        mailProps.put(prefix + "auth", emailProvider.isAuth());
+        mailProps.put(prefix + "auth", String.valueOf(emailProvider.isAuth()));
         configureConnectionType(mailProps, connectionType, emailProvider, prefix);
         configureTimeouts(mailProps, prefix);
 
@@ -161,7 +161,7 @@ public class SendEmailV2Service {
                 mailProps.put(prefix + "ssl.enable", "true");
                 mailProps.put(prefix + "ssl.trust", emailProvider.getHost());
                 mailProps.put(prefix + "starttls.enable", "false");
-                mailProps.put(prefix + "ssl.protocols", "TLSv1.2,TLSv1.3");
+                mailProps.put(prefix + "ssl.protocols", "TLSv1.2 TLSv1.3");
                 mailProps.put(prefix + "ssl.checkserveridentity", "false");
                 mailProps.put(prefix + "ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
                 mailProps.put(prefix + "ssl.socketFactory.fallback", "false");

@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -324,16 +324,20 @@ class SendEmailV2ServiceTest {
         JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(sslProvider);
         Properties props = sender.getJavaMailProperties();
 
-        assertEquals("smtps", props.get("mail.transport.protocol"));
+        assertThat(props.get("mail.transport.protocol")).isEqualTo("smtps");
         // Regression for #1301: SMTPSSLTransport reads only mail.smtps.*,
         // so auth/ssl/timeout properties must be visible under that prefix.
-        assertEquals(true, props.get("mail.smtps.auth"));
-        assertEquals("true", props.get("mail.smtps.ssl.enable"));
-        assertEquals("smtp.gmail.com", props.get("mail.smtps.ssl.trust"));
-        assertEquals("TLSv1.2,TLSv1.3", props.get("mail.smtps.ssl.protocols"));
-        assertEquals("60000", props.get("mail.smtps.connectiontimeout"));
-        assertEquals("60000", props.get("mail.smtps.timeout"));
-        assertEquals("60000", props.get("mail.smtps.writetimeout"));
+        assertThat(props.get("mail.smtps.auth")).isEqualTo("true");
+        assertThat(props.get("mail.smtps.ssl.enable")).isEqualTo("true");
+        assertThat(props.get("mail.smtps.ssl.trust")).isEqualTo("smtp.gmail.com");
+        // Whitespace-separated, not comma-separated: Angus Mail's SocketFetcher
+        // passes the raw string to SSLSocket.setEnabledProtocols which splits on whitespace.
+        assertThat(props.get("mail.smtps.ssl.protocols")).isEqualTo("TLSv1.2 TLSv1.3");
+        assertThat(props.get("mail.smtps.connectiontimeout")).isEqualTo("60000");
+        assertThat(props.get("mail.smtps.timeout")).isEqualTo("60000");
+        assertThat(props.get("mail.smtps.writetimeout")).isEqualTo("60000");
+        // Guard against future regression that double-writes both prefixes.
+        assertThat(props.get("mail.smtp.auth")).isNull();
     }
 
     @Test
@@ -350,12 +354,12 @@ class SendEmailV2ServiceTest {
         JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(starttlsProvider);
         Properties props = sender.getJavaMailProperties();
 
-        assertEquals("smtp", props.get("mail.transport.protocol"));
-        assertEquals(true, props.get("mail.smtp.auth"));
-        assertEquals("true", props.get("mail.smtp.starttls.enable"));
-        assertEquals("true", props.get("mail.smtp.starttls.required"));
-        assertEquals("false", props.get("mail.smtp.ssl.enable"));
-        assertEquals("60000", props.get("mail.smtp.connectiontimeout"));
+        assertThat(props.get("mail.transport.protocol")).isEqualTo("smtp");
+        assertThat(props.get("mail.smtp.auth")).isEqualTo("true");
+        assertThat(props.get("mail.smtp.starttls.enable")).isEqualTo("true");
+        assertThat(props.get("mail.smtp.starttls.required")).isEqualTo("true");
+        assertThat(props.get("mail.smtp.ssl.enable")).isEqualTo("false");
+        assertThat(props.get("mail.smtp.connectiontimeout")).isEqualTo("60000");
     }
 
     @Test
@@ -372,10 +376,10 @@ class SendEmailV2ServiceTest {
         JavaMailSenderImpl sender = sendEmailV2Service.setupMailSender(plainProvider);
         Properties props = sender.getJavaMailProperties();
 
-        assertEquals("smtp", props.get("mail.transport.protocol"));
-        assertEquals(false, props.get("mail.smtp.auth"));
-        assertEquals("false", props.get("mail.smtp.starttls.enable"));
-        assertEquals("false", props.get("mail.smtp.ssl.enable"));
+        assertThat(props.get("mail.transport.protocol")).isEqualTo("smtp");
+        assertThat(props.get("mail.smtp.auth")).isEqualTo("false");
+        assertThat(props.get("mail.smtp.starttls.enable")).isEqualTo("false");
+        assertThat(props.get("mail.smtp.ssl.enable")).isEqualTo("false");
     }
 
     @Test
