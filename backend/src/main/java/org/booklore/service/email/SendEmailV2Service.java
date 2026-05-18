@@ -117,6 +117,15 @@ public class SendEmailV2Service {
                 .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException(bookFileId));
     }
 
+    /**
+     * Builds a configured {@link JavaMailSenderImpl} for the given provider.
+     *
+     * <p>Selects the Jakarta Mail property namespace ({@code mail.smtp.} or {@code mail.smtps.})
+     * from the resolved {@link ConnectionType} and writes authentication, SSL/STARTTLS,
+     * and timeout properties under that prefix so the active transport actually reads them.
+     *
+     * <p>Package-private to allow same-package unit tests to assert the resulting property map.
+     */
     JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
         JavaMailSenderImpl dynamicMailSender = new JavaMailSenderImpl();
         dynamicMailSender.setHost(emailProvider.getHost());
@@ -154,6 +163,13 @@ public class SendEmailV2Service {
         }
     }
 
+    /**
+     * Writes transport-protocol, SSL, and STARTTLS properties for the given connection type.
+     *
+     * <p>{@code mail.transport.protocol} is namespace-independent (it selects the transport
+     * implementation). All other keys are written under {@code prefix}, which must match the
+     * namespace the active transport reads from.
+     */
     private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider, String prefix) {
         switch (connectionType) {
             case SSL -> {
@@ -162,7 +178,6 @@ public class SendEmailV2Service {
                 mailProps.put(prefix + "ssl.trust", emailProvider.getHost());
                 mailProps.put(prefix + "starttls.enable", "false");
                 mailProps.put(prefix + "ssl.protocols", "TLSv1.2 TLSv1.3");
-                mailProps.put(prefix + "ssl.checkserveridentity", "false");
                 mailProps.put(prefix + "ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
                 mailProps.put(prefix + "ssl.socketFactory.fallback", "false");
             }
@@ -180,10 +195,22 @@ public class SendEmailV2Service {
         }
     }
 
+    /**
+     * Writes connection, socket, and write timeout properties under {@code prefix}.
+     *
+     * <p>Default is 60s per timeout. JVM operators can override per-transport via
+     * {@code -D<prefix>connectiontimeout=...} or fall back to the legacy {@code mail.smtp.*}
+     * keys for backward compatibility with deployments that predate transport-aware overrides.
+     */
     private void configureTimeouts(Properties mailProps, String prefix) {
-        String connectionTimeout = System.getProperty("mail.smtp.connectiontimeout", "60000");
-        String socketTimeout = System.getProperty("mail.smtp.timeout", "60000");
-        String writeTimeout = System.getProperty("mail.smtp.writetimeout", "60000");
+        // Prefer transport-namespaced JVM overrides (e.g. -Dmail.smtps.connectiontimeout=...)
+        // and fall back to the unprefixed mail.smtp.* form for backward compatibility.
+        String connectionTimeout = System.getProperty(prefix + "connectiontimeout",
+                System.getProperty("mail.smtp.connectiontimeout", "60000"));
+        String socketTimeout = System.getProperty(prefix + "timeout",
+                System.getProperty("mail.smtp.timeout", "60000"));
+        String writeTimeout = System.getProperty(prefix + "writetimeout",
+                System.getProperty("mail.smtp.writetimeout", "60000"));
 
         mailProps.put(prefix + "connectiontimeout", connectionTimeout);
         mailProps.put(prefix + "timeout", socketTimeout);

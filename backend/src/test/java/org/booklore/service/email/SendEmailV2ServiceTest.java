@@ -310,6 +310,21 @@ class SendEmailV2ServiceTest {
         }
     }
 
+    /**
+     * Mirrors {@code SendEmailV2Service#configureTimeouts}'s JVM-property fallback chain
+     * so timeout assertions remain stable on machines that have set ambient
+     * {@code mail.smtp.*} or {@code mail.smtps.*} system properties.
+     */
+    private static String expectedTimeout(String prefix, String suffix) {
+        return System.getProperty(prefix + suffix,
+                System.getProperty("mail.smtp." + suffix, "60000"));
+    }
+
+    /**
+     * Verifies that an SSL provider (port 465) writes auth, SSL, and timeout properties
+     * under the {@code mail.smtps.*} namespace that {@code SMTPSSLTransport} actually reads.
+     * Regression guard for issue #1301.
+     */
     @Test
     void setupMailSender_sslProvider_writesSmtpsAuthAndSslProperties() {
         EmailProviderV2Entity sslProvider = EmailProviderV2Entity.builder()
@@ -333,13 +348,20 @@ class SendEmailV2ServiceTest {
         // Whitespace-separated, not comma-separated: Angus Mail's SocketFetcher
         // passes the raw string to SSLSocket.setEnabledProtocols which splits on whitespace.
         assertThat(props.get("mail.smtps.ssl.protocols")).isEqualTo("TLSv1.2 TLSv1.3");
-        assertThat(props.get("mail.smtps.connectiontimeout")).isEqualTo("60000");
-        assertThat(props.get("mail.smtps.timeout")).isEqualTo("60000");
-        assertThat(props.get("mail.smtps.writetimeout")).isEqualTo("60000");
+        assertThat(props.get("mail.smtps.connectiontimeout"))
+                .isEqualTo(expectedTimeout("mail.smtps.", "connectiontimeout"));
+        assertThat(props.get("mail.smtps.timeout"))
+                .isEqualTo(expectedTimeout("mail.smtps.", "timeout"));
+        assertThat(props.get("mail.smtps.writetimeout"))
+                .isEqualTo(expectedTimeout("mail.smtps.", "writetimeout"));
         // Guard against future regression that double-writes both prefixes.
         assertThat(props.get("mail.smtp.auth")).isNull();
     }
 
+    /**
+     * Verifies that a STARTTLS provider (port 587) writes properties under {@code mail.smtp.*}
+     * with {@code starttls.enable} and {@code starttls.required} both true.
+     */
     @Test
     void setupMailSender_starttlsProvider_writesSmtpProperties() {
         EmailProviderV2Entity starttlsProvider = EmailProviderV2Entity.builder()
@@ -359,9 +381,14 @@ class SendEmailV2ServiceTest {
         assertThat(props.get("mail.smtp.starttls.enable")).isEqualTo("true");
         assertThat(props.get("mail.smtp.starttls.required")).isEqualTo("true");
         assertThat(props.get("mail.smtp.ssl.enable")).isEqualTo("false");
-        assertThat(props.get("mail.smtp.connectiontimeout")).isEqualTo("60000");
+        assertThat(props.get("mail.smtp.connectiontimeout"))
+                .isEqualTo(expectedTimeout("mail.smtp.", "connectiontimeout"));
     }
 
+    /**
+     * Verifies that a plain SMTP provider writes properties under {@code mail.smtp.*}
+     * with both SSL and STARTTLS disabled.
+     */
     @Test
     void setupMailSender_plainProvider_writesSmtpProperties() {
         EmailProviderV2Entity plainProvider = EmailProviderV2Entity.builder()
