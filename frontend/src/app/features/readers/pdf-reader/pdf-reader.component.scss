@@ -331,7 +331,7 @@ $transition-fast: 150ms ease;
   pointer-events: none;
   transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 
-  &.visible {
+  &.is-visible {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;

@@ -229,7 +229,7 @@ $transition-fast: 150ms ease;
   gap: 4px;
 }
 
-.list-item {
+.reader-list-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -430,7 +430,7 @@ $transition-fast: 150ms ease;
     }
   }
 
-  .list-item {
+  .reader-list-item {
     background: rgb(0 0 0 / 2%);
 
     &:hover {

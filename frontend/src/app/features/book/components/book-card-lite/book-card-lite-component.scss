@@ -29,7 +29,7 @@
     transition: opacity 0.2s ease-in-out;
     z-index: 2;
 
-    &.visible {
+    &.is-visible {
       opacity: 1;
       pointer-events: auto;
     }

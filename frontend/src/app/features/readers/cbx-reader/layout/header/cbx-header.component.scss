@@ -19,7 +19,7 @@
   transform: translateY(0);
   transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 
-  &:not(.visible) {
+  &:not(.is-visible) {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-100%);

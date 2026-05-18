@@ -172,7 +172,7 @@
   }
 
   <!-- Footer (shared across both viewer modes) -->
-  <div class="pdf-footer" [class.visible]="footerVisible()">
+  <div class="pdf-footer" [class.is-visible]="footerVisible()">
     <div class="page-nav-left">
       <button class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
         [title]="'readerPdf.footer.firstPage' | transloco" [attr.aria-label]="'readerPdf.footer.firstPage' | transloco">

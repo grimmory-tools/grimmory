@@ -3,8 +3,8 @@
 /*
  * Document defaults.
  *
- * This file owns browser-level app defaults: root sizing, body canvas,
- * baseline typography, links, scrollbars, and user preference handling.
+ * This file owns browser-level app defaults: body canvas, baseline typography,
+ * links, scrollbars, and user preference handling.
  * Page structure belongs in page.scss; component styling belongs with the
  * component.
  */
@@ -12,16 +12,11 @@
 html {
   --mobile-shell-active: 0;
 
-  height: 100%;
   font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   font-size: var(--font-size-root);
 }
 
 body {
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
   background-color: var(--surface-app);
   color: var(--text-color);
   font-family: var(--font-family), serif;
@@ -69,7 +64,6 @@ h5,
 h6 {
   margin: 1.5rem 0 1rem;
   color: var(--high-contrast-text-color);
-  font-family: inherit;
   font-weight: 500;
   line-height: 1.2;
   overflow-wrap: break-word;

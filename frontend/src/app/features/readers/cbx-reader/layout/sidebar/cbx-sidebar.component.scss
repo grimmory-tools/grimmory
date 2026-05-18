@@ -302,7 +302,7 @@ $transition-normal: 200ms ease;
   padding: 8px 0;
 }
 
-.list-item {
+.reader-list-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -403,8 +403,8 @@ $transition-normal: 200ms ease;
   }
 }
 
-.list-item:hover .edit-btn,
-.list-item:hover .delete-btn {
+.reader-list-item:hover .edit-btn,
+.reader-list-item:hover .delete-btn {
   opacity: 1;
 }
 
