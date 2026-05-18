@@ -6,11 +6,15 @@ import {BookDialogHelperService} from './book-dialog-helper.service';
 
 describe('BookDialogHelperService', () => {
   let service: BookDialogHelperService;
-  let dialogLauncherService: {openDialog: ReturnType<typeof vi.fn>};
+  let dialogLauncherService: {
+    openDialog: ReturnType<typeof vi.fn>,
+    launchLazyDialog: ReturnType<typeof vi.fn>
+  };
 
   beforeEach(() => {
     dialogLauncherService = {
-      openDialog: vi.fn(() => ({id: 'dialog-ref'})),
+      openDialog: vi.fn().mockResolvedValue({id: 'dialog-ref'}),
+      launchLazyDialog: vi.fn((fn) => fn()),
     };
 
     TestBed.configureTestingModule({
@@ -27,8 +31,8 @@ describe('BookDialogHelperService', () => {
     TestBed.resetTestingModule();
   });
 
-  it('opens the book details dialog with the expected payload', () => {
-    const dialogRef = service.openBookDetailsDialog(42);
+  it('opens the book details dialog with the expected payload', async () => {
+    const dialogRef = await service.openBookDetailsDialog(42);
 
     expect(dialogLauncherService.openDialog).toHaveBeenCalledWith(
       expect.any(Function),
@@ -40,17 +44,17 @@ describe('BookDialogHelperService', () => {
     expect(dialogRef).toEqual({id: 'dialog-ref'});
   });
 
-  it('returns null instead of opening the shelf assigner when no inputs are provided', () => {
-    const dialogRef = service.openShelfAssignerDialog(null, null);
+  it('returns null instead of opening the shelf assigner when no inputs are provided', async () => {
+    const dialogRef = await service.openShelfAssignerDialog(null, null);
 
     expect(dialogRef).toBeNull();
     expect(dialogLauncherService.openDialog).not.toHaveBeenCalled();
   });
 
-  it('opens the bulk file attacher with the provided source books', () => {
+  it('opens the bulk file attacher with the provided source books', async () => {
     const sourceBooks = [{id: 1}, {id: 2}] as never[];
 
-    service.openBulkBookFileAttacherDialog(sourceBooks);
+    await service.openBulkBookFileAttacherDialog(sourceBooks);
 
     expect(dialogLauncherService.openDialog).toHaveBeenCalledWith(
       expect.any(Function),

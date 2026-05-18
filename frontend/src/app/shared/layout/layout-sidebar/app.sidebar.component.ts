@@ -30,6 +30,8 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
+import { VersionService } from '../../service/version.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
@@ -40,7 +42,6 @@ import {
   buildShelfSection,
   buildToolsSection,
 } from './sidebar-sections';
-import { VersionService } from '../../service/version.service';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
@@ -119,7 +120,6 @@ export class AppSidebarComponent {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
   readonly layoutService = inject(LayoutService);
   private readonly userService = inject(UserService);
   private readonly versionService = inject(VersionService);
@@ -128,9 +128,11 @@ export class AppSidebarComponent {
   private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
   private readonly renderer = inject(Renderer2);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly metadataProgressService = inject(MetadataProgressService);
-  private readonly bookdropFileService = inject(BookdropFileService);
+private readonly router = inject(Router);
+private readonly messageService = inject(MessageService);
+private readonly destroyRef = inject(DestroyRef);
+private readonly metadataProgressService = inject(MetadataProgressService);
+private readonly bookdropFileService = inject(BookdropFileService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
@@ -199,10 +201,10 @@ export class AppSidebarComponent {
     if (!user) return [];
 
     const actions = buildCreateActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
+      createLibrary: () => void this.dialogLauncherService.openLibraryCreateDialog().catch(() => undefined),
+      createShelf: () => void this.bookDialogHelperService.openShelfCreatorDialog().catch(() => undefined),
+      createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
+      uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
     });
     return this.toMenuEntries(actions);
   });
@@ -274,29 +276,28 @@ export class AppSidebarComponent {
   }
 
   protected openAccountSettings(): void {
-    this.dialogLauncherService.openUserProfileDialog();
-    this.closeUserPopover();
+   void this.dialogLauncherService.openUserProfileDialog().catch(() => undefined);
+   this.closeUserPopover();
   }
 
   protected openSettings(): void {
-    this.router.navigate(['/settings']);
-    this.closeUserPopover();
+   this.router.navigate(['/settings']);
+   this.closeUserPopover();
   }
 
   protected openChangelogDialog(): void {
-    this.dialogLauncherService.openVersionChangelogDialog();
-    this.closeUserPopover();
+   void this.dialogLauncherService.openVersionChangelogDialog().catch(() => undefined);
+   this.closeUserPopover();
   }
 
   protected openReadingStats(): void {
-    this.router.navigate(['/reading-stats']);
-    this.closeUserPopover();
+   this.router.navigate(['/reading-stats']);
+   this.closeUserPopover();
   }
 
   protected openUploadDialog(): void {
-    this.dialogLauncherService.openFileUploadDialog();
+   void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined);
   }
-
   protected logout(): void {
     this.authService.logout();
     this.closeUserPopover();
@@ -366,24 +367,24 @@ export class AppSidebarComponent {
     overlay.toggle(event);
   }
 
-  private subscribeToMetadataProgress(): void {
-    this.metadataProgressService.progressUpdates$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((progress) => {
-        this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
-      });
-  }
+private subscribeToMetadataProgress(): void {
+  this.metadataProgressService.progressUpdates$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe((progress) => {
+      this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
+    });
+}
 
-  private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
-    for (const key of Object.keys(this.latestTasks)) {
-      delete this.latestTasks[key];
-    }
-    Object.assign(this.latestTasks, tasks);
+private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
+  for (const key of Object.keys(this.latestTasks)) {
+    delete this.latestTasks[key];
   }
+  Object.assign(this.latestTasks, tasks);
+}
 
-  private updateCompletedTaskCount(): void {
-    const metadataTaskCount = Object.keys(this.latestTasks).length;
-    const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
-    this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
-  }
+private updateCompletedTaskCount(): void {
+  const metadataTaskCount = Object.keys(this.latestTasks).length;
+  const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
+  this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
+}
 }

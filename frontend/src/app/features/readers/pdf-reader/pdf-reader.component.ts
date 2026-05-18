@@ -263,8 +263,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       // Intercept 'x' key to prevent EmbedPDF from reloading the page;
       // instead close the reader via SPA navigation.
       const keydownHandler = (e: KeyboardEvent) => {
-        const tag = (e.target as HTMLElement)?.tagName;
-        const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
+        const isEditing = e.composedPath().some((target) => {
+          const el = target as HTMLElement;
+          return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
+        });
 
         if (e.key === 'x' || e.key === 'X') {
           if (isEditing) return;

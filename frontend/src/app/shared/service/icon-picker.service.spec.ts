@@ -28,7 +28,7 @@ describe('IconPickerService', () => {
   });
 
   it('returns the icon selected by the dialog', async () => {
-    dialogLauncherService.openIconPickerDialog.mockReturnValue({
+    dialogLauncherService.openIconPickerDialog.mockResolvedValue({
       onClose: of({type: 'PRIME_NG', value: 'pi pi-book'}),
     });
 

@@ -87,9 +87,9 @@ describe('LibraryShelfMenuService', () => {
     navigate: vi.fn(),
   };
   const dialogLauncherService = {
-    openLibraryEditDialog: vi.fn(),
-    openShelfEditDialog: vi.fn(),
-    openMagicShelfEditDialog: vi.fn(),
+    openLibraryEditDialog: vi.fn(() => Promise.resolve(null)),
+    openShelfEditDialog: vi.fn(() => Promise.resolve(null)),
+    openMagicShelfEditDialog: vi.fn(() => Promise.resolve(null)),
   };
   const magicShelfService = {
     deleteShelf: vi.fn(() => of(undefined)),
@@ -99,10 +99,10 @@ describe('LibraryShelfMenuService', () => {
     hide: vi.fn(),
   };
   const bookDialogHelperService = {
-    openAddPhysicalBookDialog: vi.fn(),
-    openBulkIsbnImportDialog: vi.fn(),
-    openDuplicateMergerDialog: vi.fn(),
-    openMetadataRefreshDialogWithContext: vi.fn(),
+    openAddPhysicalBookDialog: vi.fn(() => Promise.resolve(null)),
+    openBulkIsbnImportDialog: vi.fn(() => Promise.resolve(null)),
+    openDuplicateMergerDialog: vi.fn(() => Promise.resolve(null)),
+    openMetadataRefreshDialogWithContext: vi.fn(() => Promise.resolve(null)),
   };
   const translocoService = {
     translate: vi.fn((key: string) => key),

@@ -25,6 +25,9 @@ interface ChartConfig {
   category: string;
 }
 
+import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
 @Component({
   selector: 'app-library-stats',
   standalone: true,
@@ -44,6 +47,7 @@ interface ChartConfig {
     ReadingJourneyChartComponent,
     TranslocoDirective
   ],
+  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
   templateUrl: './library-stats.component.html',
   styleUrls: ['./library-stats.component.scss']
 })

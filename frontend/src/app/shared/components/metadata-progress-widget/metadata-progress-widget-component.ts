@@ -102,7 +102,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   }
 
   reviewTask(taskId: string): void {
-    this.dialogLauncherService.openMetadataReviewDialog(taskId);
+    void this.dialogLauncherService.openMetadataReviewDialog(taskId).catch(() => undefined);
   }
 
   cancelTask(taskId: string): void {

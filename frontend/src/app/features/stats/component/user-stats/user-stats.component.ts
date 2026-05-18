@@ -29,6 +29,9 @@ import {PublicationEraChartComponent} from './charts/publication-era-chart/publi
 import {SessionArchetypesChartComponent} from './charts/session-archetypes-chart/session-archetypes-chart.component';
 import {UserChartConfig, UserChartConfigService} from './service/user-chart-config.service';
 
+import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
 @Component({
   selector: 'app-user-stats',
   standalone: true,
@@ -61,6 +64,7 @@ import {UserChartConfig, UserChartConfigService} from './service/user-chart-conf
     SessionArchetypesChartComponent,
     TranslocoDirective
   ],
+  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss']
 })

@@ -67,11 +67,11 @@ describe('MetadataViewerComponent', () => {
   const deleteBookFile = vi.fn(() => of(void 0));
   const detachBookFile = vi.fn(() => of(void 0));
 
-  const openAdditionalFileUploaderDialog = vi.fn();
-  const openCustomSendDialog = vi.fn();
-  const openBookFileAttacherDialog = vi.fn();
-  const openFileMoverDialog = vi.fn();
-  const openShelfAssignerDialog = vi.fn();
+  const openAdditionalFileUploaderDialog = vi.fn(() => Promise.resolve(null));
+  const openCustomSendDialog = vi.fn(() => Promise.resolve(null));
+  const openBookFileAttacherDialog = vi.fn(() => Promise.resolve(null));
+  const openFileMoverDialog = vi.fn(() => Promise.resolve(null));
+  const openShelfAssignerDialog = vi.fn(() => Promise.resolve(null));
 
   const emailBookQuick = vi.fn(() => of(void 0));
   const refreshMetadataTask = vi.fn(() => of(void 0));
