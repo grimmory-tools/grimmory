@@ -6,11 +6,15 @@ import {BookDialogHelperService} from './book-dialog-helper.service';
 
 describe('BookDialogHelperService', () => {
   let service: BookDialogHelperService;
-  let dialogLauncherService: {openDialog: ReturnType<typeof vi.fn>};
+  let dialogLauncherService: {
+    openDialog: ReturnType<typeof vi.fn>,
+    launchLazyDialog: ReturnType<typeof vi.fn>
+  };
 
   beforeEach(() => {
     dialogLauncherService = {
       openDialog: vi.fn().mockResolvedValue({id: 'dialog-ref'}),
+      launchLazyDialog: vi.fn((fn) => fn()),
     };
 
     TestBed.configureTestingModule({

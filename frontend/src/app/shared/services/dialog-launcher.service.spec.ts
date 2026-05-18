@@ -1,6 +1,8 @@
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {DialogService} from 'primeng/dynamicdialog';
+import {MessageService} from 'primeng/api';
+import {getTranslocoModule} from '../../core/testing/transloco-testing';
 
 import {DashboardSettingsComponent} from '../../features/dashboard/components/dashboard-settings/dashboard-settings.component';
 import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';
@@ -20,9 +22,11 @@ describe('DialogLauncherService', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
+      imports: [getTranslocoModule()],
       providers: [
         DialogLauncherService,
         {provide: DialogService, useValue: dialogService},
+        {provide: MessageService, useValue: {add: vi.fn()}},
       ]
     });
 

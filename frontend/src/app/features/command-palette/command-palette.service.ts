@@ -133,13 +133,7 @@ export class CommandPaletteService {
     this.hide();
     queueMicrotask(() => {
       if (item.command) {
-        void Promise.resolve(item.command()).catch(() => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translate('common.error'),
-            detail: this.translate('common.dialogLoadError')
-          });
-        });
+        void item.command();
         return;
       }
       if (item.route) {
@@ -219,10 +213,10 @@ export class CommandPaletteService {
     const user = this.userService.currentUser();
     if (!user) return [];
     return buildQuickActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog().catch(err => this.handleDialogLoadError(err)),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog().catch(err => this.handleDialogLoadError(err)),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog().catch(err => this.handleDialogLoadError(err)),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog().catch(err => this.handleDialogLoadError(err)),
+      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
+      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
+      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
+      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
     }).map((item) => this.toPaletteNavItem(item, 'action'));
   });
 
@@ -327,14 +321,5 @@ export class CommandPaletteService {
       route: item.routerLink,
       command: item.action,
     };
-  }
-
-  private handleDialogLoadError(err: unknown) {
-    console.error('Failed to load dialog', err);
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translate('common.error'),
-      detail: this.translate('common.dialogLoadError')
-    });
   }
 }

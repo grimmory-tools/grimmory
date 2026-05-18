@@ -201,10 +201,10 @@ private readonly bookdropFileService = inject(BookdropFileService);
     if (!user) return [];
 
     const actions = buildCreateActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog().catch(err => this.handleDialogLoadError(err)),
-      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog().catch(err => this.handleDialogLoadError(err)),
-      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog().catch(err => this.handleDialogLoadError(err)),
-      uploadBook: () => this.dialogLauncherService.openFileUploadDialog().catch(err => this.handleDialogLoadError(err)),
+      createLibrary: () => this.dialogLauncherService.openLibraryCreateDialog(),
+      createShelf: () => this.bookDialogHelperService.openShelfCreatorDialog(),
+      createMagicShelf: () => this.dialogLauncherService.openMagicShelfCreateDialog(),
+      uploadBook: () => this.dialogLauncherService.openFileUploadDialog(),
     });
     return this.toMenuEntries(actions);
   });
@@ -367,14 +367,6 @@ private readonly bookdropFileService = inject(BookdropFileService);
     }
     overlay.toggle(event);
   }
-private handleDialogLoadError(err: unknown) {
-  console.error('Failed to load dialog', err);
-  this.messageService.add({
-    severity: 'error',
-    summary: this.translate('common.error'),
-    detail: this.translate('common.dialogLoadError')
-  });
-}
 
 private subscribeToMetadataProgress(): void {
   this.metadataProgressService.progressUpdates$

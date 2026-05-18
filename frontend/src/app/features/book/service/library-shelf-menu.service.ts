@@ -49,15 +49,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              try {
-                await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
-              } catch {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
-                });
-              }
+              await this.bookDialogHelperService.openAddPhysicalBookDialog(libraryId);
             }
           },
           {
@@ -68,15 +60,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              try {
-                await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
-              } catch {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
-                });
-              }
+              await this.bookDialogHelperService.openBulkIsbnImportDialog(libraryId);
             }
           },
           {
@@ -144,18 +128,10 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              try {
-                await this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
-                  metadataRefreshType: MetadataRefreshType.LIBRARY,
-                  libraryId
-                });
-              } catch {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
-                });
-              }
+              await this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+                metadataRefreshType: MetadataRefreshType.LIBRARY,
+                libraryId
+              });
             }
           },
           {
@@ -180,15 +156,7 @@ export class LibraryShelfMenuService {
               if (libraryId == null) {
                 return;
               }
-              try {
-                await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
-              } catch {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: this.t.translate('book.shelfMenuService.toast.failedSummary'),
-                  detail: this.t.translate('book.shelfMenuService.toast.dialogLoadFailedDetail'),
-                });
-              }
+              await this.bookDialogHelperService.openDuplicateMergerDialog(libraryId);
             }
           },
           {
