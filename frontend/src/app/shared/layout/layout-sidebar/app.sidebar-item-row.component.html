@@ -90,7 +90,7 @@
         [popup]="true"
         appendTo="body"
         styleClass="sidebar-entity-menu"
-        (onShow)="positionContextMenu(entitymenu)"
+        (onShow)="markContextMenuOpen()"
         (onHide)="closeContextMenu()"
       ></p-menu>
     } @else if (currentItem.bookCount) {

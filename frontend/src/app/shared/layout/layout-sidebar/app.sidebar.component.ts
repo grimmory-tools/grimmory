@@ -1,20 +1,12 @@
-import { Component, DestroyRef, Renderer2, RendererStyleFlags2, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
-import { MenuTrigger } from '@angular/aria/menu';
-import { Popover } from 'primeng/popover';
+import { Menu } from 'primeng/menu';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
-import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
 import { AppButtonDirective } from '../../components/button/app-button.directive';
-import { MenuComponent } from '../../components/menu/menu.component';
-import { MenuEntry } from '../../components/menu/menu-item.model';
-import {
-  ABOVE_ALIGN_LEFT,
-  BELOW_ALIGN_LEFT,
-  BESIDE_RIGHT_BOTTOM,
-} from '../../components/menu/menu-positions';
 import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
@@ -30,8 +22,7 @@ import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
-import { VersionService } from '../../service/version.service';
+import type { MenuItem } from 'primeng/api';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
@@ -42,11 +33,30 @@ import {
   buildShelfSection,
   buildToolsSection,
 } from './sidebar-sections';
+import { VersionService } from '../../service/version.service';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
+const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
+  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
+  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
+];
+const RIGHT_ALIGN_TOP: ConnectedPosition[] = [
+  { originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top', offsetX: 8 },
+  { originX: 'end', originY: 'bottom', overlayX: 'start', overlayY: 'bottom', offsetX: 8 },
+  { originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'top', offsetX: -8 },
+  { originX: 'start', originY: 'bottom', overlayX: 'end', overlayY: 'bottom', offsetX: -8 },
+];
+const ABOVE_ALIGN_CENTER: ConnectedPosition[] = [
+  { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -8 },
+  { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 8 },
+];
+const BELOW_ALIGN_CENTER: ConnectedPosition[] = [
+  { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 8 },
+  { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -8 },
+];
 
 function computeInitials(name: string | null | undefined, username: string | null | undefined): string {
   const source = (name?.trim() || username?.trim() || '').trim();
@@ -95,14 +105,12 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
   imports: [
     AppSidebarSectionComponent,
     AppButtonDirective,
-    Popover,
+    Menu,
     UnifiedNotificationBoxComponent,
-    MenuComponent,
     RouterLink,
     TranslocoDirective,
     TranslocoPipe,
     Tooltip,
-    MenuTrigger,
     CdkTrapFocus,
     CdkConnectedOverlay,
     CdkOverlayOrigin,
@@ -120,6 +128,7 @@ export class AppSidebarComponent {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   readonly layoutService = inject(LayoutService);
   private readonly userService = inject(UserService);
   private readonly versionService = inject(VersionService);
@@ -127,12 +136,9 @@ export class AppSidebarComponent {
   private readonly seriesDataService = inject(SeriesDataService);
   private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
-  private readonly renderer = inject(Renderer2);
-private readonly router = inject(Router);
-private readonly messageService = inject(MessageService);
-private readonly destroyRef = inject(DestroyRef);
-private readonly metadataProgressService = inject(MetadataProgressService);
-private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly bookdropFileService = inject(BookdropFileService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
@@ -195,7 +201,7 @@ private readonly bookdropFileService = inject(BookdropFileService);
     ];
   });
 
-  readonly addMenuItems = computed<MenuEntry[]>(() => {
+  readonly addMenuItems = computed<MenuItem[]>(() => {
     this.activeLang();
     const user = this.currentUser();
     if (!user) return [];
@@ -206,7 +212,7 @@ private readonly bookdropFileService = inject(BookdropFileService);
       createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
       uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
     });
-    return this.toMenuEntries(actions);
+    return this.toMenuItems(actions);
   });
 
   readonly userInitials = computed(() => {
@@ -215,15 +221,17 @@ private readonly bookdropFileService = inject(BookdropFileService);
   });
 
   protected readonly notificationsOpen = signal(false);
+  protected readonly notificationPopoverOrigin = signal<CdkOverlayOrigin | null>(null);
+  private readonly notificationPopoverMobilePositions = signal<ConnectedPosition[]>(ABOVE_ALIGN_CENTER);
+  protected readonly addMenuOpen = signal(false);
+  protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
+  protected readonly notificationPopoverPositions = computed(() =>
+    this.layoutService.isDesktop() ? RIGHT_ALIGN_TOP : this.notificationPopoverMobilePositions()
+  );
   protected progressHighlight = false;
   protected completedTaskCount = 0;
   protected hasPendingBookdropFiles = false;
 
-  protected readonly mobileMenuPositions = BELOW_ALIGN_LEFT;
-  protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
-  protected readonly footerMenuPositions = computed(() =>
-    this.layoutService.desktopSidebarCollapsed() ? BESIDE_RIGHT_BOTTOM : ABOVE_ALIGN_LEFT,
-  );
   private readonly latestTasks: Record<string, MetadataBatchProgressNotification> = {};
 
   constructor() {
@@ -276,28 +284,29 @@ private readonly bookdropFileService = inject(BookdropFileService);
   }
 
   protected openAccountSettings(): void {
-   void this.dialogLauncherService.openUserProfileDialog().catch(() => undefined);
-   this.closeUserPopover();
+    void this.dialogLauncherService.openUserProfileDialog().catch(() => undefined);
+    this.closeUserPopover();
   }
 
   protected openSettings(): void {
-   this.router.navigate(['/settings']);
-   this.closeUserPopover();
+    this.router.navigate(['/settings']);
+    this.closeUserPopover();
   }
 
   protected openChangelogDialog(): void {
-   void this.dialogLauncherService.openVersionChangelogDialog().catch(() => undefined);
-   this.closeUserPopover();
+    void this.dialogLauncherService.openVersionChangelogDialog().catch(() => undefined);
+    this.closeUserPopover();
   }
 
   protected openReadingStats(): void {
-   this.router.navigate(['/reading-stats']);
-   this.closeUserPopover();
+    this.router.navigate(['/reading-stats']);
+    this.closeUserPopover();
   }
 
   protected openUploadDialog(): void {
-   void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined);
+    void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined);
   }
+
   protected logout(): void {
     this.authService.logout();
     this.closeUserPopover();
@@ -310,81 +319,63 @@ private readonly bookdropFileService = inject(BookdropFileService);
     }
   }
 
-  private readonly anchorByOverlay = new WeakMap<Popover, { trigger: HTMLElement; placement: 'above' | 'below' }>();
-
-  protected applySidebarOverlayPosition(overlay: Popover): void {
-    const anchor = this.anchorByOverlay.get(overlay);
-    const panel = overlay.container;
-    if (!anchor || !panel) return;
-
-    window.requestAnimationFrame(() => {
-      this.positionSidebarOverlay(anchor, panel);
-    });
-  }
-
-  private positionSidebarOverlay(
-    anchor: { trigger: HTMLElement; placement: 'above' | 'below' },
-    panel: HTMLElement,
-  ): void {
-    const rect = anchor.trigger.getBoundingClientRect();
-    const panelWidth = panel.offsetWidth;
-    const panelHeight = panel.offsetHeight;
-    const left = Math.max(Math.min(rect.left, window.innerWidth - panelWidth - 8), 8);
-    const maxTop = Math.max(window.innerHeight - panelHeight - 8, 8);
-
-    const anchorAbove = anchor.placement === 'above' && !this.layoutService.desktopSidebarCollapsed();
-    const requestedTop = anchorAbove
-      ? rect.top - panelHeight - 8
-      : rect.bottom + 8;
-    const top = Math.max(Math.min(requestedTop, maxTop), 8);
-
-    const flags = RendererStyleFlags2.DashCase;
-    this.renderer.setStyle(panel, '--sidebar-popover-top', `${top}px`, flags);
-    this.renderer.setStyle(panel, '--sidebar-popover-max-height', `${Math.max(window.innerHeight - top - 8, 0)}px`, flags);
-
-    if (anchorAbove || !this.layoutService.isDesktop()) {
-      this.renderer.setStyle(panel, '--sidebar-popover-left', `${left}px`, flags);
-    } else {
-      this.renderer.removeStyle(panel, '--sidebar-popover-left', flags);
-    }
-  }
-
-  private toMenuEntries(items: readonly (NavItem | null | undefined)[]): MenuEntry[] {
-    return items.flatMap((item): MenuEntry[] =>
+  private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
+    return items.flatMap((item): MenuItem[] =>
       item ? [{
         label: item.label,
         icon: item.icon ? `pi ${item.icon}` : undefined,
         routerLink: item.routerLink,
-        action: item.action,
+        command: item.action,
       }] : []
     );
   }
 
-  openSidebarOverlay(event: MouseEvent, overlay: Popover, placement: 'above' | 'below'): void {
-    if (event.currentTarget instanceof HTMLElement) {
-      this.anchorByOverlay.set(overlay, { trigger: event.currentTarget, placement });
+  protected toggleAddMenu(event: MouseEvent, menu: Menu): void {
+    menu.toggle(event);
+  }
+
+  protected toggleHeaderNotificationsPopover(origin: CdkOverlayOrigin): void {
+    this.toggleNotificationsPopover(origin, BELOW_ALIGN_CENTER);
+  }
+
+  protected toggleFooterNotificationsPopover(origin: CdkOverlayOrigin): void {
+    this.toggleNotificationsPopover(origin, ABOVE_ALIGN_CENTER);
+  }
+
+  private toggleNotificationsPopover(origin: CdkOverlayOrigin, mobilePositions = ABOVE_ALIGN_CENTER): void {
+    if (this.notificationsOpen() && this.notificationPopoverOrigin() === origin) {
+      this.closeNotificationsPopover();
+      return;
     }
-    overlay.toggle(event);
+
+    this.notificationPopoverMobilePositions.set(mobilePositions);
+    this.notificationPopoverOrigin.set(origin);
+    this.notificationsOpen.set(true);
   }
 
-private subscribeToMetadataProgress(): void {
-  this.metadataProgressService.progressUpdates$
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe((progress) => {
-      this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
-    });
-}
-
-private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
-  for (const key of Object.keys(this.latestTasks)) {
-    delete this.latestTasks[key];
+  protected closeNotificationsPopover(): void {
+    this.notificationsOpen.set(false);
+    this.notificationPopoverOrigin.set(null);
   }
-  Object.assign(this.latestTasks, tasks);
-}
 
-private updateCompletedTaskCount(): void {
-  const metadataTaskCount = Object.keys(this.latestTasks).length;
-  const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
-  this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
-}
+  private subscribeToMetadataProgress(): void {
+    this.metadataProgressService.progressUpdates$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((progress) => {
+        this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
+      });
+  }
+
+  private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
+    for (const key of Object.keys(this.latestTasks)) {
+      delete this.latestTasks[key];
+    }
+    Object.assign(this.latestTasks, tasks);
+  }
+
+  private updateCompletedTaskCount(): void {
+    const metadataTaskCount = Object.keys(this.latestTasks).length;
+    const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
+    this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
+  }
 }

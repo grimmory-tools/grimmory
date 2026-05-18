@@ -50,26 +50,27 @@
 
     <button
       type="button"
-      ngMenuTrigger
-      #addMobileTrigger="ngMenuTrigger"
-      #addMobileOrigin
-      [menu]="addMobileMenu.menuRef()"
       class="sidebar-icon-button sidebar-mobile-landscape-action"
       [pTooltip]="t('add')"
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
       [attr.aria-label]="t('add')"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
+      (click)="toggleAddMenu($event, addMenu)"
     >
       <i class="pi pi-plus" aria-hidden="true"></i>
     </button>
 
-    <app-menu
-      #addMobileMenu="appMenu"
-      [origin]="addMobileOrigin"
-      [open]="addMobileTrigger.expanded()"
-      [items]="addMenuItems()"
-      [positions]="mobileMenuPositions"
-    ></app-menu>
+    <p-menu
+      #addMenu
+      [model]="addMenuItems()"
+      [popup]="true"
+      appendTo="body"
+      styleClass="sidebar-create-menu"
+      (onShow)="addMenuOpen.set(true)"
+      (onHide)="addMenuOpen.set(false)"
+    ></p-menu>
 
     @if (canUploadBooks()) {
       <button
@@ -87,6 +88,8 @@
 
     <button
       type="button"
+      cdkOverlayOrigin
+      #notificationsMobileOrigin="cdkOverlayOrigin"
       class="sidebar-icon-button sidebar-mobile-landscape-action sidebar-notification-button"
       [attr.aria-label]="t('notifications')"
       [pTooltip]="t('notifications')"
@@ -94,7 +97,7 @@
       tooltipPosition="bottom"
       aria-haspopup="dialog"
       [attr.aria-expanded]="notificationsOpen() ? 'true' : 'false'"
-      (click)="openSidebarOverlay($event, notificationsPopover, 'below')"
+      (click)="toggleHeaderNotificationsPopover(notificationsMobileOrigin)"
     >
       <span class="sidebar-notification-button-content">
         <i class="pi pi-bell" aria-hidden="true"></i>
@@ -103,10 +106,6 @@
         }
       </span>
     </button>
-
-    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="notificationsOpen.set(true); applySidebarOverlayPosition(notificationsPopover)" (onHide)="notificationsOpen.set(false)">
-      <app-unified-notification-popover-component></app-unified-notification-popover-component>
-    </p-popover>
 
     @if (currentUser(); as user) {
       <button
@@ -160,27 +159,18 @@
     <div class="sidebar-footer-actions">
       <button
         type="button"
-        ngMenuTrigger
-        #addFooterTrigger="ngMenuTrigger"
-        #addFooterOrigin
-        [menu]="addFooterMenu.menuRef()"
         class="sidebar-action-link sidebar-footer-action sidebar-toolbar-button"
         [pTooltip]="t('add')"
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         [attr.aria-label]="t('add')"
+        aria-haspopup="menu"
+        [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
+        (click)="toggleAddMenu($event, addMenu)"
       >
         <i class="pi pi-plus" aria-hidden="true"></i>
         <span class="sidebar-footer-action-label">{{ t('add') }}</span>
       </button>
-
-      <app-menu
-        #addFooterMenu="appMenu"
-        [origin]="addFooterOrigin"
-        [open]="addFooterTrigger.expanded()"
-        [items]="addMenuItems()"
-        [positions]="footerMenuPositions()"
-      ></app-menu>
 
       @if (canUploadBooks()) {
         <button
@@ -199,12 +189,16 @@
 
       <button
         type="button"
+        cdkOverlayOrigin
+        #notificationsFooterOrigin="cdkOverlayOrigin"
         class="sidebar-action-link sidebar-footer-action sidebar-notification-button"
         [attr.aria-label]="t('notifications')"
         [pTooltip]="t('notifications')"
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
-        (click)="openSidebarOverlay($event, notificationsPopover, layoutService.isDesktop() ? 'below' : 'above')"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="notificationsOpen() ? 'true' : 'false'"
+        (click)="toggleFooterNotificationsPopover(notificationsFooterOrigin)"
       >
         <span class="sidebar-notification-button-content">
           <i class="pi pi-bell" aria-hidden="true"></i>
@@ -280,6 +274,32 @@
       </div>
     }
   </div>
+
+  @if (notificationPopoverOrigin(); as notificationsOrigin) {
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="notificationsOrigin"
+      [cdkConnectedOverlayOpen]="notificationsOpen()"
+      [cdkConnectedOverlayPositions]="notificationPopoverPositions()"
+      [cdkConnectedOverlayViewportMargin]="8"
+      [cdkConnectedOverlayPush]="true"
+      [cdkConnectedOverlayFlexibleDimensions]="true"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+      cdkConnectedOverlayPanelClass="sidebar-notification-popover-pane"
+      (backdropClick)="closeNotificationsPopover()"
+      (detach)="closeNotificationsPopover()"
+    >
+      <section
+        class="sidebar-notification-popover surface-page"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="t('notifications')"
+      >
+        <app-unified-notification-popover-component></app-unified-notification-popover-component>
+      </section>
+    </ng-template>
+  }
 
   @if (currentUser(); as user) {
     @if (userPopoverOrigin(); as userOrigin) {
