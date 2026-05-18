@@ -167,7 +167,7 @@ $transition-fast: 150ms ease;
     cursor: default;
   }
 
-  &.annotation-tool-btn.active {
+  &.active {
     color: $active-color;
     background: rgb(74 144 226 / 15%);
   }
@@ -758,6 +758,12 @@ $transition-fast: 150ms ease;
 
     &:hover {
       background: $hover-bg;
+    }
+
+    &.active {
+      color: $active-color;
+      background: rgb(74 144 226 / 10%);
+      font-weight: 500;
     }
 
     svg,
