@@ -28,6 +28,7 @@ jobs:
 
   chart-validation:
     name: Helm Chart Validation
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
 
     permissions:
