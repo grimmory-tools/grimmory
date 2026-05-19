@@ -1,0 +1,13 @@
+# Ingress enabled on top of the default configuration.
+# Database: bundled MariaDB
+# Persistence: both PVCs enabled, created by chart
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: grimmory.example.com
+      paths:
+        - path: /
+          pathType: Prefix
