@@ -323,7 +323,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   private getProviderFromMetadata(metadata: BookMetadata): string | null {
-    if (metadata['itunesId']) return 'itunes';
+    if (metadata.itunesId) return 'itunes';
     if (metadata.audibleId) return 'audible'; 
     if (metadata.asin) return 'amazon';
     if (metadata.goodreadsId) return 'goodreads';
@@ -432,8 +432,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     if (metadata.asin && !metadata.description) {
       return {provider: 'Amazon', id: metadata.asin};
     }
-    if (metadata['itunesId'] && !metadata.description) {
-      return {provider: 'Itunes', id: metadata['itunesId']};
+    if (metadata.itunesId && !metadata.description) {
+      return {provider: 'Itunes', id: metadata.itunesId};
     }
     return null;
   }
@@ -444,7 +444,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       case 'GoodReads': return metadata.goodreadsId;
       case 'Amazon': return metadata.asin;
       case 'Audible': return metadata.audibleId;
-      case 'Itunes': return metadata['itunesId'];
+      case 'Itunes': return metadata.itunesId;
       default: return undefined;
     }
   }
@@ -504,7 +504,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
   trackByMetadata(index: number, metadata: BookMetadata): string {
     return metadata.googleId || metadata.goodreadsId || metadata.asin ||
-      metadata.hardcoverId || metadata.comicvineId || metadata.audibleId || (metadata['itunesId'] as string) || index.toString();
+      metadata.hardcoverId || metadata.comicvineId || metadata.audibleId || (metadata.itunesId as string) || index.toString();
   }
 
   onProviderClick(event: Event) {
