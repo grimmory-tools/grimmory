@@ -79,7 +79,6 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
-              #protocol: TCP
           env:
             - name: DATABASE_HOST
               {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.hostnameKey }}
