@@ -72,6 +72,9 @@ public class MetadataRefreshOptions {
         private FieldProvider audibleId;
         private FieldProvider audibleRating;
         private FieldProvider audibleReviewCount;
+        private FieldProvider itunesId;
+        private FieldProvider itunesRating;
+        private FieldProvider itunesReviewCount;
         private FieldProvider moods;
         private FieldProvider tags;
     }
@@ -166,6 +169,12 @@ public class MetadataRefreshOptions {
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean audibleReviewCount = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean itunesId = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean itunesRating = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean itunesReviewCount = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean moods = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean tags = true;
@@ -209,6 +218,9 @@ public class MetadataRefreshOptions {
             this.audibleId = true;
             this.audibleRating = true;
             this.audibleReviewCount = true;
+            this.itunesId = true;
+            this.itunesRating = true;
+            this.itunesReviewCount = true;
             this.moods = true;
             this.tags = true;
         }

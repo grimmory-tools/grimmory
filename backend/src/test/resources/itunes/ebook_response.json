@@ -1,0 +1,27 @@
+{
+  "resultCount": 1,
+  "results": [
+    {
+      "formattedPrice": "$8.99",
+      "artistIds": [281832452, 464239045],
+      "artistId": 281832452,
+      "artistName": "Andrzej Sapkowski & Danusia Stok",
+      "genres": ["Epic Fantasy", "Books", "Sci-Fi & Fantasy", "Fantasy", "Fantasy Short Stories"],
+      "trackId": 357669161,
+      "trackName": "Blood of Elves",
+      "releaseDate": "2009-05-01T07:00:00Z",
+      "kind": "ebook",
+      "currency": "USD",
+      "description": "<b>Andrzej Sapkowski’s <i>New York Times</i> bestselling Witcher series has inspired the hit Netflix show and multiple blockbuster video games, and has transported millions of fans around the globe to an epic, unforgettable world of magic and adventure.</b><br /><br /> ★\u00a0<b>The\u00a0<i>New York Times\u00a0</i>bestselling series</b><br /> ★\u00a0<b>Over Fifteen Million Copies Sold Worldwide</b><br /> ★\u00a0<b>World Fantasy Award Winning Author</b><br /> ★\u00a0<b>David Gemmell Legend Award Winning Author</b><br /> ★\u00a0<b>Named One of the Greatest Book Series of All Time by\u00a0<i>Forbes</i></b><br /><br /> For over a century, humans, dwarves, gnomes, and elves have lived together in relative peace. But that peace has now come to an end.<br /><br /> Geralt of Rivia, the hunter known as the Witcher, has been waiting for the birth of a prophesied child. The one who has the power to change the world for good—or for evil.<br /><br /> As the threat of war hangs over the land and the child is pursued for her extraordinary powers, it will become Geralt’s responsibility to protect them all. And the Witcher never accepts defeat.<br /><br /><b>Join Geralt of Rivia; his beloved ward and the child of prophecy, Ciri; and his ally and love, the powerful sorceress Yennefer as they battle monsters, demons, and prejudices alike in <i>Blood of Elves</i>, the first novel of The Witcher Saga.</b><br /><br />Witcher story collections<br /><i>The Last Wish<br /> Sword of Destiny</i><br /><br />Witcher novels<br /><i>Blood of Elves<br /> The Time of Contempt<br /> Baptism of Fire<br /> The Tower of Swallows<br /> Lady of the Lake</i><br /><i>Season of Storms<br /> Crossroads of Ravens</i><br /><br />Hussite Trilogy<br /><i>The Tower of Fools<br /> Warriors of God<br /> Light Perpetual</i><br /><br /> Translated from original Polish by Danusia Stok",
+      "trackCensoredName": "Blood of Elves",
+      "artistViewUrl": "https://books.apple.com/us/artist/andrzej-sapkowski-danusia-stok/281832452?uo=4",
+      "trackViewUrl": "https://books.apple.com/us/book/blood-of-elves/id357669161?uo=4",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Publication116/v4/03/41/21/034121f7-3a9f-4510-48bf-8ecb0c048db4/9780316073714.jpg/60x60bb.jpg",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Publication116/v4/03/41/21/034121f7-3a9f-4510-48bf-8ecb0c048db4/9780316073714.jpg/100x100bb.jpg",
+      "genreIds": ["11002", "38", "9020", "10044", "11005"],
+      "price": 8.99,
+      "averageUserRating": 4.5,
+      "userRatingCount": 1984
+    }
+  ]
+}

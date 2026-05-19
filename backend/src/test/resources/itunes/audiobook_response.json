@@ -1,0 +1,28 @@
+{
+  "resultCount": 1,
+  "results": [
+    {
+      "wrapperType": "audiobook",
+      "artistId": 281832452,
+      "collectionId": 1597317483,
+      "artistName": "Andrzej Sapkowski",
+      "collectionName": "O Último Desejo",
+      "collectionCensoredName": "O Último Desejo",
+      "artistViewUrl": "https://books.apple.com/us/author/andrzej-sapkowski/id281832452?uo=4",
+      "collectionViewUrl": "https://books.apple.com/us/audiobook/o-%C3%BAltimo-desejo/id1597317483?uo=4",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/47/7d/91/477d9180-a08c-1966-9188-f390c26b54f9/9788546903191.jpg/60x60bb.jpg",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/47/7d/91/477d9180-a08c-1966-9188-f390c26b54f9/9788546903191.jpg/100x100bb.jpg",
+      "collectionPrice": 9.99,
+      "collectionExplicitness": "cleaned",
+      "trackCount": 1,
+      "copyright": "© 2019 Editora WMF",
+      "country": "USA",
+      "currency": "USD",
+      "releaseDate": "2019-12-24T08:00:00Z",
+      "primaryGenreName": "Sci-Fi & Fantasy",
+      "genres": ["Sci-Fi & Fantasy"],
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/0b/b9/68/0bb96828-e71f-fed1-19c0-e9210ba09181/mzaf_4836563947364102353.std.aac.p.m4a",
+      "description": "O irônico, cínico e descrente Geralt de Rívia perambula de povoado em povoado oferecendo seus serviços. Em seu caminho vai driblar intrigas, escolher o mal menor, negociar preços, alcançar o confim do mundo e realizar seu último desejo: assim começam as aventuras do bruxo Geralt de Rívia.\r\n\r\n'O último desejo' é o primeiro livro da saga do bruxo Geralt de Rívia, seguido por 'A espada do destino', também publicado pela Editora WMF Martins Fontes.\r\n\r\nFenômeno literário que inspirou a criação do game The Witcher.\r\n\r\nMais de 2 milhões de exemplares vendidos.\r\n\r\nAndrzej Sapkowski é um grande renovador da literatura fantástica de nossos tempos, um gênio da linguagem. Sua prosa enfeitiçou leitores no mundo todo – mais de dois milhões de exemplares foram vendidos na Europa e nos Estados Unidos. \r\n\r\nOs livros contam a saga do bruxo Geralt de Rívia, um feiticeiro cheio de astúcia. Um matador impiedoso. Um assassino de sangue-frio, treinado desde a infância para caçar e eliminar monstros. Seu único objetivo: destruir as criaturas do mal que assolam o mundo. Um mundo fantástico criado por Sapkowski com claras influências da mitologia eslava. Um mundo em que nem todos os que parecem monstros são maus e nem todos os que parecem anjos são bons...\r\n\r\n\"Um livro de Sapkowski é como uma sofisticada fórmula mágica que mistura fantasia, rigor intelectual, humor inteligente e princípios de teoria econômica.\" - Revista Time"
+    }
+  ]
+}

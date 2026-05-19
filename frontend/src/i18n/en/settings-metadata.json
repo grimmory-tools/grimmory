@@ -61,7 +61,9 @@
     "googleApiPlaceholder": "Enter Google Books API key",
     "apiToken": "API Token",
     "hardcoverPlaceholder": "Enter Hardcover API token",
-    "comicvinePlaceholder": "Enter Comic Vine API token"
+    "comicvinePlaceholder": "Enter Comic Vine API token",
+    "storefront": "Storefront",
+    "selectStorefront": "Select Storefront"
   },
   "publicReviews": {
     "sectionTitle": "Public Reviews",
@@ -112,6 +114,8 @@
       "hardcoverReviewCount": "Hardcover Rating #",
       "audibleRating": "Audible Rating",
       "audibleReviewCount": "Audible Rating #",
+      "itunesRating": "iTunes Rating",
+      "itunesReviewCount": "iTunes Rating #",
       "doubanRating": "Douban Rating",
       "doubanReviewCount": "Douban Rating #",
       "ranobedbRating": "Ranobedb Rating"
@@ -126,6 +130,7 @@
       "goodreads": "Goodreads",
       "hardcover": "Hardcover",
       "audible": "Audible",
+      "itunes": "iTunes",
       "comicvine": "Comicvine",
       "lubimyczytac": "Lubimyczytac",
       "ranobedb": "Ranobedb"
@@ -149,7 +154,10 @@
       "ranobedbRating": "Ranobedb Rating",
       "audibleId": "Audible ID",
       "audibleRating": "Audible Rating",
-      "audibleReviewCount": "Audible Review Count"
+      "audibleReviewCount": "Audible Review Count",
+      "itunesId": "iTunes ID",
+      "itunesRating": "iTunes Rating",
+      "itunesReviewCount": "iTunes Review Count"
     }
   }
 }

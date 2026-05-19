@@ -85,6 +85,22 @@ export class MetadataProviderSettingsComponent {
   selectedAudibleDomain = 'com';
   audibleEnabled: boolean = false;
 
+  itunesCountries = [
+    {label: 'United States', value: 'us'},
+    {label: 'United Kingdom', value: 'gb'},
+    {label: 'Germany', value: 'de'},
+    {label: 'France', value: 'fr'},
+    {label: 'Poland', value: 'pl'},
+    {label: 'Japan', value: 'jp'},
+    {label: 'Australia', value: 'au'},
+    {label: 'Canada', value: 'ca'},
+    {label: 'Italy', value: 'it'},
+    {label: 'Spain', value: 'es'}
+  ];
+
+  selectedItunesCountry = 'us';
+  itunesEnabled: boolean = false;
+
   hardcoverToken: string = '';
   amazonCookie: string = '';
   hardcoverEnabled: boolean = false;
@@ -128,6 +144,8 @@ export class MetadataProviderSettingsComponent {
     this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
     this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
+    this.itunesEnabled = metadataProviderSettings?.itunes?.enabled ?? false;
+    this.selectedItunesCountry = metadataProviderSettings?.itunes?.country ?? 'us';
   }
 
   onTokenChange(newToken: string): void {
@@ -171,6 +189,10 @@ export class MetadataProviderSettingsComponent {
           audible: {
             enabled: this.audibleEnabled,
             domain: this.selectedAudibleDomain
+          },
+          itunes: {
+            enabled: this.itunesEnabled,
+            country: this.selectedItunesCountry
           }
         }
       }
