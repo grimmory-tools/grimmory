@@ -5,7 +5,7 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    app.kubernetes.io/name: {{ include "grimmory.fullname" . }}
+    {{- include "grimmory.labels" . | nindent 4 }}
   name: {{ include "grimmory.fullname" . }}-data
 spec:
   accessModes:
@@ -22,7 +22,7 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    app.kubernetes.io/name: {{ include "grimmory.fullname" . }}
+    {{- include "grimmory.labels" . | nindent 4 }}
   name: {{ include "grimmory.fullname" . }}-books
 spec:
   accessModes:
