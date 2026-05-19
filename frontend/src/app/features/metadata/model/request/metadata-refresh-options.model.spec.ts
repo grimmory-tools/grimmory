@@ -51,6 +51,9 @@ describe('metadata-refresh-options.model', () => {
       audibleId: provider('audible'),
       audibleRating: provider('audible'),
       audibleReviewCount: provider('audible'),
+      itunesId: provider('itunes'),
+      itunesRating: provider('itunes'),
+      itunesReviewCount: provider('itunes'),
       moods: provider('google'),
       tags: provider('google')
     };
@@ -97,6 +100,9 @@ describe('metadata-refresh-options.model', () => {
         audibleId: true,
         audibleRating: true,
         audibleReviewCount: true,
+        itunesId: true,
+        itunesRating: true,
+        itunesReviewCount: true,
         moods: true,
         tags: true
       }

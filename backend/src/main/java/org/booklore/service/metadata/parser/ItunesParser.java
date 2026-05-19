@@ -77,9 +77,15 @@ public class ItunesParser implements BookParser, DetailedMetadataProvider {
     @Override
     public BookMetadata fetchDetailedMetadata(String providerItemId) {
         log.info("iTunes: Fetching detailed metadata for providerItemId: {}", providerItemId);
+        if (providerItemId == null || providerItemId.isBlank()) {
+            return null;
+        }
         String cleanId = providerItemId;
-        if (providerItemId != null && providerItemId.contains(":")) {
+        if (providerItemId.contains(":")) {
             cleanId = providerItemId.substring(providerItemId.indexOf(':') + 1);
+        }
+        if (cleanId.isBlank()) {
+            return null;
         }
         var results = fetchFromApi(ITUNES_LOOKUP_URL, Map.of("id", cleanId), getCountry());
         return results.isEmpty() ? null : results.getFirst();

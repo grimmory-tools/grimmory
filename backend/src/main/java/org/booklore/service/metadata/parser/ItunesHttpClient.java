@@ -49,31 +49,34 @@ public class ItunesHttpClient {
                 return response.body();
             } else if (response.statusCode() == 429) {
                 retries++;
+                if (retries > 2) {
+                    break;
+                }
                 // Note: Retry-After can also be an HTTP-date (RFC 7231). We assume seconds as used by iTunes.
                 long backoffMs = response.headers().firstValue("Retry-After")
                         .map(s -> {
                             try {
                                 return Long.parseLong(s) * 1000;
-                              } catch (NumberFormatException e) {
-                                  return 0L;
-                              }
-                          })
-                          .orElse(0L);
+                            } catch (NumberFormatException e) {
+                                return 0L;
+                            }
+                        })
+                        .orElse(0L);
 
                 if (backoffMs <= 0) {
                     backoffMs = (long) (5000 * Math.pow(2, retries - 1) + ThreadLocalRandom.current().nextLong(0, 1000));
                 }
 
                 log.warn("iTunes API returned 429 Too Many Requests. Retrying after {} ms... (Attempt {}/2)", backoffMs, retries);
-                Thread.sleep(backoffMs);
+                Thread.sleep(Duration.ofMillis(backoffMs));
             } else {
                 break;
             }
         }
 
-        if (response.statusCode() != 200) {
-            log.error("iTunes API request failed. Status: {}", response.statusCode());
-            throw new IOException("iTunes API request failed with status: " + response.statusCode());
+        if (response == null || response.statusCode() != 200) {
+            log.error("iTunes API request failed. Status: {}", response != null ? response.statusCode() : "unknown");
+            throw new IOException("iTunes API request failed with status: " + (response != null ? response.statusCode() : "unknown"));
         }
         throw new IOException("iTunes API request failed with unknown error");
     }
@@ -85,7 +88,7 @@ public class ItunesHttpClient {
         try {
             long sinceLast = System.currentTimeMillis() - lastRequestTime;
             if (sinceLast < MIN_REQUEST_INTERVAL_MS) {
-                Thread.sleep(MIN_REQUEST_INTERVAL_MS - sinceLast);
+                Thread.sleep(Duration.ofMillis(MIN_REQUEST_INTERVAL_MS - sinceLast));
             }
             lastRequestTime = System.currentTimeMillis();
         } finally {

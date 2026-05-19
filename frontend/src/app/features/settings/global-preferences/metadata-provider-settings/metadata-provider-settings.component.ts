@@ -85,18 +85,20 @@ export class MetadataProviderSettingsComponent {
   selectedAudibleDomain = 'com';
   audibleEnabled: boolean = false;
 
-  itunesCountries = [
-    {label: 'United States', value: 'us'},
-    {label: 'United Kingdom', value: 'gb'},
-    {label: 'Germany', value: 'de'},
-    {label: 'France', value: 'fr'},
-    {label: 'Poland', value: 'pl'},
-    {label: 'Japan', value: 'jp'},
-    {label: 'Australia', value: 'au'},
-    {label: 'Canada', value: 'ca'},
-    {label: 'Italy', value: 'it'},
-    {label: 'Spain', value: 'es'}
-  ];
+  get itunesCountries() {
+    return [
+      {label: this.t.translate('settingsMeta.providers.countries.us'), value: 'us'},
+      {label: this.t.translate('settingsMeta.providers.countries.gb'), value: 'gb'},
+      {label: this.t.translate('settingsMeta.providers.countries.de'), value: 'de'},
+      {label: this.t.translate('settingsMeta.providers.countries.fr'), value: 'fr'},
+      {label: this.t.translate('settingsMeta.providers.countries.pl'), value: 'pl'},
+      {label: this.t.translate('settingsMeta.providers.countries.jp'), value: 'jp'},
+      {label: this.t.translate('settingsMeta.providers.countries.au'), value: 'au'},
+      {label: this.t.translate('settingsMeta.providers.countries.ca'), value: 'ca'},
+      {label: this.t.translate('settingsMeta.providers.countries.it'), value: 'it'},
+      {label: this.t.translate('settingsMeta.providers.countries.es'), value: 'es'}
+    ];
+  }
 
   selectedItunesCountry = 'us';
   itunesEnabled: boolean = false;

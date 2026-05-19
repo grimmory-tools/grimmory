@@ -63,7 +63,19 @@
     "hardcoverPlaceholder": "Enter Hardcover API token",
     "comicvinePlaceholder": "Enter Comic Vine API token",
     "storefront": "Storefront",
-    "selectStorefront": "Select Storefront"
+    "selectStorefront": "Select Storefront",
+    "countries": {
+      "us": "United States",
+      "gb": "United Kingdom",
+      "de": "Germany",
+      "fr": "France",
+      "pl": "Poland",
+      "jp": "Japan",
+      "au": "Australia",
+      "ca": "Canada",
+      "it": "Italy",
+      "es": "Spain"
+    }
   },
   "publicReviews": {
     "sectionTitle": "Public Reviews",

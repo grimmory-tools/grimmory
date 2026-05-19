@@ -57,6 +57,9 @@ export interface FieldOptions {
   audibleId: FieldProvider;
   audibleRating: FieldProvider;
   audibleReviewCount: FieldProvider;
+  itunesId: FieldProvider;
+  itunesRating: FieldProvider;
+  itunesReviewCount: FieldProvider;
   moods: FieldProvider;
   tags: FieldProvider;
 }
