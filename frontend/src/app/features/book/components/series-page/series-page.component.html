@@ -261,7 +261,7 @@
                     <span>{{ t('synopsis') }}</span>
                   </div>
                   <div class="description-body">
-                    <div #descriptionContent [ngClass]="{ 'line-clamp-7': !isExpanded() }"
+                    <div #descriptionContent [ngClass]="{ 'description-content-collapsed': !isExpanded() }"
                       class="description-content">
                       <div class="description-html"
                         [innerHTML]="firstDescription() || t('noDescription')"></div>

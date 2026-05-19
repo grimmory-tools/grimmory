@@ -144,17 +144,6 @@
   overflow: hidden;
 }
 
-.line-clamp-5 {
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-none {
-  -webkit-line-clamp: unset;
-}
-
 .readonly-editor {
   font-size: 0.9rem;
   color: #d1d5db;

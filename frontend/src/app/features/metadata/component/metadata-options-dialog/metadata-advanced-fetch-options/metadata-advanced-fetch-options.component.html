@@ -31,30 +31,30 @@
       </th>
     </tr>
     <tr>
-      <td class="table-cell" style="max-width: 70px; width: 70px;"></td>
-      <td class="table-cell set-all-label" style="max-width: 127px; width: 127px;">{{ t('setAll') }}</td>
-      <td class="table-cell">
+      <td class="metadata-table-cell" style="max-width: 70px; width: 70px;"></td>
+      <td class="metadata-table-cell set-all-label" style="max-width: 127px; width: 127px;">{{ t('setAll') }}</td>
+      <td class="metadata-table-cell">
         <p-select [options]="providersWithClear" [(ngModel)]="bulkP1"
                   (ngModelChange)="setBulkProvider('p1', $event)"
                   [placeholder]="t('setAllP1')" appendTo="body"
                   class="select-full-width" size="small">
         </p-select>
       </td>
-      <td class="table-cell">
+      <td class="metadata-table-cell">
         <p-select [options]="providersWithClear" [(ngModel)]="bulkP2"
                   (ngModelChange)="setBulkProvider('p2', $event)"
                   [placeholder]="t('setAllP2')" appendTo="body"
                   class="select-full-width" size="small">
         </p-select>
       </td>
-      <td class="table-cell">
+      <td class="metadata-table-cell">
         <p-select [options]="providersWithClear" [(ngModel)]="bulkP3"
                   (ngModelChange)="setBulkProvider('p3', $event)"
                   [placeholder]="t('setAllP3')" appendTo="body"
                   class="select-full-width" size="small">
         </p-select>
       </td>
-      <td class="table-cell">
+      <td class="metadata-table-cell">
         <p-select [options]="providersWithClear" [(ngModel)]="bulkP4"
                   (ngModelChange)="setBulkProvider('p4', $event)"
                   [placeholder]="t('setAllP4')" appendTo="body"
@@ -66,34 +66,34 @@
     <tbody>
       @for (field of nonProviderSpecificFields; track field) {
         <tr [hidden]="field === 'cover' && !refreshCovers" [class.row-disabled]="!enabledFields[field]">
-          <td class="table-cell-sm" style="max-width: 70px; width: 70px;">
+          <td class="metadata-table-cell-sm" style="max-width: 70px; width: 70px;">
             <p-checkbox [(ngModel)]="enabledFields[field]" [binary]="true"
                         [pTooltip]="t('enableFieldTooltip')"
                         tooltipPosition="top"></p-checkbox>
           </td>
-          <td class="table-cell-sm field-label" style="max-width: 127px; width: 127px;">{{ formatLabel(field) }}</td>
-          <td class="table-cell-sm">
+          <td class="metadata-table-cell-sm field-label" style="max-width: 127px; width: 127px;">{{ formatLabel(field) }}</td>
+          <td class="metadata-table-cell-sm">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p1"
                       [disabled]="!enabledFields[field]"
                       [placeholder]="t('unset')" appendTo="body"
                       class="select-full-width" size="small">
             </p-select>
           </td>
-          <td class="table-cell-sm">
+          <td class="metadata-table-cell-sm">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p2"
                       [disabled]="!enabledFields[field]"
                       [placeholder]="t('unset')" appendTo="body"
                       class="select-full-width" size="small">
             </p-select>
           </td>
-          <td class="table-cell-sm">
+          <td class="metadata-table-cell-sm">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p3"
                       [disabled]="!enabledFields[field]"
                       [placeholder]="t('unset')" appendTo="body"
                       class="select-full-width" size="small">
             </p-select>
           </td>
-          <td class="table-cell-sm">
+          <td class="metadata-table-cell-sm">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p4"
                       [disabled]="!enabledFields[field]"
                       [placeholder]="t('unset')" appendTo="body"

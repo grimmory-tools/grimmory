@@ -105,7 +105,7 @@
         }
         @if (nextBookInSeries()) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
-        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
+        <div class="cbx-continuation-hint" [class.is-visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
@@ -137,7 +137,7 @@
         }
         @if (nextBookInSeries()) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
-        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
+        <div class="cbx-continuation-hint" [class.is-visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
@@ -155,7 +155,7 @@
     }
 
     @if (clickToPaginate()) {
-    <div class="click-overlay visible" [class.rtl-overlay]="readingDirection() === CbxReadingDirection.RTL"
+    <div class="click-overlay is-visible" [class.rtl-overlay]="readingDirection() === CbxReadingDirection.RTL"
       [class.magnifier-disabled]="isMagnifierActive()">
       <div class="click-zone click-zone-prev" role="button" tabindex="0" (click)="onClickZonePrev($event)"
         (keydown.enter)="onClickZonePrev($event)">

@@ -245,7 +245,7 @@ $transition-normal: 200ms ease;
   padding: 8px 0;
 }
 
-.list-item {
+.reader-list-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -323,7 +323,7 @@ $transition-normal: 200ms ease;
   flex-shrink: 0;
 }
 
-.list-item:hover .action-buttons {
+.reader-list-item:hover .action-buttons {
   opacity: 1;
 }
 

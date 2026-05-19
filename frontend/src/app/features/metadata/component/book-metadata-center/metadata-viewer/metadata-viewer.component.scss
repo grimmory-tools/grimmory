@@ -702,11 +702,11 @@
   transition: max-height 0.3s ease-in-out;
 }
 
-.description-content.line-clamp-7 {
+.description-content.description-content-collapsed {
   max-height: 37px;
 }
 
-.description-content:not(.line-clamp-7) {
+.description-content:not(.description-content-collapsed) {
   max-height: none;
 }
 

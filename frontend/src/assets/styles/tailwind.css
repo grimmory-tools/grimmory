@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+@source not "../embedpdf-frame.html";
+@source not "../../app/features/readers/pdf-reader/services/embedpdf-book.service.ts";

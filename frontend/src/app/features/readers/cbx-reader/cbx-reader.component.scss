@@ -17,7 +17,7 @@
     transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
     pointer-events: none;
 
-    &.visible {
+    &.is-visible {
       opacity: 1;
       transform: translateY(0);
       color: rgb(255 255 255 / 72%);
@@ -857,7 +857,7 @@
   opacity: 0;
   transition: opacity 0.3s ease;
 
-  &.visible {
+  &.is-visible {
     opacity: 1;
   }
 
@@ -890,7 +890,7 @@
     transition: opacity 0.3s ease;
   }
 
-  &.visible .zone-arrow {
+  &.is-visible .zone-arrow {
     opacity: 1;
   }
 
