@@ -164,20 +164,12 @@ spec:
         {{- if .Values.persistence.dataVolume.enabled }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ if .Values.persistence.dataVolume.existingClaim }}
-              {{- .Values.persistence.dataVolume.existingClaim }}
-            {{ else }}
-              {{- include "grimmory.fullname" . }}-data
-            {{- end }}
+            claimName: {{ .Values.persistence.dataVolume.existingClaim | default (printf "%s-data" (include "grimmory.fullname" .)) }}
         {{- end }}
         {{- if .Values.persistence.booksVolume.enabled }}
         - name: books
           persistentVolumeClaim:
-            claimName: {{ if .Values.persistence.booksVolume.existingClaim }}
-              {{- .Values.persistence.booksVolume.existingClaim }}
-            {{ else }}
-              {{- include "grimmory.fullname" . }}-books
-            {{- end }}
+            claimName: {{ .Values.persistence.booksVolume.existingClaim | default (printf "%s-books" (include "grimmory.fullname" .)) }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
