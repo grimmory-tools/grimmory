@@ -11,6 +11,7 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.FuzzyScore;
@@ -361,7 +362,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
             JsonNode languageJson = detailsJson.get("language");
             if (languageJson != null && languageJson.isObject()) {
-                builder.language(normalizeNull(languageJson.path("name").asText(null)));
+                builder.language(LanguageNormalizer.normalize(normalizeNull(languageJson.path("name").asText(null))));
             }
         }
 

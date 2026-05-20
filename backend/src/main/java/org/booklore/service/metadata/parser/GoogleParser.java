@@ -9,6 +9,7 @@ import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -273,7 +274,7 @@ public class GoogleParser implements BookParser {
                 .isbn10(isbns.get("ISBN_10"))
                 .pageCount(pageCount)
                 .thumbnailUrl(extractBestCoverImage(volumeInfo.getImageLinks()))
-                .language(normalizeLanguage(volumeInfo.getLanguage()))
+                .language(LanguageNormalizer.normalize(volumeInfo.getLanguage()))
                 .externalUrl(externalUrl)
                 .seriesName(seriesData.name)
                 .seriesNumber(seriesData.number)
@@ -431,13 +432,6 @@ public class GoogleParser implements BookParser {
         return cleaned.isEmpty() ? null : cleaned;
     }
 
-    private String normalizeLanguage(String language) {
-        if (language == null || language.isBlank()) {
-            return null;
-        }
-        // Google uses ISO 639-1 codes, just ensure lowercase
-        return language.toLowerCase().trim();
-    }
 
     private String getExternalUrl(GoogleBooksApiResponse.Item.VolumeInfo volumeInfo) {
         // Prefer canonical volume link, then info link
