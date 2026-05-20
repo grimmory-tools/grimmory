@@ -1,0 +1,88 @@
+:host {
+  display: block;
+  container-type: inline-size;
+
+  width: auto;
+  height: auto;
+  aspect-ratio: 5 / 7;
+
+  &.is-square {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.cover-image, .placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cover-image {
+  object-fit: cover;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: inherit;
+  overflow: hidden;
+
+  .placeholder-title {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    line-height: 1.375;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  .placeholder-author {
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.025em;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  &.size-sm {
+    padding: min(0.5rem, 4cqi);
+
+    .placeholder-title {
+      font-size: min(11px, 10cqi);
+      margin-bottom: 2px;
+    }
+
+    .placeholder-author { font-size: min(9px, 8cqi); }
+  }
+
+  &.size-md {
+    padding: min(1rem, 6cqi);
+
+    .placeholder-title {
+      font-size: min(13px, 10cqi);
+      margin-bottom: 4px;
+    }
+
+    .placeholder-author { font-size: min(11px, 8cqi); }
+  }
+
+  &.size-lg {
+    padding: min(1.5rem, 8cqi);
+
+    .placeholder-title {
+      font-size: min(15px, 10cqi);
+      margin-bottom: 8px;
+    }
+
+    .placeholder-author { font-size: min(12px, 8cqi); }
+  }
+}
