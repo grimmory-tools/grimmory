@@ -233,7 +233,7 @@ public class LubimyCzytacParser implements BookParser {
         Elements languageElements = doc.select("dt:contains(Język:) + dd");
         if (!languageElements.isEmpty()) {
             String language = languageElements.first().text().trim().toLowerCase();
-            metadata.setLanguage(LanguageNormalizer.normalize(mapLanguage(language)));
+            metadata.setLanguage(LanguageNormalizer.normalize(language));
         }
 
         Element descElement = doc.selectFirst("#book-description");
@@ -335,18 +335,6 @@ public class LubimyCzytacParser implements BookParser {
         }
 
         return false;
-    }
-
-    private String mapLanguage(String polishLanguage) {
-        return switch (polishLanguage) {
-            case "polski" -> "pl";
-            case "angielski" -> "en";
-            case "niemiecki" -> "de";
-            case "francuski" -> "fr";
-            case "hiszpański" -> "es";
-            case "włoski" -> "it";
-            default -> polishLanguage;
-        };
     }
 
     private void parseSeriesInfo(String seriesText, BookMetadata metadata) {

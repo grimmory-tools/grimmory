@@ -65,6 +65,26 @@ class LanguageNormalizerTest {
         assertEquals(expected, LanguageNormalizer.normalize(input));
     }
 
+    // --- Localized names (CLDR fallback) ---
+
+    @ParameterizedTest
+    @CsvSource({"français,fr", "anglais,en", "espagnol,es", "allemand,de", "italien,it", "portugais,pt", "russe,ru", "polonais,pl"})
+    void frenchNames_mapsToIso6391(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"Französisch,fr", "Englisch,en", "Spanisch,es", "Italienisch,it"})
+    void germanNames_mapsToIso6391(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"inglés,en", "alemán,de", "francés,fr", "italiano,it"})
+    void spanishNames_mapsToIso6391(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
     // --- Unknown fallback ---
 
     @Test
