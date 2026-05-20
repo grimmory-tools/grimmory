@@ -685,9 +685,9 @@ $transition-fast: 150ms ease;
 
 #embedpdf-viewer {
   position: absolute;
-  inset: 0 0 $footer-height;
+  inset: 0;
   width: 100%;
-  height: calc(100% - #{$footer-height});
+  height: 100%;
   display: flex;
   transition: inset 0.25s ease-out, height 0.25s ease-out;
 
@@ -835,6 +835,14 @@ $transition-fast: 150ms ease;
 
 // Tablet (portrait) switches to mobile toolbar layout
 @media (width <= 1024px) {
+  // When footer is visible on mobile/tablet, it pushes the PDF viewer
+  .pdf-reader-container:not(.footer-hidden) {
+    #embedpdf-viewer {
+      inset: 0 0 $footer-height;
+      height: calc(100% - #{$footer-height});
+    }
+  }
+
   .pdf-header-toolbar {
     height: calc(#{$header-height} + 4px + env(safe-area-inset-top));
     padding: 0 8px;
