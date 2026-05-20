@@ -205,6 +205,9 @@ dependencies {
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.22.2")
 
+    // --- i18n / Language Normalization ---
+    implementation("com.neovisionaries:nv-i18n:1.29")
+
     // --- Mapping (DTOs & Entities) ---
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")

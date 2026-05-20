@@ -18,6 +18,7 @@ com.google.code.findbugs:jsr305:3.0.2=compileClasspath,productionRuntimeClasspat
 com.google.errorprone:error_prone_annotations:2.49.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.h2database:h2:2.4.240=openApiExportRuntimeOnly,testRuntimeClasspath
 com.jayway.jsonpath:json-path:2.10.0=testCompileClasspath,testRuntimeClasspath
+com.neovisionaries:nv-i18n:1.29=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.nimbusds:nimbus-jose-jwt:10.9=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.squareup.okio:okio-jvm:3.17.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.squareup.okio:okio:3.17.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
