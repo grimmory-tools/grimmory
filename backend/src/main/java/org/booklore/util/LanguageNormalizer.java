@@ -30,7 +30,7 @@ public class LanguageNormalizer {
             result = resolveCode(trimmed);
         }
 
-        return result != null ? result : trimmed.toLowerCase().strip();
+        return result != null ? result : trimmed.toLowerCase(Locale.ROOT).strip();
     }
 
     private static String resolveCode(String input) {
