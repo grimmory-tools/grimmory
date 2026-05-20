@@ -1092,8 +1092,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async saveEmbedPdfDocument(): Promise<void> {
-    if (!this.embedPdfIframe?.contentWindow) return;
+  private async saveEmbedPdfDocument(): Promise<boolean> {
+    if (!this.embedPdfIframe?.contentWindow) return false;
 
     try {
       const buffer: ArrayBuffer | null = await new Promise((resolve) => {
@@ -1113,7 +1113,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.embedPdfSaveTimer = undefined;
       }
 
-      if (!buffer) return;
+      if (!buffer) return false;
 
       const headers: Record<string, string> = { 'Content-Type': 'application/pdf' };
       const uploadToken = this.authService.getInternalAccessToken();
@@ -1133,20 +1133,27 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       });
       if (!uploadResponse.ok) {
         console.error('[EmbedPDF] Upload failed:', uploadResponse.status);
+        return false;
       }
+      return true;
     } catch (err) {
       console.error('[EmbedPDF] Failed to save document:', err);
+      return false;
     }
   }
 
   async saveDocument(): Promise<void> {
     if (this.viewerMode() !== 'document' || !this.embedPdfIframe) return;
     try {
-      await this.saveEmbedPdfDocument();
-      this.messageService.add({
+      const saved = await this.saveEmbedPdfDocument();
+      this.messageService.add(saved ? {
         severity: 'success',
         summary: this.t.translate('common.success'),
         detail: this.t.translate('readerPdf.docViewer.changesSaved') || 'Changes saved successfully.'
+      } : {
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
       });
     } catch (err) {
       console.error('[PDF Reader] Manually saving document failed:', err);
