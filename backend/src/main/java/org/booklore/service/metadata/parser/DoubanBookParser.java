@@ -9,6 +9,7 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -290,7 +291,7 @@ public class DoubanBookParser implements BookParser {
                 .doubanId(doubanBookId)
                 .publisher(getPublisher(doc))
                 .publishedDate(getPublicationDate(doc))
-                .language(getLanguage(doc))
+                .language(LanguageNormalizer.normalize(getLanguage(doc)))
                 .pageCount(getPageCount(doc))
                 .thumbnailUrl(getThumbnail(doc))
                 .doubanRating(getRating(doc))

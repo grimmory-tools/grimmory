@@ -9,6 +9,7 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -363,7 +364,7 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
                 .seriesNumber(seriesNumber)
                 .publisher(publisher)
                 .publishedDate(publishedDate)
-                .language(language)
+                .language(LanguageNormalizer.normalize(language))
                 .thumbnailUrl(imageUrl)
                 .audibleRating(rating)
                 .audibleReviewCount(reviewCount)

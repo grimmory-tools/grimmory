@@ -10,6 +10,7 @@ import org.booklore.model.dto.response.ranobedbapi.RanobedbSearchResponse;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
@@ -259,7 +260,7 @@ public class RanobeDbParser implements BookParser {
                     .publisher(englishPublisher != null ? englishPublisher.getName() : null)
                     .thumbnailUrl(book.getImage() != null ? RANOBEDB_IMAGE_URL + book.getImage().getFilename() : null)
                     .description(book.getDescription())
-                    .language(englishRelease != null ? englishRelease.getLang() : book.getLang())
+                    .language(LanguageNormalizer.normalize(englishRelease != null ? englishRelease.getLang() : book.getLang()))
                     .seriesName(book.getSeries() != null ? book.getSeries().getTitle() : null)
                     .seriesNumber(seriesIndex != -1 ? seriesIndex + 1.0f : null)
                     .seriesTotal(seriesBooks.isEmpty() ? null : seriesBooks.size())
