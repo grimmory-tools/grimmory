@@ -25,6 +25,11 @@
     </div>
     }
 
+    <button class="embed-close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
+      [disabled]="isClosingReader()" (click)="onCloseReaderClick($event)">
+      <app-reader-icon name="close" [size]="20" />
+    </button>
+
     <div id="embedpdf-viewer"></div>
   }
 

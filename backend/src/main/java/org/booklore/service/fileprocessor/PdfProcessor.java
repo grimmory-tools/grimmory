@@ -33,6 +33,7 @@ import static org.booklore.util.FileService.truncate;
 public class PdfProcessor extends AbstractFileProcessor implements BookFileProcessor {
 
     private final PdfMetadataExtractor pdfMetadataExtractor;
+    private final PdfNormalizationService pdfNormalizationService;
 
     public PdfProcessor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -41,13 +42,20 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
                         FileService fileService,
                         MetadataMatchService metadataMatchService,
                         SidecarMetadataWriter sidecarMetadataWriter,
-                        PdfMetadataExtractor pdfMetadataExtractor) {
+                        PdfMetadataExtractor pdfMetadataExtractor,
+                        PdfNormalizationService pdfNormalizationService) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService, sidecarMetadataWriter);
         this.pdfMetadataExtractor = pdfMetadataExtractor;
+        this.pdfNormalizationService = pdfNormalizationService;
     }
 
     @Override
     public BookEntity processNewFile(LibraryFile libraryFile) {
+        File pdfFile = libraryFile.getFullPath().toFile();
+        if (pdfFile.exists()) {
+            pdfNormalizationService.normalizeInPlace(pdfFile);
+        }
+
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.PDF);
         boolean coverGenerated = generateCover(bookEntity);
         if (!coverGenerated) {
