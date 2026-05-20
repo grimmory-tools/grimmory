@@ -50,7 +50,8 @@ export type ReaderIconName =
   | 'moon'
   | 'dots-horizontal'
   | 'zoom-in'
-  | 'zoom-out';
+  | 'zoom-out'
+  | 'save';
 
 interface IconPath {
   d: string;
@@ -290,6 +291,11 @@ const ICONS: Record<ReaderIconName, IconPath[]> = {
     {d: 'M11 11m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0', type: 'path'},
     {d: 'M21 21l-4.35-4.35'},
     {d: 'M8 11h6'}
+  ],
+  'save': [
+    {d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z'},
+    {d: 'M17 21v-8H7v8'},
+    {d: 'M7 3v5h8'}
   ]
 };
 

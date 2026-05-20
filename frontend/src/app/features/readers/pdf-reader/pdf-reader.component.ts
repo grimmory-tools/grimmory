@@ -1139,6 +1139,25 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  async saveDocument(): Promise<void> {
+    if (this.viewerMode() !== 'document' || !this.embedPdfIframe) return;
+    try {
+      await this.saveEmbedPdfDocument();
+      this.messageService.add({
+        severity: 'success',
+        summary: this.t.translate('common.success'),
+        detail: this.t.translate('readerPdf.docViewer.changesSaved') || 'Changes saved successfully.'
+      });
+    } catch (err) {
+      console.error('[PDF Reader] Manually saving document failed:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
+      });
+    }
+  }
+
   private async destroyDocViewerIframe(): Promise<void> {
     if (this.embedPdfMessageHandler) {
       window.removeEventListener('message', this.embedPdfMessageHandler);

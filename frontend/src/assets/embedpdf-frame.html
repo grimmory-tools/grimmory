@@ -167,7 +167,7 @@
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
         height: 38px !important;
-        padding-right: 64px !important;
+        padding-right: 96px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
@@ -177,6 +177,17 @@
         background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%) !important;
         border-bottom-color: #d0d0d0 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+      }
+
+      [data-epdf-i="right-group"] {
+        position: relative !important;
+        right: 80px !important;
+      }
+
+      @media (max-width: 600px) {
+        [data-epdf-i="right-group"] {
+          display: none !important;
+        }
       }
 
       /* Keep viewer popups/menus visible; only hide explicit file controls. */
@@ -293,9 +304,9 @@
 
       /* ── Silence non-editable selection menus EXCEPT for navigation links ── */
 
-      /* If the menu has no user-editing tools OR navigation, hide the whole menu. */
-      [role="toolbar"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])),
-      [role="menu"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])) {
+      /* If the menu has no user-editing tools OR navigation OR redact, hide the whole menu. */
+      [role="toolbar"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])):not(:has([data-epdf-i*="redact"])),
+      [role="menu"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])):not(:has([data-epdf-i*="redact"])) {
         display: none !important;
       }
 

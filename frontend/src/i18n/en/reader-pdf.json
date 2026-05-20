@@ -70,6 +70,9 @@
   },
   "docViewer": {
     "changesSavedInfo": "Edits in the Document Viewer are automatically saved to the PDF.",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "saveDocument": "Save Changes",
+    "changesSaved": "Changes saved successfully.",
+    "saveFailed": "Failed to save changes."
   }
 }
