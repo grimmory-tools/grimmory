@@ -16,7 +16,6 @@ import {Subscription} from 'rxjs';
 import {TaskProgressPayload, TaskService} from './features/settings/task-management/task.service';
 import {LibraryService} from './features/book/service/library.service';
 import {LibraryHealthService} from './features/book/service/library-health.service';
-import {LibraryLoadingService} from './features/library-creator/library-loading.service';
 import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
 import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
@@ -46,7 +45,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
   private libraryService = inject(LibraryService);
   private libraryHealthService = inject(LibraryHealthService);
-  private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
   private destroyRef = inject(DestroyRef);
@@ -107,25 +105,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private setupWebSocketSubscriptions(): void {
     this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-add').pipe(
-        scan((acc, msg) => {
-          const loadingState = this.libraryService.largeLibraryLoading();
-          const book = JSON.parse(msg.body);
-          if (loadingState.isLoading) {
-            const newCount = acc.count + 1;
-            this.libraryLoadingService.showBookLoadingProgress(book.metadata?.title || 'Unknown Book', newCount, loadingState.expectedCount);
-            this.bookService.handleNewlyCreatedBook(book);
-            if (newCount >= loadingState.expectedCount) {
-              this.libraryService.setLargeLibraryLoading(false, 0);
-              return {count: 0};
-            }
-            return {count: newCount};
-          } else {
-            this.bookService.handleNewlyCreatedBook(book);
-            return {count: 0};
-          }
-        }, {count: 0})
-      ).subscribe()
+      this.rxStompService.watch('/user/queue/book-add').subscribe(msg => {
+        const book = JSON.parse(msg.body);
+        this.bookService.handleNewlyCreatedBook(book);
+      })
     );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/book-update').subscribe(msg =>
@@ -186,6 +169,5 @@ export class AppComponent implements OnInit, OnDestroy {
     window.removeEventListener('online', this.onOnline);
     window.removeEventListener('offline', this.onOffline);
     this.subscriptions.forEach(sub => sub.unsubscribe());
-    this.libraryLoadingService.hide();
   }
 }

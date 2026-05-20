@@ -20,11 +20,6 @@ export class LibraryService {
   private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
-  readonly largeLibraryLoading = signal<{ isLoading: boolean; expectedCount: number }>({
-    isLoading: false,
-    expectedCount: 0
-  });
-
   private librariesQuery = injectQuery(() => ({
     ...this.getLibrariesQueryOptions(),
     enabled: !!this.token(),
@@ -139,10 +134,6 @@ export class LibraryService {
     }
     return counts;
   });
-
-  setLargeLibraryLoading(isLoading: boolean, expectedCount: number): void {
-    this.largeLibraryLoading.set({ isLoading, expectedCount });
-  }
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
     return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));

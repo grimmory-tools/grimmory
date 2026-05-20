@@ -15,7 +15,6 @@ import { BookdropFileService } from "./features/bookdrop/service/bookdrop-file.s
 import { TaskService } from "./features/settings/task-management/task.service";
 import { LibraryService } from "./features/book/service/library.service";
 import { LibraryHealthService } from "./features/book/service/library-health.service";
-import { LibraryLoadingService } from "./features/library-creator/library-loading.service";
 import { AuthService } from "./shared/service/auth.service";
 import { ConfirmationService } from "primeng/api";
 import { MessageService } from "primeng/api";
@@ -46,14 +45,10 @@ describe("AppComponent", () => {
   let bookdropFileService: { handleIncomingFile: ReturnType<typeof vi.fn> };
   let taskService: { handleTaskProgress: ReturnType<typeof vi.fn> };
   let libraryHealthService: { initWebsocket: ReturnType<typeof vi.fn>, fetchHealth: ReturnType<typeof vi.fn> };
-  let libraryLoadingService: {
-    showBookLoadingProgress: ReturnType<typeof vi.fn>;
-    hide: ReturnType<typeof vi.fn>;
-  };
   let authService: { forceLogout: ReturnType<typeof vi.fn>, isAuthenticated: ReturnType<typeof signal> };
   let libraryService: {
-    largeLibraryLoading: ReturnType<typeof signal>;
-    setLargeLibraryLoading: ReturnType<typeof vi.fn>;
+    largeLibraryLoading?: ReturnType<typeof signal>;
+    setLargeLibraryLoading?: ReturnType<typeof vi.fn>;
   };
   let commandPaletteService: {
     toggle: ReturnType<typeof vi.fn>;
@@ -73,8 +68,7 @@ describe("AppComponent", () => {
   }
 
   function configureComponent(
-    auth = { ready: true, authenticated: true },
-    largeLibraryLoading = { isLoading: false, expectedCount: 0 },
+    auth = { ready: true, authenticated: true }
   ): void {
     topics = new Map();
     rxStompService = {
@@ -94,15 +88,8 @@ describe("AppComponent", () => {
     bookdropFileService = { handleIncomingFile: vi.fn() };
     taskService = { handleTaskProgress: vi.fn() };
     libraryHealthService = { initWebsocket: vi.fn(), fetchHealth: vi.fn() };
-    libraryLoadingService = {
-      showBookLoadingProgress: vi.fn(),
-      hide: vi.fn(),
-    };
     authService = { forceLogout: vi.fn(), isAuthenticated: signal(auth.authenticated) };
-    libraryService = {
-      largeLibraryLoading: signal(largeLibraryLoading),
-      setLargeLibraryLoading: vi.fn(),
-    };
+    libraryService = {};
     commandPaletteService = {
       toggle: vi.fn(),
       open: vi.fn(),
@@ -133,7 +120,6 @@ describe("AppComponent", () => {
         { provide: TaskService, useValue: taskService },
         { provide: LibraryService, useValue: libraryService },
         { provide: LibraryHealthService, useValue: libraryHealthService },
-        { provide: LibraryLoadingService, useValue: libraryLoadingService },
         { provide: AuthService, useValue: authService },
         { provide: CommandPaletteService, useValue: commandPaletteService },
         ConfirmationService,
@@ -175,27 +161,14 @@ describe("AppComponent", () => {
     expect(libraryHealthService.fetchHealth).not.toHaveBeenCalled();
   });
 
-  it("routes websocket book notifications through the large library loading branch", () => {
-    configureComponent({ ready: true, authenticated: true }, { isLoading: true, expectedCount: 2 });
+  it("routes websocket book notifications to bookService", () => {
+    configureComponent();
 
     topics
       .get("/user/queue/book-add")
       ?.next({ body: JSON.stringify({ metadata: { title: "First" } }) });
-    topics
-      .get("/user/queue/book-add")
-      ?.next({ body: JSON.stringify({ metadata: { title: "Second" } }) });
 
-    expect(bookService.handleNewlyCreatedBook).toHaveBeenCalledTimes(2);
-    expect(
-      libraryLoadingService.showBookLoadingProgress,
-    ).toHaveBeenNthCalledWith(1, "First", 1, 2);
-    expect(
-      libraryLoadingService.showBookLoadingProgress,
-    ).toHaveBeenNthCalledWith(2, "Second", 2, 2);
-    expect(libraryService.setLargeLibraryLoading).toHaveBeenCalledWith(
-      false,
-      0,
-    );
+    expect(bookService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
   });
 
   it("forwards websocket updates to the matching root services", () => {
@@ -261,12 +234,11 @@ describe("AppComponent", () => {
     expect(authService.forceLogout).toHaveBeenCalledWith("session_revoked");
   });
 
-  it("unsubscribes and hides the loading overlay when destroyed", () => {
+  it("unsubscribes when destroyed", () => {
     configureComponent();
 
     component.ngOnDestroy();
 
-    expect(libraryLoadingService.hide).toHaveBeenCalledOnce();
     topics
       .get("/user/queue/book-update")
       ?.next({ body: JSON.stringify({ id: 99 }) });

@@ -301,10 +301,6 @@ export class LibraryCreatorComponent {
     } else {
       this.libraryService.scanLibraryPaths(library).pipe(
         switchMap(count => {
-          if (count >= 500) {
-            console.warn(`Library has ${count} processable files (>500). Will use buffered loading.`);
-            this.libraryService.setLargeLibraryLoading(true, count);
-          }
           return this.libraryService.createLibrary(library).pipe(
             map(createdLibrary => ({ createdLibrary, count }))
           );
@@ -324,7 +320,6 @@ export class LibraryCreatorComponent {
           }
         },
         error: (e: Error) => {
-          this.libraryService.setLargeLibraryLoading(false, 0);
           this.messageService.add({ severity: 'error', summary: this.t.translate('libraryCreator.creator.toast.createFailedSummary'), detail: this.t.translate('libraryCreator.creator.toast.createFailedDetail') });
           console.error(e);
         }
