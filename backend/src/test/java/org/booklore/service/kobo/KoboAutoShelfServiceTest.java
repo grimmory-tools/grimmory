@@ -278,7 +278,7 @@ class KoboAutoShelfServiceTest {
                 .shelves(null)
                 .build();
 
-        when(userRepository.findAllById(List.of(100L))).thenReturn(List.of(testUser1, testUser2));
+        when(userRepository.findAllById(List.of(100L))).thenReturn(List.of(testUser1));
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(testBook));
         when(koboCompatibilityService.isBookSupportedForKobo(testBook)).thenReturn(true);
         when(koboUserSettingsRepository.findByAutoAddToShelfTrueAndSyncEnabledTrue())
