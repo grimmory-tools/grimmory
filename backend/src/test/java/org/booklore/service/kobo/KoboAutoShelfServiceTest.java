@@ -315,4 +315,26 @@ class KoboAutoShelfServiceTest {
         assert testBook.getShelves() != null;
         assert testBook.getShelves().isEmpty();
     }
+
+    @Test
+    void autoAddBookToKoboShelves_shouldHandleMissingUsers() {
+        testBook = BookEntity.builder()
+                .id(1L)
+                .library(library1)
+                .build();
+
+        when(userRepository.findAllById(List.of(100L))).thenReturn(List.of());
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(testBook));
+        when(koboCompatibilityService.isBookSupportedForKobo(testBook)).thenReturn(true);
+        when(koboUserSettingsRepository.findByAutoAddToShelfTrueAndSyncEnabledTrue())
+                .thenReturn(List.of(settings1));
+        when(shelfRepository.findByUserIdInAndName(List.of(100L), ShelfType.KOBO.getName()))
+                .thenReturn(List.of(koboShelf1));
+
+        koboAutoShelfService.autoAddBookToKoboShelves(1L);
+
+        verify(bookRepository, never()).save(testBook);
+        assert testBook.getShelves() != null;
+        assert testBook.getShelves().isEmpty();
+    }
 }
