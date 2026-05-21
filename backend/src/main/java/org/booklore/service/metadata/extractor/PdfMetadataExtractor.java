@@ -159,20 +159,21 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             });
             findCustomField(xmp, "subtitle").or(() -> doc.metadata("Subtitle")).ifPresent(metadataBuilder::subtitle);
 
-            // Identifiers (Custom + Dublin core)
-            xmp.findField("isbn13").ifPresent(val -> metadataBuilder.isbn13(cleanIsbn(val)));
-            xmp.findField("isbn10").ifPresent(val -> metadataBuilder.isbn10(cleanIsbn(val)));
-            xmp.findField("googleId").ifPresent(metadataBuilder::googleId);
-            xmp.findField("goodreadsId").ifPresent(metadataBuilder::goodreadsId);
-            xmp.findField("amazonId").ifPresent(metadataBuilder::asin);
-            xmp.findField("asin").ifPresent(metadataBuilder::asin);
-            xmp.findField("comicvineId").ifPresent(metadataBuilder::comicvineId);
-            xmp.findField("ranobedbId").ifPresent(metadataBuilder::ranobedbId);
-            xmp.findField("lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
-            xmp.findField("hardcoverId").ifPresent(metadataBuilder::hardcoverId);
-            xmp.findField("hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
-
+            // Identifiers (DocInfo first)
             doc.metadata("ISBN").ifPresent(val -> mapIsbn(val, metadataBuilder));
+
+            // Identifiers (Booklore / Custom XMP)
+            findCustomField(xmp, "isbn13").ifPresent(val -> metadataBuilder.isbn13(cleanIsbn(val)));
+            findCustomField(xmp, "isbn10").ifPresent(val -> metadataBuilder.isbn10(cleanIsbn(val)));
+            findCustomField(xmp, "googleId").ifPresent(metadataBuilder::googleId);
+            findCustomField(xmp, "goodreadsId").ifPresent(metadataBuilder::goodreadsId);
+            findCustomField(xmp, "amazonId").ifPresent(metadataBuilder::asin);
+            findCustomField(xmp, "asin").ifPresent(metadataBuilder::asin);
+            findCustomField(xmp, "comicvineId").ifPresent(metadataBuilder::comicvineId);
+            findCustomField(xmp, "ranobedbId").ifPresent(metadataBuilder::ranobedbId);
+            findCustomField(xmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
+            findCustomField(xmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
+            findCustomField(xmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
 
             // Identifiers (xmp:Identifier and their derived fields)
             xmp.isbns().forEach(val -> mapIsbn(val, metadataBuilder));
