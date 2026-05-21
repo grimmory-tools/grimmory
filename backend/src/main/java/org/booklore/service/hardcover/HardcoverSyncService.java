@@ -114,7 +114,7 @@ public class HardcoverSyncService {
                 }
       
                 progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
-                progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
+                progressPages = Math.clamp(progressPages, 0, hardcoverBook.pages);
 
                 boolean isFinished = progressPercent >= 99.0f;
                 
