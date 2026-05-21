@@ -15,6 +15,7 @@ import org.booklore.repository.OidcGroupMappingRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.user.UserCacheService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class OidcGroupMappingService {
     private final AppSettingService appSettingService;
     private final LibraryRepository libraryRepository;
     private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
 
     public List<OidcGroupMapping> getAll() {
         return mapper.toDtoList(repository.findAll());
@@ -123,6 +125,7 @@ public class OidcGroupMappingService {
         }
 
         userRepository.save(user);
+        userCacheService.evictUserCache(user.getId());
         log.info("Synced OIDC group permissions for user '{}' (mode: {})", user.getUsername(), syncMode);
     }
 

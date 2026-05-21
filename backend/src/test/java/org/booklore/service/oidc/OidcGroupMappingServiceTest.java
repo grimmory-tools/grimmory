@@ -13,6 +13,7 @@ import org.booklore.repository.OidcGroupMappingRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.user.UserCacheService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,6 +55,9 @@ class OidcGroupMappingServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserCacheService userCacheService;
 
     @InjectMocks
     private OidcGroupMappingService service;

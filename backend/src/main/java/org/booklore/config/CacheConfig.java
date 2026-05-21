@@ -15,10 +15,18 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("publicSettings", "appSettings");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("publicSettings", "appSettings", "userDetails");
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofHours(24))
-                .maximumSize(100));
+                .maximumSize(1000)
+                .recordStats());
+        
+        cacheManager.registerCustomCache("bookList", Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(5))
+                .maximumSize(1000)
+                .recordStats()
+                .build());
+
         return cacheManager;
     }
 }

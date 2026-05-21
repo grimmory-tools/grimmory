@@ -8,10 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.JwtUtils;
 import org.booklore.config.security.userdetails.UserAuthenticationDetails;
-import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.repository.UserRepository;
+import org.booklore.service.user.UserCacheService;
 import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,8 +26,7 @@ import java.io.IOException;
 public class QueryParameterJwtFilter extends OncePerRequestFilter {
 
     protected final JwtUtils jwtUtils;
-    protected final UserRepository userRepository;
-    protected final BookLoreUserTransformer bookLoreUserTransformer;
+    protected final UserCacheService userCacheService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -61,9 +58,10 @@ public class QueryParameterJwtFilter extends OncePerRequestFilter {
 
     protected void authenticateUser(String token, HttpServletRequest request) {
         Long userId = jwtUtils.extractUserId(token);
-        BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
-        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
+        BookLoreUser user = userCacheService.getUserDetails(userId);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with ID: " + userId);
+        }
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(user, null, null);
         authentication.setDetails(new UserAuthenticationDetails(request, user.getId()));

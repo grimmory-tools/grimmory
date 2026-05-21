@@ -10,11 +10,10 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.GroupRule;
 import org.booklore.model.dto.Library;
 import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.MagicShelfRepository;
-import org.booklore.repository.UserRepository;
+import org.booklore.service.user.UserCacheService;
 import org.booklore.service.BookRuleEvaluatorService;
 import org.booklore.service.restriction.ContentRestrictionService;
 import org.springframework.data.domain.Page;
@@ -40,13 +39,12 @@ public class MagicShelfBookService {
     private final MagicShelfRepository magicShelfRepository;
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
-    private final UserRepository userRepository;
-    private final BookLoreUserTransformer bookLoreUserTransformer;
+    private final UserCacheService userCacheService;
     private final BookRuleEvaluatorService ruleEvaluatorService;
     private final ContentRestrictionService contentRestrictionService;
     private final ObjectMapper objectMapper;
 
-    private record ShelfAccess(MagicShelfEntity shelf, BookLoreUserEntity user) {}
+    private record ShelfAccess(MagicShelfEntity shelf, BookLoreUser user) {}
 
     @Transactional(readOnly = true)
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
@@ -124,31 +122,31 @@ public class MagicShelfBookService {
             return new ShelfAccess(shelf, null);
         }
 
-        BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
-                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUser user = userCacheService.getUserDetails(userId);
+        if (user == null) {
+            throw ApiError.USER_NOT_FOUND.createException(userId);
+        }
 
-        if (entity.getPermissions() == null ||
-                (!entity.getPermissions().isPermissionAccessOpds() && !entity.getPermissions().isPermissionAdmin())) {
+        if (user.getPermissions() == null ||
+                (!user.getPermissions().isCanAccessOpds() && !user.getPermissions().isAdmin())) {
             throw ApiError.FORBIDDEN.createException("You are not allowed to access this resource");
         }
 
         boolean isOwner = shelf.getUserId().equals(userId);
         boolean isPublic = shelf.isPublic();
-        boolean isAdmin = entity.getPermissions().isPermissionAdmin();
+        boolean isAdmin = user.getPermissions().isAdmin();
 
         if (!isOwner && !isPublic && !isAdmin) {
             throw ApiError.FORBIDDEN.createException("You are not allowed to access this magic shelf");
         }
 
-        return new ShelfAccess(shelf, entity);
+        return new ShelfAccess(shelf, user);
     }
 
-    private Specification<BookEntity> createLibraryFilterSpecification(BookLoreUserEntity entity) {
-        if (entity == null) {
+    private Specification<BookEntity> createLibraryFilterSpecification(BookLoreUser user) {
+        if (user == null) {
             return (root, query, cb) -> cb.conjunction();
         }
-
-        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
 
         if (user.getPermissions() != null && user.getPermissions().isAdmin()) {
             return (root, query, cb) -> cb.conjunction();
