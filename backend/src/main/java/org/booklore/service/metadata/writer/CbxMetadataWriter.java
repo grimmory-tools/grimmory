@@ -29,6 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -41,6 +42,7 @@ public class CbxMetadataWriter implements MetadataWriter {
 
     // Cache JAXBContext for performance
     private static final JAXBContext JAXB_CONTEXT;
+    private static final Pattern COMIC_ID_PATTERN = Pattern.compile("\\d+-\\d+");
 
     static {
         try {
@@ -230,7 +232,7 @@ public class CbxMetadataWriter implements MetadataWriter {
                 primaryUrl = "https://comicvine.gamespot.com/volume/" + cvId + "/";
             } else if (cvId.startsWith("4000-")) {
                 primaryUrl = "https://comicvine.gamespot.com/issue/" + cvId + "/";
-            } else if (cvId.matches("\\d+-\\d+")) {
+            } else if (COMIC_ID_PATTERN.matcher(cvId).matches()) {
                 // Already prefixed with some other Comicvine namespace; preserve as-is.
                 primaryUrl = "https://comicvine.gamespot.com/issue/" + cvId + "/";
             } else {
