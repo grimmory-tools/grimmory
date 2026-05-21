@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {from, lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';

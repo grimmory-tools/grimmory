@@ -16,7 +16,6 @@ import {Subscription} from 'rxjs';
 import {TaskProgressPayload, TaskService} from './features/settings/task-management/task.service';
 import {LibraryService} from './features/book/service/library.service';
 import {LibraryHealthService} from './features/book/service/library-health.service';
-import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
 import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
