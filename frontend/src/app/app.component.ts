@@ -45,8 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private libraryHealthService = inject(LibraryHealthService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
-  private libraryImportProgressService = inject(LibraryImportProgressService);
-  private translocoService = inject(TranslocoService);
+  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
+  private readonly translocoService = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();

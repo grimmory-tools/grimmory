@@ -36,23 +36,27 @@
       @if (progress.status !== 'IN_PROGRESS') {
         <div class="mt-4 flex flex-wrap justify-end gap-2">
           @if (progress.libraryId !== undefined) {
-            <p-button
+            <button
+              pButton
+              type="button"
               [label]="t('libraryCreator.loading.openLibrary')"
               icon="pi pi-book"
               severity="info"
               size="small"
               outlined
               (click)="openLibrary(progress)">
-            </p-button>
+            </button>
           }
-          <p-button
+          <button
+            pButton
+            type="button"
             [label]="t('shared.metadataProgress.dismissBtn')"
             icon="pi pi-times"
             severity="secondary"
             size="small"
             outlined
             (click)="dismiss()">
-          </p-button>
+          </button>
         </div>
       }
     </div>

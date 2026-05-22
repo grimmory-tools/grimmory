@@ -24,6 +24,8 @@ interface StompMessage {
   body: string;
 }
 
+const DEFAULT_AUTH = { ready: true, authenticated: true };
+
 describe("AppComponent", () => {
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
@@ -65,7 +67,7 @@ describe("AppComponent", () => {
   }
 
   function configureComponent(
-    auth = { ready: true, authenticated: true }
+    auth = DEFAULT_AUTH
   ): void {
     topics = new Map();
     rxStompService = {
