@@ -22,7 +22,8 @@ export class LibraryImportProgressWidgetComponent {
   getProgressPercent(state: LibraryImportProgressState): number {
     if (state.expectedCount <= 0) return 0;
     if (state.status === 'COMPLETED') return 100;
-    return Math.round((state.processedCount / state.expectedCount) * 100);
+    const percent = Math.round((state.processedCount / state.expectedCount) * 100);
+    return Math.min(100, Math.max(0, percent));
   }
 
   getCurrentCount(state: LibraryImportProgressState): number {
@@ -55,7 +56,10 @@ export class LibraryImportProgressWidgetComponent {
 
   openLibrary(state: LibraryImportProgressState): void {
     if (state.libraryId === undefined) return;
-    this.router.navigate(['/library', state.libraryId, 'books']);
-    this.dismiss();
+    this.router.navigate(['/library', state.libraryId, 'books']).then(navigated => {
+      if (navigated) {
+        this.dismiss();
+      }
+    });
   }
 }
