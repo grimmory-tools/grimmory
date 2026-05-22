@@ -27,6 +27,7 @@
 
     <div class="embed-header-actions">
       <button class="embed-action-btn save-btn" [title]="'readerPdf.docViewer.saveDocument' | transloco" [attr.aria-label]="'readerPdf.docViewer.saveDocument' | transloco"
+        [disabled]="isSavingDocument() || isClosingReader()" [attr.aria-busy]="isSavingDocument()"
         (click)="saveDocument()">
         <app-reader-icon name="save" [size]="18" />
       </button>
