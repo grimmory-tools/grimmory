@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {LiveNotificationBoxComponent} from '../live-notification-box/live-notification-box.component';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
 import {map} from 'rxjs/operators';
-import {AsyncPipe} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {BookdropFileService} from '../../../features/bookdrop/service/bookdrop-file.service';
 import {BookdropFilesWidgetComponent} from '../../../features/bookdrop/component/bookdrop-files-widget/bookdrop-files-widget.component';
 import {MetadataProgressWidgetComponent} from '../metadata-progress-widget/metadata-progress-widget-component';
@@ -15,7 +15,6 @@ import {LibraryImportProgressWidgetComponent} from '../library-import-progress-w
     LiveNotificationBoxComponent,
     MetadataProgressWidgetComponent,
     LibraryImportProgressWidgetComponent,
-    AsyncPipe,
     BookdropFilesWidgetComponent
   ],
   templateUrl: './unified-notification-popover-component.html',
@@ -23,14 +22,15 @@ import {LibraryImportProgressWidgetComponent} from '../library-import-progress-w
   styleUrl: './unified-notification-popover-component.scss'
 })
 export class UnifiedNotificationBoxComponent {
-  metadataProgressService = inject(MetadataProgressService);
-  bookdropFileService = inject(BookdropFileService);
-  libraryImportProgressService = inject(LibraryImportProgressService);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
 
-  hasMetadataTasks$ = this.metadataProgressService.activeTasks$.pipe(
-    map(tasks => Object.keys(tasks).length > 0)
+  protected readonly hasMetadataTasks = toSignal(
+    this.metadataProgressService.activeTasks$.pipe(map(tasks => Object.keys(tasks).length > 0)),
+    {initialValue: false}
   );
 
-  hasPendingBookdropFiles$ = this.bookdropFileService.hasPendingFiles$;
-  hasActiveLibraryImport$ = this.libraryImportProgressService.hasActiveImport$;
+  protected readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, {initialValue: false});
+  protected readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
 }

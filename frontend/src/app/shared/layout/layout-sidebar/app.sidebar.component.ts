@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { Menu } from 'primeng/menu';
@@ -23,7 +23,8 @@ import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Tooltip } from 'primeng/tooltip';
 import type { MenuItem } from 'primeng/api';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
 import {
@@ -36,7 +37,7 @@ import {
 import { VersionService } from '../../service/version.service';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
-import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
+import { MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
 import { LibraryImportProgressService } from '../../service/library-import-progress.service';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
@@ -137,7 +138,6 @@ export class AppSidebarComponent {
   private readonly seriesDataService = inject(SeriesDataService);
   private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
@@ -230,44 +230,25 @@ export class AppSidebarComponent {
   protected readonly notificationPopoverPositions = computed(() =>
     this.layoutService.isDesktop() ? RIGHT_ALIGN_TOP : this.notificationPopoverMobilePositions()
   );
-  protected progressHighlight = false;
-  protected completedTaskCount = 0;
-  protected hasPendingBookdropFiles = false;
-  protected hasActiveLibraryImport = false;
-
-  private readonly latestTasks: Record<string, MetadataBatchProgressNotification> = {};
-
-  constructor() {
-    this.subscribeToMetadataProgress();
-
-    this.metadataProgressService.activeTasks$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((tasks) => {
-        this.replaceLatestTasks(tasks);
-        this.updateCompletedTaskCount();
-      });
-
-    this.bookdropFileService.hasPendingFiles$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((hasPending) => {
-        this.hasPendingBookdropFiles = hasPending;
-        this.updateCompletedTaskCount();
-      });
-
-    this.libraryImportProgressService.hasActiveImport$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((hasActive) => {
-        this.hasActiveLibraryImport = hasActive;
-        this.updateCompletedTaskCount();
-      });
-  }
+  private readonly activeMetadataTasks = toSignal(this.metadataProgressService.activeTasks$, { initialValue: {} });
+  private readonly progressHighlight = toSignal(
+    this.metadataProgressService.progressUpdates$.pipe(map(progress => progress.status === MetadataBatchStatus.IN_PROGRESS)),
+    { initialValue: false }
+  );
+  private readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, { initialValue: false });
+  private readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
+  protected readonly completedTaskCount = computed(() => {
+    const metadataTaskCount = Object.keys(this.activeMetadataTasks()).length;
+    const bookdropFileTaskCount = this.hasPendingBookdropFiles() ? 1 : 0;
+    const libraryImportTaskCount = this.hasActiveLibraryImport() ? 1 : 0;
+    return metadataTaskCount + bookdropFileTaskCount + libraryImportTaskCount;
+  });
+  protected readonly shouldShowNotificationBadge = computed(() =>
+    this.completedTaskCount() > 0 && !this.progressHighlight()
+  );
 
   openSearch(): void {
     this.commandPaletteService.open();
-  }
-
-  protected get shouldShowNotificationBadge(): boolean {
-    return this.completedTaskCount > 0 && !this.progressHighlight;
   }
 
   closeMobileSidebar(): void {
@@ -375,25 +356,4 @@ export class AppSidebarComponent {
     this.notificationPopoverOrigin.set(null);
   }
 
-  private subscribeToMetadataProgress(): void {
-    this.metadataProgressService.progressUpdates$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((progress) => {
-        this.progressHighlight = progress.status === MetadataBatchStatus.IN_PROGRESS;
-      });
-  }
-
-  private replaceLatestTasks(tasks: Record<string, MetadataBatchProgressNotification>): void {
-    for (const key of Object.keys(this.latestTasks)) {
-      delete this.latestTasks[key];
-    }
-    Object.assign(this.latestTasks, tasks);
-  }
-
-  private updateCompletedTaskCount(): void {
-    const metadataTaskCount = Object.keys(this.latestTasks).length;
-    const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
-    const libraryImportTaskCount = this.hasActiveLibraryImport ? 1 : 0;
-    this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount + libraryImportTaskCount;
-  }
 }

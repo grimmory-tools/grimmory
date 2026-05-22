@@ -1,4 +1,4 @@
-import { computed, signal, WritableSignal } from '@angular/core';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
@@ -43,7 +43,7 @@ describe('AppSidebarComponent', () => {
   let activeTasks$: BehaviorSubject<Record<string, MetadataBatchProgressNotification>>;
   let progressUpdates$: BehaviorSubject<MetadataBatchProgressNotification>;
   let hasPendingFiles$: BehaviorSubject<boolean>;
-  let hasActiveImport$: BehaviorSubject<boolean>;
+  let hasActiveImport: WritableSignal<boolean>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
   const layoutService = {
@@ -70,7 +70,7 @@ describe('AppSidebarComponent', () => {
       review: false,
     });
     hasPendingFiles$ = new BehaviorSubject(false);
-    hasActiveImport$ = new BehaviorSubject(false);
+    hasActiveImport = signal(false);
 
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
@@ -100,7 +100,7 @@ describe('AppSidebarComponent', () => {
         { provide: AuthService, useValue: { logout: vi.fn() } },
         { provide: MetadataProgressService, useValue: { activeTasks$, progressUpdates$ } },
         { provide: BookdropFileService, useValue: { hasPendingFiles$ } },
-        { provide: LibraryImportProgressService, useValue: { hasActiveImport$ } },
+        { provide: LibraryImportProgressService, useValue: { hasActiveImport } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
@@ -253,8 +253,8 @@ describe('AppSidebarComponent', () => {
 
   it('aggregates metadata tasks, library imports, and pending bookdrop files into the sidebar badge count', () => {
     const sidebar = component as unknown as {
-      completedTaskCount: number;
-      shouldShowNotificationBadge: boolean;
+      completedTaskCount: Signal<number>;
+      shouldShowNotificationBadge: Signal<boolean>;
     };
 
     activeTasks$.next({
@@ -276,15 +276,15 @@ describe('AppSidebarComponent', () => {
       },
     });
     hasPendingFiles$.next(true);
-    hasActiveImport$.next(true);
+    hasActiveImport.set(true);
 
-    expect(sidebar.completedTaskCount).toBe(4);
-    expect(sidebar.shouldShowNotificationBadge).toBe(true);
+    expect(sidebar.completedTaskCount()).toBe(4);
+    expect(sidebar.shouldShowNotificationBadge()).toBe(true);
   });
 
   it('hides the badge while metadata progress is actively running', () => {
     const sidebar = component as unknown as {
-      shouldShowNotificationBadge: boolean;
+      shouldShowNotificationBadge: Signal<boolean>;
     };
 
     activeTasks$.next({
@@ -306,6 +306,6 @@ describe('AppSidebarComponent', () => {
       review: false,
     });
 
-    expect(sidebar.shouldShowNotificationBadge).toBe(false);
+    expect(sidebar.shouldShowNotificationBadge()).toBe(false);
   });
 });

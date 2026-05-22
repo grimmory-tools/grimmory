@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {afterEach, describe, expect, it} from 'vitest';
 
-import {LibraryImportProgressService, LibraryImportProgressState} from './library-import-progress.service';
+import {LibraryImportProgressService} from './library-import-progress.service';
 
 describe('LibraryImportProgressService', () => {
   afterEach(() => {
@@ -11,16 +11,12 @@ describe('LibraryImportProgressService', () => {
   it('tracks progress from start through completion and clear', () => {
     TestBed.configureTestingModule({providers: [LibraryImportProgressService]});
     const service = TestBed.inject(LibraryImportProgressService);
-    let latest: LibraryImportProgressState | undefined;
-    service.state$.subscribe(state => {
-      latest = state;
-    });
 
     service.start('Main Library', 2);
     service.attachLibrary(7);
     service.recordBookAdded('First');
 
-    expect(latest).toEqual({
+    expect(service.state()).toEqual({
       active: true,
       libraryId: 7,
       libraryName: 'Main Library',
@@ -32,16 +28,16 @@ describe('LibraryImportProgressService', () => {
 
     service.fail();
 
-    expect(latest?.status).toBe('ERROR');
+    expect(service.state().status).toBe('ERROR');
 
     service.start('Main Library', 2);
     service.recordBookAdded('First');
     service.recordBookAdded('Second');
 
-    expect(latest?.status).toBe('COMPLETED');
+    expect(service.state().status).toBe('COMPLETED');
 
     service.clear();
 
-    expect(latest?.active).toBe(false);
+    expect(service.hasActiveImport()).toBe(false);
   });
 });

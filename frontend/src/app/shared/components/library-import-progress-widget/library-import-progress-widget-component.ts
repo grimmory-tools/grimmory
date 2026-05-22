@@ -1,4 +1,3 @@
-import {AsyncPipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {ButtonDirective} from 'primeng/button';
@@ -13,7 +12,7 @@ import {LibraryImportProgressService, LibraryImportProgressState, LibraryImportP
   templateUrl: './library-import-progress-widget-component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [AsyncPipe, ButtonDirective, ProgressBar, Tag, TranslocoDirective]
+  imports: [ButtonDirective, ProgressBar, Tag, TranslocoDirective]
 })
 export class LibraryImportProgressWidgetComponent {
   protected readonly progressService = inject(LibraryImportProgressService);

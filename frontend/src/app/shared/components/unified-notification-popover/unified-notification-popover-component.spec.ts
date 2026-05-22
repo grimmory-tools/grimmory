@@ -1,3 +1,4 @@
+import {Signal, signal, WritableSignal} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
@@ -14,12 +15,12 @@ describe('UnifiedNotificationBoxComponent', () => {
   let component: UnifiedNotificationBoxComponent;
   let activeTasks$: BehaviorSubject<Record<string, unknown>>;
   let hasPendingFiles$: BehaviorSubject<boolean>;
-  let hasActiveImport$: BehaviorSubject<boolean>;
+  let hasActiveImport: WritableSignal<boolean>;
 
   beforeEach(async () => {
     activeTasks$ = new BehaviorSubject<Record<string, unknown>>({});
     hasPendingFiles$ = new BehaviorSubject(false);
-    hasActiveImport$ = new BehaviorSubject(false);
+    hasActiveImport = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [UnifiedNotificationBoxComponent, getTranslocoModule()],
@@ -34,7 +35,7 @@ describe('UnifiedNotificationBoxComponent', () => {
         },
         {
           provide: LibraryImportProgressService,
-          useValue: {hasActiveImport$},
+          useValue: {hasActiveImport},
         },
       ],
     }).compileComponents();
@@ -48,12 +49,9 @@ describe('UnifiedNotificationBoxComponent', () => {
   });
 
   it('reports whether there are metadata tasks to show', () => {
-    let hasMetadataTasks: boolean | undefined;
-    component.hasMetadataTasks$.subscribe(value => {
-      hasMetadataTasks = value;
-    });
+    const popover = component as unknown as {hasMetadataTasks: Signal<boolean>};
 
-    expect(hasMetadataTasks).toBe(false);
+    expect(popover.hasMetadataTasks()).toBe(false);
 
     activeTasks$.next({
       'task-1': {
@@ -66,28 +64,22 @@ describe('UnifiedNotificationBoxComponent', () => {
       },
     });
 
-    expect(hasMetadataTasks).toBe(true);
+    expect(popover.hasMetadataTasks()).toBe(true);
   });
 
   it('forwards the bookdrop pending-file signal', () => {
-    let hasPendingFiles: boolean | undefined;
-    component.hasPendingBookdropFiles$.subscribe(value => {
-      hasPendingFiles = value;
-    });
+    const popover = component as unknown as {hasPendingBookdropFiles: Signal<boolean>};
 
-    expect(hasPendingFiles).toBe(false);
+    expect(popover.hasPendingBookdropFiles()).toBe(false);
     hasPendingFiles$.next(true);
-    expect(hasPendingFiles).toBe(true);
+    expect(popover.hasPendingBookdropFiles()).toBe(true);
   });
 
   it('forwards the active library import signal', () => {
-    let hasActiveImport: boolean | undefined;
-    component.hasActiveLibraryImport$.subscribe(value => {
-      hasActiveImport = value;
-    });
+    const popover = component as unknown as {hasActiveLibraryImport: Signal<boolean>};
 
-    expect(hasActiveImport).toBe(false);
-    hasActiveImport$.next(true);
-    expect(hasActiveImport).toBe(true);
+    expect(popover.hasActiveLibraryImport()).toBe(false);
+    hasActiveImport.set(true);
+    expect(popover.hasActiveLibraryImport()).toBe(true);
   });
 });

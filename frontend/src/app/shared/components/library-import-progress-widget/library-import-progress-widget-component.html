@@ -1,5 +1,5 @@
 <ng-container *transloco="let t">
-  @if (progressService.state$ | async; as progress) {
+  @if (progressService.state(); as progress) {
     @if (progress.active) {
     <div class="rounded-lg border border-[var(--primary-color)] bg-[var(--card-background)] p-4">
       <div class="mb-2 flex items-center justify-between gap-3">

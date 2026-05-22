@@ -1,6 +1,4 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {computed, Injectable, signal} from '@angular/core';
 
 export type LibraryImportProgressStatus = 'IN_PROGRESS' | 'COMPLETED' | 'ERROR';
 
@@ -24,10 +22,10 @@ const EMPTY_STATE: LibraryImportProgressState = {
 
 @Injectable({providedIn: 'root'})
 export class LibraryImportProgressService {
-  private readonly stateSubject = new BehaviorSubject<LibraryImportProgressState>(EMPTY_STATE);
+  private readonly stateSignal = signal<LibraryImportProgressState>(EMPTY_STATE);
 
-  readonly state$ = this.stateSubject.asObservable();
-  readonly hasActiveImport$ = this.state$.pipe(map(state => state.active));
+  readonly state = this.stateSignal.asReadonly();
+  readonly hasActiveImport = computed(() => this.stateSignal().active);
 
   start(libraryName: string, expectedCount: number): void {
     if (expectedCount <= 0) {
@@ -35,7 +33,7 @@ export class LibraryImportProgressService {
       return;
     }
 
-    this.stateSubject.next({
+    this.stateSignal.set({
       active: false,
       libraryName,
       expectedCount,
@@ -45,17 +43,17 @@ export class LibraryImportProgressService {
   }
 
   attachLibrary(libraryId: number): void {
-    const state = this.stateSubject.value;
+    const state = this.stateSignal();
     if (state.expectedCount <= 0) return;
-    this.stateSubject.next({...state, libraryId});
+    this.stateSignal.set({...state, libraryId});
   }
 
   recordBookAdded(bookTitle: string): void {
-    const state = this.stateSubject.value;
+    const state = this.stateSignal();
     if (state.expectedCount <= 0 || state.status !== 'IN_PROGRESS') return;
 
     const processedCount = Math.min(state.processedCount + 1, state.expectedCount);
-    this.stateSubject.next({
+    this.stateSignal.set({
       ...state,
       active: true,
       processedCount,
@@ -67,16 +65,16 @@ export class LibraryImportProgressService {
   }
 
   fail(): void {
-    const state = this.stateSubject.value;
+    const state = this.stateSignal();
     if (state.expectedCount <= 0 || state.status !== 'IN_PROGRESS') return;
     if (!state.active) {
       this.clear();
       return;
     }
-    this.stateSubject.next({...state, status: 'ERROR'});
+    this.stateSignal.set({...state, status: 'ERROR'});
   }
 
   clear(): void {
-    this.stateSubject.next(EMPTY_STATE);
+    this.stateSignal.set(EMPTY_STATE);
   }
 }
