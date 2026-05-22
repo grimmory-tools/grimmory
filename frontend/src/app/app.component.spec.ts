@@ -13,12 +13,12 @@ import { AppConfigService } from "./shared/service/app-config.service";
 import { MetadataProgressService } from "./shared/service/metadata-progress.service";
 import { BookdropFileService } from "./features/bookdrop/service/bookdrop-file.service";
 import { TaskService } from "./features/settings/task-management/task.service";
-import { LibraryService } from "./features/book/service/library.service";
 import { LibraryHealthService } from "./features/book/service/library-health.service";
 import { AuthService } from "./shared/service/auth.service";
 import { ConfirmationService } from "primeng/api";
 import { MessageService } from "primeng/api";
 import { CommandPaletteService } from "./features/command-palette/command-palette.service";
+import { LibraryImportProgressService } from "./shared/service/library-import-progress.service";
 
 interface StompMessage {
   body: string;
@@ -46,10 +46,7 @@ describe("AppComponent", () => {
   let taskService: { handleTaskProgress: ReturnType<typeof vi.fn> };
   let libraryHealthService: { initWebsocket: ReturnType<typeof vi.fn>, fetchHealth: ReturnType<typeof vi.fn> };
   let authService: { forceLogout: ReturnType<typeof vi.fn>, isAuthenticated: ReturnType<typeof signal> };
-  let libraryService: {
-    largeLibraryLoading?: ReturnType<typeof signal>;
-    setLargeLibraryLoading?: ReturnType<typeof vi.fn>;
-  };
+  let libraryImportProgressService: { recordBookAdded: ReturnType<typeof vi.fn> };
   let commandPaletteService: {
     toggle: ReturnType<typeof vi.fn>;
     open: ReturnType<typeof vi.fn>;
@@ -89,7 +86,7 @@ describe("AppComponent", () => {
     taskService = { handleTaskProgress: vi.fn() };
     libraryHealthService = { initWebsocket: vi.fn(), fetchHealth: vi.fn() };
     authService = { forceLogout: vi.fn(), isAuthenticated: signal(auth.authenticated) };
-    libraryService = {};
+    libraryImportProgressService = { recordBookAdded: vi.fn() };
     commandPaletteService = {
       toggle: vi.fn(),
       open: vi.fn(),
@@ -118,9 +115,9 @@ describe("AppComponent", () => {
         { provide: MetadataProgressService, useValue: metadataProgressService },
         { provide: BookdropFileService, useValue: bookdropFileService },
         { provide: TaskService, useValue: taskService },
-        { provide: LibraryService, useValue: libraryService },
         { provide: LibraryHealthService, useValue: libraryHealthService },
         { provide: AuthService, useValue: authService },
+        { provide: LibraryImportProgressService, useValue: libraryImportProgressService },
         { provide: CommandPaletteService, useValue: commandPaletteService },
         ConfirmationService,
         MessageService],
@@ -169,6 +166,7 @@ describe("AppComponent", () => {
       ?.next({ body: JSON.stringify({ metadata: { title: "First" } }) });
 
     expect(bookService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
+    expect(libraryImportProgressService.recordBookAdded).toHaveBeenCalledWith("First");
   });
 
   it("forwards websocket updates to the matching root services", () => {

@@ -21,6 +21,7 @@ import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop
 import { AuthService } from '../../service/auth.service';
 import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
+import { LibraryImportProgressService } from '../../service/library-import-progress.service';
 import { AppVersion, VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
@@ -42,6 +43,7 @@ describe('AppSidebarComponent', () => {
   let activeTasks$: BehaviorSubject<Record<string, MetadataBatchProgressNotification>>;
   let progressUpdates$: BehaviorSubject<MetadataBatchProgressNotification>;
   let hasPendingFiles$: BehaviorSubject<boolean>;
+  let hasActiveImport$: BehaviorSubject<boolean>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
   const layoutService = {
@@ -68,6 +70,7 @@ describe('AppSidebarComponent', () => {
       review: false,
     });
     hasPendingFiles$ = new BehaviorSubject(false);
+    hasActiveImport$ = new BehaviorSubject(false);
 
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
@@ -97,6 +100,7 @@ describe('AppSidebarComponent', () => {
         { provide: AuthService, useValue: { logout: vi.fn() } },
         { provide: MetadataProgressService, useValue: { activeTasks$, progressUpdates$ } },
         { provide: BookdropFileService, useValue: { hasPendingFiles$ } },
+        { provide: LibraryImportProgressService, useValue: { hasActiveImport$ } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
@@ -247,7 +251,7 @@ describe('AppSidebarComponent', () => {
     expect(sidebar.notificationPopoverOrigin()).toBeNull();
   });
 
-  it('aggregates metadata tasks and pending bookdrop files into the sidebar badge count', () => {
+  it('aggregates metadata tasks, library imports, and pending bookdrop files into the sidebar badge count', () => {
     const sidebar = component as unknown as {
       completedTaskCount: number;
       shouldShowNotificationBadge: boolean;
@@ -272,8 +276,9 @@ describe('AppSidebarComponent', () => {
       },
     });
     hasPendingFiles$.next(true);
+    hasActiveImport$.next(true);
 
-    expect(sidebar.completedTaskCount).toBe(3);
+    expect(sidebar.completedTaskCount).toBe(4);
     expect(sidebar.shouldShowNotificationBadge).toBe(true);
   });
 

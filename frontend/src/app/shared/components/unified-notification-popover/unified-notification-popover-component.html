@@ -3,6 +3,9 @@
   @if (hasMetadataTasks$ | async) {
     <app-metadata-progress-widget/>
   }
+  @if (hasActiveLibraryImport$ | async) {
+    <app-library-import-progress-widget/>
+  }
   @if (hasPendingBookdropFiles$ | async) {
     <app-bookdrop-files-widget-component/>
   }

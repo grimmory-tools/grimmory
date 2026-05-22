@@ -37,6 +37,7 @@ import { VersionService } from '../../service/version.service';
 import { MetadataProgressService } from '../../service/metadata-progress.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { MetadataBatchProgressNotification, MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
+import { LibraryImportProgressService } from '../../service/library-import-progress.service';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
@@ -139,6 +140,7 @@ export class AppSidebarComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
@@ -231,6 +233,7 @@ export class AppSidebarComponent {
   protected progressHighlight = false;
   protected completedTaskCount = 0;
   protected hasPendingBookdropFiles = false;
+  protected hasActiveLibraryImport = false;
 
   private readonly latestTasks: Record<string, MetadataBatchProgressNotification> = {};
 
@@ -248,6 +251,13 @@ export class AppSidebarComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((hasPending) => {
         this.hasPendingBookdropFiles = hasPending;
+        this.updateCompletedTaskCount();
+      });
+
+    this.libraryImportProgressService.hasActiveImport$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hasActive) => {
+        this.hasActiveLibraryImport = hasActive;
         this.updateCompletedTaskCount();
       });
   }
@@ -383,6 +393,7 @@ export class AppSidebarComponent {
   private updateCompletedTaskCount(): void {
     const metadataTaskCount = Object.keys(this.latestTasks).length;
     const bookdropFileTaskCount = this.hasPendingBookdropFiles ? 1 : 0;
-    this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount;
+    const libraryImportTaskCount = this.hasActiveLibraryImport ? 1 : 0;
+    this.completedTaskCount = metadataTaskCount + bookdropFileTaskCount + libraryImportTaskCount;
   }
 }

@@ -19,6 +19,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LibraryImportProgressService } from '../../shared/service/library-import-progress.service';
 
 interface FormatEntry { type: BookType; label: string }
 
@@ -45,6 +46,7 @@ export class LibraryCreatorComponent {
   private readonly router = inject(Router);
   private readonly iconPicker = inject(IconPickerService);
   private readonly t = inject(TranslocoService);
+  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
 
   private readonly activeLang = toSignal(this.t.langChanges$, {
     initialValue: this.t.getActiveLang(),
@@ -301,6 +303,9 @@ export class LibraryCreatorComponent {
     } else {
       this.libraryService.scanLibraryPaths(library).pipe(
         switchMap(count => {
+          if (count >= 500) {
+            this.libraryImportProgressService.start(library.name, count);
+          }
           return this.libraryService.createLibrary(library).pipe(
             map(createdLibrary => ({ createdLibrary, count }))
           );
@@ -308,6 +313,9 @@ export class LibraryCreatorComponent {
       ).subscribe({
         next: ({ createdLibrary, count }) => {
           if (createdLibrary) {
+            if (count >= 500 && createdLibrary.id !== undefined) {
+              this.libraryImportProgressService.attachLibrary(createdLibrary.id);
+            }
             this.router.navigate(['/library', createdLibrary.id, 'books']);
             this.messageService.add({
               severity: 'success',
@@ -320,6 +328,7 @@ export class LibraryCreatorComponent {
           }
         },
         error: (e: Error) => {
+          this.libraryImportProgressService.fail();
           this.messageService.add({ severity: 'error', summary: this.t.translate('libraryCreator.creator.toast.createFailedSummary'), detail: this.t.translate('libraryCreator.creator.toast.createFailedDetail') });
           console.error(e);
         }

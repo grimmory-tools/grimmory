@@ -6,6 +6,7 @@ import {BookdropFileService} from '../../../features/bookdrop/service/bookdrop-f
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {MetadataBatchStatus} from '../../model/metadata-batch-progress.model';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
+import {LibraryImportProgressService} from '../../service/library-import-progress.service';
 import {UnifiedNotificationBoxComponent} from './unified-notification-popover-component';
 
 describe('UnifiedNotificationBoxComponent', () => {
@@ -13,10 +14,12 @@ describe('UnifiedNotificationBoxComponent', () => {
   let component: UnifiedNotificationBoxComponent;
   let activeTasks$: BehaviorSubject<Record<string, unknown>>;
   let hasPendingFiles$: BehaviorSubject<boolean>;
+  let hasActiveImport$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     activeTasks$ = new BehaviorSubject<Record<string, unknown>>({});
     hasPendingFiles$ = new BehaviorSubject(false);
+    hasActiveImport$ = new BehaviorSubject(false);
 
     await TestBed.configureTestingModule({
       imports: [UnifiedNotificationBoxComponent, getTranslocoModule()],
@@ -28,6 +31,10 @@ describe('UnifiedNotificationBoxComponent', () => {
         {
           provide: BookdropFileService,
           useValue: {hasPendingFiles$},
+        },
+        {
+          provide: LibraryImportProgressService,
+          useValue: {hasActiveImport$},
         },
       ],
     }).compileComponents();
@@ -71,5 +78,16 @@ describe('UnifiedNotificationBoxComponent', () => {
     expect(hasPendingFiles).toBe(false);
     hasPendingFiles$.next(true);
     expect(hasPendingFiles).toBe(true);
+  });
+
+  it('forwards the active library import signal', () => {
+    let hasActiveImport: boolean | undefined;
+    component.hasActiveLibraryImport$.subscribe(value => {
+      hasActiveImport = value;
+    });
+
+    expect(hasActiveImport).toBe(false);
+    hasActiveImport$.next(true);
+    expect(hasActiveImport).toBe(true);
   });
 });
