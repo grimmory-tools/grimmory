@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {PdfReaderComponent} from './pdf-reader.component';
 
-type PdfReaderHarness = {
+interface PdfReaderHarness {
   embedPdfIframe: {contentWindow: {postMessage: ReturnType<typeof vi.fn>}} | null;
   embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
   cachedPdfBuffer: ArrayBuffer | null;
@@ -10,7 +10,7 @@ type PdfReaderHarness = {
   authService: {getInternalAccessToken: () => string | null};
   bookId: number;
   saveEmbedPdfDocument: () => Promise<boolean>;
-};
+}
 
 function bytes(buffer: ArrayBuffer): number[] {
   return Array.from(new Uint8Array(buffer));
