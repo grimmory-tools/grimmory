@@ -1,4 +1,4 @@
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {PdfReaderComponent} from './pdf-reader.component';
 
@@ -8,6 +8,7 @@ interface PdfReaderHarness {
   cachedPdfBuffer: ArrayBuffer | null;
   pdfBlobUrl: string | null;
   authService: {getInternalAccessToken: () => string | null};
+  cacheStorageService: {delete: ReturnType<typeof vi.fn>};
   bookId: number;
   saveEmbedPdfDocument: () => Promise<boolean>;
 }
@@ -28,11 +29,17 @@ function makeComponent(savedBuffer: ArrayBuffer): PdfReaderHarness {
   component.cachedPdfBuffer = new Uint8Array([9, 9, 9]).buffer;
   component.pdfBlobUrl = 'blob:old-pdf';
   component.authService = {getInternalAccessToken: () => null};
+  component.cacheStorageService = {delete: vi.fn(() => Promise.resolve(true))};
   component.bookId = 123;
   return component;
 }
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -48,13 +55,15 @@ describe('PdfReaderComponent save handling', () => {
 
     const firstSave = component.saveEmbedPdfDocument();
     const secondSave = component.saveEmbedPdfDocument();
+    vi.advanceTimersByTime(0);
 
     await expect(Promise.all([firstSave, secondSave])).resolves.toEqual([true, true]);
     expect(component.embedPdfIframe?.contentWindow.postMessage).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(component.cacheStorageService.delete).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes the cached PDF bytes and blob URL after upload succeeds', async () => {
+  it('refreshes local PDF bytes and evicts the shared cache after upload succeeds', async () => {
     const savedBuffer = new Uint8Array([4, 5, 6]).buffer;
     const component = makeComponent(savedBuffer);
     const fetchMock = vi.fn(() => Promise.resolve({ok: true} as Response));
@@ -62,7 +71,10 @@ describe('PdfReaderComponent save handling', () => {
     const revokeObjectUrl = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(component.saveEmbedPdfDocument()).resolves.toBe(true);
+    const save = component.saveEmbedPdfDocument();
+    vi.advanceTimersByTime(0);
+
+    await expect(save).resolves.toBe(true);
 
     expect(bytes(component.cachedPdfBuffer!)).toEqual([4, 5, 6]);
     expect(component.cachedPdfBuffer).not.toBe(savedBuffer);
@@ -72,6 +84,9 @@ describe('PdfReaderComponent save handling', () => {
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/api/v1/books/123/content'),
       expect.objectContaining({body: expect.any(ArrayBuffer)})
+    );
+    expect(component.cacheStorageService.delete).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/books/123/content')
     );
   });
 });

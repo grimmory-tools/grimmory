@@ -1149,6 +1149,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         return false;
       }
       this.updateSavedPdfCache(buffer);
+      await this.cacheStorageService.delete(url);
       return true;
     } catch (err) {
       console.error('[EmbedPDF] Failed to save document:', err);
