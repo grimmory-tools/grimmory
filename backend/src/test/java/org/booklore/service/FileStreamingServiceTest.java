@@ -36,7 +36,7 @@ class FileStreamingServiceTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        fileStreamingService = new FileStreamingService();
+        fileStreamingService = new FileStreamingService(131072, 49152);
 
         // Create a test file with known content
         testContent = new byte[10000];
@@ -189,7 +189,7 @@ class FileStreamingServiceTest {
 
         String expectedETag = computeExpectedETag(testFile);
         verify(response).setHeader("ETag", expectedETag);
-        verify(response).setHeader("Cache-Control", "no-cache");
+        verify(response).setHeader("Cache-Control", "private, no-cache, must-revalidate");
         verify(response, never()).setHeader(eq("Pragma"), any());
     }
 
@@ -256,7 +256,7 @@ class FileStreamingServiceTest {
         var response = mock(HttpServletResponse.class);
 
         String etag = computeExpectedETag(testFile);
-        String weakEtag = "W/" + etag;
+        String weakEtag = etag.startsWith("W/") ? etag : "W/" + etag;
         when(request.getHeader("If-None-Match")).thenReturn(weakEtag);
 
         fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
@@ -280,7 +280,7 @@ class FileStreamingServiceTest {
     }
 
     @Test
-    void streamWithRangeSupport_ifRangeMatchingEtag_servesRange() throws IOException {
+    void streamWithRangeSupport_ifRangeMatchingEtag_servesFullContentDueToWeakEtag() throws IOException {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
         var outputStream = new ByteArrayOutputStream();
@@ -293,9 +293,10 @@ class FileStreamingServiceTest {
 
         fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
 
-        verify(response).setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-        verify(response).setContentLengthLong(100);
-        assertEquals(100, outputStream.size());
+        // Weak ETag does NOT match for If-Range, should serve full content (200 OK)
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(testContent.length);
+        assertArrayEquals(testContent, outputStream.toByteArray());
     }
 
     @Test
@@ -529,12 +530,129 @@ class FileStreamingServiceTest {
         assertArrayEquals(expected, outputStream.toByteArray());
     }
 
+    @Test
+    void streamWithRangeSupport_multiRangeHeader_streamsFullFile() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getHeader("Range")).thenReturn("bytes=0-99,200-299");
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "application/octet-stream", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(testContent.length);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void streamWithRangeSupport_ifModifiedSinceMatching_returns304() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+
+        var attrs = Files.readAttributes(testFile, BasicFileAttributes.class);
+        long lastModifiedSec = attrs.lastModifiedTime().toInstant().getEpochSecond();
+
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getDateHeader("If-Modified-Since")).thenReturn(lastModifiedSec * 1000);
+        when(request.getHeader("If-None-Match")).thenReturn(null);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        verify(response, never()).getOutputStream();
+    }
+
+    @Test
+    void streamWithRangeSupport_ifModifiedSinceStale_streamsNormally() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        var attrs = Files.readAttributes(testFile, BasicFileAttributes.class);
+        long lastModifiedSec = attrs.lastModifiedTime().toInstant().getEpochSecond();
+
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getDateHeader("If-Modified-Since")).thenReturn((lastModifiedSec - 10) * 1000);
+        when(request.getHeader("If-None-Match")).thenReturn(null);
+        when(request.getHeader("Range")).thenReturn(null);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void streamWithRangeSupport_ifModifiedSinceMalformed_streamsNormally() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getDateHeader("If-Modified-Since")).thenThrow(new IllegalArgumentException("Invalid date"));
+        when(request.getHeader("If-None-Match")).thenReturn(null);
+        when(request.getHeader("Range")).thenReturn(null);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void validateProperties_invalidBufferSize_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> 
+            new FileStreamingService(0, 49152)
+        );
+    }
+
+    @Test
+    void validateProperties_invalidMinSendfileSize_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> 
+            new FileStreamingService(131072, -1)
+        );
+    }
+
+    @Test
+    void streamWithRangeSupport_sendfileSupported_setsRequestAttributesAndWritesNoBody() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+
+        when(request.getAttribute("org.apache.tomcat.sendfile.support")).thenReturn(Boolean.TRUE);
+        when(request.getHeader("Range")).thenReturn(null);
+
+        // Ensure file size is larger than MIN_SENDFILE_SIZE (48KB) for sendfile to activate
+        byte[] largeContent = new byte[100 * 1024]; // 100 KB
+        Path largeFile = tempDir.resolve("large.bin");
+        Files.write(largeFile, largeContent);
+
+        fileStreamingService.streamWithRangeSupport(largeFile, "application/octet-stream", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(largeContent.length);
+
+        // Verify the sendfile attributes are set
+        verify(request).setAttribute(eq("org.apache.tomcat.sendfile.filename"), anyString());
+        verify(request).setAttribute("org.apache.tomcat.sendfile.start", 0L);
+        verify(request).setAttribute("org.apache.tomcat.sendfile.end", (long) largeContent.length);
+
+        // Verify no response output stream is fetched (since Tomcat sendfile handles content transfer)
+        verify(response, never()).getOutputStream();
+    }
+
     // ==================== Helpers ====================
 
     private String computeExpectedETag(Path file) throws IOException {
         var attrs = Files.readAttributes(file, BasicFileAttributes.class);
-        return fileStreamingService.generateETag(
-                attrs.size(), attrs.lastModifiedTime().toInstant());
+        return FileStreamingService.generateETag(
+                attrs.size(), attrs.lastModifiedTime().toMillis());
     }
 
     private ServletOutputStream createServletOutputStream(ByteArrayOutputStream outputStream) {

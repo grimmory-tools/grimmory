@@ -1,5 +1,6 @@
 package org.booklore.service.book;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +25,20 @@ import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +46,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.InputStream;
 
 @Slf4j
 @AllArgsConstructor
@@ -284,7 +287,7 @@ public class BookService {
             if (Files.exists(thumbnailPath)) {
                 return new UrlResource(thumbnailPath.toUri());
             } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
+                return getMissingCoverResource();
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
@@ -352,38 +355,28 @@ public class BookService {
         bookDownloadService.downloadAllBookFiles(bookId, response);
     }
 
-    public ResponseEntity<Resource> getBookContent(long bookId) {
-        return getBookContent(bookId, null);
-    }
+    public void streamBookContent(long bookId, String bookType, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-    public ResponseEntity<Resource> getBookContent(long bookId, String bookType) {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        String filePath;
+        Path filePath;
         if (bookType != null) {
-            BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
+            BookFileType requestedType = BookFileType.fromName(bookType)
+                    .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
                     .findFirst()
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
-            filePath = bookFile.getFullFilePath().toString();
+            filePath = bookFile.getFullFilePath();
         } else {
-            filePath = FileUtils.getBookFullPath(bookEntity).toString();
-        }
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw ApiError.FILE_NOT_FOUND.createException(filePath);
-        }
-        Long lastModified = FileUtils.getFileLastModified(Path.of(filePath));
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
-
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
+            filePath = FileUtils.getBookFullPath(bookEntity);
         }
 
-        return builder
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .contentType(MediaTypeFactory.getMediaType(filePath).orElse(MediaType.APPLICATION_OCTET_STREAM))
-                .body(new FileSystemResource(file));
+        String contentType = MediaTypeFactory.getMediaType(filePath.getFileName().toString())
+                .map(MediaType::toString)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        fileStreamingService.streamWithRangeSupport(filePath, contentType, request, response);
     }
 
     public void replaceBookContent(long bookId, String bookType, InputStream content) throws IOException {
@@ -524,14 +517,14 @@ public class BookService {
                 for (File file : files) {
                     try {
                         Files.delete(file.toPath());
-                        log.info("Deleted ignored file: {}", file.getAbsolutePath());
+                        log.debug("Deleted ignored file: {}", file.getAbsolutePath());
                     } catch (IOException e) {
                         log.warn("Failed to delete ignored file: {}", file.getAbsolutePath());
                     }
                 }
                 try {
                     Files.delete(dir);
-                    log.info("Deleted empty directory: {}", dir);
+                    log.debug("Deleted empty directory: {}", dir);
                 } catch (IOException e) {
                     log.warn("Failed to delete directory: {}", dir, e);
                     break;
