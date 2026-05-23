@@ -1,7 +1,6 @@
-import {Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {LiveNotificationBoxComponent} from '../live-notification-box/live-notification-box.component';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
-import {map} from 'rxjs/operators';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {BookdropFileService} from '../../../features/bookdrop/service/bookdrop-file.service';
 import {BookdropFilesWidgetComponent} from '../../../features/bookdrop/component/bookdrop-files-widget/bookdrop-files-widget.component';
@@ -19,18 +18,16 @@ import {LibraryImportProgressWidgetComponent} from '../library-import-progress-w
   ],
   templateUrl: './unified-notification-popover-component.html',
   standalone: true,
-  styleUrl: './unified-notification-popover-component.scss'
+  styleUrl: './unified-notification-popover-component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnifiedNotificationBoxComponent {
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
 
-  protected readonly hasMetadataTasks = toSignal(
-    this.metadataProgressService.activeTasks$.pipe(map(tasks => Object.keys(tasks).length > 0)),
-    {initialValue: false}
-  );
-
+  private readonly activeMetadataTasks = toSignal(this.metadataProgressService.activeTasks$, {initialValue: {}});
+  protected readonly hasMetadataTasks = computed(() => Object.keys(this.activeMetadataTasks()).length > 0);
   protected readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, {initialValue: false});
   protected readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
 }

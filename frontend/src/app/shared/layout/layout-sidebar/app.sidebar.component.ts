@@ -24,7 +24,6 @@ import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/tr
 import { Tooltip } from 'primeng/tooltip';
 import type { MenuItem } from 'primeng/api';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildCreateActionNavItems } from '../navigation/nav-catalog';
 import {
@@ -231,9 +230,9 @@ export class AppSidebarComponent {
     this.layoutService.isDesktop() ? RIGHT_ALIGN_TOP : this.notificationPopoverMobilePositions()
   );
   private readonly activeMetadataTasks = toSignal(this.metadataProgressService.activeTasks$, { initialValue: {} });
-  private readonly progressHighlight = toSignal(
-    this.metadataProgressService.progressUpdates$.pipe(map(progress => progress.status === MetadataBatchStatus.IN_PROGRESS)),
-    { initialValue: false }
+  private readonly latestProgress = toSignal(this.metadataProgressService.progressUpdates$, { initialValue: null });
+  private readonly progressHighlight = computed(() =>
+    this.latestProgress()?.status === MetadataBatchStatus.IN_PROGRESS
   );
   private readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, { initialValue: false });
   private readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
