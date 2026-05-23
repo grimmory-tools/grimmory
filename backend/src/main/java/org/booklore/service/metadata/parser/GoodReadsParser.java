@@ -160,6 +160,8 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                             sink.next(detailedMetadata);
                         }
                         Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1501));
+                    } catch (InterruptedException e) {
+                        throw e;
                     } catch (Exception e) {
                         log.error("Error fetching metadata for book: {}", goodreadsId, e);
                     }
