@@ -174,10 +174,10 @@ affinity: {}
 # - apiVersion: k8s.mariadb.com/v1alpha1
 #   kind: MariaDB
 #   metadata:
-#     name: booklore-mariadb
-#     namespace: booklore
+#     name: grimmory-mariadb
+#     namespace: grimmory
 #   spec:
 #     rootPasswordSecretKeyRef:
-#       name: booklore-mariadb-root
+#       name: grimmory-mariadb-root
 #       key: password
 extraObjects: []
