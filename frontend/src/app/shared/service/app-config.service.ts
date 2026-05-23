@@ -8,7 +8,10 @@ import {
   AppColorScheme,
   AppState,
   AppTheme,
+  CUSTOM_PRIMARY_OPTIONS,
+  CustomPrimary,
   DEFAULT_APP_THEME,
+  DEFAULT_CUSTOM_PRIMARY,
 } from '../model/app-state.model';
 
 type ColorPalette = Record<string, string>;
@@ -70,7 +73,15 @@ export class AppConfigService {
       preset: state.preset ?? 'Aura',
       theme: this.resolveTheme(state.theme),
       colorScheme: this.resolveColorScheme(state.colorScheme),
+      customPrimary: this.resolveCustomPrimary(state.customPrimary),
     };
+  }
+
+  private resolveCustomPrimary(customPrimary: AppState['customPrimary']): CustomPrimary {
+    if (customPrimary && CUSTOM_PRIMARY_OPTIONS.includes(customPrimary)) {
+      return customPrimary;
+    }
+    return DEFAULT_CUSTOM_PRIMARY;
   }
 
   private resolveTheme(theme: AppState['theme']): AppTheme {
@@ -82,7 +93,20 @@ export class AppConfigService {
   }
 
   private resolveColorScheme(colorScheme: AppState['colorScheme']): AppColorScheme {
-    return colorScheme === 'light' ? 'light' : DEFAULT_COLOR_SCHEME;
+    if (colorScheme === 'light' || colorScheme === 'dark' || colorScheme === 'system') {
+      return colorScheme;
+    }
+    return DEFAULT_COLOR_SCHEME;
+  }
+
+  private effectiveColorScheme(colorScheme: AppColorScheme): 'light' | 'dark' {
+    if (colorScheme !== 'system') {
+      return colorScheme;
+    }
+    if (isPlatformBrowser(this.platformId) && typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
   }
 
   private saveAppState(state: AppState): void {
@@ -108,10 +132,44 @@ export class AppConfigService {
     const root = this.document.documentElement;
     const theme = this.resolveTheme(state.theme);
     const colorScheme = this.resolveColorScheme(state.colorScheme);
+    const effective = this.effectiveColorScheme(colorScheme);
 
     root.dataset['appTheme'] = theme;
-    root.classList.toggle('dark', colorScheme === 'dark');
-    root.style.setProperty('color-scheme', colorScheme);
+    root.classList.toggle('dark', effective === 'dark');
+    root.style.setProperty('color-scheme', effective);
+    this.applyCustomPrimary(root, theme, this.resolveCustomPrimary(state.customPrimary));
+    this.syncSystemSchemeListener(colorScheme);
+  }
+
+  private applyCustomPrimary(root: HTMLElement, theme: AppTheme, customPrimary: CustomPrimary): void {
+    const stops = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+    if (theme === 'custom') {
+      stops.forEach((stop) => {
+        root.style.setProperty(`--color-primary-${stop}`, `var(--color-${customPrimary}-${stop})`);
+      });
+    } else {
+      stops.forEach((stop) => root.style.removeProperty(`--color-primary-${stop}`));
+    }
+  }
+
+  private systemSchemeMedia: MediaQueryList | null = null;
+  private systemSchemeListener: ((event: MediaQueryListEvent) => void) | null = null;
+
+  private syncSystemSchemeListener(colorScheme: AppColorScheme): void {
+    if (!isPlatformBrowser(this.platformId) || typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+    if (colorScheme === 'system') {
+      if (!this.systemSchemeMedia) {
+        this.systemSchemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        this.systemSchemeListener = () => this.onPresetChange();
+        this.systemSchemeMedia.addEventListener('change', this.systemSchemeListener);
+      }
+    } else if (this.systemSchemeMedia && this.systemSchemeListener) {
+      this.systemSchemeMedia.removeEventListener('change', this.systemSchemeListener);
+      this.systemSchemeMedia = null;
+      this.systemSchemeListener = null;
+    }
   }
 
   private readActiveTheme(): ResolvedThemePalettes {

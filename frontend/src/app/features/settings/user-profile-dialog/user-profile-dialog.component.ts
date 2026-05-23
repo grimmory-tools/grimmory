@@ -1,4 +1,3 @@
-import {NgClass} from '@angular/common';
 import {Component, DestroyRef, computed, effect, inject} from '@angular/core';
 import {Button} from 'primeng/button';
 import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
@@ -9,12 +8,11 @@ import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Select} from 'primeng/select';
-import {ToggleSwitch} from 'primeng/toggleswitch';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../core/config/transloco-loader';
 import {LANG_STORAGE_KEY} from '../../../core/config/language-initializer';
 import {AppConfigService} from '../../../shared/service/app-config.service';
-import {AppColorScheme, AppTheme} from '../../../shared/model/app-state.model';
+import {AppColorScheme, AppTheme, CUSTOM_PRIMARY_OPTIONS, CustomPrimary, DEFAULT_CUSTOM_PRIMARY} from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -36,8 +34,6 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     InputText,
     Password,
     Select,
-    ToggleSwitch,
-    NgClass,
     TranslocoDirective,
     TranslocoPipe,
   ],
@@ -65,8 +61,23 @@ export class UserProfileDialogComponent {
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   protected readonly selectedTheme = computed(() => this.configService.appState().theme ?? 'grimmory');
   protected readonly selectedColorScheme = computed(() => this.configService.appState().colorScheme ?? 'dark');
-  protected readonly isDarkTheme = computed(() => this.selectedColorScheme() === 'dark');
-  protected readonly themes = this.configService.themes;
+  protected readonly selectedCustomPrimary = computed<CustomPrimary>(
+    () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
+  );
+  protected readonly customPrimaryOptions = CUSTOM_PRIMARY_OPTIONS;
+  protected readonly themeOptions = this.configService.themes.map((theme) => ({
+    value: theme.name,
+    label: theme.label,
+    swatch: theme.swatch,
+  }));
+  protected readonly appearanceOptions = computed(() => {
+    this.activeLang();
+    return [
+      {value: 'light' as AppColorScheme, label: this.t.translate('layout.theme.light')},
+      {value: 'dark' as AppColorScheme, label: this.t.translate('layout.theme.dark')},
+      {value: 'system' as AppColorScheme, label: this.t.translate('layout.theme.system')},
+    ];
+  });
 
   constructor() {
     this.changePasswordForm = this.fb.group(
@@ -114,16 +125,21 @@ export class UserProfileDialogComponent {
     });
   }
 
-  updateTheme(event: Event, theme: AppTheme): void {
+  updateTheme(theme: AppTheme): void {
     this.configService.appState.update((state) => ({
       ...state,
       theme,
     }));
-    event.stopPropagation();
   }
 
-  updateColorScheme(isDark: boolean): void {
-    const colorScheme: AppColorScheme = isDark ? 'dark' : 'light';
+  updateCustomPrimary(customPrimary: CustomPrimary): void {
+    this.configService.appState.update((state) => ({
+      ...state,
+      customPrimary,
+    }));
+  }
+
+  updateColorScheme(colorScheme: AppColorScheme): void {
     this.configService.appState.update((state) => ({
       ...state,
       colorScheme,

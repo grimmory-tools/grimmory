@@ -24,65 +24,92 @@
   <div class="form-container">
     <div class="form-section preferences-section">
       <h3 class="section-title">
+        <i class="pi pi-palette" aria-hidden="true"></i>
+        {{ 'settingsView.theme.sectionTitle' | transloco }}
+      </h3>
+
+      <div class="form-field">
+        <label class="field-label" for="app-appearance">{{ 'layout.theme.appearance' | transloco }}</label>
+        <p-select
+          inputId="app-appearance"
+          [options]="appearanceOptions()"
+          [ngModel]="selectedColorScheme()"
+          (ngModelChange)="updateColorScheme($event)"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          class="preference-select">
+        </p-select>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label" for="app-theme">{{ 'layout.theme.theme' | transloco }}</label>
+        <p-select
+          inputId="app-theme"
+          [options]="themeOptions"
+          [ngModel]="selectedTheme()"
+          (ngModelChange)="updateTheme($event)"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          class="preference-select">
+          <ng-template #selectedItem let-option>
+            <span class="inline-flex items-center gap-2.5 min-w-0">
+              @if (option.swatch) {
+                <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset" [style.background]="option.swatch" aria-hidden="true"></span>
+              }
+              <span>{{ option.label }}</span>
+            </span>
+          </ng-template>
+          <ng-template #item let-option>
+            <span class="inline-flex items-center gap-2.5 min-w-0">
+              @if (option.swatch) {
+                <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset" [style.background]="option.swatch" aria-hidden="true"></span>
+              }
+              <span>{{ option.label }}</span>
+            </span>
+          </ng-template>
+        </p-select>
+      </div>
+
+      @if (selectedTheme() === 'custom') {
+        <div class="form-field">
+          <label class="field-label">{{ 'layout.theme.customPrimary' | transloco }}</label>
+          <div class="rounded-md p-3 bg-card shadow-[inset_0_0_0_1px_var(--color-border)]">
+            <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="'layout.theme.customPrimary' | transloco">
+              @for (palette of customPrimaryOptions; track palette) {
+                <button
+                  type="button"
+                  [class]="'w-7 h-7 rounded-full cursor-pointer shadow-[inset_0_0_0_1px_rgb(0_0_0_/_0.1)] dark:shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.1)] ' + (palette === selectedCustomPrimary() ? 'ring-1 ring-black dark:ring-white' : '')"
+                  [style.background]="'var(--color-' + palette + '-500)'"
+                  [attr.aria-label]="palette"
+                  [attr.aria-pressed]="palette === selectedCustomPrimary()"
+                  (click)="updateCustomPrimary(palette)">
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="gradient-divider"></div>
+
+    <div class="form-section preferences-section">
+      <h3 class="section-title">
         <i class="pi pi-language" aria-hidden="true"></i>
         {{ 'settingsView.language.sectionTitle' | transloco }}
       </h3>
 
       <p-select
-        size="small"
         [options]="languageOptions"
         [ngModel]="activeLang()"
         (ngModelChange)="onLanguageChange($event)"
         optionLabel="label"
         optionValue="value"
         appendTo="body"
-        class="language-select">
+        class="preference-select">
       </p-select>
-    </div>
-
-    <div class="gradient-divider"></div>
-
-    <div class="form-section preferences-section">
-      <div class="preference-group">
-        <h3 class="section-title">
-          <i class="pi pi-palette" aria-hidden="true"></i>
-          {{ 'settingsView.theme.sectionTitle' | transloco }}
-        </h3>
-
-        <div class="theme-row">
-          <span class="theme-row-label">{{ 'layout.theme.theme' | transloco }}</span>
-          <div class="theme-options">
-            @for (theme of themes; track theme.name) {
-              <button
-                type="button"
-                class="theme-option"
-                [attr.data-app-theme]="theme.name"
-                [title]="theme.label"
-                [attr.aria-label]="theme.label"
-                [attr.aria-pressed]="theme.name === selectedTheme()"
-                (click)="updateTheme($event, theme.name)"
-                [ngClass]="{ 'active-theme': theme.name === selectedTheme() }">
-                <span class="theme-option-primary bg-primary-500"></span>
-                <span class="theme-option-surface bg-surface-500"></span>
-                <span class="theme-option-label">{{ theme.label }}</span>
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="theme-row">
-          <label class="theme-row-label" for="app-theme-mode">{{ 'layout.theme.mode' | transloco }}</label>
-          <div class="theme-mode-control">
-            <span>{{ 'layout.theme.light' | transloco }}</span>
-            <p-toggleswitch
-              inputId="app-theme-mode"
-              [ngModel]="isDarkTheme()"
-              (onChange)="updateColorScheme($event.checked)">
-            </p-toggleswitch>
-            <span>{{ 'layout.theme.dark' | transloco }}</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="gradient-divider"></div>

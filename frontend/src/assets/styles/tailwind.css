@@ -459,5 +459,35 @@
   --color-logo-end: var(--color-gray-300);
 }
 
+/* Custom theme: zinc surface, primary palette chosen at runtime via the picker. */
+[data-app-theme="custom"] {
+  --app-primary-tint: 5%;
+  --color-primary-50: var(--color-orange-50);
+  --color-primary-100: var(--color-orange-100);
+  --color-primary-200: var(--color-orange-200);
+  --color-primary-300: var(--color-orange-300);
+  --color-primary-400: var(--color-orange-400);
+  --color-primary-500: var(--color-orange-500);
+  --color-primary-600: var(--color-orange-600);
+  --color-primary-700: var(--color-orange-700);
+  --color-primary-800: var(--color-orange-800);
+  --color-primary-900: var(--color-orange-900);
+  --color-primary-950: var(--color-orange-950);
+  --color-surface-0: var(--color-white);
+  --color-surface-50: var(--color-zinc-50);
+  --color-surface-100: var(--color-zinc-100);
+  --color-surface-200: var(--color-zinc-200);
+  --color-surface-300: var(--color-zinc-300);
+  --color-surface-400: var(--color-zinc-400);
+  --color-surface-500: var(--color-zinc-500);
+  --color-surface-600: var(--color-zinc-600);
+  --color-surface-700: var(--color-zinc-700);
+  --color-surface-800: var(--color-zinc-800);
+  --color-surface-900: var(--color-zinc-900);
+  --color-surface-950: var(--color-zinc-950);
+}
+
+@source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
+
 @source not "../embedpdf-frame.html";
 @source not "../../app/features/readers/pdf-reader/services/embedpdf-book.service.ts";

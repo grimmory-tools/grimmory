@@ -5,7 +5,7 @@
   min-height: 100vh;
   min-width: 100vw;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-app) 100%);
+  background: linear-gradient(135deg, var(--color-logo-start) 0%, var(--color-logo-end) 100%);
   position: relative;
 
   &::before {
@@ -15,7 +15,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 22%, transparent) 0%, transparent 70%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-logo-start) 22%, transparent) 0%, transparent 70%);
     animation: float 20s ease-in-out infinite;
   }
 }

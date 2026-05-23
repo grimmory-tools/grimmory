@@ -70,8 +70,11 @@
     "primary": "Primary",
     "surface": "Surface",
     "mode": "Mode",
+    "appearance": "Appearance",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "system": "System",
+    "customPrimary": "Custom color"
   },
   "uploadDialog": {
     "chooseFile": "Choose File:",
