@@ -170,14 +170,14 @@ tolerations: []
 affinity: {}
 
 # Additional items that need to be installed next to the application, e.g.
-extraObjects:
-- apiVersion: k8s.mariadb.com/v1alpha1
-  kind: MariaDB
-  metadata:
-    name: booklore-mariadb
-    namespace: booklore
-  spec:
-    rootPasswordSecretKeyRef:
-      name: booklore-mariadb-root
-      key: password
-# extraObjects: []
+# extraObjects:
+# - apiVersion: k8s.mariadb.com/v1alpha1
+#   kind: MariaDB
+#   metadata:
+#     name: booklore-mariadb
+#     namespace: booklore
+#   spec:
+#     rootPasswordSecretKeyRef:
+#       name: booklore-mariadb-root
+#       key: password
+extraObjects: []
