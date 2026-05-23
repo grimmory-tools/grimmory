@@ -1,5 +1,6 @@
 package org.booklore.service.metadata.parser;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -46,7 +47,7 @@ import java.util.regex.Pattern;
 @Service
 @AllArgsConstructor
 public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
-    private static final TypeReference<List<GoodreadsAutocomplete>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
+    private static final TypeReference<List<GoodreadsAutocompleteEntry>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
 
     private static final String BASE_AUTOCOMPLETE_URL = "https://www.goodreads.com/book/auto_complete?format=json&q=";
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
@@ -61,6 +62,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private final AppSettingService appSettingService;
 
     private record TitleInfo(String title, String subtitle) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record GoodreadsAutocompleteEntry(String bookId) {}
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -507,10 +511,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         return url;
     }
 
-    @Data
-    static class GoodreadsAutocomplete {
-        public String bookId;
-    }
 
     public List<String> fetchSearchResults(Book book, FetchMetadataRequest request) {
         String searchTerm = getSearchTerm(book, request);
@@ -523,13 +523,18 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         try {
             String searchUrl = generateSearchUrl(searchTerm);
 
-            List<GoodreadsAutocomplete> records = fetchJson(
+            List<GoodreadsAutocompleteEntry> records = fetchJson(
                     searchUrl,
                     AUTOCOMPLETE_RESPONSE_TYPE
             );
 
             Thread.sleep(Duration.ofSeconds(1));
-            return records.stream().map(r -> r.bookId).toList();
+            return records.stream()
+                    .filter(Objects::nonNull)
+                    .map(r -> r.bookId)
+                    .filter(Objects::nonNull)
+                    .filter(id -> !id.isBlank())
+                    .toList();
 
         } catch (Exception e) {
             log.error("Error fetching metadata previews: {}", e.getMessage());
