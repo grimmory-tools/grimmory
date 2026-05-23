@@ -631,8 +631,14 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
+            if (response.statusCode() < 200 || response.statusCode() > 399) {
+                log.error("GoodReads request failed with status code: {}", response.statusCode());
+                throw new RuntimeException("Failed to query GoodReads");
+            }
+
             return OBJECT_MAPPER.readValue(response.body(), typeReference);
         } catch (IOException | InterruptedException e) {
+            log.error("GoodReads request failed", e);
             throw new RuntimeException(e);
         }
     }
