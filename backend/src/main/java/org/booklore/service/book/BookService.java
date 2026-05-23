@@ -466,8 +466,8 @@ public class BookService {
 
         // Because this is `InBatch` we need to clear and flush the entity manager to
         // prevent unexpected updates of records when the transaction commits.
-        entityManager.clear();
         entityManager.flush();
+        entityManager.clear();
 
         auditService.log(AuditAction.BOOK_DELETED, "Deleted " + ids.size() + " book(s)");
         BookDeletionResponse response = new BookDeletionResponse(ids, failedFileDeletions);
