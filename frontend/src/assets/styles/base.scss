@@ -17,8 +17,8 @@ html {
 }
 
 body {
-  background-color: var(--surface-app);
-  color: var(--text-color);
+  background-color: var(--color-app);
+  color: var(--color-text);
   font-family: var(--font-family), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -42,12 +42,12 @@ picture {
 
   html,
   body {
-    background-color: var(--surface-page);
+    background-color: var(--color-page);
   }
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--color-primary);
   text-decoration: none;
 }
 
@@ -63,7 +63,7 @@ h4,
 h5,
 h6 {
   margin: 1.5rem 0 1rem;
-  color: var(--high-contrast-text-color);
+  color: var(--color-text-strong);
   font-weight: 500;
   line-height: 1.2;
   overflow-wrap: break-word;
@@ -99,7 +99,7 @@ h6 {
 
 p {
   margin: 0 0 1rem;
-  color: var(--text-color);
+  color: var(--color-text);
   line-height: 1.5;
   overflow-wrap: break-word;
 
@@ -109,7 +109,7 @@ p {
 }
 
 p.p-secondary {
-  color: var(--text-secondary-color);
+  color: var(--color-text-secondary);
 }
 
 mark {
@@ -127,7 +127,7 @@ blockquote {
 
 hr {
   margin: 1rem 0;
-  border-top: solid var(--border-color);
+  border-top: solid var(--color-border);
   border-width: 1px 0 0;
 }
 

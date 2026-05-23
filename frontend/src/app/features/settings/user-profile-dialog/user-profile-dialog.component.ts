@@ -9,18 +9,12 @@ import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Select} from 'primeng/select';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../core/config/transloco-loader';
 import {LANG_STORAGE_KEY} from '../../../core/config/language-initializer';
 import {AppConfigService} from '../../../shared/service/app-config.service';
-import Aura from '../../../shared/layout/theme-palette-extend';
-
-type ColorPalette = Record<string, string>;
-
-interface Palette {
-  name: string;
-  palette: ColorPalette;
-}
+import {AppColorScheme, AppTheme} from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -42,6 +36,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     InputText,
     Password,
     Select,
+    ToggleSwitch,
     NgClass,
     TranslocoDirective,
     TranslocoPipe,
@@ -68,10 +63,10 @@ export class UserProfileDialogComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  protected readonly selectedPrimaryColor = computed(() => this.configService.appState().primary);
-  protected readonly selectedSurfaceColor = computed(() => this.configService.appState().surface);
-  protected readonly surfaces = this.configService.surfaces;
-  protected readonly primaryColors = this.getPrimaryColors();
+  protected readonly selectedTheme = computed(() => this.configService.appState().theme ?? 'grimmory');
+  protected readonly selectedColorScheme = computed(() => this.configService.appState().colorScheme ?? 'dark');
+  protected readonly isDarkTheme = computed(() => this.selectedColorScheme() === 'dark');
+  protected readonly themes = this.configService.themes;
 
   constructor() {
     this.changePasswordForm = this.fb.group(
@@ -119,31 +114,20 @@ export class UserProfileDialogComponent {
     });
   }
 
-  updateThemeColor(event: Event, type: 'primary' | 'surface', color: { name: string; palette?: ColorPalette }): void {
+  updateTheme(event: Event, theme: AppTheme): void {
     this.configService.appState.update((state) => ({
       ...state,
-      [type]: color.name,
+      theme,
     }));
     event.stopPropagation();
   }
 
-  private getPrimaryColors(): Palette[] {
-    const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
-    const colors = [
-      'orange', 'amber', 'yellow', 'lime', 'green', 'emerald',
-      'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet',
-      'purple', 'fuchsia', 'pink', 'rose', 'red',
-      'coralSunset', 'roseBlush', 'melonBlush', 'cottonCandy',
-      'apricotSunrise', 'antiqueBronze', 'butteryYellow', 'vanillaCream',
-      'citrusMint', 'freshMint', 'sagePearl', 'skyBlue', 'periwinkleCream',
-      'pastelRoyalBlue', 'lavenderDream', 'dustyNeutral',
-    ];
-    return [{name: 'noir', palette: {}}].concat(
-      colors.map(name => ({
-        name,
-        palette: presetPalette[name] ?? {},
-      })),
-    );
+  updateColorScheme(isDark: boolean): void {
+    const colorScheme: AppColorScheme = isDark ? 'dark' : 'light';
+    this.configService.appState.update((state) => ({
+      ...state,
+      colorScheme,
+    }));
   }
 
   updateProfile(): void {

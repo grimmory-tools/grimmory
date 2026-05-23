@@ -254,11 +254,11 @@
   padding: 0.75rem 1rem;
   border-radius: 6px;
   border-left: 3px solid var(--p-primary-color);
-  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
+  background: var(--color-card);
   transition: background 0.15s ease;
 
   &:hover {
-    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
+    background: color-mix(in srgb, var(--color-card) 92%, var(--color-text) 8%);
   }
 }
 

@@ -36,16 +36,16 @@
   min-width: 0;
   min-height: var(--sidebar-row-min-height);
   padding: var(--sidebar-row-padding-block) var(--sidebar-row-padding-inline-end) var(--sidebar-row-padding-block) var(--sidebar-row-padding-inline-start);
-  color: var(--text-color);
+  color: var(--color-text);
   text-decoration: none;
   letter-spacing: 0.02em;
 
   &:hover {
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 
   &:focus-visible {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
     box-shadow: var(--sidebar-focus-ring);
     outline: none;
   }
@@ -108,10 +108,10 @@
 }
 
 .sidebar-action-link.sidebar-toolbar-button {
-  color: var(--primary-color);
+  color: var(--color-primary);
 
   &:hover {
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 }
 
@@ -127,17 +127,17 @@
   border: 0;
   background: none;
   border-radius: var(--sidebar-row-radius);
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
 
   &:hover {
-    background-color: var(--surface-hover);
-    color: var(--text-color);
+    background-color: var(--color-surface-hover);
+    color: var(--color-text);
   }
 
   &:focus-visible {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
     box-shadow: var(--sidebar-focus-ring);
     outline: none;
   }
@@ -169,8 +169,8 @@
   height: 1rem;
   padding: 0 0.25rem;
   border-radius: var(--radius-pill);
-  background: var(--primary-color);
-  color: var(--primary-color-text);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
   font-size: 0.65rem;
   font-weight: 700;
   line-height: 1rem;
@@ -202,7 +202,7 @@
   gap: var(--space-1);
   padding-top: var(--space-2);
   margin-top: var(--space-2);
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .sidebar-action-link {
@@ -216,28 +216,22 @@
   min-width: 0;
   padding: var(--sidebar-row-padding-block) var(--sidebar-row-padding-inline-end) var(--sidebar-row-padding-block) var(--sidebar-row-padding-inline-start);
   border: 0;
-  background: none;
   border-radius: var(--sidebar-row-radius);
-  color: var(--text-color);
+  color: var(--color-text);
   font: inherit;
   font-size: var(--text-base);
   text-align: left;
   cursor: pointer;
   transition: background-color var(--transition-fast), padding var(--transition-base);
 
-  &:hover {
-    background-color: var(--surface-hover);
-  }
-
   &:focus-visible {
-    background-color: var(--surface-hover);
     box-shadow: var(--sidebar-focus-ring);
     outline: none;
   }
 
   &.active-route {
-    color: var(--primary-color);
-    background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    color: var(--color-primary-text);
+    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
   }
 
   i {
@@ -290,11 +284,6 @@
 
 .sidebar-search-button {
   padding-inline-end: var(--space-2);
-  background-color: var(--surface-hover);
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--surface-hover), white 15%);
-  }
 }
 
 .sidebar-search-shortcut {
@@ -306,7 +295,7 @@
   border: 0;
   background: transparent;
   margin-left: auto;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-family: inherit;
   font-size: var(--text-xs);
   line-height: 1;
@@ -327,18 +316,18 @@
   border: 0;
   background: none;
   border-radius: var(--sidebar-row-radius);
-  color: var(--text-color);
+  color: var(--color-text);
   font: inherit;
   text-align: left;
   cursor: pointer;
   transition: background-color var(--transition-fast);
 
   &:hover {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
   }
 
   &:focus-visible {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
     box-shadow: var(--sidebar-focus-ring);
     outline: none;
   }
@@ -362,8 +351,8 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: var(--radius-pill);
-  background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
-  color: var(--primary-color);
+  background-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  color: var(--color-primary);
   font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -394,7 +383,7 @@
 
 .sidebar-user-handle {
   font-size: var(--text-xs);
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -432,11 +421,11 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: var(--radius-pill);
-    background-color: var(--surface-hover);
-    color: var(--text-color);
+    background-color: var(--color-card);
+    color: var(--color-text);
 
     &:hover {
-      background-color: color-mix(in srgb, var(--surface-hover), white 15%);
+      background-color: var(--color-surface-hover);
     }
   }
 
@@ -479,10 +468,10 @@
     min-height: 4.75rem;
     padding: var(--space-2) var(--space-1);
     border-radius: var(--radius-lg);
-    background-color: var(--surface-hover);
+    background-color: var(--color-card);
 
     &:hover {
-      background-color: color-mix(in srgb, var(--surface-hover), white 15%);
+      background-color: var(--color-surface-hover);
     }
   }
 
@@ -494,7 +483,7 @@
     white-space: normal;
     text-align: center;
     text-wrap: balance;
-    color: var(--text-color-secondary);
+    color: var(--color-text-secondary);
     overflow-wrap: anywhere;
   }
 
@@ -561,7 +550,7 @@
       background: none;
 
       &:hover {
-        background-color: var(--surface-hover);
+        background-color: var(--color-surface-hover);
       }
     }
 
@@ -576,7 +565,7 @@
         background: none;
 
         .sidebar-user-avatar {
-          background-color: color-mix(in srgb, var(--primary-color) 24%, transparent);
+          background-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
         }
       }
 
@@ -594,10 +583,10 @@
       height: 3rem;
       border-radius: var(--radius-pill);
       background: none;
-      color: var(--text-color);
+      color: var(--color-text);
 
       &:hover {
-        background-color: var(--surface-hover);
+        background-color: var(--color-surface-hover);
       }
     }
 

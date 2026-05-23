@@ -5,7 +5,7 @@
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(20px);
-  border: color-mix(in srgb, var(--p-surface-500), transparent 50%) 1px solid;
+  border: color-mix(in srgb, var(--color-border), transparent 50%) 1px solid;
 }
 
 .series-scroller-title {
@@ -14,7 +14,7 @@
   font-weight: 800;
   margin-bottom: 1rem;
   padding: 0;
-  background: linear-gradient(135deg, #fff, #e2e8f0, #3b82f6);
+  background: linear-gradient(135deg, var(--color-text-strong), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
@@ -28,7 +28,7 @@
     left: 0;
     width: 80px;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-color));
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary));
     border-radius: 2px;
   }
 }
@@ -58,12 +58,11 @@
   }
 
   p {
-    color: #e2e8f0;
+    color: var(--color-text-secondary);
     font-size: 1rem;
     font-weight: 500;
     max-width: 400px;
     line-height: 1.7;
-    text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
   }
 }
 

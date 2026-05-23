@@ -9,7 +9,7 @@
 }
 
 .header-card {
-  background: var(--card-background);
+  background: var(--color-card);
   border-radius: 8px;
   padding: 25px;
   margin-bottom: 30px;
@@ -45,7 +45,7 @@
     }
 
     label {
-      color: var(--text-color, #fff);
+      color: var(--color-text);
       font-weight: 500;
       white-space: nowrap;
       font-size: 1.15rem;
@@ -57,32 +57,32 @@
       align-items: center;
       margin-top: 8px;
       font-size: 0.95rem;
-      color: var(--text-secondary-color);
+      color: var(--color-text-secondary);
       flex-wrap: wrap;
 
       .total-item {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgb(255 255 255 / 2%);
+        background: var(--color-page);
         padding: 6px 10px;
         border-radius: 6px;
-        border: 1px solid rgb(255 255 255 / 4%);
+        border: 1px solid var(--color-border);
       }
 
       .pi {
         font-size: 1.35rem;
-        color: var(--primary-color, #80bdff);
+        color: var(--color-primary);
       }
 
       .total-label {
-        color: var(--text-secondary-color);
+        color: var(--color-text-secondary);
         font-size: 0.9rem;
         white-space: nowrap;
       }
 
       .total-value {
-        color: var(--text-color, #fff);
+        color: var(--color-text);
         font-weight: 600;
         margin-left: 4px;
         font-size: 1.35rem;
@@ -104,10 +104,10 @@
 }
 
 .config-modal {
-  background: var(--card-background, rgb(30 30 30 / 95%));
+  background: var(--color-card);
   border-radius: 12px;
   box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
-  border: 1px solid rgb(255 255 255 / 15%);
+  border: 1px solid var(--color-border);
   width: 100%;
   max-width: 800px;
   max-height: 80vh;
@@ -120,11 +120,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 25px;
-    border-bottom: 1px solid rgb(255 255 255 / 10%);
-    background: var(--ground-background, rgb(40 40 40 / 80%));
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-card);
 
     h3 {
-      color: var(--text-color, #fff);
+      color: var(--color-text);
       font-weight: 500;
       font-size: 1.2rem;
       margin: 0;
@@ -133,19 +133,19 @@
       gap: 10px;
 
       .pi {
-        color: var(--primary-color, #80bdff);
+        color: var(--color-primary);
         font-size: 1.1rem;
       }
     }
 
     .close-btn {
       background: transparent;
-      border: 1px solid rgb(255 255 255 / 20%);
-      color: var(--text-color, #fff);
+      border: 1px solid var(--control-border);
+      color: var(--color-text);
       padding: 8px;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background 0.3s ease, border-color 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -153,8 +153,8 @@
       height: 36px;
 
       &:hover {
-        background: rgb(255 255 255 / 10%);
-        border-color: rgb(255 255 255 / 30%);
+        background: var(--control-bg-hover);
+        border-color: var(--control-border-hover);
       }
 
       .pi {
@@ -167,60 +167,60 @@
     display: flex;
     gap: 12px;
     padding: 20px 25px;
-    border-bottom: 1px solid rgb(255 255 255 / 10%);
-    background: var(--ground-background, rgb(35 35 35 / 60%));
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-card);
 
     .config-action-btn {
-      background: rgb(255 255 255 / 10%);
-      border: 1px solid rgb(255 255 255 / 20%);
-      color: var(--text-color, #fff);
+      background: var(--control-bg);
+      border: 1px solid var(--control-border);
+      color: var(--color-text);
       padding: 10px 16px;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
       display: flex;
-      font-weight: 500;
+      font-weight: 600;
       align-items: center;
       gap: 8px;
       flex: 1;
       justify-content: center;
 
       &:hover {
-        background: rgb(255 255 255 / 15%);
-        border-color: rgb(255 255 255 / 30%);
+        background: var(--control-bg-hover);
+        border-color: var(--control-border-hover);
         transform: translateY(-1px);
       }
 
       &.enable-all {
-        background: rgb(34 197 94 / 20%);
-        border-color: rgb(34 197 94 / 40%);
-        color: #22c55e;
+        background: color-mix(in srgb, var(--color-green-500), transparent 82%);
+        border-color: color-mix(in srgb, var(--color-green-500), transparent 65%);
+        color: var(--color-green-700);
 
         &:hover {
-          background: rgb(34 197 94 / 30%);
-          border-color: rgb(34 197 94 / 60%);
+          background: color-mix(in srgb, var(--color-green-500), transparent 72%);
+          border-color: color-mix(in srgb, var(--color-green-500), transparent 50%);
         }
       }
 
       &.disable-all {
-        background: rgb(239 68 68 / 20%);
-        border-color: rgb(239 68 68 / 40%);
-        color: #ef4444;
+        background: color-mix(in srgb, var(--color-red-500), transparent 82%);
+        border-color: color-mix(in srgb, var(--color-red-500), transparent 65%);
+        color: var(--color-red-700);
 
         &:hover {
-          background: rgb(239 68 68 / 30%);
-          border-color: rgb(239 68 68 / 60%);
+          background: color-mix(in srgb, var(--color-red-500), transparent 72%);
+          border-color: color-mix(in srgb, var(--color-red-500), transparent 50%);
         }
       }
 
       &.reset-order {
-        background: rgb(251 191 36 / 20%);
-        border-color: rgb(251 191 36 / 40%);
-        color: #fbbf24;
+        background: color-mix(in srgb, var(--color-amber-500), transparent 82%);
+        border-color: color-mix(in srgb, var(--color-amber-500), transparent 65%);
+        color: var(--color-amber-700);
 
         &:hover {
-          background: rgb(251 191 36 / 30%);
-          border-color: rgb(251 191 36 / 60%);
+          background: color-mix(in srgb, var(--color-amber-500), transparent 72%);
+          border-color: color-mix(in srgb, var(--color-amber-500), transparent 50%);
         }
       }
 
@@ -242,12 +242,12 @@
 
       .config-category {
         h4 {
-          color: var(--text-color, #fff);
+          color: var(--color-text);
           font-size: 1rem;
           font-weight: 600;
           margin: 0 0 15px;
           padding-bottom: 8px;
-          border-bottom: 2px solid var(--primary-color, #80bdff);
+          border-bottom: 2px solid var(--color-primary);
           display: flex;
           align-items: center;
           text-transform: uppercase;
@@ -267,18 +267,18 @@
             transition: background-color 0.2s ease;
 
             &:hover {
-              background: rgb(255 255 255 / 5%);
+              background: var(--color-surface-hover);
             }
 
             input[type="checkbox"] {
               width: 18px;
               height: 18px;
-              accent-color: var(--primary-color, #80bdff);
+              accent-color: var(--color-primary);
               cursor: pointer;
             }
 
             label {
-              color: var(--text-secondary-color);
+              color: var(--color-text-secondary);
               font-size: 0.9rem;
               cursor: pointer;
               user-select: none;
@@ -286,12 +286,12 @@
               flex: 1;
 
               &:hover {
-                color: var(--text-color, #fff);
+                color: var(--color-text);
               }
             }
 
             input[type="checkbox"]:checked + label {
-              color: var(--text-color, #fff);
+              color: var(--color-text);
               font-weight: 500;
             }
           }
@@ -327,14 +327,14 @@
   &.cdk-drag-preview {
     box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
     backdrop-filter: blur(15px);
-    border: 2px solid var(--primary-color, #80bdff);
+    border: 2px solid var(--color-primary);
     border-radius: 8px;
     transform: rotate(2deg);
   }
 
   &.cdk-drag-placeholder {
     opacity: 0.3;
-    border: 2px dashed var(--primary-color, #80bdff);
+    border: 2px dashed var(--color-primary);
     background: transparent !important;
   }
 }
@@ -348,13 +348,13 @@
   top: 8px;
   right: 8px;
   z-index: 10;
-  background: rgb(0 0 0 / 60%);
-  border: 1px solid rgb(255 255 255 / 20%);
+  background: color-mix(in srgb, var(--color-text) 72%, transparent);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 6px;
   cursor: default;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,17 +362,17 @@
   height: 28px;
 
   &:hover {
-    background: rgb(0 0 0 / 80%);
-    border-color: var(--primary-color, #80bdff);
+    background: color-mix(in srgb, var(--color-text) 85%, transparent);
+    border-color: var(--color-primary);
   }
 
   &:active {
-    background: rgb(0 0 0 / 90%);
+    background: var(--color-text);
     transform: scale(1.1);
   }
 
   .pi {
-    color: var(--text-color, #fff);
+    color: var(--color-card);
     font-size: 0.8rem;
     cursor: grab;
 
@@ -391,15 +391,15 @@
 }
 
 .chart-section {
-  background: var(--card-background);
+  background: var(--color-card);
   border-radius: 8px;
   padding: 15px;
   backdrop-filter: blur(10px);
   border: 1px solid var(--p-content-border-color);
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    border-color: rgb(255 255 255 / 20%);
+    border-color: var(--color-border);
     box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   }
 
@@ -432,7 +432,7 @@
 .no-data-message {
   text-align: center;
   padding: 50px;
-  color: var(--text-secondary-color);
+  color: var(--color-text-secondary);
   font-size: 16px;
 }
 
@@ -441,7 +441,7 @@
 }
 
 .no-data-message {
-  color: var(--text-color-secondary, #999);
+  color: var(--color-text-secondary);
 
   small {
     display: block;

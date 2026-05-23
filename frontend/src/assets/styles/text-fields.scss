@@ -2,7 +2,7 @@
   --app-text-field-height: var(--control-height);
   --app-text-field-padding-x: var(--control-padding-x);
   --app-text-field-radius: var(--control-radius);
-  --app-text-field-color: var(--text-color);
+  --app-text-field-color: var(--color-text);
   --app-text-field-bg: var(--control-bg);
   --app-text-field-border: var(--control-border);
   --app-text-field-border-hover: var(--control-border-hover);
@@ -28,7 +28,7 @@
     border-color var(--transition-fast);
 
   &::placeholder {
-    color: var(--text-muted-color);
+    color: var(--color-text-muted);
   }
 
   &:hover:not(:focus) {

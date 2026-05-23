@@ -110,9 +110,9 @@
   }
 
   &-primary {
-    background-color: color-mix(in srgb, var(--p-primary-500), transparent 82%);
-    color: var(--p-primary-300);
-    border: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 65%);
+    background-color: color-mix(in srgb, var(--color-primary-500), transparent 82%);
+    color: var(--color-primary-700);
+    border: 1px solid color-mix(in srgb, var(--color-primary-500), transparent 65%);
   }
 
   $colors: (
@@ -147,22 +147,42 @@
 
   @each $name, $color in $colors {
     &-#{$name} {
-      background-color: color-mix(in srgb, var(--p-#{$color}-500), transparent 82%);
-      color: var(--p-#{$color}-300);
-      border: 1px solid color-mix(in srgb, var(--p-#{$color}-500), transparent 65%);
+      background-color: color-mix(in srgb, var(--color-#{$color}-500), transparent 82%);
+      color: var(--color-#{$color}-700);
+      border: 1px solid color-mix(in srgb, var(--color-#{$color}-500), transparent 65%);
     }
   }
 
   &-dark {
-    background-color: color-mix(in srgb, var(--p-gray-800), transparent 82%);
-    color: var(--p-gray-300);
-    border: 1px solid color-mix(in srgb, var(--p-gray-800), transparent 65%);
+    background-color: color-mix(in srgb, var(--color-gray-800), transparent 82%);
+    color: var(--color-gray-800);
+    border: 1px solid color-mix(in srgb, var(--color-gray-800), transparent 65%);
   }
 
   &-light {
-    background-color: color-mix(in srgb, var(--p-gray-300), transparent 82%);
-    color: var(--p-gray-600);
-    border: 1px solid color-mix(in srgb, var(--p-gray-300), transparent 65%);
+    background-color: color-mix(in srgb, var(--color-gray-300), transparent 82%);
+    color: var(--color-gray-700);
+    border: 1px solid color-mix(in srgb, var(--color-gray-300), transparent 65%);
+  }
+
+  @at-root :host-context(.dark) .app-tag-primary {
+    color: var(--color-primary-300);
+  }
+
+  @at-root :host-context(.dark) {
+    @each $name, $color in $colors {
+      .app-tag-#{$name} {
+        color: var(--color-#{$color}-300);
+      }
+    }
+
+    .app-tag-dark {
+      color: var(--color-gray-300);
+    }
+
+    .app-tag-light {
+      color: var(--color-gray-400);
+    }
   }
 
   &-variant-pill {
@@ -170,29 +190,29 @@
     padding: 0.125rem 0.375rem;
 
     &.app-tag-primary {
-      background-color: var(--p-primary-600);
-      color: var(--p-primary-100);
-      border-color: var(--p-primary-500);
+      background-color: var(--color-primary-600);
+      color: var(--color-primary-100);
+      border-color: var(--color-primary-500);
     }
 
     @each $name, $color in $colors {
       &.app-tag-#{$name} {
-        background-color: var(--p-#{$color}-600);
-        color: var(--p-#{$color}-100);
-        border-color: var(--p-#{$color}-500);
+        background-color: var(--color-#{$color}-600);
+        color: var(--color-#{$color}-100);
+        border-color: var(--color-#{$color}-500);
       }
     }
 
     &.app-tag-dark {
-      background-color: var(--p-gray-800);
-      color: var(--p-gray-100);
-      border-color: var(--p-gray-700);
+      background-color: var(--color-gray-800);
+      color: var(--color-gray-100);
+      border-color: var(--color-gray-700);
     }
 
     &.app-tag-light {
-      background-color: var(--p-gray-300);
-      color: var(--p-gray-800);
-      border-color: var(--p-gray-400);
+      background-color: var(--color-gray-300);
+      color: var(--color-gray-800);
+      border-color: var(--color-gray-400);
     }
   }
 }

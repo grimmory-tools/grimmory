@@ -2,8 +2,11 @@
 @import "./assets/styles/tailwind.css";
 @import "primeicons/primeicons.css";
 @import "@angular/cdk/overlay-prebuilt.css";
-@include meta.load-css("assets/styles/tokens.css");
-@include meta.load-css("assets/styles/base");
+
+@layer base {
+  @include meta.load-css("assets/styles/base");
+}
+
 @include meta.load-css("assets/styles/buttons");
 @include meta.load-css("assets/styles/text-fields");
 @include meta.load-css("assets/styles/control-groups");
@@ -12,5 +15,4 @@
 @include meta.load-css("assets/styles/layout");
 @include meta.load-css("assets/styles/overlays");
 @include meta.load-css("assets/styles/utilities");
-@include meta.load-css("assets/styles/prime-compat");
 @include meta.load-css("assets/styles/compat");

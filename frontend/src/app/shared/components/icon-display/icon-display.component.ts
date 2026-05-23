@@ -32,18 +32,30 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      color: var(--icon-display-color, currentColor);
     }
 
     .svg-icon-inline {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      color: inherit;
     }
 
     .svg-icon-inline :deep(svg) {
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    /* Tint only paths without explicit paint so user-uploaded multi-colour SVGs survive. */
+    .svg-icon-inline :deep(svg:not([fill])),
+    .svg-icon-inline :deep(path:not([fill])) {
+      fill: currentColor;
+    }
+
+    .svg-icon-inline :deep(path[stroke]:not([stroke="none"])) {
+      stroke: currentColor;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

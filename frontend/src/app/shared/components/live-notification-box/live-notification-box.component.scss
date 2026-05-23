@@ -1,6 +1,6 @@
 .live-border {
-  background: var(--card-background);
-  border: 1px solid var(--primary-color);
+  background: var(--color-card);
+  border: 1px solid var(--color-primary);
   border-radius: 0.5rem;
 }
 
@@ -24,12 +24,12 @@
 
 .notification-timestamp {
   font-size: 0.75rem;
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   align-self: center;
 }
 
 .notification-message {
   font-weight: 400;
-  color: #e4e4e7;
+  color: var(--color-text);
   margin: 0;
 }

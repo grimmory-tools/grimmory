@@ -73,7 +73,8 @@ bootstrapApplication(AppComponent, {
       theme: {
         preset: Aura,
         options: {
-          darkModeSelector: '.p-dark'
+          darkModeSelector: '.dark',
+          cssLayer: { name: 'primeng', order: 'theme, base, primeng, components, utilities' }
         }
       }
     }), provideServiceWorker('ngsw-worker.js', {

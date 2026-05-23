@@ -40,7 +40,7 @@ app-tabs {
   box-sizing: border-box;
   border: 0;
   background: none;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1;
@@ -53,7 +53,7 @@ app-tabs {
     transform var(--transition-fast);
 
   &:hover {
-    color: var(--text-color);
+    color: var(--color-text);
   }
 
   &:active {
@@ -61,7 +61,7 @@ app-tabs {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -92,7 +92,7 @@ app-tabs.placement-below {
 }
 
 app-tabs.variant-underline {
-  --app-tabs-divider: color-mix(in srgb, var(--surface-border) 70%, transparent);
+  --app-tabs-divider: color-mix(in srgb, var(--color-border) 70%, transparent);
 
   padding: 0;
 
@@ -142,7 +142,7 @@ app-tabs.variant-underline {
     }
 
     &[aria-selected="true"] {
-      color: var(--text-color);
+      color: var(--color-text);
 
       &::before {
         content: "";
@@ -151,7 +151,7 @@ app-tabs.variant-underline {
         right: 0;
         bottom: 0;
         height: 2px;
-        background: var(--primary-color);
+        background: var(--color-primary);
         border-radius: 2px 2px 0 0;
         z-index: 1;
       }
@@ -165,7 +165,7 @@ app-tabs.variant-underline {
   .app-tabs-indicator {
     bottom: 0;
     height: 2px;
-    background: var(--primary-color);
+    background: var(--color-primary);
     border-radius: 2px 2px 0 0;
     z-index: 1;
   }
@@ -194,12 +194,12 @@ app-tabs.variant-segmented {
     border-radius: var(--control-radius);
 
     &:hover:not([aria-selected="true"]) {
-      background: var(--surface-hover);
-      color: var(--text-color);
+      background: var(--color-surface-hover);
+      color: var(--color-text);
     }
 
     &[aria-selected="true"] {
-      color: var(--primary-color);
+      color: var(--color-primary);
     }
   }
 

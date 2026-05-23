@@ -1,14 +1,14 @@
 :host ::ng-deep p-accordion {
   --p-accordion-header-padding: 0.6rem 1rem;
-  --p-accordion-header-background: var(--card-background);
-  --p-accordion-header-active-background: var(--card-background);
-  --p-accordion-header-hover-background: var(--surface-hover);
-  --p-accordion-header-active-hover-background: var(--surface-hover);
-  --p-accordion-content-background: var(--card-background);
+  --p-accordion-header-background: var(--color-card);
+  --p-accordion-header-active-background: var(--color-card);
+  --p-accordion-header-hover-background: var(--color-surface-hover);
+  --p-accordion-header-active-hover-background: var(--color-surface-hover);
+  --p-accordion-content-background: var(--color-card);
 }
 
 :host ::ng-deep .p-accordionpanel {
-  background: var(--card-background);
+  background: var(--color-card);
 }
 
 :host ::ng-deep .p-togglebutton {
@@ -24,7 +24,7 @@
   height: 100%;
   border-radius: 0.75rem;
   overflow: hidden;
-  background: var(--card-background);
+  background: var(--color-card);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--p-content-border-color);
@@ -76,7 +76,7 @@
 
 .active-filter-count {
   font-size: 0.875rem;
-  color: var(--primary-color);
+  color: var(--color-primary);
   flex-shrink: 0;
   white-space: nowrap;
   min-width: 0;
@@ -98,7 +98,7 @@
   transition: color var(--transition-base);
 
   &.active {
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 
   &.active-not {
@@ -121,15 +121,15 @@
 
 .truncation-notice {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-align: center;
   padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border);
 }
 
 .footer-notice {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-align: center;
   padding-top: 1rem;
   padding-left: 1rem;

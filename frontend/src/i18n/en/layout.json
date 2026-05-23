@@ -66,8 +66,12 @@
     "empty": "No updates available."
   },
   "theme": {
+    "theme": "Theme",
     "primary": "Primary",
-    "surface": "Surface"
+    "surface": "Surface",
+    "mode": "Mode",
+    "light": "Light",
+    "dark": "Dark"
   },
   "uploadDialog": {
     "chooseFile": "Choose File:",

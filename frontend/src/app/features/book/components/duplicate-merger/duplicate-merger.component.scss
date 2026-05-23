@@ -17,8 +17,8 @@
   overflow-y: auto;
   min-height: 0;
   padding: 1.5rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
+  background: var(--color-page);
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
@@ -80,8 +80,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 0;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 
   .action-bar-left {
     display: flex;
@@ -141,7 +141,7 @@
 }
 
 .duplicate-group {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   overflow: hidden;
 
@@ -150,7 +150,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
 
     .group-label {
       font-weight: 600;
@@ -180,7 +180,7 @@
   transition: background-color 0.1s;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
   }
 
   &:hover {
@@ -205,7 +205,7 @@
     flex-shrink: 0;
     border-radius: 3px;
     object-fit: cover;
-    background: var(--p-surface-200);
+    background: var(--color-card);
   }
 
   .book-info {
@@ -312,13 +312,13 @@
   }
 }
 
-:host-context(.p-dark) {
+:host-context(.dark) {
   .book-row .book-cover {
-    background: var(--p-surface-700);
+    background: var(--color-border);
   }
 
   .book-row .book-formats .format-badge {
-    background: rgb(var(--p-primary-500-rgb, 99, 102, 241), 15%);
+    background: color-mix(in srgb, var(--color-primary) 15%, transparent);
     color: var(--p-primary-400);
   }
 }

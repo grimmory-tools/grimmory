@@ -80,6 +80,7 @@
     "stylelint": "^17.11.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.0",
+    "tailwindcss-primeui": "0.6.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.59.4",
     "vitest": "^4.1.6",

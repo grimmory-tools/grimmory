@@ -27,7 +27,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 0.75rem;
-  background: linear-gradient(135deg, #fff, #e2e8f0, #3b82f6);
+  background: linear-gradient(135deg, var(--color-text-strong), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
@@ -52,7 +52,7 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: var(--color-text-muted);
     font-size: 0.9rem;
     z-index: 1;
   }
@@ -84,15 +84,16 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--p-surface-500), transparent 50%);
-  background: color-mix(in srgb, var(--p-surface-700), transparent 30%);
-  color: #94a3b8;
+  border: 1px solid color-mix(in srgb, var(--color-border), transparent 50%);
+  background: color-mix(in srgb, var(--color-border), transparent 30%);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: #e2e8f0;
-    border-color: var(--p-primary-400);
+    color: var(--color-text);
+    border-color: var(--color-primary);
+    background: var(--color-surface-hover);
   }
 }
 
@@ -106,7 +107,7 @@
 .display-settings-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 
 // Virtual scroller and grid
@@ -135,12 +136,12 @@
 
   .empty-icon {
     font-size: 3rem;
-    color: #64748b;
+    color: var(--color-text-muted);
     margin-bottom: 1rem;
   }
 
   p {
-    color: #94a3b8;
+    color: var(--color-text-muted);
     font-size: 1rem;
     font-weight: 500;
   }

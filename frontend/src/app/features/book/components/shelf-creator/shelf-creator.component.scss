@@ -20,8 +20,8 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
+  background: var(--color-page);
+  border: 1px solid var(--color-border);
   border-top: none;
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 
@@ -55,10 +55,10 @@
   gap: 0.375rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--color-text);
 
   .label-icon {
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 
   .required-indicator {
@@ -101,19 +101,19 @@
   gap: 0.75rem;
   width: 100%;
   padding: 1rem;
-  background: var(--ground-background);
-  border: 1px dashed var(--border-color);
+  background: var(--color-page);
+  border: 1px dashed var(--color-border);
   border-radius: 8px;
-  color: var(--text-color);
+  color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background: var(--overlay-background);
-    border-color: var(--primary-color);
-    color: var(--primary-color);
+    background: var(--color-page);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgb(0 0 0 / 15%);
   }
@@ -164,9 +164,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--ground-background);
+  background: var(--color-page);
 
   .icon-preview {
     display: flex;
@@ -174,24 +174,11 @@
     justify-content: center;
     width: 42px;
     height: 42px;
-    background: var(--primary-color);
+    background: var(--color-primary);
     border-radius: 8px;
     box-shadow: 0 3px 8px rgb(0 0 0 / 20%);
 
-    app-icon-display {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-contrast-color);
-
-      ::ng-deep i {
-        color: var(--primary-contrast-color);
-      }
-
-      ::ng-deep img {
-        filter: brightness(0) invert(1);
-      }
-    }
+    --icon-display-color: var(--color-primary-contrast);
   }
 
   .icon-info {
@@ -202,13 +189,13 @@
 
     .icon-label {
       font-size: 0.8rem;
-      color: var(--text-secondary-color);
+      color: var(--color-text-secondary);
     }
 
     .icon-name {
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--text-color);
+      color: var(--color-text);
       font-family: monospace;
     }
   }

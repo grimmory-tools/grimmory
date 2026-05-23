@@ -11,7 +11,7 @@
   }
 
   .description {
-    color: var(--text-secondary-color);
+    color: var(--color-text-secondary);
     margin-bottom: 1.5rem;
   }
 
@@ -91,7 +91,7 @@
       margin-bottom: 0.5rem;
 
       .count {
-        color: var(--text-secondary-color);
+        color: var(--color-text-secondary);
         font-size: 0.875rem;
       }
     }
@@ -109,7 +109,7 @@
     small {
       display: block;
       margin-top: 0.5rem;
-      color: var(--text-secondary-color);
+      color: var(--color-text-secondary);
     }
   }
 }
@@ -126,10 +126,6 @@
   @media #{variables.$mobile-shell-media-query} {
     padding: var(--space-4);
   }
-}
-
-.enclosing-container {
-  background: var(--p-content-background);
 }
 
 .settings-header {
@@ -259,7 +255,8 @@
 }
 
 .table-card {
-  border: 1px solid rgb(128 128 128 / 20%);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -267,7 +264,15 @@
   flex: 1;
   min-height: 0;
 
-  .p-datatable {
+  ::ng-deep .p-datatable {
+    --p-datatable-header-background: var(--color-card);
+    --p-datatable-header-cell-background: var(--color-card);
+    --p-datatable-row-background: var(--color-card);
+    --p-datatable-footer-background: var(--color-card);
+    --p-datatable-footer-cell-background: var(--color-card);
+    --p-datatable-row-hover-background: var(--color-surface-hover);
+    --p-datatable-header-cell-hover-background: var(--color-surface-hover);
+
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -353,7 +358,7 @@
 
   .delete-info {
     padding: 1rem;
-    background: var(--ground-background);
+    background: var(--color-card);
     border-radius: 8px;
     border: 1px solid rgb(128 128 128 / 20%);
 
@@ -398,7 +403,7 @@
 
   .current-value {
     padding: 1rem;
-    background: var(--ground-background);
+    background: var(--color-card);
     border: 1px solid rgb(128 128 128 / 20%);
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -446,10 +451,10 @@
   gap: 0.5rem;
   padding: 0.75rem;
   margin-top: 1rem;
-  border-left: 3px solid #f59e0b;
-  border-top: 1px solid #f59e0b;
-  border-bottom: 1px solid #f59e0b;
-  border-right: 1px solid #f59e0b;
+  border-left: 3px solid var(--color-warning);
+  border-top: 1px solid var(--color-warning);
+  border-bottom: 1px solid var(--color-warning);
+  border-right: 1px solid var(--color-warning);
   border-radius: 4px;
   font-size: 0.875rem;
 

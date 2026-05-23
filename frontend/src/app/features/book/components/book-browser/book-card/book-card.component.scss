@@ -1,5 +1,5 @@
 .book-card {
-  background-color: var(--card-background);
+  background-color: var(--color-card);
   border-radius: 8px;
   position: relative;
   overflow: hidden;
@@ -15,7 +15,7 @@
   }
 
   &.selected {
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--color-primary);
   }
 }
 
@@ -23,7 +23,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 5/7;
-  background-color: var(--card-background);
+  background-color: var(--color-card);
   border-radius: 8px 8px 0 0;
   overflow: hidden;
   display: flex;
@@ -33,12 +33,12 @@
 
 .cover-container.audiobook-cover {
   aspect-ratio: 5/7;
-  background-color: var(--ground-background);
+  background-color: var(--color-card);
 }
 
 .cover-container.square-library-cover {
   aspect-ratio: 1/1;
-  background-color: var(--ground-background);
+  background-color: var(--color-card);
 }
 
 .book-cover {
@@ -77,7 +77,7 @@
 .book-title {
   flex-grow: 1;
   font-size: 0.9rem;
-  color: var(--text-color);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -197,12 +197,12 @@
     transition: width 0.3s ease;
   }
 
-  &.progress-incomplete .progress-fill { background: var(--primary-color); }
-  &.progress-complete .progress-fill { background: #22c55e; }
-  &.progress-incomplete-ko .progress-fill { background: #f97316; }
-  &.progress-complete-ko .progress-fill { background: #f59e0b; }
-  &.progress-incomplete-kobo .progress-fill { background: #a855f7; }
-  &.progress-complete-kobo .progress-fill { background: #8b5cf6; }
+  &.progress-incomplete .progress-fill { background: var(--color-primary); }
+  &.progress-complete .progress-fill { background: var(--color-green-500); }
+  &.progress-incomplete-ko .progress-fill { background: var(--color-orange-500); }
+  &.progress-complete-ko .progress-fill { background: var(--color-amber-500); }
+  &.progress-incomplete-kobo .progress-fill { background: var(--color-purple-500); }
+  &.progress-complete-kobo .progress-fill { background: var(--color-violet-500); }
 }
 
 .series-number-overlay {
@@ -210,7 +210,7 @@
   top: 8px;
   left: 8px;
   background-color: rgb(0 0 0 / 70%);
-  color: white;
+  color: var(--color-white);
   font-size: 0.75rem;
   padding: 1px 3px;
   border-radius: 3px;
@@ -219,8 +219,8 @@
 
 .series-items-count-overlay {
   position: absolute;
-  background-color: var(--primary-color);
-  color: var(--primary-text-color-dark);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
   font-size: 0.7rem;
   padding: 0 5px;
   border-radius: 6px;
@@ -243,8 +243,8 @@
 
 .book-type-pill-overlay {
   position: absolute;
-  background: var(--primary-color, #6366f1);
-  color: var(--primary-text-color-dark, #fff);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
   font-size: 0.675rem;
   font-weight: 700;
   padding: 1px 6px;
@@ -289,77 +289,77 @@
 
 .book-type-epub {
   background: var(--book-type-epub-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-pdf {
   background: var(--book-type-pdf-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-cbx {
   background: var(--book-type-cbx-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-mobi {
   background: var(--book-type-mobi-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-azw3 {
   background: var(--book-type-azw3-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-fb2 {
   background: var(--book-type-fb2-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-audiobook {
   background: var(--book-type-audiobook-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-m4b {
   background: var(--book-type-m4b-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-mp3 {
   background: var(--book-type-mp3-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-m4a {
   background: var(--book-type-m4a-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-opus {
   background: var(--book-type-opus-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-cbz {
   background: var(--book-type-cbz-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-cbr {
   background: var(--book-type-cbr-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-cb7 {
   background: var(--book-type-cb7-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .book-type-phy {
   background: var(--book-type-physical-color);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .read-status-indicator {
@@ -378,33 +378,33 @@
 }
 
 .status-read {
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .status-reading {
-  color: #3b82f6;
+  color: var(--color-blue-500);
 }
 
 .status-re-reading {
-  color: #06b6d4;
+  color: var(--color-cyan-500);
 }
 
 .status-partially-read {
-  color: #f59e0b;
+  color: var(--color-amber-500);
 }
 
 .status-paused {
-  color: #eab308;
+  color: var(--color-yellow-500);
 }
 
 .status-abandoned {
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .status-wont-read {
-  color: #ec4899;
+  color: var(--color-pink-500);
 }
 
 .status-unset {
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }

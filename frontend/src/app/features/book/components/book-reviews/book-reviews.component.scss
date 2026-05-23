@@ -26,9 +26,9 @@
       flex-direction: column;
       gap: 8px;
       padding: 16px 8px;
-      background: rgb(0 0 0 / 10%);
+      background: var(--color-surface-hover);
       border-radius: 8px;
-      border: 1px solid rgb(255 255 255 / 20%);
+      border: 1px solid var(--color-border);
       backdrop-filter: blur(8px);
       pointer-events: auto;
       position: relative;
@@ -64,21 +64,21 @@
 }
 
 .loading-text {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 .empty-state {
   position: relative;
   padding: 3rem !important;
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 
   .empty-state-title {
     font-size: 1.25rem;
     font-weight: 600;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
-    color: #e5e7eb;
+    color: var(--color-text);
   }
 
   .empty-state-subtitle {
@@ -86,10 +86,10 @@
     margin: 0.5rem auto 0;
     line-height: 1.6;
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: var(--color-text-secondary);
 
     &--warning {
-      color: #fbbf24;
+      color: var(--color-amber-400);
     }
   }
 
@@ -142,7 +142,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--primary-color), transparent 50%);
+    border-color: color-mix(in srgb, var(--color-primary), transparent 50%);
 
     .action-btn-hover {
       opacity: 1;
@@ -173,8 +173,8 @@
 
   .review-header {
     flex-shrink: 0;
-    background: linear-gradient(135deg, rgb(40 40 40 / 80%), rgb(30 30 30 / 80%));
-    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    background: var(--color-card);
+    border-bottom: 1px solid var(--color-border);
     position: relative;
 
     .review-header-inner {
@@ -201,7 +201,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary));
       background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 500;
@@ -214,7 +214,7 @@
       opacity: 0.8;
 
       i {
-        color: #3b82f6;
+        color: var(--color-blue-500);
       }
     }
 
@@ -225,7 +225,7 @@
 
     .review-meta-text {
       font-size: 0.875rem;
-      color: #9ca3af;
+      color: var(--color-text-secondary);
     }
 
     .review-actions {
@@ -254,7 +254,7 @@
     }
 
     .lock-icon {
-      color: #f59e0b;
+      color: var(--color-amber-500);
       font-size: 0.875rem;
     }
 
@@ -275,7 +275,7 @@
 
   .review-title-section {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
     padding: 8px 16px 4px;
   }
 
@@ -293,7 +293,7 @@
       left: 0;
       right: 0;
       height: 30px;
-      background: linear-gradient(transparent, rgb(20 20 20 / 90%));
+      background: linear-gradient(transparent, var(--color-card));
       pointer-events: none;
     }
   }
@@ -316,7 +316,7 @@
   cursor: help;
   font-weight: 500;
   font-size: 1.25rem;
-  color: #e5e7eb;
+  color: var(--color-text);
   line-height: 1.25;
   margin: 0;
 
@@ -334,7 +334,7 @@
   overflow-wrap: break-word;
   white-space: pre-wrap;
   box-sizing: border-box;
-  color: #d4d4d8;
+  color: var(--color-text);
 
   &--blurred {
     filter: blur(4px);
@@ -342,7 +342,7 @@
 }
 
 .review-empty-text {
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   font-style: italic;
   font-size: 0.875rem;
 

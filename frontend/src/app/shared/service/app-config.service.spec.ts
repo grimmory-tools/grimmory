@@ -20,11 +20,21 @@ function createLocalStorageMock() {
   };
 }
 
+function setThemeVariables(style: CSSStyleDeclaration): void {
+  ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].forEach((stop) => {
+    style.setProperty(`--color-primary-${stop}`, `primary-${stop}`);
+  });
+  ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].forEach((stop) => {
+    style.setProperty(`--color-surface-${stop}`, `surface-${stop}`);
+  });
+}
+
 describe('AppConfigService', () => {
   let service: AppConfigService;
   let localStorageMock: ReturnType<typeof createLocalStorageMock>;
   let faviconServiceMock: { updateFavicon: ReturnType<typeof vi.fn> };
-  const rootStyle = document.documentElement.style;
+  const root = document.documentElement;
+  const rootStyle = root.style;
 
   beforeEach(() => {
     localStorageMock = createLocalStorageMock();
@@ -33,6 +43,9 @@ describe('AppConfigService', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
     rootStyle.cssText = '';
+    setThemeVariables(rootStyle);
+    root.classList.remove('dark');
+    delete root.dataset['appTheme'];
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -48,55 +61,68 @@ describe('AppConfigService', () => {
   afterEach(() => {
     localStorageMock.clear();
     rootStyle.cssText = '';
+    root.classList.remove('dark');
+    delete root.dataset['appTheme'];
     vi.unstubAllGlobals();
   });
 
-  it('applies the default app-owned tokens on init', () => {
-    expect(rootStyle.getPropertyValue('--primary-300')).toBe('#fdba74');
-    expect(rootStyle.getPropertyValue('--primary-400')).toBe('#fb923c');
-    expect(rootStyle.getPropertyValue('--primary-500')).toBe('#f97316');
-    expect(rootStyle.getPropertyValue('--primary-color')).toBe('#fb923c');
-    expect(rootStyle.getPropertyValue('--surface-app')).toBe('#0d1012');
-    expect(rootStyle.getPropertyValue('--surface-page')).toBe('color-mix(in srgb, #1a1e21 82%, #0d1012)');
-    expect(rootStyle.getPropertyValue('--surface-content')).toBe('#1a1e21');
-    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--surface-app)');
-    expect(rootStyle.getPropertyValue('--content-border-color')).toBe('var(--border-subtle)');
-    expect(faviconServiceMock.updateFavicon).toHaveBeenCalledWith('#fdba74', '#f97316');
+  it('applies the default curated theme and dark color scheme on init', () => {
+    expect(root.dataset['appTheme']).toBe('grimmory');
+    expect(root.classList.contains('dark')).toBe(true);
+    expect(rootStyle.getPropertyValue('color-scheme')).toBe('dark');
+    expect(rootStyle.getPropertyValue('--primary-300')).toBe('');
+    expect(rootStyle.getPropertyValue('--color-app')).toBe('');
+    expect(rootStyle.getPropertyValue('--color-card')).toBe('');
+    expect(faviconServiceMock.updateFavicon).toHaveBeenCalledWith(
+      'primary-300',
+      'primary-500'
+    );
   });
 
-  it('updates app-owned tokens for custom palettes', () => {
+  it('updates the root theme attributes without writing palette tokens inline', () => {
     service.appState.set({
       preset: 'Aura',
-      primary: 'coralSunset',
-      surface: 'midnight-blue',
+      theme: 'grimmory',
+      colorScheme: 'light',
     });
     service.onPresetChange();
 
-    expect(rootStyle.getPropertyValue('--primary-color')).toBe('#f59673');
-    expect(rootStyle.getPropertyValue('--primary-300')).toBe('#f9be9e');
-    expect(rootStyle.getPropertyValue('--primary-500')).toBe('#ef7550');
-    expect(rootStyle.getPropertyValue('--primary-color-rgb')).toBe('239, 117, 80');
-    expect(rootStyle.getPropertyValue('--surface-app')).toBe('#121518');
-    expect(rootStyle.getPropertyValue('--surface-page')).toBe('color-mix(in srgb, #1f252c 82%, #121518)');
-    expect(rootStyle.getPropertyValue('--ground-background')).toBe('var(--surface-app)');
-    expect(rootStyle.getPropertyValue('--surface-card')).toBe('color-mix(in srgb, #1f252c 62%, #38424d)');
-    expect(rootStyle.getPropertyValue('--card-background')).toBe('var(--surface-card)');
-    expect(faviconServiceMock.updateFavicon).toHaveBeenLastCalledWith('#f9be9e', '#ef7550');
+    expect(root.dataset['appTheme']).toBe('grimmory');
+    expect(root.classList.contains('dark')).toBe(false);
+    expect(rootStyle.getPropertyValue('color-scheme')).toBe('light');
+    expect(rootStyle.getPropertyValue('--color-primary')).toBe('');
+    expect(rootStyle.getPropertyValue('--primary-300')).toBe('');
+    expect(rootStyle.getPropertyValue('--color-card')).toBe('');
+    expect(faviconServiceMock.updateFavicon).toHaveBeenLastCalledWith(
+      'primary-300',
+      'primary-500'
+    );
   });
 
-  it('maps noir to the selected surface palette', () => {
-    service.appState.set({
+  it('falls back to the default theme for legacy saved palette state', () => {
+    localStorageMock.setItem('appConfigState', JSON.stringify({
       preset: 'Aura',
-      primary: 'noir',
+      primary: 'blue',
       surface: 'charcoal',
-    });
-    service.onPresetChange();
+      colorScheme: 'light',
+    }));
 
-    expect(rootStyle.getPropertyValue('--primary-color')).toBe('#f0f0f0');
-    expect(rootStyle.getPropertyValue('--primary-300')).toBe('#b8b8b8');
-    expect(rootStyle.getPropertyValue('--primary-500')).toBe('#7d7d7d');
-    expect(rootStyle.getPropertyValue('--primary-contrast-color')).toBe('#141414');
-    expect(rootStyle.getPropertyValue('--primary-hover-color')).toBe('#d1d1d1');
-    expect(faviconServiceMock.updateFavicon).toHaveBeenLastCalledWith('#f0f0f0', '#b8b8b8');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AppConfigService,
+        { provide: FaviconService, useValue: faviconServiceMock },
+      ],
+    });
+
+    service = TestBed.inject(AppConfigService);
+
+    expect(service.appState()).toEqual({
+      preset: 'Aura',
+      theme: 'grimmory',
+      colorScheme: 'light',
+    });
+    expect(root.dataset['appTheme']).toBe('grimmory');
+    expect(root.classList.contains('dark')).toBe(false);
   });
 });

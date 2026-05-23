@@ -6337,6 +6337,7 @@ __metadata:
     stylelint: "npm:^17.11.1"
     stylelint-config-standard-scss: "npm:^17.0.0"
     tailwindcss: "npm:^4.3.0"
+    tailwindcss-primeui: "npm:0.6.1"
     tslib: "npm:^2.8.1"
     typescript: "npm:~5.9.3"
     typescript-eslint: "npm:^8.59.4"
@@ -9197,6 +9198,15 @@ __metadata:
   version: 3.5.0
   resolution: "tailwind-merge@npm:3.5.0"
   checksum: 10c0/4dc588f5b5296ba3f38e1ebb41f02b6d24a8c5bb45e44b33748c118fb4b5767dd0efc464431ca3e75404056b618b5f67bec3708158baa65fed8a2fc9201e0c53
+  languageName: node
+  linkType: hard
+
+"tailwindcss-primeui@npm:0.6.1":
+  version: 0.6.1
+  resolution: "tailwindcss-primeui@npm:0.6.1"
+  peerDependencies:
+    tailwindcss: ">=3.1.0"
+  checksum: 10c0/a7a576660d4b42dd31d8851c69a1c67199bf79b74bb0ac7e7ff3c8f721e8f05b41278d9af47550a78b234426e9df68cea802ddd5d28a97b00af28b2979226f74
   languageName: node
   linkType: hard
 

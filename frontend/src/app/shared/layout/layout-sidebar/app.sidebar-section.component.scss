@@ -31,7 +31,7 @@
   color: inherit;
 
   &:focus-visible {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
     box-shadow: var(--sidebar-focus-ring);
     outline: none;
   }
@@ -53,12 +53,12 @@
 }
 
 .expand-icon {
-  color: var(--surface-500);
+  color: var(--color-surface-500);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .expand-icon:hover {
-    color: var(--surface-200);
+    color: var(--color-surface-200);
   }
 }
 
@@ -66,7 +66,7 @@
   .root-item-with-dropdown:focus-visible {
     background-color: transparent;
     box-shadow: none;
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--color-primary);
     outline-offset: -2px;
   }
 }
@@ -116,6 +116,6 @@
 
   .expand-icon {
     font-size: 1.125rem;
-    color: var(--text-color-secondary);
+    color: var(--color-text-secondary);
   }
 }

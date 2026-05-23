@@ -5,7 +5,7 @@
   position: relative;
   overflow: hidden;
   background: transparent;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--color-border);
 }
 
 .dashboard-scroller-title {
@@ -14,7 +14,7 @@
   font-weight: 800;
   margin-bottom: 1rem;
   padding: 0;
-  background: linear-gradient(135deg, var(--text-color), var(--text-color-secondary), var(--primary-color));
+  background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
@@ -28,7 +28,7 @@
     left: 0;
     width: 80px;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-color));
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary));
     border-radius: 2px;
   }
 }
@@ -61,12 +61,11 @@
   }
 
   p {
-    color: #e2e8f0;
+    color: var(--color-text-secondary);
     font-size: 1rem;
     font-weight: 500;
     max-width: 400px;
     line-height: 1.7;
-    text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
   }
 }
 
@@ -100,10 +99,10 @@
 
 .magic-shelf-icon {
   margin-left: 0.5rem;
-  color: var(--primary-color) !important;
+  color: var(--color-primary) !important;
   background: none !important;
   background-clip: unset !important;
-  -webkit-text-fill-color: var(--primary-color) !important;
+  -webkit-text-fill-color: var(--color-primary) !important;
 }
 
 @media (width <= 767px) {

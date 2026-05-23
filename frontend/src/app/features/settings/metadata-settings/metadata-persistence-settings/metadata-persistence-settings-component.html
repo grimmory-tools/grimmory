@@ -21,10 +21,10 @@
       </div>
     } @else {
       <div class="section-notice">
-        <div class="warning-notice">
-          <i class="pi pi-exclamation-triangle"></i>
+        <div class="warning-notice border-l-red-700 dark:border-l-red-300">
+          <i class="pi pi-exclamation-triangle text-red-700 dark:text-red-300"></i>
           <div>
-            <strong>{{ t('networkWarningTitle') }}</strong> {{ t('networkWarning') }}
+            <strong class="text-red-700 dark:text-red-300">{{ t('networkWarningTitle') }}</strong> {{ t('networkWarning') }}
           </div>
         </div>
         <div class="info-notice unsupported-formats-note">

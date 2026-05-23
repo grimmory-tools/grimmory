@@ -13,8 +13,8 @@
   min-height: 100%;
   padding: var(--page-gutter-block) var(--page-gutter-inline);
   overflow: auto;
-  background-color: var(--surface-page);
-  color: var(--text-color);
+  background-color: var(--color-page);
+  color: var(--color-text);
 }
 
 .app-page-flush {
@@ -32,13 +32,13 @@
 
 .app-page-title {
   margin: 0;
-  color: var(--high-contrast-text-color);
+  color: var(--color-text-strong);
 }
 
 .app-page-description {
   max-width: 72ch;
   margin: 0;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }
 
 .app-page-content {

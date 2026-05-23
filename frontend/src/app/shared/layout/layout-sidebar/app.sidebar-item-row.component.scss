@@ -18,17 +18,17 @@
   border-radius: var(--sidebar-row-radius);
 
   &:focus-within {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
   }
 }
 
 @media (hover: hover) and (pointer: fine) {
   .sidebar-item-container:hover {
-    background-color: var(--surface-hover);
+    background-color: var(--color-surface-hover);
   }
 
   .sidebar-item-container:hover .sidebar-item-chevron {
-    color: var(--text-color);
+    color: var(--color-text);
   }
 
   .sidebar-item-container:hover .entity-menu-icon {
@@ -41,7 +41,7 @@
 }
 
 .sidebar-item-container.active-route-container {
-  background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .sidebar-item-link {
@@ -73,13 +73,13 @@ a.sidebar-item-link {
 }
 
 .sidebar-item-container:has(.sidebar-item-link:focus-visible) {
-  background-color: var(--surface-hover);
+  background-color: var(--color-surface-hover);
   box-shadow: var(--sidebar-focus-ring);
   border-radius: var(--sidebar-row-radius);
 }
 
 a.sidebar-item-link.active-route {
-  color: var(--primary-color);
+  color: var(--color-primary-text);
 }
 
 .sidebar-item-chrome {
@@ -96,7 +96,7 @@ a.sidebar-item-link.active-route {
 
 .sidebar-item-chevron {
   font-size: var(--text-sm);
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   padding-right: var(--space-3);
   transition: color var(--transition-fast);
 }
@@ -156,7 +156,7 @@ a.sidebar-item-link.active-route {
   border: 0;
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font: inherit;
   font-size: var(--text-sm);
@@ -165,11 +165,11 @@ a.sidebar-item-link.active-route {
 
 .entity-menu-button:hover {
   background-color: transparent;
-  color: var(--primary-color);
+  color: var(--color-primary);
 }
 
 .entity-menu-button:focus-visible {
-  background-color: var(--surface-hover);
+  background-color: var(--color-surface-hover);
   box-shadow: var(--sidebar-focus-ring);
   outline: none;
 }
@@ -197,7 +197,7 @@ a.sidebar-item-link.active-route {
 }
 
 .book-count {
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
@@ -219,7 +219,7 @@ a.sidebar-item-link.active-route {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #ef4444;
+  background-color: var(--color-red-500);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -233,11 +233,11 @@ a.sidebar-item-link.active-route {
   }
 
   .sidebar-item-container.active-route-container {
-    background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
   }
 
   .sidebar-item-container:has(:focus-visible) {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--color-primary);
     outline-offset: -2px;
   }
 

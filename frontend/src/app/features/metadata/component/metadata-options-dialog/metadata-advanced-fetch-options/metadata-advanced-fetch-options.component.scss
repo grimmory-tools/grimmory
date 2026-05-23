@@ -10,15 +10,16 @@
   min-width: 100%;
   table-layout: auto;
   border-collapse: collapse;
-  border: 1px solid var(--border-color);
-  border-radius: var(--card-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .table-header {
   padding: 0.375rem 1rem;
   text-align: left;
   font-weight: 600;
-  color: #d4d4d8;
+  color: var(--color-text);
+  background: var(--color-page);
 }
 
 .help-icon {
@@ -28,20 +29,22 @@
 
 .metadata-table-cell {
   padding: 0.5rem 1rem;
+  color: var(--color-text);
 }
 
 .metadata-table-cell-sm {
   padding: 0.375rem 1rem;
+  color: var(--color-text);
 }
 
 .set-all-label {
   font-size: 0.875rem;
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
 .field-label {
-  color: #e4e4e7;
+  color: var(--color-text);
 }
 
 .row-disabled {
@@ -58,13 +61,13 @@
 .section-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #d4d4d8;
+  color: var(--color-text);
   margin: 0;
 }
 
 .section-description {
   font-size: 0.875rem;
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -87,13 +90,14 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid #52525b;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
+  background: var(--color-page);
 }
 
 .field-card-label {
   font-size: 0.875rem;
-  color: #d4d4d8;
+  color: var(--color-text);
 }
 
 // Footer row
@@ -121,6 +125,7 @@
 
   p {
     margin: 0;
+    color: var(--color-text);
     white-space: nowrap;
   }
 }

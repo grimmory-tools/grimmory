@@ -15,8 +15,8 @@
 .dialog-content {
   flex: 1;
   padding: 1.5rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
+  background: var(--color-page);
+  border: 1px solid var(--color-border);
   border-top: none;
   border-bottom: none;
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
@@ -41,7 +41,7 @@
 .field-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #d1d5db;
+  color: var(--color-text);
 }
 
 :host ::ng-deep .full-width {
@@ -59,19 +59,19 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgb(255 255 255 / 3%);
-    border-color: var(--p-primary-400);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
   }
 
   &.selected {
-    background: rgb(var(--p-primary-500-rgb), 10%);
-    border-color: var(--p-primary-500);
+    background: var(--control-primary-bg);
+    border-color: var(--control-primary-border);
   }
 }
 
@@ -84,15 +84,15 @@
 
 .format-type {
   font-weight: 500;
-  color: #e5e7eb;
+  color: var(--color-text);
 }
 
 .primary-badge {
   font-size: 0.7rem;
   font-weight: 600;
   padding: 0.125rem 0.375rem;
-  background: var(--p-primary-500);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
   border-radius: 4px;
   text-transform: uppercase;
 }
@@ -100,7 +100,7 @@
 .file-size {
   margin-left: auto;
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 .warning-banner {
@@ -108,10 +108,10 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgb(234 179 8 / 10%);
-  border: 1px solid rgb(234 179 8 / 30%);
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
   border-radius: 6px;
-  color: #fbbf24;
+  color: var(--color-warning);
 
   i {
     font-size: 1rem;

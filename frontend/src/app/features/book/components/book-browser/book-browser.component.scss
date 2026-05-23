@@ -35,7 +35,7 @@
   gap: 0.25rem;
   padding: 0.35rem;
   margin-right: 2px;
-  background-color: var(--card-background);
+  background-color: var(--color-card);
   border-bottom: 1px solid var(--p-content-border-color);
 
   @media (width >= 768px) {
@@ -80,7 +80,7 @@
 
 .series-collapsed-info {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
 
   @media (width <= 767px) {
@@ -231,7 +231,7 @@
   border-radius: 10px 10px 0 0;
   border: 1px solid rgb(255 255 255 / 50%);
   border-width: 1px 1px 0;
-  background-color: var(--card-background);
+  background-color: var(--color-card);
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
   transform: translateY(0);
   opacity: 1;
@@ -301,7 +301,7 @@
   align-items: center;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  color: #e4e4e7;
+  color: var(--color-text);
 
   i {
     font-size: 1rem;
@@ -321,7 +321,7 @@
 .selected-count {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--primary-color);
+  color: var(--color-primary);
 }
 
 .selected-label {
@@ -383,8 +383,8 @@
 .no-books-text {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--text-color);
-  background: var(--card-background);
+  color: var(--color-text);
+  background: var(--color-card);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
 }
@@ -395,7 +395,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   width: 2.5rem;
   height: 2.5rem;
   transition: outline-color 0.2s, border-color 0.2s;
@@ -403,7 +403,7 @@
   margin: 0;
   padding: 0;
   outline-color: transparent;
-  background-color: var(--card-background);
+  background-color: var(--color-card);
   cursor: pointer;
 
   @media (width <= 767px) {
@@ -412,11 +412,11 @@
   }
 
   &:hover {
-    border-color: var(--primary-color);
+    border-color: var(--color-primary);
   }
 
   i, span {
-    color: var(--primary-color);
+    color: var(--color-primary);
     font-size: 1.25rem;
     font-weight: 100;
 
@@ -432,7 +432,7 @@
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  color: var(--text-secondary-color);
+  color: var(--color-text-secondary);
   font-size: 1rem;
   pointer-events: none;
 }
@@ -474,7 +474,7 @@
     right: 0;
     bottom: 0;
     height: calc(100% - 3.85rem);
-    background-color: var(--card-background);
+    background-color: var(--color-card);
     box-shadow: -2px 0 10px rgb(0 0 0 / 15%);
     transform: translateX(100%);
     transition: transform 0.3s ease;

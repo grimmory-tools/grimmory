@@ -25,7 +25,7 @@
 
       <div class="section-body">
         <div class="toggle-list">
-          <div class="toggle-item" [class.is-active]="opdsEnabled">
+          <div class="toggle-item border-l-(--p-content-border-color) [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="opdsEnabled">
             <div class="toggle-content">
               <div class="toggle-header">
                 <div class="toggle-icon">
@@ -33,7 +33,7 @@
                 </div>
                 <div class="toggle-info">
                   <span class="toggle-label">{{ t('server.opdsLabel') }}</span>
-                  <span class="toggle-status" [class.active]="opdsEnabled">
+                  <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="opdsEnabled">
                     {{ opdsEnabled ? t('server.enabled') : t('server.disabled') }}
                   </span>
                 </div>
@@ -49,7 +49,7 @@
             </p-toggleswitch>
           </div>
 
-          <div class="toggle-item" [class.is-active]="komgaApiEnabled">
+          <div class="toggle-item border-l-(--p-content-border-color) [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="komgaApiEnabled">
             <div class="toggle-content">
               <div class="toggle-header">
                 <div class="toggle-icon">
@@ -57,7 +57,7 @@
                 </div>
                 <div class="toggle-info">
                   <span class="toggle-label">{{ t('server.komgaLabel') }}</span>
-                  <span class="toggle-status" [class.active]="komgaApiEnabled">
+                  <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="komgaApiEnabled">
                     {{ komgaApiEnabled ? t('server.enabled') : t('server.disabled') }}
                   </span>
                 </div>
@@ -74,7 +74,7 @@
           </div>
 
           @if (komgaApiEnabled) {
-            <div class="toggle-item sub-item" [class.is-active]="komgaGroupUnknown">
+            <div class="toggle-item sub-item border-l-orange-500 dark:border-l-orange-400 [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="komgaGroupUnknown">
               <div class="toggle-content">
                 <div class="toggle-header">
                   <div class="toggle-icon sub-icon">
@@ -82,7 +82,7 @@
                   </div>
                   <div class="toggle-info">
                     <span class="toggle-label">{{ t('server.groupUnknownLabel') }}</span>
-                    <span class="toggle-status" [class.active]="komgaGroupUnknown">
+                    <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="komgaGroupUnknown">
                       {{ komgaGroupUnknown ? t('server.grouped') : t('server.individual') }}
                     </span>
                   </div>

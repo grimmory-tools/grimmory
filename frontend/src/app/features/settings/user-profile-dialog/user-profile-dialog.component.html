@@ -50,36 +50,36 @@
         </h3>
 
         <div class="theme-row">
-          <span class="theme-row-label">{{ 'layout.theme.primary' | transloco }}</span>
-          <div class="color-swatches">
-            @for (primaryColor of primaryColors; track primaryColor.name) {
+          <span class="theme-row-label">{{ 'layout.theme.theme' | transloco }}</span>
+          <div class="theme-options">
+            @for (theme of themes; track theme.name) {
               <button
                 type="button"
-                [title]="primaryColor.name"
-                [attr.aria-label]="primaryColor.name"
-                [attr.aria-pressed]="primaryColor.name === selectedPrimaryColor()"
-                (click)="updateThemeColor($event, 'primary', primaryColor)"
-                [ngClass]="{ 'active-color': primaryColor.name === selectedPrimaryColor() }"
-                [style]="{ 'background-color': primaryColor.name === 'noir' ? 'var(--text-color)' : primaryColor.palette['500'] || 'transparent' }">
+                class="theme-option"
+                [attr.data-app-theme]="theme.name"
+                [title]="theme.label"
+                [attr.aria-label]="theme.label"
+                [attr.aria-pressed]="theme.name === selectedTheme()"
+                (click)="updateTheme($event, theme.name)"
+                [ngClass]="{ 'active-theme': theme.name === selectedTheme() }">
+                <span class="theme-option-primary bg-primary-500"></span>
+                <span class="theme-option-surface bg-surface-500"></span>
+                <span class="theme-option-label">{{ theme.label }}</span>
               </button>
             }
           </div>
         </div>
 
         <div class="theme-row">
-          <span class="theme-row-label">{{ 'layout.theme.surface' | transloco }}</span>
-          <div class="color-swatches">
-            @for (surface of surfaces; track surface.name) {
-              <button
-                type="button"
-                [title]="surface.name"
-                [attr.aria-label]="surface.name"
-                [attr.aria-pressed]="selectedSurfaceColor() ? selectedSurfaceColor() === surface.name : surface.name === 'zinc'"
-                (click)="updateThemeColor($event, 'surface', surface)"
-                [ngClass]="{ 'active-color': selectedSurfaceColor() ? selectedSurfaceColor() === surface.name : surface.name === 'zinc' }"
-                [style]="{ 'background-color': surface.name === 'noir' ? 'var(--text-color)' : surface.palette['500'] }">
-              </button>
-            }
+          <label class="theme-row-label" for="app-theme-mode">{{ 'layout.theme.mode' | transloco }}</label>
+          <div class="theme-mode-control">
+            <span>{{ 'layout.theme.light' | transloco }}</span>
+            <p-toggleswitch
+              inputId="app-theme-mode"
+              [ngModel]="isDarkTheme()"
+              (onChange)="updateColorScheme($event.checked)">
+            </p-toggleswitch>
+            <span>{{ 'layout.theme.dark' | transloco }}</span>
           </div>
         </div>
       </div>

@@ -89,12 +89,12 @@
     }
 
     .p-accordion-header {
-      background: var(--p-surface-100);
+      background: var(--color-card);
       border: none;
       border-radius: 0;
 
       &:hover {
-        background: var(--p-surface-200);
+        background: var(--color-card);
       }
 
       .p-accordion-header-content {
@@ -154,7 +154,7 @@
 
   .library-name {
     font-weight: settings.$settings-section-title-weight;
-    color: var(--text-color);
+    color: var(--color-text);
   }
 
   .dot-separator {

@@ -8,28 +8,28 @@
 .surface-app,
 .surface-page,
 .surface-card {
-  --control-bg-hover: color-mix(in srgb, #fff var(--control-bg-hover-mix), var(--control-bg));
-  --control-border: color-mix(in srgb, #fff var(--control-border-mix), var(--control-bg));
-  --control-border-hover: color-mix(in srgb, #fff var(--control-border-hover-mix), var(--control-bg));
-  --control-focus-border: color-mix(in srgb, var(--primary-color) var(--control-focus-mix), var(--control-bg));
+  --control-bg-hover: color-mix(in srgb, var(--color-surface-0) 6%, var(--control-bg));
+  --control-border: color-mix(in srgb, var(--color-surface-0) 12%, var(--control-bg));
+  --control-border-hover: color-mix(in srgb, var(--color-surface-0) 18%, var(--control-bg));
+  --control-focus-border: color-mix(in srgb, var(--color-primary) 50%, var(--control-bg));
 }
 
 .surface-app {
-  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-app));
+  --control-bg: color-mix(in srgb, var(--color-surface-0) 6%, var(--color-app));
 
-  background: var(--surface-app);
+  background: var(--color-app);
 }
 
 .surface-page {
-  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-page));
+  --control-bg: color-mix(in srgb, var(--color-surface-0) 6%, var(--color-page));
 
-  background: var(--surface-page);
+  background: var(--color-page);
 }
 
 .surface-card {
-  --control-bg: color-mix(in srgb, #fff 6%, var(--surface-card));
+  --control-bg: color-mix(in srgb, var(--color-surface-0) 6%, var(--color-card));
 
-  background: var(--surface-card);
+  background: var(--color-card);
 }
 
 .gradient-divider {
@@ -37,7 +37,7 @@
   height: 1px;
   min-height: 1px;
   margin: 0.25rem 0;
-  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
 }
 
 .chart-info-icon {
@@ -89,15 +89,15 @@
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 6px;
-  background-color: var(--card-background);
-  color: var(--text-color);
+  background-color: var(--color-card);
+  color: var(--color-text);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover:not(:disabled) {
-    border-color: var(--primary-color);
+    border-color: var(--color-primary);
   }
 
   &:disabled {
@@ -106,8 +106,8 @@
   }
 
   &.active {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: var(--primary-color-text);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-contrast);
   }
 }

@@ -27,8 +27,8 @@
   overflow-y: auto;
   min-height: 0;
   padding: 1.5rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
+  background: var(--color-page);
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
@@ -42,7 +42,7 @@
 .book-list-container {
   max-height: 6rem;
   overflow: auto;
-  border: 1px solid #6b7280;
+  border: 1px solid var(--color-border);
   border-radius: 0.25rem;
   padding: 0.5rem;
   font-size: 0.875rem;
@@ -62,7 +62,7 @@
 }
 
 .book-id {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 ::ng-deep app-metadata-fetch-options {
