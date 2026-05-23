@@ -11,6 +11,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
 import org.booklore.util.LanguageNormalizer;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -712,6 +713,13 @@ public class DoubanBookParser implements BookParser {
             // Get the response content
             String html = response.body();
             return Jsoup.parse(html, response.url().toString());
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == 404) {
+                log.warn("Douban URL not found (404): {}", url);
+            } else {
+                log.error("HTTP error fetching Douban URL. Status={}, URL=[{}]", e.getStatusCode(), url);
+            }
+            throw new RuntimeException(e);
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);

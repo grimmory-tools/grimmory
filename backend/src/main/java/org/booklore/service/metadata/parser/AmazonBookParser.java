@@ -840,7 +840,11 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 log.info("Amazon internal server error (500). Please note: this is NOT a Booklore bug. Likely causes include: temporary server issues or anti-bot measures. Action required: Retry later or select an alternative metadata source in the Metadata 2 UI. URL: {}", url);
                 throw new AmazonAntiScrapingException("Amazon 500 Internal Server Error");
             }
-            log.error("HTTP error fetching URL. Status={}, URL=[{}]", e.getStatusCode(), url, e);
+            if (e.getStatusCode() == 404) {
+                log.warn("Amazon URL not found (404): {}", url);
+            } else {
+                log.error("HTTP error fetching Amazon URL. Status={}, URL=[{}]", e.getStatusCode(), url);
+            }
             throw new RuntimeException(e);
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);

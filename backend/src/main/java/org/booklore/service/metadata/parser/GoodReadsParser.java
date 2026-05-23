@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -674,6 +675,13 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     .method(Connection.Method.GET)
                     .execute();
             return response.parse();
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == 404) {
+                log.warn("URL not found (404): {}", url);
+            } else {
+                log.error("HTTP error {} fetching URL: {}", e.getStatusCode(), url);
+            }
+            throw new RuntimeException(e);
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);
