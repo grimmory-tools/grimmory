@@ -132,24 +132,15 @@ export class UserProfileDialogComponent {
   }
 
   updateThemePreference(themePreference: AppTheme): void {
-    this.configService.appState.update((state) => ({
-      ...state,
-      themePreference,
-    }));
+    this.configService.setThemePreference(themePreference);
   }
 
   updateCustomPrimary(customPrimary: CustomPrimary): void {
-    this.configService.appState.update((state) => ({
-      ...state,
-      customPrimary,
-    }));
+    this.configService.setCustomPrimary(customPrimary);
   }
 
   updateAppearancePreference(appearancePreference: AppearancePreference): void {
-    this.configService.appState.update((state) => ({
-      ...state,
-      appearancePreference,
-    }));
+    this.configService.setAppearancePreference(appearancePreference);
   }
 
   updateProfile(): void {

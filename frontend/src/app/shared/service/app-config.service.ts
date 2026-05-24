@@ -1,8 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { $t } from '@primeuix/themes';
+import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { FaviconService } from '../layout/theme/favicon-service';
-import Aura from '../layout/theme/theme-palette-extend';
+import {applyPrimeTheme, primeThemeTokenPalettes} from '../layout/theme/theme-palette-extend';
 import {
   APP_THEME_OPTIONS,
   AppearancePreference,
@@ -14,9 +13,7 @@ import {
   DEFAULT_CUSTOM_PRIMARY,
 } from '../model/app-state.model';
 
-type ColorPalette = Record<string, string>;
-
-const COLOR_STOPS = ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+const PRIMARY_COLOR_STOPS = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
 const DEFAULT_APPEARANCE_PREFERENCE: AppearancePreference = 'system';
 const LEGACY_APPEARANCE_PREFERENCE: AppearancePreference = 'dark';
 
@@ -31,45 +28,48 @@ interface LoadedAppState {
   shouldPersist: boolean;
 }
 
-interface ResolvedThemePalettes {
-  primary: ColorPalette;
-  surface: ColorPalette;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class AppConfigService {
   private readonly STORAGE_KEY = 'appConfigState';
   readonly themes = APP_THEME_OPTIONS;
-  appState = signal<AppState>({});
+  private readonly appStateSignal = signal<AppState>({});
+  readonly appState = this.appStateSignal.asReadonly();
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
   faviconService = inject(FaviconService);
-  private initialized = false;
 
   constructor() {
     const initialState = this.loadAppState();
-    this.appState.set(initialState.state);
+    this.appStateSignal.set(initialState.state);
 
-    if (isPlatformBrowser(this.platformId)) {
-      if (initialState.shouldPersist) {
-        this.saveAppState(initialState.state);
-      }
-      this.applyCurrentTheme();
-    } else {
-      this.applyThemeAttributes(initialState.state);
+    if (initialState.shouldPersist) {
+      this.saveAppState(initialState.state);
     }
+    this.applyAppState(initialState.state);
+  }
 
-    effect(() => {
-      const state = this.appState();
-      if (!this.initialized || !state) {
-        this.initialized = true;
-        return;
-      }
-      this.saveAppState(state);
-      this.applyCurrentTheme();
+  setThemePreference(themePreference: AppTheme): void {
+    this.updateAppState({themePreference});
+  }
+
+  setCustomPrimary(customPrimary: CustomPrimary): void {
+    this.updateAppState({customPrimary});
+  }
+
+  setAppearancePreference(appearancePreference: AppearancePreference): void {
+    this.updateAppState({appearancePreference});
+  }
+
+  private updateAppState(patch: AppState): void {
+    const state = this.withDefaults({
+      ...this.appStateSignal(),
+      ...patch,
     });
+    this.appStateSignal.set(state);
+    this.saveAppState(state);
+    this.applyAppState(state);
   }
 
   private loadAppState(): LoadedAppState {
@@ -158,16 +158,18 @@ export class AppConfigService {
   }
 
   applyCurrentTheme(): void {
+    this.applyAppState(this.withDefaults(this.appStateSignal()));
+  }
+
+  private applyAppState(state: AppState): void {
+    this.applyThemeAttributes(state);
+
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    const state = this.withDefaults(this.appState());
-    this.applyThemeAttributes(state);
-
-    const theme = this.readActiveTheme();
-    this.applyPrimeTheme(theme);
-    this.updateFavicon(theme);
+    applyPrimeTheme(primeThemeTokenPalettes());
+    this.updateFavicon();
   }
 
   private applyThemeAttributes(state: AppState): void {
@@ -184,13 +186,12 @@ export class AppConfigService {
   }
 
   private applyCustomPrimary(root: HTMLElement, theme: AppTheme, customPrimary: CustomPrimary): void {
-    const stops = COLOR_STOPS.filter((stop) => stop !== '0');
     if (theme === 'custom') {
-      stops.forEach((stop) => {
+      PRIMARY_COLOR_STOPS.forEach((stop) => {
         root.style.setProperty(`--color-primary-${stop}`, `var(--color-${customPrimary}-${stop})`);
       });
     } else {
-      stops.forEach((stop) => root.style.removeProperty(`--color-primary-${stop}`));
+      PRIMARY_COLOR_STOPS.forEach((stop) => root.style.removeProperty(`--color-primary-${stop}`));
     }
   }
 
@@ -214,68 +215,11 @@ export class AppConfigService {
     }
   }
 
-  private readActiveTheme(): ResolvedThemePalettes {
+  private updateFavicon(): void {
     const styles = getComputedStyle(this.document.documentElement);
-
-    return {
-      primary: this.readPalette(styles, '--color-primary'),
-      surface: this.readPalette(styles, '--color-surface'),
-    };
-  }
-
-  private readPalette(styles: CSSStyleDeclaration, prefix: string): ColorPalette {
-    return Object.fromEntries(
-      COLOR_STOPS.map((stop) => [stop, styles.getPropertyValue(`${prefix}-${stop}`).trim()])
+    this.faviconService.updateFavicon(
+      styles.getPropertyValue('--color-primary-300').trim(),
+      styles.getPropertyValue('--color-primary-500').trim(),
     );
-  }
-
-  private buildPrimePreset(theme: ResolvedThemePalettes): object {
-    return {
-      semantic: {
-        primary: theme.primary,
-        colorScheme: {
-          light: {
-            primary: {
-              color: '{primary.600}',
-              contrastColor: '{surface.0}',
-              hoverColor: '{primary.700}',
-              activeColor: '{primary.800}',
-            },
-            highlight: {
-              background: 'color-mix(in srgb, {primary.500}, transparent 84%)',
-              focusBackground: 'color-mix(in srgb, {primary.500}, transparent 76%)',
-              color: '{primary.900}',
-              focusColor: '{primary.950}',
-            },
-          },
-          dark: {
-            primary: {
-              color: '{primary.400}',
-              contrastColor: '{surface.950}',
-              hoverColor: '{primary.300}',
-              activeColor: '{primary.200}',
-            },
-            highlight: {
-              background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
-              focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
-              color: '{primary.50}',
-              focusColor: '{primary.0}',
-            },
-          },
-        },
-      },
-    };
-  }
-
-  private applyPrimeTheme(theme: ResolvedThemePalettes): void {
-    $t()
-      .preset(Aura)
-      .preset(this.buildPrimePreset(theme))
-      .surfacePalette(theme.surface)
-      .use({ useDefaultOptions: true });
-  }
-
-  private updateFavicon(theme: ResolvedThemePalettes): void {
-    this.faviconService.updateFavicon(theme.primary['300'], theme.primary['500']);
   }
 }

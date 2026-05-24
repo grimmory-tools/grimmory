@@ -108,11 +108,8 @@ describe('AppConfigService', () => {
   });
 
   it('updates the root theme attributes without writing palette tokens inline', () => {
-    service.appState.set({
-      themePreference: 'grimmory',
-      appearancePreference: 'light',
-    });
-    service.applyCurrentTheme();
+    service.setThemePreference('grimmory');
+    service.setAppearancePreference('light');
 
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);

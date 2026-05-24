@@ -1,5 +1,15 @@
 import Aura from '@primeuix/themes/aura';
-import { definePreset } from '@primeuix/themes';
+import {$t, definePreset} from '@primeuix/themes';
+
+export type ColorPalette = Record<string, string>;
+
+export interface ResolvedThemePalettes {
+  primary: ColorPalette;
+  surface: ColorPalette;
+}
+
+const COLOR_STOPS = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'] as const;
+const SURFACE_STOPS = ['0', ...COLOR_STOPS] as const;
 
 /*
  * PrimeNG theme bridge.
@@ -17,7 +27,7 @@ const menuRoot = { background: 'var(--color-card)' };
  * Use *-400 borders and *-600 text: readable without feeling heavy.
  */
 const lightOutlinedButton = {
-  primary: { borderColor: '{primary.400}', color: '{primary.600}' },
+  primary: { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' },
   secondary: { borderColor: '{surface.400}', color: '{surface.600}' },
   plain: { borderColor: '{surface.400}', color: '{surface.600}' },
   success: { borderColor: '{green.400}', color: '{green.600}' },
@@ -26,6 +36,56 @@ const lightOutlinedButton = {
   danger: { borderColor: '{red.400}', color: '{red.600}' },
   help: { borderColor: '{purple.400}', color: '{purple.600}' },
 };
+
+const appPrimary = {
+  color: 'var(--color-primary)',
+  contrastColor: 'var(--color-primary-contrast)',
+  hoverColor: 'var(--color-primary-hover)',
+  activeColor: 'var(--color-primary-active)',
+};
+
+const appHighlight = {
+  background: 'color-mix(in srgb, var(--color-primary), transparent 84%)',
+  focusBackground: 'color-mix(in srgb, var(--color-primary), transparent 76%)',
+  color: 'var(--color-primary-text)',
+  focusColor: 'var(--color-primary-text)',
+};
+
+function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly string[]): ColorPalette {
+  return Object.fromEntries(
+    stops.map((stop) => [stop, `var(--color-${prefix}-${stop})`])
+  );
+}
+
+const appTokenPalettes: ResolvedThemePalettes = {
+  primary: {
+    0: 'var(--color-surface-0)',
+    ...buildAppTokenPalette('primary', COLOR_STOPS),
+  },
+  surface: buildAppTokenPalette('surface', SURFACE_STOPS),
+};
+
+export function primeThemeTokenPalettes(): ResolvedThemePalettes {
+  return appTokenPalettes;
+}
+
+function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
+  return {
+    semantic: {
+      primary: theme.primary,
+      colorScheme: {
+        light: {
+          primary: appPrimary,
+          highlight: appHighlight,
+        },
+        dark: {
+          primary: appPrimary,
+          highlight: appHighlight,
+        },
+      },
+    },
+  };
+}
 
 const AppPrimePreset = definePreset(Aura, {
   semantic: {
@@ -55,5 +115,13 @@ const AppPrimePreset = definePreset(Aura, {
     },
   },
 });
+
+export function applyPrimeTheme(theme: ResolvedThemePalettes): void {
+  $t()
+    .preset(AppPrimePreset)
+    .preset(buildPrimePalettePreset(theme))
+    .surfacePalette(theme.surface)
+    .use({useDefaultOptions: true});
+}
 
 export default AppPrimePreset;
