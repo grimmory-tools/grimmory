@@ -101,7 +101,10 @@ public class GoodReadsParserTest {
         HttpResponse<String> httpResponse = (HttpResponse<String>) mock(HttpResponse.class);
 
         when(httpResponse.statusCode()).thenReturn(statusCode);
-        when(httpResponse.body()).thenReturn(response);
+
+        if (response != null) {
+            when(httpResponse.body()).thenReturn(response);
+        }
 
         return httpResponse;
     }
@@ -187,5 +190,28 @@ public class GoodReadsParserTest {
         // The description is very long, but we need to make sure we're in the right ballpark.
         assertThat(result.getDescription()).startsWith("In Anthony Burgess's influential");
         assertThat(result.getDescription()).hasSize(511);
+    }
+
+    @Test
+    void testFetchMetadata_withRateLimitingError() throws Exception {
+        // Given
+        Book book = Book.builder()
+                .title("A Clockwork Orange")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("A Clockwork Orange")
+                .author("Anthony Burgess")
+                .build();
+
+        // Two expected URLs
+        mockHttpClientResponse("https://www.goodreads.com/book/auto_complete", 429, null);
+
+        // When
+        List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+        // Then
+        assertThat(results).isNotNull();
+        assertThat(results).as("Should not return results").isEmpty();
     }
 }
