@@ -154,6 +154,10 @@ $meta-card-colors: (
   'language': 'pink',
   'owned': 'teal',
 );
+$list-action-btn-colors: (
+  'read': 'emerald',
+  'details': 'blue',
+);
 
 @each $variant, $color in $meta-card-colors {
   .meta-card-#{$variant} {
@@ -183,6 +187,12 @@ $meta-card-colors: (
       i {
         color: var(--color-#{$color}-400);
       }
+    }
+  }
+
+  @each $variant, $color in $list-action-btn-colors {
+    .list-action-btn.btn-#{$variant} {
+      color: var(--color-#{$color}-300);
     }
   }
 }
@@ -766,11 +776,6 @@ $meta-card-colors: (
   gap: 0.35rem;
 }
 
-$list-action-btn-colors: (
-  'read': 'emerald',
-  'details': 'blue',
-);
-
 .list-action-btn {
   display: inline-flex;
   align-items: center;
@@ -795,14 +800,6 @@ $list-action-btn-colors: (
       &:hover {
         background: color-mix(in srgb, var(--color-#{$color}-500), transparent 75%);
       }
-    }
-  }
-}
-
-:host-context(.dark) {
-  @each $variant, $color in $list-action-btn-colors {
-    .list-action-btn.btn-#{$variant} {
-      color: var(--color-#{$color}-300);
     }
   }
 }

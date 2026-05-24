@@ -20,13 +20,19 @@ function createLocalStorageMock() {
   };
 }
 
-function setThemeVariables(style: CSSStyleDeclaration): void {
+function createThemeComputedStyle(): CSSStyleDeclaration {
+  const values = new Map<string, string>();
+
   ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].forEach((stop) => {
-    style.setProperty(`--color-primary-${stop}`, `primary-${stop}`);
+    values.set(`--color-primary-${stop}`, `primary-${stop}`);
   });
   ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].forEach((stop) => {
-    style.setProperty(`--color-surface-${stop}`, `surface-${stop}`);
+    values.set(`--color-surface-${stop}`, `surface-${stop}`);
   });
+
+  return {
+    getPropertyValue: (propertyName: string) => values.get(propertyName) ?? '',
+  } as CSSStyleDeclaration;
 }
 
 describe('AppConfigService', () => {
@@ -43,7 +49,9 @@ describe('AppConfigService', () => {
     };
     vi.stubGlobal('localStorage', localStorageMock);
     rootStyle.cssText = '';
-    setThemeVariables(rootStyle);
+    const computedStyle = createThemeComputedStyle();
+    vi.spyOn(globalThis, 'getComputedStyle').mockReturnValue(computedStyle);
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue(computedStyle);
     root.classList.remove('dark');
     delete root.dataset['appTheme'];
 
@@ -63,6 +71,7 @@ describe('AppConfigService', () => {
     rootStyle.cssText = '';
     root.classList.remove('dark');
     delete root.dataset['appTheme'];
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
@@ -121,6 +130,7 @@ describe('AppConfigService', () => {
       preset: 'Aura',
       theme: 'grimmory',
       colorScheme: 'light',
+      customPrimary: 'orange',
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);

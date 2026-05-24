@@ -129,6 +129,7 @@ describe('BookReviewsComponent', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
     TestBed.resetTestingModule();
   });
 
@@ -342,6 +343,7 @@ describe('BookReviewsComponent', () => {
   });
 
   it('ignores stale responses if the bookId changes while a request is in-flight', async () => {
+    vi.useFakeTimers();
     const book1Reviews = [createReview(1)];
     const book2Reviews = [createReview(2)];
 
@@ -362,8 +364,7 @@ describe('BookReviewsComponent', () => {
       bookId: new SimpleChange(1, 2, false),
     });
 
-    // Wait for both to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await vi.advanceTimersByTimeAsync(100);
 
     // Should only have book 2's reviews
     expect(component.reviews?.map(r => r.id)).toEqual([2]);
@@ -371,6 +372,7 @@ describe('BookReviewsComponent', () => {
   });
 
   it('does not prematurely clear loading if a refresh finishes while a new book load is in-flight', async () => {
+    vi.useFakeTimers();
     // 1. fetchNewReviews(42) starts
     reviewService.refreshReviews.mockReturnValueOnce(of([]).pipe(delay(50)));
     component.fetchNewReviews();
@@ -384,19 +386,18 @@ describe('BookReviewsComponent', () => {
       bookId: new SimpleChange(42, 43, false),
     });
 
-    // 3. Wait for fetchNewReviews(42) to finish (after 50ms)
-    await new Promise(resolve => setTimeout(resolve, 75));
+    await vi.advanceTimersByTimeAsync(75);
 
     // 4. loading should still be true because loadReviews(43) is in flight
     expect(component.loading()).toBe(true);
 
-    // 5. Wait for loadReviews(43) to finish (after 100ms total)
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await vi.advanceTimersByTimeAsync(50);
     expect(component.loading()).toBe(false);
 
   });
 
   it('ignores stale responses in a 1 -> 2 -> 1 navigation sequence (ABA problem)', async () => {
+    vi.useFakeTimers();
     const book1InitialReviews = [createReview(1, {body: 'First Request'})];
     const book1LatestReviews = [createReview(1, {body: 'Second Request'})];
     const book2Reviews = [createReview(2)];
@@ -420,14 +421,12 @@ describe('BookReviewsComponent', () => {
     component.bookId = 1;
     component.ngOnChanges({bookId: new SimpleChange(2, 1, false)});
 
-    // Wait for all requests to finish
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await vi.advanceTimersByTimeAsync(150);
 
     // Should have the reviews from the SECOND request for Book 1, not the first
     expect(component.reviews?.[0].body).toBe('Second Request');
     expect(component.loading()).toBe(false);
   });
 });
-
 
 

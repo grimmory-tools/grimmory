@@ -73,10 +73,10 @@
       </div>
 
       @if (selectedTheme() === 'custom') {
-        <div class="form-field">
-          <label class="field-label">{{ 'layout.theme.customPrimary' | transloco }}</label>
+        <fieldset class="form-field">
+          <legend class="field-label">{{ 'layout.theme.customPrimary' | transloco }}</legend>
           <div class="rounded-md p-3 bg-card shadow-[inset_0_0_0_1px_var(--color-border)]">
-            <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="'layout.theme.customPrimary' | transloco">
+            <div class="flex flex-wrap gap-2">
               @for (palette of customPrimaryOptions; track palette) {
                 <button
                   type="button"
@@ -89,7 +89,7 @@
               }
             </div>
           </div>
-        </div>
+        </fieldset>
       }
     </div>
 

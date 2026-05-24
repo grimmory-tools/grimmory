@@ -134,6 +134,13 @@
   }
 }
 
+fieldset.form-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .edit-actions {
   margin-top: 0.5rem;
 
@@ -165,4 +172,3 @@
     color: var(--color-text-secondary);
   }
 }
-

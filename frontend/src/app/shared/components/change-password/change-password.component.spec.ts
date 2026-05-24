@@ -1,4 +1,4 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {MessageService} from 'primeng/api';
@@ -10,14 +10,13 @@ import {ChangePasswordComponent} from './change-password.component';
 import {UserService} from '../../../features/settings/user-management/user.service';
 
 describe('ChangePasswordComponent', () => {
-  let fixture: ComponentFixture<ChangePasswordComponent>;
   let component: ChangePasswordComponent;
   let userService: {changePassword: ReturnType<typeof vi.fn>};
   let authService: {logout: ReturnType<typeof vi.fn>};
   let messageService: {add: ReturnType<typeof vi.fn>};
   let translocoService: TranslocoService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userService = {
       changePassword: vi.fn(() => of(void 0)),
     };
@@ -28,17 +27,16 @@ describe('ChangePasswordComponent', () => {
       add: vi.fn(),
     };
 
-    await TestBed.configureTestingModule({
-      imports: [ChangePasswordComponent, getTranslocoModule()],
+    TestBed.configureTestingModule({
+      imports: [getTranslocoModule()],
       providers: [
         {provide: UserService, useValue: userService},
         {provide: AuthService, useValue: authService},
         {provide: MessageService, useValue: messageService},
       ],
-    }).compileComponents();
+    });
 
-    fixture = TestBed.createComponent(ChangePasswordComponent);
-    component = fixture.componentInstance;
+    component = TestBed.runInInjectionContext(() => new ChangePasswordComponent());
     translocoService = TestBed.inject(TranslocoService);
   });
 

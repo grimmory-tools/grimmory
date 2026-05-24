@@ -103,8 +103,8 @@ export class AppConfigService {
     if (colorScheme !== 'system') {
       return colorScheme;
     }
-    if (isPlatformBrowser(this.platformId) && typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (isPlatformBrowser(this.platformId) && globalThis.window.matchMedia) {
+      return globalThis.window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'dark';
   }
@@ -156,12 +156,12 @@ export class AppConfigService {
   private systemSchemeListener: ((event: MediaQueryListEvent) => void) | null = null;
 
   private syncSystemSchemeListener(colorScheme: AppColorScheme): void {
-    if (!isPlatformBrowser(this.platformId) || typeof window === 'undefined' || !window.matchMedia) {
+    if (!isPlatformBrowser(this.platformId) || !globalThis.window.matchMedia) {
       return;
     }
     if (colorScheme === 'system') {
       if (!this.systemSchemeMedia) {
-        this.systemSchemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        this.systemSchemeMedia = globalThis.window.matchMedia('(prefers-color-scheme: dark)');
         this.systemSchemeListener = () => this.onPresetChange();
         this.systemSchemeMedia.addEventListener('change', this.systemSchemeListener);
       }

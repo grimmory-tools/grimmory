@@ -30,9 +30,30 @@ describe('app-state.model', () => {
       | 'violet'
       | 'fuchsia'
       | 'slate'
+      | 'custom'
       | undefined
     >();
-    expectTypeOf<AppState['colorScheme']>().toEqualTypeOf<'light' | 'dark' | undefined>();
+    expectTypeOf<AppState['colorScheme']>().toEqualTypeOf<'light' | 'dark' | 'system' | undefined>();
+    expectTypeOf<AppState['customPrimary']>().toEqualTypeOf<
+      | 'red'
+      | 'orange'
+      | 'amber'
+      | 'yellow'
+      | 'lime'
+      | 'green'
+      | 'emerald'
+      | 'teal'
+      | 'cyan'
+      | 'sky'
+      | 'blue'
+      | 'indigo'
+      | 'violet'
+      | 'purple'
+      | 'fuchsia'
+      | 'pink'
+      | 'rose'
+      | undefined
+    >();
   });
 
   it('defines the curated theme options', () => {
@@ -40,50 +61,67 @@ describe('app-state.model', () => {
       {
         name: 'grimmory',
         label: 'Grimmory',
+        swatch: 'var(--color-orange-500)',
       },
       {
         name: 'cobalt',
         label: 'Cobalt',
+        swatch: 'var(--color-blue-500)',
       },
       {
         name: 'ember',
         label: 'Ember',
+        swatch: 'var(--color-amber-500)',
       },
       {
         name: 'crimson',
         label: 'Crimson',
+        swatch: 'var(--color-red-500)',
       },
       {
         name: 'rose',
         label: 'Rose',
+        swatch: 'var(--color-rose-500)',
       },
       {
         name: 'forest',
         label: 'Forest',
+        swatch: 'var(--color-emerald-500)',
       },
       {
         name: 'meadow',
         label: 'Meadow',
+        swatch: 'var(--color-lime-500)',
       },
       {
         name: 'teal',
         label: 'Teal',
+        swatch: 'var(--color-teal-500)',
       },
       {
         name: 'lagoon',
         label: 'Lagoon',
+        swatch: 'var(--color-cyan-500)',
       },
       {
         name: 'violet',
         label: 'Violet',
+        swatch: 'var(--color-violet-500)',
       },
       {
         name: 'fuchsia',
         label: 'Fuchsia',
+        swatch: 'var(--color-fuchsia-500)',
       },
       {
         name: 'slate',
         label: 'Slate',
+        swatch: 'var(--color-gray-700)',
+      },
+      {
+        name: 'custom',
+        label: 'Custom',
+        swatch: null,
       },
     ]);
   });
