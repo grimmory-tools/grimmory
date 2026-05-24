@@ -42,19 +42,19 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
       color: inherit;
     }
 
-    .svg-icon-inline :deep(svg) {
+    .svg-icon-inline ::ng-deep svg {
       width: 100%;
       height: 100%;
       display: block;
     }
 
     /* Tint only paths without explicit paint so user-uploaded multi-colour SVGs survive. */
-    .svg-icon-inline :deep(svg:not([fill])),
-    .svg-icon-inline :deep(path:not([fill])) {
+    .svg-icon-inline ::ng-deep svg:not([fill]),
+    .svg-icon-inline ::ng-deep path:not([fill]) {
       fill: currentColor;
     }
 
-    .svg-icon-inline :deep(path[stroke]:not([stroke="none"])) {
+    .svg-icon-inline ::ng-deep path[stroke]:not([stroke="none"]) {
       stroke: currentColor;
     }
   `],

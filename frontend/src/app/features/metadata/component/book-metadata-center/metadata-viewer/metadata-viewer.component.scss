@@ -886,13 +886,13 @@
 }
 
 .comic-creator-link {
-  color: cornflowerblue;
+  color: var(--color-primary);
   cursor: pointer;
   transition: color 0.2s ease;
   font-size: 0.9rem;
 
   &:hover {
-    color: dodgerblue;
+    color: var(--color-primary-hover);
     text-decoration: underline;
   }
 

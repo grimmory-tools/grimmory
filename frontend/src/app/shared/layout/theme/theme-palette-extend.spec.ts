@@ -68,7 +68,7 @@ describe('theme-palette-extend', () => {
   it('defines Prime palettes from app CSS tokens', () => {
     const palettes = primeThemeTokenPalettes();
 
-    expect(palettes.primary['0']).toBe('var(--color-surface-0)');
+    expect(palettes.primary['0']).toBeUndefined();
     expect(palettes.primary['500']).toBe('var(--color-primary-500)');
     expect(palettes.surface['0']).toBe('var(--color-surface-0)');
     expect(palettes.surface['950']).toBe('var(--color-surface-950)');

@@ -46,7 +46,7 @@
         <label class="field-label" for="app-theme">{{ 'layout.theme.theme' | transloco }}</label>
         <p-select
           inputId="app-theme"
-          [options]="themeOptions"
+          [options]="themeOptions()"
           [ngModel]="selectedThemePreference()"
           (ngModelChange)="updateThemePreference($event)"
           optionLabel="label"
@@ -58,7 +58,7 @@
               <span class="inline-flex items-center gap-2.5 min-w-0">
                 @if (option.value !== 'custom') {
                   <span
-                    class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-[var(--color-primary-500)]"
+                    class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-(--color-primary-500)"
                     [attr.data-app-theme]="option.value"
                     aria-hidden="true">
                   </span>
@@ -71,7 +71,7 @@
             <span class="inline-flex items-center gap-2.5 min-w-0">
               @if (option.value !== 'custom') {
                 <span
-                  class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-[var(--color-primary-500)]"
+                  class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-(--color-primary-500)"
                   [attr.data-app-theme]="option.value"
                   aria-hidden="true">
                 </span>

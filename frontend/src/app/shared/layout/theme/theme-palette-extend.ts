@@ -58,10 +58,7 @@ function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly str
 }
 
 const appTokenPalettes: ResolvedThemePalettes = {
-  primary: {
-    0: 'var(--color-surface-0)',
-    ...buildAppTokenPalette('primary', COLOR_STOPS),
-  },
+  primary: buildAppTokenPalette('primary', COLOR_STOPS),
   surface: buildAppTokenPalette('surface', SURFACE_STOPS),
 };
 

@@ -74,6 +74,21 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "customPrimary": "Custom color"
+    "customPrimary": "Custom color",
+    "options": {
+      "grimmory": "Grimmory",
+      "cobalt": "Cobalt",
+      "ember": "Ember",
+      "crimson": "Crimson",
+      "rose": "Rose",
+      "forest": "Forest",
+      "meadow": "Meadow",
+      "teal": "Teal",
+      "lagoon": "Lagoon",
+      "violet": "Violet",
+      "fuchsia": "Fuchsia",
+      "slate": "Slate",
+      "custom": "Custom"
+    }
   }
 }

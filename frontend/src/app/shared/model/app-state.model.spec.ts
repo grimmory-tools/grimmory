@@ -17,7 +17,7 @@ describe('app-state.model', () => {
       appearancePreference: 'system',
     };
 
-    expect(appState.themePreference).toBe('grimmory');
+    expect(appState.themePreference).toBe(DEFAULT_APP_THEME);
     expect(appState.appearancePreference).toBe('system');
   });
 

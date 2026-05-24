@@ -72,10 +72,13 @@ export class UserProfileDialogComponent {
     () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
   protected readonly customPrimaryOptions = CUSTOM_PRIMARY_OPTIONS;
-  protected readonly themeOptions = this.configService.themes.map((theme) => ({
-    value: theme.name,
-    label: theme.label,
-  }));
+  protected readonly themeOptions = computed(() => {
+    this.activeLang();
+    return this.configService.themes.map((theme) => ({
+      value: theme.name,
+      label: this.t.translate(theme.labelKey),
+    }));
+  });
   protected readonly appearanceOptions = computed(() => {
     this.activeLang();
     return [
