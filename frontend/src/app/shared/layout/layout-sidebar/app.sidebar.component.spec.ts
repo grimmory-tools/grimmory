@@ -46,9 +46,11 @@ describe('AppSidebarComponent', () => {
   let hasActiveImport: WritableSignal<boolean>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
+  const currentPath = signal('/dashboard');
   const layoutService = {
     sidebarCollapsed,
     isDesktop,
+    currentPath,
     desktopSidebarCollapsed: computed(() => isDesktop() && sidebarCollapsed()),
     librarySort: signal({ field: 'name', order: 'desc' }),
     shelfSort: signal({ field: 'name', order: 'asc' }),
@@ -116,6 +118,7 @@ describe('AppSidebarComponent', () => {
     fixture = TestBed.createComponent(AppSidebarComponent);
     component = fixture.componentInstance;
     layoutService.isDesktop.set(true);
+    layoutService.currentPath.set('/dashboard');
     layoutService.closeMobileSidebar.mockReset();
   });
 
@@ -181,6 +184,16 @@ describe('AppSidebarComponent', () => {
     currentUser.set({ name: '', username: 'alex', permissions: {} });
 
     expect(component.userInitials()).toBe('A');
+  });
+
+  it('marks settings active from the current layout path', () => {
+    const sidebar = component as unknown as { isSettingsActive: () => boolean };
+
+    expect(sidebar.isSettingsActive()).toBe(false);
+
+    layoutService.currentPath.set('/settings');
+
+    expect(sidebar.isSettingsActive()).toBe(true);
   });
 
   it('returns an empty string when no user is signed in', () => {
