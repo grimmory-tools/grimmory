@@ -53,7 +53,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
-    private static final Pattern BOOK_SHOW_ID_PATTERN = Pattern.compile("/book/show/(\\d+)");
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     private final HttpClient httpClient;
@@ -522,62 +521,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         return (book.getPrimaryFile() != null && book.getPrimaryFile().getFileName() != null && !book.getPrimaryFile().getFileName().isEmpty()
                 ? BookUtils.cleanFileName(book.getPrimaryFile().getFileName())
                 : null);
-    }
-
-    private Integer extractGoodReadsIdPreview(Element book) {
-        try {
-            Element bookTitle = book.select("a.bookTitle").first();
-            if (bookTitle == null) {
-                return null;
-            }
-            String href = bookTitle.attr("href");
-            Matcher matcher = BOOK_SHOW_ID_PATTERN.matcher(href);
-            if (matcher.find()) {
-                return Integer.valueOf(matcher.group(1));
-            }
-        } catch (Exception e) {
-            return null;
-        }
-        return null;
-    }
-
-    private List<String> extractAuthorsPreview(Element book) {
-        List<String> authors = new ArrayList<>();
-        try {
-            Elements authorsElement = book.select("a.authorName");
-            for (Element authorElement : authorsElement) {
-                authors.add(authorElement.text());
-            }
-        } catch (Exception e) {
-            log.warn("Error extracting author: {}", e.getMessage());
-            return authors;
-        }
-        return authors;
-    }
-
-    private String extractTitlePreview(Element book) {
-        try {
-            Element link = book.select("a[title]").first();
-            return link != null ? link.attr("title") : null;
-        } catch (Exception e) {
-            log.warn("Error extracting title: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    private String extractThumbnailPreview(Element book) {
-        try {
-            Element img = book.selectFirst("img");
-            if (img != null) {
-                String src = img.attr("src");
-                if (!src.isBlank()) {
-                    return src;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Error extracting thumbnail: {}", e.getMessage());
-        }
-        return null;
     }
 
     @Override
