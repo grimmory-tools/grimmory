@@ -65,17 +65,5 @@
   "theme": {
     "primary": "",
     "surface": ""
-  },
-  "uploadDialog": {
-    "chooseFile": "",
-    "selectImage": "",
-    "fileNote": "",
-    "or": "",
-    "imageUrl": "",
-    "urlPlaceholder": "",
-    "urlNote": "",
-    "errorNoInput": "",
-    "errorUploadFailed": "",
-    "errorUploadRetry": ""
   }
 }

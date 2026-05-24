@@ -65,17 +65,5 @@
   "theme": {
     "primary": "プライマリ",
     "surface": "サーフェス"
-  },
-  "uploadDialog": {
-    "chooseFile": "ファイルを選択：",
-    "selectImage": "画像を選択",
-    "fileNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
-    "or": "または",
-    "imageUrl": "画像URL：",
-    "urlPlaceholder": "画像URLを貼り付け",
-    "urlNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
-    "errorNoInput": "ファイルを選択するか、URLを貼り付けてください。",
-    "errorUploadFailed": "画像のアップロードに失敗しました。",
-    "errorUploadRetry": "アップロードに失敗しました。もう一度お試しください。"
   }
 }

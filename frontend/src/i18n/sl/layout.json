@@ -65,17 +65,5 @@
   "theme": {
     "primary": "Primarna",
     "surface": "Površina"
-  },
-  "uploadDialog": {
-    "chooseFile": "Izberi datoteko:",
-    "selectImage": "Izberi sliko",
-    "fileNote": "Podprti formati: JPEG, PNG • Največja velikost: 5 MB",
-    "or": "ALI",
-    "imageUrl": "URL slike:",
-    "urlPlaceholder": "Tukaj prilepi URL slike",
-    "urlNote": "Podprti formati: JPEG, PNG • Največja velikost: 5 MB",
-    "errorNoInput": "Prosim, izberi datoteko ali prilepi URL.",
-    "errorUploadFailed": "Nalaganje slike ni uspelo.",
-    "errorUploadRetry": "Nalaganje ni uspelo. Prosim, poskusi znova."
   }
 }

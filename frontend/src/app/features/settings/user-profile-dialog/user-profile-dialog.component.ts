@@ -12,7 +12,14 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../core/config/transloco-loader';
 import {LANG_STORAGE_KEY} from '../../../core/config/language-initializer';
 import {AppConfigService} from '../../../shared/service/app-config.service';
-import {AppearancePreference, AppTheme, CUSTOM_PRIMARY_OPTIONS, CustomPrimary, DEFAULT_CUSTOM_PRIMARY} from '../../../shared/model/app-state.model';
+import {
+  AppearancePreference,
+  AppTheme,
+  CUSTOM_PRIMARY_OPTIONS,
+  CustomPrimary,
+  DEFAULT_APP_THEME,
+  DEFAULT_CUSTOM_PRIMARY,
+} from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -59,7 +66,7 @@ export class UserProfileDialogComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? 'grimmory');
+  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? DEFAULT_APP_THEME);
   protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference ?? 'system');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
     () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
@@ -68,7 +75,6 @@ export class UserProfileDialogComponent {
   protected readonly themeOptions = this.configService.themes.map((theme) => ({
     value: theme.name,
     label: theme.label,
-    swatch: theme.swatch,
   }));
   protected readonly appearanceOptions = computed(() => {
     this.activeLang();

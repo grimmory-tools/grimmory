@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { AppConfigService } from './app-config.service';
-import { FaviconService } from '../layout/theme-configurator/favicon-service';
+import { FaviconService } from '../layout/theme/favicon-service';
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -94,6 +94,7 @@ describe('AppConfigService', () => {
       appearancePreference: 'system',
       customPrimary: 'orange',
     });
+    expect(localStorageMock.getItem('appConfigState')).toBeNull();
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);
     expect(rootStyle.getPropertyValue('color-scheme')).toBe('light');
@@ -150,5 +151,10 @@ describe('AppConfigService', () => {
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(true);
+    expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
+      themePreference: 'grimmory',
+      appearancePreference: 'dark',
+      customPrimary: 'orange',
+    }));
   });
 });

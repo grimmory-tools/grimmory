@@ -65,17 +65,5 @@
   "theme": {
     "primary": "Primario",
     "surface": "Superficie"
-  },
-  "uploadDialog": {
-    "chooseFile": "Scegli file:",
-    "selectImage": "Seleziona immagine",
-    "fileNote": "Formati supportati: JPEG, PNG • Dimensione massima: 5 MB",
-    "or": "OPPURE",
-    "imageUrl": "URL immagine:",
-    "urlPlaceholder": "Incolla l'URL dell'immagine qui",
-    "urlNote": "Formati supportati: JPEG, PNG • Dimensione massima: 5 MB",
-    "errorNoInput": "Seleziona un file o incolla un URL.",
-    "errorUploadFailed": "Caricamento dell'immagine fallito.",
-    "errorUploadRetry": "Caricamento fallito. Riprova."
   }
 }

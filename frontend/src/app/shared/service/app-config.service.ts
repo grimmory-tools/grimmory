@@ -1,8 +1,8 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { $t } from '@primeuix/themes';
-import { FaviconService } from '../layout/theme-configurator/favicon-service';
-import Aura from '../layout/theme-palette-extend';
+import { FaviconService } from '../layout/theme/favicon-service';
+import Aura from '../layout/theme/theme-palette-extend';
 import {
   APP_THEME_OPTIONS,
   AppearancePreference,
@@ -26,6 +26,11 @@ type StoredAppState = Partial<AppState> & {
   surface?: unknown;
 };
 
+interface LoadedAppState {
+  state: AppState;
+  shouldPersist: boolean;
+}
+
 interface ResolvedThemePalettes {
   primary: ColorPalette;
   surface: ColorPalette;
@@ -45,13 +50,15 @@ export class AppConfigService {
 
   constructor() {
     const initialState = this.loadAppState();
-    this.appState.set(initialState);
+    this.appState.set(initialState.state);
 
     if (isPlatformBrowser(this.platformId)) {
-      this.saveAppState(initialState);
+      if (initialState.shouldPersist) {
+        this.saveAppState(initialState.state);
+      }
       this.applyCurrentTheme();
     } else {
-      this.applyThemeAttributes(initialState);
+      this.applyThemeAttributes(initialState.state);
     }
 
     effect(() => {
@@ -65,19 +72,23 @@ export class AppConfigService {
     });
   }
 
-  private loadAppState(): AppState {
+  private loadAppState(): LoadedAppState {
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
         try {
-          return this.normalizeStoredState(JSON.parse(storedState) as StoredAppState);
+          const parsedState = JSON.parse(storedState) as StoredAppState;
+          return {
+            state: this.normalizeStoredState(parsedState),
+            shouldPersist: this.isLegacyPaletteState(parsedState),
+          };
         } catch {
-          return this.withDefaults({});
+          return {state: this.withDefaults({}), shouldPersist: false};
         }
       }
     }
 
-    return this.withDefaults({});
+    return {state: this.withDefaults({}), shouldPersist: false};
   }
 
   private normalizeStoredState(state: StoredAppState): AppState {

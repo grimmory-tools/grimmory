@@ -65,17 +65,5 @@
   "theme": {
     "primary": "Principal",
     "surface": "Surface"
-  },
-  "uploadDialog": {
-    "chooseFile": "Choisir un fichier :",
-    "selectImage": "Sélectionner une image",
-    "fileNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
-    "or": "OU",
-    "imageUrl": "URL de l'image :",
-    "urlPlaceholder": "Collez l'URL de l'image ici",
-    "urlNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
-    "errorNoInput": "Veuillez sélectionner un fichier ou coller une URL.",
-    "errorUploadFailed": "Échec du téléversement de l'image.",
-    "errorUploadRetry": "Échec du téléversement. Veuillez réessayer."
   }
 }

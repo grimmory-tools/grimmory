@@ -54,17 +54,27 @@
           appendTo="body"
           class="preference-select">
           <ng-template #selectedItem let-option>
-            <span class="inline-flex items-center gap-2.5 min-w-0">
-              @if (option.swatch) {
-                <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset" [style.background]="option.swatch" aria-hidden="true"></span>
-              }
-              <span>{{ option.label }}</span>
-            </span>
+            @if (option) {
+              <span class="inline-flex items-center gap-2.5 min-w-0">
+                @if (option.value !== 'custom') {
+                  <span
+                    class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-[var(--color-primary-500)]"
+                    [attr.data-app-theme]="option.value"
+                    aria-hidden="true">
+                  </span>
+                }
+                <span>{{ option.label }}</span>
+              </span>
+            }
           </ng-template>
           <ng-template #item let-option>
             <span class="inline-flex items-center gap-2.5 min-w-0">
-              @if (option.swatch) {
-                <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset" [style.background]="option.swatch" aria-hidden="true"></span>
+              @if (option.value !== 'custom') {
+                <span
+                  class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-black/15 ring-inset bg-[var(--color-primary-500)]"
+                  [attr.data-app-theme]="option.value"
+                  aria-hidden="true">
+                </span>
               }
               <span>{{ option.label }}</span>
             </span>
