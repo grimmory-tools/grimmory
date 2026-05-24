@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -145,8 +145,8 @@ public class GoodReadsParserTest {
         List<BookMetadata> results = parser.fetchMetadata(book, request);
 
         // Then
-        assertNotNull(results);
-        assertTrue(results.isEmpty(), "Should return empty list when query is empty");
+        assertThat(results).isNotNull();
+        assertThat(results).as("Should return empty list when query is empty").isEmpty();
     }
 
     @Test
@@ -172,20 +172,20 @@ public class GoodReadsParserTest {
         List<BookMetadata> results = parser.fetchMetadata(book, request);
 
         // Then
-        assertNotNull(results);
-        assertFalse(results.isEmpty(), "Should return results for real book");
+        assertThat(results).isNotNull();
+        assertThat(results).as("Should return results for real book").isNotEmpty();
 
         BookMetadata result = results.getFirst();
-        assertEquals("A Clockwork Orange", result.getTitle());
-        assertEquals("0393341763", result.getIsbn10());
-        assertEquals("9780393341768", result.getIsbn13());
-        assertEquals("41817486", result.getGoodreadsId());
-        assertNotNull(result.getAuthors());
-        assertEquals(1, result.getAuthors().size());
-        assertEquals("Anthony Burgess", result.getAuthors().getFirst());
+        assertThat(result.getTitle()).isEqualTo("A Clockwork Orange");
+        assertThat(result.getIsbn10()).isEqualTo("0393341763");
+        assertThat(result.getIsbn13()).isEqualTo("9780393341768");
+        assertThat(result.getGoodreadsId()).isEqualTo("41817486");
+        assertThat(result.getAuthors()).isNotNull();
+        assertThat(result.getAuthors()).hasSize(1);
+        assertThat(result.getAuthors().getFirst()).isEqualTo("Anthony Burgess");
 
         // The description is very long, but we need to make sure we're in the right ballpark.
-        assertEquals("In Anthony Burgess's influen", result.getDescription().substring(0, 28));
-        assertEquals(511, result.getDescription().length());
+        assertThat(result.getDescription()).startsWith("In Anthony Burgess's influential");
+        assertThat(result.getDescription()).hasSize(511);
     }
 }
