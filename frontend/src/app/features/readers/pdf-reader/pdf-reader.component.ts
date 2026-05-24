@@ -118,6 +118,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private embedPdfMessageHandler?: (e: MessageEvent) => void;
   private embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
   private embedPdfSaveTimer?: ReturnType<typeof setTimeout>;
+  private embedPdfSavePromise?: Promise<boolean>;
   private embedPdfInitTime = 0;
   private pendingPdfBuffer?: ArrayBuffer;
   private initTimeout?: ReturnType<typeof setTimeout>;
@@ -130,6 +131,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private docProgressReleaseTimer?: ReturnType<typeof setTimeout>;
   private closeReaderPromise: Promise<void> | null = null;
   readonly isClosingReader = signal(false);
+  readonly isSavingDocument = signal(false);
 
   // Book mode state
   private bookViewerInitialized = false;
@@ -1092,8 +1094,19 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async saveEmbedPdfDocument(): Promise<void> {
-    if (!this.embedPdfIframe?.contentWindow) return;
+  private async saveEmbedPdfDocument(): Promise<boolean> {
+    if (this.embedPdfSavePromise) return this.embedPdfSavePromise;
+    this.embedPdfSavePromise = this.performEmbedPdfSave();
+
+    try {
+      return await this.embedPdfSavePromise;
+    } finally {
+      this.embedPdfSavePromise = undefined;
+    }
+  }
+
+  private async performEmbedPdfSave(): Promise<boolean> {
+    if (!this.embedPdfIframe?.contentWindow) return false;
 
     try {
       const buffer: ArrayBuffer | null = await new Promise((resolve) => {
@@ -1113,7 +1126,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.embedPdfSaveTimer = undefined;
       }
 
-      if (!buffer) return;
+      if (!buffer) return false;
 
       const headers: Record<string, string> = { 'Content-Type': 'application/pdf' };
       const uploadToken = this.authService.getInternalAccessToken();
@@ -1133,9 +1146,49 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       });
       if (!uploadResponse.ok) {
         console.error('[EmbedPDF] Upload failed:', uploadResponse.status);
+        return false;
       }
+      this.updateSavedPdfCache(buffer);
+      await this.cacheStorageService.delete(url);
+      return true;
     } catch (err) {
       console.error('[EmbedPDF] Failed to save document:', err);
+      return false;
+    }
+  }
+
+  private updateSavedPdfCache(buffer: ArrayBuffer): void {
+    const savedBuffer = buffer.slice(0);
+    this.cachedPdfBuffer = savedBuffer;
+    this.revokePdfBlobUrl();
+    this.pdfBlobUrl = URL.createObjectURL(new Blob([savedBuffer], { type: 'application/pdf' }));
+  }
+
+  async saveDocument(): Promise<void> {
+    if (this.viewerMode() !== 'document' || !this.embedPdfIframe) return;
+    if (this.isSavingDocument()) return;
+
+    this.isSavingDocument.set(true);
+    try {
+      const saved = await this.saveEmbedPdfDocument();
+      this.messageService.add(saved ? {
+        severity: 'success',
+        summary: this.t.translate('common.success'),
+        detail: this.t.translate('readerPdf.docViewer.changesSaved') || 'Changes saved successfully.'
+      } : {
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
+      });
+    } catch (err) {
+      console.error('[PDF Reader] Manually saving document failed:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
+      });
+    } finally {
+      this.isSavingDocument.set(false);
     }
   }
 

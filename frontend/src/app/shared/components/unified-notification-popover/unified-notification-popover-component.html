@@ -1,9 +1,12 @@
 <div class="metadata-progress-box">
   <app-live-notification-box/>
-  @if (hasMetadataTasks$ | async) {
+  @if (hasMetadataTasks()) {
     <app-metadata-progress-widget/>
   }
-  @if (hasPendingBookdropFiles$ | async) {
+  @if (hasActiveLibraryImport()) {
+    <app-library-import-progress-widget/>
+  }
+  @if (hasPendingBookdropFiles()) {
     <app-bookdrop-files-widget-component/>
   }
 </div>

@@ -168,6 +168,98 @@ class OpdsFeedServiceTest {
     }
 
     @Test
+    void generateCatalogFeed_shouldOmitCoverWhenNotUpdatedOn() {
+        mockAuthenticatedUser();
+
+        when(request.getParameter("libraryId")).thenReturn(null);
+        when(request.getParameter("shelfId")).thenReturn(null);
+        when(request.getParameter("magicShelfId")).thenReturn(null);
+        when(request.getParameter("q")).thenReturn(null);
+        when(request.getParameter("page")).thenReturn(null);
+        when(request.getParameter("size")).thenReturn(null);
+        when(request.getRequestURI()).thenReturn("/api/v1/opds/catalog");
+        when(request.getQueryString()).thenReturn(null);
+
+        Book book = Book.builder()
+                .id(10L)
+                .primaryFile(BookFile.builder().id(1L).bookType(BookFileType.EPUB).build())
+                .addedOn(FIXED_INSTANT)
+                .metadata(BookMetadata.builder()
+                        .build())
+                .build();
+
+        Page<Book> page = new PageImpl<>(List.of(book), PageRequest.of(0, 50), 1);
+        when(opdsBookService.getBooksPage(eq(TEST_USER_ID), any(), any(), any(), eq(0), eq(50))).thenReturn(page);
+        when(opdsBookService.applySortOrder(any(), any())).thenReturn(page);
+
+        String xml = opdsFeedService.generateCatalogFeed(request);
+        assertThat(xml).doesNotContain("link rel=\"http://opds-spec.org/image\" href=\"/api/v1/opds/10/cover");
+        verify(opdsBookService).getBooksPage(TEST_USER_ID, null, null, null, 0, 50);
+    }
+
+    @Test
+    void generateCatalogFeed_shouldShowEbookCover() {
+        mockAuthenticatedUser();
+
+        when(request.getParameter("libraryId")).thenReturn(null);
+        when(request.getParameter("shelfId")).thenReturn(null);
+        when(request.getParameter("magicShelfId")).thenReturn(null);
+        when(request.getParameter("q")).thenReturn(null);
+        when(request.getParameter("page")).thenReturn(null);
+        when(request.getParameter("size")).thenReturn(null);
+        when(request.getRequestURI()).thenReturn("/api/v1/opds/catalog");
+        when(request.getQueryString()).thenReturn(null);
+
+        Book book = Book.builder()
+                .id(10L)
+                .primaryFile(BookFile.builder().id(1L).bookType(BookFileType.EPUB).build())
+                .addedOn(FIXED_INSTANT)
+                .metadata(BookMetadata.builder()
+                        .coverUpdatedOn(FIXED_INSTANT)
+                        .build())
+                .build();
+
+        Page<Book> page = new PageImpl<>(List.of(book), PageRequest.of(0, 50), 1);
+        when(opdsBookService.getBooksPage(eq(TEST_USER_ID), any(), any(), any(), eq(0), eq(50))).thenReturn(page);
+        when(opdsBookService.applySortOrder(any(), any())).thenReturn(page);
+
+        String xml = opdsFeedService.generateCatalogFeed(request);
+        assertThat(xml).contains("link rel=\"http://opds-spec.org/image\" href=\"/api/v1/opds/10/cover");
+        verify(opdsBookService).getBooksPage(TEST_USER_ID, null, null, null, 0, 50);
+    }
+
+    @Test
+    void generateCatalogFeed_shouldShowAudiobookCover() {
+        mockAuthenticatedUser();
+
+        when(request.getParameter("libraryId")).thenReturn(null);
+        when(request.getParameter("shelfId")).thenReturn(null);
+        when(request.getParameter("magicShelfId")).thenReturn(null);
+        when(request.getParameter("q")).thenReturn(null);
+        when(request.getParameter("page")).thenReturn(null);
+        when(request.getParameter("size")).thenReturn(null);
+        when(request.getRequestURI()).thenReturn("/api/v1/opds/catalog");
+        when(request.getQueryString()).thenReturn(null);
+
+        Book book = Book.builder()
+                .id(10L)
+                .primaryFile(BookFile.builder().id(1L).bookType(BookFileType.EPUB).build())
+                .addedOn(FIXED_INSTANT)
+                .metadata(BookMetadata.builder()
+                        .audiobookCoverUpdatedOn(FIXED_INSTANT)
+                        .build())
+                .build();
+
+        Page<Book> page = new PageImpl<>(List.of(book), PageRequest.of(0, 50), 1);
+        when(opdsBookService.getBooksPage(eq(TEST_USER_ID), any(), any(), any(), eq(0), eq(50))).thenReturn(page);
+        when(opdsBookService.applySortOrder(any(), any())).thenReturn(page);
+
+        String xml = opdsFeedService.generateCatalogFeed(request);
+        assertThat(xml).contains("link rel=\"http://opds-spec.org/image\" href=\"/api/v1/opds/10/cover");
+        verify(opdsBookService).getBooksPage(TEST_USER_ID, null, null, null, 0, 50);
+    }
+
+    @Test
     void generateCatalogFeed_shouldHandleEmptyPage() {
         mockAuthenticatedUser();
 

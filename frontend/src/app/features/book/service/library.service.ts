@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {from, lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
@@ -19,11 +19,6 @@ export class LibraryService {
   private authService = inject(AuthService);
   private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
-
-  readonly largeLibraryLoading = signal<{ isLoading: boolean; expectedCount: number }>({
-    isLoading: false,
-    expectedCount: 0
-  });
 
   private librariesQuery = injectQuery(() => ({
     ...this.getLibrariesQueryOptions(),
@@ -139,10 +134,6 @@ export class LibraryService {
     }
     return counts;
   });
-
-  setLargeLibraryLoading(isLoading: boolean, expectedCount: number): void {
-    this.largeLibraryLoading.set({ isLoading, expectedCount });
-  }
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
     return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));

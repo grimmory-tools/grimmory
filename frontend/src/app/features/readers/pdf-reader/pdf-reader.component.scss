@@ -103,20 +103,28 @@ $transition-fast: 150ms ease;
     transform: translateY(-100%);
   }
 
-  .header-left,
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    z-index: 1;
+    flex: 1 1 0%;
+    min-width: max-content;
+  }
+
   .header-right {
     display: flex;
     align-items: center;
     gap: 2px;
     z-index: 1;
-    flex-shrink: 0;
+    flex: 1 1 0%;
+    justify-content: flex-end;
+    min-width: max-content;
   }
 
   .book-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 40%;
+    flex: 0 1 auto;
+    min-width: 0;
     padding: 0 12px;
     text-align: center;
     font-size: 14px;
@@ -555,38 +563,82 @@ $transition-fast: 150ms ease;
   }
 }
 
-.embed-close-btn {
+.embed-header-actions {
   position: fixed;
   top: 0;
   right: 10px;
-  z-index: 11000;
-  color: #fff;
-  width: 38px;
   height: $header-height;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: transparent;
+  gap: 4px;
+  z-index: 11000;
+  pointer-events: auto;
+  color: #fff;
+
+  @media (width <= 1024px) {
+    top: env(safe-area-inset-top);
+    height: calc(#{$header-height} + 4px);
+    right: 8px;
+  }
+}
+
+.embed-action-btn {
+  background: none;
   border: none;
-  border-left: none;
+  color: inherit;
   cursor: pointer;
-  padding: 0;
-  transition: background $transition-fast;
+  padding: 7px;
+  border-radius: 6px;
+  transition: background $transition-fast, color $transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   touch-action: manipulation;
   -webkit-tap-highlight-color: rgb(255 255 255 / 12%);
-  border-radius: 0;
+  width: 32px;
+  height: 32px;
 
   &:hover {
-    background: rgb(255 255 255 / 10%);
+    background: $hover-bg;
   }
 
-  &:active {
-    background: rgb(255 255 255 / 16%);
+  &.close-btn:hover {
+    background: rgb(239 68 68 / 20%);
+    color: #ef4444;
+  }
+
+  &.save-btn:hover {
+    background: rgb(74 144 226 / 20%);
+    color: #4a90e2;
   }
 
   &:disabled {
-    opacity: 0.8;
+    opacity: 0.65;
     cursor: default;
+  }
+}
+
+.pdf-reader-container:not(.dark) {
+  .embed-header-actions {
+    color: rgb(0 0 0 / 87%);
+
+    .embed-action-btn {
+      color: rgb(0 0 0 / 87%);
+
+      &:hover {
+        background: rgb(0 0 0 / 6%);
+      }
+
+      &.close-btn:hover {
+        background: rgb(239 68 68 / 15%);
+        color: #dc2626;
+      }
+
+      &.save-btn:hover {
+        background: rgb(74 144 226 / 15%);
+        color: #1d4ed8;
+      }
+    }
   }
 }
 
@@ -645,11 +697,19 @@ $transition-fast: 150ms ease;
   width: 100%;
   height: 100%;
   display: flex;
+  transition: inset 0.25s ease-out, height 0.25s ease-out;
 
   iframe {
     width: 100%;
     height: 100%;
     border: none;
+  }
+}
+
+.pdf-reader-container.footer-hidden {
+  #embedpdf-viewer {
+    inset: 0;
+    height: 100%;
   }
 }
 
@@ -783,6 +843,14 @@ $transition-fast: 150ms ease;
 
 // Tablet (portrait) switches to mobile toolbar layout
 @media (width <= 1024px) {
+  // When footer is visible on mobile/tablet, it pushes the PDF viewer
+  .pdf-reader-container:not(.footer-hidden) {
+    #embedpdf-viewer {
+      inset: 0 0 $footer-height;
+      height: calc(100% - #{$footer-height});
+    }
+  }
+
   .pdf-header-toolbar {
     height: calc(#{$header-height} + 4px + env(safe-area-inset-top));
     padding: 0 8px;
@@ -793,17 +861,6 @@ $transition-fast: 150ms ease;
     min-width: 46px;
     min-height: 46px;
     border-radius: 8px;
-  }
-
-  .embed-close-btn {
-    top: calc(env(safe-area-inset-top) + 2px);
-    right: 10px;
-    width: 38px;
-    height: $header-height;
-    min-width: 38px;
-    min-height: $header-height;
-    border-radius: 0;
-    border-left: none;
   }
 
   .desktop-actions {

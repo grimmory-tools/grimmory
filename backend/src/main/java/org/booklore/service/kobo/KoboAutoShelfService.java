@@ -3,12 +3,15 @@ package org.booklore.service.kobo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoboUserSettingsEntity;
 import org.booklore.model.entity.ShelfEntity;
+import org.booklore.model.entity.UserPermissionsEntity;
 import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.repository.ShelfRepository;
+import org.booklore.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ public class KoboAutoShelfService {
 
     private final KoboUserSettingsRepository koboUserSettingsRepository;
     private final ShelfRepository shelfRepository;
+    private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final KoboCompatibilityService koboCompatibilityService;
 
@@ -36,7 +40,13 @@ public class KoboAutoShelfService {
         }
 
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId).orElse(null);
+        if (book == null) {
+            log.warn("Book {} not found for Kobo auto-add", bookId);
+            return;
+        }
+
         if (!isBookEligible(book)) {
+            log.debug("Book {} is not eligible for Kobo auto-add", bookId);
             return;
         }
 
@@ -51,6 +61,10 @@ public class KoboAutoShelfService {
                 .map(KoboUserSettingsEntity::getUserId)
                 .toList();
 
+        Map<Long, BookLoreUserEntity> users = userRepository.findAllById(userIds)
+                .stream()
+                .collect(Collectors.toMap(BookLoreUserEntity::getId, u -> u));
+
         List<ShelfEntity> shelves = shelfRepository.findByUserIdInAndName(userIds, ShelfType.KOBO.getName());
 
         Map<Long, ShelfEntity> shelfByUser = shelves
@@ -64,6 +78,11 @@ public class KoboAutoShelfService {
 
             if (shelf == null) {
                 log.debug("User {} has auto-add enabled but no Kobo shelf exists", setting.getUserId());
+                continue;
+            }
+
+            if (!hasBookLibraryAccess(users.get(setting.getUserId()), book)) {
+                log.debug("Book {} is not available for user {}", book.getId(), setting.getUserId());
                 continue;
             }
 
@@ -86,17 +105,22 @@ public class KoboAutoShelfService {
         }
     }
 
+    private boolean hasBookLibraryAccess(BookLoreUserEntity user, BookEntity bookEntity) {
+        if (user == null) {
+            return false;
+        }
+
+        UserPermissionsEntity permissions = user.getPermissions();
+        if (permissions != null && permissions.isPermissionAdmin()) {
+            return true;
+        }
+
+        return user.getLibraries()
+                .stream()
+                .anyMatch(library -> library.equals(bookEntity.getLibrary()));
+    }
+
     private boolean isBookEligible(BookEntity book) {
-        if (book == null) {
-            log.warn("Book not found for Kobo auto-add");
-            return false;
-        }
-
-        if (!koboCompatibilityService.isBookSupportedForKobo(book)) {
-            log.debug("Book {} is not Kobo-compatible, skipping", book.getId());
-            return false;
-        }
-
-        return true;
+        return koboCompatibilityService.isBookSupportedForKobo(book);
     }
 }

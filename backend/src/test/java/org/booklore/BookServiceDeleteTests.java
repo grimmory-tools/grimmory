@@ -1,5 +1,6 @@
 package org.booklore;
 
+import jakarta.persistence.EntityManager;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.BookMapper;
 import org.booklore.repository.*;
@@ -57,10 +58,12 @@ class BookServiceDeleteTests {
         SidecarMetadataWriter sidecarMetadataWriter = Mockito.mock(SidecarMetadataWriter.class);
         FileStreamingService fileStreamingService = Mockito.mock(FileStreamingService.class);
         AuditService auditService = Mockito.mock(AuditService.class);
+        EntityManager entityManager = Mockito.mock(EntityManager.class);
 
         bookService = new BookService(
                 bookRepository,
                 bookFileRepository,
+                entityManager,
                 pdfViewerPreferencesRepository,
                 cbxViewerPreferencesRepository,
                 newPdfViewerPreferencesRepository,

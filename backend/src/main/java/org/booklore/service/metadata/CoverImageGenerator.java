@@ -596,7 +596,7 @@ public class CoverImageGenerator {
     }
 
     private static Color alpha(Color c, int a) {
-        return new Color(c.getRed(), c.getGreen(), c.getBlue(), Math.min(255, Math.max(0, a)));
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), Math.clamp(a, 0, 255));
     }
 
     private static Color darken(Color c, float f) {

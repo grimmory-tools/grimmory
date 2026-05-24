@@ -290,7 +290,7 @@ public class EpubCfiService {
     }
 
     private Float clampPercent(float percent) {
-        return Math.max(0f, Math.min(percent, 100f));
+        return Math.clamp(percent, 0f, 100f);
     }
 
     public record CfiLocation(String href, Float contentSourceProgressPercent) {

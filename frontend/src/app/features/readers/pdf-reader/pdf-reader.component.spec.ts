@@ -1,14 +1,92 @@
-import {describe, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-// NOTE(frontend-seam): Real coverage here needs seams around ngx-extended-pdf-viewer,
-// reader-session lifecycle, route-driven book loading, and annotation persistence so the
-// component can be tested without booting the full PDF runtime and browser document hooks.
-describe.skip('PdfReaderComponent', () => {
-  it('needs a viewer-runtime seam to verify page, zoom, spread, and annotation flows deterministically', () => {
-    // TODO(seam): Cover load, navigation, and annotation persistence after wrapping the PDF viewer and reader-session integrations.
+import {PdfReaderComponent} from './pdf-reader.component';
+
+interface PdfReaderHarness {
+  embedPdfIframe: {contentWindow: {postMessage: ReturnType<typeof vi.fn>}} | null;
+  embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
+  cachedPdfBuffer: ArrayBuffer | null;
+  pdfBlobUrl: string | null;
+  authService: {getInternalAccessToken: () => string | null};
+  cacheStorageService: {delete: ReturnType<typeof vi.fn>};
+  bookId: number;
+  saveEmbedPdfDocument: () => Promise<boolean>;
+}
+
+function bytes(buffer: ArrayBuffer): number[] {
+  return Array.from(new Uint8Array(buffer));
+}
+
+function makeComponent(savedBuffer: ArrayBuffer): PdfReaderHarness {
+  const component = Object.create(PdfReaderComponent.prototype) as PdfReaderHarness;
+  component.embedPdfIframe = {
+    contentWindow: {
+      postMessage: vi.fn(() => {
+        setTimeout(() => component.embedPdfSaveResolve?.(savedBuffer.slice(0)));
+      })
+    }
+  };
+  component.cachedPdfBuffer = new Uint8Array([9, 9, 9]).buffer;
+  component.pdfBlobUrl = 'blob:old-pdf';
+  component.authService = {getInternalAccessToken: () => null};
+  component.cacheStorageService = {delete: vi.fn(() => Promise.resolve(true))};
+  component.bookId = 123;
+  return component;
+}
+
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+describe('PdfReaderComponent save handling', () => {
+  it('shares one iframe export and upload across concurrent saves', async () => {
+    const savedBuffer = new Uint8Array([1, 2, 3]).buffer;
+    const component = makeComponent(savedBuffer);
+    const fetchMock = vi.fn(() => Promise.resolve({ok: true} as Response));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:saved-pdf');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+
+    const firstSave = component.saveEmbedPdfDocument();
+    const secondSave = component.saveEmbedPdfDocument();
+    vi.advanceTimersByTime(0);
+
+    await expect(Promise.all([firstSave, secondSave])).resolves.toEqual([true, true]);
+    expect(component.embedPdfIframe?.contentWindow.postMessage).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(component.cacheStorageService.delete).toHaveBeenCalledTimes(1);
   });
 
-  it('needs a route-and-session seam to verify startup and teardown side effects without real browser navigation', () => {
-    // TODO(seam): Cover session start/end and progress persistence once route/book-detail dependencies are injectable test adapters.
+  it('refreshes local PDF bytes and evicts the shared cache after upload succeeds', async () => {
+    const savedBuffer = new Uint8Array([4, 5, 6]).buffer;
+    const component = makeComponent(savedBuffer);
+    const fetchMock = vi.fn(() => Promise.resolve({ok: true} as Response));
+    const createObjectUrl = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:saved-pdf');
+    const revokeObjectUrl = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const save = component.saveEmbedPdfDocument();
+    vi.advanceTimersByTime(0);
+
+    await expect(save).resolves.toBe(true);
+
+    expect(bytes(component.cachedPdfBuffer!)).toEqual([4, 5, 6]);
+    expect(component.cachedPdfBuffer).not.toBe(savedBuffer);
+    expect(revokeObjectUrl).toHaveBeenCalledWith('blob:old-pdf');
+    expect(createObjectUrl).toHaveBeenCalledTimes(1);
+    expect(component.pdfBlobUrl).toBe('blob:saved-pdf');
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/books/123/content'),
+      expect.objectContaining({body: expect.any(ArrayBuffer)})
+    );
+    expect(component.cacheStorageService.delete).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/books/123/content')
+    );
   });
 });

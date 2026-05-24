@@ -67,6 +67,16 @@ public class OpdsController {
     public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId) {
         opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());
         Resource coverImage = bookService.getBookThumbnail(bookId);
+
+        if (coverImage == null) {
+            // Fall back to audiobook if possible
+            coverImage = bookService.getAudiobookCover(bookId);
+        }
+
+        if (coverImage == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         String contentType = "image/jpeg";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
