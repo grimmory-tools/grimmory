@@ -53,7 +53,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
-    private static final int COUNT_DETAILED_METADATA_TO_GET_RETRY = 2;
     private static final Pattern BOOK_SHOW_ID_PATTERN = Pattern.compile("/book/show/(\\d+)");
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
@@ -167,35 +166,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                         throw e;
                     } catch (Exception e) {
                         log.error("Error fetching metadata for book: {}", goodreadsId, e);
-                    }
-                }
-
-                if (fetchMetadataRequest.getTitle() != null && !fetchMetadataRequest.getTitle().isBlank()
-                        && fetchMetadataRequest.getAuthor() != null && !fetchMetadataRequest.getAuthor().isBlank()
-                        && searchResultIds.isEmpty()) {
-
-                    log.info("GoodReads: No hits for Title + Author search, retrying with Title only: {}", fetchMetadataRequest.getTitle());
-                    FetchMetadataRequest titleOnlyRequest = FetchMetadataRequest.builder()
-                            .title(fetchMetadataRequest.getTitle())
-                            .build();
-
-                    List<String> titleOnlyGoodreadsIds = fetchSearchResults(book, titleOnlyRequest).stream()
-                            .limit(COUNT_DETAILED_METADATA_TO_GET_RETRY)
-                            .toList();
-
-                    for (String goodreadsId : titleOnlyGoodreadsIds) {
-                        if (sink.isCancelled()) return;
-                        log.info("GoodReads: Fetching metadata (Title only hit) for: {}", goodreadsId);
-                        try {
-                            Document document = fetchDoc(BASE_BOOK_URL + goodreadsId);
-                            BookMetadata detailedMetadata = parseBookDetails(document, goodreadsId);
-                            if (detailedMetadata != null) {
-                                sink.next(detailedMetadata);
-                            }
-                            Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1501));
-                        } catch (Exception e) {
-                            log.error("Error fetching metadata for book (Title only retry): {}", goodreadsId, e);
-                        }
                     }
                 }
 
@@ -543,9 +513,8 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private String getSearchTerm(Book book, FetchMetadataRequest request) {
         if (request.getTitle() != null && !request.getTitle().isEmpty()) {
-            if (request.getAuthor() != null && !request.getAuthor().isEmpty()) {
-                return request.getTitle() + " " + request.getAuthor();
-            }
+            // We used to include the author name, but with the new autocomplete
+            // endpoint it leads to less reliable results.
             return request.getTitle();
         }
         return (book.getPrimaryFile() != null && book.getPrimaryFile().getFileName() != null && !book.getPrimaryFile().getFileName().isEmpty()
@@ -644,7 +613,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private Document fetchDoc(String url) {
         try {
-            Connection.Response response = Jsoup.connect(url)
+            return Jsoup.connect(url)
                     .header("accept", "text/html, application/json")
                     .header("accept-language", "en-US,en;q=0.9")
                     .header("content-type", "application/json")
@@ -669,8 +638,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     .header("x-amz-amabot-click-attributes", "disable")
                     .header("x-requested-with", "XMLHttpRequest")
                     .method(Connection.Method.GET)
-                    .execute();
-            return response.parse();
+                    .get();
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);
