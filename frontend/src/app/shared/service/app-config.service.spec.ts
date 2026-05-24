@@ -35,6 +35,15 @@ function createThemeComputedStyle(): CSSStyleDeclaration {
   } as CSSStyleDeclaration;
 }
 
+function createMatchMediaMock(matches: boolean) {
+  return vi.fn().mockImplementation((query: string) => ({
+    matches,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }) as unknown as MediaQueryList);
+}
+
 describe('AppConfigService', () => {
   let service: AppConfigService;
   let localStorageMock: ReturnType<typeof createLocalStorageMock>;
@@ -48,6 +57,10 @@ describe('AppConfigService', () => {
       updateFavicon: vi.fn(),
     };
     vi.stubGlobal('localStorage', localStorageMock);
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: createMatchMediaMock(false),
+    });
     rootStyle.cssText = '';
     const computedStyle = createThemeComputedStyle();
     vi.spyOn(globalThis, 'getComputedStyle').mockReturnValue(computedStyle);
@@ -75,10 +88,15 @@ describe('AppConfigService', () => {
     vi.unstubAllGlobals();
   });
 
-  it('applies the default curated theme and dark color scheme on init', () => {
+  it('applies the default curated theme and system appearance on init', () => {
+    expect(service.appState()).toEqual({
+      themePreference: 'grimmory',
+      appearancePreference: 'system',
+      customPrimary: 'orange',
+    });
     expect(root.dataset['appTheme']).toBe('grimmory');
-    expect(root.classList.contains('dark')).toBe(true);
-    expect(rootStyle.getPropertyValue('color-scheme')).toBe('dark');
+    expect(root.classList.contains('dark')).toBe(false);
+    expect(rootStyle.getPropertyValue('color-scheme')).toBe('light');
     expect(rootStyle.getPropertyValue('--primary-300')).toBe('');
     expect(rootStyle.getPropertyValue('--color-app')).toBe('');
     expect(rootStyle.getPropertyValue('--color-card')).toBe('');
@@ -90,11 +108,10 @@ describe('AppConfigService', () => {
 
   it('updates the root theme attributes without writing palette tokens inline', () => {
     service.appState.set({
-      preset: 'Aura',
-      theme: 'grimmory',
-      colorScheme: 'light',
+      themePreference: 'grimmory',
+      appearancePreference: 'light',
     });
-    service.onPresetChange();
+    service.applyCurrentTheme();
 
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);
@@ -108,7 +125,7 @@ describe('AppConfigService', () => {
     );
   });
 
-  it('falls back to the default theme for legacy saved palette state', () => {
+  it('resets legacy saved palette state to the default theme and dark appearance', () => {
     localStorageMock.setItem('appConfigState', JSON.stringify({
       preset: 'Aura',
       primary: 'blue',
@@ -127,12 +144,11 @@ describe('AppConfigService', () => {
     service = TestBed.inject(AppConfigService);
 
     expect(service.appState()).toEqual({
-      preset: 'Aura',
-      theme: 'grimmory',
-      colorScheme: 'light',
+      themePreference: 'grimmory',
+      appearancePreference: 'dark',
       customPrimary: 'orange',
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
-    expect(root.classList.contains('dark')).toBe(false);
+    expect(root.classList.contains('dark')).toBe(true);
   });
 });

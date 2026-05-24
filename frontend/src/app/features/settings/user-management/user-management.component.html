@@ -61,7 +61,7 @@
                     <div class="user-name-row">
                       <span class="username">{{ user.username }}</span>
                       <span
-                        class="user-type-badge data-[type=LOCAL]:bg-blue-500/15 data-[type=LOCAL]:border-blue-500 data-[type=LOCAL]:text-blue-700 dark:data-[type=LOCAL]:text-blue-300 data-[type=OIDC]:bg-violet-500/15 data-[type=OIDC]:border-violet-500 data-[type=OIDC]:text-violet-700 dark:data-[type=OIDC]:text-violet-300 data-[type=REMOTE]:bg-teal-500/15 data-[type=REMOTE]:border-teal-500 data-[type=REMOTE]:text-teal-700 dark:data-[type=REMOTE]:text-teal-300"
+                        class="user-type-badge"
                         [attr.data-type]="user.provisioningMethod || 'LOCAL'">
                         {{ (user.provisioningMethod || 'LOCAL') | lowercase | titlecase }}
                       </span>
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="user-summary">
-                  <div class="permission-badges [&_[data-level=none]]:bg-gray-500/15 [&_[data-level=none]]:border-gray-500 [&_[data-level=none]]:text-gray-700 dark:[&_[data-level=none]]:text-gray-300 [&_[data-level=low]]:bg-red-500/15 [&_[data-level=low]]:border-red-500 [&_[data-level=low]]:text-red-700 dark:[&_[data-level=low]]:text-red-300 [&_[data-level=medium]]:bg-amber-500/15 [&_[data-level=medium]]:border-amber-500 [&_[data-level=medium]]:text-amber-700 dark:[&_[data-level=medium]]:text-amber-300 [&_[data-level=high]]:bg-emerald-500/15 [&_[data-level=high]]:border-emerald-500 [&_[data-level=high]]:text-emerald-700 dark:[&_[data-level=high]]:text-emerald-300">
+                  <div class="permission-badges">
                     <div class="permission-badge" [attr.data-level]="getPermissionLevel(getBookManagementPermissionsCount(user), 5)"
                          [pTooltip]="t('permBadges.bookMgmt', { count: getBookManagementPermissionsCount(user) })">
                       <i class="pi pi-book"></i>

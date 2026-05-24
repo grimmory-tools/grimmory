@@ -5,7 +5,7 @@ import { FaviconService } from '../layout/theme-configurator/favicon-service';
 import Aura from '../layout/theme-palette-extend';
 import {
   APP_THEME_OPTIONS,
-  AppColorScheme,
+  AppearancePreference,
   AppState,
   AppTheme,
   CUSTOM_PRIMARY_OPTIONS,
@@ -17,7 +17,14 @@ import {
 type ColorPalette = Record<string, string>;
 
 const COLOR_STOPS = ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
-const DEFAULT_COLOR_SCHEME: AppColorScheme = 'dark';
+const DEFAULT_APPEARANCE_PREFERENCE: AppearancePreference = 'system';
+const LEGACY_APPEARANCE_PREFERENCE: AppearancePreference = 'dark';
+
+type StoredAppState = Partial<AppState> & {
+  preset?: unknown;
+  primary?: unknown;
+  surface?: unknown;
+};
 
 interface ResolvedThemePalettes {
   primary: ColorPalette;
@@ -41,7 +48,8 @@ export class AppConfigService {
     this.appState.set(initialState);
 
     if (isPlatformBrowser(this.platformId)) {
-      this.onPresetChange();
+      this.saveAppState(initialState);
+      this.applyCurrentTheme();
     } else {
       this.applyThemeAttributes(initialState);
     }
@@ -53,7 +61,7 @@ export class AppConfigService {
         return;
       }
       this.saveAppState(state);
-      this.onPresetChange();
+      this.applyCurrentTheme();
     });
   }
 
@@ -61,18 +69,41 @@ export class AppConfigService {
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
-        return this.withDefaults(JSON.parse(storedState) as AppState);
+        try {
+          return this.normalizeStoredState(JSON.parse(storedState) as StoredAppState);
+        } catch {
+          return this.withDefaults({});
+        }
       }
     }
 
     return this.withDefaults({});
   }
 
+  private normalizeStoredState(state: StoredAppState): AppState {
+    if (this.isLegacyPaletteState(state)) {
+      return this.withDefaults({
+        themePreference: DEFAULT_APP_THEME,
+        appearancePreference: LEGACY_APPEARANCE_PREFERENCE,
+        customPrimary: DEFAULT_CUSTOM_PRIMARY,
+      });
+    }
+
+    return this.withDefaults({
+      themePreference: state.themePreference,
+      appearancePreference: state.appearancePreference,
+      customPrimary: state.customPrimary,
+    });
+  }
+
+  private isLegacyPaletteState(state: StoredAppState): boolean {
+    return 'preset' in state || 'primary' in state || 'surface' in state;
+  }
+
   private withDefaults(state: AppState): AppState {
     return {
-      preset: state.preset ?? 'Aura',
-      theme: this.resolveTheme(state.theme),
-      colorScheme: this.resolveColorScheme(state.colorScheme),
+      themePreference: this.resolveThemePreference(state.themePreference),
+      appearancePreference: this.resolveAppearancePreference(state.appearancePreference),
       customPrimary: this.resolveCustomPrimary(state.customPrimary),
     };
   }
@@ -84,26 +115,26 @@ export class AppConfigService {
     return DEFAULT_CUSTOM_PRIMARY;
   }
 
-  private resolveTheme(theme: AppState['theme']): AppTheme {
-    if (theme && this.themes.some((option) => option.name === theme)) {
-      return theme;
+  private resolveThemePreference(themePreference: AppState['themePreference']): AppTheme {
+    if (themePreference && this.themes.some((option) => option.name === themePreference)) {
+      return themePreference;
     }
 
     return DEFAULT_APP_THEME;
   }
 
-  private resolveColorScheme(colorScheme: AppState['colorScheme']): AppColorScheme {
-    if (colorScheme === 'light' || colorScheme === 'dark' || colorScheme === 'system') {
-      return colorScheme;
+  private resolveAppearancePreference(appearancePreference: AppState['appearancePreference']): AppearancePreference {
+    if (appearancePreference === 'light' || appearancePreference === 'dark' || appearancePreference === 'system') {
+      return appearancePreference;
     }
-    return DEFAULT_COLOR_SCHEME;
+    return DEFAULT_APPEARANCE_PREFERENCE;
   }
 
-  private effectiveColorScheme(colorScheme: AppColorScheme): 'light' | 'dark' {
-    if (colorScheme !== 'system') {
-      return colorScheme;
+  private effectiveAppearancePreference(appearancePreference: AppearancePreference): 'light' | 'dark' {
+    if (appearancePreference !== 'system') {
+      return appearancePreference;
     }
-    if (isPlatformBrowser(this.platformId) && globalThis.window.matchMedia) {
+    if (isPlatformBrowser(this.platformId) && globalThis.window?.matchMedia) {
       return globalThis.window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'dark';
@@ -115,7 +146,7 @@ export class AppConfigService {
     }
   }
 
-  onPresetChange(): void {
+  applyCurrentTheme(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -130,19 +161,19 @@ export class AppConfigService {
 
   private applyThemeAttributes(state: AppState): void {
     const root = this.document.documentElement;
-    const theme = this.resolveTheme(state.theme);
-    const colorScheme = this.resolveColorScheme(state.colorScheme);
-    const effective = this.effectiveColorScheme(colorScheme);
+    const theme = this.resolveThemePreference(state.themePreference);
+    const appearancePreference = this.resolveAppearancePreference(state.appearancePreference);
+    const effective = this.effectiveAppearancePreference(appearancePreference);
 
     root.dataset['appTheme'] = theme;
     root.classList.toggle('dark', effective === 'dark');
     root.style.setProperty('color-scheme', effective);
     this.applyCustomPrimary(root, theme, this.resolveCustomPrimary(state.customPrimary));
-    this.syncSystemSchemeListener(colorScheme);
+    this.syncSystemSchemeListener(appearancePreference);
   }
 
   private applyCustomPrimary(root: HTMLElement, theme: AppTheme, customPrimary: CustomPrimary): void {
-    const stops = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+    const stops = COLOR_STOPS.filter((stop) => stop !== '0');
     if (theme === 'custom') {
       stops.forEach((stop) => {
         root.style.setProperty(`--color-primary-${stop}`, `var(--color-${customPrimary}-${stop})`);
@@ -155,14 +186,14 @@ export class AppConfigService {
   private systemSchemeMedia: MediaQueryList | null = null;
   private systemSchemeListener: ((event: MediaQueryListEvent) => void) | null = null;
 
-  private syncSystemSchemeListener(colorScheme: AppColorScheme): void {
-    if (!isPlatformBrowser(this.platformId) || !globalThis.window.matchMedia) {
+  private syncSystemSchemeListener(appearancePreference: AppearancePreference): void {
+    if (!isPlatformBrowser(this.platformId) || !globalThis.window?.matchMedia) {
       return;
     }
-    if (colorScheme === 'system') {
+    if (appearancePreference === 'system') {
       if (!this.systemSchemeMedia) {
         this.systemSchemeMedia = globalThis.window.matchMedia('(prefers-color-scheme: dark)');
-        this.systemSchemeListener = () => this.onPresetChange();
+        this.systemSchemeListener = () => this.applyCurrentTheme();
         this.systemSchemeMedia.addEventListener('change', this.systemSchemeListener);
       }
     } else if (this.systemSchemeMedia && this.systemSchemeListener) {

@@ -206,6 +206,24 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.025em;
+
+  &[data-type='LOCAL'] {
+    background: color-mix(in srgb, var(--color-blue-500) 15%, transparent);
+    border-color: var(--color-blue-500);
+    color: var(--color-blue-700);
+  }
+
+  &[data-type='OIDC'] {
+    background: color-mix(in srgb, var(--color-violet-500) 15%, transparent);
+    border-color: var(--color-violet-500);
+    color: var(--color-violet-700);
+  }
+
+  &[data-type='REMOTE'] {
+    background: color-mix(in srgb, var(--color-teal-500) 15%, transparent);
+    border-color: var(--color-teal-500);
+    color: var(--color-teal-700);
+  }
 }
 
 .admin-badge {
@@ -270,6 +288,63 @@
     font-size: 0.75rem;
   }
 
+  &[data-level='none'] {
+    background: color-mix(in srgb, var(--color-gray-500) 15%, transparent);
+    border-color: var(--color-gray-500);
+    color: var(--color-gray-700);
+  }
+
+  &[data-level='low'] {
+    background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
+    border-color: var(--color-red-500);
+    color: var(--color-red-700);
+  }
+
+  &[data-level='medium'] {
+    background: color-mix(in srgb, var(--color-amber-500) 15%, transparent);
+    border-color: var(--color-amber-500);
+    color: var(--color-amber-700);
+  }
+
+  &[data-level='high'] {
+    background: color-mix(in srgb, var(--color-emerald-500) 15%, transparent);
+    border-color: var(--color-emerald-500);
+    color: var(--color-emerald-700);
+  }
+}
+
+:host-context(.dark) {
+  .user-type-badge {
+    &[data-type='LOCAL'] {
+      color: var(--color-blue-300);
+    }
+
+    &[data-type='OIDC'] {
+      color: var(--color-violet-300);
+    }
+
+    &[data-type='REMOTE'] {
+      color: var(--color-teal-300);
+    }
+  }
+
+  .permission-badge {
+    &[data-level='none'] {
+      color: var(--color-gray-300);
+    }
+
+    &[data-level='low'] {
+      color: var(--color-red-300);
+    }
+
+    &[data-level='medium'] {
+      color: var(--color-amber-300);
+    }
+
+    &[data-level='high'] {
+      color: var(--color-emerald-300);
+    }
+  }
 }
 
 .section-separator {

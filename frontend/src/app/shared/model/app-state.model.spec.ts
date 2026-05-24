@@ -3,21 +3,18 @@ import {describe, expect, expectTypeOf, it} from 'vitest';
 import {APP_THEME_OPTIONS, AppState, DEFAULT_APP_THEME} from './app-state.model';
 
 describe('app-state.model', () => {
-  it('supports partially specified visual state presets', () => {
+  it('supports partially specified visual theme state', () => {
     const appState: AppState = {
-      preset: 'midnight',
-      theme: DEFAULT_APP_THEME,
-      colorScheme: 'dark',
+      themePreference: DEFAULT_APP_THEME,
+      appearancePreference: 'system',
     };
 
-    expect(appState.preset).toBe('midnight');
-    expect(appState.theme).toBe('grimmory');
-    expect(appState.colorScheme).toBe('dark');
+    expect(appState.themePreference).toBe('grimmory');
+    expect(appState.appearancePreference).toBe('system');
   });
 
   it('keeps each field optional and constrained to supported values', () => {
-    expectTypeOf<AppState['preset']>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<AppState['theme']>().toEqualTypeOf<
+    expectTypeOf<AppState['themePreference']>().toEqualTypeOf<
       | 'grimmory'
       | 'cobalt'
       | 'ember'
@@ -33,7 +30,7 @@ describe('app-state.model', () => {
       | 'custom'
       | undefined
     >();
-    expectTypeOf<AppState['colorScheme']>().toEqualTypeOf<'light' | 'dark' | 'system' | undefined>();
+    expectTypeOf<AppState['appearancePreference']>().toEqualTypeOf<'light' | 'dark' | 'system' | undefined>();
     expectTypeOf<AppState['customPrimary']>().toEqualTypeOf<
       | 'red'
       | 'orange'

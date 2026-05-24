@@ -33,8 +33,8 @@
         <p-select
           inputId="app-appearance"
           [options]="appearanceOptions()"
-          [ngModel]="selectedColorScheme()"
-          (ngModelChange)="updateColorScheme($event)"
+          [ngModel]="selectedAppearancePreference()"
+          (ngModelChange)="updateAppearancePreference($event)"
           optionLabel="label"
           optionValue="value"
           appendTo="body"
@@ -47,8 +47,8 @@
         <p-select
           inputId="app-theme"
           [options]="themeOptions"
-          [ngModel]="selectedTheme()"
-          (ngModelChange)="updateTheme($event)"
+          [ngModel]="selectedThemePreference()"
+          (ngModelChange)="updateThemePreference($event)"
           optionLabel="label"
           optionValue="value"
           appendTo="body"
@@ -72,11 +72,11 @@
         </p-select>
       </div>
 
-      @if (selectedTheme() === 'custom') {
+      @if (selectedThemePreference() === 'custom') {
         <fieldset class="form-field">
           <legend class="field-label">{{ 'layout.theme.customPrimary' | transloco }}</legend>
-          <div class="rounded-md p-3 bg-card shadow-[inset_0_0_0_1px_var(--color-border)]">
-            <div class="flex flex-wrap gap-2">
+          <div class="custom-primary-card">
+            <div class="custom-primary-options">
               @for (palette of customPrimaryOptions; track palette) {
                 <button
                   type="button"

@@ -1,4 +1,4 @@
-export type AppColorScheme = 'light' | 'dark' | 'system';
+export type AppearancePreference = 'light' | 'dark' | 'system';
 
 export const DEFAULT_APP_THEME = 'grimmory';
 
@@ -81,14 +81,8 @@ export type CustomPrimary = (typeof CUSTOM_PRIMARY_OPTIONS)[number];
 
 export const DEFAULT_CUSTOM_PRIMARY: CustomPrimary = 'orange';
 
-export interface AppThemeOption {
-  name: AppTheme;
-  label: string;
-}
-
 export interface AppState {
-  preset?: string;
-  theme?: AppTheme;
-  colorScheme?: AppColorScheme;
+  themePreference?: AppTheme;
+  appearancePreference?: AppearancePreference;
   customPrimary?: CustomPrimary;
 }

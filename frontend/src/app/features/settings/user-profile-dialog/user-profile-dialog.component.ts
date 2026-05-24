@@ -12,7 +12,7 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../core/config/transloco-loader';
 import {LANG_STORAGE_KEY} from '../../../core/config/language-initializer';
 import {AppConfigService} from '../../../shared/service/app-config.service';
-import {AppColorScheme, AppTheme, CUSTOM_PRIMARY_OPTIONS, CustomPrimary, DEFAULT_CUSTOM_PRIMARY} from '../../../shared/model/app-state.model';
+import {AppearancePreference, AppTheme, CUSTOM_PRIMARY_OPTIONS, CustomPrimary, DEFAULT_CUSTOM_PRIMARY} from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -59,8 +59,8 @@ export class UserProfileDialogComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  protected readonly selectedTheme = computed(() => this.configService.appState().theme ?? 'grimmory');
-  protected readonly selectedColorScheme = computed(() => this.configService.appState().colorScheme ?? 'dark');
+  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? 'grimmory');
+  protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference ?? 'system');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
     () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
@@ -73,9 +73,9 @@ export class UserProfileDialogComponent {
   protected readonly appearanceOptions = computed(() => {
     this.activeLang();
     return [
-      {value: 'light' as AppColorScheme, label: this.t.translate('layout.theme.light')},
-      {value: 'dark' as AppColorScheme, label: this.t.translate('layout.theme.dark')},
-      {value: 'system' as AppColorScheme, label: this.t.translate('layout.theme.system')},
+      {value: 'light' as AppearancePreference, label: this.t.translate('layout.theme.light')},
+      {value: 'dark' as AppearancePreference, label: this.t.translate('layout.theme.dark')},
+      {value: 'system' as AppearancePreference, label: this.t.translate('layout.theme.system')},
     ];
   });
 
@@ -125,10 +125,10 @@ export class UserProfileDialogComponent {
     });
   }
 
-  updateTheme(theme: AppTheme): void {
+  updateThemePreference(themePreference: AppTheme): void {
     this.configService.appState.update((state) => ({
       ...state,
-      theme,
+      themePreference,
     }));
   }
 
@@ -139,10 +139,10 @@ export class UserProfileDialogComponent {
     }));
   }
 
-  updateColorScheme(colorScheme: AppColorScheme): void {
+  updateAppearancePreference(appearancePreference: AppearancePreference): void {
     this.configService.appState.update((state) => ({
       ...state,
-      colorScheme,
+      appearancePreference,
     }));
   }
 
