@@ -53,12 +53,16 @@
                 <i class="pi pi-history"></i> {{ t('auditLogs') }}
               </p-tab>
             }
-            <p-tab [value]="SettingsTab.OpdsV2">
-              <i class="pi pi-globe"></i> {{ t('opds') }}
-            </p-tab>
-            <p-tab [value]="SettingsTab.DeviceSettings">
-              <i class="pi pi-mobile"></i> {{ t('devices') }}
-            </p-tab>
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessOpds) {
+              <p-tab [value]="SettingsTab.OpdsV2">
+                <i class="pi pi-globe"></i> {{ t('opds') }}
+              </p-tab>
+            }
+            @if (currentUser.permissions.admin || currentUser.permissions.canSyncKoReader || currentUser.permissions.canSyncKobo) {
+              <p-tab [value]="SettingsTab.DeviceSettings">
+                <i class="pi pi-mobile"></i> {{ t('devices') }}
+              </p-tab>
+            }
           </p-tablist>
           <p-tabpanels>
             <!-- [GROUP: Lazy Tabs] -->
@@ -140,17 +144,21 @@
               </p-tabpanel>
             }
 
-            <p-tabpanel [value]="SettingsTab.OpdsV2">
-              @if (visitedTabs().has(SettingsTab.OpdsV2)) {
-                <app-opds-settings></app-opds-settings>
-              }
-            </p-tabpanel>
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessOpds) {
+              <p-tabpanel [value]="SettingsTab.OpdsV2">
+                @if (visitedTabs().has(SettingsTab.OpdsV2)) {
+                  <app-opds-settings></app-opds-settings>
+                }
+              </p-tabpanel>
+            }
 
-            <p-tabpanel [value]="SettingsTab.DeviceSettings">
-              @if (visitedTabs().has(SettingsTab.DeviceSettings)) {
-                <app-device-settings-component></app-device-settings-component>
-              }
-            </p-tabpanel>
+            @if (currentUser.permissions.admin || currentUser.permissions.canSyncKoReader || currentUser.permissions.canSyncKobo) {
+              <p-tabpanel [value]="SettingsTab.DeviceSettings">
+                @if (visitedTabs().has(SettingsTab.DeviceSettings)) {
+                  <app-device-settings-component></app-device-settings-component>
+                }
+              </p-tabpanel>
+            }
           </p-tabpanels>
         </p-tabs>
       </div>
