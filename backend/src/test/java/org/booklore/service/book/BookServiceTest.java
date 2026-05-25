@@ -21,6 +21,7 @@ import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -391,7 +392,15 @@ class BookServiceTest {
 
         bookService.deleteBooks(Set.of(11L)).getBody();
 
-        verify(entityManager).clear();
+        InOrder order = inOrder(entityManager, bookRepository);
+
+        // The order of the calls is important - we MUST flush, then clear, and
+        // only then can we delete.  If we change the order then we end up with errors.
+        order.verify(entityManager).flush();
+        order.verify(entityManager).clear();
+        order.verify(bookRepository).deleteAllInBatch(anyList());
+
+        order.verifyNoMoreInteractions();
     }
 
     @Test

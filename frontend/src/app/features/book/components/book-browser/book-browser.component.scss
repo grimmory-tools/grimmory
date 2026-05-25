@@ -2,7 +2,7 @@
 .book-browser-container {
   position: relative;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   min-width: 0;
   width: 100%;
   height: 100%;
@@ -12,16 +12,25 @@
 .book-browser-main {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
-  width: auto;
+  width: 100%;
+  min-height: 0;
+}
+
+.book-browser-body {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: row;
+  min-width: 0;
   min-height: 0;
 }
 
 .book-browser-content {
   position: relative;
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
@@ -35,6 +44,7 @@
   gap: 0.25rem;
   padding: 0.35rem;
   margin-right: 2px;
+  flex-shrink: 0;
   background-color: var(--card-background);
   border-bottom: 1px solid var(--p-content-border-color);
 
@@ -464,16 +474,18 @@
 }
 
 .filter-overlay-container {
+  --book-filter-sidebar-width: 225px;
+
   flex-shrink: 0;
   z-index: 50;
 
   @media (width <= 991px) {
-    width: var(--sidebar-width, 225px);
-    position: fixed;
-    top: 3.85rem;
+    width: var(--book-filter-sidebar-width);
+    position: absolute;
+    top: 0;
     right: 0;
     bottom: 0;
-    height: calc(100% - 3.85rem);
+    height: 100%;
     background-color: var(--card-background);
     box-shadow: -2px 0 10px rgb(0 0 0 / 15%);
     transform: translateX(100%);
@@ -499,10 +511,10 @@
     }
 
     &.active {
-      width: var(--sidebar-width, 225px);
+      width: var(--book-filter-sidebar-width);
       opacity: 1;
       pointer-events: auto;
-      margin-left: 1rem;
+      margin-left: 0;
     }
   }
 }

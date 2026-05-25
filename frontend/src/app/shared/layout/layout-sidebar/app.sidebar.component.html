@@ -107,6 +107,19 @@
       </span>
     </button>
 
+    <a
+      class="sidebar-icon-button sidebar-mobile-landscape-action"
+      [class.active-route]="isSettingsActive()"
+      [attr.aria-current]="isSettingsActive() ? 'page' : null"
+      [routerLink]="['/settings']"
+      [attr.aria-label]="t('settings')"
+      [pTooltip]="t('settings')"
+      [tooltipDisabled]="!layoutService.isDesktop()"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-cog" aria-hidden="true"></i>
+    </a>
+
     @if (currentUser(); as user) {
       <button
         type="button"
@@ -208,6 +221,20 @@
         </span>
         <span class="sidebar-footer-action-label">{{ t('notifications') }}</span>
       </button>
+
+      <a
+        class="sidebar-action-link sidebar-footer-action"
+        [class.active-route]="isSettingsActive()"
+        [attr.aria-current]="isSettingsActive() ? 'page' : null"
+        [routerLink]="['/settings']"
+        [attr.aria-label]="t('settings')"
+        [pTooltip]="t('settings')"
+        [tooltipDisabled]="!layoutService.isDesktop()"
+        tooltipPosition="top"
+      >
+        <i class="pi pi-cog" aria-hidden="true"></i>
+        <span class="sidebar-footer-action-label">{{ t('settings') }}</span>
+      </a>
 
     </div>
     @if (currentUser(); as user) {
@@ -344,17 +371,8 @@
               </button>
             </div>
 
-            <div class="user-account-popover-header-actions">
-              <button
-                appButton
-                type="button"
-                (click)="openSettings()"
-              >
-                <i class="pi pi-cog" aria-hidden="true"></i>
-                <span>{{ t('settings') }}</span>
-              </button>
-
-              @if (updateAvailable()) {
+            @if (updateAvailable()) {
+              <div class="user-account-popover-header-actions">
                 <button
                   appButton
                   variant="primary"
@@ -364,8 +382,8 @@
                   <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
                   <span>{{ t('updateAvailable') }}</span>
                 </button>
-              }
-            </div>
+              </div>
+            }
           </header>
 
           <div class="user-account-popover-body">
