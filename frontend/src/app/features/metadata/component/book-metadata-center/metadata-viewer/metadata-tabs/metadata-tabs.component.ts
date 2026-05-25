@@ -9,13 +9,12 @@ import {BookNotesComponent} from '../../../../../book/components/book-notes/book
 import {BookReadingSessionsComponent} from '../../book-reading-sessions/book-reading-sessions.component';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
-import {Image} from 'primeng/image';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../../shared/components/cover-generator/cover-generator.component';
 import {BookMetadataManageService} from '../../../../../book/service/book-metadata-manage.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AudiobookService} from '../../../../../readers/audiobook-player/audiobook.service';
 import {AudiobookInfo} from '../../../../../readers/audiobook-player/audiobook.model';
+import {CoverComponent} from '../../../../../../shared/components/cover/cover.component';
 
 export interface ReadEvent {
   bookId: number;
@@ -73,9 +72,8 @@ export interface DetachBookFileEvent {
     Button,
     Tooltip,
     UpperCasePipe,
-    Image,
     TranslocoDirective,
-    CoverPlaceholderComponent
+    CoverComponent
   ],
   templateUrl: './metadata-tabs.component.html',
   styleUrl: './metadata-tabs.component.scss'

@@ -160,10 +160,13 @@
               (click)="onBookClick(metadata)"
               (keydown.enter)="onBookClick(metadata)">
               <div class="card-image">
-                <img
-                  [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'"
-                  [alt]="metadata.title"
-                  loading="lazy"/>
+                <app-cover
+                  [src]="metadata.thumbnailUrl"
+                  [title]="metadata.title"
+                  [authors]="metadata.authors"
+                  width="100%"
+                  size="lg"
+                />
                 <div class="card-overlay">
                   <i class="pi pi-eye"></i>
                   <span>{{ t('selectOverlay') }}</span>

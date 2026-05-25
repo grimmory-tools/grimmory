@@ -2,19 +2,17 @@
   <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
     <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <header class="sidebar-header">
-        @if (bookInfo().coverUrl) {
-          <img
-            [src]="bookInfo().coverUrl"
-            alt="Book cover"
-            class="book-cover"
+        <app-cover
+          class="book-cover"
+          [src]="bookInfo().coverUrl"
+          [title]="bookInfo().title"
+          [authors]="bookInfo().authors"
+          size="sm"
           />
-        } @else {
-          <app-cover-placeholder class="book-cover" [title]="bookInfo().title" [author]="bookInfo().authors" size="sm" />
-        }
         <div class="book-meta">
           <h2 class="book-title">{{ bookInfo().title }}</h2>
           @if (bookInfo().authors) {
-            <p class="book-authors">{{ bookInfo().authors }}</p>
+            <p class="book-authors">{{ bookInfo().authors.join(', ') }}</p>
           }
         </div>
       </header>

@@ -137,11 +137,10 @@ $transition-normal: 200ms ease;
 
 .book-cover {
   width: 100%;
-  height: auto;
+  max-height: 300px;
+
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
-  max-height: 300px;
-  object-fit: cover;
 
   @media (width <= 768px) {
     max-height: 240px;

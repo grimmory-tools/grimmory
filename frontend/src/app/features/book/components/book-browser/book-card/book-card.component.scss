@@ -47,10 +47,6 @@
   border-radius: 8px 8px 0 0;
 }
 
-.book-cover.square-cover {
-  object-fit: contain;
-}
-
 .cover-container::after {
   content: "";
   position: absolute;

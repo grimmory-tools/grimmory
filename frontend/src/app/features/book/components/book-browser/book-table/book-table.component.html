@@ -94,19 +94,13 @@
       [cdkConnectedOverlayPush]="true"
       [cdkConnectedOverlayFlexibleDimensions]="true">
       <div class="cover-preview">
-        @if (preview.coverUrl; as coverUrl) {
-          <img
-            [attr.src]="coverUrl"
-            [alt]="t('book.table.bookCoverAlt')"
-            class="cover-preview-image"
-            [class.square-cover]="preview.useSquareCover" />
-        } @else {
-          <app-cover-placeholder
-            class="cover-preview-image"
-            [class.square-cover]="preview.useSquareCover"
-            [title]="preview.metadata.title ?? ''"
-            [author]="(preview.metadata.authors ?? []).join(', ')" />
-        }
+        <app-cover
+          class="cover-preview-image"
+          [src]="preview.coverUrl"
+          [title]="preview.metadata.title"
+          [authors]="preview.metadata.authors ?? []"
+          [isSquare]="preview.useSquareCover"
+        />
       </div>
     </ng-template>
   }

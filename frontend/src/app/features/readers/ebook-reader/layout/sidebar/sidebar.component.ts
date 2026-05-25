@@ -4,8 +4,8 @@ import {TranslocoDirective} from '@jsverse/transloco';
 import {TocItem} from 'epubjs';
 import {ReaderSidebarService, SidebarTab} from './sidebar.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {DatePipe, NgTemplateOutlet} from '@angular/common';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 @Component({
   selector: 'app-reader-sidebar',
@@ -13,7 +13,7 @@ import {DatePipe, NgTemplateOutlet} from '@angular/common';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
   imports: [
-    DatePipe, NgTemplateOutlet, FormsModule, TranslocoDirective, ReaderIconComponent, CoverPlaceholderComponent]
+    DatePipe, NgTemplateOutlet, FormsModule, TranslocoDirective, ReaderIconComponent, CoverComponent]
 })
 export class ReaderSidebarComponent {
   private readonly sidebarService = inject(ReaderSidebarService);

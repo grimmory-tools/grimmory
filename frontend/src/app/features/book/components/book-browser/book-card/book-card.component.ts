@@ -9,7 +9,6 @@ import {CheckboxChangeEvent, Checkbox} from 'primeng/checkbox';
 import {FormsModule} from '@angular/forms';
 import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-refresh-type.enum';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {NgClass} from '@angular/common';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
@@ -26,12 +25,13 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {ButtonDirective} from 'primeng/button';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 @Component({
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
   styleUrls: ['./book-card.component.scss'],
-  imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverPlaceholderComponent],
+  imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

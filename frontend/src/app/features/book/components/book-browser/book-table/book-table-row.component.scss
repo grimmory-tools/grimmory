@@ -80,13 +80,7 @@
 
 .cover-thumbnail {
   height: 2rem;
-  aspect-ratio: 5 / 7;
-  object-fit: cover;
   border-radius: 4px;
-
-  &.square-cover {
-    aspect-ratio: 1 / 1;
-  }
 }
 
 .read-status-indicator {

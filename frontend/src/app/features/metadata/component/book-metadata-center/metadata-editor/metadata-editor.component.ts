@@ -7,7 +7,6 @@ import {Observable, sample} from "rxjs";
 import {MessageService} from "primeng/api";
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper,} from "../../../../book/model/book.model";
 import {UrlHelperService} from "../../../../../shared/service/url-helper.service";
-import {CoverPlaceholderComponent} from "../../../../../shared/components/cover-generator/cover-generator.component";
 import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, isFieldEmbeddable, hasMetadataWriter} from '../../../../../shared/metadata';
 import {FileUpload, FileUploadErrorEvent, FileUploadEvent,} from "primeng/fileupload";
 import {HttpResponse} from "@angular/common/http";
@@ -21,7 +20,6 @@ import {MetadataRefreshType} from "../../../model/request/metadata-refresh-type.
 import {AutoComplete, AutoCompleteSelectEvent} from "primeng/autocomplete";
 import {DatePicker} from "primeng/datepicker";
 import {Textarea} from "primeng/textarea";
-import {Image} from "primeng/image";
 import {LazyLoadImageModule} from "ng-lazyload-image";
 import {Select} from "primeng/select";
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
@@ -34,6 +32,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 @Component({
   selector: "app-metadata-editor",
@@ -52,13 +51,12 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
     AutoComplete,
     DatePicker,
     Textarea,
-    Image,
     LazyLoadImageModule,
     Select,
     TranslocoDirective,
     CdkDropList,
     CdkDrag,
-    CoverPlaceholderComponent,
+    CoverComponent,
   ],
 })
 export class MetadataEditorComponent implements OnInit {

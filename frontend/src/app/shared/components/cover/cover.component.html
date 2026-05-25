@@ -1,0 +1,21 @@
+@if (src()) {
+  <p-image
+    [src]="src() ?? undefined"
+    [class]="class()"
+    [class.cover-image]="true"
+    [alt]="title() ?? ''"
+    loading="lazy"
+    [preview]="preview()"
+  />
+} @else {
+  <div
+    class="placeholder"
+    [class.size-sm]="size() === 'sm'"
+    [class.size-md]="size() === 'md'"
+    [class.size-lg]="size() === 'lg'"
+    [style.background]="color()"
+  >
+    <div class="placeholder-title">{{ title() ?? '' }}</div>
+    <div class="placeholder-author">{{ (authors() ?? []).join(', ') }}</div>
+  </div>
+}

@@ -11,13 +11,13 @@ import {injectVirtualizer} from '@tanstack/angular-virtual';
 import {Checkbox} from 'primeng/checkbox';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {RouteScrollPositionService} from '../../../../../shared/service/route-scroll-position.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
 import {patchAppBooksMetadataLockInCache} from '../../../service/book-query-cache';
 import {MessageService} from 'primeng/api';
 import {BookSelectionService} from '../book-selection.service';
 import {BookTableRowComponent, type BookTableRowCoverPreview, type BookTableSelectionChange} from './book-table-row.component';
 import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 interface BookTableColumn {
   field: string;
@@ -70,7 +70,7 @@ const COVER_OVERLAY_POSITIONS: ConnectedPosition[] = [
     Checkbox,
     FormsModule,
     TranslocoDirective,
-    CoverPlaceholderComponent
+    CoverComponent
   ],
   styleUrls: ['./book-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

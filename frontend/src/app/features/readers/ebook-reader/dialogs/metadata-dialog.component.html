@@ -9,11 +9,12 @@
     <div class="dialog-body">
       <div class="metadata-container">
         <div class="cover-section">
-          @if (bookCoverUrl) {
-            <img [src]="bookCoverUrl" [alt]="metadata?.title || t('unknown')" class="book-cover">
-          } @else {
-            <app-cover-placeholder class="cover-placeholder" [title]="metadata?.title ?? ''" [author]="(metadata?.authors ?? []).join(', ')" />
-          }
+          <app-cover
+            [src]="bookCoverUrl"
+            [title]="metadata?.title"
+            [authors]="metadata?.authors"
+            class="book-cover"
+          />
         </div>
 
         <div class="metadata-section">

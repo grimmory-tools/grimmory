@@ -72,7 +72,6 @@
 .hero-cover-img {
   width: 240px;
   height: 360px;
-  object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
 
@@ -486,7 +485,6 @@
 .next-up-thumb {
   width: 2.75rem;
   height: 4rem;
-  object-fit: cover;
   border-radius: 0.25rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
@@ -644,7 +642,6 @@
 .list-thumb {
   width: 2.75rem;
   height: 4rem;
-  object-fit: cover;
   border-radius: 0.375rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 20%);

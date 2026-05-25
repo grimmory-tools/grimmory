@@ -15,7 +15,7 @@ import {Book} from '../../../../book/model/book.model';
 export interface SidebarBookInfo {
   id: number | null;
   title: string;
-  authors: string;
+  authors: string[];
   coverUrl: string | null;
 }
 
@@ -61,7 +61,7 @@ export class ReaderSidebarService {
   private readonly _bookInfo = signal<SidebarBookInfo>({
     id: null,
     title: '',
-    authors: '',
+    authors: [],
     coverUrl: null
   });
   readonly bookInfo = this._bookInfo.asReadonly();
@@ -90,7 +90,7 @@ export class ReaderSidebarService {
     this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || '',
-      authors: (book.metadata?.authors || []).join(', '),
+      authors: book.metadata?.authors ?? [],
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 
@@ -295,7 +295,7 @@ export class ReaderSidebarService {
   reset(): void {
     this._isOpen.set(false);
     this._activeTab.set('chapters');
-    this._bookInfo.set({id: null, title: '', authors: '', coverUrl: null});
+    this._bookInfo.set({id: null, title: '', authors: [], coverUrl: null});
     this._chapters.set([]);
     this._bookmarks.set([]);
     this._annotations.set([]);

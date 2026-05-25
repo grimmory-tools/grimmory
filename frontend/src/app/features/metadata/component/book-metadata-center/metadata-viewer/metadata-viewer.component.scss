@@ -44,6 +44,12 @@
   width: 250px;
   overflow: hidden;
 
+  app-cover {
+    width: 100%;
+    min-height: 350px;
+    aspect-ratio: auto;
+  }
+
   @media (width >= 768px) {
     width: 250px;
   }

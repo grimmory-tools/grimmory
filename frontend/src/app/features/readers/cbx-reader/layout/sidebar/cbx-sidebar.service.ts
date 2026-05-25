@@ -11,7 +11,7 @@ import {BookNoteV2, BookNoteV2Service, CreateBookNoteV2Request, UpdateBookNoteV2
 export interface SidebarBookInfo {
   id: number | null;
   title: string;
-  authors: string;
+  authors: string[];
   coverUrl: string | null;
 }
 
@@ -38,7 +38,7 @@ export class CbxSidebarService {
   private readonly _bookInfo = signal<SidebarBookInfo>({
     id: null,
     title: '',
-    authors: '',
+    authors: [],
     coverUrl: null
   });
   readonly bookInfo = this._bookInfo.asReadonly();
@@ -83,7 +83,7 @@ export class CbxSidebarService {
     this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || book.fileName || this.t.translate('readerCbx.sidebar.untitled'),
-      authors: (book.metadata?.authors || []).join(', '),
+      authors: book.metadata?.authors ?? [],
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 

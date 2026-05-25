@@ -143,13 +143,7 @@
 .cover-preview-image {
   width: 100%;
   max-height: calc(100dvh - 6rem);
-  aspect-ratio: 5 / 7;
-  object-fit: cover;
   border-radius: inherit;
-
-  &.square-cover {
-    aspect-ratio: 1 / 1;
-  }
 }
 
 .cell-action,

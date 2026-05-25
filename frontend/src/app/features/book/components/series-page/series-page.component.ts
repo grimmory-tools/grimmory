@@ -28,10 +28,10 @@ import {TagComponent} from "../../../../shared/components/tag/tag.component";
 import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
 import {LayoutService} from '../../../../shared/layout/layout.service';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -89,7 +89,7 @@ interface SeriesStats {
     Divider,
     TranslocoDirective,
     TagComponent,
-    CoverPlaceholderComponent,
+    CoverComponent,
   ],
 })
 export class SeriesPageComponent implements AfterViewChecked {

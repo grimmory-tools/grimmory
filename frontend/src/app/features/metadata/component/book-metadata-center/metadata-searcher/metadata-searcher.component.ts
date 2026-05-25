@@ -14,6 +14,7 @@ import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.compon
 import {BookMetadataService} from '../../../../book/service/book-metadata.service';
 import {Tooltip} from 'primeng/tooltip';
 import {TranslocoDirective} from '@jsverse/transloco';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 @Component({
   selector: 'app-metadata-searcher',
@@ -27,7 +28,8 @@ import {TranslocoDirective} from '@jsverse/transloco';
     MetadataPickerComponent,
     MultiSelect,
     Tooltip,
-    TranslocoDirective
+    TranslocoDirective,
+    CoverComponent
   ],
   standalone: true
 })

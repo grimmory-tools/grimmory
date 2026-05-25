@@ -6,17 +6,7 @@
 
   .book-cover {
     width: 100%;
-    aspect-ratio: 5 / 7;
-    object-fit: cover;
-    display: block;
     border-radius: 0.5rem;
-  }
-
-  &.audiobook-only {
-    .book-cover {
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-    }
   }
 
   .info-btn {

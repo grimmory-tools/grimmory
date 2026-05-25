@@ -9,9 +9,9 @@ import {Tooltip} from 'primeng/tooltip';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {RatingComponent} from '../../../../../shared/components/rating/rating.component';
 import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 
 interface BookTableCellLink {
   url: string | UrlTree;
@@ -86,13 +86,13 @@ const CLICKABLE_FILTER_KEYS: Record<string, string> = {
   imports: [
     CdkOverlayOrigin,
     Checkbox,
-    CoverPlaceholderComponent,
     FormsModule,
     NgClass,
     RatingComponent,
     RouterLink,
     Tooltip,
     TranslocoDirective,
+    CoverComponent,
   ],
   providers: [DatePipe],
   host: {

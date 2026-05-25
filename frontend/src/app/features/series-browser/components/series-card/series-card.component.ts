@@ -7,7 +7,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {SeriesSummary} from '../../model/series.model';
 import {BookService} from '../../../book/service/book.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 
 @Component({
   selector: 'app-series-card',
@@ -15,7 +15,7 @@ import {CoverPlaceholderComponent} from '../../../../shared/components/cover-gen
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './series-card.component.html',
   styleUrls: ['./series-card.component.scss'],
-  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverPlaceholderComponent]
+  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverComponent]
 })
 export class SeriesCardComponent {
 

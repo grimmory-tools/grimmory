@@ -48,21 +48,14 @@
             (mouseleave)="coverPreviewHide.emit(currentBook.id)"
             (focusin)="showCoverPreview(coverOrigin)"
             (focusout)="coverPreviewHide.emit(currentBook.id)">
-            @if (imageUrl) {
-              <img
-                [attr.src]="imageUrl"
-                alt=""
+              <app-cover
                 class="cover-thumbnail"
-                [class.square-cover]="squareCover" />
-            } @else {
-              <app-cover-placeholder
-                class="cover-thumbnail"
-                aria-hidden="true"
-                [class.square-cover]="squareCover"
-                [title]="currentMetadata.title ?? ''"
-                [author]="(currentMetadata.authors ?? []).join(', ')"
-                size="sm" />
-            }
+                [src]="imageUrl"
+                [title]="currentMetadata.title"
+                [authors]="currentMetadata.authors ?? []"
+                [isSquare]="squareCover"
+                size="sm"
+              />
           </a>
         }
         @case ('readStatus') {

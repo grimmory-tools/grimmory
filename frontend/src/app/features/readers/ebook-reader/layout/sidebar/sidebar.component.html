@@ -4,27 +4,17 @@
     <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <!-- Header with book info -->
       <header class="sidebar-header">
-        @if (bookInfo().coverUrl) {
-          <img
-            [src]="bookInfo().coverUrl"
-            [alt]="t('bookCoverAlt')"
-            class="book-cover"
-            (click)="onCoverClick()"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="onCoverClick()"
-          />
-        } @else {
-          <app-cover-placeholder
-            class="book-cover"
-            [title]="bookInfo().title"
-            [author]="bookInfo().authors"
-            size="sm"
-            role="button"
-            tabindex="0"
-            (click)="onCoverClick()"
-            (keydown.enter)="onCoverClick()" />
-        }
+        <app-cover
+          (click)="onCoverClick()"
+          (keydown.enter)="onCoverClick()"
+          role="button"
+          tabindex="0"
+          [src]="bookInfo().coverUrl"
+          [title]="bookInfo().title"
+          [authors]="bookInfo().authors"
+          class="book-cover"
+          size="sm"
+        />
         <div class="book-meta">
           <h2 class="book-title">{{ bookInfo().title }}</h2>
           @if (bookInfo().authors) {
