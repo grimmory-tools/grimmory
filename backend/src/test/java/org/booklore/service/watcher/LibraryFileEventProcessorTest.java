@@ -185,6 +185,42 @@ class LibraryFileEventProcessorTest {
         }
 
         @Test
+        void bookPerFileMode_processesMultiFileAudiobookFolderAsOneBook() throws Exception {
+            library.setOrganizationMode(LibraryOrganizationMode.BOOK_PER_FILE);
+
+            Path folder = tempDir.resolve("Chaptered Audiobook");
+            Files.createDirectory(folder);
+            Files.writeString(folder.resolve("Chaptered Audiobook - 1 - Chapter One.mp3"), "audio content 1");
+            Files.writeString(folder.resolve("Chaptered Audiobook - 2 - Chapter Two.mp3"), "audio content 2");
+
+            processor.processEvent(StandardWatchEventKinds.ENTRY_CREATE, 1L, folder, true);
+
+            Thread.sleep(8000);
+
+            verify(bookFileTransactionalHandler).handleNewFolderAudiobook(eq(1L), eq(folder));
+            verify(bookFileTransactionalHandler, never()).handleNewBookFile(anyLong(), any());
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+        }
+
+        @Test
+        void bookPerFolderMode_processesMultiFileAudiobookFolderAsOneBook() throws Exception {
+            library.setOrganizationMode(LibraryOrganizationMode.BOOK_PER_FOLDER);
+
+            Path folder = tempDir.resolve("Chaptered Audiobook");
+            Files.createDirectory(folder);
+            Files.writeString(folder.resolve("Chaptered Audiobook - 1 - Chapter One.mp3"), "audio content 1");
+            Files.writeString(folder.resolve("Chaptered Audiobook - 2 - Chapter Two.mp3"), "audio content 2");
+
+            processor.processEvent(StandardWatchEventKinds.ENTRY_CREATE, 1L, folder, true);
+
+            Thread.sleep(8000);
+
+            verify(bookFileTransactionalHandler).handleNewFolderAudiobook(eq(1L), eq(folder));
+            verify(bookFileTransactionalHandler, never()).handleNewBookFile(anyLong(), any());
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+        }
+
+        @Test
         void bookPerFileMode_ignoresFolderWithIgnoreFile() throws Exception {
             library.setOrganizationMode(LibraryOrganizationMode.BOOK_PER_FILE);
 

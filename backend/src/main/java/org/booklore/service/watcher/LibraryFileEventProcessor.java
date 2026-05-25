@@ -251,6 +251,12 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
         var mode = library.getOrganizationMode() != null
                 ? library.getOrganizationMode() : LibraryOrganizationMode.AUTO_DETECT;
 
+        FolderAnalysis analysis = analyzeFolderForAudiobook(folderPath);
+        if (analysis.isFolderBasedAudiobook()) {
+            processFolderAudiobook(library, folderPath, analysis);
+            return;
+        }
+
         if (mode == LibraryOrganizationMode.BOOK_PER_FILE) {
             processFilesInFolderIndividually(library, folderPath);
             return;
@@ -261,30 +267,27 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
             return;
         }
 
-        // AUTO_DETECT: existing audiobook folder detection logic
-        FolderAnalysis analysis = analyzeFolderForAudiobook(folderPath);
+        processTrackedAndWalkedFiles(library, folderPath);
+    }
 
-        if (analysis.isFolderBasedAudiobook()) {
-            log.info("[FOLDER_AUDIOBOOK] Detected folder-based audiobook: {} ({} audio files)",
-                    folderPath.getFileName(), analysis.audioFileCount());
-            try {
-                bookFileTransactionalHandler.handleNewFolderAudiobook(library.getId(), folderPath);
-                int cleared = 0;
-                var iterator = filesFromPendingFolder.iterator();
-                while (iterator.hasNext()) {
-                    if (iterator.next().startsWith(folderPath)) {
-                        iterator.remove();
-                        cleared++;
-                    }
+    private void processFolderAudiobook(LibraryEntity library, Path folderPath, FolderAnalysis analysis) {
+        log.info("[FOLDER_AUDIOBOOK] Detected folder-based audiobook: {} ({} audio files)",
+                folderPath.getFileName(), analysis.audioFileCount());
+        try {
+            bookFileTransactionalHandler.handleNewFolderAudiobook(library.getId(), folderPath);
+            int cleared = 0;
+            var iterator = filesFromPendingFolder.iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next().startsWith(folderPath)) {
+                    iterator.remove();
+                    cleared++;
                 }
-                if (cleared > 0) {
-                    log.debug("[FOLDER_AUDIOBOOK] Cleared {} tracked files that are now part of folder audiobook", cleared);
-                }
-            } catch (Exception e) {
-                log.warn("[ERROR] Processing folder audiobook '{}': {}", folderPath, e.getMessage());
             }
-        } else {
-            processTrackedAndWalkedFiles(library, folderPath);
+            if (cleared > 0) {
+                log.debug("[FOLDER_AUDIOBOOK] Cleared {} tracked files that are now part of folder audiobook", cleared);
+            }
+        } catch (Exception e) {
+            log.warn("[ERROR] Processing folder audiobook '{}': {}", folderPath, e.getMessage());
         }
     }
 
