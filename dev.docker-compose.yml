@@ -37,19 +37,20 @@ services:
     image: node:24-alpine
     command: |-
       sh -c "\
-      apk update && apk add --no-cache bash just;\
-      cd /angular-app &&\
-      corepack enable &&\
-      corepack yarn install --immutable &&\
-      corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
+      cd /workspace &&\
+      npm install -g pnpm@11.3.0 &&\
+      pnpm config set store-dir /workspace/node_modules/.pnpm-store &&\
+      pnpm install --frozen-lockfile &&\
+      pnpm -C frontend exec ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
-      - './frontend:/angular-app'
-      - node_modules:/angular-app/node_modules
+      - '.:/workspace'
+      - frontend_workspace_node_modules:/workspace/node_modules
+      - frontend_node_modules:/workspace/frontend/node_modules
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
   backend_db:
@@ -70,7 +71,8 @@ services:
       timeout: 5s
       retries: 5
 volumes:
-  node_modules:
+  frontend_workspace_node_modules:
+  frontend_node_modules:
   backend_db:
   backend_build:
   backend_gradle_cache:
