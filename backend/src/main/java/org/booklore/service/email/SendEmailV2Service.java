@@ -140,7 +140,7 @@ public class SendEmailV2Service {
         // Pick the prefix matching the active transport so auth/ssl/timeout settings apply.
         String prefix = connectionType == ConnectionType.SSL ? "mail.smtps." : "mail.smtp.";
         mailProps.put(prefix + "auth", String.valueOf(emailProvider.isAuth()));
-        configureConnectionType(mailProps, connectionType, emailProvider, prefix);
+        configureConnectionType(mailProps, connectionType, emailProvider);
         configureTimeouts(mailProps, prefix);
 
         String debugMode = System.getProperty("mail.debug", "false");
@@ -167,30 +167,30 @@ public class SendEmailV2Service {
      * Writes transport-protocol, SSL, and STARTTLS properties for the given connection type.
      *
      * <p>{@code mail.transport.protocol} is namespace-independent (it selects the transport
-     * implementation). All other keys are written under {@code prefix}, which must match the
-     * namespace the active transport reads from.
+     * implementation). Each branch writes its remaining keys under the fixed namespace its
+     * transport reads from: {@code mail.smtps.*} for SSL, {@code mail.smtp.*} otherwise.
      */
-    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider, String prefix) {
+    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider) {
         switch (connectionType) {
             case SSL -> {
                 mailProps.put("mail.transport.protocol", "smtps");
-                mailProps.put(prefix + "ssl.enable", "true");
-                mailProps.put(prefix + "ssl.trust", emailProvider.getHost());
-                mailProps.put(prefix + "starttls.enable", "false");
-                mailProps.put(prefix + "ssl.protocols", "TLSv1.2 TLSv1.3");
-                mailProps.put(prefix + "ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                mailProps.put(prefix + "ssl.socketFactory.fallback", "false");
+                mailProps.put("mail.smtps.ssl.enable", "true");
+                mailProps.put("mail.smtps.ssl.trust", emailProvider.getHost());
+                mailProps.put("mail.smtps.starttls.enable", "false");
+                mailProps.put("mail.smtps.ssl.protocols", "TLSv1.2 TLSv1.3");
+                mailProps.put("mail.smtps.ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                mailProps.put("mail.smtps.ssl.socketFactory.fallback", "false");
             }
             case STARTTLS -> {
                 mailProps.put("mail.transport.protocol", "smtp");
-                mailProps.put(prefix + "starttls.enable", "true");
-                mailProps.put(prefix + "starttls.required", "true");
-                mailProps.put(prefix + "ssl.enable", "false");
+                mailProps.put("mail.smtp.starttls.enable", "true");
+                mailProps.put("mail.smtp.starttls.required", "true");
+                mailProps.put("mail.smtp.ssl.enable", "false");
             }
             case PLAIN -> {
                 mailProps.put("mail.transport.protocol", "smtp");
-                mailProps.put(prefix + "starttls.enable", "false");
-                mailProps.put(prefix + "ssl.enable", "false");
+                mailProps.put("mail.smtp.starttls.enable", "false");
+                mailProps.put("mail.smtp.ssl.enable", "false");
             }
         }
     }
