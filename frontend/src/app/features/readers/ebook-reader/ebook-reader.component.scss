@@ -129,8 +129,8 @@ foliate-view::part(head) {
   align-items: center;
   padding: 8px 16px;
   font-size: 0.875rem;
-  color: var(--text-secondary, #666);
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  color: var(--reader-text-secondary, #666);
+  border-bottom: 1px solid var(--reader-border-color, #e0e0e0);
   font-family: inherit;
   min-height: 32px;
   box-sizing: border-box;
@@ -142,8 +142,8 @@ foliate-view::part(foot) {
   align-items: center;
   padding: 8px 16px;
   font-size: 0.875rem;
-  color: var(--text-secondary, #666);
-  border-top: 1px solid var(--border-color, #e0e0e0);
+  color: var(--reader-text-secondary, #666);
+  border-top: 1px solid var(--reader-border-color, #e0e0e0);
   font-family: inherit;
   min-height: 32px;
   box-sizing: border-box;

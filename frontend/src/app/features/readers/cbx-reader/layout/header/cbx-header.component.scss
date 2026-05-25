@@ -1,4 +1,8 @@
+@use '../../../shared/styles/reader-chrome' as *;
+
 .cbx-header {
+  @include surface;
+
   position: absolute;
   top: 0;
   left: 0;
@@ -10,10 +14,8 @@
   justify-content: space-between;
   font-size: 14px;
   z-index: 1000;
-  background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--reader-chrome-border);
   box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
-  color: #fff;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -51,7 +53,7 @@
     }
 
     &:hover {
-      background: rgb(255 255 255 / 12%);
+      background: var(--reader-chrome-hover);
     }
 
     &:last-child {
@@ -65,17 +67,17 @@
       }
 
       &:hover {
-        background: rgb(239 68 68 / 20%);
+        background: color-mix(in srgb, var(--color-red-500) 20%, transparent);
       }
     }
 
     &.active {
-      color: #ef4444;
-      background: rgb(239 68 68 / 15%);
+      color: var(--color-red-500);
+      background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
     }
 
     &.has-notes {
-      color: #ffc107;
+      color: var(--color-amber-400);
       position: relative;
     }
 
@@ -85,9 +87,9 @@
       right: 4px;
       width: 8px;
       height: 8px;
-      background: #ffc107;
+      background: var(--color-amber-400);
       border-radius: 50%;
-      border: 1px solid #1f1f1f;
+      border: 1px solid var(--reader-chrome-bg);
     }
   }
 
@@ -121,12 +123,13 @@
   }
 
   .overflow-dropdown {
+    @include surface;
+
     position: absolute;
     top: 100%;
     right: 0;
     margin-top: 4px;
-    background: #2d2d2d;
-    border: 1px solid #404040;
+    border: 1px solid var(--reader-chrome-border);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
     z-index: 1000;
@@ -142,19 +145,19 @@
     padding: 8px 12px;
     background: none;
     border: none;
-    color: #fff;
+    color: inherit;
     font-size: 13px;
     cursor: pointer;
     border-radius: 6px;
     white-space: nowrap;
 
     &:hover {
-      background: rgb(255 255 255 / 12%);
+      background: var(--reader-chrome-hover);
     }
 
     &.active {
-      color: #ef4444;
-      background: rgb(239 68 68 / 15%);
+      color: var(--color-red-500);
+      background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
     }
   }
 }

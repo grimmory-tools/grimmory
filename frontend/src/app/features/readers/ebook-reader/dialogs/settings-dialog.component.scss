@@ -1,14 +1,4 @@
-// Variables matching sidebar styling
-$dialog-bg: #1a1a1a;
-$text-primary: rgb(255 255 255 / 95%);
-$text-secondary: rgb(255 255 255 / 60%);
-$text-muted: rgb(255 255 255 / 40%);
-$border-color: rgb(255 255 255 / 8%);
-$hover-bg: rgb(255 255 255 / 8%);
-$active-color: #818cf8;
-$active-bg: rgb(129 140 248 / 15%);
-$transition-fast: 150ms ease;
-$transition-normal: 200ms ease;
+@use '../../shared/styles/reader-chrome' as *;
 
 .dialog-overlay {
   position: fixed;
@@ -18,7 +8,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fade-in $transition-normal;
+  animation: fade-in var(--transition-base);
 }
 
 @keyframes fade-in {
@@ -27,8 +17,9 @@ $transition-normal: 200ms ease;
 }
 
 .dialog {
-  background: $dialog-bg;
-  border: 1px solid $border-color;
+  @include surface;
+
+  border: 1px solid var(--reader-chrome-border);
   border-radius: 12px;
   width: 90%;
   max-width: 520px;
@@ -56,7 +47,7 @@ $transition-normal: 200ms ease;
 .tabs-row {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid var(--reader-chrome-border);
   background: rgb(0 0 0 / 20%);
   padding: 0 20px;
   justify-content: center;
@@ -73,13 +64,13 @@ $transition-normal: 200ms ease;
 .tab {
   background: none;
   border: none;
-  color: $text-secondary;
+  color: var(--reader-chrome-fg-secondary);
   padding: 14px 20px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   position: relative;
-  transition: color $transition-fast;
+  transition: color var(--transition-fast);
   text-align: center;
   min-width: 90px;
   display: flex;
@@ -87,11 +78,11 @@ $transition-normal: 200ms ease;
   justify-content: center;
 
   &:hover {
-    color: $text-primary;
+    color: var(--color-white);
   }
 
   &.active {
-    color: $active-color;
+    color: var(--reader-chrome-accent);
 
     &::after {
       content: '';
@@ -100,7 +91,7 @@ $transition-normal: 200ms ease;
       right: 16px;
       bottom: 0;
       height: 2px;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       border-radius: 1px 1px 0 0;
     }
   }
@@ -113,12 +104,12 @@ $transition-normal: 200ms ease;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: $text-muted;
+  color: var(--reader-chrome-fg-muted);
   font-size: 18px;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
-  transition: background $transition-fast, color $transition-fast;
+  transition: background var(--transition-fast), color var(--transition-fast);
   line-height: 1;
   width: 32px;
   height: 32px;
@@ -127,8 +118,8 @@ $transition-normal: 200ms ease;
   justify-content: center;
 
   &:hover {
-    background: $hover-bg;
-    color: $text-primary;
+    background: var(--reader-chrome-hover);
+    color: var(--color-white);
   }
 }
 
@@ -141,11 +132,11 @@ $transition-normal: 200ms ease;
 }
 
 .tab-content {
-  animation: fade-in $transition-normal;
+  animation: fade-in var(--transition-base);
 }
 
 .section-header {
-  color: $text-muted;
+  color: var(--reader-chrome-fg-secondary);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -153,7 +144,7 @@ $transition-normal: 200ms ease;
   margin-top: 24px;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid var(--reader-chrome-border);
 
   &:first-child {
     margin-top: 0;
@@ -167,7 +158,7 @@ $transition-normal: 200ms ease;
     gap: 30px;
     padding-bottom: 8px;
     margin-bottom: 24px;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid var(--reader-chrome-border);
   }
 }
 
@@ -180,7 +171,7 @@ $transition-normal: 200ms ease;
 .mode-icon {
   font-size: 18px;
   opacity: 0.3;
-  transition: all 300ms ease;
+  transition: filter 300ms ease, opacity 300ms ease, transform 300ms ease;
   user-select: none;
 
   &.active {
@@ -213,7 +204,7 @@ $transition-normal: 200ms ease;
   margin-bottom: 2px;
 
   span {
-    color: $text-primary;
+    color: var(--color-white);
     font-size: 14px;
     font-weight: 500;
   }
@@ -223,7 +214,7 @@ $transition-normal: 200ms ease;
   position: relative;
   width: 44px;
   height: 24px;
-  background: rgb(255 255 255 / 15%);
+  background: color-mix(in srgb, var(--color-white) 15%, transparent);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -231,7 +222,7 @@ $transition-normal: 200ms ease;
   padding: 0;
 
   &.active {
-    background: $active-color;
+    background: var(--reader-chrome-accent);
 
     .slider {
       transform: translateX(20px);
@@ -244,22 +235,22 @@ $transition-normal: 200ms ease;
     left: 2px;
     width: 20px;
     height: 20px;
-    background: #fff;
+    background: var(--color-white);
     border-radius: 50%;
     transition: transform 300ms ease;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   }
 
   &:hover {
-    background: rgb(255 255 255 / 20%);
+    background: color-mix(in srgb, var(--color-white) 20%, transparent);
 
     &.active {
-      background: #9aa3fa;
+      background: var(--reader-chrome-accent-hover);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid $active-color;
+    outline: 2px solid var(--reader-chrome-accent);
     outline-offset: 2px;
   }
 }
@@ -285,24 +276,24 @@ $transition-normal: 200ms ease;
   }
 
   .theme-card {
-    background: rgb(255 255 255 / 3%);
-    border: 2px solid $border-color;
+    background: color-mix(in srgb, var(--color-white) 3%, transparent);
+    border: 2px solid var(--reader-chrome-border);
     border-radius: 8px;
     padding: 10px;
-    transition: all $transition-fast;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
     display: flex;
     flex-direction: column;
     gap: 8px;
 
     &:hover {
-      background: $hover-bg;
-      border-color: rgb(255 255 255 / 15%);
+      background: var(--reader-chrome-hover);
+      border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
     }
   }
 
   input:checked + .theme-card {
-    border-color: $active-color;
-    background: $active-bg;
+    border-color: var(--reader-chrome-accent);
+    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
   }
 
   .theme-colors {
@@ -318,7 +309,7 @@ $transition-normal: 200ms ease;
   }
 
   .theme-name {
-    color: $text-primary;
+    color: var(--color-white);
     font-size: 11px;
     font-weight: 500;
     text-align: center;
@@ -333,35 +324,35 @@ $transition-normal: 200ms ease;
 }
 
 .font-option {
-  background: rgb(255 255 255 / 3%);
-  border: 2px solid $border-color;
+  background: color-mix(in srgb, var(--color-white) 3%, transparent);
+  border: 2px solid var(--reader-chrome-border);
   border-radius: 8px;
   padding: 12px;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
 
   &:hover {
-    background: $hover-bg;
-    border-color: rgb(255 255 255 / 15%);
+    background: var(--reader-chrome-hover);
+    border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
   }
 
   &.active {
-    border-color: $active-color;
-    background: $active-bg;
+    border-color: var(--reader-chrome-accent);
+    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
   }
 
   .font-preview {
     font-size: 24px;
-    color: $text-primary;
+    color: var(--color-white);
     line-height: 1;
   }
 
   .font-name {
-    color: $text-secondary;
+    color: var(--reader-chrome-fg-secondary);
     font-size: 11px;
     font-weight: 500;
     text-align: center;
@@ -380,7 +371,6 @@ $transition-normal: 200ms ease;
   }
 
   > label {
-    color: $text-primary;
     font-size: 14px;
     font-weight: 500;
     flex-shrink: 0;
@@ -390,7 +380,7 @@ $transition-normal: 200ms ease;
     flex: 1;
     margin: 0 10px;
     height: 5px;
-    background: rgb(255 255 255 / 12%);
+    background: color-mix(in srgb, var(--color-white) 12%, transparent);
     border-radius: 3px;
     outline: none;
     cursor: pointer;
@@ -401,14 +391,14 @@ $transition-normal: 200ms ease;
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       cursor: pointer;
       box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-      transition: all $transition-fast;
+      transition: box-shadow var(--transition-fast), transform var(--transition-fast);
 
       &:hover {
         transform: scale(1.1);
-        box-shadow: 0 2px 8px rgb(129 140 248 / 50%);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--reader-chrome-accent) 50%, transparent);
       }
     }
 
@@ -416,7 +406,7 @@ $transition-normal: 200ms ease;
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       border: none;
       cursor: pointer;
       box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -424,7 +414,7 @@ $transition-normal: 200ms ease;
   }
 
   .value {
-    color: $text-secondary;
+    color: var(--reader-chrome-fg-secondary);
     font-size: 12px;
     min-width: 42px;
     text-align: right;
@@ -457,16 +447,16 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgb(255 255 255 / 3%);
+  background: color-mix(in srgb, var(--color-white) 3%, transparent);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid $border-color;
+  border: 1px solid var(--reader-chrome-border);
 
   button {
     width: 28px;
     height: 28px;
-    background: rgb(255 255 255 / 5%);
-    color: $text-secondary;
+    background: color-mix(in srgb, var(--color-white) 5%, transparent);
+    color: var(--reader-chrome-fg-secondary);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -474,12 +464,14 @@ $transition-normal: 200ms ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all $transition-fast;
+    transition: background var(--transition-fast),
+      color var(--transition-fast),
+      transform var(--transition-fast);
     font-weight: 300;
 
     &:hover {
-      background: $hover-bg;
-      color: $text-primary;
+      background: var(--reader-chrome-hover);
+      color: var(--color-white);
     }
 
     &:active {
@@ -490,7 +482,7 @@ $transition-normal: 200ms ease;
   span {
     min-width: 48px;
     text-align: center;
-    color: $text-primary;
+    color: var(--color-white);
     font-size: 13px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -507,7 +499,7 @@ $transition-normal: 200ms ease;
     gap: 7px;
     cursor: pointer;
     font-size: 14px;
-    color: $text-primary;
+    color: var(--color-white);
     font-weight: 500;
     position: relative;
     user-select: none;
@@ -516,21 +508,21 @@ $transition-normal: 200ms ease;
       appearance: none;
       width: 18px;
       height: 18px;
-      border: 2px solid $active-color;
+      border: 2px solid var(--reader-chrome-accent);
       border-radius: 50%;
-      background: rgb(255 255 255 / 5%);
+      background: color-mix(in srgb, var(--color-white) 5%, transparent);
       margin: 0 6px 0 0;
       outline: none;
-      transition: border-color $transition-fast, box-shadow $transition-fast;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 
       &:checked {
-        background: $active-color;
-        box-shadow: 0 0 0 2px rgb(129 140 248 / 15%);
-        border-color: $active-color;
+        background: var(--reader-chrome-accent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
+        border-color: var(--reader-chrome-accent);
       }
 
       &:focus-visible {
-        box-shadow: 0 0 0 2px $active-color;
+        box-shadow: 0 0 0 2px var(--reader-chrome-accent);
       }
     }
   }
@@ -548,9 +540,11 @@ $transition-normal: 200ms ease;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 3px solid rgb(255 255 255 / 15%);
+  border: 3px solid color-mix(in srgb, var(--color-white) 15%, transparent);
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   position: relative;
   display: flex;
   align-items: center;
@@ -559,7 +553,7 @@ $transition-normal: 200ms ease;
 
   &:hover {
     transform: scale(1.08);
-    border-color: rgb(255 255 255 / 30%);
+    border-color: color-mix(in srgb, var(--color-white) 30%, transparent);
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
   }
 
@@ -568,20 +562,20 @@ $transition-normal: 200ms ease;
   }
 
   &.active {
-    border-color: $active-color;
+    border-color: var(--reader-chrome-accent);
     border-width: 3px;
-    box-shadow: 0 0 0 3px rgb(129 140 248 / 25%), 0 4px 12px rgb(0 0 0 / 30%);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--reader-chrome-accent) 25%, transparent), 0 4px 12px rgb(0 0 0 / 30%);
 
     .check-icon {
       color: rgb(0 0 0 / 70%);
       font-size: 18px;
       font-weight: bold;
-      text-shadow: 0 1px 2px rgb(255 255 255 / 50%);
+      text-shadow: 0 1px 2px color-mix(in srgb, var(--color-white) 50%, transparent);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid $active-color;
+    outline: 2px solid var(--reader-chrome-accent);
     outline-offset: 2px;
   }
 }

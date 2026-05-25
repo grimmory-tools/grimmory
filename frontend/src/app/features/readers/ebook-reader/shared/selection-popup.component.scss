@@ -1,3 +1,5 @@
+@use '../../shared/styles/reader-chrome' as *;
+
 .popup-backdrop {
   position: fixed;
   inset: 0;
@@ -6,13 +8,13 @@
 }
 
 .text-selection-popup {
+  @include surface;
+
   position: fixed;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: linear-gradient(180deg, #2d3139 0%, #252830 100%);
-  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgb(0 0 0 / 30%), 0 0 1px rgb(0 0 0 / 20%);
   z-index: 99999;
@@ -59,18 +61,18 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: rgb(255 255 255 / 80%);
+  color: color-mix(in srgb, var(--color-white) 80%, transparent);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: rgb(255 255 255 / 10%);
-    color: #fff;
+    background: color-mix(in srgb, var(--color-white) 10%, transparent);
+    color: var(--color-white);
   }
 
   &.active {
-    background: rgb(255 255 255 / 12%);
-    color: #fff;
+    background: color-mix(in srgb, var(--color-white) 12%, transparent);
+    color: var(--color-white);
   }
 
   svg {
@@ -89,15 +91,15 @@
 
 .delete-btn {
   &:hover {
-    background: rgb(239 68 68 / 15%);
-    color: #ef4444;
+    background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
+    color: var(--color-red-500);
   }
 }
 
 .divider {
   width: 1px;
   height: 20px;
-  background: rgb(255 255 255 / 10%);
+  background: color-mix(in srgb, var(--color-white) 10%, transparent);
   margin: 0 2px;
 }
 
@@ -106,12 +108,13 @@
 }
 
 .annotation-options {
+  @include surface;
+
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   padding: 8px;
-  background: linear-gradient(180deg, #2d3139 0%, #252830 100%);
-  border: 1px solid rgb(255 255 255 / 8%);
+  border: 1px solid var(--reader-chrome-border);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
   z-index: 100000;
@@ -163,14 +166,16 @@
   width: 32px;
   height: 28px;
   padding: 0;
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid color-mix(in srgb, var(--color-white) 10%, transparent);
   border-radius: 4px;
-  background: rgb(255 255 255 / 3%);
-  color: rgb(255 255 255 / 70%);
+  background: color-mix(in srgb, var(--color-white) 3%, transparent);
+  color: color-mix(in srgb, var(--color-white) 70%, transparent);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 
   .style-text {
     display: block;
@@ -194,15 +199,15 @@
   }
 
   &:hover {
-    border-color: rgb(255 255 255 / 20%);
-    background: rgb(255 255 255 / 8%);
-    color: #fff;
+    border-color: color-mix(in srgb, var(--color-white) 20%, transparent);
+    background: var(--reader-chrome-hover);
+    color: var(--color-white);
   }
 
   &.selected {
-    border-color: #3b82f6;
-    background: rgb(59 130 246 / 15%);
-    color: #fff;
+    border-color: var(--reader-chrome-accent);
+    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
+    color: var(--color-white);
   }
 }
 
@@ -220,15 +225,16 @@
   border-radius: 50%;
   background: var(--color);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
     transform: scale(1.1);
   }
 
   &.selected {
-    border-color: #fff;
-    box-shadow: 0 0 0 2px rgb(59 130 246 / 50%);
+    border-color: var(--color-white);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--reader-chrome-accent) 50%, transparent);
   }
 }
-

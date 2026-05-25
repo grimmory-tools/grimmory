@@ -1,18 +1,12 @@
+@use '../../shared/styles/reader-chrome' as *;
+
 $sidebar-width: 320px;
-$sidebar-bg: #141414;
-$sidebar-bg-light: #fff;
-$text-primary: #fff;
-$text-primary-light: #1a1a1a;
-$text-secondary: rgb(255 255 255 / 70%);
-$text-secondary-light: rgb(0 0 0 / 60%);
-$text-muted: rgb(255 255 255 / 45%);
-$text-muted-light: rgb(0 0 0 / 40%);
-$border-color: rgb(255 255 255 / 10%);
-$border-color-light: rgb(0 0 0 / 8%);
-$hover-bg: rgb(255 255 255 / 6%);
-$hover-bg-light: rgb(0 0 0 / 4%);
-$active-bg: #3b82f6;
-$active-color: #3b82f6;
+$text-primary: var(--reader-chrome-fg);
+$text-secondary: var(--reader-chrome-fg-secondary);
+$text-muted: var(--reader-chrome-fg-muted);
+$border-color: var(--reader-chrome-border);
+$hover-bg: var(--reader-chrome-hover);
+$active-color: var(--reader-chrome-accent);
 $transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 150ms ease;
 
@@ -33,13 +27,13 @@ $transition-fast: 150ms ease;
 }
 
 .sidebar {
+  @include surface;
+
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: $sidebar-width;
-  background: $sidebar-bg;
-  color: $text-primary;
   display: flex;
   flex-direction: column;
   box-shadow: 12px 0 32px rgb(0 0 0 / 40%);
@@ -79,7 +73,7 @@ $transition-fast: 150ms ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all $transition-fast;
+      transition: background $transition-fast, color $transition-fast;
 
       &:hover {
         color: $text-primary;
@@ -111,7 +105,7 @@ $transition-fast: 150ms ease;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background $transition-fast, color $transition-fast;
   min-width: 0;
 
   span {
@@ -129,7 +123,7 @@ $transition-fast: 150ms ease;
     height: 3px;
     background: transparent;
     border-radius: 3px 3px 0 0;
-    transition: all $transition-fast;
+    transition: background $transition-fast, box-shadow $transition-fast;
   }
 
   &:hover {
@@ -192,7 +186,7 @@ $transition-fast: 150ms ease;
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background $transition-fast, color $transition-fast;
   text-align: left;
   line-height: 1.4;
 
@@ -238,7 +232,9 @@ $transition-fast: 150ms ease;
   cursor: pointer;
   background: rgb(255 255 255 / 1%);
   border: 1px solid transparent;
-  transition: all $transition-fast;
+  transition: background $transition-fast,
+    border-color $transition-fast,
+    transform $transition-fast;
 
   &:hover {
     background: $hover-bg;
@@ -315,7 +311,11 @@ $transition-fast: 150ms ease;
   cursor: pointer;
   opacity: 0;
   transform: translateX(8px);
-  transition: all $transition-fast;
+  transition: background $transition-fast,
+    box-shadow $transition-fast,
+    color $transition-fast,
+    opacity $transition-fast,
+    transform $transition-fast;
   flex-shrink: 0;
 
   &:hover {
@@ -376,78 +376,4 @@ $transition-fast: 150ms ease;
 @keyframes slide-out {
   from { transform: translateX(0); }
   to { transform: translateX(-100%); }
-}
-
-// --- Light Theme Support ---
-
-:host-context([data-color-scheme="light"]) {
-  .sidebar-overlay {
-    background: rgb(0 0 0 / 20%);
-  }
-  
-  .sidebar {
-    background: $sidebar-bg-light;
-    color: $text-primary-light;
-    border-right-color: $border-color-light;
-    box-shadow: 12px 0 32px rgb(0 0 0 / 10%);
-
-    .sidebar-header {
-      background: rgb(0 0 0 / 1%);
-      border-bottom-color: $border-color-light;
-      
-      .sidebar-title {
-        color: $text-muted-light;
-      }
-    }
-  }
-
-  .tabs {
-    border-bottom-color: $border-color-light;
-  }
-
-  .tab {
-    color: $text-secondary-light;
-
-    &:hover {
-      background: $hover-bg-light;
-      color: $text-primary-light;
-    }
-  }
-
-  .tab-item:hover, .chapter-row:hover {
-    background: $hover-bg-light;
-  }
-
-  .chapter-row {
-    color: $text-secondary-light;
-
-    &:hover {
-      color: $text-primary-light;
-    }
-
-    .chapter-page {
-      color: $text-muted-light;
-    }
-  }
-
-  .reader-list-item {
-    background: rgb(0 0 0 / 2%);
-
-    &:hover {
-      background: $hover-bg-light;
-      border-color: $border-color-light;
-    }
-  }
-
-  .item-title {
-    color: $text-primary-light;
-  }
-  
-  .item-meta {
-    color: $text-muted-light;
-  }
-
-  .highlight-text {
-    color: $text-secondary-light;
-  }
 }

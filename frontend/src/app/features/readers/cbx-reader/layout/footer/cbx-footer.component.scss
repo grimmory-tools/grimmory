@@ -1,16 +1,8 @@
-@use 'sass:color';
-
-// Variables
-$footer-bg: #1a1a1a;
-$text-primary: rgb(255 255 255 / 95%);
-$text-secondary: rgb(255 255 255 / 60%);
-$text-muted: rgb(255 255 255 / 40%);
-$border-color: rgb(255 255 255 / 8%);
-$hover-bg: rgb(255 255 255 / 8%);
-$active-color: #4a90e2;
-$transition-fast: 150ms ease;
+@use '../../../shared/styles/reader-chrome' as *;
 
 .cbx-footer {
+  @include surface;
+
   position: absolute;
   bottom: 0;
   left: 0;
@@ -22,10 +14,8 @@ $transition-fast: 150ms ease;
   justify-content: space-between;
   gap: 12px;
   z-index: 1000;
-  background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
-  border-top: 1px solid #404040;
+  border-top: 1px solid var(--reader-chrome-border);
   box-shadow: 0 -2px 8px rgb(0 0 0 / 30%);
-  color: $text-primary;
   transform: translateY(100%);
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
@@ -59,13 +49,16 @@ $transition-fast: 150ms ease;
 }
 
 .nav-btn {
-  background: rgb(51 51 51 / 90%);
-  border: 1px solid #555;
-  color: $text-primary;
+  background: var(--reader-chrome-control-bg);
+  border: 1px solid var(--reader-chrome-strong-border);
+  color: var(--reader-chrome-fg);
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,22 +67,22 @@ $transition-fast: 150ms ease;
   font-weight: bold;
 
   &:hover:not(:disabled) {
-    background: #4a4a4a;
-    border-color: #666;
+    background: var(--reader-chrome-hover);
+    border-color: color-mix(in srgb, var(--reader-chrome-fg) 25%, transparent);
   }
 
   &:disabled {
-    background: #2a2a2a;
-    color: #666;
+    background: color-mix(in srgb, var(--reader-chrome-fg) 4%, transparent);
+    color: var(--reader-chrome-fg-muted);
     cursor: not-allowed;
-    border-color: #333;
+    border-color: var(--reader-chrome-border);
   }
 
   &.series-btn {
     gap: 6px;
     padding: 6px 12px;
-    background: $active-color;
-    border-color: $active-color;
+    background: var(--reader-chrome-accent);
+    border-color: var(--reader-chrome-accent);
 
     .label {
       font-size: 12px;
@@ -97,12 +90,12 @@ $transition-fast: 150ms ease;
     }
 
     &:hover:not(:disabled) {
-      background: color.adjust($active-color, $lightness: -10%);
+      background: var(--reader-chrome-accent-active);
     }
 
     &:disabled {
-      background: #555;
-      border-color: #555;
+      background: var(--reader-chrome-control-bg);
+      border-color: var(--reader-chrome-strong-border);
       opacity: 0.5;
     }
   }
@@ -110,7 +103,7 @@ $transition-fast: 150ms ease;
 
 .page-info {
   padding: 4px 12px;
-  background: rgb(255 255 255 / 10%);
+  background: var(--reader-chrome-control-bg);
   border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
@@ -118,17 +111,17 @@ $transition-fast: 150ms ease;
   text-align: center;
 
   .current {
-    color: $active-color;
+    color: var(--reader-chrome-accent);
     font-weight: 600;
   }
 
   .separator {
-    color: $active-color;
+    color: var(--reader-chrome-accent);
     font-weight: 600;
   }
 
   .total {
-    color: $text-secondary;
+    color: var(--reader-chrome-fg-secondary);
   }
 }
 
@@ -159,7 +152,7 @@ $transition-fast: 150ms ease;
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 6px;
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--color-white) 12%, transparent);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -167,14 +160,14 @@ $transition-fast: 150ms ease;
     &::-moz-range-track {
       width: 100%;
       height: 6px;
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--color-white) 12%, transparent);
       border-radius: 3px;
       cursor: pointer;
     }
 
     &::-ms-fill-lower,
     &::-ms-fill-upper {
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--color-white) 12%, transparent);
       border-radius: 3px;
     }
 
@@ -184,10 +177,10 @@ $transition-fast: 150ms ease;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       cursor: pointer;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-      transition: transform $transition-fast, box-shadow $transition-fast;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
       margin-top: calc((6px - 18px) / 2); /* center thumb on track */
     }
 
@@ -195,11 +188,11 @@ $transition-fast: 150ms ease;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-      transition: transform $transition-fast, box-shadow $transition-fast;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
       margin-top: calc((6px - 18px) / 2);
     }
 
@@ -207,7 +200,7 @@ $transition-fast: 150ms ease;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
@@ -239,7 +232,7 @@ $transition-fast: 150ms ease;
         transform: translateX(-50%);
         width: 2px;
         height: 10px;
-        background: rgb(255 255 255 / 50%);
+        background: color-mix(in srgb, var(--reader-chrome-fg) 50%, transparent);
         top: 0;
       }
     }
@@ -250,26 +243,26 @@ $transition-fast: 150ms ease;
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgb(51 51 51 / 90%);
+  background: var(--reader-chrome-control-bg);
   border-radius: 4px;
   padding: 2px;
-  border: 1px solid #555;
+  border: 1px solid var(--reader-chrome-strong-border);
 
   .page-input {
     width: 55px;
     padding: 4px 6px;
     border: none;
     border-radius: 3px;
-    background: #404040;
-    color: $text-primary;
+    background: var(--reader-chrome-control-bg);
+    color: var(--reader-chrome-fg);
     font-size: 12px;
     text-align: center;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 
     &:focus {
       outline: none;
-      background: #4a4a4a;
-      box-shadow: 0 0 0 1px rgb(74 144 226 / 50%);
+      background: var(--reader-chrome-hover);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--reader-chrome-accent) 50%, transparent);
     }
 
     &::placeholder {
@@ -279,21 +272,21 @@ $transition-fast: 150ms ease;
 
   .go-btn {
     padding: 4px 10px;
-    background: $active-color;
+    background: var(--reader-chrome-accent);
     color: white;
     border: none;
     border-radius: 3px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, opacity 0.2s ease;
 
     &:hover:not(:disabled) {
-      background: color.adjust($active-color, $lightness: -10%);
+      background: var(--reader-chrome-accent-active);
     }
 
     &:disabled {
-      background: #666;
+      background: var(--reader-chrome-control-bg);
       cursor: not-allowed;
       opacity: 0.6;
     }

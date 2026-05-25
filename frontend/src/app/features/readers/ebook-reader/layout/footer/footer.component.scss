@@ -1,15 +1,8 @@
-// Variables matching sidebar styling
-$navbar-bg: #1a1a1a;
-$text-primary: rgb(255 255 255 / 95%);
-$text-secondary: rgb(255 255 255 / 60%);
-$text-muted: rgb(255 255 255 / 40%);
-$border-color: rgb(255 255 255 / 8%);
-$hover-bg: rgb(255 255 255 / 8%);
-$active-color: #818cf8;
-$transition-fast: 150ms ease;
-$transition-normal: 200ms ease;
+@use '../../../shared/styles/reader-chrome' as *;
 
 .reader-navbar {
+  @include text;
+
   position: absolute;
   bottom: 0;
   left: 0;
@@ -20,11 +13,10 @@ $transition-normal: 200ms ease;
   align-items: center;
   gap: 8px;
   z-index: 1000;
-  background: $navbar-bg;
+  background: var(--reader-chrome-bg);
   backdrop-filter: blur(8px);
-  border-top: 1px solid $border-color;
+  border-top: 1px solid var(--reader-chrome-border);
   box-shadow: 0 -2px 12px rgb(0 0 0 / 30%);
-  color: $text-primary;
   opacity: 0;
   pointer-events: none;
   transform: translateY(100%);
@@ -41,11 +33,11 @@ $transition-normal: 200ms ease;
 .icon-btn {
   background: none;
   border: none;
-  color: $text-secondary;
+  color: var(--reader-chrome-fg-secondary);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  transition: background $transition-fast, color $transition-fast;
+  transition: background var(--transition-fast), color var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,8 +48,8 @@ $transition-normal: 200ms ease;
   }
 
   &:hover:not(:disabled) {
-    background: $hover-bg;
-    color: $text-primary;
+    background: var(--reader-chrome-hover);
+    color: var(--reader-chrome-fg);
   }
 
   &:disabled {
@@ -66,7 +58,7 @@ $transition-normal: 200ms ease;
   }
 
   &:focus-visible {
-    outline: 2px solid $active-color;
+    outline: 2px solid var(--reader-chrome-accent);
     outline-offset: 2px;
   }
 }
@@ -78,24 +70,24 @@ $transition-normal: 200ms ease;
   gap: 12px;
 
   .location-btn {
-    background: rgb(255 255 255 / 5%);
-    border: 1px solid $border-color;
-    color: $text-primary;
+    background: color-mix(in srgb, var(--color-white) 5%, transparent);
+    border: 1px solid var(--reader-chrome-border);
+    color: var(--color-white);
     padding: 6px 14px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    transition: background $transition-fast, border-color $transition-fast;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
     font-variant-numeric: tabular-nums;
 
     &:hover {
-      background: $hover-bg;
-      border-color: rgb(255 255 255 / 15%);
+      background: var(--reader-chrome-hover);
+      border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
     }
 
     &:focus-visible {
-      outline: 2px solid $active-color;
+      outline: 2px solid var(--reader-chrome-accent);
       outline-offset: 2px;
     }
   }
@@ -112,7 +104,7 @@ $transition-normal: 200ms ease;
       border-radius: 3px;
       outline: none;
       appearance: none;
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--color-white) 12%, transparent);
       position: relative;
       z-index: 1;
       cursor: pointer;
@@ -122,14 +114,14 @@ $transition-normal: 200ms ease;
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: $active-color;
+        background: var(--reader-chrome-accent);
         cursor: pointer;
         box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-        transition: transform $transition-fast, box-shadow $transition-fast;
+        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 
         &:hover {
           transform: scale(1.1);
-          box-shadow: 0 2px 8px rgb(129 140 248 / 40%);
+          box-shadow: 0 2px 8px color-mix(in srgb, var(--reader-chrome-accent) 40%, transparent);
         }
       }
 
@@ -137,14 +129,14 @@ $transition-normal: 200ms ease;
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: $active-color;
+        background: var(--reader-chrome-accent);
         cursor: pointer;
         border: none;
         box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
       }
 
       &:focus-visible {
-        outline: 2px solid $active-color;
+        outline: 2px solid var(--reader-chrome-accent);
         outline-offset: 4px;
       }
     }
@@ -165,26 +157,27 @@ $transition-normal: 200ms ease;
       top: 0;
       width: 1.5px;
       height: 10px;
-      background: rgb(255 255 255 / 40%);
+      background: var(--reader-chrome-fg-muted);
       border-radius: 2px;
     }
   }
 }
 
 .location-popover {
+  @include text;
+
   position: absolute;
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-  background: $navbar-bg;
+  background: var(--reader-chrome-bg);
   backdrop-filter: blur(8px);
-  border: 1px solid $border-color;
+  border: 1px solid var(--reader-chrome-border);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgb(0 0 0 / 50%);
   z-index: 1001;
   min-width: 380px;
   animation: popover-slide-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  color: $text-primary;
 
   .popover-content {
     padding: 16px 20px;
@@ -206,7 +199,7 @@ $transition-normal: 200ms ease;
 
       .label {
         font-size: 11px;
-        color: $text-muted;
+        color: var(--reader-chrome-fg-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-weight: 600;
@@ -216,20 +209,20 @@ $transition-normal: 200ms ease;
         font-size: 20px;
         font-weight: 600;
         letter-spacing: -0.3px;
-        color: $text-primary;
+        color: var(--reader-chrome-fg);
       }
     }
 
     .separator {
       width: 1px;
       height: 44px;
-      background: $border-color;
+      background: var(--reader-chrome-hover);
     }
   }
 
   .divider {
     height: 1px;
-    background: $border-color;
+    background: var(--reader-chrome-hover);
     margin: 12px 0;
   }
 
@@ -247,7 +240,7 @@ $transition-normal: 200ms ease;
 
       .label {
         font-size: 11px;
-        color: $text-muted;
+        color: var(--reader-chrome-fg-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-weight: 600;
@@ -256,7 +249,7 @@ $transition-normal: 200ms ease;
       .chapter-name {
         font-size: 14px;
         font-weight: 500;
-        color: $text-primary;
+        color: var(--reader-chrome-fg);
         line-height: 1.3;
         max-width: 100%;
         overflow: hidden;
@@ -281,7 +274,7 @@ $transition-normal: 200ms ease;
 
         .label {
           font-size: 11px;
-          color: $text-muted;
+          color: var(--reader-chrome-fg-muted);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           font-weight: 600;
@@ -291,14 +284,14 @@ $transition-normal: 200ms ease;
           font-size: 18px;
           font-weight: 600;
           letter-spacing: -0.3px;
-          color: $text-primary;
+          color: var(--color-white);
         }
       }
 
       .info-separator {
         width: 1px;
         height: 36px;
-        background: $border-color;
+        background: var(--reader-chrome-hover);
       }
     }
   }
@@ -318,47 +311,47 @@ $transition-normal: 200ms ease;
     label {
       font-size: 13px;
       font-weight: 500;
-      color: $text-secondary;
+      color: var(--reader-chrome-fg-secondary);
     }
 
     input {
       width: 65px;
       padding: 6px 10px;
-      background: rgb(255 255 255 / 5%);
-      border: 1px solid $border-color;
+      background: color-mix(in srgb, var(--color-white) 5%, transparent);
+      border: 1px solid var(--reader-chrome-border);
       border-radius: 6px;
-      color: $text-primary;
+      color: var(--color-white);
       font-size: 13px;
       text-align: right;
-      transition: background $transition-fast, border-color $transition-fast;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
       font-variant-numeric: tabular-nums;
 
       &:focus {
         outline: none;
-        background: $hover-bg;
-        border-color: $active-color;
+        background: var(--reader-chrome-hover);
+        border-color: var(--reader-chrome-accent);
       }
     }
 
     span {
       font-size: 13px;
-      color: $text-secondary;
+      color: var(--reader-chrome-fg-secondary);
     }
 
     .go-btn {
       padding: 7px 18px;
-      background: $active-color;
+      background: var(--reader-chrome-accent);
       border: none;
       border-radius: 6px;
       color: white;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: background $transition-fast;
+      transition: background var(--transition-fast);
       flex-shrink: 0;
 
       &:hover {
-        background: #9ba3fb;
+        background: var(--reader-chrome-accent-hover);
       }
     }
   }
@@ -372,12 +365,12 @@ $transition-normal: 200ms ease;
     .nav-btn {
       background: none;
       border: none;
-      color: $text-secondary;
+      color: var(--reader-chrome-fg-secondary);
       padding: 0;
       margin: 0;
       border-radius: 8px;
       cursor: pointer;
-      transition: background $transition-fast, color $transition-fast, transform $transition-fast;
+      transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
       width: 44px;
       height: 44px;
       display: flex;
@@ -390,8 +383,8 @@ $transition-normal: 200ms ease;
       }
 
       &:hover {
-        background: $hover-bg;
-        color: $text-primary;
+        background: var(--reader-chrome-hover);
+        color: var(--color-white);
       }
 
       &:active {
@@ -399,7 +392,7 @@ $transition-normal: 200ms ease;
       }
 
       &:focus-visible {
-        outline: 2px solid $active-color;
+        outline: 2px solid var(--reader-chrome-accent);
         outline-offset: 2px;
       }
     }

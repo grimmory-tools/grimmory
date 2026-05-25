@@ -1,16 +1,20 @@
-@use 'sass:color';
+@use '../shared/styles/reader-chrome' as *;
 
 /* stylelint-disable selector-id-pattern, selector-class-pattern */
 
 // Design tokens matching CBX/E-Book readers
 $header-height: 38px;
 $footer-height: 52px;
-$gradient-bg: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
-$border-color: #404040;
-$text-primary: rgb(255 255 255 / 95%);
-$text-secondary: rgb(255 255 255 / 60%);
-$active-color: #4a90e2;
-$hover-bg: rgb(255 255 255 / 12%);
+$chrome-bg: var(--reader-chrome-bg);
+$chrome-bg-raised: var(--reader-chrome-bg-raised);
+$chrome-control-bg: var(--reader-chrome-control-bg);
+$border-color: var(--reader-chrome-border);
+$strong-border-color: var(--reader-chrome-strong-border);
+$text-primary: var(--reader-chrome-fg);
+$text-secondary: var(--reader-chrome-fg-secondary);
+$active-color: var(--reader-chrome-accent);
+$active-hover-color: var(--reader-chrome-accent-hover);
+$hover-bg: var(--reader-chrome-hover);
 $transition-fast: 150ms ease;
 
 .v-hidden {
@@ -20,23 +24,27 @@ $transition-fast: 150ms ease;
 // --- Loading ---
 
 .loading-container {
+  @include tokens;
+
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100dvh;
-  background: #1a1a1a;
+  background: $chrome-bg;
   z-index: 1000;
 }
 
 // --- Reader container ---
 
 .pdf-reader-container {
+  @include tokens;
+
   position: fixed;
   inset: 0;
   height: 100dvh;
-  background: #1a1a1a;
+  background: $chrome-bg;
   z-index: 900;
   overflow: hidden;
   box-sizing: border-box;
@@ -88,10 +96,10 @@ $transition-fast: 150ms ease;
   align-items: center;
   justify-content: space-between;
   z-index: 1001;
-  background: $gradient-bg;
+  background: $chrome-bg;
   border-bottom: 1px solid $border-color;
   box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
-  color: #fff;
+  color: $text-primary;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -194,7 +202,7 @@ $transition-fast: 150ms ease;
   right: 0;
   height: 36px;
   z-index: 1002;
-  background: color.adjust(#2d2d2d, $lightness: -3%);
+  background: $chrome-bg-raised;
   border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;
@@ -216,7 +224,7 @@ $transition-fast: 150ms ease;
     gap: 6px;
     flex: 1;
     max-width: 360px;
-    background: #404040;
+    background: $chrome-control-bg;
     border-radius: 4px;
     padding: 0 8px;
     color: $text-secondary;
@@ -264,7 +272,7 @@ $transition-fast: 150ms ease;
   left: 50%;
   transform: translateX(-50%);
   margin-top: 4px;
-  background: #333;
+  background: $chrome-bg-raised;
   border: 1px solid $border-color;
   border-radius: 6px;
   padding: 4px 0;
@@ -330,7 +338,7 @@ $transition-fast: 150ms ease;
   justify-content: space-between;
   gap: 12px;
   z-index: 1002;
-  background: $gradient-bg;
+  background: $chrome-bg;
   border-top: 1px solid $border-color;
   box-shadow: 0 -2px 8px rgb(0 0 0 / 30%);
   color: $text-primary;
@@ -354,33 +362,36 @@ $transition-fast: 150ms ease;
 }
 
 .nav-btn {
-  background: rgb(51 51 51 / 90%);
-  border: 1px solid #555;
+  background: $chrome-control-bg;
+  border: 1px solid $strong-border-color;
   color: $text-primary;
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast,
+    opacity $transition-fast;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:hover:not(:disabled) {
-    background: #4a4a4a;
-    border-color: #666;
+    background: $hover-bg;
+    border-color: color-mix(in srgb, var(--reader-chrome-fg) 25%, transparent);
   }
 
   &:disabled {
-    background: #2a2a2a;
-    color: #666;
+    background: color-mix(in srgb, var(--reader-chrome-fg) 4%, transparent);
+    color: var(--reader-chrome-fg-muted);
     cursor: not-allowed;
-    border-color: #333;
+    border-color: $border-color;
   }
 }
 
 .page-info {
   padding: 4px 12px;
-  background: rgb(255 255 255 / 10%);
+  background: $chrome-control-bg;
   border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
@@ -427,7 +438,7 @@ $transition-fast: 150ms ease;
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 6px;
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--reader-chrome-fg) 12%, transparent);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -435,7 +446,7 @@ $transition-fast: 150ms ease;
     &::-moz-range-track {
       width: 100%;
       height: 6px;
-      background: rgb(255 255 255 / 12%);
+      background: color-mix(in srgb, var(--reader-chrome-fg) 12%, transparent);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -487,7 +498,7 @@ $transition-fast: 150ms ease;
         transform: translateX(-50%);
         width: 2px;
         height: 10px;
-        background: rgb(255 255 255 / 50%);
+        background: color-mix(in srgb, var(--reader-chrome-fg) 50%, transparent);
         top: 0;
       }
     }
@@ -505,24 +516,24 @@ $transition-fast: 150ms ease;
     white-space: nowrap;
     gap: 6px;
     padding: 0 12px;
-    border: 1px solid var(--surface-border);
-    background: var(--surface-card);
-    color: var(--text-color-secondary);
+    border: 1px solid $strong-border-color;
+    background: $chrome-control-bg;
+    color: $text-secondary;
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
     height: 30px;
 
     &:hover {
-      color: var(--text-color);
-      background: var(--surface-hover);
+      color: $text-primary;
+      background: $hover-bg;
     }
 
     &.active {
-      background: var(--primary-color);
-      color: var(--primary-color-text);
-      border-color: var(--primary-color);
+      background: $active-color;
+      color: $text-primary;
+      border-color: $active-color;
       z-index: 1;
     }
 
@@ -544,9 +555,9 @@ $transition-fast: 150ms ease;
   bottom: 80px;
   left: 24px;
   z-index: 1001;
-  background-color: var(--surface-card);
-  color: var(--text-color-secondary);
-  border: 1px solid var(--surface-border);
+  background-color: $chrome-bg-raised;
+  color: $text-secondary;
+  border: 1px solid $border-color;
   padding: 8px 16px;
   border-radius: 20px;
   display: flex;
@@ -559,7 +570,7 @@ $transition-fast: 150ms ease;
 
   i {
     font-size: 1rem;
-    color: var(--primary-color);
+    color: $active-color;
   }
 }
 
@@ -647,7 +658,7 @@ $transition-fast: 150ms ease;
   top: 48px;
   right: 12px;
   z-index: 1010;
-  background: rgb(45 45 45 / 90%);
+  background: color-mix(in srgb, var(--reader-chrome-bg-raised) 90%, transparent);
   color: $text-primary;
   padding: 6px 12px;
   border-radius: 20px;
@@ -670,11 +681,11 @@ $transition-fast: 150ms ease;
     align-items: center;
     padding: 2px;
     border-radius: 50%;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
 
     &:hover {
-      color: #fff;
-      background: rgb(255 255 255 / 10%);
+      color: $text-primary;
+      background: $hover-bg;
     }
   }
 }
@@ -718,24 +729,24 @@ $transition-fast: 150ms ease;
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgb(51 51 51 / 90%);
+  background: $chrome-control-bg;
   border-radius: 4px;
   padding: 2px;
-  border: 1px solid #555;
+  border: 1px solid $strong-border-color;
 
   .page-input {
     width: 55px;
     padding: 4px 6px;
     border: none;
     border-radius: 3px;
-    background: #404040;
+    background: $chrome-control-bg;
     color: $text-primary;
     font-size: 12px;
     text-align: center;
 
     &:focus {
       outline: none;
-      background: #4a4a4a;
+      background: $hover-bg;
     }
 
     &::placeholder {
@@ -756,7 +767,7 @@ $transition-fast: 150ms ease;
     transition: background $transition-fast;
 
     &:hover:not(:disabled) {
-      background: color.adjust($active-color, $lightness: -10%);
+      background: $active-hover-color;
     }
 
     &:disabled {
@@ -796,7 +807,7 @@ $transition-fast: 150ms ease;
   top: $header-height;
   right: 8px;
   z-index: 1010;
-  background: #2d2d2d;
+  background: $chrome-bg-raised;
   border: 1px solid $border-color;
   border-radius: 8px;
   padding: 4px 0;

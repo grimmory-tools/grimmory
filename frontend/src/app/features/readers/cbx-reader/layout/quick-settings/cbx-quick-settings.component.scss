@@ -1,23 +1,11 @@
-@use 'sass:color';
-
-// Variables
-$panel-bg: #1a1a1a;
-$text-primary: rgb(255 255 255 / 95%);
-$text-secondary: rgb(255 255 255 / 60%);
-$text-muted: rgb(255 255 255 / 40%);
-$border-color: rgb(255 255 255 / 8%);
-$hover-bg: rgb(255 255 255 / 8%);
-$active-color: #4a90e2;
-$active-bg: rgb(74 144 226 / 15%);
-$transition-fast: 150ms ease;
-$transition-normal: 200ms ease;
+@use '../../../shared/styles/reader-chrome' as *;
 
 .quick-settings-overlay {
   position: fixed;
   inset: 0;
   z-index: 12000;
   background: rgb(0 0 0 / 30%);
-  animation: fade-in $transition-normal;
+  animation: fade-in var(--transition-base);
   cursor: pointer;
 }
 
@@ -27,12 +15,13 @@ $transition-normal: 200ms ease;
 }
 
 .quick-settings-panel {
+  @include surface;
+
   position: absolute;
   top: 52px;
   right: 60px;
   width: 340px;
-  background: $panel-bg;
-  border: 1px solid $border-color;
+  border: 1px solid var(--reader-chrome-border);
   border-radius: 12px;
   box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
   animation: slide-down 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,9 +48,9 @@ $transition-normal: 200ms ease;
   right: 18px;
   width: 16px;
   height: 16px;
-  background: $panel-bg;
-  border-left: 1px solid $border-color;
-  border-top: 1px solid $border-color;
+  background: var(--reader-chrome-bg);
+  border-left: 1px solid var(--reader-chrome-border);
+  border-top: 1px solid var(--reader-chrome-border);
   transform: rotate(45deg);
   border-radius: 3px 0 0;
 }
@@ -77,11 +66,10 @@ $transition-normal: 200ms ease;
   padding: 12px 0;
 
   &:not(:last-child) {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid var(--reader-chrome-border);
   }
 
   > label {
-    color: $text-primary;
     font-size: 13px;
     font-weight: 500;
     flex-shrink: 0;
@@ -102,7 +90,7 @@ $transition-normal: 200ms ease;
 
 .mode-label {
   font-size: 12px;
-  color: $text-secondary;
+  color: var(--reader-chrome-fg-secondary);
   min-width: 60px;
   text-align: right;
 }
@@ -112,7 +100,7 @@ $transition-normal: 200ms ease;
   position: relative;
   width: 40px;
   height: 22px;
-  background: rgb(255 255 255 / 15%);
+  background: color-mix(in srgb, var(--color-white) 15%, transparent);
   border: none;
   border-radius: 11px;
   cursor: pointer;
@@ -120,7 +108,7 @@ $transition-normal: 200ms ease;
   padding: 0;
 
   &.active {
-    background: $active-color;
+    background: var(--reader-chrome-accent);
 
     .slider {
       transform: translateX(18px);
@@ -133,17 +121,17 @@ $transition-normal: 200ms ease;
     left: 2px;
     width: 18px;
     height: 18px;
-    background: #fff;
+    background: var(--color-white);
     border-radius: 50%;
     transition: transform 300ms ease;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   }
 
   &:hover {
-    background: rgb(255 255 255 / 20%);
+    background: color-mix(in srgb, var(--color-white) 20%, transparent);
 
     &.active {
-      background: color.adjust($active-color, $lightness: 5%);
+      background: var(--reader-chrome-accent-hover);
     }
   }
 }
@@ -152,17 +140,17 @@ $transition-normal: 200ms ease;
 .button-group {
   display: flex;
   gap: 4px;
-  background: rgb(255 255 255 / 3%);
+  background: color-mix(in srgb, var(--color-white) 3%, transparent);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid $border-color;
+  border: 1px solid var(--reader-chrome-border);
 }
 
 .option-btn {
   width: 32px;
   height: 28px;
   background: transparent;
-  color: $text-secondary;
+  color: var(--reader-chrome-fg-secondary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -170,15 +158,17 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all $transition-fast;
+  transition: background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast);
 
   &:hover {
-    background: $hover-bg;
-    color: $text-primary;
+    background: var(--reader-chrome-hover);
+    color: var(--color-white);
   }
 
   &.active {
-    background: $active-color;
+    background: var(--reader-chrome-accent);
     color: white;
   }
 
@@ -199,7 +189,7 @@ $transition-normal: 200ms ease;
 
     &.active {
       background: transparent;
-      box-shadow: 0 0 0 2px $active-color;
+      box-shadow: 0 0 0 2px var(--reader-chrome-accent);
     }
   }
 
@@ -207,7 +197,7 @@ $transition-normal: 200ms ease;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: 1px solid rgb(255 255 255 / 30%);
+    border: 1px solid color-mix(in srgb, var(--color-white) 30%, transparent);
   }
 }
 
