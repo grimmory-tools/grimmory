@@ -1,13 +1,21 @@
 <div class="device-settings-container">
-  <div class="settings-content">
-    <div class="preferences-section">
-      <app-koreader-settings-component></app-koreader-settings-component>
+  @if (userService.currentUser(); as currentUser) {
+    <div class="settings-content">
+      @if (currentUser.permissions.admin || currentUser.permissions.canSyncKoReader) {
+        <div class="preferences-section">
+          <app-koreader-settings-component></app-koreader-settings-component>
+        </div>
+      }
+      @if (currentUser.permissions.admin || currentUser.permissions.canSyncKoReader || currentUser.permissions.canSyncKobo) {
+        <div class="preferences-section">
+          <app-hardcover-settings-component></app-hardcover-settings-component>
+        </div>
+      }
+      @if (currentUser.permissions.admin || currentUser.permissions.canSyncKobo) {
+        <div class="preferences-section">
+          <app-kobo-sync-setting-component></app-kobo-sync-setting-component>
+        </div>
+      }
     </div>
-    <div class="preferences-section">
-      <app-hardcover-settings-component></app-hardcover-settings-component>
-    </div>
-    <div class="preferences-section">
-      <app-kobo-sync-setting-component></app-kobo-sync-setting-component>
-    </div>
-  </div>
+  }
 </div>
