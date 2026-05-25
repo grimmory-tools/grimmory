@@ -163,6 +163,7 @@ export class AppSidebarComponent {
     const user = this.currentUser();
     return !!user && (user.permissions.admin || user.permissions.canUpload);
   });
+  protected readonly isSettingsActive = computed(() => this.layoutService.currentPath() === '/settings');
 
   readonly searchShortcutLabel = detectSearchShortcut(
     typeof navigator !== 'undefined' ? navigator.userAgent : ''
@@ -275,11 +276,6 @@ export class AppSidebarComponent {
 
   protected openAccountSettings(): void {
     void this.dialogLauncherService.openUserProfileDialog().catch(() => undefined);
-    this.closeUserPopover();
-  }
-
-  protected openSettings(): void {
-    this.router.navigate(['/settings']);
     this.closeUserPopover();
   }
 

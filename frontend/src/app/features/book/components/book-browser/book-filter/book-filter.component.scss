@@ -16,18 +16,18 @@
 }
 
 :host ::ng-deep .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
-  width: calc(var(--sidebar-width, 225px) - 35px) !important;
+  width: calc(var(--book-filter-sidebar-width, 225px) - 35px) !important;
   min-width: unset;
 }
 
 .book-filter-container {
   height: 100%;
-  border-radius: 0.75rem;
+  border-radius: 0;
   overflow: hidden;
   background: var(--color-card);
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--p-content-border-color);
+  border-left: 1px solid var(--p-content-border-color);
 }
 
 .filter-header {
