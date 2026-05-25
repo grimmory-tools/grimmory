@@ -19,7 +19,6 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.service.book.BookService;
 import org.booklore.service.komga.KomgaService;
-import org.booklore.service.opds.OpdsBookService;
 import org.booklore.service.opds.OpdsUserV2Service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
