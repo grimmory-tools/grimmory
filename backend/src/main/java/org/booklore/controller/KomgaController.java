@@ -68,7 +68,7 @@ public class KomgaController {
         }
 
         if (!komgaService.validateBookContentAccess(user, bookId)) {
-            throw ApiError.FORBIDDEN.createException("You are not authorized to access this book.");
+            throw ApiError.BOOK_NOT_FOUND.createException(bookId);
         }
     }
 
