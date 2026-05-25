@@ -1,7 +1,6 @@
 {
   "name": "grimmory",
   "version": "0.0.0",
-  "packageManager": "yarn@4.10.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -15,10 +14,10 @@
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "lint": "yarn lint:eslint && yarn lint:styles",
+    "lint": "pnpm run lint:eslint && pnpm run lint:styles",
     "lint:eslint": "ng lint",
     "lint:styles": "stylelint \"src/**/*.scss\" \"src/*.scss\"",
-    "lint:styles:fix": "yarn lint:styles --fix"
+    "lint:styles:fix": "pnpm run lint:styles --fix"
   },
   "private": true,
   "dependencies": {
@@ -85,13 +84,5 @@
     "typescript-eslint": "^8.60.0",
     "vitest": "^4.1.7",
     "vitest-canvas-mock": "^1.1.4"
-  },
-  "overrides": {
-    "minimatch": "^10.2.1",
-    "ajv": "^8.18.0",
-    "eslint": {
-      "ajv": "^6.14.0"
-    },
-    "undici": "^7.24.1"
   }
 }

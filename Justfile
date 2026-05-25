@@ -89,8 +89,8 @@ image-run tag=local_image_tag db_url=local_db_url db_user=local_db_user db_passw
 
 # Show the resolved tool versions that the local commands expect to find.
 doctor:
-    @echo "just: $$(just --version)"
-    @echo "java: $$(java -version 2>&1 | head -n 1)"
-    @echo "node: $$(node --version)"
-    @echo "yarn: $$(corepack yarn --version)"
-    @echo "docker: $$(docker --version)"
+    @echo "just: $(just --version)"
+    @echo "java: $(java -version 2>&1 | head -n 1)"
+    @echo "node: $(node --version)"
+    @echo "pnpm: $(pnpm --version)"
+    @echo "docker: $(docker --version)"
