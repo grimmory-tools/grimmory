@@ -28,9 +28,11 @@
                 <i class="pi pi-users"></i> {{ t('users') }}
               </p-tab>
             }
-            <p-tab [value]="SettingsTab.EmailSettingsV2">
-              <i class="pi pi-envelope"></i> {{ t('email') }}
-            </p-tab>
+            @if (currentUser.permissions.admin || currentUser.permissions.canEmailBook) {
+              <p-tab [value]="SettingsTab.EmailSettingsV2">
+                <i class="pi pi-envelope"></i> {{ t('email') }}
+              </p-tab>
+            }
             @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.NamingPattern">
                 <i class="pi pi-sitemap"></i> {{ t('patterns') }}
@@ -99,9 +101,11 @@
               </p-tabpanel>
             }
 
-            <p-tabpanel [value]="SettingsTab.EmailSettingsV2">
-              <app-email-v2></app-email-v2>
-            </p-tabpanel>
+            @if (currentUser.permissions.admin || currentUser.permissions.canEmailBook) {
+              <p-tabpanel [value]="SettingsTab.EmailSettingsV2">
+                <app-email-v2></app-email-v2>
+              </p-tabpanel>
+            }
 
             <!-- [GROUP: Lazy Tabs Continued] -->
             @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
