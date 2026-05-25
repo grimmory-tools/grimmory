@@ -8,11 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.JacksonConfig;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.komga.KomgaMapper;
+import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.komga.KomgaBookDto;
 import org.booklore.model.dto.komga.KomgaLibraryDto;
 import org.booklore.model.dto.komga.KomgaPageableDto;
 import org.booklore.model.dto.komga.KomgaSeriesDto;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.service.book.BookService;
 import org.booklore.service.komga.KomgaService;
 import org.booklore.service.opds.OpdsBookService;
@@ -39,7 +43,6 @@ public class KomgaController {
 
     private final KomgaService komgaService;
     private final BookService bookService;
-    private final OpdsBookService opdsBookService;
     private final AuthenticationService authenticationService;
     private final OpdsUserV2Service opdsUserV2Service;
     private final KomgaMapper komgaMapper;
@@ -55,6 +58,18 @@ public class KomgaController {
         } catch (Exception e) {
             log.error("Failed to serialize Komga response", e);
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    private void validateBookContentAccess(Long bookId) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+
+        if (user == null) {
+            throw ApiError.FORBIDDEN.createException("Authentication required");
+        }
+
+        if (!komgaService.validateBookContentAccess(user, bookId)) {
+            throw ApiError.FORBIDDEN.createException("You are not authorized to access this book.");
         }
     }
 
@@ -152,7 +167,8 @@ public class KomgaController {
             @Parameter(description = "Book ID") @PathVariable Long bookId,
             @Parameter(description = "Page number") @PathVariable Integer pageNumber,
             @Parameter(description = "Convert image format (e.g., 'png')") @RequestParam(required = false) String convert) {
-        opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());
+        validateBookContentAccess(bookId);
+
         try {
             boolean convertToPng = "png".equalsIgnoreCase(convert);
             Resource pageImage = komgaService.getBookPageImage(bookId, pageNumber, convertToPng);
@@ -172,7 +188,8 @@ public class KomgaController {
     @GetMapping("/v1/books/{bookId}/file")
     public ResponseEntity<Resource> downloadBook(
             @Parameter(description = "Book ID") @PathVariable Long bookId) {
-        opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());
+        validateBookContentAccess(bookId);
+
         return bookService.downloadBook(bookId);
     }
 
@@ -180,7 +197,8 @@ public class KomgaController {
     @GetMapping("/v1/books/{bookId}/thumbnail")
     public ResponseEntity<Resource> getBookThumbnail(
             @Parameter(description = "Book ID") @PathVariable Long bookId) {
-        opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());
+        validateBookContentAccess(bookId);
+
         Resource coverImage = bookService.getBookThumbnail(bookId);
         return ResponseEntity.ok()
                 .header("Content-Type", "image/jpeg")
@@ -215,12 +233,5 @@ public class KomgaController {
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "Return all collections without paging") @RequestParam(defaultValue = "false") boolean unpaged) {
         return writeJson(komgaService.getCollections(page, size, unpaged));
-    }
-
-    private Long getOpdsUserId() {
-        OpdsUserDetails details = authenticationService.getOpdsUser();
-        return details != null && details.getOpdsUserV2() != null
-                ? details.getOpdsUserV2().getUserId()
-                : null;
     }
 }
