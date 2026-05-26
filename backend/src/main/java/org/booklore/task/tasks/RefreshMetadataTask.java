@@ -18,7 +18,6 @@ import static org.booklore.model.enums.UserPermission.CAN_BULK_AUTO_FETCH_METADA
 @Component
 @Slf4j
 public class RefreshMetadataTask implements Task {
-
     private final MetadataRefreshService metadataRefreshService;
 
     @Override
