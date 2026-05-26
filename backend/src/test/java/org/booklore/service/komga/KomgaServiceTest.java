@@ -270,6 +270,7 @@ class KomgaServiceTest {
     void validateBookContentAccess_ignoresNoPermissionUser() {
         BookEntity bookEntity = getBookEntity();
         BookLoreUser user = BookLoreUser.builder()
+                .id(1L)
                 .assignedLibraries(List.of(Library.builder().id(1L).build()))
                 .build();
 
