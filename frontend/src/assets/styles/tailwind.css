@@ -51,6 +51,7 @@
   --color-info: var(--color-sky-600);
   --color-logo-start: var(--color-primary-400);
   --color-logo-end: var(--color-primary-600);
+  --color-logo-bookmark: #FF2126;
 }
 
 [data-app-theme] {
@@ -71,6 +72,7 @@
   --color-primary-text: var(--color-primary-700);
   --color-logo-start: var(--color-primary-400);
   --color-logo-end: var(--color-primary-600);
+  --color-logo-bookmark: #FF2126;
 }
 
 .dark {
@@ -89,6 +91,7 @@
   --color-primary-text: var(--color-primary-400);
   --color-logo-start: var(--color-primary-300);
   --color-logo-end: var(--color-primary-500);
+  --color-logo-bookmark: var(--color-white);
   --color-warning: var(--color-amber-400);
   --color-info: var(--color-sky-400);
 }
