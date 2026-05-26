@@ -123,7 +123,7 @@ describe('AppConfigService', () => {
     );
   });
 
-  it('resets legacy saved palette state to the default theme and dark appearance', () => {
+  it('resets legacy saved palette state to the default theme and system appearance', () => {
     localStorageMock.setItem('appConfigState', JSON.stringify({
       preset: 'Aura',
       primary: 'blue',
@@ -143,14 +143,14 @@ describe('AppConfigService', () => {
 
     expect(service.appState()).toEqual({
       themePreference: 'grimmory',
-      appearancePreference: 'dark',
+      appearancePreference: 'system',
       customPrimary: 'orange',
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
-    expect(root.classList.contains('dark')).toBe(true);
+    expect(root.classList.contains('dark')).toBe(false);
     expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
       themePreference: 'grimmory',
-      appearancePreference: 'dark',
+      appearancePreference: 'system',
       customPrimary: 'orange',
     }));
   });

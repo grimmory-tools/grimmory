@@ -15,7 +15,6 @@ import {
 
 const PRIMARY_COLOR_STOPS = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
 const DEFAULT_APPEARANCE_PREFERENCE: AppearancePreference = 'system';
-const LEGACY_APPEARANCE_PREFERENCE: AppearancePreference = 'dark';
 
 type StoredAppState = Partial<AppState> & {
   preset?: unknown;
@@ -95,7 +94,7 @@ export class AppConfigService {
     if (this.isLegacyPaletteState(state)) {
       return this.withDefaults({
         themePreference: DEFAULT_APP_THEME,
-        appearancePreference: LEGACY_APPEARANCE_PREFERENCE,
+        appearancePreference: DEFAULT_APPEARANCE_PREFERENCE,
         customPrimary: DEFAULT_CUSTOM_PRIMARY,
       });
     }
