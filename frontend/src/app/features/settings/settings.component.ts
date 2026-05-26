@@ -111,13 +111,13 @@ export class SettingsComponent implements OnInit {
 
     // Initialize from snapshot synchronously to ensure p-tabs (lazy) picks up the correct value on first render
     const initialTab = this.route.snapshot.queryParams['tab'];
-    if (this.validTabs.includes(initialTab)) {
+    if (this.validTabs.includes(initialTab) && this.canOpenTab(initialTab as SettingsTab)) {
       this._activeTab.set(initialTab as SettingsTab);
     }
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const tabParam = params['tab'];
-      if (this.validTabs.includes(tabParam)) {
+      if (this.validTabs.includes(tabParam) && this.canOpenTab(tabParam as SettingsTab)) {
         this._activeTab.set(tabParam as SettingsTab);
       } else {
         const defaultTab = SettingsTab.ViewPreferences;
@@ -130,6 +130,33 @@ export class SettingsComponent implements OnInit {
         });
       }
     });
+  }
+
+  protected canOpenTab(tab: SettingsTab): boolean {
+    const permissions = this.userService.currentUser()?.permissions;
+
+    switch (tab) {
+      case SettingsTab.MetadataSettings:
+      case SettingsTab.LibraryMetadataSettings:
+      case SettingsTab.NamingPattern:
+        return !!(permissions?.admin || permissions?.canManageMetadataConfig);
+      case SettingsTab.ApplicationSettings:
+        return !!(permissions?.admin || permissions?.canManageGlobalPreferences);
+      case SettingsTab.UserManagement:
+      case SettingsTab.AuthenticationSettings:
+      case SettingsTab.AuditLogs:
+        return !!permissions?.admin;
+      case SettingsTab.EmailSettingsV2:
+        return !!(permissions?.admin || permissions?.canEmailBook);
+      case SettingsTab.Tasks:
+        return !!(permissions?.admin || permissions?.canAccessTaskManager);
+      case SettingsTab.OpdsV2:
+        return !!(permissions?.admin || permissions?.canAccessOpds);
+      case SettingsTab.DeviceSettings:
+        return !!(permissions?.admin || permissions?.canSyncKoReader || permissions?.canSyncKobo);
+      default:
+        return true;
+    }
   }
 
 }
