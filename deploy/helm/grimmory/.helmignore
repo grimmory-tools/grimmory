@@ -1,0 +1,2 @@
+# Exclude CI tests 
+ci/
