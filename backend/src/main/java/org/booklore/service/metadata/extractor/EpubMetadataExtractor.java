@@ -2,7 +2,6 @@ package org.booklore.service.metadata.extractor;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;
@@ -55,11 +54,15 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
 
-    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper objectMapper;
 
     static {
         MEDIA_TYPES.addAll(Arrays.asList(MediaTypes.mediaTypes));
         MEDIA_TYPES.add(null);
+    }
+
+    public EpubMetadataExtractor(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_IDENTIFIER_PREFIXES = Map.of(
@@ -253,7 +256,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             safeParseInt(content, builderMeta::pageCount);
                         } else if ("calibre:user_metadata:#pagecount".equals(name)) {
                             try {
-                                JsonNode jsonRoot = OBJECT_MAPPER.readTree(content);
+                                JsonNode jsonRoot = objectMapper.readTree(content);
                                 JsonNode valueNode = jsonRoot.get("#value#");
                                 if (valueNode != null && !valueNode.isNull()) {
                                     safeParseInt(valueNode.asText(), builderMeta::pageCount);
@@ -263,7 +266,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             }
                         } else if ("calibre:user_metadata".equals(prop)) {
                             try {
-                                extractCalibreUserMetadata(OBJECT_MAPPER.readTree(content), builderMeta, moods, tags);
+                                extractCalibreUserMetadata(objectMapper.readTree(content), builderMeta, moods, tags);
                             } catch (Exception e) {
                                 log.debug("Failed to parse calibre:user_metadata: {}", e.getMessage());
                             }

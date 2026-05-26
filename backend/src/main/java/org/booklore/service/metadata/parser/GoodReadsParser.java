@@ -3,7 +3,6 @@ package org.booklore.service.metadata.parser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -49,10 +48,10 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
-    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     private final HttpClient httpClient;
     private final AppSettingService appSettingService;
+    private final ObjectMapper objectMapper;
 
     private record TitleInfo(String title, String subtitle) {}
 
@@ -458,7 +457,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
             if (scriptElement != null) {
                 String jsonString = scriptElement.html();
-                return OBJECT_MAPPER.readTree(jsonString);
+                return objectMapper.readTree(jsonString);
             } else {
                 log.warn("No JSON script element found!");
             }
@@ -545,7 +544,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 throw new RuntimeException("Failed to query GoodReads");
             }
 
-            return OBJECT_MAPPER.readValue(response.body(), typeReference);
+            return objectMapper.readValue(response.body(), typeReference);
         } catch (InterruptedException e) {
             throw e;
         } catch (IOException e) {

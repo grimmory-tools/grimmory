@@ -6,7 +6,6 @@ import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.repository.AppSettingsRepository;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -25,9 +24,7 @@ public class InstallationService {
 
     public InstallationService(AppSettingsRepository appSettingsRepository, ObjectMapper objectMapper) {
         this.appSettingsRepository = appSettingsRepository;
-        this.objectMapper = JsonMapper.builder()
-                .findAndAddModules()
-                .build();
+        this.objectMapper = objectMapper;
     }
 
     public Installation getOrCreateInstallation() {

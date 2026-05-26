@@ -41,6 +41,7 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
 
     private static final Pattern CHAPTER_PATTERN = Pattern.compile("(?i)^(chp?|chapter)?\\d+$");
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^0-9]");
+    private final ObjectMapper mapper;
     private final FfprobeService ffprobeService;
 
     static {
@@ -377,7 +378,6 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
                 return null;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonOutput);
             JsonNode chaptersNode = root.get("chapters");
 

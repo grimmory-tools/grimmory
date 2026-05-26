@@ -2,6 +2,7 @@ package org.booklore.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.BookRecommendationLite;
 import tools.jackson.core.JacksonException;
@@ -11,10 +12,11 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.Set;
 
 @Converter
+@AllArgsConstructor
 @Slf4j
 public class BookRecommendationIdsListConverter implements AttributeConverter<Set<BookRecommendationLite>, String> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private static final TypeReference<Set<BookRecommendationLite>> SET_TYPE_REF = new TypeReference<>() {};
 
     @Override

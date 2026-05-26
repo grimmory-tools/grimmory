@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.mockito.Mockito.*;
 
@@ -28,11 +29,17 @@ class SidecarMetadataWriterTest {
     @Mock
     private AppSettingService appSettingService;
 
-    @InjectMocks
     private SidecarMetadataWriter sidecarMetadataWriter;
 
     @BeforeEach
     void setUp() {
+        sidecarMetadataWriter = new SidecarMetadataWriter(
+                appProperties,
+                mapper,
+                fileService,
+                appSettingService,
+                new ObjectMapper()
+        );
         lenient().when(appProperties.isLocalStorage()).thenReturn(true);
     }
 

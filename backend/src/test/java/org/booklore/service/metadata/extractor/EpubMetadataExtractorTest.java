@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +32,7 @@ class EpubMetadataExtractorTest {
 
     @BeforeEach
     void setUp() {
-        extractor = new EpubMetadataExtractor();
+        extractor = new EpubMetadataExtractor(new ObjectMapper());
     }
 
     private File createEpub(String opfContent) throws IOException {

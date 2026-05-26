@@ -2,6 +2,7 @@ package org.booklore.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.enums.BookFileType;
 import tools.jackson.core.JacksonException;
@@ -12,10 +13,11 @@ import java.util.Collections;
 import java.util.List;
 
 @Converter
+@AllArgsConstructor
 @Slf4j
 public class FormatPriorityConverter implements AttributeConverter<List<BookFileType>, String> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private static final TypeReference<List<BookFileType>> LIST_TYPE_REF = new TypeReference<>() {};
 
     @Override

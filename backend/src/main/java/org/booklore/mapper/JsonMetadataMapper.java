@@ -3,14 +3,12 @@ package org.booklore.mapper;
 import org.booklore.model.dto.BookMetadata;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JsonMetadataMapper {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     public static BookMetadata parse(String json) {
         try {
-            return objectMapper.readValue(json, BookMetadata.class);
+            return JsonMapper.shared().readValue(json, BookMetadata.class);
         } catch (JacksonException e) {
             return null;
         }
@@ -18,7 +16,7 @@ public class JsonMetadataMapper {
 
     public static String toJson(BookMetadata metadata) {
         try {
-            return objectMapper.writeValueAsString(metadata);
+            return JsonMapper.shared().writeValueAsString(metadata);
         } catch (JacksonException e) {
             return null;
         }

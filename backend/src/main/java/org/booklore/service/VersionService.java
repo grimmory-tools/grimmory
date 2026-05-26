@@ -1,5 +1,6 @@
 package org.booklore.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.ReleaseNote;
 import org.booklore.model.dto.VersionInfo;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class VersionService {
     private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
     private static final String DEVELOPMENT_VERSION = "development";
@@ -26,7 +28,7 @@ public class VersionService {
             .defaultHeader("Accept", "application/vnd.github+json")
             .defaultHeader("User-Agent", "Grimmory-Version-Checker")
             .build();
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public String getAppVersion() {
         String appVersion = getClass().getPackage().getImplementationVersion();
@@ -66,7 +68,7 @@ public class VersionService {
                     .retrieve()
                     .body(String.class);
 
-            JsonNode root = MAPPER.readTree(response);
+            JsonNode root = objectMapper.readTree(response);
             return root.path("tag_name").asText("unknown");
 
         } catch (Exception e) {
@@ -89,7 +91,7 @@ public class VersionService {
                     .retrieve()
                     .body(String.class);
 
-            JsonNode releases = MAPPER.readTree(response);
+            JsonNode releases = objectMapper.readTree(response);
             if (!releases.isArray()) {
                 log.warn("Invalid releases response from GitHub API");
                 return updates;

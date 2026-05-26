@@ -37,13 +37,13 @@ public class RanobeDbParser implements BookParser {
     private static final String RANOBEDB_URL = "https://ranobedb.org/api/v0/";
     private static final String RANOBEDB_IMAGE_URL = "https://images.ranobedb.org/";
 
+    private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     
     // Rate limiter: 2 requests per second
     private static final int MAX_REQUESTS_PER_SECOND = 2;
     private static final long RATE_LIMIT_WINDOW_MS = 1000; // 1 second in milliseconds
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final AtomicLong lastRequestTime = new AtomicLong(0);
     private final AtomicLong tokenCount = new AtomicLong(MAX_REQUESTS_PER_SECOND);
 
@@ -162,7 +162,7 @@ public class RanobeDbParser implements BookParser {
     }
 
     private List<BookMetadata> parseRanobeDbApiResponse(String responseBody, Boolean fetchTop) throws IOException {
-        RanobedbSearchResponse searchResponse = OBJECT_MAPPER.readValue(responseBody, RanobedbSearchResponse.class);
+        RanobedbSearchResponse searchResponse = objectMapper.readValue(responseBody, RanobedbSearchResponse.class);
         if (searchResponse.getBooks() == null) {
             return Collections.emptyList();
         }
@@ -197,7 +197,7 @@ public class RanobeDbParser implements BookParser {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                RanobedbBookResponse responstObj = OBJECT_MAPPER.readValue(response.body(), RanobedbBookResponse.class);
+                RanobedbBookResponse responstObj = objectMapper.readValue(response.body(), RanobedbBookResponse.class);
                 RanobedbBookResponse.Book book = responstObj.getBook();
                 if (book == null) {
                     return null;

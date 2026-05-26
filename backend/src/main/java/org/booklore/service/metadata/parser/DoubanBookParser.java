@@ -51,6 +51,7 @@ public class DoubanBookParser implements BookParser {
     // Pattern for yyyy-MM-dd (or yyyy/M/d) date formats
     private static final Pattern DATE_YMD_PATTERN = Pattern.compile("(\\d{4})[-/](\\d{1,2})[-/](\\d{1,2})");
     private final AppSettingService appSettingService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -146,7 +147,6 @@ public class DoubanBookParser implements BookParser {
             log.debug("Extracted JSON data: {}", jsonData);
 
             // Parse JSON data
-            ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode;
             try {
                 rootNode = objectMapper.readTree(jsonData);

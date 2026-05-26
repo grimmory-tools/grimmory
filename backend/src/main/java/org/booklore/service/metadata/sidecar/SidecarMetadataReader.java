@@ -7,7 +7,6 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,11 +20,9 @@ public class SidecarMetadataReader {
     private final SidecarMetadataMapper mapper;
     private final ObjectMapper objectMapper;
 
-    public SidecarMetadataReader(SidecarMetadataMapper mapper) {
+    public SidecarMetadataReader(SidecarMetadataMapper mapper, ObjectMapper objectMapper) {
         this.mapper = mapper;
-        this.objectMapper = JsonMapper.builder()
-                .findAndAddModules()
-                .build();
+        this.objectMapper = objectMapper;
     }
 
     public Optional<SidecarMetadata> readSidecarMetadata(Path bookPath) {

@@ -42,10 +42,10 @@ public class LubimyCzytacParser implements BookParser {
     private static final double RATING_SCALE_DIVISOR = 2.0; // Convert 10-point scale to 5-point scale
     private static final Pattern SERIES_NUMBER_PATTERN = Pattern.compile("\\(tom\\s+(\\d+)\\)");
     private static final Pattern BOOK_ID_PATTERN = Pattern.compile("/ksiazka/(\\d+)");
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern WHITESPACE_HYPHEN_PATTERN = Pattern.compile("[\\s-]");
 
     private final AppSettingService appSettingService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -365,7 +365,7 @@ public class LubimyCzytacParser implements BookParser {
 
     private void parseJsonLd(String jsonLd, BookMetadata metadata) {
         try {
-            JsonNode root = OBJECT_MAPPER.readTree(jsonLd);
+            JsonNode root = objectMapper.readTree(jsonLd);
 
             // Pages
             if (root.has("numberOfPages")) {

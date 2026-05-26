@@ -12,7 +12,6 @@ import org.booklore.util.FileService;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,13 +28,12 @@ public class SidecarMetadataWriter {
     private final AppSettingService appSettingService;
     private final ObjectMapper objectMapper;
 
-    public SidecarMetadataWriter(AppProperties appProperties, SidecarMetadataMapper mapper, FileService fileService, AppSettingService appSettingService) {
+    public SidecarMetadataWriter(AppProperties appProperties, SidecarMetadataMapper mapper, FileService fileService, AppSettingService appSettingService, ObjectMapper objectMapper) {
         this.appProperties = appProperties;
         this.mapper = mapper;
         this.fileService = fileService;
         this.appSettingService = appSettingService;
-        this.objectMapper = JsonMapper.builder()
-                .findAndAddModules()
+        this.objectMapper = objectMapper.rebuild()
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .build();
     }
