@@ -2,7 +2,9 @@ package org.booklore.service.komga;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.komga.KomgaMapper;
+import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.dto.komga.*;
 import org.booklore.model.entity.BookEntity;
@@ -15,6 +17,7 @@ import org.booklore.service.MagicShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.service.reader.PdfReaderService;
+import org.booklore.service.restriction.ContentRestrictionService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -45,6 +48,40 @@ public class KomgaService {
     private final CbxReaderService cbxReaderService;
     private final PdfReaderService pdfReaderService;
     private final AppSettingService appSettingService;
+    private final ContentRestrictionService contentRestrictionService;
+
+
+    public boolean validateBookContentAccess(BookLoreUser user, Long bookId) {
+        if (user == null) {
+            return false;
+        }
+
+        if (user.getPermissions() != null && user.getPermissions().isAdmin()) {
+            return true;
+        }
+
+        BookEntity book = bookRepository.findById(bookId)
+                .orElse(null);
+
+        if (book == null) {
+            return false;
+        }
+
+        boolean hasLibraryAccess = user.getAssignedLibraries() != null && user.getAssignedLibraries().stream()
+                .anyMatch(library -> library.getId().equals(book.getLibrary().getId()));
+
+        if (!hasLibraryAccess) {
+            return false;
+        }
+
+        List<BookEntity> filtered = contentRestrictionService.applyRestrictions(List.of(book), user.getId());
+        if (filtered.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     public List<KomgaLibraryDto> getAllLibraries() {
         return libraryRepository.findAll().stream()
