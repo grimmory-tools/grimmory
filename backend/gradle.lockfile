@@ -202,7 +202,6 @@ org.xmlunit:xmlunit-core:2.10.4=testCompileClasspath,testRuntimeClasspath
 org.yaml:snakeyaml:2.5=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 tools.jackson.core:jackson-core:3.1.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 tools.jackson.core:jackson-databind:3.1.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-tools.jackson.module:jackson-module-blackbird:3.1.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 tools.jackson:jackson-bom:3.1.3=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 xmlpull:xmlpull:1.1.3.4d_b4_min=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 empty=developmentOnly,testAndDevelopmentOnly,testAnnotationProcessor
