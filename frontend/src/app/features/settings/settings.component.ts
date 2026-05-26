@@ -136,6 +136,9 @@ export class SettingsComponent implements OnInit {
     const permissions = this.userService.currentUser()?.permissions;
 
     switch (tab) {
+      case SettingsTab.ViewPreferences:
+      case SettingsTab.ReaderSettings:
+        return true;
       case SettingsTab.MetadataSettings:
       case SettingsTab.LibraryMetadataSettings:
       case SettingsTab.NamingPattern:
@@ -155,7 +158,7 @@ export class SettingsComponent implements OnInit {
       case SettingsTab.DeviceSettings:
         return !!(permissions?.admin || permissions?.canSyncKoReader || permissions?.canSyncKobo);
       default:
-        return true;
+        return false;
     }
   }
 
