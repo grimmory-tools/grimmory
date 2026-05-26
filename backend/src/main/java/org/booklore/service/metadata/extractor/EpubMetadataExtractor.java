@@ -48,19 +48,11 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern YEAR_ONLY_PATTERN = Pattern.compile("^\\d{4}$");
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
 
-    // List of all media types that epub4j has so we can lazy load them.
-    // Note that we have to add in null to handle files without extentions like mimetype.
-    private static final List<MediaType> MEDIA_TYPES = new ArrayList<>();
     private static final Pattern ISBN_SEPARATOR_PATTERN = Pattern.compile("[- ]");
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
-
-    static {
-        MEDIA_TYPES.addAll(Arrays.asList(MediaTypes.mediaTypes));
-        MEDIA_TYPES.add(null);
-    }
 
     private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_IDENTIFIER_PREFIXES = Map.of(
             "amazon", BookMetadata.BookMetadataBuilder::asin,

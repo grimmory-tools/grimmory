@@ -26,13 +26,15 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Slf4j
 @Service
@@ -57,7 +59,10 @@ public class OidcAuthService {
     private final OidcGroupMappingService oidcGroupMappingService;
     private final AuditService auditService;
 
-    private static final ConcurrentMap<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
+    private static final Cache<String, ReentrantLock> userLocks = Caffeine.newBuilder()
+            .weakValues()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
 
     @Transactional
     public ResponseEntity<AccessTokenDto> exchangeCodeForTokens(
@@ -253,7 +258,7 @@ public class OidcAuthService {
                         throw ApiError.OIDC_USER_NOT_PROVISIONED.createException(userClaims.username());
                     }
 
-                    ReentrantLock lock = userLocks.computeIfAbsent(userClaims.username(), _ -> new ReentrantLock());
+                    ReentrantLock lock = userLocks.get(userClaims.username(), _ -> new ReentrantLock());
                     lock.lock();
                     try {
                         return userRepository.findByOidcIssuerAndOidcSubject(issuerUri, userClaims.subject())

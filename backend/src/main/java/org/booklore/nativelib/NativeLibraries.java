@@ -28,8 +28,7 @@ public final class NativeLibraries {
     private static final Map<Library, Probe> PROBES;
 
     static {
-        Map<Library, Probe> probes = new LinkedHashMap<>();
-
+        var probes = new LinkedHashMap<Library, Probe>();
         probes.put(Library.PDFIUM, new Probe("PDFium", () -> {
             Boolean clean = tryInvokeStaticBoolean("org.grimmory.pdfium4j.PdfiumLibrary");
             if (clean != null) {
@@ -38,9 +37,7 @@ public final class NativeLibraries {
             PdfiumLibrary.initialize();
             return true;
         }));
-
         probes.put(Library.LIBARCHIVE, new Probe("libarchive", Archive::isAvailable));
-
         probes.put(Library.EPUB4J_NATIVE, new Probe("epub4j-native", () -> {
             Boolean clean = tryInvokeStaticBoolean(
                     "org.grimmory.epub4j.native_parsing.EpubNativeLibrary"
@@ -55,8 +52,7 @@ public final class NativeLibraries {
             );
             return true;
         }));
-
-        PROBES = Collections.unmodifiableMap(probes);
+        PROBES = Collections.unmodifiableSequencedMap(probes);
     }
 
     private final Map<Library, Boolean> status;
