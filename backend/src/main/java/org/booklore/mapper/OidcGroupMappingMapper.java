@@ -6,12 +6,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OidcGroupMappingMapper {
+
+    ObjectMapper JSON = new ObjectMapper();
+
     @Mapping(target = "isAdmin", source = "admin")
     @Mapping(target = "permissions", expression = "java(jsonToStringList(entity.getPermissions()))")
     @Mapping(target = "libraryIds", expression = "java(jsonToLongList(entity.getLibraryIds()))")
@@ -28,9 +30,8 @@ public interface OidcGroupMappingMapper {
 
     default List<String> jsonToStringList(String json) {
         if (json == null || json.isBlank()) return List.of();
-        ObjectMapper objectMapper = JsonMapper.shared();
         try {
-            return objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+            return JSON.readValue(json, JSON.getTypeFactory().constructCollectionType(List.class, String.class));
         } catch (Exception _) {
             return List.of();
         }
@@ -38,9 +39,8 @@ public interface OidcGroupMappingMapper {
 
     default List<Long> jsonToLongList(String json) {
         if (json == null || json.isBlank()) return List.of();
-        ObjectMapper objectMapper = JsonMapper.shared();
         try {
-            return objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+            return JSON.readValue(json, JSON.getTypeFactory().constructCollectionType(List.class, Long.class));
         } catch (Exception _) {
             return List.of();
         }
@@ -48,9 +48,8 @@ public interface OidcGroupMappingMapper {
 
     default String stringListToJson(List<String> list) {
         if (list == null || list.isEmpty()) return "[]";
-        ObjectMapper objectMapper = JsonMapper.shared();
         try {
-            return objectMapper.writeValueAsString(list);
+            return JSON.writeValueAsString(list);
         } catch (Exception _) {
             return "[]";
         }
@@ -58,9 +57,8 @@ public interface OidcGroupMappingMapper {
 
     default String longListToJson(List<Long> list) {
         if (list == null || list.isEmpty()) return "[]";
-        ObjectMapper objectMapper = JsonMapper.shared();
         try {
-            return objectMapper.writeValueAsString(list);
+            return JSON.writeValueAsString(list);
         } catch (Exception _) {
             return "[]";
         }

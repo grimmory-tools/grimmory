@@ -7,12 +7,13 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.regex.Pattern;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface KoboReadingStateMapper {
+
+    ObjectMapper objectMapper = new ObjectMapper();
     Pattern SURROUNDING_DOUBLE_QUOTES_PATTERN = Pattern.compile("^\"|\"$");
 
     @Mapping(target = "currentBookmarkJson", expression = "java(toJson(dto.getCurrentBookmark()))")
@@ -36,7 +37,7 @@ public interface KoboReadingStateMapper {
 
     default String toJson(Object value) {
         try {
-            return value == null ? null : JsonMapper.shared().writeValueAsString(value);
+            return value == null ? null : objectMapper.writeValueAsString(value);
         } catch (JacksonException e) {
             throw new RuntimeException("Failed to serialize JSON", e);
         }
@@ -44,7 +45,7 @@ public interface KoboReadingStateMapper {
 
     default <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return json == null ? null : JsonMapper.shared().readValue(json, clazz);
+            return json == null ? null : objectMapper.readValue(json, clazz);
         } catch (JacksonException e) {
             throw new RuntimeException("Failed to deserialize JSON", e);
         }
