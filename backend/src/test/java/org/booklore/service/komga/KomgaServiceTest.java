@@ -267,6 +267,38 @@ class KomgaServiceTest {
     }
 
     @Test
+    void validateBookContentAccess_ignoresNoPermissionUser() {
+        BookEntity bookEntity = getBookEntity();
+        BookLoreUser user = BookLoreUser.builder()
+                .assignedLibraries(List.of(Library.builder().id(1L).build()))
+                .build();
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+        when(
+                contentRestrictionService.applyRestrictions(List.of(bookEntity), user.getId())
+        ).thenReturn(List.of(bookEntity));
+
+        boolean actual = komgaService.validateBookContentAccess(user, 1L);
+
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void validateBookContentAccess_rejectsNullLibraryUser() {
+        BookEntity bookEntity = getBookEntity();
+        BookLoreUser user = BookLoreUser.builder()
+                .build();
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+
+        boolean actual = komgaService.validateBookContentAccess(user, 1L);
+
+        assertThat(actual).isFalse();
+
+        verifyNoInteractions(contentRestrictionService);
+    }
+
+    @Test
     void validateBookContentAccess_rejectsOnLibraryAccess() {
         LibraryEntity otherLibrary = LibraryEntity.builder().id(2L).build();
 

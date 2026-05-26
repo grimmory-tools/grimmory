@@ -52,7 +52,11 @@ public class KomgaService {
 
 
     public boolean validateBookContentAccess(BookLoreUser user, Long bookId) {
-        if (user.getPermissions().isAdmin()) {
+        if (user == null) {
+            return false;
+        }
+
+        if (user.getPermissions() != null && user.getPermissions().isAdmin()) {
             return true;
         }
 
@@ -63,7 +67,7 @@ public class KomgaService {
             return false;
         }
 
-        boolean hasLibraryAccess = user.getAssignedLibraries().stream()
+        boolean hasLibraryAccess = user.getAssignedLibraries() != null && user.getAssignedLibraries().stream()
                 .anyMatch(library -> library.getId().equals(book.getLibrary().getId()));
 
         if (!hasLibraryAccess) {
