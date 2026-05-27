@@ -46,10 +46,6 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
       legend: {display: false},
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: '#ffffff',
         borderWidth: 1,
         cornerRadius: 6,
         padding: 12,
@@ -73,10 +69,8 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
     scales: {
       r: {
         ticks: {display: false},
-        grid: {color: 'rgba(255, 255, 255, 0.1)'},
         pointLabels: {
           display: true,
-          color: 'rgba(255, 255, 255, 0.7)',
           font: {family: "'Inter', sans-serif", size: 10}
         }
       }
@@ -162,9 +156,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
       labels: HOUR_LABELS,
       datasets: [{
         data: hourMinutes,
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace(/[\d.]+\)$/, '1)')),
-        borderWidth: 1
+        backgroundColor: colors
       }]
     });
   }

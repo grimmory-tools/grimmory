@@ -51,7 +51,6 @@ export class CompletionTimelineChartComponent implements OnInit {
           display: true,
           position: 'top',
           labels: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             boxWidth: 12,
             padding: 10
@@ -59,10 +58,6 @@ export class CompletionTimelineChartComponent implements OnInit {
         },
         tooltip: {
           enabled: true,
-          backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          titleColor: '#ffffff',
-          bodyColor: '#ffffff',
-          borderColor: '#ffffff',
           borderWidth: 1,
           cornerRadius: 6,
           displayColors: true,
@@ -85,7 +80,6 @@ export class CompletionTimelineChartComponent implements OnInit {
           title: {
             display: true,
             text: this.t.translate('statsUser.completionTimeline.axisMonth'),
-            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 13,
@@ -93,7 +87,6 @@ export class CompletionTimelineChartComponent implements OnInit {
             }
           },
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           grid: {display: false},
@@ -103,7 +96,6 @@ export class CompletionTimelineChartComponent implements OnInit {
           title: {
             display: true,
             text: this.t.translate('statsUser.completionTimeline.axisNumberOfBooks'),
-            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 13,
@@ -112,12 +104,10 @@ export class CompletionTimelineChartComponent implements OnInit {
           },
           beginAtZero: true,
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             stepSize: 1
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
           },
           border: {display: false}
         }

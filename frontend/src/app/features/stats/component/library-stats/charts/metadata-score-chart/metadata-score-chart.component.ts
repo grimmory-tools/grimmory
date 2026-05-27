@@ -61,7 +61,6 @@ export class MetadataScoreChartComponent {
         display: true,
         position: 'right',
         labels: {
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
@@ -74,9 +73,6 @@ export class MetadataScoreChartComponent {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
         borderColor: '#16A34A',
         borderWidth: 2,
         cornerRadius: 8,
@@ -112,11 +108,7 @@ export class MetadataScoreChartComponent {
       labels,
       datasets: [{
         data,
-        backgroundColor: colors,
-        borderColor: colors.map(() => 'rgba(255, 255, 255, 0.2)'),
-        borderWidth: 2,
-        hoverBorderColor: '#ffffff',
-        hoverBorderWidth: 3
+        backgroundColor: colors
       }]
     };
   });

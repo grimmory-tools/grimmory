@@ -64,9 +64,6 @@ export class PageCountChartComponent {
       legend: {display: false},
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
         borderColor: '#8B5CF6',
         borderWidth: 2,
         cornerRadius: 8,
@@ -90,14 +87,12 @@ export class PageCountChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsLibrary.pageCount.axisPageCount'),
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
           }
         },
         ticks: {
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 10
@@ -110,7 +105,6 @@ export class PageCountChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsLibrary.pageCount.axisBooks'),
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
@@ -118,7 +112,6 @@ export class PageCountChartComponent {
         },
         beginAtZero: true,
         ticks: {
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 10
@@ -127,7 +120,6 @@ export class PageCountChartComponent {
           maxTicksLimit: 6
         },
         grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
         },
         border: {display: false}
       }
@@ -150,7 +142,6 @@ export class PageCountChartComponent {
       datasets: [{
         data,
         backgroundColor: colors,
-        borderColor: colors.map(() => 'rgba(255, 255, 255, 0.2)'),
         borderWidth: 1,
         borderRadius: 4,
         barPercentage: 0.8,

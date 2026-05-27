@@ -32,11 +32,11 @@
     justify-self: center;
 
     .week-nav-btn {
-      background: rgb(255 255 255 / 10%);
-      border: 1px solid rgb(255 255 255 / 20%);
+      background: color-mix(in srgb, var(--color-text) 5%, transparent);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
       padding: 0.6rem;
-      color: #fff;
+      color: var(--color-text);
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
@@ -44,8 +44,8 @@
       justify-content: center;
 
       &:hover {
-        background: rgb(255 255 255 / 20%);
-        border-color: rgb(255 255 255 / 30%);
+        background: color-mix(in srgb, var(--color-text) 10%, transparent);
+        border-color: var(--color-border);
         transform: translateY(-1px);
       }
 
@@ -67,7 +67,7 @@
       .week-label {
         font-size: 1rem;
         font-weight: 600;
-        color: #fff;
+        color: var(--color-text);
         white-space: nowrap;
         line-height: 1.2;
       }
@@ -97,16 +97,16 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgb(255 255 255 / 5%);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
   border-radius: 8px;
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid var(--color-border);
 
   .week-nav-btn {
-    background: rgb(255 255 255 / 10%);
-    border: 1px solid rgb(255 255 255 / 20%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 0.6rem 6rem;
-    color: #fff;
+    color: var(--color-text);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -114,8 +114,8 @@
     justify-content: center;
 
     &:hover {
-      background: rgb(255 255 255 / 20%);
-      border-color: rgb(255 255 255 / 30%);
+      background: color-mix(in srgb, var(--color-text) 10%, transparent);
+      border-color: var(--color-border);
       transform: translateY(-1px);
     }
 
@@ -137,7 +137,7 @@
     .week-label {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--color-text);
       white-space: nowrap;
     }
 
@@ -187,7 +187,7 @@
   .hour-label {
     display: none;
     font-size: 0.75rem;
-    color: rgb(255 255 255 / 60%);
+    color: var(--color-text-secondary);
     position: absolute;
     left: 0;
     transform: translateX(-50%);
@@ -214,16 +214,16 @@
     align-items: center;
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgb(255 255 255 / 90%);
+    color: var(--color-text);
     padding-right: 1rem;
   }
 
   .timeline-track {
     flex: 1;
     position: relative;
-    background: rgb(255 255 255 / 2%);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
     border-radius: 4px;
-    border: 1px solid rgb(255 255 255 / 10%);
+    border: 1px solid var(--color-border);
     min-height: 35px;
     overflow: visible;
   }
@@ -237,7 +237,7 @@
   pointer-events: none;
 
   .grid-line {
-    border-right: 1px solid rgb(255 255 255 / 5%);
+    border-right: 1px solid color-mix(in srgb, var(--color-text) 5%, transparent);
 
     &:last-child {
       border-right: none;

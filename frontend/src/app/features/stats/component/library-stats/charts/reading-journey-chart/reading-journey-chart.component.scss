@@ -1,4 +1,4 @@
-@use '../../../_chart-shared';
+@use '../../../chart-shared' as chart-shared;
 
 .reading-journey-container {
   width: 100%;
@@ -6,17 +6,14 @@
 
 .journey-title-icon {
   font-size: 1.5rem;
-  color: #10b981;
+  color: var(--color-emerald-500);
 }
 
 .date-range-badge {
-  background: linear-gradient(135deg, rgb(16 185 129 / 20%), rgb(16 185 129 / 10%));
-  border: 1px solid rgb(16 185 129 / 30%);
-  border-radius: 20px;
-  padding: 0.4rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #34d399;
+  --stats-badge-accent: var(--color-emerald-500);
+
+  @include chart-shared.accent-badge;
+
   white-space: nowrap;
 }
 
@@ -29,7 +26,7 @@
 .insights-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .insights-row {
@@ -44,27 +41,26 @@
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-  border-radius: 8px;
-  background: rgb(255 255 255 / 3%);
-  border: 1px solid rgb(255 255 255 / 8%);
+
+  @include chart-shared.neutral-surface;
 
   .insight-label {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--text-secondary-color);
+    color: var(--color-text-secondary);
     margin-bottom: 0.25rem;
   }
 
   .insight-value {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-color, #fff);
+    color: var(--color-text);
   }
 
   .insight-detail {
     font-size: 0.75rem;
-    color: var(--text-secondary-color);
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
     white-space: nowrap;
     overflow: hidden;
@@ -74,50 +70,50 @@
 
   &.backlog {
     .insight-value {
-      color: #f59e0b;
+      color: var(--color-amber-500);
     }
   }
 
   &.time-to-read {
     .insight-value {
-      color: #8b5cf6;
+      color: var(--color-violet-500);
     }
   }
 
   &.productive {
     .insight-value {
-      color: #10b981;
+      color: var(--color-emerald-500);
     }
   }
 
   &.acquisition {
     .insight-value {
-      color: #3b82f6;
+      color: var(--color-blue-500);
     }
   }
 
   &.finish-rate {
     .insight-value {
-      color: #06b6d4;
+      color: var(--color-cyan-500);
     }
   }
 
   &.streak {
     .insight-value {
-      color: #f472b6;
+      color: var(--color-pink-400);
     }
   }
 
   &.recent {
     .insight-value {
-      color: #a78bfa;
+      color: var(--color-violet-400);
       font-size: 1.1rem;
     }
   }
 
   &.total {
     .insight-value {
-      color: #22d3ee;
+      color: var(--color-cyan-400);
       font-size: 1.1rem;
     }
   }

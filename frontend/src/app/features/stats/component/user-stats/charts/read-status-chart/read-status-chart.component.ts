@@ -29,13 +29,6 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   [ReadStatus.UNSET]: '#343a40'
 } as const;
 
-const CHART_DEFAULTS = {
-  borderColor: '#ffffff',
-  borderWidth: 2,
-  hoverBorderWidth: 3,
-  hoverBorderColor: '#ffffff'
-} as const;
-
 type StatusChartData = ChartData<'doughnut', number[], string>;
 
 @Component({
@@ -71,7 +64,6 @@ export class ReadStatusChartComponent {
         labels: {
           padding: 15,
           usePointStyle: true,
-          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -81,10 +73,6 @@ export class ReadStatusChartComponent {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: '#ffffff',
         borderWidth: 1,
         cornerRadius: 6,
         displayColors: true,
@@ -122,8 +110,7 @@ export class ReadStatusChartComponent {
         labels,
         datasets: [{
           data: dataValues,
-          backgroundColor: colors.length > 0 ? colors : [...Object.values(STATUS_COLOR_MAP)],
-          ...CHART_DEFAULTS
+          backgroundColor: colors.length > 0 ? colors : [...Object.values(STATUS_COLOR_MAP)]
         }]
       };
     } catch (error) {
@@ -132,8 +119,7 @@ export class ReadStatusChartComponent {
         labels: [],
         datasets: [{
           data: [],
-          backgroundColor: [...Object.values(STATUS_COLOR_MAP)],
-          ...CHART_DEFAULTS
+          backgroundColor: [...Object.values(STATUS_COLOR_MAP)]
         }]
       };
     }
@@ -217,11 +203,9 @@ export class ReadStatusChartComponent {
       return {
         text: `${String(label)} (${dataValues[index]})`,
         fillStyle: (dataset.backgroundColor as string[])[index],
-        strokeStyle: '#ffffff',
         lineWidth: 1,
         hidden: !isVisible,
         index,
-        fontColor: '#ffffff'
       };
     });
   }

@@ -55,7 +55,6 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
           display: true,
           position: 'top',
           labels: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             boxWidth: 12,
             padding: 10
@@ -63,10 +62,6 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
         },
         tooltip: {
           enabled: true,
-          backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          titleColor: '#ffffff',
-          bodyColor: '#ffffff',
-          borderColor: '#ffffff',
           borderWidth: 1,
           cornerRadius: 6,
           displayColors: true,
@@ -96,7 +91,6 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: this.t.translate('statsUser.favoriteDays.axisDayOfWeek'),
-            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 13,
@@ -104,7 +98,6 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
             }
           },
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           grid: {display: false},
@@ -126,12 +119,10 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
           },
           beginAtZero: true,
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             stepSize: 1
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
           },
           border: {display: false}
         },
@@ -151,7 +142,6 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
           },
           beginAtZero: true,
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             callback: function (value) {
               return (typeof value === 'number' ? value.toFixed(1) : '0.0') + 'h';

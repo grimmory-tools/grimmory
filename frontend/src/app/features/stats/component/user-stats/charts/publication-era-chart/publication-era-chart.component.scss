@@ -48,9 +48,9 @@
     align-items: center;
     min-width: 80px;
     padding: 0.5rem 1rem;
-    border: 1px solid rgb(255 255 255 / 10%);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: rgb(255 255 255 / 5%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
 
     .stat-value {
       color: var(--text-color, #fff);

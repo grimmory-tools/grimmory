@@ -46,9 +46,6 @@ export class PageTurnerChartComponent implements OnInit {
         legend: {display: false},
         tooltip: {
           enabled: true,
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          titleColor: '#ffffff',
-          bodyColor: '#ffffff',
           borderColor: 'rgba(251, 146, 60, 0.8)',
           borderWidth: 2,
           cornerRadius: 8,
@@ -67,21 +64,17 @@ export class PageTurnerChartComponent implements OnInit {
           title: {
             display: true,
             text: this.t.translate('statsUser.pageTurner.axisGripScore'),
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 13, weight: 'bold'}
           },
           min: 0,
           max: 100,
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
-          grid: {color: 'rgba(255, 255, 255, 0.1)'},
           border: {display: false}
         },
         y: {
           ticks: {
-            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           grid: {display: false},

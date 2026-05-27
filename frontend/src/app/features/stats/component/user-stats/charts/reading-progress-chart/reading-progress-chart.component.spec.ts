@@ -57,11 +57,9 @@ describe('ReadingProgressChartComponent', () => {
       }) => {
         text: string;
         fillStyle: string;
-        strokeStyle: string;
         lineWidth: number;
         hidden: boolean;
         index: number;
-        fontColor: string;
       }[])
       | undefined;
   }
@@ -96,8 +94,8 @@ describe('ReadingProgressChartComponent', () => {
     expect(chartData.datasets[0]?.data).toEqual([1, 2, 2, 2, 2, 1]);
     expect(chartData.datasets[0]?.label).toBe('statsUser.readingProgress.booksByProgress');
     expect(chartData.datasets[0]?.backgroundColor).toEqual(chartColors);
-    expect(chartData.datasets[0]?.borderColor).toBe('#ffffff');
-    expect(chartData.datasets[0]?.hoverBorderWidth).toBe(3);
+    expect(chartData.datasets[0]?.borderColor).toBeUndefined();
+    expect(chartData.datasets[0]?.hoverBorderWidth).toBeUndefined();
   });
 
   it('retains zero-count buckets in a fixed order when only one progress range has books', () => {
@@ -128,8 +126,8 @@ describe('ReadingProgressChartComponent', () => {
     expect(chartData.datasets[0]?.data).toEqual([]);
     expect(chartData.datasets[0]?.label).toBe('statsUser.readingProgress.booksByProgress');
     expect(chartData.datasets[0]?.backgroundColor).toEqual(chartColors);
-    expect(chartData.datasets[0]?.borderWidth).toBe(1);
-    expect(chartData.datasets[0]?.hoverBorderWidth).toBe(2);
+    expect(chartData.datasets[0]?.borderWidth).toBeUndefined();
+    expect(chartData.datasets[0]?.hoverBorderWidth).toBeUndefined();
   });
 
   it('builds deterministic legend labels from the current doughnut dataset without rendering a chart', () => {
@@ -155,12 +153,12 @@ describe('ReadingProgressChartComponent', () => {
     });
 
     expect(legendItems).toEqual([
-      {text: '0%: 1', fillStyle: '#6c757d', strokeStyle: '#ffffff', lineWidth: 1, hidden: false, index: 0, fontColor: '#ffffff'},
-      {text: '1-25%: 1', fillStyle: '#ffc107', strokeStyle: '#ffffff', lineWidth: 1, hidden: true, index: 1, fontColor: '#ffffff'},
-      {text: '26-50%: 1', fillStyle: '#fd7e14', strokeStyle: '#ffffff', lineWidth: 1, hidden: false, index: 2, fontColor: '#ffffff'},
-      {text: '51-75%: 0', fillStyle: '#17a2b8', strokeStyle: '#ffffff', lineWidth: 1, hidden: false, index: 3, fontColor: '#ffffff'},
-      {text: '76-99%: 1', fillStyle: '#6f42c1', strokeStyle: '#ffffff', lineWidth: 1, hidden: false, index: 4, fontColor: '#ffffff'},
-      {text: '100%: 1', fillStyle: '#28a745', strokeStyle: '#ffffff', lineWidth: 1, hidden: false, index: 5, fontColor: '#ffffff'},
+      {text: '0%: 1', fillStyle: '#6c757d', lineWidth: 1, hidden: false, index: 0},
+      {text: '1-25%: 1', fillStyle: '#ffc107', lineWidth: 1, hidden: true, index: 1},
+      {text: '26-50%: 1', fillStyle: '#fd7e14', lineWidth: 1, hidden: false, index: 2},
+      {text: '51-75%: 0', fillStyle: '#17a2b8', lineWidth: 1, hidden: false, index: 3},
+      {text: '76-99%: 1', fillStyle: '#6f42c1', lineWidth: 1, hidden: false, index: 4},
+      {text: '100%: 1', fillStyle: '#28a745', lineWidth: 1, hidden: false, index: 5},
     ]);
   });
 

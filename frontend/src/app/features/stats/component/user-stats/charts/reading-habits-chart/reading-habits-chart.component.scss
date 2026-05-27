@@ -59,10 +59,10 @@
   }
 
   .insight-card {
-    background: rgb(255 255 255 / 5%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border-radius: 8px;
     padding: 1rem;
-    border: 1px solid rgb(255 255 255 / 10%);
+    border: 1px solid var(--color-border);
 
     .insight-header {
       display: flex;
@@ -84,7 +84,7 @@
 
     .insight-progress {
       height: 6px;
-      background: rgb(255 255 255 / 10%);
+      background: color-mix(in srgb, var(--color-text) 10%, transparent);
       border-radius: 3px;
       overflow: hidden;
       margin-bottom: 0.5rem;
@@ -134,4 +134,3 @@
     height: 300px;
   }
 }
-

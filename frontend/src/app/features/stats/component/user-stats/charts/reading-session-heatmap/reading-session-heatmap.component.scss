@@ -1,3 +1,5 @@
+@use '../../../chart-shared' as chart-shared;
+
 .reading-session-heatmap-container {
   width: 100%;
 }
@@ -11,7 +13,7 @@
 
   .chart-title {
     h3 {
-      color: var(--text-color, #fff);
+      color: var(--color-text);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -21,7 +23,7 @@
     }
 
     .chart-description {
-      color: var(--text-secondary-color);
+      color: var(--color-text-secondary);
       font-size: 0.9rem;
       margin: 0;
       line-height: 1.4;
@@ -35,20 +37,19 @@
     justify-self: center;
 
     .year-nav-btn {
-      background: rgb(255 255 255 / 10%);
-      border: 1px solid rgb(255 255 255 / 20%);
-      border-radius: 6px;
       padding: 0.6rem;
-      color: #fff;
+      color: var(--color-text);
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
 
+      @include chart-shared.neutral-surface(6px);
+
       &:hover {
-        background: rgb(255 255 255 / 20%);
-        border-color: rgb(255 255 255 / 30%);
+        background: color-mix(in srgb, var(--color-text) 8%, transparent);
+        border-color: color-mix(in srgb, var(--color-border) 90%, transparent);
         transform: translateY(-1px);
       }
 
@@ -64,7 +65,7 @@
     .current-year {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--color-text);
       min-width: 4.5rem;
       text-align: center;
     }
@@ -89,7 +90,7 @@
 
 .heatmap-title-icon {
   font-size: 1.5rem;
-  color: rgb(59 130 246 / 100%);
+  color: var(--color-blue-500);
   vertical-align: middle;
   margin-right: 0.25em;
 }
@@ -102,7 +103,7 @@
   gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(255 255 255 / 8%);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .footer-pills {
@@ -121,26 +122,35 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid rgb(255 255 255 / 10%);
-  background: rgb(255 255 255 / 5%);
   font-size: 0.85rem;
-  color: var(--text-color, #fff);
+  color: var(--color-text);
   font-weight: 500;
   white-space: nowrap;
+
+  @include chart-shared.neutral-surface(6px);
 
   .pill-value {
     font-weight: 700;
   }
 
-  &.current .pill-value { color: #ff9800; }
-  &.longest .pill-value { color: #4caf50; }
-  &.total .pill-value { color: #2196f3; }
-  &.consistency .pill-value { color: #9c27b0; }
+  &.current { --stats-badge-accent: var(--color-orange-500); }
+  &.longest { --stats-badge-accent: var(--color-green-500); }
+  &.total { --stats-badge-accent: var(--color-blue-500); }
+  &.consistency { --stats-badge-accent: var(--color-violet-600); }
+
+  &.current,
+  &.longest,
+  &.total,
+  &.consistency {
+    .pill-value {
+      @include chart-shared.accent-text;
+    }
+  }
 
   &.milestone.unlocked {
-    border-color: rgb(76 175 80 / 30%);
-    background: rgb(76 175 80 / 10%);
+    --stats-badge-accent: var(--color-green-500);
+
+    @include chart-shared.accent-surface(6px);
   }
 
   &.milestone.locked {

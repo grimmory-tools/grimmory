@@ -41,13 +41,13 @@
 }
 
 .chart-info-icon {
-  color: rgb(255 255 255 / 35%);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   cursor: help;
   transition: color var(--transition-base);
 
   &:hover {
-    color: rgb(255 255 255 / 80%);
+    color: var(--color-text-secondary);
   }
 }
 

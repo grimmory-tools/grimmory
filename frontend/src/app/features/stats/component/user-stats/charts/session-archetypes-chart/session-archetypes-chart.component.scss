@@ -36,15 +36,15 @@
 
     .nav-btn {
       padding: 0.3rem 0.5rem;
-      border: 1px solid rgb(255 255 255 / 20%);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
-      background: rgb(255 255 255 / 10%);
+      background: color-mix(in srgb, var(--color-text) 5%, transparent);
       color: var(--text-color, #fff);
       cursor: pointer;
       transition: background 0.2s;
 
       &:hover {
-        background: rgb(255 255 255 / 20%);
+        background: color-mix(in srgb, var(--color-text) 10%, transparent);
       }
     }
 
@@ -76,9 +76,9 @@
     align-items: center;
     min-width: 80px;
     padding: 0.5rem 1rem;
-    border: 1px solid rgb(255 255 255 / 10%);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: rgb(255 255 255 / 5%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
 
     .stat-value {
       color: var(--text-color, #fff);

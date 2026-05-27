@@ -1,4 +1,4 @@
-@use '../../../_chart-shared';
+@use '../../../chart-shared' as chart-shared;
 
 .top-items-container {
   width: 100%;
@@ -17,7 +17,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--text-color, #fff);
+      color: var(--color-text);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -31,7 +31,7 @@
     }
 
     .chart-description {
-      color: var(--text-secondary-color);
+      color: var(--color-text-secondary);
       font-size: 0.9rem;
       margin: 0;
       line-height: 1.4;
@@ -61,20 +61,19 @@
   flex-direction: column;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: rgb(255 255 255 / 5%);
-  border-radius: 8px;
-  border: 1px solid rgb(255 255 255 / 10%);
+
+  @include chart-shared.neutral-surface;
 
   .badge-value {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-text);
     line-height: 1;
   }
 
   .badge-label {
     font-size: 0.7rem;
-    color: rgb(255 255 255 / 60%);
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-top: 0.25rem;
@@ -98,9 +97,8 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    background: rgb(255 255 255 / 5%);
-    border-radius: 8px;
-    border: 1px solid rgb(255 255 255 / 10%);
+
+    @include chart-shared.neutral-surface;
 
     > i {
       font-size: 1.1rem;
@@ -115,14 +113,14 @@
 
       .insight-label {
         font-size: 0.75rem;
-        color: var(--text-secondary-color);
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.3px;
       }
 
       .insight-value {
         font-size: 0.9rem;
-        color: var(--text-color, #fff);
+        color: var(--color-text);
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;

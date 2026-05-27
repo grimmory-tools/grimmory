@@ -3,6 +3,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {StatsChartThemeService} from '../../../shared/stats-chart-theme.service';
 
 interface SankeyNode {
   id: string;
@@ -33,7 +34,10 @@ export class BookFlowChartComponent implements AfterViewInit {
 
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
+  private readonly chartTheme = inject(StatsChartThemeService);
   private readonly syncChartEffect = effect(() => {
+    this.chartTheme.themeRevision();
+
     if (this.bookService.isBooksLoading()) {
       this.dataReady = false;
       return;
@@ -228,8 +232,9 @@ export class BookFlowChartComponent implements AfterViewInit {
     const leftMargin = 100;
     const rightMargin = 110;
     const colX = [leftMargin, width * 0.45, width - rightMargin];
+    const colors = this.chartTheme.colors();
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillStyle = colors.textMuted;
     ctx.font = '11px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(this.t.translate('statsUser.bookFlow.colAdded'), colX[0] + nodeWidth / 2, 18);
@@ -281,13 +286,13 @@ export class BookFlowChartComponent implements AfterViewInit {
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.strokeStyle = colors.grid;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.roundRect(x, node.y, nodeWidth, node.height, 3);
       ctx.stroke();
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillStyle = colors.text;
       ctx.font = '11px Inter, sans-serif';
       const labelX = node.column === 2 ? x + nodeWidth + 8 : x - 8;
       ctx.textAlign = node.column === 2 ? 'left' : 'right';

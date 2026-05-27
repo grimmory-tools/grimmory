@@ -38,23 +38,19 @@ export class ReadingDebtChartComponent {
     plugins: {
       legend: {
         display: true, position: 'bottom',
-        labels: {color: 'rgba(255, 255, 255, 0.8)', font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 12, padding: 15}
+        labels: {font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 12, padding: 15}
       },
       tooltip: {
-        enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        titleColor: '#ffffff', bodyColor: '#ffffff', borderColor: '#ffffff',
-        borderWidth: 1, cornerRadius: 6, padding: 10
+        enabled: true, borderWidth: 1, cornerRadius: 6, padding: 10
       },
       datalabels: {display: false}
     },
     scales: {
       x: {
-        grid: {color: 'rgba(255, 255, 255, 0.08)'},
-        ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 10}}
+        ticks: {font: {size: 10}}
       },
       y: {
-        grid: {color: 'rgba(255, 255, 255, 0.08)'},
-        ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}}
+        ticks: {font: {size: 11}}
       },
       y1: {
         position: 'right',

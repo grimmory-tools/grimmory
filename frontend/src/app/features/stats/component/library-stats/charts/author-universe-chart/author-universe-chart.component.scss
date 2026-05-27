@@ -1,4 +1,4 @@
-@use '../../../_chart-shared';
+@use '../../../chart-shared' as chart-shared;
 
 .author-universe-container {
   width: 100%;
@@ -6,17 +6,14 @@
 
 .author-title-icon {
   font-size: 1.5rem;
-  color: #8b5cf6;
+  color: var(--color-violet-500);
 }
 
 .author-count-badge {
-  background: linear-gradient(135deg, rgb(139 92 246 / 20%), rgb(139 92 246 / 10%));
-  border: 1px solid rgb(139 92 246 / 30%);
-  border-radius: 20px;
-  padding: 0.4rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #a78bfa;
+  --stats-badge-accent: var(--color-violet-500);
+
+  @include chart-shared.accent-badge;
+
   white-space: nowrap;
 }
 
@@ -28,13 +25,13 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.8rem;
-    color: var(--text-secondary-color);
-    background: rgb(255 255 255 / 5%);
-    border-radius: 6px;
     padding: 0.5rem 0.75rem;
+    color: var(--color-text-secondary);
+
+    @include chart-shared.neutral-surface(6px);
 
     i {
-      color: #8b5cf6;
+      color: var(--color-violet-500);
     }
   }
 }
@@ -48,7 +45,7 @@
 .insights-section {
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .insights-grid {
@@ -61,27 +58,35 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: linear-gradient(135deg, rgb(139 92 246 / 10%), rgb(139 92 246 / 5%));
-  border: 1px solid rgb(139 92 246 / 20%);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-violet-500) 10%, transparent),
+    color-mix(in srgb, var(--color-violet-500) 5%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-violet-500) 20%, transparent);
   border-radius: 8px;
   padding: 0.6rem 0.85rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, rgb(139 92 246 / 15%), rgb(139 92 246 / 8%));
-    border-color: rgb(139 92 246 / 35%);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-violet-500) 15%, transparent),
+      color-mix(in srgb, var(--color-violet-500) 8%, transparent)
+    );
+    border-color: color-mix(in srgb, var(--color-violet-500) 35%, transparent);
     transform: translateY(-1px);
   }
 
   .insight-icon {
-    color: #f59e0b;
+    color: var(--color-amber-500);
     font-size: 0.85rem;
     flex-shrink: 0;
   }
 
   .insight-text {
     font-size: 0.85rem;
-    color: var(--text-color, #fff);
+    color: var(--color-text);
     line-height: 1.3;
   }
 }

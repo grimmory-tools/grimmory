@@ -43,11 +43,11 @@
   flex-shrink: 0;
 
   .year-nav-btn {
-    background: rgb(255 255 255 / 10%);
-    border: 1px solid rgb(255 255 255 / 20%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 0.6rem;
-    color: #fff;
+    color: var(--color-text);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -55,8 +55,8 @@
     justify-content: center;
 
     &:hover {
-      background: rgb(255 255 255 / 20%);
-      border-color: rgb(255 255 255 / 30%);
+      background: color-mix(in srgb, var(--color-text) 10%, transparent);
+      border-color: var(--color-border);
       transform: translateY(-1px);
     }
 
@@ -68,7 +68,7 @@
   .current-year {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-text);
     min-width: 4.5rem;
     text-align: center;
   }
@@ -84,8 +84,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgb(255 255 255 / 5%);
-    border: 1px solid rgb(255 255 255 / 10%);
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0.5rem 1rem;
     min-width: 80px;

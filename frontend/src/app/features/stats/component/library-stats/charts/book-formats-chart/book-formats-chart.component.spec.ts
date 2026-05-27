@@ -132,10 +132,10 @@ describe('BookFormatsChartComponent', () => {
 
     expect(dataset.data).toEqual([4, 3, 2, 1]);
     expect(dataset.backgroundColor).toEqual(EXPECTED_FORMAT_COLORS);
-    expect(dataset.borderColor).toEqual(EXPECTED_FORMAT_COLORS.map(() => 'rgba(255, 255, 255, 0.2)'));
-    expect(dataset.borderWidth).toBe(2);
-    expect(dataset.hoverBorderColor).toBe('#ffffff');
-    expect(dataset.hoverBorderWidth).toBe(3);
+    expect(dataset.borderColor).toBeUndefined();
+    expect(dataset.borderWidth).toBeUndefined();
+    expect(dataset.hoverBorderColor).toBeUndefined();
+    expect(dataset.hoverBorderWidth).toBeUndefined();
   });
 
   it('formats the tooltip callback from computed chart data without a live Chart.js instance', () => {
