@@ -137,6 +137,18 @@ public class SecurityConfig {
 
     @Bean
     @Order(3)
+    public SecurityFilterChain readingServicesSecurityChain(HttpSecurity http, DeviceIDAuthFilter deviceIDAuthFilter) throws Exception {
+        http
+                .securityMatcher("/api/v3/**", "/api/UserStorage/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .addFilterBefore(deviceIDAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain koboSecurityChain(HttpSecurity http, KoboAuthFilter koboAuthFilter) throws Exception {
         http
                 .securityMatcher("/api/kobo/**")
@@ -254,6 +266,10 @@ public class SecurityConfig {
                         "/api/v2/opds/**",
                         "/api/kobo",
                         "/api/kobo/**",
+                        "/api/v3",
+                        "/api/v3/**",
+                        "/api/UserStorage",
+                        "/api/UserStorage/**",
                         "/api/v1/auth/refresh",
                         "/api/v1/setup"
                 )

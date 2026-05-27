@@ -8,4 +8,5 @@ public final class KoboHeaders {
 
     public static final String X_KOBO_SYNCTOKEN = "x-kobo-synctoken";
     public static final String X_KOBO_SYNC = "X-Kobo-sync";
+    public static final String X_KOBO_DEVICEID = "x-kobo-deviceid";
 }

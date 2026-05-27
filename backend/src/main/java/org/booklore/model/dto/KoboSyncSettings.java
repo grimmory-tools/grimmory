@@ -15,4 +15,5 @@ public class KoboSyncSettings {
     private String hardcoverApiKey;
     private boolean hardcoverSyncEnabled;
     private boolean twoWayProgressSync;
+    private String allowedDeviceIds;
 }

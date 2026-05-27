@@ -19,4 +19,6 @@ public interface KoboUserSettingsRepository extends JpaRepository<KoboUserSettin
     long countByHardcoverSyncEnabledTrue();
 
     long countByAutoAddToShelfTrue();
+
+    List<KoboUserSettingsEntity> findByAllowedDeviceIdsIsNotNull();
 }
