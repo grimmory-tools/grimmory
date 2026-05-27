@@ -858,6 +858,9 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       if (['CBR', 'CBZ', 'CB7', 'CBT'].includes(filterValue)) {
         filterValue = 'CBX';
       }
+      if (["MP3", "M4A", "M4B", "OPUS"].includes(filterValue)) {
+        filterValue = 'AUDIOBOOK';
+      }
       this.handleMetadataClick('bookType', filterValue);
     }
   }
