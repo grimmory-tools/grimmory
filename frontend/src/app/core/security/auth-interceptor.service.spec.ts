@@ -10,8 +10,7 @@ import { AuthInterceptorService } from './auth-interceptor.service';
 describe('AuthInterceptorService', () => {
   const authService = {
     getInternalAccessToken: vi.fn<() => string | null>(),
-    internalRefreshToken: vi.fn<() => Observable<{ accessToken: string; refreshToken: string }>>(),
-    saveInternalTokens: vi.fn<(accessToken: string, refreshToken: string) => void>(),
+    ensureAccessToken: vi.fn<(options?: {forceRefresh?: boolean}) => Observable<string>>(),
     logout: vi.fn<() => void>(),
   };
 
@@ -21,8 +20,7 @@ describe('AuthInterceptorService', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     authService.getInternalAccessToken.mockReset();
-    authService.internalRefreshToken.mockReset();
-    authService.saveInternalTokens.mockReset();
+    authService.ensureAccessToken.mockReset();
     authService.logout.mockReset();
 
     TestBed.resetTestingModule();
@@ -82,7 +80,7 @@ describe('AuthInterceptorService', () => {
 
   it('retries a 401 request after a successful refresh', async () => {
     authService.getInternalAccessToken.mockReturnValue('expired-token');
-    authService.internalRefreshToken.mockReturnValue(of({ accessToken: 'fresh-token', refreshToken: 'refresh-token' }));
+    authService.ensureAccessToken.mockReturnValue(of('fresh-token'));
 
     const next = vi.fn((request: HttpRequest<unknown>) => {
       const authHeader = request.headers.get('Authorization');
@@ -97,34 +95,47 @@ describe('AuthInterceptorService', () => {
       next
     ));
 
-    expect(authService.internalRefreshToken).toHaveBeenCalledOnce();
-    expect(authService.saveInternalTokens).toHaveBeenCalledWith('fresh-token', 'refresh-token');
+    expect(authService.ensureAccessToken).toHaveBeenCalledWith({forceRefresh: true});
     expect((response as HttpResponse<string>).body).toBe('Bearer fresh-token');
   });
 
-  it('retries a 401 request without persisting tokens when the refresh response is incomplete', async () => {
+  it('logs out when AuthService cannot refresh a complete token pair', async () => {
     authService.getInternalAccessToken.mockReturnValue('expired-token');
-    authService.internalRefreshToken.mockReturnValue(of({ accessToken: 'fresh-token', refreshToken: '' }));
+    authService.ensureAccessToken.mockReturnValue(throwError(() => new Error('Authentication response did not include a complete token pair')));
+    const next = vi.fn(() => throwError(() => new HttpErrorResponse({ status: 401 })));
+
+    await expect(firstValueFrom(interceptor(
+      new HttpRequest('GET', `${apiUrl}/books`),
+      next
+    ))).rejects.toBeInstanceOf(Error);
+
+    expect(authService.ensureAccessToken).toHaveBeenCalledWith({forceRefresh: true});
+    expect(authService.logout).toHaveBeenCalledOnce();
+  });
+
+  it('does not log out when the retried request fails after refresh succeeds', async () => {
+    authService.getInternalAccessToken.mockReturnValue('expired-token');
+    authService.ensureAccessToken.mockReturnValue(of('fresh-token'));
 
     const next = vi.fn((request: HttpRequest<unknown>) => {
       if (request.headers.get('Authorization') === 'Bearer fresh-token') {
-        return of(new HttpResponse({ status: 200, body: request.headers.get('Authorization') }));
+        return throwError(() => new HttpErrorResponse({ status: 500 }));
       }
       return throwError(() => new HttpErrorResponse({ status: 401 }));
     });
 
-    const response = await firstValueFrom(interceptor(
+    await expect(firstValueFrom(interceptor(
       new HttpRequest('GET', `${apiUrl}/books`),
       next
-    ));
+    ))).rejects.toBeInstanceOf(HttpErrorResponse);
 
-    expect(authService.saveInternalTokens).not.toHaveBeenCalled();
-    expect((response as HttpResponse<string>).body).toBe('Bearer fresh-token');
+    expect(authService.ensureAccessToken).toHaveBeenCalledWith({forceRefresh: true});
+    expect(authService.logout).not.toHaveBeenCalled();
   });
 
   it('logs out when the refresh request fails', async () => {
     authService.getInternalAccessToken.mockReturnValue('expired-token');
-    authService.internalRefreshToken.mockReturnValue(
+    authService.ensureAccessToken.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 500 }))
     );
 
@@ -147,14 +158,14 @@ describe('AuthInterceptorService', () => {
       next
     ))).rejects.toBeInstanceOf(HttpErrorResponse);
 
-    expect(authService.internalRefreshToken).not.toHaveBeenCalled();
+    expect(authService.ensureAccessToken).not.toHaveBeenCalled();
     expect(authService.logout).not.toHaveBeenCalled();
   });
 
-  it('queues concurrent 401s behind a single refresh operation', async () => {
+  it('delegates concurrent 401 refresh coordination to AuthService', async () => {
     authService.getInternalAccessToken.mockReturnValue('expired-token');
-    const refreshSubject = new Subject<{ accessToken: string; refreshToken: string }>();
-    authService.internalRefreshToken.mockReturnValue(refreshSubject.asObservable());
+    const refreshSubject = new Subject<string>();
+    authService.ensureAccessToken.mockReturnValue(refreshSubject.asObservable());
 
     const next = vi.fn((request: HttpRequest<unknown>) => {
       const authHeader = request.headers.get('Authorization');
@@ -167,12 +178,13 @@ describe('AuthInterceptorService', () => {
     const firstRequest = firstValueFrom(interceptor(new HttpRequest('GET', `${apiUrl}/books`), next));
     const secondRequest = firstValueFrom(interceptor(new HttpRequest('GET', `${apiUrl}/libraries`), next));
 
-    refreshSubject.next({ accessToken: 'refreshed-token', refreshToken: 'refresh-token' });
+    refreshSubject.next('refreshed-token');
     refreshSubject.complete();
 
     const [firstResponse, secondResponse] = await Promise.all([firstRequest, secondRequest]);
 
-    expect(authService.internalRefreshToken).toHaveBeenCalledOnce();
+    expect(authService.ensureAccessToken).toHaveBeenCalledTimes(2);
+    expect(authService.ensureAccessToken).toHaveBeenCalledWith({forceRefresh: true});
     expect((firstResponse as HttpResponse<string>).body).toBe('Bearer refreshed-token');
     expect((secondResponse as HttpResponse<string>).body).toBe('Bearer refreshed-token');
   });
