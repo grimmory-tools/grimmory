@@ -46,15 +46,10 @@ export class AuthService {
     );
   }
 
-  internalRefreshToken(): Observable<AccessTokenResponse> {
-    const refreshToken = this.getInternalRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
-    }
-
+  private internalRefreshToken(refreshToken: string): Observable<AccessTokenResponse> {
     return this.http.post<AccessTokenResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap((response) => {
-        this.saveInternalTokenResponse(response);
+        this.saveInternalTokenResponse(response, refreshToken);
       })
     );
   }
@@ -75,7 +70,12 @@ export class AuthService {
     }
 
     if (!this.refreshSessionRequest$) {
-      this.refreshSessionRequest$ = this.internalRefreshToken().pipe(
+      const refreshToken = this.getInternalRefreshToken();
+      if (!refreshToken) {
+        return throwError(() => new Error('No refresh token available'));
+      }
+
+      this.refreshSessionRequest$ = this.internalRefreshToken(refreshToken).pipe(
         tap(() => this.initializeWebSocketConnection()),
         finalize(() => {
           this.refreshSessionRequest$ = undefined;
@@ -91,7 +91,9 @@ export class AuthService {
     return this.ensureAccessToken().pipe(
       map(() => true),
       catchError(() => {
-        this.clearSession();
+        if (this.getInternalAccessToken() || this.getInternalRefreshToken()) {
+          this.clearSession();
+        }
         return of(false);
       })
     );
@@ -116,8 +118,13 @@ export class AuthService {
     this.token.set(accessToken);
   }
 
-  private saveInternalTokenResponse(response: AccessTokenResponse): void {
+  private saveInternalTokenResponse(response: AccessTokenResponse, expectedRefreshToken?: string): void {
+    if (expectedRefreshToken !== undefined && expectedRefreshToken !== this.getInternalRefreshToken()) {
+      throw new Error('Refresh response belongs to a stale session');
+    }
+
     if (!response.accessToken || !response.refreshToken) {
+      this.clearSession();
       throw new Error('Authentication response did not include a complete token pair');
     }
 
@@ -196,6 +203,7 @@ export class AuthService {
   }
 
   private clearSession(): void {
+    this.refreshSessionRequest$ = undefined;
     localStorage.removeItem('accessToken_Internal');
     localStorage.removeItem('accessToken_Internal_Expiry');
     localStorage.removeItem('refreshToken_Internal');

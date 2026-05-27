@@ -80,7 +80,7 @@ describe('AuthService', () => {
   it('refreshes the token and persists the new values', () => {
     localStorage.setItem('refreshToken_Internal', 'refresh-token');
 
-    service.internalRefreshToken().subscribe();
+    service.refreshInternalSession().subscribe();
 
     const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/refresh`);
     expect(request.request.body).toEqual({ refreshToken: 'refresh-token' });
@@ -93,18 +93,19 @@ describe('AuthService', () => {
   it('fails refresh when the backend does not return a complete token pair', async () => {
     localStorage.setItem('refreshToken_Internal', 'refresh-token');
 
-    const refresh = firstValueFrom(service.internalRefreshToken());
+    const refresh = firstValueFrom(service.refreshInternalSession());
 
     const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/refresh`);
     request.flush({ accessToken: 'new-access', refreshToken: '' });
 
     await expect(refresh).rejects.toThrow('Authentication response did not include a complete token pair');
     expect(service.getInternalAccessToken()).toBeNull();
-    expect(service.getInternalRefreshToken()).toBe('refresh-token');
+    expect(service.getInternalRefreshToken()).toBeNull();
+    expect(rxStompService.deactivate).toHaveBeenCalledOnce();
   });
 
   it('does not send a refresh request when no refresh token is available', async () => {
-    await expect(firstValueFrom(service.internalRefreshToken())).rejects.toThrow('No refresh token available');
+    await expect(firstValueFrom(service.refreshInternalSession())).rejects.toThrow('No refresh token available');
 
     httpTestingController.expectNone(`${API_CONFIG.BASE_URL}/api/v1/auth/refresh`);
   });
@@ -168,6 +169,31 @@ describe('AuthService', () => {
     ]);
     expect(service.getInternalAccessToken()).toBe('new-access');
     expect(service.getInternalRefreshToken()).toBe('new-refresh');
+  });
+
+  it('does not restore tokens or websocket state when a refresh resolves after logout', async () => {
+    localStorage.setItem('accessToken_Internal', 'expired-access');
+    localStorage.setItem('accessToken_Internal_Expiry', String(Date.now() - 1000));
+    localStorage.setItem('refreshToken_Internal', 'refresh-token');
+
+    const refresh = firstValueFrom(service.refreshInternalSession());
+
+    const refreshRequest = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/refresh`);
+
+    service.logout();
+
+    const logoutRequest = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/logout`);
+    expect(logoutRequest.request.body).toEqual({ refreshToken: 'refresh-token' });
+
+    refreshRequest.flush({ accessToken: 'late-access', refreshToken: 'late-refresh' });
+    logoutRequest.flush({ logoutUrl: null });
+
+    await expect(refresh).rejects.toThrow('Refresh response belongs to a stale session');
+    expect(service.getInternalAccessToken()).toBeNull();
+    expect(service.getInternalRefreshToken()).toBeNull();
+    expect(rxStompService.updateConfig).not.toHaveBeenCalled();
+    expect(rxStompService.activate).not.toHaveBeenCalled();
+    expect(rxStompService.deactivate).toHaveBeenCalledOnce();
   });
 
   it('clears the session when expired credentials cannot be refreshed', async () => {
