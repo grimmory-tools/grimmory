@@ -42,6 +42,7 @@ export class KoboSyncSettingsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sliderChange$ = new Subject<void>();
   private readonly progressThresholdChange$ = new Subject<void>();
+  private readonly deviceIdsChange$ = new Subject<void>();
 
   hasKoboTokenPermission = false;
   isAdmin = false;
@@ -55,6 +56,7 @@ export class KoboSyncSettingsComponent implements OnInit {
     progressMarkAsFinishedThreshold: [99],
     autoAddToShelf: [true],
     twoWayProgressSync: [false],
+    allowedDeviceIds: [''],
   });
 
   koboSettings: KoboSettings = {
@@ -84,6 +86,13 @@ export class KoboSyncSettingsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.updateKoboSettings(this.t.translate('settingsDevice.kobo.progressUpdated'));
+    });
+
+    this.deviceIdsChange$.pipe(
+      debounceTime(800),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.updateKoboSettings(this.t.translate('settingsDevice.kobo.deviceIdsUpdated'));
     });
   }
 
@@ -152,6 +161,7 @@ export class KoboSyncSettingsComponent implements OnInit {
       progressMarkAsFinishedThreshold: settings.progressMarkAsFinishedThreshold ?? 99,
       autoAddToShelf: settings.autoAddToShelf ?? true,
       twoWayProgressSync: settings.twoWayProgressSync ?? false,
+      allowedDeviceIds: settings.allowedDeviceIds ?? '',
     };
 
     for (const [key, value] of Object.entries(next)) {
@@ -252,6 +262,10 @@ export class KoboSyncSettingsComponent implements OnInit {
 
   onProgressThresholdsChange() {
     this.progressThresholdChange$.next();
+  }
+
+  onDeviceIdsChange() {
+    this.deviceIdsChange$.next();
   }
 
   onAutoAddToggle(checked: boolean) {

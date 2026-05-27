@@ -123,6 +123,24 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
+                  <span class="setting-label">{{ t('kobo.allowedDeviceIds') }}</span>
+                </div>
+                <input
+                  pInputText
+                  id="koboAllowedDeviceIds"
+                  formControlName="allowedDeviceIds"
+                  class="w-full"
+                  (input)="onDeviceIdsChange()"
+                />
+                <p class="setting-description">
+                  {{ t('kobo.allowedDeviceIdsDesc') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
                   <span class="setting-label">{{ t('kobo.markAsReading', {value: syncForm.controls.progressMarkAsReadingThreshold.value.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider
