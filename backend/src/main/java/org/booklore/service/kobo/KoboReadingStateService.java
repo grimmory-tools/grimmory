@@ -83,7 +83,8 @@ public class KoboReadingStateService {
 
         return dtos.stream()
                 .map(dto -> {
-                    String entitlementId = mapper.cleanString(dto.getEntitlementId());
+                    String entitlementId = dto.getEntitlementId() == null ?
+                            null : dto.getEntitlementId().replaceAll("^\"|\"$", "");
                     Optional<KoboReadingStateEntity> existingOpt =
                             repository.findByEntitlementIdAndUserId(entitlementId, userId);
                     log.debug("Kobo reading state lookup: entitlementId={}, foundExisting={}",
@@ -91,11 +92,6 @@ public class KoboReadingStateService {
                     KoboReadingStateEntity entity = existingOpt
                             .map(existing -> mergeReadingState(existing, dto))
                             .orElseGet(() -> {
-                                KoboReadingStateEntity newEntity = mapper.toEntity(dto);
-                                newEntity.setUserId(userId);
-                                if (entitlementId != null && !entitlementId.isBlank()) {
-                                    newEntity.setEntitlementId(entitlementId);
-                                }
                                 String created = normalizeTimestampValue(dto.getCreated());
                                 if (isBlank(created)) {
                                     created = KOBO_TIMESTAMP_FORMAT.format(Instant.now());
@@ -106,9 +102,13 @@ public class KoboReadingStateService {
                                 }
                                 dto.setLastModified(lastModified);
                                 dto.setCreated(created);
-                                newEntity.setLastModifiedString(mapper.cleanString(lastModified));
-                                newEntity.setPriorityTimestamp(mapper.cleanString(computePriorityTimestamp(dto)));
-                                newEntity.setCreated(mapper.cleanString(created));
+                                dto.setPriorityTimestamp(computePriorityTimestamp(dto));
+
+                                KoboReadingStateEntity newEntity = mapper.toEntity(dto);
+                                newEntity.setUserId(userId);
+                                if (entitlementId != null && !entitlementId.isBlank()) {
+                                    newEntity.setEntitlementId(entitlementId);
+                                }
                                 return newEntity;
                             });
 
@@ -411,13 +411,13 @@ public class KoboReadingStateService {
             existingState = KoboReadingState.builder().entitlementId(existing.getEntitlementId()).build();
         }
 
-        KoboReadingState merged = mergeReadingState(existingState, incoming);
+        KoboReadingStateEntity merged = mapper.toEntity(mergeReadingState(existingState, incoming));
 
-        existing.setCurrentBookmarkJson(mapper.toJson(merged.getCurrentBookmark()));
-        existing.setStatisticsJson(mapper.toJson(merged.getStatistics()));
-        existing.setStatusInfoJson(mapper.toJson(merged.getStatusInfo()));
-        existing.setLastModifiedString(mapper.cleanString(merged.getLastModified()));
-        existing.setPriorityTimestamp(mapper.cleanString(merged.getPriorityTimestamp()));
+        existing.setCurrentBookmarkJson(merged.getCurrentBookmarkJson());
+        existing.setStatisticsJson(merged.getStatisticsJson());
+        existing.setStatusInfoJson(merged.getStatusInfoJson());
+        existing.setLastModifiedString(merged.getLastModified());
+        existing.setPriorityTimestamp(merged.getPriorityTimestamp());
         return existing;
     }
 

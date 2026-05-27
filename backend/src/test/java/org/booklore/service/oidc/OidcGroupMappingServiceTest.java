@@ -18,13 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,9 +29,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import java.util.Arrays;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class OidcGroupMappingServiceTest {
 
     @Mock
@@ -101,16 +98,17 @@ class OidcGroupMappingServiceTest {
         existing.setId(1L);
         existing.setOidcGroupClaim("old-group");
         var dto = new OidcGroupMapping(1L, "new-group", true, List.of("permissionUpload"), List.of(2L), "Updated");
+        var entity = OidcGroupMappingEntity.builder().admin(true).oidcGroupClaim("new-group").description("Updated").build();
+
         var savedEntity = new OidcGroupMappingEntity();
         savedEntity.setId(1L);
         savedEntity.setOidcGroupClaim("new-group");
         var savedDto = new OidcGroupMapping(1L, "new-group", true, List.of("permissionUpload"), List.of(2L), "Updated");
 
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        when(mapper.stringListToJson(dto.permissions())).thenReturn("[\"permissionUpload\"]");
-        when(mapper.longListToJson(dto.libraryIds())).thenReturn("[2]");
         when(repository.save(existing)).thenReturn(savedEntity);
         when(mapper.toDto(savedEntity)).thenReturn(savedDto);
+        when(mapper.toEntity(dto)).thenReturn(entity);
 
         var result = service.update(1L, dto);
 
@@ -218,7 +216,8 @@ class OidcGroupMappingServiceTest {
         var user = createMockedUser(perms);
 
         var mapping = createMapping(false, "[\"permissionUpload\",\"permissionEditMetadata\"]", "[1]");
-        setupSyncMocks("ON_LOGIN", List.of("group1"), List.of(mapping));
+        var dto = createMappingDto(false, List.of("permissionUpload", "permissionEditMetadata"), List.of(1L));
+        setupSyncMocks("ON_LOGIN", List.of("group1"), Map.of(dto, mapping));
 
         var lib1 = new LibraryEntity();
         lib1.setId(1L);
@@ -264,7 +263,9 @@ class OidcGroupMappingServiceTest {
         var user = createMockedUser(perms);
 
         var mapping = createMapping(false, "[\"permissionUpload\"]", "[1]");
-        setupSyncMocks("ON_LOGIN_ADDITIVE", List.of("group1"), List.of(mapping));
+        var dto = createMappingDto(false, List.of("permissionUpload"), List.of(1L));
+
+        setupSyncMocks("ON_LOGIN_ADDITIVE", List.of("group1"), Map.of(dto, mapping));
 
         var lib1 = new LibraryEntity();
         lib1.setId(1L);
@@ -287,7 +288,9 @@ class OidcGroupMappingServiceTest {
         var user = createMockedUserWithLibraries(perms, librariesHolder);
 
         var mapping = createMapping(false, "[]", "[1]");
-        setupSyncMocks("ON_LOGIN_ADDITIVE", List.of("group1"), List.of(mapping));
+        var dto = createMappingDto(false, List.of(), List.of(1L));
+
+        setupSyncMocks("ON_LOGIN_ADDITIVE", List.of("group1"), Map.of(dto, mapping));
 
         var lib1 = new LibraryEntity();
         lib1.setId(1L);
@@ -307,8 +310,11 @@ class OidcGroupMappingServiceTest {
         var user = createMockedUser(perms);
 
         var mapping1 = createMapping(false, "[\"permissionUpload\"]", "[]");
+        var dto1 = createMappingDto(false, List.of("permissionUpload"), List.of());
         var mapping2 = createMapping(true, "[\"permissionDownload\"]", "[]");
-        setupSyncMocks("ON_LOGIN", List.of("group1", "group2"), List.of(mapping1, mapping2));
+        var dto2 = createMappingDto(true, List.of("permissionDownload"), List.of());
+
+        setupSyncMocks("ON_LOGIN", List.of("group1", "group2"), Map.of(dto1, mapping1, dto2, mapping2));
 
         service.syncUserGroups(user, List.of("group1", "group2"));
 
@@ -336,7 +342,8 @@ class OidcGroupMappingServiceTest {
         lenient().when(user.getLibraries()).thenReturn(null);
 
         var mapping = createMapping(false, "[\"permissionUpload\"]", "[1]");
-        setupSyncMocks("ON_LOGIN", List.of("group1"), List.of(mapping));
+        var dto = createMappingDto(false, List.of("permissionUpload"), List.of(1L));
+        setupSyncMocks("ON_LOGIN", List.of("group1"), Map.of(dto, mapping));
 
         var lib1 = new LibraryEntity();
         lib1.setId(1L);
@@ -357,7 +364,11 @@ class OidcGroupMappingServiceTest {
         lenient().when(user.getPermissions()).thenReturn(perms);
 
         var mapping = createMapping(false, "[\"permissionUpload\"]", "[1]");
+        var dto = new OidcGroupMapping(1L, "", false, List.of("permissionUpload"), List.of(1L), "");
+
         setupSyncMocks("UNKNOWN_MODE", List.of("group1"), List.of(mapping));
+
+        when(mapper.toDto(mapping)).thenReturn(dto);
 
         service.syncUserGroups(user, List.of("group1"));
 
@@ -386,12 +397,25 @@ class OidcGroupMappingServiceTest {
     }
 
     private OidcGroupMappingEntity createMapping(boolean admin, String permissionsJson, String libraryIdsJson) {
-        var entity = new OidcGroupMappingEntity();
-        entity.setAdmin(admin);
-        entity.setPermissions(permissionsJson);
-        entity.setLibraryIds(libraryIdsJson);
-        entity.setOidcGroupClaim("group");
-        return entity;
+        return OidcGroupMappingEntity.builder()
+                .id(1L)
+                .admin(admin)
+                .permissions(permissionsJson)
+                .libraryIds(libraryIdsJson)
+                .oidcGroupClaim("group")
+                .description("")
+                .build();
+    }
+
+    private OidcGroupMapping createMappingDto(boolean admin, List<String> permissions, List<Long> libraryIds) {
+        return new OidcGroupMapping(
+            1L,
+            "",
+            admin,
+            permissions,
+            libraryIds,
+            ""
+        );
     }
 
     private void setupSyncMocks(String syncMode, List<String> groups, List<OidcGroupMappingEntity> mappings) {
@@ -399,23 +423,17 @@ class OidcGroupMappingServiceTest {
         settings.setOidcGroupSyncMode(syncMode);
         when(appSettingService.getAppSettings()).thenReturn(settings);
         when(repository.findByOidcGroupClaimIn(groups)).thenReturn(mappings);
+    }
 
-        for (var mapping : mappings) {
-            when(mapper.jsonToStringList(mapping.getPermissions()))
-                    .thenReturn(parseJsonStrings(mapping.getPermissions()));
-            when(mapper.jsonToLongList(mapping.getLibraryIds()))
-                    .thenReturn(parseJsonLongs(mapping.getLibraryIds()));
+    private void setupMockMapper(Map<OidcGroupMapping, OidcGroupMappingEntity> mappings) {
+        for (var entry : mappings.entrySet()) {
+            when(mapper.toDto(entry.getValue())).thenReturn(entry.getKey());
+            when(mapper.toEntity(entry.getKey())).thenReturn(entry.getValue());
         }
     }
 
-    private List<String> parseJsonStrings(String json) {
-        if (json == null || json.equals("[]")) return List.of();
-        return List.of(json.replace("[", "").replace("]", "").replace("\"", "").split(","));
-    }
-
-    private List<Long> parseJsonLongs(String json) {
-        if (json == null || json.equals("[]")) return List.of();
-        var parts = json.replace("[", "").replace("]", "").split(",");
-        return Arrays.stream(parts).map(String::trim).map(Long::valueOf).toList();
+    private void setupSyncMocks(String syncMode, List<String> groups, Map<OidcGroupMapping, OidcGroupMappingEntity> mappings) {
+        setupSyncMocks(syncMode, groups, mappings.values().stream().toList());
+        setupMockMapper(mappings);
     }
 }

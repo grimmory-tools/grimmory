@@ -90,8 +90,6 @@ class KoboStatusSyncProtectionTest {
                 .findFirstByEntitlementIdAndUserIdIsNullOrderByPriorityTimestampDescLastModifiedStringDescIdDesc(
                         anyString()))
                 .thenReturn(Optional.empty());
-        lenient().when(mapper.toJson(any())).thenCallRealMethod();
-        lenient().when(mapper.cleanString(any())).thenCallRealMethod();
     }
 
     private void setupMocksForSave(String entitlementId, KoboReadingState readingState) {
