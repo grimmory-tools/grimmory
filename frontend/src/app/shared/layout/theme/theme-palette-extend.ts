@@ -57,7 +57,7 @@ const contentSurface = {
   color: 'var(--color-text)',
 };
 
-const popoverSurface = {
+const overlaySurface = {
   background: 'var(--color-card)',
   borderColor: 'var(--color-border)',
   color: 'var(--color-text)',
@@ -101,11 +101,17 @@ const AppPrimePreset = definePreset(Aura, {
     colorScheme: {
       light: {
         content: contentSurface,
-        overlay: {popover: popoverSurface},
+        overlay: {
+          popover: overlaySurface,
+          modal: overlaySurface,
+        },
       },
       dark: {
         content: contentSurface,
-        overlay: {popover: popoverSurface},
+        overlay: {
+          popover: overlaySurface,
+          modal: overlaySurface,
+        },
         navigation: {
           item: {
             focusBackground: 'color-mix(in srgb, {text.color}, transparent 92%)',
