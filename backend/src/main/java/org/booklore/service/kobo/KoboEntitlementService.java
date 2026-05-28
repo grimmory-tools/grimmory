@@ -406,6 +406,7 @@ public class KoboEntitlementService {
                 .contributorRoles(Collections.emptyList())
                 .entitlementId(String.valueOf(book.getId()))
                 .title(metadata.getTitle())
+                .subtitle(metadata.getSubtitle())
                 .description(metadata.getDescription())
                 .contributors(authors)
                 .series(series)
