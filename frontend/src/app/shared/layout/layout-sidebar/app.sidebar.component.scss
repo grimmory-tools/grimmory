@@ -233,7 +233,7 @@
 
   &.active-route {
     color: var(--color-primary-text);
-    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    background-color: var(--color-active-surface);
 
     .sidebar-footer-action-label {
       color: inherit;
@@ -598,7 +598,7 @@
       }
 
       &.active-route {
-        background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+        background-color: var(--color-active-surface);
         color: var(--color-primary-text);
       }
     }

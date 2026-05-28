@@ -9,6 +9,16 @@
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   contain: layout style;
 
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--color-card-outline);
+    pointer-events: none;
+  }
+
   &:hover {
     box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
     transform: translateY(-2px);
@@ -56,6 +66,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background: radial-gradient(circle, rgb(0 0 0 / 0%) 25%, rgb(0 0 0 / 60%) 100%);

@@ -41,7 +41,7 @@
 }
 
 .sidebar-item-container.active-route-container {
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  background-color: var(--color-active-surface);
 }
 
 .sidebar-item-link {
@@ -233,7 +233,7 @@ a.sidebar-item-link.active-route {
   }
 
   .sidebar-item-container.active-route-container {
-    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    background-color: var(--color-active-surface);
   }
 
   .sidebar-item-container:has(:focus-visible) {

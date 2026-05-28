@@ -30,6 +30,7 @@
   --control-bg: color-mix(in srgb, var(--color-surface-0) 6%, var(--color-card));
 
   background: var(--color-card);
+  box-shadow: inset 0 0 0 1px var(--color-card-outline);
 }
 
 .gradient-divider {

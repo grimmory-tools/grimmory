@@ -101,6 +101,15 @@
           </div>
         </fieldset>
       }
+
+      <div class="theme-toggle-row">
+        <label class="field-label" for="oled-dark-mode">{{ 'settingsView.theme.oledDarkMode' | transloco }}</label>
+        <p-toggleswitch
+          inputId="oled-dark-mode"
+          [ngModel]="oledDarkMode()"
+          (ngModelChange)="updateOledDarkMode($event)">
+        </p-toggleswitch>
+      </div>
     </div>
 
     <div class="gradient-divider"></div>

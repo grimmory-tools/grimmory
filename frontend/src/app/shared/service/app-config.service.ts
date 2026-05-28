@@ -61,6 +61,10 @@ export class AppConfigService {
     this.updateAppState({appearancePreference});
   }
 
+  setOledDarkMode(oledDarkMode: boolean): void {
+    this.updateAppState({oledDarkMode});
+  }
+
   private updateAppState(patch: AppState): void {
     const state = this.withDefaults({
       ...this.appStateSignal(),
@@ -103,6 +107,7 @@ export class AppConfigService {
       themePreference: state.themePreference,
       appearancePreference: state.appearancePreference,
       customPrimary: state.customPrimary,
+      oledDarkMode: state.oledDarkMode,
     });
   }
 
@@ -115,6 +120,7 @@ export class AppConfigService {
       themePreference: this.resolveThemePreference(state.themePreference),
       appearancePreference: this.resolveAppearancePreference(state.appearancePreference),
       customPrimary: this.resolveCustomPrimary(state.customPrimary),
+      oledDarkMode: state.oledDarkMode === true,
     };
   }
 
@@ -179,6 +185,11 @@ export class AppConfigService {
 
     root.dataset['appTheme'] = theme;
     root.classList.toggle('dark', effective === 'dark');
+    if (state.oledDarkMode === true) {
+      root.dataset['oledDarkMode'] = 'true';
+    } else {
+      delete root.dataset['oledDarkMode'];
+    }
     root.style.setProperty('color-scheme', effective);
     this.applyCustomPrimary(root, theme, this.resolveCustomPrimary(state.customPrimary));
     this.syncSystemSchemeListener(appearancePreference);

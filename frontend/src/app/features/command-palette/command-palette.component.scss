@@ -142,7 +142,7 @@
   }
 
   &.active {
-    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    background: var(--color-active-surface);
     color: var(--color-primary);
 
     .command-palette-item-icon {

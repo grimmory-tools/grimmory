@@ -3,6 +3,7 @@ import {Button} from 'primeng/button';
 import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Password} from 'primeng/password';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 import {User, UserService, UserUpdateRequest} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -41,6 +42,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     InputText,
     Password,
     Select,
+    ToggleSwitch,
     TranslocoDirective,
     TranslocoPipe,
   ],
@@ -68,6 +70,7 @@ export class UserProfileDialogComponent {
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? DEFAULT_APP_THEME);
   protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference ?? 'system');
+  protected readonly oledDarkMode = computed(() => this.configService.appState().oledDarkMode === true);
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
     () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
@@ -144,6 +147,10 @@ export class UserProfileDialogComponent {
 
   updateAppearancePreference(appearancePreference: AppearancePreference): void {
     this.configService.setAppearancePreference(appearancePreference);
+  }
+
+  updateOledDarkMode(oledDarkMode: boolean): void {
+    this.configService.setOledDarkMode(oledDarkMode);
   }
 
   updateProfile(): void {
