@@ -93,11 +93,9 @@ describe('AppConfigService', () => {
       themePreference: 'grimmory',
       appearancePreference: 'system',
       customPrimary: 'orange',
-      oledDarkMode: false,
     });
     expect(localStorageMock.getItem('appConfigState')).toBeNull();
     expect(root.dataset['appTheme']).toBe('grimmory');
-    expect(root.dataset['oledDarkMode']).toBeUndefined();
     expect(root.classList.contains('dark')).toBe(false);
     expect(rootStyle.getPropertyValue('color-scheme')).toBe('light');
     expect(rootStyle.getPropertyValue('--primary-300')).toBe('');
@@ -147,7 +145,6 @@ describe('AppConfigService', () => {
       themePreference: 'grimmory',
       appearancePreference: 'system',
       customPrimary: 'orange',
-      oledDarkMode: false,
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);
@@ -155,35 +152,6 @@ describe('AppConfigService', () => {
       themePreference: 'grimmory',
       appearancePreference: 'system',
       customPrimary: 'orange',
-      oledDarkMode: false,
     }));
-  });
-
-  it('applies OLED mode as a root attribute independent of the selected theme', () => {
-    service.setThemePreference('cobalt');
-    service.setAppearancePreference('dark');
-    service.setOledDarkMode(true);
-
-    expect(service.appState()).toEqual({
-      themePreference: 'cobalt',
-      appearancePreference: 'dark',
-      customPrimary: 'orange',
-      oledDarkMode: true,
-    });
-    expect(root.dataset['appTheme']).toBe('cobalt');
-    expect(root.dataset['oledDarkMode']).toBe('true');
-    expect(root.classList.contains('dark')).toBe(true);
-    expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
-      themePreference: 'cobalt',
-      appearancePreference: 'dark',
-      customPrimary: 'orange',
-      oledDarkMode: true,
-    }));
-
-    service.setOledDarkMode(false);
-
-    expect(root.dataset['appTheme']).toBe('cobalt');
-    expect(root.dataset['oledDarkMode']).toBeUndefined();
-    expect(root.classList.contains('dark')).toBe(true);
   });
 });

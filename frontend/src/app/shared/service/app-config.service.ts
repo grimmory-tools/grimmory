@@ -162,8 +162,14 @@ export class AppConfigService {
     }
   }
 
+  effectiveAppearance(): 'light' | 'dark' {
+    return this.effectiveAppearancePreference(
+      this.resolveAppearancePreference(this.appStateSignal().appearancePreference),
+    );
+  }
+
   applyCurrentTheme(): void {
-    this.applyAppState(this.withDefaults(this.appStateSignal()));
+    this.applyAppState(this.appStateSignal());
   }
 
   private applyAppState(state: AppState): void {
@@ -185,7 +191,7 @@ export class AppConfigService {
 
     root.dataset['appTheme'] = theme;
     root.classList.toggle('dark', effective === 'dark');
-    if (state.oledDarkMode === true) {
+    if (state.oledDarkMode && effective === 'dark') {
       root.dataset['oledDarkMode'] = 'true';
     } else {
       delete root.dataset['oledDarkMode'];

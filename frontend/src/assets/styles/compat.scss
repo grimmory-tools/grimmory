@@ -112,6 +112,11 @@
   }
 }
 
+.p-dialog .p-dialog-header,
+.dialog-header {
+  background: var(--color-page) !important;
+}
+
 .grid-display-settings-popover.p-popover {
   --p-popover-background: var(--color-card);
   --p-popover-border-color: var(--color-border);
@@ -138,11 +143,6 @@
   &.p-popover-flipped::before {
     border-top-color: var(--color-border) !important;
   }
-}
-
-.p-dialog .p-dialog-header,
-.dialog-header {
-  background: var(--color-card) !important;
 }
 
 .dialog-xs.p-dialog {

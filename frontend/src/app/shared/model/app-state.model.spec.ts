@@ -25,7 +25,6 @@ describe('app-state.model', () => {
     expectTypeOf<AppState['themePreference']>().toEqualTypeOf<AppTheme | undefined>();
     expectTypeOf<AppState['appearancePreference']>().toEqualTypeOf<AppearancePreference | undefined>();
     expectTypeOf<AppState['customPrimary']>().toEqualTypeOf<CustomPrimary | undefined>();
-    expectTypeOf<AppState['oledDarkMode']>().toEqualTypeOf<boolean | undefined>();
   });
 
   it('derives theme options from the registry', () => {

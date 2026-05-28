@@ -70,7 +70,8 @@ export class UserProfileDialogComponent {
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? DEFAULT_APP_THEME);
   protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference ?? 'system');
-  protected readonly oledDarkMode = computed(() => this.configService.appState().oledDarkMode === true);
+  protected readonly oledDarkMode = computed(() => this.configService.appState().oledDarkMode);
+  protected readonly showOledDarkModeToggle = computed(() => this.configService.effectiveAppearance() === 'dark');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
     () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
@@ -147,10 +148,6 @@ export class UserProfileDialogComponent {
 
   updateAppearancePreference(appearancePreference: AppearancePreference): void {
     this.configService.setAppearancePreference(appearancePreference);
-  }
-
-  updateOledDarkMode(oledDarkMode: boolean): void {
-    this.configService.setOledDarkMode(oledDarkMode);
   }
 
   updateProfile(): void {
