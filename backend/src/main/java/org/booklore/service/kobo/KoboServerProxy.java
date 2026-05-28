@@ -46,6 +46,13 @@ public class KoboServerProxy {
             HttpHeaders.ACCEPT_LANGUAGE
     );
 
+    private static final Set<String> HEADERS_READING_SERVICES_INCLUDE = Set.of(
+        HttpHeaders.CONTENT_TYPE.toLowerCase(),
+        HttpHeaders.CONTENT_TYPE,
+        HttpHeaders.ACCEPT.toLowerCase(),
+        HttpHeaders.ACCEPT
+    );
+
     private static final Set<String> HEADERS_OUT_EXCLUDE = Set.of(
             KoboHeaders.X_KOBO_SYNCTOKEN
     );
@@ -109,7 +116,9 @@ public class KoboServerProxy {
                     .method(request.getMethod(), bodyPublisher);
 
             Collections.list(request.getHeaderNames()).forEach(headerName -> {
-                if (HEADERS_OUT_INCLUDE.contains(headerName) || isKoboHeader(headerName)) {
+                if (HEADERS_OUT_INCLUDE.contains(headerName)
+                    || HEADERS_READING_SERVICES_INCLUDE.contains(headerName)
+                    || isKoboHeader(headerName)) {
                     Collections.list(request.getHeaders(headerName))
                             .forEach(value -> builder.header(headerName, value));
                 }
@@ -118,12 +127,14 @@ public class KoboServerProxy {
             HttpResponse<byte[]> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             HttpHeaders responseHeaders = new HttpHeaders();
             response.headers().map().forEach((key, values) -> {
-                if (isKoboHeader(key)) {
+                if (HEADERS_OUT_INCLUDE.contains(key)
+                    || HEADERS_READING_SERVICES_INCLUDE.contains(key)
+                    || isKoboHeader(key)) {
                     responseHeaders.addAll(key, values);
                 }
             });
 
-            log.debug("Kobo proxy response status: {}", response.statusCode());
+            log.debug("Kobo reading proxy response status: {}", response.statusCode());
 
             return new ResponseEntity<>(response.body(), responseHeaders, HttpStatus.valueOf(response.statusCode()));
 
