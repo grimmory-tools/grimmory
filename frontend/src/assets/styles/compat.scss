@@ -117,34 +117,6 @@
   background: var(--color-page) !important;
 }
 
-.grid-display-settings-popover.p-popover {
-  --p-popover-background: var(--color-card);
-  --p-popover-border-color: var(--color-border);
-
-  background: var(--color-card) !important;
-  border-color: var(--color-border) !important;
-
-  .p-popover-content {
-    background: var(--color-card);
-  }
-
-  &::after {
-    border-bottom-color: var(--color-card) !important;
-  }
-
-  &::before {
-    border-bottom-color: var(--color-border) !important;
-  }
-
-  &.p-popover-flipped::after {
-    border-top-color: var(--color-card) !important;
-  }
-
-  &.p-popover-flipped::before {
-    border-top-color: var(--color-border) !important;
-  }
-}
-
 .dialog-xs.p-dialog {
   width: 90vw;
   max-width: 400px;

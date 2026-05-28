@@ -18,8 +18,6 @@ import {
   AppTheme,
   CUSTOM_PRIMARY_OPTIONS,
   CustomPrimary,
-  DEFAULT_APP_THEME,
-  DEFAULT_CUSTOM_PRIMARY,
 } from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -68,12 +66,12 @@ export class UserProfileDialogComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference ?? DEFAULT_APP_THEME);
-  protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference ?? 'system');
+  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference);
+  protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference);
   protected readonly oledDarkMode = computed(() => this.configService.appState().oledDarkMode);
   protected readonly showOledDarkModeToggle = computed(() => this.configService.effectiveAppearance() === 'dark');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
-    () => this.configService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
+    () => this.configService.appState().customPrimary,
   );
   protected readonly customPrimaryOptions = CUSTOM_PRIMARY_OPTIONS;
   protected readonly themeOptions = computed(() => {

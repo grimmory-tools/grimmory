@@ -33,6 +33,20 @@
   box-shadow: inset 0 0 0 1px var(--color-card-outline);
 }
 
+.surface-card-outline {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--color-card-outline);
+    pointer-events: none;
+  }
+}
+
 .gradient-divider {
   flex-shrink: 0;
   height: 1px;
