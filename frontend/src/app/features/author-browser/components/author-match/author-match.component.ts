@@ -1,4 +1,4 @@
-import {Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -17,6 +17,7 @@ interface RegionOption {
 @Component({
   selector: 'app-author-match',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './author-match.component.html',
   styleUrls: ['./author-match.component.scss'],
   imports: [
