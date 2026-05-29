@@ -81,6 +81,7 @@ describe('AuthorService', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     TestBed.resetTestingModule();
   });
@@ -119,10 +120,31 @@ describe('AuthorService', () => {
     );
   });
 
-  it('invalidates the authors query when a newly created book introduces authors', () => {
-    service.handleNewlyCreatedBook(makeBook(['Ada Lovelace']));
+  it('coalesces author query invalidation when newly created books introduce authors', () => {
+    vi.useFakeTimers();
 
+    service.handleNewlyCreatedBook(makeBook(['Ada Lovelace']));
+    service.handleNewlyCreatedBook(makeBook(['Grace Hopper']));
+    service.handleNewlyCreatedBook(makeBook(['Katherine Johnson']));
+
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(199);
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears pending author invalidation when the service is destroyed', () => {
+    vi.useFakeTimers();
+
+    service.handleNewlyCreatedBook(makeBook(['Ada Lovelace']));
+    TestBed.resetTestingModule();
+    vi.advanceTimersByTime(200);
+
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
   });
 
   it('does not invalidate authors when the newly created book has no authors', () => {

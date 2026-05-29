@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, DestroyRef, effect, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -20,9 +20,12 @@ export class AuthorService {
   private authService = inject(AuthService);
   private sseClient = inject(SseClient);
   private queryClient = inject(QueryClient);
+  private destroyRef = inject(DestroyRef);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/authors`;
   private readonly mediaBaseUrl = `${API_CONFIG.BASE_URL}/api/v1/media`;
   private readonly token = this.authService.token;
+  private readonly authorInvalidationDebounceMs = 200;
+  private authorInvalidationTimer: ReturnType<typeof setTimeout> | null = null;
 
   private authorsQuery = injectQuery(() => ({
     ...this.getAuthorsQueryOptions(),
@@ -33,6 +36,8 @@ export class AuthorService {
   isAuthorsLoading = computed(() => !!this.token() && this.authorsQuery.isPending());
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.clearAuthorInvalidationTimer());
+
     effect(() => {
       const token = this.token();
       if (token === null) {
@@ -56,7 +61,25 @@ export class AuthorService {
     if (!book.metadata?.authors?.length) {
       return;
     }
-    this.invalidateAuthors();
+    this.debouncedInvalidateAuthors();
+  }
+
+  private debouncedInvalidateAuthors(): void {
+    this.clearAuthorInvalidationTimer();
+
+    this.authorInvalidationTimer = setTimeout(() => {
+      this.authorInvalidationTimer = null;
+      this.invalidateAuthors();
+    }, this.authorInvalidationDebounceMs);
+  }
+
+  private clearAuthorInvalidationTimer(): void {
+    if (this.authorInvalidationTimer === null) {
+      return;
+    }
+
+    clearTimeout(this.authorInvalidationTimer);
+    this.authorInvalidationTimer = null;
   }
 
   patchAuthorInCache(authorId: number, fields: Partial<AuthorSummary>): void {
