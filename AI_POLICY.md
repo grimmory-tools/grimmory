@@ -34,11 +34,6 @@ The Grimmory project has strict rules for AI usage:
   grow — if that's your goal, slow down, ask questions, and we'll
   help you.
 
-These rules apply only to outside contributions to Grimmory. Maintainers
-are exempt from these rules and may use AI tools at their discretion;
-they are accountable for the quality of the project and apply their
-own judgment accordingly.
-
 These rules apply equally to all Grimmory contributors, whether you are
 a first-time contributor, regular contributor, maintainer, or core maintainer.
 Project roles do not exempt anyone from disclosure, review, testing,
