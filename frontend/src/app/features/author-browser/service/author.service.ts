@@ -5,10 +5,11 @@ import {map} from 'rxjs/operators';
 import {SseClient} from 'ngx-sse-client';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthorSummary, AuthorDetails, AuthorSearchResult, AuthorMatchRequest, AuthorUpdateRequest, AuthorPhotoResult} from '../model/author.model';
+import {Book} from '../../book/model/book.model';
 import {AuthService} from '../../../shared/service/auth.service';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {AUTHORS_QUERY_KEY} from './author-query-keys';
-import {patchAuthorInCache} from './author-query-cache';
+import {invalidateAuthorsQuery, patchAuthorInCache} from './author-query-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +49,14 @@ export class AuthorService {
   }
 
   invalidateAuthors(): void {
-    void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    invalidateAuthorsQuery(this.queryClient);
+  }
+
+  handleNewlyCreatedBook(book: Book): void {
+    if (!book.metadata?.authors?.length) {
+      return;
+    }
+    this.invalidateAuthors();
   }
 
   patchAuthorInCache(authorId: number, fields: Partial<AuthorSummary>): void {

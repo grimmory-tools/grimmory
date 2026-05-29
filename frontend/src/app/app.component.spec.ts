@@ -19,6 +19,7 @@ import { ConfirmationService } from "primeng/api";
 import { MessageService } from "primeng/api";
 import { CommandPaletteService } from "./features/command-palette/command-palette.service";
 import { LibraryImportProgressService } from "./shared/service/library-import-progress.service";
+import { AuthorService } from "./features/author-browser/service/author.service";
 
 interface StompMessage {
   body: string;
@@ -38,6 +39,7 @@ describe("AppComponent", () => {
     handleRemovedBookIds: ReturnType<typeof vi.fn>;
     handleMultipleBookUpdates: ReturnType<typeof vi.fn>;
   };
+  let authorService: { handleNewlyCreatedBook: ReturnType<typeof vi.fn> };
   let notificationEventService: {
     handleNewNotification: ReturnType<typeof vi.fn>;
   };
@@ -82,6 +84,7 @@ describe("AppComponent", () => {
       handleRemovedBookIds: vi.fn(),
       handleMultipleBookUpdates: vi.fn(),
     };
+    authorService = { handleNewlyCreatedBook: vi.fn() };
     notificationEventService = { handleNewNotification: vi.fn() };
     metadataProgressService = { handleIncomingProgress: vi.fn() };
     bookdropFileService = { handleIncomingFile: vi.fn() };
@@ -109,6 +112,7 @@ describe("AppComponent", () => {
         },
         { provide: RxStompService, useValue: rxStompService },
         { provide: BookService, useValue: bookService },
+        { provide: AuthorService, useValue: authorService },
         {
           provide: NotificationEventService,
           useValue: notificationEventService,
@@ -168,6 +172,7 @@ describe("AppComponent", () => {
       ?.next({ body: JSON.stringify({ metadata: { title: "First" } }) });
 
     expect(bookService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
+    expect(authorService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
     expect(libraryImportProgressService.recordBookAdded).toHaveBeenCalledWith("First");
   });
 
