@@ -71,13 +71,13 @@ describe('OpdsSettings', () => {
     component.ngOnInit();
 
     TestBed.flushEffects();
-    expect(component.loading).toBe(true);
+    expect(component.loading()).toBe(true);
 
     appSettingsState.set(buildAppSettings());
     TestBed.flushEffects();
 
     expect(getUser).not.toHaveBeenCalled();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
 
     fixture.destroy();
   });
@@ -100,8 +100,8 @@ describe('OpdsSettings', () => {
     TestBed.flushEffects();
 
     expect(getUser).toHaveBeenCalledOnce();
-    expect(component.loading).toBe(false);
-    expect(component.users).toHaveLength(1);
+    expect(component.loading()).toBe(false);
+    expect(component.users()).toHaveLength(1);
 
     fixture.destroy();
   });
