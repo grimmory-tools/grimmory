@@ -39,6 +39,11 @@ are exempt from these rules and may use AI tools at their discretion;
 they are accountable for the quality of the project and apply their
 own judgment accordingly.
 
+These rules apply equally to all Grimmory contributors, whether you are
+a first-time contributor, regular contributor, maintainer, or core maintainer.
+Project roles do not exempt anyone from disclosure, review, testing,
+or human accountability for AI-assisted work.
+
 ## There are Humans Here
 
 Please remember that Grimmory is maintained by humans.
