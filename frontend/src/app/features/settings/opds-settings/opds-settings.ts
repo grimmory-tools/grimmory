@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, WritableSignal, effect, inject, signal, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {Button} from 'primeng/button';
@@ -56,8 +56,8 @@ export class OpdsSettings implements OnInit {
   private appSettingsService = inject(AppSettingsService);
   private t = inject(TranslocoService);
 
-  users: OpdsUserV2[] = [];
-  loading = false;
+  users: WritableSignal<OpdsUserV2[]> = signal([]);
+  loading = signal(false);
   showCreateUserDialog = false;
   newUser: OpdsUserV2CreateRequest = {username: '', password: '', sortOrder: 'RECENT'};
   passwordVisibility: boolean[] = [];
@@ -87,8 +87,8 @@ export class OpdsSettings implements OnInit {
     const user = this.userService.currentUser();
     this.hasPermission = !!(user?.permissions.canAccessOpds || user?.permissions.admin);
     if (!this.hasPermission) {
-      this.loading = false;
-      this.users = [];
+      this.loading.set(false);
+      this.users.set([]);
       this.hasLoadedUsers = false;
     }
   });
@@ -103,7 +103,7 @@ export class OpdsSettings implements OnInit {
     }
 
     if (!settings) {
-      this.loading = true;
+      this.loading.set(true);
       return;
     }
 
@@ -111,7 +111,7 @@ export class OpdsSettings implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loading = true;
+    this.loading.set(true);
   }
 
   private applyAppSettings(settings: AppSettings): void {
@@ -124,14 +124,14 @@ export class OpdsSettings implements OnInit {
         this.loadUsers();
       }
     } else {
-      this.users = [];
-      this.loading = false;
+      this.users.set([]);
+      this.loading.set(false);
       this.hasLoadedUsers = false;
     }
   }
 
   private loadUsers(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.hasLoadedUsers = true;
     this.opdsService.getUser().pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -141,9 +141,9 @@ export class OpdsSettings implements OnInit {
         return of([]);
       })
     ).subscribe(users => {
-      this.users = users;
+      this.users.set([...users]);
       this.passwordVisibility = new Array(users.length).fill(false);
-      this.loading = false;
+      this.loading.set(false);
     });
   }
 
@@ -154,7 +154,7 @@ export class OpdsSettings implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: user => {
-        this.users.push(user);
+        this.users.update(users => [...users, user]);
         this.resetCreateUserDialog();
         this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsOpds.createSuccess'));
       },
@@ -187,7 +187,7 @@ export class OpdsSettings implements OnInit {
         return of(null);
       })
     ).subscribe(() => {
-      this.users = this.users.filter(u => u.id !== user.id);
+      this.users.update(users => users.filter(u => u.id !== user.id));
       this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsOpds.deleteSuccess'));
     });
   }
@@ -207,7 +207,7 @@ export class OpdsSettings implements OnInit {
     if (this.opdsEnabled || this.komgaApiEnabled) {
       this.loadUsers();
     } else {
-      this.users = [];
+      this.users.set([]);
     }
   }
 
@@ -216,7 +216,7 @@ export class OpdsSettings implements OnInit {
     if (this.opdsEnabled || this.komgaApiEnabled) {
       this.loadUsers();
     } else {
-      this.users = [];
+      this.users.set([]);
     }
   }
 
@@ -311,10 +311,12 @@ export class OpdsSettings implements OnInit {
       })
     ).subscribe(updatedUser => {
       if (updatedUser) {
-        const index = this.users.findIndex(u => u.id === user.id);
-        if (index !== -1) {
-          this.users[index] = updatedUser;
-        }
+        this.users.update(
+          users => users.map(
+            u => (u.id === user.id ? updatedUser : u)
+          )
+        );
+
         this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsOpds.sortUpdateSuccess'));
       }
       this.cancelEdit();
