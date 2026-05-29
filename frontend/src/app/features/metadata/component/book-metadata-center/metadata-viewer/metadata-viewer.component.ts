@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {Button} from 'primeng/button';
 import {DecimalPipe, NgClass} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
@@ -14,11 +14,12 @@ import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {Tooltip} from 'primeng/tooltip';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ProgressBar} from 'primeng/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
-import {take, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, take} from 'rxjs/operators';
+import {of} from 'rxjs';
 import {Menu} from 'primeng/menu';
 import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
 import {DatePicker} from 'primeng/datepicker';
@@ -48,8 +49,34 @@ import DOMPurify from 'dompurify';
   styleUrl: './metadata-viewer.component.scss',
   imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverPlaceholderComponent]
 })
-export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChecked {
+export class MetadataViewerComponent implements OnInit, AfterViewChecked {
+  private bookService = inject(BookService);
   private currentBook = signal<Book | null>(null);
+  private readonly seriesLookupBookId = computed(() => {
+    const metadata = this.currentBook()?.metadata;
+    return metadata?.seriesName ? metadata.bookId : null;
+  });
+  private readonly bookInSeriesSignal = toSignal(
+    toObservable(this.seriesLookupBookId).pipe(
+      switchMap(bookId =>
+        bookId == null
+          ? of([])
+          : this.bookService.getBooksInSeries(bookId).pipe(
+            catchError(() => of([]))
+          )
+      ),
+      map(series => [...series].sort((a, b) => (a.metadata?.seriesNumber ?? 0) - (b.metadata?.seriesNumber ?? 0)))
+    ),
+    {initialValue: []}
+  );
+  private readonly originalRecommendedBooks = signal<BookRecommendation[]>([]);
+  readonly filteredRecommendedBooks = computed(() => {
+    const bookInSeriesIds = new Set(this.bookInSeriesSignal().map(book => book.id));
+
+    return this.originalRecommendedBooks().filter(
+      rec => !bookInSeriesIds.has(rec.book.id)
+    );
+  });
 
   @Input()
   set book(value: Book | null) {
@@ -60,7 +87,6 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     }
 
     this.isAutoFetching = false;
-    this.loadBooksInSeriesAndFilterRecommended(value.metadata.bookId);
     this.selectedReadStatus = value.readStatus ?? ReadStatus.UNREAD;
   }
 
@@ -68,15 +94,16 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     return this.currentBook();
   }
 
-  @Input() recommendedBooks: BookRecommendation[] = [];
-  private originalRecommendedBooks: BookRecommendation[] = [];
+  @Input()
+  set recommendedBooks(value: BookRecommendation[]) {
+    this.originalRecommendedBooks.set(value);
+  }
 
   private readonly t = inject(TranslocoService);
   private libraryService = inject(LibraryService);
   private bookDialogHelperService = inject(BookDialogHelperService)
   private emailService = inject(EmailService);
   private messageService = inject(MessageService);
-  private bookService = inject(BookService);
   private bookFileService = inject(BookFileService);
   private taskHelperService = inject(TaskHelperService);
   private authorService = inject(AuthorService);
@@ -399,7 +426,9 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
 
     return items;
   });
-  bookInSeries: Book[] = [];
+  get bookInSeries(): Book[] {
+    return this.bookInSeriesSignal();
+  }
   @ViewChild(Image) private coverImage?: Image;
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   isExpanded = false;
@@ -458,32 +487,6 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     if (settings) {
       this.amazonDomain = settings.metadataProviderSettings?.amazon?.domain ?? 'com';
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['recommendedBooks']) {
-      this.originalRecommendedBooks = [...this.recommendedBooks];
-      this.filterRecommendations();
-    }
-  }
-
-  private loadBooksInSeriesAndFilterRecommended(bookId: number): void {
-    this.bookService.getBooksInSeries(bookId).pipe(
-      tap(series => {
-        series.sort((a, b) => (a.metadata?.seriesNumber ?? 0) - (b.metadata?.seriesNumber ?? 0));
-        this.bookInSeries = series;
-        this.originalRecommendedBooks = [...this.recommendedBooks];
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.filterRecommendations());
-  }
-
-  private filterRecommendations(): void {
-    if (!this.originalRecommendedBooks) return;
-    const bookInSeriesIds = new Set(this.bookInSeries.map(book => book.id));
-    this.recommendedBooks = this.originalRecommendedBooks.filter(
-      rec => !bookInSeriesIds.has(rec.book.id)
-    );
   }
 
   ngAfterViewChecked(): void {

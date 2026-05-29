@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'metadata.tabs'">
 <p-tabs lazy class="custom-p-tabs" [value]="defaultTabValue" scrollable (valueChange)="onTabChange($event)">
   <p-tablist>
-    @if (bookInSeries.length > 1) {
+    @if (hasSeries) {
       <p-tab value="series">
         <i class="pi pi-ethereum"></i> {{ t('moreInSeries') }}
       </p-tab>

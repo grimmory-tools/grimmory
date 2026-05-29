@@ -256,7 +256,7 @@ describe('MetadataViewerComponent', () => {
     });
   });
 
-  it('filters series recommendations and builds the read, download, and other menus from the current book', () => {
+  it('filters series recommendations and builds the read, download, and other menus from the current book', async () => {
     const component = createComponent();
     const seriesBooks = [
       {id: 8, metadata: {seriesNumber: 2}},
@@ -310,8 +310,10 @@ describe('MetadataViewerComponent', () => {
 
     component.book = richBook;
 
-    expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
-    expect(component.recommendedBooks.map(book => book.book.id)).toEqual([17]);
+    await vi.waitFor(() => {
+      expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
+    });
+    expect(component.filteredRecommendedBooks().map(book => book.book.id)).toEqual([17]);
 
     const readItems = component.readMenuItems();
     expect(readItems.map(item => item.separator ? 'separator' : item.label)).toEqual([
@@ -372,6 +374,18 @@ describe('MetadataViewerComponent', () => {
     const deleteSupplementaryItems = otherItems[6].items ?? [];
     runMenuCommand(deleteSupplementaryItems[0].command);
     expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to an empty series list when the series lookup fails', async () => {
+    const component = createComponent();
+    getBooksInSeries.mockReturnValueOnce(throwError(() => new Error('series failed')));
+
+    component.book = createBook({}, {bookId: 21, seriesName: 'Series One'});
+
+    await vi.waitFor(() => {
+      expect(getBooksInSeries).toHaveBeenCalledWith(21);
+    });
+    expect(component.bookInSeries).toEqual([]);
   });
 
   it('chooses confirmation copy for file deletion branches and runs the accept callbacks', () => {

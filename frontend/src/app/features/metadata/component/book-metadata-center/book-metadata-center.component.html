@@ -25,13 +25,13 @@
         <i [class]="'pi pi-book'"></i>
         {{ t('tabView') }}
       </p-tab>
-      @if (admin || canEditMetadata) {
+      @if (admin() || canEditMetadata()) {
         <p-tab value="edit">
           <i [class]="'pi pi-pencil'"></i>
           {{ t('tabEdit') }}
         </p-tab>
       }
-      @if (admin || canEditMetadata) {
+      @if (admin() || canEditMetadata()) {
         <p-tab value="match">
           <i [class]="'pi pi-search'"></i>
           {{ t('tabSearch') }}
@@ -48,17 +48,17 @@
       <p-tabpanel value="view">
         <app-metadata-viewer
           [book]="book()"
-          [recommendedBooks]="recommendedBooks">
+          [recommendedBooks]="recommendedBooks()">
         </app-metadata-viewer>
       </p-tabpanel>
-      @if (admin || canEditMetadata) {
+      @if (admin() || canEditMetadata()) {
         <p-tabpanel value="edit">
           <app-metadata-editor
             [book]="book()">
           </app-metadata-editor>
         </p-tabpanel>
       }
-      @if (admin || canEditMetadata) {
+      @if (admin() || canEditMetadata()) {
         <p-tabpanel value="match">
           <app-metadata-searcher [book]="book()" [isActiveTab]="tab === 'match'"></app-metadata-searcher>
         </p-tabpanel>
