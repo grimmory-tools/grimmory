@@ -311,14 +311,11 @@ export class OpdsSettings implements OnInit {
       })
     ).subscribe(updatedUser => {
       if (updatedUser) {
-        this.users.update(users => {
-          const index = users.findIndex(u => u.id === user.id);
-          if (index !== -1) {
-            users[index] = updatedUser;
-          }
-
-          return [...users];
-        })
+        this.users.update(
+          users => users.map(
+            u => (u.id === user.id ? updatedUser : u)
+          )
+        );
 
         this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsOpds.sortUpdateSuccess'));
       }
