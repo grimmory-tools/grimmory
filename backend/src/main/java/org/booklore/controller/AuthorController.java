@@ -15,22 +15,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @Tag(name = "Authors", description = "Endpoints for retrieving authors related to books")
 @RequestMapping("/api/v1/authors")
 @RestController
 @AllArgsConstructor
 public class AuthorController {
 
+    private static final int MAX_AUTO_MATCH_BATCH = 500;
     private final AuthorService authorService;
     private final AuthorMetadataService authorMetadataService;
 
@@ -128,8 +135,48 @@ public class AuthorController {
     @ApiResponse(responseCode = "200", description = "Authors auto-matched successfully")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @PostMapping(value = "/auto-match", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<AuthorSummary> autoMatchAuthors(@RequestBody List<Long> authorIds) {
-        return authorMetadataService.autoMatchAuthors(authorIds);
+    public SseEmitter autoMatchAuthors(@RequestBody List<Long> authorIds) {
+        if (authorIds == null || authorIds.isEmpty()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("authorIds must not be empty");
+        }
+        if (authorIds.size() > MAX_AUTO_MATCH_BATCH) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Too many authors requested (max: " + MAX_AUTO_MATCH_BATCH + ")");
+        }
+
+        SseEmitter emitter = new SseEmitter(0L);
+        Object lock = new Object();
+        AtomicBoolean active = new AtomicBoolean(true);
+
+        emitter.onCompletion(() -> active.set(false));
+        emitter.onTimeout(() -> active.set(false));
+        emitter.onError(e -> active.set(false));
+
+        Thread.ofVirtual().name("sse-auto-match-" + UUID.randomUUID()).start(() -> {
+            try {
+                authorMetadataService.streamAutoMatchAuthors(authorIds, summary -> {
+                    if (!active.get()) {
+                        return;
+                    }
+                    try {
+                        synchronized (lock) {
+                            emitter.send(SseEmitter.event().data(summary));
+                        }
+                    } catch (IOException e) {
+                        log.debug("Client disconnected from auto-match stream");
+                        active.set(false);
+                    }
+                }, () -> !active.get());
+                if (active.compareAndSet(true, false)) {
+                    emitter.complete();
+                }
+            } catch (Exception e) {
+                log.error("Error during auto-match stream", e);
+                if (active.compareAndSet(true, false)) {
+                    emitter.completeWithError(e);
+                }
+            }
+        });
+        return emitter;
     }
 
     @Operation(summary = "Unmatch authors", description = "Clear metadata for multiple authors.")
@@ -145,10 +192,43 @@ public class AuthorController {
     @ApiResponse(responseCode = "200", description = "Photo search results returned successfully")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @GetMapping(value = "/{authorId}/search-photos", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<CoverImage> searchAuthorPhotos(
+    public SseEmitter searchAuthorPhotos(
             @Parameter(description = "ID of the author") @PathVariable long authorId,
             @Parameter(description = "Author name to search") @RequestParam("q") String query) {
-        return authorMetadataService.searchAuthorPhotos(query);
+        SseEmitter emitter = new SseEmitter(0L);
+        Object lock = new Object();
+        AtomicBoolean active = new AtomicBoolean(true);
+
+        emitter.onCompletion(() -> active.set(false));
+        emitter.onTimeout(() -> active.set(false));
+        emitter.onError(e -> active.set(false));
+
+        Thread.ofVirtual().name("sse-author-photos-" + authorId).start(() -> {
+            try {
+                authorMetadataService.streamAuthorPhotos(query, image -> {
+                    if (!active.get()) {
+                        return;
+                    }
+                    try {
+                        synchronized (lock) {
+                            emitter.send(SseEmitter.event().data(image));
+                        }
+                    } catch (IOException e) {
+                        log.debug("Client disconnected from author photos stream");
+                        active.set(false);
+                    }
+                }, () -> !active.get());
+                if (active.compareAndSet(true, false)) {
+                    emitter.complete();
+                }
+            } catch (Exception e) {
+                log.error("Error during author photos stream", e);
+                if (active.compareAndSet(true, false)) {
+                    emitter.completeWithError(e);
+                }
+            }
+        });
+        return emitter;
     }
 
     @Operation(summary = "Upload author photo from URL", description = "Download an image from a URL and save it as the author's photo.")

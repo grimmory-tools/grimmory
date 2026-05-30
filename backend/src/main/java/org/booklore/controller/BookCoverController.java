@@ -12,19 +12,21 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Map;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/books")
 @AllArgsConstructor
@@ -153,14 +155,42 @@ public class BookCoverController {
     @PostMapping(value = "/{bookId}/metadata/covers", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public Flux<ServerSentEvent<CoverImage>> getImages(
+    public SseEmitter getImages(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Cover fetch request") @RequestBody CoverFetchRequest request) {
-        return duckDuckGoCoverService.getCovers(request)
-                .subscribeOn(Schedulers.boundedElastic())
-                .map(image -> ServerSentEvent.<CoverImage>builder()
-                        .data(image)
-                        .build())
-                .onErrorMap(e -> ApiError.INTERNAL_SERVER_ERROR.createException("DuckDuckGo cover fetch failed"));
+        SseEmitter emitter = new SseEmitter(0L);
+        Object lock = new Object();
+        AtomicBoolean active = new AtomicBoolean(true);
+
+        emitter.onCompletion(() -> active.set(false));
+        emitter.onTimeout(() -> active.set(false));
+        emitter.onError(e -> active.set(false));
+
+        Thread.ofVirtual().name("sse-book-covers-" + bookId).start(() -> {
+            try {
+                duckDuckGoCoverService.streamCovers(request, image -> {
+                    if (!active.get()) {
+                        return;
+                    }
+                    try {
+                        synchronized (lock) {
+                            emitter.send(SseEmitter.event().data(image));
+                        }
+                    } catch (IOException e) {
+                        log.debug("Client disconnected from book covers stream: {}", bookId);
+                        active.set(false);
+                    }
+                }, () -> !active.get());
+                if (active.compareAndSet(true, false)) {
+                    emitter.complete();
+                }
+            } catch (Exception e) {
+                log.error("Error during book covers stream", e);
+                if (active.compareAndSet(true, false)) {
+                    emitter.completeWithError(e);
+                }
+            }
+        });
+        return emitter;
     }
 }

@@ -1,6 +1,7 @@
 package org.booklore.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.config.security.service.AuthenticationService;
@@ -23,13 +24,13 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.service.metadata.parser.AuthorParser;
 import org.booklore.util.FileService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
@@ -40,17 +41,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthorMetadataService {
 
@@ -61,6 +67,7 @@ public class AuthorMetadataService {
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
+    private final ObjectProvider<AuthorMetadataService> selfProvider;
 
     public List<AuthorSummary> getAllAuthors() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -157,29 +164,53 @@ public class AuthorMetadataService {
         throw ApiError.GENERIC_BAD_REQUEST.createException("No metadata found for author: " + author.getName());
     }
 
-    public Flux<AuthorSummary> autoMatchAuthors(List<Long> authorIds) {
-        return Flux.fromIterable(authorIds)
-                .concatMap(authorId ->
-                        Mono.fromCallable(() -> {
-                            AuthorEntity author = authorRepository.findById(authorId).orElse(null);
-                            if (author == null) return null;
-                            AuthorDetails details = quickMatchAuthor(authorId, "us");
-                            return AuthorSummary.builder()
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void streamAutoMatchAuthors(List<Long> authorIds, Consumer<AuthorSummary> onResult, BooleanSupplier isCancelled) {
+        // Use a Semaphore to limit concurrency to avoid hitting rate limits too hard
+        // but still allow some parallel processing (previously was strictly sequential)
+        Semaphore semaphore = new Semaphore(3);
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (Long authorId : authorIds) {
+                if (isCancelled.getAsBoolean()) {
+                    break;
+                }
+                executor.execute(() -> {
+                    if (isCancelled.getAsBoolean()) {
+                        return;
+                    }
+                    try {
+                        // Small random delay as a courtesy to external providers
+                        // Moved before acquire to space out arrivals at the semaphore
+                        Thread.sleep(Duration.ofMillis(ThreadLocalRandom.current().nextLong(250, 750)));
+
+                        if (isCancelled.getAsBoolean()) {
+                            return;
+                        }
+
+                        semaphore.acquire();
+                        try {
+                            if (isCancelled.getAsBoolean()) {
+                                return;
+                            }
+                            AuthorDetails details = selfProvider.getObject().quickMatchAuthor(authorId, "us");
+                            onResult.accept(AuthorSummary.builder()
                                     .id(details.getId())
                                     .name(details.getName())
                                     .asin(details.getAsin())
                                     .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(authorId))))
-                                    .build();
-                        })
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .delayElement(Duration.ofMillis(
-                                ThreadLocalRandom.current().nextLong(250, 750)))
-                        .onErrorResume(e -> {
-                            log.warn("Failed to auto-match author ID {}: {}", authorId, e.getMessage());
-                            return Mono.empty();
-                        })
-                )
-                .filter(Objects::nonNull);
+                                    .build());
+                        } finally {
+                            semaphore.release();
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.debug("Auto-match interrupted for author ID {}", authorId);
+                    } catch (Exception e) {
+                        log.warn("Failed to auto-match author ID {}: {}", authorId, e.getMessage());
+                    }
+                });
+            }
+        }
     }
 
     @Transactional
@@ -298,10 +329,14 @@ public class AuthorMetadataService {
         return toAuthorDetails(author);
     }
 
-    public Flux<CoverImage> searchAuthorPhotos(String name) {
+    public void streamAuthorPhotos(String name, Consumer<CoverImage> onResult, BooleanSupplier isCancelled) {
         String searchTerm = name + " author photo portrait";
-        return duckDuckGoCoverService.searchImages(searchTerm)
-                .take(50);
+        AtomicInteger count = new AtomicInteger(0);
+        duckDuckGoCoverService.streamImages(searchTerm, image -> {
+            if (count.getAndIncrement() < 50) {
+                onResult.accept(image);
+            }
+        }, () -> isCancelled.getAsBoolean() || count.get() >= 50);
     }
 
     @Transactional
