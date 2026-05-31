@@ -66,6 +66,7 @@ Use the repo-level guide in [../DEVELOPMENT.md](../DEVELOPMENT.md) for the full 
 setup, and cross-project local workflows.
 
 ### IDE
+
 **Spring Boot:**  Active Profile = `dev`,
 Working Directory = `backend/` 
 
