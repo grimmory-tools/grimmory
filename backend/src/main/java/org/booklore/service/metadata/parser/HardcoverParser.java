@@ -59,20 +59,9 @@ public class HardcoverParser implements BookParser {
 
         List<BookMetadata> results = Collections.emptyList();
 
-        // 1. Try Title + Author
-        if (author != null && !author.isBlank()) {
-            String combinedQuery = title.trim() + " " + author.trim();
-            log.info("Hardcover: Searching with title+author: '{}'", combinedQuery);
-            List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(combinedQuery);
-            results = processHits(hits, fetchMetadataRequest, false);
-        }
-
-        // 2. If no valid results found (or no author provided), Try Title only
-        if (results.isEmpty()) {
-            log.info("Hardcover: Searching with title only: '{}'", title);
-            List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
-            results = processHits(hits, fetchMetadataRequest, false);
-        }
+        log.info("Hardcover: Searching with title only: '{}'", title);
+        List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
+        results = processHits(hits, fetchMetadataRequest, false);
 
         if (results.isEmpty()) {
             log.info("Hardcover: No results found for title '{}'", title);
