@@ -4,6 +4,6 @@ app:
     bookdrop-folder: ${APP_BOOKDROP_FOLDER:../shared/bookdrop}
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:mariadb://localhost:3366/grimmory}
+    url: ${DATABASE_URL:jdbc:mariadb://localhost:3366/grimmory?createDatabaseIfNotExist=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}
     username: ${DATABASE_USERNAME:grimmory}
     password: ${DATABASE_PASSWORD:grimmory}
