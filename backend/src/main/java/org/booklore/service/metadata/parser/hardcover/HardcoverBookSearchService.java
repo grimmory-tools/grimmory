@@ -148,6 +148,36 @@ public class HardcoverBookSearchService {
         return response.getData().getBooksByPk();
     }
 
+    public HardcoverWorkDetails searchEditions(String Title, String Author) {
+        String apiToken = getApiToken();
+        if (apiToken == null) {
+            return null;
+        }
+        GraphQLRequest body = new GraphQLRequest();
+        body.setQuery("""
+                query GetEditions($Title: String!, $Author: String!){
+                    editions(
+                        where: {title: {_eq: $Title},
+                            _or: [{isbn_13: {_neq: "null"}}, {isbn_10: {_neq: "null"}}],
+                            contributions: {author: {name: {_eq: $Author}}}}
+                        order_by: {score: desc}
+                        limit: 1
+                    ) {
+                        isbn_10
+                        isbn_13
+                    }
+                }""");
+        body.setVariables(Map.of("Title", Title, "Author", Author));
+        HardcoverWorkResponse response = executeRequest(body, HardcoverWorkResponse.class, apiToken);
+        if (response == null || response.getData() == null ||
+            response.getData().getEditions() == null ||
+            response.getData().getEditions().isEmpty()) {
+            return null;
+        }
+
+        return response.getData().getEditions().getFirst();
+  }
+
     private <T> T executeRequest(GraphQLRequest body, Class<T> responseType, String apiToken) {
         enforceRateLimit();
 
