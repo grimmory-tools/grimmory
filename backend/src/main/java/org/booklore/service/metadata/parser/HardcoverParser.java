@@ -50,7 +50,7 @@ public class HardcoverParser implements BookParser {
         }
 
         String title = fetchMetadataRequest.getTitle();
-        String author = fetchMetadataRequest.getAuthor();
+
 
         if (title == null || title.isBlank()) {
             log.warn("Hardcover: No title provided for search");
@@ -120,6 +120,7 @@ public class HardcoverParser implements BookParser {
         }
 
         String Title = results.getFirst().getTitle();
+        //String Author = fetchMetadataRequest.getAuthor();
         String Author = results.getFirst().getAuthors().toString().replace("[", "").replace("]", "");
         HardcoverWorkDetails HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, Author);
 
@@ -305,7 +306,7 @@ public class HardcoverParser implements BookParser {
             metadata.setIsbn10(BookUtils.isbn13to10(edition.getIsbn13()));
         }
 
-        metadata.setThumbnailUrl(edition.getImage() != null ? edition.getImage().getUrl() : null);
+        metadata.setThumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null);
         metadata.setProvider(MetadataProvider.Hardcover);
 
         return metadata;
