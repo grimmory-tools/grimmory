@@ -8,6 +8,7 @@ import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
+import org.booklore.service.metadata.parser.hardcover.HardcoverWorkDetails;
 import org.booklore.util.BookUtils;
 import org.booklore.util.LanguageNormalizer;
 
@@ -129,6 +130,20 @@ public class HardcoverParser implements BookParser {
             isFirst = false;
         }
 
+        String Title = results.getFirst().getTitle();
+        String Author = results.getFirst().getAuthors().toString().replace("[", "").replace("]", "");
+        HardcoverWorkDetails HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, Author);
+
+        //retry with the search author instead
+        if (HardcoverWorkDetails == null) {
+            HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, searchAuthor);
+        }
+        //if we have a successful query replace isbns
+        if (HardcoverWorkDetails != null) {
+            results.getFirst().setIsbn10(HardcoverWorkDetails.getIsbn10());
+            results.getFirst().setIsbn13(HardcoverWorkDetails.getIsbn13());
+        }
+        //otherwise return as normal
         return results;
     }
 
