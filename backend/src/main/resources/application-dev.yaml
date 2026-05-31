@@ -1,0 +1,9 @@
+# application-dev.yml - development-specific settings
+app:
+    path-config: ${APP_PATH_CONFIG:../shared/data}
+    bookdrop-folder: ${APP_BOOKDROP_FOLDER:../shared/bookdrop}
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:mariadb://localhost:3366/grimmory}
+    username: ${DATABASE_USERNAME:grimmory}
+    password: ${DATABASE_PASSWORD:grimmory}
