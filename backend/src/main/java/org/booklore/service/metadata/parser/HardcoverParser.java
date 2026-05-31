@@ -127,7 +127,7 @@ public class HardcoverParser implements BookParser {
         if (HardcoverWorkDetails == null) {
             HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, searchAuthor);
         }
-        //if we have a successful query replace isbns
+        //if we have a successful query: replace isbns
         if (HardcoverWorkDetails != null) {
             results.getFirst().setIsbn10(HardcoverWorkDetails.getIsbn10());
             results.getFirst().setIsbn13(HardcoverWorkDetails.getIsbn13());
@@ -410,7 +410,7 @@ public class HardcoverParser implements BookParser {
                     .findFirst()
                     .orElse(null);
         } else if (doc.getIsbns().contains(inputIsbn)) {
-            // If we searched by ISBN and it matches a result perfectly, use that
+            // If we searched by ISBN. and it matches a result perfectly, use that
             matchingIsbn = inputIsbn;
         } else {
             // If we searched by ISBN but got no exact matches, get response ISBN that most closely matches it
