@@ -20,6 +20,7 @@ import org.booklore.model.enums.UserPermission;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateService;
+import org.booklore.service.koreader.KoreaderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,6 +47,7 @@ public class ReadingProgressService {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final KoboReadingStateService koboReadingStateService;
+    private final KoreaderService koreaderService;
     private final HardcoverSyncService hardcoverSyncService;
 
     // ==================== Methods from UserProgressService ====================
@@ -270,6 +272,7 @@ public class ReadingProgressService {
         userBookProgressRepository.save(progress);
 
         if (percentage != null) {
+            koreaderService.syncProgressToKoreader(book.getId(), percentage, user.getId());
             hardcoverSyncService.syncProgressToHardcover(book.getId(), percentage, user.getId());
         }
     }
