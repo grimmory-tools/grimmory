@@ -193,7 +193,7 @@ public class HardcoverParser implements BookParser {
         metadata.setDescription(doc.getDescription());
 
         if (doc.getAuthorNames() != null) {
-            metadata.setAuthors(List.copyOf(doc.getAuthorNames()));
+            metadata.setAuthors(List.copyOf(doc.getAuthorNames()).reversed()); // Maybe upstream this?
         }
 
         mapSeriesInfo(doc, metadata);
