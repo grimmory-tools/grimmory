@@ -67,14 +67,7 @@ public class HardcoverParser implements BookParser {
             return results;
         }
 
-        if (results.getFirst().getIsbn13() != null) {
-            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn13());
-            fetchMetadata(book, fetchMetadataRequest);
-        }
-        if (results.getFirst().getIsbn13() == null && results.getFirst().getIsbn10() != null) {
-            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn10());
-            fetchMetadata(book, fetchMetadataRequest);
-        }
+        results = processResults(book, fetchMetadataRequest, results);
 
         return results;
     }
@@ -128,21 +121,36 @@ public class HardcoverParser implements BookParser {
             isFirst = false;
         }
 
+        return results;
+    }
+
+    private List<BookMetadata> processResults(Book book, FetchMetadataRequest fetchMetadataRequest, List<BookMetadata> results) {
+
+        if (results.getFirst().getIsbn13() != null) {
+            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn13());
+            fetchMetadata(book, fetchMetadataRequest);
+        }
+        if (results.getFirst().getIsbn13() == null && results.getFirst().getIsbn10() != null) {
+            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn10());
+            fetchMetadata(book, fetchMetadataRequest);
+        }
+
         String Title = results.getFirst().getTitle();
+
         //String Author = fetchMetadataRequest.getAuthor();
         String Author = results.getFirst().getAuthors().toString().replace("[", "").replace("]", "");
         HardcoverWorkDetails HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, Author);
 
         //retry with the search author instead
-        if (HardcoverWorkDetails == null) {
-            HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, searchAuthor);
-        }
+//        if (HardcoverWorkDetails == null) {
+//            HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, searchAuthor);
+//        }
         //if we have a successful query: replace isbns
         if (HardcoverWorkDetails != null) {
             results.getFirst().setIsbn10(HardcoverWorkDetails.getIsbn10());
             results.getFirst().setIsbn13(HardcoverWorkDetails.getIsbn13());
         }
-        //otherwise return as normal
+
         return results;
     }
 
