@@ -15,6 +15,12 @@ interface AccessTokenResponse {
   expires?: number;
 }
 
+export class StaleRefreshResponseError extends Error {
+  constructor() {
+    super('Refresh response belongs to a stale session');
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -60,7 +66,14 @@ export class AuthService {
     }
 
     return this.refreshInternalSession().pipe(
-      map(response => response.accessToken)
+      map(response => response.accessToken),
+      catchError(error => {
+        if (error instanceof StaleRefreshResponseError && this.hasCurrentAccessToken()) {
+          return of(this.getInternalAccessToken()!);
+        }
+
+        return throwError(() => error);
+      })
     );
   }
 
@@ -120,7 +133,7 @@ export class AuthService {
 
   private saveInternalTokenResponse(response: AccessTokenResponse, expectedRefreshToken?: string): void {
     if (expectedRefreshToken !== undefined && expectedRefreshToken !== this.getInternalRefreshToken()) {
-      throw new Error('Refresh response belongs to a stale session');
+      throw new StaleRefreshResponseError();
     }
 
     if (!response.accessToken || !response.refreshToken) {

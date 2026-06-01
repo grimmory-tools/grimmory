@@ -196,6 +196,26 @@ describe('AuthService', () => {
     expect(rxStompService.deactivate).toHaveBeenCalledOnce();
   });
 
+  it('keeps the current session when re-login happens while refresh is in flight', async () => {
+    localStorage.setItem('accessToken_Internal', 'expired-access');
+    localStorage.setItem('accessToken_Internal_Expiry', String(Date.now() - 1000));
+    localStorage.setItem('refreshToken_Internal', 'old-refresh');
+
+    const accessToken = firstValueFrom(service.ensureAccessToken());
+
+    const refreshRequest = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/refresh`);
+    expect(refreshRequest.request.body).toEqual({ refreshToken: 'old-refresh' });
+
+    service.saveInternalTokens('current-access', 'current-refresh');
+
+    refreshRequest.flush({ accessToken: 'late-access', refreshToken: 'late-refresh' });
+
+    await expect(accessToken).resolves.toBe('current-access');
+    expect(service.getInternalAccessToken()).toBe('current-access');
+    expect(service.getInternalRefreshToken()).toBe('current-refresh');
+    expect(rxStompService.deactivate).not.toHaveBeenCalled();
+  });
+
   it('clears the session when expired credentials cannot be refreshed', async () => {
     localStorage.setItem('accessToken_Internal', 'expired-access');
     localStorage.setItem('accessToken_Internal_Expiry', String(Date.now() - 1000));
