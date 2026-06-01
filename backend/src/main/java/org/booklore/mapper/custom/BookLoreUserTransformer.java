@@ -35,6 +35,7 @@ public class BookLoreUserTransformer {
         bookLoreUser.setLocale(userEntity.getLocale());
         bookLoreUser.setTheme(userEntity.getTheme());
         bookLoreUser.setThemeAccent(userEntity.getThemeAccent());
+        bookLoreUser.setThemeSyncEnabled(userEntity.isThemeSyncEnabled());
         bookLoreUser.setDefaultPassword(userEntity.isDefaultPassword());
         bookLoreUser.setPermissions(permissions);
 

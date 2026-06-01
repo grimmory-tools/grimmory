@@ -23,5 +23,6 @@ class BookLoreUserEntityTest {
         assertThat(defaultUser.getLocale()).isEqualTo("en");
         assertThat(defaultUser.getTheme()).isEqualTo("grimmory");
         assertThat(defaultUser.getThemeAccent()).isNull();
+        assertThat(defaultUser.isThemeSyncEnabled()).isTrue();
     }
 }

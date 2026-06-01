@@ -24,6 +24,7 @@ public class BookLoreUser {
     private String locale;
     private String theme;
     private String themeAccent;
+    private boolean themeSyncEnabled;
     private ProvisioningMethod provisioningMethod;
     private List<Library> assignedLibraries;
     private UserPermissions permissions;

@@ -50,6 +50,10 @@ public class BookLoreUserEntity {
     @Column(name = "theme_accent", length = 32)
     private String themeAccent;
 
+    @Builder.Default
+    @Column(name = "theme_sync_enabled", nullable = false)
+    private boolean themeSyncEnabled = true;
+
     @Column(name = "provisioning_method")
     @Enumerated(EnumType.STRING)
     private ProvisioningMethod provisioningMethod;

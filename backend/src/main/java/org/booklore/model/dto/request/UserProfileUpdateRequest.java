@@ -9,4 +9,5 @@ public class UserProfileUpdateRequest {
     private String locale;
     private String theme;
     private String themeAccent;
+    private Boolean themeSyncEnabled;
 }

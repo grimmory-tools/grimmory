@@ -106,6 +106,9 @@ public class UserService {
         }
 
         applyThemePreferences(user, updateRequest.getTheme(), updateRequest.getThemeAccent());
+        if (updateRequest.getThemeSyncEnabled() != null) {
+            user.setThemeSyncEnabled(updateRequest.getThemeSyncEnabled());
+        }
 
         userRepository.save(user);
         auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user profile: " + user.getUsername());

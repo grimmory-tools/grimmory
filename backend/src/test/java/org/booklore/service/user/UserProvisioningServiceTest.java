@@ -85,6 +85,7 @@ class UserProvisioningServiceTest {
         assertThat(saved.getLocale()).isEqualTo("en");
         assertThat(saved.getTheme()).isEqualTo("grimmory");
         assertThat(saved.getThemeAccent()).isNull();
+        assertThat(saved.isThemeSyncEnabled()).isTrue();
     }
 
     @Test

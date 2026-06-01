@@ -96,6 +96,25 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserProfile_updatesThemeSyncFlagWithoutClearingAccountTheme() {
+        BookLoreUserEntity user = userEntity(1L);
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+        request.setThemeSyncEnabled(false);
+
+        when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(user));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(currentUser(1L, false));
+        when(userRepository.save(user)).thenReturn(user);
+        when(bookLoreUserTransformer.toDTO(user)).thenAnswer(invocation -> currentUser(1L, false));
+
+        userService.updateUserProfile(1L, request);
+
+        assertThat(user.getTheme()).isEqualTo("grimmory");
+        assertThat(user.getThemeAccent()).isNull();
+        assertThat(user.isThemeSyncEnabled()).isFalse();
+        verify(userRepository).save(user);
+    }
+
+    @Test
     void updateUserProfile_rejectsUnsupportedLocale() {
         BookLoreUserEntity user = userEntity(1L);
         UserProfileUpdateRequest request = new UserProfileUpdateRequest();
