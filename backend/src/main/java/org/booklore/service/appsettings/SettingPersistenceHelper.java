@@ -109,6 +109,10 @@ public class SettingPersistenceHelper {
         MetadataProviderSettings.Ranobedb defaultRanobedb = new MetadataProviderSettings.Ranobedb();
         defaultRanobedb.setEnabled(false);
 
+        MetadataProviderSettings.Itunes defaultItunes = new MetadataProviderSettings.Itunes();
+        defaultItunes.setEnabled(true);
+        defaultItunes.setCountry("us");
+
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
@@ -116,35 +120,37 @@ public class SettingPersistenceHelper {
         defaultMetadataProviderSettings.setComicvine(defaultComicvine);
         defaultMetadataProviderSettings.setRanobedb(defaultRanobedb);
         defaultMetadataProviderSettings.setDouban(defaultDouban);
+        defaultMetadataProviderSettings.setItunes(defaultItunes);
 
         return defaultMetadataProviderSettings;
     }
 
     MetadataRefreshOptions getDefaultMetadataRefreshOptions() {
-        MetadataRefreshOptions.FieldProvider goodreadsGoogleProvider = MetadataRefreshOptions.FieldProvider.builder()
-                .p1(MetadataProvider.GoodReads)
-                .p2(MetadataProvider.Google)
+        MetadataRefreshOptions.FieldProvider itunesGoodreadsGoogleProvider = MetadataRefreshOptions.FieldProvider.builder()
+                .p1(MetadataProvider.Itunes)
+                .p2(MetadataProvider.GoodReads)
+                .p3(MetadataProvider.Google)
                 .build();
 
         MetadataRefreshOptions.FieldProvider nullProvider = MetadataRefreshOptions.FieldProvider.builder()
                 .build();
 
         MetadataRefreshOptions.FieldOptions fieldOptions = MetadataRefreshOptions.FieldOptions.builder()
-                .title(goodreadsGoogleProvider)
-                .subtitle(goodreadsGoogleProvider)
-                .description(goodreadsGoogleProvider)
-                .authors(goodreadsGoogleProvider)
-                .publisher(goodreadsGoogleProvider)
-                .publishedDate(goodreadsGoogleProvider)
-                .seriesName(goodreadsGoogleProvider)
-                .seriesNumber(goodreadsGoogleProvider)
-                .seriesTotal(goodreadsGoogleProvider)
-                .isbn13(goodreadsGoogleProvider)
-                .isbn10(goodreadsGoogleProvider)
-                .language(goodreadsGoogleProvider)
-                .categories(goodreadsGoogleProvider)
-                .cover(goodreadsGoogleProvider)
-                .pageCount(goodreadsGoogleProvider)
+                .title(itunesGoodreadsGoogleProvider)
+                .subtitle(itunesGoodreadsGoogleProvider)
+                .description(itunesGoodreadsGoogleProvider)
+                .authors(itunesGoodreadsGoogleProvider)
+                .publisher(itunesGoodreadsGoogleProvider)
+                .publishedDate(itunesGoodreadsGoogleProvider)
+                .seriesName(itunesGoodreadsGoogleProvider)
+                .seriesNumber(itunesGoodreadsGoogleProvider)
+                .seriesTotal(itunesGoodreadsGoogleProvider)
+                .isbn13(itunesGoodreadsGoogleProvider)
+                .isbn10(itunesGoodreadsGoogleProvider)
+                .language(itunesGoodreadsGoogleProvider)
+                .categories(itunesGoodreadsGoogleProvider)
+                .cover(itunesGoodreadsGoogleProvider)
+                .pageCount(itunesGoodreadsGoogleProvider)
                 .asin(nullProvider)
                 .goodreadsId(nullProvider)
                 .comicvineId(nullProvider)

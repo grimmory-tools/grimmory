@@ -57,6 +57,9 @@ public class BookMetadata {
     private String audibleId;
     private Double audibleRating;
     private Integer audibleReviewCount;
+    private String itunesId;
+    private Double itunesRating;
+    private Integer itunesReviewCount;
     private String externalUrl;
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;
@@ -106,6 +109,9 @@ public class BookMetadata {
     private Boolean audibleIdLocked;
     private Boolean audibleRatingLocked;
     private Boolean audibleReviewCountLocked;
+    private Boolean itunesIdLocked;
+    private Boolean itunesRatingLocked;
+    private Boolean itunesReviewCountLocked;
     private Boolean externalUrlLocked;
     private Boolean coverLocked;
     private Boolean audiobookCoverLocked;

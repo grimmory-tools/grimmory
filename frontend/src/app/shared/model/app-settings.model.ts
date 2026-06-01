@@ -61,6 +61,7 @@ export interface MetadataProviderSettings {
   douban: Douban;
   lubimyczytac: Lubimyczytac;
   audible: Audible;
+  itunes?: Itunes;
 }
 
 export interface Amazon {
@@ -104,6 +105,11 @@ export interface Lubimyczytac {
 export interface Audible {
   enabled: boolean;
   domain: string;
+}
+
+export interface Itunes {
+  enabled: boolean;
+  country: string;
 }
 
 export interface FormatWriteSettings {

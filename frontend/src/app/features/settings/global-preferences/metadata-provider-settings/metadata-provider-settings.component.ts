@@ -85,6 +85,24 @@ export class MetadataProviderSettingsComponent {
   selectedAudibleDomain = 'com';
   audibleEnabled: boolean = false;
 
+  get itunesCountries() {
+    return [
+      {label: this.t.translate('settingsMeta.providers.countries.us'), value: 'us'},
+      {label: this.t.translate('settingsMeta.providers.countries.gb'), value: 'gb'},
+      {label: this.t.translate('settingsMeta.providers.countries.de'), value: 'de'},
+      {label: this.t.translate('settingsMeta.providers.countries.fr'), value: 'fr'},
+      {label: this.t.translate('settingsMeta.providers.countries.pl'), value: 'pl'},
+      {label: this.t.translate('settingsMeta.providers.countries.jp'), value: 'jp'},
+      {label: this.t.translate('settingsMeta.providers.countries.au'), value: 'au'},
+      {label: this.t.translate('settingsMeta.providers.countries.ca'), value: 'ca'},
+      {label: this.t.translate('settingsMeta.providers.countries.it'), value: 'it'},
+      {label: this.t.translate('settingsMeta.providers.countries.es'), value: 'es'}
+    ];
+  }
+
+  selectedItunesCountry = 'us';
+  itunesEnabled: boolean = false;
+
   hardcoverToken: string = '';
   amazonCookie: string = '';
   hardcoverEnabled: boolean = false;
@@ -128,6 +146,8 @@ export class MetadataProviderSettingsComponent {
     this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
     this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
+    this.itunesEnabled = metadataProviderSettings?.itunes?.enabled ?? false;
+    this.selectedItunesCountry = metadataProviderSettings?.itunes?.country ?? 'us';
   }
 
   onTokenChange(newToken: string): void {
@@ -171,6 +191,10 @@ export class MetadataProviderSettingsComponent {
           audible: {
             enabled: this.audibleEnabled,
             domain: this.selectedAudibleDomain
+          },
+          itunes: {
+            enabled: this.itunesEnabled,
+            country: this.selectedItunesCountry
           }
         }
       }

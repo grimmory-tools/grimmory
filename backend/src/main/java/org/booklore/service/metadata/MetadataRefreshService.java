@@ -365,6 +365,12 @@ public class MetadataRefreshService {
             addProviderToSet(fieldOptions.getLubimyczytacRating(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getRanobedbId(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getRanobedbRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleId(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleReviewCount(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getItunesId(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getItunesRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getItunesReviewCount(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getMoods(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getTags(), uniqueProviders, appSettings);
         }
@@ -396,6 +402,8 @@ public class MetadataRefreshService {
             case Ranobedb -> settings.getRanobedb() != null && settings.getRanobedb().isEnabled();
             case Douban -> settings.getDouban() != null && settings.getDouban().isEnabled();
             case Lubimyczytac -> settings.getLubimyczytac() != null && settings.getLubimyczytac().isEnabled();
+            case Audible -> settings.getAudible() != null && settings.getAudible().isEnabled();
+            case Itunes -> settings.getItunes() != null && settings.getItunes().isEnabled();
             default -> true;
         };
     }
@@ -656,6 +664,54 @@ public class MetadataRefreshService {
             metadata.setRanobedbRating(existingMetadata.getRanobedbRating());
         }
 
+        if (enabledFields.isAudibleId()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleId(metadataMap.get(Audible).getAudibleId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleId(existingMetadata.getAudibleId());
+        }
+
+        if (enabledFields.isAudibleRating()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleRating(metadataMap.get(Audible).getAudibleRating());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleRating(existingMetadata.getAudibleRating());
+        }
+
+        if (enabledFields.isAudibleReviewCount()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleReviewCount(metadataMap.get(Audible).getAudibleReviewCount());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleReviewCount(existingMetadata.getAudibleReviewCount());
+        }
+
+        if (enabledFields.isItunesId()) {
+            if (metadataMap.containsKey(Itunes)) {
+                metadata.setItunesId(metadataMap.get(Itunes).getItunesId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setItunesId(existingMetadata.getItunesId());
+        }
+
+        if (enabledFields.isItunesRating()) {
+            if (metadataMap.containsKey(Itunes)) {
+                metadata.setItunesRating(metadataMap.get(Itunes).getItunesRating());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setItunesRating(existingMetadata.getItunesRating());
+        }
+
+        if (enabledFields.isItunesReviewCount()) {
+            if (metadataMap.containsKey(Itunes)) {
+                metadata.setItunesReviewCount(metadataMap.get(Itunes).getItunesReviewCount());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setItunesReviewCount(existingMetadata.getItunesReviewCount());
+        }
+
         if (enabledFields.isMoods()) {
             if (metadataMap.containsKey(Hardcover)) {
                 metadata.setMoods(metadataMap.get(Hardcover).getMoods());
@@ -722,6 +778,9 @@ public class MetadataRefreshService {
             metadata.setAudibleIdLocked(existingMetadata.getAudibleIdLocked());
             metadata.setAudibleRatingLocked(existingMetadata.getAudibleRatingLocked());
             metadata.setAudibleReviewCountLocked(existingMetadata.getAudibleReviewCountLocked());
+            metadata.setItunesIdLocked(existingMetadata.getItunesIdLocked());
+            metadata.setItunesRatingLocked(existingMetadata.getItunesRatingLocked());
+            metadata.setItunesReviewCountLocked(existingMetadata.getItunesReviewCountLocked());
             metadata.setAmazonRatingLocked(existingMetadata.getAmazonRatingLocked());
             metadata.setAmazonReviewCountLocked(existingMetadata.getAmazonReviewCountLocked());
             metadata.setGoodreadsRatingLocked(existingMetadata.getGoodreadsRatingLocked());
