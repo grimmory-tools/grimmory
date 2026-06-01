@@ -99,7 +99,7 @@ public class OidcAuthController {
                 throw ApiError.GENERIC_UNAUTHORIZED.createException("Failed to obtain tokens");
             }
 
-            StringBuilder fragment = new StringBuilder();
+            StringBuilder fragment = new StringBuilder(256);
             fragment.append("access_token=").append(URLEncoder.encode(tokens.getAccessToken(), StandardCharsets.UTF_8));
             fragment.append("&refresh_token=").append(URLEncoder.encode(tokens.getRefreshToken(), StandardCharsets.UTF_8));
 

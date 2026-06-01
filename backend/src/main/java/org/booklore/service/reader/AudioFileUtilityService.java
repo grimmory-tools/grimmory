@@ -102,11 +102,11 @@ public class AudioFileUtilityService {
             char c2 = s2.charAt(i2);
 
             if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                StringBuilder b1 = new StringBuilder();
+                StringBuilder b1 = new StringBuilder(10);
                 while (i1 < s1.length() && Character.isDigit(s1.charAt(i1))) {
                     b1.append(s1.charAt(i1++));
                 }
-                StringBuilder b2 = new StringBuilder();
+                StringBuilder b2 = new StringBuilder(10);
                 while (i2 < s2.length() && Character.isDigit(s2.charAt(i2))) {
                     b2.append(s2.charAt(i2++));
                 }

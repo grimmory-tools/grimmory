@@ -255,7 +255,7 @@ public class FilenamePatternExtractor {
         }
 
         List<PlaceholderMatch> placeholderMatches = findAllPlaceholders(pattern);
-        StringBuilder regexBuilder = new StringBuilder();
+        StringBuilder regexBuilder = new StringBuilder(256);
         List<String> placeholderOrder = new ArrayList<>();
         int lastEnd = 0;
 
@@ -328,7 +328,7 @@ public class FilenamePatternExtractor {
     }
 
     private String buildRegexForDateFormat(String dateFormat) {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder(64);
         int i = 0;
         
         while (i < dateFormat.length()) {
