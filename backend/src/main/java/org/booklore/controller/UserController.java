@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,9 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User profile returned successfully")
     @GetMapping("/me")
     public ResponseEntity<BookLoreUser> getMyself() {
-        return ResponseEntity.ok(userService.getMyself());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(userService.getMyself());
     }
 
     @Operation(summary = "Get user by ID", description = "Retrieve a user's profile by their ID.")

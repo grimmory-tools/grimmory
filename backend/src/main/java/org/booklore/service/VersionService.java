@@ -80,7 +80,7 @@ public class VersionService {
     public List<ReleaseNote> fetchReleaseNotesSince(String currentVersion) {
         if (DEVELOPMENT_VERSION.equals(currentVersion)) {
             log.warn("Skipping fetch of release notes because current version is '{}', which is a local development build.", currentVersion);
-            return new ArrayList<>();
+            return List.of();
         }
         log.info("Fetching release notes since version: {}", currentVersion);
 

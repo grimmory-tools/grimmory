@@ -12,8 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -21,23 +24,44 @@ import java.util.List;
 @Tag(name = "Version", description = "Endpoints for retrieving application version and changelog")
 public class VersionController {
 
+    private static final Duration CACHE_TTL = Duration.ofHours(1);
     private final VersionService versionService;
 
     @Operation(summary = "Get application version", description = "Retrieve the current application version.")
     @ApiResponse(responseCode = "200", description = "Version info returned successfully")
     @GetMapping
-    public ResponseEntity<VersionInfo> getVersionInfo() {
+    public ResponseEntity<VersionInfo> getVersionInfo(WebRequest request) {
+        VersionInfo info = versionService.getVersionInfo();
+        String latestPart = info.getLatest() != null ? info.getLatest() : "unknown";
+        String etag = info.getCurrent() + ":" + latestPart;
+
+        if (request.checkNotModified(etag)) {
+            return null;
+        }
+
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache())
-                .body(versionService.getVersionInfo());
+                .cacheControl(CacheControl.maxAge(CACHE_TTL).cachePrivate().mustRevalidate())
+                .eTag(etag)
+                .body(info);
     }
 
     @Operation(summary = "Get changelog since current version", description = "Retrieve the changelog since the current version.")
     @ApiResponse(responseCode = "200", description = "Changelog returned successfully")
     @GetMapping("/changelog")
-    public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent() {
+    public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent(WebRequest request) {
+        List<ReleaseNote> changelog = versionService.getChangelogSinceCurrentVersion();
+
+        String etag = changelog.stream()
+                .map(note -> note.version() + ":" + note.publishedAt())
+                .collect(Collectors.joining("|"));
+
+        if (request.checkNotModified(etag)) {
+            return null;
+        }
+
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache())
-                .body(versionService.getChangelogSinceCurrentVersion());
+                .cacheControl(CacheControl.maxAge(CACHE_TTL).cachePrivate().mustRevalidate())
+                .eTag(etag)
+                .body(changelog);
     }
 }
