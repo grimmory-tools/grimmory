@@ -39,6 +39,17 @@ public class BookLoreUserEntity {
     @Column(unique = true)
     private String email;
 
+    @Builder.Default
+    @Column(nullable = false, length = 16)
+    private String locale = "en";
+
+    @Builder.Default
+    @Column(nullable = false, length = 32)
+    private String theme = "grimmory";
+
+    @Column(name = "theme_accent", length = 32)
+    private String themeAccent;
+
     @Column(name = "provisioning_method")
     @Enumerated(EnumType.STRING)
     private ProvisioningMethod provisioningMethod;
