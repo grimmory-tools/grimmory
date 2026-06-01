@@ -1,24 +1,18 @@
 package org.booklore.service.metadata.parser;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
-import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
-import org.booklore.service.metadata.parser.hardcover.HardcoverWorkDetails;
-import org.booklore.util.BookUtils;
-import org.booklore.util.LanguageNormalizer;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.booklore.model.dto.Book;
+import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.enums.MetadataProvider;
+import org.booklore.service.metadata.parser.hardcover.*;
+import org.booklore.util.BookUtils;
+import org.booklore.util.LanguageNormalizer;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
