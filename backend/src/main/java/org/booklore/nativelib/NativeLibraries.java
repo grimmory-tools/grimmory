@@ -1,7 +1,8 @@
 package org.booklore.nativelib;
 
+import app.photofox.vipsffm.Vips;
+import app.photofox.vipsffm.VipsHelper;
 import lombok.extern.slf4j.Slf4j;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -22,7 +23,8 @@ public final class NativeLibraries {
     public enum Library {
         PDFIUM,
         LIBARCHIVE,
-        EPUB4J_NATIVE
+        EPUB4J_NATIVE,
+        LIBVIPS
     }
 
     private static final Map<Library, Probe> PROBES;
@@ -54,6 +56,23 @@ public final class NativeLibraries {
                     NativeLibraries.class.getClassLoader()
             );
             return true;
+        }));
+
+        probes.put(Library.LIBVIPS, new Probe("libvips", () -> {
+            try {
+                Vips.run(_ -> {
+                    Vips.disableOperationCache();
+                    if (log.isDebugEnabled()) {
+                        Vips.enableLeakDetection();
+                    }
+                    log.info("libvips {} initialised – operation cache disabled",
+                            VipsHelper.version_string());
+                });
+                return true;
+            } catch (Throwable t) {
+                log.warn("libvips native library NOT available: {}", t.toString());
+                return false;
+            }
         }));
 
         PROBES = Collections.unmodifiableMap(probes);
@@ -146,6 +165,10 @@ public final class NativeLibraries {
 
     public boolean isEpubNativeAvailable() {
         return isAvailable(Library.EPUB4J_NATIVE);
+    }
+
+    public boolean isVipsAvailable() {
+        return isAvailable(Library.LIBVIPS);
     }
 
     private record Probe(String name, CheckedBooleanSupplier fn) {}

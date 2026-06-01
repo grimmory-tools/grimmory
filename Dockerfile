@@ -85,7 +85,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     --enable-native-access=ALL-UNNAMED \
     --enable-preview"
 
-RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
+RUN apk add --no-cache su-exec libstdc++ libgcc libarchive vips && \
     mkdir -p /bookdrop
 
 # Manually link `libarchive.so.13` so java and other libraries can see it
