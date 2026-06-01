@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 import org.springframework.boot.gradle.tasks.run.BootRun
+import com.diffplug.gradle.spotless.SpotlessExtension
 
 plugins {
     java
@@ -11,6 +12,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.hibernate.orm") version "7.4.0.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
+    id("com.diffplug.spotless") version "8.5.1"
     jacoco
 }
 
@@ -248,6 +250,19 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testRuntimeOnly("com.h2database:h2")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
+}
+
+configure<SpotlessExtension> {
+    java {
+        removeUnusedImports()
+        googleJavaFormat("1.35.0")
+    }
+
+    format("misc") {
+        target("*.md", ".gitignore", "*.xml", "*.gradle")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 dependencyLocking {
