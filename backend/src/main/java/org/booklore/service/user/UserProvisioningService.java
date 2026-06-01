@@ -36,6 +36,7 @@ public class UserProvisioningService {
     private final UserDefaultsService userDefaultsService;
     private final AppSettingService appSettingService;
     private final AuditService auditService;
+    private final UserCacheService userCacheService;
 
     public boolean isInitialUserAlreadyProvisioned() {
         return userRepository.count() > 0;
@@ -276,6 +277,7 @@ public class UserProvisioningService {
         BookLoreUserEntity save = userRepository.save(user);
         userDefaultsService.addDefaultShelves(save);
         userDefaultsService.addDefaultSettings(save);
+        userCacheService.evictUserCache(save.getId());
         auditService.log(AuditAction.USER_CREATED, "User", save.getId(), "Created user: " + save.getUsername());
         return save;
     }

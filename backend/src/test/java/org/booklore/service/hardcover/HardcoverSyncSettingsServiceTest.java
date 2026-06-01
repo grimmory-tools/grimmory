@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.booklore.service.user.UserCacheService;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -35,11 +36,14 @@ class HardcoverSyncSettingsServiceTest {
     @Mock
     private KoboUserSettingsRepository koboUserSettingsRepository;
 
+    @Mock
+    private UserCacheService userCacheService;
+
     private HardcoverSyncSettingsService service;
 
     @BeforeEach
     void setUp() {
-        service = new HardcoverSyncSettingsService(userRepository, authenticationService, koboUserSettingsRepository);
+        service = new HardcoverSyncSettingsService(userRepository, authenticationService, koboUserSettingsRepository, userCacheService);
     }
 
     @Test

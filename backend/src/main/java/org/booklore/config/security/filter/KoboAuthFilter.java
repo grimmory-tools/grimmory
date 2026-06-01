@@ -7,11 +7,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.userdetails.UserAuthenticationDetails;
-import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.entity.UserPermissionsEntity;
 import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.repository.UserRepository;
+import org.booklore.service.user.UserCacheService;
 import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,8 +29,7 @@ import java.util.List;
 public class KoboAuthFilter extends OncePerRequestFilter {
 
     private final KoboUserSettingsRepository koboUserSettingsRepository;
-    private final UserRepository userRepository;
-    private final BookLoreUserTransformer bookLoreUserTransformer;
+    private final UserCacheService userCacheService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -55,23 +52,21 @@ public class KoboAuthFilter extends OncePerRequestFilter {
         }
 
         var userToken = userTokenOpt.get();
-        var userOpt = userRepository.findByIdWithDetails(userToken.getUserId());
+        BookLoreUser user = userCacheService.getUserDetails(userToken.getUserId());
 
-        if (userOpt.isEmpty()) {
+        if (user == null) {
             log.warn("User not found for KOBO token");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
             return;
         }
 
-        var entity = userOpt.get();
-        if (entity.getPermissions() == null || !entity.getPermissions().isPermissionSyncKobo()) {
-            log.warn("User {} does not have syncKobo permission", entity.getId());
+        if (user.getPermissions() == null || !user.getPermissions().isCanSyncKobo()) {
+            log.warn("User {} does not have syncKobo permission", user.getId());
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Insufficient permissions");
             return;
         }
 
-        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
-        List<GrantedAuthority> authorities = getAuthorities(entity.getPermissions());
+        List<GrantedAuthority> authorities = getAuthorities(user.getPermissions());
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
         authentication.setDetails(new UserAuthenticationDetails(request, user.getId()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -79,15 +74,15 @@ public class KoboAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private List<GrantedAuthority> getAuthorities(UserPermissionsEntity permissions) {
+    private List<GrantedAuthority> getAuthorities(BookLoreUser.UserPermissions permissions) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         if (permissions != null) {
-            addAuthorityIfPermissionGranted(authorities, "ROLE_UPLOAD", permissions.isPermissionUpload());
-            addAuthorityIfPermissionGranted(authorities, "ROLE_DOWNLOAD", permissions.isPermissionDownload());
-            addAuthorityIfPermissionGranted(authorities, "ROLE_EDIT_METADATA", permissions.isPermissionEditMetadata());
-            addAuthorityIfPermissionGranted(authorities, "ROLE_MANAGE_LIBRARY", permissions.isPermissionManageLibrary());
-            addAuthorityIfPermissionGranted(authorities, "ROLE_ADMIN", permissions.isPermissionAdmin());
-            addAuthorityIfPermissionGranted(authorities, "ROLE_SYNC_KOBO", permissions.isPermissionSyncKobo());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_UPLOAD", permissions.isCanUpload());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_DOWNLOAD", permissions.isCanDownload());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_EDIT_METADATA", permissions.isCanEditMetadata());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_MANAGE_LIBRARY", permissions.isCanManageLibrary());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_ADMIN", permissions.isAdmin());
+            addAuthorityIfPermissionGranted(authorities, "ROLE_SYNC_KOBO", permissions.isCanSyncKobo());
         }
         return authorities;
     }
