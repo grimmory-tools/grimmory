@@ -50,48 +50,74 @@ describe('LibrariesSummaryService', () => {
         fileSizeKb: 1024,
         metadata: {
           bookId: 1,
-          authors: ['Alice', 'Alice ', 'Bob'],
+          authors: ['Alice', 'Bob'],
           seriesName: 'Series A',
-          publisher: 'Publisher A',
+          publisher: 'Publisher X',
         },
       } as Book,
       {
         id: 2,
-        libraryId: 2,
-        libraryName: 'Beta',
-        fileSizeKb: 4096,
+        libraryId: 1,
+        libraryName: 'Alpha',
+        fileSizeKb: 1024,
         metadata: {
           bookId: 2,
-          authors: ['Zed'],
-          seriesName: 'Series B',
-          publisher: 'Publisher B',
+          authors: ['Alice', 'Carol'],
+          publisher: 'Publisher X',
         },
       } as Book,
       {
         id: 3,
-        libraryId: 1,
-        libraryName: 'Alpha',
-        fileSizeKb: 1024 * 1024,
+        libraryId: 2,
+        libraryName: 'Beta',
+        fileSizeKb: 10240,
         metadata: {
           bookId: 3,
-          authors: ['Carol'],
-          seriesName: 'Series A',
-          publisher: 'Publisher A',
+          authors: ['Dave'],
         },
       } as Book,
     ]);
     selectedLibrary.set(1);
 
     const service = TestBed.inject(LibrariesSummaryService);
-    const summary = service.booksSummary();
 
-    expect(summary).toEqual({
+    expect(service.booksSummary()).toEqual({
       totalBooks: 2,
-      totalSizeKb: 1024 + 1024 * 1024,
+      totalSizeKb: 2048,
       totalAuthors: 3,
       totalSeries: 1,
       totalPublishers: 1,
     });
-    expect(service.formattedSize()).toBe('1.00 GB');
+    expect(service.formattedSize()).toBe('2.00 MB');
   });
+
+  it('uses primary file size when the book does not expose a top-level file size', () => {
+    books.set([
+      {
+        id: 1,
+        libraryId: 1,
+        libraryName: 'Alpha',
+        primaryFile: {
+          bookId: 1,
+          fileSizeKb: 2048,
+        },
+        metadata: {
+          bookId: 1,
+          authors: ['Alice'],
+        },
+      } as Book,
+    ]);
+
+    const service = TestBed.inject(LibrariesSummaryService);
+
+    expect(service.booksSummary()).toEqual({
+      totalBooks: 1,
+      totalSizeKb: 2048,
+      totalAuthors: 1,
+      totalSeries: 0,
+      totalPublishers: 0,
+    });
+    expect(service.formattedSize()).toBe('2.00 MB');
+  });
+
 });
