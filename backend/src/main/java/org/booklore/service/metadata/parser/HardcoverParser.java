@@ -51,7 +51,6 @@ public class HardcoverParser implements BookParser {
 
         String title = fetchMetadataRequest.getTitle();
 
-
         if (title == null || title.isBlank()) {
             log.warn("Hardcover: No title provided for search");
             return Collections.emptyList();
@@ -65,6 +64,16 @@ public class HardcoverParser implements BookParser {
 
         if (results.isEmpty()) {
             log.info("Hardcover: No results found for title '{}'", title);
+            return results;
+        }
+
+        if (results.getFirst().getIsbn13() != null) {
+            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn13());
+            fetchMetadata(book, fetchMetadataRequest);
+        }
+        if (results.getFirst().getIsbn13() == null && results.getFirst().getIsbn10() != null) {
+            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn10());
+            fetchMetadata(book, fetchMetadataRequest);
         }
 
         return results;
