@@ -34,4 +34,4 @@ PLAYWRIGHT_PORT=4301 just --justfile frontend/Justfile --working-directory front
 - Do not add browser specs that depend on broad route shims copied from other
   scenarios.
 - Use the `frontend/Justfile` entrypoints for browser install, server startup,
-  and spec execution. Do not invoke Yarn directly from docs or ad hoc commands.
+  and spec execution. Do not invoke pnpm directly from docs or ad hoc commands.

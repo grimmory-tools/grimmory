@@ -1,18 +1,25 @@
 FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
-WORKDIR /workspace/frontend
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
 
-COPY .yarnrc.yml /workspace/.yarnrc.yml
-COPY frontend/package.json frontend/yarn.lock ./
+WORKDIR /workspace
 
-RUN corepack enable
-RUN --mount=type=cache,target=/workspace/.yarn/cache \
-    corepack yarn install --immutable
+RUN npm install -g pnpm@11.3.0
 
-COPY frontend/ ./
-RUN --mount=type=cache,target=/workspace/.yarn/cache \
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm fetch
+
+COPY package.json ./
+COPY frontend/package.json ./frontend/
+COPY tools/release/package.json ./tools/release/
+COPY frontend/ ./frontend/
+RUN --mount=type=cache,target=/pnpm/store \
     --mount=type=cache,target=/workspace/frontend/.angular/cache \
-    CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
+    pnpm install --offline --frozen-lockfile && \
+    CI=1 NG_CLI_ANALYTICS=false pnpm -C frontend run build:prod
 
 FROM --platform=$BUILDPLATFORM gradle:9.5.1-jdk25-alpine AS backend-build
 
