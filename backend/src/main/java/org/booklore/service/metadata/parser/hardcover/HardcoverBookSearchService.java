@@ -158,6 +158,7 @@ public class HardcoverBookSearchService {
                 query GetEditions($Title: String!, $Author: String!){
                     editions(
                         where: {title: {_eq: $Title},
+                            _or: [{reading_format_id: {_eq: 1}}, {reading_format_id: {_eq: 4}}],
                             _or: [{isbn_13: {_neq: "null"}}, {isbn_10: {_neq: "null"}}],
                             contributions: {author: {name: {_eq: $Author}}}}
                         order_by: {score: desc}
