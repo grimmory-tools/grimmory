@@ -85,6 +85,7 @@ public class KoboSettingsService {
 
         entity.setAutoAddToShelf(settings.isAutoAddToShelf());
         entity.setTwoWayProgressSync(settings.isTwoWayProgressSync());
+        entity.setAllowedDeviceIds(settings.getAllowedDeviceIds());
 
         repository.save(entity);
         return mapToDto(entity, hardcoverSyncSettingsService.getSettingsForUserId(user.getId()));
@@ -132,6 +133,7 @@ public class KoboSettingsService {
         dto.setProgressMarkAsFinishedThreshold(entity.getProgressMarkAsFinishedThreshold());
         dto.setAutoAddToShelf(entity.isAutoAddToShelf());
         dto.setTwoWayProgressSync(entity.isTwoWayProgressSync());
+        dto.setAllowedDeviceIds(entity.getAllowedDeviceIds());
         if (hardcoverSettings != null) {
             dto.setHardcoverApiKey(hardcoverSettings.getHardcoverApiKey());
             dto.setHardcoverSyncEnabled(hardcoverSettings.isHardcoverSyncEnabled());

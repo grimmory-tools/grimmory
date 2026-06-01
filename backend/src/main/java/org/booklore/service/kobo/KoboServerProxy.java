@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class KoboServerProxy {
 
+    private static final String STORE_API_BASE_URL = "https://storeapi.kobo.com";
+    private static final String READING_SERVICES_BASE_URL = "https://readingservices.kobo.com";
+
     private static final Pattern KOBO_API_PREFIX_PATTERN = Pattern.compile("^/api/kobo/[^/]+");
     private final String KOBO_BOOK_IMAGE_CDN_URL = "https://cdn.kobo.com/book-images/{ImageId}/{Width}/{Height}/{IsGreyscale}/image.jpg";
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
@@ -41,6 +44,13 @@ public class KoboServerProxy {
             HttpHeaders.AUTHORIZATION,
             HttpHeaders.USER_AGENT,
             HttpHeaders.ACCEPT_LANGUAGE
+    );
+
+    private static final Set<String> HEADERS_READING_SERVICES_INCLUDE = Set.of(
+        HttpHeaders.CONTENT_TYPE.toLowerCase(),
+        HttpHeaders.CONTENT_TYPE,
+        HttpHeaders.ACCEPT.toLowerCase(),
+        HttpHeaders.ACCEPT
     );
 
     private static final Set<String> HEADERS_OUT_EXCLUDE = Set.of(
@@ -77,9 +87,66 @@ public class KoboServerProxy {
                 .toUri();
     }
 
+    public ResponseEntity<byte[]> proxyToReadingServices(byte[] body) {
+        HttpServletRequest request = RequestUtils.getCurrentRequest();
+        String requestPath = request.getRequestURI();
+
+        String normalizedPath = URI.create("https://n" + requestPath).normalize().getPath();
+        if (!normalizedPath.startsWith("/")) {
+            log.warn("Path traversal attempt: {}", requestPath);
+            return ResponseEntity.badRequest().build();
+        }
+
+        String queryString = request.getQueryString();
+        String uriString = READING_SERVICES_BASE_URL + normalizedPath;
+        if (queryString != null && !queryString.isBlank()) {
+            uriString += "?" + queryString;
+        }
+
+        try {
+            URI uri = URI.create(uriString);
+
+            HttpRequest.BodyPublisher bodyPublisher = (body != null && body.length > 0)
+                    ? HttpRequest.BodyPublishers.ofByteArray(body)
+                    : HttpRequest.BodyPublishers.noBody();
+
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .timeout(Duration.ofSeconds(10))
+                    .method(request.getMethod(), bodyPublisher);
+
+            Collections.list(request.getHeaderNames()).forEach(headerName -> {
+                if (HEADERS_OUT_INCLUDE.contains(headerName)
+                    || HEADERS_READING_SERVICES_INCLUDE.contains(headerName)
+                    || isKoboHeader(headerName)) {
+                    Collections.list(request.getHeaders(headerName))
+                            .forEach(value -> builder.header(headerName, value));
+                }
+            });
+
+            HttpResponse<byte[]> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            HttpHeaders responseHeaders = new HttpHeaders();
+            response.headers().map().forEach((key, values) -> {
+                if (HEADERS_OUT_INCLUDE.contains(key)
+                    || HEADERS_READING_SERVICES_INCLUDE.contains(key)
+                    || isKoboHeader(key)) {
+                    responseHeaders.addAll(key, values);
+                }
+            });
+
+            log.debug("Kobo reading proxy response status: {}", response.statusCode());
+
+            return new ResponseEntity<>(response.body(), responseHeaders, HttpStatus.valueOf(response.statusCode()));
+
+        } catch (Exception e) {
+            log.error("Failed to proxy reading services request to Kobo", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to proxy reading services request to Kobo", e);
+        }
+    }
+
     private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, String path, boolean includeSyncToken, BookloreSyncToken syncToken) {
         try {
-            String koboBaseUrl = "https://storeapi.kobo.com";
+            String koboBaseUrl = STORE_API_BASE_URL;
 
             String queryString = request.getQueryString();
             String uriString = koboBaseUrl + path;
