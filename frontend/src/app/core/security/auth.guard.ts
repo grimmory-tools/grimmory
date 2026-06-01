@@ -1,38 +1,29 @@
 import {inject} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot} from '@angular/router';
+import {ActivatedRouteSnapshot, CanActivateChildFn, CanActivateFn, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthService} from '../../shared/service/auth.service';
+import {map} from 'rxjs/operators';
 
-export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+const authenticateRoute = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   void route;
   void state;
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  const internalAccessToken = authService.getInternalAccessToken();
-
-  if (internalAccessToken) {
-    try {
-      const isDefaultPassword = authService.getIsDefaultPassword();
-      const internalAccessTokenExpiry = authService.getInternalAccessTokenExpiry();
-
-      if (internalAccessTokenExpiry != null && internalAccessTokenExpiry < Date.now()) {
-        localStorage.removeItem('accessToken_Internal');
+  return authService.ensureAuthenticated().pipe(
+    map(isAuthenticated => {
+      if (!isAuthenticated) {
         return router.createUrlTree(['/login']);
       }
 
+      const isDefaultPassword = authService.getIsDefaultPassword();
       if (isDefaultPassword) {
-        router.navigate(['/change-password']);
-        return false;
+        return router.createUrlTree(['/change-password']);
       }
 
       return true;
-    } catch {
-      localStorage.removeItem('accessToken_Internal');
-      router.navigate(['/login']);
-      return false;
-    }
-  }
-
-  router.navigate(['/login']);
-  return false;
+    })
+  );
 };
+
+export const AuthGuard: CanActivateFn = authenticateRoute;
+export const AuthChildGuard: CanActivateChildFn = authenticateRoute;

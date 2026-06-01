@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, Injector, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
+import { Observable, tap, finalize, of, throwError } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { RxStompService } from '../websocket/rx-stomp.service';
 import { API_CONFIG } from '../../core/config/api-config';
 import { createRxStompConfig } from '../websocket/rx-stomp.config';
@@ -14,6 +15,12 @@ interface AccessTokenResponse {
   expires?: number;
 }
 
+export class StaleRefreshResponseError extends Error {
+  constructor() {
+    super('Refresh response belongs to a stale session');
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +32,7 @@ export class AuthService {
   readonly postLoginInitialized = this._postLoginInitialized.asReadonly();
   private readonly _logoutInProgress = signal(false);
   readonly logoutInProgress = this._logoutInProgress.asReadonly();
+  private refreshSessionRequest$?: Observable<AccessTokenResponse>;
 
   private http = inject(HttpClient);
   private injector = inject(Injector);
@@ -37,22 +45,69 @@ export class AuthService {
   internalLogin(credentials: { username: string; password: string }): Observable<AccessTokenResponse> {
     return this.http.post<AccessTokenResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
-        if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
-          this.initializeWebSocketConnection();
-          this.handleSuccessfulAuth();
-        }
+        this.saveInternalTokenResponse(response);
+        this.initializeWebSocketConnection();
+        this.handleSuccessfulAuth();
       })
     );
   }
 
-  internalRefreshToken(): Observable<AccessTokenResponse> {
-    const refreshToken = this.getInternalRefreshToken();
+  private internalRefreshToken(refreshToken: string): Observable<AccessTokenResponse> {
     return this.http.post<AccessTokenResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap((response) => {
-        if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
+        this.saveInternalTokenResponse(response, refreshToken);
+      })
+    );
+  }
+
+  ensureAccessToken(options: {forceRefresh?: boolean} = {}): Observable<string> {
+    if (!options.forceRefresh && this.hasCurrentAccessToken()) {
+      return of(this.getInternalAccessToken()!);
+    }
+
+    return this.refreshInternalSession().pipe(
+      map(response => response.accessToken),
+      catchError(error => {
+        if (error instanceof StaleRefreshResponseError && this.hasCurrentAccessToken()) {
+          return of(this.getInternalAccessToken()!);
         }
+
+        return throwError(() => error);
+      })
+    );
+  }
+
+  refreshInternalSession(): Observable<AccessTokenResponse> {
+    if (!this.getInternalRefreshToken()) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    if (!this.refreshSessionRequest$) {
+      const refreshToken = this.getInternalRefreshToken();
+      if (!refreshToken) {
+        return throwError(() => new Error('No refresh token available'));
+      }
+
+      this.refreshSessionRequest$ = this.internalRefreshToken(refreshToken).pipe(
+        tap(() => this.initializeWebSocketConnection()),
+        finalize(() => {
+          this.refreshSessionRequest$ = undefined;
+        }),
+        shareReplay({bufferSize: 1, refCount: false})
+      );
+    }
+
+    return this.refreshSessionRequest$;
+  }
+
+  ensureAuthenticated(): Observable<boolean> {
+    return this.ensureAccessToken().pipe(
+      map(() => true),
+      catchError(() => {
+        if (this.getInternalAccessToken() || this.getInternalRefreshToken()) {
+          this.clearSession();
+        }
+        return of(false);
       })
     );
   }
@@ -60,11 +115,9 @@ export class AuthService {
   remoteLogin(): Observable<AccessTokenResponse> {
     return this.http.get<AccessTokenResponse>(`${this.apiUrl}/remote`).pipe(
       tap((response) => {
-        if (response.accessToken && response.refreshToken) {
-          this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
-          this.initializeWebSocketConnection();
-          this.handleSuccessfulAuth();
-        }
+        this.saveInternalTokenResponse(response);
+        this.initializeWebSocketConnection();
+        this.handleSuccessfulAuth();
       })
     );
   }
@@ -76,6 +129,19 @@ export class AuthService {
     localStorage.setItem('refreshToken_Internal', refreshToken);
     localStorage.setItem('authenticationIsDefaultPassword_Internal', isDefaultPassword ? 'true' : 'false')
     this.token.set(accessToken);
+  }
+
+  private saveInternalTokenResponse(response: AccessTokenResponse, expectedRefreshToken?: string): void {
+    if (expectedRefreshToken !== undefined && expectedRefreshToken !== this.getInternalRefreshToken()) {
+      throw new StaleRefreshResponseError();
+    }
+
+    if (!response.accessToken || !response.refreshToken) {
+      this.clearSession();
+      throw new Error('Authentication response did not include a complete token pair');
+    }
+
+    this.saveInternalTokens(response.accessToken, response.refreshToken, response.expires, response.isDefaultPassword);
   }
 
   getIsDefaultPassword(): boolean {
@@ -94,6 +160,16 @@ export class AuthService {
 
   getInternalRefreshToken(): string | null {
     return localStorage.getItem('refreshToken_Internal');
+  }
+
+  hasCurrentAccessToken(): boolean {
+    const accessToken = this.getInternalAccessToken();
+    if (!accessToken) {
+      return false;
+    }
+
+    const expiry = this.getInternalAccessTokenExpiry();
+    return expiry == null || expiry > Date.now();
   }
 
   logout(): void {
@@ -140,6 +216,7 @@ export class AuthService {
   }
 
   private clearSession(): void {
+    this.refreshSessionRequest$ = undefined;
     localStorage.removeItem('accessToken_Internal');
     localStorage.removeItem('accessToken_Internal_Expiry');
     localStorage.removeItem('refreshToken_Internal');
@@ -158,6 +235,8 @@ export class AuthService {
   }
 
   initializeWebSocketConnection(): void {
+    if (!this.hasCurrentAccessToken()) return;
+
     const token = this.getInternalAccessToken();
     if (!token) return;
 
