@@ -89,6 +89,7 @@ public class HardcoverBookSearchService {
                           language {
                             code2
                           }
+                          reading_format_id
                         }
                       }
                     }""");
