@@ -136,7 +136,7 @@ export class BookService {
     });
   }
 
-  private getBookRecommendationsQueryOptions(bookId: number, limit: number) {
+  bookRecommendationsQueryOptions(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookRecommendationsQueryKey(bookId, limit),
       queryFn: () => lastValueFrom(this.http.get<BookRecommendation[]>(`${this.url}/${bookId}/recommendations`, {
@@ -183,7 +183,7 @@ export class BookService {
   }
 
   getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
-    return from(this.queryClient.ensureQueryData(this.getBookRecommendationsQueryOptions(bookId, limit)));
+    return from(this.queryClient.ensureQueryData(this.bookRecommendationsQueryOptions(bookId, limit)));
   }
 
   /*------------------ Book Operations ------------------*/

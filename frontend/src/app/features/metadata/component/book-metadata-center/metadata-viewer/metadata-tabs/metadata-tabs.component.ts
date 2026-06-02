@@ -83,6 +83,7 @@ export interface DetachBookFileEvent {
 export class MetadataTabsComponent {
   @Input() book!: Book;
   @Input() bookInSeries: Book[] = [];
+  @Input() hasSeries = false;
   @Input() recommendedBooks: BookRecommendation[] = [];
 
   protected urlHelper = inject(UrlHelperService);
@@ -102,7 +103,7 @@ export class MetadataTabsComponent {
   @Output() detachBookFile = new EventEmitter<DetachBookFileEvent>();
 
   get defaultTabValue(): string {
-    return this.bookInSeries && this.bookInSeries.length > 1 ? 'series' : 'similar';
+    return this.hasSeries ? 'series' : 'similar';
   }
 
   read(bookId: number, reader?: 'epub-streaming', bookType?: BookType): void {

@@ -4,18 +4,19 @@
       <div class="search-fields">
         <div class="field">
           <label for="author-match-name">{{ t('authorNameLabel') }}</label>
-          <input id="author-match-name" pInputText type="text" [(ngModel)]="searchQuery" [placeholder]="t('authorNamePlaceholder')" class="search-input"/>
+          <input id="author-match-name" pInputText type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="t('authorNamePlaceholder')" class="search-input"/>
         </div>
         <div class="field">
           <label for="author-match-asin">{{ t('asinLabel') }}</label>
-          <input id="author-match-asin" pInputText type="text" [(ngModel)]="asinQuery" [placeholder]="t('asinPlaceholder')" class="search-input"/>
+          <input id="author-match-asin" pInputText type="text" [ngModel]="asinQuery()" (ngModelChange)="asinQuery.set($event)" [placeholder]="t('asinPlaceholder')" class="search-input"/>
         </div>
         <div class="field region-field">
           <label for="author-match-region">{{ t('regionLabel') }}</label>
           <p-select
             inputId="author-match-region"
             [options]="regionOptions"
-            [(ngModel)]="selectedRegion"
+            [ngModel]="selectedRegion()"
+            (ngModelChange)="selectedRegion.set($event)"
             optionLabel="label"
             optionValue="value"
             class="region-dropdown">
@@ -26,14 +27,14 @@
             [label]="t('searchBtn')"
             icon="pi pi-search"
             (onClick)="search()"
-            [loading]="searching"
-            [disabled]="!canSearch">
+            [loading]="searching()"
+            [disabled]="!canSearch()">
           </p-button>
         </div>
       </div>
     </div>
 
-    @if (searching) {
+    @if (searching()) {
       <div class="search-loading">
         <p-progressSpinner
           [style]="{'width': '40px', 'height': '40px'}"
@@ -45,7 +46,7 @@
       </div>
     }
 
-    @if (!searching && hasSearched && results.length === 0) {
+    @if (!searching() && hasSearched() && results().length === 0) {
       <div class="empty-results">
         <i class="pi pi-info-circle"></i>
         <p>{{ t('noResults') }}</p>
@@ -53,7 +54,7 @@
       </div>
     }
 
-    @if (!searching && !hasSearched) {
+    @if (!searching() && !hasSearched()) {
       <div class="ready-state">
         <i class="pi pi-search"></i>
         <p>{{ t('readyToSearch') }}</p>
@@ -61,12 +62,12 @@
       </div>
     }
 
-    @if (!searching && results.length > 0) {
+    @if (!searching() && results().length > 0) {
       <div class="results-header">
-        <span>{{ t('resultsFound', {count: results.length}) }}</span>
+        <span>{{ t('resultsFound', {count: results().length}) }}</span>
       </div>
       <div class="results-list">
-        @for (result of results; track result.asin) {
+        @for (result of results(); track result.asin) {
           <div class="result-card">
             <div class="result-image">
               @if (result.imageUrl) {
@@ -89,7 +90,7 @@
                 [label]="t('matchBtn')"
                 icon="pi pi-link"
                 severity="success"
-                [loading]="matching"
+                [loading]="matching()"
                 (onClick)="matchAuthor(result)">
               </p-button>
             </div>

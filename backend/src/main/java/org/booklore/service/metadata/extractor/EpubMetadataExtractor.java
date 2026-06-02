@@ -276,35 +276,50 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
                         String key = StringUtils.isNotBlank(prop) ? prop : name;
 
-                        if (key.equals(BookLoreMetadata.NS_PREFIX + ":asin")) builderMeta.asin(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":goodreads_id")) builderMeta.goodreadsId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":comicvine_id")) builderMeta.comicvineId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":ranobedb_id")) builderMeta.ranobedbId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":hardcover_id")) builderMeta.hardcoverId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":google_books_id")) builderMeta.googleId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":lubimyczytac_id")) builderMeta.lubimyczytacId(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":page_count")) safeParseInt(content, builderMeta::pageCount);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":subtitle")) builderMeta.subtitle(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":series_total")) safeParseInt(content, builderMeta::seriesTotal);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":rating")) { /* Generic rating not supported */ }
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":amazon_rating")) safeParseDouble(content, builderMeta::amazonRating);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":amazon_review_count")) safeParseInt(content, builderMeta::amazonReviewCount);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":goodreads_rating")) safeParseDouble(content, builderMeta::goodreadsRating);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":goodreads_review_count")) safeParseInt(content, builderMeta::goodreadsReviewCount);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":hardcover_rating")) safeParseDouble(content, builderMeta::hardcoverRating);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":hardcover_review_count")) safeParseInt(content, builderMeta::hardcoverReviewCount);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":lubimyczytac_rating")) safeParseDouble(content, builderMeta::lubimyczytacRating);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":ranobedb_rating")) safeParseDouble(content, builderMeta::ranobedbRating);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":age_rating")) safeParseInt(content, v -> { if (VALID_AGE_RATINGS.contains(v)) builderMeta.ageRating(v); });
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":content_rating")) builderMeta.contentRating(content);
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":moods")) {
-                            if (StringUtils.isNotBlank(content)) {
-                                extractSetField(content, moods);
+                        switch (key) {
+                            case BookLoreMetadata.NS_PREFIX + ":asin" -> builderMeta.asin(content);
+                            case BookLoreMetadata.NS_PREFIX + ":goodreads_id" -> builderMeta.goodreadsId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":comicvine_id" -> builderMeta.comicvineId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":ranobedb_id" -> builderMeta.ranobedbId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":hardcover_id" -> builderMeta.hardcoverId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":google_books_id" -> builderMeta.googleId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":lubimyczytac_id" -> builderMeta.lubimyczytacId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":page_count" ->
+                                    safeParseInt(content, builderMeta::pageCount);
+                            case BookLoreMetadata.NS_PREFIX + ":subtitle" -> builderMeta.subtitle(content);
+                            case BookLoreMetadata.NS_PREFIX + ":series_total" ->
+                                    safeParseInt(content, builderMeta::seriesTotal);
+                            case BookLoreMetadata.NS_PREFIX + ":rating" -> {
                             }
-                        }
-                        else if (key.equals(BookLoreMetadata.NS_PREFIX + ":tags")) {
-                            if (StringUtils.isNotBlank(content)) {
-                                extractSetField(content, tags);
+                            case BookLoreMetadata.NS_PREFIX + ":amazon_rating" ->
+                                    safeParseDouble(content, builderMeta::amazonRating);
+                            case BookLoreMetadata.NS_PREFIX + ":amazon_review_count" ->
+                                    safeParseInt(content, builderMeta::amazonReviewCount);
+                            case BookLoreMetadata.NS_PREFIX + ":goodreads_rating" ->
+                                    safeParseDouble(content, builderMeta::goodreadsRating);
+                            case BookLoreMetadata.NS_PREFIX + ":goodreads_review_count" ->
+                                    safeParseInt(content, builderMeta::goodreadsReviewCount);
+                            case BookLoreMetadata.NS_PREFIX + ":hardcover_rating" ->
+                                    safeParseDouble(content, builderMeta::hardcoverRating);
+                            case BookLoreMetadata.NS_PREFIX + ":hardcover_review_count" ->
+                                    safeParseInt(content, builderMeta::hardcoverReviewCount);
+                            case BookLoreMetadata.NS_PREFIX + ":lubimyczytac_rating" ->
+                                    safeParseDouble(content, builderMeta::lubimyczytacRating);
+                            case BookLoreMetadata.NS_PREFIX + ":ranobedb_rating" ->
+                                    safeParseDouble(content, builderMeta::ranobedbRating);
+                            case BookLoreMetadata.NS_PREFIX + ":age_rating" -> safeParseInt(content, v -> {
+                                if (VALID_AGE_RATINGS.contains(v)) builderMeta.ageRating(v);
+                            });
+                            case BookLoreMetadata.NS_PREFIX + ":content_rating" -> builderMeta.contentRating(content);
+                            case BookLoreMetadata.NS_PREFIX + ":moods" -> {
+                                if (StringUtils.isNotBlank(content)) {
+                                    extractSetField(content, moods);
+                                }
+                            }
+                            case BookLoreMetadata.NS_PREFIX + ":tags" -> {
+                                if (StringUtils.isNotBlank(content)) {
+                                    extractSetField(content, tags);
+                                }
                             }
                         }
                     }

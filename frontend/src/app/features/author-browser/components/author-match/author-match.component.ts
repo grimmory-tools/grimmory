@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -17,6 +17,7 @@ interface RegionOption {
 @Component({
   selector: 'app-author-match',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './author-match.component.html',
   styleUrls: ['./author-match.component.scss'],
   imports: [
@@ -38,13 +39,15 @@ export class AuthorMatchComponent implements OnInit {
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
 
-  searchQuery = '';
-  asinQuery = '';
-  selectedRegion = 'us';
-  searching = false;
-  matching = false;
-  results: AuthorSearchResult[] = [];
-  hasSearched = false;
+  searchQuery = signal('');
+  asinQuery = signal('');
+  selectedRegion = signal('us');
+  searching = signal(false);
+  matching = signal(false);
+  results = signal<AuthorSearchResult[]>([]);
+  hasSearched = signal(false);
+
+  canSearch = computed(() => !!this.searchQuery().trim() || !!this.asinQuery().trim());
 
   regionOptions: RegionOption[] = [
     {label: 'US', value: 'us'},
@@ -60,29 +63,25 @@ export class AuthorMatchComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.searchQuery = this.authorName;
-  }
-
-  get canSearch(): boolean {
-    return !!this.searchQuery.trim() || !!this.asinQuery.trim();
+    this.searchQuery.set(this.authorName);
   }
 
   search(): void {
-    const asin = this.asinQuery.trim();
-    const query = this.searchQuery.trim();
+    const asin = this.asinQuery().trim();
+    const query = this.searchQuery().trim();
     if (!query && !asin) return;
-    this.searching = true;
-    this.results = [];
-    this.hasSearched = true;
+    this.searching.set(true);
+    this.results.set([]);
+    this.hasSearched.set(true);
 
-    this.authorService.searchAuthorMetadata(this.authorId, query, this.selectedRegion, asin || undefined)
+    this.authorService.searchAuthorMetadata(this.authorId, query, this.selectedRegion(), asin || undefined)
       .subscribe({
-        next: (results) => {
-          this.results = results;
-          this.searching = false;
+        next: (results: AuthorSearchResult[]) => {
+          this.results.set(results);
+          this.searching.set(false);
         },
         error: () => {
-          this.searching = false;
+          this.searching.set(false);
           this.messageService.add({
             severity: 'error',
             summary: this.t.translate('authorBrowser.match.toast.searchFailedSummary'),
@@ -94,16 +93,16 @@ export class AuthorMatchComponent implements OnInit {
   }
 
   matchAuthor(result: AuthorSearchResult): void {
-    this.matching = true;
+    this.matching.set(true);
     const request: AuthorMatchRequest = {
       source: result.source,
       asin: result.asin,
-      region: this.selectedRegion
+      region: this.selectedRegion()
     };
 
     this.authorService.matchAuthor(this.authorId, request).subscribe({
-      next: (updatedAuthor) => {
-        this.matching = false;
+      next: (updatedAuthor: AuthorDetails) => {
+        this.matching.set(false);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('authorBrowser.match.toast.matchSuccessSummary'),
@@ -113,7 +112,7 @@ export class AuthorMatchComponent implements OnInit {
         this.authorMatched.emit(updatedAuthor);
       },
       error: () => {
-        this.matching = false;
+        this.matching.set(false);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('authorBrowser.match.toast.matchFailedSummary'),

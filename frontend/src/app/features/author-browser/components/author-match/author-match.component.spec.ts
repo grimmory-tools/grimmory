@@ -62,29 +62,29 @@ describe('AuthorMatchComponent', () => {
 
     component.ngOnInit();
 
-    expect(component.searchQuery).toBe('  Ada Lovelace  ');
-    expect(component.canSearch).toBe(true);
+    expect(component.searchQuery()).toBe('  Ada Lovelace  ');
+    expect(component.canSearch()).toBe(true);
 
-    component.searchQuery = '   ';
-    component.asinQuery = '   ';
-    expect(component.canSearch).toBe(false);
+    component.searchQuery.set('   ');
+    component.asinQuery.set('   ');
+    expect(component.canSearch()).toBe(false);
 
-    component.asinQuery = ' B00TEST ';
-    expect(component.canSearch).toBe(true);
+    component.asinQuery.set(' B00TEST ');
+    expect(component.canSearch()).toBe(true);
   });
 
   it('does not search when both query inputs are blank after trimming', () => {
     const component = createComponent();
-    component.searchQuery = '   ';
-    component.asinQuery = '   ';
-    component.results = [{source: 'seed', asin: 'old', name: 'Existing'}];
+    component.searchQuery.set('   ');
+    component.asinQuery.set('   ');
+    component.results.set([{source: 'seed', asin: 'old', name: 'Existing'}]);
 
     component.search();
 
     expect(searchAuthorMetadata).not.toHaveBeenCalled();
-    expect(component.searching).toBe(false);
-    expect(component.hasSearched).toBe(false);
-    expect(component.results).toEqual([{source: 'seed', asin: 'old', name: 'Existing'}]);
+    expect(component.searching()).toBe(false);
+    expect(component.hasSearched()).toBe(false);
+    expect(component.results()).toEqual([{source: 'seed', asin: 'old', name: 'Existing'}]);
   });
 
   it('searches with trimmed values, clears stale results, and stores returned matches', () => {
@@ -92,17 +92,17 @@ describe('AuthorMatchComponent', () => {
     searchAuthorMetadata.mockReturnValue(results$);
 
     const component = createComponent();
-    component.searchQuery = ' Ada ';
-    component.asinQuery = ' B00MATCH ';
-    component.selectedRegion = 'uk';
-    component.results = [{source: 'seed', asin: 'old', name: 'Existing'}];
+    component.searchQuery.set(' Ada ');
+    component.asinQuery.set(' B00MATCH ');
+    component.selectedRegion.set('uk');
+    component.results.set([{source: 'seed', asin: 'old', name: 'Existing'}]);
 
     component.search();
 
     expect(searchAuthorMetadata).toHaveBeenCalledWith(9, 'Ada', 'uk', 'B00MATCH');
-    expect(component.searching).toBe(true);
-    expect(component.hasSearched).toBe(true);
-    expect(component.results).toEqual([]);
+    expect(component.searching()).toBe(true);
+    expect(component.hasSearched()).toBe(true);
+    expect(component.results()).toEqual([]);
 
     results$.next([
       {source: 'amazon', asin: 'B00MATCH', name: 'Ada Lovelace'},
@@ -110,22 +110,22 @@ describe('AuthorMatchComponent', () => {
     ]);
     results$.complete();
 
-    expect(component.results).toEqual([
+    expect(component.results()).toEqual([
       {source: 'amazon', asin: 'B00MATCH', name: 'Ada Lovelace'},
       {source: 'amazon', asin: 'B00OTHER', name: 'A. Lovelace'},
     ]);
-    expect(component.searching).toBe(false);
+    expect(component.searching()).toBe(false);
   });
 
   it('reports a translated search failure toast when metadata search errors', () => {
     searchAuthorMetadata.mockReturnValue(throwError(() => new Error('boom')));
 
     const component = createComponent();
-    component.searchQuery = 'Ada';
+    component.searchQuery.set('Ada');
 
     component.search();
 
-    expect(component.searching).toBe(false);
+    expect(component.searching()).toBe(false);
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.searchFailedSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.searchFailedDetail');
     expect(messageService.add).toHaveBeenCalledWith({
@@ -150,7 +150,7 @@ describe('AuthorMatchComponent', () => {
     matchAuthor.mockReturnValue(match$);
 
     const component = createComponent();
-    component.selectedRegion = 'de';
+    component.selectedRegion.set('de');
     const emitSpy = vi.spyOn(component.authorMatched, 'emit');
 
     component.matchAuthor({
@@ -165,12 +165,12 @@ describe('AuthorMatchComponent', () => {
       asin: 'B00MATCH',
       region: 'de',
     });
-    expect(component.matching).toBe(true);
+    expect(component.matching()).toBe(true);
 
     match$.next(updatedAuthor);
     match$.complete();
 
-    expect(component.matching).toBe(false);
+    expect(component.matching()).toBe(false);
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchSuccessSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchSuccessDetail');
     expect(messageService.add).toHaveBeenCalledWith({
@@ -193,7 +193,7 @@ describe('AuthorMatchComponent', () => {
       name: 'Ada Lovelace',
     });
 
-    expect(component.matching).toBe(false);
+    expect(component.matching()).toBe(false);
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchFailedSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchFailedDetail');
     expect(messageService.add).toHaveBeenCalledWith({

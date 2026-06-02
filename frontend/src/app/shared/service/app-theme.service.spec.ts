@@ -67,6 +67,7 @@ describe('AppThemeService', () => {
     vi.spyOn(window, 'getComputedStyle').mockReturnValue(computedStyle);
     root.classList.remove('dark');
     delete root.dataset['appTheme'];
+    delete root.dataset['oledDarkMode'];
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -84,6 +85,7 @@ describe('AppThemeService', () => {
     rootStyle.cssText = '';
     root.classList.remove('dark');
     delete root.dataset['appTheme'];
+    delete root.dataset['oledDarkMode'];
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
@@ -94,6 +96,7 @@ describe('AppThemeService', () => {
       appearancePreference: 'system',
       customPrimary: 'orange',
       themeSyncEnabled: true,
+      oledDarkMode: false,
     });
     expect(localStorageMock.getItem('appConfigState')).toBeNull();
     expect(root.dataset['appTheme']).toBe('grimmory');
@@ -147,6 +150,7 @@ describe('AppThemeService', () => {
       appearancePreference: 'system',
       customPrimary: 'orange',
       themeSyncEnabled: true,
+      oledDarkMode: false,
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);
@@ -154,6 +158,7 @@ describe('AppThemeService', () => {
       appearancePreference: 'system',
       themePreference: 'grimmory',
       customPrimary: 'orange',
+      oledDarkMode: false,
     }));
   });
 
@@ -165,11 +170,13 @@ describe('AppThemeService', () => {
       appearancePreference: 'system',
       customPrimary: 'teal',
       themeSyncEnabled: false,
+      oledDarkMode: false,
     });
     expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
       appearancePreference: 'system',
       themePreference: 'custom',
       customPrimary: 'teal',
+      oledDarkMode: false,
       themeSyncEnabled: false,
     }));
   });
@@ -182,11 +189,29 @@ describe('AppThemeService', () => {
       appearancePreference: 'system',
       customPrimary: 'orange',
       themeSyncEnabled: true,
+      oledDarkMode: false,
     });
     expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
       appearancePreference: 'system',
       themePreference: 'cobalt',
       customPrimary: 'orange',
+      oledDarkMode: false,
     }));
+  });
+
+  it('applies OLED mode only when the effective appearance is dark', () => {
+    service.setOledDarkMode(true);
+
+    expect(root.dataset['oledDarkMode']).toBeUndefined();
+
+    service.setAppearancePreference('dark');
+
+    expect(root.classList.contains('dark')).toBe(true);
+    expect(root.dataset['oledDarkMode']).toBe('true');
+
+    service.setAppearancePreference('light');
+
+    expect(root.classList.contains('dark')).toBe(false);
+    expect(root.dataset['oledDarkMode']).toBeUndefined();
   });
 });

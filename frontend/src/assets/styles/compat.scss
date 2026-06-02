@@ -112,6 +112,11 @@
   }
 }
 
+.p-dialog .p-dialog-header,
+.dialog-header {
+  background: var(--color-page) !important;
+}
+
 .dialog-xs.p-dialog {
   width: 90vw;
   max-width: 400px;

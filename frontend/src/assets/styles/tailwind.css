@@ -40,7 +40,9 @@
   --color-page: var(--color-surface-50);
   --color-card: var(--color-surface-0);
   --color-border: var(--color-surface-200);
+  --color-card-outline: transparent;
   --color-surface-hover: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --color-active-surface: color-mix(in srgb, var(--color-primary) 8%, transparent);
   --color-text: var(--color-surface-950);
   --color-text-secondary: var(--color-surface-600);
   --color-text-muted: var(--color-surface-500);
@@ -60,7 +62,9 @@
   --color-page: var(--color-surface-50);
   --color-card: var(--color-surface-0);
   --color-border: var(--color-surface-200);
+  --color-card-outline: transparent;
   --color-surface-hover: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --color-active-surface: color-mix(in srgb, var(--color-primary) 8%, transparent);
   --color-text: var(--color-surface-950);
   --color-text-secondary: var(--color-surface-600);
   --color-text-muted: var(--color-surface-500);
@@ -488,6 +492,15 @@
   --color-surface-800: var(--color-zinc-800);
   --color-surface-900: var(--color-zinc-900);
   --color-surface-950: var(--color-zinc-950);
+}
+
+.dark[data-oled-dark-mode="true"] {
+  --color-app: #000000;
+  --color-page: #000000;
+  --color-card: #000000;
+  --color-border: color-mix(in srgb, var(--color-text) 18%, transparent);
+  --color-card-outline: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --color-active-surface: color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");

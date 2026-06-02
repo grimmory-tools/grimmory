@@ -4,6 +4,7 @@ import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModul
 import {InputText} from 'primeng/inputtext';
 import {Password} from 'primeng/password';
 import {User, UserProfileUpdateRequest, UserService} from '../user-management/user.service';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
@@ -21,7 +22,6 @@ import {
   DEFAULT_APP_THEME,
   DEFAULT_CUSTOM_PRIMARY,
 } from '../../../shared/model/app-state.model';
-import {ToggleSwitch} from 'primeng/toggleswitch';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -72,6 +72,8 @@ export class UserProfileDialogComponent {
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   protected readonly selectedThemePreference = computed(() => this.themeService.appState().themePreference ?? DEFAULT_APP_THEME);
   protected readonly selectedAppearancePreference = computed(() => this.themeService.appState().appearancePreference ?? 'system');
+  protected readonly oledDarkMode = computed(() => this.themeService.appState().oledDarkMode);
+  protected readonly showOledDarkModeToggle = computed(() => this.themeService.effectiveAppearance() === 'dark');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
     () => this.themeService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
@@ -193,6 +195,10 @@ export class UserProfileDialogComponent {
 
   updateAppearancePreference(appearancePreference: AppearancePreference): void {
     this.themeService.setAppearancePreference(appearancePreference);
+  }
+
+  updateOledDarkMode(oledDarkMode: boolean): void {
+    this.themeService.setOledDarkMode(oledDarkMode);
   }
 
   updateProfile(): void {

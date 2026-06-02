@@ -786,7 +786,7 @@
     "readButton": "Čitaj",
     "booksInSeries": "Knjige u seriji",
     "continueButton": "Nastaviti",
-    "missingBooks": "Nedostaje: #{{ brojevi }}",
+    "missingBooks": "Nedostaje: #{{ numbers }}",
     "book": "Knjiga",
     "continueReading": "Nastavi čitati",
     "stats": {

@@ -16,4 +16,5 @@ export interface AppState {
   appearancePreference?: AppearancePreference;
   customPrimary?: CustomPrimary;
   themeSyncEnabled?: boolean;
+  oledDarkMode: boolean;
 }

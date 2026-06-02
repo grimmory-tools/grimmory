@@ -9,7 +9,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.3.5.Final"
+    id("org.hibernate.orm") version "7.4.0.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -197,7 +197,7 @@ dependencies {
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.21")
+    implementation("com.github.RouHim:jaudiotagger:2.0.22")
 
     // --- Archive Support ---
     implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
@@ -219,11 +219,11 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.0")
+    implementation("org.apache.tika:tika-core:3.3.1")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
-    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.8")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.9")
 
     // --- Template Engine ---
     implementation("org.freemarker:freemarker:2.3.34")

@@ -22,6 +22,8 @@ type StoredAppState = Partial<AppState> & {
   surface?: unknown;
 };
 
+type AppStatePatch = Partial<AppState>;
+
 interface LoadedAppState {
   state: AppState;
   shouldPersist: boolean;
@@ -33,8 +35,10 @@ interface LoadedAppState {
 export class AppThemeService {
   private readonly STORAGE_KEY = 'appConfigState';
   readonly themes = APP_THEME_OPTIONS;
-  private readonly appStateSignal = signal<AppState>({});
+  private readonly appStateSignal = signal<AppState>(this.withDefaults({}));
+  private readonly effectiveAppearanceSignal = signal<'light' | 'dark'>('dark');
   readonly appState = this.appStateSignal.asReadonly();
+  readonly effectiveAppearance = this.effectiveAppearanceSignal.asReadonly();
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
   faviconService = inject(FaviconService);
@@ -73,7 +77,11 @@ export class AppThemeService {
     this.updateAppState({appearancePreference});
   }
 
-  private updateAppState(patch: AppState): void {
+  setOledDarkMode(oledDarkMode: boolean): void {
+    this.updateAppState({oledDarkMode});
+  }
+
+  private updateAppState(patch: AppStatePatch): void {
     const state = this.withDefaults({
       ...this.appStateSignal(),
       ...patch,
@@ -117,6 +125,7 @@ export class AppThemeService {
       appearancePreference: state.appearancePreference,
       customPrimary: state.customPrimary,
       themeSyncEnabled,
+      oledDarkMode: state.oledDarkMode,
     });
   }
 
@@ -128,23 +137,24 @@ export class AppThemeService {
     return this.isLegacyPaletteState(state);
   }
 
-  private withDefaults(state: AppState): AppState {
+  private withDefaults(state: AppStatePatch): AppState {
     return {
       themePreference: this.resolveThemePreference(state.themePreference),
       appearancePreference: this.resolveAppearancePreference(state.appearancePreference),
       customPrimary: this.resolveCustomPrimary(state.customPrimary),
       themeSyncEnabled: state.themeSyncEnabled !== false,
+      oledDarkMode: state.oledDarkMode === true,
     };
   }
 
-  private resolveCustomPrimary(customPrimary: AppState['customPrimary']): CustomPrimary {
+  private resolveCustomPrimary(customPrimary: AppStatePatch['customPrimary']): CustomPrimary {
     if (customPrimary && CUSTOM_PRIMARY_OPTIONS.includes(customPrimary)) {
       return customPrimary;
     }
     return DEFAULT_CUSTOM_PRIMARY;
   }
 
-  private resolveThemePreference(themePreference: AppState['themePreference']): AppTheme {
+  private resolveThemePreference(themePreference: AppStatePatch['themePreference']): AppTheme {
     if (themePreference && this.themes.some((option) => option.name === themePreference)) {
       return themePreference;
     }
@@ -152,7 +162,7 @@ export class AppThemeService {
     return DEFAULT_APP_THEME;
   }
 
-  private resolveAppearancePreference(appearancePreference: AppState['appearancePreference']): AppearancePreference {
+  private resolveAppearancePreference(appearancePreference: AppStatePatch['appearancePreference']): AppearancePreference {
     if (appearancePreference === 'light' || appearancePreference === 'dark' || appearancePreference === 'system') {
       return appearancePreference;
     }
@@ -176,6 +186,7 @@ export class AppThemeService {
         appearancePreference: defaults.appearancePreference,
         themePreference: defaults.themePreference,
         customPrimary: defaults.customPrimary,
+        oledDarkMode: defaults.oledDarkMode,
       };
       if (!defaults.themeSyncEnabled) {
         storedState.themeSyncEnabled = false;
@@ -185,7 +196,7 @@ export class AppThemeService {
   }
 
   applyCurrentTheme(): void {
-    this.applyAppState(this.withDefaults(this.appStateSignal()));
+    this.applyAppState(this.appStateSignal());
   }
 
   private applyAppState(state: AppState): void {
@@ -205,8 +216,14 @@ export class AppThemeService {
     const appearancePreference = this.resolveAppearancePreference(state.appearancePreference);
     const effective = this.effectiveAppearancePreference(appearancePreference);
 
+    this.effectiveAppearanceSignal.set(effective);
     root.dataset['appTheme'] = theme;
     root.classList.toggle('dark', effective === 'dark');
+    if (state.oledDarkMode && effective === 'dark') {
+      root.dataset['oledDarkMode'] = 'true';
+    } else {
+      delete root.dataset['oledDarkMode'];
+    }
     root.style.setProperty('color-scheme', effective);
     this.applyCustomPrimary(root, theme, this.resolveCustomPrimary(state.customPrimary));
     this.syncSystemSchemeListener(appearancePreference);

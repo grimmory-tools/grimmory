@@ -42,6 +42,17 @@
         </p-select>
       </div>
 
+      @if (showOledDarkModeToggle()) {
+        <div class="theme-toggle-row">
+          <label class="field-label" for="oled-dark-mode">{{ 'settingsView.theme.oledDarkMode' | transloco }}</label>
+          <p-toggleswitch
+            inputId="oled-dark-mode"
+            [ngModel]="oledDarkMode()"
+            (ngModelChange)="updateOledDarkMode($event)">
+          </p-toggleswitch>
+        </div>
+      }
+
       <div class="form-field">
         <label class="field-label" for="app-theme">{{ 'layout.theme.theme' | transloco }}</label>
         <p-select

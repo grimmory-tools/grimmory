@@ -51,6 +51,18 @@ const appHighlight = {
   focusColor: 'var(--color-primary-text)',
 };
 
+const contentSurface = {
+  background: 'var(--color-page)',
+  borderColor: 'var(--color-border)',
+  color: 'var(--color-text)',
+};
+
+const overlaySurface = {
+  background: 'var(--color-card)',
+  borderColor: 'var(--color-border)',
+  color: 'var(--color-text)',
+};
+
 function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly string[]): ColorPalette {
   return Object.fromEntries(
     stops.map((stop) => [stop, `var(--color-${prefix}-${stop})`])
@@ -87,10 +99,19 @@ function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
 const AppPrimePreset = definePreset(Aura, {
   semantic: {
     colorScheme: {
-      light: { content: { background: 'var(--color-page)' } },
+      light: {
+        content: contentSurface,
+        overlay: {
+          popover: overlaySurface,
+          modal: overlaySurface,
+        },
+      },
       dark: {
-        content: { background: 'var(--color-page)' },
-        // Card menus are surface.800; Aura default hover is also 800 — use app surface-hover mix.
+        content: contentSurface,
+        overlay: {
+          popover: overlaySurface,
+          modal: overlaySurface,
+        },
         navigation: {
           item: {
             focusBackground: 'color-mix(in srgb, {text.color}, transparent 92%)',

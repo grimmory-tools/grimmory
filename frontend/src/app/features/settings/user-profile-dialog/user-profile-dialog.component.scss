@@ -154,6 +154,17 @@ fieldset.form-field {
   gap: 0.5rem;
 }
 
+.theme-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .field-label {
+    margin: 0;
+  }
+}
+
 .edit-actions {
   margin-top: 0.5rem;
 
