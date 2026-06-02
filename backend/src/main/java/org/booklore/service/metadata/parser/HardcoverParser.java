@@ -156,21 +156,18 @@ public class HardcoverParser implements BookParser {
                     case EBOOK -> readingFormatId = 4;
                 }
 
-        //String Author = fetchMetadataRequest.getAuthor();
-        String Author = results.getFirst().getAuthors().toString().replace("[", "").replace("]", "");
-        HardcoverWorkDetails HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, Author);
-
-        //retry with the search author instead
-//        if (HardcoverWorkDetails == null) {
-//            HardcoverWorkDetails = hardcoverBookSearchService.searchEditions(Title, searchAuthor);
-//        }
-        //if we have a successful query: replace isbns
-        if (HardcoverWorkDetails != null) {
-            results.getFirst().setIsbn10(HardcoverWorkDetails.getIsbn10());
-            results.getFirst().setIsbn13(HardcoverWorkDetails.getIsbn13());
+                if (firstAuthor != null) {
+                    HardcoverWorkDetails isbns = hardcoverBookSearchService.searchEditions(result.getTitle(), firstAuthor, language, readingFormatId);
+                    if (isbns != null) {
+                        result.setIsbn10(isbns.getIsbn10());
+                        result.setIsbn13(isbns.getIsbn13());
+                        newResults.add(result);
+                        return newResults;
+                    }
+                }
+            }
         }
-
-        return results;
+        return oldResults;
     }
 
     private boolean filterByAuthor(GraphQLResponse.Document doc, String searchAuthor,
