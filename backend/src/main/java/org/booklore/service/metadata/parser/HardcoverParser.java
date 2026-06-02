@@ -118,6 +118,11 @@ public class HardcoverParser implements BookParser {
             BookMetadata metadata = mapDocumentToMetadata(doc, request, isFirst);
             results.add(metadata);
             isFirst = false;
+        BookCategory category = BookFileType
+            .fromExtension(book.getPrimaryFile().getExtension())
+            .map(BookFileType::category)
+            .orElse(null); // fix this
+
         int readingFormatId;
         switch (category) {
             case AUDIOBOOK -> readingFormatId = 2;
@@ -207,6 +212,27 @@ public class HardcoverParser implements BookParser {
                 if (similarity >= AUTHOR_MATCH_THRESHOLD) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean filterTitle(GraphQLResponse.Document doc, String searchTitle) {
+        if (doc.getTitle() == null || doc.getTitle().isEmpty()) {
+            return false;
+        }
+
+        List<String> searchTitleTokens = List.of(doc.getTitle());
+
+        boolean topResult = false;
+        List<GraphQLResponse.Document> matchedTitles = new ArrayList<>();
+        for (String foo : searchTitleTokens) {
+            if (foo.equalsIgnoreCase(searchTitle)) {
+                topResult = true;
+                return true;
+            }
+            if (foo.equalsIgnoreCase(searchTitle) && !topResult) {
+                return true;
             }
         }
         return false;
