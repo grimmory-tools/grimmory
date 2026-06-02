@@ -8,7 +8,7 @@ import {Toast} from 'primeng/toast';
 import {RouterOutlet} from '@angular/router';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthInitializationService} from './core/security/auth-initialization-service';
-import {AppConfigService} from './shared/service/app-config.service';
+import {AppThemeService} from './shared/service/app-theme.service';
 import {MetadataBatchProgressNotification} from './shared/model/metadata-batch-progress.model';
 import {MetadataProgressService} from './shared/service/metadata-progress.service';
 import {BookdropFileNotification, BookdropFileService} from './features/bookdrop/service/bookdrop-file.service';
@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private subscriptionsInitialized = false;
 
-  private appConfigService = inject(AppConfigService); // DO NOT REMOVE: Used to initialize app config on startup
+  private appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
   private authInit = inject(AuthInitializationService);
   private bookService = inject(BookService);
   private authorService = inject(AuthorService);

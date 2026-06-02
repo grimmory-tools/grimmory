@@ -82,6 +82,10 @@ class UserProvisioningServiceTest {
         assertThat(saved.getOidcSubject()).isEqualTo("sub-123");
         assertThat(saved.getOidcIssuer()).isEqualTo("https://issuer.example.com");
         assertThat(saved.getAvatarUrl()).isEqualTo("https://avatar.example.com/jdoe.png");
+        assertThat(saved.getLocale()).isEqualTo("en");
+        assertThat(saved.getTheme()).isEqualTo("grimmory");
+        assertThat(saved.getThemeAccent()).isNull();
+        assertThat(saved.isThemeSyncEnabled()).isTrue();
     }
 
     @Test

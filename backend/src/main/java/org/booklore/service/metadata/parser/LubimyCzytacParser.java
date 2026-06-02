@@ -178,11 +178,12 @@ public class LubimyCzytacParser implements BookParser {
 
     private static List<String> extractBookUrls(Document doc) {
         List<String> bookUrls = new ArrayList<>();
-        Elements results = doc.select(".authorAllBooks__single");
+        // Prefix with the paginator to avoid the promoted books / advertisements
+        Elements results = doc.select("#ksiazkiPaginator .book-card");
         log.info("Found {} search results", results.size());
 
         for (Element result : results) {
-            Element titleLink = result.selectFirst(".authorAllBooks__singleTextTitle");
+            Element titleLink = result.selectFirst(".book-card__title");
             if (titleLink != null) {
                 String href = titleLink.attr("href");
                 if (href != null && !href.isEmpty()) {

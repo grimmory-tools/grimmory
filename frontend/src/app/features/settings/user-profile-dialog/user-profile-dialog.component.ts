@@ -3,21 +3,24 @@ import {Button} from 'primeng/button';
 import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Password} from 'primeng/password';
+import {User, UserProfileUpdateRequest, UserService} from '../user-management/user.service';
 import {ToggleSwitch} from 'primeng/toggleswitch';
-import {User, UserService, UserUpdateRequest} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Select} from 'primeng/select';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {from, switchMap} from 'rxjs';
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../core/config/transloco-loader';
-import {LANG_STORAGE_KEY} from '../../../core/config/language-initializer';
-import {AppConfigService} from '../../../shared/service/app-config.service';
+import {AppThemeService} from '../../../shared/service/app-theme.service';
+import {AppLocaleService} from '../../../shared/service/app-locale.service';
 import {
   AppearancePreference,
   AppTheme,
   CUSTOM_PRIMARY_OPTIONS,
   CustomPrimary,
+  DEFAULT_APP_THEME,
+  DEFAULT_CUSTOM_PRIMARY,
 } from '../../../shared/model/app-state.model';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -59,24 +62,26 @@ export class UserProfileDialogComponent {
   }));
 
   protected readonly userService = inject(UserService);
-  protected readonly configService = inject(AppConfigService);
+  protected readonly themeService = inject(AppThemeService);
+  protected readonly appLocaleService = inject(AppLocaleService);
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  protected readonly selectedThemePreference = computed(() => this.configService.appState().themePreference);
-  protected readonly selectedAppearancePreference = computed(() => this.configService.appState().appearancePreference);
-  protected readonly oledDarkMode = computed(() => this.configService.appState().oledDarkMode);
-  protected readonly showOledDarkModeToggle = computed(() => this.configService.effectiveAppearance() === 'dark');
+  protected readonly selectedThemePreference = computed(() => this.themeService.appState().themePreference ?? DEFAULT_APP_THEME);
+  protected readonly selectedAppearancePreference = computed(() => this.themeService.appState().appearancePreference ?? 'system');
+  protected readonly oledDarkMode = computed(() => this.themeService.appState().oledDarkMode);
+  protected readonly showOledDarkModeToggle = computed(() => this.themeService.effectiveAppearance() === 'dark');
   protected readonly selectedCustomPrimary = computed<CustomPrimary>(
-    () => this.configService.appState().customPrimary,
+    () => this.themeService.appState().customPrimary ?? DEFAULT_CUSTOM_PRIMARY,
   );
+  protected readonly selectedThemeSyncEnabled = computed(() => this.themeService.appState().themeSyncEnabled !== false);
   protected readonly customPrimaryOptions = CUSTOM_PRIMARY_OPTIONS;
   protected readonly themeOptions = computed(() => {
     this.activeLang();
-    return this.configService.themes.map((theme) => ({
+    return this.themeService.themes.map((theme) => ({
       value: theme.name,
       label: this.t.translate(theme.labelKey),
     }));
@@ -128,24 +133,72 @@ export class UserProfileDialogComponent {
 
   onLanguageChange(lang: string): void {
     if (lang === this.activeLang()) return;
-    this.t.load(lang).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.t.setActiveLang(lang);
-        localStorage.setItem(LANG_STORAGE_KEY, lang);
-      },
-    });
+    if (!this.currentUser) return;
+
+    this.userService.updateUserProfile(this.currentUser.id, {locale: lang}).pipe(
+      switchMap(user => from(this.appLocaleService.applyLocale(user.locale))),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
   }
 
   updateThemePreference(themePreference: AppTheme): void {
-    this.configService.setThemePreference(themePreference);
+    if (!this.currentUser) return;
+
+    if (!this.selectedThemeSyncEnabled()) {
+      this.themeService.applyDeviceTheme(themePreference, this.selectedCustomPrimary());
+      return;
+    }
+
+    const updateRequest: UserProfileUpdateRequest = {
+      theme: themePreference,
+      ...(themePreference === 'custom' ? {themeAccent: this.selectedCustomPrimary()} : {}),
+    };
+
+    this.userService.updateUserProfile(this.currentUser.id, updateRequest).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (user) => this.themeService.applySyncedTheme(user.theme, user.themeAccent ?? DEFAULT_CUSTOM_PRIMARY),
+    });
   }
 
   updateCustomPrimary(customPrimary: CustomPrimary): void {
-    this.configService.setCustomPrimary(customPrimary);
+    if (!this.currentUser) return;
+
+    if (!this.selectedThemeSyncEnabled()) {
+      this.themeService.applyDeviceTheme('custom', customPrimary);
+      return;
+    }
+
+    this.userService.updateUserProfile(this.currentUser.id, {theme: 'custom', themeAccent: customPrimary}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (user) => this.themeService.applySyncedTheme(user.theme, user.themeAccent ?? DEFAULT_CUSTOM_PRIMARY),
+    });
+  }
+
+  updateThemeSyncEnabled(themeSyncEnabled: boolean): void {
+    if (!this.currentUser) return;
+
+    if (!themeSyncEnabled) {
+      this.userService.updateUserProfile(this.currentUser.id, {themeSyncEnabled: false}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => this.themeService.applyDeviceTheme(this.selectedThemePreference(), this.selectedCustomPrimary()),
+      });
+      return;
+    }
+
+    const theme = this.selectedThemePreference();
+    const updateRequest: UserProfileUpdateRequest = {
+      themeSyncEnabled: true,
+      theme,
+      ...(theme === 'custom' ? {themeAccent: this.selectedCustomPrimary()} : {}),
+    };
+    this.userService.updateUserProfile(this.currentUser.id, updateRequest).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (user) => this.themeService.applySyncedTheme(user.theme, user.themeAccent ?? DEFAULT_CUSTOM_PRIMARY),
+    });
   }
 
   updateAppearancePreference(appearancePreference: AppearancePreference): void {
-    this.configService.setAppearancePreference(appearancePreference);
+    this.themeService.setAppearancePreference(appearancePreference);
+  }
+
+  updateOledDarkMode(oledDarkMode: boolean): void {
+    this.themeService.setOledDarkMode(oledDarkMode);
   }
 
   updateProfile(): void {
@@ -164,11 +217,11 @@ export class UserProfileDialogComponent {
       return;
     }
 
-    const updateRequest: UserUpdateRequest = {
+    const updateRequest: UserProfileUpdateRequest = {
       name: this.editUserData.name,
       email: this.editUserData.email,
     };
-    this.userService.updateUser(this.currentUser.id, updateRequest).subscribe({
+    this.userService.updateUserProfile(this.currentUser.id, updateRequest).subscribe({
       next: () => {
         this.messageService.add({severity: 'success', summary: this.t.translate('common.success'), detail: this.t.translate('settingsProfile.toast.profileUpdated')});
         this.isEditing = false;

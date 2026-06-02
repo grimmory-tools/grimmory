@@ -52,6 +52,10 @@ function makeCurrentUser() {
     username: 'tester',
     name: 'Tester',
     email: 'tester@example.com',
+    locale: 'en',
+    theme: 'grimmory',
+    themeAccent: null,
+    themeSyncEnabled: true,
     assignedLibraries: [],
     permissions: {
       admin: false,

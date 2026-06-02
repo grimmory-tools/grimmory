@@ -8,6 +8,7 @@ import { AuthService } from '../../../shared/service/auth.service';
 import { DashboardConfig } from '../../dashboard/models/dashboard-config.model';
 import { injectQuery, queryOptions, QueryClient } from '@tanstack/angular-query-experimental';
 import { CURRENT_USER_QUERY_KEY } from './user-query-keys';
+import { AppTheme, CustomPrimary } from '../../../shared/model/app-state.model';
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
@@ -319,6 +320,10 @@ export interface User {
   username: string;
   name: string;
   email: string;
+  locale: string;
+  theme: AppTheme;
+  themeAccent: CustomPrimary | null;
+  themeSyncEnabled: boolean;
   assignedLibraries: Library[];
   permissions: {
     admin: boolean;
@@ -368,6 +373,15 @@ export interface UserUpdateRequest {
   email?: string;
   permissions?: User['permissions'];
   assignedLibraries?: number[];
+}
+
+export interface UserProfileUpdateRequest {
+  name?: string;
+  email?: string;
+  locale?: string;
+  theme?: AppTheme;
+  themeAccent?: CustomPrimary | null;
+  themeSyncEnabled?: boolean;
 }
 
 @Injectable({
@@ -446,6 +460,17 @@ export class UserService {
     );
   }
 
+  updateUserProfile(userId: number, updateData: UserProfileUpdateRequest): Observable<User> {
+    return this.http.put<User>(`${this.userUrl}/${userId}/profile`, updateData).pipe(
+      map(user => this.normalizeUser(user)),
+      tap(user => {
+        if (this.currentUser()?.id === user.id) {
+          this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, user);
+        }
+      })
+    );
+  }
+
   deleteUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.userUrl}/${userId}`);
   }
@@ -496,8 +521,13 @@ export class UserService {
 
   private normalizeUser(user: User): User {
     const permissions = user.permissions;
+    const theme = user.theme ?? 'grimmory';
     return {
       ...user,
+      locale: user.locale ?? 'en',
+      theme,
+      themeAccent: theme === 'custom' ? user.themeAccent ?? 'orange' : null,
+      themeSyncEnabled: user.themeSyncEnabled ?? true,
       permissions: {
         ...permissions,
         canBulkResetGrimmoryReadProgress: permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress,

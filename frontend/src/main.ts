@@ -12,7 +12,7 @@ import { AppComponent } from './app/app.component';
 import Aura from './app/shared/layout/theme/theme-palette-extend';
 import { routes } from './app/app.routes';
 import { AuthInterceptorService } from './app/core/security/auth-interceptor.service';
-import { AuthService, websocketInitializer } from './app/shared/service/auth.service';
+import { AuthService } from './app/shared/service/auth.service';
 import { GlobalErrorHandler } from './app/core/errors/global-error-handler';
 import { PwaUpdateService } from './app/core/services/pwa-update.service';
 import { initializeAuthFactory } from './app/core/security/auth-initializer';
@@ -20,7 +20,6 @@ import { StartupService } from './app/shared/service/startup.service';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
-import { initializeLanguage } from './app/core/config/language-initializer';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 
 bootstrapApplication(AppComponent, {
@@ -36,15 +35,11 @@ bootstrapApplication(AppComponent, {
       },
     })),
     provideAppInitializer(() => {
-      const authService = inject(AuthService);
-      return websocketInitializer(authService)();
-    }),
-    provideAppInitializer(() => {
+      const initializeAuth = initializeAuthFactory();
       const startup = inject(StartupService);
-      return startup.load();
+      return Promise.resolve(initializeAuth()).then(() => startup.load());
     }),
     provideHttpClient(withInterceptors([AuthInterceptorService])),
-    provideAppInitializer(initializeAuthFactory()),
     provideRouter(routes),
     DialogService,
     MessageService,
@@ -68,7 +63,6 @@ bootstrapApplication(AppComponent, {
       },
       loader: TranslocoInlineLoader,
     }),
-    provideAppInitializer(initializeLanguage()),
     providePrimeNG({
       theme: {
         preset: Aura,

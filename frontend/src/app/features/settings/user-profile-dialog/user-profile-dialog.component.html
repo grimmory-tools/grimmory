@@ -48,7 +48,7 @@
           <p-toggleswitch
             inputId="oled-dark-mode"
             [ngModel]="oledDarkMode()"
-            (ngModelChange)="configService.setOledDarkMode($event)">
+            (ngModelChange)="updateOledDarkMode($event)">
           </p-toggleswitch>
         </div>
       }
@@ -91,6 +91,15 @@
             </span>
           </ng-template>
         </p-select>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label" for="theme-sync">{{ 'layout.theme.syncAcrossDevices' | transloco }}</label>
+        <p-toggleswitch
+          inputId="theme-sync"
+          [ngModel]="selectedThemeSyncEnabled()"
+          (ngModelChange)="updateThemeSyncEnabled($event)">
+        </p-toggleswitch>
       </div>
 
       @if (selectedThemePreference() === 'custom') {

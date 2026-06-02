@@ -32,7 +32,7 @@ interface LoadedAppState {
 @Injectable({
   providedIn: 'root',
 })
-export class AppConfigService {
+export class AppThemeService {
   private readonly STORAGE_KEY = 'appConfigState';
   readonly themes = APP_THEME_OPTIONS;
   private readonly appStateSignal = signal<AppState>(this.withDefaults({}));
@@ -53,12 +53,24 @@ export class AppConfigService {
     this.applyAppState(initialState.state);
   }
 
-  setThemePreference(themePreference: AppTheme): void {
-    this.updateAppState({themePreference});
+  applySyncedTheme(themePreference: AppTheme, customPrimary: CustomPrimary = DEFAULT_CUSTOM_PRIMARY): void {
+    this.updateAppState({
+      themePreference,
+      customPrimary,
+      themeSyncEnabled: true,
+    });
   }
 
-  setCustomPrimary(customPrimary: CustomPrimary): void {
-    this.updateAppState({customPrimary});
+  applyDeviceTheme(themePreference: AppTheme, customPrimary: CustomPrimary = DEFAULT_CUSTOM_PRIMARY): void {
+    this.updateAppState({
+      themePreference,
+      customPrimary,
+      themeSyncEnabled: false,
+    });
+  }
+
+  useStoredDeviceTheme(): void {
+    this.updateAppState({themeSyncEnabled: false});
   }
 
   setAppearancePreference(appearancePreference: AppearancePreference): void {
@@ -87,7 +99,7 @@ export class AppConfigService {
           const parsedState = JSON.parse(storedState) as StoredAppState;
           return {
             state: this.normalizeStoredState(parsedState),
-            shouldPersist: this.isLegacyPaletteState(parsedState),
+            shouldPersist: this.shouldRewriteStoredState(parsedState),
           };
         } catch {
           return {state: this.withDefaults({}), shouldPersist: false};
@@ -107,10 +119,12 @@ export class AppConfigService {
       });
     }
 
+    const themeSyncEnabled = state.themeSyncEnabled === false ? false : true;
     return this.withDefaults({
       themePreference: state.themePreference,
       appearancePreference: state.appearancePreference,
       customPrimary: state.customPrimary,
+      themeSyncEnabled,
       oledDarkMode: state.oledDarkMode,
     });
   }
@@ -119,11 +133,16 @@ export class AppConfigService {
     return 'preset' in state || 'primary' in state || 'surface' in state;
   }
 
+  private shouldRewriteStoredState(state: StoredAppState): boolean {
+    return this.isLegacyPaletteState(state);
+  }
+
   private withDefaults(state: AppStatePatch): AppState {
     return {
       themePreference: this.resolveThemePreference(state.themePreference),
       appearancePreference: this.resolveAppearancePreference(state.appearancePreference),
       customPrimary: this.resolveCustomPrimary(state.customPrimary),
+      themeSyncEnabled: state.themeSyncEnabled !== false,
       oledDarkMode: state.oledDarkMode === true,
     };
   }
@@ -162,7 +181,17 @@ export class AppConfigService {
 
   private saveAppState(state: AppState): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+      const defaults = this.withDefaults(state);
+      const storedState: AppState = {
+        appearancePreference: defaults.appearancePreference,
+        themePreference: defaults.themePreference,
+        customPrimary: defaults.customPrimary,
+        oledDarkMode: defaults.oledDarkMode,
+      };
+      if (!defaults.themeSyncEnabled) {
+        storedState.themeSyncEnabled = false;
+      }
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(storedState));
     }
   }
 
