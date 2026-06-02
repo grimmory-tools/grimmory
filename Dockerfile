@@ -15,10 +15,11 @@ RUN --mount=type=cache,target=/pnpm/store \
 COPY package.json ./
 COPY frontend/package.json ./frontend/
 COPY tools/release/package.json ./tools/release/
-COPY frontend/ ./frontend/
 RUN --mount=type=cache,target=/pnpm/store \
-    --mount=type=cache,target=/workspace/frontend/.angular/cache \
-    pnpm install --offline --frozen-lockfile && \
+    pnpm install --offline --frozen-lockfile
+
+COPY frontend/ ./frontend/
+RUN --mount=type=cache,target=/workspace/frontend/.angular/cache \
     CI=1 NG_CLI_ANALYTICS=false pnpm -C frontend run build:prod
 
 FROM --platform=$BUILDPLATFORM gradle:9.5.1-jdk25-alpine AS backend-build
