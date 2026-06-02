@@ -102,7 +102,7 @@ public class HardcoverParser implements BookParser {
         // Filter by author
         List<GraphQLResponse.Document> matchedDocs = hits.stream()
                 .map(GraphQLResponse.Hit::getDocument)
-                .filter(doc -> filterByAuthor(doc, searchAuthor, searchByIsbn, fuzzyScore))
+                .filter(doc -> filterAuthor(doc, searchAuthor, searchByIsbn, fuzzyScore))
                 .toList();
 
         if (matchedDocs.isEmpty()) {
@@ -137,61 +137,11 @@ public class HardcoverParser implements BookParser {
         }
         results.forEach(b -> filterEditions(b, readingFormatId));
 
-        return results;
+        return processBooksWithEditions(results);
     }
 
-    private List<BookMetadata> processResults(Book book, FetchMetadataRequest request, List<BookMetadata> oldResults) {
-        List<BookMetadata> newResults = new ArrayList<>();
-        boolean top = false, enable = false;
-        String language;
-        int readingFormatId = 1;
-        for (BookMetadata result : oldResults) {
-            String a = result.getTitle();
-            String b = request.getTitle();
-            List<String> authors = result.getAuthors();
-            String d = request.getAuthor();
-            String firstAuthor = (authors == null || authors.isEmpty()) ? null : authors.getFirst();
-            if (a.equalsIgnoreCase(b)) {
-                enable = true;
-                if (d != null && authors != null && authors.stream().anyMatch(d::contains)) {
-                    top = true;
-                }
-            }
-            if (a.contains(b) && !top) {
-                enable = true;
-            }
-            if (enable == true) {
-                if (book.getMetadata().getLanguage() != null) {
-                    language = book.getMetadata().getLanguage();
-                } else {
-                    language = "en"; //Locale locale
-                }
-
-                BookCategory category = BookFileType
-                        .fromExtension(book.getPrimaryFile().getExtension())
-                        .map(BookFileType::category)
-                        .orElse(null);
-                switch (category) {
-                    case AUDIOBOOK -> readingFormatId = 2;
-                    case EBOOK -> readingFormatId = 4;
-                }
-
-                if (firstAuthor != null) {
-                    HardcoverWorkDetails isbns = hardcoverBookSearchService.searchEditions(result.getTitle(), firstAuthor, language, readingFormatId);
-                    if (isbns != null) {
-                        result.setIsbn10(isbns.getIsbn10());
-                        result.setIsbn13(isbns.getIsbn13());
-                        newResults.add(result);
-                        return newResults;
-                    }
-                }
-            }
-        }
-        return oldResults;
-    }
-
-    private boolean filterByAuthor(GraphQLResponse.Document doc, String searchAuthor,
-                                   boolean searchByIsbn, FuzzyScore fuzzyScore) {
+    private boolean filterAuthor(GraphQLResponse.Document doc, String searchAuthor,
+                                 boolean searchByIsbn, FuzzyScore fuzzyScore) {
         // Skip author filtering for ISBN searches or when no author provided
         if (searchByIsbn || searchAuthor.isBlank()) {
             return true;
@@ -296,6 +246,7 @@ public class HardcoverParser implements BookParser {
         }
 
         mapTagsAndMoods(doc, metadata, bookId, fetchDetailedMoods);
+
         mapIsbns(doc, request, metadata);
 
         metadata.setThumbnailUrl(doc.getImage() != null ? doc.getImage().getUrl() : null);
@@ -385,6 +336,7 @@ public class HardcoverParser implements BookParser {
                     .map(WordUtils::capitalizeFully)
                     .collect(Collectors.toSet()));
         }
+
 
         metadata.setIsbn10(edition.getIsbn10());
         metadata.setIsbn13(edition.getIsbn13());
