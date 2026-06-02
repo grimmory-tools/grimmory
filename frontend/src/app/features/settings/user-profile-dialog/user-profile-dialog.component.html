@@ -82,6 +82,15 @@
         </p-select>
       </div>
 
+      <div class="form-field">
+        <label class="field-label" for="theme-sync">{{ 'layout.theme.syncAcrossDevices' | transloco }}</label>
+        <p-toggleswitch
+          inputId="theme-sync"
+          [ngModel]="selectedThemeSyncEnabled()"
+          (ngModelChange)="updateThemeSyncEnabled($event)">
+        </p-toggleswitch>
+      </div>
+
       @if (selectedThemePreference() === 'custom') {
         <fieldset class="form-field">
           <legend class="field-label">{{ 'layout.theme.customPrimary' | transloco }}</legend>

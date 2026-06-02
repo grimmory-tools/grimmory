@@ -9,7 +9,7 @@ import { AuthInitializationService } from "./core/security/auth-initialization-s
 import { RxStompService } from "./shared/websocket/rx-stomp.service";
 import { BookService } from "./features/book/service/book.service";
 import { NotificationEventService } from "./shared/websocket/notification-event.service";
-import { AppConfigService } from "./shared/service/app-config.service";
+import { AppThemeService } from "./shared/service/app-theme.service";
 import { MetadataProgressService } from "./shared/service/metadata-progress.service";
 import { BookdropFileService } from "./features/bookdrop/service/bookdrop-file.service";
 import { TaskService } from "./features/settings/task-management/task.service";
@@ -113,7 +113,7 @@ describe("AppComponent", () => {
           provide: NotificationEventService,
           useValue: notificationEventService,
         },
-        { provide: AppConfigService, useValue: {} },
+        { provide: AppThemeService, useValue: {} },
         { provide: MetadataProgressService, useValue: metadataProgressService },
         { provide: BookdropFileService, useValue: bookdropFileService },
         { provide: TaskService, useValue: taskService },

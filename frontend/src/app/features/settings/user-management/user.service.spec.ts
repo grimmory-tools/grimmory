@@ -237,4 +237,24 @@ describe('UserService', () => {
       }),
     );
   });
+
+  it('updates the current-user profile through the profile endpoint', async () => {
+    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/users/me')).flush(buildUser());
+    await flushCurrentUserQuery();
+
+    service.updateUserProfile(7, {locale: 'de', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true}).subscribe();
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/users/7/profile'));
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({locale: 'de', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true});
+    request.flush(buildUser({locale: 'de', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true}));
+    await flushCurrentUserQuery();
+
+    expect(service.currentUser()).toEqual(expect.objectContaining({
+      locale: 'de',
+      theme: 'custom',
+      themeAccent: 'teal',
+      themeSyncEnabled: true,
+    }));
+  });
 });

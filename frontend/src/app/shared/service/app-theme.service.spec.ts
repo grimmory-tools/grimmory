@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { AppConfigService } from './app-config.service';
+import { AppThemeService } from './app-theme.service';
 import { FaviconService } from '../layout/theme/favicon-service';
 
 function createLocalStorageMock() {
@@ -44,8 +44,8 @@ function createMatchMediaMock(matches: boolean) {
   }) as unknown as MediaQueryList);
 }
 
-describe('AppConfigService', () => {
-  let service: AppConfigService;
+describe('AppThemeService', () => {
+  let service: AppThemeService;
   let localStorageMock: ReturnType<typeof createLocalStorageMock>;
   let faviconServiceMock: { updateFavicon: ReturnType<typeof vi.fn> };
   const root = document.documentElement;
@@ -71,12 +71,12 @@ describe('AppConfigService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        AppConfigService,
+        AppThemeService,
         { provide: FaviconService, useValue: faviconServiceMock },
       ],
     });
 
-    service = TestBed.inject(AppConfigService);
+    service = TestBed.inject(AppThemeService);
   });
 
   afterEach(() => {
@@ -93,6 +93,7 @@ describe('AppConfigService', () => {
       themePreference: 'grimmory',
       appearancePreference: 'system',
       customPrimary: 'orange',
+      themeSyncEnabled: true,
     });
     expect(localStorageMock.getItem('appConfigState')).toBeNull();
     expect(root.dataset['appTheme']).toBe('grimmory');
@@ -108,10 +109,10 @@ describe('AppConfigService', () => {
   });
 
   it('updates the root theme attributes without writing palette tokens inline', () => {
-    service.setThemePreference('grimmory');
+    service.applySyncedTheme('cobalt');
     service.setAppearancePreference('light');
 
-    expect(root.dataset['appTheme']).toBe('grimmory');
+    expect(root.dataset['appTheme']).toBe('cobalt');
     expect(root.classList.contains('dark')).toBe(false);
     expect(rootStyle.getPropertyValue('color-scheme')).toBe('light');
     expect(rootStyle.getPropertyValue('--color-primary')).toBe('');
@@ -134,23 +135,57 @@ describe('AppConfigService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        AppConfigService,
+        AppThemeService,
         { provide: FaviconService, useValue: faviconServiceMock },
       ],
     });
 
-    service = TestBed.inject(AppConfigService);
+    service = TestBed.inject(AppThemeService);
 
     expect(service.appState()).toEqual({
       themePreference: 'grimmory',
       appearancePreference: 'system',
       customPrimary: 'orange',
+      themeSyncEnabled: true,
     });
     expect(root.dataset['appTheme']).toBe('grimmory');
     expect(root.classList.contains('dark')).toBe(false);
     expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
-      themePreference: 'grimmory',
       appearancePreference: 'system',
+      themePreference: 'grimmory',
+      customPrimary: 'orange',
+    }));
+  });
+
+  it('persists device theme and disabled sync state when theme sync is disabled', () => {
+    service.applyDeviceTheme('custom', 'teal');
+
+    expect(service.appState()).toEqual({
+      themePreference: 'custom',
+      appearancePreference: 'system',
+      customPrimary: 'teal',
+      themeSyncEnabled: false,
+    });
+    expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
+      appearancePreference: 'system',
+      themePreference: 'custom',
+      customPrimary: 'teal',
+      themeSyncEnabled: false,
+    }));
+  });
+
+  it('persists the last synced theme as a local display fallback', () => {
+    service.applySyncedTheme('cobalt');
+
+    expect(service.appState()).toEqual({
+      themePreference: 'cobalt',
+      appearancePreference: 'system',
+      customPrimary: 'orange',
+      themeSyncEnabled: true,
+    });
+    expect(localStorageMock.getItem('appConfigState')).toBe(JSON.stringify({
+      appearancePreference: 'system',
+      themePreference: 'cobalt',
       customPrimary: 'orange',
     }));
   });

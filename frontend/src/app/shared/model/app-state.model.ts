@@ -15,4 +15,5 @@ export interface AppState {
   themePreference?: AppTheme;
   appearancePreference?: AppearancePreference;
   customPrimary?: CustomPrimary;
+  themeSyncEnabled?: boolean;
 }
