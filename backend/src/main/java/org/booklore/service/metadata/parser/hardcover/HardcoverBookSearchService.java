@@ -18,7 +18,7 @@ import java.util.Map;
 public class HardcoverBookSearchService {
 
     public static final int DEFAULT_PER_PAGE = 10;
-    private static final long INITIAL_DELAY_MS = 1200;
+    private static final long INITIAL_DELAY_MS = 1000;
     private static final long MAX_DELAY_MS = 15000;
 
     private final RestClient restClient;
