@@ -62,12 +62,12 @@
       </div>
       <div class="section-body">
         <p-table
-          [value]="logs"
+          [value]="logs()"
           [lazy]="true"
           [paginator]="true"
           [rows]="rows"
           [first]="currentPage * rows"
-          [totalRecords]="totalRecords"
+          [totalRecords]="totalRecords()"
           [loading]="loading()"
           [showCurrentPageReport]="true"
           [currentPageReportTemplate]="t('pageReport')"

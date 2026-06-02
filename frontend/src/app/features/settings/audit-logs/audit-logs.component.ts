@@ -52,8 +52,8 @@ export class AuditLogsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  logs: AuditLog[] = [];
-  totalRecords = 0;
+  logs = signal<AuditLog[]>([]);
+  totalRecords = signal(0);
   rows = 25;
   loading = signal(false);
   selectedAction: string | null = null;
@@ -137,8 +137,8 @@ export class AuditLogsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
-        this.logs = response.content;
-        this.totalRecords = response.page.totalElements;
+        this.logs.set(response.content);
+        this.totalRecords.set(response.page.totalElements);
         this.loading.set(false);
       },
       error: () => {
