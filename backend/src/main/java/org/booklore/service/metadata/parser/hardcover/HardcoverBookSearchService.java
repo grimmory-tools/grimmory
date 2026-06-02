@@ -34,7 +34,7 @@ public class HardcoverBookSearchService {
                 .build();
     }
 
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(String isbn) {
+    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -42,9 +42,9 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("""
-                query BookSearchByIsbn($isbn: String!) {
+                query BookSearchByIsbn($isbn: [String!]!) {
                     books(
-                        where: {editions: {_or: [{isbn_13: {_eq: $isbn}}, {isbn_10: {_eq: $isbn}}]}}
+                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}]}}
                     ) {
                         id
                         slug
@@ -70,7 +70,7 @@ public class HardcoverBookSearchService {
                           url
                         }
                         cached_tags
-                        editions(where: {_or: [{isbn_13: {_eq: $isbn}}, {isbn_10: {_eq: $isbn}}]}) {
+                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}]}, order_by: [{score: desc}]) {
                           id
                           title
                           subtitle
