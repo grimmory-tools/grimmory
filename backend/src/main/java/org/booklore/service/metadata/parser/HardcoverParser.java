@@ -59,7 +59,7 @@ public class HardcoverParser implements BookParser {
 
         log.info("Hardcover: Searching with title only: '{}'", title);
         List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
-        results = processHits(hits, fetchMetadataRequest, false);
+        results = processHits(hits, fetchMetadataRequest, false, book);
 
         if (results.isEmpty()) {
             log.info("Hardcover: No results found for title '{}'", title);
@@ -92,7 +92,7 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, boolean searchByIsbn) {
+    private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, boolean searchByIsbn, Book book) {
         if (hits == null || hits.isEmpty()) {
             return Collections.emptyList();
         }
@@ -118,7 +118,13 @@ public class HardcoverParser implements BookParser {
             BookMetadata metadata = mapDocumentToMetadata(doc, request, isFirst);
             results.add(metadata);
             isFirst = false;
+        int readingFormatId;
+        switch (category) {
+            case AUDIOBOOK -> readingFormatId = 2;
+            case EBOOK -> readingFormatId = 4;
+            default -> readingFormatId = 1;
         }
+        results.forEach(b -> filterEditions(b, readingFormatId));
 
         return results;
     }
@@ -204,6 +210,22 @@ public class HardcoverParser implements BookParser {
             }
         }
         return false;
+    }
+
+    private void filterEditions(GraphQLResponse.BookWithEditions bookWithEditions, int readingFormatId) {
+        if (bookWithEditions.getEditions() == null || bookWithEditions.getEditions().isEmpty()) {
+            return;
+        }
+        Map<Boolean, List<GraphQLResponse.Edition>> partitioned = bookWithEditions.getEditions()
+                .stream()
+                .filter(e -> e.getReadingFormatId() == readingFormatId || e.getReadingFormatId() == 1)
+                .collect(Collectors.partitioningBy(e -> e.getReadingFormatId() == readingFormatId));
+
+        List<GraphQLResponse.Edition> filtered = partitioned.get(true).isEmpty()
+                ? partitioned.get(false)
+                : partitioned.get(true);
+
+        bookWithEditions.setEditions(filtered);
     }
 
     private BookMetadata mapDocumentToMetadata(GraphQLResponse.Document doc, FetchMetadataRequest request, boolean fetchDetailedMoods) {
