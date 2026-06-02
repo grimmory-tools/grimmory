@@ -1,7 +1,6 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {BookdropFileNotification, BookdropFileService} from '../../service/bookdrop-file.service';
+import {Component, inject} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {BookdropFileService} from '../../service/bookdrop-file.service';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {Button} from 'primeng/button';
@@ -18,31 +17,18 @@ import {TranslocoDirective} from '@jsverse/transloco';
     TranslocoDirective
   ]
 })
-export class BookdropFilesWidgetComponent implements OnInit, OnDestroy {
-  pendingCount = 0;
-  totalCount = 0;
-  lastUpdatedAt?: string;
-
-  private destroy$ = new Subject<void>();
-  private bookdropFileService = inject(BookdropFileService);
-  private router = inject(Router);
-
-  ngOnInit(): void {
-    this.bookdropFileService.summary$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((summary: BookdropFileNotification) => {
-        this.pendingCount = summary.pendingCount;
-        this.totalCount = summary.totalCount;
-        this.lastUpdatedAt = summary.lastUpdatedAt;
-      });
-  }
+export class BookdropFilesWidgetComponent {
+  private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly router = inject(Router);
+  protected readonly summary = toSignal(this.bookdropFileService.summary$, {
+    initialValue: {
+      pendingCount: 0,
+      totalCount: 0,
+      lastUpdatedAt: undefined,
+    },
+  });
 
   openReviewDialog(): void {
     this.router.navigate(['/bookdrop'], {queryParams: {reload: Date.now()}});
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -4,10 +4,10 @@
 
     <div class="widget-info">
       <p class="widget-title">{{ t('title') }}</p>
-      <p class="widget-count">{{ pendingCount }}</p>
-      @if (lastUpdatedAt) {
+      <p class="widget-count">{{ summary().pendingCount }}</p>
+      @if (summary().lastUpdatedAt) {
         <p class="widget-date">
-          {{ t('lastUpdated') }} {{ lastUpdatedAt | date: 'short' }}
+          {{ t('lastUpdated') }} {{ summary().lastUpdatedAt | date: 'short' }}
         </p>
       }
     </div>
