@@ -120,16 +120,32 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<BookMetadata> processResults(Book book, FetchMetadataRequest fetchMetadataRequest, List<BookMetadata> results) {
-
-        if (results.getFirst().getIsbn13() != null) {
-            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn13());
-            fetchMetadata(book, fetchMetadataRequest);
-        }
-        if (results.getFirst().getIsbn13() == null && results.getFirst().getIsbn10() != null) {
-            fetchMetadataRequest.setIsbn(results.getFirst().getIsbn10());
-            fetchMetadata(book, fetchMetadataRequest);
-        }
+    private List<BookMetadata> processResults(Book book, FetchMetadataRequest request, List<BookMetadata> oldResults) {
+        List<BookMetadata> newResults = new ArrayList<>();
+        boolean top = false, enable = false;
+        String language;
+        int readingFormatId = 1;
+        for (BookMetadata result : oldResults) {
+            String a = result.getTitle();
+            String b = request.getTitle();
+            List<String> authors = result.getAuthors();
+            String d = request.getAuthor();
+            String firstAuthor = (authors == null || authors.isEmpty()) ? null : authors.getFirst();
+            if (a.equalsIgnoreCase(b)) {
+                enable = true;
+                if (d != null && authors != null && authors.stream().anyMatch(d::contains)) {
+                    top = true;
+                }
+            }
+            if (a.contains(b) && !top) {
+                enable = true;
+            }
+            if (enable == true) {
+                if (book.getMetadata().getLanguage() != null) {
+                    language = book.getMetadata().getLanguage();
+                } else {
+                    language = "en"; //Locale locale
+                }
 
                 BookCategory category = BookFileType
                         .fromExtension(book.getPrimaryFile().getExtension())
