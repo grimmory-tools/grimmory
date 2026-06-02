@@ -9,6 +9,8 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.enums.BookCategory;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.hardcover.*;
 import org.booklore.util.BookUtils;
@@ -129,7 +131,14 @@ public class HardcoverParser implements BookParser {
             fetchMetadata(book, fetchMetadataRequest);
         }
 
-        String Title = results.getFirst().getTitle();
+                BookCategory category = BookFileType
+                        .fromExtension(book.getPrimaryFile().getExtension())
+                        .map(BookFileType::category)
+                        .orElse(null);
+                switch (category) {
+                    case AUDIOBOOK -> readingFormatId = 2;
+                    case EBOOK -> readingFormatId = 4;
+                }
 
         //String Author = fetchMetadataRequest.getAuthor();
         String Author = results.getFirst().getAuthors().toString().replace("[", "").replace("]", "");
