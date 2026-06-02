@@ -1,7 +1,7 @@
 package org.booklore.service.metadata.parser.hardcover;
 
-import org.booklore.service.appsettings.AppSettingService;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.service.appsettings.AppSettingService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,6 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
