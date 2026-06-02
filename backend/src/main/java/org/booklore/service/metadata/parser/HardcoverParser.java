@@ -66,8 +66,6 @@ public class HardcoverParser implements BookParser {
             return results;
         }
 
-        results = processResults(book, fetchMetadataRequest, results);
-
         return results;
     }
 
@@ -98,6 +96,7 @@ public class HardcoverParser implements BookParser {
         }
 
         FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+        String searchTitle = request.getTitle() != null ? request.getTitle() : "";
         String searchAuthor = request.getAuthor() != null ? request.getAuthor() : "";
 
         // Filter by author
@@ -110,14 +109,21 @@ public class HardcoverParser implements BookParser {
             return Collections.emptyList();
         }
 
-        // Only fetch detailed mood data for the TOP match to minimize API calls
-        List<BookMetadata> results = new ArrayList<>();
-        boolean isFirst = true;
+        // Filter by title
+        List<GraphQLResponse.Document> matchedTitles = matchedDocs.stream()
+                .filter(doc -> filterTitle(doc, searchTitle))
+                .toList();
 
-        for (GraphQLResponse.Document doc : matchedDocs) {
-            BookMetadata metadata = mapDocumentToMetadata(doc, request, isFirst);
-            results.add(metadata);
-            isFirst = false;
+        if (matchedDocs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> isbns = new ArrayList();
+        for (GraphQLResponse.Document foo : matchedTitles){
+            isbns.addAll(foo.getIsbns());
+        }
+        List<GraphQLResponse.BookWithEditions> results = hardcoverBookSearchService.searchBookByIsbn(isbns);
+
         BookCategory category = BookFileType
             .fromExtension(book.getPrimaryFile().getExtension())
             .map(BookFileType::category)
