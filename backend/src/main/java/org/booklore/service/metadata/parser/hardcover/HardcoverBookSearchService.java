@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Service
@@ -173,6 +174,44 @@ public class HardcoverBookSearchService {
         if (response == null || response.getData() == null ||
             response.getData().getEditions() == null ||
             response.getData().getEditions().isEmpty()) {
+            return null;
+        }
+
+        return response.getData().getEditions().getFirst();
+  }
+
+    public HardcoverWorkDetails searchEditions(String Title, String Author, String Language, int readingFormatId) {
+        String apiToken = getApiToken();
+        if (apiToken == null) {
+            return null;
+        }
+
+        GraphQLRequest body = new GraphQLRequest();
+        body.setQuery("""
+                query GetEditions($Title: String!, $Author: String!, $Language: String!, $readingFormatId: Int!) {
+                    editions(
+                        where: {title: {_eq: $Title},
+                            _or: [{isbn_13: {_is_null: false}}, {isbn_10: {_is_null: false}}],
+                            contributions: {author: {name: {_eq: $Author}}},
+                            reading_format_id: {_eq: $readingFormatId},
+                            language: {code2: {_eq: $Language}}}
+                        order_by: {score: desc}
+                        limit: 1
+                  ) {
+                    isbn_10
+                    isbn_13
+                    }
+                }""");
+        body.setVariables(Map.of("Title", Title, "Author", Author, "Language", Language, "readingFormatId", readingFormatId));
+
+        HardcoverWorkResponse response = executeRequest(body, HardcoverWorkResponse.class, apiToken);
+        if (response == null || response.getData() == null ||
+            response.getData().getEditions() == null ||
+            response.getData().getEditions().isEmpty()) {
+            if (readingFormatId == 4) {
+                return searchEditions(Title, Author, Language, 1);
+            }
+
             return null;
         }
 
