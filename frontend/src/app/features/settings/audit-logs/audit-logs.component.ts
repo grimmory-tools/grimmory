@@ -172,7 +172,7 @@ export class AuditLogsComponent implements OnInit {
       this.autoRefreshSub?.unsubscribe();
       this.autoRefreshSub = interval(10000)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadLogs(false));
+        .subscribe(() => this.loadLogs(false));
     } else {
       this.autoRefreshSub?.unsubscribe();
     }
