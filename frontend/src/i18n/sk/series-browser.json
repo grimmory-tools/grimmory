@@ -1,24 +1,4 @@
 {
-  "pageTitle": "Knižná séria",
-  "browseAllSeries": "Prehľadávať všetky série",
-  "searchPlaceholder": "",
-  "readNext": "",
-  "booksRead": "",
-  "noSeriesFound": "",
-  "noSeriesInCategory": "",
-  "filters": {
-    "all": "",
-    "notStarted": "",
-    "inProgress": "",
-    "completed": "",
-    "abandoned": ""
-  },
-  "sort": {
-    "nameAsc": "",
-    "nameDesc": "",
-    "bookCount": "",
-    "progress": "",
-    "recentlyRead": "",
-    "recentlyAdded": ""
-  }
+    "pageTitle": "Knižná séria",
+    "browseAllSeries": "Prehľadávať všetky série"
 }
