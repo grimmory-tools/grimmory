@@ -1,0 +1,131 @@
+<ng-container *transloco="let t; prefix: 'settingsView'">
+  <div class="flex flex-col gap-5 rounded-lg border border-border bg-card p-6 max-md:gap-4 max-md:p-4">
+    <div class="mb-1">
+      <h3 class="m-0 mb-2 flex items-center gap-2 text-xl font-semibold text-text">
+        <i class="pi pi-palette text-lg text-primary" aria-hidden="true"></i>
+        {{ t('theme.sectionTitle') }}
+      </h3>
+      <p class="m-0 text-sm leading-6 text-text-secondary">{{ t('theme.sectionDesc') }}</p>
+    </div>
+
+    <div class="flex flex-col gap-4 pl-4 max-md:pl-2">
+      <section class="w-full max-w-3xl rounded-md border-l-[3px] border-l-primary bg-[color-mix(in_srgb,var(--color-card)_35%,var(--color-page))] p-4 transition-[background,border-color] duration-200 hover:bg-[color-mix(in_srgb,var(--color-card)_20%,var(--color-page))] max-md:p-3">
+        <div class="mb-1">
+          <label class="text-[0.9375rem] font-medium text-text" for="appearance-preference">{{ 'layout.theme.appearance' | transloco }}</label>
+        </div>
+        <div class="mt-3 border-t border-dashed border-border pt-3">
+          <p-select
+            inputId="appearance-preference"
+            [options]="appearanceOptions()"
+            [ngModel]="selectedAppearancePreference()"
+            (ngModelChange)="updateAppearancePreference($event)"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            class="w-80 max-w-full">
+          </p-select>
+        </div>
+
+        @if (showOledDarkModeToggle()) {
+          <div class="mt-4 flex max-w-xl items-center gap-3 border-t border-dashed border-border pt-3">
+            <p-toggleswitch
+              inputId="oled-dark-mode"
+              [ngModel]="oledDarkMode()"
+              (ngModelChange)="updateOledDarkMode($event)">
+            </p-toggleswitch>
+            <label class="text-[0.9375rem] font-medium text-text" for="oled-dark-mode">{{ t('theme.oledDarkMode') }}</label>
+          </div>
+        }
+      </section>
+
+      <section class="w-full max-w-3xl rounded-md border-l-[3px] border-l-primary bg-[color-mix(in_srgb,var(--color-card)_35%,var(--color-page))] p-4 transition-[background,border-color] duration-200 hover:bg-[color-mix(in_srgb,var(--color-card)_20%,var(--color-page))] max-md:p-3">
+        <div class="mb-1">
+          <label class="text-[0.9375rem] font-medium text-text" for="app-theme">{{ 'layout.theme.theme' | transloco }}</label>
+        </div>
+        <div class="mt-3 border-t border-dashed border-border pt-3">
+          <p-select
+            inputId="app-theme"
+            [options]="themeOptions()"
+            [ngModel]="selectedThemePreference()"
+            (ngModelChange)="updateThemePreference($event)"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            class="w-80 max-w-full">
+            <ng-template #selectedItem let-option>
+              @if (option) {
+                <span class="inline-flex min-w-0 items-center gap-2.5">
+                  @if (option.value !== 'custom') {
+                    <span
+                      class="h-3.5 w-3.5 shrink-0 rounded-full bg-(--color-primary-500) ring-1 ring-inset ring-black/15"
+                      [attr.data-app-theme]="option.value"
+                      aria-hidden="true">
+                    </span>
+                  }
+                  <span>{{ option.label }}</span>
+                </span>
+              }
+            </ng-template>
+            <ng-template #item let-option>
+              <span class="inline-flex min-w-0 items-center gap-2.5">
+                @if (option.value !== 'custom') {
+                  <span
+                    class="h-3.5 w-3.5 shrink-0 rounded-full bg-(--color-primary-500) ring-1 ring-inset ring-black/15"
+                    [attr.data-app-theme]="option.value"
+                    aria-hidden="true">
+                  </span>
+                }
+                <span>{{ option.label }}</span>
+              </span>
+            </ng-template>
+          </p-select>
+        </div>
+
+        @if (selectedThemePreference() === 'custom') {
+          <div class="mt-4 max-w-xl">
+            <div class="flex flex-wrap gap-2">
+              @for (option of customPrimaryOptions(); track option.value) {
+                <button
+                  type="button"
+                  class="size-7 cursor-pointer rounded-full border-0 p-0 shadow-[inset_0_0_0_1px_rgb(0_0_0_/_10%)] aria-pressed:ring-2 aria-pressed:ring-[var(--color-text)] aria-pressed:ring-offset-2 aria-pressed:ring-offset-[var(--color-page)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  [style.background]="'var(--color-' + option.value + '-500)'"
+                  [attr.aria-label]="option.ariaLabel"
+                  [attr.aria-pressed]="option.value === selectedCustomPrimary()"
+                  (click)="updateCustomPrimary(option.value)">
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="mt-4 flex max-w-xl items-center gap-3 border-t border-dashed border-border pt-3">
+          <p-toggleswitch
+            inputId="theme-sync"
+            [ngModel]="selectedThemeSyncEnabled()"
+            (ngModelChange)="updateThemeSyncEnabled($event)">
+          </p-toggleswitch>
+          <label class="text-[0.9375rem] font-medium text-text" for="theme-sync">{{ 'layout.theme.syncAcrossDevices' | transloco }}</label>
+        </div>
+      </section>
+
+      <section class="w-full max-w-3xl rounded-md border-l-[3px] border-l-primary bg-[color-mix(in_srgb,var(--color-card)_35%,var(--color-page))] p-4 transition-[background,border-color] duration-200 hover:bg-[color-mix(in_srgb,var(--color-card)_20%,var(--color-page))] max-md:p-3">
+        <div class="mb-1">
+          <label class="text-[0.9375rem] font-medium text-text" for="interface-language">{{ t('language.label') }}</label>
+        </div>
+        <div class="mt-3 border-t border-dashed border-border pt-3">
+          <p-select
+            inputId="interface-language"
+            [options]="languageOptions"
+            [ngModel]="activeLang()"
+            (ngModelChange)="onLanguageChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            class="w-80 max-w-full">
+          </p-select>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</ng-container>

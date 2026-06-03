@@ -25,6 +25,8 @@ import { LibraryImportProgressService } from '../../service/library-import-progr
 import { AppVersion, VersionService } from '../../service/version.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { LayoutService } from '../layout.service';
+import { AppThemeService } from '../../service/app-theme.service';
+import type { AppearancePreference } from '../../model/app-state.model';
 
 import { AppSidebarComponent } from './app.sidebar.component';
 
@@ -44,6 +46,8 @@ describe('AppSidebarComponent', () => {
   let progressUpdates$: BehaviorSubject<MetadataBatchProgressNotification>;
   let hasPendingFiles: WritableSignal<boolean>;
   let hasActiveImport: WritableSignal<boolean>;
+  let setAppearancePreference: ReturnType<typeof vi.fn>;
+  let appState: WritableSignal<{ appearancePreference: AppearancePreference }>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
   const currentPath = signal('/dashboard');
@@ -73,6 +77,10 @@ describe('AppSidebarComponent', () => {
     });
     hasPendingFiles = signal(false);
     hasActiveImport = signal(false);
+    appState = signal({ appearancePreference: 'system' });
+    setAppearancePreference = vi.fn((appearancePreference: AppearancePreference) => {
+      appState.update(state => ({...state, appearancePreference}));
+    });
 
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
@@ -110,6 +118,14 @@ describe('AppSidebarComponent', () => {
         { provide: SeriesDataService, useValue: { allSeries: signal([]) } },
         { provide: AuthorService, useValue: { allAuthors: signal([]) } },
         { provide: MessageService, useValue: { add: vi.fn() } },
+        {
+          provide: AppThemeService,
+          useValue: {
+            appState,
+            appearancePreference: computed(() => appState().appearancePreference),
+            setAppearancePreference,
+          },
+        },
       ],
     });
 
@@ -200,6 +216,21 @@ describe('AppSidebarComponent', () => {
     currentUser.set(null);
 
     expect(component.userInitials()).toBe('');
+  });
+
+  it('updates the appearance preference without closing the appearance menu', () => {
+    const sidebar = component as unknown as {
+      appearanceMenuOpen: Signal<boolean>;
+      toggleAppearanceMenu(): void;
+      updateAppearancePreference(appearancePreference: AppearancePreference): void;
+    };
+
+    sidebar.toggleAppearanceMenu();
+    sidebar.updateAppearancePreference('dark');
+
+    expect(setAppearancePreference).toHaveBeenCalledWith('dark');
+    expect(appState().appearancePreference).toBe('dark');
+    expect(sidebar.appearanceMenuOpen()).toBe(true);
   });
 
   it('normalizes semantic version labels with or without a leading v', () => {

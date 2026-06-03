@@ -51,6 +51,17 @@ const appHighlight = {
   focusColor: 'var(--color-primary-text)',
 };
 
+const appInputText = {
+  focusBorderColor: 'var(--control-focus-border)',
+  focusRing: {
+    width: '0',
+    style: 'none',
+    color: 'transparent',
+    offset: '0',
+    shadow: 'none',
+  },
+};
+
 const contentSurface = {
   background: 'var(--color-page)',
   borderColor: 'var(--color-border)',
@@ -126,6 +137,7 @@ const AppPrimePreset = definePreset(Aura, {
     tieredmenu: { root: menuRoot },
     contextmenu: { root: menuRoot },
     menubar: { submenu: menuRoot },
+    inputtext: { root: appInputText },
     button: {
       colorScheme: {
         light: { outlined: lightOutlinedButton },

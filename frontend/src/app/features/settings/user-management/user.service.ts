@@ -471,6 +471,13 @@ export class UserService {
     );
   }
 
+  async updateCurrentUserProfile(updateData: UserProfileUpdateRequest): Promise<User | null> {
+    const user = this.currentUser();
+    if (!user) return null;
+
+    return lastValueFrom(this.updateUserProfile(user.id, updateData));
+  }
+
   deleteUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.userUrl}/${userId}`);
   }

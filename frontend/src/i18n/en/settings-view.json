@@ -1,15 +1,37 @@
 {
   "title": "View Preferences",
   "description": "Customize how books are displayed in your library, including grid layout, sorting options, and sidebar behavior.",
+  "saveFailedDetail": "Unable to save your display preferences. Please try again.",
   "language": {
-    "sectionTitle": "Language",
-    "sectionDesc": "Choose the language used throughout the interface in this browser.",
-    "label": "Interface language"
+    "label": "Interface language",
+    "savedDetail": "Your language preference has been saved."
   },
   "theme": {
     "sectionTitle": "Display",
-    "sectionDesc": "Pick your preferred app theme and appearance mode for this browser.",
-    "oledDarkMode": "OLED dark mode"
+    "sectionDesc": "Pick your preferred app theme and appearance mode for this user.",
+    "oledDarkMode": "OLED dark mode",
+    "savedDetail": "Your display preferences have been saved.",
+    "syncSavedDetail": "Your theme sync preference has been saved.",
+    "customPrimaryOptionLabel": "{{color}} custom color",
+    "customPrimaryColors": {
+      "red": "Red",
+      "orange": "Orange",
+      "amber": "Amber",
+      "yellow": "Yellow",
+      "lime": "Lime",
+      "green": "Green",
+      "emerald": "Emerald",
+      "teal": "Teal",
+      "cyan": "Cyan",
+      "sky": "Sky",
+      "blue": "Blue",
+      "indigo": "Indigo",
+      "violet": "Violet",
+      "purple": "Purple",
+      "fuchsia": "Fuchsia",
+      "pink": "Pink",
+      "rose": "Rose"
+    }
   },
   "librarySort": {
     "sectionTitle": "Library and Shelf View & Sort Preferences",

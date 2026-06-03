@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { FaviconService } from '../layout/theme/favicon-service';
 import {applyPrimeTheme, primeThemeTokenPalettes} from '../layout/theme/theme-palette-extend';
 import {
@@ -38,6 +38,11 @@ export class AppThemeService {
   private readonly appStateSignal = signal<AppState>(this.withDefaults({}));
   private readonly effectiveAppearanceSignal = signal<'light' | 'dark'>('dark');
   readonly appState = this.appStateSignal.asReadonly();
+  readonly themePreference = computed(() => this.appStateSignal().themePreference ?? DEFAULT_APP_THEME);
+  readonly appearancePreference = computed(() => this.appStateSignal().appearancePreference ?? DEFAULT_APPEARANCE_PREFERENCE);
+  readonly customPrimary = computed(() => this.appStateSignal().customPrimary ?? DEFAULT_CUSTOM_PRIMARY);
+  readonly themeSyncEnabled = computed(() => this.appStateSignal().themeSyncEnabled !== false);
+  readonly oledDarkMode = computed(() => this.appStateSignal().oledDarkMode);
   readonly effectiveAppearance = this.effectiveAppearanceSignal.asReadonly();
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
