@@ -1,8 +1,5 @@
 {
-  "offline": "Anda sedang offline",
-  "loading": "Memuat Grimmory…",
-  "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya.",
-  "offlineLoadingDescription": "",
-  "offlineDescription": "",
-  "connectionLost": ""
+    "offline": "Anda sedang offline",
+    "loading": "Memuat Grimmory…",
+    "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya."
 }
