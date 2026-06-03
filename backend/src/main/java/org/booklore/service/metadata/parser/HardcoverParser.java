@@ -145,9 +145,9 @@ public class HardcoverParser implements BookParser {
             case EBOOK -> readingFormatId = 4;
             default -> readingFormatId = 1;
         }
-        results.forEach(b -> filterEditions(b, readingFormatId));
+        Allresults.forEach(b -> filterEditions(b, readingFormatId));
 
-        return processBooksWithEditions(results);
+        return processBooksWithEditions(Allresults);
     }
 
     private boolean filterAuthor(GraphQLResponse.Document doc, String searchAuthor,
