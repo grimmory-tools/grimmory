@@ -26,7 +26,6 @@
         "clientIdPlaceholder": "Votre Client ID OIDC",
         "clientSecret": "Clé secrète client",
         "clientSecretPlaceholder": "Votre clé secrète du client OIDC",
-        "clientSecretHint": "",
         "issuerUri": "URI de l'émetteur",
         "issuerPlaceholder": "ex. https://auth.exemple.com/realms/grimmory",
         "scope": "Scope",
