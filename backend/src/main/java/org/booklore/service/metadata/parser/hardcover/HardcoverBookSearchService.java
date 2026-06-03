@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +32,6 @@ public class HardcoverBookSearchService {
         this.restClient = RestClient.builder()
                 .baseUrl("https://api.hardcover.app/v1/graphql")
                 .build();
-    }
-
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
-        return searchBookByIsbn(isbn, 0);
-    }
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(int hcid) {
-        List<String> empty = new ArrayList<>();
-        empty.add("0");
-        return searchBookByIsbn(empty, hcid);
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn, int hcid) {
@@ -203,7 +193,7 @@ public class HardcoverBookSearchService {
         if (elapsed < delay) {
             try {
                 Thread.sleep(delay - elapsed);
-            } catch (InterruptedException _) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
