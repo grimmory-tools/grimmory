@@ -123,7 +123,8 @@ public class HardcoverParser implements BookParser {
         for (GraphQLResponse.Document foo : matchedByTitles){
             isbns.addAll(foo.getIsbns());
         }
-        List<GraphQLResponse.BookWithEditions> results = hardcoverBookSearchService.searchBookByIsbn(isbns);
+        int hcid = Integer.parseInt(matchedByTitles.getFirst().getId());
+        List<GraphQLResponse.BookWithEditions> results = hardcoverBookSearchService.searchBookByIsbn(isbns, hcid);
 
         BookCategory category = BookFileType
             .fromExtension(book.getPrimaryFile().getExtension())
