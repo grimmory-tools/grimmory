@@ -42,7 +42,7 @@ describe('AppSidebarComponent', () => {
   let versionInfo: BehaviorSubject<AppVersion>;
   let activeTasks$: BehaviorSubject<Record<string, MetadataBatchProgressNotification>>;
   let progressUpdates$: BehaviorSubject<MetadataBatchProgressNotification>;
-  let hasPendingFiles$: BehaviorSubject<boolean>;
+  let hasPendingFiles: WritableSignal<boolean>;
   let hasActiveImport: WritableSignal<boolean>;
   const sidebarCollapsed = signal(false);
   const isDesktop = signal(true);
@@ -71,7 +71,7 @@ describe('AppSidebarComponent', () => {
       status: MetadataBatchStatus.COMPLETED,
       review: false,
     });
-    hasPendingFiles$ = new BehaviorSubject(false);
+    hasPendingFiles = signal(false);
     hasActiveImport = signal(false);
 
     TestBed.configureTestingModule({
@@ -101,7 +101,7 @@ describe('AppSidebarComponent', () => {
         { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)) } },
         { provide: AuthService, useValue: { logout: vi.fn() } },
         { provide: MetadataProgressService, useValue: { activeTasks$, progressUpdates$ } },
-        { provide: BookdropFileService, useValue: { hasPendingFiles$ } },
+        { provide: BookdropFileService, useValue: { hasPendingFiles } },
         { provide: LibraryImportProgressService, useValue: { hasActiveImport } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
@@ -288,7 +288,7 @@ describe('AppSidebarComponent', () => {
         review: true,
       },
     });
-    hasPendingFiles$.next(true);
+    hasPendingFiles.set(true);
     hasActiveImport.set(true);
 
     expect(sidebar.completedTaskCount()).toBe(4);

@@ -1,6 +1,4 @@
-import {effect, inject, Injectable, OnDestroy} from '@angular/core';
-import {BehaviorSubject, Subscription} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {BookdropFileApiService} from './bookdrop-file-api.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {UserService} from '../../settings/user-management/user.service';
@@ -14,52 +12,40 @@ export interface BookdropFileNotification {
 @Injectable({
   providedIn: 'root'
 })
-export class BookdropFileService implements OnDestroy {
-  private summarySubject = new BehaviorSubject<BookdropFileNotification>({
+export class BookdropFileService {
+  private readonly summaryState = signal<BookdropFileNotification>({
     pendingCount: 0,
     totalCount: 0
   });
 
-  summary$ = this.summarySubject.asObservable();
+  readonly summary = this.summaryState.asReadonly();
+  readonly hasPendingFiles = computed(() => this.summary().pendingCount > 0);
 
-  hasPendingFiles$ = this.summary$.pipe(
-    map(summary => summary.pendingCount > 0)
-  );
-
-  private apiService = inject(BookdropFileApiService);
-  private authService = inject(AuthService);
-  private subscriptions = new Subscription();
-  private userService = inject(UserService);
-  private hasInitialized = false;
+  private readonly apiService = inject(BookdropFileApiService);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
 
   constructor() {
     effect(() => {
       const user = this.userService.currentUser();
-      if (this.hasInitialized || !user) {
+      const token = this.authService.token();
+
+      if (!user || !token || !(user.permissions.admin || user.permissions.canAccessBookdrop)) {
         return;
       }
-      this.hasInitialized = true;
 
-      if ((user.permissions.admin || user.permissions.canAccessBookdrop) && this.authService.token()) {
-        this.refresh();
-      }
+      this.refresh();
     });
   }
 
   handleIncomingFile(summary: BookdropFileNotification): void {
-    this.summarySubject.next(summary);
+    this.summaryState.set(summary);
   }
 
   refresh(): void {
-    const sub = this.apiService.getNotification().subscribe({
-      next: summary => this.summarySubject.next(summary),
+    this.apiService.getNotification().subscribe({
+      next: summary => this.summaryState.set(summary),
       error: err => console.warn('Failed to refresh bookdrop file summary:', err)
     });
-    this.subscriptions.add(sub);
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-    this.summarySubject.complete();
   }
 }

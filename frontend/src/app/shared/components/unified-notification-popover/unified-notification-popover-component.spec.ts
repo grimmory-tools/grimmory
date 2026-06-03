@@ -14,12 +14,12 @@ describe('UnifiedNotificationBoxComponent', () => {
   let fixture: ComponentFixture<UnifiedNotificationBoxComponent>;
   let component: UnifiedNotificationBoxComponent;
   let activeTasks$: BehaviorSubject<Record<string, unknown>>;
-  let hasPendingFiles$: BehaviorSubject<boolean>;
+  let hasPendingFiles: WritableSignal<boolean>;
   let hasActiveImport: WritableSignal<boolean>;
 
   beforeEach(async () => {
     activeTasks$ = new BehaviorSubject<Record<string, unknown>>({});
-    hasPendingFiles$ = new BehaviorSubject(false);
+    hasPendingFiles = signal(false);
     hasActiveImport = signal(false);
 
     await TestBed.configureTestingModule({
@@ -31,7 +31,7 @@ describe('UnifiedNotificationBoxComponent', () => {
         },
         {
           provide: BookdropFileService,
-          useValue: {hasPendingFiles$},
+          useValue: {hasPendingFiles},
         },
         {
           provide: LibraryImportProgressService,
@@ -71,7 +71,7 @@ describe('UnifiedNotificationBoxComponent', () => {
     const popover = component as unknown as {hasPendingBookdropFiles: Signal<boolean>};
 
     expect(popover.hasPendingBookdropFiles()).toBe(false);
-    hasPendingFiles$.next(true);
+    hasPendingFiles.set(true);
     expect(popover.hasPendingBookdropFiles()).toBe(true);
   });
 

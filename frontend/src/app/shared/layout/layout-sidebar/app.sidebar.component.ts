@@ -235,7 +235,7 @@ export class AppSidebarComponent {
   private readonly progressHighlight = computed(() =>
     this.latestProgress()?.status === MetadataBatchStatus.IN_PROGRESS
   );
-  private readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, { initialValue: false });
+  private readonly hasPendingBookdropFiles = this.bookdropFileService.hasPendingFiles;
   private readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
   protected readonly completedTaskCount = computed(() => {
     const metadataTaskCount = Object.keys(this.activeMetadataTasks()).length;

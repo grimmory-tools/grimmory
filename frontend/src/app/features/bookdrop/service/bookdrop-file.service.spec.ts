@@ -51,13 +51,8 @@ describe('BookdropFileService', () => {
     service = TestBed.inject(BookdropFileService);
     TestBed.flushEffects();
 
-    let latestSummary: BookdropFileNotification | undefined;
-    service.summary$.subscribe(value => {
-      latestSummary = value;
-    });
-
     expect(getNotification).toHaveBeenCalledOnce();
-    expect(latestSummary).toEqual(summary);
+    expect(service.summary()).toEqual(summary);
   });
 
   it('does not auto-refresh when the current user lacks access', () => {
@@ -77,26 +72,24 @@ describe('BookdropFileService', () => {
   it('publishes incoming file summaries and pending state', () => {
     service = TestBed.inject(BookdropFileService);
 
-    let hasPendingFiles: boolean | undefined;
-    service.hasPendingFiles$.subscribe(value => {
-      hasPendingFiles = value;
-    });
-
     service.handleIncomingFile(summary);
-    expect(hasPendingFiles).toBe(true);
+    expect(service.summary()).toEqual(summary);
+    expect(service.hasPendingFiles()).toBe(true);
 
     service.handleIncomingFile({...summary, pendingCount: 0});
-    expect(hasPendingFiles).toBe(false);
+    expect(service.hasPendingFiles()).toBe(false);
   });
 
   it('warns when manual refresh fails', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    currentUser.set(null);
     getNotification.mockReturnValueOnce(throwError(() => new Error('boom')));
     service = TestBed.inject(BookdropFileService);
     TestBed.flushEffects();
 
     service.refresh();
 
+    expect(getNotification).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalled();
   });
 });
