@@ -39,9 +39,10 @@ public class HardcoverParser implements BookParser {
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        String isbnCleaned = ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn());
-        boolean searchByIsbn = isbnCleaned != null && !isbnCleaned.isBlank();
-
+        List<String> isbnCleaned = new ArrayList<>();
+        isbnCleaned.add(ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn()));
+        boolean searchByIsbn = isbnCleaned != null && !isbnCleaned.isEmpty();
+        searchByIsbn = false;
         if (searchByIsbn) {
             log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
             List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
@@ -100,26 +101,26 @@ public class HardcoverParser implements BookParser {
         String searchAuthor = request.getAuthor() != null ? request.getAuthor() : "";
 
         // Filter by author
-        List<GraphQLResponse.Document> matchedDocs = hits.stream()
+        List<GraphQLResponse.Document> matchedByAuthors = hits.stream()
                 .map(GraphQLResponse.Hit::getDocument)
                 .filter(doc -> filterAuthor(doc, searchAuthor, searchByIsbn, fuzzyScore))
                 .toList();
 
-        if (matchedDocs.isEmpty()) {
+        if (matchedByAuthors.isEmpty()) {
             return Collections.emptyList();
         }
 
         // Filter by title
-        List<GraphQLResponse.Document> matchedTitles = matchedDocs.stream()
+        List<GraphQLResponse.Document> matchedByTitles = matchedByAuthors.stream()
                 .filter(doc -> filterTitle(doc, searchTitle))
                 .toList();
 
-        if (matchedDocs.isEmpty()) {
+        if (matchedByAuthors.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<String> isbns = new ArrayList();
-        for (GraphQLResponse.Document foo : matchedTitles){
+        for (GraphQLResponse.Document foo : matchedByTitles){
             isbns.addAll(foo.getIsbns());
         }
         List<GraphQLResponse.BookWithEditions> results = hardcoverBookSearchService.searchBookByIsbn(isbns);
