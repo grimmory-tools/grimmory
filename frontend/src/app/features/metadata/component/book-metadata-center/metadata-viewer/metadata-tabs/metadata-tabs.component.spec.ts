@@ -29,23 +29,23 @@ describe('MetadataTabsComponent default tab selection', () => {
         getTranslocoModule({translocoConfig: {reRenderOnLangChange: false}}),
       ],
       providers: [
-        {provide: UrlHelperService, useValue: {}},
+        {provide: UrlHelperService, useValue: {getCoverUrl: () => null, getAudiobookCoverUrl: () => null}},
         {provide: BookMetadataManageService, useValue: {supportsDualCovers: () => false}},
         {provide: AudiobookService, useValue: {getAudiobookInfo: () => undefined}},
       ],
     });
 
     const fixture = TestBed.createComponent(MetadataTabsComponent);
-    fixture.componentInstance.book = {
+    fixture.componentRef.setInput('book', {
       id: 21,
       libraryId: 1,
       libraryName: 'Library',
       metadata: {bookId: 21, title: 'Test Book', authors: []},
       alternativeFormats: [],
       supplementaryFiles: [],
-    } satisfies Book;
-    fixture.componentInstance.hasSeries = hasSeries;
-    fixture.componentInstance.bookInSeries = [];
+    } satisfies Book);
+    fixture.componentRef.setInput('hasSeries', hasSeries);
+    fixture.componentRef.setInput('bookInSeries', []);
     fixture.detectChanges();
 
     return fixture;
@@ -55,7 +55,7 @@ describe('MetadataTabsComponent default tab selection', () => {
     const fixture = createFixture(true);
     const component = fixture.componentInstance;
 
-    expect(component.defaultTabValue).toBe('series');
+    expect(component.activeTab()).toBe('series');
   });
 });
 
