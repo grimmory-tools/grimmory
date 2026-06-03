@@ -143,7 +143,6 @@
     "topItems": {
         "titlePrefix": "前 15",
         "descriptionPrefix": "书库中最多的",
-        "descriptionSuffix": "",
         "shown": "已显示",
         "noDataPrefix": "暂无",
         "noDataSuffix": "数据。",

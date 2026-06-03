@@ -145,7 +145,6 @@
         "descriptionPrefix": "最も多い",
         "descriptionSuffix": "（ライブラリ内）",
         "shown": "表示中",
-        "noDataPrefix": "",
         "noDataSuffix": "のデータがありません。",
         "noDataHintPrefix": "書籍に",
         "noDataHintSuffix": "のメタデータがあることを確認してください。",
