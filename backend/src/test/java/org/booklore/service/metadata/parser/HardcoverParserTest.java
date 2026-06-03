@@ -130,12 +130,14 @@ class HardcoverParserTest {
             GraphQLResponse.BookWithEditions hit = createBookWithEditions();
             hit.getEditions().get(0).setIsbn13("9780316769488");
             hit.getEditions().get(0).setIsbn10("0316769487");
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(hit));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            verify(hardcoverBookSearchService).searchBookByIsbn("9780316769488");
+            verify(hardcoverBookSearchService).searchBookByIsbn(Isbn);
             verify(hardcoverBookSearchService, never()).searchBooks(contains("title"));
         }
 
@@ -153,7 +155,10 @@ class HardcoverParserTest {
             bookWithNoEditions.setTitle("Test Book");
             bookWithNoEditions.setEditions(Collections.emptyList());
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(bookWithNoEditions));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -173,9 +178,13 @@ class HardcoverParserTest {
             GraphQLResponse.BookWithEditions bookWithNullEditions = new GraphQLResponse.BookWithEditions();
             bookWithNullEditions.setId(12345);
             bookWithNullEditions.setTitle("Test Book");
+
             bookWithNullEditions.setEditions(null);
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(bookWithNullEditions));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -192,8 +201,10 @@ class HardcoverParserTest {
                     .isbn("9780316769488")
                     .build();
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
-                    .thenReturn(null);
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+
+            doReturn(null).when(hardcoverBookSearchService.searchBookByIsbn(Isbn)); //hmmm
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
@@ -227,7 +238,10 @@ class HardcoverParserTest {
 
             bookWithEditions.setEditions(List.of(bookWithEditions.getEditions().get(0), secondEdition));
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(bookWithEditions));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -266,7 +280,10 @@ class HardcoverParserTest {
 
             bookWithEditions.setEditions(List.of(edition));
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9780316769488"))
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9780316769488");
+
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(bookWithEditions));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -353,14 +370,19 @@ class HardcoverParserTest {
                     .author("Wrong Author")  // Should be ignored
                     .build();
 
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("123456789X");
+
             GraphQLResponse.BookWithEditions bookWithEditions = createBookWithEditions();
             // The book has "Test Author" but request has "Wrong Author" - should still return results
-            when(hardcoverBookSearchService.searchBookByIsbn("123456789X"))
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(bookWithEditions));
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
+
+
             assertThat(results).hasSize(1);  // Should not filter out
-            verify(hardcoverBookSearchService).searchBookByIsbn("123456789X");
+            verify(hardcoverBookSearchService).searchBookByIsbn(Isbn);
 
             assertThat(results.get(0).getAuthors()).contains("Test Author");
         }
@@ -413,8 +435,11 @@ class HardcoverParserTest {
                     .isbn("9781234567897")
                     .build();
 
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9781234567897");
+
             GraphQLResponse.BookWithEditions hit = createBookWithEditions();
-            when(hardcoverBookSearchService.searchBookByIsbn("9781234567897"))
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(hit));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -453,8 +478,11 @@ class HardcoverParserTest {
                     .isbn("123456789X")
                     .build();
 
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("123456789X");
+
             GraphQLResponse.BookWithEditions hit = createBookWithEditions();
-            when(hardcoverBookSearchService.searchBookByIsbn("123456789X"))
+            when(hardcoverBookSearchService.searchBookByIsbn(Isbn))
                     .thenReturn(List.of(hit));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
@@ -476,8 +504,10 @@ class HardcoverParserTest {
             hit.getEditions().get(0).setIsbn13("9791111111112");
             hit.getEditions().get(0).setIsbn10(null);
 
-            when(hardcoverBookSearchService.searchBookByIsbn("9791111111112"))
-                    .thenReturn(List.of(hit));
+            List<String> Isbn = new ArrayList<>();
+            Isbn.add("9791111111112");
+
+            doReturn(List.of(hit)).when(hardcoverBookSearchService.searchBookByIsbn(Isbn));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
