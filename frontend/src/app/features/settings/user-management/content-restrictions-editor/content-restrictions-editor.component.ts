@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -28,7 +28,8 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
     TranslocoPipe
   ],
   templateUrl: './content-restrictions-editor.component.html',
-  styleUrls: ['./content-restrictions-editor.component.scss']
+  styleUrls: ['./content-restrictions-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   @Input() userId!: number;
@@ -49,7 +50,10 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
     };
   });
 
-  restrictions: ContentRestriction[] = [];
+  readonly restrictions = signal<ContentRestriction[]>([]);
+  private readonly excludeRestrictions = computed(() => this.restrictions().filter(r => r.mode === ContentRestrictionMode.EXCLUDE));
+  private readonly allowOnlyRestrictions = computed(() => this.restrictions().filter(r => r.mode === ContentRestrictionMode.ALLOW_ONLY));
+
   get availableCategories(): string[] { return this.sortedMetadata().categories; }
   get availableTags(): string[] { return this.sortedMetadata().tags; }
   get availableMoods(): string[] { return this.sortedMetadata().moods; }
@@ -88,15 +92,21 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
   loadRestrictions() {
     if (!this.userId) return;
+    const requestedUserId = this.userId;
 
-    this.contentRestrictionService.getUserRestrictions(this.userId).pipe(
+    this.contentRestrictionService.getUserRestrictions(requestedUserId).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (restrictions) => {
-        this.restrictions = restrictions;
-        this.restrictionsChanged.emit(this.restrictions);
+        if (this.userId !== requestedUserId) return;
+        this.restrictions.set(restrictions);
+        this.restrictionsChanged.emit(restrictions);
       },
       error: () => {
+        if (this.userId !== requestedUserId) return;
+        const restrictions: ContentRestriction[] = [];
+        this.restrictions.set(restrictions);
+        this.restrictionsChanged.emit(restrictions);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),
@@ -133,7 +143,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
       return;
     }
 
-    const exists = this.restrictions.some(r =>
+    const exists = this.restrictions().some(r =>
       r.restrictionType === this.newRestriction.restrictionType &&
       r.value === this.newRestriction.value
     );
@@ -153,13 +163,16 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
       mode: this.newRestriction.mode!,
       value: this.newRestriction.value!
     };
+    const requestedUserId = this.userId;
 
-    this.contentRestrictionService.addRestriction(this.userId, restriction).pipe(
+    this.contentRestrictionService.addRestriction(requestedUserId, restriction).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (added) => {
-        this.restrictions.push(added);
-        this.restrictionsChanged.emit(this.restrictions);
+        if (this.userId !== requestedUserId) return;
+        const restrictions = [...this.restrictions(), added];
+        this.restrictions.set(restrictions);
+        this.restrictionsChanged.emit(restrictions);
         this.newRestriction.value = '';
         this.messageService.add({
           severity: 'success',
@@ -168,6 +181,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
         });
       },
       error: () => {
+        if (this.userId !== requestedUserId) return;
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),
@@ -179,13 +193,16 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
   removeRestriction(restriction: ContentRestriction) {
     if (!restriction.id) return;
+    const requestedUserId = this.userId;
 
-    this.contentRestrictionService.deleteRestriction(this.userId, restriction.id).pipe(
+    this.contentRestrictionService.deleteRestriction(requestedUserId, restriction.id).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
-        this.restrictions = this.restrictions.filter(r => r.id !== restriction.id);
-        this.restrictionsChanged.emit(this.restrictions);
+        if (this.userId !== requestedUserId) return;
+        const restrictions = this.restrictions().filter(r => r.id !== restriction.id);
+        this.restrictions.set(restrictions);
+        this.restrictionsChanged.emit(restrictions);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('common.success'),
@@ -193,6 +210,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
         });
       },
       error: () => {
+        if (this.userId !== requestedUserId) return;
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),
@@ -218,10 +236,10 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   }
 
   getExcludeRestrictions(): ContentRestriction[] {
-    return this.restrictions.filter(r => r.mode === ContentRestrictionMode.EXCLUDE);
+    return this.excludeRestrictions();
   }
 
   getAllowOnlyRestrictions(): ContentRestriction[] {
-    return this.restrictions.filter(r => r.mode === ContentRestrictionMode.ALLOW_ONLY);
+    return this.allowOnlyRestrictions();
   }
 }
