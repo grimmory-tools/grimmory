@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
@@ -41,6 +41,7 @@ interface UsernameOption {
 @Component({
   selector: 'app-audit-logs',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,TableModule, Select, DatePicker, FormsModule, TranslocoDirective, TagComponent],
   templateUrl: './audit-logs.component.html',
