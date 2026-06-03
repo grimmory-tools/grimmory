@@ -34,7 +34,7 @@ public class HardcoverBookSearchService {
                 .build();
     }
 
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
+    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn, int hcid) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -42,9 +42,9 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("""
-                query BookSearchByIsbn($isbn: [String!]!) {
+                query BookSearchByIsbn($isbn: [String!]!, $hcid: Int!) {
                     books(
-                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}]}}
+                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_eq: $hcid}} ]}}
                     ) {
                         id
                         slug
@@ -70,7 +70,7 @@ public class HardcoverBookSearchService {
                           url
                         }
                         cached_tags
-                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}]}, order_by: [{score: desc}]) {
+                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_eq: 1682803}}]}, order_by: [{score: desc}]) {
                           id
                           title
                           subtitle
@@ -93,7 +93,7 @@ public class HardcoverBookSearchService {
                         }
                       }
                     }""");
-        body.setVariables(Map.of("isbn", isbn));
+        body.setVariables(Map.of("isbn", isbn, "hcid", hcid));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
