@@ -148,6 +148,9 @@
 }
 
 .user-account-popover-header h2 span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   font-weight: 500;
