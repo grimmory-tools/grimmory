@@ -34,6 +34,10 @@ public class HardcoverBookSearchService {
                 .build();
     }
 
+    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
+        return searchBookByIsbn(isbn, 0);
+    }
+
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn, int hcid) {
         String apiToken = getApiToken();
         if (apiToken == null) {

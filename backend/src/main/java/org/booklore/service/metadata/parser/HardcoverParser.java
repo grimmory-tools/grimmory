@@ -45,7 +45,7 @@ public class HardcoverParser implements BookParser {
         searchByIsbn = false;
         if (searchByIsbn) {
             log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
-            List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned, 0);
+            List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
             return processBooksWithEditions(hits);
         }
 
