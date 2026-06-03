@@ -1,69 +1,7 @@
 {
-  "commandPalette": {
-    "placeholder": "",
-    "empty": "",
-    "hintNavigate": "",
-    "hintSelect": "",
-    "ariaLabel": "",
-    "groups": {
-      "action": "",
-      "page": "",
-      "book": "",
-      "author": "",
-      "series": "",
-      "shelf": "",
-      "magicShelf": "",
-      "library": ""
-    }
-  },
-  "menu": {
-    "adjustSidebarWidth": "Breedte van zijbalk aanpassen",
-    "home": "",
-    "dashboard": "",
-    "allBooks": "",
-    "libraries": "",
-    "shelves": "",
-    "magicShelves": "",
-    "unshelved": "",
-    "series": "",
-    "authors": "Auteurs",
-    "notebook": "",
-    "update": "",
-    "tools": "",
-    "collapseSidebar": "",
-    "expandSidebar": "",
-    "goToDashboard": "",
-    "notifications": "",
-    "editSidebar": "",
-    "doneEditing": "",
-    "more": "",
-    "account": "",
-    "primaryNav": "",
-    "resizeSidebar": "",
-    "search": "",
-    "add": "",
-    "createMagicShelf": "",
-    "settings": "",
-    "libraryStats": "",
-    "readingStats": "",
-    "metadataManager": "",
-    "bookdrop": "",
-    "createLibrary": "",
-    "uploadBook": "",
-    "documentation": "",
-    "profile": "",
-    "logout": "",
-    "toggleNavigation": ""
-  },
-  "closeNavigation": "Navigatie sluiten",
-  "changelog": {
-    "title": "",
-    "description": "",
-    "loading": "",
-    "empty": ""
-  },
-  "theme": {
-    "primary": "",
-    "surface": ""
-  }
+    "menu": {
+        "adjustSidebarWidth": "Breedte van zijbalk aanpassen",
+        "authors": "Auteurs"
+    },
+    "closeNavigation": "Navigatie sluiten"
 }
