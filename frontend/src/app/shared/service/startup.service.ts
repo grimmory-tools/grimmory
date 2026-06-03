@@ -1,19 +1,46 @@
 import {Injectable, inject} from '@angular/core';
 import {AuthService} from './auth.service';
-import {UserService} from '../../features/settings/user-management/user.service';
+import {User, UserService} from '../../features/settings/user-management/user.service';
 import {QueryClient} from '@tanstack/angular-query-experimental';
+import {AppThemeService} from './app-theme.service';
+import {DEFAULT_CUSTOM_PRIMARY} from '../model/app-state.model';
+import {AppLocaleService} from './app-locale.service';
 
 @Injectable({providedIn: 'root'})
 export class StartupService {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private queryClient = inject(QueryClient);
+  private appThemeService = inject(AppThemeService);
+  private appLocaleService = inject(AppLocaleService);
 
-  load(): Promise<void> {
+  async load(): Promise<void> {
     if (this.authService.token()) {
-      return this.queryClient.fetchQuery(this.userService.getUserQueryOptions()).then(() => undefined);
+      const user = await this.queryClient.fetchQuery(this.userService.getUserQueryOptions());
+      await this.applyUserPreferences(user);
+      return undefined;
     }
 
-    return Promise.resolve();
+    await this.appLocaleService.applyLocale(this.appLocaleService.getDisplayLocale());
+  }
+
+  private async applyUserPreferences(user: User): Promise<void> {
+    this.applyTheme(user);
+    await this.appLocaleService.applyLocale(user.locale);
+  }
+
+  private applyTheme(user: User): void {
+    const customPrimary = user.themeAccent ?? DEFAULT_CUSTOM_PRIMARY;
+    if (user.themeSyncEnabled) {
+      this.appThemeService.applySyncedTheme(user.theme, customPrimary);
+      return;
+    }
+
+    if (this.appThemeService.appState().themeSyncEnabled === false) {
+      this.appThemeService.useStoredDeviceTheme();
+      return;
+    }
+
+    this.appThemeService.applyDeviceTheme(user.theme, customPrimary);
   }
 }

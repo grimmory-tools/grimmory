@@ -1,69 +1,27 @@
 {
-  "commandPalette": {
-    "placeholder": "",
-    "empty": "",
-    "hintNavigate": "",
-    "hintSelect": "",
-    "ariaLabel": "",
-    "groups": {
-      "action": "",
-      "page": "",
-      "book": "",
-      "author": "",
-      "series": "",
-      "shelf": "",
-      "magicShelf": "",
-      "library": ""
+    "menu": {
+        "adjustSidebarWidth": "Seitenleistenbreite anpassen",
+        "home": "Startseite",
+        "dashboard": "Dashboard",
+        "allBooks": "Alle Bücher",
+        "libraries": "Bibliotheken",
+        "shelves": "Regale",
+        "magicShelves": "Magische Regale",
+        "unshelved": "Nicht eingeordnet",
+        "series": "Serien",
+        "notebook": "Notizbuch",
+        "update": "(Aktualisierung)",
+        "authors": "Autoren"
+    },
+    "closeNavigation": "Navigation schließen",
+    "changelog": {
+        "title": "Neuigkeiten",
+        "description": "Neueste Updates und Verbesserungen",
+        "loading": "Änderungsprotokoll wird geladen...",
+        "empty": "Keine Updates verfügbar."
+    },
+    "theme": {
+        "primary": "Primär",
+        "surface": "Oberfläche"
     }
-  },
-  "menu": {
-    "adjustSidebarWidth": "Seitenleistenbreite anpassen",
-    "home": "Startseite",
-    "dashboard": "Dashboard",
-    "allBooks": "Alle Bücher",
-    "libraries": "Bibliotheken",
-    "shelves": "Regale",
-    "magicShelves": "Magische Regale",
-    "unshelved": "Nicht eingeordnet",
-    "series": "Serien",
-    "notebook": "Notizbuch",
-    "update": "(Aktualisierung)",
-    "authors": "Autoren",
-    "tools": "",
-    "collapseSidebar": "",
-    "expandSidebar": "",
-    "goToDashboard": "",
-    "notifications": "",
-    "editSidebar": "",
-    "doneEditing": "",
-    "more": "",
-    "account": "",
-    "primaryNav": "",
-    "resizeSidebar": "",
-    "search": "",
-    "add": "",
-    "createMagicShelf": "",
-    "settings": "",
-    "libraryStats": "",
-    "readingStats": "",
-    "metadataManager": "",
-    "bookdrop": "",
-    "createLibrary": "",
-    "uploadBook": "",
-    "documentation": "",
-    "profile": "",
-    "logout": "",
-    "toggleNavigation": ""
-  },
-  "closeNavigation": "Navigation schließen",
-  "changelog": {
-    "title": "Neuigkeiten",
-    "description": "Neueste Updates und Verbesserungen",
-    "loading": "Änderungsprotokoll wird geladen...",
-    "empty": "Keine Updates verfügbar."
-  },
-  "theme": {
-    "primary": "Primär",
-    "surface": "Oberfläche"
-  }
 }

@@ -75,6 +75,7 @@
     "dark": "Dark",
     "system": "System",
     "customPrimary": "Custom color",
+    "syncAcrossDevices": "Sync my theme across devices",
     "options": {
       "grimmory": "Grimmory",
       "cobalt": "Cobalt",

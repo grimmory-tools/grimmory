@@ -4,6 +4,7 @@ import org.booklore.model.dto.request.ChangePasswordRequest;
 import org.booklore.model.dto.request.ChangeUserPasswordRequest;
 import org.booklore.model.dto.request.UpdateUserSettingRequest;
 import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.request.UserProfileUpdateRequest;
 import org.booklore.model.dto.request.UserUpdateRequest;
 import org.booklore.service.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,7 +54,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getBookLoreUsers());
     }
 
-    @Operation(summary = "Update user", description = "Update a user's profile by their ID. Requires admin.")
+    @Operation(summary = "Update user", description = "Update a user's profile, permissions, and library assignments by their ID. Requires admin.")
     @ApiResponse(responseCode = "200", description = "User updated successfully")
     @PutMapping("/{id}")
     @PreAuthorize("@securityUtil.isAdmin()")
@@ -61,6 +62,17 @@ public class UserController {
             @Parameter(description = "ID of the user") @PathVariable Long id,
             @Parameter(description = "User update request") @Valid @RequestBody UserUpdateRequest updateRequest) {
         BookLoreUser updatedUser = userService.updateUser(id, updateRequest);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @Operation(summary = "Update user profile", description = "Update a user's profile preferences by their ID. Allowed for admins and the user themself.")
+    @ApiResponse(responseCode = "200", description = "User profile updated successfully")
+    @PutMapping("/{id}/profile")
+    @PreAuthorize("@securityUtil.isAdmin() or @securityUtil.isSelf(#id)")
+    public ResponseEntity<BookLoreUser> updateUserProfile(
+            @Parameter(description = "ID of the user") @PathVariable Long id,
+            @Parameter(description = "User profile update request") @Valid @RequestBody UserProfileUpdateRequest updateRequest) {
+        BookLoreUser updatedUser = userService.updateUserProfile(id, updateRequest);
         return ResponseEntity.ok(updatedUser);
     }
 

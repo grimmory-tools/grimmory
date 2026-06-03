@@ -1,7 +1,5 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {BookdropFileNotification, BookdropFileService} from '../../service/bookdrop-file.service';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {BookdropFileService} from '../../service/bookdrop-file.service';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {Button} from 'primeng/button';
@@ -12,37 +10,21 @@ import {TranslocoDirective} from '@jsverse/transloco';
   standalone: true,
   templateUrl: './bookdrop-files-widget.component.html',
   styleUrl: './bookdrop-files-widget.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     Button,
     TranslocoDirective
   ]
 })
-export class BookdropFilesWidgetComponent implements OnInit, OnDestroy {
-  pendingCount = 0;
-  totalCount = 0;
-  lastUpdatedAt?: string;
-
-  private destroy$ = new Subject<void>();
-  private bookdropFileService = inject(BookdropFileService);
-  private router = inject(Router);
-
-  ngOnInit(): void {
-    this.bookdropFileService.summary$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((summary: BookdropFileNotification) => {
-        this.pendingCount = summary.pendingCount;
-        this.totalCount = summary.totalCount;
-        this.lastUpdatedAt = summary.lastUpdatedAt;
-      });
-  }
+export class BookdropFilesWidgetComponent {
+  private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly router = inject(Router);
+  private readonly summary = this.bookdropFileService.summary;
+  protected readonly pendingCount = computed(() => this.summary().pendingCount);
+  protected readonly lastUpdatedAt = computed(() => this.summary().lastUpdatedAt);
 
   openReviewDialog(): void {
     this.router.navigate(['/bookdrop'], {queryParams: {reload: Date.now()}});
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

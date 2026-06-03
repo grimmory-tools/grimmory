@@ -8,6 +8,7 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.ChangePasswordRequest;
 import org.booklore.model.dto.request.ChangeUserPasswordRequest;
 import org.booklore.model.dto.request.UpdateUserSettingRequest;
+import org.booklore.model.dto.request.UserProfileUpdateRequest;
 import org.booklore.model.dto.request.UserUpdateRequest;
 import org.booklore.model.dto.settings.UserSettingKey;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -30,6 +31,18 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private static final Set<String> SUPPORTED_LOCALES = Set.of(
+            "en", "es", "it", "de", "fr", "nl", "pl", "pt", "ru", "hr",
+            "sv", "zh", "ja", "hu", "sl", "sk", "uk", "id", "da"
+    );
+    private static final Set<String> SUPPORTED_THEMES = Set.of(
+            "grimmory", "cobalt", "ember", "crimson", "rose", "forest",
+            "meadow", "teal", "lagoon", "violet", "fuchsia", "slate", "custom"
+    );
+    private static final Set<String> SUPPORTED_THEME_ACCENTS = Set.of(
+            "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal",
+            "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"
+    );
 
     private final UserRepository userRepository;
     private final LibraryRepository libraryRepository;
@@ -66,6 +79,39 @@ public class UserService {
 
         userRepository.save(user);
         auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user: " + user.getUsername());
+        return bookLoreUserTransformer.toDTO(user);
+    }
+
+    @Transactional
+    public BookLoreUser updateUserProfile(Long id, UserProfileUpdateRequest updateRequest) {
+        BookLoreUserEntity user = userRepository.findByIdWithDetails(id).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(id));
+        BookLoreUser currentUser = getMyself();
+        boolean isAdmin = currentUser.getPermissions().isAdmin();
+
+        if (!isAdmin && !currentUser.getId().equals(id)) {
+            throw ApiError.GENERIC_UNAUTHORIZED.createException("You do not have permission to update this User");
+        }
+
+        if (updateRequest.getName() != null) {
+            user.setName(updateRequest.getName());
+        }
+
+        if (updateRequest.getEmail() != null) {
+            user.setEmail(updateRequest.getEmail());
+        }
+
+        if (updateRequest.getLocale() != null) {
+            validateLocale(updateRequest.getLocale());
+            user.setLocale(updateRequest.getLocale());
+        }
+
+        applyThemePreferences(user, updateRequest.getTheme(), updateRequest.getThemeAccent());
+        if (updateRequest.getThemeSyncEnabled() != null) {
+            user.setThemeSyncEnabled(updateRequest.getThemeSyncEnabled());
+        }
+
+        userRepository.save(user);
+        auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user profile: " + user.getUsername());
         return bookLoreUserTransformer.toDTO(user);
     }
 
@@ -180,5 +226,46 @@ public class UserService {
 
     private boolean meetsMinimumPasswordRequirements(String password) {
         return password != null && password.length() >= 8;
+    }
+
+    private void validateLocale(String locale) {
+        if (!SUPPORTED_LOCALES.contains(locale)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported locale: " + locale);
+        }
+    }
+
+    private void validateTheme(String theme) {
+        if (!SUPPORTED_THEMES.contains(theme)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported theme: " + theme);
+        }
+    }
+
+    private void applyThemePreferences(BookLoreUserEntity user, String theme, String themeAccent) {
+        String nextTheme = theme != null ? theme : user.getTheme();
+        validateTheme(nextTheme);
+
+        if (!"custom".equals(nextTheme)) {
+            if (themeAccent != null) {
+                throw ApiError.INVALID_INPUT.createException("Theme accent can only be set when theme is custom.");
+            }
+            user.setTheme(nextTheme);
+            user.setThemeAccent(null);
+            return;
+        }
+
+        String nextThemeAccent = themeAccent != null ? themeAccent : user.getThemeAccent();
+        if (nextThemeAccent == null) {
+            throw ApiError.INVALID_INPUT.createException("Theme accent is required when theme is custom.");
+        }
+
+        validateThemeAccent(nextThemeAccent);
+        user.setTheme(nextTheme);
+        user.setThemeAccent(nextThemeAccent);
+    }
+
+    private void validateThemeAccent(String themeAccent) {
+        if (!SUPPORTED_THEME_ACCENTS.contains(themeAccent)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported theme accent: " + themeAccent);
+        }
     }
 }

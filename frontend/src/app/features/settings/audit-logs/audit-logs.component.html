@@ -25,7 +25,7 @@
             class="action-filter">
           </p-select>
           <p-select
-            [options]="usernameOptions"
+            [options]="usernameOptions()"
             [(ngModel)]="selectedUsername"
             optionLabel="label"
             optionValue="value"
@@ -62,12 +62,12 @@
       </div>
       <div class="section-body">
         <p-table
-          [value]="logs"
+          [value]="logs()"
           [lazy]="true"
           [paginator]="true"
           [rows]="rows"
           [first]="currentPage * rows"
-          [totalRecords]="totalRecords"
+          [totalRecords]="totalRecords()"
           [loading]="loading()"
           [showCurrentPageReport]="true"
           [currentPageReportTemplate]="t('pageReport')"

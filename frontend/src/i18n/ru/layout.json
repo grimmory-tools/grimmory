@@ -1,69 +1,27 @@
 {
-  "commandPalette": {
-    "placeholder": "",
-    "empty": "",
-    "hintNavigate": "",
-    "hintSelect": "",
-    "ariaLabel": "",
-    "groups": {
-      "action": "",
-      "page": "",
-      "book": "",
-      "author": "",
-      "series": "",
-      "shelf": "",
-      "magicShelf": "",
-      "library": ""
+    "menu": {
+        "adjustSidebarWidth": "Изменить ширину боковой панели",
+        "home": "Главная",
+        "dashboard": "Панель управления",
+        "allBooks": "Все книги",
+        "libraries": "Библиотеки",
+        "shelves": "Полки",
+        "magicShelves": "Умные полки",
+        "unshelved": "Без полки",
+        "series": "Серии",
+        "notebook": "Блокнот",
+        "update": "(Обновление)",
+        "authors": "Авторы"
+    },
+    "closeNavigation": "Закрыть навигацию",
+    "changelog": {
+        "title": "Что нового",
+        "description": "Последние обновления и улучшения",
+        "loading": "Загрузка списка изменений...",
+        "empty": "Нет доступных обновлений."
+    },
+    "theme": {
+        "primary": "Основной",
+        "surface": "Поверхность"
     }
-  },
-  "menu": {
-    "adjustSidebarWidth": "Изменить ширину боковой панели",
-    "home": "Главная",
-    "dashboard": "Панель управления",
-    "allBooks": "Все книги",
-    "libraries": "Библиотеки",
-    "shelves": "Полки",
-    "magicShelves": "Умные полки",
-    "unshelved": "Без полки",
-    "series": "Серии",
-    "notebook": "Блокнот",
-    "update": "(Обновление)",
-    "authors": "Авторы",
-    "tools": "",
-    "collapseSidebar": "",
-    "expandSidebar": "",
-    "goToDashboard": "",
-    "notifications": "",
-    "editSidebar": "",
-    "doneEditing": "",
-    "more": "",
-    "account": "",
-    "primaryNav": "",
-    "resizeSidebar": "",
-    "search": "",
-    "add": "",
-    "createMagicShelf": "",
-    "settings": "",
-    "libraryStats": "",
-    "readingStats": "",
-    "metadataManager": "",
-    "bookdrop": "",
-    "createLibrary": "",
-    "uploadBook": "",
-    "documentation": "",
-    "profile": "",
-    "logout": "",
-    "toggleNavigation": ""
-  },
-  "closeNavigation": "Закрыть навигацию",
-  "changelog": {
-    "title": "Что нового",
-    "description": "Последние обновления и улучшения",
-    "loading": "Загрузка списка изменений...",
-    "empty": "Нет доступных обновлений."
-  },
-  "theme": {
-    "primary": "Основной",
-    "surface": "Поверхность"
-  }
 }

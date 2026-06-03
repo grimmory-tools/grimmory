@@ -1,69 +1,27 @@
 {
-  "commandPalette": {
-    "placeholder": "",
-    "empty": "",
-    "hintNavigate": "",
-    "hintSelect": "",
-    "ariaLabel": "",
-    "groups": {
-      "action": "",
-      "page": "",
-      "book": "",
-      "author": "",
-      "series": "",
-      "shelf": "",
-      "magicShelf": "",
-      "library": ""
+    "menu": {
+        "adjustSidebarWidth": "Ajustar el ancho de la barra lateral",
+        "home": "Inicio",
+        "dashboard": "Panel",
+        "allBooks": "Todos los libros",
+        "libraries": "Bibliotecas",
+        "shelves": "Estantes",
+        "magicShelves": "Estantes mágicos",
+        "unshelved": "Sin estante",
+        "series": "Series",
+        "authors": "Autores",
+        "notebook": "Cuaderno",
+        "update": "(Actualizar)"
+    },
+    "closeNavigation": "Cerrar navegación",
+    "changelog": {
+        "title": "Novedades",
+        "description": "Últimas actualizaciones y mejoras",
+        "loading": "Cargando registro de cambios...",
+        "empty": "No hay actualizaciones disponibles."
+    },
+    "theme": {
+        "primary": "Primario",
+        "surface": "Superficie"
     }
-  },
-  "menu": {
-    "adjustSidebarWidth": "Ajustar el ancho de la barra lateral",
-    "home": "Inicio",
-    "dashboard": "Panel",
-    "allBooks": "Todos los libros",
-    "libraries": "Bibliotecas",
-    "shelves": "Estantes",
-    "magicShelves": "Estantes mágicos",
-    "unshelved": "Sin estante",
-    "series": "Series",
-    "authors": "Autores",
-    "notebook": "Cuaderno",
-    "update": "(Actualizar)",
-    "tools": "",
-    "collapseSidebar": "",
-    "expandSidebar": "",
-    "goToDashboard": "",
-    "notifications": "",
-    "editSidebar": "",
-    "doneEditing": "",
-    "more": "",
-    "account": "",
-    "primaryNav": "",
-    "resizeSidebar": "",
-    "search": "",
-    "add": "",
-    "createMagicShelf": "",
-    "settings": "",
-    "libraryStats": "",
-    "readingStats": "",
-    "metadataManager": "",
-    "bookdrop": "",
-    "createLibrary": "",
-    "uploadBook": "",
-    "documentation": "",
-    "profile": "",
-    "logout": "",
-    "toggleNavigation": ""
-  },
-  "closeNavigation": "Cerrar navegación",
-  "changelog": {
-    "title": "Novedades",
-    "description": "Últimas actualizaciones y mejoras",
-    "loading": "Cargando registro de cambios...",
-    "empty": "No hay actualizaciones disponibles."
-  },
-  "theme": {
-    "primary": "Primario",
-    "surface": "Superficie"
-  }
 }

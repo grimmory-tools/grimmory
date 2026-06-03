@@ -35,6 +35,10 @@ describe('MetaCenterViewModeComponent', () => {
       name: 'Reader',
       email: 'reader@example.test',
       assignedLibraries: [],
+      locale: 'en',
+      theme: 'grimmory',
+      themeAccent: null,
+      themeSyncEnabled: true,
     } as unknown as User;
   }
 

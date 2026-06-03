@@ -64,7 +64,7 @@
     </div>
   }
 
-  @if (restrictions.length === 0) {
+  @if (restrictions().length === 0) {
     <div class="empty-state">
       <i class="pi pi-check-circle"></i>
       <p>{{ t('emptyTitle') }}</p>

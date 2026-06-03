@@ -28,6 +28,6 @@ export class UnifiedNotificationBoxComponent {
 
   private readonly activeMetadataTasks = toSignal(this.metadataProgressService.activeTasks$, {initialValue: {}});
   protected readonly hasMetadataTasks = computed(() => Object.keys(this.activeMetadataTasks()).length > 0);
-  protected readonly hasPendingBookdropFiles = toSignal(this.bookdropFileService.hasPendingFiles$, {initialValue: false});
+  protected readonly hasPendingBookdropFiles = this.bookdropFileService.hasPendingFiles;
   protected readonly hasActiveLibraryImport = this.libraryImportProgressService.hasActiveImport;
 }
