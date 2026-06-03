@@ -4,7 +4,6 @@
     "covers": {
         "sectionTitle": "Boekomslagafbeelding",
         "regenerate": "Omslagen opnieuw genereren",
-        "regenerateDesc": "",
         "regenerateStarted": "Omslaggeneratie gestart",
         "regenerateStartedDetail": "Boekomslagen worden opnieuw gegenereerd.",
         "regenerateError": "Kon omslaggeneratie niet starten.",
