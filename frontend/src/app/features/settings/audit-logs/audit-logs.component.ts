@@ -64,7 +64,7 @@ export class AuditLogsComponent implements OnInit {
   autoRefresh = false;
   private autoRefreshSub?: Subscription;
 
-  usernameOptions: UsernameOption[] = [{label: 'All Users', value: ''}];
+  usernameOptions = signal<UsernameOption[]>([{label: 'All Users', value: ''}]);
 
   actionOptions: ActionOption[] = [
     {label: 'All Actions', value: ''},
@@ -118,10 +118,10 @@ export class AuditLogsComponent implements OnInit {
   loadUsernames(): void {
     this.auditLogService.getDistinctUsernames().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (usernames) => {
-        this.usernameOptions = [
+        this.usernameOptions.set([
           {label: 'All Users', value: ''},
           ...usernames.map(u => ({label: u, value: u}))
-        ];
+        ]);
       }
     });
   }

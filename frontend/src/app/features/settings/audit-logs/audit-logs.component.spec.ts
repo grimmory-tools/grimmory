@@ -1,7 +1,7 @@
 import {provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, Router} from '@angular/router';
-import {of} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
@@ -10,13 +10,19 @@ import {AuditLogsComponent} from './audit-logs.component';
 
 describe('AuditLogsComponent', () => {
   let fixture: ComponentFixture<AuditLogsComponent>;
+  let usernameResponse: Subject<string[]>;
   const getAuditLogs = vi.fn();
+  const getDistinctUsernames = vi.fn();
 
   beforeEach(async () => {
+    usernameResponse = new Subject<string[]>();
     getAuditLogs
       .mockReset()
       .mockReturnValueOnce(of(createResponse('Initial audit log')))
       .mockReturnValueOnce(of(createResponse('Refreshed audit log')));
+    getDistinctUsernames
+      .mockReset()
+      .mockReturnValue(usernameResponse.asObservable());
 
     await TestBed.configureTestingModule({
       imports: [AuditLogsComponent, getTranslocoModule()],
@@ -26,7 +32,7 @@ describe('AuditLogsComponent', () => {
           provide: AuditLogService,
           useValue: {
             getAuditLogs,
-            getDistinctUsernames: vi.fn(() => of([])),
+            getDistinctUsernames,
           },
         },
         {
@@ -39,16 +45,22 @@ describe('AuditLogsComponent', () => {
         },
       ],
     })
-      .overrideComponent(AuditLogsComponent, {
-        set: {template: '<span class="description-cell">{{ logs()[0]?.description }}</span>'},
-      })
-      .compileComponents();
+    .overrideComponent(AuditLogsComponent, {
+      set: {
+        template: `
+          <span class="description-cell">{{ logs()[0]?.description }}</span>
+          <span class="username-option">{{ usernameOptions()[1]?.label }}</span>
+        `,
+      },
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(AuditLogsComponent);
     fixture.detectChanges();
   });
 
   afterEach(() => {
+    usernameResponse.complete();
     TestBed.resetTestingModule();
   });
 
@@ -59,6 +71,14 @@ describe('AuditLogsComponent', () => {
     await fixture.whenStable();
 
     expect(fixture.nativeElement.querySelector('.description-cell').textContent.trim()).toBe('Refreshed audit log');
+  });
+
+  it('renders username options loaded from the service', async () => {
+    usernameResponse.next(['alice']);
+    await fixture.whenStable();
+
+    expect(getDistinctUsernames).toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('.username-option').textContent.trim()).toBe('alice');
   });
 });
 
