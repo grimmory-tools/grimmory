@@ -1,69 +1,27 @@
 {
-  "commandPalette": {
-    "placeholder": "",
-    "empty": "",
-    "hintNavigate": "",
-    "hintSelect": "",
-    "ariaLabel": "",
-    "groups": {
-      "action": "",
-      "page": "",
-      "book": "",
-      "author": "",
-      "series": "",
-      "shelf": "",
-      "magicShelf": "",
-      "library": ""
+    "menu": {
+        "adjustSidebarWidth": "サイドバーの幅を調整",
+        "home": "ホーム",
+        "dashboard": "ダッシュボード",
+        "allBooks": "すべての本",
+        "libraries": "ライブラリ",
+        "shelves": "シェルフ",
+        "magicShelves": "マジックシェルフ",
+        "unshelved": "未分類",
+        "series": "シリーズ",
+        "notebook": "ノートブック",
+        "update": "（アップデート）",
+        "authors": "著者"
+    },
+    "closeNavigation": "ナビゲーションを閉じる",
+    "changelog": {
+        "title": "新着情報",
+        "description": "最新のアップデートと改善",
+        "loading": "変更履歴を読み込み中...",
+        "empty": "利用可能なアップデートはありません。"
+    },
+    "theme": {
+        "primary": "プライマリ",
+        "surface": "サーフェス"
     }
-  },
-  "menu": {
-    "adjustSidebarWidth": "サイドバーの幅を調整",
-    "home": "ホーム",
-    "dashboard": "ダッシュボード",
-    "allBooks": "すべての本",
-    "libraries": "ライブラリ",
-    "shelves": "シェルフ",
-    "magicShelves": "マジックシェルフ",
-    "unshelved": "未分類",
-    "series": "シリーズ",
-    "notebook": "ノートブック",
-    "update": "（アップデート）",
-    "authors": "著者",
-    "tools": "",
-    "collapseSidebar": "",
-    "expandSidebar": "",
-    "goToDashboard": "",
-    "notifications": "",
-    "editSidebar": "",
-    "doneEditing": "",
-    "more": "",
-    "account": "",
-    "primaryNav": "",
-    "resizeSidebar": "",
-    "search": "",
-    "add": "",
-    "createMagicShelf": "",
-    "settings": "",
-    "libraryStats": "",
-    "readingStats": "",
-    "metadataManager": "",
-    "bookdrop": "",
-    "createLibrary": "",
-    "uploadBook": "",
-    "documentation": "",
-    "profile": "",
-    "logout": "",
-    "toggleNavigation": ""
-  },
-  "closeNavigation": "ナビゲーションを閉じる",
-  "changelog": {
-    "title": "新着情報",
-    "description": "最新のアップデートと改善",
-    "loading": "変更履歴を読み込み中...",
-    "empty": "利用可能なアップデートはありません。"
-  },
-  "theme": {
-    "primary": "プライマリ",
-    "surface": "サーフェス"
-  }
 }
