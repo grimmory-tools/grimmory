@@ -1,24 +1,4 @@
 {
-  "pageTitle": "Notitieboek",
-  "pageDescription": "Al je markeringen, notities en bladwijzers uit je hele bibliotheek op één plek.",
-  "searchPlaceholder": "",
-  "filterAll": "",
-  "filterHighlights": "",
-  "filterNotes": "",
-  "filterBookmarks": "",
-  "filterByBook": "",
-  "allBooks": "",
-  "sortNewest": "",
-  "sortOldest": "",
-  "export": "",
-  "exportMarkdown": "",
-  "noEntries": "",
-  "noEntriesHint": "",
-  "noResults": "",
-  "chapter": "",
-  "highlight": "",
-  "note": "",
-  "bookmark": "",
-  "annotation": "",
-  "annotations": ""
+    "pageTitle": "Notitieboek",
+    "pageDescription": "Al je markeringen, notities en bladwijzers uit je hele bibliotheek op één plek."
 }
