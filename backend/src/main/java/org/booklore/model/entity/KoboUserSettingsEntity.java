@@ -48,4 +48,7 @@ public class KoboUserSettingsEntity {
     @Column(name = "two_way_progress_sync")
     @Builder.Default
     private boolean twoWayProgressSync = false;
+
+    @Column(name = "allowed_device_ids", length = 4096)
+    private String allowedDeviceIds;
 }

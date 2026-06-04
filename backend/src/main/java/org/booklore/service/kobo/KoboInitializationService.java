@@ -71,6 +71,9 @@ public class KoboInitializationService {
             resources.put(entry.getKey(), koboUrlBuilder.withBaseUrl(token, entry.getValue()));
         }
 
+        // Redirect reading services to this server so we intercept annotations
+        resources.put("reading_services_host", baseBuilder.build().toUriString());
+
         // Build extra routes for CDN
         resources.put("image_host", baseBuilder.build().toUriString());
         resources.put("image_url_template", koboUrlBuilder.imageUrlTemplate(token));
