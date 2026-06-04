@@ -111,7 +111,7 @@
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(koReaderUsername(), 'Username')"
+                      (onClick)="copyText(koReaderUsername(), t('koreader.username'))"
                       [disabled]="!koReaderUsername()">
                     </p-button>
                   </div>
@@ -119,7 +119,7 @@
                 <p class="setting-description">
                   {{ t('koreader.usernameDesc') }}
                 </p>
-                @if (editMode() && usernameModel.invalid && usernameModel.touched) {
+                @if (!editMode() && usernameModel.invalid && usernameModel.touched) {
                   <small class="error-message">
                     {{ t('koreader.usernameRequired') }}
                   </small>
@@ -150,7 +150,7 @@
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(koReaderPassword(), 'Password')"
+                      (onClick)="copyText(koReaderPassword(), t('koreader.password'))"
                       [disabled]="!koReaderPassword()">
                     </p-button>
                     <p-button
@@ -166,7 +166,7 @@
                 <p class="setting-description">
                   {{ t('koreader.passwordDesc') }}
                 </p>
-                @if (editMode() && passwordModel.invalid && passwordModel.touched) {
+                @if (!editMode() && passwordModel.invalid && passwordModel.touched) {
                   <small class="error-message">
                     {{ t('koreader.passwordMinLength') }}
                   </small>

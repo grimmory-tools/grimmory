@@ -99,6 +99,7 @@ export class KoreaderSettingsComponent {
   }
 
   onToggleEnabled(enabled: boolean) {
+    const previousEnabled = this.koReaderSyncEnabled();
     this.koReaderSyncEnabled.set(enabled);
     this.koreaderService.toggleSync(enabled).pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -108,12 +109,14 @@ export class KoreaderSettingsComponent {
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.koreader.syncUpdated'), detail: enabled ? this.t.translate('settingsDevice.koreader.syncEnabled') : this.t.translate('settingsDevice.koreader.syncDisabled')});
       },
       error: () => {
+        this.koReaderSyncEnabled.set(previousEnabled);
         this.messageService.add({severity: 'error', summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'), detail: this.t.translate('settingsDevice.koreader.syncUpdateError')});
       }
     });
   }
 
   onToggleSyncWithWebReader(enabled: boolean) {
+    const previousSyncWithWebReader = this.syncWithWebReader();
     this.syncWithWebReader.set(enabled);
     this.koreaderService.toggleSyncProgressWithWebReader(enabled).pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -127,6 +130,7 @@ export class KoreaderSettingsComponent {
         });
       },
       error: () => {
+        this.syncWithWebReader.set(previousSyncWithWebReader);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),

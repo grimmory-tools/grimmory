@@ -42,6 +42,8 @@ export class HardcoverSettingsComponent {
   hardcoverApiKey = signal('');
   showHardcoverApiKey = signal(false);
   private prevHasPermission = false;
+  private savedHardcoverSyncEnabled = false;
+  private savedHardcoverApiKey = '';
 
   constructor() {
     effect(() => {
@@ -60,6 +62,7 @@ export class HardcoverSettingsComponent {
       next: settings => {
         this.hardcoverSyncEnabled.set(settings.hardcoverSyncEnabled ?? false);
         this.hardcoverApiKey.set(settings.hardcoverApiKey ?? '');
+        this.rememberSavedSettings();
       },
       error: () => {
         this.messageService.add({
@@ -97,9 +100,11 @@ export class HardcoverSettingsComponent {
       next: settings => {
         this.hardcoverSyncEnabled.set(settings.hardcoverSyncEnabled ?? false);
         this.hardcoverApiKey.set(settings.hardcoverApiKey ?? '');
+        this.rememberSavedSettings();
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.settingsUpdated'), detail: successMessage});
       },
       error: () => {
+        this.restoreSavedSettings();
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.hardcover.updateFailed'),
@@ -107,6 +112,16 @@ export class HardcoverSettingsComponent {
         });
       }
     });
+  }
+
+  private rememberSavedSettings() {
+    this.savedHardcoverSyncEnabled = this.hardcoverSyncEnabled();
+    this.savedHardcoverApiKey = this.hardcoverApiKey();
+  }
+
+  private restoreSavedSettings() {
+    this.hardcoverSyncEnabled.set(this.savedHardcoverSyncEnabled);
+    this.hardcoverApiKey.set(this.savedHardcoverApiKey);
   }
 
   copyText(text: string, label: string = 'Text') {
