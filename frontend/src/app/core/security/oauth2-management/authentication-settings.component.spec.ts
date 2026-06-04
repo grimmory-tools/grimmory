@@ -1,8 +1,8 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {signal} from '@angular/core';
+import {provideZonelessChangeDetection, signal} from '@angular/core';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 
 import {AppSettingKey, AppSettings, OidcProviderDetails} from '../../../shared/model/app-settings.model';
 import {OidcGroupMapping} from '../../../shared/model/oidc-group-mapping.model';
@@ -177,8 +177,119 @@ describe('AuthenticationSettingsComponent', () => {
       groups: 'memberOf',
     });
     expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
-    expect(component.groupMappings).toEqual(mappings);
+    expect(component.groupMappings()).toEqual(mappings);
     expect(groupMappingService.getAll).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the latest group mappings when refresh responses complete out of order', () => {
+    const firstMappings$ = new Subject<OidcGroupMapping[]>();
+    const secondMappings$ = new Subject<OidcGroupMapping[]>();
+    const staleMappings: OidcGroupMapping[] = [
+      {id: 2, oidcGroupClaim: 'stale', isAdmin: false, permissions: [], libraryIds: [], description: 'Stale'},
+    ];
+    const latestMappings: OidcGroupMapping[] = [
+      {id: 3, oidcGroupClaim: 'latest', isAdmin: true, permissions: ['permissionUpload'], libraryIds: [2], description: 'Latest'},
+    ];
+    groupMappingService.getAll
+      .mockReturnValueOnce(firstMappings$)
+      .mockReturnValueOnce(secondMappings$);
+
+    const enabledSettings = createSettings({
+      oidcEnabled: true,
+      oidcProviderDetails: completeProvider(),
+    });
+    component.loadSettings(enabledSettings);
+    component.loadSettings(enabledSettings);
+
+    secondMappings$.next(latestMappings);
+    firstMappings$.next(staleMappings);
+
+    expect(groupMappingService.getAll).toHaveBeenCalledTimes(2);
+    expect(component.groupMappings()).toEqual(latestMappings);
+
+    firstMappings$.complete();
+    secondMappings$.complete();
+  });
+
+  it('continues refreshing group mappings after a load error', () => {
+    const mappings: OidcGroupMapping[] = [
+      {id: 5, oidcGroupClaim: 'editors', isAdmin: false, permissions: ['permissionUpload'], libraryIds: [2], description: 'Editors'},
+    ];
+    groupMappingService.getAll
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500})))
+      .mockReturnValueOnce(of(mappings));
+
+    const enabledSettings = createSettings({
+      oidcEnabled: true,
+      oidcProviderDetails: completeProvider(),
+    });
+    component.loadSettings(enabledSettings);
+    component.loadSettings(enabledSettings);
+
+    expect(groupMappingService.getAll).toHaveBeenCalledTimes(2);
+    expect(component.groupMappings()).toEqual(mappings);
+    expect(messageService.add).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'common.error',
+      detail: 'settingsAuth.toast.groupMappingError',
+    });
+  });
+
+  it('renders group mappings loaded after the settings response completes', async () => {
+    const mappings$ = new Subject<OidcGroupMapping[]>();
+    const mappings: OidcGroupMapping[] = [
+      {id: 4, oidcGroupClaim: 'readers', isAdmin: false, permissions: ['permissionRead'], libraryIds: [1], description: 'Readers'},
+    ];
+    groupMappingService.getAll.mockReturnValue(mappings$);
+
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [AuthenticationSettingsComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        {provide: AppSettingsService, useValue: appSettingsService},
+        {provide: LibraryService, useValue: libraryService},
+        {provide: OidcGroupMappingService, useValue: groupMappingService},
+        {provide: MessageService, useValue: messageService},
+        {provide: TranslocoService, useValue: translocoService},
+      ],
+    })
+    .overrideComponent(AuthenticationSettingsComponent, {
+      set: {
+        template: `
+          @let mappings = groupMappings();
+          @if (mappings.length > 0) {
+            @for (mapping of mappings; track mapping.id) {
+              <span class="group-mapping-row">{{ mapping.oidcGroupClaim }}</span>
+            }
+          }
+        `,
+      },
+    })
+    .compileComponents();
+
+    const fixture: ComponentFixture<AuthenticationSettingsComponent> =
+      TestBed.createComponent(AuthenticationSettingsComponent);
+    const renderedComponent = fixture.componentInstance;
+
+    renderedComponent.loadSettings(createSettings({
+      oidcEnabled: true,
+      oidcProviderDetails: completeProvider(),
+    }));
+    fixture.detectChanges();
+
+    expect(renderedComponent.groupMappings()).toEqual([]);
+    expect(fixture.nativeElement.querySelector('.group-mapping-row')).toBeNull();
+
+    mappings$.next(mappings);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(renderedComponent.groupMappings()).toEqual(mappings);
+    expect(fixture.nativeElement.querySelector('.group-mapping-row').textContent.trim()).toBe('readers');
+
+    mappings$.complete();
+    fixture.destroy();
   });
 
   it('keeps OIDC disabled when the provider form is incomplete', () => {

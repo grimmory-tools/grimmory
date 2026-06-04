@@ -557,8 +557,9 @@
           </div>
         </div>
 
-        @if (groupMappings.length > 0) {
-          <p-table [value]="groupMappings" [tableStyle]="{'min-width': '100%'}" styleClass="p-datatable-sm">
+        @let mappings = groupMappings();
+        @if (mappings.length > 0) {
+          <p-table [value]="mappings" [tableStyle]="{'min-width': '100%'}" styleClass="p-datatable-sm">
             <ng-template #header>
               <tr>
                 <th>{{ t('groupMapping.colGroupClaim') }}</th>

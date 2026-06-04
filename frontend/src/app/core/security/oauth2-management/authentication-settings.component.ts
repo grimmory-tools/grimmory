@@ -1,6 +1,8 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, effect, inject} from '@angular/core';
+import {Component, DestroyRef, WritableSignal, effect, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {EMPTY, Subject, catchError, switchMap} from 'rxjs';
 import {InputText} from 'primeng/inputtext';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
@@ -111,7 +113,7 @@ export class AuthenticationSettingsComponent {
     {label: 'On Login (Replace)', value: 'ON_LOGIN'},
     {label: 'On Login (Additive)', value: 'ON_LOGIN_ADDITIVE'}
   ];
-  groupMappings: OidcGroupMapping[] = [];
+  groupMappings: WritableSignal<OidcGroupMapping[]> = signal([]);
   showGroupMappingDialog = false;
   editingGroupMapping: OidcGroupMapping = this.emptyGroupMapping();
   editingGroupMappingPerms: {label: string; value: string; selected: boolean; translationKey: string}[] = [];
@@ -136,14 +138,33 @@ export class AuthenticationSettingsComponent {
   private libraryService = inject(LibraryService);
   private groupMappingService = inject(OidcGroupMappingService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
+  private readonly groupMappingsRefresh$ = new Subject<void>();
   get allLibraries() { return this.libraryService.libraries(); }
 
-  private readonly loadSettingsEffect = effect(() => {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.loadSettings(settings);
-    }
-  });
+  constructor() {
+    this.groupMappingsRefresh$.pipe(
+      switchMap(() => this.groupMappingService.getAll().pipe(
+        catchError(() => {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('settingsAuth.toast.groupMappingError')
+          });
+          return EMPTY;
+        })
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    )
+    .subscribe(mappings => this.groupMappings.set([...mappings]));
+
+    effect(() => {
+      const settings = this.appSettingsService.appSettings();
+      if (settings) {
+        this.loadSettings(settings);
+      }
+    });
+  }
 
   loadSettings(settings: AppSettings): void {
     this.oidcEnabled = settings.oidcEnabled;
@@ -340,7 +361,7 @@ export class AuthenticationSettingsComponent {
 
   // Group mapping methods
   loadGroupMappings(): void {
-    this.groupMappingService.getAll().subscribe(mappings => this.groupMappings = mappings);
+    this.groupMappingsRefresh$.next();
   }
 
   saveGroupSyncMode(): void {
