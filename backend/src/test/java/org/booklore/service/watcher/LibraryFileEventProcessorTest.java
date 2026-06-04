@@ -283,9 +283,7 @@ class LibraryFileEventProcessorTest {
 
             processor.processEvent(StandardWatchEventKinds.ENTRY_CREATE, 1L, folder, true);
 
-            Thread.sleep(8000);
-
-            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+            verify(libraryProcessingService, after(8000).never()).processLibraryFiles(any(), any());
             verify(bookFileTransactionalHandler, never()).handleNewBookFile(anyLong(), any());
         }
 
@@ -400,9 +398,7 @@ class LibraryFileEventProcessorTest {
 
             processor.processEvent(StandardWatchEventKinds.ENTRY_DELETE, 1L, file, false);
 
-            Thread.sleep(2000);
-
-            verify(pendingDeletionPool).addFileDeletion(any(), eq(1L), eq(bookFile), eq(book), any());
+            verify(pendingDeletionPool, timeout(2000)).addFileDeletion(any(), eq(1L), eq(bookFile), eq(book), any());
         }
 
         @Test

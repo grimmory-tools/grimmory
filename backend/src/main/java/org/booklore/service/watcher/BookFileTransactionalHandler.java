@@ -58,7 +58,7 @@ public class BookFileTransactionalHandler {
         String filePath = path.toString();
         String fileName = path.getFileName().toString();
         BookFileType fileType = AllowedFormatUtils.resolveBookFileType(fileName)
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported book file type: " + fileName));
+                .orElseThrow(() -> ApiError.UNSUPPORTED_FILE_TYPE.createException("Unsupported book file type: " + fileName));
 
         if (!AllowedFormatUtils.isAllowed(libraryEntity, fileType)) {
             log.debug("[SKIP] File '{}' has disallowed format {} for library {}", filePath, fileType, libraryId);
