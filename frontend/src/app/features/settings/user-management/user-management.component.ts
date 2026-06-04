@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -27,6 +27,7 @@ interface UserWithEditing extends User {
 
 @Component({
   selector: 'app-user-management',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     Button,
@@ -56,7 +57,7 @@ export class UserManagementComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   get allLibraries() { return this.libraryService.libraries(); }
 
-  users: UserWithEditing[] = [];
+  users: WritableSignal<UserWithEditing[]> = signal([]);
   currentUser: User | null = null;
   editingLibraryIds: number[] = [];
   expandedRows: Record<string, boolean> = {};
@@ -82,13 +83,13 @@ export class UserManagementComponent implements OnInit {
   loadUsers() {
     this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.users = data.map((user) => ({
+        this.users.set(data.map((user) => ({
           ...user,
           isEditing: false,
           selectedLibraryIds: user.assignedLibraries?.map((lib) => lib.id!).filter(id => id !== undefined) as number[] || [],
           libraryNames:
             user.assignedLibraries?.map((lib) => lib.name).join(', ') || '',
-        }));
+        })));
       },
       error: () => {
         this.messageService.add({
