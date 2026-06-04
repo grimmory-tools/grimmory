@@ -17,6 +17,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.library.LibraryProcessingService;
+import org.booklore.util.AllowedFormatUtils;
 import org.booklore.util.BookFileGroupingUtils;
 import org.booklore.util.FileUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,14 @@ public class BookFileTransactionalHandler {
 
         String filePath = path.toString();
         String fileName = path.getFileName().toString();
+        BookFileType fileType = AllowedFormatUtils.resolveBookFileType(fileName)
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported book file type: " + fileName));
+
+        if (!AllowedFormatUtils.isAllowed(libraryEntity, fileType)) {
+            log.debug("[SKIP] File '{}' has disallowed format {} for library {}", filePath, fileType, libraryId);
+            return;
+        }
+
         String libraryPath = bookFilePersistenceService.findMatchingLibraryPath(libraryEntity, path);
 
         notificationService.sendMessageToPermissions(Topic.LOG, LogNotification.info("Started processing file: " + filePath), Set.of(ADMIN, MANAGE_LIBRARY));
@@ -141,8 +150,6 @@ public class BookFileTransactionalHandler {
         } else if (mode == LibraryOrganizationMode.BOOK_PER_FOLDER) {
             matchingBook = findBookInSameFolder(libraryPathEntity.getId(), fileSubPath);
             if (matchingBook == null) {
-                BookFileType fileType = BookFileExtension.fromFileName(fileName)
-                        .map(BookFileExtension::getType).orElse(null);
                 if (fileType == BookFileType.AUDIOBOOK) {
                     matchingBook = findNearestAncestorBookWithEbook(libraryPathEntity.getId(), fileSubPath);
                 }
@@ -160,9 +167,7 @@ public class BookFileTransactionalHandler {
                     .libraryPathEntity(libraryPathEntity)
                     .fileSubPath(fileSubPath)
                     .fileName(fileName)
-                    .bookFileType(BookFileExtension.fromFileName(fileName)
-                            .map(BookFileExtension::getType)
-                            .orElseThrow(() -> new IllegalArgumentException("Unsupported book file type: " + fileName)))
+                    .bookFileType(fileType)
                     .build();
 
             libraryProcessingService.processLibraryFiles(List.of(libraryFile), libraryEntity);
@@ -176,6 +181,11 @@ public class BookFileTransactionalHandler {
     public void handleNewFolderAudiobook(long libraryId, Path folderPath) {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
+
+        if (!AllowedFormatUtils.isAllowed(libraryEntity, BookFileType.AUDIOBOOK)) {
+            log.debug("[SKIP] Folder audiobook '{}' is disallowed for library {}", folderPath, libraryId);
+            return;
+        }
 
         String folderName = folderPath.getFileName().toString();
         String libraryPath = bookFilePersistenceService.findMatchingLibraryPath(libraryEntity, folderPath);

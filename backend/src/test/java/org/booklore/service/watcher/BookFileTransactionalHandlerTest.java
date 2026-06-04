@@ -148,6 +148,18 @@ class BookFileTransactionalHandlerTest {
         }
 
         @Test
+        void disallowedFormat_skipsProcessing() {
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
+
+            verify(bookFilePersistenceService, never()).findMatchingLibraryPath(any(), any());
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+            verify(bookAdditionalFileRepository, never()).save(any());
+            verify(notificationService, never()).sendMessageToPermissions(any(), any(), any());
+        }
+
+        @Test
         void existingAtPath_deletedBook_restoresIt() {
             BookEntity book = buildBook(10L, true);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "oldhash");
@@ -563,6 +575,18 @@ class BookFileTransactionalHandlerTest {
 
             assertThrows(Exception.class,
                     () -> handler.handleNewFolderAudiobook(99L, Path.of("/library/audiobook")));
+        }
+
+        @Test
+        void disallowedAudiobook_skipsProcessing() {
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+
+            handler.handleNewFolderAudiobook(1L, Path.of("/library/sub/audiobook"));
+
+            verify(bookFilePersistenceService, never()).findMatchingLibraryPath(any(), any());
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+            verify(bookAdditionalFileRepository, never()).save(any());
+            verify(notificationService, never()).sendMessageToPermissions(any(), any(), any());
         }
 
         @Test

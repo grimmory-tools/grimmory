@@ -13,6 +13,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.library.LibraryProcessingService;
 import org.booklore.service.library.LibraryScanListener;
+import org.booklore.util.AllowedFormatUtils;
 import org.booklore.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -189,8 +190,15 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
             return;
         }
 
-        if (!isBookFile(fileName)) {
+        Optional<BookFileType> fileType = AllowedFormatUtils.resolveBookFileType(fileName);
+        if (fileType.isEmpty()) {
             log.debug("[SKIP] Ignored non-book file '{}'", fileName);
+            return;
+        }
+
+        if (event.eventKind() != StandardWatchEventKinds.ENTRY_DELETE
+                && !AllowedFormatUtils.isAllowed(library, fileType.get())) {
+            log.debug("[SKIP] Ignored disallowed book file '{}'", fileName);
             return;
         }
 
@@ -301,7 +309,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
         try (var stream = Files.walk(folderPath)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> !isUnderIgnoredDirectory(p, folderPath))
-                    .filter(p -> isBookFile(p.getFileName().toString()))
+                    .filter(p -> AllowedFormatUtils.isAllowedBookFile(library, p.getFileName().toString()))
                     .filter(this::fileHasContent)
                     .forEach(p -> {
                         try {
@@ -327,7 +335,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
         try (var stream = Files.walk(folderPath)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> !isUnderIgnoredDirectory(p, folderPath))
-                    .filter(p -> isBookFile(p.getFileName().toString()))
+                    .filter(p -> AllowedFormatUtils.isAllowedBookFile(library, p.getFileName().toString()))
                     .filter(this::fileHasContent)
                     .forEach(bookFiles::add);
         } catch (IOException e) {
@@ -429,7 +437,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
         var trackedFiles = filesFromPendingFolder.stream()
                 .filter(p -> p.startsWith(folderPath))
                 .filter(p -> !isUnderIgnoredDirectory(p, folderPath))
-                .filter(p -> isBookFile(p.getFileName().toString()))
+                .filter(p -> AllowedFormatUtils.isAllowedBookFile(library, p.getFileName().toString()))
                 .filter(this::fileHasContent)
                 .toList();
 
@@ -448,7 +456,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
         try (var stream = Files.walk(folderPath)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> !isUnderIgnoredDirectory(p, folderPath))
-                    .filter(p -> isBookFile(p.getFileName().toString()))
+                    .filter(p -> AllowedFormatUtils.isAllowedBookFile(library, p.getFileName().toString()))
                     .filter(this::fileHasContent)
                     .filter(p -> !trackedFiles.contains(p))
                     .forEach(p -> {
@@ -546,10 +554,6 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
             parent = parent.getParent();
         }
         return false;
-    }
-
-    private boolean isBookFile(String fileName) {
-        return BookFileExtension.fromFileName(fileName).isPresent();
     }
 
     private void scheduleWithStabilityCheck(Path path, Runnable onStable) {

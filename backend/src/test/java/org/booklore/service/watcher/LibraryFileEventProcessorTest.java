@@ -273,6 +273,23 @@ class LibraryFileEventProcessorTest {
         }
 
         @Test
+        void bookPerFolderMode_skipsDisallowedFormats() throws Exception {
+            library.setOrganizationMode(LibraryOrganizationMode.BOOK_PER_FOLDER);
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+
+            Path folder = tempDir.resolve("pdf-only");
+            Files.createDirectory(folder);
+            Files.writeString(folder.resolve("blocked.pdf"), "content");
+
+            processor.processEvent(StandardWatchEventKinds.ENTRY_CREATE, 1L, folder, true);
+
+            Thread.sleep(8000);
+
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+            verify(bookFileTransactionalHandler, never()).handleNewBookFile(anyLong(), any());
+        }
+
+        @Test
         void pathOutsideLibrary_skipped() throws Exception {
             Path outsideFolder = Files.createTempDirectory("outside");
             try {
@@ -357,6 +374,29 @@ class LibraryFileEventProcessorTest {
                     .thenReturn(Optional.of(bookFile));
 
             Path file = tempDir.resolve("sub").resolve("test.epub");
+
+            processor.processEvent(StandardWatchEventKinds.ENTRY_DELETE, 1L, file, false);
+
+            Thread.sleep(2000);
+
+            verify(pendingDeletionPool).addFileDeletion(any(), eq(1L), eq(bookFile), eq(book), any());
+        }
+
+        @Test
+        void disallowedBookFileDelete_stillAddsToPool() throws Exception {
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+
+            BookEntity book = BookEntity.builder()
+                    .id(10L).library(library).libraryPath(libraryPath).deleted(false)
+                    .bookFiles(new ArrayList<>()).build();
+            BookFileEntity bookFile = BookFileEntity.builder()
+                    .id(100L).book(book).fileName("blocked.pdf").fileSubPath("sub")
+                    .currentHash("hash").isBookFormat(true).bookType(BookFileType.PDF).build();
+
+            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(eq(1L), anyString(), eq("blocked.pdf")))
+                    .thenReturn(Optional.of(bookFile));
+
+            Path file = tempDir.resolve("sub").resolve("blocked.pdf");
 
             processor.processEvent(StandardWatchEventKinds.ENTRY_DELETE, 1L, file, false);
 
