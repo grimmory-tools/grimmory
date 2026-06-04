@@ -29,6 +29,15 @@ class AllowedFormatUtilsTest {
     }
 
     @Test
+    void isAllowedBookFile_allowsBookFileInsideConfiguredFormats() {
+        LibraryEntity library = LibraryEntity.builder()
+                .allowedFormats(List.of(BookFileType.EPUB))
+                .build();
+
+        assertThat(AllowedFormatUtils.isAllowedBookFile(library, "book.epub")).isTrue();
+    }
+
+    @Test
     void isAllowedBookFile_rejectsBookFileOutsideConfiguredFormats() {
         LibraryEntity library = LibraryEntity.builder()
                 .allowedFormats(List.of(BookFileType.EPUB))
