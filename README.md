@@ -12,10 +12,11 @@
 
 [![Release](https://img.shields.io/github/v/release/grimmory-tools/grimmory?color=818CF8&style=flat-square&logo=github)](https://github.com/grimmory-tools/grimmory/releases)
 [![License](https://img.shields.io/github/license/grimmory-tools/grimmory?color=fab005&style=flat-square)](LICENSE)
+<a href="https://hosted.weblate.org/engage/grimmory/"><img src="https://hosted.weblate.org/widget/grimmory/svg-badge.svg" alt="Translation status"></a>
 [![Docker Pulls](https://img.shields.io/docker/pulls/grimmory/grimmory?color=2496ED&style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/grimmory/grimmory)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/9YJ7HB4n8T)
 
-[Documentation](https://grimmory.org/docs) · [Quick Start](#quick-start) · [Discord](https://discord.gg/9YJ7HB4n8T) · [Releases](https://github.com/grimmory-tools/grimmory/releases)
+[Documentation](https://grimmory.org/docs) · [Quick Start](#quick-start) · [Translations](https://hosted.weblate.org/engage/grimmory/) · [Discord](https://discord.gg/9YJ7HB4n8T) · [Releases](https://github.com/grimmory-tools/grimmory/releases)
 
 <!-- ![Grimmory Demo](assets/demo.gif) -->
 
@@ -181,7 +182,8 @@ Additional deployment examples:
 ## Developer Surfaces
 
 
-Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md). 
+Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md).
+Non-English translation contributions are managed through [Weblate](https://hosted.weblate.org/engage/grimmory/).
 
 General purpose development guidelines live in [DEVELOPMENT.md](DEVELOPMENT.md). Component-specific implementation guidance lives in:
 
