@@ -229,6 +229,18 @@ class EpubMetadataExtractorTest {
         }
 
         @Test
+        void blankTitlesFallbackToFilename() throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title> </dc:title>
+                    <dc:title>The Subtitle</dc:title>
+                    """);
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getTitle()).isEqualTo("test");
+            assertThat(metadata.getSubtitle()).isEqualTo("The Subtitle");
+        }
+
+        @Test
         void titleWithoutIdSetDirectly() throws IOException {
             String opf = wrapOpf("<dc:title>Direct Title</dc:title>");
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
