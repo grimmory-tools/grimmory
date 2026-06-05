@@ -227,10 +227,12 @@ public class HardcoverParser implements BookParser {
             case EBOOK -> readingFormatId = 4;
             default -> readingFormatId = 1;
         }
-        Allresults.forEach(b -> filterEditions(b, readingFormatId));
-
-        return processBooksWithEditions(Allresults);
-    }
+        for (GraphQLResponse.BookWithEditions result : results) {
+            if (result.getEditions() == null || result.getEditions().isEmpty()) {
+                continue;
+            }
+            List<GraphQLResponse.Edition> keep = new ArrayList<>();
+            List<GraphQLResponse.Edition> hardcovers = new ArrayList<>();
 
     private boolean filterAuthor(GraphQLResponse.Document doc, String searchAuthor,
                                  boolean searchByIsbn, FuzzyScore fuzzyScore) {
@@ -263,6 +265,22 @@ public class HardcoverParser implements BookParser {
             }
         }
         return false;
+            for (GraphQLResponse.Edition edition : result.getEditions()) {
+                if (edition.getReadingFormatId() == readingFormatId) {
+                    keep.add(edition);
+                } else if (edition.getReadingFormatId() == 1) {
+                    hardcovers.add(edition);
+                }
+            }
+            List<GraphQLResponse.Edition> filtered = !keep.isEmpty() ? keep : hardcovers;
+            result.setEditions(filtered);
+        }
+        if (results.stream().allMatch(r -> r.getEditions() == null || r.getEditions().isEmpty())) {
+            return originalResults;
+        }
+        return results;
+    }
+//        metadata.setThumbnailUrl(doc.getImage() != null ? doc.getImage().getUrl() : null);
     }
 
     private boolean filterTitle(GraphQLResponse.Document doc, String searchTitle) {
