@@ -217,9 +217,9 @@ public class HardcoverParser implements BookParser {
     private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results, Book book) {
         List<GraphQLResponse.BookWithEditions> originalResults = new ArrayList<>(results);
         BookCategory category = BookFileType
-            .fromExtension(book.getPrimaryFile().getExtension())
-            .map(BookFileType::category)
-            .orElse(null); // fix this
+                .fromExtension(book.getPrimaryFile().getExtension())
+                .map(BookFileType::category)
+                .orElse(BookCategory.Hardcover);
 
         int readingFormatId;
         switch (category) {
