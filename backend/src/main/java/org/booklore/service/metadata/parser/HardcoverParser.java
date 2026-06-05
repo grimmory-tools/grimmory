@@ -41,9 +41,8 @@ public class HardcoverParser implements BookParser {
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         List<String> isbnCleaned = new ArrayList<>();
         isbnCleaned.add(ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn()));
-        boolean searchByIsbn = isbnCleaned != null && !isbnCleaned.isEmpty();
-        searchByIsbn = false;
         boolean searchByIsbn = isbnCleaned.getFirst() != null && !isbnCleaned.isEmpty();
+        //searchByIsbn = false; //Testing variable.
         if (searchByIsbn) {
             log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
             List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
@@ -56,8 +55,10 @@ public class HardcoverParser implements BookParser {
             log.warn("Hardcover: No title provided for search");
             return Collections.emptyList();
         }
-
-        List<BookMetadata> results = Collections.emptyList();
+        else{
+            title = Pattern.compile("[^a-zA-Z0-9\\s]+")
+                    .matcher(title.trim().toLowerCase()).replaceAll("");
+        }
 
         log.info("Hardcover: Searching with title only: '{}'", title);
         List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
