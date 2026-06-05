@@ -43,10 +43,11 @@ public class HardcoverParser implements BookParser {
         isbnCleaned.add(ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn()));
         boolean searchByIsbn = isbnCleaned != null && !isbnCleaned.isEmpty();
         searchByIsbn = false;
+        boolean searchByIsbn = isbnCleaned.getFirst() != null && !isbnCleaned.isEmpty();
         if (searchByIsbn) {
             log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
             List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
-            return processBooksWithEditions(hits);
+            return processBooks(hits);
         }
 
         String title = fetchMetadataRequest.getTitle();
@@ -78,7 +79,9 @@ public class HardcoverParser implements BookParser {
         List<BookMetadata> results = new ArrayList<>();
         for (GraphQLResponse.BookWithEditions book : books) {
             if (book.getEditions() == null || book.getEditions().isEmpty()) {
-                continue;
+                BookMetadata metadata = mapBookToMetadata(books.getFirst());
+                results.add(metadata);
+                return results;
             }
             for (GraphQLResponse.Edition edition : book.getEditions()) {
                 log.debug("Processing edition '{}' with id '{}' of book '{}'", edition.getTitle(), edition.getId(), book.getTitle());
