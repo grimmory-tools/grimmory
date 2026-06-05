@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class HardcoverParser implements BookParser {
-//    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-//    private static final double AUTHOR_MATCH_THRESHOLD = 0.5;
     private final HardcoverBookSearchService hardcoverBookSearchService;
 
     @Override
@@ -82,7 +80,7 @@ public class HardcoverParser implements BookParser {
         //need to start building redundacies
         List<GraphQLResponse.Document> matchedByTitles = new ArrayList<>();
         List<GraphQLResponse.Document> matchedByAuthors = new ArrayList<>();
-        if (searchAuthor.isEmpty() || searchAuthor == null) {
+        if (searchAuthor.isEmpty()) {
             matchedByTitles = filterTitle(docs, searchTitle);
         }
         else {
@@ -90,9 +88,8 @@ public class HardcoverParser implements BookParser {
             matchedByTitles = filterTitle(matchedByAuthors, searchTitle);
         }
 
-        //if isbnList
         // Order Collections with most isbn's at the top
-        matchedByTitles = sortSearchResultsByISBNCount(matchedByTitles); // test this for errors with no isbn route
+        matchedByTitles = sortSearchResultsByISBNCount(matchedByTitles);
         List<String> isbnList = new ArrayList<>();
 
         GraphQLResponse.Document topmatch = matchedByTitles.getFirst();
@@ -142,24 +139,16 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
-        LevenshteinDistance levenshtein = new LevenshteinDistance();
+        LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
         List<GraphQLResponse.Document> originalDocs = docs;
-//        String docAuthor;
+
         for (GraphQLResponse.Document doc : docs) {
-            if(!doc.getAuthorNames().isEmpty()){
-                doc.getAuthorNames().stream()
-                        .findFirst()
-                        .orElse("".trim()); //what??
-            }
-//            else {
-//                docAuthor = "";
-//            }
             int distance = levenshtein.apply(searchAuthor, doc.getAuthorNames().toString());
             doc.setLevenshteinDistance(distance);
         }
          docs = docs.stream()
                 .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
-                .collect(Collectors.toList());
+                .toList();
 
         final double best = docs.getFirst().getLevenshteinDistance();
         final double worst = docs.getLast().getLevenshteinDistance();
@@ -167,7 +156,7 @@ public class HardcoverParser implements BookParser {
 
         List<GraphQLResponse.Document> newDocs = docs.stream()
                 .filter(doc -> doc.getLevenshteinDistance() <= threshold)
-                .collect(Collectors.toList());
+                .toList();
 
         if (newDocs.isEmpty()){
             return  originalDocs;
@@ -180,14 +169,11 @@ public class HardcoverParser implements BookParser {
 
     private List<GraphQLResponse.Document> filterTitle(List<GraphQLResponse.Document> docs, String searchTitle) {
         List<GraphQLResponse.Document> originalDocs = docs;
-//        List<GraphQLResponse.Document> newDocs = docs.stream()
-//                .filter(doc -> doc.getTitle() != null && !doc.getTitle().isBlank())
-//                .collect(Collectors.toList());
 
-        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+        LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
 
         for (GraphQLResponse.Document doc : docs) {
-            int distance = levenshteinDistance.apply(searchTitle, doc.getTitle());
+            int distance = levenshtein.apply(searchTitle, doc.getTitle());
             doc.setLevenshteinDistance(distance);
         }
 
@@ -205,7 +191,7 @@ public class HardcoverParser implements BookParser {
     private List<GraphQLResponse.Document>sortSearchResultsByISBNCount(List<GraphQLResponse.Document> docs){
         return docs.stream()
                 .sorted(Comparator.comparingInt(doc -> doc.getIsbns().size()))
-                .collect(Collectors.toList())
+                .toList()
                 .reversed();
     }
 
@@ -244,54 +230,7 @@ public class HardcoverParser implements BookParser {
         }
         return results;
     }
-//    private BookMetadata mapDocumentToMetadata(GraphQLResponse.Document doc, FetchMetadataRequest request, boolean fetchDetailedMoods) {
-//        BookMetadata metadata = new BookMetadata();
-//        metadata.setHardcoverId(doc.getSlug());
-//
-//        String bookId = parseBookId(doc.getId());
-//        if (bookId != null) {
-//            metadata.setHardcoverBookId(bookId);
-//        }
-//
-//        metadata.setTitle(doc.getTitle());
-//        metadata.setSubtitle(doc.getSubtitle());
-//        metadata.setDescription(doc.getDescription());
-//
-//        if (doc.getAuthorNames() != null) {
-//            metadata.setAuthors(List.copyOf(doc.getAuthorNames()).reversed()); // Maybe upstream this?
-//        }
-//
-//        mapSeriesInfo(doc, metadata);
-//
-//        if (doc.getRating() != null) {
-//            metadata.setHardcoverRating(
-//                    BigDecimal.valueOf(doc.getRating()).setScale(2, RoundingMode.HALF_UP).doubleValue()
-//            );
-//        }
-//        metadata.setHardcoverReviewCount(doc.getRatingsCount());
-//        metadata.setPageCount(doc.getPages());
-//
-//        if (doc.getReleaseDate() != null) {
-//            try {
-//                metadata.setPublishedDate(LocalDate.parse(doc.getReleaseDate()));
-//            } catch (Exception e) {
-//                log.debug("Could not parse release date: {}", doc.getReleaseDate());
-//            }
-//        }
-//
-//        mapTagsAndMoods(doc, metadata, bookId, fetchDetailedMoods);
-//
-//        mapIsbns(doc, request, metadata);
-//
-//        metadata.setThumbnailUrl(doc.getImage() != null ? doc.getImage().getUrl() : null);
-//        metadata.setProvider(MetadataProvider.Hardcover);
-//        return metadata;
-//    }
-//    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book) {
-//        BookMetadata metadata = new BookMetadata();
-//
-//        metadata.setHardcoverId(book.get);
-//    }
+
     private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book){
         GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
         return mapBookToMetadata(book, edition);
