@@ -60,9 +60,8 @@ public class HardcoverParser implements BookParser {
                     .matcher(title.trim().toLowerCase()).replaceAll("");
         }
 
-        log.info("Hardcover: Searching with title only: '{}'", title);
-        List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
-        results = processHits(hits, fetchMetadataRequest, false, book);
+        List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title);
+        List<BookMetadata> results = processHits(hits, fetchMetadataRequest, book);
 
         if (results.isEmpty()) {
             log.info("Hardcover: No results found for title '{}'", title);
@@ -73,6 +72,57 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<BookMetadata> processBooksWithEditions(List<GraphQLResponse.BookWithEditions> books) {
+    private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, Book book) {
+        if (hits == null || hits.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String searchTitle = request.getTitle() != null ? request.getTitle() : "";
+        String searchAuthor = request.getAuthor() != null ? request.getAuthor().trim() : "";
+
+        List<GraphQLResponse.Document> docs = hits.stream()
+                .map(GraphQLResponse.Hit::getDocument)
+                .toList();
+
+        // Filter by author
+        //need to start building redundacies
+        List<GraphQLResponse.Document> matchedByTitles = new ArrayList<>();
+        List<GraphQLResponse.Document> matchedByAuthors = new ArrayList<>();
+        if (searchAuthor.isEmpty() || searchAuthor == null) {
+            matchedByTitles = filterTitle(docs, searchTitle);
+        }
+        else {
+            matchedByAuthors = filterAuthor(docs, searchAuthor);
+            matchedByTitles = filterTitle(matchedByAuthors, searchTitle);
+        }
+
+        //if isbnList
+        // Order Collections with most isbn's at the top
+        matchedByTitles = sortSearchResultsByISBNCount(matchedByTitles); // test this for errors with no isbn route
+        List<String> isbnList = new ArrayList<>();
+
+        GraphQLResponse.Document topmatch = matchedByTitles.getFirst();
+        if (topmatch.getIsbns() != null && !topmatch.getIsbns().isEmpty()) {
+            isbnList.addAll(topmatch.getIsbns());
+        }
+
+        int hcid;
+        List<GraphQLResponse.BookWithEditions> allResults = new ArrayList<>();
+
+        if (matchedByTitles.getFirst().getIsbns().isEmpty()) {
+            if (matchedByTitles.getFirst().getId() != null && !matchedByTitles.getFirst().getId().isEmpty()) {
+                hcid = Integer.parseInt(matchedByTitles.getFirst().getId());
+                allResults = hardcoverBookSearchService.searchBookByIsbn(hcid);
+            }
+        }
+        else {
+            allResults = hardcoverBookSearchService.searchBookByIsbn(isbnList);
+        }
+
+        allResults = filterEditions(allResults, book);
+
+        return processBooks(allResults);
+    }
         if (books == null || books.isEmpty()) {
             return Collections.emptyList();
         }
