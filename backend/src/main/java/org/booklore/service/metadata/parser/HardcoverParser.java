@@ -91,48 +91,66 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, boolean searchByIsbn, Book book) {
-        if (hits == null || hits.isEmpty()) {
-            return Collections.emptyList();
+    private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
+        LevenshteinDistance levenshtein = new LevenshteinDistance();
+        List<GraphQLResponse.Document> originalDocs = docs;
+//        String docAuthor;
+        for (GraphQLResponse.Document doc : docs) {
+            if(!doc.getAuthorNames().isEmpty()){
+                doc.getAuthorNames().stream()
+                        .findFirst()
+                        .orElse("".trim()); //what??
+            }
+//            else {
+//                docAuthor = "";
+//            }
+            int distance = levenshtein.apply(searchAuthor, doc.getAuthorNames().toString());
+            doc.setLevenshteinDistance(distance);
         }
+         docs = docs.stream()
+                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
+                .collect(Collectors.toList());
 
-        FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
-        String searchTitle = request.getTitle() != null ? request.getTitle() : "";
-        String searchAuthor = request.getAuthor() != null ? request.getAuthor() : "";
+        final double best = docs.getFirst().getLevenshteinDistance();
+        final double worst = docs.getLast().getLevenshteinDistance();
+        final double threshold = Math.min(best, worst) + 1;
 
-        // Filter by author
-        List<GraphQLResponse.Document> matchedByAuthors = hits.stream()
-                .map(GraphQLResponse.Hit::getDocument)
-                .filter(doc -> filterAuthor(doc, searchAuthor, searchByIsbn, fuzzyScore))
-                .toList();
+        List<GraphQLResponse.Document> newDocs = docs.stream()
+                .filter(doc -> doc.getLevenshteinDistance() <= threshold)
+                .collect(Collectors.toList());
 
-        if (matchedByAuthors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Filter by title
-        List<GraphQLResponse.Document> matchedByTitles = matchedByAuthors.stream()
-                .filter(doc -> filterTitle(doc, searchTitle))
-                .toList();
-
-        if (matchedByAuthors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> isbns = new ArrayList();
-        for (GraphQLResponse.Document foo : matchedByTitles){
-            isbns.addAll(foo.getIsbns());
-        }
-
-        int hcid;
-        List<GraphQLResponse.BookWithEditions> Allresults;
-        if (matchedByTitles.getFirst().getId() != null) {
-            hcid = Integer.parseInt(matchedByTitles.getFirst().getId());
-            Allresults = hardcoverBookSearchService.searchBookByIsbn(isbns, hcid);
+        if (newDocs.isEmpty()){
+            return  originalDocs;
         }
         else {
-            Allresults = hardcoverBookSearchService.searchBookByIsbn(isbns);
+            return newDocs;
         }
+
+    }
+
+    private List<GraphQLResponse.Document> filterTitle(List<GraphQLResponse.Document> docs, String searchTitle) {
+        List<GraphQLResponse.Document> originalDocs = docs;
+//        List<GraphQLResponse.Document> newDocs = docs.stream()
+//                .filter(doc -> doc.getTitle() != null && !doc.getTitle().isBlank())
+//                .collect(Collectors.toList());
+
+        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+
+        for (GraphQLResponse.Document doc : docs) {
+            int distance = levenshteinDistance.apply(searchTitle, doc.getTitle());
+            doc.setLevenshteinDistance(distance);
+        }
+
+        if (docs.isEmpty()) {
+            return originalDocs;
+        }
+
+        // Remove docs above average distance, sort remainder by distance ascending
+        return docs.stream()
+                .filter(doc -> doc.getLevenshteinDistance() <= 5)
+                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
+                .toList();
+    }
 
         BookCategory category = BookFileType
             .fromExtension(book.getPrimaryFile().getExtension())

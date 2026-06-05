@@ -162,6 +162,8 @@ public class GraphQLResponse {
 
         @JsonProperty("users_read_count")
         private Integer usersReadCount;
+
+        private Integer levenshteinDistance;
     }
 
     @Getter
