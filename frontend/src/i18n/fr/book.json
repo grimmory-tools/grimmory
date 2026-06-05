@@ -489,7 +489,7 @@
             "comicLocation": "Lieu de BD",
             "comicCreator": "Créateur de BD",
             "lubimyczytacRating": "Note Lubimyczytac",
-            "ranobedbRating": "Note Ranobedb"
+            "ranobedbRating": "Note RanobeDB"
         },
         "readStatus": {
             "unread": "Non lu",
@@ -625,7 +625,8 @@
             "lockFailedDetail": "Une erreur est survenue lors du verrouillage des métadonnées.",
             "unlockFailedSummary": "Échec du déverrouillage",
             "unlockFailedDetail": "Une erreur est survenue lors du déverrouillage des métadonnées."
-        }
+        },
+        "selectBook": "Sélectionner {{ title }}"
     },
     "lockUnlockDialog": {
         "title": "Verrouiller ou déverrouiller les métadonnées",
