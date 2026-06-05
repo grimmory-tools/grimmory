@@ -276,7 +276,8 @@
         "magicShelf": {
             "optionsLabel": "Options",
             "editMagicShelf": "Modifier l'étagère magique",
-            "deleteMagicShelf": "Supprimer l'étagère magique"
+            "deleteMagicShelf": "Supprimer l'étagère magique",
+            "exportJson": "Copier JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Êtes-vous sûr de vouloir rafraîchir la bibliothèque : {{ name }} ?",
@@ -486,7 +487,9 @@
             "comicCharacter": "Personnage de BD",
             "comicTeam": "Équipe de BD",
             "comicLocation": "Lieu de BD",
-            "comicCreator": "Créateur de BD"
+            "comicCreator": "Créateur de BD",
+            "lubimyczytacRating": "Note Lubimyczytac",
+            "ranobedbRating": "Note Ranobedb"
         },
         "readStatus": {
             "unread": "Non lu",
@@ -819,5 +822,21 @@
             "deleteHeader": "Confirmer la suppression",
             "deleteMessage": "Cela supprimera définitivement {{ count }} livre(s) et leurs fichiers du disque. Cette action est irréversible."
         }
+    },
+    "bulkIsbnImport": {
+        "closeTooltip": "Fermer",
+        "libraryLabel": "Bibliothèque",
+        "libraryPlaceholder": "Sélectionner une bibliothèque",
+        "tabFile": "Téléverser un fichier",
+        "chooseFile": "Choisir un fichier",
+        "parseButton": "Analyser",
+        "clearButton": "Nettoyer",
+        "validationLibraryRequired": "Sélectionner une bibliothèque",
+        "cancelButton": "Annuler",
+        "startImportButton": "Commencer l'importation",
+        "unknownError": "Erreur inconnue",
+        "summaryTitle": "Importation terminée",
+        "summaryFailed": "Échec",
+        "doneButton": "Terminé"
     }
 }
