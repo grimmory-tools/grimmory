@@ -2,9 +2,7 @@ package org.booklore.service.metadata.parser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
-import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -13,7 +11,6 @@ import org.booklore.model.enums.BookCategory;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
 import org.booklore.util.BookUtils;
@@ -31,10 +28,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class HardcoverParser implements BookParser {
-
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-    private static final double AUTHOR_MATCH_THRESHOLD = 0.5;
-
+//    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+//    private static final double AUTHOR_MATCH_THRESHOLD = 0.5;
     private final HardcoverBookSearchService hardcoverBookSearchService;
 
     @Override
@@ -477,73 +472,6 @@ public class HardcoverParser implements BookParser {
     private void mapPublisher(BookMetadata metadata, GraphQLResponse.Edition edition){
         if (edition.getPublisher() != null && edition.getPublisher().getName() != null) {
             metadata.setPublisher(edition.getPublisher().getName());
-        }
-    }
-
-            Set<String> filteredGenres = HardcoverMoodFilter.filterGenresWithCounts(details.getCachedTags());
-            if (!filteredGenres.isEmpty()) {
-                metadata.setCategories(filteredGenres.stream()
-                        .map(WordUtils::capitalizeFully)
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
-
-            Set<String> filteredTags = HardcoverMoodFilter.filterTagsWithCounts(details.getCachedTags());
-            if (!filteredTags.isEmpty()) {
-                metadata.setTags(filteredTags.stream()
-                        .map(WordUtils::capitalizeFully)
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
-
-            return !filteredMoods.isEmpty();
-        } catch (Exception e) {
-            log.debug("Failed to fetch book details: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    private void mapIsbns(GraphQLResponse.Document doc, FetchMetadataRequest request, BookMetadata metadata) {
-        if (doc.getIsbns() == null) {
-            return;
-        }
-
-        String inputIsbn = request.getIsbn();
-        String matchingIsbn = null;
-        if (StringUtils.isBlank(inputIsbn)) {
-            // If we didn't search by ISBN, use first ISBN from results
-            matchingIsbn = doc.getIsbns().stream()
-                    .filter(isbn -> isbn.length() == 10 || isbn.length() == 13)
-                    .findFirst()
-                    .orElse(null);
-        } else if (doc.getIsbns().contains(inputIsbn)) {
-            // If we searched by ISBN. and it matches a result perfectly, use that
-            matchingIsbn = inputIsbn;
-        } else {
-            // If we searched by ISBN but got no exact matches, get response ISBN that most closely matches it
-            LevenshteinDistance distance = LevenshteinDistance.getDefaultInstance();
-            int smallestDistance = Integer.MAX_VALUE;
-            for (String isbn : doc.getIsbns()) {
-                if (isbn.length() != 10 && isbn.length() != 13) {
-                    continue;
-                }
-                int currentDistance = distance.apply(isbn, inputIsbn);
-                if (smallestDistance > currentDistance) {
-                    smallestDistance = currentDistance;
-                    matchingIsbn = isbn;
-                }
-            }
-        }
-
-        // Whatever ISBN we end up with, calculate the other one
-        if (matchingIsbn != null && matchingIsbn.length() == 10) {
-            metadata.setIsbn10(matchingIsbn);
-            metadata.setIsbn13(BookUtils.isbn10To13(matchingIsbn));
-        } else if (matchingIsbn != null && matchingIsbn.length() == 13) {
-            metadata.setIsbn10(BookUtils.isbn13to10(matchingIsbn));
-            metadata.setIsbn13(matchingIsbn);
-        } else {
-            // Can only happen if doc.getIsbns() is empty or doesn't have any 10/13 length strings
-            metadata.setIsbn10(null);
-            metadata.setIsbn13(null);
         }
     }
 
