@@ -207,6 +207,15 @@ public class HardcoverParser implements BookParser {
                 .toList();
     }
 
+    private List<GraphQLResponse.Document>sortSearchResultsByISBNCount(List<GraphQLResponse.Document> docs){
+        return docs.stream()
+                .sorted(Comparator.comparingInt(doc -> doc.getIsbns().size()))
+                .collect(Collectors.toList())
+                .reversed();
+    }
+
+    private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results, Book book) {
+        List<GraphQLResponse.BookWithEditions> originalResults = new ArrayList<>(results);
         BookCategory category = BookFileType
             .fromExtension(book.getPrimaryFile().getExtension())
             .map(BookFileType::category)
