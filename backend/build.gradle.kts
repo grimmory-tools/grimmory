@@ -161,7 +161,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("com.nimbusds:nimbus-jose-jwt:10.9")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.9.1")
 
     // --- Reactive Streams ---
     implementation("io.projectreactor:reactor-core")
@@ -169,7 +169,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.6.2")
+    implementation("org.flywaydb:flyway-mysql:12.8.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -197,7 +197,7 @@ dependencies {
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.22")
+    implementation("com.github.RouHim:jaudiotagger:2.0.23")
 
     // --- Archive Support ---
     implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
@@ -229,7 +229,7 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.1.3"))
+    implementation(platform("tools.jackson:jackson-bom:3.1.4"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
     implementation("tools.jackson.module:jackson-module-blackbird")
