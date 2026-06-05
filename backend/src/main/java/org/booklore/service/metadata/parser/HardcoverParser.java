@@ -71,7 +71,6 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<BookMetadata> processBooksWithEditions(List<GraphQLResponse.BookWithEditions> books) {
     private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, Book book) {
         if (hits == null || hits.isEmpty()) {
             return Collections.emptyList();
@@ -123,6 +122,8 @@ public class HardcoverParser implements BookParser {
 
         return processBooks(allResults);
     }
+
+    private List<BookMetadata> processBooks(List<GraphQLResponse.BookWithEditions> books) {
         if (books == null || books.isEmpty()) {
             return Collections.emptyList();
         }
@@ -136,7 +137,7 @@ public class HardcoverParser implements BookParser {
             }
             for (GraphQLResponse.Edition edition : book.getEditions()) {
                 log.debug("Processing edition '{}' with id '{}' of book '{}'", edition.getTitle(), edition.getId(), book.getTitle());
-                BookMetadata metadata = mapEditionToMetadata(edition, book);
+                BookMetadata metadata = mapBookToMetadata(book, edition);
                 if (metadata != null) {
                     results.add(metadata);
                 }
