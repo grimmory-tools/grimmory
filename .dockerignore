@@ -1,13 +1,17 @@
 .git
 .github
-.yarn
 assets
 deploy
 docs
 scratch
-tools
+node_modules
+.pnpm-store
+pnpm-debug.log
+tools/*
+!tools/release/
+tools/release/*
+!tools/release/package.json
 
-frontend/.yarn
 frontend/.angular
 frontend/dist
 frontend/node_modules

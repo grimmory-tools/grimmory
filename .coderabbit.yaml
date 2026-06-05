@@ -21,8 +21,6 @@ reviews:
     - "!**/out/**"
     - "!**/dist/**"
     - "!**/node_modules/**"
-    - "!**/package-lock.json"
-    - "!**/yarn.lock"
     - "!**/pnpm-lock.yaml"
     - "!**/*.generated.ts"
     - "!**/*.generated.java"
