@@ -276,7 +276,8 @@
         "magicShelf": {
             "optionsLabel": "Options",
             "editMagicShelf": "Modifier l'étagère magique",
-            "deleteMagicShelf": "Supprimer l'étagère magique"
+            "deleteMagicShelf": "Supprimer l'étagère magique",
+            "exportJson": "Copier JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Êtes-vous sûr de vouloir rafraîchir la bibliothèque : {{ name }} ?",
@@ -486,7 +487,10 @@
             "comicCharacter": "Personnage de BD",
             "comicTeam": "Équipe de BD",
             "comicLocation": "Lieu de BD",
-            "comicCreator": "Créateur de BD"
+            "comicCreator": "Créateur de BD",
+            "lubimyczytacRating": "Note Lubimyczytac",
+            "ranobedbRating": "Note RanobeDB",
+            "audibleRating": "Note Audible"
         },
         "readStatus": {
             "unread": "Non lu",
@@ -622,7 +626,10 @@
             "lockFailedDetail": "Une erreur est survenue lors du verrouillage des métadonnées.",
             "unlockFailedSummary": "Échec du déverrouillage",
             "unlockFailedDetail": "Une erreur est survenue lors du déverrouillage des métadonnées."
-        }
+        },
+        "selectBook": "Sélectionner {{ title }}",
+        "selectBookFallback": "Sélectionner un livre",
+        "noRating": "Pas de note"
     },
     "lockUnlockDialog": {
         "title": "Verrouiller ou déverrouiller les métadonnées",
@@ -770,6 +777,22 @@
             "selectAll": "Sélectionner tous les livres",
             "deselectAll": "Désélectionner tous les livres",
             "deleteSelected": "Supprimer les livres sélectionnés"
+        },
+        "bookListTab": "Liste de livres",
+        "book": "Livre",
+        "books": "Livres",
+        "synopsis": "Synopsis",
+        "booksInSeries": "Livres dans la série",
+        "nextUp": "À suivre",
+        "continueReading": "Continuer la lecture",
+        "readButton": "Lus",
+        "viewDetails": "Voir les détails",
+        "continueButton": "Continuer",
+        "listPages": "pages",
+        "stats": {
+            "totalPages": "Nombre total de pages",
+            "formats": "Formats",
+            "owned": "Appartenant à"
         }
     },
     "duplicateMerger": {
@@ -819,5 +842,21 @@
             "deleteHeader": "Confirmer la suppression",
             "deleteMessage": "Cela supprimera définitivement {{ count }} livre(s) et leurs fichiers du disque. Cette action est irréversible."
         }
+    },
+    "bulkIsbnImport": {
+        "closeTooltip": "Fermer",
+        "libraryLabel": "Bibliothèque",
+        "libraryPlaceholder": "Sélectionner une bibliothèque",
+        "tabFile": "Téléverser un fichier",
+        "chooseFile": "Choisir un fichier",
+        "parseButton": "Analyser",
+        "clearButton": "Nettoyer",
+        "validationLibraryRequired": "Sélectionner une bibliothèque",
+        "cancelButton": "Annuler",
+        "startImportButton": "Commencer l'importation",
+        "unknownError": "Erreur inconnue",
+        "summaryTitle": "Importation terminée",
+        "summaryFailed": "Échec",
+        "doneButton": "Terminé"
     }
 }
