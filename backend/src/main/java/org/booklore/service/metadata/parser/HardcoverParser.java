@@ -355,6 +355,18 @@ public class HardcoverParser implements BookParser {
         return metadata;
     }
 
+    private void mapBookId(BookMetadata metadata, GraphQLResponse.BookWithEditions book){
+        Integer bookId = book.getId();
+        if (bookId != null) {
+            metadata.setHardcoverBookId(bookId.toString());
+        }
+    }
+
+    private void mapSeiesData(BookMetadata metadata, GraphQLResponse.BookWithEditions book){
+        if (book.getFeaturedBookSeries() != null && book.getFeaturedBookSeries().getSeries() != null) {
+            metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
+            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
+
             if (book.getFeaturedBookSeries().getPosition() != null) {
                 try {
                     metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries()
