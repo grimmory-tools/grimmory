@@ -289,6 +289,14 @@ public class HardcoverParser implements BookParser {
 //        mapIsbns(doc, request, metadata);
 //
 //        metadata.setThumbnailUrl(doc.getImage() != null ? doc.getImage().getUrl() : null);
+//        metadata.setProvider(MetadataProvider.Hardcover);
+//        return metadata;
+//    }
+//    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book) {
+//        BookMetadata metadata = new BookMetadata();
+//
+//        metadata.setHardcoverId(book.get);
+//    }
     private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book){
         GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
         return mapBookToMetadata(book, edition);
@@ -441,8 +449,9 @@ public class HardcoverParser implements BookParser {
     private void mapEditionReleaseDate(BookMetadata metadata, GraphQLResponse.Edition edition){
         if (edition.getReleaseDate() != null) {
             try {
-                metadata.setSeriesNumber(Float.parseFloat(String.valueOf(doc.getFeaturedSeries().getPosition())));
-            } catch (NumberFormatException _) {
+                metadata.setPublishedDate(LocalDate.parse(edition.getReleaseDate()));
+            } catch (Exception _) {
+                log.debug("Could not parse release date: {}", edition.getReleaseDate());
             }
         }
     }
