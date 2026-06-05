@@ -45,7 +45,6 @@ export class LayoutService {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly scale = signal(14);
   readonly currentPath = signal(this.router.url.split('?')[0]);
   readonly sidebarVisible = signal(true);
   readonly mobileDrawerOpen = signal(false);
@@ -67,10 +66,6 @@ export class LayoutService {
   private sidebarTransitionTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
-    effect(() => {
-      this.changeScale(this.scale());
-    });
-
     effect(() => {
       const settings = this.userService?.currentUser()?.userSettings;
       this._librarySort.set(normalizeSortPref(settings?.sidebarLibrarySorting, DEFAULT_LIBRARY_SORT));
@@ -185,10 +180,6 @@ export class LayoutService {
       this._sidebarTransitioning.set(false);
       this.sidebarTransitionTimeoutId = undefined;
     }, SIDEBAR_TRANSITION_MS);
-  }
-
-  private changeScale(value: number): void {
-    this.document.documentElement.style.fontSize = `${value}px`;
   }
 
   private updateSidebarSort(

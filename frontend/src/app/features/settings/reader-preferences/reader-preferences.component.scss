@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
 }
 
 .settings-description {
@@ -19,25 +19,25 @@
 .settings-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
 }
 
 .preferences-section {
   @media (width >= 768px) {
-    padding: 0 1rem;
+    padding: 0 0.875rem;
   }
 }
 
 .section-header {
   @include settings.settings-section-header;
 
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .section-title {
   @include settings.settings-section-title;
 
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4375rem;
 }
 
 .section-description {
@@ -59,7 +59,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65625rem;
   align-items: flex-end;
 
   @media (width <= 768px) {
@@ -70,18 +70,18 @@
 
 .radio-group {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.3125rem;
 
   @media (width <= 768px) {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.65625rem;
   }
 }
 
 .radio-option {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 
   label {
     font-size: settings.$settings-section-description-size;

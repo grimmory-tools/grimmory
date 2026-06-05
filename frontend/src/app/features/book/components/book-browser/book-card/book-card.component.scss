@@ -76,18 +76,18 @@
 
 .book-title {
   flex-grow: 1;
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
   margin: 0;
-  padding-left: 0.5rem;
+  padding-left: 0.4375rem;
 
   @media (width <= 767px) {
-    font-size: 0.75rem;
-    padding-left: 0.25rem;
+    font-size: var(--app-text-xs);
+    padding-left: 0.21875rem;
   }
 }
 
@@ -116,8 +116,8 @@
     }
 
     @media (width <= 767px) {
-      width: clamp(1.5rem, 8vw, 2.5rem);
-      height: clamp(1.5rem, 8vw, 2.5rem);
+      width: clamp(1.3125rem, 8vw, 2.1875rem);
+      height: clamp(1.3125rem, 8vw, 2.1875rem);
       padding: 0;
 
       .pi {
@@ -211,7 +211,7 @@
   left: 8px;
   background-color: rgb(0 0 0 / 70%);
   color: var(--color-white);
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   padding: 1px 3px;
   border-radius: 3px;
   z-index: 3;
@@ -221,7 +221,7 @@
   position: absolute;
   background-color: var(--color-primary);
   color: var(--color-primary-contrast);
-  font-size: 0.7rem;
+  font-size: 0.6125rem;
   padding: 0 5px;
   border-radius: 6px;
   z-index: 3;
@@ -237,7 +237,7 @@
 }
 
 .series-items-count-icon {
-  font-size: 0.6rem;
+  font-size: 0.525rem;
   margin-right: 2px;
 }
 
@@ -245,7 +245,7 @@
   position: absolute;
   background: var(--color-primary);
   color: var(--color-primary-contrast);
-  font-size: 0.675rem;
+  font-size: 0.59063rem;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 6px;
@@ -282,7 +282,7 @@
   margin: 0;
 
   @media (width <= 767px) {
-    font-size: 0.6rem;
+    font-size: 0.525rem;
     padding: 1px 4px;
   }
 }
@@ -367,7 +367,7 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  margin-left: 0.5rem;
+  margin-left: 0.4375rem;
   cursor: pointer;
   border-radius: 4px;
   transition: opacity 0.15s ease;

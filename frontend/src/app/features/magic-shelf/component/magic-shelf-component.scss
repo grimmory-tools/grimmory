@@ -17,8 +17,8 @@
 }
 
 .import-panel {
-  margin-bottom: 0.75rem;
-  padding: 1rem;
+  margin-bottom: 0.65625rem;
+  padding: 0.875rem;
   background: var(--overlay-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -26,20 +26,20 @@
   .import-textarea {
     width: 100%;
     font-family: monospace;
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
     resize: vertical;
   }
 
   .import-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: 0.4375rem;
+    margin-top: 0.65625rem;
   }
 }
 
 .magic-shelf-content {
-  padding: 2rem;
+  padding: 1.75rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-bottom: none;
@@ -47,24 +47,24 @@
   min-height: 450px;
 
   @media (width <= 480px) {
-    padding: 1rem;
+    padding: 0.875rem;
     min-height: 350px;
   }
 }
 
 .form-header {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
   display: flex;
   width: 100%;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem;
   background: var(--overlay-background);
   border-radius: 8px;
   border: 1px solid var(--border-color);
 
   @media (width <= 768px) {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.65625rem;
   }
 }
 
@@ -73,10 +73,10 @@
 
   label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4375rem;
     font-weight: 600;
     color: var(--text-color);
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
   }
 
   input {
@@ -91,23 +91,23 @@
   .icon-picker-wrapper {
     label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4375rem;
       font-weight: 600;
       color: var(--text-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
     }
 
     .selected-icon-display {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .icon-display-container {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.625rem 1rem;
+      gap: 0.65625rem;
+      padding: 0.54688rem 0.875rem;
       border: 1px solid var(--border-color);
       border-radius: 6px;
       cursor: pointer;
@@ -128,7 +128,7 @@
       }
 
       .icon-label {
-        font-size: 0.95rem;
+        font-size: 0.83125rem;
         color: var(--text-secondary-color);
         white-space: nowrap;
       }
@@ -136,16 +136,16 @@
       .icon-placeholder {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4375rem;
         color: var(--text-secondary-color);
 
         i {
-          font-size: 1.125rem;
+          font-size: var(--app-text-lg);
           color: var(--primary-color)
         }
 
         span {
-          font-size: 0.875rem;
+          font-size: var(--app-text-sm);
         }
       }
     }
@@ -163,10 +163,10 @@
   .checkbox-wrapper {
     display: flex;
     align-items: center;
-    padding: 0.625rem 0;
+    padding: 0.54688rem 0;
 
     label {
-      margin-left: 0.5rem;
+      margin-left: 0.4375rem;
       font-weight: 500;
       color: var(--text-color);
       cursor: pointer;
@@ -177,18 +177,18 @@
     align-items: flex-start;
 
     .checkbox-wrapper {
-      padding: 0.5rem 0;
+      padding: 0.4375rem 0;
     }
   }
 }
 
 .rules-container {
   overflow: auto;
-  max-height: 40rem;
-  padding: 0.5rem;
+  max-height: 35rem;
+  padding: 0.4375rem;
 
   @media (width <= 768px) {
-    max-height: 35rem;
+    max-height: 30.625rem;
   }
 }
 
@@ -199,8 +199,8 @@
 }
 
 .save-button-section {
-  margin: 1.5rem 0 0;
-  padding: 1rem;
+  margin: 1.3125rem 0 0;
+  padding: 0.875rem;
   background: var(--overlay-background);
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -208,9 +208,9 @@
 }
 
 .group-container {
-  padding: 1rem;
+  padding: 0.875rem;
   border-left: 4px solid var(--primary-color);
-  margin-top: 0.75rem;
+  margin-top: 0.65625rem;
   width: 100%;
   border-radius: 8px;
   border-top: 1px solid var(--border-color);
@@ -223,50 +223,50 @@
   }
 
   @media (width <= 768px) {
-    padding: 0.75rem;
+    padding: 0.65625rem;
   }
 }
 
 .group-header {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65625rem;
   flex-wrap: wrap;
 
   label {
     font-weight: 600;
     color: var(--text-color);
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
   }
 
   .condition-select {
-    width: 9rem;
+    width: 7.875rem;
   }
 
   @media (width <= 640px) {
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     .condition-select {
       width: 100%;
-      max-width: 9rem;
+      max-width: 7.875rem;
     }
   }
 }
 
 .rule-item {
-  margin-left: 1rem;
-  margin-top: 0.75rem;
+  margin-left: 0.875rem;
+  margin-top: 0.65625rem;
   display: flex;
   align-items: center;
-  padding: 0.125rem;
-  gap: 0.75rem;
+  padding: 0.10938rem;
+  gap: 0.65625rem;
   background: var(--overlay-background);
   transition: all 0.2s ease;
 
   .field-select,
   .operator-select {
-    min-width: 14rem;
+    min-width: 12.25rem;
   }
 
   .value-input,
@@ -276,12 +276,12 @@
 
   @media (width <= 1024px) {
     flex-wrap: wrap;
-    margin-left: 0.5rem;
-    gap: 0.5rem;
+    margin-left: 0.4375rem;
+    gap: 0.4375rem;
 
     .field-select,
     .operator-select {
-      min-width: 12rem;
+      min-width: 10.5rem;
       flex: 1;
     }
 
@@ -294,7 +294,7 @@
 
   @media (width <= 640px) {
     margin-left: 0;
-    padding: 0.5rem;
+    padding: 0.4375rem;
 
     .field-select,
     .operator-select {

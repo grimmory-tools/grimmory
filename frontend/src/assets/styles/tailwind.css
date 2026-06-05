@@ -6,6 +6,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme static {
+  --font-sans: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
+
+  --text-app-xs: 0.65625rem;
+  --text-app-sm: 0.765625rem;
+  --text-app-base: 0.875rem;
+  --text-app-lg: 0.984375rem;
+
   --color-primary-50: var(--color-orange-50);
   --color-primary-100: var(--color-orange-100);
   --color-primary-200: var(--color-orange-200);
@@ -54,6 +61,14 @@
   --color-logo-start: var(--color-primary-400);
   --color-logo-end: var(--color-primary-600);
   --color-logo-bookmark: #FF2126;
+}
+
+:root {
+  --font-size-root: 16px;
+  --app-text-xs: var(--text-app-xs);
+  --app-text-sm: var(--text-app-sm);
+  --app-text-base: var(--text-app-base);
+  --app-text-lg: var(--text-app-lg);
 }
 
 [data-app-theme] {

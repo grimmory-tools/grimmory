@@ -8,9 +8,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.65625rem;
 
   .chart-title {
     flex: 1;
@@ -18,17 +18,17 @@
 
     h3 {
       color: var(--color-text);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--color-text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -36,19 +36,19 @@
 
   .series-summary {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     .summary-item {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.35rem 0.6rem;
+      gap: 0.30625rem;
+      padding: 0.30625rem 0.525rem;
       border-radius: 16px;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 600;
 
       i {
-        font-size: 0.75rem;
+        font-size: var(--app-text-xs);
       }
 
       &.completed {
@@ -75,32 +75,32 @@
 }
 
 .series-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: var(--color-violet-700);
 }
 
 .stats-row {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.65625rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
 
   .stat-pill {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
+    gap: 0.4375rem;
+    padding: 0.4375rem 0.74375rem;
 
     @include chart-shared.neutral-surface(20px);
 
     .pill-value {
-      font-size: 1rem;
+      font-size: var(--app-text-base);
       font-weight: 600;
       color: var(--color-text);
     }
 
     .pill-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
     }
 
@@ -119,7 +119,7 @@
 .chart-wrapper {
   height: 300px;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .series-details {
@@ -127,19 +127,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.65625rem;
 
     h4 {
       color: var(--color-text);
-      font-size: 0.95rem;
+      font-size: 0.83125rem;
       font-weight: 500;
       margin: 0;
     }
 
     .series-count {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
-      padding: 0.25rem 0.5rem;
+      padding: 0.21875rem 0.4375rem;
 
       @include chart-shared.neutral-surface(4px);
     }
@@ -147,8 +147,8 @@
 
   .controls-row {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    gap: 0.65625rem;
+    margin-bottom: 0.65625rem;
     flex-wrap: wrap;
 
     .search-box {
@@ -157,14 +157,14 @@
       max-width: 250px;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.65rem;
+      gap: 0.4375rem;
+      padding: 0.35rem 0.56875rem;
 
       @include chart-shared.neutral-surface(6px);
 
       i {
         color: var(--color-text-secondary);
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
 
       input {
@@ -173,7 +173,7 @@
         border: none;
         outline: none;
         color: var(--color-text);
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         font-family: inherit;
 
         &::placeholder {
@@ -184,13 +184,13 @@
 
     .filter-controls {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       .filter-select,
       .sort-select {
-        padding: 0.4rem 0.5rem;
+        padding: 0.35rem 0.4375rem;
         color: var(--color-text);
-        font-size: 0.75rem;
+        font-size: var(--app-text-xs);
         font-family: inherit;
         cursor: pointer;
         outline: none;
@@ -216,7 +216,7 @@
   .series-list {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
     max-height: 360px;
     overflow-y: auto;
 
@@ -224,10 +224,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      padding: 1.5rem;
+      gap: 0.4375rem;
+      padding: 1.3125rem;
       color: var(--color-text-secondary);
-      font-size: 0.85rem;
+      font-size: 0.74375rem;
 
       i {
         opacity: 0.5;
@@ -239,9 +239,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+    gap: 0.65625rem;
+    margin-top: 0.65625rem;
+    padding-top: 0.65625rem;
     border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 
     .page-btn {
@@ -257,7 +257,7 @@
       @include chart-shared.neutral-surface(6px);
 
       i {
-        font-size: 0.7rem;
+        font-size: 0.6125rem;
       }
 
       &:hover:not(:disabled) {
@@ -272,7 +272,7 @@
     }
 
     .page-info {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
       min-width: 80px;
       text-align: center;
@@ -280,7 +280,7 @@
   }
 
   .series-card {
-    padding: 0.5rem 0.75rem;
+    padding: 0.4375rem 0.65625rem;
 
     @include chart-shared.neutral-surface;
 
@@ -305,12 +305,12 @@
     .series-main {
       display: flex;
       align-items: flex-start;
-      gap: 0.5rem;
-      margin-bottom: 0.35rem;
+      gap: 0.4375rem;
+      margin-bottom: 0.30625rem;
 
       .series-status-icon {
-        font-size: 0.9rem;
-        margin-top: 0.1rem;
+        font-size: 0.7875rem;
+        margin-top: 0.0875rem;
       }
 
       .series-info {
@@ -319,7 +319,7 @@
 
         .series-name {
           display: block;
-          font-size: 0.9rem;
+          font-size: 0.7875rem;
           font-weight: 500;
           color: var(--color-text);
           white-space: nowrap;
@@ -330,11 +330,11 @@
         .series-meta {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          margin-top: 0.2rem;
+          gap: 0.65625rem;
+          margin-top: 0.175rem;
 
           .books-count {
-            font-size: 0.75rem;
+            font-size: var(--app-text-xs);
             color: var(--color-text-secondary);
 
             .total-hint {
@@ -345,12 +345,12 @@
           .rating {
             display: flex;
             align-items: center;
-            gap: 0.2rem;
-            font-size: 0.75rem;
+            gap: 0.175rem;
+            font-size: var(--app-text-xs);
             color: var(--color-amber-500);
 
             i {
-              font-size: 0.65rem;
+              font-size: 0.56875rem;
             }
           }
         }
@@ -360,7 +360,7 @@
     .series-progress {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       .progress-bar-container {
         flex: 1;
@@ -389,7 +389,7 @@
       }
 
       .progress-text {
-        font-size: 0.75rem;
+        font-size: var(--app-text-xs);
         font-weight: 600;
         color: var(--color-text);
         min-width: 32px;
@@ -398,14 +398,14 @@
     }
 
     .next-up {
-      margin-top: 0.35rem;
-      padding-top: 0.3rem;
+      margin-top: 0.30625rem;
+      padding-top: 0.2625rem;
       border-top: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
-      font-size: 0.7rem;
+      font-size: 0.6125rem;
 
       .next-label {
         color: var(--color-text-secondary);
-        margin-right: 0.35rem;
+        margin-right: 0.30625rem;
       }
 
       .next-title {
@@ -421,24 +421,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem;
+  padding: 2.1875rem;
   text-align: center;
   color: var(--color-text-secondary);
 
   i {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.65625rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 0.95rem;
-    margin: 0 0 0.35rem;
+    font-size: 0.83125rem;
+    margin: 0 0 0.30625rem;
     color: var(--color-text);
   }
 
   small {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     opacity: 0.7;
   }
 }
@@ -487,46 +487,46 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1.05rem;
+        font-size: 0.91875rem;
       }
 
       .chart-description {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
 
     .series-summary {
       .summary-item {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.21875rem 0.4375rem;
+        font-size: var(--app-text-xs);
       }
     }
   }
 
   .stats-row {
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     .stat-pill {
-      padding: 0.4rem 0.6rem;
+      padding: 0.35rem 0.525rem;
 
       .pill-value {
-        font-size: 0.9rem;
+        font-size: 0.7875rem;
       }
 
       .pill-label {
-        font-size: 0.7rem;
+        font-size: 0.6125rem;
       }
     }
   }
 
   .series-details {
     .series-card {
-      padding: 0.5rem 0.65rem;
+      padding: 0.4375rem 0.56875rem;
 
       .series-main {
         .series-info {
           .series-name {
-            font-size: 0.85rem;
+            font-size: 0.74375rem;
           }
         }
       }

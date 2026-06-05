@@ -1,5 +1,5 @@
 :host ::ng-deep p-accordion {
-  --p-accordion-header-padding: 0.6rem 1rem;
+  --p-accordion-header-padding: 0.525rem 0.875rem;
   --p-accordion-header-background: var(--color-card);
   --p-accordion-header-active-background: var(--color-card);
   --p-accordion-header-hover-background: var(--color-surface-hover);
@@ -12,7 +12,7 @@
 }
 
 :host ::ng-deep .p-togglebutton {
-  --p-togglebutton-content-padding: 0.25rem 0.35rem;
+  --p-togglebutton-content-padding: 0.21875rem 0.30625rem;
 }
 
 :host ::ng-deep .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
@@ -34,7 +34,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 0.875rem;
   border-bottom: 1px solid var(--p-content-border-color);
 }
 
@@ -43,24 +43,24 @@
 }
 
 .filter-mode-select {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
 }
 
 :host ::ng-deep .filter-mode-select .p-togglebutton-label {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
 }
 
 .filter-content {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 1rem;
+  padding-bottom: 0.875rem;
   overscroll-behavior: contain;
 }
 
 .filter-type-label {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.21875rem;
   max-width: 100%;
   overflow: hidden;
   min-width: 0;
@@ -75,7 +75,7 @@
 }
 
 .active-filter-count {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--color-primary);
   flex-shrink: 0;
   white-space: nowrap;
@@ -83,7 +83,7 @@
 }
 
 .filter-list {
-  padding-right: 0.25rem;
+  padding-right: 0.21875rem;
 }
 
 .filter-row {
@@ -93,7 +93,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   max-width: 97%;
   transition: color var(--transition-base);
 
@@ -120,19 +120,19 @@
 }
 
 .truncation-notice {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   color: var(--color-text-secondary);
   text-align: center;
-  padding-top: 0.5rem;
+  padding-top: 0.4375rem;
   border-top: 1px solid var(--color-border);
 }
 
 .footer-notice {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   color: var(--color-text-secondary);
   text-align: center;
-  padding-top: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  margin-top: 0.5rem;
+  padding-top: 0.875rem;
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+  margin-top: 0.4375rem;
 }

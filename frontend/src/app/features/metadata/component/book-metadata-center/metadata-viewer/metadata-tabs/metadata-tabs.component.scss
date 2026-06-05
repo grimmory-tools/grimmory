@@ -1,17 +1,17 @@
 .custom-p-tabs ::ng-deep .p-tabpanels {
-  padding: 0.5rem 0 0 !important;
+  padding: 0.4375rem 0 0 !important;
 }
 
 .tab-content {
-  padding: 0.5rem 0;
+  padding: 0.4375rem 0;
 }
 
 .dashboard-scroller-infinite {
   display: flex;
   overflow: auto hidden;
   scroll-snap-type: x mandatory;
-  padding: 0.5rem;
-  gap: 1rem;
+  padding: 0.4375rem;
+  gap: 0.875rem;
   width: 100%;
 }
 
@@ -29,7 +29,7 @@
   scroll-snap-align: start;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
 }
 
 .dashboard-scroller-card:hover {
@@ -58,45 +58,45 @@
 .files-tab-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 0.5rem 0;
+  gap: 1.3125rem;
+  padding: 0.4375rem 0;
 }
 
 .files-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65625rem;
 
   &.download-all-section {
     align-items: flex-end;
-    margin-bottom: -1.5rem;
-    margin-top: 1rem;
+    margin-bottom: -1.3125rem;
+    margin-top: 0.875rem;
   }
 }
 
 .files-section-title {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 600;
   color: var(--text-color);
   margin: 0;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.4375rem;
   border-bottom: 1px solid var(--border-color);
 }
 
 .files-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .file-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem;
+  padding: 0.65625rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
   transition: background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
@@ -112,28 +112,28 @@
 .file-info {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65625rem;
   min-width: 0;
   flex: 1;
 }
 
 .file-type-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.8rem;
+  padding: 0.21875rem 0.4375rem;
+  border-radius: 0.21875rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #fff;
   flex-shrink: 0;
 }
 
 .file-icon {
-  font-size: 1.25rem;
+  font-size: 1.09375rem;
   color: var(--text-color-secondary);
   flex-shrink: 0;
 }
 
 .file-name {
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   color: var(--text-color);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -143,7 +143,7 @@
 }
 
 .file-size {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--text-color-secondary);
   flex-shrink: 0;
 }
@@ -151,15 +151,15 @@
 .file-actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.21875rem;
   flex-shrink: 0;
 
   ::ng-deep .p-button-sm {
-    width: 2rem;
-    height: 2rem;
+    width: 1.75rem;
+    height: 1.75rem;
 
     .p-button-icon {
-      font-size: 1rem;
+      font-size: var(--app-text-base);
     }
   }
 }
@@ -170,32 +170,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 2.625rem 0.875rem;
   text-align: center;
   color: var(--text-color-secondary);
 }
 
 .empty-state-icon {
-  font-size: 3rem;
+  font-size: 2.625rem;
   color: var(--book-type-physical-color);
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .empty-state-title {
-  font-size: 1.25rem;
+  font-size: 1.09375rem;
   font-weight: 600;
   color: var(--text-color);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4375rem;
 }
 
 .empty-state-message {
-  font-size: 0.9rem;
-  margin: 0 0 0.5rem;
+  font-size: 0.7875rem;
+  margin: 0 0 0.4375rem;
   max-width: 400px;
 }
 
 .empty-state-hint {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-style: italic;
   margin: 0;
   opacity: 0.8;
@@ -203,14 +203,14 @@
 
 // Chapters tab styles
 .chapters-tab-content {
-  padding: 0.5rem 0;
+  padding: 0.4375rem 0;
 }
 
 .chapters-loading {
   display: flex;
   justify-content: center;
-  padding: 2rem;
-  font-size: 1.5rem;
+  padding: 1.75rem;
+  font-size: 1.3125rem;
   color: var(--text-color-secondary);
 }
 
@@ -218,23 +218,23 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.8rem;
+  gap: 0.4375rem;
+  margin-bottom: 0.875rem;
+  font-size: 0.7rem;
   color: var(--text-color-secondary);
 
   .tech-info-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
+    gap: 0.21875rem;
+    padding: 0.21875rem 0.54688rem;
     background: var(--highlight-background);
     border: 1px solid var(--border-color);
     border-radius: 9999px;
     white-space: nowrap;
 
     i {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--primary-color);
     }
   }
@@ -243,16 +243,16 @@
 .chapters-table-wrapper {
   overflow-x: auto;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
 }
 
 .chapters-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
 
   th, td {
-    padding: 0.625rem 0.75rem;
+    padding: 0.54688rem 0.65625rem;
     text-align: left;
   }
 
@@ -264,7 +264,7 @@
   th {
     font-weight: 600;
     color: var(--text-color-secondary);
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.025em;
   }
@@ -287,25 +287,25 @@
   }
 
   .chapter-num {
-    width: 3rem;
+    width: 2.625rem;
     text-align: center;
     color: var(--text-color-secondary);
   }
 
   .chapter-title {
-    min-width: 10rem;
+    min-width: 8.75rem;
   }
 
   .chapter-file {
-    min-width: 8rem;
+    min-width: 7rem;
     color: var(--text-color-secondary);
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .chapter-time {
-    width: 6rem;
+    width: 5.25rem;
     font-family: monospace;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-color-secondary);
     white-space: nowrap;
   }
@@ -314,19 +314,19 @@
 .chapters-empty {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 2rem;
+  gap: 0.4375rem;
+  padding: 1.75rem;
   justify-content: center;
   color: var(--text-color-secondary);
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
 }
 
 @media (width <= 576px) {
   .chapters-table {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 
     th, td {
-      padding: 0.5rem;
+      padding: 0.4375rem;
     }
 
     .chapter-file {
@@ -341,13 +341,13 @@
 
 // Covers tab styles
 .covers-tab-content {
-  padding: 1rem 0;
+  padding: 0.875rem 0;
 }
 
 .covers-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.75rem;
   justify-content: center;
 
   @media (width >= 768px) {
@@ -359,28 +359,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65625rem;
 
   ::ng-deep .square-cover img {
     aspect-ratio: 1;
     object-fit: cover;
-    border-radius: 0.5rem;
+    border-radius: 0.4375rem;
   }
 }
 
 .cover-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.4375rem;
+  font-size: var(--app-text-sm);
   font-weight: 600;
   color: var(--primary-color);
-  padding: 0.25rem 0.75rem;
+  padding: 0.21875rem 0.65625rem;
   background: color-mix(in srgb, var(--primary-color) 15%, transparent);
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 
   &.audiobook {

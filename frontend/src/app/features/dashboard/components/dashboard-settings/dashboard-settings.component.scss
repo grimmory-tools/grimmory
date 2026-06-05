@@ -17,8 +17,8 @@
 .settings-controls {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
+  gap: 0.65625rem;
+  padding: 0.875rem 1.75rem;
   background: var(--color-page);
   border: 1px solid var(--color-border);
   border-top: none;
@@ -26,17 +26,17 @@
   .settings-info {
     .info-content {
       display: flex;
-      gap: 0.75rem;
-      padding: 0.75rem;
+      gap: 0.65625rem;
+      padding: 0.65625rem;
       background: var(--color-page);
       border-radius: 6px;
       border: 1px solid var(--p-primary-300);
 
       .info-icon {
         color: var(--color-primary);
-        font-size: 1.125rem;
+        font-size: var(--app-text-lg);
         flex-shrink: 0;
-        margin-top: 0.125rem;
+        margin-top: 0.10938rem;
       }
 
       .info-text {
@@ -45,7 +45,7 @@
         p {
           margin: 0;
           line-height: 1.5;
-          font-size: 0.875rem;
+          font-size: var(--app-text-sm);
           color: var(--color-text-secondary);
         }
       }
@@ -53,20 +53,20 @@
   }
 
   @media (width <= 480px) {
-    padding: 1rem;
-    gap: 0.5rem;
+    padding: 0.875rem;
+    gap: 0.4375rem;
 
     .settings-info {
       .info-content {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4375rem;
       }
     }
   }
 }
 
 .scrollers-container {
-  padding: 1.5rem 2rem;
+  padding: 1.3125rem 1.75rem;
   background: var(--color-page);
   border: 1px solid var(--color-border);
   border-top: none;
@@ -75,7 +75,7 @@
   overflow-y: auto;
 
   @media (width <= 480px) {
-    padding: 1rem;
+    padding: 0.875rem;
     max-height: 400px;
   }
 }
@@ -85,31 +85,31 @@
   transition: all 0.2s;
   border-color: var(--p-content-border-color);
   background: var(--p-content-background);
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  border-radius: 0.375rem;
+  padding: 0.875rem;
+  margin-bottom: 0.65625rem;
+  border-radius: 0.32813rem;
 
   @media (width <= 768px) {
-    padding: 0.75rem !important;
+    padding: 0.65625rem !important;
   }
 }
 
 .scroller-content {
   display: flex;
   align-items: flex-end;
-  gap: 0.75rem;
+  gap: 0.65625rem;
 
   @media (width <= 768px) {
     flex-direction: column;
     align-items: stretch;
-    gap: 1rem;
+    gap: 0.875rem;
   }
 }
 
 .scroller-controls-left {
   display: flex;
   align-items: center;
-  padding-bottom: 0.65rem;
+  padding-bottom: 0.56875rem;
 
   @media (width <= 768px) {
     padding-bottom: 0;
@@ -119,8 +119,8 @@
 
 .scroller-controls-right {
   display: flex;
-  gap: 0.5rem;
-  padding-bottom: 0.25rem;
+  gap: 0.4375rem;
+  padding-bottom: 0.21875rem;
 
   @media (width <= 768px) {
     padding-bottom: 0;
@@ -131,23 +131,23 @@
 .scroller-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
+  gap: 0.65625rem;
   flex: 1;
 
   @media (width <= 768px) {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.65625rem;
   }
 
   @media (width <= 640px) {
-    gap: 0.5rem;
+    gap: 0.4375rem;
   }
 }
 
 .scroller-field {
   label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4375rem;
   }
 
   &.expanded {
@@ -160,7 +160,7 @@
 }
 
 .max-items-field {
-  max-width: 9rem;
+  max-width: 7.875rem;
   flex-shrink: 0;
 
   @media (width <= 768px) {
@@ -170,7 +170,7 @@
 
 label {
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 500;
 }
 
@@ -182,13 +182,13 @@ label {
   .footer-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
   }
 
   @media (width <= 640px) {
     .footer-left {
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       ::ng-deep .p-button {
         width: 100%;

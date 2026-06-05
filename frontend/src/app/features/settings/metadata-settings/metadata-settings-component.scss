@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
 }
 
 .settings-description {
@@ -33,14 +33,14 @@
 .section-description {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   font-size: settings.$settings-section-description-size;
   line-height: 1.5;
   color: var(--p-text-muted-color);
   margin: 0;
 
   .pi {
-    margin-top: 0.125rem;
+    margin-top: 0.10938rem;
     flex-shrink: 0;
   }
 

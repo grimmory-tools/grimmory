@@ -32,22 +32,21 @@
   --control-primary-border-hover: color-mix(in srgb, var(--primary-color) 45%, var(--control-primary-bg));
   --control-focus-border: color-mix(in srgb, var(--primary-color) 50%, var(--control-bg));
   --control-focus-ring-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
-  --control-height: 2.625rem;
-  --control-height-sm: 2.25rem;
-  --control-padding-x: 0.75rem;
-  --control-padding-x-sm: 0.875rem;
-  --control-icon-size: 1rem;
-  --control-icon-size-sm: 0.875rem;
-  --control-gap: 0.5rem;
+  --control-height: 2.29688rem;
+  --control-height-sm: 1.96875rem;
+  --control-padding-x: 0.65625rem;
+  --control-padding-x-sm: 0.76563rem;
+  --control-icon-size: 0.875rem;
+  --control-icon-size-sm: 0.76563rem;
+  --control-gap: 0.4375rem;
   --control-radius: var(--radius-md);
   --control-disabled-opacity: 0.5;
   --danger-color: var(--color-danger);
   --danger-hover-color: var(--color-danger-hover);
   --warning-color: var(--color-warning);
   --info-color: var(--color-info);
-  --focus-ring: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent);
-  --font-family: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
-  --font-size-root: 14px;
+  --focus-ring: 0 0 0 0.175rem color-mix(in srgb, var(--primary-color) 40%, transparent);
+  --font-family: var(--font-sans);
   --page-content-gap: var(--space-4);
   --page-gutter-block: var(--space-5);
   --page-gutter-inline: var(--space-5);
@@ -58,16 +57,12 @@
   --radius-sm: 4px;
   --shadow-overlay: 0 30px 80px -20px rgb(0 0 0 / 70%), 0 10px 30px -10px rgb(0 0 0 / 50%);
   --shadow-sm: 0 2px 4px rgb(0 0 0 / 25%);
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-sm: 0.875rem;
-  --text-xs: 0.75rem;
+  --space-1: 0.21875rem;
+  --space-2: 0.4375rem;
+  --space-3: 0.65625rem;
+  --space-4: 0.875rem;
+  --space-5: 1.09375rem;
+  --space-6: 1.3125rem;
   --transition-base: 0.2s ease;
   --transition-fast: 0.15s ease;
   --book-type-pdf-color: var(--color-red-600);
@@ -93,10 +88,10 @@
 
 @mixin sidebar-fixed-overlay {
   position: fixed !important;
-  top: var(--sidebar-popover-top, 0.75rem) !important;
+  top: var(--sidebar-popover-top, 0.65625rem) !important;
   bottom: auto !important;
-  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.5rem)) !important;
-  max-height: var(--sidebar-popover-max-height, calc(100vh - 1rem)) !important;
+  left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.4375rem)) !important;
+  max-height: var(--sidebar-popover-max-height, calc(100vh - 0.875rem)) !important;
   margin: 0 !important;
   overflow: auto !important;
   transform: none !important;
@@ -174,7 +169,7 @@
 }
 
 .p-toast {
-  top: 4rem !important;
+  top: 3.5rem !important;
 }
 
 .p-inputchips,
@@ -189,7 +184,7 @@
 }
 
 .chart-info-tooltip.p-tooltip {
-  --p-tooltip-max-width: 25rem;
+  --p-tooltip-max-width: 21.875rem;
 }
 
 .progress-incomplete .p-progressbar-value {
@@ -221,11 +216,11 @@
 }
 
 .custom-button-padding .p-button {
-  padding-block: 0.25rem !important;
+  padding-block: 0.21875rem !important;
 }
 
 .book-details-dialog .p-dialog-header {
-  padding: 1rem 1.25rem !important;
+  padding: 0.875rem 1.09375rem !important;
 }
 
 .sidebar-flyout-popover.p-popover {
@@ -239,7 +234,7 @@
 
 @media (width <= 991px) {
   .sidebar-flyout-popover.p-popover {
-    max-width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 0.875rem) !important;
   }
 }
 
@@ -267,7 +262,7 @@
     .p-menu-item-link,
     .p-tieredmenu-item-content > .p-tieredmenu-item-link,
     .p-tieredmenu-item-link {
-      min-height: 3rem !important;
+      min-height: 2.625rem !important;
       padding: var(--space-3) var(--space-4) !important;
       gap: var(--space-3) !important;
     }

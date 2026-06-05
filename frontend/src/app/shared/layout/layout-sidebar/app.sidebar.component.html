@@ -415,9 +415,9 @@
               >
                 <i class="pi pi-palette" aria-hidden="true"></i>
                 <span>{{ 'layout.theme.appearance' | transloco }}</span>
-                <span class="ml-auto mr-2 min-w-0 max-w-[5.5rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{{ selectedAppearanceLabel() }}</span>
+                <span class="ml-auto mr-1.5 min-w-0 max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{{ selectedAppearanceLabel() }}</span>
                 <i
-                  class="pi pi-chevron-down size-3 shrink-0 text-[0.6875rem] text-text-secondary! transition-transform duration-150"
+                  class="pi pi-chevron-down size-2.5 shrink-0 text-[0.6875rem] text-text-secondary! transition-transform duration-150"
                   [class.rotate-180]="appearanceMenuOpen()"
                   aria-hidden="true">
                 </i>
@@ -425,14 +425,14 @@
 
               <div
                 id="user-account-appearance-menu"
-                class="pointer-events-none grid origin-bottom grid-rows-[0fr] translate-y-1 opacity-0 transition-[grid-template-rows,opacity,transform] duration-150 ease-out data-[open=true]:pointer-events-auto data-[open=true]:mt-1 data-[open=true]:border-t data-[open=true]:border-border data-[open=true]:pt-1 data-[open=true]:grid-rows-[1fr] data-[open=true]:translate-y-0 data-[open=true]:opacity-100 motion-reduce:transition-none"
+                class="pointer-events-none grid origin-bottom grid-rows-[0fr] translate-y-0.5 opacity-0 transition-[grid-template-rows,opacity,transform] duration-150 ease-out data-[open=true]:pointer-events-auto data-[open=true]:mt-0.5 data-[open=true]:border-t data-[open=true]:border-border data-[open=true]:pt-0.5 data-[open=true]:grid-rows-[1fr] data-[open=true]:translate-y-0 data-[open=true]:opacity-100 motion-reduce:transition-none"
                 [attr.aria-label]="'layout.theme.appearance' | transloco"
                 [attr.aria-hidden]="!appearanceMenuOpen()"
                 [attr.data-open]="appearanceMenuOpen()"
                 [attr.inert]="appearanceMenuOpen() ? null : ''"
               >
                 <div class="min-h-0 overflow-hidden">
-                  <div class="flex flex-col gap-0.5 pb-1 pl-[calc(var(--control-icon-size)+var(--menu-item-gap))]">
+                  <div class="flex flex-col gap-0.5 pb-0.5 pl-[calc(var(--control-icon-size)+var(--menu-item-gap))]">
                     @for (option of appearanceOptions; track option.value) {
                       <button
                         type="button"

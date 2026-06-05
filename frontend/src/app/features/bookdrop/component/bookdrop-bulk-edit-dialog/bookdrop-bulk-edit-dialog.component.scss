@@ -1,24 +1,24 @@
 .bulk-edit-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 0 1rem;
+  gap: 0.875rem;
+  padding: 0 0.875rem;
 
   @media (width <= 768px) {
     padding: 0;
   }
 
   .helper-text {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     color: var(--text-color-secondary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     margin: 0;
-    padding: 0.5rem 0;
+    padding: 0.4375rem 0;
 
     i {
-      font-size: 1rem;
+      font-size: var(--app-text-base);
     }
   }
 }
@@ -26,15 +26,15 @@
 .info-banner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.65625rem;
+  padding: 0.65625rem 0.875rem;
   background: rgb(59 130 246 / 8%);
   border: 1px solid var(--p-primary-color);
   border-radius: 6px;
   color: var(--p-text-color);
 
   i {
-    font-size: 1.25rem;
+    font-size: 1.09375rem;
     color: var(--p-primary-color);
   }
 }
@@ -42,11 +42,11 @@
 .fields-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65625rem;
 
   h4 {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
     font-weight: 600;
     color: var(--p-text-secondary-color);
   }
@@ -61,10 +61,10 @@
 .merge-toggle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 
   .merge-label {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
     color: var(--p-text-secondary-color);
   }
 }
@@ -72,18 +72,18 @@
 .field-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .field-row {
   display: grid;
-  grid-template-columns: auto 6rem 1fr;
-  gap: 0.75rem;
+  grid-template-columns: auto 5.25rem 1fr;
+  gap: 0.65625rem;
   align-items: center;
 }
 
 .field-label {
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   font-weight: 500;
   color: var(--p-text-color);
 }
@@ -99,6 +99,6 @@
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
+  gap: 0.65625rem;
+  padding-top: 0.4375rem;
 }

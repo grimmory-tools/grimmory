@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100%;
-  padding: 1.1rem 1.1rem 0;
+  padding: 0.9625rem 0.9625rem 0;
   text-align: center;
   position: relative;
   z-index: 1;
@@ -19,7 +19,7 @@
 
 @media (width <= 768px) {
   .dashboard {
-    padding: 0.5rem 0.5rem 0;
+    padding: 0.4375rem 0.4375rem 0;
   }
 }
 
@@ -36,16 +36,16 @@
 
 .welcome-description {
   color: var(--color-text-secondary);
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.625;
 }
 
 .dashboard .no-library-header {
-  font-size: 1.75rem;
+  font-size: 1.53125rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -54,7 +54,7 @@
 }
 
 .dashboard-no-library {
-  padding: 3rem;
+  padding: 2.625rem;
   background: transparent;
   border-radius: 24px;
   border: 1px solid var(--color-border);
@@ -72,8 +72,8 @@
 
 .dashboard-settings-button {
   position: fixed;
-  top: 6rem;
-  right: 2rem;
+  top: 5.25rem;
+  right: 1.75rem;
   z-index: 100;
 
   ::ng-deep .p-button {
@@ -91,17 +91,17 @@
 
 @media (width <= 768px) {
   .dashboard-settings-button {
-    top: 5rem;
-    right: 1rem;
+    top: 4.375rem;
+    right: 0.875rem;
 
     ::ng-deep .p-button {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 2.1875rem;
+      height: 2.1875rem;
     }
   }
 }
 
 .scroller-placeholder {
   height: 260px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }

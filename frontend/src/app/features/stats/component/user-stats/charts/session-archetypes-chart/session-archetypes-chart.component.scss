@@ -6,36 +6,36 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 
   .chart-title {
     flex: 1;
 
     h3 {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4375rem;
       align-items: center;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
     }
 
     .chart-description {
       margin: 0;
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       line-height: 1.4;
     }
   }
 
   .year-nav {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     align-items: center;
 
     .nav-btn {
-      padding: 0.3rem 0.5rem;
+      padding: 0.2625rem 0.4375rem;
       border: 1px solid var(--color-border);
       border-radius: 6px;
       background: color-mix(in srgb, var(--color-text) 5%, transparent);
@@ -51,7 +51,7 @@
     .year-label {
       min-width: 50px;
       color: var(--text-color, #fff);
-      font-size: 1.1rem;
+      font-size: 0.9625rem;
       font-weight: 600;
       text-align: center;
     }
@@ -60,14 +60,14 @@
 
 .session-archetypes-icon {
   color: #ff9800;
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
 }
 
 .stats-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.65625rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 
   .stat-card {
     display: flex;
@@ -75,21 +75,21 @@
     flex-direction: column;
     align-items: center;
     min-width: 80px;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
 
     .stat-value {
       color: var(--text-color, #fff);
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
     }
 
     .stat-label {
-      margin-top: 0.25rem;
+      margin-top: 0.21875rem;
       color: var(--text-secondary-color);
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
@@ -100,7 +100,7 @@
 
     &.archetype .stat-value {
       color: #42a5f5;
-      font-size: 1.1rem;
+      font-size: 0.9625rem;
     }
   }
 }
@@ -116,25 +116,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.625rem;
   color: var(--text-secondary-color);
   text-align: center;
 
   i {
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
     opacity: 0.5;
-    font-size: 2.5rem;
+    font-size: 2.1875rem;
   }
 
   p {
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.4375rem;
     color: var(--text-color, #fff);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 
   small {
     opacity: 0.7;
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
   }
 }
 
@@ -146,6 +146,6 @@
 
 @media (width <= 480px) {
   .chart-header .chart-title h3 {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 }

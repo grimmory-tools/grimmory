@@ -41,7 +41,7 @@ app-tabs {
   border: 0;
   background: none;
   color: var(--color-text-secondary);
-  font-size: 0.9375rem;
+  font-size: 0.82031rem;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -83,11 +83,11 @@ app-tabs {
 app-tabs.placement-below {
   display: flex;
   align-items: flex-start;
-  height: var(--app-tabs-row-height, 3.5rem);
-  padding: 0.25rem 2rem 0;
+  height: var(--app-tabs-row-height, 3.0625rem);
+  padding: 0.21875rem 1.75rem 0;
 
   @media (width <= 767px) {
-    padding: 0.25rem 1rem 0;
+    padding: 0.21875rem 0.875rem 0;
   }
 }
 
@@ -100,29 +100,29 @@ app-tabs.variant-underline {
     align-items: stretch;
     width: 100%;
     height: 100%;
-    gap: 1.5rem;
-    padding: 0 2rem;
+    gap: 1.3125rem;
+    padding: 0 1.75rem;
 
     &::after {
       content: "";
       position: absolute;
-      right: 2rem;
+      right: 1.75rem;
       bottom: 0;
-      left: 2rem;
+      left: 1.75rem;
       height: 1px;
       background: var(--app-tabs-divider);
       pointer-events: none;
     }
 
     @media (width <= 767px) {
-      gap: 1rem;
-      padding: 0 1rem;
+      gap: 0.875rem;
+      padding: 0 0.875rem;
       overflow-x: auto;
       scrollbar-width: none;
 
       &::after {
-        right: 1rem;
-        left: 1rem;
+        right: 0.875rem;
+        left: 0.875rem;
       }
 
       &::-webkit-scrollbar {
@@ -132,13 +132,13 @@ app-tabs.variant-underline {
   }
 
   .app-tab {
-    min-width: 5rem;
-    padding: 0 1rem;
+    min-width: 4.375rem;
+    padding: 0 0.875rem;
 
     @media (width <= 767px) {
       flex: 1 1 0;
-      min-width: 4rem;
-      padding: 0 0.875rem;
+      min-width: 3.5rem;
+      padding: 0 0.76563rem;
     }
 
     &[aria-selected="true"] {
@@ -173,7 +173,7 @@ app-tabs.variant-underline {
 
 app-tabs.variant-segmented {
   .app-tabs {
-    gap: 0.125rem;
+    gap: 0.10938rem;
     padding: var(--space-1);
     border-radius: var(--radius-lg);
     background: var(--control-bg);
@@ -189,8 +189,8 @@ app-tabs.variant-segmented {
   }
 
   .app-tab {
-    height: 2rem;
-    padding: 0 1rem;
+    height: 1.75rem;
+    padding: 0 0.875rem;
     border-radius: var(--control-radius);
 
     &:hover:not([aria-selected="true"]) {

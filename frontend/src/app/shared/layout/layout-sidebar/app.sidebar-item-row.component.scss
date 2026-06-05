@@ -95,7 +95,7 @@ a.sidebar-item-link.active-route {
 }
 
 .sidebar-item-chevron {
-  font-size: var(--text-sm);
+  font-size: var(--app-text-sm);
   color: var(--color-text-secondary);
   padding-right: var(--space-3);
   transition: color var(--transition-fast);
@@ -111,7 +111,7 @@ a.sidebar-item-link.active-route {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--text-base);
+  font-size: var(--app-text-base);
 }
 
 .sidebar-item-label {
@@ -150,8 +150,8 @@ a.sidebar-item-link.active-route {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
-  height: 1.875rem;
+  min-width: 1.75rem;
+  height: 1.64063rem;
   padding: 0 var(--space-2);
   border: 0;
   border-radius: var(--radius-pill);
@@ -159,7 +159,7 @@ a.sidebar-item-link.active-route {
   color: var(--color-text-secondary);
   cursor: pointer;
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--app-text-sm);
   transition: color var(--transition-base);
 }
 
@@ -198,7 +198,7 @@ a.sidebar-item-link.active-route {
 
 .book-count {
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  font-size: var(--app-text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -269,7 +269,7 @@ a.sidebar-item-link.active-route {
   }
 
   .entity-menu-button {
-    margin-right: -0.25rem;
+    margin-right: -0.21875rem;
   }
 }
 

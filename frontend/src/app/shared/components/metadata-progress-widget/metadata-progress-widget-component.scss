@@ -1,29 +1,29 @@
 .task-border {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
   background: var(--color-card);
   border: 1px solid var(--color-primary);
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
 }
 
 .task-card {
-  padding: 1rem;
+  padding: 0.875rem;
 }
 
 .task-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 }
 
 .task-title-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .task-title {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 600;
   color: var(--color-primary);
   margin: 0;
@@ -32,45 +32,45 @@
 .task-tags {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.21875rem;
 }
 
 :host ::ng-deep .task-tag {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
 }
 
 .task-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 }
 
 .task-message {
-  font-size: 1rem;
+  font-size: var(--app-text-base);
   color: var(--color-text);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 }
 
 .task-progress-info {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 }
 
 .action-buttons {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .review-button {
   text-align: right;
-  margin-top: 0.75rem;
+  margin-top: 0.65625rem;
 }
 
 .review-indicator {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }

@@ -18,8 +18,8 @@
   @include accent-surface;
   @include accent-text;
 
-  padding: 0.4rem 1rem;
-  font-size: 0.85rem;
+  padding: 0.35rem 0.875rem;
+  font-size: 0.74375rem;
   font-weight: 500;
 }
 
@@ -33,9 +33,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.875rem;
 
   .chart-title {
     flex: 1;
@@ -43,17 +43,17 @@
 
     h3 {
       color: var(--color-text);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--color-text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -65,16 +65,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
 
     .badge-value {
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
       color: var(--color-text);
     }
 
     .badge-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -87,24 +87,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1.75rem;
   text-align: center;
   color: var(--color-text-secondary);
 
   i {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.65625rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 0.9rem;
-    margin: 0 0 0.5rem;
+    font-size: 0.7875rem;
+    margin: 0 0 0.4375rem;
     color: var(--color-text);
   }
 
   small {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
     opacity: 0.7;
   }
 }
@@ -113,11 +113,11 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1.1rem;
+        font-size: 0.9625rem;
       }
 
       .chart-description {
-        font-size: 0.85rem;
+        font-size: 0.74375rem;
       }
     }
   }
@@ -127,17 +127,17 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       .chart-description {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
 
     .stats-badge {
       .badge-value {
-        font-size: 1.25rem;
+        font-size: 1.09375rem;
       }
     }
   }

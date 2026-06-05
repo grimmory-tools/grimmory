@@ -55,21 +55,21 @@
 .setting-actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 0.5rem;
+  padding-top: 0.4375rem;
   border-top: 1px solid var(--border-color);
 }
 
 .multi-sort-editor {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: 0.875rem;
+  padding-top: 0.875rem;
   border-top: 1px dashed var(--border-color);
 }
 
 .multi-sort-label {
   display: block;
   font-weight: 500;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+  font-size: var(--app-text-sm);
+  margin-bottom: 0.4375rem;
   color: var(--text-color);
 }
 
@@ -80,25 +80,25 @@
 }
 
 .sort-field-order-editor {
-  margin-top: 0.75rem;
+  margin-top: 0.65625rem;
 }
 
 .sort-field-order-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   min-height: 40px;
   max-height: 320px;
   max-width: 350px;
   overflow-y: auto;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
 }
 
 .sort-field-order-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  gap: 0.4375rem;
+  padding: 0.4375rem 0.65625rem;
   background-color: var(--overlay-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -113,8 +113,8 @@
 .cdk-drag-preview {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
+  gap: 0.4375rem;
+  padding: 0.30625rem 0.65625rem;
   background-color: var(--card-background);
   border: 1px solid var(--primary-color);
   border-radius: 6px;
@@ -145,19 +145,19 @@
   }
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
   }
 }
 
 .sort-field-rank {
   font-weight: 600;
   color: var(--primary-color);
-  min-width: 1.75rem;
+  min-width: 1.53125rem;
 }
 
 .sort-field-label {
   flex: 1;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--text-color);
 }
 
@@ -165,8 +165,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.53125rem;
+  height: 1.53125rem;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -176,7 +176,7 @@
   transition: background-color 0.15s ease;
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
   }
 
   &:hover:not(:disabled) {
@@ -192,15 +192,15 @@
 .sort-field-actions-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .reset-sort-fields-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.53125rem;
+  height: 1.53125rem;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -210,7 +210,7 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
   }
 
   &:hover {

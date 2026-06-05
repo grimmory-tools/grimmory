@@ -59,7 +59,7 @@
   background: color-mix(in srgb, var(--color-card), transparent 20%);
 
   i {
-    font-size: 3rem;
+    font-size: 2.625rem;
   }
 }
 
@@ -67,7 +67,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #fff;
   background: rgb(0 0 0 / 60%);
@@ -92,13 +92,13 @@
 
 .matched-icon {
   color: var(--color-green-500);
-  font-size: 0.85rem;
+  font-size: 0.74375rem;
   flex-shrink: 0;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 50%));
 }
 
 .author-name {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #fff;
   margin: 0;
@@ -116,7 +116,7 @@
 }
 
 ::ng-deep .card-menu-btn .p-button {
-  padding: 0.15rem 0.25rem !important;
+  padding: 0.13125rem 0.21875rem !important;
   color: #fff !important;
 
   &:hover {

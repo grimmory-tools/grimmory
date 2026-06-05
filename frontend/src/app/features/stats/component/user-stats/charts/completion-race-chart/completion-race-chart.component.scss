@@ -6,25 +6,25 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
+  margin-bottom: 0.4375rem;
+  gap: 0.875rem;
 
   .chart-title {
     flex: 1;
 
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -32,21 +32,21 @@
 }
 
 .completion-race-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: #4caf50;
 }
 
 .year-selector {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   flex-shrink: 0;
 
   .year-nav-btn {
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border: 1px solid var(--color-border);
     border-radius: 6px;
-    padding: 0.6rem;
+    padding: 0.525rem;
     color: var(--color-text);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -61,23 +61,23 @@
     }
 
     i {
-      font-size: 0.875rem;
+      font-size: var(--app-text-sm);
     }
   }
 
   .current-year {
-    font-size: 1.125rem;
+    font-size: var(--app-text-lg);
     font-weight: 600;
     color: var(--color-text);
-    min-width: 4.5rem;
+    min-width: 3.9375rem;
     text-align: center;
   }
 }
 
 .stats-row {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.65625rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
 
   .stat-card {
@@ -87,18 +87,18 @@
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
     min-width: 80px;
     flex: 1;
 
     .stat-value {
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
       color: #4caf50;
     }
 
     .stat-subtitle {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--text-secondary-color);
       text-align: center;
       line-height: 1.3;
@@ -109,11 +109,11 @@
     }
 
     .stat-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--text-secondary-color);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 0.25rem;
+      margin-top: 0.21875rem;
     }
 
     &.fastest .stat-value {
@@ -137,24 +137,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.625rem;
   text-align: center;
   color: var(--text-secondary-color);
 
   i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2.1875rem;
+    margin-bottom: 0.875rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 1rem;
-    margin: 0 0 0.5rem;
+    font-size: var(--app-text-base);
+    margin: 0 0 0.4375rem;
     color: var(--text-color, #fff);
   }
 
   small {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
     opacity: 0.7;
   }
 }
@@ -179,22 +179,22 @@
 @media (width <= 480px) {
   .chart-header {
     .chart-title h3 {
-      font-size: 1rem;
+      font-size: var(--app-text-base);
     }
 
     .chart-description {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
     }
   }
 
   .stats-row {
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     .stat-card {
-      padding: 0.4rem 0.5rem;
+      padding: 0.35rem 0.4375rem;
 
       .stat-value {
-        font-size: 1.2rem;
+        font-size: 1.05rem;
       }
     }
   }

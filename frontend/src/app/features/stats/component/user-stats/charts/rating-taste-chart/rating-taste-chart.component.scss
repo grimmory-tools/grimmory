@@ -8,9 +8,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.875rem;
 
   .chart-title {
     flex: 1;
@@ -18,17 +18,17 @@
 
     h3 {
       color: var(--color-text);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--color-text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -40,19 +40,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
 
     @include chart-shared.accent-surface(8px);
 
     .badge-value {
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
 
       @include chart-shared.accent-text;
     }
 
     .badge-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -61,7 +61,7 @@
 }
 
 .rating-taste-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: var(--color-violet-600);
 }
 
@@ -69,7 +69,7 @@
   position: relative;
   height: 500px;
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.3125rem;
 
   .quadrant-labels {
     position: absolute;
@@ -78,10 +78,10 @@
 
     .quadrant-label {
       position: absolute;
-      font-size: 0.7rem;
+      font-size: 0.6125rem;
       color: var(--color-text-secondary);
       font-weight: 500;
-      padding: 0.25rem 0.5rem;
+      padding: 0.21875rem 0.4375rem;
 
       @include chart-shared.neutral-surface(4px);
 
@@ -109,19 +109,19 @@
 }
 
 .taste-insights {
-  margin-top: 1.5rem;
+  margin-top: 1.3125rem;
 
   .insights-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.65625rem;
 
     h4 {
       color: var(--color-text);
-      font-size: 1.1rem;
+      font-size: 0.9625rem;
       font-weight: 500;
       margin: 0;
     }
@@ -129,9 +129,9 @@
     .deviation-badge {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
+      gap: 0.4375rem;
+      padding: 0.35rem 0.65625rem;
+      font-size: 0.74375rem;
 
       @include chart-shared.neutral-surface(20px);
 
@@ -146,7 +146,7 @@
 
       .deviation-desc {
         color: var(--color-text-secondary);
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
 
       &.unique {
@@ -174,11 +174,11 @@
   .quadrants-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
+    gap: 0.875rem;
   }
 
   .quadrant-card {
-    padding: 1rem;
+    padding: 0.875rem;
     position: relative;
 
     @include chart-shared.neutral-surface;
@@ -188,25 +188,25 @@
     .quadrant-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      gap: 0.4375rem;
+      margin-bottom: 0.4375rem;
 
       .quadrant-icon {
-        font-size: 1.1rem;
+        font-size: 0.9625rem;
       }
 
       .quadrant-name {
         color: var(--color-text);
         font-weight: 500;
-        font-size: 0.95rem;
+        font-size: 0.83125rem;
         flex: 1;
       }
 
       .quadrant-count {
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.74375rem;
         color: var(--color-surface-0);
-        padding: 0.15rem 0.5rem;
+        padding: 0.13125rem 0.4375rem;
         border-radius: 12px;
         min-width: 24px;
         text-align: center;
@@ -215,8 +215,8 @@
 
     .quadrant-description {
       color: var(--color-text-secondary);
-      font-size: 0.8rem;
-      margin: 0 0 0.75rem;
+      font-size: 0.7rem;
+      margin: 0 0 0.65625rem;
       line-height: 1.4;
     }
 
@@ -225,7 +225,7 @@
       background: color-mix(in srgb, var(--color-text) 8%, transparent);
       border-radius: 2px;
       overflow: hidden;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.21875rem;
 
       .bar-fill {
         height: 100%;
@@ -235,7 +235,7 @@
     }
 
     .quadrant-percentage {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
     }
   }
@@ -246,24 +246,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.625rem;
   text-align: center;
   color: var(--color-text-secondary);
 
   i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2.1875rem;
+    margin-bottom: 0.875rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 1rem;
-    margin: 0 0 0.5rem;
+    font-size: var(--app-text-base);
+    margin: 0 0 0.4375rem;
     color: var(--color-text);
   }
 
   small {
-    font-size: 0.85rem;
+    font-size: 0.74375rem;
     opacity: 0.7;
   }
 }
@@ -274,8 +274,8 @@
 
     .quadrant-labels {
       .quadrant-label {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.35rem;
+        font-size: 0.525rem;
+        padding: 0.13125rem 0.30625rem;
 
         &.top-left {
           top: 50px;
@@ -311,17 +311,17 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       .chart-description {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
 
     .stats-badge {
       .badge-value {
-        font-size: 1.25rem;
+        font-size: 1.09375rem;
       }
     }
   }

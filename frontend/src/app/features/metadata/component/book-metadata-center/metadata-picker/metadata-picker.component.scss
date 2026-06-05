@@ -30,18 +30,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  gap: 0.4375rem;
+  padding: 0.54688rem 0.875rem;
   background: rgb(34 197 94 / 10%);
   border: 1px solid rgb(34 197 94 / 30%);
   border-radius: 8px;
   color: var(--p-green-400);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 600;
   animation: fade-in 0.3s ease-in;
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 }
 
@@ -49,10 +49,10 @@
 .dialog-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem;
+  padding: 1.09375rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.3125rem;
 }
 
 // Column Headers - mirrors field-row structure for alignment (desktop only)
@@ -60,8 +60,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.875rem 1rem;
-  margin-bottom: 0.5rem;
+  padding: 0.76563rem 0.875rem;
+  margin-bottom: 0.4375rem;
   background: var(--overlay-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -85,8 +85,8 @@
   .column-label {
     display: none;
     align-items: center;
-    gap: 0.625rem;
-    font-size: 1rem;
+    gap: 0.54688rem;
+    font-size: var(--app-text-base);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -97,19 +97,19 @@
     }
 
     i {
-      font-size: 1.125rem;
+      font-size: var(--app-text-lg);
     }
 
     &.current {
       color: var(--primary-color);
       justify-content: flex-end;
-      padding-right: 1rem;
+      padding-right: 0.875rem;
     }
 
     &.fetched {
       color: var(--p-blue-400);
       justify-content: flex-start;
-      padding-left: 1rem;
+      padding-left: 0.875rem;
     }
   }
 
@@ -117,10 +117,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     flex-shrink: 0;
-    margin-left: 0.75rem;
-    margin-right:  0.75rem;
+    margin-left: 0.65625rem;
+    margin-right:  0.65625rem;
   }
 }
 
@@ -129,16 +129,16 @@
   .section-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.85rem;
+    gap: 0.4375rem;
+    margin-bottom: 0.65625rem;
+    font-size: 0.74375rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: var(--text-secondary-color);
 
     i {
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       color: var(--primary-color);
     }
 
@@ -153,13 +153,13 @@
 
       .section-toggle {
         margin-left: auto;
-        font-size: 0.75rem;
+        font-size: var(--app-text-xs);
         color: var(--text-secondary-color);
       }
     }
 
     .section-empty-badge {
-      font-size: 0.7rem;
+      font-size: 0.6125rem;
       font-weight: 500;
       text-transform: none;
       letter-spacing: normal;
@@ -167,7 +167,7 @@
       background: var(--ground-background);
       border: 1px solid var(--border-color);
       border-radius: 4px;
-      padding: 0.125rem 0.5rem;
+      padding: 0.10938rem 0.4375rem;
       opacity: 0.8;
     }
   }
@@ -219,7 +219,7 @@
   transition: all 0.2s ease;
 
   i {
-    font-size: 0.625rem;
+    font-size: 0.54688rem;
     color: white;
   }
 
@@ -233,7 +233,7 @@
 }
 
 .cover-label {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -242,8 +242,8 @@
 
 // Cover type icon in label
 .cover-type-icon {
-  font-size: 0.8rem;
-  margin-right: 0.25rem;
+  font-size: 0.7rem;
+  margin-right: 0.21875rem;
 }
 
 // Square cover for audiobooks
@@ -287,13 +287,13 @@
   }
 
   i {
-    font-size: 1.75rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.53125rem;
+    margin-bottom: 0.4375rem;
     opacity: 0.5;
   }
 
   span {
-    font-size: 0.75rem;
+    font-size: var(--app-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -304,8 +304,8 @@
 .field-row {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.875rem 1rem;
+  gap: 0.4375rem;
+  padding: 0.76563rem 0.875rem;
   border-bottom: 1px solid var(--border-color);
 
   &:last-child {
@@ -315,17 +315,17 @@
   @media (width >= 768px) {
     flex-direction: row;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.65625rem 0.875rem;
   }
 }
 
 // Cover field row specific styles
 .cover-field-row {
-  padding: 1rem;
+  padding: 0.875rem;
 
   .field-label {
     text-align: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4375rem;
 
     @media (width >= 768px) {
       text-align: left;
@@ -335,10 +335,10 @@
 
   .field-content {
     align-items: center;
-    gap: 1rem;
+    gap: 0.875rem;
 
     @media (width >= 768px) {
-      gap: 1.5rem;
+      gap: 1.3125rem;
     }
   }
 
@@ -346,7 +346,7 @@
   .field-side {
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     @media (width >= 768px) {
       flex-direction: row;
@@ -355,7 +355,7 @@
 
   // Position covers towards the arrow on desktop only
   @media (width >= 768px) {
-    padding: 1rem;
+    padding: 0.875rem;
 
     .field-side.current {
       justify-content: flex-end;
@@ -368,7 +368,7 @@
 }
 
 .field-label {
-  font-size: 0.85rem;
+  font-size: 0.74375rem;
   font-weight: 500;
   color: var(--text-color);
   min-width: 100px;
@@ -382,20 +382,20 @@
 .field-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   flex: 1;
 
   @media (width >= 768px) {
     flex-direction: row;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65625rem;
   }
 }
 
 .field-side {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   flex: 1;
   min-width: 0;
 
@@ -422,7 +422,7 @@
   transition: all 0.2s ease;
 
   i {
-    font-size: 0.75rem;
+    font-size: var(--app-text-xs);
     color: white;
   }
 
@@ -473,13 +473,13 @@
 
   .lock-btn {
     @media (width >= 768px) {
-      margin-top: 0.25rem;
+      margin-top: 0.21875rem;
     }
   }
 
   .transfer-btn {
     @media (width >= 768px) {
-      margin-top: 0.25rem;
+      margin-top: 0.21875rem;
     }
   }
 }
@@ -499,7 +499,7 @@
   transition: all 0.2s ease;
 
   i {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     color: var(--text-secondary-color);
   }
 
@@ -545,8 +545,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 0.875rem;
+  padding: 0.875rem 1.09375rem;
   background: var(--overlay-background);
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -560,14 +560,14 @@
 .footer-right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .footer-divider {
   width: 1px;
   height: 24px;
   background: var(--border-color);
-  margin: 0 0.25rem;
+  margin: 0 0.21875rem;
 }
 
 // AutoComplete overrides
@@ -593,14 +593,14 @@
 // Mobile optimizations
 @media (width <= 767px) {
   .dialog-body {
-    padding: 1rem;
-    gap: 1.25rem;
+    padding: 0.875rem;
+    gap: 1.09375rem;
   }
 
   .dialog-footer {
     flex-direction: column;
-    padding: 0.875rem 1rem;
-    gap: 0.75rem;
+    padding: 0.76563rem 0.875rem;
+    gap: 0.65625rem;
 
     .footer-left,
     .footer-right {
@@ -610,7 +610,7 @@
   }
 
   .field-label {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
   }
 }
@@ -619,9 +619,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem;
-  min-height: 2.25rem;
+  gap: 0.32813rem;
+  padding: 0.32813rem;
+  min-height: 1.96875rem;
   border: 1px solid var(--p-inputtext-border-color);
   border-radius: 6px;
   background: var(--p-inputtext-background);
@@ -640,13 +640,13 @@
 }
 
 .author-add-input {
-  flex: 1 1 6rem;
-  min-width: 6rem;
+  flex: 1 1 5.25rem;
+  min-width: 5.25rem;
 
   ::ng-deep input {
     border: none !important;
     background: transparent !important;
-    padding: 0.25rem;
+    padding: 0.21875rem;
     box-shadow: none !important;
     outline: none !important;
   }
@@ -655,12 +655,12 @@
 .author-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 1rem;
+  gap: 0.21875rem;
+  padding: 0.21875rem 0.4375rem;
+  border-radius: 0.875rem;
   background: var(--p-chip-background);
   color: var(--p-chip-color);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   cursor: grab;
   user-select: none;
 }
@@ -669,27 +669,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   border-radius: 50%;
   background: var(--p-primary-color);
   color: var(--p-primary-contrast-color);
-  font-size: 0.6rem;
+  font-size: 0.525rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .author-chip-remove {
-  font-size: 0.65rem;
+  font-size: 0.56875rem;
   cursor: pointer;
   opacity: 0.6;
-  padding: 0.15rem;
+  padding: 0.13125rem;
   &:hover { opacity: 1; }
 }
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 1rem;
+  border-radius: 0.875rem;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
 }
 

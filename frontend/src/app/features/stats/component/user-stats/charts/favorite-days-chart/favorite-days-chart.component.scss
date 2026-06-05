@@ -6,25 +6,25 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
+  margin-bottom: 0.4375rem;
+  gap: 0.875rem;
 
   .chart-title {
     flex: 1;
 
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -32,14 +32,14 @@
 
   .filter-controls {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.65625rem;
     align-items: center;
     flex-shrink: 0;
   }
 }
 
 .favorite-days-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: rgb(139 92 246 / 100%);
 }
 
@@ -57,7 +57,7 @@
     .filter-controls {
       width: 100%;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       ::ng-deep p-select {
         width: 100%;
@@ -70,11 +70,11 @@
 
     .chart-title {
       h3 {
-        font-size: 1.1rem;
+        font-size: 0.9625rem;
       }
 
       .chart-description {
-        font-size: 0.85rem;
+        font-size: 0.74375rem;
       }
     }
   }
@@ -84,11 +84,11 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       .chart-description {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
   }

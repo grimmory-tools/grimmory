@@ -7,24 +7,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 
   .chart-title {
     flex: 1;
 
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -32,7 +32,7 @@
 }
 
 .personal-rating-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: #FACC15;
 }
 
@@ -54,11 +54,11 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       .chart-description {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
   }

@@ -147,7 +147,7 @@
 }
 
 .series-name {
-  font-size: 0.85rem;
+  font-size: 0.74375rem;
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
@@ -158,7 +158,7 @@
 }
 
 .series-authors {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   color: var(--color-text-muted);
   margin: 0;
   overflow: hidden;
@@ -181,8 +181,8 @@
   gap: 4px;
 
   ::ng-deep .p-button {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.4rem;
+    font-size: var(--app-text-xs);
+    padding: 0.175rem 0.35rem;
   }
 }
 
@@ -206,7 +206,7 @@
 }
 
 .progress-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--color-text-secondary);
   white-space: nowrap;
   font-weight: 700;

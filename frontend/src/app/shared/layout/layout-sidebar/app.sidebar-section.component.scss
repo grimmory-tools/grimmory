@@ -109,13 +109,13 @@
 @media #{variables.$mobile-shell-media-query} {
   .expand-icon-button {
     opacity: 1;
-    width: 2rem;
-    height: 2rem;
-    margin-right: -0.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-right: -0.21875rem;
   }
 
   .expand-icon {
-    font-size: 1.125rem;
+    font-size: var(--app-text-lg);
     color: var(--color-text-secondary);
   }
 }

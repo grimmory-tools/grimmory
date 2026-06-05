@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65625rem;
 }
 
 .settings-description {
@@ -19,7 +19,7 @@
 .settings-card {
   @include settings.settings-card;
 
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .section-header {
@@ -29,7 +29,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .section-title {
@@ -44,7 +44,7 @@
 
 .filter-controls {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -65,8 +65,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 6px;
   background: transparent;
@@ -93,7 +93,7 @@
 
 .timestamp-cell {
   white-space: nowrap;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--p-text-muted-color);
   cursor: default;
 }
@@ -112,24 +112,24 @@
 
 .ip-cell {
   font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--p-text-muted-color);
 }
 
 .flag-emoji {
-  font-size: 1.15rem;
-  margin-right: 0.25rem;
+  font-size: 1.00625rem;
+  margin-right: 0.21875rem;
   vertical-align: middle;
 }
 
 ::ng-deep .p-datatable.p-datatable-sm .p-datatable-tbody > tr > td.empty-message {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2.625rem 1.75rem;
   color: var(--p-text-muted-color);
 
   .pi {
     display: block;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.4375rem;
   }
 }

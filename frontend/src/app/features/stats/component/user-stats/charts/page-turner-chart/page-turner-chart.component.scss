@@ -6,24 +6,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 
   .chart-title {
     flex: 1;
 
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -31,29 +31,29 @@
 }
 
 .page-turner-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: rgb(251 146 60 / 100%);
 }
 
 .stats-row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  gap: 0.875rem;
+  margin-bottom: 0.65625rem;
   flex-wrap: wrap;
 
   .stat-item {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.13125rem;
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border-radius: 8px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4375rem 0.65625rem;
     flex: 1;
     min-width: 100px;
 
     .stat-value {
       color: var(--color-text);
-      font-size: 0.95rem;
+      font-size: 0.83125rem;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
@@ -62,32 +62,32 @@
 
     .stat-label {
       color: var(--text-secondary-color);
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
     }
   }
 }
 
 .top-books {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.65625rem;
+  margin-bottom: 0.65625rem;
   flex-wrap: wrap;
 
   .top-book-card {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4375rem 0.65625rem;
     flex: 1;
     min-width: 180px;
 
     .book-rank {
       color: rgb(251 146 60 / 100%);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: var(--app-text-base);
     }
 
     .book-info {
@@ -96,7 +96,7 @@
 
       .book-name {
         color: var(--color-text);
-        font-size: 0.85rem;
+        font-size: 0.74375rem;
         font-weight: 500;
         display: block;
         white-space: nowrap;
@@ -106,23 +106,23 @@
 
       .book-indicators {
         display: flex;
-        gap: 0.4rem;
-        margin-top: 0.2rem;
+        gap: 0.35rem;
+        margin-top: 0.175rem;
         flex-wrap: wrap;
 
         .indicator {
           color: var(--text-secondary-color);
-          font-size: 0.7rem;
+          font-size: 0.6125rem;
           display: flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.175rem;
 
           &.burst {
             color: rgb(251 146 60 / 90%);
           }
 
           i {
-            font-size: 0.65rem;
+            font-size: 0.56875rem;
           }
         }
       }
@@ -130,7 +130,7 @@
 
     .book-score {
       color: rgb(251 146 60 / 100%);
-      font-size: 1.25rem;
+      font-size: 1.09375rem;
       font-weight: 700;
       flex-shrink: 0;
     }
@@ -155,15 +155,15 @@
 
 @media (width <= 480px) {
   .chart-header .chart-title h3 {
-    font-size: 1.1rem;
+    font-size: 0.9625rem;
   }
 
   .stats-row {
-    gap: 0.5rem;
+    gap: 0.4375rem;
 
     .stat-item {
       min-width: 80px;
-      padding: 0.4rem 0.5rem;
+      padding: 0.35rem 0.4375rem;
     }
   }
 

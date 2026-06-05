@@ -1,11 +1,11 @@
 <ng-container *transloco="let t">
   @if (progressService.state(); as progress) {
     @if (progress.active) {
-    <div class="rounded-lg border border-[var(--primary-color)] bg-[var(--card-background)] p-4">
-      <div class="mb-2 flex items-center justify-between gap-3">
-        <div class="flex min-w-0 items-center gap-2 text-[var(--primary-color)]">
+    <div class="rounded-lg border border-[var(--primary-color)] bg-[var(--card-background)] p-3.5">
+      <div class="mb-1.5 flex items-center justify-between gap-2.5">
+        <div class="flex min-w-0 items-center gap-1.5 text-[var(--primary-color)]">
           <i class="pi pi-book" aria-hidden="true"></i>
-          <p class="m-0 text-sm font-semibold">{{ t('libraryCreator.loading.title') }}</p>
+          <p class="m-0 text-xs font-semibold">{{ t('libraryCreator.loading.title') }}</p>
         </div>
         <p-tag
           [value]="t(getStatusLabelKey(progress.status))"
@@ -13,7 +13,7 @@
         </p-tag>
       </div>
 
-      <div class="mb-2 break-words text-base text-zinc-200">
+      <div class="mb-1.5 break-words text-sm text-zinc-200">
         @if (progress.status === 'COMPLETED') {
           {{ t('libraryCreator.loading.complete') }}
         } @else if (progress.status === 'ERROR') {
@@ -23,7 +23,7 @@
         }
       </div>
 
-      <div class="mb-2 text-sm text-zinc-300 tabular-nums">
+      <div class="mb-1.5 text-xs text-zinc-300 tabular-nums">
         <span [innerHTML]="t('shared.metadataProgress.bookProgress', { current: getCurrentCount(progress), total: progress.expectedCount })"></span>
       </div>
 
@@ -34,7 +34,7 @@
       </p-progressBar>
 
       @if (progress.status !== 'IN_PROGRESS') {
-        <div class="mt-4 flex flex-wrap justify-end gap-2">
+        <div class="mt-3.5 flex flex-wrap justify-end gap-1.5">
           @if (progress.libraryId !== undefined) {
             <button
               pButton

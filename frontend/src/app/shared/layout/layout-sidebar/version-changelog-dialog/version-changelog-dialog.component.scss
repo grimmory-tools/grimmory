@@ -11,7 +11,7 @@
 }
 
 .dialog-content {
-  padding: 1.5rem;
+  padding: 1.3125rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
@@ -23,7 +23,7 @@
 
 .loading-state,
 .empty-state {
-  padding: 1rem;
+  padding: 0.875rem;
   text-align: center;
   color: var(--text-secondary-color);
 }
@@ -31,11 +31,11 @@
 .changelog-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.3125rem;
 }
 
 .release-item {
-  padding-bottom: 1rem;
+  padding-bottom: 0.875rem;
   border-bottom: 1px solid var(--border-color);
 
   &:last-child {
@@ -45,8 +45,8 @@
 
 .release-title {
   font-weight: 700;
-  font-size: 1.25rem;
-  padding-bottom: 0.5rem;
+  font-size: 1.09375rem;
+  padding-bottom: 0.4375rem;
   margin: 0;
 }
 
@@ -67,8 +67,8 @@
 
   :host ::ng-deep & {
     h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
+      margin-top: 1.3125rem;
+      margin-bottom: 0.65625rem;
       font-weight: 600;
       line-height: 1.25;
       color: var(--text-color);
@@ -80,38 +80,38 @@
 
     h3 {
       margin-top: 0;
-      font-size: 1.125rem;
+      font-size: var(--app-text-lg);
     }
 
     p {
-      margin-top: 0.75rem;
-      margin-bottom: 0.75rem;
+      margin-top: 0.65625rem;
+      margin-bottom: 0.65625rem;
     }
 
     ul, ol {
-      margin-top: 0.75rem;
-      margin-bottom: 0.75rem;
-      padding-left: 1.5rem;
+      margin-top: 0.65625rem;
+      margin-bottom: 0.65625rem;
+      padding-left: 1.3125rem;
     }
 
     li {
-      margin-top: 0.25rem;
-      margin-bottom: 0.25rem;
+      margin-top: 0.21875rem;
+      margin-bottom: 0.21875rem;
     }
 
     code {
       font-size: 0.875em;
       background: var(--ground-background);
-      padding: 0.125rem 0.375rem;
-      border-radius: 0.25rem;
+      padding: 0.10938rem 0.32813rem;
+      border-radius: 0.21875rem;
     }
 
     pre {
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-      padding: 1rem;
+      margin-top: 0.875rem;
+      margin-bottom: 0.875rem;
+      padding: 0.875rem;
       background: var(--ground-background);
-      border-radius: 0.5rem;
+      border-radius: 0.4375rem;
       overflow-x: auto;
 
       code {
@@ -130,8 +130,8 @@
     }
 
     blockquote {
-      margin: 1rem 0;
-      padding-left: 1rem;
+      margin: 0.875rem 0;
+      padding-left: 0.875rem;
       border-left: 3px solid var(--border-color);
       color: var(--text-secondary-color);
     }

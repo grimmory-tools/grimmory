@@ -146,7 +146,7 @@
       </div>
 
       @if (oidcEnabled) {
-        <div class="config-grid" style="margin-top: 0.75rem;">
+        <div class="config-grid" style="margin-top: 0.65625rem;">
           <div class="config-item">
             <label for="sessionDuration">{{ t('providerConfig.sessionDuration') }}</label>
             <p-inputNumber
@@ -376,8 +376,8 @@
               {{ t('oidcOnly.description') }}
             </p>
             @if (oidcForceOnlyMode) {
-              <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.5rem;">
-                <i class="pi pi-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+              <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.4375rem;">
+                <i class="pi pi-exclamation-triangle" style="margin-right: 0.21875rem;"></i>
                 {{ t('oidcOnly.backdoorHint') }}
               </p>
             }
@@ -437,8 +437,8 @@
               {{ t('provisioning.linkLocalDesc') }}
             </p>
             @if (allowLocalAccountLinking) {
-              <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.5rem;">
-                <i class="pi pi-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+              <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.4375rem;">
+                <i class="pi pi-exclamation-triangle" style="margin-right: 0.21875rem;"></i>
                 {{ t('provisioning.linkLocalWarning') }}
               </p>
             }
@@ -481,7 +481,7 @@
 
             <div class="libraries-group">
               <h4 class="group-title">{{ t('provisioning.defaultLibraryAccess') }}</h4>
-              <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.4375rem; justify-content: space-between;">
                 <p-multiSelect
                   [options]="allLibraries"
                   optionLabel="name"
@@ -532,7 +532,7 @@
       </div>
 
       <div class="section-body">
-        <div class="config-grid-2col" style="margin-bottom: 1rem;">
+        <div class="config-grid-2col" style="margin-bottom: 0.875rem;">
           <div class="config-item">
             <label for="groupSyncMode">{{ t('groupMapping.syncModeLabel') }}</label>
             <p-select
@@ -566,7 +566,7 @@
                 <th>{{ t('groupMapping.colPermissions') }}</th>
                 <th>{{ t('groupMapping.colLibraries') }}</th>
                 <th>{{ t('groupMapping.colDescription') }}</th>
-                <th style="width: 8rem;"></th>
+                <th style="width: 7rem;"></th>
               </tr>
             </ng-template>
             <ng-template #body let-mapping>
@@ -579,17 +579,17 @@
                 </td>
                 <td>
                   @for (perm of mapping.permissions; track perm) {
-                    <app-tag [rounded]="true" color="info" size="2xs" style="margin-right: 0.25rem; margin-bottom: 0.25rem;">{{ perm }}</app-tag>
+                    <app-tag [rounded]="true" color="info" size="2xs" style="margin-right: 0.21875rem; margin-bottom: 0.21875rem;">{{ perm }}</app-tag>
                   }
                 </td>
                 <td>
                   @for (libId of mapping.libraryIds; track libId) {
-                    <app-tag [rounded]="true" color="secondary" size="2xs" style="margin-right: 0.25rem; margin-bottom: 0.25rem;">{{ getLibraryName(libId) }}</app-tag>
+                    <app-tag [rounded]="true" color="secondary" size="2xs" style="margin-right: 0.21875rem; margin-bottom: 0.21875rem;">{{ getLibraryName(libId) }}</app-tag>
                   }
                 </td>
                 <td>{{ mapping.description }}</td>
                 <td>
-                  <div style="display: flex; gap: 0.5rem;">
+                  <div style="display: flex; gap: 0.4375rem;">
                     <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" size="small" (click)="openEditGroupMapping(mapping)"></p-button>
                     <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" size="small" (click)="deleteGroupMapping(mapping)"></p-button>
                   </div>
@@ -607,7 +607,7 @@
       [modal]="true"
       [style]="{width: '550px', maxWidth: '95vw'}"
       [dismissableMask]="true">
-      <div class="config-grid" style="gap: 1rem;">
+      <div class="config-grid" style="gap: 0.875rem;">
         <div class="config-item full-width">
           <label for="gmGroupClaim">{{ t('groupMapping.groupClaimLabel') }}</label>
           <input pInputText id="gmGroupClaim" [(ngModel)]="editingGroupMapping.oidcGroupClaim" [placeholder]="t('groupMapping.groupClaimPlaceholder')"/>

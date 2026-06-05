@@ -74,6 +74,45 @@ const overlaySurface = {
   color: 'var(--color-text)',
 };
 
+const compactPrimeFontCss = `
+.p-button:not(.p-button-sm):not(.p-button-lg),
+.p-inputtext:not(.p-inputtext-sm):not(.p-inputtext-lg),
+.p-textarea:not(.p-textarea-sm):not(.p-textarea-lg),
+.p-select:not(.p-select-sm):not(.p-select-lg) .p-select-label,
+.p-multiselect:not(.p-multiselect-sm):not(.p-multiselect-lg) .p-multiselect-label,
+.p-cascadeselect:not(.p-cascadeselect-sm):not(.p-cascadeselect-lg) .p-cascadeselect-label,
+.p-treeselect:not(.p-treeselect-sm):not(.p-treeselect-lg) .p-treeselect-label,
+.p-autocomplete-input,
+.p-autocomplete-input-multiple,
+.p-togglebutton:not(.p-togglebutton-sm):not(.p-togglebutton-lg),
+.p-inputchips-input-item input,
+.p-terminal-prompt-value,
+.p-datepicker-day-view,
+.p-datepicker-time-picker span {
+  font-size: var(--app-text-base);
+}
+`;
+
+function scalePrimeRems<T>(value: T): T {
+  if (typeof value === 'string') {
+    return value.replace(/(-?\d*\.?\d+)rem/g, (_, remValue: string) => {
+      const scaled = Number.parseFloat((Number(remValue) * 0.875).toFixed(6)).toString();
+      return `${scaled}rem`;
+    }) as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map(scalePrimeRems) as T;
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, scalePrimeRems(entry)])
+    ) as T;
+  }
+  return value;
+}
+
+const AppPrimeBasePreset = scalePrimeRems(Aura);
+
 function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly string[]): ColorPalette {
   return Object.fromEntries(
     stops.map((stop) => [stop, `var(--color-${prefix}-${stop})`])
@@ -107,7 +146,8 @@ function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
   };
 }
 
-const AppPrimePreset = definePreset(Aura, {
+const AppPrimePreset = definePreset(AppPrimeBasePreset, {
+  css: compactPrimeFontCss,
   semantic: {
     colorScheme: {
       light: {
