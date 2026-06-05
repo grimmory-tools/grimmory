@@ -489,7 +489,8 @@
             "comicLocation": "Lieu de BD",
             "comicCreator": "Créateur de BD",
             "lubimyczytacRating": "Note Lubimyczytac",
-            "ranobedbRating": "Note RanobeDB"
+            "ranobedbRating": "Note RanobeDB",
+            "audibleRating": "Note Audible"
         },
         "readStatus": {
             "unread": "Non lu",
@@ -626,7 +627,9 @@
             "unlockFailedSummary": "Échec du déverrouillage",
             "unlockFailedDetail": "Une erreur est survenue lors du déverrouillage des métadonnées."
         },
-        "selectBook": "Sélectionner {{ title }}"
+        "selectBook": "Sélectionner {{ title }}",
+        "selectBookFallback": "Sélectionner un livre",
+        "noRating": "Pas de note"
     },
     "lockUnlockDialog": {
         "title": "Verrouiller ou déverrouiller les métadonnées",
@@ -774,6 +777,22 @@
             "selectAll": "Sélectionner tous les livres",
             "deselectAll": "Désélectionner tous les livres",
             "deleteSelected": "Supprimer les livres sélectionnés"
+        },
+        "bookListTab": "Liste de livres",
+        "book": "Livre",
+        "books": "Livres",
+        "synopsis": "Synopsis",
+        "booksInSeries": "Livres dans la série",
+        "nextUp": "À suivre",
+        "continueReading": "Continuer la lecture",
+        "readButton": "Lus",
+        "viewDetails": "Voir les détails",
+        "continueButton": "Continuer",
+        "listPages": "pages",
+        "stats": {
+            "totalPages": "Nombre total de pages",
+            "formats": "Formats",
+            "owned": "Appartenant à"
         }
     },
     "duplicateMerger": {
