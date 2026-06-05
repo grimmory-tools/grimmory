@@ -93,12 +93,66 @@ const compactPrimeFontCss = `
 }
 `;
 
+const PRIME_REM_SCALE = 0.875;
+
+function isDigit(value: string): boolean {
+  return value >= '0' && value <= '9';
+}
+
+function findRemNumberStart(value: string, remIndex: number): number | undefined {
+  let start = remIndex;
+  let digitCount = 0;
+
+  while (start > 0 && isDigit(value[start - 1])) {
+    start -= 1;
+    digitCount += 1;
+  }
+
+  if (start > 0 && value[start - 1] === '.') {
+    start -= 1;
+    while (start > 0 && isDigit(value[start - 1])) {
+      start -= 1;
+      digitCount += 1;
+    }
+  }
+
+  if (start > 0 && value[start - 1] === '-') {
+    start -= 1;
+  }
+
+  return digitCount > 0 ? start : undefined;
+}
+
+function scaleRemString(value: string): string {
+  let result = '';
+  let cursor = 0;
+
+  while (cursor < value.length) {
+    const remIndex = value.indexOf('rem', cursor);
+    if (remIndex === -1) {
+      return result + value.slice(cursor);
+    }
+
+    const numberStart = findRemNumberStart(value, remIndex);
+    if (numberStart === undefined) {
+      result += value.slice(cursor, remIndex + 3);
+      cursor = remIndex + 3;
+      continue;
+    }
+
+    const scaled = Number.parseFloat(
+      (Number(value.slice(numberStart, remIndex)) * PRIME_REM_SCALE).toFixed(6)
+    ).toString();
+    result += `${value.slice(cursor, numberStart)}${scaled}rem`;
+    cursor = remIndex + 3;
+  }
+
+  return result;
+}
+
 function scalePrimeRems<T>(value: T): T {
   if (typeof value === 'string') {
-    return value.replace(/(-?\d*\.?\d+)rem/g, (_, remValue: string) => {
-      const scaled = Number.parseFloat((Number(remValue) * 0.875).toFixed(6)).toString();
-      return `${scaled}rem`;
-    }) as T;
+    return scaleRemString(value) as T;
   }
   if (Array.isArray(value)) {
     return value.map(scalePrimeRems) as T;
