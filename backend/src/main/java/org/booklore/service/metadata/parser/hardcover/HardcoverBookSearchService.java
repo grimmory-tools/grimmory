@@ -197,7 +197,7 @@ public class HardcoverBookSearchService {
         if (elapsed < delay) {
             try {
                 Thread.sleep(delay - elapsed);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                 Thread.currentThread().interrupt();
             }
         }

@@ -2,9 +2,7 @@ package org.booklore.service.metadata.parser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
-import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -13,7 +11,6 @@ import org.booklore.model.enums.BookCategory;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
 import org.booklore.util.BookUtils;
@@ -31,46 +28,28 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class HardcoverParser implements BookParser {
-
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-    private static final double AUTHOR_MATCH_THRESHOLD = 0.5;
-
     private final HardcoverBookSearchService hardcoverBookSearchService;
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         List<String> isbnCleaned = new ArrayList<>();
         isbnCleaned.add(ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn()));
-        boolean searchByIsbn = isbnCleaned != null && !isbnCleaned.isEmpty();
-        searchByIsbn = false;
+
+        boolean searchByIsbn = isbnCleaned.getFirst() != null && !isbnCleaned.getFirst().isBlank();
         if (searchByIsbn) {
             log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
             List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
-            return processBooksWithEditions(hits);
+            return processBooks(hits);
         }
+        // Search by Title/Author
+        List<GraphQLResponse.Hit> hits = searchByTitle(fetchMetadataRequest);
+        List<GraphQLResponse.Document> docs = filterSearchByTitle(hits, fetchMetadataRequest);
+        List<GraphQLResponse.BookWithEditions> results = searchById(docs, fetchMetadataRequest);
 
-        String title = fetchMetadataRequest.getTitle();
-
-        if (title == null || title.isBlank()) {
-            log.warn("Hardcover: No title provided for search");
-            return Collections.emptyList();
-        }
-
-        List<BookMetadata> results = Collections.emptyList();
-
-        log.info("Hardcover: Searching with title only: '{}'", title);
-        List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title.trim());
-        results = processHits(hits, fetchMetadataRequest, false, book);
-
-        if (results.isEmpty()) {
-            log.info("Hardcover: No results found for title '{}'", title);
-            return results;
-        }
-
-        return results;
+        results = filterEditions(results, book);
+        return processBooks(results);
     }
-
-    private List<BookMetadata> processBooksWithEditions(List<GraphQLResponse.BookWithEditions> books) {
+    private List<BookMetadata> processBooks(List<GraphQLResponse.BookWithEditions> books) {
         if (books == null || books.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,11 +57,14 @@ public class HardcoverParser implements BookParser {
         List<BookMetadata> results = new ArrayList<>();
         for (GraphQLResponse.BookWithEditions book : books) {
             if (book.getEditions() == null || book.getEditions().isEmpty()) {
-                continue;
+                BookMetadata metadata = mapBookToMetadata(books.getFirst());
+                results.add(metadata);
+                return results;
             }
             for (GraphQLResponse.Edition edition : book.getEditions()) {
-                log.debug("Processing edition '{}' with id '{}' of book '{}'", edition.getTitle(), edition.getId(), book.getTitle());
-                BookMetadata metadata = mapEditionToMetadata(edition, book);
+                log.debug("Processing edition '{}' with id '{}' of book '{}'", edition.getTitle(), edition.getId(),
+                        book.getTitle());
+                BookMetadata metadata = mapBookToMetadata(book, edition);
                 if (metadata != null) {
                     results.add(metadata);
                 }
@@ -91,53 +73,141 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<BookMetadata> processHits(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request, boolean searchByIsbn, Book book) {
+    private List<GraphQLResponse.Hit> searchByTitle(FetchMetadataRequest fetchMetadataRequest) {
+        String title = fetchMetadataRequest.getTitle();
+        if (title == null || title.isBlank()) {
+            log.warn("Hardcover: No title provided for search");
+            return Collections.emptyList();
+        }
+        // format the title
+        title = Pattern.compile("[^a-zA-Z0-9\\s]+")
+                .matcher(title.trim().toLowerCase()).replaceAll("");
+        // search via title only
+        log.info("Hardcover: Searching for title '{}'", title);
+        return hardcoverBookSearchService.searchBooks(title);
+    }
+
+    private List<GraphQLResponse.Document> filterSearchByTitle(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request) {
         if (hits == null || hits.isEmpty()) {
+            log.info("Hardcover: No results found for title '{}'", request.getTitle());
             return Collections.emptyList();
         }
 
-        FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
         String searchTitle = request.getTitle() != null ? request.getTitle() : "";
-        String searchAuthor = request.getAuthor() != null ? request.getAuthor() : "";
+        String searchAuthor = request.getAuthor() != null ? request.getAuthor().trim() : "";
 
-        // Filter by author
-        List<GraphQLResponse.Document> matchedByAuthors = hits.stream()
+        //convert hits into document format.
+        List<GraphQLResponse.Document> docs = hits.stream()
                 .map(GraphQLResponse.Hit::getDocument)
-                .filter(doc -> filterAuthor(doc, searchAuthor, searchByIsbn, fuzzyScore))
                 .toList();
 
-        if (matchedByAuthors.isEmpty()) {
-            return Collections.emptyList();
+        // Filter by author if not blank
+        if (searchAuthor.isEmpty()) {
+            docs = filterTitle(docs, searchTitle);
+        } else {
+            docs = filterAuthor(docs, searchAuthor);
+            docs = filterTitle(docs, searchTitle);
         }
 
-        // Filter by title
-        List<GraphQLResponse.Document> matchedByTitles = matchedByAuthors.stream()
-                .filter(doc -> filterTitle(doc, searchTitle))
+        // Order Collections with most isbn's at the top
+        return sortSearchResultsByISBNCount(docs);
+    }
+
+    private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
+        LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
+        List<GraphQLResponse.Document> originalDocs = docs;
+
+        for (GraphQLResponse.Document doc : docs) {
+            int distance = levenshtein.apply(searchAuthor, doc.getAuthorNames().toString());
+            doc.setLevenshteinDistance(distance);
+        }
+        docs = docs.stream()
+                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
                 .toList();
 
-        if (matchedByAuthors.isEmpty()) {
-            return Collections.emptyList();
+        final double best = docs.getFirst().getLevenshteinDistance();
+        final double worst = docs.getLast().getLevenshteinDistance();
+        final double threshold = Math.min(best, worst) + 1;
+
+        List<GraphQLResponse.Document> newDocs = docs.stream()
+                .filter(doc -> doc.getLevenshteinDistance() <= threshold)
+                .toList();
+
+        if (newDocs.isEmpty()) {
+            return originalDocs;
+        } else {
+            return newDocs;
         }
 
-        List<String> isbns = new ArrayList();
-        for (GraphQLResponse.Document foo : matchedByTitles){
-            isbns.addAll(foo.getIsbns());
+    }
+
+    private List<GraphQLResponse.Document> filterTitle(List<GraphQLResponse.Document> docs, String searchTitle) {
+        List<GraphQLResponse.Document> originalDocs = docs;
+
+        LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
+
+        for (GraphQLResponse.Document doc : docs) {
+            int distance = levenshtein.apply(searchTitle, doc.getTitle());
+            doc.setLevenshteinDistance(distance);
+        }
+
+        docs = docs.stream()
+                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
+                .toList();
+
+        final double best = docs.getFirst().getLevenshteinDistance();
+        final double worst = docs.getLast().getLevenshteinDistance();
+        final double threshold = Math.min(best, worst) + 1;
+
+        List<GraphQLResponse.Document> newDocs = docs.stream()
+                .filter(doc -> doc.getLevenshteinDistance() <= threshold)
+                .toList();
+
+        if (newDocs.isEmpty()) {
+            return originalDocs;
+        }
+        return newDocs;
+
+    }
+
+    private List<GraphQLResponse.Document> sortSearchResultsByISBNCount(List<GraphQLResponse.Document> docs) {
+        return docs.stream()
+                .sorted(Comparator.comparingInt(doc -> doc.getIsbns().size()))
+                .toList()
+                .reversed();
+    }
+
+    private List<GraphQLResponse.BookWithEditions> searchById(List<GraphQLResponse.Document> docs, FetchMetadataRequest request) {
+        List<String> isbnList = new ArrayList<>();
+
+        // for the top result, grab all isbns (all editions)
+        GraphQLResponse.Document topMatch = docs.getFirst();
+        if (topMatch.getIsbns() != null && !topMatch.getIsbns().isEmpty()) {
+            isbnList.addAll(topMatch.getIsbns());
         }
 
         int hcid;
-        List<GraphQLResponse.BookWithEditions> Allresults;
-        if (matchedByTitles.getFirst().getId() != null) {
-            hcid = Integer.parseInt(matchedByTitles.getFirst().getId());
-            Allresults = hardcoverBookSearchService.searchBookByIsbn(isbns, hcid);
+        //if the results contain no isbn's search by the hcid
+        if ((isbnList == null || isbnList.isEmpty()) && (docs.getFirst().getId() != null && !docs.getFirst().getId().isEmpty())) {
+            hcid = Integer.parseInt(docs.getFirst().getId());
+            return hardcoverBookSearchService.searchBookByIsbn(hcid);
         }
-        else {
-            Allresults = hardcoverBookSearchService.searchBookByIsbn(isbns);
-        }
+        log.info("Searching by ISBN for {}'", request.getTitle());
+        return hardcoverBookSearchService.searchBookByIsbn(isbnList);
+    }
 
-        BookCategory category = BookFileType
-            .fromExtension(book.getPrimaryFile().getExtension())
-            .map(BookFileType::category)
-            .orElse(null); // fix this
+    private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results,
+            Book book) {
+        List<GraphQLResponse.BookWithEditions> originalResults = new ArrayList<>(results);
+        BookCategory category = null;
+        try {
+            category = BookFileType
+                    .fromExtension(book.getPrimaryFile().getExtension())
+                    .map(BookFileType::category)
+                    .orElse(BookCategory.Hardcover);
+        } catch (Exception _) {
+            return results; //write this better?
+        }
 
         int readingFormatId;
         switch (category) {
@@ -145,139 +215,181 @@ public class HardcoverParser implements BookParser {
             case EBOOK -> readingFormatId = 4;
             default -> readingFormatId = 1;
         }
-        results.forEach(b -> filterEditions(b, readingFormatId));
+        for (GraphQLResponse.BookWithEditions result : results) {
+            if (result.getEditions() == null || result.getEditions().isEmpty()) {
+                continue;
+            }
+            List<GraphQLResponse.Edition> keep = new ArrayList<>();
+            List<GraphQLResponse.Edition> hardcovers = new ArrayList<>();
 
-        return processBooksWithEditions(results);
-    }
-
-    private boolean filterAuthor(GraphQLResponse.Document doc, String searchAuthor,
-                                 boolean searchByIsbn, FuzzyScore fuzzyScore) {
-        // Skip author filtering for ISBN searches or when no author provided
-        if (searchByIsbn || searchAuthor.isBlank()) {
-            return true;
-        }
-
-        if (doc.getAuthorNames() == null || doc.getAuthorNames().isEmpty()) {
-            return false;
-        }
-
-        List<String> actualAuthorTokens = doc.getAuthorNames().stream()
-                .map(String::toLowerCase)
-                .flatMap(WHITESPACE_PATTERN::splitAsStream)
-                .toList();
-        List<String> searchAuthorTokens = List.of(WHITESPACE_PATTERN.split(searchAuthor.toLowerCase()));
-
-        for (String actual : actualAuthorTokens) {
-            for (String query : searchAuthorTokens) {
-                int score = fuzzyScore.fuzzyScore(actual, query);
-                int maxScore = Math.max(
-                        fuzzyScore.fuzzyScore(query, query),
-                        fuzzyScore.fuzzyScore(actual, actual)
-                );
-                double similarity = maxScore > 0 ? (double) score / maxScore : 0;
-                if (similarity >= AUTHOR_MATCH_THRESHOLD) {
-                    return true;
+            for (GraphQLResponse.Edition edition : result.getEditions()) {
+                if (edition.getReadingFormatId() == readingFormatId) {
+                    keep.add(edition);
+                } else if (edition.getReadingFormatId() == 1) {
+                    hardcovers.add(edition);
                 }
             }
+            List<GraphQLResponse.Edition> filtered = !keep.isEmpty() ? keep : hardcovers;
+            result.setEditions(filtered);
         }
-        return false;
+        if (results.stream().allMatch(r -> r.getEditions() == null || r.getEditions().isEmpty())) {
+            return originalResults;
+        }
+        return results;
     }
 
-    private boolean filterTitle(GraphQLResponse.Document doc, String searchTitle) {
-        if (doc.getTitle() == null || doc.getTitle().isEmpty()) {
-            return false;
-        }
-
-        List<String> searchTitleTokens = List.of(doc.getTitle());
-
-        boolean topResult = false;
-        List<GraphQLResponse.Document> matchedTitles = new ArrayList<>();
-        for (String foo : searchTitleTokens) {
-            if (foo.equalsIgnoreCase(searchTitle)) {
-                topResult = true;
-                return true;
-            }
-            if (foo.equalsIgnoreCase(searchTitle) && !topResult) {
-                return true;
-            }
-        }
-        return false;
+    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book) {
+        GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
+        return mapBookToMetadata(book, edition);
     }
 
-    private void filterEditions(GraphQLResponse.BookWithEditions bookWithEditions, int readingFormatId) {
-        if (bookWithEditions.getEditions() == null || bookWithEditions.getEditions().isEmpty()) {
-            return;
-        }
-        Map<Boolean, List<GraphQLResponse.Edition>> partitioned = bookWithEditions.getEditions()
-                .stream()
-                .filter(e -> e.getReadingFormatId() == readingFormatId || e.getReadingFormatId() == 1)
-                .collect(Collectors.partitioningBy(e -> e.getReadingFormatId() == readingFormatId));
+    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition) {
 
-        List<GraphQLResponse.Edition> filtered = partitioned.get(true).isEmpty()
-                ? partitioned.get(false)
-                : partitioned.get(true);
-
-        bookWithEditions.setEditions(filtered);
-    }
-
-    private BookMetadata mapDocumentToMetadata(GraphQLResponse.Document doc, FetchMetadataRequest request, boolean fetchDetailedMoods) {
-        BookMetadata metadata = new BookMetadata();
-        metadata.setHardcoverId(doc.getSlug());
-
-        String bookId = parseBookId(doc.getId());
-        if (bookId != null) {
-            metadata.setHardcoverBookId(bookId);
-        }
-
-        metadata.setTitle(doc.getTitle());
-        metadata.setSubtitle(doc.getSubtitle());
-        metadata.setDescription(doc.getDescription());
-
-        if (doc.getAuthorNames() != null) {
-            metadata.setAuthors(List.copyOf(doc.getAuthorNames()).reversed()); // Maybe upstream this?
-        }
-
-        mapSeriesInfo(doc, metadata);
-
-        if (doc.getRating() != null) {
-            metadata.setHardcoverRating(
-                    BigDecimal.valueOf(doc.getRating()).setScale(2, RoundingMode.HALF_UP).doubleValue()
-            );
-        }
-        metadata.setHardcoverReviewCount(doc.getRatingsCount());
-        metadata.setPageCount(doc.getPages());
-
-        if (doc.getReleaseDate() != null) {
-            try {
-                metadata.setPublishedDate(LocalDate.parse(doc.getReleaseDate()));
-            } catch (Exception e) {
-                log.debug("Could not parse release date: {}", doc.getReleaseDate());
-            }
-        }
-
-        mapTagsAndMoods(doc, metadata, bookId, fetchDetailedMoods);
-
-        mapIsbns(doc, request, metadata);
-
-        metadata.setThumbnailUrl(doc.getImage() != null ? doc.getImage().getUrl() : null);
-        metadata.setProvider(MetadataProvider.Hardcover);
-        return metadata;
-    }
-
-    private BookMetadata mapEditionToMetadata(GraphQLResponse.Edition edition, GraphQLResponse.BookWithEditions book) {
         BookMetadata metadata = new BookMetadata();
         metadata.setHardcoverId(book.getSlug());
 
+        if (metadata.getTitle() == null) {
+
+            mapBookId(metadata, book);
+            mapSeiesData(metadata, book);
+            mapRating(metadata, book);
+
+            metadata.setDescription(book.getDescription());
+            metadata.setHardcoverReviewCount(book.getRatingsCount());
+
+            GraphQLResponse.CachedTags cachedTags = book.getCachedTags();
+            mapMoods(metadata, cachedTags);
+            mapCategories(metadata, cachedTags);
+            mapTags(metadata, cachedTags);
+            mapSeriesInfo(metadata, book);
+
+            metadata.setThumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null);
+            metadata.setProvider(MetadataProvider.Hardcover);
+
+            if (edition == null) {
+
+                metadata.setTitle(book.getTitle());
+                metadata.setSubtitle(book.getSubtitle());
+                metadata.setPageCount(book.getPages());
+
+                mapReleaseDate(metadata, book);
+                // mapCachedContributors(metadata, book, edition); can't call this with edition
+            } else {
+                mapEditions(book, edition, metadata);
+            }
+        } else {
+            mapEditions(book, edition, metadata);
+        }
+        return metadata;
+    }
+
+    private BookMetadata mapEditions(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition,
+            BookMetadata metadata) {
+
+        metadata.setTitle(edition.getTitle());
+        metadata.setSubtitle(edition.getSubtitle());
+
+        metadata.setPageCount(edition.getPages());
+        mapIsbn(metadata, edition);
+
+        mapLanguage(metadata, edition);
+        mapPublisher(metadata, edition);
+
+        mapEditionReleaseDate(metadata, edition);
+        mapCachedContributors(metadata, book, edition);
+
+        return metadata;
+    }
+
+    private void mapBookId(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
         Integer bookId = book.getId();
         if (bookId != null) {
             metadata.setHardcoverBookId(bookId.toString());
         }
+    }
 
-        metadata.setTitle(edition.getTitle());
-        metadata.setSubtitle(edition.getSubtitle());
-        metadata.setDescription(book.getDescription());
+    private void mapSeiesData(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
+        if (book.getFeaturedBookSeries() != null && book.getFeaturedBookSeries().getSeries() != null) {
+            metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
+            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
 
-        if (edition.getCachedContributors() != null) {
+            if (book.getFeaturedBookSeries().getPosition() != null) {
+                try {
+                    metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries()
+                            .getPosition())));
+                } catch (NumberFormatException _) {
+                    // Handle the case where the series number cannot be parsed as a float
+                }
+            }
+        }
+    }
+
+    private void mapRating(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
+        if (book.getRating() != null) {
+            metadata.setHardcoverRating(
+                    BigDecimal.valueOf(book.getRating())
+                            .setScale(2, RoundingMode.HALF_UP)
+                            .doubleValue());
+        }
+    }
+
+    private void mapReleaseDate(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
+        if (book.getReleaseDate() != null) {
+            try {
+                metadata.setPublishedDate(LocalDate.parse(book.getReleaseDate()));
+            } catch (Exception _) {
+                log.debug("Could not parse release date: {}", book.getReleaseDate());
+            }
+        }
+    }
+
+    private void mapSeriesInfo(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
+        if (book.getFeaturedBookSeries() == null) {
+            return;
+        }
+        if (book.getFeaturedBookSeries() != null) {
+            metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
+            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
+        }
+        if (book.getFeaturedBookSeries().getPosition() != null) {
+            try {
+                metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries().getPosition())));
+            } catch (NumberFormatException _) {
+                // Ignore parsing error if the series position is not a valid number
+            }
+        }
+    }
+
+    private void mapMoods(BookMetadata metadata, GraphQLResponse.CachedTags cachedTags) {
+        if (cachedTags != null && cachedTags.getMood() != null && !cachedTags.getMood().isEmpty()) {
+            Set<String> basicFilteredMoods = HardcoverMoodFilter.filterMoodsWithCounts(cachedTags.getMood());
+            metadata.setMoods(basicFilteredMoods.stream()
+                    .map(WordUtils::capitalizeFully)
+                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+        }
+    }
+
+    private void mapCategories(BookMetadata metadata, GraphQLResponse.CachedTags cachedTags) {
+        if (cachedTags != null && cachedTags.getGenre() != null && !cachedTags.getGenre().isEmpty()) {
+            Set<String> filteredGenres = HardcoverMoodFilter.filterGenresWithCounts(cachedTags.getGenre());
+            metadata.setCategories(filteredGenres.stream()
+                    .map(WordUtils::capitalizeFully)
+                    .collect(Collectors.toSet()));
+        }
+    }
+
+    private void mapTags(BookMetadata metadata, GraphQLResponse.CachedTags cachedTags) {
+        if (cachedTags != null && cachedTags.getTag() != null && !cachedTags.getTag().isEmpty()) {
+            Set<String> filteredTags = HardcoverMoodFilter.filterTagsWithCounts(cachedTags.getTag());
+            metadata.setTags(filteredTags.stream()
+                    .map(WordUtils::capitalizeFully)
+                    .collect(Collectors.toSet()));
+        }
+    }
+
+    private void mapCachedContributors(BookMetadata metadata, GraphQLResponse.BookWithEditions book,
+            GraphQLResponse.Edition edition) {
+        if (book.getCachedContributors() != null) {
             metadata.setAuthors(edition.getCachedContributors().stream()
                     .map(GraphQLResponse.Contributor::getAuthor)
                     .filter(Objects::nonNull)
@@ -285,213 +397,38 @@ public class HardcoverParser implements BookParser {
                     .filter(Objects::nonNull)
                     .toList());
         }
+    }
 
-        if (book.getFeaturedBookSeries() != null && book.getFeaturedBookSeries().getSeries() != null) {
-            metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
-            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
-
-            if (book.getFeaturedBookSeries().getPosition() != null) {
-                try {
-                    metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries().getPosition())));
-                } catch (NumberFormatException _) {
-                }
-            }
-        }
-
-        if (book.getRating() != null) {
-            metadata.setHardcoverRating(
-                    BigDecimal.valueOf(book.getRating()).setScale(2, RoundingMode.HALF_UP).doubleValue()
-            );
-        }
-        metadata.setHardcoverReviewCount(book.getRatingsCount());
-        metadata.setPageCount(edition.getPages());
-
+    private void mapEditionReleaseDate(BookMetadata metadata, GraphQLResponse.Edition edition) {
         if (edition.getReleaseDate() != null) {
             try {
                 metadata.setPublishedDate(LocalDate.parse(edition.getReleaseDate()));
-            } catch (Exception e) {
+            } catch (Exception _) {
                 log.debug("Could not parse release date: {}", edition.getReleaseDate());
             }
         }
+    }
 
-        // Set the language from the edition
-        if (edition.getLanguage() != null && edition.getLanguage().getCode2() != null) {
-            metadata.setLanguage(LanguageNormalizer.normalize(edition.getLanguage().getCode2()));
-        }
-
-        // Set the Publisher from the edition
-        if (edition.getPublisher() != null && edition.getPublisher().getName() != null) {
-            metadata.setPublisher(edition.getPublisher().getName());
-        }
-
-        GraphQLResponse.CachedTags cachedTags = book.getCachedTags();
-
-        if (cachedTags != null && cachedTags.getMood() != null && !cachedTags.getMood().isEmpty()) {
-            Set<String> basicFilteredMoods = HardcoverMoodFilter.filterMoodsWithCounts(cachedTags.getMood());
-            metadata.setMoods(basicFilteredMoods.stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
-        }
-
-        if (cachedTags != null && cachedTags.getGenre() != null && !cachedTags.getGenre().isEmpty()) {
-            Set<String> filteredGenres = HardcoverMoodFilter.filterGenresWithCounts(cachedTags.getGenre());
-            metadata.setCategories(filteredGenres.stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toSet()));
-        }
-
-        if (cachedTags != null && cachedTags.getTag() != null && !cachedTags.getTag().isEmpty()) {
-            Set<String> filteredTags = HardcoverMoodFilter.filterTagsWithCounts(cachedTags.getTag());
-            metadata.setTags(filteredTags.stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toSet()));
-        }
-
-
+    private void mapIsbn(BookMetadata metadata, GraphQLResponse.Edition edition) {
         metadata.setIsbn10(edition.getIsbn10());
         metadata.setIsbn13(edition.getIsbn13());
 
-        // If only one ISBN is provided, calculate the other
         if (metadata.getIsbn10() != null && metadata.getIsbn13() == null) {
             metadata.setIsbn13(BookUtils.isbn10To13(edition.getIsbn10()));
         } else if (metadata.getIsbn13() != null && metadata.getIsbn10() == null) {
             metadata.setIsbn10(BookUtils.isbn13to10(edition.getIsbn13()));
         }
-
-        metadata.setThumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null);
-        metadata.setProvider(MetadataProvider.Hardcover);
-
-        return metadata;
     }
 
-    private String parseBookId(String id) {
-        return id;
-    }
-
-    private void mapSeriesInfo(GraphQLResponse.Document doc, BookMetadata metadata) {
-        if (doc.getFeaturedSeries() == null) {
-            return;
-        }
-        if (doc.getFeaturedSeries().getSeries() != null) {
-            metadata.setSeriesName(doc.getFeaturedSeries().getSeries().getName());
-            metadata.setSeriesTotal(doc.getFeaturedSeries().getSeries().getPrimaryBooksCount());
-        }
-        if (doc.getFeaturedSeries().getPosition() != null) {
-            try {
-                metadata.setSeriesNumber(Float.parseFloat(String.valueOf(doc.getFeaturedSeries().getPosition())));
-            } catch (NumberFormatException _) {
-            }
+    private void mapLanguage(BookMetadata metadata, GraphQLResponse.Edition edition) {
+        if (edition.getLanguage() != null && edition.getLanguage().getCode2() != null) {
+            metadata.setLanguage(LanguageNormalizer.normalize(edition.getLanguage().getCode2()));
         }
     }
 
-    private void mapTagsAndMoods(GraphQLResponse.Document doc, BookMetadata metadata, String bookId, boolean fetchDetailedMoods) {
-        boolean usedDetailedMoods = false;
-
-        if (fetchDetailedMoods && bookId != null) {
-            usedDetailedMoods = tryFetchDetailedMoods(bookId, metadata);
-        }
-
-        if (!usedDetailedMoods && doc.getMoods() != null && !doc.getMoods().isEmpty()) {
-            Set<String> basicFilteredMoods = HardcoverMoodFilter.filterBasicMoods(doc.getMoods());
-            metadata.setMoods(basicFilteredMoods.stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
-        }
-
-        if ((metadata.getCategories() == null || metadata.getCategories().isEmpty())
-                && doc.getGenres() != null && !doc.getGenres().isEmpty()) {
-            metadata.setCategories(doc.getGenres().stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toSet()));
-        }
-
-        if ((metadata.getTags() == null || metadata.getTags().isEmpty())
-                && doc.getTags() != null && !doc.getTags().isEmpty()) {
-            metadata.setTags(doc.getTags().stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.toSet()));
-        }
-    }
-
-    private boolean tryFetchDetailedMoods(String bookId, BookMetadata metadata) {
-        try {
-            Integer bookIdInt = Integer.parseInt(bookId);
-            HardcoverBookDetails details = hardcoverBookSearchService.fetchBookDetails(bookIdInt);
-            if (details == null || details.getCachedTags() == null || details.getCachedTags().isEmpty()) {
-                return false;
-            }
-
-            Set<String> filteredMoods = HardcoverMoodFilter.filterMoodsWithCounts(details.getCachedTags());
-            if (!filteredMoods.isEmpty()) {
-                metadata.setMoods(filteredMoods.stream()
-                        .map(WordUtils::capitalizeFully)
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
-
-            Set<String> filteredGenres = HardcoverMoodFilter.filterGenresWithCounts(details.getCachedTags());
-            if (!filteredGenres.isEmpty()) {
-                metadata.setCategories(filteredGenres.stream()
-                        .map(WordUtils::capitalizeFully)
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
-
-            Set<String> filteredTags = HardcoverMoodFilter.filterTagsWithCounts(details.getCachedTags());
-            if (!filteredTags.isEmpty()) {
-                metadata.setTags(filteredTags.stream()
-                        .map(WordUtils::capitalizeFully)
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            }
-
-            return !filteredMoods.isEmpty();
-        } catch (Exception e) {
-            log.debug("Failed to fetch book details: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    private void mapIsbns(GraphQLResponse.Document doc, FetchMetadataRequest request, BookMetadata metadata) {
-        if (doc.getIsbns() == null) {
-            return;
-        }
-
-        String inputIsbn = request.getIsbn();
-        String matchingIsbn = null;
-        if (StringUtils.isBlank(inputIsbn)) {
-            // If we didn't search by ISBN, use first ISBN from results
-            matchingIsbn = doc.getIsbns().stream()
-                    .filter(isbn -> isbn.length() == 10 || isbn.length() == 13)
-                    .findFirst()
-                    .orElse(null);
-        } else if (doc.getIsbns().contains(inputIsbn)) {
-            // If we searched by ISBN. and it matches a result perfectly, use that
-            matchingIsbn = inputIsbn;
-        } else {
-            // If we searched by ISBN but got no exact matches, get response ISBN that most closely matches it
-            LevenshteinDistance distance = LevenshteinDistance.getDefaultInstance();
-            int smallestDistance = Integer.MAX_VALUE;
-            for (String isbn : doc.getIsbns()) {
-                if (isbn.length() != 10 && isbn.length() != 13) {
-                    continue;
-                }
-                int currentDistance = distance.apply(isbn, inputIsbn);
-                if (smallestDistance > currentDistance) {
-                    smallestDistance = currentDistance;
-                    matchingIsbn = isbn;
-                }
-            }
-        }
-
-        // Whatever ISBN we end up with, calculate the other one
-        if (matchingIsbn != null && matchingIsbn.length() == 10) {
-            metadata.setIsbn10(matchingIsbn);
-            metadata.setIsbn13(BookUtils.isbn10To13(matchingIsbn));
-        } else if (matchingIsbn != null && matchingIsbn.length() == 13) {
-            metadata.setIsbn10(BookUtils.isbn13to10(matchingIsbn));
-            metadata.setIsbn13(matchingIsbn);
-        } else {
-            // Can only happen if doc.getIsbns() is empty or doesn't have any 10/13 length strings
-            metadata.setIsbn10(null);
-            metadata.setIsbn13(null);
+    private void mapPublisher(BookMetadata metadata, GraphQLResponse.Edition edition) {
+        if (edition.getPublisher() != null && edition.getPublisher().getName() != null) {
+            metadata.setPublisher(edition.getPublisher().getName());
         }
     }
 
