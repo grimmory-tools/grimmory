@@ -33,6 +33,7 @@ describe('ReaderProgressService', () => {
   const viewManagerService = {
     getRenderer: vi.fn<() => FoliateRenderer | null>(),
     updateHeadersAndFooters: vi.fn(),
+    captureMiddlePageSnippet: vi.fn(),
   };
 
   const stateService = {
@@ -70,6 +71,12 @@ describe('ReaderProgressService', () => {
     viewManagerService.getRenderer.mockReset();
     viewManagerService.getRenderer.mockReturnValue(renderer);
     viewManagerService.updateHeadersAndFooters.mockReset();
+    viewManagerService.captureMiddlePageSnippet.mockReset();
+    viewManagerService.captureMiddlePageSnippet.mockReturnValue({
+      before: 'Before',
+      highlight: 'Current sentence',
+      after: 'After',
+    });
     stateService.state.mockReset();
     annotationService.updateCurrentChapter.mockReset();
     bookmarkService.updateCurrentPosition.mockReset();
@@ -111,7 +118,11 @@ describe('ReaderProgressService', () => {
     });
 
     expect(readingSessionService.startSession).toHaveBeenCalledWith(17, 'EPUB', 'epubcfi(/6/2)', 25.4);
-    expect(bookPatchService.saveEpubProgress).toHaveBeenCalledWith(17, 'epubcfi(/6/2)', 'chapter.xhtml', 25.4, 23);
+    expect(bookPatchService.saveEpubProgress).toHaveBeenCalledWith(17, 'epubcfi(/6/2)', 'chapter.xhtml', 25.4, 23, {
+      before: 'Before',
+      highlight: 'Current sentence',
+      after: 'After',
+    });
     expect(readingSessionService.updateProgress).toHaveBeenCalledWith('epubcfi(/6/2)', 25.4);
     expect(annotationService.updateCurrentChapter).toHaveBeenCalledWith('Chapter 1');
     expect(bookmarkService.updateCurrentPosition).toHaveBeenCalledWith('epubcfi(/6/2)', 'Chapter 1');
