@@ -42,10 +42,12 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
     plugins: {
       legend: {
         display: true, position: 'bottom',
-        labels: {font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 10, padding: 12}
+        labels: {color: 'rgba(255, 255, 255, 0.8)', font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 10, padding: 12}
       },
       tooltip: {
-        enabled: true, cornerRadius: 6, padding: 10,
+        enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        titleColor: '#ffffff', bodyColor: '#ffffff',
+        cornerRadius: 6, padding: 10,
         callbacks: {
           label: (ctx) => {
             const hour = ctx.parsed.x ?? 0;
@@ -61,8 +63,9 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
     scales: {
       x: {
         min: 0, max: 24,
+        grid: {color: 'rgba(255, 255, 255, 0.08)'},
         ticks: {
-          font: {size: 10}, stepSize: 3,
+          color: 'rgba(255, 255, 255, 0.6)', font: {size: 10}, stepSize: 3,
           callback: (val) => {
             const h = Number(val);
             if (h === 0) return '12am';
@@ -70,12 +73,13 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
             return h < 12 ? `${h}am` : `${h - 12}pm`;
           }
         },
-        title: {display: true, text: 'Time of Day', font: {size: 11}}
+        title: {display: true, text: 'Time of Day', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       },
       y: {
         min: 0,
-        ticks: {font: {size: 11}},
-        title: {display: true, text: 'Duration (min)', font: {size: 11}}
+        grid: {color: 'rgba(255, 255, 255, 0.08)'},
+        ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}},
+        title: {display: true, text: 'Duration (min)', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       }
     }
   };

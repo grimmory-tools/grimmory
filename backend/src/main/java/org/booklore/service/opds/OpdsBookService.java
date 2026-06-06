@@ -16,6 +16,7 @@ import org.booklore.model.enums.OpdsSortOrder;
 import org.booklore.repository.BookOpdsRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.util.BookUtils;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.library.LibraryService;
 import org.booklore.service.restriction.ContentRestrictionService;
@@ -600,7 +601,7 @@ public class OpdsBookService {
     private String getFirstAuthor(Book book) {
         if (book.getMetadata() != null && book.getMetadata().getAuthors() != null 
             && !book.getMetadata().getAuthors().isEmpty()) {
-            return book.getMetadata().getAuthors().getFirst();
+            return book.getMetadata().getAuthors().iterator().next();
         }
         return "";
     }

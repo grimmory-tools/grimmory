@@ -19,9 +19,9 @@ updates:
         patterns:
           - "*"
 
-  # JavaScript – pnpm workspace (frontend + release tooling)
+  # Frontend – npm (Angular)
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/frontend"
     schedule:
       interval: "weekly"
       day: "friday"
@@ -36,16 +36,33 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      release-tooling:
-        patterns:
-          - "semantic-release"
-          - "@semantic-release/*"
-          - "conventional-changelog*"
-      frontend:
+      npm-dependencies:
         patterns:
           - "*"
     ignore:
       - dependency-name: "typescript"
+
+  # Release tooling – npm (semantic-release)
+  - package-ecosystem: "npm"
+    directory: "/tools/release"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "03:00"
+      timezone: "UTC"
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+      - "release"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      release-tooling:
+        patterns:
+          - "*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

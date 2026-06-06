@@ -2,7 +2,6 @@ package org.booklore.convertor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
@@ -14,7 +13,7 @@ class MapToStringConverterTest {
 
     @BeforeEach
     void setUp() {
-        converter = new MapToStringConverter(new ObjectMapper());
+        converter = new MapToStringConverter();
     }
 
     @Test

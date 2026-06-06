@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MessageService } from 'primeng/api';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
 import { Book } from '../book/model/book.model';
@@ -66,21 +65,20 @@ describe('CommandPaletteService', () => {
         { provide: MagicShelfService, useValue: { shelves: signal([]) } },
         { provide: LibraryService, useValue: { libraries: signal([]) } },
         { provide: UserService, useValue: { currentUser: signal({ permissions: {} }) } },
-        { provide: MessageService, useValue: { add: vi.fn() } },
         { provide: UrlHelperService, useValue: urlHelper },
         { provide: IconService, useValue: { getSvgIconContent: vi.fn(() => of('')) } },
         {
           provide: DialogLauncherService,
           useValue: {
-            openLibraryCreateDialog: vi.fn(() => Promise.resolve(null)),
-            openMagicShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
-            openFileUploadDialog: vi.fn(() => Promise.resolve(null)),
+            openLibraryCreateDialog: vi.fn(),
+            openMagicShelfCreateDialog: vi.fn(),
+            openFileUploadDialog: vi.fn(),
           },
         },
         {
           provide: BookDialogHelperService,
           useValue: {
-            openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)),
+            openShelfCreatorDialog: vi.fn(),
           },
         },
       ],

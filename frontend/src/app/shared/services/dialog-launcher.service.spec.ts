@@ -1,8 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {DialogService} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
-import {getTranslocoModule} from '../../core/testing/transloco-testing';
 
 import {DashboardSettingsComponent} from '../../features/dashboard/components/dashboard-settings/dashboard-settings.component';
 import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';
@@ -22,19 +20,17 @@ describe('DialogLauncherService', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [getTranslocoModule()],
       providers: [
         DialogLauncherService,
         {provide: DialogService, useValue: dialogService},
-        {provide: MessageService, useValue: {add: vi.fn()}},
       ]
     });
 
     service = TestBed.inject(DialogLauncherService);
   });
 
-  it('merges the default dialog options with caller overrides', async () => {
-    await service.openDialog(LibraryCreatorComponent, {
+  it('merges the default dialog options with caller overrides', () => {
+    service.openDialog(LibraryCreatorComponent, {
       showHeader: false,
       data: {mode: 'create'},
     });
@@ -55,8 +51,8 @@ describe('DialogLauncherService', () => {
     );
   });
 
-  it('opens the dashboard settings dialog with the expected style class', async () => {
-    await service.openDashboardSettingsDialog();
+  it('opens the dashboard settings dialog with the expected style class', () => {
+    service.openDashboardSettingsDialog();
 
     expect(dialogService.open).toHaveBeenCalledWith(
       DashboardSettingsComponent,
@@ -67,8 +63,8 @@ describe('DialogLauncherService', () => {
     );
   });
 
-  it('passes the library id into the library edit dialog', async () => {
-    await service.openLibraryEditDialog(12);
+  it('passes the library id into the library edit dialog', () => {
+    service.openLibraryEditDialog(12);
 
     expect(dialogService.open).toHaveBeenCalledWith(
       LibraryCreatorComponent,

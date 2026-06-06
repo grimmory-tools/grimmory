@@ -1,4 +1,4 @@
-import {Component, DestroyRef, computed, effect, inject, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {FormsModule} from '@angular/forms';
@@ -30,13 +30,13 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrls: ['./koreader-settings-component.scss']
 })
 export class KoreaderSettingsComponent {
-  editMode = signal(true);
-  showPassword = signal(false);
-  koReaderSyncEnabled = signal(false);
-  syncWithWebReader = signal(false);
-  koReaderUsername = signal('');
-  koReaderPassword = signal('');
-  credentialsSaved = signal(false);
+  editMode = true;
+  showPassword = false;
+  koReaderSyncEnabled = false;
+  syncWithWebReader = false;
+  koReaderUsername = '';
+  koReaderPassword = '';
+  credentialsSaved = false;
   readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
 
   private readonly messageService = inject(MessageService);
@@ -45,21 +45,16 @@ export class KoreaderSettingsComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly hasPermission = computed(() => {
-    const user = this.userService.currentUser();
-    return !!(user?.permissions.canSyncKoReader || user?.permissions.admin);
-  });
+  hasPermission = false;
   private prevHasPermission = false;
-
-  readonly canSave = computed(() => {
-    const username = this.koReaderUsername().trim();
-    const password = this.koReaderPassword();
-    return username.length > 0 && password.length >= 6;
-  });
 
   constructor() {
     effect(() => {
-      const currHasPermission = this.hasPermission();
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      const currHasPermission = (user.permissions.canSyncKoReader || user.permissions.admin) ?? false;
+      this.hasPermission = currHasPermission;
       if (currHasPermission && !this.prevHasPermission) {
         this.loadKoreaderSettings();
       }
@@ -72,11 +67,11 @@ export class KoreaderSettingsComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: koreaderUser => {
-        this.koReaderUsername.set(koreaderUser.username);
-        this.koReaderPassword.set(koreaderUser.password);
-        this.koReaderSyncEnabled.set(koreaderUser.syncEnabled);
-        this.syncWithWebReader.set(koreaderUser.syncWithWebReader ?? false);
-        this.credentialsSaved.set(true);
+        this.koReaderUsername = koreaderUser.username;
+        this.koReaderPassword = koreaderUser.password;
+        this.koReaderSyncEnabled = koreaderUser.syncEnabled;
+        this.syncWithWebReader = koreaderUser.syncWithWebReader ?? false;
+        this.credentialsSaved = true;
       },
       error: err => {
         if (err.status !== 404) {
@@ -91,38 +86,39 @@ export class KoreaderSettingsComponent {
   }
 
 
+  get canSave(): boolean {
+    const u = this.koReaderUsername?.trim() ?? '';
+    const p = this.koReaderPassword ?? '';
+    return u.length > 0 && p.length >= 6;
+  }
+
   onEditSave() {
-    if (!this.editMode()) {
+    if (!this.editMode) {
       this.saveCredentials();
     }
-    this.editMode.update(editMode => !editMode);
+    this.editMode = !this.editMode;
   }
 
   onToggleEnabled(enabled: boolean) {
-    const previousEnabled = this.koReaderSyncEnabled();
-    this.koReaderSyncEnabled.set(enabled);
     this.koreaderService.toggleSync(enabled).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
-        this.koReaderSyncEnabled.set(enabled);
+        this.koReaderSyncEnabled = enabled;
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.koreader.syncUpdated'), detail: enabled ? this.t.translate('settingsDevice.koreader.syncEnabled') : this.t.translate('settingsDevice.koreader.syncDisabled')});
       },
       error: () => {
-        this.koReaderSyncEnabled.set(previousEnabled);
         this.messageService.add({severity: 'error', summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'), detail: this.t.translate('settingsDevice.koreader.syncUpdateError')});
       }
     });
   }
 
   onToggleSyncWithWebReader(enabled: boolean) {
-    const previousSyncWithWebReader = this.syncWithWebReader();
-    this.syncWithWebReader.set(enabled);
     this.koreaderService.toggleSyncProgressWithWebReader(enabled).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
-        this.syncWithWebReader.set(enabled);
+        this.syncWithWebReader = enabled;
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('settingsDevice.koreader.syncUpdated'),
@@ -130,7 +126,6 @@ export class KoreaderSettingsComponent {
         });
       },
       error: () => {
-        this.syncWithWebReader.set(previousSyncWithWebReader);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),
@@ -141,16 +136,16 @@ export class KoreaderSettingsComponent {
   }
 
   toggleShowPassword() {
-    this.showPassword.update(showPassword => !showPassword);
+    this.showPassword = !this.showPassword;
   }
 
 
   saveCredentials() {
-    this.koreaderService.createUser(this.koReaderUsername(), this.koReaderPassword())
+    this.koreaderService.createUser(this.koReaderUsername, this.koReaderPassword)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.credentialsSaved.set(true);
+          this.credentialsSaved = true;
           this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.koreader.saved'), detail: this.t.translate('settingsDevice.koreader.credentialsSaved')});
         },
         error: () =>

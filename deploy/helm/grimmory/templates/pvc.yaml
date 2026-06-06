@@ -1,12 +1,11 @@
 {{- if (and .Values.persistence.dataVolume.enabled (not .Values.persistence.dataVolume.existingClaim)) }}
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    {{- include "grimmory.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "grimmory.fullname" . }}
   name: {{ include "grimmory.fullname" . }}-data
 spec:
   accessModes:
@@ -15,15 +14,15 @@ spec:
     requests:
       storage: {{ .Values.persistence.dataVolume.size }}
 {{- end }}
-{{- if (and .Values.persistence.booksVolume.enabled (not .Values.persistence.booksVolume.existingClaim)) }}
 ---
+{{- if (and .Values.persistence.booksVolume.enabled (not .Values.persistence.booksVolume.existingClaim)) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    {{- include "grimmory.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "grimmory.fullname" . }}
   name: {{ include "grimmory.fullname" . }}-books
 spec:
   accessModes:

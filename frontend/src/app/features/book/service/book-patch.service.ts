@@ -40,7 +40,16 @@ export class BookPatchService {
   private http = inject(HttpClient);
   private queryClient = inject(QueryClient);
 
-  private epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
+  private epubProgressSubject = new Subject<{
+    bookId: number;
+    cfi: string;
+    href: string;
+    percentage: number;
+    bookFileId?: number;
+    textBefore?: string | null;
+    textHighlight?: string | null;
+    textAfter?: string | null;
+  }>();
 
   private epubProgress$ = this.epubProgressSubject.pipe(
     distinctUntilChanged((prev, curr) =>
@@ -48,7 +57,8 @@ export class BookPatchService {
       prev.cfi === curr.cfi &&
       prev.href === curr.href &&
       prev.percentage === curr.percentage &&
-      prev.bookFileId === curr.bookFileId
+      prev.bookFileId === curr.bookFileId &&
+      prev.textHighlight === curr.textHighlight
     ),
     exhaustMap(payload => {
       const body: {
@@ -63,6 +73,9 @@ export class BookPatchService {
           positionData: string;
           positionHref: string;
           progressPercent: number;
+          textBefore?: string;
+          textHighlight?: string;
+          textAfter?: string;
         };
       } = {
         bookId: payload.bookId,
@@ -73,12 +86,16 @@ export class BookPatchService {
         }
       };
       if (payload.bookFileId) {
-        body.fileProgress = {
+        const fileProgress: NonNullable<typeof body.fileProgress> = {
           bookFileId: payload.bookFileId,
           positionData: payload.cfi,
           positionHref: payload.href,
           progressPercent: payload.percentage
         };
+        if (payload.textBefore) fileProgress.textBefore = payload.textBefore;
+        if (payload.textHighlight) fileProgress.textHighlight = payload.textHighlight;
+        if (payload.textAfter) fileProgress.textAfter = payload.textAfter;
+        body.fileProgress = fileProgress;
       }
       return this.http.post<void>(`${this.url}/progress`, body).pipe(
         tap(() => {
@@ -145,8 +162,24 @@ export class BookPatchService {
     );
   }
 
-  saveEpubProgress(bookId: number, cfi: string, href: string, percentage: number, bookFileId?: number): void {
-    this.epubProgressSubject.next({bookId, cfi, href, percentage, bookFileId});
+  saveEpubProgress(
+    bookId: number,
+    cfi: string,
+    href: string,
+    percentage: number,
+    bookFileId?: number,
+    textAnchor?: {before: string; highlight: string; after: string} | null
+  ): void {
+    this.epubProgressSubject.next({
+      bookId,
+      cfi,
+      href,
+      percentage,
+      bookFileId,
+      textBefore: textAnchor?.before ?? null,
+      textHighlight: textAnchor?.highlight ?? null,
+      textAfter: textAnchor?.after ?? null
+    });
   }
 
   saveCbxProgress(bookId: number, page: number, percentage: number, bookFileId?: number): Observable<void> {

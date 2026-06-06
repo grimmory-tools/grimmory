@@ -1,4 +1,3 @@
-import {Signal, signal, WritableSignal} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
@@ -7,20 +6,17 @@ import {BookdropFileService} from '../../../features/bookdrop/service/bookdrop-f
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {MetadataBatchStatus} from '../../model/metadata-batch-progress.model';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
-import {LibraryImportProgressService} from '../../service/library-import-progress.service';
 import {UnifiedNotificationBoxComponent} from './unified-notification-popover-component';
 
 describe('UnifiedNotificationBoxComponent', () => {
   let fixture: ComponentFixture<UnifiedNotificationBoxComponent>;
   let component: UnifiedNotificationBoxComponent;
   let activeTasks$: BehaviorSubject<Record<string, unknown>>;
-  let hasPendingFiles: WritableSignal<boolean>;
-  let hasActiveImport: WritableSignal<boolean>;
+  let hasPendingFiles$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     activeTasks$ = new BehaviorSubject<Record<string, unknown>>({});
-    hasPendingFiles = signal(false);
-    hasActiveImport = signal(false);
+    hasPendingFiles$ = new BehaviorSubject(false);
 
     await TestBed.configureTestingModule({
       imports: [UnifiedNotificationBoxComponent, getTranslocoModule()],
@@ -31,11 +27,7 @@ describe('UnifiedNotificationBoxComponent', () => {
         },
         {
           provide: BookdropFileService,
-          useValue: {hasPendingFiles},
-        },
-        {
-          provide: LibraryImportProgressService,
-          useValue: {hasActiveImport},
+          useValue: {hasPendingFiles$},
         },
       ],
     }).compileComponents();
@@ -49,9 +41,12 @@ describe('UnifiedNotificationBoxComponent', () => {
   });
 
   it('reports whether there are metadata tasks to show', () => {
-    const popover = component as unknown as {hasMetadataTasks: Signal<boolean>};
+    let hasMetadataTasks: boolean | undefined;
+    component.hasMetadataTasks$.subscribe(value => {
+      hasMetadataTasks = value;
+    });
 
-    expect(popover.hasMetadataTasks()).toBe(false);
+    expect(hasMetadataTasks).toBe(false);
 
     activeTasks$.next({
       'task-1': {
@@ -64,22 +59,17 @@ describe('UnifiedNotificationBoxComponent', () => {
       },
     });
 
-    expect(popover.hasMetadataTasks()).toBe(true);
+    expect(hasMetadataTasks).toBe(true);
   });
 
   it('forwards the bookdrop pending-file signal', () => {
-    const popover = component as unknown as {hasPendingBookdropFiles: Signal<boolean>};
+    let hasPendingFiles: boolean | undefined;
+    component.hasPendingBookdropFiles$.subscribe(value => {
+      hasPendingFiles = value;
+    });
 
-    expect(popover.hasPendingBookdropFiles()).toBe(false);
-    hasPendingFiles.set(true);
-    expect(popover.hasPendingBookdropFiles()).toBe(true);
-  });
-
-  it('forwards the active library import signal', () => {
-    const popover = component as unknown as {hasActiveLibraryImport: Signal<boolean>};
-
-    expect(popover.hasActiveLibraryImport()).toBe(false);
-    hasActiveImport.set(true);
-    expect(popover.hasActiveLibraryImport()).toBe(true);
+    expect(hasPendingFiles).toBe(false);
+    hasPendingFiles$.next(true);
+    expect(hasPendingFiles).toBe(true);
   });
 });

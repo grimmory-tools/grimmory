@@ -82,9 +82,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             System.gc(); // Hint to JVM to reclaim memory
             return false;
         } catch (NegativeArraySizeException e) {
-            // This can appear on corrupted PDF, or PDF with such large images that the
-            // initial memory buffer is already bigger than the entire JVM heap, therefore
-            // it leads to NegativeArrayException (basically run out of memory, and overflows)
+            // Corrupted or oversized PDFs can overflow internal image buffers.
             log.warn("Corrupted PDF structure for '{}'. Skipping cover generation.", bookFile.getFileName());
             return false;
         } catch (Exception e) {

@@ -8,7 +8,6 @@ import {catchError, takeUntil} from 'rxjs/operators';
 import {ReadingSessionHeatmapResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AsyncPipe} from '@angular/common';
-import {readStatsChartThemeColors} from '../../../shared/stats-chart-theme.service';
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -76,6 +75,10 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
         legend: {display: false},
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
+          borderColor: '#ffffff',
           borderWidth: 1,
           cornerRadius: 6,
           displayColors: false,
@@ -119,6 +122,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
               }
               return '';
             },
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           grid: {display: false},
@@ -134,6 +138,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
               const dayIndex = value as number;
               return dayIndex >= 0 && dayIndex <= 6 ? DAY_NAMES[dayIndex] : '';
             },
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           border: {display: false}
@@ -228,12 +233,13 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
         data: heatmapData,
         backgroundColor: (context) => {
           const point = context.raw as MatrixDataPoint;
-          if (!point?.v) return readStatsChartThemeColors().grid;
+          if (!point?.v) return 'rgba(255, 255, 255, 0.05)';
 
           const intensity = point.v / this.maxSessionCount;
           const alpha = Math.max(0.3, Math.min(0.9, intensity * 0.6 + 0.3));
           return `rgba(59, 130, 246, ${alpha})`;
         },
+        borderColor: 'rgba(255, 255, 255, 0.1)',
         borderWidth: 1
       }]
     });

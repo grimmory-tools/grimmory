@@ -12,7 +12,6 @@ export function invalidateAppBooksQueries(queryClient: QueryClient): void {
   void queryClient.invalidateQueries({queryKey: APP_FILTER_OPTIONS_QUERY_PREFIX});
 }
 
-// --- Full invalidation (refetches from server) ---
 
 export function invalidateBooksQuery(queryClient: QueryClient): void {
   void queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true});
@@ -50,7 +49,6 @@ export function removeBooksFromCache(queryClient: QueryClient, bookIds: Iterable
   invalidateAppBooksQueries(queryClient);
 }
 
-// --- Surgical patches (updates cache directly, no list refetch) ---
 
 export function addBookToCache(queryClient: QueryClient, book: Book): void {
   queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current => {

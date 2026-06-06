@@ -64,6 +64,13 @@ public class AppBookDetail {
         private String href;
         private Float percentage;
         private Instant updatedAt;
+        private String xpointer;
+        private String readiumLocatorJson;
+        private Float chapterProgression;
+        private String textBefore;
+        private String textHighlight;
+        private String textAfter;
+        private String positionType;
     }
 
     @Data

@@ -1,11 +1,23 @@
-@use '../../../shared/styles/reader-chrome' as *;
+@use 'sass:color';
+
+// Variables
+$panel-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
+$active-color: #4a90e2;
+$active-bg: rgb(74 144 226 / 15%);
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
 
 .quick-settings-overlay {
   position: fixed;
   inset: 0;
   z-index: 12000;
   background: rgb(0 0 0 / 30%);
-  animation: fade-in var(--transition-base);
+  animation: fade-in $transition-normal;
   cursor: pointer;
 }
 
@@ -15,13 +27,12 @@
 }
 
 .quick-settings-panel {
-  @include surface;
-
   position: absolute;
   top: 52px;
   right: 60px;
   width: 340px;
-  border: 1px solid var(--reader-chrome-border);
+  background: $panel-bg;
+  border: 1px solid $border-color;
   border-radius: 12px;
   box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
   animation: slide-down 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -48,9 +59,9 @@
   right: 18px;
   width: 16px;
   height: 16px;
-  background: var(--reader-chrome-bg);
-  border-left: 1px solid var(--reader-chrome-border);
-  border-top: 1px solid var(--reader-chrome-border);
+  background: $panel-bg;
+  border-left: 1px solid $border-color;
+  border-top: 1px solid $border-color;
   transform: rotate(45deg);
   border-radius: 3px 0 0;
 }
@@ -66,10 +77,11 @@
   padding: 12px 0;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--reader-chrome-border);
+    border-bottom: 1px solid $border-color;
   }
 
   > label {
+    color: $text-primary;
     font-size: 13px;
     font-weight: 500;
     flex-shrink: 0;
@@ -90,7 +102,7 @@
 
 .mode-label {
   font-size: 12px;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   min-width: 60px;
   text-align: right;
 }
@@ -100,7 +112,7 @@
   position: relative;
   width: 40px;
   height: 22px;
-  background: color-mix(in srgb, var(--color-white) 15%, transparent);
+  background: rgb(255 255 255 / 15%);
   border: none;
   border-radius: 11px;
   cursor: pointer;
@@ -108,7 +120,7 @@
   padding: 0;
 
   &.active {
-    background: var(--reader-chrome-accent);
+    background: $active-color;
 
     .slider {
       transform: translateX(18px);
@@ -121,17 +133,17 @@
     left: 2px;
     width: 18px;
     height: 18px;
-    background: var(--color-white);
+    background: #fff;
     border-radius: 50%;
     transition: transform 300ms ease;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--color-white) 20%, transparent);
+    background: rgb(255 255 255 / 20%);
 
     &.active {
-      background: var(--reader-chrome-accent-hover);
+      background: color.adjust($active-color, $lightness: 5%);
     }
   }
 }
@@ -140,17 +152,17 @@
 .button-group {
   display: flex;
   gap: 4px;
-  background: color-mix(in srgb, var(--color-white) 3%, transparent);
+  background: rgb(255 255 255 / 3%);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid var(--reader-chrome-border);
+  border: 1px solid $border-color;
 }
 
 .option-btn {
   width: 32px;
   height: 28px;
   background: transparent;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -158,17 +170,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-fast),
-    box-shadow var(--transition-fast),
-    color var(--transition-fast);
+  transition: all $transition-fast;
 
   &:hover {
-    background: var(--reader-chrome-hover);
-    color: var(--color-white);
+    background: $hover-bg;
+    color: $text-primary;
   }
 
   &.active {
-    background: var(--reader-chrome-accent);
+    background: $active-color;
     color: white;
   }
 
@@ -189,7 +199,7 @@
 
     &.active {
       background: transparent;
-      box-shadow: 0 0 0 2px var(--reader-chrome-accent);
+      box-shadow: 0 0 0 2px $active-color;
     }
   }
 
@@ -197,7 +207,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: 1px solid color-mix(in srgb, var(--color-white) 30%, transparent);
+    border: 1px solid rgb(255 255 255 / 30%);
   }
 }
 

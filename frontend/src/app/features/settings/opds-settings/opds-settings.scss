@@ -68,20 +68,28 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
-  border-left-width: 3px;
-  border-left-style: solid;
+  border-left: 3px solid var(--p-content-border-color);
   border-radius: 6px;
   padding: 1rem;
   transition: border-color 0.2s ease, background 0.2s ease;
 
   &:hover {
-    background: var(--color-card);
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
+  }
+
+  &.is-active {
+    border-left-color: var(--p-green-500);
   }
 
   &.sub-item {
     margin-left: 1.5rem;
+    border-left-color: var(--p-orange-500);
+
+    &.is-active {
+      border-left-color: var(--p-green-500);
+    }
 
     @media (width <= 600px) {
       margin-left: 0;
@@ -149,6 +157,11 @@
 .toggle-status {
   font-size: 0.875rem;
   font-weight: 600;
+  color: var(--p-text-muted-color);
+
+  &.active {
+    color: var(--p-green-400);
+  }
 }
 
 .toggle-description {
@@ -171,7 +184,7 @@
 }
 
 .endpoint-item {
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
   border-left: 3px solid var(--p-primary-color);
   border-radius: 6px;
@@ -249,7 +262,7 @@
   padding: 3rem 2rem;
   text-align: center;
   color: var(--p-text-muted-color);
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border-radius: 6px;
 
   .pi {
@@ -283,7 +296,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
   border-left: 3px solid var(--p-primary-color);
   border-radius: 6px;
@@ -291,7 +304,7 @@
   transition: background 0.2s ease;
 
   &:hover {
-    background: var(--color-card);
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
   }
 
   @media (width <= 600px) {
@@ -444,7 +457,7 @@
   gap: 1rem;
   padding: 1.5rem;
   border-radius: settings.$settings-card-border-radius;
-  background: color-mix(in srgb, var(--color-card) 85%, var(--p-red-600) 15%);
+  background: color-mix(in srgb, var(--ground-background) 85%, var(--p-red-600) 15%);
   border: 1px solid var(--p-content-border-color);
   border-left: 3px solid var(--p-red-500);
   max-width: 500px;

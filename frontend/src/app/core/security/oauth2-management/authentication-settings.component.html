@@ -23,7 +23,7 @@
 
     <div class="section-body">
       <div class="auth-methods-list">
-        <div class="auth-method-item is-active is-locked border-l-(--p-content-border-color) [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300">
+        <div class="auth-method-item is-active is-locked">
           <div class="auth-method-content">
             <div class="auth-method-header">
               <div class="auth-method-icon">
@@ -31,7 +31,7 @@
               </div>
               <div class="auth-method-info">
                 <span class="auth-method-label">{{ t('internal.label') }}</span>
-                <span class="auth-method-status active text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300">{{ t('internal.status') }}</span>
+                <span class="auth-method-status active">{{ t('internal.status') }}</span>
               </div>
             </div>
             <p class="auth-method-description">
@@ -45,7 +45,7 @@
           </p-checkbox>
         </div>
 
-        <div class="auth-method-item border-l-(--p-content-border-color) [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="oidcEnabled">
+        <div class="auth-method-item" [class.is-active]="oidcEnabled">
           <div class="auth-method-content">
             <div class="auth-method-header">
               <div class="auth-method-icon oidc">
@@ -55,7 +55,7 @@
                 <span class="auth-method-label">
                   {{ t('oidc.label') }}
                 </span>
-                <span class="auth-method-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="oidcEnabled">
+                <span class="auth-method-status" [class.active]="oidcEnabled">
                   {{ oidcEnabled ? t('oidc.enabled') : t('oidc.disabled') }}
                 </span>
               </div>
@@ -258,7 +258,7 @@
                  (click)="showTestDetails = !showTestDetails"
                  (keydown.enter)="showTestDetails = !showTestDetails">
               @if (testConnectionResult.success) {
-                <i class="pi pi-check-circle text-emerald-700 dark:text-emerald-300"></i>
+                <i class="pi pi-check-circle" style="color: var(--p-green-500);"></i>
                 <span>{{ t('testConnection.passed') }}</span>
               } @else {
                 <i class="pi pi-times-circle" style="color: var(--p-red-500);"></i>
@@ -298,7 +298,7 @@
             <div class="test-check-row">
               @switch (check.status) {
                 @case ('PASS') {
-                  <i class="pi pi-check-circle text-emerald-700 dark:text-emerald-300"></i>
+                  <i class="pi pi-check-circle" style="color: var(--p-green-500);"></i>
                 }
                 @case ('FAIL') {
                   <i class="pi pi-times-circle" style="color: var(--p-red-500);"></i>
@@ -307,7 +307,7 @@
                   <i class="pi pi-exclamation-triangle" style="color: var(--p-yellow-500);"></i>
                 }
                 @case ('SKIP') {
-                  <i class="pi pi-minus-circle text-(--color-text-muted)"></i>
+                  <i class="pi pi-minus-circle" style="color: var(--p-surface-400);"></i>
                 }
               }
               <span class="check-name">{{ check.name }}</span>
@@ -368,7 +368,7 @@
           <div class="toggle-content">
             <div class="toggle-info">
               <span class="toggle-label">{{ t('oidcOnly.label') }}</span>
-              <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="oidcForceOnlyMode">
+              <span class="toggle-status" [class.active]="oidcForceOnlyMode">
                 {{ oidcForceOnlyMode ? t('oidcOnly.enabled') : t('oidcOnly.disabled') }}
               </span>
             </div>
@@ -410,7 +410,7 @@
           <div class="toggle-content">
             <div class="toggle-info">
               <span class="toggle-label">{{ t('provisioning.autoLabel') }}</span>
-              <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="autoUserProvisioningEnabled">
+              <span class="toggle-status" [class.active]="autoUserProvisioningEnabled">
                 {{ autoUserProvisioningEnabled ? t('provisioning.autoEnabled') : t('provisioning.autoDisabled') }}
               </span>
             </div>
@@ -429,7 +429,7 @@
           <div class="toggle-content">
             <div class="toggle-info">
               <span class="toggle-label">{{ t('provisioning.linkLocalLabel') }}</span>
-              <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="allowLocalAccountLinking">
+              <span class="toggle-status" [class.active]="allowLocalAccountLinking">
                 {{ allowLocalAccountLinking ? t('provisioning.autoEnabled') : t('provisioning.autoDisabled') }}
               </span>
             </div>

@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.kobo.KoboBookMetadata;
@@ -216,51 +217,6 @@ class KoboEntitlementServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getDownloadUrls().size());
         assertEquals(KoboBookFormat.KEPUB.toString(), result.getDownloadUrls().getFirst().getFormat());
-    }
-
-    @Test
-    void mapToKoboMetadata_subtitleNull() {
-        long bookId = 1L;
-        BookEntity epubBook = createEpubBookEntity(bookId);
-        epubBook.getMetadata().setSubtitle(null);
-        String token = "test-token";
-
-        when(bookQueryService.findAllWithMetadataByIds(Set.of(bookId)))
-                .thenReturn(List.of(epubBook));
-        when(koboCompatibilityService.isBookSupportedForKobo(epubBook))
-                .thenReturn(true);
-        when(koboUrlBuilder.downloadUrl(token, epubBook.getId()))
-                .thenReturn("http://test.com/download/" + epubBook.getId());
-        when(appSettingService.getAppSettings())
-                .thenReturn(createAppSettingsWithKoboSettings());
-
-        KoboBookMetadata result = koboEntitlementService.getMetadataForBook(bookId, token);
-
-        assertNotNull(result);
-        assertNull(result.getSubtitle());
-    }
-
-    @Test
-    void mapToKoboMetadata_shouldIncludeSubtitleWhenNotNull() {
-        long bookId = 1L;
-        String subtitle = "A test subtitle";
-        BookEntity epubBook = createEpubBookEntity(bookId);
-        epubBook.getMetadata().setSubtitle(subtitle);
-        String token = "test-token";
-
-        when(bookQueryService.findAllWithMetadataByIds(Set.of(bookId)))
-                .thenReturn(List.of(epubBook));
-        when(koboCompatibilityService.isBookSupportedForKobo(epubBook))
-                .thenReturn(true);
-        when(koboUrlBuilder.downloadUrl(token, epubBook.getId()))
-                .thenReturn("http://test.com/download/" + epubBook.getId());
-        when(appSettingService.getAppSettings())
-                .thenReturn(createAppSettingsWithKoboSettings());
-
-        KoboBookMetadata result = koboEntitlementService.getMetadataForBook(bookId, token);
-
-        assertNotNull(result);
-        assertEquals(subtitle, result.getSubtitle());
     }
 
     private BookEntity createCbxBookEntity(Long id) {

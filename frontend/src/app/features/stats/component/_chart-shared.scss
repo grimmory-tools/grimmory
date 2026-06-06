@@ -1,34 +1,5 @@
 // Shared chart styles for consistency across all chart components
 
-@mixin accent-surface($radius: 20px) {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--stats-badge-accent) 20%, transparent),
-    color-mix(in srgb, var(--stats-badge-accent) 10%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--stats-badge-accent) 30%, transparent);
-  border-radius: $radius;
-}
-
-@mixin accent-text($accent-weight: 62%) {
-  color: color-mix(in srgb, var(--stats-badge-accent) $accent-weight, var(--color-text));
-}
-
-@mixin accent-badge {
-  @include accent-surface;
-  @include accent-text;
-
-  padding: 0.4rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-@mixin neutral-surface($radius: 8px) {
-  background: color-mix(in srgb, var(--color-text) 5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-  border-radius: $radius;
-}
-
 .chart-header {
   display: flex;
   justify-content: space-between;
@@ -42,7 +13,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -52,7 +23,7 @@
     }
 
     .chart-description {
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       font-size: 0.9rem;
       margin: 0;
       line-height: 1.4;
@@ -60,22 +31,20 @@
   }
 
   .stats-badge {
-    @include neutral-surface;
-
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 8px;
     padding: 0.5rem 1rem;
 
     .badge-value {
       font-size: 1.5rem;
       font-weight: 600;
-      color: var(--color-text);
     }
 
     .badge-label {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -89,7 +58,7 @@
   justify-content: center;
   padding: 2rem;
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 
   i {
     font-size: 2rem;
@@ -100,7 +69,7 @@
   p {
     font-size: 0.9rem;
     margin: 0 0 0.5rem;
-    color: var(--color-text);
+    color: var(--text-color, #fff);
   }
 
   small {

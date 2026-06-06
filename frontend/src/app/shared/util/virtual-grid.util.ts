@@ -1,5 +1,6 @@
 import {ElementRef, Signal, computed, effect, signal} from '@angular/core';
-import {injectVirtualizer, observeElementRect, type Rect, type VirtualItem} from '@tanstack/angular-virtual';
+import {injectVirtualizer} from '@tanstack/angular-virtual';
+import {observeElementRect, type Rect, type VirtualItem} from '@tanstack/virtual-core';
 
 const DEFAULT_OVERSCAN_ROWS = 2;
 const DEFAULT_ITEM_SIZE = 1;

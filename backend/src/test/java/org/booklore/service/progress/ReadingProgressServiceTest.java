@@ -16,6 +16,7 @@ import org.booklore.model.enums.ResetProgressType;
 import org.booklore.repository.*;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.hardcover.HardcoverSyncService;
+import org.booklore.util.epub.EpubPositionResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -46,6 +47,8 @@ class ReadingProgressServiceTest {
     private KoboReadingStateService koboReadingStateService;
     @Mock
     private HardcoverSyncService hardcoverSyncService;
+    @Mock
+    private EpubPositionResolver epubPositionResolver;
 
     @InjectMocks
     private ReadingProgressService readingProgressService;
@@ -229,6 +232,8 @@ class ReadingProgressServiceTest {
         UserBookProgressEntity progress = new UserBookProgressEntity();
         when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
         when(userBookFileProgressRepository.findByUserIdAndBookFileId(2L, 1L)).thenReturn(Optional.empty());
+        when(epubPositionResolver.resolveFromCfi(any(), any())).thenReturn(Optional.empty());
+        when(epubPositionResolver.resolveFromTextPhrase(any(), any(), any(), any(), any())).thenReturn(Optional.empty());
 
         ReadProgressRequest req = new ReadProgressRequest();
         req.setBookId(bookId);
@@ -238,7 +243,8 @@ class ReadingProgressServiceTest {
                 "OPS/chapter3.xhtml",
                 55f,
                 "epubcfi(/6/8!/4/2/6/1:10)",
-                18.6f));
+                18.6f,
+                null, null, null, null, null));
 
         readingProgressService.updateReadProgress(req);
 

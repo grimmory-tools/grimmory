@@ -117,16 +117,7 @@ public class SendEmailV2Service {
                 .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException(bookFileId));
     }
 
-    /**
-     * Builds a configured {@link JavaMailSenderImpl} for the given provider.
-     *
-     * <p>Selects the Jakarta Mail property namespace ({@code mail.smtp.} or {@code mail.smtps.})
-     * from the resolved {@link ConnectionType} and writes authentication, SSL/STARTTLS,
-     * and timeout properties under that prefix so the active transport actually reads them.
-     *
-     * <p>Package-private to allow same-package unit tests to assert the resulting property map.
-     */
-    JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
+    private JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
         JavaMailSenderImpl dynamicMailSender = new JavaMailSenderImpl();
         dynamicMailSender.setHost(emailProvider.getHost());
         dynamicMailSender.setPort(emailProvider.getPort());
@@ -134,14 +125,11 @@ public class SendEmailV2Service {
         dynamicMailSender.setPassword(emailProvider.getPassword());
 
         Properties mailProps = dynamicMailSender.getJavaMailProperties();
+        mailProps.put("mail.smtp.auth", emailProvider.isAuth());
+
         ConnectionType connectionType = determineConnectionType(emailProvider);
-        // Jakarta Mail's smtp and smtps transports read properties from disjoint namespaces:
-        // SMTPTransport reads only mail.smtp.*, SMTPSSLTransport reads only mail.smtps.*.
-        // Pick the prefix matching the active transport so auth/ssl/timeout settings apply.
-        String prefix = connectionType == ConnectionType.SSL ? "mail.smtps." : "mail.smtp.";
-        mailProps.put(prefix + "auth", String.valueOf(emailProvider.isAuth()));
         configureConnectionType(mailProps, connectionType, emailProvider);
-        configureTimeouts(mailProps, prefix);
+        configureTimeouts(mailProps);
 
         String debugMode = System.getProperty("mail.debug", "false");
         mailProps.put("mail.debug", debugMode);
@@ -163,23 +151,17 @@ public class SendEmailV2Service {
         }
     }
 
-    /**
-     * Writes transport-protocol, SSL, and STARTTLS properties for the given connection type.
-     *
-     * <p>{@code mail.transport.protocol} is namespace-independent (it selects the transport
-     * implementation). Each branch writes its remaining keys under the fixed namespace its
-     * transport reads from: {@code mail.smtps.*} for SSL, {@code mail.smtp.*} otherwise.
-     */
     private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider) {
         switch (connectionType) {
             case SSL -> {
                 mailProps.put("mail.transport.protocol", "smtps");
-                mailProps.put("mail.smtps.ssl.enable", "true");
-                mailProps.put("mail.smtps.ssl.trust", emailProvider.getHost());
-                mailProps.put("mail.smtps.starttls.enable", "false");
-                mailProps.put("mail.smtps.ssl.protocols", "TLSv1.2 TLSv1.3");
-                mailProps.put("mail.smtps.ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                mailProps.put("mail.smtps.ssl.socketFactory.fallback", "false");
+                mailProps.put("mail.smtp.ssl.enable", "true");
+                mailProps.put("mail.smtp.ssl.trust", emailProvider.getHost());
+                mailProps.put("mail.smtp.starttls.enable", "false");
+                mailProps.put("mail.smtp.ssl.protocols", "TLSv1.2,TLSv1.3");
+                mailProps.put("mail.smtp.ssl.checkserveridentity", "false");
+                mailProps.put("mail.smtp.ssl.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                mailProps.put("mail.smtp.ssl.socketFactory.fallback", "false");
             }
             case STARTTLS -> {
                 mailProps.put("mail.transport.protocol", "smtp");
@@ -195,26 +177,14 @@ public class SendEmailV2Service {
         }
     }
 
-    /**
-     * Writes connection, socket, and write timeout properties under {@code prefix}.
-     *
-     * <p>Default is 60s per timeout. JVM operators can override per-transport via
-     * {@code -D<prefix>connectiontimeout=...} or fall back to the legacy {@code mail.smtp.*}
-     * keys for backward compatibility with deployments that predate transport-aware overrides.
-     */
-    private void configureTimeouts(Properties mailProps, String prefix) {
-        // Prefer transport-namespaced JVM overrides (e.g. -Dmail.smtps.connectiontimeout=...)
-        // and fall back to the unprefixed mail.smtp.* form for backward compatibility.
-        String connectionTimeout = System.getProperty(prefix + "connectiontimeout",
-                System.getProperty("mail.smtp.connectiontimeout", "60000"));
-        String socketTimeout = System.getProperty(prefix + "timeout",
-                System.getProperty("mail.smtp.timeout", "60000"));
-        String writeTimeout = System.getProperty(prefix + "writetimeout",
-                System.getProperty("mail.smtp.writetimeout", "60000"));
+    private void configureTimeouts(Properties mailProps) {
+        String connectionTimeout = System.getProperty("mail.smtp.connectiontimeout", "60000");
+        String socketTimeout = System.getProperty("mail.smtp.timeout", "60000");
+        String writeTimeout = System.getProperty("mail.smtp.writetimeout", "60000");
 
-        mailProps.put(prefix + "connectiontimeout", connectionTimeout);
-        mailProps.put(prefix + "timeout", socketTimeout);
-        mailProps.put(prefix + "writetimeout", writeTimeout);
+        mailProps.put("mail.smtp.connectiontimeout", connectionTimeout);
+        mailProps.put("mail.smtp.timeout", socketTimeout);
+        mailProps.put("mail.smtp.writetimeout", writeTimeout);
     }
 
     private String generateEmailBody(String bookTitle) {

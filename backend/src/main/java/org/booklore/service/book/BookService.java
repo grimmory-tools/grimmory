@@ -1,6 +1,5 @@
 package org.booklore.service.book;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,6 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookFileRepository bookFileRepository;
-    private final EntityManager entityManager;
     private final PdfViewerPreferencesRepository pdfViewerPreferencesRepository;
     private final CbxViewerPreferencesRepository cbxViewerPreferencesRepository;
     private final NewPdfViewerPreferencesRepository newPdfViewerPreferencesRepository;
@@ -462,13 +460,7 @@ public class BookService {
             }
         }
 
-        // Because this is `InBatch` we need to clear and flush the entity manager to
-        // prevent unexpected updates of records when the transaction commits.
-        entityManager.flush();
-        entityManager.clear();
-
         bookRepository.deleteAllInBatch(books);
-
         auditService.log(AuditAction.BOOK_DELETED, "Deleted " + ids.size() + " book(s)");
         BookDeletionResponse response = new BookDeletionResponse(ids, failedFileDeletions);
         return failedFileDeletions.isEmpty()

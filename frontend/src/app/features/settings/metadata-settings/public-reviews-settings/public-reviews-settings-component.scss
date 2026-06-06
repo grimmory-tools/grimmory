@@ -65,13 +65,13 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--color-card);
+  background: var(--ground-background);
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
   transition: border-color 0.2s ease;
 
   &:hover {
-    border-color: var(--color-primary);
+    border-color: var(--primary-color);
   }
 }
 
@@ -83,7 +83,7 @@
 
 .provider-label {
   font-weight: settings.$settings-label-weight;
-  color: var(--color-text);
+  color: var(--text-color);
   font-size: settings.$settings-description-size;
 }
 
@@ -103,14 +103,14 @@
   padding: 0.25rem 0.375rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
-  background: var(--color-card);
-  color: var(--color-text);
+  background: var(--p-surface-800);
+  color: var(--text-color);
   font-size: settings.$settings-description-size;
   text-align: center;
 
   &:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: var(--primary-color);
   }
 }
 
@@ -123,7 +123,7 @@
   font-style: italic;
   margin-top: 0.5rem;
   padding: 0.75rem;
-  background: var(--color-card);
+  background: var(--ground-background);
   border-radius: 4px;
 
   .pi {

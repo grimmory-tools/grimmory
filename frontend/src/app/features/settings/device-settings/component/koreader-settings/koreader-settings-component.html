@@ -13,7 +13,7 @@
     </p>
   </div>
 
-  @if (hasPermission()) {
+  @if (hasPermission) {
     <div class="settings-content">
       <div class="preferences-section">
         <div class="section-header">
@@ -34,10 +34,10 @@
                   <span class="setting-label">{{ t('koreader.enableSync') }}</span>
                   <p-toggle-switch
                     name="syncEnabled"
-                    [ngModel]="koReaderSyncEnabled()"
+                    [(ngModel)]="koReaderSyncEnabled"
                     (ngModelChange)="onToggleEnabled($event)"
                     inputId="syncEnabled"
-                    [disabled]="!credentialsSaved()">
+                    [disabled]="!credentialsSaved">
                   </p-toggle-switch>
                 </div>
                 <p class="setting-description">
@@ -52,10 +52,10 @@
                   <span class="setting-label">{{ t('koreader.syncWithGrimmory') }}</span>
                   <p-toggle-switch
                     name="syncWithWebReader"
-                    [ngModel]="syncWithWebReader()"
+                    [(ngModel)]="syncWithWebReader"
                     (ngModelChange)="onToggleSyncWithWebReader($event)"
                     inputId="syncWithWebReader"
-                    [disabled]="!credentialsSaved() || !koReaderSyncEnabled()">
+                    [disabled]="!credentialsSaved || !koReaderSyncEnabled">
                   </p-toggle-switch>
                 </div>
                 <p class="setting-description" [innerHTML]="t('koreader.syncWithGrimmoryDesc')">
@@ -100,26 +100,25 @@
                       id="username"
                       name="username"
                       required
-                      [ngModel]="koReaderUsername()"
-                      (ngModelChange)="koReaderUsername.set($event)"
+                      [(ngModel)]="koReaderUsername"
                       #usernameModel="ngModel"
                       [class.p-invalid]="usernameModel.invalid && usernameModel.touched"
-                      [disabled]="editMode()"
+                      [disabled]="editMode"
                       class="token-input"/>
                     <p-button
                       icon="pi pi-copy"
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(koReaderUsername(), t('koreader.username'))"
-                      [disabled]="!koReaderUsername()">
+                      (onClick)="copyText(koReaderUsername, 'Username')"
+                      [disabled]="!koReaderUsername">
                     </p-button>
                   </div>
                 </div>
                 <p class="setting-description">
                   {{ t('koreader.usernameDesc') }}
                 </p>
-                @if (!editMode() && usernameModel.invalid && usernameModel.touched) {
+                @if (editMode && usernameModel.invalid && usernameModel.touched) {
                   <small class="error-message">
                     {{ t('koreader.usernameRequired') }}
                   </small>
@@ -138,35 +137,34 @@
                       name="password"
                       required
                       minlength="6"
-                      [type]="showPassword() ? 'text' : 'password'"
-                      [ngModel]="koReaderPassword()"
-                      (ngModelChange)="koReaderPassword.set($event)"
+                      [type]="showPassword ? 'text' : 'password'"
+                      [(ngModel)]="koReaderPassword"
                       #passwordModel="ngModel"
                       [class.p-invalid]="passwordModel.invalid && passwordModel.touched"
-                      [disabled]="editMode()"
+                      [disabled]="editMode"
                       class="token-input-password"/>
                     <p-button
                       icon="pi pi-copy"
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(koReaderPassword(), t('koreader.password'))"
-                      [disabled]="!koReaderPassword()">
+                      (onClick)="copyText(koReaderPassword, 'Password')"
+                      [disabled]="!koReaderPassword">
                     </p-button>
                     <p-button
-                      [icon]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      [icon]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
                       outlined="true"
                       severity="info"
                       size="small"
                       (onClick)="toggleShowPassword()"
-                      [disabled]="!koReaderPassword()">
+                      [disabled]="!koReaderPassword">
                     </p-button>
                   </div>
                 </div>
                 <p class="setting-description">
                   {{ t('koreader.passwordDesc') }}
                 </p>
-                @if (!editMode() && passwordModel.invalid && passwordModel.touched) {
+                @if (editMode && passwordModel.invalid && passwordModel.touched) {
                   <small class="error-message">
                     {{ t('koreader.passwordMinLength') }}
                   </small>
@@ -179,13 +177,13 @@
                 <div class="setting-label-row">
                   <span class="setting-label">{{ t('koreader.settingsManagement') }}</span>
                   <p-button
-                    [icon]="!editMode() ? 'pi pi-save' : 'pi pi-pencil'"
+                    [icon]="!editMode ? 'pi pi-save' : 'pi pi-pencil'"
                     outlined="true"
-                    [severity]="!editMode() ? 'success' : 'warn'"
-                    [label]="!editMode() ? ('common.save' | transloco) : ('common.edit' | transloco)"
+                    [severity]="!editMode ? 'success' : 'warn'"
+                    [label]="!editMode ? ('common.save' | transloco) : ('common.edit' | transloco)"
                     size="small"
                     (onClick)="onEditSave()"
-                    [disabled]="!editMode() && !canSave()">
+                    [disabled]="!editMode && !canSave">
                   </p-button>
                 </div>
                 <p class="setting-description">

@@ -114,7 +114,7 @@ public class HardcoverBookSearchService {
             return Collections.emptyList();
         }
 
-        int sanitizedPerPage = Math.clamp(perPage, 1, 100);
+        int sanitizedPerPage = Math.min(Math.max(perPage, 1), 100);
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("query BookSearch($q: String!, $limit: Int!) { search(query: $q, query_type: \"Book\", per_page: $limit, page: 1) { results } }");

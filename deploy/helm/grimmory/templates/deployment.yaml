@@ -1,6 +1,5 @@
 apiVersion: apps/v1
 kind: Deployment
-{{- include "grimmory.validate-database" . }}
 metadata:
   name: {{ include "grimmory.fullname" . }}
   labels:
@@ -33,41 +32,23 @@ spec:
       initContainers:
         - name: wait-for-database
           image: busybox:1.36
-          env:
-          - name: GRIMMORY_DB_HOST
-            {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.hostnameKey }}
-            {{- with .Values.externalDatabase.existingSecret }}
-            valueFrom:
-              secretKeyRef:
-                name: {{ .secretName }}
-                key: {{ .hostnameKey }}
-            {{- end }}
-            {{- else }}
-            value: {{ include "grimmory.dbHostname" . | quote }}
-            {{- end }}
-          - name: GRIMMORY_DB_PORT
-            {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.portKey }}
-            {{- with .Values.externalDatabase.existingSecret }}
-            valueFrom:
-              secretKeyRef:
-                name: {{ .secretName }}
-                key: {{ .portKey }}
-            {{- end }}
-            {{- else }}
-            value: {{ include "grimmory.dbPort" . | quote }}
-            {{- end }}
           command:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for database at $GRIMMORY_DB_HOST:$GRIMMORY_DB_PORT ..."
-              until nc -z -v -w5 "$GRIMMORY_DB_HOST" "$GRIMMORY_DB_PORT"; do
+              echo "Waiting for database on port {{ .Values.mariadb.service.port }}..."
+              until nc -z -v -w5 {{ .Release.Name }}-mariadb {{ .Values.mariadb.service.port }}; do
                 echo "Waiting for database..."
                 sleep 2
               done
               echo "Database is available!"
           resources:
-            {{- toYaml .Values.initContainer.resources | nindent 12 }}
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -79,60 +60,25 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+              #protocol: TCP
           env:
-            - name: DATABASE_HOST
-              {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.hostnameKey }}
-              {{- with .Values.externalDatabase.existingSecret }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .secretName }}
-                  key: {{ .hostnameKey }}
-              {{- end }}
-              {{- else }}
-              value: {{ include "grimmory.dbHostname" . | quote }}
-              {{- end }}
-            - name: DATABASE_PORT
-              {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.portKey }}
-              {{- with .Values.externalDatabase.existingSecret }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .secretName }}
-                  key: {{ .portKey }}
-              {{- end }}
-              {{- else }}
-              value: {{ include "grimmory.dbPort" . | quote }}
-              {{- end }}
+            - name: DATABASE_URL
+              value: jdbc:mariadb://{{ .Release.Name }}-mariadb:{{ .Values.mariadb.service.port }}/{{ .Values.mariadb.auth.database }}
             - name: DATABASE_USERNAME
-              {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.usernameKey }}
-              {{- with .Values.externalDatabase.existingSecret }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .secretName }}
-                  key: {{ .usernameKey }}
-              {{- end }}
-              {{- else }}
-              value: {{ include "grimmory.dbUserName" . }}
-              {{- end }}
+              value: {{ .Values.mariadb.auth.username }}
             - name: DATABASE_PASSWORD
-              {{- if or (and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled) (not .Values.externalDatabase.enabled) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "grimmory.dbPasswordSecretName" . }}
-                  key: {{ include "grimmory.dbPasswordSecretKey" . }}
-              {{- else }}
-              value: {{ .Values.externalDatabase.password | quote }}
-              {{- end }}
-            - name: DATABASE_NAME
-              {{- if and .Values.externalDatabase.enabled .Values.externalDatabase.existingSecret.enabled .Values.externalDatabase.existingSecret.databaseKey }}
-              {{- with .Values.externalDatabase.existingSecret }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .secretName }}
-                  key: {{ .databaseKey }}
-              {{- end }}
-              {{- else }}
-              value: {{ include "grimmory.dbName" . | quote }}
-              {{- end }}
+                  {{- if .Values.mariadb.auth.existingSecret }}
+                  name: {{ .Values.mariadb.auth.existingSecret }}
+                  {{- else }}
+                  name: {{ .Release.Name }}-mariadb
+                  {{- end }}
+                  key: mariadb-password
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -164,12 +110,20 @@ spec:
         {{- if .Values.persistence.dataVolume.enabled }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.dataVolume.existingClaim | default (printf "%s-data" (include "grimmory.fullname" .)) }}
+            claimName: {{ if .Values.persistence.dataVolume.existingClaim }}
+              {{- .Values.persistence.dataVolume.existingClaim }}
+            {{ else }}
+              {{- include "grimmory.fullname" . }}-data
+            {{- end }}
         {{- end }}
         {{- if .Values.persistence.booksVolume.enabled }}
         - name: books
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.booksVolume.existingClaim | default (printf "%s-books" (include "grimmory.fullname" .)) }}
+            claimName: {{ if .Values.persistence.booksVolume.existingClaim }}
+              {{- .Values.persistence.booksVolume.existingClaim }}
+            {{ else }}
+              {{- include "grimmory.fullname" . }}-books
+            {{- end }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

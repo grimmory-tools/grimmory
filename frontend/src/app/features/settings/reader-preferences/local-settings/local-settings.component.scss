@@ -52,6 +52,19 @@
 
   &.action-item {
     border-left-color: var(--p-orange-500);
+    background: color-mix(
+      in srgb,
+      var(--ground-background) 40%,
+      var(--p-surface-800) 60%
+    );
+
+    &:hover {
+      background: color-mix(
+        in srgb,
+        var(--ground-background) 20%,
+        var(--p-surface-800) 80%
+      );
+    }
   }
 
   @media (width <= 768px) {
@@ -84,7 +97,7 @@
 
   .setting-value {
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--text-color);
     white-space: nowrap;
   }
 

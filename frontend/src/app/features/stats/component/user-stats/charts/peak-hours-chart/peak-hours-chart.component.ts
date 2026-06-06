@@ -54,6 +54,7 @@ export class PeakHoursChartComponent implements OnInit {
           display: true,
           position: 'top',
           labels: {
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             boxWidth: 12,
             padding: 10
@@ -61,6 +62,10 @@ export class PeakHoursChartComponent implements OnInit {
         },
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
+          borderColor: '#ffffff',
           borderWidth: 1,
           cornerRadius: 6,
           displayColors: true,
@@ -88,6 +93,7 @@ export class PeakHoursChartComponent implements OnInit {
           title: {
             display: true,
             text: this.t.translate('statsUser.peakHours.axisHourOfDay'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 13,
@@ -95,9 +101,11 @@ export class PeakHoursChartComponent implements OnInit {
             }
           },
           ticks: {
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
           },
           border: {display: false}
         },
@@ -117,10 +125,12 @@ export class PeakHoursChartComponent implements OnInit {
           },
           beginAtZero: true,
           ticks: {
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             stepSize: 1
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
           },
           border: {display: false}
         },
@@ -140,6 +150,7 @@ export class PeakHoursChartComponent implements OnInit {
           },
           beginAtZero: true,
           ticks: {
+            color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11},
             callback: function (value) {
               return (typeof value === 'number' ? Math.round(value) : '0') + 'm';
@@ -230,6 +241,7 @@ export class PeakHoursChartComponent implements OnInit {
           pointRadius: 4,
           pointHoverRadius: 6,
           pointBackgroundColor: 'rgba(34, 197, 94, 0.9)',
+          pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
           yAxisID: 'y'
         },
@@ -244,6 +256,7 @@ export class PeakHoursChartComponent implements OnInit {
           pointRadius: 4,
           pointHoverRadius: 6,
           pointBackgroundColor: 'rgba(251, 191, 36, 0.9)',
+          pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
           yAxisID: 'y1'
         }

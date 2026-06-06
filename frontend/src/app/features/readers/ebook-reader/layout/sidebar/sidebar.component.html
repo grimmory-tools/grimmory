@@ -109,7 +109,7 @@
             @if (bookmarks().length > 0) {
               <ul class="item-list">
                 @for (bookmark of bookmarks(); track bookmark.id) {
-                  <li class="reader-list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark.cfi!)" (keydown.enter)="onBookmarkClick(bookmark.cfi!)">
+                  <li class="list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark.cfi!)" (keydown.enter)="onBookmarkClick(bookmark.cfi!)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
@@ -133,7 +133,7 @@
             @if (annotations().length > 0) {
               <ul class="item-list">
                 @for (annotation of annotations(); track annotation.id) {
-                  <li class="reader-list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation.cfi)" (keydown.enter)="onAnnotationClick(annotation.cfi)">
+                  <li class="list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation.cfi)" (keydown.enter)="onAnnotationClick(annotation.cfi)">
                     <div class="highlight-bar" [style.background-color]="annotation.color"></div>
                     <div class="item-content">
                       <span class="highlight-text">"{{ annotation.text }}"</span>

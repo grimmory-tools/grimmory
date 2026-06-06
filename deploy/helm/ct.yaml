@@ -1,5 +1,0 @@
-target-branch: develop
-chart-dirs:
-  - deploy/helm
-all: true
-validate-maintainers: false

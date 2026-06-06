@@ -41,10 +41,6 @@ function makeUser(metadataCenterViewMode: 'route' | 'dialog'): User {
     username: 'tester',
     name: 'Tester',
     email: 'tester@example.com',
-    locale: 'en',
-    theme: 'grimmory',
-    themeAccent: null,
-    themeSyncEnabled: true,
     assignedLibraries: [],
     permissions: {
       admin: false,
@@ -191,11 +187,11 @@ describe('BookCardComponent', () => {
       confirm: vi.fn(),
     };
     bookDialogHelperService = {
-      openShelfAssignerDialog: vi.fn(() => Promise.resolve(null)),
-      openBookDetailsDialog: vi.fn(() => Promise.resolve(null)),
-      openCustomSendDialog: vi.fn(() => Promise.resolve(null)),
-      openMetadataRefreshDialog: vi.fn(() => Promise.resolve(null)),
-      openFileMoverDialog: vi.fn(() => Promise.resolve(null)),
+      openShelfAssignerDialog: vi.fn(),
+      openBookDetailsDialog: vi.fn(),
+      openCustomSendDialog: vi.fn(),
+      openMetadataRefreshDialog: vi.fn(),
+      openFileMoverDialog: vi.fn(),
     };
     bookNavigationService = {
       availableBookIds: vi.fn(() => []),

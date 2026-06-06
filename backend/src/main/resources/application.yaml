@@ -1,6 +1,6 @@
 app:
-  path-config: ${APP_PATH_CONFIG:/app/data}
-  bookdrop-folder: ${APP_BOOKDROP_FOLDER:/bookdrop}
+  path-config: '/app/data'
+  bookdrop-folder: '/bookdrop'
   api-docs:
     enabled: ${API_DOCS_ENABLED:false}
 

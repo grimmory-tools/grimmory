@@ -87,7 +87,8 @@ interface FoliateViewElement extends HTMLElement {
   deleteAnnotation(annotation: { value: string }): Promise<void>;
   showAnnotation(annotation: { value: string }): Promise<void>;
   getSectionFractions?(): number[];
-  search?(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<FoliateSearchResult>;
+  search?(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean; index?: number }): AsyncGenerator<FoliateSearchResult>;
+  resolveNavigation?(target: string): { index?: number } | undefined;
   clearSearch?(): void;
 }
 
@@ -212,6 +213,132 @@ export class ReaderViewManagerService {
     return defer(() => from(view.goToFraction(fraction) as Promise<void>)).pipe(
       map(() => undefined)
     );
+  }
+
+  captureMiddlePageSnippet(): { before: string; highlight: string; after: string } | null {
+    const renderer = this.view?.renderer;
+    const contents = renderer?.getContents();
+    if (!contents || contents.length === 0) return null;
+
+    const candidates = contents
+      .map(({doc}) => {
+        const win = doc.defaultView;
+        if (!win) return null;
+        return {doc, win: win as Window & typeof globalThis};
+      })
+      .filter(Boolean) as {doc: Document; win: Window & typeof globalThis}[];
+
+    for (const {doc, win} of candidates) {
+      const snippet = this.snippetFromIframe(doc, win);
+      if (snippet) return snippet;
+    }
+    return null;
+  }
+
+  private snippetFromIframe(doc: Document, win: Window): { before: string; highlight: string; after: string } | null {
+    const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'LINK', 'META']);
+    const BLOCK_TAGS = new Set(['P', 'LI', 'BLOCKQUOTE', 'DD', 'DT', 'FIGCAPTION', 'PRE']);
+    const HEADING_TAGS = new Set(['H1', 'H2', 'H3', 'H4', 'H5', 'H6']);
+
+    const proseTextOf = (el: Element): string => {
+      const walker = doc.createTreeWalker(el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (n.nodeType === 1) {
+            const tag = (n as Element).tagName;
+            if (SKIP_TAGS.has(tag)) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_SKIP;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const parts: string[] = [];
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        parts.push(node.nodeValue ?? '');
+      }
+      return parts.join(' ').replace(/\s+/g, ' ').trim();
+    };
+    const isHeading = (el: Element | null): boolean => !!el && HEADING_TAGS.has(el.tagName);
+    const isProseBlock = (el: Element | null): boolean => {
+      if (!el || SKIP_TAGS.has(el.tagName) || isHeading(el)) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return false;
+      if (r.bottom < 0 || r.top > win.innerHeight) return false;
+      const text = proseTextOf(el);
+      return text.length >= 40;
+    };
+
+    const cy = win.innerHeight / 2;
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode(n) {
+        const el = n as Element;
+        if (SKIP_TAGS.has(el.tagName)) return NodeFilter.FILTER_REJECT;
+        if (BLOCK_TAGS.has(el.tagName)) return NodeFilter.FILTER_ACCEPT;
+        if (el.tagName === 'DIV') {
+          const display = win.getComputedStyle(el).display;
+          if (display === 'block' || display === 'list-item') return NodeFilter.FILTER_ACCEPT;
+        }
+        return NodeFilter.FILTER_SKIP;
+      }
+    });
+
+    let best: Element | null = null;
+    let bestDistance = Infinity;
+    let cursor: Node | null;
+    while ((cursor = walker.nextNode())) {
+      const el = cursor as Element;
+      if (!isProseBlock(el)) continue;
+      const r = el.getBoundingClientRect();
+      const elCenter = (r.top + r.bottom) / 2;
+      const distance = Math.abs(elCenter - cy);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = el;
+      }
+    }
+    if (!best) return null;
+
+    const full = proseTextOf(best);
+    if (full.length < 20) return null;
+    const sentenceMatch = full.match(/^.{20,200}?[.!?](?=\s|$)/);
+    const highlight = sentenceMatch ? sentenceMatch[0].trim() : full.slice(0, Math.min(160, full.length));
+    const idx = full.indexOf(highlight);
+    const before = idx > 0 ? full.slice(Math.max(0, idx - 30), idx).trim() : '';
+    const afterStart = idx + highlight.length;
+    const after = afterStart < full.length
+      ? full.slice(afterStart, Math.min(full.length, afterStart + 30)).trim()
+      : '';
+    return {before, highlight, after};
+  }
+
+  async findCfiBySnippet(href: string, snippet: string): Promise<string | null> {
+    const view = this.view;
+    if (!view || !view.search || !view.resolveNavigation) return null;
+
+    const resolved = view.resolveNavigation(href);
+    const index = resolved?.index;
+    if (typeof index !== 'number') return null;
+
+    try {
+      for await (const result of view.search({query: snippet, index})) {
+        if (result === 'done') break;
+        if (typeof result !== 'object') continue;
+        const directCfi = (result as {cfi?: string}).cfi;
+        if (typeof directCfi === 'string' && directCfi) {
+          return directCfi;
+        }
+        const subitems = (result as {subitems?: {cfi?: string}[]}).subitems;
+        const firstSub = subitems?.[0]?.cfi;
+        if (typeof firstSub === 'string' && firstSub) {
+          return firstSub;
+        }
+      }
+    } catch {
+      return null;
+    } finally {
+      view.clearSearch?.();
+    }
+    return null;
   }
 
   prev(): void {

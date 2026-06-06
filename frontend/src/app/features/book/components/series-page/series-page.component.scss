@@ -44,7 +44,6 @@
   }
 }
 
-// ── Hero ──
 
 .series-hero {
   display: flex;
@@ -108,14 +107,13 @@
 
 .author-link {
   cursor: pointer;
-  color: var(--color-primary-text);
+  color: var(--primary-text-color);
 
   &:hover {
     text-decoration: underline;
   }
 }
 
-// ── Metadata cards ──
 
 .metadata-cards {
   display: flex;
@@ -144,54 +142,79 @@
   }
 }
 
-$meta-card-colors: (
-  'publisher': 'blue',
-  'books': 'violet',
-  'years': 'amber',
-  'pages': 'emerald',
-  'format': 'rose',
-  'audio': 'cyan',
-  'language': 'pink',
-  'owned': 'teal',
-);
-
-@each $variant, $color in $meta-card-colors {
-  .meta-card-#{$variant} {
-    background: color-mix(in srgb, var(--color-#{$color}-500), transparent 82%);
-    border-color: color-mix(in srgb, var(--color-#{$color}-500), transparent 65%);
-    color: var(--color-#{$color}-700);
-
-    i {
-      color: var(--color-#{$color}-600);
-    }
-  }
-}
-
 .meta-card-publisher {
+  background: color-mix(in srgb, #3b82f6, transparent 85%);
+  border-color: color-mix(in srgb, #3b82f6, transparent 60%);
+  color: #93c5fd;
   cursor: pointer;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-blue-500), transparent 75%);
+    background: color-mix(in srgb, #3b82f6, transparent 75%);
   }
+
+  i { color: #60a5fa; }
 }
 
-:host-context(.dark) {
-  @each $variant, $color in $meta-card-colors {
-    .meta-card-#{$variant} {
-      color: var(--color-#{$color}-300);
+.meta-card-books {
+  background: color-mix(in srgb, #8b5cf6, transparent 85%);
+  border-color: color-mix(in srgb, #8b5cf6, transparent 60%);
+  color: #c4b5fd;
 
-      i {
-        color: var(--color-#{$color}-400);
-      }
-    }
-  }
+  i { color: #a78bfa; }
+}
+
+.meta-card-years {
+  background: color-mix(in srgb, #f59e0b, transparent 85%);
+  border-color: color-mix(in srgb, #f59e0b, transparent 60%);
+  color: #fcd34d;
+
+  i { color: #fbbf24; }
+}
+
+.meta-card-pages {
+  background: color-mix(in srgb, #10b981, transparent 85%);
+  border-color: color-mix(in srgb, #10b981, transparent 60%);
+  color: #6ee7b7;
+
+  i { color: #34d399; }
+}
+
+.meta-card-format {
+  background: color-mix(in srgb, #f43f5e, transparent 85%);
+  border-color: color-mix(in srgb, #f43f5e, transparent 60%);
+  color: #fda4af;
+
+  i { color: #fb7185; }
+}
+
+.meta-card-audio {
+  background: color-mix(in srgb, #06b6d4, transparent 85%);
+  border-color: color-mix(in srgb, #06b6d4, transparent 60%);
+  color: #67e8f9;
+
+  i { color: #22d3ee; }
+}
+
+.meta-card-language {
+  background: color-mix(in srgb, #ec4899, transparent 85%);
+  border-color: color-mix(in srgb, #ec4899, transparent 60%);
+  color: #f9a8d4;
+
+  i { color: #f472b6; }
+}
+
+.meta-card-owned {
+  background: color-mix(in srgb, #14b8a6, transparent 85%);
+  border-color: color-mix(in srgb, #14b8a6, transparent 60%);
+  color: #5eead4;
+
+  i { color: #2dd4bf; }
 }
 
 .publisher-link {
   color: inherit;
 }
 
-// ── Ratings ──
 
 .ratings-row {
   display: flex;
@@ -209,31 +232,30 @@ $meta-card-colors: (
   gap: 0.3rem;
   padding: 0.25rem 0.6rem;
   border-radius: 0.375rem;
-  background: color-mix(in srgb, var(--color-border), transparent 50%);
-  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 50%);
+  border: 1px solid var(--border-color);
   font-size: 0.8rem;
 }
 
 .rating-icon {
   font-size: 0.75rem;
 
-  &.personal { color: var(--color-yellow-400); }
-  &.goodreads { color: var(--color-violet-500); }
-  &.amazon { color: var(--color-orange-500); }
-  &.hardcover { color: var(--color-cyan-500); }
+  &.personal { color: #facc15; }
+  &.goodreads { color: #8b5cf6; }
+  &.amazon { color: #f97316; }
+  &.hardcover { color: #06b6d4; }
 }
 
 .rating-value {
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--text-color);
 }
 
 .rating-label {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   font-size: 0.7rem;
 }
 
-// ── Categories ──
 
 .categories-scroll {
   overflow-x: auto;
@@ -256,11 +278,10 @@ $meta-card-colors: (
   cursor: pointer;
 }
 
-// ── Description (matches metadata-viewer) ──
 
 .description-section {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   overflow: hidden;
   margin: 0 0.5rem;
@@ -280,16 +301,16 @@ $meta-card-colors: (
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.875rem;
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--ground-background);
+  border-bottom: 1px solid var(--border-color);
   border-radius: 0.75rem 0.75rem 0 0;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-text);
+  color: var(--text-color);
 
   i {
     font-size: 0.95rem;
-    color: var(--color-primary);
+    color: var(--primary-color);
   }
 }
 
@@ -302,16 +323,16 @@ $meta-card-colors: (
   transition: max-height 0.3s ease-in-out;
 }
 
-.description-content.description-content-collapsed {
+.description-content.line-clamp-7 {
   max-height: 37px;
 }
 
-.description-content:not(.description-content-collapsed) {
+.description-content:not(.line-clamp-7) {
   max-height: none;
 }
 
 .description-html {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   line-height: 1.6;
   font-size: 0.9375rem;
   overflow-wrap: break-word;
@@ -326,15 +347,15 @@ $meta-card-colors: (
   background: transparent;
   border: none;
   border-radius: 0.25rem;
-  color: var(--color-primary);
+  color: var(--primary-color);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background: var(--color-surface-hover);
-    color: var(--color-primary-hover);
+    background: var(--surface-hover);
+    color: var(--primary-hover-color);
   }
 
   i {
@@ -342,7 +363,6 @@ $meta-card-colors: (
   }
 }
 
-// ── Hero status (next up + progress, aligned to cover bottom) ──
 
 .hero-status {
   display: flex;
@@ -358,15 +378,14 @@ $meta-card-colors: (
   }
 }
 
-// ── Reading progress ──
 
 .read-progress-card {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 50%);
+  border: 1px solid var(--border-color);
   flex: 1;
   min-width: 0;
 
@@ -386,7 +405,7 @@ $meta-card-colors: (
   height: 0.625rem;
   border-radius: 0.375rem;
   overflow: hidden;
-  background: color-mix(in srgb, var(--color-border), transparent 50%);
+  background: color-mix(in srgb, var(--p-surface-600), transparent 50%);
   gap: 2px;
 }
 
@@ -402,7 +421,7 @@ $meta-card-colors: (
   gap: 0.4rem;
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   align-items: center;
 }
 
@@ -414,7 +433,7 @@ $meta-card-colors: (
   border-radius: 9999px;
   border: 1px solid;
   font-size: 0.7rem;
-  background: color-mix(in srgb, var(--color-border), transparent 60%);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 60%);
 }
 
 .legend-dot {
@@ -429,10 +448,9 @@ $meta-card-colors: (
   margin-left: auto;
   font-weight: 600;
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
-// ── Next Up card ──
 
 .next-up-card {
   display: flex;
@@ -440,15 +458,15 @@ $meta-card-colors: (
   gap: 0.75rem;
   padding: 0.6rem 0.85rem;
   border-radius: 0.5rem;
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 50%);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
   flex-shrink: 0;
 
   &:hover {
-    background: var(--color-surface-hover);
-    border-color: var(--color-primary-text);
+    background: color-mix(in srgb, var(--p-surface-700), transparent 30%);
+    border-color: var(--primary-text-color);
   }
 
   @media (width >= 768px) {
@@ -477,7 +495,7 @@ $meta-card-colors: (
 .next-up-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex;
@@ -486,14 +504,14 @@ $meta-card-colors: (
 
   i {
     font-size: 0.6rem;
-    color: var(--color-primary-text);
+    color: var(--primary-text-color);
   }
 }
 
 .next-up-title {
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--color-text);
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -514,30 +532,28 @@ $meta-card-colors: (
 .next-up-percent {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   flex-shrink: 0;
 }
 
-// ── Section title ──
 
 .section-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   margin: 0.75rem 0 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 0.5rem 0;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 
   i {
     font-size: 1rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
   }
 }
 
-// ── Book grid ──
 
 .series-items-grid {
   --series-grid-columns: 1;
@@ -565,7 +581,6 @@ $meta-card-colors: (
   height: var(--series-grid-card-height);
 }
 
-// ── Book list tab ──
 
 .book-list-container {
   display: flex;
@@ -582,14 +597,14 @@ $meta-card-colors: (
   padding: 0.65rem 0.85rem;
   cursor: pointer;
   border-radius: 0.5rem;
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 65%);
+  border: 1px solid color-mix(in srgb, var(--border-color), transparent 60%);
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    background: var(--color-surface-hover);
-    border-color: var(--color-border);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+    background: color-mix(in srgb, var(--p-surface-700), transparent 40%);
+    border-color: var(--border-color);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   }
 
   @media (width <= 768px) {
@@ -606,13 +621,13 @@ $meta-card-colors: (
   width: 2rem;
   height: 2rem;
   border-radius: 0.375rem;
-  background: color-mix(in srgb, var(--color-primary), transparent 85%);
+  background: color-mix(in srgb, var(--primary-color), transparent 85%);
 }
 
 .list-series-number {
   font-weight: 700;
   font-size: 0.8rem;
-  color: var(--color-primary);
+  color: var(--primary-color);
 }
 
 .list-thumb {
@@ -635,7 +650,7 @@ $meta-card-colors: (
 .list-book-title {
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -646,12 +661,12 @@ $meta-card-colors: (
   align-items: center;
   gap: 0.35rem;
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   flex-wrap: wrap;
 }
 
 .list-meta-dot {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   opacity: 0.5;
 }
 
@@ -708,7 +723,6 @@ $meta-card-colors: (
   }
 }
 
-// ── List: progress bar ──
 
 .list-progress-row {
   display: flex;
@@ -721,24 +735,23 @@ $meta-card-colors: (
   width: 5rem;
   height: 0.25rem;
   border-radius: 0.25rem;
-  background: color-mix(in srgb, var(--color-border), transparent 50%);
+  background: color-mix(in srgb, var(--p-surface-600), transparent 50%);
   overflow: hidden;
 }
 
 .list-progress-fill {
   height: 100%;
   border-radius: 0.25rem;
-  background: var(--color-primary);
+  background: var(--primary-color);
   transition: width 0.3s ease;
 }
 
 .list-progress-text {
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
 }
 
-// ── List: rating stars ──
 
 .list-rating-row {
   display: flex;
@@ -749,27 +762,21 @@ $meta-card-colors: (
 
 .list-star {
   font-size: 0.65rem;
-  color: var(--color-yellow-400);
+  color: #facc15;
 }
 
 .list-rating-value {
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   margin-left: 0.25rem;
 }
 
-// ── List: action buttons ──
 
 .list-actions {
   display: flex;
   gap: 0.35rem;
 }
-
-$list-action-btn-colors: (
-  'read': 'emerald',
-  'details': 'blue',
-);
 
 .list-action-btn {
   display: inline-flex;
@@ -780,29 +787,29 @@ $list-action-btn-colors: (
   border-radius: 0.4rem;
   border: 1px solid;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 
   i {
     font-size: 0.85rem;
   }
 
-  @each $variant, $color in $list-action-btn-colors {
-    &.btn-#{$variant} {
-      background: color-mix(in srgb, var(--color-#{$color}-500), transparent 82%);
-      border-color: color-mix(in srgb, var(--color-#{$color}-500), transparent 65%);
-      color: var(--color-#{$color}-700);
+  &.btn-read {
+    background: color-mix(in srgb, #10b981, transparent 85%);
+    border-color: color-mix(in srgb, #10b981, transparent 55%);
+    color: #6ee7b7;
 
-      &:hover {
-        background: color-mix(in srgb, var(--color-#{$color}-500), transparent 75%);
-      }
+    &:hover {
+      background: color-mix(in srgb, #10b981, transparent 65%);
     }
   }
-}
 
-:host-context(.dark) {
-  @each $variant, $color in $list-action-btn-colors {
-    .list-action-btn.btn-#{$variant} {
-      color: var(--color-#{$color}-300);
+  &.btn-details {
+    background: color-mix(in srgb, #3b82f6, transparent 85%);
+    border-color: color-mix(in srgb, #3b82f6, transparent 55%);
+    color: #93c5fd;
+
+    &:hover {
+      background: color-mix(in srgb, #3b82f6, transparent 65%);
     }
   }
 }
@@ -810,10 +817,9 @@ $list-action-btn-colors: (
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
-// ── Loading ──
 
 .loading-state {
   display: flex;
@@ -824,7 +830,6 @@ $list-action-btn-colors: (
   gap: 1rem;
 }
 
-// ── Footer ──
 
 @keyframes slide-in-up {
   from { transform: translateY(100%); }
@@ -856,7 +861,7 @@ $list-action-btn-colors: (
   border-radius: 10px 10px 0 0;
   border: 1px solid rgb(255 255 255 / 50%);
   border-width: 1px 1px 0;
-  background-color: var(--color-card);
+  background-color: var(--card-background);
 
   > .footer-content {
     width: 100%;
@@ -909,7 +914,7 @@ $list-action-btn-colors: (
   align-items: center;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  color: var(--color-text);
+  color: var(--text-color);
 
   i {
     font-size: 1rem;

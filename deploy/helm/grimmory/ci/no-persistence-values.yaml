@@ -1,8 +1,0 @@
-# No persistent volumes — all storage disabled.
-# Database: bundled MariaDB
-# Persistence: both PVCs disabled
-persistence:
-  dataVolume:
-    enabled: false
-  booksVolume:
-    enabled: false

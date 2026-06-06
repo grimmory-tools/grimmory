@@ -49,6 +49,7 @@ frontend/output/
 frontend/playwright-report/
 frontend/.playwright-browsers/
 node_modules/
+.yarn/cache/
 backend/src/main/resources/application-local.yaml
 /shared/
 

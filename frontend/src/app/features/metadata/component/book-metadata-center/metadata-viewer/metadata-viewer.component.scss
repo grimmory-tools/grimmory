@@ -17,7 +17,7 @@
   flex-direction: column;
   gap: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border-color);
 
   @media (width >= 768px) {
     flex-direction: row;
@@ -53,13 +53,13 @@
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
-  background: var(--color-page);
-  color: var(--color-text);
+  background: var(--overlay-background);
+  color: var(--text-color);
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-color);
   backdrop-filter: blur(8px);
   z-index: 2;
 }
@@ -89,27 +89,27 @@
 }
 
 ::ng-deep .progress-incomplete .p-progressbar-value {
-  background-color: var(--color-primary);
+  background-color: var(--primary-color);
 }
 
 ::ng-deep .progress-complete .p-progressbar-value {
-  background-color: var(--color-primary-hover);
+  background-color: var(--primary-hover-color);
 }
 
 ::ng-deep .progress-incomplete-ko .p-progressbar-value {
-  background-color: var(--color-amber-400);
+  background-color: #fbbf24;
 }
 
 ::ng-deep .progress-complete-ko .p-progressbar-value {
-  background-color: var(--color-violet-500);
+  background-color: #8b5cf6;
 }
 
 ::ng-deep .progress-incomplete-kobo .p-progressbar-value {
-  background-color: var(--color-red-700);
+  background-color: #bf0000;
 }
 
 ::ng-deep .progress-complete-kobo .p-progressbar-value {
-  background-color: var(--color-pink-400);
+  background-color: #f65c9c;
 }
 
 .info-section {
@@ -139,7 +139,7 @@
 }
 
 .series-link {
-  color: var(--color-primary);
+  color: var(--primary-color);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
@@ -147,7 +147,7 @@
   transition: color 0.2s ease;
 
   &:hover {
-    color: var(--color-primary-hover);
+    color: var(--primary-hover-color);
     text-decoration: underline;
   }
 }
@@ -178,7 +178,7 @@
 .book-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--color-text);
+  color: var(--text-color);
   line-height: 1.2;
   margin: 0;
 
@@ -193,11 +193,11 @@
 }
 
 .lock-icon.locked {
-  color: var(--color-danger);
+  color: orangered;
 }
 
 .lock-icon.unlocked {
-  color: var(--color-green-500);
+  color: limegreen;
 }
 
 .lock-icon:hover {
@@ -206,19 +206,19 @@
 
 .authors {
   font-size: 1.125rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   margin: 0;
 }
 
 .author-link {
-  color: var(--color-primary-text);
+  color: cornflowerblue;
   cursor: pointer;
   transition: color 0.2s ease;
   font-weight: 400;
 }
 
 .author-link:hover {
-  color: var(--color-primary);
+  color: dodgerblue;
   text-decoration: underline;
 }
 
@@ -227,12 +227,12 @@
   align-items: center;
   font-size: 0.55rem;
   font-weight: 700;
-  color: var(--color-warning);
+  color: #DAA520;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-left: 0.25rem;
   padding: 0.1rem 0.3rem;
-  border: 1px solid color-mix(in srgb, var(--color-warning) 65%, transparent);
+  border: 1px solid #DAA520;
   border-radius: 3px;
   line-height: 1;
   vertical-align: middle;
@@ -251,7 +251,7 @@
 }
 
 .format-pipe {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   font-weight: 300;
   font-size: 1rem;
   line-height: 1;
@@ -260,7 +260,7 @@
 }
 
 .author-separator {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
 .ratings-section {
@@ -299,7 +299,7 @@
   display: none;
   width: 1px;
   height: 2rem;
-  background: var(--color-border);
+  background: var(--border-color);
 }
 
 @media (width >= 640px) {
@@ -324,7 +324,7 @@
   align-items: center;
   gap: 0.375rem;
   text-decoration: none;
-  color: var(--color-text);
+  color: var(--text-color);
   transition: transform 0.2s ease;
 }
 
@@ -347,7 +347,7 @@
 .rating-value {
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-text);
+  color: var(--text-color);
 }
 
 .tags-section {
@@ -366,7 +366,7 @@
 .tag-label {
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-text);
+  color: var(--text-color);
   flex: 0 0 56px;
   min-width: 56px;
 }
@@ -426,7 +426,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   white-space: nowrap;
   overflow: hidden;
   min-height: 1.5rem;
@@ -434,12 +434,12 @@
 
 .metadata-key {
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-color);
   flex-shrink: 0;
 }
 
 .metadata-value {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -452,7 +452,7 @@
 }
 
 .separator {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   margin-right: 0.25rem;
 }
 
@@ -483,37 +483,37 @@
   align-items: center;
   font-size: 0.55rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--primary-color);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-left: 0.25rem;
   padding: 0.1rem 0.3rem;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--primary-color);
   border-radius: 3px;
   line-height: 1;
 }
 
 .metadata-link {
-  color: var(--color-primary-text);
+  color: var(--primary-text-color);
   cursor: pointer;
   transition: color 0.2s ease;
   font-weight: 500;
 
   &:hover {
-    color: var(--color-primary-hover);
+    color: var(--primary-hover-color);
     text-decoration: underline;
   }
 }
 
 .edit-icon {
-  color: var(--color-primary-text);
+  color: var(--primary-text-color);
   cursor: pointer;
   font-size: 0.875rem;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .edit-icon:hover {
-  color: var(--color-primary-hover);
+  color: var(--primary-hover-color);
   transform: scale(1.1);
 }
 
@@ -532,18 +532,18 @@
 }
 
 .eye-icon {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .eye-icon:hover {
-  color: var(--color-primary);
+  color: var(--primary-color);
 }
 
 .file-path-code {
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -553,7 +553,7 @@
 .action-buttons-container {
   margin-top: auto;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .action-buttons {
@@ -570,7 +570,7 @@
 
   &.navigation-group {
     padding-right: 0.5rem;
-    border-right: 1px solid var(--color-border);
+    border-right: 1px solid var(--border-color);
     margin-right: 0.25rem;
 
     @media (width <= 767px) {
@@ -581,7 +581,7 @@
   &.primary-actions {
     @media (width >= 768px) {
       padding-right: 0.5rem;
-      border-right: 1px solid var(--color-border);
+      border-right: 1px solid var(--border-color);
       margin-right: 0.25rem;
     }
   }
@@ -641,12 +641,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 0.875rem;
-  background: var(--color-page);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--ground-background);
+  border-bottom: 1px solid var(--border-color);
   border-radius: 0.75rem 0.75rem 0 0;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-text);
+  color: var(--text-color);
 
   &.clickable {
     cursor: pointer;
@@ -654,12 +654,12 @@
     transition: background 0.2s ease;
 
     &:hover {
-      background: var(--color-surface-hover);
+      background: var(--surface-hover);
     }
   }
 
   i:first-child {
-    color: var(--color-primary);
+    color: var(--primary-color);
     margin-right: 0.5rem;
   }
 }
@@ -671,26 +671,22 @@
 
   i {
     font-size: 0.95rem;
-    color: var(--color-primary);
+    color: var(--primary-color);
   }
 }
 
 .section-toggle-icon {
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   transition: transform 0.3s ease;
 }
 
 .description-section {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   overflow: hidden;
   transition: box-shadow 0.3s ease;
-
-  .section-header {
-    background: var(--color-card);
-  }
 
   &:hover {
     box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
@@ -706,11 +702,11 @@
   transition: max-height 0.3s ease-in-out;
 }
 
-.description-content.description-content-collapsed {
+.description-content.line-clamp-7 {
   max-height: 37px;
 }
 
-.description-content:not(.description-content-collapsed) {
+.description-content:not(.line-clamp-7) {
   max-height: none;
 }
 
@@ -723,15 +719,15 @@
   background: transparent;
   border: none;
   border-radius: 0.25rem;
-  color: var(--color-primary);
+  color: var(--primary-color);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background: var(--color-surface-hover);
-    color: var(--color-primary-hover);
+    background: var(--surface-hover);
+    color: var(--primary-hover-color);
   }
 
   i {
@@ -740,7 +736,7 @@
 }
 
 .description-html {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   line-height: 1.6;
   font-size: 0.9375rem;
   overflow-wrap: break-word;
@@ -757,7 +753,7 @@
 }
 
 .loading-text {
-  color: var(--color-primary);
+  color: var(--primary-color);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -773,13 +769,13 @@
 
 .navigation-position {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
 // Comic Metadata Section Styles
 .comic-metadata-section {
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   overflow: hidden;
   transition: box-shadow 0.3s ease;
@@ -821,26 +817,26 @@
 .comic-info-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .comic-info-value {
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--text-color);
   font-weight: 500;
 }
 
 .comic-volume-number,
 .comic-arc-number {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   font-weight: 400;
   margin-left: 0.25rem;
 }
 
 .comic-subsection {
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
   padding-top: 0.75rem;
 }
 
@@ -850,12 +846,12 @@
   gap: 0.375rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-color);
   margin-bottom: 0.5rem;
 
   i {
     font-size: 0.9rem;
-    color: var(--color-primary);
+    color: var(--primary-color);
   }
 }
 
@@ -875,7 +871,7 @@
 .comic-creator-role {
   flex: 0 0 95px;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   font-size: 0.85rem;
 }
 
@@ -886,19 +882,19 @@
 }
 
 .comic-creator-link {
-  color: var(--color-primary);
+  color: cornflowerblue;
   cursor: pointer;
   transition: color 0.2s ease;
   font-size: 0.9rem;
 
   &:hover {
-    color: var(--color-primary-hover);
+    color: dodgerblue;
     text-decoration: underline;
   }
 
   &:not(:last-child)::after {
     content: ',';
-    color: var(--color-text-secondary);
+    color: var(--text-color-secondary);
   }
 }
 
@@ -917,7 +913,7 @@
 .comic-tag-label {
   flex: 0 0 80px;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   font-size: 0.85rem;
   padding-top: 0.125rem;
 }
@@ -942,7 +938,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .comic-property-badge {
@@ -959,31 +955,31 @@
   }
 
   &.manga {
-    background: linear-gradient(135deg, var(--color-pink-500) 0%, var(--color-pink-600) 100%);
-    color: var(--color-white);
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    color: white;
   }
 
   &.bw {
-    background: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
-    color: var(--color-white);
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
   }
 
   &.rtl {
-    background: linear-gradient(135deg, var(--color-violet-500) 0%, var(--color-violet-600) 100%);
-    color: var(--color-white);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
   }
 }
 
 .comic-web-link {
   padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .comic-external-link {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  color: var(--color-primary);
+  color: var(--primary-color);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.2s ease;
@@ -993,14 +989,14 @@
   }
 
   &:hover {
-    color: var(--color-primary-hover);
+    color: var(--primary-hover-color);
     text-decoration: underline;
   }
 }
 
 .comic-notes {
   padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .comic-notes-label {
@@ -1009,18 +1005,18 @@
   gap: 0.375rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-color);
   margin-bottom: 0.375rem;
 
   i {
     font-size: 0.9rem;
-    color: var(--color-primary);
+    color: var(--primary-color);
   }
 }
 
 .comic-notes-content {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   line-height: 1.5;
   margin: 0;
   white-space: pre-wrap;

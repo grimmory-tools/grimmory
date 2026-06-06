@@ -1,7 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Juster sidepanelbredde",
-        "authors": "Forfattere"
-    },
-    "closeNavigation": "Luk navigation"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
+    }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Juster sidepanelbredde",
+    "home": "",
+    "dashboard": "",
+    "allBooks": "",
+    "libraries": "",
+    "shelves": "",
+    "magicShelves": "",
+    "unshelved": "",
+    "series": "",
+    "authors": "Forfattere",
+    "notebook": "",
+    "update": "",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Luk navigation",
+  "changelog": {
+    "title": "",
+    "description": "",
+    "loading": "",
+    "empty": ""
+  },
+  "theme": {
+    "primary": "",
+    "surface": ""
+  },
+  "uploadDialog": {
+    "chooseFile": "",
+    "selectImage": "",
+    "fileNote": "",
+    "or": "",
+    "imageUrl": "",
+    "urlPlaceholder": "",
+    "urlNote": "",
+    "errorNoInput": "",
+    "errorUploadFailed": "",
+    "errorUploadRetry": ""
+  }
 }

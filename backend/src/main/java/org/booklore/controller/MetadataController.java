@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.request.IsbnLookupRequest;
 import org.booklore.model.dto.request.*;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;

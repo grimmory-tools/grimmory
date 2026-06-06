@@ -6,10 +6,11 @@ import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.PositionType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
-import org.booklore.util.koreader.EpubCfiService;
+import org.booklore.util.epub.EpubPositionResolver;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class KoreaderService {
     private final UserRepository userRepository;
     private final KoreaderUserRepository koreaderUserRepository;
     private final HardcoverSyncService hardcoverSyncService;
-    private final EpubCfiService epubCfiService;
+    private final EpubPositionResolver epubPositionResolver;
 
     public ResponseEntity<Map<String, String>> authorizeUser() {
         KoreaderUserDetails authDetails = getAuthDetails();
@@ -106,9 +107,27 @@ public class KoreaderService {
             // Map progress based on book type
             switch (primaryFile.getBookType()) {
                 case EPUB, FB2, MOBI, AZW3 -> {
-                    fileProgress.setPositionData(progress.getEpubProgress());
-                    fileProgress.setPositionHref(progress.getEpubProgressHref());
                     fileProgress.setProgressPercent(progress.getEpubProgressPercent());
+                    String xpointer = progress.getKoreaderProgress();
+                    fileProgress.setXpointer(xpointer);
+                    fileProgress.setPositionType(PositionType.XPOINTER);
+                    // Resolve href and chapter progression directly from the XPointer spine index.
+                    // This is packaging-independent — no CFI conversion attempted.
+                    if (xpointer != null) {
+                        epubPositionResolver.resolveFromXPointer(primaryFile.getFullFilePath(), xpointer)
+                                .ifPresentOrElse(
+                                        resolved -> {
+                                            fileProgress.setPositionHref(resolved.href());
+                                            fileProgress.setChapterProgression(resolved.chapterProgression());
+                                            if (resolved.chapterProgression() != null) {
+                                                fileProgress.setContentSourceProgressPercent(resolved.chapterProgression() * 100f);
+                                            }
+                                        },
+                                        () -> fileProgress.setPositionHref(progress.getEpubProgressHref())
+                                );
+                    } else {
+                        fileProgress.setPositionHref(progress.getEpubProgressHref());
+                    }
                 }
                 case PDF -> {
                     fileProgress.setPositionData(progress.getPdfProgress() != null ?
@@ -136,22 +155,16 @@ public class KoreaderService {
         userProgress.setKoreaderLastSyncTime(Instant.now());
         userProgress.setLastReadTime(Instant.now());
         if (syncWithWebReader && koProgress.getProgress() != null) {
-            try {
-                String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
-
-                float percent = koProgress.getPercentage() * 100f;
-                float rounded = BigDecimal
-                        .valueOf(percent)
-                        .setScale(1, RoundingMode.HALF_UP)
-                        .floatValue();
-
-                userProgress.setEpubProgress(cfi);
-                userProgress.setEpubProgressPercent(rounded);
-
-                log.info("Converted xpointer to CFI for BookLore reader sync: {}", cfi);
-            } catch (Exception e) {
-                log.warn("Failed to convert xpointer to CFI: {}", e.getMessage());
-            }
+            float percent = koProgress.getPercentage() * 100f;
+            float rounded = BigDecimal
+                    .valueOf(percent)
+                    .setScale(1, RoundingMode.HALF_UP)
+                    .floatValue();
+            // Store percentage for the legacy web-reader progress field.
+            // XPointer→CFI conversion is not attempted here because it requires an exact DOM match
+            // and produces incorrect positions when EPUB packaging differs across clients.
+            // The file-level progress record stores the raw XPointer and resolves it independently.
+            userProgress.setEpubProgressPercent(rounded);
         }
 
         updateReadStatus(userProgress, koProgress.getPercentage());

@@ -1,10 +1,9 @@
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {firstValueFrom, Observable, of} from 'rxjs';
 
 import {AuthService} from '../../shared/service/auth.service';
-import {AuthChildGuard, AuthGuard} from './auth.guard';
+import {AuthGuard} from './auth.guard';
 
 describe('AuthGuard', () => {
   const route = {} as ActivatedRouteSnapshot;
@@ -15,7 +14,8 @@ describe('AuthGuard', () => {
   };
 
   const authService = {
-    ensureAuthenticated: vi.fn(),
+    getInternalAccessToken: vi.fn<() => string | null>(),
+    getInternalAccessTokenExpiry: vi.fn<() => number | null>(),
     getIsDefaultPassword: vi.fn<() => boolean>(),
   };
 
@@ -24,7 +24,8 @@ describe('AuthGuard', () => {
     localStorage.clear();
     router.createUrlTree.mockClear();
     router.navigate.mockClear();
-    authService.ensureAuthenticated.mockReset();
+    authService.getInternalAccessToken.mockReset();
+    authService.getInternalAccessTokenExpiry.mockReset();
     authService.getIsDefaultPassword.mockReset();
 
     TestBed.configureTestingModule({
@@ -39,61 +40,45 @@ describe('AuthGuard', () => {
     localStorage.clear();
   });
 
-  function runGuard(): Observable<unknown> {
-    return TestBed.runInInjectionContext(() => AuthGuard(route, state)) as Observable<unknown>;
-  }
+  it('allows navigation for a valid non-default-password token', () => {
+    authService.getInternalAccessToken.mockReturnValue('bearer token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() + 3600000);
 
-  it('allows navigation for an authenticated non-default-password session', async () => {
-    authService.ensureAuthenticated.mockReturnValue(of(true));
-    authService.getIsDefaultPassword.mockReturnValue(false);
-
-    const result = await firstValueFrom(runGuard());
+    const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
     expect(result).toBe(true);
-    expect(authService.ensureAuthenticated).toHaveBeenCalledOnce();
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it('redirects to login when the session cannot be authenticated', async () => {
-    authService.ensureAuthenticated.mockReturnValue(of(false));
+  it('redirects to login when there is no token', () => {
+    authService.getInternalAccessToken.mockReturnValue(null);
 
-    const result = await firstValueFrom(runGuard());
+    const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
+
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('returns a login UrlTree for expired tokens', () => {
+    localStorage.setItem('accessToken_Internal', 'stale-token');
+    authService.getInternalAccessToken.mockReturnValue('stale-token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() - 10000);
+
+    const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
     expect(router.createUrlTree).toHaveBeenCalledWith(['/login']);
     expect(result).toEqual({commands: ['/login']});
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(localStorage.getItem('accessToken_Internal')).toBeNull();
   });
 
-  it('allows navigation when AuthService refreshes an expired token', async () => {
-    authService.ensureAuthenticated.mockReturnValue(of(true));
-    authService.getIsDefaultPassword.mockReturnValue(false);
-
-    const result = await firstValueFrom(runGuard());
-
-    expect(result).toBe(true);
-    expect(router.createUrlTree).not.toHaveBeenCalledWith(['/login']);
-  });
-
-  it('redirects to the change-password flow for default-password sessions', async () => {
-    authService.ensureAuthenticated.mockReturnValue(of(true));
+  it('redirects to the change-password flow for default-password tokens', () => {
+    authService.getInternalAccessToken.mockReturnValue('bearer token');
+    authService.getInternalAccessTokenExpiry.mockReturnValue(Date.now() + 3600000);
     authService.getIsDefaultPassword.mockReturnValue(true);
 
-    const result = await firstValueFrom(runGuard());
+    const result = TestBed.runInInjectionContext(() => AuthGuard(route, state));
 
-    expect(router.createUrlTree).toHaveBeenCalledWith(['/change-password']);
-    expect(result).toEqual({commands: ['/change-password']});
-    expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  it('uses the same authentication flow for child routes', async () => {
-    authService.ensureAuthenticated.mockReturnValue(of(true));
-    authService.getIsDefaultPassword.mockReturnValue(false);
-
-    const result = await firstValueFrom(
-      TestBed.runInInjectionContext(() => AuthChildGuard(route, state)) as Observable<unknown>
-    );
-
-    expect(result).toBe(true);
-    expect(authService.ensureAuthenticated).toHaveBeenCalledOnce();
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/change-password']);
   });
 });

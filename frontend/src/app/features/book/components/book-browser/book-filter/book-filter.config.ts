@@ -1,8 +1,5 @@
 import {Book, ReadStatus} from '../../../model/book.model';
 
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export interface FilterValue {
   id?: string | number;
@@ -42,9 +39,6 @@ export interface FilterConfig {
   isNumericId?: boolean;
 }
 
-// ============================================================================
-// CONSTANTS
-// ============================================================================
 
 export const READ_STATUS_LABELS: Readonly<Record<ReadStatus, string>> = {
   [ReadStatus.UNREAD]: 'Unread',
@@ -172,9 +166,6 @@ export const FILTER_LABELS: Readonly<Record<FilterType, string>> = {
   comicCreator: 'Comic Creator'
 };
 
-// ============================================================================
-// FILTER EXTRACTORS
-// ============================================================================
 
 const findInRange = (value: number | null | undefined, ranges: readonly RangeConfig[]): FilterValue[] => {
   if (value == null) return [];

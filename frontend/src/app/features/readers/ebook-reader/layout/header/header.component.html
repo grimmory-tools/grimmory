@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.header'">
-<div class="reader-header" [class.is-visible]="forceVisible()" [style.background]="theme().bg" [style.color]="theme().fg">
+<div class="reader-header" [class.visible]="forceVisible()" [style.background]="theme().bg" [style.color]="theme().fg">
   <div class="header-left">
     <button class="icon-btn" (click)="onShowChapters()" [title]="t('chapters')">
       <app-reader-icon name="menu" [size]="20"></app-reader-icon>

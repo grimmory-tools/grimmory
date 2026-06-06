@@ -6,30 +6,17 @@ import org.booklore.model.entity.BookdropFileEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 @Mapper(componentModel = "spring")
-public abstract class BookdropFileMapper {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public interface BookdropFileMapper {
 
     @Mapping(target = "originalMetadata", source = "originalMetadata", qualifiedByName = "jsonToBookMetadata")
     @Mapping(target = "fetchedMetadata", source = "fetchedMetadata", qualifiedByName = "jsonToBookMetadata")
-    public abstract BookdropFile toDto(BookdropFileEntity entity);
+    BookdropFile toDto(BookdropFileEntity entity);
 
     @Named("jsonToBookMetadata")
-    protected BookMetadata jsonToBookMetadata(String json) {
-        if (json == null || json.isBlank()) {
-            return null;
-        }
-
-        try {
-            return objectMapper.readValue(json, BookMetadata.class);
-        } catch (JacksonException e) {
-            return null;
-        }
+    default BookMetadata jsonToBookMetadata(String json) {
+        if (json == null || json.isBlank()) return null;
+        return JsonMetadataMapper.parse(json);
     }
 }

@@ -5,7 +5,7 @@
 }
 
 @if (!isLoading()) {
-<div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()" [class.footer-hidden]="!footerVisible()">
+<div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()">
 
   <!-- Footer trigger zone -->
   <div class="footer-trigger-zone" [class.inactive]="footerVisible()" (mouseenter)="onFooterTriggerZoneEnter()"></div>
@@ -24,18 +24,6 @@
       </button>
     </div>
     }
-
-    <div class="embed-header-actions">
-      <button class="embed-action-btn save-btn" [title]="'readerPdf.docViewer.saveDocument' | transloco" [attr.aria-label]="'readerPdf.docViewer.saveDocument' | transloco"
-        [disabled]="isSavingDocument() || isClosingReader()" [attr.aria-busy]="isSavingDocument()"
-        (click)="saveDocument()">
-        <app-reader-icon name="save" [size]="18" />
-      </button>
-      <button class="embed-action-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
-        [disabled]="isClosingReader()" (pointerdown)="onCloseReaderPointerDown($event)" (click)="onCloseReaderClick($event)">
-        <app-reader-icon name="close" [size]="18" />
-      </button>
-    </div>
 
     <div id="embedpdf-viewer"></div>
   }
@@ -184,7 +172,7 @@
   }
 
   <!-- Footer (shared across both viewer modes) -->
-  <div class="pdf-footer" [class.is-visible]="footerVisible()">
+  <div class="pdf-footer" [class.visible]="footerVisible()">
     <div class="page-nav-left">
       <button class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
         [title]="'readerPdf.footer.firstPage' | transloco" [attr.aria-label]="'readerPdf.footer.firstPage' | transloco">
@@ -397,6 +385,7 @@
         id: 'overflow',
         icon: 'dots-horizontal',
         title: 'readerPdf.toolbar.moreOptions',
+        className: 'overflow-btn',
         size: size
       }"></ng-container>
     }

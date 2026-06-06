@@ -4,7 +4,7 @@
 }
 
 .author-card {
-  background-color: var(--color-card);
+  background-color: var(--card-background);
   border-radius: 8px;
   position: relative;
   overflow: hidden;
@@ -21,7 +21,7 @@
   }
 
   &.selected {
-    border: 2px solid var(--color-primary);
+    border: 2px solid var(--primary-color);
   }
 }
 
@@ -29,7 +29,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: var(--color-card);
+  background-color: var(--card-background);
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -55,8 +55,8 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--color-text-secondary);
-  background: color-mix(in srgb, var(--color-card), transparent 20%);
+  color: #64748b;
+  background: color-mix(in srgb, var(--p-surface-800), transparent 20%);
 
   i {
     font-size: 3rem;
@@ -91,7 +91,7 @@
 }
 
 .matched-icon {
-  color: var(--color-green-500);
+  color: #22c55e;
   font-size: 0.85rem;
   flex-shrink: 0;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 50%));

@@ -8,7 +8,7 @@
 }
 
 .header-section {
-  background: var(--color-card);
+  background: var(--card-background);
   border-radius: 12px;
   padding: 1rem;
   backdrop-filter: blur(10px);
@@ -18,7 +18,7 @@
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--color-border);
+    border-color: rgb(255 255 255 / 20%);
     box-shadow: 0 6px 12px rgb(0 0 0 / 15%);
   }
 
@@ -40,11 +40,11 @@
 
     i {
       font-size: 1.5rem;
-      color: var(--color-primary);
+      color: var(--primary-color);
     }
 
     h2 {
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       font-size: 1.5rem;
       font-weight: 600;
       margin: 0;
@@ -68,10 +68,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: var(--color-card);
+  background: var(--card-background);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
-  color: var(--color-text);
+  color: var(--text-color);
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
@@ -95,7 +95,7 @@
   }
 
   .p-dialog-content {
-    background: var(--color-card);
+    background: var(--card-background);
     padding: 1.5rem;
   }
 
@@ -131,20 +131,20 @@
     align-items: center;
     gap: 1rem;
     padding: 0.5rem 1.25rem;
-    background: var(--color-page);
+    background: rgb(255 255 255 / 3%);
     border: 1px solid var(--p-content-border-color);
     border-radius: 8px;
     cursor: move;
     transition: all 0.2s ease;
 
     &:hover {
-      background: var(--color-surface-hover);
+      background: rgb(255 255 255 / 5%);
       border-color: var(--p-primary-color);
     }
 
     .drag-handle {
       cursor: grab;
-      color: var(--color-text-secondary);
+      color: var(--text-color-secondary);
       display: flex;
       align-items: center;
 
@@ -155,7 +155,7 @@
 
     .chart-title {
       flex: 1;
-      color: var(--color-text);
+      color: var(--text-color);
       font-size: 0.95rem;
     }
 
@@ -175,12 +175,12 @@
       }
 
       &.disabled {
-        color: var(--color-text-secondary);
+        color: var(--text-color-secondary);
         opacity: 0.5;
 
         &:hover {
           background: transparent;
-          color: var(--color-text-secondary);
+          color: var(--text-color-secondary);
           border-color: var(--p-content-border-color);
         }
       }
@@ -196,7 +196,7 @@
 }
 
 .chart-card {
-  background: var(--color-card);
+  background: var(--card-background);
   border-radius: 12px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -207,7 +207,7 @@
   overflow: visible;
 
   &:hover {
-    border-color: var(--color-border);
+    border-color: rgb(255 255 255 / 20%);
     box-shadow: 0 6px 12px rgb(0 0 0 / 15%);
 
     .chart-drag-handle {
@@ -226,7 +226,7 @@
     opacity: 0;
     transition: opacity 0.2s ease;
     z-index: 10;
-    color: var(--color-text);
+    color: var(--text-color);
 
     &:active {
       cursor: grabbing;

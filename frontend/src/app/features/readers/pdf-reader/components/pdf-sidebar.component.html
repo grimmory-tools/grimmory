@@ -83,7 +83,7 @@
             @if (bookmarks().length > 0) {
               <ul class="item-list">
                 @for (bookmark of bookmarks(); track bookmark.id) {
-                  <li class="reader-list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark)" (keydown.enter)="onBookmarkClick(bookmark)">
+                  <li class="list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark)" (keydown.enter)="onBookmarkClick(bookmark)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ t('page') }} {{ bookmark.pageNumber }}</span>
@@ -107,7 +107,7 @@
             @if (annotations().length > 0) {
               <ul class="item-list">
                 @for (annotation of annotations(); track annotation.id) {
-                  <li class="reader-list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation)" (keydown.enter)="onAnnotationClick(annotation)">
+                  <li class="list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation)" (keydown.enter)="onAnnotationClick(annotation)">
                     @if (annotation.color) {
                       <div class="highlight-bar" [style.background-color]="annotation.color"></div>
                     }

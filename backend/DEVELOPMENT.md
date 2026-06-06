@@ -54,7 +54,6 @@ storage paths. The common backend loop is:
 cd backend
 just run
 ```
-Where [application-dev.yaml](./src/main/resources/application-dev.yaml) is the default configuration file for development.
 
 If you need a different Spring profile:
 
@@ -64,13 +63,6 @@ just run profile=local
 
 Use the repo-level guide in [../DEVELOPMENT.md](../DEVELOPMENT.md) for the full Docker stack, MariaDB
 setup, and cross-project local workflows.
-
-### IDE
-
-**Spring Boot:**  Active Profile = `dev`,
-Working Directory = `backend/` 
-
-**Gradle:**  `bootRun --args="--spring.profiles.active=dev"`
 
 ## Build and Test
 

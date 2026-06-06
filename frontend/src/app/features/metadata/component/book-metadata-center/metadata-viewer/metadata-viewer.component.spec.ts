@@ -67,11 +67,11 @@ describe('MetadataViewerComponent', () => {
   const deleteBookFile = vi.fn(() => of(void 0));
   const detachBookFile = vi.fn(() => of(void 0));
 
-  const openAdditionalFileUploaderDialog = vi.fn(() => Promise.resolve(null));
-  const openCustomSendDialog = vi.fn(() => Promise.resolve(null));
-  const openBookFileAttacherDialog = vi.fn(() => Promise.resolve(null));
-  const openFileMoverDialog = vi.fn(() => Promise.resolve(null));
-  const openShelfAssignerDialog = vi.fn(() => Promise.resolve(null));
+  const openAdditionalFileUploaderDialog = vi.fn();
+  const openCustomSendDialog = vi.fn();
+  const openBookFileAttacherDialog = vi.fn();
+  const openFileMoverDialog = vi.fn();
+  const openShelfAssignerDialog = vi.fn();
 
   const emailBookQuick = vi.fn(() => of(void 0));
   const refreshMetadataTask = vi.fn(() => of(void 0));
@@ -256,7 +256,7 @@ describe('MetadataViewerComponent', () => {
     });
   });
 
-  it('filters series recommendations and builds the read, download, and other menus from the current book', async () => {
+  it('filters series recommendations and builds the read, download, and other menus from the current book', () => {
     const component = createComponent();
     const seriesBooks = [
       {id: 8, metadata: {seriesNumber: 2}},
@@ -310,10 +310,8 @@ describe('MetadataViewerComponent', () => {
 
     component.book = richBook;
 
-    await vi.waitFor(() => {
-      expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
-    });
-    expect(component.filteredRecommendedBooks().map(book => book.book.id)).toEqual([17]);
+    expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
+    expect(component.recommendedBooks.map(book => book.book.id)).toEqual([17]);
 
     const readItems = component.readMenuItems();
     expect(readItems.map(item => item.separator ? 'separator' : item.label)).toEqual([
@@ -374,18 +372,6 @@ describe('MetadataViewerComponent', () => {
     const deleteSupplementaryItems = otherItems[6].items ?? [];
     runMenuCommand(deleteSupplementaryItems[0].command);
     expect(confirm).toHaveBeenCalledTimes(2);
-  });
-
-  it('falls back to an empty series list when the series lookup fails', async () => {
-    const component = createComponent();
-    getBooksInSeries.mockReturnValueOnce(throwError(() => new Error('series failed')));
-
-    component.book = createBook({}, {bookId: 21, seriesName: 'Series One'});
-
-    await vi.waitFor(() => {
-      expect(getBooksInSeries).toHaveBeenCalledWith(21);
-    });
-    expect(component.bookInSeries).toEqual([]);
   });
 
   it('chooses confirmation copy for file deletion branches and runs the accept callbacks', () => {

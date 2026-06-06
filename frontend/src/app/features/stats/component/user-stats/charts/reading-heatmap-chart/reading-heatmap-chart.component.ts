@@ -7,7 +7,6 @@ import {BookService} from '../../../../../book/service/book.service';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AsyncPipe} from '@angular/common';
-import {readStatsChartThemeColors} from '../../../shared/stats-chart-theme.service';
 
 interface MatrixDataPoint {
   x: number; // month (0-11)
@@ -66,6 +65,9 @@ export class ReadingHeatmapChartComponent {
       legend: {display: false},
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#ef476f',
         borderWidth: 2,
         cornerRadius: 8,
@@ -89,6 +91,7 @@ export class ReadingHeatmapChartComponent {
       },
       datalabels: {
         display: true,
+        color: '#ffffff',
         font: {
           family: "'Inter', sans-serif",
           size: 10,
@@ -104,6 +107,7 @@ export class ReadingHeatmapChartComponent {
         ticks: {
           stepSize: 1,
           callback: (value) => MONTH_NAMES[value as number] || '',
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
@@ -117,6 +121,7 @@ export class ReadingHeatmapChartComponent {
         ticks: {
           stepSize: 1,
           callback: (value) => this.yearLabels[value as number] || '',
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
@@ -168,12 +173,13 @@ export class ReadingHeatmapChartComponent {
         data: heatmapData,
         backgroundColor: (context) => {
           const point = context.raw as MatrixDataPoint;
-          if (!point?.v) return readStatsChartThemeColors().grid;
+          if (!point?.v) return 'rgba(255, 255, 255, 0.05)';
 
           const intensity = point.v / this.maxBookCount;
           const alpha = Math.max(0.2, Math.min(1.0, intensity * 0.8 + 0.2));
           return `rgba(239, 71, 111, ${alpha})`;
         },
+        borderColor: 'rgba(255, 255, 255, 0.2)',
         borderWidth: 1,
         width: ({chart}) => (chart.chartArea?.width || 0) / 12 - 1,
         height: ({chart}) => (chart.chartArea?.height || 0) / years.length - 1

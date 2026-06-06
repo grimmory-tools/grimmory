@@ -27,7 +27,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 0.75rem;
-  background: linear-gradient(135deg, var(--color-text-strong), var(--color-text-secondary), var(--color-primary));
+  background: linear-gradient(135deg, #fff, #e2e8f0, #3b82f6);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
@@ -52,7 +52,7 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--color-text-muted);
+    color: #94a3b8;
     font-size: 0.9rem;
     z-index: 1;
   }
@@ -86,16 +86,15 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--color-border), transparent 50%);
-  background: color-mix(in srgb, var(--color-border), transparent 30%);
-  color: var(--color-text-secondary);
+  border: 1px solid color-mix(in srgb, var(--p-surface-500), transparent 50%);
+  background: color-mix(in srgb, var(--p-surface-700), transparent 30%);
+  color: #94a3b8;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: var(--color-text);
-    border-color: var(--color-primary);
-    background: var(--color-surface-hover);
+    color: #e2e8f0;
+    border-color: var(--p-primary-400);
   }
 }
 
@@ -119,7 +118,7 @@
 .display-settings-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: #e2e8f0;
 }
 
 .filter-popover-content {
@@ -138,7 +137,7 @@
 .filter-label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: #94a3b8;
 }
 
 .filter-reset-btn {
@@ -168,12 +167,12 @@
 
   .empty-icon {
     font-size: 3rem;
-    color: var(--color-text-muted);
+    color: #64748b;
     margin-bottom: 1rem;
   }
 
   p {
-    color: var(--color-text-muted);
+    color: #94a3b8;
     font-size: 1rem;
     font-weight: 500;
   }
@@ -228,7 +227,7 @@
   align-items: center;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  color: var(--color-text);
+  color: #e4e4e7;
 
   i {
     font-size: 1rem;
@@ -239,7 +238,7 @@
 .selected-count {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--color-primary);
+  color: var(--primary-color);
 }
 
 .selected-label {

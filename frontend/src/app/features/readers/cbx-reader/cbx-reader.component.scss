@@ -17,7 +17,7 @@
     transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
     pointer-events: none;
 
-    &.is-visible {
+    &.visible {
       opacity: 1;
       transform: translateY(0);
       color: rgb(255 255 255 / 72%);
@@ -738,7 +738,7 @@
       font-weight: 600;
       color: #fff;
       cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
       box-shadow: 0 4px 20px rgb(74 144 226 / 30%);
       min-width: 280px;
 
@@ -857,7 +857,7 @@
   opacity: 0;
   transition: opacity 0.3s ease;
 
-  &.is-visible {
+  &.visible {
     opacity: 1;
   }
 
@@ -890,7 +890,7 @@
     transition: opacity 0.3s ease;
   }
 
-  &.is-visible .zone-arrow {
+  &.visible .zone-arrow {
     opacity: 1;
   }
 

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  background: var(--color-card);
+  background: var(--card-background);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
   padding: 1.5rem;
@@ -23,11 +23,11 @@
   gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-color);
   margin: 0 0 0.5rem;
 
   .pi {
-    color: var(--color-primary);
+    color: var(--primary-color);
     font-size: 1.125rem;
   }
 }
@@ -53,8 +53,8 @@
 .setting-item {
   padding: 0.875rem 1rem;
   border-radius: 6px;
-  border-left: 3px solid var(--color-primary);
-  background: var(--color-card);
+  border-left: 3px solid var(--primary-color);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
 
   @media (width <= 768px) {
     padding: 0.75rem;
@@ -83,7 +83,7 @@
 .action-label {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--text-color);
 }
 
 .action-description {
@@ -100,7 +100,7 @@
 }
 
 .weights-icon {
-  color: var(--color-primary);
+  color: var(--primary-color);
   font-size: 0.875rem;
   flex-shrink: 0;
 }
@@ -108,7 +108,7 @@
 .weights-label {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--text-color);
   margin: 0;
 }
 
@@ -141,14 +141,14 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem 0.625rem;
-  background: var(--color-card);
+  background: var(--ground-background);
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
 
   .field-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-text);
+    color: var(--text-color);
     text-transform: capitalize;
   }
 

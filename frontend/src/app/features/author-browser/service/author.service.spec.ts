@@ -7,22 +7,7 @@ import {of} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
-import {Book} from '../../book/model/book.model';
-import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {AuthorService} from './author.service';
-
-function makeBook(authors?: string[]): Book {
-  return {
-    id: 1,
-    libraryId: 1,
-    libraryName: 'Library',
-    metadata: {
-      bookId: 1,
-      title: 'Book 1',
-      authors,
-    },
-  };
-}
 
 describe('AuthorService', () => {
   const httpClient = {
@@ -81,7 +66,6 @@ describe('AuthorService', () => {
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.restoreAllMocks();
     TestBed.resetTestingModule();
   });
@@ -118,40 +102,6 @@ describe('AuthorService', () => {
       null,
       {params: {region: 'gb'}},
     );
-  });
-
-  it('coalesces author query invalidation when newly created books introduce authors', () => {
-    vi.useFakeTimers();
-
-    service.handleNewlyCreatedBook(makeBook(['Ada Lovelace']));
-    service.handleNewlyCreatedBook(makeBook(['Grace Hopper']));
-    service.handleNewlyCreatedBook(makeBook(['Katherine Johnson']));
-
-    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(199);
-    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(1);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(1);
-  });
-
-  it('clears pending author invalidation when the service is destroyed', () => {
-    vi.useFakeTimers();
-
-    service.handleNewlyCreatedBook(makeBook(['Ada Lovelace']));
-    TestBed.resetTestingModule();
-    vi.advanceTimersByTime(200);
-
-    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
-  });
-
-  it('does not invalidate authors when the newly created book has no authors', () => {
-    service.handleNewlyCreatedBook(makeBook([]));
-    service.handleNewlyCreatedBook(makeBook(undefined));
-
-    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
   });
 
   it('maps SSE auto-match responses and throws on error events', () => {

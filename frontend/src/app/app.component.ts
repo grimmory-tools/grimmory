@@ -6,20 +6,21 @@ import {parseLogNotification} from './shared/websocket/model/log-notification.mo
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Toast} from 'primeng/toast';
 import {RouterOutlet} from '@angular/router';
-import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 import {AuthInitializationService} from './core/security/auth-initialization-service';
-import {AppThemeService} from './shared/service/app-theme.service';
+import {AppConfigService} from './shared/service/app-config.service';
 import {MetadataBatchProgressNotification} from './shared/model/metadata-batch-progress.model';
 import {MetadataProgressService} from './shared/service/metadata-progress.service';
 import {BookdropFileNotification, BookdropFileService} from './features/bookdrop/service/bookdrop-file.service';
 import {Subscription} from 'rxjs';
 import {TaskProgressPayload, TaskService} from './features/settings/task-management/task.service';
+import {LibraryService} from './features/book/service/library.service';
 import {LibraryHealthService} from './features/book/service/library-health.service';
+import {LibraryLoadingService} from './features/library-creator/library-loading.service';
+import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
 import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
-import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
-import {AuthorService} from './features/author-browser/service/author.service';
 
 @Component({
   selector: 'app-root',
@@ -35,20 +36,19 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private subscriptionsInitialized = false;
 
-  private appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
+  private appConfigService = inject(AppConfigService); // DO NOT REMOVE: Used to initialize app config on startup
   private authInit = inject(AuthInitializationService);
   private bookService = inject(BookService);
-  private authorService = inject(AuthorService);
   private rxStompService = inject(RxStompService);
   private notificationEventService = inject(NotificationEventService);
   private metadataProgressService = inject(MetadataProgressService);
   private bookdropFileService = inject(BookdropFileService);
   private taskService = inject(TaskService);
+  private libraryService = inject(LibraryService);
   private libraryHealthService = inject(LibraryHealthService);
+  private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
-  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
-  private readonly translocoService = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
@@ -107,12 +107,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private setupWebSocketSubscriptions(): void {
     this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-add').subscribe(msg => {
-        const book = JSON.parse(msg.body);
-        this.libraryImportProgressService.recordBookAdded(book.metadata?.title || this.translocoService.translate('book.unknownTitle'));
-        this.bookService.handleNewlyCreatedBook(book);
-        this.authorService.handleNewlyCreatedBook(book);
-      })
+      this.rxStompService.watch('/user/queue/book-add').pipe(
+        scan((acc, msg) => {
+          const loadingState = this.libraryService.largeLibraryLoading();
+          const book = JSON.parse(msg.body);
+          if (loadingState.isLoading) {
+            const newCount = acc.count + 1;
+            this.libraryLoadingService.showBookLoadingProgress(book.metadata?.title || 'Unknown Book', newCount, loadingState.expectedCount);
+            this.bookService.handleNewlyCreatedBook(book);
+            if (newCount >= loadingState.expectedCount) {
+              this.libraryService.setLargeLibraryLoading(false, 0);
+              return {count: 0};
+            }
+            return {count: newCount};
+          } else {
+            this.bookService.handleNewlyCreatedBook(book);
+            return {count: 0};
+          }
+        }, {count: 0})
+      ).subscribe()
     );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/book-update').subscribe(msg =>
@@ -173,5 +186,6 @@ export class AppComponent implements OnInit, OnDestroy {
     window.removeEventListener('online', this.onOnline);
     window.removeEventListener('offline', this.onOffline);
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.libraryLoadingService.hide();
   }
 }

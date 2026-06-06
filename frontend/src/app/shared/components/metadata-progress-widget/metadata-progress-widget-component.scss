@@ -1,7 +1,7 @@
 .task-border {
   margin-top: 1rem;
-  background: var(--color-card);
-  border: 1px solid var(--color-primary);
+  background: var(--card-background);
+  border: 1px solid var(--primary-color);
   border-radius: 0.5rem;
 }
 
@@ -25,7 +25,7 @@
 .task-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--primary-color);
   margin: 0;
 }
 
@@ -47,13 +47,13 @@
 
 .task-message {
   font-size: 1rem;
-  color: var(--color-text);
+  color: #e5e7eb;
   margin-bottom: 0.5rem;
 }
 
 .task-progress-info {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: #d1d5db;
   margin-bottom: 0.5rem;
 }
 

@@ -1,5 +1,6 @@
 package org.booklore.service;
 
+import lombok.AllArgsConstructor;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;

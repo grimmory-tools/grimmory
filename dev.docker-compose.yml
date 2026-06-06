@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM gradle:9.5.1-jdk25-alpine
+        FROM gradle:9.5.0-jdk25-alpine
         RUN apk add --no-cache libstdc++ libgcc libarchive
         RUN ln -s /usr/lib/libarchive.so.13 /usr/lib/libarchive.so
     command: sh -c "cd /backend && ./gradlew bootRun"
@@ -14,8 +14,6 @@ services:
       - DATABASE_URL=jdbc:mariadb://backend_db:3306/grimmory
       - DATABASE_USERNAME=grimmory
       - DATABASE_PASSWORD=grimmory
-      - GRADLE_USER_HOME=/home/gradle/.gradle
-      - XDG_CACHE_HOME=/home/gradle/.cache
       - REMOTE_DEBUG_ENABLED=true
       - ALLOWED_ORIGINS=*
       - API_DOCS_ENABLED=true
@@ -27,9 +25,8 @@ services:
       - backend_db
     volumes:
       - './backend:/backend'
-      - backend_build:/backend/build
-      - backend_gradle_cache:/home/gradle/.gradle
-      - backend_native_cache:/home/gradle/.cache
+      - /backend/build
+      - /backend/.gradle
       - ./shared/data:/app/data
       - ./shared/books:/books
       - ./shared/bookdrop:/bookdrop
@@ -37,20 +34,19 @@ services:
     image: node:24-alpine
     command: |-
       sh -c "\
-      cd /workspace &&\
-      npm install -g pnpm@11.3.0 &&\
-      pnpm config set store-dir /workspace/node_modules/.pnpm-store &&\
-      pnpm install --frozen-lockfile &&\
-      pnpm -C frontend exec ng serve --host 0.0.0.0 --watch --configuration development"
+      apk update && apk add --no-cache bash just;\
+      cd /angular-app &&\
+      corepack enable &&\
+      corepack yarn install --immutable &&\
+      corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
-      - '.:/workspace'
-      - frontend_workspace_node_modules:/workspace/node_modules
-      - frontend_node_modules:/workspace/frontend/node_modules
+      - './frontend:/angular-app'
+      - node_modules:/angular-app/node_modules
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
   backend_db:
@@ -71,9 +67,5 @@ services:
       timeout: 5s
       retries: 5
 volumes:
-  frontend_workspace_node_modules:
-  frontend_node_modules:
+  node_modules:
   backend_db:
-  backend_build:
-  backend_gradle_cache:
-  backend_native_cache:

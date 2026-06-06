@@ -7,7 +7,6 @@ import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AsyncPipe} from '@angular/common';
-import {StatsChartThemeService} from '../../../shared/stats-chart-theme.service';
 
 interface AuthorStats {
   name: string;
@@ -51,7 +50,6 @@ export class AuthorUniverseChartComponent {
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly chartTheme = inject(StatsChartThemeService);
   private readonly syncChartEffect = effect(() => {
     if (this.bookService.isBooksLoading()) {
       return;
@@ -92,6 +90,7 @@ export class AuthorUniverseChartComponent {
           title: {
             display: true,
             text: this.t.translate('statsLibrary.authorUniverse.axisBooks'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -99,6 +98,7 @@ export class AuthorUniverseChartComponent {
             }
           },
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -107,6 +107,7 @@ export class AuthorUniverseChartComponent {
             stepSize: 1
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           min: 0
@@ -115,6 +116,7 @@ export class AuthorUniverseChartComponent {
           title: {
             display: true,
             text: this.t.translate('statsLibrary.authorUniverse.axisRating'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -122,6 +124,7 @@ export class AuthorUniverseChartComponent {
             }
           },
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -129,6 +132,7 @@ export class AuthorUniverseChartComponent {
             callback: (value) => value.toLocaleString()
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           min: 0,
@@ -141,6 +145,7 @@ export class AuthorUniverseChartComponent {
           display: true,
           position: 'bottom',
           labels: {
+            color: 'rgba(255, 255, 255, 0.9)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -320,6 +325,7 @@ export class AuthorUniverseChartComponent {
         borderColor: COMPLETION_COLORS.high,
         borderWidth: 2,
         hoverBorderWidth: 3,
+        hoverBorderColor: '#ffffff'
       });
     }
 
@@ -331,6 +337,7 @@ export class AuthorUniverseChartComponent {
         borderColor: COMPLETION_COLORS.medium,
         borderWidth: 2,
         hoverBorderWidth: 3,
+        hoverBorderColor: '#ffffff'
       });
     }
 
@@ -342,6 +349,7 @@ export class AuthorUniverseChartComponent {
         borderColor: COMPLETION_COLORS.low,
         borderWidth: 2,
         hoverBorderWidth: 3,
+        hoverBorderColor: '#ffffff'
       });
     }
 
@@ -353,6 +361,7 @@ export class AuthorUniverseChartComponent {
         borderColor: COMPLETION_COLORS.minimal,
         borderWidth: 2,
         hoverBorderWidth: 3,
+        hoverBorderColor: '#ffffff'
       });
     }
 
@@ -364,6 +373,7 @@ export class AuthorUniverseChartComponent {
         borderColor: COMPLETION_COLORS.unread,
         borderWidth: 2,
         hoverBorderWidth: 3,
+        hoverBorderColor: '#ffffff'
       });
     }
 
@@ -487,7 +497,6 @@ export class AuthorUniverseChartComponent {
 
   private handleExternalTooltip(context: { chart: Chart; tooltip: TooltipModel<'bubble'> }): void {
     const {chart, tooltip} = context;
-    const colors = this.chartTheme.colors();
     let tooltipEl = document.getElementById('author-chart-tooltip');
 
     if (!tooltipEl) {
@@ -496,6 +505,8 @@ export class AuthorUniverseChartComponent {
       Object.assign(tooltipEl.style, {
         position: 'fixed',
         zIndex: '9999',
+        background: 'rgba(0, 0, 0, 0.95)',
+        border: '2px solid #8b5cf6',
         borderRadius: '8px',
         padding: '12px 16px',
         pointerEvents: 'none',
@@ -508,9 +519,6 @@ export class AuthorUniverseChartComponent {
       });
       document.body.appendChild(tooltipEl);
     }
-
-    tooltipEl.style.background = colors.surface;
-    tooltipEl.style.border = `1px solid ${colors.border}`;
 
     if (tooltip.opacity === 0) {
       tooltipEl.style.opacity = '0';
@@ -533,7 +541,7 @@ export class AuthorUniverseChartComponent {
 
     const safeGenres = this.escapeHtml(stats.categories.slice(0, 3).join(', '));
     const categoriesHtml = stats.categories.length > 0
-      ? `<div style="color:${colors.textSecondary};font-size:12px;line-height:1.6">${this.t.translate('statsLibrary.authorUniverse.tooltipGenres', {genres: safeGenres})}</div>`
+      ? `<div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${this.t.translate('statsLibrary.authorUniverse.tooltipGenres', {genres: safeGenres})}</div>`
       : '';
 
     const booksLine = this.t.translate('statsLibrary.authorUniverse.tooltipBooks', {count: stats.bookCount});
@@ -543,11 +551,11 @@ export class AuthorUniverseChartComponent {
 
     const safeName = this.escapeHtml(stats.name);
     tooltipEl.innerHTML = `
-      <div style="color:${colors.text};font-size:14px;font-weight:700;margin-bottom:6px">${safeName}</div>
-      <div style="color:${colors.textSecondary};font-size:12px;line-height:1.6">${booksLine}</div>
-      <div style="color:${colors.textSecondary};font-size:12px;line-height:1.6">${pagesLine}</div>
-      <div style="color:${colors.textSecondary};font-size:12px;line-height:1.6">${ratingLine}</div>
-      <div style="color:${colors.textSecondary};font-size:12px;line-height:1.6">${readLine}</div>
+      <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:6px">${safeName}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${booksLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${pagesLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${ratingLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${readLine}</div>
       ${categoriesHtml}
     `;
 

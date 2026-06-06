@@ -17,8 +17,8 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,15 +49,13 @@ public class OidcGroupMappingService {
     }
 
     public OidcGroupMapping update(Long id, OidcGroupMapping dto) {
-        OidcGroupMappingEntity newEntity = mapper.toEntity(dto);
-
         OidcGroupMappingEntity existing = repository.findById(id)
                 .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("OIDC group mapping not found"));
-        existing.setOidcGroupClaim(newEntity.getOidcGroupClaim());
-        existing.setAdmin(newEntity.isAdmin());
-        existing.setPermissions(newEntity.getPermissions());
-        existing.setLibraryIds(newEntity.getLibraryIds());
-        existing.setDescription(newEntity.getDescription());
+        existing.setOidcGroupClaim(dto.oidcGroupClaim());
+        existing.setAdmin(dto.isAdmin());
+        existing.setPermissions(mapper.stringListToJson(dto.permissions()));
+        existing.setLibraryIds(mapper.longListToJson(dto.libraryIds()));
+        existing.setDescription(dto.description());
         OidcGroupMappingEntity saved = repository.save(existing);
         auditService.log(AuditAction.OIDC_GROUP_MAPPING_UPDATED,
                 "Updated OIDC group mapping: " + saved.getOidcGroupClaim());
@@ -88,12 +86,8 @@ public class OidcGroupMappingService {
 
         for (OidcGroupMappingEntity mapping : matchingMappings) {
             if (mapping.isAdmin()) mergedAdmin = true;
-
-            var mappingDto = mapper.toDto(mapping);
-            if (mappingDto != null) {
-                mergedPermissions.addAll(mappingDto.permissions());
-                mergedLibraryIds.addAll(mappingDto.libraryIds());
-            }
+            mergedPermissions.addAll(mapper.jsonToStringList(mapping.getPermissions()));
+            mergedLibraryIds.addAll(mapper.jsonToLongList(mapping.getLibraryIds()));
         }
 
         UserPermissionsEntity perms = user.getPermissions();

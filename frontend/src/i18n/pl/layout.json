@@ -1,27 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Dostosuj szerokość panelu bocznego",
-        "home": "Strona główna",
-        "dashboard": "Panel główny",
-        "allBooks": "Wszystkie książki",
-        "libraries": "Biblioteki",
-        "shelves": "Półki",
-        "magicShelves": "Inteligentne półki",
-        "unshelved": "Bez półki",
-        "series": "Serie",
-        "notebook": "Notatnik",
-        "update": "(Aktualizacja)",
-        "authors": "Autorzy"
-    },
-    "closeNavigation": "Zamknij nawigację",
-    "changelog": {
-        "title": "Co nowego",
-        "description": "Najnowsze aktualizacje i ulepszenia",
-        "loading": "Ładowanie dziennika zmian...",
-        "empty": "Brak dostępnych aktualizacji."
-    },
-    "theme": {
-        "primary": "Główny",
-        "surface": "Powierzchnia"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
     }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Dostosuj szerokość panelu bocznego",
+    "home": "Strona główna",
+    "dashboard": "Panel główny",
+    "allBooks": "Wszystkie książki",
+    "libraries": "Biblioteki",
+    "shelves": "Półki",
+    "magicShelves": "Inteligentne półki",
+    "unshelved": "Bez półki",
+    "series": "Serie",
+    "notebook": "Notatnik",
+    "update": "(Aktualizacja)",
+    "authors": "Autorzy",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Zamknij nawigację",
+  "changelog": {
+    "title": "Co nowego",
+    "description": "Najnowsze aktualizacje i ulepszenia",
+    "loading": "Ładowanie dziennika zmian...",
+    "empty": "Brak dostępnych aktualizacji."
+  },
+  "theme": {
+    "primary": "Główny",
+    "surface": "Powierzchnia"
+  },
+  "uploadDialog": {
+    "chooseFile": "Wybierz plik:",
+    "selectImage": "Wybierz obraz",
+    "fileNote": "Obsługiwane formaty: JPEG, PNG • Maksymalny rozmiar pliku: 5 MB",
+    "or": "LUB",
+    "imageUrl": "URL obrazu:",
+    "urlPlaceholder": "Wklej URL obrazu tutaj",
+    "urlNote": "Obsługiwane formaty: JPEG, PNG • Maksymalny rozmiar pliku: 5 MB",
+    "errorNoInput": "Proszę wybrać plik lub wkleić URL.",
+    "errorUploadFailed": "Nie udało się przesłać obrazu.",
+    "errorUploadRetry": "Przesyłanie nie powiodło się. Spróbuj ponownie."
+  }
 }

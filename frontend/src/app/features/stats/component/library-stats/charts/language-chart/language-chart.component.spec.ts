@@ -178,10 +178,10 @@ describe('LanguageChartComponent', () => {
 
     expect(dataset.data).toEqual([17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3]);
     expect(dataset.backgroundColor).toEqual(EXPECTED_LANGUAGE_COLORS);
-    expect(dataset.borderColor).toBeUndefined();
-    expect(dataset.borderWidth).toBeUndefined();
-    expect(dataset.hoverBorderColor).toBeUndefined();
-    expect(dataset.hoverBorderWidth).toBeUndefined();
+    expect(dataset.borderColor).toEqual(EXPECTED_LANGUAGE_COLORS.map(() => 'rgba(255, 255, 255, 0.2)'));
+    expect(dataset.borderWidth).toBe(2);
+    expect(dataset.hoverBorderColor).toBe('#ffffff');
+    expect(dataset.hoverBorderWidth).toBe(3);
   });
 
   it('formats the tooltip callback from computed chart data without a live Chart.js instance', () => {

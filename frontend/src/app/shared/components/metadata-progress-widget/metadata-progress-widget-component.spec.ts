@@ -48,7 +48,7 @@ describe('MetadataProgressWidgetComponent', () => {
       cancelTask: vi.fn(() => of({cancelled: true})),
     };
     dialogLauncherService = {
-      openMetadataReviewDialog: vi.fn(() => Promise.resolve(null)),
+      openMetadataReviewDialog: vi.fn(),
     };
     messageService = {
       add: vi.fn(),

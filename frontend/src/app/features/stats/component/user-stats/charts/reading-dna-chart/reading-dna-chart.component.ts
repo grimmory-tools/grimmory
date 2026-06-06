@@ -59,6 +59,7 @@ export class ReadingDNAChartComponent {
         max: 100,
         ticks: {
           stepSize: 20,
+          color: 'rgba(255, 255, 255, 0.6)',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -67,11 +68,14 @@ export class ReadingDNAChartComponent {
           showLabelBackdrop: false
         },
         grid: {
+          color: 'rgba(255, 255, 255, 0.2)',
           circular: true
         },
         angleLines: {
+          color: 'rgba(255, 255, 255, 0.3)'
         },
         pointLabels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -93,6 +97,9 @@ export class ReadingDNAChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#e91e63',
         borderWidth: 2,
         cornerRadius: 8,
@@ -129,7 +136,8 @@ export class ReadingDNAChartComponent {
       point: {
         radius: 5,
         hoverRadius: 8,
-        borderWidth: 3
+        borderWidth: 3,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)'
       }
     }
   };
@@ -168,6 +176,7 @@ export class ReadingDNAChartComponent {
         borderColor: '#e91e63',
         borderWidth: 3,
         pointBackgroundColor: gradientColors,
+        pointBorderColor: '#ffffff',
         pointBorderWidth: 3,
         pointRadius: 5,
         pointHoverRadius: 8,

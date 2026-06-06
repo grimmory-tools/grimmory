@@ -1,4 +1,14 @@
-@use '../../shared/styles/reader-chrome' as *;
+// Variables matching sidebar styling
+$dialog-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
+$active-color: #818cf8;
+$active-bg: rgb(129 140 248 / 15%);
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
@@ -8,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fade-in var(--transition-base);
+  animation: fade-in $transition-normal;
 }
 
 @keyframes fade-in {
@@ -17,9 +27,8 @@
 }
 
 .dialog {
-  @include surface;
-
-  border: 1px solid var(--reader-chrome-border);
+  background: $dialog-bg;
+  border: 1px solid $border-color;
   border-radius: 12px;
   width: 90%;
   max-width: 520px;
@@ -47,7 +56,7 @@
 .tabs-row {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
   background: rgb(0 0 0 / 20%);
   padding: 0 20px;
   justify-content: center;
@@ -64,13 +73,13 @@
 .tab {
   background: none;
   border: none;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   padding: 14px 20px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   position: relative;
-  transition: color var(--transition-fast);
+  transition: color $transition-fast;
   text-align: center;
   min-width: 90px;
   display: flex;
@@ -78,11 +87,11 @@
   justify-content: center;
 
   &:hover {
-    color: var(--color-white);
+    color: $text-primary;
   }
 
   &.active {
-    color: var(--reader-chrome-accent);
+    color: $active-color;
 
     &::after {
       content: '';
@@ -91,7 +100,7 @@
       right: 16px;
       bottom: 0;
       height: 2px;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       border-radius: 1px 1px 0 0;
     }
   }
@@ -104,12 +113,12 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
   font-size: 18px;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background $transition-fast, color $transition-fast;
   line-height: 1;
   width: 32px;
   height: 32px;
@@ -118,8 +127,8 @@
   justify-content: center;
 
   &:hover {
-    background: var(--reader-chrome-hover);
-    color: var(--color-white);
+    background: $hover-bg;
+    color: $text-primary;
   }
 }
 
@@ -132,11 +141,11 @@
 }
 
 .tab-content {
-  animation: fade-in var(--transition-base);
+  animation: fade-in $transition-normal;
 }
 
 .section-header {
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-muted;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -144,7 +153,7 @@
   margin-top: 24px;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
 
   &:first-child {
     margin-top: 0;
@@ -158,7 +167,7 @@
     gap: 30px;
     padding-bottom: 8px;
     margin-bottom: 24px;
-    border-bottom: 1px solid var(--reader-chrome-border);
+    border-bottom: 1px solid $border-color;
   }
 }
 
@@ -171,7 +180,7 @@
 .mode-icon {
   font-size: 18px;
   opacity: 0.3;
-  transition: filter 300ms ease, opacity 300ms ease, transform 300ms ease;
+  transition: all 300ms ease;
   user-select: none;
 
   &.active {
@@ -204,7 +213,7 @@
   margin-bottom: 2px;
 
   span {
-    color: var(--color-white);
+    color: $text-primary;
     font-size: 14px;
     font-weight: 500;
   }
@@ -214,7 +223,7 @@
   position: relative;
   width: 44px;
   height: 24px;
-  background: color-mix(in srgb, var(--color-white) 15%, transparent);
+  background: rgb(255 255 255 / 15%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -222,7 +231,7 @@
   padding: 0;
 
   &.active {
-    background: var(--reader-chrome-accent);
+    background: $active-color;
 
     .slider {
       transform: translateX(20px);
@@ -235,22 +244,22 @@
     left: 2px;
     width: 20px;
     height: 20px;
-    background: var(--color-white);
+    background: #fff;
     border-radius: 50%;
     transition: transform 300ms ease;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--color-white) 20%, transparent);
+    background: rgb(255 255 255 / 20%);
 
     &.active {
-      background: var(--reader-chrome-accent-hover);
+      background: #9aa3fa;
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--reader-chrome-accent);
+    outline: 2px solid $active-color;
     outline-offset: 2px;
   }
 }
@@ -276,24 +285,24 @@
   }
 
   .theme-card {
-    background: color-mix(in srgb, var(--color-white) 3%, transparent);
-    border: 2px solid var(--reader-chrome-border);
+    background: rgb(255 255 255 / 3%);
+    border: 2px solid $border-color;
     border-radius: 8px;
     padding: 10px;
-    transition: background var(--transition-fast), border-color var(--transition-fast);
+    transition: all $transition-fast;
     display: flex;
     flex-direction: column;
     gap: 8px;
 
     &:hover {
-      background: var(--reader-chrome-hover);
-      border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
+      background: $hover-bg;
+      border-color: rgb(255 255 255 / 15%);
     }
   }
 
   input:checked + .theme-card {
-    border-color: var(--reader-chrome-accent);
-    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
+    border-color: $active-color;
+    background: $active-bg;
   }
 
   .theme-colors {
@@ -309,7 +318,7 @@
   }
 
   .theme-name {
-    color: var(--color-white);
+    color: $text-primary;
     font-size: 11px;
     font-weight: 500;
     text-align: center;
@@ -324,35 +333,35 @@
 }
 
 .font-option {
-  background: color-mix(in srgb, var(--color-white) 3%, transparent);
-  border: 2px solid var(--reader-chrome-border);
+  background: rgb(255 255 255 / 3%);
+  border: 2px solid $border-color;
   border-radius: 8px;
   padding: 12px;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: all $transition-fast;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
 
   &:hover {
-    background: var(--reader-chrome-hover);
-    border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
+    background: $hover-bg;
+    border-color: rgb(255 255 255 / 15%);
   }
 
   &.active {
-    border-color: var(--reader-chrome-accent);
-    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
+    border-color: $active-color;
+    background: $active-bg;
   }
 
   .font-preview {
     font-size: 24px;
-    color: var(--color-white);
+    color: $text-primary;
     line-height: 1;
   }
 
   .font-name {
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
     font-size: 11px;
     font-weight: 500;
     text-align: center;
@@ -371,6 +380,7 @@
   }
 
   > label {
+    color: $text-primary;
     font-size: 14px;
     font-weight: 500;
     flex-shrink: 0;
@@ -380,7 +390,7 @@
     flex: 1;
     margin: 0 10px;
     height: 5px;
-    background: color-mix(in srgb, var(--color-white) 12%, transparent);
+    background: rgb(255 255 255 / 12%);
     border-radius: 3px;
     outline: none;
     cursor: pointer;
@@ -391,14 +401,14 @@
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       cursor: pointer;
       box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
-      transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+      transition: all $transition-fast;
 
       &:hover {
         transform: scale(1.1);
-        box-shadow: 0 2px 8px color-mix(in srgb, var(--reader-chrome-accent) 50%, transparent);
+        box-shadow: 0 2px 8px rgb(129 140 248 / 50%);
       }
     }
 
@@ -406,7 +416,7 @@
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       border: none;
       cursor: pointer;
       box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -414,7 +424,7 @@
   }
 
   .value {
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
     font-size: 12px;
     min-width: 42px;
     text-align: right;
@@ -447,16 +457,16 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: color-mix(in srgb, var(--color-white) 3%, transparent);
+  background: rgb(255 255 255 / 3%);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid var(--reader-chrome-border);
+  border: 1px solid $border-color;
 
   button {
     width: 28px;
     height: 28px;
-    background: color-mix(in srgb, var(--color-white) 5%, transparent);
-    color: var(--reader-chrome-fg-secondary);
+    background: rgb(255 255 255 / 5%);
+    color: $text-secondary;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -464,14 +474,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background var(--transition-fast),
-      color var(--transition-fast),
-      transform var(--transition-fast);
+    transition: all $transition-fast;
     font-weight: 300;
 
     &:hover {
-      background: var(--reader-chrome-hover);
-      color: var(--color-white);
+      background: $hover-bg;
+      color: $text-primary;
     }
 
     &:active {
@@ -482,7 +490,7 @@
   span {
     min-width: 48px;
     text-align: center;
-    color: var(--color-white);
+    color: $text-primary;
     font-size: 13px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -499,7 +507,7 @@
     gap: 7px;
     cursor: pointer;
     font-size: 14px;
-    color: var(--color-white);
+    color: $text-primary;
     font-weight: 500;
     position: relative;
     user-select: none;
@@ -508,21 +516,21 @@
       appearance: none;
       width: 18px;
       height: 18px;
-      border: 2px solid var(--reader-chrome-accent);
+      border: 2px solid $active-color;
       border-radius: 50%;
-      background: color-mix(in srgb, var(--color-white) 5%, transparent);
+      background: rgb(255 255 255 / 5%);
       margin: 0 6px 0 0;
       outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      transition: border-color $transition-fast, box-shadow $transition-fast;
 
       &:checked {
-        background: var(--reader-chrome-accent);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
-        border-color: var(--reader-chrome-accent);
+        background: $active-color;
+        box-shadow: 0 0 0 2px rgb(129 140 248 / 15%);
+        border-color: $active-color;
       }
 
       &:focus-visible {
-        box-shadow: 0 0 0 2px var(--reader-chrome-accent);
+        box-shadow: 0 0 0 2px $active-color;
       }
     }
   }
@@ -540,11 +548,9 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 3px solid color-mix(in srgb, var(--color-white) 15%, transparent);
+  border: 3px solid rgb(255 255 255 / 15%);
   cursor: pointer;
-  transition: border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+  transition: all $transition-fast;
   position: relative;
   display: flex;
   align-items: center;
@@ -553,7 +559,7 @@
 
   &:hover {
     transform: scale(1.08);
-    border-color: color-mix(in srgb, var(--color-white) 30%, transparent);
+    border-color: rgb(255 255 255 / 30%);
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
   }
 
@@ -562,20 +568,20 @@
   }
 
   &.active {
-    border-color: var(--reader-chrome-accent);
+    border-color: $active-color;
     border-width: 3px;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--reader-chrome-accent) 25%, transparent), 0 4px 12px rgb(0 0 0 / 30%);
+    box-shadow: 0 0 0 3px rgb(129 140 248 / 25%), 0 4px 12px rgb(0 0 0 / 30%);
 
     .check-icon {
       color: rgb(0 0 0 / 70%);
       font-size: 18px;
       font-weight: bold;
-      text-shadow: 0 1px 2px color-mix(in srgb, var(--color-white) 50%, transparent);
+      text-shadow: 0 1px 2px rgb(255 255 255 / 50%);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--reader-chrome-accent);
+    outline: 2px solid $active-color;
     outline-offset: 2px;
   }
 }

@@ -14,6 +14,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
 @Transactional(readOnly = true)
 public class BookVectorService {
 
-    private final ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final int VECTOR_DIMENSION = 128;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern NON_ALPHANUMERIC_EXCEPT_SPACE_PATTERN = Pattern.compile("[^a-z0-9\\s]");

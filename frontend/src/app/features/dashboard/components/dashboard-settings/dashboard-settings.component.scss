@@ -19,8 +19,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 2rem;
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-top: none;
 
   .settings-info {
@@ -28,12 +28,12 @@
       display: flex;
       gap: 0.75rem;
       padding: 0.75rem;
-      background: var(--color-page);
+      background: var(--overlay-background);
       border-radius: 6px;
       border: 1px solid var(--p-primary-300);
 
       .info-icon {
-        color: var(--color-primary);
+        color: var(--primary-color);
         font-size: 1.125rem;
         flex-shrink: 0;
         margin-top: 0.125rem;
@@ -46,7 +46,7 @@
           margin: 0;
           line-height: 1.5;
           font-size: 0.875rem;
-          color: var(--color-text-secondary);
+          color: var(--text-color-secondary);
         }
       }
     }
@@ -67,8 +67,8 @@
 
 .scrollers-container {
   padding: 1.5rem 2rem;
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-top: none;
   min-height: 200px;
   max-height: 450px;
@@ -81,7 +81,7 @@
 }
 
 .scroller-item {
-  border: 1px solid transparent;
+  border: var(--card-border);
   transition: all 0.2s;
   border-color: var(--p-content-border-color);
   background: var(--p-content-background);
@@ -169,7 +169,7 @@
 }
 
 label {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   font-size: 0.875rem;
   font-weight: 500;
 }

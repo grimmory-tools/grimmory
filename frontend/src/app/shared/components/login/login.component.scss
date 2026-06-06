@@ -91,6 +91,10 @@
   @include auth.form-label;
 }
 
+.form-input {
+  @include auth.form-input;
+}
+
 .login-button {
   @include auth.auth-button;
 

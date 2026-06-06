@@ -14,9 +14,9 @@
   flex-direction: column;
   width: 100%;
   max-height: min(70vh, calc(100dvh - 4rem));
-  background: color-mix(in srgb, var(--color-page) 64%, var(--color-card));
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--surface-overlay) 64%, var(--surface-card));
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow:
     0 20px 64px rgb(0 0 0 / 32%),
@@ -26,7 +26,7 @@
 
 .command-palette-form {
   &:has(+ .command-palette-results) .command-palette-input-row {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--border-color);
   }
 }
 
@@ -37,7 +37,7 @@
   padding: var(--space-4) var(--space-5);
 
   i {
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     font-size: var(--text-lg);
   }
 }
@@ -55,7 +55,7 @@
   appearance: none;
 
   &::placeholder {
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
   }
 
   &::-webkit-search-cancel-button,
@@ -76,15 +76,15 @@
   background: transparent;
   border: 0;
   border-radius: 6px;
-  color: var(--color-text);
+  color: var(--text-color);
   cursor: pointer;
 
   &:hover {
-    background-color: var(--color-surface-hover);
+    background-color: var(--surface-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
 
@@ -101,7 +101,7 @@
 
 .command-palette-empty {
   padding: var(--space-6) var(--space-4);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   text-align: center;
   font-size: var(--text-sm);
 }
@@ -110,7 +110,7 @@
   padding: var(--space-2) 0;
 
   & + .command-palette-group {
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--border-color);
   }
 }
 
@@ -118,7 +118,7 @@
   padding: var(--space-2) var(--space-2) var(--space-1);
   font-size: var(--text-xs);
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
 .command-palette-item {
@@ -137,13 +137,13 @@
   scroll-margin: var(--space-2) 0;
 
   .command-palette-item-icon {
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     flex-shrink: 0;
   }
 
   &.active {
-    background: var(--color-active-surface);
-    color: var(--color-primary);
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    color: var(--primary-color);
 
     .command-palette-item-icon {
       color: inherit;
@@ -163,7 +163,7 @@
   height: 48px;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background: var(--color-surface-800);
+  background: var(--surface-800);
   box-shadow: var(--shadow-sm);
 
   &.square-cover {
@@ -201,7 +201,7 @@
   align-items: center;
   min-width: 0;
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 
   > * + *::before {
     content: '·';
@@ -222,7 +222,7 @@
   flex: 1 1 auto;
   min-width: 0;
   margin-left: var(--space-2);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   font-size: var(--text-sm);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -235,8 +235,8 @@
   justify-content: flex-end;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary-color);
   font-size: var(--text-xs);
 }
 
@@ -253,11 +253,11 @@
   min-width: 1.25rem;
   padding: 0 var(--space-1);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-hover);
+  background: var(--surface-hover);
   font-family: inherit;
   font-size: var(--text-xs);
   line-height: 1.5;
-  color: var(--color-text);
+  color: var(--text-color);
 }
 
 @media #{variables.$mobile-shell-media-query} {
@@ -267,7 +267,7 @@
 
   .command-palette {
     max-height: 100dvh;
-    background: var(--color-app);
+    background: var(--surface-app);
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -277,8 +277,8 @@
     box-sizing: border-box;
     flex-shrink: 0;
     height: 3.5rem;
-    background: var(--color-app);
-    border-bottom: 1px solid var(--color-border);
+    background: var(--surface-app);
+    border-bottom: 1px solid var(--border-color);
 
     &:has(+ .command-palette-results) .command-palette-input-row {
       border-bottom: none;
@@ -314,7 +314,7 @@
 
   .command-palette-results,
   .command-palette-empty {
-    background: var(--color-page);
+    background: var(--surface-page);
   }
 
   .command-palette-empty {
@@ -331,7 +331,7 @@
       calc(var(--space-3) + env(safe-area-inset-right))
       var(--space-2)
       calc(var(--space-3) + env(safe-area-inset-left));
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--border-color);
     box-shadow: 0 12px 24px rgb(0 0 0 / 18%);
   }
 

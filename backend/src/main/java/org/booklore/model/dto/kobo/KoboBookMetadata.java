@@ -57,9 +57,6 @@ public class KoboBookMetadata {
     private String title;
     private String description;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String subtitle;
-
     @Builder.Default
     private List<String> categories = List.of("00000000-0000-0000-0000-000000000001");
 

@@ -8,5 +8,10 @@ public record BookFileProgress(
         String positionHref,
         @NotNull Float progressPercent,
         String ttsPositionCfi,
-        Float contentSourceProgressPercent) {
+        Float contentSourceProgressPercent,
+        String positionType,
+        String readiumLocatorJson,
+        String textBefore,
+        String textHighlight,
+        String textAfter) {
 }

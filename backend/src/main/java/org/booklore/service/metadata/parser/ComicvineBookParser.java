@@ -717,7 +717,6 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     }
 
 
-
     private boolean hasComicDetails(ComicMetadata comic) {
         return hasNonEmptySet(comic.getCharacters())
                 || hasNonEmptySet(comic.getTeams())

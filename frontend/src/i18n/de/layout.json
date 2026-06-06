@@ -1,27 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Seitenleistenbreite anpassen",
-        "home": "Startseite",
-        "dashboard": "Dashboard",
-        "allBooks": "Alle Bücher",
-        "libraries": "Bibliotheken",
-        "shelves": "Regale",
-        "magicShelves": "Magische Regale",
-        "unshelved": "Nicht eingeordnet",
-        "series": "Serien",
-        "notebook": "Notizbuch",
-        "update": "(Aktualisierung)",
-        "authors": "Autoren"
-    },
-    "closeNavigation": "Navigation schließen",
-    "changelog": {
-        "title": "Neuigkeiten",
-        "description": "Neueste Updates und Verbesserungen",
-        "loading": "Änderungsprotokoll wird geladen...",
-        "empty": "Keine Updates verfügbar."
-    },
-    "theme": {
-        "primary": "Primär",
-        "surface": "Oberfläche"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
     }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Seitenleistenbreite anpassen",
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "allBooks": "Alle Bücher",
+    "libraries": "Bibliotheken",
+    "shelves": "Regale",
+    "magicShelves": "Magische Regale",
+    "unshelved": "Nicht eingeordnet",
+    "series": "Serien",
+    "notebook": "Notizbuch",
+    "update": "(Aktualisierung)",
+    "authors": "Autoren",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Navigation schließen",
+  "changelog": {
+    "title": "Neuigkeiten",
+    "description": "Neueste Updates und Verbesserungen",
+    "loading": "Änderungsprotokoll wird geladen...",
+    "empty": "Keine Updates verfügbar."
+  },
+  "theme": {
+    "primary": "Primär",
+    "surface": "Oberfläche"
+  },
+  "uploadDialog": {
+    "chooseFile": "Datei auswählen:",
+    "selectImage": "Bild auswählen",
+    "fileNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
+    "or": "ODER",
+    "imageUrl": "Bild-URL:",
+    "urlPlaceholder": "Bild-URL hier einfügen",
+    "urlNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
+    "errorNoInput": "Bitte wählen Sie eine Datei aus oder fügen Sie eine URL ein.",
+    "errorUploadFailed": "Bild konnte nicht hochgeladen werden.",
+    "errorUploadRetry": "Hochladen fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
 }

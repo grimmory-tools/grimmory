@@ -116,6 +116,7 @@ export class PublicationTimelineChartComponent {
         x: {
           beginAtZero: true,
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -124,11 +125,13 @@ export class PublicationTimelineChartComponent {
             stepSize: 1
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.publicationTimeline.axisNumberOfBooks'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -138,6 +141,7 @@ export class PublicationTimelineChartComponent {
         },
         y: {
           ticks: {
+            color: 'rgba(255, 255, 255, 0.9)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -155,6 +159,9 @@ export class PublicationTimelineChartComponent {
         },
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           borderColor: '#a78bfa',
           borderWidth: 2,
           cornerRadius: 8,

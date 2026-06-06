@@ -1,27 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Justera sidofältets bredd",
-        "home": "Hem",
-        "dashboard": "Översikt",
-        "allBooks": "Alla böcker",
-        "libraries": "Bibliotek",
-        "shelves": "Hyllor",
-        "magicShelves": "Magiska hyllor",
-        "unshelved": "Osorterade",
-        "series": "Serier",
-        "notebook": "Anteckningsbok",
-        "update": "(Uppdatering)",
-        "authors": "Författare"
-    },
-    "closeNavigation": "Stäng navigering",
-    "changelog": {
-        "title": "Nyheter",
-        "description": "Senaste uppdateringar och förbättringar",
-        "loading": "Laddar ändringslogg...",
-        "empty": "Inga uppdateringar tillgängliga."
-    },
-    "theme": {
-        "primary": "Primär",
-        "surface": "Yta"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
     }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Justera sidofältets bredd",
+    "home": "Hem",
+    "dashboard": "Översikt",
+    "allBooks": "Alla böcker",
+    "libraries": "Bibliotek",
+    "shelves": "Hyllor",
+    "magicShelves": "Magiska hyllor",
+    "unshelved": "Osorterade",
+    "series": "Serier",
+    "notebook": "Anteckningsbok",
+    "update": "(Uppdatering)",
+    "authors": "Författare",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Stäng navigering",
+  "changelog": {
+    "title": "Nyheter",
+    "description": "Senaste uppdateringar och förbättringar",
+    "loading": "Laddar ändringslogg...",
+    "empty": "Inga uppdateringar tillgängliga."
+  },
+  "theme": {
+    "primary": "Primär",
+    "surface": "Yta"
+  },
+  "uploadDialog": {
+    "chooseFile": "Välj fil:",
+    "selectImage": "Välj bild",
+    "fileNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
+    "or": "ELLER",
+    "imageUrl": "Bild-URL:",
+    "urlPlaceholder": "Klistra in bild-URL här",
+    "urlNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
+    "errorNoInput": "Välj en fil eller klistra in en URL.",
+    "errorUploadFailed": "Kunde inte ladda upp bild.",
+    "errorUploadRetry": "Uppladdning misslyckades. Försök igen."
+  }
 }

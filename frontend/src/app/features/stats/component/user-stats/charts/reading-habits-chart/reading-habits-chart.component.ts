@@ -61,6 +61,7 @@ export class ReadingHabitsChartComponent {
         max: 100,
         ticks: {
           stepSize: 20,
+          color: 'rgba(255, 255, 255, 0.6)',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -69,11 +70,14 @@ export class ReadingHabitsChartComponent {
           showLabelBackdrop: false
         },
         grid: {
+          color: 'rgba(255, 255, 255, 0.2)',
           circular: true
         },
         angleLines: {
+          color: 'rgba(255, 255, 255, 0.3)'
         },
         pointLabels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -94,6 +98,9 @@ export class ReadingHabitsChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#9c27b0',
         borderWidth: 2,
         cornerRadius: 8,
@@ -130,7 +137,8 @@ export class ReadingHabitsChartComponent {
       point: {
         radius: 5,
         hoverRadius: 8,
-        borderWidth: 3
+        borderWidth: 3,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)'
       }
     }
   };
@@ -167,6 +175,7 @@ export class ReadingHabitsChartComponent {
         borderColor: '#9c27b0',
         borderWidth: 3,
         pointBackgroundColor: habitColors,
+        pointBorderColor: '#ffffff',
         pointBorderWidth: 3,
         pointRadius: 5,
         pointHoverRadius: 8,

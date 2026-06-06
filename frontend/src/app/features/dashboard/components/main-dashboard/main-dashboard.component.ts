@@ -62,10 +62,10 @@ export class MainDashboardComponent {
   }
 
   openDashboardSettings(): void {
-    void this.dialogLauncher.openDashboardSettingsDialog().catch(() => undefined);
+    this.dialogLauncher.openDashboardSettingsDialog();
   }
 
   createNewLibrary() {
-    void this.dialogLauncher.openLibraryCreateDialog().catch(() => undefined);
+    this.dialogLauncher.openLibraryCreateDialog();
   }
 }

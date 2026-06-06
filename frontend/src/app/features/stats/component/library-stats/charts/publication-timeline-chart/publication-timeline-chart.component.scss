@@ -1,4 +1,4 @@
-@use '../../../chart-shared' as chart-shared;
+@use '../../../_chart-shared';
 
 .publication-timeline-container {
   width: 100%;
@@ -6,14 +6,17 @@
 
 .timeline-title-icon {
   font-size: 1.5rem;
-  color: var(--color-violet-400);
+  color: #a78bfa;
 }
 
 .books-count-badge {
-  --stats-badge-accent: var(--color-violet-400);
-
-  @include chart-shared.accent-badge;
-
+  background: linear-gradient(135deg, rgb(167 139 250 / 20%), rgb(167 139 250 / 10%));
+  border: 1px solid rgb(167 139 250 / 30%);
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #c4b5fd;
   white-space: nowrap;
 }
 
@@ -26,7 +29,7 @@
 .insights-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
 .insights-row {
@@ -41,26 +44,27 @@
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-
-  @include chart-shared.neutral-surface;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid rgb(255 255 255 / 8%);
 
   .insight-label {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     margin-bottom: 0.25rem;
   }
 
   .insight-value {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--text-color, #fff);
   }
 
   .insight-detail {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     margin-top: 0.25rem;
     max-width: 150px;
     overflow: hidden;
@@ -70,49 +74,49 @@
 
   &.oldest {
     .insight-value {
-      color: var(--color-amber-500);
+      color: #f59e0b;
     }
   }
 
   &.average {
     .insight-value {
-      color: var(--color-violet-400);
+      color: #a78bfa;
     }
   }
 
   &.newest {
     .insight-value {
-      color: var(--color-cyan-400);
+      color: #22d3ee;
     }
   }
 
   &.timespan {
     .insight-value {
-      color: var(--color-pink-400);
+      color: #f472b6;
     }
   }
 
   &.peak {
     .insight-value {
-      color: var(--color-green-400);
+      color: #4ade80;
     }
   }
 
   &.golden-era {
     .insight-value {
-      color: var(--color-orange-400);
+      color: #fb923c;
     }
   }
 
   &.common-year {
     .insight-value {
-      color: var(--color-emerald-400);
+      color: #34d399;
     }
   }
 
   &.rarity {
     .insight-value {
-      color: var(--color-red-400);
+      color: #f87171;
     }
   }
 }

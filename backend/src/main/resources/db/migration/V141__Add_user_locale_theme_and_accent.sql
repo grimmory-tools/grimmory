@@ -1,5 +1,0 @@
-ALTER TABLE users
-    ADD COLUMN locale VARCHAR(16) NOT NULL DEFAULT 'en',
-    ADD COLUMN theme VARCHAR(32) NOT NULL DEFAULT 'grimmory',
-    ADD COLUMN theme_accent VARCHAR(32) NULL,
-    ADD COLUMN theme_sync_enabled BOOLEAN NOT NULL DEFAULT TRUE;

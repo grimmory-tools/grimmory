@@ -1,4 +1,4 @@
-import {computed, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {computed, Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Book, BookRecommendation} from '../../../book/model/book.model';
@@ -15,8 +15,7 @@ import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.compone
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
-import {injectQuery, queryOptions} from '@tanstack/angular-query-experimental';
-import {bookRecommendationsQueryKey} from '../../../book/service/book-query-keys';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 
 @Component({
   selector: 'app-book-metadata-center',
@@ -65,41 +64,33 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
     return this.bookService.bookDetailQueryOptions(bookId, true);
   });
   readonly book = computed(() => this.bookQuery.data() ?? null);
-  private readonly recommendationsQuery = injectQuery(() => {
+  private readonly fetchRecommendations = effect(() => {
     const bookId = this.currentBookId();
-    const settings = this.appSettingsService.appSettings();
-
-    if (bookId == null || !(settings?.similarBookRecommendation ?? false)) {
-      return queryOptions({
-        queryKey: bookRecommendationsQueryKey(-1, 20),
-        queryFn: async (): Promise<BookRecommendation[]> => [],
-        enabled: false,
-      });
+    if (bookId == null) {
+      this.recommendedBooks = [];
+      return;
     }
 
-    return this.bookService.bookRecommendationsQueryOptions(bookId, 20);
+    this.fetchBookRecommendationsIfNeeded(bookId);
   });
-  readonly recommendedBooks = computed(() =>
-    [...(this.recommendationsQuery.data() ?? [])].sort(
-      (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-    )
-  );
+
+  recommendedBooks: BookRecommendation[] = [];
   private _tab: string = 'view';
-  readonly canEditMetadata = computed(() => {
+  canEditMetadata: boolean = false;
+  admin: boolean = false;
+  private readonly syncUserPermissionsEffect = effect(() => {
     const user = this.userService.currentUser();
-    return user?.permissions?.canEditMetadata ?? false;
-  });
-  readonly admin = computed(() => {
-    const user = this.userService.currentUser();
-    return user?.permissions?.admin ?? false;
+    if (!user) return;
+    this.canEditMetadata = user.permissions?.canEditMetadata ?? false;
+    this.admin = user.permissions?.admin ?? false;
   });
   get isPhysical(): boolean { return this.book()?.isPhysical ?? false; }
-  readonly isLocalStorage = computed(() => this.appSettingsService.appSettings()?.diskType === 'LOCAL');
+  isLocalStorage: boolean = true;
   get canShowSidecarTab(): boolean {
     const settings = this.appSettingsService.appSettings();
     const sidecarEnabled = settings?.metadataPersistenceSettings?.sidecarSettings?.enabled ?? false;
 
-    return (this.admin() || this.canEditMetadata()) && !this.isPhysical && this.isLocalStorage() && sidecarEnabled;
+    return (this.admin || this.canEditMetadata) && !this.isPhysical && this.isLocalStorage && sidecarEnabled;
   }
   private validTabs = ['view', 'edit', 'match', 'sidecar'];
 
@@ -151,6 +142,24 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
         this._tab = this.validTabs.includes(tabParam) ? tabParam : 'view';
       });
 
+    const currentSettings = this.appSettingsService.appSettings();
+    if (currentSettings) {
+      this.isLocalStorage = currentSettings.diskType === 'LOCAL';
+    }
+  }
+
+  private fetchBookRecommendationsIfNeeded(bookId: number): void {
+    const settings = this.appSettingsService.appSettings();
+    if (!settings || !(settings.similarBookRecommendation ?? false)) {
+      return;
+    }
+    this.bookService.getBookRecommendations(bookId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(recommendations => {
+        this.recommendedBooks = recommendations.sort(
+          (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
+        );
+      });
   }
 
   ngOnDestroy(): void {

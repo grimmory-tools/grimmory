@@ -3,6 +3,7 @@ package org.booklore.model.dto.response.ranobedbapi;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

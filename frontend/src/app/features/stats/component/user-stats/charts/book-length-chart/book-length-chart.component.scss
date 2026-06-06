@@ -1,5 +1,3 @@
-@use '../../../chart-shared' as chart-shared;
-
 .book-length-container {
   width: 100%;
 }
@@ -17,7 +15,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -27,7 +25,7 @@
     }
 
     .chart-description {
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       font-size: 0.9rem;
       margin: 0;
       line-height: 1.4;
@@ -35,25 +33,23 @@
   }
 
   .stats-badge {
-    --stats-badge-accent: var(--color-cyan-500);
-
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: rgb(0 188 212 / 15%);
+    border: 1px solid rgb(0 188 212 / 30%);
+    border-radius: 8px;
     padding: 0.5rem 1rem;
-
-    @include chart-shared.accent-surface(8px);
 
     .badge-value {
       font-size: 1.5rem;
       font-weight: 600;
-
-      @include chart-shared.accent-text;
+      color: #00bcd4;
     }
 
     .badge-label {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -62,7 +58,7 @@
 
 .book-length-icon {
   font-size: 1.5rem;
-  color: var(--color-cyan-500);
+  color: #00bcd4;
 }
 
 .stats-row {
@@ -75,21 +71,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: rgb(255 255 255 / 5%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 8px;
     padding: 0.5rem 1rem;
     flex: 1;
-
-    @include chart-shared.neutral-surface;
 
     .stat-value-sm {
       font-size: 0.9rem;
       font-weight: 500;
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       text-align: center;
     }
 
     .stat-label {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-top: 0.25rem;
@@ -110,7 +107,7 @@
   justify-content: center;
   padding: 3rem;
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 
   i {
     font-size: 2.5rem;
@@ -121,7 +118,7 @@
   p {
     font-size: 1rem;
     margin: 0 0 0.5rem;
-    color: var(--color-text);
+    color: var(--text-color, #fff);
   }
 
   small {

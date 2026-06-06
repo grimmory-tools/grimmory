@@ -7,8 +7,8 @@
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--color-border), transparent 60%);
-  background: color-mix(in srgb, var(--color-card), transparent 30%);
+  border: 1px solid color-mix(in srgb, var(--p-surface-500), transparent 60%);
+  background: color-mix(in srgb, var(--p-surface-900), transparent 30%);
   backdrop-filter: blur(10px);
   overflow: hidden;
   cursor: pointer;
@@ -149,7 +149,7 @@
 .series-name {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #e2e8f0;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,7 +159,7 @@
 
 .series-authors {
   font-size: 0.75rem;
-  color: var(--color-text-muted);
+  color: #94a3b8;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -197,7 +197,7 @@
   }
 
   &.progress-complete ::ng-deep .p-progressbar-value {
-    background: linear-gradient(90deg, var(--color-green-500), var(--color-green-600));
+    background: linear-gradient(90deg, #22c55e, #16a34a);
   }
 
   &.progress-incomplete ::ng-deep .p-progressbar-value {
@@ -207,7 +207,7 @@
 
 .progress-label {
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  color: #cbd5e1;
   white-space: nowrap;
   font-weight: 700;
   letter-spacing: 0.02em;

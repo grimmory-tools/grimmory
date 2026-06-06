@@ -146,7 +146,6 @@ public class MetadataCopyHelper {
     }
 
 
-
     public void copyLubimyczytacId(boolean clear, Consumer<String> consumer) {
         if (!isLocked(metadata.getLubimyczytacIdLocked())) {
             if (clear) consumer.accept(null);
@@ -245,7 +244,6 @@ public class MetadataCopyHelper {
             else if (metadata.getHardcoverRating() != null) consumer.accept(metadata.getHardcoverRating());
         }
     }
-
 
 
     public void copyLubimyczytacRating(boolean clear, Consumer<Double> consumer) {

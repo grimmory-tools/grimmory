@@ -48,7 +48,6 @@ type EmbedPdfMessage =
 })
 export class PdfReaderComponent implements OnInit, OnDestroy {
 
-  // --- Template-bound signals ---
   readonly isLoading = signal(true);
   readonly totalPages = signal(0);
   readonly isDarkTheme = signal(true);
@@ -105,7 +104,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     { label: '200%', value: '200%' },
   ];
 
-  // --- Internal state (not template-bound) ---
   canPrint = false;
   bookData!: string;
   bookId!: number;
@@ -118,7 +116,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private embedPdfMessageHandler?: (e: MessageEvent) => void;
   private embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
   private embedPdfSaveTimer?: ReturnType<typeof setTimeout>;
-  private embedPdfSavePromise?: Promise<boolean>;
   private embedPdfInitTime = 0;
   private pendingPdfBuffer?: ArrayBuffer;
   private initTimeout?: ReturnType<typeof setTimeout>;
@@ -131,7 +128,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private docProgressReleaseTimer?: ReturnType<typeof setTimeout>;
   private closeReaderPromise: Promise<void> | null = null;
   readonly isClosingReader = signal(false);
-  readonly isSavingDocument = signal(false);
 
   // Book mode state
   private bookViewerInitialized = false;
@@ -265,10 +261,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       // Intercept 'x' key to prevent EmbedPDF from reloading the page;
       // instead close the reader via SPA navigation.
       const keydownHandler = (e: KeyboardEvent) => {
-        const isEditing = e.composedPath().some((target) => {
-          const el = target as HTMLElement;
-          return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
-        });
+        const tag = (e.target as HTMLElement)?.tagName;
+        const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
 
         if (e.key === 'x' || e.key === 'X') {
           if (isEditing) return;
@@ -435,7 +429,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     localStorage.setItem(this.DOC_VIEWER_DISMISSED_KEY, 'true');
   }
 
-  // --- Book viewer (EmbedPDF direct) ---
 
   private async initBookViewer(): Promise<void> {
     if (this.viewerMode() !== 'book' || this.bookViewerInitialized || this.isInitializingBookViewer) return;
@@ -746,7 +739,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Annotation tools ---
 
   private applyPanMode(active: boolean): void {
     this.isPanActive.set(active);
@@ -786,7 +778,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.activeAnnotationColor = color;
   }
 
-  // --- Search ---
 
   toggleSearch(): void {
     this.isSearchOpen.update(v => !v);
@@ -838,7 +829,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.embedPdfBook.previousSearchResult();
   }
 
-  // --- Zoom ---
 
   toggleZoomMenu(): void {
     this.isZoomMenuOpen.update(v => !v);
@@ -851,7 +841,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.updateViewerSetting();
   }
 
-  // --- Spread ---
 
   cycleSpreadMode(): void {
     const modes: ('none' | 'odd' | 'even')[] = ['none', 'odd', 'even'];
@@ -874,13 +863,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.updateViewerSetting();
   }
 
-  // --- Rotate ---
 
   rotateClockwise(): void {
     this.embedPdfBook.rotateClockwise();
   }
 
-  // --- Bookmarks ---
 
   toggleBookmark(): void {
     this.pdfBookmarkService.toggleBookmark(this.page()).subscribe(success => {
@@ -908,7 +895,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Sidebar ---
 
   toggleSidebar(): void {
     this.sidebarOpen.update(v => !v);
@@ -926,7 +912,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.onPageChange(pageNumber);
   }
 
-  // --- Viewer mode switching ---
 
   async setViewerMode(mode: 'book' | 'document') {
     if (mode === this.viewerMode()) return;
@@ -968,7 +953,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Doc viewer (iframe) ---
 
   private async initDocViewerIframe() {
     if (this.embedPdfIframe) return;
@@ -1094,19 +1078,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async saveEmbedPdfDocument(): Promise<boolean> {
-    if (this.embedPdfSavePromise) return this.embedPdfSavePromise;
-    this.embedPdfSavePromise = this.performEmbedPdfSave();
-
-    try {
-      return await this.embedPdfSavePromise;
-    } finally {
-      this.embedPdfSavePromise = undefined;
-    }
-  }
-
-  private async performEmbedPdfSave(): Promise<boolean> {
-    if (!this.embedPdfIframe?.contentWindow) return false;
+  private async saveEmbedPdfDocument(): Promise<void> {
+    if (!this.embedPdfIframe?.contentWindow) return;
 
     try {
       const buffer: ArrayBuffer | null = await new Promise((resolve) => {
@@ -1126,7 +1099,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.embedPdfSaveTimer = undefined;
       }
 
-      if (!buffer) return false;
+      if (!buffer) return;
 
       const headers: Record<string, string> = { 'Content-Type': 'application/pdf' };
       const uploadToken = this.authService.getInternalAccessToken();
@@ -1146,49 +1119,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       });
       if (!uploadResponse.ok) {
         console.error('[EmbedPDF] Upload failed:', uploadResponse.status);
-        return false;
       }
-      this.updateSavedPdfCache(buffer);
-      await this.cacheStorageService.delete(url);
-      return true;
     } catch (err) {
       console.error('[EmbedPDF] Failed to save document:', err);
-      return false;
-    }
-  }
-
-  private updateSavedPdfCache(buffer: ArrayBuffer): void {
-    const savedBuffer = buffer.slice(0);
-    this.cachedPdfBuffer = savedBuffer;
-    this.revokePdfBlobUrl();
-    this.pdfBlobUrl = URL.createObjectURL(new Blob([savedBuffer], { type: 'application/pdf' }));
-  }
-
-  async saveDocument(): Promise<void> {
-    if (this.viewerMode() !== 'document' || !this.embedPdfIframe) return;
-    if (this.isSavingDocument()) return;
-
-    this.isSavingDocument.set(true);
-    try {
-      const saved = await this.saveEmbedPdfDocument();
-      this.messageService.add(saved ? {
-        severity: 'success',
-        summary: this.t.translate('common.success'),
-        detail: this.t.translate('readerPdf.docViewer.changesSaved') || 'Changes saved successfully.'
-      } : {
-        severity: 'error',
-        summary: this.t.translate('common.error'),
-        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
-      });
-    } catch (err) {
-      console.error('[PDF Reader] Manually saving document failed:', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.t.translate('common.error'),
-        detail: this.t.translate('readerPdf.docViewer.saveFailed') || 'Failed to save changes.'
-      });
-    } finally {
-      this.isSavingDocument.set(false);
     }
   }
 
@@ -1214,7 +1147,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.embedPdfInitTime = 0;
   }
 
-  // --- Common viewer methods ---
 
   onPageChange(page: number | undefined): void {
     if (page == null || page === this.page() || !this.isInitialScrollDone()) {
@@ -1332,7 +1264,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Chrome auto-hide ---
 
   showChrome(): void {
     this.headerVisible.set(true);
@@ -1359,7 +1290,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.startChromeAutoHide();
   }
 
-  // --- Touch navigation ---
 
   private handleTouchEnd(e: TouchEvent): void {
     if (this.viewerMode() !== 'book') return;
@@ -1416,7 +1346,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Toolbar overflow menu ---
 
   toggleToolbarOverflow(): void {
     this.isToolbarOverflowOpen.update(v => !v);
@@ -1440,7 +1369,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.requestCloseReader();
   }
 
-  // --- Fullscreen ---
 
   toggleFullscreen(): void {
     if (!document.fullscreenElement) {
@@ -1454,7 +1382,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.isFullscreen.set(!!document.fullscreenElement);
   };
 
-  // --- Footer page navigation ---
 
   goToFirstPage(): void {
     if (this.viewerMode() === 'book') {

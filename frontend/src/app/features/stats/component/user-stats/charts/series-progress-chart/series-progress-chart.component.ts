@@ -88,6 +88,7 @@ export class SeriesProgressChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsUser.seriesProgress.axisCompletion'),
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11,
@@ -95,6 +96,7 @@ export class SeriesProgressChartComponent {
           }
         },
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           font: {
             family: "'Inter', sans-serif",
             size: 10
@@ -102,11 +104,13 @@ export class SeriesProgressChartComponent {
           callback: (value) => `${value}%`
         },
         grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
         }
       },
       y: {
         stacked: true,
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           font: {
             family: "'Inter', sans-serif",
             size: 10
@@ -122,6 +126,7 @@ export class SeriesProgressChartComponent {
         display: true,
         position: 'top',
         labels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 10
@@ -133,6 +138,9 @@ export class SeriesProgressChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#673ab7',
         borderWidth: 2,
         cornerRadius: 8,
@@ -413,7 +421,6 @@ export class SeriesProgressChartComponent {
       const relevantBooks = booksOwned - booksWontRead - booksAbandoned;
       const completionPercentage = relevantBooks > 0 ? Math.round((booksRead / relevantBooks) * 100) : 0;
 
-      // Determine series status based on comprehensive analysis
       let status: 'completed' | 'in-progress' | 'not-started' | 'abandoned' | 'paused';
       if (booksRead === relevantBooks && relevantBooks > 0) {
         status = 'completed';

@@ -2,7 +2,6 @@ package org.booklore.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
@@ -11,11 +10,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.Map;
 
 @Converter(autoApply = true)
-@AllArgsConstructor
 @Slf4j
 public class MapToStringConverter implements AttributeConverter<Map<String, Object>, String> {
-    private final ObjectMapper objectMapper;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final TypeReference<Map<String, Object>> MAP_TYPE_REF = new TypeReference<>() {};
 
     @Override

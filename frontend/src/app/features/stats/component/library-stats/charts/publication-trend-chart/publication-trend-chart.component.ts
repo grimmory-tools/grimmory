@@ -91,6 +91,7 @@ export class PublicationTrendChartComponent {
         borderColor: '#06b6d4',
         backgroundColor: 'rgba(6, 182, 212, 0.1)',
         pointBackgroundColor: '#06b6d4',
+        pointBorderColor: '#ffffff',
         fill: true
       }]
     };
@@ -110,6 +111,7 @@ export class PublicationTrendChartComponent {
       scales: {
         x: {
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 10
@@ -120,11 +122,13 @@ export class PublicationTrendChartComponent {
             maxTicksLimit: 20
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.05)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.publicationTrend.axisPublicationYear'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -135,6 +139,7 @@ export class PublicationTrendChartComponent {
         y: {
           beginAtZero: true,
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -143,11 +148,13 @@ export class PublicationTrendChartComponent {
             stepSize: 1
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.publicationTrend.axisBooks'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -162,6 +169,9 @@ export class PublicationTrendChartComponent {
         },
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           borderColor: '#06b6d4',
           borderWidth: 2,
           cornerRadius: 8,
@@ -190,7 +200,8 @@ export class PublicationTrendChartComponent {
         point: {
           radius: 4,
           hoverRadius: 7,
-          borderWidth: 2
+          borderWidth: 2,
+          backgroundColor: '#0e1117'
         }
       },
       interaction: {

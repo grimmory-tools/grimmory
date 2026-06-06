@@ -220,9 +220,7 @@ public class UserStatsController {
         return ResponseEntity.ok(readingSessionService.getBookTimeline(year));
     }
 
-    // ========================================================================
     // Listening (audiobook) stats
-    // ========================================================================
 
     @Operation(summary = "Get listening heatmap for a month", description = "Returns daily listening session counts and duration for the authenticated user for a specific month")
     @ApiResponses({

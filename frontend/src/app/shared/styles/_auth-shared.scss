@@ -5,7 +5,7 @@
   min-height: 100vh;
   min-width: 100vw;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--color-logo-start) 0%, var(--color-logo-end) 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1e3a8a 50%, #0f172a 100%);
   position: relative;
 
   &::before {
@@ -15,7 +15,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--color-logo-start) 22%, transparent) 0%, transparent 70%);
+    background: radial-gradient(circle, rgb(59 130 246 / 10%) 0%, transparent 70%);
     animation: float 20s ease-in-out infinite;
   }
 }
@@ -42,9 +42,9 @@
   width: 100%;
   border-radius: 2rem;
   padding: 2px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 70%, transparent) 0%, color-mix(in srgb, var(--color-primary) 30%, transparent) 50%, transparent 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgb(59 130 246 / 30%) 50%, transparent 100%);
   box-shadow: 0 20px 60px rgb(0 0 0 / 40%);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     box-shadow: 0 25px 70px rgb(0 0 0 / 50%);
@@ -54,7 +54,7 @@
 
 @mixin auth-card {
   width: 100%;
-  background: var(--color-card);
+  background: rgb(17 24 39 / 95%);
   backdrop-filter: blur(20px);
   border-radius: calc(2rem - 2px);
   padding: 3rem 2.5rem;
@@ -79,7 +79,7 @@
   height: 4rem;
   margin: 0 auto;
   display: block;
-  filter: drop-shadow(0 4px 12px rgb(0 0 0 / 30%));
+  filter: drop-shadow(0 4px 12px rgb(59 130 246 / 40%));
   transition: transform 0.3s ease;
 
   &:hover {
@@ -95,8 +95,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgb(59 130 246 / 40%);
   transition: transform 0.3s ease;
 
   i {
@@ -113,7 +113,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--color-text-strong) 0%, var(--color-primary) 100%);
+  background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 
@@ -124,7 +124,7 @@
 
 @mixin auth-subtitle {
   font-size: 0.95rem;
-  color: var(--color-text-secondary);
+  color: rgb(255 255 255 / 70%);
   font-weight: 400;
   line-height: 1.5;
   max-width: 400px;
@@ -149,19 +149,19 @@
   gap: 0.5rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: rgb(255 255 255 / 90%);
 
   i {
-    color: var(--color-primary);
+    color: var(--primary-color);
     font-size: 0.875rem;
   }
 }
 
 @mixin form-input {
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 
   &:focus {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 20%);
   }
 }
 
@@ -169,7 +169,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: var(--color-danger);
+  color: #ef4444;
   font-size: 0.8rem;
   margin-top: -0.25rem;
   animation: fade-in 0.3s ease-out;
@@ -186,13 +186,13 @@
     height: 3rem;
     font-size: 1rem;
     font-weight: 600;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #2563eb 100%);
     border: none;
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+      box-shadow: 0 8px 24px rgb(59 130 246 / 40%);
     }
 
     &:active:not(:disabled) {

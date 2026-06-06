@@ -1,6 +1,6 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-pnpm := "pnpm"
+yarn := "env YARN_ENABLE_GLOBAL_CACHE=0 YARN_CACHE_FOLDER=../.yarn/cache corepack yarn"
 
 # Show the frontend recipes available in this directory.
 help:
@@ -8,87 +8,87 @@ help:
 
 # Install or update frontend dependencies for local development.
 install:
-    {{ pnpm }} install
+    {{ yarn }} install
 
 # Install the frontend dependencies exactly as CI does.
 install-ci:
-    {{ pnpm }} install --frozen-lockfile
+    {{ yarn }} install --immutable
 
 # Run the Angular development server.
 dev:
-    {{ pnpm }} run dev
+    {{ yarn }} dev
 
 # Run the Angular development server with the default `start` script.
 start:
-    {{ pnpm }} run start
+    {{ yarn }} start
 
 # Build the production frontend bundle.
 build:
-    CI=1 NG_CLI_ANALYTICS=false {{ pnpm }} run build:prod
+    CI=1 NG_CLI_ANALYTICS=false {{ yarn }} build:prod
 
 # Build the frontend continuously in development mode.
 watch:
-    {{ pnpm }} run watch
+    {{ yarn }} watch
 
 # Run the frontend test suite.
 test:
-    {{ pnpm }} run test
+    {{ yarn }} test
 
 # Run the frontend tests with a coverage report.
 coverage:
-    {{ pnpm }} run coverage
+    {{ yarn }} coverage
 
 # Summarize the latest frontend coverage report by global and feature buckets.
 coverage-summary:
-    {{ pnpm }} run coverage:summary
+    {{ yarn }} coverage:summary
 
 # Install the Chromium browser used by the frontend Playwright suite.
 e2e-install:
-    {{ pnpm }} run e2e:install
+    {{ yarn }} e2e:install
 
 # Run the frontend Playwright suite.
 e2e:
-    {{ pnpm }} run e2e
+    {{ yarn }} e2e
 
 # Run a single frontend Playwright spec file.
 e2e-file spec:
-    {{ pnpm }} run e2e {{ spec }}
+    {{ yarn }} e2e {{ spec }}
 
 # List the tests contained in a single frontend Playwright spec file.
 e2e-list spec:
-    {{ pnpm }} run e2e {{ spec }} --list
+    {{ yarn }} e2e {{ spec }} --list
 
 # Start the Angular dev server for Playwright against a fixed host and port.
 e2e-dev host='127.0.0.1' port='4301':
-    {{ pnpm }} exec ng serve --host {{ host }} --port {{ port }} --configuration development --watch=false
+    {{ yarn }} ng serve --host {{ host }} --port {{ port }} --configuration development --watch=false
 
 # Run the frontend linter.
 lint:
-    {{ pnpm }} run lint:eslint
+    {{ yarn }} lint:eslint
 
 # Run the frontend stylesheet linter.
 stylelint:
-    {{ pnpm }} run lint:styles
+    {{ yarn }} lint:styles
 
 # Run the frontend stylesheet linter with autofix enabled.
 stylelint-fix:
-    {{ pnpm }} run lint:styles:fix
+    {{ yarn }} lint:styles:fix
 
 # Run the frontend TypeScript typechecker without emitting build output.
 typecheck:
-    {{ pnpm }} run typecheck
+    {{ yarn }} typecheck
 
 # Check the installed dependency tree.
 deps:
-    {{ pnpm }} list --depth Infinity
+    {{ yarn }} info -R --name-only
 
 # Run a local dependency audit without forcing a CI-specific severity threshold.
 audit:
-    {{ pnpm }} audit
+    {{ yarn }} npm audit
 
 # Run the stricter dependency audit used in CI.
 audit-ci:
-    {{ pnpm }} audit --audit-level critical
+    {{ yarn }} npm audit --severity critical
 
 # Run the standard local frontend verification pass.
 check: deps typecheck lint stylelint build test

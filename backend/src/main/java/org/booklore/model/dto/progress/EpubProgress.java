@@ -17,4 +17,11 @@ public class EpubProgress {
     @NotNull
     Float percentage;
     String ttsPositionCfi;
+    String xpointer;
+    String readiumLocatorJson;
+    Float chapterProgression;
+    String textBefore;
+    String textHighlight;
+    String textAfter;
+    String positionType;
 }

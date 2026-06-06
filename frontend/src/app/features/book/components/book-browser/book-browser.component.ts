@@ -895,8 +895,8 @@ export class BookBrowserComponent implements AfterViewInit {
       });
   }
 
-  async openShelfAssigner() {
-    this.dynamicDialogRef = await this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
+  openShelfAssigner(): void {
+    this.dynamicDialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.assigned) {
@@ -906,8 +906,8 @@ export class BookBrowserComponent implements AfterViewInit {
     }
   }
 
-  async lockUnlockMetadata() {
-    this.dynamicDialogRef = await this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
+  lockUnlockMetadata(): void {
+    this.dynamicDialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -924,12 +924,12 @@ export class BookBrowserComponent implements AfterViewInit {
     }).subscribe();
   }
 
-  async fetchMetadata() {
-    await this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
+  fetchMetadata(): void {
+    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
   }
 
-  async bulkEditMetadata() {
-    this.dynamicDialogRef = await this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
+  bulkEditMetadata(): void {
+    this.dynamicDialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -937,8 +937,8 @@ export class BookBrowserComponent implements AfterViewInit {
     }
   }
 
-  async multiBookEditMetadata() {
-    this.dynamicDialogRef = await this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
+  multiBookEditMetadata(): void {
+    this.dynamicDialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -1028,11 +1028,11 @@ export class BookBrowserComponent implements AfterViewInit {
     });
   }
 
-  async moveFiles() {
-    await this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
+  moveFiles(): void {
+    this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
   }
 
-  async attachFilesToBook() {
+  attachFilesToBook(): void {
     const selectedBookIds = Array.from(this.selectedBooks());
     const sourceBooks = this.books().filter(book =>
       selectedBookIds.includes(book.id)
@@ -1058,7 +1058,7 @@ export class BookBrowserComponent implements AfterViewInit {
       return;
     }
 
-    this.dynamicDialogRef = await this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
+    this.dynamicDialogRef = this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.success) {

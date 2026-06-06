@@ -460,29 +460,6 @@ class MetadataManagementServiceTest {
     }
 
     @Test
-    void writeMetadataToFile_skipsWhenBookPrimaryFileIsNull() {
-        LibraryPathEntity libraryPath = new LibraryPathEntity();
-        libraryPath.setPath("/example");
-        BookEntity book = BookEntity.builder()
-                .id(1L)
-                .bookFiles(List.of())
-                .libraryPath(libraryPath)
-                .build();
-        BookMetadataEntity metadata = BookMetadataEntity.builder()
-                .seriesName("Old")
-                .book(book)
-                .build();
-        book.setMetadata(metadata);
-
-        when(bookMetadataRepository.findAllBySeriesNameIgnoreCase("Old")).thenReturn(List.of(metadata));
-
-        service.consolidateMetadata(MergeMetadataType.series, List.of("New"), List.of("Old"));
-
-        verify(metadataWriterFactory, never()).getWriter(any());
-        verify(bookRepository, never()).saveAndFlush(any());
-    }
-
-    @Test
     void writeMetadataToFile_skipsWriterWhenNoneAvailable() throws Exception {
         Path tempDir = Files.createTempDirectory("test-metadata-skip-");
         Path subDir = tempDir.resolve("sub");

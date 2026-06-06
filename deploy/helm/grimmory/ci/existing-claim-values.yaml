@@ -1,8 +1,0 @@
-# Pre-existing PVC claims
-# Database: bundled MariaDB
-# Persistence: both volumes use existingClaim, PVC templates suppressed
-persistence:
-  dataVolume:
-    existingClaim: my-existing-data-claim
-  booksVolume:
-    existingClaim: my-existing-books-claim

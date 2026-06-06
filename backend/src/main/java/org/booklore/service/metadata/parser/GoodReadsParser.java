@@ -1,8 +1,8 @@
 package org.booklore.service.metadata.parser;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -11,24 +11,21 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
-import org.booklore.util.LanguageNormalizer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import tools.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,26 +34,26 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
-    private static final TypeReference<List<GoodreadsAutocompleteEntry>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
 
-    private static final String BASE_AUTOCOMPLETE_URL = "https://www.goodreads.com/book/auto_complete?format=json&q=";
+    private static final String BASE_SEARCH_URL = "https://www.goodreads.com/search?q=";
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
+    private static final int COUNT_DETAILED_METADATA_TO_GET_RETRY = 2;
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+    private static final Pattern BOOK_SHOW_ID_PATTERN = Pattern.compile("/book/show/(\\d+)");
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
-    private final HttpClient httpClient;
     private final AppSettingService appSettingService;
-    private final ObjectMapper objectMapper;
 
     private record TitleInfo(String title, String subtitle) {}
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record GoodreadsAutocompleteEntry(String bookId) {}
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -75,6 +72,28 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
             }
         }
 
+        String isbn = ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn());
+        if (isbn != null && !isbn.isBlank()) {
+            log.info("GoodReads: Trying ISBN lookup: {}", isbn);
+            try {
+                Document doc = fetchDoc(BASE_ISBN_URL + isbn);
+                String goodreadsId = extractGoodreadsIdFromOgUrl(doc);
+                if (goodreadsId != null) {
+                    BookMetadata metadata = parseBookDetails(doc, goodreadsId);
+                    if (metadata != null) {
+                        return metadata;
+                    }
+                }
+                log.info("GoodReads: ISBN lookup returned no results, falling back to title search");
+            } catch (Exception e) {
+                log.warn("GoodReads: ISBN lookup failed: {}, falling back to title search", e.getMessage());
+            }
+        }
+
+        Optional<BookMetadata> preview = fetchMetadataPreviews(book, fetchMetadataRequest).stream().findFirst();
+        if (preview.isEmpty()) {
+            return null;
+        }
         return fetchMetadataStream(book, fetchMetadataRequest).blockFirst();
     }
 
@@ -142,24 +161,51 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     }
                 }
 
-                List<String> searchResultIds = fetchSearchResults(book, fetchMetadataRequest).stream()
+                List<BookMetadata> previews = fetchMetadataPreviews(book, fetchMetadataRequest).stream()
                         .limit(COUNT_DETAILED_METADATA_TO_GET)
                         .toList();
 
-                for (String goodreadsId : searchResultIds) {
+                for (BookMetadata preview : previews) {
                     if (sink.isCancelled()) return;
-                    log.info("GoodReads: Fetching metadata for: Goodreads ID {}", goodreadsId);
+                    log.info("GoodReads: Fetching metadata for: {}", preview.getTitle());
                     try {
-                        Document document = fetchDoc(BASE_BOOK_URL + goodreadsId);
-                        BookMetadata detailedMetadata = parseBookDetails(document, goodreadsId);
+                        Document document = fetchDoc(BASE_BOOK_URL + preview.getGoodreadsId());
+                        BookMetadata detailedMetadata = parseBookDetails(document, preview.getGoodreadsId());
                         if (detailedMetadata != null) {
                             sink.next(detailedMetadata);
                         }
                         Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1501));
-                    } catch (InterruptedException e) {
-                        throw e;
                     } catch (Exception e) {
-                        log.error("Error fetching metadata for book: {}", goodreadsId, e);
+                        log.error("Error fetching metadata for book: {}", preview.getGoodreadsId(), e);
+                    }
+                }
+
+                if (fetchMetadataRequest.getTitle() != null && !fetchMetadataRequest.getTitle().isBlank()
+                        && fetchMetadataRequest.getAuthor() != null && !fetchMetadataRequest.getAuthor().isBlank()
+                        && previews.isEmpty()) {
+
+                    log.info("GoodReads: No hits for Title + Author search, retrying with Title only: {}", fetchMetadataRequest.getTitle());
+                    FetchMetadataRequest titleOnlyRequest = FetchMetadataRequest.builder()
+                            .title(fetchMetadataRequest.getTitle())
+                            .build();
+
+                    List<BookMetadata> titleOnlyPreviews = fetchMetadataPreviews(book, titleOnlyRequest).stream()
+                            .limit(COUNT_DETAILED_METADATA_TO_GET_RETRY)
+                            .toList();
+
+                    for (BookMetadata preview : titleOnlyPreviews) {
+                        if (sink.isCancelled()) return;
+                        log.info("GoodReads: Fetching metadata (Title only hit) for: {}", preview.getTitle());
+                        try {
+                            Document document = fetchDoc(BASE_BOOK_URL + preview.getGoodreadsId());
+                            BookMetadata detailedMetadata = parseBookDetails(document, preview.getGoodreadsId());
+                            if (detailedMetadata != null) {
+                                sink.next(detailedMetadata);
+                            }
+                            Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1501));
+                        } catch (Exception e) {
+                            log.error("Error fetching metadata for book (Title only retry): {}", preview.getGoodreadsId(), e);
+                        }
                     }
                 }
 
@@ -315,7 +361,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
             JsonNode languageJson = detailsJson.get("language");
             if (languageJson != null && languageJson.isObject()) {
-                builder.language(LanguageNormalizer.normalize(normalizeNull(languageJson.path("name").asText(null))));
+                builder.language(normalizeNull(languageJson.path("name").asText(null)));
             }
         }
 
@@ -457,7 +503,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
             if (scriptElement != null) {
                 String jsonString = scriptElement.html();
-                return objectMapper.readTree(jsonString);
+                return OBJECT_MAPPER.readTree(jsonString);
             } else {
                 log.warn("No JSON script element found!");
             }
@@ -469,13 +515,12 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     public String generateSearchUrl(String searchTerm) {
         String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-        String url = BASE_AUTOCOMPLETE_URL + encodedSearchTerm;
+        String url = BASE_SEARCH_URL + encodedSearchTerm;
         log.info("Goodreads Query URL: {}", url);
         return url;
     }
 
-
-    public List<String> fetchSearchResults(Book book, FetchMetadataRequest request) throws InterruptedException {
+    public List<BookMetadata> fetchMetadataPreviews(Book book, FetchMetadataRequest request) {
         String searchTerm = getSearchTerm(book, request);
 
         if (searchTerm == null || searchTerm.isEmpty()) {
@@ -485,22 +530,56 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
         try {
             String searchUrl = generateSearchUrl(searchTerm);
+            Document doc = fetchDoc(searchUrl);
+            Element tableList = doc.select("table.tableList").first();
 
-            List<GoodreadsAutocompleteEntry> records = fetchJson(
-                    searchUrl,
-                    AUTOCOMPLETE_RESPONSE_TYPE
-            );
+            if (tableList == null) {
+                log.warn("GoodReads: No results table found for search term: {}", searchTerm);
+                return Collections.emptyList();
+            }
+
+            Elements previewBooks = tableList.select("tr[itemtype=http://schema.org/Book]");
+
+            List<BookMetadata> metadataPreviews = new ArrayList<>();
+            FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+            String queryAuthor = request.getAuthor();
+
+            for (Element previewBook : previewBooks) {
+                List<String> authors = extractAuthorsPreview(previewBook);
+
+                if (queryAuthor != null && !queryAuthor.isBlank()) {
+                    List<String> queryAuthorTokens = List.of(WHITESPACE_PATTERN.split(queryAuthor.toLowerCase()));
+                    boolean matches = authors.stream()
+                            .flatMap(a -> Arrays.stream(WHITESPACE_PATTERN.split(a.toLowerCase())))
+                            .anyMatch(actual -> {
+                                for (String query : queryAuthorTokens) {
+                                    int score = fuzzyScore.fuzzyScore(actual, query);
+                                    int maxScore = Math.max(fuzzyScore.fuzzyScore(query, query),
+                                            fuzzyScore.fuzzyScore(actual, actual));
+                                    double similarity = maxScore > 0 ? (double) score / maxScore : 0;
+                                    if (similarity >= 0.5) return true;
+                                }
+                                return false;
+                            });
+
+                    if (!matches) {
+                        continue;
+                    }
+                }
+
+                BookMetadata previewMetadata = BookMetadata.builder()
+                        .goodreadsId(String.valueOf(extractGoodReadsIdPreview(previewBook)))
+                        .title(extractTitlePreview(previewBook))
+                        .authors(authors)
+                        .provider(MetadataProvider.GoodReads)
+                        .thumbnailUrl(extractThumbnailPreview(previewBook))
+                        .build();
+                metadataPreviews.add(previewMetadata);
+            }
 
             Thread.sleep(Duration.ofSeconds(1));
-            return records.stream()
-                    .filter(Objects::nonNull)
-                    .map(r -> r.bookId)
-                    .filter(Objects::nonNull)
-                    .filter(id -> !id.isBlank())
-                    .toList();
+            return metadataPreviews;
 
-        } catch (InterruptedException e) {
-            throw e;
         } catch (Exception e) {
             log.error("Error fetching metadata previews: {}", e.getMessage());
             return Collections.emptyList();
@@ -509,13 +588,70 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private String getSearchTerm(Book book, FetchMetadataRequest request) {
         if (request.getTitle() != null && !request.getTitle().isEmpty()) {
-            // We used to include the author name, but with the new autocomplete
-            // endpoint it leads to less reliable results.
+            if (request.getAuthor() != null && !request.getAuthor().isEmpty()) {
+                return request.getTitle() + " " + request.getAuthor();
+            }
             return request.getTitle();
         }
         return (book.getPrimaryFile() != null && book.getPrimaryFile().getFileName() != null && !book.getPrimaryFile().getFileName().isEmpty()
                 ? BookUtils.cleanFileName(book.getPrimaryFile().getFileName())
                 : null);
+    }
+
+    private Integer extractGoodReadsIdPreview(Element book) {
+        try {
+            Element bookTitle = book.select("a.bookTitle").first();
+            if (bookTitle == null) {
+                return null;
+            }
+            String href = bookTitle.attr("href");
+            Matcher matcher = BOOK_SHOW_ID_PATTERN.matcher(href);
+            if (matcher.find()) {
+                return Integer.valueOf(matcher.group(1));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    private List<String> extractAuthorsPreview(Element book) {
+        List<String> authors = new ArrayList<>();
+        try {
+            Elements authorsElement = book.select("a.authorName");
+            for (Element authorElement : authorsElement) {
+                authors.add(authorElement.text());
+            }
+        } catch (Exception e) {
+            log.warn("Error extracting author: {}", e.getMessage());
+            return authors;
+        }
+        return authors;
+    }
+
+    private String extractTitlePreview(Element book) {
+        try {
+            Element link = book.select("a[title]").first();
+            return link != null ? link.attr("title") : null;
+        } catch (Exception e) {
+            log.warn("Error extracting title: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractThumbnailPreview(Element book) {
+        try {
+            Element img = book.selectFirst("img");
+            if (img != null) {
+                String src = img.attr("src");
+                if (!src.isBlank()) {
+                    return src;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error extracting thumbnail: {}", e.getMessage());
+        }
+        return null;
     }
 
     @Override
@@ -530,32 +666,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         }
     }
 
-    private <T> T fetchJson(String url, TypeReference<T> typeReference) throws InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() < 200 || response.statusCode() > 399) {
-                log.error("GoodReads request failed with status code: {}", response.statusCode());
-                throw new RuntimeException("Failed to query GoodReads");
-            }
-
-            return objectMapper.readValue(response.body(), typeReference);
-        } catch (InterruptedException e) {
-            throw e;
-        } catch (IOException e) {
-            log.error("GoodReads request failed", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     private Document fetchDoc(String url) {
         try {
-            return Jsoup.connect(url)
+            Connection.Response response = Jsoup.connect(url)
                     .header("accept", "text/html, application/json")
                     .header("accept-language", "en-US,en;q=0.9")
                     .header("content-type", "application/json")
@@ -580,7 +693,8 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     .header("x-amz-amabot-click-attributes", "disable")
                     .header("x-requested-with", "XMLHttpRequest")
                     .method(Connection.Method.GET)
-                    .get();
+                    .execute();
+            return response.parse();
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);

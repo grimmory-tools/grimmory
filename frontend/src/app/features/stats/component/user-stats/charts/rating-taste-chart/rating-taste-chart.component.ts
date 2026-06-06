@@ -69,6 +69,7 @@ export class RatingTasteChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsUser.ratingTaste.axisExternalRating'),
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12,
@@ -76,6 +77,7 @@ export class RatingTasteChartComponent {
           }
         },
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           stepSize: 1,
           font: {
             family: "'Inter', sans-serif",
@@ -83,6 +85,7 @@ export class RatingTasteChartComponent {
           }
         },
         grid: {
+          color: 'rgba(255, 255, 255, 0.1)',
           drawTicks: true
         }
       },
@@ -92,6 +95,7 @@ export class RatingTasteChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsUser.ratingTaste.axisPersonalRating'),
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12,
@@ -99,6 +103,7 @@ export class RatingTasteChartComponent {
           }
         },
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           stepSize: 1,
           font: {
             family: "'Inter', sans-serif",
@@ -106,6 +111,7 @@ export class RatingTasteChartComponent {
           }
         },
         grid: {
+          color: 'rgba(255, 255, 255, 0.1)',
           drawTicks: true
         }
       }
@@ -115,6 +121,7 @@ export class RatingTasteChartComponent {
         display: true,
         position: 'top',
         labels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 11
@@ -126,6 +133,9 @@ export class RatingTasteChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#9c27b0',
         borderWidth: 2,
         cornerRadius: 8,

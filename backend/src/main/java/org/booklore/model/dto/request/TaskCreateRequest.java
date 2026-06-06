@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.booklore.model.enums.TaskType;
 import org.booklore.task.options.LibraryRescanOptions;
+import tools.jackson.databind.ObjectMapper;
 
 @Data
 @Builder
@@ -30,10 +31,13 @@ public class TaskCreateRequest {
     private Object options;
 
     public <T> T getOptionsAs(Class<T> optionsClass) {
+        if (options == null) {
+            return null;
+        }
         if (optionsClass.isInstance(options)) {
             return optionsClass.cast(options);
         }
-
-        return null;
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.convertValue(options, optionsClass);
     }
 }

@@ -102,17 +102,28 @@ public interface AppBookMapper {
     AppBookDetail toDetail(BookEntity book, UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress);
 
     default AppBookProgressResponse toProgressResponse(UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress) {
+        AppBookDetail.EpubProgress epubProgress = fileProgress != null
+                && fileProgress.getBookFile() != null
+                && isEpubType(fileProgress.getBookFile().getBookType())
+                ? mapEpubProgressFromFile(fileProgress)
+                : mapEpubProgress(progress);
+
         return AppBookProgressResponse.builder()
                 .readProgress(mapReadProgress(progress))
                 .readStatus(progress != null && progress.getReadStatus() != null
                         ? progress.getReadStatus().name() : null)
                 .lastReadTime(progress != null ? progress.getLastReadTime() : null)
-                .epubProgress(mapEpubProgress(progress))
+                .epubProgress(epubProgress)
                 .pdfProgress(mapPdfProgress(progress))
                 .cbxProgress(mapCbxProgress(progress))
                 .audiobookProgress(mapAudiobookProgress(fileProgress))
                 .koreaderProgress(mapKoreaderProgress(progress))
                 .build();
+    }
+
+    private boolean isEpubType(BookFileType type) {
+        return type == BookFileType.EPUB || type == BookFileType.FB2
+                || type == BookFileType.MOBI || type == BookFileType.AZW3;
     }
 
     @Named("mapAuthors")
@@ -244,6 +255,25 @@ public interface AppBookMapper {
                 .href(progress.getEpubProgressHref())
                 .percentage(progress.getEpubProgressPercent())
                 .updatedAt(progress.getLastReadTime())
+                .build();
+    }
+
+    default AppBookDetail.EpubProgress mapEpubProgressFromFile(UserBookFileProgressEntity fileProgress) {
+        if (fileProgress == null || fileProgress.getProgressPercent() == null) {
+            return null;
+        }
+        return AppBookDetail.EpubProgress.builder()
+                .cfi(fileProgress.getPositionData())
+                .href(fileProgress.getPositionHref())
+                .percentage(fileProgress.getProgressPercent())
+                .updatedAt(fileProgress.getLastReadTime())
+                .xpointer(fileProgress.getXpointer())
+                .readiumLocatorJson(fileProgress.getReadiumLocatorJson())
+                .chapterProgression(fileProgress.getChapterProgression())
+                .textBefore(fileProgress.getTextBefore())
+                .textHighlight(fileProgress.getTextHighlight())
+                .textAfter(fileProgress.getTextAfter())
+                .positionType(fileProgress.getPositionType() != null ? fileProgress.getPositionType().name() : null)
                 .build();
     }
 

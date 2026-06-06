@@ -13,9 +13,8 @@
   box-sizing: border-box;
   height: 3.5rem;
   z-index: 100;
-  background-color: var(--color-app);
-  color: var(--color-text);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--surface-app);
+  border-bottom: 1px solid var(--content-border-color);
   padding:
     0
     calc(0.75rem + env(safe-area-inset-right))
@@ -33,6 +32,7 @@
   flex: 1 1 auto;
   min-width: 0;
   gap: 0.4rem;
+  color: var(--text-color);
 }
 
 .mobile-topbar-brand-icon {
@@ -63,15 +63,16 @@
   border: 0;
   background: none;
   border-radius: 6px;
+  color: var(--text-color);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background-color: var(--color-surface-hover);
+    background-color: var(--surface-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
 

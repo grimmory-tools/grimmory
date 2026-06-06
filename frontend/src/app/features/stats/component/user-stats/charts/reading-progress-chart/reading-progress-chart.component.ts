@@ -21,6 +21,13 @@ const CHART_COLORS = [
   '#28a745'  // Green - Completed (100%)
 ] as const;
 
+const CHART_DEFAULTS = {
+  borderColor: '#ffffff',
+  borderWidth: 1,
+  hoverBorderWidth: 2,
+  hoverBorderColor: '#ffffff'
+} as const;
+
 const PROGRESS_RANGES = [
   {range: '0%', min: 0, max: 0, desc: 'Not Started'},
   {range: '1-25%', min: 0.1, max: 25, desc: 'Just Started'},
@@ -63,6 +70,7 @@ export class ReadingProgressChartComponent {
         display: true,
         position: 'bottom',
         labels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -82,9 +90,11 @@ export class ReadingProgressChartComponent {
                 return {
                   text: `${label}: ${value}`,
                   fillStyle: (data.datasets[0].backgroundColor as string[])[i],
+                  strokeStyle: '#ffffff',
                   lineWidth: 1,
                   hidden: !isVisible,
                   index: i,
+                  fontColor: '#ffffff'
                 };
               });
             }
@@ -94,6 +104,10 @@ export class ReadingProgressChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: '#ffffff',
         borderWidth: 1,
         cornerRadius: 6,
         displayColors: true,
@@ -139,6 +153,10 @@ export class ReadingProgressChartComponent {
           label: this.t.translate('statsUser.readingProgress.booksByProgress'),
           data: dataValues,
           backgroundColor: [...CHART_COLORS],
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          hoverBorderWidth: 3,
+          hoverBorderColor: '#ffffff'
         }]
       };
     } catch (error) {
@@ -148,7 +166,8 @@ export class ReadingProgressChartComponent {
         datasets: [{
           label: this.t.translate('statsUser.readingProgress.booksByProgress'),
           data: [],
-          backgroundColor: [...CHART_COLORS]
+          backgroundColor: [...CHART_COLORS],
+          ...CHART_DEFAULTS
         }]
       };
     }

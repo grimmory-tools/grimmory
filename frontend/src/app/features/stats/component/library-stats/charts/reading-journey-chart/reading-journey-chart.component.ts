@@ -87,6 +87,7 @@ export class ReadingJourneyChartComponent {
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#ffffff',
           fill: true,
           order: 2
         },
@@ -96,6 +97,7 @@ export class ReadingJourneyChartComponent {
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.2)',
           pointBackgroundColor: '#10b981',
+          pointBorderColor: '#ffffff',
           fill: true,
           order: 1
         }
@@ -117,6 +119,7 @@ export class ReadingJourneyChartComponent {
       scales: {
         x: {
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 10
@@ -127,11 +130,13 @@ export class ReadingJourneyChartComponent {
             maxTicksLimit: 24
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.05)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.readingJourney.axisMonth'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -142,6 +147,7 @@ export class ReadingJourneyChartComponent {
         y: {
           beginAtZero: true,
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -149,11 +155,13 @@ export class ReadingJourneyChartComponent {
             precision: 0
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.readingJourney.axisCumulativeBooks'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -167,6 +175,7 @@ export class ReadingJourneyChartComponent {
           display: true,
           position: 'top',
           labels: {
+            color: 'rgba(255, 255, 255, 0.9)',
             font: {
               family: "'Inter', sans-serif",
               size: 12
@@ -178,6 +187,9 @@ export class ReadingJourneyChartComponent {
         },
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           borderColor: '#10b981',
           borderWidth: 2,
           cornerRadius: 8,

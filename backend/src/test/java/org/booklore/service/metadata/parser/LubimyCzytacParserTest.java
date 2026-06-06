@@ -8,14 +8,15 @@ import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.service.appsettings.AppSettingService;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,7 @@ class LubimyCzytacParserTest {
 
     private MockedStatic<Jsoup> mockJsoup;
 
+    @InjectMocks
     private LubimyCzytacParser parser;
 
     private String exampleSearchHtmlFixture;
@@ -42,8 +44,6 @@ class LubimyCzytacParserTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        parser = new LubimyCzytacParser(appSettingService, new ObjectMapper());
-
         exampleSearchHtmlFixture = readFixture("example-search.html");
         exampleBookHtmlFixture = readFixture("example-book.html");
 

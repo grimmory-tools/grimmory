@@ -1,0 +1,14 @@
+min_version = "2024.9.5"
+
+[tools]
+java = "temurin-25"
+node = "24"
+
+[settings]
+experimental = true
+
+[hooks]
+postinstall = "npx corepack enable"
+
+[env]
+_.path = ["{{config_root}}/node_modules/.bin"]

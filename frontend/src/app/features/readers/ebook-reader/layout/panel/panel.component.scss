@@ -1,6 +1,15 @@
-@use '../../../shared/styles/reader-chrome' as *;
-
+// Variables
 $sidebar-width: 320px;
+$sidebar-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 6%);
+$active-bg: rgb(99 102 241 / 15%);
+$active-color: #818cf8;
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
 
 // Overlay
 .sidebar-overlay {
@@ -9,24 +18,24 @@ $sidebar-width: 320px;
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(1px);
   z-index: 12000;
-  animation: fade-in var(--transition-base);
+  animation: fade-in $transition-normal;
 
   &.closing {
-    animation: fade-out var(--transition-base) forwards;
+    animation: fade-out $transition-normal forwards;
   }
 }
 
 // Sidebar container - positioned on the RIGHT
 .sidebar {
-  @include surface;
-
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   width: $sidebar-width;
+  background: $sidebar-bg;
   display: flex;
   flex-direction: column;
+  color: $text-primary;
   box-shadow: -4px 0 24px rgb(0 0 0 / 30%);
   animation: slide-in-right 250ms cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 12001;
@@ -41,20 +50,21 @@ $sidebar-width: 320px;
   display: flex;
   align-items: center;
   padding: 20px 16px;
-  border-bottom: 1px solid var(--reader-chrome-border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 3%, transparent) 0%, transparent 100%);
+  border-bottom: 1px solid $border-color;
+  background: linear-gradient(180deg, rgb(255 255 255 / 3%) 0%, transparent 100%);
 }
 
 .sidebar-title {
   font-size: 16px;
   font-weight: 600;
   margin: 0;
+  color: $text-primary;
 }
 
 // Tabs
 .tabs {
   display: flex;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
   background: rgb(0 0 0 / 20%);
 }
 
@@ -67,20 +77,20 @@ $sidebar-width: 320px;
   padding: 12px 8px;
   background: none;
   border: none;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition: color $transition-fast, background $transition-fast;
   position: relative;
 
   &:hover {
-    color: var(--color-white);
-    background: var(--reader-chrome-hover);
+    color: $text-primary;
+    background: $hover-bg;
   }
 
   &.active {
-    color: var(--reader-chrome-accent);
+    color: $active-color;
 
     &::after {
       content: '';
@@ -89,7 +99,7 @@ $sidebar-width: 320px;
       left: 16px;
       right: 16px;
       height: 2px;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       border-radius: 1px 1px 0 0;
     }
   }
@@ -107,7 +117,7 @@ $sidebar-width: 320px;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: var(--reader-chrome-accent);
+  background: $active-color;
   color: white;
   font-size: 10px;
   font-weight: 600;
@@ -131,16 +141,16 @@ $sidebar-width: 320px;
   padding: 8px 0;
 }
 
-.reader-list-item {
+.list-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background $transition-fast;
 
   &:hover {
-    background: var(--reader-chrome-hover);
+    background: $hover-bg;
 
     .delete-btn {
       opacity: 1;
@@ -169,10 +179,10 @@ $sidebar-width: 320px;
   gap: 10px;
   padding: 12px 16px;
   background: rgb(0 0 0 / 20%);
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
 
   .search-icon {
-    color: var(--reader-chrome-fg-muted);
+    color: $text-muted;
     flex-shrink: 0;
   }
 
@@ -180,12 +190,12 @@ $sidebar-width: 320px;
     flex: 1;
     background: none;
     border: none;
-    color: var(--color-white);
+    color: $text-primary;
     font-size: 14px;
     outline: none;
 
     &::placeholder {
-      color: var(--reader-chrome-fg-muted);
+      color: $text-muted;
     }
   }
 
@@ -196,17 +206,17 @@ $sidebar-width: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--color-white) 10%, transparent);
+    background: rgb(255 255 255 / 10%);
     border: none;
     border-radius: 50%;
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
     cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: background $transition-fast, color $transition-fast;
     flex-shrink: 0;
 
     &:hover {
-      background: color-mix(in srgb, var(--color-white) 15%, transparent);
-      color: var(--color-white);
+      background: rgb(255 255 255 / 15%);
+      color: $text-primary;
     }
   }
 }
@@ -228,7 +238,7 @@ $sidebar-width: 320px;
 
 .note-text {
   font-size: 13px;
-  color: var(--color-white);
+  color: $text-primary;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -239,7 +249,7 @@ $sidebar-width: 320px;
 .note-selected-text {
   font-size: 12px;
   font-style: italic;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -252,7 +262,7 @@ $sidebar-width: 320px;
   flex-direction: column;
   gap: 4px;
   opacity: 0;
-  transition: opacity var(--transition-fast);
+  transition: opacity $transition-fast;
 }
 
 .edit-btn {
@@ -265,9 +275,9 @@ $sidebar-width: 320px;
   background: none;
   border: none;
   border-radius: 6px;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background $transition-fast, color $transition-fast;
   flex-shrink: 0;
 
   svg {
@@ -276,14 +286,14 @@ $sidebar-width: 320px;
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
-    color: var(--reader-chrome-accent);
+    background: rgb(99 102 241 / 15%);
+    color: $active-color;
   }
 }
 
 .item-chapter {
   font-size: 11px;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -291,7 +301,7 @@ $sidebar-width: 320px;
 
 .item-meta {
   font-size: 11px;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
 }
 
 .delete-btn {
@@ -304,10 +314,10 @@ $sidebar-width: 320px;
   background: none;
   border: none;
   border-radius: 6px;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  transition: opacity $transition-fast, background $transition-fast, color $transition-fast;
   flex-shrink: 0;
 
   svg {
@@ -316,8 +326,8 @@ $sidebar-width: 320px;
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
-    color: var(--color-red-500);
+    background: rgb(239 68 68 / 15%);
+    color: #ef4444;
   }
 }
 
@@ -329,7 +339,7 @@ $sidebar-width: 320px;
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
 }
 
 .empty-icon {
@@ -347,7 +357,7 @@ $sidebar-width: 320px;
 
 .empty-hint {
   font-size: 12px;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
 }
 
 // Search
@@ -363,10 +373,10 @@ $sidebar-width: 320px;
   gap: 10px;
   padding: 12px 16px;
   background: rgb(0 0 0 / 20%);
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
 
   .search-icon {
-    color: var(--reader-chrome-fg-muted);
+    color: $text-muted;
     flex-shrink: 0;
   }
 
@@ -374,12 +384,12 @@ $sidebar-width: 320px;
     flex: 1;
     background: none;
     border: none;
-    color: var(--color-white);
+    color: $text-primary;
     font-size: 14px;
     outline: none;
 
     &::placeholder {
-      color: var(--reader-chrome-fg-muted);
+      color: $text-muted;
     }
   }
 
@@ -390,17 +400,17 @@ $sidebar-width: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--color-white) 10%, transparent);
+    background: rgb(255 255 255 / 10%);
     border: none;
     border-radius: 50%;
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
     cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: background $transition-fast, color $transition-fast;
     flex-shrink: 0;
 
     &:hover {
-      background: color-mix(in srgb, var(--color-white) 15%, transparent);
-      color: var(--color-white);
+      background: rgb(255 255 255 / 15%);
+      color: $text-primary;
     }
   }
 }
@@ -413,13 +423,13 @@ $sidebar-width: 320px;
 
   .progress-bar {
     height: 3px;
-    background: color-mix(in srgb, var(--color-white) 10%, transparent);
+    background: rgb(255 255 255 / 10%);
     border-radius: 2px;
     overflow: hidden;
 
     .progress-fill {
       height: 100%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       border-radius: 2px;
       transition: width 200ms ease-out;
     }
@@ -433,7 +443,7 @@ $sidebar-width: 320px;
 
   .progress-text {
     font-size: 11px;
-    color: var(--reader-chrome-fg-muted);
+    color: $text-muted;
   }
 
   .cancel-search-btn {
@@ -443,17 +453,17 @@ $sidebar-width: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--reader-chrome-hover);
+    background: rgb(255 255 255 / 8%);
     border: none;
     border-radius: 50%;
-    color: var(--reader-chrome-fg-muted);
+    color: $text-muted;
     cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: background $transition-fast, color $transition-fast;
     flex-shrink: 0;
 
     &:hover {
-      background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
-      color: var(--color-red-500);
+      background: rgb(239 68 68 / 15%);
+      color: #ef4444;
     }
   }
 }
@@ -462,10 +472,10 @@ $sidebar-width: 320px;
   padding: 10px 16px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
 }
 
 .search-results {
@@ -481,7 +491,7 @@ $sidebar-width: 320px;
 
 .search-excerpt {
   font-size: 13px;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -489,12 +499,12 @@ $sidebar-width: 320px;
   overflow: hidden;
 
   .excerpt-context {
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
   }
 
   .excerpt-match {
     background: rgb(255 255 0 / 25%);
-    color: var(--color-white);
+    color: $text-primary;
     font-weight: 500;
     padding: 1px 2px;
     border-radius: 2px;

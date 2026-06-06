@@ -3,7 +3,6 @@ package org.booklore.convertor;
 import org.booklore.model.dto.BookRecommendationLite;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Set;
 
@@ -15,7 +14,7 @@ class BookRecommendationIdsListConverterTest {
 
     @BeforeEach
     void setUp() {
-        converter = new BookRecommendationIdsListConverter(new ObjectMapper());
+        converter = new BookRecommendationIdsListConverter();
     }
 
     @Test

@@ -12,7 +12,7 @@
         <div class="shortcut-group">
           <h3 class="group-title">{{ group.title }}</h3>
           <div class="shortcuts-list">
-            @for (shortcut of group.shortcuts; track $index) {
+            @for (shortcut of group.shortcuts; track shortcut.description) {
               <div class="shortcut-item">
                 <div class="shortcut-keys">
                   @for (key of shortcut.keys; track key; let last = $last) {

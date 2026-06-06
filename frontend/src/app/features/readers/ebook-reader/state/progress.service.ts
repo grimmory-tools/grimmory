@@ -108,7 +108,8 @@ export class ReaderProgressService {
     }
 
     if (cfi && percentage !== null) {
-      this.bookPatchService.saveEpubProgress(this.bookId, cfi, href ?? '', percentage, this.bookFileId);
+      const snippet = this.viewManager.captureMiddlePageSnippet();
+      this.bookPatchService.saveEpubProgress(this.bookId, cfi, href ?? '', percentage, this.bookFileId, snippet);
       this.readingSessionService.updateProgress(cfi, percentage);
     }
 

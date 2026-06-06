@@ -18,7 +18,7 @@ import {ReaderNoteService} from './features/notes/note.service';
 import {BookService} from '../../book/service/book.service';
 import {BookFileService} from '../../book/service/book-file.service';
 import {ActivatedRoute} from '@angular/router';
-import {AdditionalFile, Book, BookType} from '../../book/model/book.model';
+import {AdditionalFile, Book, BookType, EpubProgress} from '../../book/model/book.model';
 import {ReaderHeaderComponent} from './layout/header/header.component';
 import {ReaderSidebarComponent} from './layout/sidebar/sidebar.component';
 import {ReaderLeftSidebarComponent} from './layout/panel/panel.component';
@@ -40,6 +40,13 @@ interface PendingInitialChapterRestore {
   href: string;
   contentSourceProgressPercent: number;
   attempts: number;
+}
+
+interface ReadiumLocatorData {
+  href?: string;
+  locations?: {
+    progression?: number;
+  };
 }
 
 @Component({
@@ -199,7 +206,6 @@ export class EbookReaderComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showShortcutsHelp.set(true));
 
-    // Enable wake lock after a short delay
     setTimeout(() => this.wakeLockService.enable(), 1000);
 
     this.isLoading.set(true);
@@ -207,7 +213,6 @@ export class EbookReaderComponent implements OnInit {
     this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
     this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
 
-    // Parallelize Foliate script loading and initial book detail fetch
     forkJoin([
       this.initializeFoliate(),
       from(this.bookService.fetchFreshBookDetail(this.bookId, false))
@@ -227,7 +232,6 @@ export class EbookReaderComponent implements OnInit {
           bookFileId = book.primaryFile?.id;
         }
 
-        // Parallelize font loading/view setup and state initialization
         return forkJoin([
           this.epubCustomFontService.loadAndCacheFonts().pipe(
             tap(() => this.stateService.refreshCustomFonts())
@@ -393,28 +397,91 @@ export class EbookReaderComponent implements OnInit {
     this.pendingInitialChapterRestore = null;
 
     const progress = book.epubProgress;
-
-    if (progress?.cfi) {
-      return this.viewManager.goTo(progress.cfi);
+    if (!progress) {
+      return this.viewManager.goTo(0);
     }
 
-    if (progress?.href) {
-      const chapterProgress = progress.contentSourceProgressPercent;
-      if (typeof chapterProgress === 'number' && Number.isFinite(chapterProgress) && chapterProgress > 0) {
+    switch (progress.positionType) {
+      case 'CFI':
+        if (progress.cfi) return this.viewManager.goTo(progress.cfi);
+        break;
+      case 'READIUM_LOCATOR':
+      case 'XPOINTER': {
+        const snippetHref = this.snippetSearchHref(progress);
+        const snippet = progress.textHighlight;
+        if (snippetHref && snippet && snippet.length >= 8) {
+          return from(this.viewManager.findCfiBySnippet(snippetHref, snippet)).pipe(
+            switchMap(cfi => cfi ? this.viewManager.goTo(cfi) : this.restoreByHrefAndProgress(progress))
+          );
+        }
+        return this.restoreByHrefAndProgress(progress);
+      }
+      case 'PERCENT_ONLY':
+        if (progress.percentage && progress.percentage > 0) {
+          return this.viewManager.goToFraction(progress.percentage / 100);
+        }
+        break;
+    }
+
+    return this.restoreByHrefAndProgress(progress);
+  }
+
+  private restoreByHrefAndProgress(progress: EpubProgress): Observable<void> {
+    const href = progress.href ?? this.hrefFromReadiumLocator(progress.readiumLocatorJson);
+    if (href) {
+      const chapterPct = this.chapterProgressPercent(progress);
+      if (chapterPct !== null) {
         this.pendingInitialChapterRestore = {
-          href: this.normalizeHref(progress.href),
-          contentSourceProgressPercent: chapterProgress,
+          href: this.normalizeHref(href),
+          contentSourceProgressPercent: chapterPct,
           attempts: 0
         };
       }
-      return this.viewManager.goTo(progress.href);
+      return this.viewManager.goTo(href);
     }
 
-    if (progress?.percentage && progress.percentage > 0) {
+    if (progress.xpointer && progress.chapterProgression && progress.chapterProgression > 0) {
+      return this.viewManager.goToFraction(progress.chapterProgression);
+    }
+
+    if (progress.percentage && progress.percentage > 0) {
       return this.viewManager.goToFraction(progress.percentage / 100);
     }
 
     return this.viewManager.goTo(0);
+  }
+
+  private chapterProgressPercent(progress: EpubProgress): number | null {
+    const directPct = progress.contentSourceProgressPercent;
+    if (typeof directPct === 'number' && Number.isFinite(directPct) && directPct > 0) {
+      return directPct;
+    }
+    if (typeof progress.chapterProgression === 'number' && Number.isFinite(progress.chapterProgression) && progress.chapterProgression > 0) {
+      return progress.chapterProgression * 100;
+    }
+    const p = this.readReadiumLocator(progress.readiumLocatorJson)?.locations?.progression;
+    if (typeof p === 'number' && Number.isFinite(p) && p > 0) return p * 100;
+    return null;
+  }
+
+  private hrefFromReadiumLocator(json: string | null | undefined): string | null {
+    return this.readReadiumLocator(json)?.href ?? null;
+  }
+
+  private readReadiumLocator(json: string | null | undefined): ReadiumLocatorData | null {
+    if (!json) {
+      return null;
+    }
+    try {
+      return JSON.parse(json) as ReadiumLocatorData;
+    } catch {
+      return null;
+    }
+  }
+
+  private snippetSearchHref(progress: EpubProgress): string | null {
+    if (progress.href) return progress.href;
+    return this.hrefFromReadiumLocator(progress.readiumLocatorJson);
   }
 
   private handlePendingInitialChapterRestore(detail: RelocateProgressData): boolean {

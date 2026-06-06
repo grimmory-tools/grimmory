@@ -64,10 +64,6 @@ describe('ReaderPreferencesService', () => {
       username: 'reader',
       name: 'Reader',
       email: 'reader@example.test',
-      locale: 'en',
-      theme: 'grimmory',
-      themeAccent: null,
-      themeSyncEnabled: true,
       assignedLibraries: [],
     } as unknown as User);
     const updateUserSetting = vi.fn();
@@ -152,10 +148,6 @@ describe('ReaderPreferencesService', () => {
       username: 'reader',
       name: 'Reader',
       email: 'reader@example.test',
-      locale: 'en',
-      theme: 'grimmory',
-      themeAccent: null,
-      themeSyncEnabled: true,
       assignedLibraries: [],
     } as unknown as User);
     const updateUserSetting = vi.fn();

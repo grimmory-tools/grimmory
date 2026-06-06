@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.footer'">
-<div class="reader-navbar" [class.is-visible]="navbarVisible">
+<div class="reader-navbar" [class.visible]="navbarVisible">
   <button class="icon-btn" [title]="t('previousSection')" [disabled]="!canGoPrevious" (click)="onPreviousSection()">
     <app-reader-icon name="chevron-left"></app-reader-icon>
   </button>

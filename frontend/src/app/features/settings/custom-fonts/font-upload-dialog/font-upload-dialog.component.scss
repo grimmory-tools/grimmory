@@ -140,7 +140,6 @@
   }
 }
 
-// ==================== Upload Zone ====================
 .upload-zone {
   padding: 2rem;
   text-align: center;
@@ -183,7 +182,6 @@
   }
 }
 
-// ==================== File Selected ====================
 .file-selected {
   display: flex;
   flex-direction: column;
@@ -347,7 +345,6 @@
   }
 }
 
-// ==================== Dialog Footer ====================
 .dialog-footer {
   @include panel.dialog-footer-end;
 

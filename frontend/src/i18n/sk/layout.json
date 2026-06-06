@@ -1,7 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Upraviť šírku bočného panela",
-        "authors": "Autori"
-    },
-    "closeNavigation": "Zavrieť navigáciu"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
+    }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Upraviť šírku bočného panela",
+    "home": "",
+    "dashboard": "",
+    "allBooks": "",
+    "libraries": "",
+    "shelves": "",
+    "magicShelves": "",
+    "unshelved": "",
+    "series": "",
+    "authors": "Autori",
+    "notebook": "",
+    "update": "",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Zavrieť navigáciu",
+  "changelog": {
+    "title": "",
+    "description": "",
+    "loading": "",
+    "empty": ""
+  },
+  "theme": {
+    "primary": "",
+    "surface": ""
+  },
+  "uploadDialog": {
+    "chooseFile": "",
+    "selectImage": "",
+    "fileNote": "",
+    "or": "",
+    "imageUrl": "",
+    "urlPlaceholder": "",
+    "urlNote": "",
+    "errorNoInput": "",
+    "errorUploadFailed": "",
+    "errorUploadRetry": ""
+  }
 }

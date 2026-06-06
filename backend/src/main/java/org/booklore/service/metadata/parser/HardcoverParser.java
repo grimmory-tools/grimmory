@@ -9,7 +9,6 @@ import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
 import org.booklore.util.BookUtils;
-import org.booklore.util.LanguageNormalizer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -260,7 +259,7 @@ public class HardcoverParser implements BookParser {
 
         // Set the language from the edition
         if (edition.getLanguage() != null && edition.getLanguage().getCode2() != null) {
-            metadata.setLanguage(LanguageNormalizer.normalize(edition.getLanguage().getCode2()));
+            metadata.setLanguage(edition.getLanguage().getCode2());
         }
 
         // Set the Publisher from the edition

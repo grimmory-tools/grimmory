@@ -1,8 +1,4 @@
-@use '../../../shared/styles/reader-chrome' as *;
-
 .cbx-header {
-  @include surface;
-
   position: absolute;
   top: 0;
   left: 0;
@@ -14,14 +10,16 @@
   justify-content: space-between;
   font-size: 14px;
   z-index: 1000;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+  border-bottom: 1px solid #404040;
   box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+  color: #fff;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
   transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 
-  &:not(.is-visible) {
+  &:not(.visible) {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-100%);
@@ -53,7 +51,7 @@
     }
 
     &:hover {
-      background: var(--reader-chrome-hover);
+      background: rgb(255 255 255 / 12%);
     }
 
     &:last-child {
@@ -67,17 +65,17 @@
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--color-red-500) 20%, transparent);
+        background: rgb(239 68 68 / 20%);
       }
     }
 
     &.active {
-      color: var(--color-red-500);
-      background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
+      color: #ef4444;
+      background: rgb(239 68 68 / 15%);
     }
 
     &.has-notes {
-      color: var(--color-amber-400);
+      color: #ffc107;
       position: relative;
     }
 
@@ -87,9 +85,9 @@
       right: 4px;
       width: 8px;
       height: 8px;
-      background: var(--color-amber-400);
+      background: #ffc107;
       border-radius: 50%;
-      border: 1px solid var(--reader-chrome-bg);
+      border: 1px solid #1f1f1f;
     }
   }
 
@@ -123,13 +121,12 @@
   }
 
   .overflow-dropdown {
-    @include surface;
-
     position: absolute;
     top: 100%;
     right: 0;
     margin-top: 4px;
-    border: 1px solid var(--reader-chrome-border);
+    background: #2d2d2d;
+    border: 1px solid #404040;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
     z-index: 1000;
@@ -145,19 +142,19 @@
     padding: 8px 12px;
     background: none;
     border: none;
-    color: inherit;
+    color: #fff;
     font-size: 13px;
     cursor: pointer;
     border-radius: 6px;
     white-space: nowrap;
 
     &:hover {
-      background: var(--reader-chrome-hover);
+      background: rgb(255 255 255 / 12%);
     }
 
     &.active {
-      color: var(--color-red-500);
-      background: color-mix(in srgb, var(--color-red-500) 15%, transparent);
+      color: #ef4444;
+      background: rgb(239 68 68 / 15%);
     }
   }
 }

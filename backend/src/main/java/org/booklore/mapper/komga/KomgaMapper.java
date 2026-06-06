@@ -32,7 +32,7 @@ public class KomgaMapper {
                 .id(library.getId().toString())
                 .name(library.getName())
                 .root(library.getLibraryPaths() != null && !library.getLibraryPaths().isEmpty() 
-                      ? library.getLibraryPaths().getFirst().getPath()
+                      ? library.getLibraryPaths().get(0).getPath() 
                       : "")
                 .unavailable(false)
                 .build();
@@ -71,7 +71,7 @@ public class KomgaMapper {
             return null;
         }
         
-        BookEntity firstBook = books.getFirst();
+        BookEntity firstBook = books.get(0);
         String seriesId = generateSeriesId(firstBook);
         
         // Aggregate metadata from all books
@@ -154,7 +154,7 @@ public class KomgaMapper {
     }
 
     private KomgaSeriesMetadataDto aggregateSeriesMetadata(String seriesName, List<BookEntity> books) {
-        BookEntity firstBook = books.getFirst();
+        BookEntity firstBook = books.get(0);
         BookMetadataEntity firstMetadata = firstBook.getMetadata();
         
         List<String> genres = new ArrayList<>();
@@ -208,7 +208,7 @@ public class KomgaMapper {
         String releaseDate = null;
         String summary = null;
         
-        BookEntity firstBook = books.getFirst();
+        BookEntity firstBook = books.get(0);
             for (BookEntity book : books) {
             BookMetadataEntity metadata = book.getMetadata();
             if (metadata != null) {

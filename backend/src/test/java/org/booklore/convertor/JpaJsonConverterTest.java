@@ -2,18 +2,18 @@ package org.booklore.convertor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JpaJsonConverterTest {
+
     private JpaJsonConverter converter;
 
     @BeforeEach
     void setUp() {
-        converter = new JpaJsonConverter(new ObjectMapper());
+        converter = new JpaJsonConverter();
     }
 
     @Test

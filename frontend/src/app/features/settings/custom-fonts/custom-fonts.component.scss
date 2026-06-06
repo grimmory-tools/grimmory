@@ -100,7 +100,6 @@
   gap: 1rem;
 }
 
-// ==================== Empty State ====================
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -203,7 +202,6 @@
   }
 }
 
-// ==================== Fonts Grid ====================
 .fonts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -214,7 +212,6 @@
   }
 }
 
-// ==================== Font Card ====================
 .font-card {
   padding: 0;
   gap: 0;

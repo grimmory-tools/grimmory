@@ -18,7 +18,7 @@
   transform: translateY(-100%);
   transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 
-  &.is-visible {
+  &.visible {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);

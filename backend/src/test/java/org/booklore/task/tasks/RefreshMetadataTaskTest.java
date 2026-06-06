@@ -39,12 +39,11 @@ class RefreshMetadataTaskTest {
     void setUp() {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
         user = BookLoreUser.builder().permissions(permissions).build();
-
+        
+        taskCreateRequest = mock(TaskCreateRequest.class);
         metadataRefreshRequest = MetadataRefreshRequest.builder().build();
-        taskCreateRequest = TaskCreateRequest.builder()
-                .taskId("task-1")
-                .options(metadataRefreshRequest)
-                .build();
+        
+        when(taskCreateRequest.getOptionsAs(MetadataRefreshRequest.class)).thenReturn(metadataRefreshRequest);
     }
 
     @Test
@@ -112,27 +111,16 @@ class RefreshMetadataTaskTest {
     }
 
     @Test
-    void execute_shouldHandleMissingOptions() {
-        taskCreateRequest.setOptions(null);
-
-        refreshMetadataTask.execute(taskCreateRequest);
-
-        ArgumentCaptor<MetadataRefreshRequest> requestCaptor = ArgumentCaptor.forClass(MetadataRefreshRequest.class);
-
-        verify(metadataRefreshService).refreshMetadata(requestCaptor.capture(), anyString());
-        assertNull(requestCaptor.getValue());
-    }
-
-    @Test
     void execute_shouldCallServiceAndReturnCompleted() {
+        when(taskCreateRequest.getTaskId()).thenReturn("task-1");
         TaskCreateResponse response = refreshMetadataTask.execute(taskCreateRequest);
 
         assertEquals(TaskStatus.COMPLETED, response.getStatus());
         assertEquals("task-1", response.getTaskId());
-
+        
         ArgumentCaptor<MetadataRefreshRequest> requestCaptor = ArgumentCaptor.forClass(MetadataRefreshRequest.class);
         ArgumentCaptor<String> taskIdCaptor = ArgumentCaptor.forClass(String.class);
-
+        
         verify(metadataRefreshService).refreshMetadata(requestCaptor.capture(), taskIdCaptor.capture());
         assertEquals(metadataRefreshRequest, requestCaptor.getValue());
         assertEquals("task-1", taskIdCaptor.getValue());
@@ -140,6 +128,7 @@ class RefreshMetadataTaskTest {
 
     @Test
     void execute_shouldPropagateException_whenServiceThrows() {
+        when(taskCreateRequest.getTaskId()).thenReturn("task-1");
         doThrow(new RuntimeException("Service error")).when(metadataRefreshService).refreshMetadata(metadataRefreshRequest, "task-1");
 
         assertThrows(RuntimeException.class, () -> refreshMetadataTask.execute(taskCreateRequest));
@@ -147,6 +136,7 @@ class RefreshMetadataTaskTest {
 
     @Test
     void execute_shouldHandleCancellation() {
+        when(taskCreateRequest.getTaskId()).thenReturn("task-1");
         doThrow(new CancellationException("Task cancelled")).when(metadataRefreshService).refreshMetadata(metadataRefreshRequest, "task-1");
 
         assertThrows(CancellationException.class, () -> refreshMetadataTask.execute(taskCreateRequest));

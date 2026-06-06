@@ -1,9 +1,12 @@
 import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap } from 'rxjs/operators';
-import { Observable, throwError, defer } from 'rxjs';
+import { catchError, filter, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError, defer } from 'rxjs';
 import { AuthService } from '../../shared/service/auth.service';
 import { API_CONFIG } from '../config/api-config';
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandlerFn) => {
   const authService = inject(AuthService);
@@ -39,14 +42,36 @@ export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandler
 
 function handle401Error(authService: AuthService, request: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   return defer(() => {
-    return authService.ensureAccessToken({forceRefresh: true}).pipe(
-      catchError(err => {
-        forceLogout(authService);
-        return throwError(() => err);
-      }),
-      switchMap(accessToken =>
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshTokenSubject.next(null);
+
+      return authService.internalRefreshToken().pipe(
+        switchMap(response => {
+          isRefreshing = false;
+          const { accessToken, refreshToken } = response;
+          if (accessToken && refreshToken) {
+            authService.saveInternalTokens(accessToken, refreshToken);
+            refreshTokenSubject.next(accessToken);
+          }
+          return next(request.clone({
+            setHeaders: { Authorization: `Bearer ${accessToken}` }
+          }));
+        }),
+        catchError(err => {
+          isRefreshing = false;
+          forceLogout(authService);
+          return throwError(() => err);
+        })
+      );
+    }
+
+    return refreshTokenSubject.pipe(
+      filter(token => token !== null),
+      take(1),
+      switchMap(token =>
         next(request.clone({
-          setHeaders: { Authorization: `Bearer ${accessToken}` }
+          setHeaders: { Authorization: `Bearer ${token}` }
         }))
       )
     );

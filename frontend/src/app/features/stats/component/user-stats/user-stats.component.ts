@@ -28,10 +28,6 @@ import {ReadingDebtChartComponent} from './charts/reading-debt-chart/reading-deb
 import {PublicationEraChartComponent} from './charts/publication-era-chart/publication-era-chart.component';
 import {SessionArchetypesChartComponent} from './charts/session-archetypes-chart/session-archetypes-chart.component';
 import {UserChartConfig, UserChartConfigService} from './service/user-chart-config.service';
-import {StatsChartThemeService} from '../shared/stats-chart-theme.service';
-
-import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-user-stats',
@@ -65,14 +61,12 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
     SessionArchetypesChartComponent,
     TranslocoDirective
   ],
-  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss']
 })
 export class UserStatsComponent {
   private userService = inject(UserService);
   private chartConfigService = inject(UserChartConfigService);
-  private readonly chartTheme = inject(StatsChartThemeService);
 
   public currentYear = new Date().getFullYear();
   public readonly userName = computed(() => {
@@ -82,10 +76,6 @@ export class UserStatsComponent {
   public readonly showConfigPanel = signal(false);
   public readonly charts = this.chartConfigService.charts;
   public readonly visibleCharts = this.chartConfigService.visibleCharts;
-
-  constructor() {
-    this.chartTheme.activate();
-  }
 
   toggleChart(chartId: string): void {
     this.chartConfigService.toggleChart(chartId);

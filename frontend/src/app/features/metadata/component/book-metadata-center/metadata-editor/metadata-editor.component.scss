@@ -62,7 +62,7 @@
 }
 
 label {
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   white-space: nowrap;
 }
 
@@ -166,8 +166,8 @@ label {
   }
 
   &.ebook {
-    color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 15%, transparent);
   }
 
   &.audiobook {
@@ -399,8 +399,8 @@ label {
 .collapsible-section {
   margin-top: 1rem;
   width: 100%;
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
 
   .collapsible-header {
@@ -409,28 +409,28 @@ label {
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     min-height: 2.5rem;
-    background: var(--color-card);
+    background: var(--ground-background);
     border-radius: 0.75rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--text-color);
     cursor: pointer;
     user-select: none;
     transition: background 0.2s ease;
 
     &:hover {
-      background: var(--color-surface-hover);
+      background: var(--surface-hover);
     }
 
     i:first-child {
       font-size: 0.9rem;
-      color: var(--color-primary);
+      color: var(--primary-color);
     }
 
     .section-toggle {
       margin-left: auto;
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
     }
   }
 
@@ -440,7 +440,7 @@ label {
 
   .collapsible-content {
     padding: 0.75rem;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--border-color);
   }
 }
 
@@ -556,10 +556,10 @@ label {
 
 .navigation-position {
   font-size: 0.875rem;
-  color: var(--color-surface-600);
+  color: var(--surface-600);
 
   :host-context(.dark) & {
-    color: var(--color-surface-400);
+    color: var(--surface-400);
   }
 }
 

@@ -44,7 +44,6 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   private activeLoadingRequestSeq: number | null = null;
 
 
-
   loading = signal(false);
   hasPermission = false;
   revealedSpoilers = new Set<number>();
@@ -168,7 +167,6 @@ export class BookReviewsComponent implements OnInit, OnChanges {
         }
       });
   }
-
 
 
   deleteAllReviews(): void {

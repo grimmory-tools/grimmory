@@ -8,7 +8,3 @@ export function patchAuthorInCache(queryClient: QueryClient, authorId: number, f
     (current ?? []).map(author => author.id === authorId ? {...author, ...fields} : author)
   );
 }
-
-export function invalidateAuthorsQuery(queryClient: QueryClient): void {
-  void queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
-}

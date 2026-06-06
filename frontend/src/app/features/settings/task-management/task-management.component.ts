@@ -84,18 +84,14 @@ export class TaskManagementComponent implements OnInit {
   private readonly STALE_TASK_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
   protected readonly TaskType = TaskType;
 
-  // ============================================================================
   // Lifecycle Hooks
-  // ============================================================================
 
   ngOnInit(): void {
     this.loadTasks();
     this.subscribeToTaskProgress();
   }
 
-  // ============================================================================
   // Data Loading & Real-time Updates
-  // ============================================================================
 
   loadTasks(): void {
     this.loading.set(true);
@@ -161,9 +157,7 @@ export class TaskManagementComponent implements OnInit {
     });
   }
 
-  // ============================================================================
   // Task Execution Operations
-  // ============================================================================
 
   canExecuteTask(taskType: string): boolean {
     const history = this.taskHistories.get(taskType);
@@ -284,9 +278,7 @@ export class TaskManagementComponent implements OnInit {
     return history.status === TaskStatus.IN_PROGRESS || history.status === TaskStatus.PENDING;
   }
 
-  // ============================================================================
   // Cron Configuration Management
-  // ============================================================================
 
   isCronSupported(taskType: string): boolean {
     const taskInfo = this.taskInfos.find(t => t.taskType === taskType);
@@ -374,9 +366,7 @@ export class TaskManagementComponent implements OnInit {
       });
   }
 
-  // ============================================================================
   // Cron Validation
-  // ============================================================================
 
   private validateCronExpression(expression: string): void {
     if (!expression || expression.trim() === '') {
@@ -443,9 +433,7 @@ export class TaskManagementComponent implements OnInit {
     return !isNaN(num) && num >= min && num <= max;
   }
 
-  // ============================================================================
   // UI Helper Methods - Task Information
-  // ============================================================================
 
   getTaskDisplayName(type: string): string {
     const taskInfo = this.taskInfos.find(t => t.taskType === type);
@@ -497,9 +485,7 @@ export class TaskManagementComponent implements OnInit {
     return icons[taskType] || 'pi-info-circle';
   }
 
-  // ============================================================================
   // UI Helper Methods - Task History & Status
-  // ============================================================================
 
   getTaskHistory(taskType: string): TaskHistory | undefined {
     return this.taskHistories.get(taskType);
@@ -561,9 +547,7 @@ export class TaskManagementComponent implements OnInit {
     }
   }
 
-  // ============================================================================
   // UI Helper Methods - Buttons & Icons
-  // ============================================================================
 
   getTaskButtonIcon(taskType: string): string {
     if (this.isTaskExecuting(taskType)) {
@@ -587,9 +571,7 @@ export class TaskManagementComponent implements OnInit {
     return 'pi pi-times';
   }
 
-  // ============================================================================
   // UI Helper Methods - Metadata Replace
-  // ============================================================================
 
   getMetadataReplaceDescription(mode: MetadataReplaceMode): string {
     switch (mode) {
@@ -602,9 +584,7 @@ export class TaskManagementComponent implements OnInit {
     }
   }
 
-  // ============================================================================
   // Utility Methods
-  // ============================================================================
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);

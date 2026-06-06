@@ -7,7 +7,6 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.LanguageNormalizer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -42,10 +41,10 @@ public class LubimyCzytacParser implements BookParser {
     private static final double RATING_SCALE_DIVISOR = 2.0; // Convert 10-point scale to 5-point scale
     private static final Pattern SERIES_NUMBER_PATTERN = Pattern.compile("\\(tom\\s+(\\d+)\\)");
     private static final Pattern BOOK_ID_PATTERN = Pattern.compile("/ksiazka/(\\d+)");
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern WHITESPACE_HYPHEN_PATTERN = Pattern.compile("[\\s-]");
 
     private final AppSettingService appSettingService;
-    private final ObjectMapper objectMapper;
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -178,12 +177,11 @@ public class LubimyCzytacParser implements BookParser {
 
     private static List<String> extractBookUrls(Document doc) {
         List<String> bookUrls = new ArrayList<>();
-        // Prefix with the paginator to avoid the promoted books / advertisements
-        Elements results = doc.select("#ksiazkiPaginator .book-card");
+        Elements results = doc.select(".authorAllBooks__single");
         log.info("Found {} search results", results.size());
 
         for (Element result : results) {
-            Element titleLink = result.selectFirst(".book-card__title");
+            Element titleLink = result.selectFirst(".authorAllBooks__singleTextTitle");
             if (titleLink != null) {
                 String href = titleLink.attr("href");
                 if (href != null && !href.isEmpty()) {
@@ -234,7 +232,7 @@ public class LubimyCzytacParser implements BookParser {
         Elements languageElements = doc.select("dt:contains(Język:) + dd");
         if (!languageElements.isEmpty()) {
             String language = languageElements.first().text().trim().toLowerCase();
-            metadata.setLanguage(LanguageNormalizer.normalize(language));
+            metadata.setLanguage(mapLanguage(language));
         }
 
         Element descElement = doc.selectFirst("#book-description");
@@ -338,6 +336,18 @@ public class LubimyCzytacParser implements BookParser {
         return false;
     }
 
+    private String mapLanguage(String polishLanguage) {
+        return switch (polishLanguage) {
+            case "polski" -> "pl";
+            case "angielski" -> "en";
+            case "niemiecki" -> "de";
+            case "francuski" -> "fr";
+            case "hiszpański" -> "es";
+            case "włoski" -> "it";
+            default -> polishLanguage;
+        };
+    }
+
     private void parseSeriesInfo(String seriesText, BookMetadata metadata) {
         // Format: "Cykl: Series Name (tom 3)" or "Cykl: Series Name"
         if (seriesText.startsWith("Cykl:")) {
@@ -366,7 +376,7 @@ public class LubimyCzytacParser implements BookParser {
 
     private void parseJsonLd(String jsonLd, BookMetadata metadata) {
         try {
-            JsonNode root = objectMapper.readTree(jsonLd);
+            JsonNode root = OBJECT_MAPPER.readTree(jsonLd);
 
             // Pages
             if (root.has("numberOfPages")) {

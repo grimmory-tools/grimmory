@@ -68,16 +68,19 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
-  border-left-width: 3px;
-  border-left-style: solid;
+  border-left: 3px solid var(--p-content-border-color);
   border-radius: 6px;
   padding: 1rem;
   transition: border-color 0.2s ease, background 0.2s ease;
 
   &:hover:not(.is-locked) {
-    background: var(--color-card);
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
+  }
+
+  &.is-active {
+    border-left-color: var(--p-green-500);
   }
 
   &.is-locked {
@@ -142,6 +145,11 @@
 .auth-method-status {
   font-size: 0.875rem;
   font-weight: 600;
+  color: var(--p-text-muted-color);
+
+  &.active {
+    color: var(--p-green-400);
+  }
 }
 
 .auth-method-description {
@@ -362,7 +370,7 @@
   gap: 0.5rem;
   padding: 0.625rem 0.875rem;
   border-radius: 6px;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
   cursor: pointer;
   user-select: none;
@@ -372,7 +380,7 @@
   transition: background 0.15s ease;
 
   &:hover {
-    background: var(--color-card);
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
   }
 
   .toggle-chevron {
@@ -395,7 +403,7 @@
   border: 1px solid var(--p-content-border-color);
   border-top: none;
   border-radius: 0 0 6px 6px;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 60%, var(--p-surface-800) 40%);
 }
 
 .test-check-row {
@@ -430,7 +438,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
   border-left: 3px solid var(--p-primary-color);
   border-radius: 6px;
@@ -463,6 +471,11 @@
 .toggle-status {
   font-size: 0.875rem;
   font-weight: 600;
+  color: var(--p-text-muted-color);
+
+  &.active {
+    color: var(--p-green-400);
+  }
 }
 
 .toggle-description {
@@ -549,7 +562,7 @@
   flex: 1;
   font-size: 0.8125rem;
   padding: 0.375rem 0.625rem;
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
   color: var(--p-text-color);

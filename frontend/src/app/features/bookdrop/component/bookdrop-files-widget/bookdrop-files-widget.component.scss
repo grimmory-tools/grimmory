@@ -1,6 +1,6 @@
 .staging-border {
-  background: var(--color-card);
-  border: 1px solid var(--color-primary);
+  background: var(--card-background);
+  border: 1px solid var(--primary-color);
   border-radius: 0.5rem;
   padding: 1rem;
 }
@@ -19,18 +19,18 @@
 
 .widget-title {
   font-weight: 700;
-  color: var(--color-text);
+  color: #d4d4d8;
 }
 
 .widget-count {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--primary-color);
 }
 
 .widget-date {
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  color: #a1a1aa;
   margin-top: 0.25rem;
 }
 

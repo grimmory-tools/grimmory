@@ -10,7 +10,7 @@
             <p-tab [value]="SettingsTab.ReaderSettings">
               <i class="pi pi-book"></i> {{ t('reader') }}
             </p-tab>
-            @if (canOpenTab(SettingsTab.MetadataSettings)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.MetadataSettings">
                 <i class="pi pi-sliders-h"></i> {{ t('metadata1') }}
               </p-tab>
@@ -18,51 +18,45 @@
                 <i class="pi pi-database"></i> {{ t('metadata2') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.ApplicationSettings)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageGlobalPreferences) {
               <p-tab [value]="SettingsTab.ApplicationSettings">
                 <i class="pi pi-cog"></i> {{ t('application') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.UserManagement)) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.UserManagement">
                 <i class="pi pi-users"></i> {{ t('users') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.EmailSettingsV2)) {
-              <p-tab [value]="SettingsTab.EmailSettingsV2">
-                <i class="pi pi-envelope"></i> {{ t('email') }}
-              </p-tab>
-            }
-            @if (canOpenTab(SettingsTab.NamingPattern)) {
+            <p-tab [value]="SettingsTab.EmailSettingsV2">
+              <i class="pi pi-envelope"></i> {{ t('email') }}
+            </p-tab>
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.NamingPattern">
                 <i class="pi pi-sitemap"></i> {{ t('patterns') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.AuthenticationSettings)) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.AuthenticationSettings">
                 <i class="pi pi-lock"></i> {{ t('authentication') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.Tasks)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessTaskManager) {
               <p-tab [value]="SettingsTab.Tasks">
                 <i class="pi pi-list-check"></i> {{ t('tasks') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.AuditLogs)) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.AuditLogs">
                 <i class="pi pi-history"></i> {{ t('auditLogs') }}
               </p-tab>
             }
-            @if (canOpenTab(SettingsTab.OpdsV2)) {
-              <p-tab [value]="SettingsTab.OpdsV2">
-                <i class="pi pi-globe"></i> {{ t('opds') }}
-              </p-tab>
-            }
-            @if (canOpenTab(SettingsTab.DeviceSettings)) {
-              <p-tab [value]="SettingsTab.DeviceSettings">
-                <i class="pi pi-mobile"></i> {{ t('devices') }}
-              </p-tab>
-            }
+            <p-tab [value]="SettingsTab.OpdsV2">
+              <i class="pi pi-globe"></i> {{ t('opds') }}
+            </p-tab>
+            <p-tab [value]="SettingsTab.DeviceSettings">
+              <i class="pi pi-mobile"></i> {{ t('devices') }}
+            </p-tab>
           </p-tablist>
           <p-tabpanels>
             <!-- [GROUP: Lazy Tabs] -->
@@ -77,7 +71,7 @@
               }
             </p-tabpanel>
 
-            @if (canOpenTab(SettingsTab.MetadataSettings)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tabpanel [value]="SettingsTab.MetadataSettings">
                 @if (visitedTabs().has(SettingsTab.MetadataSettings)) {
                   <app-metadata-settings-component></app-metadata-settings-component>
@@ -90,7 +84,7 @@
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.ApplicationSettings)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageGlobalPreferences) {
               <p-tabpanel [value]="SettingsTab.ApplicationSettings">
                 @if (visitedTabs().has(SettingsTab.ApplicationSettings)) {
                   <app-global-preferences></app-global-preferences>
@@ -99,20 +93,18 @@
             }
 
             <!-- [GROUP: Eager Tabs (Always Rendered to ensure initialization)] -->
-            @if (canOpenTab(SettingsTab.UserManagement)) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.UserManagement">
                 <app-user-management></app-user-management>
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.EmailSettingsV2)) {
-              <p-tabpanel [value]="SettingsTab.EmailSettingsV2">
-                <app-email-v2></app-email-v2>
-              </p-tabpanel>
-            }
+            <p-tabpanel [value]="SettingsTab.EmailSettingsV2">
+              <app-email-v2></app-email-v2>
+            </p-tabpanel>
 
             <!-- [GROUP: Lazy Tabs Continued] -->
-            @if (canOpenTab(SettingsTab.NamingPattern)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tabpanel [value]="SettingsTab.NamingPattern">
                 @if (visitedTabs().has(SettingsTab.NamingPattern)) {
                   <app-file-naming-pattern></app-file-naming-pattern>
@@ -120,7 +112,7 @@
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.AuthenticationSettings)) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.AuthenticationSettings">
                 @if (visitedTabs().has(SettingsTab.AuthenticationSettings)) {
                   <app-authentication-settings></app-authentication-settings>
@@ -128,7 +120,7 @@
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.Tasks)) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessTaskManager) {
               <p-tabpanel [value]="SettingsTab.Tasks">
                 @if (visitedTabs().has(SettingsTab.Tasks)) {
                   <app-task-management></app-task-management>
@@ -136,7 +128,7 @@
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.AuditLogs)) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.AuditLogs">
                 @if (visitedTabs().has(SettingsTab.AuditLogs)) {
                   <app-audit-logs></app-audit-logs>
@@ -144,21 +136,17 @@
               </p-tabpanel>
             }
 
-            @if (canOpenTab(SettingsTab.OpdsV2)) {
-              <p-tabpanel [value]="SettingsTab.OpdsV2">
-                @if (visitedTabs().has(SettingsTab.OpdsV2)) {
-                  <app-opds-settings></app-opds-settings>
-                }
-              </p-tabpanel>
-            }
+            <p-tabpanel [value]="SettingsTab.OpdsV2">
+              @if (visitedTabs().has(SettingsTab.OpdsV2)) {
+                <app-opds-settings></app-opds-settings>
+              }
+            </p-tabpanel>
 
-            @if (canOpenTab(SettingsTab.DeviceSettings)) {
-              <p-tabpanel [value]="SettingsTab.DeviceSettings">
-                @if (visitedTabs().has(SettingsTab.DeviceSettings)) {
-                  <app-device-settings-component></app-device-settings-component>
-                }
-              </p-tabpanel>
-            }
+            <p-tabpanel [value]="SettingsTab.DeviceSettings">
+              @if (visitedTabs().has(SettingsTab.DeviceSettings)) {
+                <app-device-settings-component></app-device-settings-component>
+              }
+            </p-tabpanel>
           </p-tabpanels>
         </p-tabs>
       </div>

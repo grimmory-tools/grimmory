@@ -60,13 +60,11 @@
                   <div class="user-identity">
                     <div class="user-name-row">
                       <span class="username">{{ user.username }}</span>
-                      <span
-                        class="user-type-badge"
-                        [attr.data-type]="user.provisioningMethod || 'LOCAL'">
+                      <span class="user-type-badge" [attr.data-type]="user.provisioningMethod || 'LOCAL'">
                         {{ (user.provisioningMethod || 'LOCAL') | lowercase | titlecase }}
                       </span>
                       @if (user.permissions.admin) {
-                        <span class="admin-badge bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                        <span class="admin-badge">
                           <i class="pi pi-shield"></i>
                           {{ t('admin') }}
                         </span>

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -174,7 +175,6 @@ public class RanobedbBookResponse {
         private TagType ttype;
     }
 
-    // --- Enums for strict typing ---
 
     public enum RoleType {
         @JsonProperty("editor") EDITOR,

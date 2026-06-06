@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
@@ -41,7 +41,6 @@ interface UsernameOption {
 @Component({
   selector: 'app-audit-logs',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,TableModule, Select, DatePicker, FormsModule, TranslocoDirective, TagComponent],
   templateUrl: './audit-logs.component.html',
@@ -53,8 +52,8 @@ export class AuditLogsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  logs = signal<AuditLog[]>([]);
-  totalRecords = signal(0);
+  logs: AuditLog[] = [];
+  totalRecords = 0;
   rows = 25;
   loading = signal(false);
   selectedAction: string | null = null;
@@ -64,7 +63,7 @@ export class AuditLogsComponent implements OnInit {
   autoRefresh = false;
   private autoRefreshSub?: Subscription;
 
-  usernameOptions = signal<UsernameOption[]>([{label: 'All Users', value: ''}]);
+  usernameOptions: UsernameOption[] = [{label: 'All Users', value: ''}];
 
   actionOptions: ActionOption[] = [
     {label: 'All Actions', value: ''},
@@ -118,10 +117,10 @@ export class AuditLogsComponent implements OnInit {
   loadUsernames(): void {
     this.auditLogService.getDistinctUsernames().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (usernames) => {
-        this.usernameOptions.set([
+        this.usernameOptions = [
           {label: 'All Users', value: ''},
           ...usernames.map(u => ({label: u, value: u}))
-        ]);
+        ];
       }
     });
   }
@@ -138,8 +137,8 @@ export class AuditLogsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
-        this.logs.set(response.content);
-        this.totalRecords.set(response.page.totalElements);
+        this.logs = response.content;
+        this.totalRecords = response.page.totalElements;
         this.loading.set(false);
       },
       error: () => {
@@ -173,7 +172,7 @@ export class AuditLogsComponent implements OnInit {
       this.autoRefreshSub?.unsubscribe();
       this.autoRefreshSub = interval(10000)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.loadLogs(false));
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadLogs(false));
     } else {
       this.autoRefreshSub?.unsubscribe();
     }

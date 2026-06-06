@@ -152,7 +152,7 @@ describe('PageCountChartComponent', () => {
 
     expect(dataset.data).toEqual([2, 2, 2, 2, 2, 2, 1]);
     expect(dataset.backgroundColor).toEqual(EXPECTED_PAGE_RANGE_COLORS);
-    expect(dataset.borderColor).toBeUndefined();
+    expect(dataset.borderColor).toEqual(EXPECTED_PAGE_RANGE_COLORS.map(() => 'rgba(255, 255, 255, 0.2)'));
     expect(dataset.borderWidth).toBe(1);
     expect(dataset.borderRadius).toBe(4);
     expect(dataset.barPercentage).toBe(0.8);

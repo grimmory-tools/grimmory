@@ -248,7 +248,6 @@ function rgbArrayToHex(rgb: number[]): string {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
 }
 
-// --- ArrayBuffer <-> base64 helpers ---
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);

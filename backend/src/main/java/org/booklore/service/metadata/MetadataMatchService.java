@@ -42,7 +42,6 @@ public class MetadataMatchService {
         float score = 0f;
 
 
-
         if (isPresent(metadata.getTitle(), metadata.getTitleLocked())) score += weights.getTitle();
         if (isPresent(metadata.getSubtitle(), metadata.getSubtitleLocked())) score += weights.getSubtitle();
         if (isPresent(metadata.getDescription(), metadata.getDescriptionLocked())) score += weights.getDescription();

@@ -10,16 +10,15 @@
   min-width: 100%;
   table-layout: auto;
   border-collapse: collapse;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border);
 }
 
 .table-header {
   padding: 0.375rem 1rem;
   text-align: left;
   font-weight: 600;
-  color: var(--color-text);
-  background: var(--color-page);
+  color: #d4d4d8;
 }
 
 .help-icon {
@@ -27,24 +26,22 @@
   font-size: 0.75rem;
 }
 
-.metadata-table-cell {
+.table-cell {
   padding: 0.5rem 1rem;
-  color: var(--color-text);
 }
 
-.metadata-table-cell-sm {
+.table-cell-sm {
   padding: 0.375rem 1rem;
-  color: var(--color-text);
 }
 
 .set-all-label {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: #a1a1aa;
   font-style: italic;
 }
 
 .field-label {
-  color: var(--color-text);
+  color: #e4e4e7;
 }
 
 .row-disabled {
@@ -61,13 +58,13 @@
 .section-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: #d4d4d8;
   margin: 0;
 }
 
 .section-description {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: #a1a1aa;
   margin: 0;
 }
 
@@ -90,14 +87,13 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid #52525b;
   border-radius: 0.5rem;
-  background: var(--color-page);
 }
 
 .field-card-label {
   font-size: 0.875rem;
-  color: var(--color-text);
+  color: #d4d4d8;
 }
 
 // Footer row
@@ -125,7 +121,6 @@
 
   p {
     margin: 0;
-    color: var(--color-text);
     white-space: nowrap;
   }
 }

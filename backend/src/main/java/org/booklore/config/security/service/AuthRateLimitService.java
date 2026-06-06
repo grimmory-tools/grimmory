@@ -28,7 +28,6 @@ public class AuthRateLimitService {
                 .build();
     }
 
-    // --- Login rate limiting ---
 
     public void checkLoginRateLimit(String ip) {
         checkRateLimit("login:ip:" + ip, AuditAction.LOGIN_RATE_LIMITED, "Login rate limited for IP: " + ip);
@@ -57,7 +56,6 @@ public class AuthRateLimitService {
         resetAttempts("login:user:" + normalizedUsername);
     }
 
-    // --- Refresh token rate limiting ---
 
     public void checkRefreshRateLimit(String ip) {
         checkRateLimit("refresh:" + ip, AuditAction.REFRESH_RATE_LIMITED, "Refresh rate limited for IP: " + ip);
@@ -71,7 +69,6 @@ public class AuthRateLimitService {
         resetAttempts("refresh:" + ip);
     }
 
-    // --- Shared internals ---
 
     private void checkRateLimit(String key, AuditAction action, String message) {
         AtomicInteger attempts = attemptCache.getIfPresent(key);

@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 80dvh;
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -14,8 +14,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  background: var(--color-page);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--overlay-background);
+  border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 
   .header-content {
@@ -30,12 +30,12 @@
     justify-content: center;
     width: 42px;
     height: 42px;
-    background: var(--color-primary);
+    background: var(--primary-color);
     border-radius: 10px;
 
     i {
       font-size: 1.25rem;
-      color: var(--color-primary-contrast);
+      color: var(--primary-contrast-color);
     }
   }
 
@@ -44,13 +44,13 @@
       margin: 0;
       font-size: 1.25rem;
       font-weight: 600;
-      color: var(--color-text);
+      color: var(--text-color);
     }
 
     p {
       margin: 0.125rem 0 0;
       font-size: 0.875rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
     }
   }
 }
@@ -71,8 +71,8 @@
     }
 
     .p-tablist {
-      background: var(--color-page);
-      border-bottom: 1px solid var(--color-border);
+      background: var(--overlay-background);
+      border-bottom: 1px solid var(--border-color);
       padding: 0 1rem;
     }
 
@@ -120,11 +120,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--color-border);
+    background: var(--border-color);
     border-radius: 3px;
 
     &:hover {
-      background: var(--color-primary);
+      background: var(--primary-color);
     }
   }
 }
@@ -140,7 +140,7 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.9rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     pointer-events: none;
     z-index: 1;
   }
@@ -166,7 +166,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: var(--color-page);
+  background: var(--ground-background);
   border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
@@ -174,25 +174,25 @@
 
   > i {
     font-size: 1.25rem;
-    color: var(--color-text);
+    color: var(--text-color);
     transition: color 0.15s ease;
   }
 
   &:hover {
-    border-color: var(--color-border);
-    background: var(--color-page);
+    border-color: var(--border-color);
+    background: var(--overlay-background);
 
     > i {
-      color: var(--color-primary);
+      color: var(--primary-color);
     }
   }
 
   &.selected {
-    border-color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    border-color: var(--primary-color);
+    background: rgb(var(--primary-color-rgb, 59, 130, 246), 10%);
 
     > i {
-      color: var(--color-primary);
+      color: var(--primary-color);
     }
   }
 
@@ -221,7 +221,7 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 3rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   font-size: 0.9rem;
 
   i {
@@ -247,10 +247,10 @@
   justify-content: center;
   gap: 0.625rem;
   padding: 0.875rem 1.25rem;
-  background: var(--color-page);
-  border: 2px dashed var(--color-border);
+  background: var(--ground-background);
+  border: 2px dashed var(--border-color);
   border-radius: 8px;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
   font-size: 0.875rem;
   transition: all 0.2s ease;
 
@@ -268,8 +268,8 @@
 
 // Form sections
 .form-section {
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--ground-background);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.25rem;
 
@@ -282,11 +282,11 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
 
     > i {
       font-size: 0.9rem;
-      color: var(--color-primary);
+      color: var(--primary-color);
     }
 
     .section-badge {
@@ -296,8 +296,8 @@
       min-width: 20px;
       height: 20px;
       padding: 0 0.375rem;
-      background: var(--color-primary);
-      color: var(--color-primary-contrast);
+      background: var(--primary-color);
+      color: var(--primary-contrast-color);
       border-radius: 10px;
       font-size: 0.7rem;
       font-weight: 600;
@@ -328,7 +328,7 @@
   label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-text);
+    color: var(--text-color);
   }
 
   .input-full {
@@ -348,8 +348,8 @@
 
 // Preview
 .preview-card {
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
 
@@ -359,9 +359,9 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: var(--color-text-secondary);
-    background: var(--color-page);
-    border-bottom: 1px solid var(--color-border);
+    color: var(--text-secondary-color);
+    background: var(--overlay-background);
+    border-bottom: 1px solid var(--border-color);
   }
 
   .preview-content {
@@ -404,7 +404,7 @@
   justify-content: flex-end;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 // Queue grid
@@ -418,14 +418,14 @@
 }
 
 .queue-item {
-  background: var(--color-page);
-  border: 1px solid var(--color-border);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: var(--color-primary);
+    border-color: var(--primary-color);
   }
 
   &.has-error {
@@ -437,14 +437,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0.625rem;
-    background: var(--color-page);
-    border-bottom: 1px solid var(--color-border);
+    background: var(--overlay-background);
+    border-bottom: 1px solid var(--border-color);
   }
 
   .queue-item-name {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--text-color);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -459,7 +459,7 @@
     background: transparent;
     border: none;
     border-radius: 4px;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     cursor: pointer;
     transition: all 0.15s ease;
 

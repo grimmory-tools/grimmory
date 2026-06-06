@@ -160,6 +160,7 @@ export class LanguageChartComponent {
         display: true,
         position: 'right',
         labels: {
+          color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
             size: 12
@@ -171,6 +172,9 @@ export class LanguageChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#2563EB',
         borderWidth: 2,
         cornerRadius: 8,
@@ -206,7 +210,11 @@ export class LanguageChartComponent {
       labels,
       datasets: [{
         data,
-        backgroundColor: colors
+        backgroundColor: colors,
+        borderColor: colors.map(() => 'rgba(255, 255, 255, 0.2)'),
+        borderWidth: 2,
+        hoverBorderColor: '#ffffff',
+        hoverBorderWidth: 3
       }]
     };
   });

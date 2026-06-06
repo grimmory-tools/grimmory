@@ -59,12 +59,12 @@ public class MetadataManagementService {
         for (BookMetadataEntity metadata : metadataList) {
             if (metadata.getBook() != null) {
                 BookEntity book = metadata.getBook();
-                BookFileEntity primaryFile = book.getPrimaryBookFile();
-                if (Boolean.TRUE.equals(book.getIsPhysical()) || primaryFile == null) {
+                if (Boolean.TRUE.equals(book.getIsPhysical())) {
                     continue;
                 }
                 boolean bookModified = false;
 
+                var primaryFile = book.getPrimaryBookFile();
                 BookFileType bookType = primaryFile.getBookType();
                 if (appProperties.isLocalStorage()) {
                     Optional<MetadataWriter> writerOpt = metadataWriterFactory.getWriter(bookType);

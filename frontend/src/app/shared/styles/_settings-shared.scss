@@ -2,9 +2,6 @@
 // This file provides consistent styling for all settings pages
 // Benchmark: file-naming-pattern and metadata-persistence-settings components
 
-// ============================================================================
-// TYPOGRAPHY VARIABLES
-// ============================================================================
 $settings-page-title-size: 1.375rem;
 $settings-page-title-weight: 700;
 $settings-page-description-size: 0.875rem;
@@ -15,10 +12,6 @@ $settings-section-description-size: 0.875rem;
 $settings-label-size: 0.9375rem;
 $settings-label-weight: 500;
 $settings-description-size: 0.875rem;
-
-// ============================================================================
-// SPACING VARIABLES
-// ============================================================================
 $settings-card-padding: 1.5rem;
 $settings-card-padding-mobile: 1rem;
 $settings-card-gap: 1.25rem;
@@ -32,10 +25,7 @@ $settings-item-padding-mobile: 0.75rem;
 $settings-item-border-radius: 6px;
 $settings-item-border-left-width: 3px;
 
-// ============================================================================
-// PAGE CONTAINER MIXIN
 // For standalone pages with their own scrolling area
-// ============================================================================
 @mixin settings-page-container {
   display: flex;
   flex-direction: column;
@@ -47,10 +37,7 @@ $settings-item-border-left-width: 3px;
   padding: 0.5rem 1.5rem;
 }
 
-// ============================================================================
-// PAGE HEADER
 // Include this mixin at root level to get the .settings-header class
-// ============================================================================
 @mixin settings-page-header {
   .settings-header {
     margin-top: 1rem;
@@ -65,11 +52,11 @@ $settings-item-border-left-width: 3px;
   gap: 0.5rem;
   font-size: $settings-page-title-size;
   font-weight: $settings-page-title-weight;
-  color: var(--color-text);
+  color: var(--text-color);
   margin: 0 0 0.5rem;
 
   .pi {
-    color: var(--color-primary);
+    color: var(--primary-color);
     font-size: 1.25rem;
   }
 }
@@ -81,15 +68,12 @@ $settings-item-border-left-width: 3px;
   margin-bottom: 0.5rem;
 }
 
-// ============================================================================
-// SETTINGS CARD MIXIN
 // The main card container for a group of related settings
-// ============================================================================
 @mixin settings-card {
   display: flex;
   flex-direction: column;
   gap: $settings-card-gap;
-  background: var(--color-card);
+  background: var(--card-background);
   border: 1px solid var(--p-content-border-color);
   border-radius: $settings-card-border-radius;
   padding: $settings-card-padding;
@@ -100,10 +84,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// SECTION HEADER MIXIN
 // For section headers inside cards (with icon and description)
-// ============================================================================
 @mixin settings-section-header {
   margin-bottom: 0.25rem;
 }
@@ -114,11 +95,11 @@ $settings-item-border-left-width: 3px;
   gap: 0.5rem;
   font-size: $settings-section-title-size;
   font-weight: $settings-section-title-weight;
-  color: var(--color-text);
+  color: var(--text-color);
   margin: 0 0 0.5rem;
 
   .pi {
-    color: var(--color-primary);
+    color: var(--primary-color);
     font-size: $settings-section-title-icon-size;
   }
 }
@@ -130,10 +111,7 @@ $settings-item-border-left-width: 3px;
   margin: 0;
 }
 
-// ============================================================================
-// SECTION BODY MIXIN
 // Container for setting items within a card
-// ============================================================================
 @mixin settings-section-body {
   display: flex;
   flex-direction: column;
@@ -145,19 +123,16 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// SETTING ITEM MIXIN
 // Individual setting row with left border accent
-// ============================================================================
 @mixin settings-item {
   padding: $settings-item-padding;
   border-radius: $settings-item-border-radius;
-  border-left: $settings-item-border-left-width solid var(--color-primary);
-  background: color-mix(in srgb, var(--color-card) 35%, var(--color-page));
+  border-left: $settings-item-border-left-width solid var(--primary-color);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   transition: border-color 0.2s ease, background 0.2s ease;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-card) 20%, var(--color-page));
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
   }
 
   @media (width <= 768px) {
@@ -165,10 +140,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// SETTING HEADER MIXIN
 // Header row for a setting (toggle + label)
-// ============================================================================
 @mixin settings-item-header {
   display: flex;
   align-items: center;
@@ -176,7 +148,7 @@ $settings-item-border-left-width: 3px;
   margin-bottom: 0.25rem;
 
   .pi {
-    color: var(--color-primary);
+    color: var(--primary-color);
     font-size: 1rem;
   }
 }
@@ -185,18 +157,12 @@ $settings-item-border-left-width: 3px;
   margin-bottom: 0.25rem;
 }
 
-// ============================================================================
-// SETTING LABEL MIXIN
-// ============================================================================
 @mixin settings-label {
   font-weight: $settings-label-weight;
-  color: var(--color-text);
+  color: var(--text-color);
   font-size: $settings-label-size;
 }
 
-// ============================================================================
-// SETTING DESCRIPTION MIXIN
-// ============================================================================
 @mixin settings-item-description {
   color: var(--p-text-muted-color);
   font-size: $settings-description-size;
@@ -204,9 +170,6 @@ $settings-item-border-left-width: 3px;
   margin: 0;
 }
 
-// ============================================================================
-// SETTING NOTE MIXIN
-// ============================================================================
 @mixin settings-note {
   display: block;
   margin-top: 0.25rem;
@@ -214,20 +177,14 @@ $settings-item-border-left-width: 3px;
   opacity: 0.85;
 }
 
-// ============================================================================
-// SETTING OPTIONS MIXIN
 // Expandable options section below a setting
-// ============================================================================
 @mixin settings-options {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px dashed var(--p-content-border-color);
 }
 
-// ============================================================================
-// NOTICE MIXINS
 // Warning and info notices
-// ============================================================================
 @mixin settings-notice-base {
   display: flex;
   align-items: flex-start;
@@ -236,7 +193,7 @@ $settings-item-border-left-width: 3px;
   line-height: 1.5;
   padding: 0.75rem 1rem;
   border-radius: 6px;
-  color: var(--color-text);
+  color: var(--text-color);
 
   strong {
     font-weight: 600;
@@ -251,20 +208,24 @@ $settings-item-border-left-width: 3px;
 @mixin settings-warning-notice {
   @include settings-notice-base;
 
-  background: color-mix(in srgb, var(--color-card) 85%, var(--color-red-600) 15%);
-  border-left-width: 3px;
-  border-left-style: solid;
+  background: color-mix(in srgb, var(--ground-background) 85%, var(--p-red-600) 15%);
+  border-left: 3px solid var(--p-red-500);
 
   .pi-exclamation-triangle {
+    color: var(--p-red-400);
     margin-top: 0.125rem;
     flex-shrink: 0;
+  }
+
+  strong {
+    color: var(--p-red-300);
   }
 }
 
 @mixin settings-info-notice {
   @include settings-notice-base;
 
-  background: color-mix(in srgb, var(--color-card) 90%, var(--p-blue-600) 10%);
+  background: color-mix(in srgb, var(--ground-background) 90%, var(--p-blue-600) 10%);
   border-left: 3px solid var(--p-blue-400);
 
   .pi-info-circle {
@@ -278,10 +239,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// SECTION DIVIDER
 // Include this mixin at root level to get the .section-divider class
-// ============================================================================
 @mixin settings-section-divider {
   .section-divider {
     padding-top: 1.5rem;
@@ -295,10 +253,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// ACTIONS ROW MIXIN
 // For save/cancel buttons at the bottom of a section
-// ============================================================================
 @mixin settings-actions-row {
   display: flex;
   justify-content: flex-end;
@@ -311,10 +266,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// INPUT GROUP MIXINS
 // Common input patterns
-// ============================================================================
 @mixin settings-filesize-input {
   display: flex;
   align-items: center;
@@ -331,19 +283,19 @@ $settings-item-border-left-width: 3px;
     padding: 0.375rem 0.5rem;
     border: 1px solid var(--p-content-border-color);
     border-radius: 4px;
-    background: var(--color-card);
-    color: var(--color-text);
+    background: var(--ground-background);
+    color: var(--text-color);
     font-size: $settings-section-description-size;
     text-align: center;
     transition: border-color 0.2s ease;
 
     &:hover {
-      border-color: var(--color-primary);
+      border-color: var(--primary-color);
     }
 
     &:focus {
       outline: none;
-      border-color: var(--color-primary);
+      border-color: var(--primary-color);
     }
   }
 
@@ -385,10 +337,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// TABLE STYLES MIXIN
 // For tables within settings cards
-// ============================================================================
 @mixin settings-table {
   width: 100%;
   border-radius: 6px;
@@ -403,14 +352,14 @@ $settings-item-border-left-width: 3px;
       .p-datatable-thead > tr > th {
         font-weight: 600;
         padding: 0.75rem;
-        background: color-mix(in srgb, var(--color-text) 3%, transparent);
+        background: color-mix(in srgb, var(--text-color) 3%, transparent);
         border-bottom: 1px solid var(--p-content-border-color);
         font-size: $settings-description-size;
       }
 
       .p-datatable-tbody > tr {
         &:hover {
-          background: color-mix(in srgb, var(--color-text) 3%, transparent);
+          background: color-mix(in srgb, var(--text-color) 3%, transparent);
         }
 
         > td {
@@ -426,25 +375,19 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// ERROR TEXT MIXIN
-// ============================================================================
 @mixin settings-error-text {
   color: var(--p-red-400);
   font-size: $settings-section-description-size;
 }
 
-// ============================================================================
-// ACCESS DENIED CARD MIXIN
 // For restricted access sections
-// ============================================================================
 @mixin settings-access-denied-card {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
   border-radius: $settings-card-border-radius;
-  background: color-mix(in srgb, var(--color-card) 85%, var(--p-red-600) 15%);
+  background: color-mix(in srgb, var(--ground-background) 85%, var(--p-red-600) 15%);
   border: 1px solid var(--p-content-border-color);
   border-left: 3px solid var(--p-red-500);
   max-width: 500px;
@@ -472,10 +415,7 @@ $settings-item-border-left-width: 3px;
   }
 }
 
-// ============================================================================
-// BUTTON GROUP MIXIN
 // For toggle button selections
-// ============================================================================
 @mixin settings-button-group {
   display: flex;
   gap: 0.5rem;
@@ -488,9 +428,9 @@ $settings-item-border-left-width: 3px;
     gap: 0.375rem;
     padding: 0.5rem 0.75rem;
     border-radius: 0.375rem;
-    border: 1.5px solid color-mix(in srgb, var(--color-text) 20%, transparent);
-    background: color-mix(in srgb, var(--color-text) 5%, transparent);
-    color: var(--color-text);
+    border: 1.5px solid color-mix(in srgb, var(--text-color) 20%, transparent);
+    background: color-mix(in srgb, var(--text-color) 5%, transparent);
+    color: var(--text-color);
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: $settings-description-size;
@@ -508,14 +448,14 @@ $settings-item-border-left-width: 3px;
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
-      border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+      border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
     }
 
     &.selected {
-      border-color: var(--color-primary);
-      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-      color: var(--color-primary);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 15%, transparent);
+      border-color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+      color: var(--primary-color);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 15%, transparent);
 
       &:hover {
         transform: translateY(-2px);

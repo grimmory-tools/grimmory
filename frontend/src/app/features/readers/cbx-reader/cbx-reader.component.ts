@@ -1255,7 +1255,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     return this.cbxReaderService.getPageImageUrl(this.bookId()!, this.pages()[pageIndex], this.altBookType());
   }
 
-  // ── Long-strip mode (Kavita-inspired) ──
 
   private initializeLongStrip(): void {
     this.longStripImages.set([]);
@@ -2233,7 +2232,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   onShortcutsHelpClose(): void {
     this.showShortcutsHelp.set(false);
   }
-
 
 
   ngOnDestroy(): void {

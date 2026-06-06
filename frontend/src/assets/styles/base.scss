@@ -3,8 +3,8 @@
 /*
  * Document defaults.
  *
- * This file owns browser-level app defaults: body canvas, baseline typography,
- * links, scrollbars, and user preference handling.
+ * This file owns browser-level app defaults: root sizing, body canvas,
+ * baseline typography, links, scrollbars, and user preference handling.
  * Page structure belongs in page.scss; component styling belongs with the
  * component.
  */
@@ -12,27 +12,20 @@
 html {
   --mobile-shell-active: 0;
 
+  height: 100%;
   font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   font-size: var(--font-size-root);
 }
 
 body {
-  background-color: var(--color-app);
-  color: var(--color-text);
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--surface-app);
+  color: var(--text-color);
   font-family: var(--font-family), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-picture,
-canvas,
-svg {
-  max-width: 100%;
-  height: auto;
-}
-
-picture {
-  display: block;
 }
 
 @media #{variables.$mobile-shell-media-query} {
@@ -42,18 +35,13 @@ picture {
 
   html,
   body {
-    background-color: var(--color-page);
+    background-color: var(--surface-page);
   }
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--primary-color);
   text-decoration: none;
-}
-
-button,
-[role="button"] {
-  cursor: pointer;
 }
 
 h1,
@@ -63,10 +51,10 @@ h4,
 h5,
 h6 {
   margin: 1.5rem 0 1rem;
-  color: var(--color-text-strong);
+  color: var(--high-contrast-text-color);
+  font-family: inherit;
   font-weight: 500;
   line-height: 1.2;
-  overflow-wrap: break-word;
 
   &:first-child {
     margin-top: 0;
@@ -99,9 +87,8 @@ h6 {
 
 p {
   margin: 0 0 1rem;
-  color: var(--color-text);
+  color: var(--text-color);
   line-height: 1.5;
-  overflow-wrap: break-word;
 
   &:last-child {
     margin-bottom: 0;
@@ -109,7 +96,7 @@ p {
 }
 
 p.p-secondary {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 }
 
 mark {
@@ -127,7 +114,7 @@ blockquote {
 
 hr {
   margin: 1rem 0;
-  border-top: solid var(--color-border);
+  border-top: solid var(--border-color);
   border-width: 1px 0 0;
 }
 

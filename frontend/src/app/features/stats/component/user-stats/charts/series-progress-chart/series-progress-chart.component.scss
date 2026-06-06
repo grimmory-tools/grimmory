@@ -1,5 +1,3 @@
-@use '../../../chart-shared' as chart-shared;
-
 .series-progress-container {
   width: 100%;
 }
@@ -17,7 +15,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -27,7 +25,7 @@
     }
 
     .chart-description {
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       font-size: 0.9rem;
       margin: 0;
       line-height: 1.4;
@@ -52,23 +50,18 @@
       }
 
       &.completed {
-        --stats-badge-accent: var(--color-green-500);
-
-        @include chart-shared.accent-surface(16px);
-        @include chart-shared.accent-text;
+        background: rgb(76 175 80 / 20%);
+        color: #4caf50;
       }
 
       &.in-progress {
-        --stats-badge-accent: var(--color-amber-500);
-
-        @include chart-shared.accent-surface(16px);
-        @include chart-shared.accent-text;
+        background: rgb(255 193 7 / 20%);
+        color: #ffc107;
       }
 
       &.not-started {
-        @include chart-shared.neutral-surface(16px);
-
-        color: var(--color-text-secondary);
+        background: rgb(158 158 158 / 20%);
+        color: #9e9e9e;
       }
     }
   }
@@ -76,7 +69,7 @@
 
 .series-icon {
   font-size: 1.5rem;
-  color: var(--color-violet-700);
+  color: #673ab7;
 }
 
 .stats-row {
@@ -90,27 +83,27 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.85rem;
-
-    @include chart-shared.neutral-surface(20px);
+    background: rgb(255 255 255 / 5%);
+    border-radius: 20px;
+    border: 1px solid rgb(255 255 255 / 10%);
 
     .pill-value {
       font-size: 1rem;
       font-weight: 600;
-      color: var(--color-text);
+      color: var(--text-color, #fff);
     }
 
     .pill-label {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
     }
 
     &.highlight {
-      --stats-badge-accent: var(--color-violet-700);
-
-      @include chart-shared.accent-surface(20px);
+      background: rgb(103 58 183 / 15%);
+      border-color: rgb(103 58 183 / 30%);
 
       .pill-value {
-        @include chart-shared.accent-text;
+        color: #673ab7;
       }
     }
   }
@@ -130,7 +123,7 @@
     margin-bottom: 0.75rem;
 
     h4 {
-      color: var(--color-text);
+      color: var(--text-color, #fff);
       font-size: 0.95rem;
       font-weight: 500;
       margin: 0;
@@ -138,10 +131,10 @@
 
     .series-count {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
+      background: rgb(255 255 255 / 8%);
       padding: 0.25rem 0.5rem;
-
-      @include chart-shared.neutral-surface(4px);
+      border-radius: 4px;
     }
   }
 
@@ -159,11 +152,12 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.4rem 0.65rem;
-
-      @include chart-shared.neutral-surface(6px);
+      background: rgb(255 255 255 / 5%);
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 6px;
 
       i {
-        color: var(--color-text-secondary);
+        color: var(--text-secondary-color);
         font-size: 0.8rem;
       }
 
@@ -172,12 +166,12 @@
         background: transparent;
         border: none;
         outline: none;
-        color: var(--color-text);
+        color: var(--text-color, #fff);
         font-size: 0.8rem;
         font-family: inherit;
 
         &::placeholder {
-          color: var(--color-text-secondary);
+          color: var(--text-secondary-color);
         }
       }
     }
@@ -189,25 +183,26 @@
       .filter-select,
       .sort-select {
         padding: 0.4rem 0.5rem;
-        color: var(--color-text);
+        background: rgb(255 255 255 / 5%);
+        border: 1px solid rgb(255 255 255 / 12%);
+        border-radius: 6px;
+        color: var(--text-color, #fff);
         font-size: 0.75rem;
         font-family: inherit;
         cursor: pointer;
         outline: none;
 
-        @include chart-shared.neutral-surface(6px);
-
         option {
-          background: var(--color-card);
-          color: var(--color-text);
+          background: #1e1e1e;
+          color: #fff;
         }
 
         &:hover {
-          border-color: color-mix(in srgb, var(--color-border) 90%, transparent);
+          border-color: rgb(255 255 255 / 25%);
         }
 
         &:focus {
-          border-color: var(--color-violet-700);
+          border-color: #673ab7;
         }
       }
     }
@@ -226,7 +221,7 @@
       justify-content: center;
       gap: 0.5rem;
       padding: 1.5rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       font-size: 0.85rem;
 
       i {
@@ -242,7 +237,7 @@
     gap: 0.75rem;
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    border-top: 1px solid rgb(255 255 255 / 8%);
 
     .page-btn {
       display: flex;
@@ -250,19 +245,20 @@
       justify-content: center;
       width: 28px;
       height: 28px;
-      color: var(--color-text);
+      background: rgb(255 255 255 / 8%);
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 6px;
+      color: var(--text-color, #fff);
       cursor: pointer;
       transition: all 0.2s ease;
-
-      @include chart-shared.neutral-surface(6px);
 
       i {
         font-size: 0.7rem;
       }
 
       &:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--color-violet-700) 18%, transparent);
-        border-color: color-mix(in srgb, var(--color-violet-700) 45%, transparent);
+        background: rgb(103 58 183 / 30%);
+        border-color: #673ab7;
       }
 
       &:disabled {
@@ -273,7 +269,7 @@
 
     .page-info {
       font-size: 0.75rem;
-      color: var(--color-text-secondary);
+      color: var(--text-secondary-color);
       min-width: 80px;
       text-align: center;
     }
@@ -281,25 +277,25 @@
 
   .series-card {
     padding: 0.5rem 0.75rem;
-
-    @include chart-shared.neutral-surface;
-
+    background: rgb(255 255 255 / 3%);
+    border-radius: 8px;
+    border: 1px solid rgb(255 255 255 / 8%);
     border-left: 3px solid;
 
     &.completed {
-      border-left-color: var(--color-green-500);
+      border-left-color: #4caf50;
     }
 
     &.in-progress {
-      border-left-color: var(--color-amber-500);
+      border-left-color: #ffc107;
     }
 
     &.not-started {
-      border-left-color: var(--color-text-muted);
+      border-left-color: #9e9e9e;
     }
 
     &.abandoned {
-      border-left-color: var(--color-red-500);
+      border-left-color: #ef5350;
     }
 
     .series-main {
@@ -321,7 +317,7 @@
           display: block;
           font-size: 0.9rem;
           font-weight: 500;
-          color: var(--color-text);
+          color: var(--text-color, #fff);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -335,7 +331,7 @@
 
           .books-count {
             font-size: 0.75rem;
-            color: var(--color-text-secondary);
+            color: var(--text-secondary-color);
 
             .total-hint {
               opacity: 0.7;
@@ -347,7 +343,7 @@
             align-items: center;
             gap: 0.2rem;
             font-size: 0.75rem;
-            color: var(--color-amber-500);
+            color: #ffc107;
 
             i {
               font-size: 0.65rem;
@@ -365,7 +361,7 @@
       .progress-bar-container {
         flex: 1;
         height: 6px;
-        background: color-mix(in srgb, var(--color-text) 8%, transparent);
+        background: rgb(255 255 255 / 10%);
         border-radius: 3px;
         overflow: hidden;
         position: relative;
@@ -379,11 +375,11 @@
 
           &.read {
             left: 0;
-            background: linear-gradient(90deg, var(--color-green-500), var(--color-green-400));
+            background: linear-gradient(90deg, #4caf50, #66bb6a);
           }
 
           &.reading {
-            background: var(--color-amber-500);
+            background: #ffc107;
           }
         }
       }
@@ -391,7 +387,7 @@
       .progress-text {
         font-size: 0.75rem;
         font-weight: 600;
-        color: var(--color-text);
+        color: var(--text-color, #fff);
         min-width: 32px;
         text-align: right;
       }
@@ -400,16 +396,16 @@
     .next-up {
       margin-top: 0.35rem;
       padding-top: 0.3rem;
-      border-top: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
+      border-top: 1px dashed rgb(255 255 255 / 10%);
       font-size: 0.7rem;
 
       .next-label {
-        color: var(--color-text-secondary);
+        color: var(--text-secondary-color);
         margin-right: 0.35rem;
       }
 
       .next-title {
-        color: var(--color-violet-700);
+        color: #673ab7;
         font-weight: 500;
       }
     }
@@ -423,7 +419,7 @@
   justify-content: center;
   padding: 2.5rem;
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary-color);
 
   i {
     font-size: 2rem;
@@ -434,7 +430,7 @@
   p {
     font-size: 0.95rem;
     margin: 0 0 0.35rem;
-    color: var(--color-text);
+    color: var(--text-color, #fff);
   }
 
   small {

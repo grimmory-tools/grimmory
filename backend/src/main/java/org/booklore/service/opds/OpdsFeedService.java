@@ -555,20 +555,6 @@ public class OpdsFeedService {
         }
     }
 
-    private Instant getCoverUpdatedOn(Book book) {
-        if (book.getMetadata() != null) {
-            if (book.getMetadata().getCoverUpdatedOn() != null) {
-                return book.getMetadata().getCoverUpdatedOn();
-            }
-
-            if (book.getMetadata().getAudiobookCoverUpdatedOn() != null) {
-                return book.getMetadata().getAudiobookCoverUpdatedOn();
-            }
-        }
-
-        return null;
-    }
-
     private void appendLinks(StringBuilder feed, Book book) {
         // Add acquisition link for primary file
         if (book.getPrimaryFile() != null) {
@@ -582,9 +568,8 @@ public class OpdsFeedService {
             }
         }
 
-        Instant coverUpdatedOn = getCoverUpdatedOn(book);
-        if (coverUpdatedOn != null) {
-            String coverUrl = "/api/v1/opds/" + book.getId() + "/cover?" + coverUpdatedOn;
+        if (book.getMetadata() != null && book.getMetadata().getCoverUpdatedOn() != null) {
+            String coverUrl = "/api/v1/opds/" + book.getId() + "/cover?" + book.getMetadata().getCoverUpdatedOn();
             feed.append("    <link rel=\"http://opds-spec.org/image\" href=\"")
                     .append(escapeXml(coverUrl)).append("\" type=\"image/jpeg\"/>\n");
             feed.append("    <link rel=\"http://opds-spec.org/image/thumbnail\" href=\"")

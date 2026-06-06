@@ -17,9 +17,7 @@ import java.util.List;
 @Repository
 public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
 
-    // ============================================
     // ALL BOOKS - Two Query Pattern
-    // ============================================
 
     @Query("SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findBookIds(Pageable pageable);
@@ -28,18 +26,14 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT b FROM BookEntity b WHERE b.id IN :ids AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByIds(@Param("ids") Collection<Long> ids);
 
-    // ============================================
     // RECENT BOOKS - Two Query Pattern
-    // ============================================
 
     @Query("SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findRecentBookIds(Pageable pageable);
 
     // Uses same findAllWithMetadataByIds for second query
 
-    // ============================================
     // BOOKS BY LIBRARY IDs - Two Query Pattern
-    // ============================================
 
     @Query("SELECT b.id FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findBookIdsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
@@ -48,18 +42,14 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT b FROM BookEntity b WHERE b.id IN :ids AND b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByIdsAndLibraryIds(@Param("ids") Collection<Long> ids, @Param("libraryIds") Collection<Long> libraryIds);
 
-    // ============================================
     // RECENT BOOKS BY LIBRARY IDs - Two Query Pattern
-    // ============================================
 
     @Query("SELECT b.id FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findRecentBookIdsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
     // Uses findAllWithMetadataByIdsAndLibraryIds for second query
 
-    // ============================================
     // BOOKS BY SHELF ID - Two Query Pattern
-    // ============================================
 
     @Query("SELECT DISTINCT b.id FROM BookEntity b JOIN b.shelves s WHERE s.id = :shelfId AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findBookIdsByShelfId(@Param("shelfId") Long shelfId, Pageable pageable);
@@ -68,9 +58,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.shelves s WHERE b.id IN :ids AND s.id = :shelfId AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByIdsAndShelfId(@Param("ids") Collection<Long> ids, @Param("shelfId") Long shelfId);
 
-    // ============================================
     // SEARCH BY METADATA - Two Query Pattern
-    // ============================================
 
     @Query("""
             SELECT DISTINCT b.id FROM BookEntity b
@@ -86,9 +74,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT DISTINCT b FROM BookEntity b WHERE b.id IN :ids AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithFullMetadataByIds(@Param("ids") Collection<Long> ids);
 
-    // ============================================
     // SEARCH BY METADATA IN LIBRARIES - Two Query Pattern
-    // ============================================
 
     @Query("""
             SELECT DISTINCT b.id FROM BookEntity b
@@ -106,9 +92,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT DISTINCT b FROM BookEntity b WHERE b.id IN :ids AND b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithFullMetadataByIdsAndLibraryIds(@Param("ids") Collection<Long> ids, @Param("libraryIds") Collection<Long> libraryIds);
 
-    // ============================================
     // SEARCH BY METADATA IN SHELVES - Two Query Pattern
-    // ============================================
 
     @Query("""
             SELECT DISTINCT b.id FROM BookEntity b
@@ -127,9 +111,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.shelves s WHERE b.id IN :ids AND s.id IN :shelfIds AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithFullMetadataByIdsAndShelfIds(@Param("ids") Collection<Long> ids, @Param("shelfIds") Collection<Long> shelfIds);
 
-    // ============================================
     // BOOKS BY SHELF IDs - Two Query Pattern
-    // ============================================
 
     @Query("SELECT DISTINCT b.id FROM BookEntity b JOIN b.shelves s WHERE s.id IN :shelfIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC")
     Page<Long> findBookIdsByShelfIds(@Param("shelfIds") Collection<Long> shelfIds, Pageable pageable);
@@ -138,9 +120,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.shelves s WHERE b.id IN :ids AND s.id IN :shelfIds AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByIdsAndShelfIds(@Param("ids") Collection<Long> ids, @Param("shelfIds") Collection<Long> shelfIds);
 
-    // ============================================
     // RANDOM BOOKS - "Surprise Me" Feed
-    // ============================================
 
     @Query("SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) ORDER BY function('RAND')")
     List<Long> findRandomBookIds(Pageable pageable);
@@ -148,9 +128,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     @Query("SELECT b.id FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY function('RAND')")
     List<Long> findRandomBookIdsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
-    // ============================================
     // AUTHORS - Distinct Authors List
-    // ============================================
 
     @Query("""
             SELECT DISTINCT a FROM AuthorEntity a
@@ -171,9 +149,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             """)
     List<AuthorEntity> findDistinctAuthorsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
 
-    // ============================================
     // BOOKS BY AUTHOR - Two Query Pattern
-    // ============================================
 
     @Query("""
             SELECT DISTINCT b.id FROM BookEntity b
@@ -196,9 +172,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             """)
     Page<Long> findBookIdsByAuthorNameAndLibraryIds(@Param("authorName") String authorName, @Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
-    // ============================================
     // SERIES - Distinct Series List
-    // ============================================
 
     @Query("""
             SELECT DISTINCT m.seriesName FROM BookMetadataEntity m
@@ -221,9 +195,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             """)
     List<String> findDistinctSeriesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
 
-    // ============================================
     // BOOKS BY SERIES - Two Query Pattern (sorted by series number)
-    // ============================================
 
     @Query("""
             SELECT DISTINCT b.id FROM BookEntity b

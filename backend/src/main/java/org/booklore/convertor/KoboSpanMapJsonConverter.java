@@ -2,16 +2,14 @@ package org.booklore.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import lombok.AllArgsConstructor;
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-@AllArgsConstructor
 @Converter
 public class KoboSpanMapJsonConverter implements AttributeConverter<KoboSpanPositionMap, String> {
 
-    private final ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(KoboSpanPositionMap attribute) {

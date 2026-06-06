@@ -95,7 +95,7 @@ describe('LibraryService', () => {
     expect(queryClientHarness.queryClient.removeQueries).toHaveBeenCalledWith({queryKey: libraryFormatCountsQueryKey(4), exact: true});
   });
 
-  it('hydrates format counts through ensureQueryData', async () => {
+  it('hydrates format counts through ensureQueryData and tracks large-library loading state', async () => {
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/libraries')).flush([]);
 
     const resultPromise = new Promise<Record<string, number>>((resolve, reject) => {
@@ -108,6 +108,9 @@ describe('LibraryService', () => {
     request.flush({EPUB: 7, PDF: 2});
 
     await expect(resultPromise).resolves.toEqual({EPUB: 7, PDF: 2});
+
+    service.setLargeLibraryLoading(true, 2500);
+    expect(service.largeLibraryLoading()).toEqual({isLoading: true, expectedCount: 2500});
 
     bookService.books.mockReturnValue([
       {libraryId: 8, shelves: []},

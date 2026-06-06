@@ -14,19 +14,19 @@
   --book-table-row-color: var(--p-datatable-row-color, var(--p-text-color));
   --book-table-row-hover-background: var(--p-datatable-row-hover-background, var(--p-content-hover-background));
   --book-table-row-hover-color: var(--p-datatable-row-hover-color, var(--p-text-color));
-  --book-table-row-striped-background: var(--p-datatable-row-striped-background, var(--color-app));
+  --book-table-row-striped-background: var(--p-datatable-row-striped-background, var(--p-surface-950));
   --book-table-cell-border-color: var(--p-datatable-body-cell-border-color, var(--book-table-border-color));
   --book-table-cell-padding: var(--p-datatable-body-cell-padding, 0.75rem 1rem);
   --book-table-rating-gap: var(--p-rating-gap, 0.25rem);
-  --book-table-lock-unlocked-color: var(--color-lock-unlocked, var(--color-green-600));
-  --book-table-lock-locked-color: var(--color-lock-locked, var(--color-red-600));
-  --book-table-status-read-color: var(--color-green-500);
-  --book-table-status-reading-color: var(--color-blue-500);
-  --book-table-status-re-reading-color: var(--color-cyan-500);
-  --book-table-status-partially-read-color: var(--color-amber-500);
-  --book-table-status-paused-color: var(--color-yellow-500);
-  --book-table-status-abandoned-color: var(--color-red-500);
-  --book-table-status-wont-read-color: var(--color-pink-500);
+  --book-table-lock-unlocked-color: var(--color-lock-unlocked, #16a34a);
+  --book-table-lock-locked-color: var(--color-lock-locked, #dc2626);
+  --book-table-status-read-color: #22c55e;
+  --book-table-status-reading-color: #3b82f6;
+  --book-table-status-re-reading-color: #06b6d4;
+  --book-table-status-partially-read-color: #f59e0b;
+  --book-table-status-paused-color: #eab308;
+  --book-table-status-abandoned-color: #ef4444;
+  --book-table-status-wont-read-color: #ec4899;
 }
 
 .book-table-scroll {

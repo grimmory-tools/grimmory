@@ -37,7 +37,6 @@ import {ButtonDirective} from 'primeng/button';
 })
 export class BookCardComponent {
 
-  // --- Inputs ---
   readonly book = input.required<Book>();
   readonly index = input.required<number>();
   readonly isCheckboxEnabled = input(false);
@@ -83,7 +82,6 @@ export class BookCardComponent {
   private readonly currentUser = computed(() => this.userService.currentUser());
   private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route' as 'route' | 'dialog');
   private readonly diskType = computed(() => this.appSettingsService.appSettings()?.diskType ?? 'LOCAL');
-
 
 
   readonly progressPercentage = computed(() => {
@@ -419,7 +417,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: () => void this.bookDialogHelperService.openCustomSendDialog(this.book()).catch(() => undefined)
+            command: () => this.bookDialogHelperService.openCustomSendDialog(this.book())
           }
         ]
       });
@@ -452,7 +450,7 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: () => void this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])).catch(() => undefined),
+            command: () => this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -505,7 +503,7 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: () => void this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id])).catch(() => undefined)
+        command: () => this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
       });
     }
 
@@ -597,7 +595,7 @@ export class BookCardComponent {
   }
 
   private openShelfDialog(): void {
-    void this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null).catch(() => undefined);
+    this.bookDialogHelperService.openShelfAssignerDialog(this.book(), null);
   }
 
   openSeriesInfo(): void {
@@ -610,7 +608,7 @@ export class BookCardComponent {
     }
   }
 
-  async openBookInfo(book: Book) {
+  openBookInfo(book: Book): void {
     const allBookIds = this.bookNavigationService.availableBookIds();
     if (allBookIds.length > 0) {
       this.bookNavigationService.setNavigationContext(allBookIds, book.id);
@@ -621,7 +619,7 @@ export class BookCardComponent {
         queryParams: {tab: 'view'}
       });
     } else {
-      await this.bookDialogHelperService.openBookDetailsDialog(book.id).catch(() => undefined);
+      this.bookDialogHelperService.openBookDetailsDialog(book.id);
     }
   }
 

@@ -2,6 +2,7 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.booklore.model.enums.PositionType;
 
 import java.time.Instant;
 
@@ -44,4 +45,26 @@ public class UserBookFileProgressEntity {
 
     @Column(name = "last_read_time")
     private Instant lastReadTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "position_type", length = 20)
+    private PositionType positionType;
+
+    @Column(name = "xpointer", length = 1000)
+    private String xpointer;
+
+    @Column(name = "readium_locator_json", columnDefinition = "LONGTEXT")
+    private String readiumLocatorJson;
+
+    @Column(name = "chapter_progression")
+    private Float chapterProgression;
+
+    @Column(name = "text_before", columnDefinition = "TEXT")
+    private String textBefore;
+
+    @Column(name = "text_highlight", columnDefinition = "TEXT")
+    private String textHighlight;
+
+    @Column(name = "text_after", columnDefinition = "TEXT")
+    private String textAfter;
 }

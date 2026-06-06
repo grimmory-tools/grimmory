@@ -684,8 +684,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     });
   }
 
-  async openShelfAssigner() {
-    this.dialogRef = await this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
+  openShelfAssigner(): void {
+    this.dialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.assigned) {
@@ -695,8 +695,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
-  async lockUnlockMetadata() {
-    this.dialogRef = await this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
+  lockUnlockMetadata(): void {
+    this.dialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -713,12 +713,12 @@ export class SeriesPageComponent implements AfterViewChecked {
     }).subscribe();
   }
 
-  async fetchMetadata() {
-    await this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
+  fetchMetadata(): void {
+    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
   }
 
-  async bulkEditMetadata() {
-    this.dialogRef = await this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
+  bulkEditMetadata(): void {
+    this.dialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -726,8 +726,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
-  async multiBookEditMetadata() {
-    this.dialogRef = await this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
+  multiBookEditMetadata(): void {
+    this.dialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
     if (this.dialogRef) {
       this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.deselectAllBooks();
@@ -817,8 +817,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     });
   }
 
-  async moveFiles() {
-    await this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
+  moveFiles() {
+    this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
   }
 
   user() {

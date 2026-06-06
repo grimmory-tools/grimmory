@@ -153,8 +153,8 @@ export class EmailV2ProviderComponent implements OnInit {
     }
   }
 
-  async openCreateProviderDialog() {
-    this.ref = await this.dialogLauncherService.openEmailProviderDialog().catch(() => null);
+  openCreateProviderDialog() {
+    this.ref = this.dialogLauncherService.openEmailProviderDialog();
     this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.loadEmailProviders();

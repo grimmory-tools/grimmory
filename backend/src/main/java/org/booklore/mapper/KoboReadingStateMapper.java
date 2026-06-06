@@ -5,19 +5,16 @@ import org.booklore.model.entity.KoboReadingStateEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.regex.Pattern;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public abstract class KoboReadingStateMapper {
+public interface KoboReadingStateMapper {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private final Pattern SURROUNDING_DOUBLE_QUOTES_PATTERN = Pattern.compile("^\"|\"$");
+    ObjectMapper objectMapper = new ObjectMapper();
+    Pattern SURROUNDING_DOUBLE_QUOTES_PATTERN = Pattern.compile("^\"|\"$");
 
     @Mapping(target = "currentBookmarkJson", expression = "java(toJson(dto.getCurrentBookmark()))")
     @Mapping(target = "statisticsJson", expression = "java(toJson(dto.getStatistics()))")
@@ -27,7 +24,7 @@ public abstract class KoboReadingStateMapper {
     @Mapping(target = "lastModifiedString", expression = "java(dto.getLastModified())")
     @Mapping(target = "lastModified", ignore = true)
     @Mapping(target = "priorityTimestamp", expression = "java(dto.getPriorityTimestamp())")
-    public abstract KoboReadingStateEntity toEntity(KoboReadingState dto);
+    KoboReadingStateEntity toEntity(KoboReadingState dto);
 
     @Mapping(target = "currentBookmark", expression = "java(fromJson(entity.getCurrentBookmarkJson(), KoboReadingState.CurrentBookmark.class))")
     @Mapping(target = "statistics", expression = "java(fromJson(entity.getStatisticsJson(), KoboReadingState.Statistics.class))")
@@ -36,9 +33,9 @@ public abstract class KoboReadingStateMapper {
     @Mapping(target = "created", expression = "java(entity.getCreated())")
     @Mapping(target = "lastModified", expression = "java(entity.getLastModifiedString())")
     @Mapping(target = "priorityTimestamp", expression = "java(entity.getPriorityTimestamp())")
-    public abstract KoboReadingState toDto(KoboReadingStateEntity entity);
+    KoboReadingState toDto(KoboReadingStateEntity entity);
 
-    protected String toJson(Object value) {
+    default String toJson(Object value) {
         try {
             return value == null ? null : objectMapper.writeValueAsString(value);
         } catch (JacksonException e) {
@@ -46,7 +43,7 @@ public abstract class KoboReadingStateMapper {
         }
     }
 
-    protected<T> T fromJson(String json, Class<T> clazz) {
+    default <T> T fromJson(String json, Class<T> clazz) {
         try {
             return json == null ? null : objectMapper.readValue(json, clazz);
         } catch (JacksonException e) {
@@ -54,7 +51,7 @@ public abstract class KoboReadingStateMapper {
         }
     }
 
-    protected String cleanString(String value) {
+    default String cleanString(String value) {
         if (value == null) return null;
         return SURROUNDING_DOUBLE_QUOTES_PATTERN.matcher(value).replaceAll("");
     }

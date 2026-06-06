@@ -70,11 +70,14 @@ export class BookLengthChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsUser.bookLength.axisPageCount'),
+          color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           font: {family: "'Inter', sans-serif", size: 11}
-        }
+        },
+        grid: {color: 'rgba(255, 255, 255, 0.1)'}
       },
       y: {
         min: 0,
@@ -82,12 +85,15 @@ export class BookLengthChartComponent {
         title: {
           display: true,
           text: this.t.translate('statsUser.bookLength.axisPersonalRating'),
+          color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
         ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
           stepSize: 1,
           font: {family: "'Inter', sans-serif", size: 11}
-        }
+        },
+        grid: {color: 'rgba(255, 255, 255, 0.1)'}
       }
     },
     plugins: {
@@ -95,6 +101,7 @@ export class BookLengthChartComponent {
         display: true,
         position: 'top',
         labels: {
+          color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 11},
           usePointStyle: true,
           pointStyle: 'circle',
@@ -103,6 +110,9 @@ export class BookLengthChartComponent {
       },
       tooltip: {
         enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#00bcd4',
         borderWidth: 2,
         cornerRadius: 8,
@@ -186,7 +196,7 @@ export class BookLengthChartComponent {
         label: this.t.translate('statsUser.bookLength.trend'),
         data: trend as BookScatterPoint[],
         backgroundColor: 'transparent',
-        borderColor: 'transparent',
+        borderColor: 'rgba(255, 255, 255, 0.4)',
         pointRadius: 0,
         pointHoverRadius: 0,
         pointBorderWidth: 0

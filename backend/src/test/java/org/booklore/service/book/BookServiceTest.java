@@ -1,6 +1,5 @@
 package org.booklore.service.book;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.booklore.config.security.service.AuthenticationService;
@@ -21,7 +20,6 @@ import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -77,8 +75,6 @@ class BookServiceTest {
     private BookUpdateService bookUpdateService;
     @Mock
     private AuditService auditService;
-    @Mock
-    private EntityManager entityManager;
 
     @InjectMocks
     private BookService bookService;
@@ -363,44 +359,6 @@ class BookServiceTest {
             fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(Path.of("/tmp/nonexistentfile.txt"));
             assertThrows(APIException.class, () -> bookService.getBookContent(12L));
         }
-    }
-
-    @Test
-    void deleteBooks_clearsEntityManager() throws Exception {
-        BookEntity entity = new BookEntity();
-        entity.setId(11L);
-        LibraryEntity library = new LibraryEntity();
-        library.setId(42L);
-        LibraryPathEntity libPath = new LibraryPathEntity();
-        libPath.setPath("/tmp");
-        library.setLibraryPaths(List.of(libPath));
-        entity.setLibrary(library);
-        entity.setLibraryPath(libPath);
-        BookFileEntity primaryFile = new BookFileEntity();
-        primaryFile.setBook(entity);
-        primaryFile.setFileSubPath("");
-        primaryFile.setFileName("bookfile.txt");
-        entity.setBookFiles(List.of(primaryFile));
-
-        Path filePath = Paths.get("/tmp/bookfile.txt");
-        Files.createDirectories(filePath.getParent());
-        Files.write(filePath, "abc".getBytes());
-
-        doNothing().when(bookRepository).deleteAllInBatch(anyList());
-        when(bookQueryService.findAllWithMetadataByIds(Set.of(11L))).thenReturn(List.of(entity));
-        when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
-
-        bookService.deleteBooks(Set.of(11L)).getBody();
-
-        InOrder order = inOrder(entityManager, bookRepository);
-
-        // The order of the calls is important - we MUST flush, then clear, and
-        // only then can we delete.  If we change the order then we end up with errors.
-        order.verify(entityManager).flush();
-        order.verify(entityManager).clear();
-        order.verify(bookRepository).deleteAllInBatch(anyList());
-
-        order.verifyNoMoreInteractions();
     }
 
     @Test

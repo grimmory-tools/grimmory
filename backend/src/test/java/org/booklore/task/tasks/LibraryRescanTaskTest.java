@@ -39,17 +39,19 @@ class LibraryRescanTaskTest {
 
     private BookLoreUser user;
     private TaskCreateRequest request;
+    private LibraryRescanOptions options;
 
     @BeforeEach
     void setUp() {
         user = BookLoreUser.builder()
                 .permissions(new BookLoreUser.UserPermissions())
                 .build();
-
-        request = TaskCreateRequest.builder()
-                .taskId("task-123")
-                .options(LibraryRescanOptions.builder().build())
-                .build();
+        request = mock(TaskCreateRequest.class);
+        
+        // Lenient stubs because not all tests use them
+        lenient().when(request.getTaskId()).thenReturn("task-123");
+        options = LibraryRescanOptions.builder().build();
+        lenient().when(request.getOptionsAs(LibraryRescanOptions.class)).thenReturn(options);
     }
 
     @Test

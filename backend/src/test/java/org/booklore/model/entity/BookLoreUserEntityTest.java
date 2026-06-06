@@ -20,9 +20,5 @@ class BookLoreUserEntityTest {
 
         BookLoreUserEntity defaultUser = BookLoreUserEntity.builder().isDefaultPassword(false).build();
         assertThat(defaultUser.isDefaultPassword()).isFalse();
-        assertThat(defaultUser.getLocale()).isEqualTo("en");
-        assertThat(defaultUser.getTheme()).isEqualTo("grimmory");
-        assertThat(defaultUser.getThemeAccent()).isNull();
-        assertThat(defaultUser.isThemeSyncEnabled()).isTrue();
     }
 }

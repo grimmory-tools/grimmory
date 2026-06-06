@@ -313,7 +313,6 @@ export class EmbedPdfBookService {
     this.zoom?.requestZoom(level as ZoomMode);
   }
 
-  // --- Search ---
 
   startSearch(): void {
     this.search?.startSearch();
@@ -358,7 +357,6 @@ export class EmbedPdfBookService {
     }
   }
 
-  // --- Spread/Layout ---
 
   getSpreadMode(): string {
     return this.spread?.getSpreadMode?.() ?? 'none';
@@ -368,7 +366,6 @@ export class EmbedPdfBookService {
     this.spread?.setSpreadMode?.(mode as SpreadMode);
   }
 
-  // --- Rotation ---
 
   rotateClockwise(): void {
     this.rotate?.rotateForward?.();
@@ -378,7 +375,6 @@ export class EmbedPdfBookService {
     this.rotate?.rotateBackward?.();
   }
 
-  // --- Pan ---
 
   isPanMode(): boolean {
     return this.pan?.isPanMode() ?? false;
@@ -602,7 +598,6 @@ export class EmbedPdfBookService {
     if (w.__grimmoryShimsApplied) return;
     w.__grimmoryShimsApplied = true;
 
-    // --- Blob shim ---
     const OrigBlob = window.Blob;
     w.__grimmoryOrigBlob = OrigBlob;
     const PatchedBlob = function (parts: BlobPart[], opts?: BlobPropertyBag): Blob {
@@ -630,7 +625,6 @@ export class EmbedPdfBookService {
     Object.setPrototypeOf(PatchedBlob, OrigBlob);
     w.Blob = PatchedBlob;
 
-    // --- Worker shim ---
     const OrigWorker = window.Worker;
     w.__grimmoryOrigWorker = OrigWorker;
     const PatchedWorker = function (url: string | URL, opts?: WorkerOptions): Worker {
@@ -811,7 +805,6 @@ export class EmbedPdfBookService {
     };
     waitForShadow();
   }
-
 
 
   private setupResizeObserver(target: HTMLElement): void {

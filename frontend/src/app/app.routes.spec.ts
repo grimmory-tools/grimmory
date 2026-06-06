@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 
 import {routes} from './app.routes';
-import {AuthChildGuard, AuthGuard} from './core/security/auth.guard';
+import {AuthGuard} from './core/security/auth.guard';
 import {BookdropGuard} from './core/security/guards/bookdrop.guard';
 import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
 import {LibraryStatsGuard} from './core/security/guards/library-stats.guard';
@@ -28,11 +28,10 @@ describe('app routes', () => {
     const children = shellRoute?.children ?? [];
 
     expect(children).toHaveLength(17);
-    expect(shellRoute?.canActivateChild).toEqual([AuthChildGuard]);
-    expect(children.find(route => route.path === 'dashboard')?.canActivate).toBeUndefined();
-    expect(children.find(route => route.path === 'all-books')?.canActivate).toBeUndefined();
-    expect(children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.canActivate).toBeUndefined();
-    expect(children.find(route => route.path === 'notebook')?.canActivate).toBeUndefined();
+    expect(children.find(route => route.path === 'dashboard')?.canActivate).toEqual([AuthGuard]);
+    expect(children.find(route => route.path === 'all-books')?.canActivate).toEqual([AuthGuard]);
+    expect(children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.canActivate).toEqual([AuthGuard]);
+    expect(children.find(route => route.path === 'notebook')?.canActivate).toEqual([AuthGuard]);
     expect(typeof children.find(route => route.path === 'all-books')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'library/:libraryId/books')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'shelf/:shelfId/books')?.loadComponent).toBe('function');

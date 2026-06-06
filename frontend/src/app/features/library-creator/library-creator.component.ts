@@ -19,7 +19,6 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LibraryImportProgressService } from '../../shared/service/library-import-progress.service';
 
 interface FormatEntry { type: BookType; label: string }
 
@@ -46,7 +45,6 @@ export class LibraryCreatorComponent {
   private readonly router = inject(Router);
   private readonly iconPicker = inject(IconPickerService);
   private readonly t = inject(TranslocoService);
-  private readonly libraryImportProgressService = inject(LibraryImportProgressService);
 
   private readonly activeLang = toSignal(this.t.langChanges$, {
     initialValue: this.t.getActiveLang(),
@@ -217,8 +215,8 @@ export class LibraryCreatorComponent {
     return this.allBookFormats.some(f => this.getFormatWarning(f.type) !== null);
   }
 
-  async openDirectoryPicker(): Promise<void> {
-    const ref = await this.dialogLauncherService.openDirectoryPickerDialog().catch(() => null);
+  openDirectoryPicker(): void {
+    const ref = this.dialogLauncherService.openDirectoryPickerDialog();
     ref?.onClose.subscribe((selectedFolders: string[] | null) => {
       if (selectedFolders && selectedFolders.length > 0) {
         this.folders.update(current => {
@@ -304,7 +302,8 @@ export class LibraryCreatorComponent {
       this.libraryService.scanLibraryPaths(library).pipe(
         switchMap(count => {
           if (count >= 500) {
-            this.libraryImportProgressService.start(library.name, count);
+            console.warn(`Library has ${count} processable files (>500). Will use buffered loading.`);
+            this.libraryService.setLargeLibraryLoading(true, count);
           }
           return this.libraryService.createLibrary(library).pipe(
             map(createdLibrary => ({ createdLibrary, count }))
@@ -313,9 +312,6 @@ export class LibraryCreatorComponent {
       ).subscribe({
         next: ({ createdLibrary, count }) => {
           if (createdLibrary) {
-            if (count >= 500 && createdLibrary.id !== undefined) {
-              this.libraryImportProgressService.attachLibrary(createdLibrary.id);
-            }
             this.router.navigate(['/library', createdLibrary.id, 'books']);
             this.messageService.add({
               severity: 'success',
@@ -328,7 +324,7 @@ export class LibraryCreatorComponent {
           }
         },
         error: (e: Error) => {
-          this.libraryImportProgressService.fail();
+          this.libraryService.setLargeLibraryLoading(false, 0);
           this.messageService.add({ severity: 'error', summary: this.t.translate('libraryCreator.creator.toast.createFailedSummary'), detail: this.t.translate('libraryCreator.creator.toast.createFailedDetail') });
           console.error(e);
         }

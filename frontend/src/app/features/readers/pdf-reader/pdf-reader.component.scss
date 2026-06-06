@@ -1,50 +1,40 @@
-@use '../shared/styles/reader-chrome' as *;
+@use 'sass:color';
 
 /* stylelint-disable selector-id-pattern, selector-class-pattern */
 
 // Design tokens matching CBX/E-Book readers
 $header-height: 38px;
 $footer-height: 52px;
-$chrome-bg: var(--reader-chrome-bg);
-$chrome-bg-raised: var(--reader-chrome-bg-raised);
-$chrome-control-bg: var(--reader-chrome-control-bg);
-$border-color: var(--reader-chrome-border);
-$strong-border-color: var(--reader-chrome-strong-border);
-$text-primary: var(--reader-chrome-fg);
-$text-secondary: var(--reader-chrome-fg-secondary);
-$active-color: var(--reader-chrome-accent);
-$active-hover-color: var(--reader-chrome-accent-hover);
-$hover-bg: var(--reader-chrome-hover);
+$gradient-bg: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+$border-color: #404040;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$active-color: #4a90e2;
+$hover-bg: rgb(255 255 255 / 12%);
 $transition-fast: 150ms ease;
 
 .v-hidden {
   visibility: hidden !important;
 }
 
-// --- Loading ---
 
 .loading-container {
-  @include tokens;
-
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100dvh;
-  background: $chrome-bg;
+  background: #1a1a1a;
   z-index: 1000;
 }
 
-// --- Reader container ---
 
 .pdf-reader-container {
-  @include tokens;
-
   position: fixed;
   inset: 0;
   height: 100dvh;
-  background: $chrome-bg;
+  background: #1a1a1a;
   z-index: 900;
   overflow: hidden;
   box-sizing: border-box;
@@ -54,7 +44,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Trigger zones ---
 
 .header-trigger-zone,
 .footer-trigger-zone {
@@ -82,7 +71,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Header toolbar ---
 
 .pdf-header-toolbar {
   position: fixed;
@@ -96,10 +84,10 @@ $transition-fast: 150ms ease;
   align-items: center;
   justify-content: space-between;
   z-index: 1001;
-  background: $chrome-bg;
+  background: $gradient-bg;
   border-bottom: 1px solid $border-color;
   box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
-  color: $text-primary;
+  color: #fff;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -111,28 +99,20 @@ $transition-fast: 150ms ease;
     transform: translateY(-100%);
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    z-index: 1;
-    flex: 1 1 0%;
-    min-width: max-content;
-  }
-
+  .header-left,
   .header-right {
     display: flex;
     align-items: center;
     gap: 2px;
     z-index: 1;
-    flex: 1 1 0%;
-    justify-content: flex-end;
-    min-width: max-content;
+    flex-shrink: 0;
   }
 
   .book-title {
-    flex: 0 1 auto;
-    min-width: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 40%;
     padding: 0 12px;
     text-align: center;
     font-size: 14px;
@@ -153,7 +133,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Icon buttons ---
 
 .icon-btn {
   background: none;
@@ -183,7 +162,7 @@ $transition-fast: 150ms ease;
     cursor: default;
   }
 
-  &.active {
+  &.annotation-tool-btn.active {
     color: $active-color;
     background: rgb(74 144 226 / 15%);
   }
@@ -193,7 +172,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Search bar ---
 
 .search-bar {
   position: fixed;
@@ -202,7 +180,7 @@ $transition-fast: 150ms ease;
   right: 0;
   height: 36px;
   z-index: 1002;
-  background: $chrome-bg-raised;
+  background: color.adjust(#2d2d2d, $lightness: -3%);
   border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;
@@ -224,7 +202,7 @@ $transition-fast: 150ms ease;
     gap: 6px;
     flex: 1;
     max-width: 360px;
-    background: $chrome-control-bg;
+    background: #404040;
     border-radius: 4px;
     padding: 0 8px;
     color: $text-secondary;
@@ -249,7 +227,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Zoom menu ---
 
 .zoom-menu-wrapper {
   position: relative;
@@ -272,7 +249,7 @@ $transition-fast: 150ms ease;
   left: 50%;
   transform: translateX(-50%);
   margin-top: 4px;
-  background: $chrome-bg-raised;
+  background: #333;
   border: 1px solid $border-color;
   border-radius: 6px;
   padding: 4px 0;
@@ -303,7 +280,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Book viewer container ---
 
 .book-viewer-container {
   position: absolute;
@@ -323,7 +299,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Footer ---
 
 .pdf-footer {
   position: fixed;
@@ -338,7 +313,7 @@ $transition-fast: 150ms ease;
   justify-content: space-between;
   gap: 12px;
   z-index: 1002;
-  background: $chrome-bg;
+  background: $gradient-bg;
   border-top: 1px solid $border-color;
   box-shadow: 0 -2px 8px rgb(0 0 0 / 30%);
   color: $text-primary;
@@ -347,7 +322,7 @@ $transition-fast: 150ms ease;
   pointer-events: none;
   transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 
-  &.is-visible {
+  &.visible {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
@@ -362,36 +337,33 @@ $transition-fast: 150ms ease;
 }
 
 .nav-btn {
-  background: $chrome-control-bg;
-  border: 1px solid $strong-border-color;
+  background: rgb(51 51 51 / 90%);
+  border: 1px solid #555;
   color: $text-primary;
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background $transition-fast,
-    border-color $transition-fast,
-    color $transition-fast,
-    opacity $transition-fast;
+  transition: all $transition-fast;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:hover:not(:disabled) {
-    background: $hover-bg;
-    border-color: color-mix(in srgb, var(--reader-chrome-fg) 25%, transparent);
+    background: #4a4a4a;
+    border-color: #666;
   }
 
   &:disabled {
-    background: color-mix(in srgb, var(--reader-chrome-fg) 4%, transparent);
-    color: var(--reader-chrome-fg-muted);
+    background: #2a2a2a;
+    color: #666;
     cursor: not-allowed;
-    border-color: $border-color;
+    border-color: #333;
   }
 }
 
 .page-info {
   padding: 4px 12px;
-  background: $chrome-control-bg;
+  background: rgb(255 255 255 / 10%);
   border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
@@ -438,7 +410,7 @@ $transition-fast: 150ms ease;
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 6px;
-      background: color-mix(in srgb, var(--reader-chrome-fg) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -446,7 +418,7 @@ $transition-fast: 150ms ease;
     &::-moz-range-track {
       width: 100%;
       height: 6px;
-      background: color-mix(in srgb, var(--reader-chrome-fg) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -498,7 +470,7 @@ $transition-fast: 150ms ease;
         transform: translateX(-50%);
         width: 2px;
         height: 10px;
-        background: color-mix(in srgb, var(--reader-chrome-fg) 50%, transparent);
+        background: rgb(255 255 255 / 50%);
         top: 0;
       }
     }
@@ -516,24 +488,24 @@ $transition-fast: 150ms ease;
     white-space: nowrap;
     gap: 6px;
     padding: 0 12px;
-    border: 1px solid $strong-border-color;
-    background: $chrome-control-bg;
-    color: $text-secondary;
+    border: 1px solid var(--surface-border);
+    background: var(--surface-card);
+    color: var(--text-color-secondary);
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    transition: all 0.2s;
     height: 30px;
 
     &:hover {
-      color: $text-primary;
-      background: $hover-bg;
+      color: var(--text-color);
+      background: var(--surface-hover);
     }
 
     &.active {
-      background: $active-color;
-      color: $text-primary;
-      border-color: $active-color;
+      background: var(--primary-color);
+      color: var(--primary-color-text);
+      border-color: var(--primary-color);
       z-index: 1;
     }
 
@@ -555,9 +527,9 @@ $transition-fast: 150ms ease;
   bottom: 80px;
   left: 24px;
   z-index: 1001;
-  background-color: $chrome-bg-raised;
-  color: $text-secondary;
-  border: 1px solid $border-color;
+  background-color: var(--surface-card);
+  color: var(--text-color-secondary);
+  border: 1px solid var(--surface-border);
   padding: 8px 16px;
   border-radius: 20px;
   display: flex;
@@ -570,86 +542,42 @@ $transition-fast: 150ms ease;
 
   i {
     font-size: 1rem;
-    color: $active-color;
+    color: var(--primary-color);
   }
 }
 
-.embed-header-actions {
+.embed-close-btn {
   position: fixed;
   top: 0;
   right: 10px;
+  z-index: 11000;
+  color: #fff;
+  width: 38px;
   height: $header-height;
   display: flex;
   align-items: center;
-  gap: 4px;
-  z-index: 11000;
-  pointer-events: auto;
-  color: #fff;
-
-  @media (width <= 1024px) {
-    top: env(safe-area-inset-top);
-    height: calc(#{$header-height} + 4px);
-    right: 8px;
-  }
-}
-
-.embed-action-btn {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  padding: 7px;
-  border-radius: 6px;
-  transition: background $transition-fast, color $transition-fast;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  background: transparent;
+  border: none;
+  border-left: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background $transition-fast;
   touch-action: manipulation;
   -webkit-tap-highlight-color: rgb(255 255 255 / 12%);
-  width: 32px;
-  height: 32px;
+  border-radius: 0;
 
   &:hover {
-    background: $hover-bg;
+    background: rgb(255 255 255 / 10%);
   }
 
-  &.close-btn:hover {
-    background: rgb(239 68 68 / 20%);
-    color: #ef4444;
-  }
-
-  &.save-btn:hover {
-    background: rgb(74 144 226 / 20%);
-    color: #4a90e2;
+  &:active {
+    background: rgb(255 255 255 / 16%);
   }
 
   &:disabled {
-    opacity: 0.65;
+    opacity: 0.8;
     cursor: default;
-  }
-}
-
-.pdf-reader-container:not(.dark) {
-  .embed-header-actions {
-    color: rgb(0 0 0 / 87%);
-
-    .embed-action-btn {
-      color: rgb(0 0 0 / 87%);
-
-      &:hover {
-        background: rgb(0 0 0 / 6%);
-      }
-
-      &.close-btn:hover {
-        background: rgb(239 68 68 / 15%);
-        color: #dc2626;
-      }
-
-      &.save-btn:hover {
-        background: rgb(74 144 226 / 15%);
-        color: #1d4ed8;
-      }
-    }
   }
 }
 
@@ -658,7 +586,7 @@ $transition-fast: 150ms ease;
   top: 48px;
   right: 12px;
   z-index: 1010;
-  background: color-mix(in srgb, var(--reader-chrome-bg-raised) 90%, transparent);
+  background: rgb(45 45 45 / 90%);
   color: $text-primary;
   padding: 6px 12px;
   border-radius: 20px;
@@ -681,11 +609,11 @@ $transition-fast: 150ms ease;
     align-items: center;
     padding: 2px;
     border-radius: 50%;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.2s;
 
     &:hover {
-      color: $text-primary;
-      background: $hover-bg;
+      color: #fff;
+      background: rgb(255 255 255 / 10%);
     }
   }
 }
@@ -708,7 +636,6 @@ $transition-fast: 150ms ease;
   width: 100%;
   height: 100%;
   display: flex;
-  transition: inset 0.25s ease-out, height 0.25s ease-out;
 
   iframe {
     width: 100%;
@@ -717,36 +644,29 @@ $transition-fast: 150ms ease;
   }
 }
 
-.pdf-reader-container.footer-hidden {
-  #embedpdf-viewer {
-    inset: 0;
-    height: 100%;
-  }
-}
-
 
 .goto-page {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: $chrome-control-bg;
+  background: rgb(51 51 51 / 90%);
   border-radius: 4px;
   padding: 2px;
-  border: 1px solid $strong-border-color;
+  border: 1px solid #555;
 
   .page-input {
     width: 55px;
     padding: 4px 6px;
     border: none;
     border-radius: 3px;
-    background: $chrome-control-bg;
+    background: #404040;
     color: $text-primary;
     font-size: 12px;
     text-align: center;
 
     &:focus {
       outline: none;
-      background: $hover-bg;
+      background: #4a4a4a;
     }
 
     &::placeholder {
@@ -767,7 +687,7 @@ $transition-fast: 150ms ease;
     transition: background $transition-fast;
 
     &:hover:not(:disabled) {
-      background: $active-hover-color;
+      background: color.adjust($active-color, $lightness: -10%);
     }
 
     &:disabled {
@@ -777,7 +697,6 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Mobile actions (hidden on desktop) ---
 
 .mobile-actions {
   display: none;
@@ -785,7 +704,6 @@ $transition-fast: 150ms ease;
   gap: 2px;
 }
 
-// --- Desktop actions ---
 
 .desktop-actions {
   display: flex;
@@ -793,7 +711,6 @@ $transition-fast: 150ms ease;
   gap: 2px;
 }
 
-// --- Toolbar overflow menu (mobile) ---
 
 .toolbar-overflow-backdrop {
   position: fixed;
@@ -807,7 +724,7 @@ $transition-fast: 150ms ease;
   top: $header-height;
   right: 8px;
   z-index: 1010;
-  background: $chrome-bg-raised;
+  background: #2d2d2d;
   border: 1px solid $border-color;
   border-radius: 8px;
   padding: 4px 0;
@@ -831,12 +748,6 @@ $transition-fast: 150ms ease;
       background: $hover-bg;
     }
 
-    &.active {
-      color: $active-color;
-      background: rgb(74 144 226 / 10%);
-      font-weight: 500;
-    }
-
     svg,
     app-reader-icon {
       flex-shrink: 0;
@@ -850,18 +761,9 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Responsive ---
 
 // Tablet (portrait) switches to mobile toolbar layout
 @media (width <= 1024px) {
-  // When footer is visible on mobile/tablet, it pushes the PDF viewer
-  .pdf-reader-container:not(.footer-hidden) {
-    #embedpdf-viewer {
-      inset: 0 0 $footer-height;
-      height: calc(100% - #{$footer-height});
-    }
-  }
-
   .pdf-header-toolbar {
     height: calc(#{$header-height} + 4px + env(safe-area-inset-top));
     padding: 0 8px;
@@ -872,6 +774,17 @@ $transition-fast: 150ms ease;
     min-width: 46px;
     min-height: 46px;
     border-radius: 8px;
+  }
+
+  .embed-close-btn {
+    top: calc(env(safe-area-inset-top) + 2px);
+    right: 10px;
+    width: 38px;
+    height: $header-height;
+    min-width: 38px;
+    min-height: $header-height;
+    border-radius: 0;
+    border-left: none;
   }
 
   .desktop-actions {

@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,9 +26,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,9 +84,6 @@ public class FileService {
     private static final String IMAGE_FORMAT                  = "JPEG";
     // @formatter:on
 
-    // ========================================
-    // PATH UTILITIES
-    // ========================================
 
     public String getImagesFolder(long bookId) {
         return Paths.get(appProperties.getPathConfig(), IMAGES_DIR, String.valueOf(bookId)).toString();
@@ -182,10 +182,6 @@ public class FileService {
     }
 
 
-    // ========================================
-    // VALIDATION
-    // ========================================
-
     private long getMaxFileUploadSizeMb() {
         AppSettings appSettings = this.appSettingService.getAppSettings();
 
@@ -218,9 +214,6 @@ public class FileService {
         }
     }
 
-    // ========================================
-    // IMAGE OPERATIONS
-    // ========================================
 
     public static BufferedImage readImage(InputStream inputStream) throws IOException {
         return readImage(inputStream.readAllBytes());
@@ -441,9 +434,6 @@ public class FileService {
         return (addr[10] == (byte) 0xFF) && (addr[11] == (byte) 0xFF);
     }
 
-    // ========================================
-    // COVER OPERATIONS
-    // ========================================
 
     public void createThumbnailFromFile(long bookId, MultipartFile file) {
         try {
@@ -506,9 +496,6 @@ public class FileService {
         }
     }
 
-    // ========================================
-    // AUTHOR PHOTO OPERATIONS
-    // ========================================
 
     public void createAuthorThumbnailFromUrl(long authorId, String imageUrl) {
         try {
@@ -616,9 +603,6 @@ public class FileService {
         }
     }
 
-    // ========================================
-    // AUDIOBOOK COVER OPERATIONS
-    // ========================================
 
     public void createAudiobookThumbnailFromFile(long bookId, MultipartFile file) {
         try {
@@ -949,9 +933,6 @@ public class FileService {
         return Paths.get(appProperties.getPathConfig(), ICONS_DIR, SVG_DIR).toString();
     }
 
-    // ========================================
-    // UTILITY METHODS
-    // ========================================
 
     public static String truncate(String input, int maxLength) {
         if (input == null) return null;

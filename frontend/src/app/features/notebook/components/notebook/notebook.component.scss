@@ -73,9 +73,6 @@
   padding: 1rem;
 }
 
-// ============================================================================
-// FILTERS BAR
-// ============================================================================
 .filters-bar {
   display: flex;
   align-items: center;
@@ -128,9 +125,7 @@
   @include settings.settings-button-group;
 }
 
-// ============================================================================
 // STATES: Loading / Empty
-// ============================================================================
 .state-container {
   display: flex;
   flex-direction: column;
@@ -180,9 +175,6 @@
   margin: 0;
 }
 
-// ============================================================================
-// BOOK GROUP CARDS
-// ============================================================================
 .book-group-card {
   gap: 0;
   padding: 0;
@@ -240,9 +232,6 @@
   transition: transform 0.2s ease;
 }
 
-// ============================================================================
-// ENTRIES LIST
-// ============================================================================
 .entries-list {
   display: flex;
   flex-direction: column;
@@ -254,11 +243,11 @@
   padding: 0.75rem 1rem;
   border-radius: 6px;
   border-left: 3px solid var(--p-primary-color);
-  background: var(--color-card);
+  background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
   transition: background 0.15s ease;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-card) 92%, var(--color-text) 8%);
+    background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
   }
 }
 
@@ -346,18 +335,12 @@
   }
 }
 
-// ============================================================================
-// PAGINATION
-// ============================================================================
 .pagination-card {
   display: flex;
   justify-content: center;
   padding: 0.5rem;
 }
 
-// ============================================================================
-// RESPONSIVE
-// ============================================================================
 @media #{variables.$mobile-shell-media-query} {
   .filters-bar {
     flex-direction: column;

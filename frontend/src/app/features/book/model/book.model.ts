@@ -60,11 +60,20 @@ export interface Book extends FileInfo {
   [key: string]: unknown;
 }
 
+export type EpubPositionType = 'CFI' | 'XPOINTER' | 'READIUM_LOCATOR' | 'PERCENT_ONLY';
+
 export interface EpubProgress {
   cfi?: string | null;
   href?: string;
   contentSourceProgressPercent?: number | null;
   percentage: number;
+  xpointer?: string | null;
+  readiumLocatorJson?: string | null;
+  chapterProgression?: number | null;
+  positionType?: EpubPositionType | null;
+  textBefore?: string | null;
+  textHighlight?: string | null;
+  textAfter?: string | null;
 }
 
 export interface PdfProgress {

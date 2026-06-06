@@ -1,4 +1,14 @@
-@use '../../shared/styles/reader-chrome' as *;
+// Variables matching reader styling
+$dialog-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
+$active-color: #4a90e2;
+$active-bg: rgb(74 144 226 / 15%);
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
@@ -9,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fade-in var(--transition-base);
+  animation: fade-in $transition-normal;
 }
 
 @keyframes fade-in {
@@ -18,9 +28,8 @@
 }
 
 .dialog {
-  @include surface;
-
-  border: 1px solid var(--reader-chrome-border);
+  background: $dialog-bg;
+  border: 1px solid $border-color;
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
@@ -46,16 +55,17 @@
 
 .dialog-header {
   padding: 16px 20px;
-  border-bottom: 1px solid var(--reader-chrome-border);
+  border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 2%, transparent) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 2%) 0%, transparent 100%);
 
   h2 {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
+    color: $text-primary;
     letter-spacing: -0.3px;
   }
 }
@@ -63,11 +73,11 @@
 .close-btn {
   background: none;
   border: none;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background $transition-fast, color $transition-fast;
   line-height: 1;
   width: 32px;
   height: 32px;
@@ -76,8 +86,8 @@
   justify-content: center;
 
   &:hover {
-    background: var(--reader-chrome-hover);
-    color: var(--color-white);
+    background: $hover-bg;
+    color: $text-primary;
   }
 }
 
@@ -92,7 +102,7 @@
 
 .section-label {
   display: block;
-  color: var(--reader-chrome-fg-muted);
+  color: $text-muted;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -104,10 +114,10 @@
   .page-info {
     margin: 0;
     padding: 12px 16px;
-    background: color-mix(in srgb, var(--color-white) 3%, transparent);
-    border-left: 3px solid var(--reader-chrome-accent);
+    background: rgb(255 255 255 / 3%);
+    border-left: 3px solid $active-color;
     border-radius: 0 8px 8px 0;
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
     font-size: 13px;
     line-height: 1.6;
   }
@@ -123,24 +133,24 @@
   flex: 1;
   min-height: 120px;
   padding: 12px 16px;
-  background: color-mix(in srgb, var(--color-white) 3%, transparent);
-  border: 1px solid var(--reader-chrome-border);
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid $border-color;
   border-radius: 8px;
-  color: var(--color-white);
+  color: $text-primary;
   font-size: 14px;
   line-height: 1.6;
   resize: vertical;
   font-family: inherit;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color $transition-fast, box-shadow $transition-fast;
 
   &::placeholder {
-    color: var(--reader-chrome-fg-muted);
+    color: $text-muted;
   }
 
   &:focus {
     outline: none;
-    border-color: var(--reader-chrome-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--reader-chrome-accent) 15%, transparent);
+    border-color: $active-color;
+    box-shadow: 0 0 0 3px rgb(74 144 226 / 15%);
   }
 }
 
@@ -158,7 +168,7 @@
   border: 2px solid transparent;
   background: var(--color);
   cursor: pointer;
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
   position: relative;
 
   &:hover {
@@ -166,8 +176,8 @@
   }
 
   &.selected {
-    border-color: var(--color-white);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-white) 20%, transparent);
+    border-color: $text-primary;
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 20%);
 
     &::after {
       content: '\2713';
@@ -186,11 +196,11 @@
 
 .dialog-footer {
   padding: 16px 20px;
-  border-top: 1px solid var(--reader-chrome-border);
+  border-top: 1px solid $border-color;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  background: linear-gradient(0deg, color-mix(in srgb, var(--color-white) 2%, transparent) 0%, transparent 100%);
+  background: linear-gradient(0deg, rgb(255 255 255 / 2%) 0%, transparent 100%);
 }
 
 .btn {
@@ -199,7 +209,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+  transition: background $transition-fast, transform $transition-fast, opacity $transition-fast;
   border: none;
 
   &:active {
@@ -214,19 +224,19 @@
 }
 
 .btn-secondary {
-  background: var(--reader-chrome-hover);
-  color: var(--color-white);
+  background: $hover-bg;
+  color: $text-primary;
 
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-white) 12%, transparent);
+    background: rgb(255 255 255 / 12%);
   }
 }
 
 .btn-primary {
-  background: var(--reader-chrome-accent);
+  background: $active-color;
   color: white;
 
   &:hover:not(:disabled) {
-    background: var(--reader-chrome-accent-hover);
+    background: #5a9ee6;
   }
 }

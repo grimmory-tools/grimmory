@@ -1,8 +1,16 @@
-@use '../../../shared/styles/reader-chrome' as *;
+@use 'sass:color';
+
+// Variables
+$footer-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
+$active-color: #4a90e2;
+$transition-fast: 150ms ease;
 
 .cbx-footer {
-  @include surface;
-
   position: absolute;
   bottom: 0;
   left: 0;
@@ -14,14 +22,16 @@
   justify-content: space-between;
   gap: 12px;
   z-index: 1000;
-  border-top: 1px solid var(--reader-chrome-border);
+  background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+  border-top: 1px solid #404040;
   box-shadow: 0 -2px 8px rgb(0 0 0 / 30%);
+  color: $text-primary;
   transform: translateY(100%);
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
   pointer-events: none;
 
-  &.is-visible {
+  &.visible {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
@@ -49,16 +59,13 @@
 }
 
 .nav-btn {
-  background: var(--reader-chrome-control-bg);
-  border: 1px solid var(--reader-chrome-strong-border);
-  color: var(--reader-chrome-fg);
+  background: rgb(51 51 51 / 90%);
+  border: 1px solid #555;
+  color: $text-primary;
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    opacity var(--transition-fast);
+  transition: all $transition-fast;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,22 +74,22 @@
   font-weight: bold;
 
   &:hover:not(:disabled) {
-    background: var(--reader-chrome-hover);
-    border-color: color-mix(in srgb, var(--reader-chrome-fg) 25%, transparent);
+    background: #4a4a4a;
+    border-color: #666;
   }
 
   &:disabled {
-    background: color-mix(in srgb, var(--reader-chrome-fg) 4%, transparent);
-    color: var(--reader-chrome-fg-muted);
+    background: #2a2a2a;
+    color: #666;
     cursor: not-allowed;
-    border-color: var(--reader-chrome-border);
+    border-color: #333;
   }
 
   &.series-btn {
     gap: 6px;
     padding: 6px 12px;
-    background: var(--reader-chrome-accent);
-    border-color: var(--reader-chrome-accent);
+    background: $active-color;
+    border-color: $active-color;
 
     .label {
       font-size: 12px;
@@ -90,12 +97,12 @@
     }
 
     &:hover:not(:disabled) {
-      background: var(--reader-chrome-accent-active);
+      background: color.adjust($active-color, $lightness: -10%);
     }
 
     &:disabled {
-      background: var(--reader-chrome-control-bg);
-      border-color: var(--reader-chrome-strong-border);
+      background: #555;
+      border-color: #555;
       opacity: 0.5;
     }
   }
@@ -103,7 +110,7 @@
 
 .page-info {
   padding: 4px 12px;
-  background: var(--reader-chrome-control-bg);
+  background: rgb(255 255 255 / 10%);
   border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
@@ -111,17 +118,17 @@
   text-align: center;
 
   .current {
-    color: var(--reader-chrome-accent);
+    color: $active-color;
     font-weight: 600;
   }
 
   .separator {
-    color: var(--reader-chrome-accent);
+    color: $active-color;
     font-weight: 600;
   }
 
   .total {
-    color: var(--reader-chrome-fg-secondary);
+    color: $text-secondary;
   }
 }
 
@@ -148,11 +155,10 @@
     background: none;
     cursor: pointer;
 
-    /* ===== Track ===== */
     &::-webkit-slider-runnable-track {
       width: 100%;
       height: 6px;
-      background: color-mix(in srgb, var(--color-white) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       border-radius: 3px;
       cursor: pointer;
     }
@@ -160,27 +166,26 @@
     &::-moz-range-track {
       width: 100%;
       height: 6px;
-      background: color-mix(in srgb, var(--color-white) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       border-radius: 3px;
       cursor: pointer;
     }
 
     &::-ms-fill-lower,
     &::-ms-fill-upper {
-      background: color-mix(in srgb, var(--color-white) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       border-radius: 3px;
     }
 
-    /* ===== Thumb ===== */
     &::-webkit-slider-thumb {
       appearance: none;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       cursor: pointer;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      transition: transform $transition-fast, box-shadow $transition-fast;
       margin-top: calc((6px - 18px) / 2); /* center thumb on track */
     }
 
@@ -188,11 +193,11 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      transition: transform $transition-fast, box-shadow $transition-fast;
       margin-top: calc((6px - 18px) / 2);
     }
 
@@ -200,14 +205,13 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
     }
   }
 
-  /* ===== Tick marks ===== */
   datalist {
     display: flex;
     justify-content: space-between;
@@ -232,7 +236,7 @@
         transform: translateX(-50%);
         width: 2px;
         height: 10px;
-        background: color-mix(in srgb, var(--reader-chrome-fg) 50%, transparent);
+        background: rgb(255 255 255 / 50%);
         top: 0;
       }
     }
@@ -243,26 +247,26 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--reader-chrome-control-bg);
+  background: rgb(51 51 51 / 90%);
   border-radius: 4px;
   padding: 2px;
-  border: 1px solid var(--reader-chrome-strong-border);
+  border: 1px solid #555;
 
   .page-input {
     width: 55px;
     padding: 4px 6px;
     border: none;
     border-radius: 3px;
-    background: var(--reader-chrome-control-bg);
-    color: var(--reader-chrome-fg);
+    background: #404040;
+    color: $text-primary;
     font-size: 12px;
     text-align: center;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
 
     &:focus {
       outline: none;
-      background: var(--reader-chrome-hover);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--reader-chrome-accent) 50%, transparent);
+      background: #4a4a4a;
+      box-shadow: 0 0 0 1px rgb(74 144 226 / 50%);
     }
 
     &::placeholder {
@@ -272,21 +276,21 @@
 
   .go-btn {
     padding: 4px 10px;
-    background: var(--reader-chrome-accent);
+    background: $active-color;
     color: white;
     border: none;
     border-radius: 3px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s ease, opacity 0.2s ease;
+    transition: all 0.2s ease;
 
     &:hover:not(:disabled) {
-      background: var(--reader-chrome-accent-active);
+      background: color.adjust($active-color, $lightness: -10%);
     }
 
     &:disabled {
-      background: var(--reader-chrome-control-bg);
+      background: #666;
       cursor: not-allowed;
       opacity: 0.6;
     }

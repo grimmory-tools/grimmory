@@ -54,13 +54,16 @@ runs:
       with:
         tool: just
 
-    - name: Set Up pnpm
-      uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
     - name: Set Up Node.js
       uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
-        node-version-file: .nvmrc
+        node-version: '24'
+
+    - name: Enable Corepack
+      shell: bash
+      run: |
+        corepack enable
+        corepack yarn --version
 
     - name: Install Release Tooling Dependencies
       shell: bash

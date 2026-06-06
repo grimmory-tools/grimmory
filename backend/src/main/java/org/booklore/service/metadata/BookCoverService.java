@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -77,9 +78,6 @@ public class BookCoverService {
     private record BookCoverInfo(Long id, String title) {
     }
 
-    // =========================
-    // SECTION: COVER UPDATES
-    // =========================
 
     /**
      * Generate a custom cover for a single book.
@@ -138,9 +136,6 @@ public class BookCoverService {
         notifyBookCoverUpdate(bookEntity);
     }
 
-    // =========================
-    // SECTION: AUDIOBOOK COVER UPDATES
-    // =========================
 
     /**
      * Update audiobook cover image from uploaded file for a single book.
@@ -236,9 +231,6 @@ public class BookCoverService {
         taskExecutor.execute(() -> processBulkCoverUpdate(unlockedBooks, coverImageBytes, username));
     }
 
-    // =========================
-    // SECTION: COVER REGENERATION
-    // =========================
 
     /**
      * Regenerate cover for a single book from its ebook file.
@@ -374,9 +366,6 @@ public class BookCoverService {
         });
     }
 
-    // =========================
-    // SECTION: BULK OPERATIONS
-    // =========================
 
     private void processBulkCoverUpdate(List<BookCoverInfo> books, byte[] coverImageBytes, String username) {
         try {
@@ -501,9 +490,6 @@ public class BookCoverService {
         }
     }
 
-    // =========================
-    // SECTION: INTERNAL HELPERS
-    // =========================
 
     private long getMaxFileUploadSizeMb() {
         AppSettings appSettings = this.appSettingService.getAppSettings();

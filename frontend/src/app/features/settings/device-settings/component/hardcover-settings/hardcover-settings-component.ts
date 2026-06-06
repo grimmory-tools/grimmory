@@ -1,4 +1,4 @@
-import {Component, DestroyRef, computed, effect, inject, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
@@ -34,20 +34,21 @@ export class HardcoverSettingsComponent {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly hasPermission = computed(() => {
-    const user = this.userService.currentUser();
-    return !!(user?.permissions.canSyncKoReader || user?.permissions.canSyncKobo || user?.permissions.admin);
-  });
-  hardcoverSyncEnabled = signal(false);
-  hardcoverApiKey = signal('');
-  showHardcoverApiKey = signal(false);
+  hasPermission = false;
+  hardcoverSyncEnabled = false;
+  hardcoverApiKey = '';
+  showHardcoverApiKey = false;
   private prevHasPermission = false;
-  private savedHardcoverSyncEnabled = false;
-  private savedHardcoverApiKey = '';
 
   constructor() {
     effect(() => {
-      const currHasPermission = this.hasPermission();
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      const currHasPermission = (user.permissions.canSyncKoReader
+        || user.permissions.canSyncKobo
+        || user.permissions.admin) ?? false;
+      this.hasPermission = currHasPermission;
       if (currHasPermission && !this.prevHasPermission) {
         this.loadHardcoverSettings();
       }
@@ -60,9 +61,8 @@ export class HardcoverSettingsComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: settings => {
-        this.hardcoverSyncEnabled.set(settings.hardcoverSyncEnabled ?? false);
-        this.hardcoverApiKey.set(settings.hardcoverApiKey ?? '');
-        this.rememberSavedSettings();
+        this.hardcoverSyncEnabled = settings.hardcoverSyncEnabled ?? false;
+        this.hardcoverApiKey = settings.hardcoverApiKey ?? '';
       },
       error: () => {
         this.messageService.add({
@@ -75,12 +75,11 @@ export class HardcoverSettingsComponent {
   }
 
   toggleShowHardcoverApiKey() {
-    this.showHardcoverApiKey.update(showHardcoverApiKey => !showHardcoverApiKey);
+    this.showHardcoverApiKey = !this.showHardcoverApiKey;
   }
 
-  onHardcoverSyncToggle(enabled: boolean) {
-    this.hardcoverSyncEnabled.set(enabled);
-    const message = enabled
+  onHardcoverSyncToggle() {
+    const message = this.hardcoverSyncEnabled
       ? this.t.translate('settingsDevice.hardcover.syncEnabledMsg')
       : this.t.translate('settingsDevice.hardcover.syncDisabledMsg');
     this.updateHardcoverSettings(message);
@@ -92,19 +91,17 @@ export class HardcoverSettingsComponent {
 
   private updateHardcoverSettings(successMessage: string) {
     this.hardcoverSyncSettingsService.updateSettings({
-      hardcoverSyncEnabled: this.hardcoverSyncEnabled(),
-      hardcoverApiKey: this.hardcoverApiKey()
+      hardcoverSyncEnabled: this.hardcoverSyncEnabled,
+      hardcoverApiKey: this.hardcoverApiKey
     }).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: settings => {
-        this.hardcoverSyncEnabled.set(settings.hardcoverSyncEnabled ?? false);
-        this.hardcoverApiKey.set(settings.hardcoverApiKey ?? '');
-        this.rememberSavedSettings();
+        this.hardcoverSyncEnabled = settings.hardcoverSyncEnabled ?? false;
+        this.hardcoverApiKey = settings.hardcoverApiKey ?? '';
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.settingsUpdated'), detail: successMessage});
       },
       error: () => {
-        this.restoreSavedSettings();
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.hardcover.updateFailed'),
@@ -112,16 +109,6 @@ export class HardcoverSettingsComponent {
         });
       }
     });
-  }
-
-  private rememberSavedSettings() {
-    this.savedHardcoverSyncEnabled = this.hardcoverSyncEnabled();
-    this.savedHardcoverApiKey = this.hardcoverApiKey();
-  }
-
-  private restoreSavedSettings() {
-    this.hardcoverSyncEnabled.set(this.savedHardcoverSyncEnabled);
-    this.hardcoverApiKey.set(this.savedHardcoverApiKey);
   }
 
   copyText(text: string, label: string = 'Text') {

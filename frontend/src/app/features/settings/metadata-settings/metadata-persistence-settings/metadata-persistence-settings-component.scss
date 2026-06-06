@@ -26,28 +26,6 @@
   @include settings.settings-warning-notice;
 }
 
-.warning-notice-danger {
-  border-left-color: var(--color-red-700);
-  color: var(--color-red-700);
-
-  .pi,
-  strong {
-    color: var(--color-red-700);
-  }
-}
-
-:host-context(.dark) {
-  .warning-notice-danger {
-    border-left-color: var(--color-red-300);
-    color: var(--color-red-300);
-
-    .pi,
-    strong {
-      color: var(--color-red-300);
-    }
-  }
-}
-
 .info-notice {
   @include settings.settings-info-notice;
 }

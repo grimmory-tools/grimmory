@@ -46,10 +46,12 @@ export class PublicationEraChartComponent {
     plugins: {
       legend: {
         display: true, position: 'bottom',
-        labels: {font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 12, padding: 12}
+        labels: {color: 'rgba(255, 255, 255, 0.8)', font: {family: "'Inter', sans-serif", size: 11}, boxWidth: 12, padding: 12}
       },
       tooltip: {
-        enabled: true, borderWidth: 1, cornerRadius: 6, padding: 10,
+        enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        titleColor: '#ffffff', bodyColor: '#ffffff',
+        borderColor: '#ffffff', borderWidth: 1, cornerRadius: 6, padding: 10,
         callbacks: {
           label: (ctx) => {
             return `${ctx.dataset.label}: ${ctx.parsed.y} books`;
@@ -60,13 +62,15 @@ export class PublicationEraChartComponent {
     },
     scales: {
       x: {
-        ticks: {font: {size: 11}},
-        title: {display: true, text: 'Rating Range', font: {size: 11}}
+        grid: {color: 'rgba(255, 255, 255, 0.08)'},
+        ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}},
+        title: {display: true, text: 'Rating Range', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       },
       y: {
         beginAtZero: true,
-        ticks: {font: {size: 11}, stepSize: 1},
-        title: {display: true, text: 'Books', font: {size: 11}}
+        grid: {color: 'rgba(255, 255, 255, 0.08)'},
+        ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}, stepSize: 1},
+        title: {display: true, text: 'Books', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       }
     },
     interaction: {mode: 'index', intersect: false}
@@ -130,6 +134,7 @@ export class PublicationEraChartComponent {
         borderWidth: 2.5,
         pointRadius: 5,
         pointBackgroundColor: this.DECADE_COLORS[i % this.DECADE_COLORS.length],
+        pointBorderColor: '#ffffff',
         pointBorderWidth: 1.5,
         tension: 0.3,
         fill: false

@@ -111,7 +111,7 @@
     "searching": "Iskanje fotografij...",
     "noResults": "Ni najdenih fotografij",
     "noResultsHint": "Poskusi prilagoditi iskalni izraz",
-    "resultsFound": "Najdenih je bilo {{ count }} fotografij",
+    "resultsFound": "Najdenih je bilo {{ število }} fotografij",
     "selectBtn": "Izberi",
     "photoAlt": "Avtorjeva fotografija {{ index }}"
   },

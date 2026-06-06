@@ -11,6 +11,7 @@ import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.springframework.data.domain.Page;
@@ -286,7 +287,6 @@ public class AppSeriesService {
         return AppPageResponse.of(summaries, pageNum, pageSize, bookPage.getTotalElements());
     }
 
-    // --- Access control helpers (duplicated from AppBookService to minimize blast radius) ---
 
     private Set<Long> getAccessibleLibraryIds(BookLoreUser user) {
         if (user.getPermissions().isAdmin()) {
@@ -306,7 +306,6 @@ public class AppSeriesService {
         }
     }
 
-    // --- Query helpers ---
 
     private String buildLibraryClause(Set<Long> accessibleLibraryIds, Long libraryId) {
         if (libraryId != null) {

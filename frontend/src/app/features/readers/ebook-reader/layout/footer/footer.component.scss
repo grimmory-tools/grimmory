@@ -1,8 +1,15 @@
-@use '../../../shared/styles/reader-chrome' as *;
+// Variables matching sidebar styling
+$navbar-bg: #1a1a1a;
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
+$active-color: #818cf8;
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
 
 .reader-navbar {
-  @include text;
-
   position: absolute;
   bottom: 0;
   left: 0;
@@ -13,17 +20,18 @@
   align-items: center;
   gap: 8px;
   z-index: 1000;
-  background: var(--reader-chrome-bg);
+  background: $navbar-bg;
   backdrop-filter: blur(8px);
-  border-top: 1px solid var(--reader-chrome-border);
+  border-top: 1px solid $border-color;
   box-shadow: 0 -2px 12px rgb(0 0 0 / 30%);
+  color: $text-primary;
   opacity: 0;
   pointer-events: none;
   transform: translateY(100%);
   transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
               transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  &.is-visible {
+  &.visible {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -33,11 +41,11 @@
 .icon-btn {
   background: none;
   border: none;
-  color: var(--reader-chrome-fg-secondary);
+  color: $text-secondary;
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition: background $transition-fast, color $transition-fast;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,8 +56,8 @@
   }
 
   &:hover:not(:disabled) {
-    background: var(--reader-chrome-hover);
-    color: var(--reader-chrome-fg);
+    background: $hover-bg;
+    color: $text-primary;
   }
 
   &:disabled {
@@ -58,7 +66,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--reader-chrome-accent);
+    outline: 2px solid $active-color;
     outline-offset: 2px;
   }
 }
@@ -70,24 +78,24 @@
   gap: 12px;
 
   .location-btn {
-    background: color-mix(in srgb, var(--color-white) 5%, transparent);
-    border: 1px solid var(--reader-chrome-border);
-    color: var(--color-white);
+    background: rgb(255 255 255 / 5%);
+    border: 1px solid $border-color;
+    color: $text-primary;
     padding: 6px 14px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    transition: background var(--transition-fast), border-color var(--transition-fast);
+    transition: background $transition-fast, border-color $transition-fast;
     font-variant-numeric: tabular-nums;
 
     &:hover {
-      background: var(--reader-chrome-hover);
-      border-color: color-mix(in srgb, var(--color-white) 15%, transparent);
+      background: $hover-bg;
+      border-color: rgb(255 255 255 / 15%);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--reader-chrome-accent);
+      outline: 2px solid $active-color;
       outline-offset: 2px;
     }
   }
@@ -104,7 +112,7 @@
       border-radius: 3px;
       outline: none;
       appearance: none;
-      background: color-mix(in srgb, var(--color-white) 12%, transparent);
+      background: rgb(255 255 255 / 12%);
       position: relative;
       z-index: 1;
       cursor: pointer;
@@ -114,14 +122,14 @@
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: var(--reader-chrome-accent);
+        background: $active-color;
         cursor: pointer;
         box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
-        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        transition: transform $transition-fast, box-shadow $transition-fast;
 
         &:hover {
           transform: scale(1.1);
-          box-shadow: 0 2px 8px color-mix(in srgb, var(--reader-chrome-accent) 40%, transparent);
+          box-shadow: 0 2px 8px rgb(129 140 248 / 40%);
         }
       }
 
@@ -129,14 +137,14 @@
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: var(--reader-chrome-accent);
+        background: $active-color;
         cursor: pointer;
         border: none;
         box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
       }
 
       &:focus-visible {
-        outline: 2px solid var(--reader-chrome-accent);
+        outline: 2px solid $active-color;
         outline-offset: 4px;
       }
     }
@@ -157,27 +165,26 @@
       top: 0;
       width: 1.5px;
       height: 10px;
-      background: var(--reader-chrome-fg-muted);
+      background: rgb(255 255 255 / 40%);
       border-radius: 2px;
     }
   }
 }
 
 .location-popover {
-  @include text;
-
   position: absolute;
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--reader-chrome-bg);
+  background: $navbar-bg;
   backdrop-filter: blur(8px);
-  border: 1px solid var(--reader-chrome-border);
+  border: 1px solid $border-color;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgb(0 0 0 / 50%);
   z-index: 1001;
   min-width: 380px;
   animation: popover-slide-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: $text-primary;
 
   .popover-content {
     padding: 16px 20px;
@@ -199,7 +206,7 @@
 
       .label {
         font-size: 11px;
-        color: var(--reader-chrome-fg-muted);
+        color: $text-muted;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-weight: 600;
@@ -209,20 +216,20 @@
         font-size: 20px;
         font-weight: 600;
         letter-spacing: -0.3px;
-        color: var(--reader-chrome-fg);
+        color: $text-primary;
       }
     }
 
     .separator {
       width: 1px;
       height: 44px;
-      background: var(--reader-chrome-hover);
+      background: $border-color;
     }
   }
 
   .divider {
     height: 1px;
-    background: var(--reader-chrome-hover);
+    background: $border-color;
     margin: 12px 0;
   }
 
@@ -240,7 +247,7 @@
 
       .label {
         font-size: 11px;
-        color: var(--reader-chrome-fg-muted);
+        color: $text-muted;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-weight: 600;
@@ -249,7 +256,7 @@
       .chapter-name {
         font-size: 14px;
         font-weight: 500;
-        color: var(--reader-chrome-fg);
+        color: $text-primary;
         line-height: 1.3;
         max-width: 100%;
         overflow: hidden;
@@ -274,7 +281,7 @@
 
         .label {
           font-size: 11px;
-          color: var(--reader-chrome-fg-muted);
+          color: $text-muted;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           font-weight: 600;
@@ -284,14 +291,14 @@
           font-size: 18px;
           font-weight: 600;
           letter-spacing: -0.3px;
-          color: var(--color-white);
+          color: $text-primary;
         }
       }
 
       .info-separator {
         width: 1px;
         height: 36px;
-        background: var(--reader-chrome-hover);
+        background: $border-color;
       }
     }
   }
@@ -311,47 +318,47 @@
     label {
       font-size: 13px;
       font-weight: 500;
-      color: var(--reader-chrome-fg-secondary);
+      color: $text-secondary;
     }
 
     input {
       width: 65px;
       padding: 6px 10px;
-      background: color-mix(in srgb, var(--color-white) 5%, transparent);
-      border: 1px solid var(--reader-chrome-border);
+      background: rgb(255 255 255 / 5%);
+      border: 1px solid $border-color;
       border-radius: 6px;
-      color: var(--color-white);
+      color: $text-primary;
       font-size: 13px;
       text-align: right;
-      transition: background var(--transition-fast), border-color var(--transition-fast);
+      transition: background $transition-fast, border-color $transition-fast;
       font-variant-numeric: tabular-nums;
 
       &:focus {
         outline: none;
-        background: var(--reader-chrome-hover);
-        border-color: var(--reader-chrome-accent);
+        background: $hover-bg;
+        border-color: $active-color;
       }
     }
 
     span {
       font-size: 13px;
-      color: var(--reader-chrome-fg-secondary);
+      color: $text-secondary;
     }
 
     .go-btn {
       padding: 7px 18px;
-      background: var(--reader-chrome-accent);
+      background: $active-color;
       border: none;
       border-radius: 6px;
       color: white;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: background var(--transition-fast);
+      transition: background $transition-fast;
       flex-shrink: 0;
 
       &:hover {
-        background: var(--reader-chrome-accent-hover);
+        background: #9ba3fb;
       }
     }
   }
@@ -365,12 +372,12 @@
     .nav-btn {
       background: none;
       border: none;
-      color: var(--reader-chrome-fg-secondary);
+      color: $text-secondary;
       padding: 0;
       margin: 0;
       border-radius: 8px;
       cursor: pointer;
-      transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+      transition: background $transition-fast, color $transition-fast, transform $transition-fast;
       width: 44px;
       height: 44px;
       display: flex;
@@ -383,8 +390,8 @@
       }
 
       &:hover {
-        background: var(--reader-chrome-hover);
-        color: var(--color-white);
+        background: $hover-bg;
+        color: $text-primary;
       }
 
       &:active {
@@ -392,7 +399,7 @@
       }
 
       &:focus-visible {
-        outline: 2px solid var(--reader-chrome-accent);
+        outline: 2px solid $active-color;
         outline-offset: 2px;
       }
     }

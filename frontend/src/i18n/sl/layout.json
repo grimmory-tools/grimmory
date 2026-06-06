@@ -1,27 +1,81 @@
 {
-    "menu": {
-        "adjustSidebarWidth": "Prilagodi širino stranske vrstice",
-        "home": "Domov",
-        "dashboard": "Nadzorna plošča",
-        "allBooks": "Vse knjige",
-        "libraries": "Knjižnice",
-        "shelves": "Police",
-        "magicShelves": "Čarobne police",
-        "unshelved": "Nerazvrščeno",
-        "series": "Zbirke",
-        "notebook": "Beležnica",
-        "update": "(Posodobitev)",
-        "authors": "Avtorji"
-    },
-    "closeNavigation": "Zapri navigacijo",
-    "changelog": {
-        "title": "Kaj je novega",
-        "description": "Zadnje posodobitve in izboljšave",
-        "loading": "Nalaganje dnevnika sprememb...",
-        "empty": "Ni novih posodobitev."
-    },
-    "theme": {
-        "primary": "Primarna",
-        "surface": "Površina"
+  "commandPalette": {
+    "placeholder": "",
+    "empty": "",
+    "hintNavigate": "",
+    "hintSelect": "",
+    "ariaLabel": "",
+    "groups": {
+      "action": "",
+      "page": "",
+      "book": "",
+      "author": "",
+      "series": "",
+      "shelf": "",
+      "magicShelf": "",
+      "library": ""
     }
+  },
+  "menu": {
+    "adjustSidebarWidth": "Prilagodi širino stranske vrstice",
+    "home": "Domov",
+    "dashboard": "Nadzorna plošča",
+    "allBooks": "Vse knjige",
+    "libraries": "Knjižnice",
+    "shelves": "Police",
+    "magicShelves": "Čarobne police",
+    "unshelved": "Nerazvrščeno",
+    "series": "Zbirke",
+    "notebook": "Beležnica",
+    "update": "(Posodobitev)",
+    "authors": "Avtorji",
+    "tools": "",
+    "collapseSidebar": "",
+    "expandSidebar": "",
+    "goToDashboard": "",
+    "notifications": "",
+    "editSidebar": "",
+    "doneEditing": "",
+    "more": "",
+    "account": "",
+    "primaryNav": "",
+    "resizeSidebar": "",
+    "search": "",
+    "add": "",
+    "createMagicShelf": "",
+    "settings": "",
+    "libraryStats": "",
+    "readingStats": "",
+    "metadataManager": "",
+    "bookdrop": "",
+    "createLibrary": "",
+    "uploadBook": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "toggleNavigation": ""
+  },
+  "closeNavigation": "Zapri navigacijo",
+  "changelog": {
+    "title": "Kaj je novega",
+    "description": "Zadnje posodobitve in izboljšave",
+    "loading": "Nalaganje dnevnika sprememb...",
+    "empty": "Ni novih posodobitev."
+  },
+  "theme": {
+    "primary": "Primarna",
+    "surface": "Površina"
+  },
+  "uploadDialog": {
+    "chooseFile": "Izberi datoteko:",
+    "selectImage": "Izberi sliko",
+    "fileNote": "Podprti formati: JPEG, PNG • Največja velikost: 5 MB",
+    "or": "ALI",
+    "imageUrl": "URL slike:",
+    "urlPlaceholder": "Tukaj prilepi URL slike",
+    "urlNote": "Podprti formati: JPEG, PNG • Največja velikost: 5 MB",
+    "errorNoInput": "Prosim, izberi datoteko ali prilepi URL.",
+    "errorUploadFailed": "Nalaganje slike ni uspelo.",
+    "errorUploadRetry": "Nalaganje ni uspelo. Prosim, poskusi znova."
+  }
 }

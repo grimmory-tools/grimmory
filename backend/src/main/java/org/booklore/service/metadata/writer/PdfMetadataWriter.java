@@ -124,7 +124,6 @@ public class PdfMetadataWriter implements MetadataWriter {
     private void applyMetadataToDocument(PdfDocument doc, BookMetadataEntity entity, MetadataClearFlags clear) {
         MetadataCopyHelper helper = new MetadataCopyHelper(entity);
 
-        // --- PDF Info Dictionary (legacy) via PDFium4j ---
         StringBuilder keywordsBuilder = new StringBuilder();
         helper.copyCategories(clear != null && clear.isCategories(), cats -> {
             if (cats != null && !cats.isEmpty()) {
@@ -153,7 +152,6 @@ public class PdfMetadataWriter implements MetadataWriter {
         }
         doc.setMetadata(MetadataTag.KEYWORDS, keywords);
 
-        // --- XMP metadata via PDFium4j XmpMetadataWriter (StringBuilder-based, no DOM) ---
         try {
             String newXmp = buildXmpPacket(helper, clear, entity);
             String existingXmp = doc.xmpMetadataString();

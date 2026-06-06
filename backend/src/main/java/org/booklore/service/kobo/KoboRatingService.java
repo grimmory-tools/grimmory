@@ -2,6 +2,7 @@ package org.booklore.service.kobo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;

@@ -1,4 +1,4 @@
-@use '../../../chart-shared' as chart-shared;
+@use '../../../_chart-shared';
 
 .publication-trend-container {
   width: 100%;
@@ -6,14 +6,17 @@
 
 .trend-title-icon {
   font-size: 1.5rem;
-  color: var(--color-cyan-500);
+  color: #06b6d4;
 }
 
 .year-range-badge {
-  --stats-badge-accent: var(--color-cyan-500);
-
-  @include chart-shared.accent-badge;
-
+  background: linear-gradient(135deg, rgb(6 182 212 / 20%), rgb(6 182 212 / 10%));
+  border: 1px solid rgb(6 182 212 / 30%);
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #22d3ee;
   white-space: nowrap;
 }
 
@@ -26,7 +29,7 @@
 .insights-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
 .insights-row {
@@ -44,75 +47,76 @@
   align-items: center;
   text-align: center;
   padding: 0.75rem;
-
-  @include chart-shared.neutral-surface;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid rgb(255 255 255 / 8%);
 
   .insight-label {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     margin-bottom: 0.25rem;
   }
 
   .insight-value {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--text-color, #fff);
   }
 
   .insight-detail {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary-color);
     margin-top: 0.25rem;
   }
 
   &.peak {
     .insight-value {
-      color: var(--color-amber-500);
+      color: #f59e0b;
     }
   }
 
   &.recent {
     .insight-value {
-      color: var(--color-cyan-500);
+      color: #06b6d4;
     }
   }
 
   &.average {
     .insight-value {
-      color: var(--color-violet-400);
+      color: #a78bfa;
     }
   }
 
   &.productive {
     .insight-value {
-      color: var(--color-green-400);
+      color: #4ade80;
       font-size: 1.25rem;
     }
   }
 
   &.timespan {
     .insight-value {
-      color: var(--color-pink-400);
+      color: #f472b6;
     }
   }
 
   &.century21 {
     .insight-value {
-      color: var(--color-sky-400);
+      color: #38bdf8;
     }
   }
 
   &.classics {
     .insight-value {
-      color: var(--color-amber-400);
+      color: #fbbf24;
     }
   }
 
   &.unique {
     .insight-value {
-      color: var(--color-purple-400);
+      color: #c084fc;
     }
   }
 }

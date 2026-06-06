@@ -78,8 +78,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--color-card), transparent 20%);
-  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--p-surface-800), transparent 20%);
+  color: #64748b;
 
   i {
     font-size: 4rem;
@@ -144,9 +144,20 @@
   overflow: hidden;
 }
 
+.line-clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-none {
+  -webkit-line-clamp: unset;
+}
+
 .readonly-editor {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: #d1d5db;
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -163,7 +174,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: var(--color-text);
+  color: #e2e8f0;
 }
 
 .author-books-scroller {
@@ -184,12 +195,12 @@
 
   i {
     font-size: 2.5rem;
-    color: var(--color-text-secondary);
+    color: #64748b;
     margin-bottom: 0.75rem;
   }
 
   p {
-    color: var(--color-text-secondary);
+    color: #94a3b8;
     font-size: 1rem;
     margin: 0;
   }

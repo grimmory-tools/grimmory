@@ -7,7 +7,6 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
-import org.booklore.util.LanguageNormalizer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -302,7 +301,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 .asin(amazonBookId)
                 .publisher(getPublisher(doc))
                 .publishedDate(getPublicationDate(doc))
-                .language(LanguageNormalizer.normalize(getLanguage(doc)))
+                .language(getLanguage(doc))
                 .pageCount(getPageCount(doc))
                 .thumbnailUrl(getThumbnail(doc))
                 .amazonRating(getRating(doc))

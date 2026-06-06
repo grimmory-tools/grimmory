@@ -12,14 +12,18 @@ import org.booklore.model.dto.progress.PdfProgress;
 import org.booklore.model.dto.request.BookFileProgress;
 import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
+import org.booklore.model.dto.response.ReadiumProgressResponse;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.PositionType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.model.enums.ResetProgressType;
 import org.booklore.model.enums.UserPermission;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateService;
+import org.booklore.util.epub.EpubPositionResolver;
+import org.booklore.util.readium.ReadiumLocatorParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,8 +51,7 @@ public class ReadingProgressService {
     private final AuthenticationService authenticationService;
     private final KoboReadingStateService koboReadingStateService;
     private final HardcoverSyncService hardcoverSyncService;
-
-    // ==================== Methods from UserProgressService ====================
+    private final EpubPositionResolver epubPositionResolver;
 
     public Map<Long, UserBookProgressEntity> fetchUserProgress(Long userId, Set<Long> bookIds) {
         return userBookProgressRepository.findByUserIdAndBookIdIn(userId, bookIds).stream()
@@ -80,7 +83,25 @@ public class ReadingProgressService {
         return userBookFileProgressRepository.findByUserIdAndBookFileId(userId, bookFileId);
     }
 
-    // ==================== Methods from BookProgressUtil ====================
+    public ReadiumProgressResponse getReadiumProgress(Long bookFileId) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        return fetchUserFileProgressForFile(user.getId(), bookFileId)
+                .map(fp -> ReadiumProgressResponse.builder()
+                        .bookFileId(bookFileId)
+                        .progressPercent(fp.getProgressPercent())
+                        .readiumLocatorJson(fp.getReadiumLocatorJson())
+                        .xpointer(fp.getXpointer())
+                        .cfi(fp.getPositionData())
+                        .href(fp.getPositionHref())
+                        .chapterProgression(fp.getChapterProgression())
+                        .textBefore(fp.getTextBefore())
+                        .textHighlight(fp.getTextHighlight())
+                        .textAfter(fp.getTextAfter())
+                        .positionType(fp.getPositionType() != null ? fp.getPositionType().name() : null)
+                        .lastReadTime(fp.getLastReadTime())
+                        .build())
+                .orElse(null);
+    }
 
     public void enrichBookWithProgress(Book book, UserBookProgressEntity progress) {
         enrichBookWithProgress(book, progress, null);
@@ -155,6 +176,13 @@ public class ReadingProgressService {
                     .contentSourceProgressPercent(roundToOneDecimal(fileProgress.getContentSourceProgressPercent()))
                     .percentage(roundToOneDecimal(fileProgress.getProgressPercent()))
                     .ttsPositionCfi(fileProgress.getTtsPositionCfi())
+                    .xpointer(fileProgress.getXpointer())
+                    .readiumLocatorJson(fileProgress.getReadiumLocatorJson())
+                    .chapterProgression(fileProgress.getChapterProgression())
+                    .textBefore(fileProgress.getTextBefore())
+                    .textHighlight(fileProgress.getTextHighlight())
+                    .textAfter(fileProgress.getTextAfter())
+                    .positionType(fileProgress.getPositionType() != null ? fileProgress.getPositionType().name() : null)
                     .build());
             case PDF -> book.setPdfProgress(PdfProgress.builder()
                     .page(parseIntOrNull(fileProgress.getPositionData()))
@@ -193,8 +221,6 @@ public class ReadingProgressService {
     private Float roundToOneDecimal(Float value) {
         return value != null ? Math.round(value * 10f) / 10f : null;
     }
-
-    // ==================== Methods from BookUpdateService ====================
 
     @Transactional
     public void updateReadProgress(ReadProgressRequest request) {
@@ -258,7 +284,6 @@ public class ReadingProgressService {
             if (primaryFile != null) {
                 setProgressPercent(progress, primaryFile.getBookType(), percentage);
             }
-            // Auto-set dateFinished when the book transitions to READ and no date is set yet
             if (newStatus == ReadStatus.READ && progress.getDateFinished() == null) {
                 progress.setDateFinished(now);
             }
@@ -299,14 +324,163 @@ public class ReadingProgressService {
 
         entity.setUser(user);
         entity.setBookFile(bookFile);
-        entity.setPositionData(fileProgress.positionData());
-        entity.setPositionHref(fileProgress.positionHref());
         entity.setProgressPercent(fileProgress.progressPercent());
         entity.setTtsPositionCfi(fileProgress.ttsPositionCfi());
-        entity.setContentSourceProgressPercent(fileProgress.contentSourceProgressPercent());
         entity.setLastReadTime(now);
 
+        PositionType posType = resolvePositionType(fileProgress);
+        entity.setPositionType(posType);
+
+        switch (posType) {
+            case READIUM_LOCATOR -> handleReadiumLocator(entity, fileProgress, bookFile);
+            case XPOINTER -> handleXPointer(entity, fileProgress, bookFile);
+            default -> {
+                entity.setPositionData(fileProgress.positionData());
+                entity.setPositionHref(fileProgress.positionHref());
+                entity.setContentSourceProgressPercent(fileProgress.contentSourceProgressPercent());
+            }
+        }
+
+        normalizeChapterProgression(entity, bookFile);
+
+        if (fileProgress.textBefore() != null || fileProgress.textHighlight() != null || fileProgress.textAfter() != null) {
+            entity.setTextBefore(fileProgress.textBefore());
+            entity.setTextHighlight(fileProgress.textHighlight());
+            entity.setTextAfter(fileProgress.textAfter());
+        }
+
         userBookFileProgressRepository.save(entity);
+    }
+
+    private PositionType resolvePositionType(BookFileProgress fileProgress) {
+        if (fileProgress.positionType() != null) {
+            try {
+                return PositionType.valueOf(fileProgress.positionType().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return fileProgress.positionData() != null ? PositionType.CFI : PositionType.PERCENT_ONLY;
+    }
+
+    private void handleReadiumLocator(UserBookFileProgressEntity entity, BookFileProgress fileProgress, BookFileEntity bookFile) {
+        entity.setReadiumLocatorJson(fileProgress.readiumLocatorJson());
+        ReadiumLocatorParser.parse(fileProgress.readiumLocatorJson()).ifPresent(loc -> {
+            entity.setPositionHref(loc.href());
+            if (loc.progression() != null) {
+                entity.setChapterProgression(loc.progression());
+                entity.setContentSourceProgressPercent(loc.progression() * 100f);
+            }
+            if (loc.cfiFragment() != null) {
+                entity.setPositionData(loc.cfiFragment());
+            }
+            entity.setTextBefore(loc.textBefore());
+            entity.setTextHighlight(loc.textHighlight());
+            entity.setTextAfter(loc.textAfter());
+        });
+
+        if (entity.getChapterProgression() == null && entity.getPositionHref() != null) {
+            java.nio.file.Path epubPath = safeFilePath(bookFile);
+            if (epubPath != null) {
+                epubPositionResolver.resolveFromTextPhrase(
+                        epubPath,
+                        entity.getPositionHref(),
+                        entity.getTextBefore(),
+                        entity.getTextHighlight(),
+                        entity.getTextAfter()
+                ).ifPresent(resolved -> {
+                    entity.setChapterProgression(resolved.chapterProgression());
+                    if (resolved.chapterProgression() != null) {
+                        entity.setContentSourceProgressPercent(resolved.chapterProgression() * 100f);
+                    }
+                });
+            }
+        }
+    }
+
+    private void handleXPointer(UserBookFileProgressEntity entity, BookFileProgress fileProgress, BookFileEntity bookFile) {
+        String xpointer = fileProgress.positionData();
+        entity.setXpointer(xpointer);
+
+        if (xpointer != null) {
+            java.nio.file.Path epubPath = safeFilePath(bookFile);
+            Optional<EpubPositionResolver.ResolvedPosition> xpResult = epubPath != null
+                    ? epubPositionResolver.resolveFromXPointer(epubPath, xpointer)
+                    : Optional.empty();
+            xpResult.ifPresentOrElse(
+                    resolved -> {
+                        entity.setPositionHref(resolved.href());
+                        entity.setChapterProgression(resolved.chapterProgression());
+                        if (resolved.chapterProgression() != null) {
+                            entity.setContentSourceProgressPercent(resolved.chapterProgression() * 100f);
+                        }
+                    },
+                    () -> {
+                        entity.setPositionHref(fileProgress.positionHref());
+                        entity.setContentSourceProgressPercent(fileProgress.contentSourceProgressPercent());
+                        if (fileProgress.contentSourceProgressPercent() != null) {
+                            entity.setChapterProgression(fileProgress.contentSourceProgressPercent() / 100f);
+                        }
+                    }
+            );
+        } else {
+            entity.setPositionHref(fileProgress.positionHref());
+            entity.setContentSourceProgressPercent(fileProgress.contentSourceProgressPercent());
+            if (fileProgress.contentSourceProgressPercent() != null) {
+                entity.setChapterProgression(fileProgress.contentSourceProgressPercent() / 100f);
+            }
+        }
+    }
+
+    private void normalizeChapterProgression(UserBookFileProgressEntity entity, BookFileEntity bookFile) {
+        if (entity.getChapterProgression() != null) {
+            return;
+        }
+
+        java.nio.file.Path epubPath = safeFilePath(bookFile);
+
+        if (epubPath != null && entity.getPositionData() != null) {
+            epubPositionResolver.resolveFromCfi(epubPath, entity.getPositionData())
+                    .ifPresent(resolved -> {
+                        if (resolved.href() != null && entity.getPositionHref() == null) {
+                            entity.setPositionHref(resolved.href());
+                        }
+                        if (resolved.chapterProgression() != null) {
+                            entity.setChapterProgression(resolved.chapterProgression());
+                            entity.setContentSourceProgressPercent(resolved.chapterProgression() * 100f);
+                        }
+                    });
+        }
+
+        if (epubPath != null
+                && entity.getChapterProgression() == null
+                && entity.getPositionHref() != null
+                && entity.getTextHighlight() != null) {
+            epubPositionResolver.resolveFromTextPhrase(
+                    epubPath,
+                    entity.getPositionHref(),
+                    entity.getTextBefore(),
+                    entity.getTextHighlight(),
+                    entity.getTextAfter()
+            ).ifPresent(resolved -> {
+                entity.setChapterProgression(resolved.chapterProgression());
+                if (resolved.chapterProgression() != null) {
+                    entity.setContentSourceProgressPercent(resolved.chapterProgression() * 100f);
+                }
+            });
+        }
+
+        if (entity.getChapterProgression() == null && entity.getContentSourceProgressPercent() != null) {
+            entity.setChapterProgression(entity.getContentSourceProgressPercent() / 100f);
+        }
+    }
+
+    private java.nio.file.Path safeFilePath(BookFileEntity bookFile) {
+        try {
+            return bookFile.getFullFilePath();
+        } catch (Exception e) {
+            log.debug("Could not get file path for book file {}: {}", bookFile.getId(), e.getMessage());
+            return null;
+        }
     }
 
     private void saveToUserBookFileProgressFromLegacy(BookLoreUserEntity user, BookFileEntity bookFile,
@@ -337,8 +511,6 @@ public class ReadingProgressService {
                 entity.setProgressPercent(progress.getCbxProgressPercent());
             }
             case AUDIOBOOK -> {
-                // Audiobook progress is handled via new file-level progress system
-                // No legacy book-level progress columns exist for audiobooks
             }
         }
 
@@ -364,8 +536,6 @@ public class ReadingProgressService {
                 progress.setCbxProgressPercent(fileProgress.progressPercent());
             }
             case AUDIOBOOK -> {
-                // Audiobook progress is stored only in UserBookFileProgressEntity
-                // No legacy columns in UserBookProgressEntity for audiobooks
             }
         }
     }
@@ -408,8 +578,6 @@ public class ReadingProgressService {
     private Float updateAudiobookProgress(AudiobookProgress audiobookProgress) {
         if (audiobookProgress == null) return null;
 
-        // Audiobook progress is stored in file-level progress (UserBookFileProgressEntity)
-        // Legacy book-level progress entity doesn't have audiobook-specific columns
         float percentage = audiobookProgress.getPercentage();
         return Math.round(percentage * 10f) / 10f;
     }
@@ -420,8 +588,6 @@ public class ReadingProgressService {
             case PDF -> progress.setPdfProgressPercent(percentage);
             case CBX -> progress.setCbxProgressPercent(percentage);
             case AUDIOBOOK -> {
-                // Audiobook progress percentage is stored in UserBookFileProgressEntity
-                // No legacy column exists in UserBookProgressEntity for audiobooks
             }
         }
     }
@@ -436,10 +602,7 @@ public class ReadingProgressService {
             newStatus = ReadStatus.UNREAD;
         }
 
-        // Only allow automatic status changes that represent progress upgrades
-        // Don't downgrade from manually set or higher progress statuses
         if (newStatus == ReadStatus.UNREAD) {
-            // Preserve any status that indicates the user has engaged with the book
             if (currentStatus == ReadStatus.READING ||
                 currentStatus == ReadStatus.RE_READING ||
                 currentStatus == ReadStatus.READ ||

@@ -136,7 +136,7 @@ export class BookService {
     });
   }
 
-  bookRecommendationsQueryOptions(bookId: number, limit: number) {
+  private getBookRecommendationsQueryOptions(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookRecommendationsQueryKey(bookId, limit),
       queryFn: () => lastValueFrom(this.http.get<BookRecommendation[]>(`${this.url}/${bookId}/recommendations`, {
@@ -155,7 +155,6 @@ export class BookService {
     invalidateAppBooksQueries(this.queryClient);
   }
 
-  /*------------------ Book Retrieval ------------------*/
 
   findBookById(bookId: number): Book | undefined {
     return this.books().find(book => +book.id === +bookId);
@@ -183,10 +182,9 @@ export class BookService {
   }
 
   getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
-    return from(this.queryClient.ensureQueryData(this.bookRecommendationsQueryOptions(bookId, limit)));
+    return from(this.queryClient.ensureQueryData(this.getBookRecommendationsQueryOptions(bookId, limit)));
   }
 
-  /*------------------ Book Operations ------------------*/
 
   deleteBooks(ids: Set<number>): Observable<BookDeletionResponse> {
     const idList = Array.from(ids);
@@ -256,7 +254,6 @@ export class BookService {
     );
   }
 
-  /*------------------ Reading & Viewer Settings ------------------*/
 
   readBook(bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
     const book = this.findBookById(bookId);
@@ -331,7 +328,6 @@ export class BookService {
     return this.http.put<void>(`${this.url}/${bookId}/viewer-setting`, bookSetting);
   }
 
-  /*------------------ Progress & Status Tracking ------------------*/
 
   updateLastReadTime(bookId: number): void {
     this.bookPatchService.updateLastReadTime(bookId);
@@ -357,7 +353,6 @@ export class BookService {
     return this.bookPatchService.updateBookReadStatus(bookIds, status);
   }
 
-  /*------------------ Personal Rating ------------------*/
 
   resetPersonalRating(bookIds: number | number[]): Observable<PersonalRatingUpdateResponse[]> {
     return this.bookPatchService.resetPersonalRating(bookIds);
@@ -367,7 +362,6 @@ export class BookService {
     return this.bookPatchService.updatePersonalRating(bookIds, rating);
   }
 
-  /*------------------ Websocket Handlers ------------------*/
 
   handleNewlyCreatedBook(book: Book): void {
     this.bookSocketService.handleNewlyCreatedBook(book);

@@ -152,6 +152,7 @@ export class TopItemsChartComponent implements OnInit {
           stacked: true,
           beginAtZero: true,
           ticks: {
+            color: 'rgba(255, 255, 255, 0.8)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -160,11 +161,13 @@ export class TopItemsChartComponent implements OnInit {
             stepSize: 1
           },
           grid: {
+            color: 'rgba(255, 255, 255, 0.08)'
           },
           border: {display: false},
           title: {
             display: true,
             text: this.t.translate('statsLibrary.topItems.axisNumberOfBooks'),
+            color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
               size: 12,
@@ -175,6 +178,7 @@ export class TopItemsChartComponent implements OnInit {
         y: {
           stacked: true,
           ticks: {
+            color: 'rgba(255, 255, 255, 0.9)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -192,6 +196,7 @@ export class TopItemsChartComponent implements OnInit {
           display: true,
           position: 'bottom',
           labels: {
+            color: 'rgba(255, 255, 255, 0.9)',
             font: {
               family: "'Inter', sans-serif",
               size: 11
@@ -203,6 +208,9 @@ export class TopItemsChartComponent implements OnInit {
         },
         tooltip: {
           enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
           borderColor: currentColor,
           borderWidth: 2,
           cornerRadius: 8,
@@ -269,6 +277,7 @@ export class TopItemsChartComponent implements OnInit {
             barPercentage: 0.85,
             categoryPercentage: 0.8,
             hoverBorderWidth: 2,
+            hoverBorderColor: '#ffffff'
           };
         });
 
