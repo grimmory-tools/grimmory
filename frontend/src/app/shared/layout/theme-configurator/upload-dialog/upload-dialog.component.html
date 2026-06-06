@@ -7,6 +7,7 @@
         [label]="t('selectImage')"
         icon="pi pi-upload"
         (click)="fileInput.click()"
+        (keydown)="openFileInputFromKeyboard($event, fileInput)"
         outlined
         severity="info">
       </p-button>
@@ -49,13 +50,15 @@
       [label]="'common.cancel' | transloco"
       icon="pi pi-times"
       (click)="cancel()"
+      (keydown)="cancelFromKeyboard($event)"
       severity="secondary"
       outlined>
     </p-button>
     <p-button
       [label]="'common.submit' | transloco"
       icon="pi pi-check"
-      (click)="submit()">
+      (click)="submit()"
+      (keydown)="submitFromKeyboard($event)">
     </p-button>
   </div>
 </div>

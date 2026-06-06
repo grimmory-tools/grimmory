@@ -41,6 +41,18 @@ export class UploadDialogComponent {
     }
   }
 
+  openFileInputFromKeyboard(event: KeyboardEvent, input: HTMLInputElement) {
+    this.runKeyboardAction(event, () => input.click());
+  }
+
+  cancelFromKeyboard(event: KeyboardEvent) {
+    this.runKeyboardAction(event, () => this.cancel());
+  }
+
+  submitFromKeyboard(event: KeyboardEvent) {
+    this.runKeyboardAction(event, () => this.submit());
+  }
+
   submit() {
     this.uploadError = '';
     let upload$;
@@ -70,5 +82,11 @@ export class UploadDialogComponent {
 
   cancel() {
     this.dialogRef.close();
+  }
+
+  private runKeyboardAction(event: KeyboardEvent, action: () => void) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    action();
   }
 }

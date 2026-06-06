@@ -163,7 +163,10 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
       datasets: [{
         data: hourMinutes,
         backgroundColor: colors,
-        borderColor: colors.map(c => c.replace(/[\d.]+\)$/, '1)')),
+        borderColor: colors.map(c => {
+          const alphaStart = c.lastIndexOf(', ');
+          return alphaStart === -1 ? c : `${c.slice(0, alphaStart + 2)}1)`;
+        }),
         borderWidth: 1
       }]
     });
