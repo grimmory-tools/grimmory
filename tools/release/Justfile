@@ -1,7 +1,6 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-# Use Corepack to ensure the pinned modern Yarn version is installed.
-yarn := "env YARN_ENABLE_GLOBAL_CACHE=0 YARN_CACHE_FOLDER=../../.yarn/cache corepack yarn"
+pnpm := "pnpm"
 
 # Show the release-tooling recipes available in this directory.
 help:
@@ -9,16 +8,16 @@ help:
 
 # Install the pinned semantic-release tooling used by local and CI release tasks.
 install:
-    {{ yarn }} install --immutable
+    {{ pnpm }} install --frozen-lockfile
 
 # Preview the next semantic-release result for the current checkout.
 preview:
-    {{ yarn }} release:dry-run
+    {{ pnpm }} run release:dry-run
 
 # Generate release notes for an explicit commit range.
 range-notes:
-    {{ yarn }} release:range-notes
+    {{ pnpm }} run release:range-notes
 
 # Run semantic-release for the current checkout.
 run:
-    {{ yarn }} release
+    {{ pnpm }} run release

@@ -13,7 +13,7 @@
     </p>
   </div>
 
-  @if (hasPermission) {
+  @if (hasPermission()) {
     <div class="settings-content">
       <div class="preferences-section">
         <div class="section-header">
@@ -33,10 +33,10 @@
                 <span class="setting-label">
                   {{ t('hardcover.syncLabel') }}</span>
                 <p-toggle-switch
-                  id="hardcoverSyncEnabled"
+                  inputId="hardcoverSyncEnabled"
                   name="hardcoverSyncEnabled"
-                  [(ngModel)]="hardcoverSyncEnabled"
-                  (ngModelChange)="onHardcoverSyncToggle()">
+                  [ngModel]="hardcoverSyncEnabled()"
+                  (ngModelChange)="onHardcoverSyncToggle($event)">
                 </p-toggle-switch>
               </div>
               <p class="setting-description">
@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          @if (hardcoverSyncEnabled) {
+          @if (hardcoverSyncEnabled()) {
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
@@ -54,8 +54,9 @@
                     <input
                       pInputText
                       id="hardcoverApiKey"
-                      [(ngModel)]="hardcoverApiKey"
-                      [type]="showHardcoverApiKey ? 'text' : 'password'"
+                      [ngModel]="hardcoverApiKey()"
+                      (ngModelChange)="hardcoverApiKey.set($event)"
+                      [type]="showHardcoverApiKey() ? 'text' : 'password'"
                       name="hardcoverApiKey"
                       class="token-input"
                       [placeholder]="t('hardcover.apiKeyPlaceholder')"
@@ -66,11 +67,11 @@
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(hardcoverApiKey, 'API Key')"
-                      [disabled]="!hardcoverApiKey">
+                      (onClick)="copyText(hardcoverApiKey(), t('hardcover.apiKey'))"
+                      [disabled]="!hardcoverApiKey()">
                     </p-button>
                     <p-button
-                      [icon]="showHardcoverApiKey ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      [icon]="showHardcoverApiKey() ? 'pi pi-eye-slash' : 'pi pi-eye'"
                       outlined="true"
                       severity="info"
                       size="small"
