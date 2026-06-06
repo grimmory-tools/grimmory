@@ -65,7 +65,7 @@
 .files-section {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   &.download-all-section {
     align-items: flex-end;
@@ -93,7 +93,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65625rem;
+  padding: 0.6563rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 0.4375rem;
@@ -112,14 +112,14 @@
 .file-info {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   min-width: 0;
   flex: 1;
 }
 
 .file-type-badge {
-  padding: 0.21875rem 0.4375rem;
-  border-radius: 0.21875rem;
+  padding: 0.2188rem 0.4375rem;
+  border-radius: 0.2188rem;
   font-size: 0.7rem;
   font-weight: 600;
   color: #fff;
@@ -127,7 +127,7 @@
 }
 
 .file-icon {
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   color: var(--text-color-secondary);
   flex-shrink: 0;
 }
@@ -151,7 +151,7 @@
 .file-actions {
   display: flex;
   align-items: center;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
   flex-shrink: 0;
 
   ::ng-deep .p-button-sm {
@@ -182,7 +182,7 @@
 }
 
 .empty-state-title {
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   font-weight: 600;
   color: var(--text-color);
   margin: 0 0 0.4375rem;
@@ -226,8 +226,8 @@
   .tech-info-item {
     display: flex;
     align-items: center;
-    gap: 0.21875rem;
-    padding: 0.21875rem 0.54688rem;
+    gap: 0.2188rem;
+    padding: 0.2188rem 0.5469rem;
     background: var(--highlight-background);
     border: 1px solid var(--border-color);
     border-radius: 9999px;
@@ -252,7 +252,7 @@
   font-size: var(--app-text-sm);
 
   th, td {
-    padding: 0.54688rem 0.65625rem;
+    padding: 0.5469rem 0.6563rem;
     text-align: left;
   }
 
@@ -359,7 +359,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   ::ng-deep .square-cover img {
     aspect-ratio: 1;
@@ -375,7 +375,7 @@
   font-size: var(--app-text-sm);
   font-weight: 600;
   color: var(--primary-color);
-  padding: 0.21875rem 0.65625rem;
+  padding: 0.2188rem 0.6563rem;
   background: color-mix(in srgb, var(--primary-color) 15%, transparent);
   border-radius: 0.4375rem;
 

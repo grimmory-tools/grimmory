@@ -18,9 +18,9 @@
   border-bottom: 1px solid var(--color-border);
   padding:
     0
-    calc(0.65625rem + env(safe-area-inset-right))
+    calc(0.6563rem + env(safe-area-inset-right))
     0
-    calc(0.65625rem + env(safe-area-inset-left));
+    calc(0.6563rem + env(safe-area-inset-left));
   align-items: center;
   justify-content: space-between;
   gap: 0.4375rem;
@@ -37,13 +37,13 @@
 
 .mobile-topbar-brand-icon {
   width: auto;
-  height: 1.53125rem;
+  height: 1.5313rem;
   flex-shrink: 0;
   transform: translateY(1px);
 }
 
 .mobile-topbar-brand-text {
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -76,7 +76,7 @@
   }
 
   i {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
   }
 }
 

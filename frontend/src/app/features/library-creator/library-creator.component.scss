@@ -14,14 +14,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.09375rem 1.3125rem;
+  padding: 1.0938rem 1.3125rem;
   background: var(--overlay-background);
   border-bottom: 1px solid var(--border-color);
 
   .header-content {
     display: flex;
     align-items: center;
-    gap: 0.76563rem;
+    gap: 0.7656rem;
   }
 
   .header-icon {
@@ -34,7 +34,7 @@
     border-radius: 10px;
 
     i {
-      font-size: 1.09375rem;
+      font-size: 1.0938rem;
       color: var(--primary-contrast-color);
     }
   }
@@ -42,13 +42,13 @@
   .header-text {
     h1 {
       margin: 0;
-      font-size: 1.09375rem;
+      font-size: 1.0938rem;
       font-weight: 600;
       color: var(--text-color);
     }
 
     p {
-      margin: 0.10938rem 0 0;
+      margin: 0.1094rem 0 0;
       font-size: var(--app-text-sm);
       color: var(--text-secondary-color);
     }
@@ -59,7 +59,7 @@
 .dialog-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.53125rem 1.75rem;
+  padding: 1.5313rem 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
@@ -71,8 +71,8 @@
     display: flex;
     align-items: center;
     gap: 0.4375rem;
-    margin-bottom: 0.65625rem;
-    font-size: 0.74375rem;
+    margin-bottom: 0.6563rem;
+    font-size: 0.7438rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -89,7 +89,7 @@
       justify-content: center;
       min-width: 20px;
       height: 20px;
-      padding: 0 0.32813rem;
+      padding: 0 0.3281rem;
       background: var(--primary-color);
       color: var(--primary-contrast-color);
       border-radius: 10px;
@@ -102,7 +102,7 @@
 // Form Fields
 .form-row {
   display: flex;
-  gap: 1.09375rem;
+  gap: 1.0938rem;
 
   &.two-col {
     .form-field {
@@ -119,7 +119,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   label {
     font-size: 0.7875rem;
@@ -136,12 +136,12 @@
 
     .input-full {
       width: 100%;
-      padding-right: 1.96875rem;
+      padding-right: 1.9688rem;
     }
 
     .field-status {
       position: absolute;
-      right: 0.65625rem;
+      right: 0.6563rem;
       top: 50%;
       transform: translateY(-50%);
       font-size: 0.7875rem;
@@ -160,7 +160,7 @@
   justify-content: center;
   gap: 0.4375rem;
   width: 100%;
-  padding: 0.76563rem 0.875rem;
+  padding: 0.7656rem 0.875rem;
   background: var(--ground-background);
   border: 1px dashed var(--border-color);
   border-radius: 8px;
@@ -183,8 +183,8 @@
 .icon-selected {
   display: flex;
   align-items: center;
-  gap: 0.54688rem;
-  padding: 0.54688rem 0.76563rem;
+  gap: 0.5469rem;
+  padding: 0.5469rem 0.7656rem;
   background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -237,12 +237,12 @@
 .folder-structure-hint {
   display: flex;
   align-items: center;
-  gap: 0.54688rem;
-  padding: 0.54688rem 0.65625rem;
+  gap: 0.5469rem;
+  padding: 0.5469rem 0.6563rem;
   background: rgb(234 179 8 / 8%);
   border: 1px solid rgb(234 179 8 / 25%);
   border-radius: 6px;
-  font-size: 0.71094rem;
+  font-size: 0.7109rem;
   color: var(--text-secondary-color);
   line-height: 1.5;
 
@@ -268,7 +268,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  padding: 1.09375rem;
+  padding: 1.0938rem;
   background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -280,7 +280,7 @@
   justify-content: center;
   gap: 0.4375rem;
   width: 100%;
-  padding: 0.76563rem;
+  padding: 0.7656rem;
   background: transparent;
   border: 1px dashed var(--border-color);
   border-radius: 6px;
@@ -303,7 +303,7 @@
 .folders-list {
   display: flex;
   flex-direction: column;
-  gap: 0.54688rem;
+  gap: 0.5469rem;
   max-height: 180px;
   overflow-y: auto;
 }
@@ -312,7 +312,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.65625rem 0.76563rem;
+  padding: 0.6563rem 0.7656rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -370,7 +370,7 @@
     }
 
     i {
-      font-size: 0.60156rem;
+      font-size: 0.6016rem;
     }
   }
 }
@@ -395,7 +395,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  padding: 0.875rem 1.09375rem;
+  padding: 0.875rem 1.0938rem;
   background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -415,20 +415,20 @@
   &.option-row-stacked {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.54688rem;
+    gap: 0.5469rem;
   }
 }
 
 .option-divider {
   height: 1px;
   background: var(--border-color);
-  margin: 0.21875rem 0;
+  margin: 0.2188rem 0;
 }
 
 .option-label {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   font-size: var(--app-text-sm);
   font-weight: 500;
   color: var(--text-color);
@@ -463,8 +463,8 @@
 .format-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.54688rem 1.09375rem;
-  padding: 0.76563rem;
+  gap: 0.5469rem 1.0938rem;
+  padding: 0.7656rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -473,7 +473,7 @@
 .format-checkbox-item {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   min-width: 90px;
 
   .format-checkbox-label {
@@ -485,7 +485,7 @@
   .warning-icon {
     font-size: var(--app-text-xs);
     color: var(--p-orange-400);
-    margin-left: 0.10938rem;
+    margin-left: 0.1094rem;
   }
 
   &.has-warning {
@@ -503,7 +503,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.54688rem 0.65625rem;
+  padding: 0.5469rem 0.6563rem;
   background: rgb(234 179 8 / 10%);
   border: 1px solid var(--p-orange-400);
   border-radius: 6px;
@@ -528,7 +528,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.35rem 0.54688rem;
+  padding: 0.35rem 0.5469rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -548,7 +548,7 @@
     background: var(--primary-color);
     color: var(--primary-contrast-color);
     border-radius: 50%;
-    font-size: 0.54688rem;
+    font-size: 0.5469rem;
     font-weight: 600;
   }
 
@@ -605,7 +605,7 @@
   .status-message {
     display: flex;
     align-items: center;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
     font-size: var(--app-text-sm);
     font-weight: 500;
 
@@ -625,7 +625,7 @@
 
 .footer-actions {
   display: flex;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex-shrink: 0;
 }
 
@@ -657,13 +657,13 @@
 
   .dialog-body {
     padding: 1.3125rem;
-    gap: 1.53125rem;
+    gap: 1.5313rem;
   }
 
   .dialog-footer {
     flex-direction: column;
     padding: 0.875rem;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
 
     .validation-status {
       width: 100%;

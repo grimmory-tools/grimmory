@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -88,7 +88,7 @@
     .input-group {
       display: flex;
       align-items: center;
-      gap: 0.65625rem;
+      gap: 0.6563rem;
 
       @media (width <= 768px) {
         flex-direction: column;
@@ -109,7 +109,7 @@
 
     .pi {
       color: var(--p-primary-color);
-      margin-top: 0.10938rem;
+      margin-top: 0.1094rem;
       flex-shrink: 0;
     }
   }
@@ -119,7 +119,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   align-items: flex-end;
 
   @media (width <= 768px) {
@@ -131,7 +131,7 @@
 .input-group {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   @media (width <= 768px) {
     flex-direction: column;
@@ -152,7 +152,7 @@
 
   .unit {
     position: absolute;
-    right: 0.65625rem;
+    right: 0.6563rem;
     color: var(--p-text-muted-color);
     font-size: settings.$settings-section-description-size;
     pointer-events: none;

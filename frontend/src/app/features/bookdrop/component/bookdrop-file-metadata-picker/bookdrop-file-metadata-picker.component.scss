@@ -311,7 +311,7 @@ textarea.changed,
 @media (width >= 768px) {
   .metapicker .metacontent,
   .metaeditor .metabody {
-    padding-left: 2.84375rem;
+    padding-left: 2.8438rem;
   }
 }
 
@@ -415,9 +415,9 @@ textarea.changed,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.32813rem;
-  min-height: 1.96875rem;
+  gap: 0.3281rem;
+  padding: 0.3281rem;
+  min-height: 1.9688rem;
   border: 1px solid var(--p-inputtext-border-color);
   border-radius: 6px;
   background: var(--p-inputtext-background);
@@ -430,7 +430,7 @@ textarea.changed,
   ::ng-deep input {
     border: none !important;
     background: transparent !important;
-    padding: 0.21875rem;
+    padding: 0.2188rem;
     box-shadow: none !important;
     outline: none !important;
   }
@@ -439,8 +439,8 @@ textarea.changed,
 .author-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.21875rem;
-  padding: 0.21875rem 0.4375rem;
+  gap: 0.2188rem;
+  padding: 0.2188rem 0.4375rem;
   border-radius: 0.875rem;
   background: var(--p-chip-background);
   color: var(--p-chip-color);
@@ -464,10 +464,10 @@ textarea.changed,
 }
 
 .author-chip-remove {
-  font-size: 0.56875rem;
+  font-size: 0.5687rem;
   cursor: pointer;
   opacity: 0.6;
-  padding: 0.13125rem;
+  padding: 0.1313rem;
   &:hover { opacity: 1; }
 }
 

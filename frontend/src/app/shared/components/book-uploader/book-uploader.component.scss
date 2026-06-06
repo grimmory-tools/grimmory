@@ -26,7 +26,7 @@
   gap: 0.875rem;
   min-height: 0;
   overflow-y: auto;
-  padding: 1.53125rem;
+  padding: 1.5313rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 0 0 10px 10px;
@@ -48,7 +48,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.54688rem 0.76563rem;
+    padding: 0.5469rem 0.7656rem;
     background: var(--overlay-background);
     border-radius: 6px;
 
@@ -67,10 +67,10 @@
     }
 
     @media (width <= 480px) {
-      padding: 0.4375rem 0.54688rem;
+      padding: 0.4375rem 0.5469rem;
 
       .section-title {
-        font-size: 0.74375rem;
+        font-size: 0.7438rem;
       }
     }
   }
@@ -84,8 +84,8 @@
 .selection-fields {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
-  padding: 0 0.65625rem 0.875rem;
+  gap: 0.6563rem;
+  padding: 0 0.6563rem 0.875rem;
 
   .field-group {
     display: flex;
@@ -96,7 +96,7 @@
       font-size: var(--app-text-sm);
       font-weight: 600;
       color: var(--text-color);
-      padding-left: 0.21875rem;
+      padding-left: 0.2188rem;
     }
   }
 }
@@ -147,13 +147,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     padding: 0.875rem;
     width: 100%;
 
     .action-buttons {
       display: flex;
-      gap: 0.65625rem;
+      gap: 0.6563rem;
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -165,7 +165,7 @@
     }
 
     @media (width <= 480px) {
-      padding: 0.65625rem;
+      padding: 0.6563rem;
       gap: 0.4375rem;
 
       .action-buttons {
@@ -187,7 +187,7 @@
     background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 0.54688rem 0.76563rem;
+    padding: 0.5469rem 0.7656rem;
     margin-bottom: 0.4375rem;
 
     .progress-row {
@@ -195,12 +195,12 @@
       align-items: center;
       gap: 0.875rem;
       margin-bottom: 0.4375rem;
-      font-size: 0.74375rem;
+      font-size: 0.7438rem;
 
       .progress-status {
         display: flex;
         align-items: center;
-        gap: 0.32813rem;
+        gap: 0.3281rem;
         font-weight: 600;
         color: var(--text-color);
 
@@ -248,7 +248,7 @@
     }
 
     @media (width <= 480px) {
-      padding: 0.4375rem 0.65625rem;
+      padding: 0.4375rem 0.6563rem;
 
       .progress-row {
         flex-wrap: wrap;
@@ -266,14 +266,14 @@
     display: flex;
     flex-direction: column;
     gap: 0.4375rem;
-    padding-right: 0.21875rem;
+    padding-right: 0.2188rem;
 
     .file-item-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.875rem;
-      padding: 0.21875rem 0.65625rem;
+      padding: 0.2188rem 0.6563rem;
       background: var(--card-background);
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -287,7 +287,7 @@
       .file-info {
         display: flex;
         align-items: center;
-        gap: 0.65625rem;
+        gap: 0.6563rem;
         flex: 1;
         min-width: 0;
 
@@ -308,7 +308,7 @@
         }
 
         .file-progress-text {
-          font-size: 0.74375rem;
+          font-size: 0.7438rem;
           font-weight: 600;
           color: var(--primary-color);
           min-width: 40px;
@@ -323,7 +323,7 @@
         flex-shrink: 0;
 
         .status-icon {
-          font-size: 1.09375rem;
+          font-size: 1.0938rem;
           padding: 0.4375rem;
 
           &.uploading {
@@ -342,14 +342,14 @@
       }
 
       @media (width <= 480px) {
-        padding: 0.54688rem;
+        padding: 0.5469rem;
         gap: 0.4375rem;
 
         .file-info {
           gap: 0.4375rem;
 
           .file-name {
-            font-size: 0.74375rem;
+            font-size: 0.7438rem;
           }
 
           .file-size {
@@ -360,7 +360,7 @@
         .file-actions {
           .status-icon {
             font-size: var(--app-text-base);
-            padding: 0.32813rem;
+            padding: 0.3281rem;
           }
         }
       }
@@ -419,13 +419,13 @@
     }
 
     @media (width <= 480px) {
-      padding: 1.3125rem 0.65625rem;
+      padding: 1.3125rem 0.6563rem;
       min-height: 180px;
 
       .empty-icon-wrapper {
         width: 70px;
         height: 70px;
-        margin-bottom: 0.65625rem;
+        margin-bottom: 0.6563rem;
 
         .empty-icon {
           font-size: 1.75rem;

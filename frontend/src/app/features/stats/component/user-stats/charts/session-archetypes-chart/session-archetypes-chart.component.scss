@@ -17,7 +17,7 @@
       align-items: center;
       margin: 0 0 0.4375rem;
       color: var(--text-color, #fff);
-      font-size: 1.09375rem;
+      font-size: 1.0938rem;
       font-weight: 500;
     }
 
@@ -65,7 +65,7 @@
 
 .stats-row {
   display: flex;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex-wrap: wrap;
   margin-bottom: 0.875rem;
 
@@ -87,7 +87,7 @@
     }
 
     .stat-label {
-      margin-top: 0.21875rem;
+      margin-top: 0.2188rem;
       color: var(--text-secondary-color);
       font-size: var(--app-text-xs);
       letter-spacing: 0.5px;
@@ -134,7 +134,7 @@
 
   small {
     opacity: 0.7;
-    font-size: 0.74375rem;
+    font-size: 0.7438rem;
   }
 }
 

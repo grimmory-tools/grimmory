@@ -29,11 +29,11 @@
 .header-info {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 
   h3 {
     margin: 0;
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
     font-weight: 600;
     color: var(--text-color);
   }
@@ -71,14 +71,14 @@
   }
 
   span {
-    font-size: 0.83125rem;
+    font-size: 0.8313rem;
   }
 }
 
 .sidecar-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .empty-state {
@@ -90,7 +90,7 @@
   text-align: center;
   background: var(--ground-background);
   border: 1px dashed var(--border-color);
-  border-radius: 0.65625rem;
+  border-radius: 0.6563rem;
 
   i {
     font-size: 2.625rem;
@@ -124,7 +124,7 @@
 .content-header {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .content-meta {
@@ -136,7 +136,7 @@
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   font-size: 0.7rem;
   color: var(--text-color-secondary);
 
@@ -170,7 +170,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
   background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 0.4375rem;

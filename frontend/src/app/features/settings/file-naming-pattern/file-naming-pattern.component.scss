@@ -10,7 +10,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -92,7 +92,7 @@
 
 .pattern-input-row {
   display: flex;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   align-items: flex-start;
 
   @media (width <= 768px) {
@@ -118,19 +118,19 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  margin-top: 0.21875rem;
+  margin-top: 0.2188rem;
 
   @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.21875rem;
+    gap: 0.2188rem;
   }
 }
 
 .preview-label {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   color: var(--p-text-muted-color);
   font-size: settings.$settings-section-description-size;
   white-space: nowrap;
@@ -151,7 +151,7 @@
 .libraries-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .library-item {
@@ -175,7 +175,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.875rem;
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
   border-bottom: 1px dashed var(--p-content-border-color);
 
   @media (width <= 600px) {
@@ -186,7 +186,7 @@
 .library-info {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex: 1;
   min-width: 0;
 }
@@ -209,18 +209,18 @@
 
 .library-name {
   font-weight: 600;
-  font-size: 0.82031rem;
+  font-size: 0.8203rem;
   color: var(--p-text-color);
 }
 
 .custom-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.10938rem 0.4375rem;
+  padding: 0.1094rem 0.4375rem;
   background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
   color: var(--p-primary-color);
   border-radius: 12px;
-  font-size: 0.54688rem;
+  font-size: 0.5469rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -228,17 +228,17 @@
 .default-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.10938rem 0.4375rem;
+  padding: 0.1094rem 0.4375rem;
   background: color-mix(in srgb, var(--color-text-secondary) 15%, transparent);
   color: var(--color-text-secondary);
   border-radius: 12px;
-  font-size: 0.54688rem;
+  font-size: 0.5469rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .library-body {
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
 }
 
 .actions-row {
@@ -265,7 +265,7 @@
   border-left: 3px solid var(--p-primary-color);
 
   @media (width <= 768px) {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 }
 
@@ -276,7 +276,7 @@
   font-size: settings.$settings-label-size;
   font-weight: 600;
   color: var(--p-text-color);
-  margin: 0 0 0.65625rem;
+  margin: 0 0 0.6563rem;
 
   .pi {
     color: var(--p-primary-color);
@@ -288,7 +288,7 @@
   font-size: settings.$settings-section-description-size;
   line-height: 1.5;
   color: var(--p-text-muted-color);
-  margin: 0 0 0.65625rem;
+  margin: 0 0 0.6563rem;
 
   code {
     color: var(--color-primary);
@@ -299,13 +299,13 @@
 .placeholder-list {
   display: flex;
   flex-direction: column;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
 }
 
 .placeholder-item {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   font-size: settings.$settings-section-description-size;
 
   code {
@@ -321,7 +321,7 @@
 .example-block {
   background: color-mix(in srgb, var(--color-card) 30%, transparent);
   border-radius: 4px;
-  padding: 0.65625rem;
+  padding: 0.6563rem;
 }
 
 .example-pattern {
@@ -343,7 +343,7 @@
 .example-results {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 }
 
 .result-item {
@@ -383,7 +383,7 @@
 
 .metadata-panel {
   background: var(--color-card);
-  padding: 0.875rem 1.09375rem;
+  padding: 0.875rem 1.0938rem;
   border-radius: 6px;
   border-left: 3px solid var(--p-content-border-color);
 
@@ -396,8 +396,8 @@
   font-size: settings.$settings-label-size;
   font-weight: 600;
   color: var(--p-text-color);
-  margin-bottom: 0.76563rem;
-  padding-bottom: 0.54688rem;
+  margin-bottom: 0.7656rem;
+  padding-bottom: 0.5469rem;
   border-bottom: 1px solid color-mix(in srgb, var(--p-content-border-color) 50%, transparent);
 
   .pi {
@@ -408,7 +408,7 @@
 .metadata-grid {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.4375rem 0.65625rem;
+  gap: 0.4375rem 0.6563rem;
   font-size: settings.$settings-section-description-size;
   align-items: baseline;
 }
@@ -437,7 +437,7 @@
 .example-category {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .category-title {
@@ -464,8 +464,8 @@
 .example-row {
   display: grid;
   grid-template-columns: 130px 1fr 1fr;
-  gap: 0.65625rem;
-  padding: 0.54688rem 0.65625rem;
+  gap: 0.6563rem;
+  padding: 0.5469rem 0.6563rem;
   background: var(--color-card);
   border-radius: 4px;
   font-size: settings.$settings-section-description-size;
@@ -473,15 +473,15 @@
 
   @media (width <= 1024px) {
     grid-template-columns: 1fr;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
   }
 }
 
 .example-row-conditional {
   display: grid;
   grid-template-columns: 130px 1fr 1fr;
-  gap: 0.65625rem;
-  padding: 0.54688rem 0.65625rem;
+  gap: 0.6563rem;
+  padding: 0.5469rem 0.6563rem;
   background: var(--color-card);
   border-radius: 4px;
   font-size: settings.$settings-section-description-size;
@@ -489,7 +489,7 @@
 
   @media (width <= 1024px) {
     grid-template-columns: 1fr;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
   }
 }
 
@@ -530,7 +530,7 @@
 .result-col-dual {
   display: flex;
   flex-direction: column;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
 
   code {
     font-size: settings.$settings-description-size;
@@ -538,7 +538,7 @@
   }
 
   .pi {
-    font-size: 0.54688rem;
-    margin-right: 0.21875rem;
+    font-size: 0.5469rem;
+    margin-right: 0.2188rem;
   }
 }

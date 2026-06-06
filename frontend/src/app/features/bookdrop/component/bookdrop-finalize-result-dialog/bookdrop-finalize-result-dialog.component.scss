@@ -38,9 +38,9 @@
   border-radius: 8px;
 
   .stat-value {
-    font-size: 1.64063rem;
+    font-size: 1.6406rem;
     font-weight: 700;
-    margin-bottom: 0.21875rem;
+    margin-bottom: 0.2188rem;
 
     &.total {
       color: var(--primary-color);
@@ -71,7 +71,7 @@
   .processed-label {
     font-size: var(--app-text-sm);
     color: var(--text-secondary-color);
-    margin-bottom: 0.21875rem;
+    margin-bottom: 0.2188rem;
   }
 
   .processed-time {
@@ -92,14 +92,14 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .file-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.65625rem;
-  padding: 0.65625rem;
+  gap: 0.6563rem;
+  padding: 0.6563rem;
   border-radius: 8px;
   border: 1px solid;
   transition: all 0.2s ease;
@@ -123,8 +123,8 @@
   }
 
   .status-icon {
-    font-size: 1.09375rem;
-    margin-top: 0.10938rem;
+    font-size: 1.0938rem;
+    margin-top: 0.1094rem;
     flex-shrink: 0;
   }
 

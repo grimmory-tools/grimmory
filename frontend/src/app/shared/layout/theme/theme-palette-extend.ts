@@ -141,7 +141,7 @@ function scaleRemString(value: string): string {
     }
 
     const scaled = Number.parseFloat(
-      (Number(value.slice(numberStart, remIndex)) * PRIME_REM_SCALE).toFixed(6)
+      (Number(value.slice(numberStart, remIndex)) * PRIME_REM_SCALE).toFixed(4)
     ).toString();
     result += `${value.slice(cursor, numberStart)}${scaled}rem`;
     cursor = remIndex + 3;

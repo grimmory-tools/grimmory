@@ -146,7 +146,7 @@
       </div>
 
       @if (oidcEnabled) {
-        <div class="config-grid" style="margin-top: 0.65625rem;">
+        <div class="config-grid" style="margin-top: 0.6563rem;">
           <div class="config-item">
             <label for="sessionDuration">{{ t('providerConfig.sessionDuration') }}</label>
             <p-inputNumber
@@ -377,7 +377,7 @@
             </p>
             @if (oidcForceOnlyMode) {
               <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.4375rem;">
-                <i class="pi pi-exclamation-triangle" style="margin-right: 0.21875rem;"></i>
+                <i class="pi pi-exclamation-triangle" style="margin-right: 0.2188rem;"></i>
                 {{ t('oidcOnly.backdoorHint') }}
               </p>
             }
@@ -438,7 +438,7 @@
             </p>
             @if (allowLocalAccountLinking) {
               <p class="toggle-description" style="color: var(--p-yellow-500); margin-top: 0.4375rem;">
-                <i class="pi pi-exclamation-triangle" style="margin-right: 0.21875rem;"></i>
+                <i class="pi pi-exclamation-triangle" style="margin-right: 0.2188rem;"></i>
                 {{ t('provisioning.linkLocalWarning') }}
               </p>
             }
@@ -579,12 +579,12 @@
                 </td>
                 <td>
                   @for (perm of mapping.permissions; track perm) {
-                    <app-tag [rounded]="true" color="info" size="2xs" style="margin-right: 0.21875rem; margin-bottom: 0.21875rem;">{{ perm }}</app-tag>
+                    <app-tag [rounded]="true" color="info" size="2xs" style="margin-right: 0.2188rem; margin-bottom: 0.2188rem;">{{ perm }}</app-tag>
                   }
                 </td>
                 <td>
                   @for (libId of mapping.libraryIds; track libId) {
-                    <app-tag [rounded]="true" color="secondary" size="2xs" style="margin-right: 0.21875rem; margin-bottom: 0.21875rem;">{{ getLibraryName(libId) }}</app-tag>
+                    <app-tag [rounded]="true" color="secondary" size="2xs" style="margin-right: 0.2188rem; margin-bottom: 0.2188rem;">{{ getLibraryName(libId) }}</app-tag>
                   }
                 </td>
                 <td>{{ mapping.description }}</td>

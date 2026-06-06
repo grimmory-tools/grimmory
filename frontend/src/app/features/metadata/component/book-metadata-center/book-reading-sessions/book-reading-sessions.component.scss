@@ -30,7 +30,7 @@
 .session-time {
   display: flex;
   flex-direction: column;
-  gap: 0.10938rem;
+  gap: 0.1094rem;
 
   .session-date {
     font-weight: 500;
@@ -46,9 +46,9 @@
 .book-type-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.21875rem 0.4375rem;
-  border-radius: 0.32813rem;
+  gap: 0.3281rem;
+  padding: 0.2188rem 0.4375rem;
+  border-radius: 0.3281rem;
   font-size: 0.7rem;
   font-weight: 600;
 
@@ -98,9 +98,9 @@
 .progress-delta-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.21875rem 0.4375rem;
-  border-radius: 0.32813rem;
+  gap: 0.3281rem;
+  padding: 0.2188rem 0.4375rem;
+  border-radius: 0.3281rem;
   font-size: 0.7rem;
   font-weight: 600;
 
@@ -136,7 +136,7 @@
     }
 
     .p-datatable-tbody > tr > td {
-      padding: 0.30625rem 0.56875rem;
+      padding: 0.3063rem 0.5687rem;
       font-size: var(--app-text-sm);
       border-color: var(--border-color);
     }

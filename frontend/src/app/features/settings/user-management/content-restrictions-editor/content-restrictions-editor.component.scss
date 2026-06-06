@@ -12,14 +12,14 @@
 
   .form-row {
     display: flex;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     align-items: flex-end;
     flex-wrap: wrap;
 
     .form-field {
       display: flex;
       flex-direction: column;
-      gap: 0.21875rem;
+      gap: 0.2188rem;
       min-width: 140px;
 
       label {
@@ -63,8 +63,8 @@
   }
 
   .empty-hint {
-    font-size: 0.74375rem;
-    margin-top: 0.21875rem;
+    font-size: 0.7438rem;
+    margin-top: 0.2188rem;
     opacity: 0.8;
   }
 }
@@ -85,7 +85,7 @@
     display: flex;
     align-items: center;
     gap: 0.4375rem;
-    margin: 0 0 0.21875rem;
+    margin: 0 0 0.2188rem;
     font-size: 0.7875rem;
     font-weight: 600;
 
@@ -95,7 +95,7 @@
   }
 
   .group-description {
-    margin: 0 0 0.65625rem;
+    margin: 0 0 0.6563rem;
     font-size: 0.7rem;
     color: var(--text-color-secondary);
   }
@@ -111,9 +111,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.30625rem 0.65625rem;
+  padding: 0.3063rem 0.6563rem;
   border-radius: 20px;
-  font-size: 0.74375rem;
+  font-size: 0.7438rem;
   transition: all 0.2s ease;
 
   &.mode-exclude {
@@ -158,7 +158,7 @@
     cursor: pointer;
     border-radius: 50%;
     padding: 0;
-    margin-left: 0.21875rem;
+    margin-left: 0.2188rem;
     transition: all 0.2s ease;
 
     i {
@@ -175,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.65625rem;
+  padding: 0.6563rem;
   background: rgb(59 130 246 / 10%);
   border-radius: 6px;
   font-size: 0.7rem;

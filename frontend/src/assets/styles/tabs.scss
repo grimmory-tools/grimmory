@@ -41,7 +41,7 @@ app-tabs {
   border: 0;
   background: none;
   color: var(--color-text-secondary);
-  font-size: 0.82031rem;
+  font-size: 0.8203rem;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -84,10 +84,10 @@ app-tabs.placement-below {
   display: flex;
   align-items: flex-start;
   height: var(--app-tabs-row-height, 3.0625rem);
-  padding: 0.21875rem 1.75rem 0;
+  padding: 0.2188rem 1.75rem 0;
 
   @media (width <= 767px) {
-    padding: 0.21875rem 0.875rem 0;
+    padding: 0.2188rem 0.875rem 0;
   }
 }
 
@@ -138,7 +138,7 @@ app-tabs.variant-underline {
     @media (width <= 767px) {
       flex: 1 1 0;
       min-width: 3.5rem;
-      padding: 0 0.76563rem;
+      padding: 0 0.7656rem;
     }
 
     &[aria-selected="true"] {
@@ -173,7 +173,7 @@ app-tabs.variant-underline {
 
 app-tabs.variant-segmented {
   .app-tabs {
-    gap: 0.10938rem;
+    gap: 0.1094rem;
     padding: var(--space-1);
     border-radius: var(--radius-lg);
     background: var(--control-bg);

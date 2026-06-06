@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -59,7 +59,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   align-items: flex-end;
 
   @media (width <= 768px) {
@@ -74,7 +74,7 @@
 
   @media (width <= 768px) {
     flex-direction: column;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 }
 

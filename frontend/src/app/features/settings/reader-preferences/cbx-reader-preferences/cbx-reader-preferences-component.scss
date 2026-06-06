@@ -10,7 +10,7 @@
   display: flex;
   align-items: flex-start;
   gap: 1.75rem;
-  padding: 0.21875rem 0;
+  padding: 0.2188rem 0;
 
   &:last-child {
     border-bottom: none;
@@ -52,7 +52,7 @@
   .strip-width-control {
     display: flex;
     align-items: center;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     flex: 1;
     min-width: 0;
 
@@ -66,7 +66,7 @@
   .strip-width-value {
     font-size: 0.7875rem;
     color: var(--p-text-muted-color);
-    min-width: 2.40625rem;
+    min-width: 2.4063rem;
   }
 
   .setting-description {
@@ -89,7 +89,7 @@
   .theme-option {
     width: 2.1875rem;
     height: 2.1875rem;
-    border-radius: 0.32813rem;
+    border-radius: 0.3281rem;
     border: 1.5px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease;

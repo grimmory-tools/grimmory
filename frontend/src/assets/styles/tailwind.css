@@ -8,10 +8,10 @@
 @theme static {
   --font-sans: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
 
-  --text-app-xs: 0.65625rem;
-  --text-app-sm: 0.765625rem;
+  --text-app-xs: 0.6563rem;
+  --text-app-sm: 0.7656rem;
   --text-app-base: 0.875rem;
-  --text-app-lg: 0.984375rem;
+  --text-app-lg: 0.9844rem;
 
   --color-primary-50: var(--color-orange-50);
   --color-primary-100: var(--color-orange-100);

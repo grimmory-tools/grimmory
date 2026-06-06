@@ -32,12 +32,12 @@
   --control-primary-border-hover: color-mix(in srgb, var(--primary-color) 45%, var(--control-primary-bg));
   --control-focus-border: color-mix(in srgb, var(--primary-color) 50%, var(--control-bg));
   --control-focus-ring-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
-  --control-height: 2.29688rem;
-  --control-height-sm: 1.96875rem;
-  --control-padding-x: 0.65625rem;
-  --control-padding-x-sm: 0.76563rem;
+  --control-height: 2.2969rem;
+  --control-height-sm: 1.9688rem;
+  --control-padding-x: 0.6563rem;
+  --control-padding-x-sm: 0.7656rem;
   --control-icon-size: 0.875rem;
-  --control-icon-size-sm: 0.76563rem;
+  --control-icon-size-sm: 0.7656rem;
   --control-gap: 0.4375rem;
   --control-radius: var(--radius-md);
   --control-disabled-opacity: 0.5;
@@ -57,11 +57,11 @@
   --radius-sm: 4px;
   --shadow-overlay: 0 30px 80px -20px rgb(0 0 0 / 70%), 0 10px 30px -10px rgb(0 0 0 / 50%);
   --shadow-sm: 0 2px 4px rgb(0 0 0 / 25%);
-  --space-1: 0.21875rem;
+  --space-1: 0.2188rem;
   --space-2: 0.4375rem;
-  --space-3: 0.65625rem;
+  --space-3: 0.6563rem;
   --space-4: 0.875rem;
-  --space-5: 1.09375rem;
+  --space-5: 1.0938rem;
   --space-6: 1.3125rem;
   --transition-base: 0.2s ease;
   --transition-fast: 0.15s ease;
@@ -88,7 +88,7 @@
 
 @mixin sidebar-fixed-overlay {
   position: fixed !important;
-  top: var(--sidebar-popover-top, 0.65625rem) !important;
+  top: var(--sidebar-popover-top, 0.6563rem) !important;
   bottom: auto !important;
   left: var(--sidebar-popover-left, calc(var(--sidebar-width, 225px) + 0.4375rem)) !important;
   max-height: var(--sidebar-popover-max-height, calc(100vh - 0.875rem)) !important;
@@ -216,11 +216,11 @@
 }
 
 .custom-button-padding .p-button {
-  padding-block: 0.21875rem !important;
+  padding-block: 0.2188rem !important;
 }
 
 .book-details-dialog .p-dialog-header {
-  padding: 0.875rem 1.09375rem !important;
+  padding: 0.875rem 1.0938rem !important;
 }
 
 .sidebar-flyout-popover.p-popover {

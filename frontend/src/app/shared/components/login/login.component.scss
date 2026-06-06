@@ -41,7 +41,7 @@
 .oidc-warning {
   margin-bottom: 1.3125rem;
   padding: 0.875rem;
-  border-radius: 0.65625rem;
+  border-radius: 0.6563rem;
   background: rgb(245 158 11 / 10%);
   border: 1px solid rgb(245 158 11 / 30%);
   animation: fadeIn 0.3s ease-out;
@@ -50,7 +50,7 @@
 .warning-content {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .warning-header {
@@ -75,7 +75,7 @@
 
 .warning-actions {
   display: flex;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   justify-content: center;
 }
 
@@ -124,7 +124,7 @@
 
 .oidc-button {
   ::ng-deep button {
-    height: 2.40625rem;
+    height: 2.4063rem;
     background: rgb(255 255 255 / 5%);
     border: 1px solid rgb(255 255 255 / 15%);
     color: rgb(255 255 255 / 90%);

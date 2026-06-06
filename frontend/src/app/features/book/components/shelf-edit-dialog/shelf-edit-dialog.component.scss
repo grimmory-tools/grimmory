@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  padding: 1.53125rem;
+  padding: 1.5313rem;
   background: var(--color-page);
   border: 1px solid var(--color-border);
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
@@ -54,7 +54,7 @@
 .label {
   width: 6.125rem;
   font-weight: 600;
-  font-size: 0.82031rem;
+  font-size: 0.8203rem;
   color: var(--color-text);
   margin: 0;
 
@@ -81,8 +81,8 @@
 .icon-container {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  padding: 0.4375rem 0.65625rem;
+  gap: 0.6563rem;
+  padding: 0.4375rem 0.6563rem;
   background: var(--color-page);
   border: 1px solid var(--color-border);
   border-radius: 8px;

@@ -19,8 +19,8 @@
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
-  padding: 1.09375rem;
+  gap: 0.6563rem;
+  padding: 1.0938rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
@@ -29,7 +29,7 @@
   max-height: calc(90vh - 200px);
 
   @media (width <= 480px) {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
     gap: 0.4375rem;
   }
 }
@@ -37,7 +37,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 
   &.highlight-group {
     padding: 0.4375rem;
@@ -47,7 +47,7 @@
 .form-label {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   font-size: 0.7875rem;
   font-weight: 600;
   color: var(--text-color);
@@ -58,7 +58,7 @@
 
   .required-indicator {
     color: var(--p-red-500);
-    margin-left: 0.10938rem;
+    margin-left: 0.1094rem;
   }
 }
 
@@ -70,7 +70,7 @@
 .gradient-divider {
   height: 1px;
   background: linear-gradient(to right, transparent, var(--border-color), transparent);
-  margin: 0.21875rem 0;
+  margin: 0.2188rem 0;
 }
 
 // Upload section
@@ -78,7 +78,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   padding: 1.3125rem;
 
   .upload-hint {
@@ -92,8 +92,8 @@
 .paste-section {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
-  padding: 0.65625rem 0;
+  gap: 0.6563rem;
+  padding: 0.6563rem 0;
 
   p-button {
     align-self: flex-end;
@@ -104,7 +104,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
   background: rgb(239 68 68 / 10%);
   border: 1px solid rgb(239 68 68 / 30%);
   border-radius: 6px;
@@ -116,7 +116,7 @@
 .parse-results {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .parse-summary {
@@ -128,10 +128,10 @@
 .summary-stat {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.32813rem 0.65625rem;
+  gap: 0.3281rem;
+  padding: 0.3281rem 0.6563rem;
   border-radius: 6px;
-  font-size: 0.74375rem;
+  font-size: 0.7438rem;
   font-weight: 500;
 
   &.success {
@@ -157,7 +157,7 @@
 .skipped-list {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
   padding: 0.4375rem;
   background: rgb(234 179 8 / 5%);
   border: 1px solid rgb(234 179 8 / 20%);
@@ -175,7 +175,7 @@
   code {
     color: var(--text-color);
     background: var(--ground-background);
-    padding: 0.10938rem 0.32813rem;
+    padding: 0.1094rem 0.3281rem;
     border-radius: 3px;
   }
 
@@ -206,7 +206,7 @@
 .preview-list {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
   max-height: 200px;
   overflow-y: auto;
   padding: 0.4375rem;
@@ -219,8 +219,8 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.21875rem 0.32813rem;
-  font-size: 0.74375rem;
+  padding: 0.2188rem 0.3281rem;
+  font-size: 0.7438rem;
 
   .preview-index {
     color: var(--text-secondary-color);
@@ -266,7 +266,7 @@
 .progress-stats {
   display: flex;
   gap: 0.875rem;
-  font-size: 0.74375rem;
+  font-size: 0.7438rem;
 
   .stat-created {
     color: var(--p-green-500);
@@ -281,23 +281,23 @@
   }
 
   i {
-    margin-right: 0.21875rem;
+    margin-right: 0.2188rem;
   }
 }
 
 .isbn-progress-list {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 }
 
 .progress-item {
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.32813rem 0.4375rem;
+  padding: 0.3281rem 0.4375rem;
   border-radius: 4px;
-  font-size: 0.74375rem;
+  font-size: 0.7438rem;
   transition: background-color 0.2s;
 
   &.status-pending {
@@ -322,7 +322,7 @@
 }
 
 .progress-item-icon {
-  width: 1.09375rem;
+  width: 1.0938rem;
   text-align: center;
   flex-shrink: 0;
 
@@ -354,7 +354,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.21875rem 0;
+  padding: 0.2188rem 0;
 
   .summary-title {
     font-size: var(--app-text-base);
@@ -365,8 +365,8 @@
   .summary-library {
     display: flex;
     align-items: center;
-    gap: 0.32813rem;
-    font-size: 0.74375rem;
+    gap: 0.3281rem;
+    font-size: 0.7438rem;
     color: var(--text-secondary-color);
 
     i {
@@ -378,21 +378,21 @@
 .summary-results {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65625rem;
-  padding: 0.21875rem 0;
+  gap: 0.6563rem;
+  padding: 0.2188rem 0;
 }
 
 .summary-card {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  padding: 0.65625rem 0.875rem;
+  gap: 0.6563rem;
+  padding: 0.6563rem 0.875rem;
   border-radius: 8px;
   flex: 1;
   min-width: 120px;
 
   > i {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
   }
 
   &.success {
@@ -425,7 +425,7 @@
   flex-direction: column;
 
   .summary-card-count {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
     font-weight: 700;
     color: var(--text-color);
   }
@@ -439,17 +439,17 @@
 .summary-detail-list {
   display: flex;
   flex-direction: column;
-  gap: 0.10938rem;
-  margin-top: 0.21875rem;
+  gap: 0.1094rem;
+  margin-top: 0.2188rem;
 }
 
 .summary-detail-item {
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.32813rem 0.4375rem;
+  padding: 0.3281rem 0.4375rem;
   border-radius: 4px;
-  font-size: 0.74375rem;
+  font-size: 0.7438rem;
 
   &.status-created {
     background: rgb(34 197 94 / 4%);
@@ -465,7 +465,7 @@
 }
 
 .summary-detail-icon {
-  width: 1.09375rem;
+  width: 1.0938rem;
   text-align: center;
   flex-shrink: 0;
 

@@ -43,7 +43,7 @@
     font-size: var(--app-text-sm);
     font-weight: 500;
     cursor: pointer;
-    padding: 0.21875rem 0;
+    padding: 0.2188rem 0;
 
     &:hover {
       color: var(--p-text-color);
@@ -57,8 +57,8 @@
   .signal-checkboxes {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.65625rem 1.3125rem;
-    padding: 0.65625rem 0 0;
+    gap: 0.6563rem 1.3125rem;
+    padding: 0.6563rem 0 0;
   }
 
   .signal-checkbox {
@@ -79,14 +79,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.875rem;
-  padding: 0.65625rem 0;
+  padding: 0.6563rem 0;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
 
   .action-bar-left {
     display: flex;
     align-items: center;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 
   .action-bar-right {
@@ -122,7 +122,7 @@
   justify-content: center;
   padding: 2.625rem 0.875rem;
   color: var(--p-text-muted-color);
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   i {
     font-size: 2.1875rem;
@@ -130,14 +130,14 @@
 
   p {
     margin: 0;
-    font-size: 0.82031rem;
+    font-size: 0.8203rem;
   }
 }
 
 .groups-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .duplicate-group {
@@ -148,13 +148,13 @@
   .group-header {
     display: flex;
     align-items: center;
-    gap: 0.65625rem;
-    padding: 0.4375rem 0.65625rem;
+    gap: 0.6563rem;
+    padding: 0.4375rem 0.6563rem;
     border-bottom: 1px solid var(--color-border);
 
     .group-label {
       font-weight: 600;
-      font-size: 0.71094rem;
+      font-size: 0.7109rem;
       color: var(--p-text-muted-color);
     }
 
@@ -174,8 +174,8 @@
 .book-row {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  padding: 0.54688rem 0.65625rem;
+  gap: 0.6563rem;
+  padding: 0.5469rem 0.6563rem;
   cursor: pointer;
   transition: background-color 0.1s;
 
@@ -213,7 +213,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.05469rem;
+    gap: 0.0547rem;
 
     .book-title {
       font-weight: 600;
@@ -224,7 +224,7 @@
     }
 
     .book-authors {
-      font-size: 0.71094rem;
+      font-size: 0.7109rem;
       color: var(--p-text-muted-color);
       white-space: nowrap;
       overflow: hidden;
@@ -234,14 +234,14 @@
     .book-formats {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.21875rem;
-      margin-top: 0.10938rem;
+      gap: 0.2188rem;
+      margin-top: 0.1094rem;
 
       .format-badge {
         display: inline-block;
-        font-size: 0.54688rem;
+        font-size: 0.5469rem;
         font-weight: 700;
-        padding: 0.05469rem 0.27344rem;
+        padding: 0.0547rem 0.2734rem;
         border-radius: 3px;
         background: var(--p-primary-100);
         color: var(--p-primary-700);
@@ -263,16 +263,16 @@
     .book-file-path {
       display: flex;
       align-items: center;
-      gap: 0.21875rem;
+      gap: 0.2188rem;
       font-size: var(--app-text-xs);
       color: var(--p-text-muted-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: 0.10938rem;
+      margin-top: 0.1094rem;
 
       i {
-        font-size: 0.60156rem;
+        font-size: 0.6016rem;
         flex-shrink: 0;
       }
     }
@@ -281,11 +281,11 @@
   .book-select {
     display: flex;
     align-items: center;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
     flex-shrink: 0;
 
     .target-label {
-      font-size: 0.60156rem;
+      font-size: 0.6016rem;
       color: var(--p-primary-color);
       text-transform: uppercase;
       font-weight: 700;
@@ -298,8 +298,8 @@
   display: flex;
   align-items: flex-start;
   gap: 0.4375rem;
-  padding: 0.54688rem 0.65625rem;
-  font-size: 0.71094rem;
+  padding: 0.5469rem 0.6563rem;
+  font-size: 0.7109rem;
   color: var(--p-text-muted-color);
   background: var(--p-content-hover-background);
   border-radius: 6px;
@@ -307,7 +307,7 @@
 
   i {
     flex-shrink: 0;
-    margin-top: 0.10938rem;
+    margin-top: 0.1094rem;
     font-size: var(--app-text-sm);
   }
 }

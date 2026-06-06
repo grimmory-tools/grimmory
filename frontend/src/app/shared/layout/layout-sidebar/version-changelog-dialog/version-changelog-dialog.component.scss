@@ -45,7 +45,7 @@
 
 .release-title {
   font-weight: 700;
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   padding-bottom: 0.4375rem;
   margin: 0;
 }
@@ -68,7 +68,7 @@
   :host ::ng-deep & {
     h1, h2, h3, h4, h5, h6 {
       margin-top: 1.3125rem;
-      margin-bottom: 0.65625rem;
+      margin-bottom: 0.6563rem;
       font-weight: 600;
       line-height: 1.25;
       color: var(--text-color);
@@ -84,26 +84,26 @@
     }
 
     p {
-      margin-top: 0.65625rem;
-      margin-bottom: 0.65625rem;
+      margin-top: 0.6563rem;
+      margin-bottom: 0.6563rem;
     }
 
     ul, ol {
-      margin-top: 0.65625rem;
-      margin-bottom: 0.65625rem;
+      margin-top: 0.6563rem;
+      margin-bottom: 0.6563rem;
       padding-left: 1.3125rem;
     }
 
     li {
-      margin-top: 0.21875rem;
-      margin-bottom: 0.21875rem;
+      margin-top: 0.2188rem;
+      margin-bottom: 0.2188rem;
     }
 
     code {
       font-size: 0.875em;
       background: var(--ground-background);
-      padding: 0.10938rem 0.32813rem;
-      border-radius: 0.21875rem;
+      padding: 0.1094rem 0.3281rem;
+      border-radius: 0.2188rem;
     }
 
     pre {

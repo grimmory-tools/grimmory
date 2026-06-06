@@ -74,7 +74,7 @@
   color: var(--color-text-secondary);
 
   .empty-state-title {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
     font-weight: 600;
     margin-top: 0.875rem;
     margin-bottom: 0.4375rem;
@@ -181,13 +181,13 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 0.65625rem;
+      padding: 0.6563rem;
     }
 
     .reviewer-info-group {
       display: flex;
       flex-direction: column;
-      gap: 0.21875rem;
+      gap: 0.2188rem;
     }
 
     .reviewer-name-row {
@@ -220,7 +220,7 @@
 
     .review-meta-icon {
       font-size: var(--app-text-xs);
-      margin-right: 0.21875rem;
+      margin-right: 0.2188rem;
     }
 
     .review-meta-text {
@@ -237,7 +237,7 @@
     .rating-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.21875rem;
+      gap: 0.2188rem;
     }
 
     .rating-text {
@@ -315,7 +315,7 @@
   text-overflow: ellipsis;
   cursor: help;
   font-weight: 500;
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   color: var(--color-text);
   line-height: 1.25;
   margin: 0;

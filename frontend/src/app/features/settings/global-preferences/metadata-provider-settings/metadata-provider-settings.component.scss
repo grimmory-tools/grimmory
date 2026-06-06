@@ -37,7 +37,7 @@
 .configurable-providers-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .simple-providers-section {
@@ -52,7 +52,7 @@
   color: var(--p-text-muted-color);
   text-transform: uppercase;
   letter-spacing: 0.025em;
-  margin: 0 0 0.21875rem;
+  margin: 0 0 0.2188rem;
 }
 
 .setting-item {
@@ -78,7 +78,7 @@
 .config-field {
   display: flex;
   flex-direction: column;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
 }
 
 .config-label {
@@ -108,7 +108,7 @@
 .config-input {
   width: 100%;
   max-width: 35rem;
-  padding: 0.32813rem 0.54688rem;
+  padding: 0.3281rem 0.5469rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
   background: var(--ground-background);
@@ -133,7 +133,7 @@
 .simple-providers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   @media (width <= 768px) {
     grid-template-columns: 1fr 1fr;
@@ -146,10 +146,10 @@
 }
 
 .simple-provider {
-  padding: 0.54688rem 0.76563rem;
+  padding: 0.5469rem 0.7656rem;
 
   @media (width <= 768px) {
-    padding: 0.4375rem 0.65625rem;
+    padding: 0.4375rem 0.6563rem;
   }
 }
 

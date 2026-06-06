@@ -13,7 +13,7 @@
   .header-title {
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.09375rem;
+      font-size: 1.0938rem;
       font-weight: 500;
       margin: 0 0 0.4375rem;
     }
@@ -84,7 +84,7 @@
 
   .filter-controls {
     display: flex;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     align-items: center;
     justify-self: end;
   }
@@ -96,7 +96,7 @@
   justify-content: center;
   gap: 0.875rem;
   margin-bottom: 0.875rem;
-  padding: 0.65625rem;
+  padding: 0.6563rem;
   background: color-mix(in srgb, var(--color-text) 5%, transparent);
   border-radius: 8px;
   border: 1px solid var(--color-border);
@@ -142,10 +142,10 @@
     }
 
     .week-dates {
-      font-size: 0.74375rem;
+      font-size: 0.7438rem;
       color: var(--text-secondary-color);
       white-space: nowrap;
-      margin-top: 0.21875rem;
+      margin-top: 0.2188rem;
     }
   }
 }
@@ -358,7 +358,7 @@
       }
 
       .session-duration {
-        font-size: 0.56875rem;
+        font-size: 0.5687rem;
         opacity: 0.9;
         white-space: nowrap;
         line-height: 1;
@@ -390,7 +390,7 @@
   .session-tooltip-content {
     display: flex;
     gap: 0.875rem;
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 
   .session-tooltip-cover {
@@ -417,8 +417,8 @@
   .session-tooltip-header {
     display: flex;
     align-items: center;
-    gap: 0.65625rem;
-    margin-bottom: 0.65625rem;
+    gap: 0.6563rem;
+    margin-bottom: 0.6563rem;
 
     i {
       font-size: 0.9625rem;
@@ -429,7 +429,7 @@
   .session-tooltip-title {
     color: #fff;
     font-weight: 600;
-    font-size: 0.83125rem;
+    font-size: 0.8313rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -441,20 +441,20 @@
       transparent 0%,
       rgb(255 255 255 / 10%) 50%,
       transparent 100%);
-    margin-bottom: 0.65625rem;
+    margin-bottom: 0.6563rem;
   }
 
   .session-tooltip-body {
     display: flex;
     flex-direction: column;
-    gap: 0.54688rem;
+    gap: 0.5469rem;
   }
 
   .session-tooltip-row {
     display: grid;
     grid-template-columns: auto auto 1fr;
     align-items: center;
-    gap: 0.54688rem;
+    gap: 0.5469rem;
     font-size: var(--app-text-sm);
 
     i {
@@ -487,7 +487,7 @@
 @media (width <= 1024px) {
   .timeline-header {
     grid-template-columns: 1fr;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
 
     .header-title {
       grid-column: 1;
@@ -525,7 +525,7 @@
       }
 
       .timeline-subtitle {
-        font-size: 0.74375rem;
+        font-size: 0.7438rem;
       }
     }
 
@@ -545,7 +545,7 @@
       }
 
       .week-nav-btn {
-        padding: 0.30625rem 0.4375rem;
+        padding: 0.3063rem 0.4375rem;
 
         i {
           font-size: 0.7rem;
@@ -556,7 +556,7 @@
 
   .timeline-content {
     min-height: 300px;
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 
   .timeline-row {
@@ -581,7 +581,7 @@
 
   .session-block {
     .session-content {
-      font-size: 0.56875rem;
+      font-size: 0.5687rem;
 
       .session-duration {
         display: none;
@@ -592,10 +592,10 @@
   .session-tooltip {
     min-width: 240px;
     max-width: 280px;
-    font-size: 0.74375rem;
+    font-size: 0.7438rem;
 
     .tooltip-header {
-      padding: 0.65625rem;
+      padding: 0.6563rem;
 
       .tooltip-title {
         font-size: var(--app-text-sm);
@@ -603,7 +603,7 @@
     }
 
     .tooltip-body {
-      padding: 0.65625rem;
+      padding: 0.6563rem;
     }
 
     .tooltip-row {
@@ -634,11 +634,11 @@
         min-width: 90px;
 
         .week-label {
-          font-size: 0.74375rem;
+          font-size: 0.7438rem;
         }
 
         .week-dates {
-          font-size: 0.56875rem;
+          font-size: 0.5687rem;
         }
       }
     }

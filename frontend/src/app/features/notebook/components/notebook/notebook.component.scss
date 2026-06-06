@@ -59,7 +59,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -105,7 +105,7 @@
 
   i {
     position: absolute;
-    left: 0.65625rem;
+    left: 0.6563rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--p-text-muted-color);
@@ -113,7 +113,7 @@
   }
 
   .search-input {
-    padding-left: 1.96875rem;
+    padding-left: 1.9688rem;
     width: 200px;
     font-size: var(--app-text-sm);
   }
@@ -171,7 +171,7 @@
   font-size: var(--app-text-base);
   font-weight: 600;
   color: var(--p-text-color);
-  margin: 0 0 0.21875rem;
+  margin: 0 0 0.2188rem;
 }
 
 .state-hint {
@@ -191,8 +191,8 @@
 .book-group-header {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  padding: 0.875rem 1.09375rem;
+  gap: 0.6563rem;
+  padding: 0.875rem 1.0938rem;
   cursor: pointer;
   transition: background 0.15s ease;
   border-radius: 8px;
@@ -216,7 +216,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.10938rem;
+  gap: 0.1094rem;
 }
 
 .book-title {
@@ -229,7 +229,7 @@
 }
 
 .book-entry-count {
-  font-size: 0.71094rem;
+  font-size: 0.7109rem;
   color: var(--p-text-muted-color);
 }
 
@@ -247,11 +247,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.4375rem;
-  padding: 0 1.09375rem 1.09375rem;
+  padding: 0 1.0938rem 1.0938rem;
 }
 
 .entry-item {
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
   border-radius: 6px;
   border-left: 3px solid var(--p-primary-color);
   background: var(--color-card);
@@ -265,7 +265,7 @@
 .entry-top-row {
   display: flex;
   align-items: center;
-  gap: 0.54688rem;
+  gap: 0.5469rem;
   margin-bottom: 0.4375rem;
   flex-wrap: wrap;
 }
@@ -274,13 +274,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.2625rem;
-  padding: 0.10938rem 0.4375rem;
+  padding: 0.1094rem 0.4375rem;
   border-radius: 12px;
   font-size: var(--app-text-xs);
   font-weight: 600;
 
   .pi {
-    font-size: 0.60156rem;
+    font-size: 0.6016rem;
   }
 
   &.type-highlight {
@@ -303,7 +303,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.2625rem;
-  font-size: 0.71094rem;
+  font-size: 0.7109rem;
   color: var(--p-text-muted-color);
 
   .pi {
@@ -329,18 +329,18 @@
 .entry-note {
   display: flex;
   align-items: flex-start;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   margin-top: 0.4375rem;
   padding-top: 0.4375rem;
   border-top: 1px dashed var(--p-content-border-color);
   color: var(--p-text-muted-color);
-  font-size: 0.71094rem;
+  font-size: 0.7109rem;
   font-style: italic;
   line-height: 1.5;
 
   .pi {
     font-size: var(--app-text-xs);
-    margin-top: 0.10938rem;
+    margin-top: 0.1094rem;
     flex-shrink: 0;
     color: var(--p-primary-color);
   }
@@ -389,7 +389,7 @@
   .entry-top-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
   }
 
   .entry-date {

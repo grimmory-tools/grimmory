@@ -157,9 +157,9 @@ label {
   gap: 0.4375rem;
   font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.21875rem 0.65625rem;
+  padding: 0.2188rem 0.6563rem;
   border-radius: 0.4375rem;
-  margin-bottom: 0.21875rem;
+  margin-bottom: 0.2188rem;
 
   i {
     font-size: 0.7875rem;
@@ -187,8 +187,8 @@ label {
 .cover-actions {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  padding-top: 0.65625rem;
+  gap: 0.6563rem;
+  padding-top: 0.6563rem;
 }
 
 .fields-section {
@@ -207,7 +207,7 @@ label {
   width: 100%;
   gap: 0.875rem;
   margin-top: 0.4375rem;
-  padding-bottom: 0.21875rem;
+  padding-bottom: 0.2188rem;
 
   @media (width >= 768px) {
     flex-direction: row;
@@ -217,7 +217,7 @@ label {
 .field-group {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 
   label {
     font-size: var(--app-text-sm);
@@ -254,9 +254,9 @@ label {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.32813rem;
-  min-height: 1.96875rem;
+  gap: 0.3281rem;
+  padding: 0.3281rem;
+  min-height: 1.9688rem;
   border: 1px solid var(--p-inputtext-border-color);
   border-radius: 6px;
   background: var(--p-inputtext-background);
@@ -281,7 +281,7 @@ label {
   ::ng-deep input {
     border: none !important;
     background: transparent !important;
-    padding: 0.21875rem;
+    padding: 0.2188rem;
     box-shadow: none !important;
     outline: none !important;
   }
@@ -290,8 +290,8 @@ label {
 .author-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.21875rem;
-  padding: 0.21875rem 0.4375rem;
+  gap: 0.2188rem;
+  padding: 0.2188rem 0.4375rem;
   border-radius: 0.875rem;
   background: var(--p-chip-background);
   color: var(--p-chip-color);
@@ -315,10 +315,10 @@ label {
 }
 
 .author-chip-remove {
-  font-size: 0.56875rem;
+  font-size: 0.5687rem;
   cursor: pointer;
   opacity: 0.6;
-  padding: 0.13125rem;
+  padding: 0.1313rem;
   &:hover { opacity: 1; }
 }
 
@@ -401,16 +401,16 @@ label {
   width: 100%;
   background: var(--color-page);
   border: 1px solid var(--color-border);
-  border-radius: 0.65625rem;
+  border-radius: 0.6563rem;
 
   .collapsible-header {
     display: flex;
     align-items: center;
     gap: 0.4375rem;
-    padding: 0.65625rem 0.875rem;
+    padding: 0.6563rem 0.875rem;
     min-height: 2.1875rem;
     background: var(--color-card);
-    border-radius: 0.65625rem;
+    border-radius: 0.6563rem;
     font-size: var(--app-text-sm);
     font-weight: 600;
     color: var(--color-text);
@@ -435,11 +435,11 @@ label {
   }
 
   &.expanded .collapsible-header {
-    border-radius: 0.65625rem 0.65625rem 0 0;
+    border-radius: 0.6563rem 0.6563rem 0 0;
   }
 
   .collapsible-content {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
     border-top: 1px solid var(--color-border);
   }
 }
@@ -596,9 +596,9 @@ label {
 }
 
 .embeddable-indicator {
-  font-size: 0.56875rem;
+  font-size: 0.5687rem;
   color: var(--p-green-500);
-  margin-left: 0.21875rem;
+  margin-left: 0.2188rem;
   vertical-align: super;
 }
 

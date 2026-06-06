@@ -1,7 +1,7 @@
 .settings-card {
   display: flex;
   flex-direction: column;
-  gap: 1.09375rem;
+  gap: 1.0938rem;
   background: var(--color-page);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
@@ -14,14 +14,14 @@
 }
 
 .section-header {
-  margin-bottom: 0.21875rem;
+  margin-bottom: 0.2188rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  font-size: 1.09375rem;
+  font-size: 1.0938rem;
   font-weight: 600;
   color: var(--color-text);
   margin: 0 0 0.4375rem;
@@ -54,18 +54,18 @@
 
   @media (width <= 768px) {
     grid-template-columns: 1fr;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 }
 
 .provider-group {
-  padding: 0.76563rem 0.875rem;
+  padding: 0.7656rem 0.875rem;
   border-radius: 6px;
   border-left: 3px solid var(--color-primary);
   background: var(--color-page);
 
   @media (width <= 768px) {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 }
 
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  margin-bottom: 0.54688rem;
+  margin-bottom: 0.5469rem;
   padding-bottom: 0.4375rem;
   border-bottom: 1px dashed var(--p-content-border-color);
 }
@@ -94,14 +94,14 @@
 .field-list {
   display: flex;
   flex-direction: column;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
 }
 
 .field-item {
   display: flex;
   align-items: center;
-  gap: 0.54688rem;
-  padding: 0.27344rem 0.4375rem;
+  gap: 0.5469rem;
+  padding: 0.2734rem 0.4375rem;
   border-radius: 4px;
   transition: background-color 0.15s ease;
 
@@ -111,7 +111,7 @@
 
   label {
     cursor: pointer;
-    font-size: 0.82031rem;
+    font-size: 0.8203rem;
     font-weight: 400;
     user-select: none;
     color: var(--color-text);

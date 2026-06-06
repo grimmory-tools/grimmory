@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -93,7 +93,7 @@
 .users-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .user-card {
@@ -129,14 +129,14 @@
   @media (width <= 600px) {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 }
 
 .user-main-info {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex: 1;
   min-width: 0;
 }
@@ -199,10 +199,10 @@
 
 .user-type-badge {
   display: inline-block;
-  padding: 0.10938rem 0.4375rem;
+  padding: 0.1094rem 0.4375rem;
   border: 1px solid;
   border-radius: 12px;
-  font-size: 0.54688rem;
+  font-size: 0.5469rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -229,23 +229,23 @@
 .admin-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.21875rem;
-  padding: 0.10938rem 0.4375rem;
+  gap: 0.2188rem;
+  padding: 0.1094rem 0.4375rem;
   border-radius: 12px;
-  font-size: 0.54688rem;
+  font-size: 0.5469rem;
   font-weight: 700;
   text-transform: uppercase;
 
   .pi {
-    font-size: 0.54688rem;
+    font-size: 0.5469rem;
   }
 }
 
 .user-meta {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
-  margin-top: 0.21875rem;
+  gap: 0.3281rem;
+  margin-top: 0.2188rem;
   font-size: settings.$settings-description-size;
   color: var(--p-text-muted-color);
 }
@@ -275,8 +275,8 @@
 .permission-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.21875rem 0.54688rem;
+  gap: 0.3281rem;
+  padding: 0.2188rem 0.5469rem;
   border-radius: 16px;
   font-size: var(--app-text-xs);
   font-weight: 600;
@@ -360,7 +360,7 @@
 
 .user-actions {
   display: flex;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
   flex-shrink: 0;
 
   @media (width <= 600px) {
@@ -389,7 +389,7 @@
 .content-restrictions-section {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   margin-top: 0.4375rem;
   padding-top: 0.875rem;
   border-top: 1px solid var(--p-content-border-color);
@@ -443,7 +443,7 @@
 .detail-field {
   display: flex;
   flex-direction: column;
-  gap: 0.32813rem;
+  gap: 0.3281rem;
 
   &.detail-field-wide {
     grid-column: span 2;
@@ -475,7 +475,7 @@
 .permissions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.09375rem;
+  gap: 1.0938rem;
   padding-left: 1.3125rem;
 
   @media (width <= 600px) {
@@ -492,7 +492,7 @@
     font-size: settings.$settings-description-size;
     font-weight: 600;
     color: var(--p-text-color);
-    margin: 0 0 0.54688rem;
+    margin: 0 0 0.5469rem;
     padding-bottom: 0.4375rem;
     border-bottom: 1px solid var(--p-content-border-color);
 
@@ -512,7 +512,7 @@
 .permission-item {
   display: flex;
   align-items: center;
-  gap: 0.54688rem;
+  gap: 0.5469rem;
 
   label {
     font-size: settings.$settings-description-size;
@@ -547,7 +547,7 @@
     .p-dialog-title {
       display: flex;
       align-items: center;
-      gap: 0.65625rem;
+      gap: 0.6563rem;
       font-size: settings.$settings-section-title-size;
       font-weight: 600;
       color: var(--p-text-color);
@@ -564,7 +564,7 @@
         background: var(--p-primary-color);
         color: var(--p-primary-contrast-color);
         border-radius: 8px;
-        font-size: 1.09375rem;
+        font-size: 1.0938rem;
         box-shadow: 0 2px 6px rgb(0 0 0 / 15%);
       }
     }
@@ -605,7 +605,7 @@
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 1.09375rem;
+  gap: 1.0938rem;
 }
 
 .form-field {
@@ -617,7 +617,7 @@
     font-size: settings.$settings-section-description-size;
     font-weight: 600;
     color: var(--p-text-color);
-    margin-bottom: 0.21875rem;
+    margin-bottom: 0.2188rem;
   }
 
   input,
@@ -627,7 +627,7 @@
 
   ::ng-deep .p-inputtext,
   ::ng-deep .p-password-input {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
     font-size: settings.$settings-label-size;
     border: 1px solid var(--p-content-border-color);
     border-radius: 6px;
@@ -650,8 +650,8 @@
 .error-message {
   display: flex;
   align-items: flex-start;
-  gap: 0.65625rem;
-  padding: 0.76563rem 0.875rem;
+  gap: 0.6563rem;
+  padding: 0.7656rem 0.875rem;
   background: color-mix(in srgb, var(--color-red-500) 12%, var(--p-content-background));
   border: 1px solid color-mix(in srgb, var(--color-red-500) 30%, transparent);
   border-left: 3px solid var(--color-red-500);
@@ -663,7 +663,7 @@
   .pi {
     font-size: var(--app-text-base);
     flex-shrink: 0;
-    margin-top: 0.10938rem;
+    margin-top: 0.1094rem;
   }
 
   span {
@@ -676,10 +676,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   ::ng-deep .p-button {
-    padding: 0.65625rem 1.3125rem;
+    padding: 0.6563rem 1.3125rem;
     font-weight: 600;
     font-size: settings.$settings-label-size;
     border-radius: 6px;
@@ -738,7 +738,7 @@
     }
 
     .p-dialog-footer {
-      padding: 0.76563rem 0.875rem;
+      padding: 0.7656rem 0.875rem;
     }
   }
 

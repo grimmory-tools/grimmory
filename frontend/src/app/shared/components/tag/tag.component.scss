@@ -2,102 +2,102 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.32813rem;
-  padding: 0.16406rem 0.38281rem;
+  gap: 0.3281rem;
+  padding: 0.1641rem 0.3828rem;
   font-size: var(--app-text-sm);
   font-weight: 500;
-  line-height: 1.09375rem;
-  border-radius: 0.32813rem;
+  line-height: 1.0938rem;
+  border-radius: 0.3281rem;
   white-space: nowrap;
 
   &-5xs {
-    padding: 0.08207rem 0.27344rem;
-    font-size: 0.54688rem;
-    line-height: 0.76563rem;
-    gap: 0.21875rem;
+    padding: 0.0821rem 0.2734rem;
+    font-size: 0.5469rem;
+    line-height: 0.7656rem;
+    gap: 0.2188rem;
   }
 
   &-4xs {
-    padding: 0.09573rem 0.28709rem;
-    font-size: 0.60156rem;
-    line-height: 0.82031rem;
-    gap: 0.24614rem;
+    padding: 0.0957rem 0.2871rem;
+    font-size: 0.6016rem;
+    line-height: 0.8203rem;
+    gap: 0.2461rem;
   }
 
   &-3xs {
-    padding: 0.10938rem 0.32813rem;
+    padding: 0.1094rem 0.3281rem;
     font-size: var(--app-text-xs);
     line-height: 0.875rem;
-    gap: 0.27344rem;
+    gap: 0.2734rem;
   }
 
   &-2xs {
-    padding: 0.12302rem 0.34177rem;
-    font-size: 0.68364rem;
-    line-height: 0.92969rem;
-    gap: 0.28709rem;
+    padding: 0.123rem 0.3418rem;
+    font-size: 0.6836rem;
+    line-height: 0.9297rem;
+    gap: 0.2871rem;
   }
 
   &-xs {
-    padding: 0.13676rem 0.35551rem;
-    font-size: 0.71094rem;
-    line-height: 0.98438rem;
-    gap: 0.30083rem;
+    padding: 0.1368rem 0.3555rem;
+    font-size: 0.7109rem;
+    line-height: 0.9844rem;
+    gap: 0.3008rem;
   }
 
   &-s {
-    padding: 0.15041rem 0.36916rem;
-    font-size: 0.73833rem;
-    line-height: 1.03906rem;
-    gap: 0.31448rem;
+    padding: 0.1504rem 0.3692rem;
+    font-size: 0.7383rem;
+    line-height: 1.0391rem;
+    gap: 0.3145rem;
   }
 
   &-m {
-    padding: 0.16406rem 0.38281rem;
+    padding: 0.1641rem 0.3828rem;
     font-size: var(--app-text-sm);
-    line-height: 1.09375rem;
-    gap: 0.32813rem;
+    line-height: 1.0938rem;
+    gap: 0.3281rem;
   }
 
   &-l {
-    padding: 0.17771rem 0.39646rem;
-    font-size: 0.79301rem;
-    line-height: 1.14844rem;
-    gap: 0.34177rem;
+    padding: 0.1777rem 0.3965rem;
+    font-size: 0.793rem;
+    line-height: 1.1484rem;
+    gap: 0.3418rem;
   }
 
   &-xl {
-    padding: 0.19145rem 0.4102rem;
-    font-size: 0.82031rem;
-    line-height: 1.20313rem;
-    gap: 0.35551rem;
+    padding: 0.1915rem 0.4102rem;
+    font-size: 0.8203rem;
+    line-height: 1.2031rem;
+    gap: 0.3555rem;
   }
 
   &-2xl {
-    padding: 0.2051rem 0.42385rem;
+    padding: 0.2051rem 0.4239rem;
     font-size: 0.8477rem;
-    line-height: 1.25781rem;
-    gap: 0.36916rem;
+    line-height: 1.2578rem;
+    gap: 0.3692rem;
   }
 
   &-3xl {
-    padding: 0.21875rem 0.4375rem;
+    padding: 0.2188rem 0.4375rem;
     font-size: var(--app-text-base);
     line-height: 1.3125rem;
-    gap: 0.38281rem;
+    gap: 0.3828rem;
   }
 
   &-4xl {
-    padding: 0.24614rem 0.46489rem;
-    font-size: 0.92969rem;
-    line-height: 1.36719rem;
+    padding: 0.2461rem 0.4649rem;
+    font-size: 0.9297rem;
+    line-height: 1.3672rem;
     gap: 0.4102rem;
   }
 
   &-5xl {
-    padding: 0.27344rem 0.49219rem;
+    padding: 0.2734rem 0.4922rem;
     font-size: var(--app-text-lg);
-    line-height: 1.42188rem;
+    line-height: 1.4219rem;
     gap: 0.4375rem;
   }
 
@@ -187,7 +187,7 @@
 
   &-variant-pill {
     border-radius: 9999px;
-    padding: 0.10938rem 0.32813rem;
+    padding: 0.1094rem 0.3281rem;
 
     &.app-tag-primary {
       background-color: var(--color-primary-600);

@@ -96,13 +96,13 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 }
 
 .author-title-row {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex-wrap: wrap;
 
   @media (width <= 767px) {
@@ -127,7 +127,7 @@
   margin: 0;
 
   @media (width >= 768px) {
-    font-size: 1.64063rem;
+    font-size: 1.6406rem;
   }
 }
 
@@ -185,7 +185,7 @@
   i {
     font-size: 2.1875rem;
     color: var(--color-text-secondary);
-    margin-bottom: 0.65625rem;
+    margin-bottom: 0.6563rem;
   }
 
   p {

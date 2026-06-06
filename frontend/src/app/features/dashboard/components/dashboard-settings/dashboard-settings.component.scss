@@ -17,7 +17,7 @@
 .settings-controls {
   display: flex;
   flex-direction: column;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   padding: 0.875rem 1.75rem;
   background: var(--color-page);
   border: 1px solid var(--color-border);
@@ -26,8 +26,8 @@
   .settings-info {
     .info-content {
       display: flex;
-      gap: 0.65625rem;
-      padding: 0.65625rem;
+      gap: 0.6563rem;
+      padding: 0.6563rem;
       background: var(--color-page);
       border-radius: 6px;
       border: 1px solid var(--p-primary-300);
@@ -36,7 +36,7 @@
         color: var(--color-primary);
         font-size: var(--app-text-lg);
         flex-shrink: 0;
-        margin-top: 0.10938rem;
+        margin-top: 0.1094rem;
       }
 
       .info-text {
@@ -86,18 +86,18 @@
   border-color: var(--p-content-border-color);
   background: var(--p-content-background);
   padding: 0.875rem;
-  margin-bottom: 0.65625rem;
-  border-radius: 0.32813rem;
+  margin-bottom: 0.6563rem;
+  border-radius: 0.3281rem;
 
   @media (width <= 768px) {
-    padding: 0.65625rem !important;
+    padding: 0.6563rem !important;
   }
 }
 
 .scroller-content {
   display: flex;
   align-items: flex-end;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   @media (width <= 768px) {
     flex-direction: column;
@@ -109,7 +109,7 @@
 .scroller-controls-left {
   display: flex;
   align-items: center;
-  padding-bottom: 0.56875rem;
+  padding-bottom: 0.5687rem;
 
   @media (width <= 768px) {
     padding-bottom: 0;
@@ -120,7 +120,7 @@
 .scroller-controls-right {
   display: flex;
   gap: 0.4375rem;
-  padding-bottom: 0.21875rem;
+  padding-bottom: 0.2188rem;
 
   @media (width <= 768px) {
     padding-bottom: 0;
@@ -131,12 +131,12 @@
 .scroller-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   flex: 1;
 
   @media (width <= 768px) {
     grid-template-columns: 1fr;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 
   @media (width <= 640px) {

@@ -10,7 +10,7 @@
   align-items: flex-start;
   margin-bottom: 0.875rem;
   flex-wrap: wrap;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   .chart-title {
     flex: 1;
@@ -18,7 +18,7 @@
 
     h3 {
       color: var(--color-text);
-      font-size: 1.09375rem;
+      font-size: 1.0938rem;
       font-weight: 500;
       margin: 0 0 0.4375rem;
       display: flex;
@@ -41,8 +41,8 @@
     .summary-item {
       display: flex;
       align-items: center;
-      gap: 0.30625rem;
-      padding: 0.30625rem 0.525rem;
+      gap: 0.3063rem;
+      padding: 0.3063rem 0.525rem;
       border-radius: 16px;
       font-size: 0.7rem;
       font-weight: 600;
@@ -81,7 +81,7 @@
 
 .stats-row {
   display: flex;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   margin-bottom: 0.875rem;
   flex-wrap: wrap;
 
@@ -89,7 +89,7 @@
     display: flex;
     align-items: center;
     gap: 0.4375rem;
-    padding: 0.4375rem 0.74375rem;
+    padding: 0.4375rem 0.7438rem;
 
     @include chart-shared.neutral-surface(20px);
 
@@ -127,11 +127,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.65625rem;
+    margin-bottom: 0.6563rem;
 
     h4 {
       color: var(--color-text);
-      font-size: 0.83125rem;
+      font-size: 0.8313rem;
       font-weight: 500;
       margin: 0;
     }
@@ -139,7 +139,7 @@
     .series-count {
       font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
-      padding: 0.21875rem 0.4375rem;
+      padding: 0.2188rem 0.4375rem;
 
       @include chart-shared.neutral-surface(4px);
     }
@@ -147,8 +147,8 @@
 
   .controls-row {
     display: flex;
-    gap: 0.65625rem;
-    margin-bottom: 0.65625rem;
+    gap: 0.6563rem;
+    margin-bottom: 0.6563rem;
     flex-wrap: wrap;
 
     .search-box {
@@ -158,7 +158,7 @@
       display: flex;
       align-items: center;
       gap: 0.4375rem;
-      padding: 0.35rem 0.56875rem;
+      padding: 0.35rem 0.5687rem;
 
       @include chart-shared.neutral-surface(6px);
 
@@ -227,7 +227,7 @@
       gap: 0.4375rem;
       padding: 1.3125rem;
       color: var(--color-text-secondary);
-      font-size: 0.74375rem;
+      font-size: 0.7438rem;
 
       i {
         opacity: 0.5;
@@ -239,9 +239,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.65625rem;
-    margin-top: 0.65625rem;
-    padding-top: 0.65625rem;
+    gap: 0.6563rem;
+    margin-top: 0.6563rem;
+    padding-top: 0.6563rem;
     border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 
     .page-btn {
@@ -280,7 +280,7 @@
   }
 
   .series-card {
-    padding: 0.4375rem 0.65625rem;
+    padding: 0.4375rem 0.6563rem;
 
     @include chart-shared.neutral-surface;
 
@@ -306,7 +306,7 @@
       display: flex;
       align-items: flex-start;
       gap: 0.4375rem;
-      margin-bottom: 0.30625rem;
+      margin-bottom: 0.3063rem;
 
       .series-status-icon {
         font-size: 0.7875rem;
@@ -330,7 +330,7 @@
         .series-meta {
           display: flex;
           align-items: center;
-          gap: 0.65625rem;
+          gap: 0.6563rem;
           margin-top: 0.175rem;
 
           .books-count {
@@ -350,7 +350,7 @@
             color: var(--color-amber-500);
 
             i {
-              font-size: 0.56875rem;
+              font-size: 0.5687rem;
             }
           }
         }
@@ -398,14 +398,14 @@
     }
 
     .next-up {
-      margin-top: 0.30625rem;
+      margin-top: 0.3063rem;
       padding-top: 0.2625rem;
       border-top: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
       font-size: 0.6125rem;
 
       .next-label {
         color: var(--color-text-secondary);
-        margin-right: 0.30625rem;
+        margin-right: 0.3063rem;
       }
 
       .next-title {
@@ -427,13 +427,13 @@
 
   i {
     font-size: 1.75rem;
-    margin-bottom: 0.65625rem;
+    margin-bottom: 0.6563rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 0.83125rem;
-    margin: 0 0 0.30625rem;
+    font-size: 0.8313rem;
+    margin: 0 0 0.3063rem;
     color: var(--color-text);
   }
 
@@ -487,7 +487,7 @@
   .chart-header {
     .chart-title {
       h3 {
-        font-size: 0.91875rem;
+        font-size: 0.9187rem;
       }
 
       .chart-description {
@@ -497,7 +497,7 @@
 
     .series-summary {
       .summary-item {
-        padding: 0.21875rem 0.4375rem;
+        padding: 0.2188rem 0.4375rem;
         font-size: var(--app-text-xs);
       }
     }
@@ -521,12 +521,12 @@
 
   .series-details {
     .series-card {
-      padding: 0.4375rem 0.56875rem;
+      padding: 0.4375rem 0.5687rem;
 
       .series-main {
         .series-info {
           .series-name {
-            font-size: 0.74375rem;
+            font-size: 0.7438rem;
           }
         }
       }

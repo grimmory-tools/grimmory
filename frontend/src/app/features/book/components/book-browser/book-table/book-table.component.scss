@@ -8,7 +8,7 @@
   --book-table-border-color: var(--p-datatable-border-color, color-mix(in srgb, var(--p-content-border-color) 82%, black));
   --book-table-header-background: var(--p-datatable-header-cell-background, var(--p-content-background));
   --book-table-header-color: var(--p-datatable-header-cell-color, var(--p-text-color));
-  --book-table-header-padding: var(--p-datatable-header-cell-padding, 0.65625rem 0.875rem);
+  --book-table-header-padding: var(--p-datatable-header-cell-padding, 0.6563rem 0.875rem);
   --book-table-header-weight: var(--p-datatable-column-title-font-weight, 600);
   --book-table-row-background: var(--p-datatable-row-background, var(--p-content-background));
   --book-table-row-color: var(--p-datatable-row-color, var(--p-text-color));
@@ -16,8 +16,8 @@
   --book-table-row-hover-color: var(--p-datatable-row-hover-color, var(--p-text-color));
   --book-table-row-striped-background: var(--p-datatable-row-striped-background, var(--color-app));
   --book-table-cell-border-color: var(--p-datatable-body-cell-border-color, var(--book-table-border-color));
-  --book-table-cell-padding: var(--p-datatable-body-cell-padding, 0.65625rem 0.875rem);
-  --book-table-rating-gap: var(--p-rating-gap, 0.21875rem);
+  --book-table-cell-padding: var(--p-datatable-body-cell-padding, 0.6563rem 0.875rem);
+  --book-table-rating-gap: var(--p-rating-gap, 0.2188rem);
   --book-table-lock-unlocked-color: var(--color-lock-unlocked, var(--color-green-600));
   --book-table-lock-locked-color: var(--color-lock-locked, var(--color-red-600));
   --book-table-status-read-color: var(--color-green-500);
@@ -169,7 +169,7 @@
 .loading-line {
   display: block;
   width: 85%;
-  height: 0.65625rem;
+  height: 0.6563rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--p-text-color) 14%, transparent);
   animation: loading-line-pulse 1.5s ease-in-out infinite;

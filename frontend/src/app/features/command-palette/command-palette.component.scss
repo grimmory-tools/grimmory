@@ -89,7 +89,7 @@
   }
 
   i {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
   }
 }
 
@@ -250,7 +250,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.09375rem;
+  min-width: 1.0938rem;
   padding: 0 var(--space-1);
   border-radius: var(--radius-sm);
   background: var(--color-surface-hover);
@@ -291,9 +291,9 @@
     gap: 0.4375rem;
     padding:
       0
-      calc(0.65625rem + env(safe-area-inset-right))
+      calc(0.6563rem + env(safe-area-inset-right))
       0
-      calc(0.65625rem + env(safe-area-inset-left));
+      calc(0.6563rem + env(safe-area-inset-left));
 
     > .pi-search {
       display: inline-flex;

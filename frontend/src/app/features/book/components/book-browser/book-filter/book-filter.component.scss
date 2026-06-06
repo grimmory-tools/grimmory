@@ -12,7 +12,7 @@
 }
 
 :host ::ng-deep .p-togglebutton {
-  --p-togglebutton-content-padding: 0.21875rem 0.30625rem;
+  --p-togglebutton-content-padding: 0.2188rem 0.3063rem;
 }
 
 :host ::ng-deep .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
@@ -60,7 +60,7 @@
 .filter-type-label {
   display: inline-flex;
   align-items: center;
-  gap: 0.21875rem;
+  gap: 0.2188rem;
   max-width: 100%;
   overflow: hidden;
   min-width: 0;
@@ -83,7 +83,7 @@
 }
 
 .filter-list {
-  padding-right: 0.21875rem;
+  padding-right: 0.2188rem;
 }
 
 .filter-row {

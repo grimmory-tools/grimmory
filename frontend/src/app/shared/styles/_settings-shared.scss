@@ -5,30 +5,30 @@
 // ============================================================================
 // TYPOGRAPHY VARIABLES
 // ============================================================================
-$settings-page-title-size: 1.20313rem;
+$settings-page-title-size: 1.2031rem;
 $settings-page-title-weight: 700;
-$settings-page-description-size: 0.76563rem;
-$settings-section-title-size: 1.09375rem;
+$settings-page-description-size: 0.7656rem;
+$settings-section-title-size: 1.0938rem;
 $settings-section-title-weight: 600;
-$settings-section-title-icon-size: 0.98438rem;
-$settings-section-description-size: 0.76563rem;
-$settings-label-size: 0.82031rem;
+$settings-section-title-icon-size: 0.9844rem;
+$settings-section-description-size: 0.7656rem;
+$settings-label-size: 0.8203rem;
 $settings-label-weight: 500;
-$settings-description-size: 0.76563rem;
+$settings-description-size: 0.7656rem;
 
 // ============================================================================
 // SPACING VARIABLES
 // ============================================================================
 $settings-card-padding: 1.3125rem;
 $settings-card-padding-mobile: 0.875rem;
-$settings-card-gap: 1.09375rem;
+$settings-card-gap: 1.0938rem;
 $settings-card-gap-mobile: 0.875rem;
 $settings-card-border-radius: 8px;
 $settings-section-body-padding-left: 0.875rem;
 $settings-section-body-padding-left-mobile: 0.4375rem;
 $settings-section-body-gap: 0.875rem;
-$settings-item-padding: 0.76563rem 0.875rem;
-$settings-item-padding-mobile: 0.65625rem;
+$settings-item-padding: 0.7656rem 0.875rem;
+$settings-item-padding-mobile: 0.6563rem;
 $settings-item-border-radius: 6px;
 $settings-item-border-left-width: 3px;
 
@@ -70,7 +70,7 @@ $settings-item-border-left-width: 3px;
 
   .pi {
     color: var(--color-primary);
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
   }
 }
 
@@ -105,7 +105,7 @@ $settings-item-border-left-width: 3px;
 // For section headers inside cards (with icon and description)
 // ============================================================================
 @mixin settings-section-header {
-  margin-bottom: 0.21875rem;
+  margin-bottom: 0.2188rem;
 }
 
 @mixin settings-section-title {
@@ -172,8 +172,8 @@ $settings-item-border-left-width: 3px;
 @mixin settings-item-header {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
-  margin-bottom: 0.21875rem;
+  gap: 0.6563rem;
+  margin-bottom: 0.2188rem;
 
   .pi {
     color: var(--color-primary);
@@ -182,7 +182,7 @@ $settings-item-border-left-width: 3px;
 }
 
 @mixin settings-item-header-standalone {
-  margin-bottom: 0.21875rem;
+  margin-bottom: 0.2188rem;
 }
 
 // ============================================================================
@@ -209,7 +209,7 @@ $settings-item-border-left-width: 3px;
 // ============================================================================
 @mixin settings-note {
   display: block;
-  margin-top: 0.21875rem;
+  margin-top: 0.2188rem;
   font-style: italic;
   opacity: 0.85;
 }
@@ -219,8 +219,8 @@ $settings-item-border-left-width: 3px;
 // Expandable options section below a setting
 // ============================================================================
 @mixin settings-options {
-  margin-top: 0.65625rem;
-  padding-top: 0.65625rem;
+  margin-top: 0.6563rem;
+  padding-top: 0.6563rem;
   border-top: 1px dashed var(--p-content-border-color);
 }
 
@@ -231,10 +231,10 @@ $settings-item-border-left-width: 3px;
 @mixin settings-notice-base {
   display: flex;
   align-items: flex-start;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
   font-size: $settings-section-description-size;
   line-height: 1.5;
-  padding: 0.65625rem 0.875rem;
+  padding: 0.6563rem 0.875rem;
   border-radius: 6px;
   color: var(--color-text);
 
@@ -243,7 +243,7 @@ $settings-item-border-left-width: 3px;
   }
 
   @media (width <= 768px) {
-    padding: 0.54688rem 0.65625rem;
+    padding: 0.5469rem 0.6563rem;
     font-size: $settings-description-size;
   }
 }
@@ -256,7 +256,7 @@ $settings-item-border-left-width: 3px;
   border-left-style: solid;
 
   .pi-exclamation-triangle {
-    margin-top: 0.10938rem;
+    margin-top: 0.1094rem;
     flex-shrink: 0;
   }
 }
@@ -269,7 +269,7 @@ $settings-item-border-left-width: 3px;
 
   .pi-info-circle {
     color: var(--p-blue-400);
-    margin-top: 0.10938rem;
+    margin-top: 0.1094rem;
     flex-shrink: 0;
   }
 
@@ -328,7 +328,7 @@ $settings-item-border-left-width: 3px;
 
   .filesize-field {
     width: 70px;
-    padding: 0.32813rem 0.4375rem;
+    padding: 0.3281rem 0.4375rem;
     border: 1px solid var(--p-content-border-color);
     border-radius: 4px;
     background: var(--color-card);
@@ -402,7 +402,7 @@ $settings-item-border-left-width: 3px;
 
       .p-datatable-thead > tr > th {
         font-weight: 600;
-        padding: 0.65625rem;
+        padding: 0.6563rem;
         background: color-mix(in srgb, var(--color-text) 3%, transparent);
         border-bottom: 1px solid var(--p-content-border-color);
         font-size: $settings-description-size;
@@ -414,7 +414,7 @@ $settings-item-border-left-width: 3px;
         }
 
         > td {
-          padding: 0.54688rem;
+          padding: 0.5469rem;
           border-bottom: 1px solid color-mix(in srgb, var(--p-content-border-color) 50%, transparent);
         }
 
@@ -485,9 +485,9 @@ $settings-item-border-left-width: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.32813rem;
-    padding: 0.4375rem 0.65625rem;
-    border-radius: 0.32813rem;
+    gap: 0.3281rem;
+    padding: 0.4375rem 0.6563rem;
+    border-radius: 0.3281rem;
     border: 1.5px solid color-mix(in srgb, var(--color-text) 20%, transparent);
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     color: var(--color-text);

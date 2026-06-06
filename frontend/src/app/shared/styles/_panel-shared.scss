@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  padding: 1.3125rem 1.3125rem 1.09375rem;
+  padding: 1.3125rem 1.3125rem 1.0938rem;
   border-radius: 10px 10px 0 0;
   border: 1px solid var(--border-color);
   background: var(--color-card);
@@ -32,8 +32,8 @@
     flex: 1;
 
     .panel-title {
-      margin: 0 0 0.21875rem;
-      font-size: 1.09375rem;
+      margin: 0 0 0.2188rem;
+      font-size: 1.0938rem;
       font-weight: 600;
       color: var(--text-color);
     }
@@ -48,8 +48,8 @@
   .close-button,
   ::ng-deep .close-button {
     position: absolute;
-    top: 0.65625rem;
-    right: 0.65625rem;
+    top: 0.6563rem;
+    right: 0.6563rem;
   }
 
   @media (width <= 480px) {
@@ -60,7 +60,7 @@
       height: 40px;
 
       .header-icon {
-        font-size: 1.09375rem;
+        font-size: 1.0938rem;
       }
     }
 
@@ -86,8 +86,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.65625rem;
-  padding: 1.09375rem 1.3125rem;
+  gap: 0.6563rem;
+  padding: 1.0938rem 1.3125rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 0 0 10px 10px;
@@ -102,7 +102,7 @@
   .footer-actions,
   .footer-right {
     display: flex;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     flex-shrink: 0;
   }
 
@@ -110,7 +110,7 @@
     flex-direction: column;
     align-items: stretch;
     padding: 0.875rem;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
 
     .footer-info,
     .validation-status {
@@ -148,8 +148,8 @@
 @mixin validation-message {
   display: flex;
   align-items: center;
-  gap: 0.32813rem;
-  padding: 0.21875rem 0.4375rem;
+  gap: 0.3281rem;
+  padding: 0.2188rem 0.4375rem;
   font-weight: 500;
   border-radius: 6px;
   font-size: var(--app-text-sm);
@@ -157,7 +157,7 @@
   max-width: 100%;
 
   i {
-    font-size: 0.83125rem;
+    font-size: 0.8313rem;
   }
 
   &.error {
@@ -182,7 +182,7 @@
 
   @media (width <= 640px) {
     font-size: 0.7rem;
-    padding: 0.32813rem 0.4375rem;
+    padding: 0.3281rem 0.4375rem;
     width: 100%;
 
     i {

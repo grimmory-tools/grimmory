@@ -29,9 +29,9 @@
 
 .header-content {
   h2 {
-    font-size: 1.09375rem;
+    font-size: 1.0938rem;
     font-weight: 600;
-    padding-bottom: 0.21875rem;
+    padding-bottom: 0.2188rem;
     display: flex;
     align-items: center;
     gap: 0.4375rem;
@@ -89,7 +89,7 @@
   align-items: center;
 
   > * + * {
-    margin-top: 0.65625rem;
+    margin-top: 0.6563rem;
   }
 
   span {
@@ -119,7 +119,7 @@
   z-index: 50;
 
   > * + * {
-    margin-top: 0.65625rem;
+    margin-top: 0.6563rem;
   }
 
   p-progressspinner {
@@ -131,7 +131,7 @@
 .saving-message {
   background: var(--color-card);
   padding: 0.4375rem 0.875rem;
-  border-radius: 0.32813rem;
+  border-radius: 0.3281rem;
 
   span {
     font-size: var(--app-text-sm);
@@ -282,7 +282,7 @@ p-inputgroup.disabled {
 .cover-image {
   width: 1.3125rem;
   height: 1.75rem;
-  border-radius: 0.10938rem;
+  border-radius: 0.1094rem;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s;

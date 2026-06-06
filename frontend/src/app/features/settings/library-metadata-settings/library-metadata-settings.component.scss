@@ -9,7 +9,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -43,7 +43,7 @@
 
     .pi {
       color: var(--p-primary-color);
-      margin-top: 0.10938rem;
+      margin-top: 0.1094rem;
       flex-shrink: 0;
     }
   }
@@ -99,7 +99,7 @@
 
       .p-accordion-header-content {
         width: 100%;
-        padding: 0.875rem 1.09375rem;
+        padding: 0.875rem 1.0938rem;
         display: flex;
         align-items: center;
       }
@@ -126,7 +126,7 @@
   @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 }
 
@@ -145,7 +145,7 @@
 .library-info {
   display: flex;
   align-items: center;
-  gap: 0.65625rem;
+  gap: 0.6563rem;
 
   .library-icon {
     font-size: 1.05rem;
@@ -161,7 +161,7 @@
     color: var(--p-text-muted-color);
     font-weight: bold;
     font-size: settings.$settings-section-description-size;
-    margin: 0 0.21875rem;
+    margin: 0 0.2188rem;
     opacity: 0.6;
   }
 
@@ -169,7 +169,7 @@
   .default-indicator {
     display: flex;
     align-items: center;
-    gap: 0.32813rem;
+    gap: 0.3281rem;
     font-size: settings.$settings-section-description-size;
     font-weight: settings.$settings-label-weight;
 

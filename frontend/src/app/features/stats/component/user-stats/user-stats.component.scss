@@ -33,7 +33,7 @@
   .greeting {
     display: flex;
     align-items: center;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -67,7 +67,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.65625rem 1.09375rem;
+  padding: 0.6563rem 1.0938rem;
   background: var(--color-card);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
@@ -103,7 +103,7 @@
     border-top: 1px solid var(--p-content-border-color);
     padding: 0.875rem 1.3125rem;
     display: flex;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
     justify-content: flex-end;
 
     .reset-btn {
@@ -123,14 +123,14 @@
   .config-list {
     display: flex;
     flex-direction: column;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 
   .config-item {
     display: flex;
     align-items: center;
     gap: 0.875rem;
-    padding: 0.4375rem 1.09375rem;
+    padding: 0.4375rem 1.0938rem;
     background: var(--color-page);
     border: 1px solid var(--p-content-border-color);
     border-radius: 8px;
@@ -156,7 +156,7 @@
     .chart-title {
       flex: 1;
       color: var(--color-text);
-      font-size: 0.83125rem;
+      font-size: 0.8313rem;
     }
 
     .visibility-toggle {
@@ -385,11 +385,11 @@
       transform: none;
 
       i {
-        font-size: 1.09375rem;
+        font-size: 1.0938rem;
       }
 
       h2 {
-        font-size: 1.09375rem;
+        font-size: 1.0938rem;
         white-space: normal;
       }
     }
@@ -436,25 +436,25 @@
 
 @media (width <= 480px) {
   .user-stats-container {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 
   .config-toggle-btn {
-    padding: 0.4375rem 0.65625rem;
+    padding: 0.4375rem 0.6563rem;
   }
 
   ::ng-deep .config-dialog {
     .p-dialog-content {
-      padding: 0.65625rem;
+      padding: 0.6563rem;
     }
   }
 
   .config-panel {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
   }
 
   .header-section {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
 
     .greeting {
       gap: 0.4375rem;
@@ -472,11 +472,11 @@
 
   .charts-container {
     grid-template-columns: 1fr;
-    gap: 0.65625rem;
+    gap: 0.6563rem;
   }
 
   .chart-card {
-    padding: 0.65625rem;
+    padding: 0.6563rem;
 
     &.chart-small-square,
     &.chart-small,

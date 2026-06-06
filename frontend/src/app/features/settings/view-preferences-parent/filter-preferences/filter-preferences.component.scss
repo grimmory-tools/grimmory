@@ -56,7 +56,7 @@
 
 // Filter order editor styles
 .filter-order-editor {
-  margin-top: 0.65625rem;
+  margin-top: 0.6563rem;
 }
 
 .filter-order-list {
@@ -67,14 +67,14 @@
   max-height: 320px;
   max-width: 350px;
   overflow-y: auto;
-  margin-bottom: 0.65625rem;
+  margin-bottom: 0.6563rem;
 }
 
 .filter-order-row {
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.4375rem 0.65625rem;
+  padding: 0.4375rem 0.6563rem;
   background-color: var(--overlay-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -90,7 +90,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.30625rem 0.65625rem;
+  padding: 0.3063rem 0.6563rem;
   background-color: var(--card-background);
   border: 1px solid var(--primary-color);
   border-radius: 6px;
@@ -121,14 +121,14 @@
   }
 
   i {
-    font-size: 0.74375rem;
+    font-size: 0.7438rem;
   }
 }
 
 .filter-rank {
   font-weight: 600;
   color: var(--primary-color);
-  min-width: 1.53125rem;
+  min-width: 1.5313rem;
 }
 
 .filter-label {
@@ -141,8 +141,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.53125rem;
-  height: 1.53125rem;
+  width: 1.5313rem;
+  height: 1.5313rem;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -152,7 +152,7 @@
   transition: background-color 0.15s ease;
 
   i {
-    font-size: 0.74375rem;
+    font-size: 0.7438rem;
   }
 
   &:hover:not(:disabled) {
@@ -175,8 +175,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.53125rem;
-  height: 1.53125rem;
+  width: 1.5313rem;
+  height: 1.5313rem;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -186,7 +186,7 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 
   i {
-    font-size: 0.74375rem;
+    font-size: 0.7438rem;
   }
 
   &:hover {
