@@ -57,8 +57,7 @@
         "customPrimary": "Color personalizado",
         "syncAcrossDevices": "Sincronizar mi tema en todos mis dispositivos",
         "options": {
-            "grimmory": "Grimmory",
-            "cobalt": ""
+            "grimmory": "Grimmory"
         }
     },
     "commandPalette": {
