@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.net.UnknownHostException;
 
@@ -164,7 +165,7 @@ public class FileService {
     }
 
     public Path findSystemFile(String filename) {
-        String[] searchPaths = getSystemSearchPath().split(":");
+        String[] searchPaths = getSystemSearchPath().split(Pattern.quote(File.pathSeparator));
 
         for (String path : searchPaths) {
             Path possiblePath = Paths

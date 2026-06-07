@@ -12,8 +12,10 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
 import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.util.BookUtils;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.MetadataFetchJobEntity;
 import org.booklore.model.entity.MetadataFetchProposalEntity;
@@ -25,10 +27,12 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.MetadataFetchJobRepository;
+import org.booklore.opf.BookScanMetadataAugmenter;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -61,6 +65,7 @@ public class MetadataRefreshService {
     private final PlatformTransactionManager transactionManager;
     private final AuthenticationService authenticationService;
     private final TaskCancellationManager cancellationManager;
+    private final ObjectProvider<BookScanMetadataAugmenter> metadataAugmenters;
 
 
     public void refreshMetadata(MetadataRefreshRequest request, String jobId) {
@@ -161,6 +166,7 @@ public class MetadataRefreshService {
                                     ? refreshOptions.getReplaceMode() 
                                     : MetadataReplaceMode.REPLACE_MISSING;
                             updateBookMetadata(book, fetched, refreshOptions.isRefreshCovers(), refreshOptions.isMergeCategories(), replaceMode);
+                            applyAdjacentOpfMetadata(book);
                         }
 
                         sendBatchProgressNotification(jobId, finalCompletedCount + 1, totalBooks, "Processed: " + book.getMetadata().getTitle(), MetadataFetchTaskStatus.IN_PROGRESS, bookReviewMode);
@@ -274,6 +280,33 @@ public class MetadataRefreshService {
         task.setCompletedAt(Instant.now());
         metadataFetchJobRepository.save(task);
         sendBatchProgressNotification(task.getTaskId(), task.getCompletedBooks(), task.getTotalBooksCount(), "Task cancelled by user", MetadataFetchTaskStatus.CANCELLED, false);
+    }
+
+    private void applyAdjacentOpfMetadata(BookEntity book) {
+        List<BookScanMetadataAugmenter> augmenters = metadataAugmenters.orderedStream().toList();
+        if (augmenters.isEmpty()) {
+            return;
+        }
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        if (primaryFile == null || book.getLibraryPath() == null) {
+            return;
+        }
+        LibraryFile libraryFile = LibraryFile.builder()
+                .libraryEntity(book.getLibrary())
+                .libraryPathEntity(book.getLibraryPath())
+                .fileSubPath(primaryFile.getFileSubPath())
+                .fileName(primaryFile.getFileName())
+                .bookFileType(primaryFile.getBookType())
+                .folderBased(primaryFile.isFolderBased())
+                .build();
+        for (BookScanMetadataAugmenter augmenter : augmenters) {
+            try {
+                augmenter.augment(libraryFile, book);
+            } catch (Exception e) {
+                log.warn("Refresh metadata OPF augmenter {} failed for book ID {}: {}",
+                        augmenter.getClass().getSimpleName(), book.getId(), e.getMessage());
+            }
+        }
     }
 
     private void saveProposal(MetadataFetchJobEntity job, Long bookId, BookMetadata metadata) throws JacksonException {

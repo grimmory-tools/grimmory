@@ -1,6 +1,8 @@
 package org.booklore.config.security;
 
 import org.booklore.config.security.filter.*;
+import org.booklore.grimmlink.GrimmlinkRoutes;
+import org.booklore.grimmlink.security.GrimmlinkAuthFilter;
 import org.booklore.config.security.service.OpdsUserDetailsService;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
@@ -119,6 +121,19 @@ public class SecurityConfig {
                         })
                 );
 
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain grimmlinkSecurityChain(HttpSecurity http, GrimmlinkAuthFilter grimmlinkAuthFilter) throws Exception {
+        http
+                .securityMatcher(GrimmlinkRoutes.API_PREFIX + "/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .addFilterBefore(grimmlinkAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

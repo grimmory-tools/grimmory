@@ -7,6 +7,7 @@ import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.enums.FileProcessStatus;
 import org.booklore.model.enums.LibraryOrganizationMode;
+import org.booklore.opf.BookScanMetadataAugmenter;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.book.BookCreatorService;
@@ -18,11 +19,13 @@ import org.booklore.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -35,6 +38,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
     protected final MetadataMatchService metadataMatchService;
     protected final FileService fileService;
     protected final SidecarMetadataWriter sidecarMetadataWriter;
+    private List<BookScanMetadataAugmenter> metadataAugmenters = List.of();
 
 
     protected AbstractFileProcessor(BookRepository bookRepository,
@@ -67,6 +71,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
     private Book createAndMapBook(LibraryFile libraryFile, String hash) {
         BookEntity entity = processNewFile(libraryFile);
         entity.getPrimaryBookFile().setCurrentHash(hash);
+        applyMetadataAugmenters(libraryFile, entity);
         entity.setMetadataMatchScore(metadataMatchService.calculateMatchScore(entity));
         bookCreatorService.saveConnections(entity);
 
@@ -79,6 +84,22 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
         }
 
         return bookMapper.toBook(entity);
+    }
+
+    @Autowired(required = false)
+    void setMetadataAugmenters(List<BookScanMetadataAugmenter> metadataAugmenters) {
+        this.metadataAugmenters = metadataAugmenters != null ? List.copyOf(metadataAugmenters) : List.of();
+    }
+
+    private void applyMetadataAugmenters(LibraryFile libraryFile, BookEntity entity) {
+        for (BookScanMetadataAugmenter augmenter : metadataAugmenters) {
+            try {
+                augmenter.augment(libraryFile, entity);
+            } catch (Exception e) {
+                log.warn("Book scan metadata augmenter {} failed for {}: {}",
+                        augmenter.getClass().getSimpleName(), libraryFile.getFullPath(), e.getMessage());
+            }
+        }
     }
 
     protected abstract BookEntity processNewFile(LibraryFile libraryFile);

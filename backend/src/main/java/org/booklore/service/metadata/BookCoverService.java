@@ -33,6 +33,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -136,6 +138,33 @@ public class BookCoverService {
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+    }
+
+    /**
+     * Apply a local cover to Grimmory's generated cover cache without rewriting the
+     * underlying book file. Intended for adjacent OPF/sidecar cover imports where
+     * file hashes must remain stable.
+     */
+    @Transactional
+    public boolean applyLocalCoverCacheOnly(BookEntity bookEntity, Path coverPath) {
+        if (bookEntity == null || coverPath == null) {
+            return false;
+        }
+        if (isCoverLocked(bookEntity)) {
+            return false;
+        }
+        try {
+            byte[] coverBytes = Files.readAllBytes(coverPath);
+            fileService.createThumbnailFromBytes(bookEntity.getId(), coverBytes);
+            updateBookCoverMetadata(bookEntity);
+            bookRepository.save(bookEntity);
+            notifyBookCoverUpdate(bookEntity);
+            return true;
+        } catch (Exception e) {
+            log.warn("Failed to apply local cover cache for book ID {} from {}: {}",
+                    bookEntity.getId(), coverPath, e.getMessage());
+            return false;
+        }
     }
 
     // =========================
