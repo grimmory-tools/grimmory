@@ -24,5 +24,12 @@
     "review": "Revisar",
     "libraryPathInaccessible": "Ruta de biblioteca inaccesible",
     "displaySettings": "Ajustes de visualización",
-    "cardSize": "Tamaño de tarjeta"
+    "cardSize": "Tamaño de tarjeta",
+    "decreaseCardSize": "Disminuir tamaño de tarjeta",
+    "increaseCardSize": "Aumentar tamaño de tarjeta",
+    "cardSizeControls": "Controles de tamaño de tarjeta",
+    "on": "Encendido",
+    "off": "Apagado",
+    "moreActionsFor": "Más acciones para {{label}}",
+    "dialogLoadError": "Se produjo un error al cargar la ventana. Inténtalo de nuevo."
 }

@@ -99,7 +99,8 @@
             "deleteBookMessage": "「{{ title }}」を削除してもよろしいですか？\n\nファイルシステムからブックファイルが完全に削除されます。\n\nこの操作は元に戻せません。",
             "deleteBookHeader": "削除の確認",
             "deleteFileMessage": "追加ファイル「{{ fileName }}」を削除してもよろしいですか？",
-            "deleteFileHeader": "ファイル削除の確認"
+            "deleteFileHeader": "ファイル削除の確認",
+            "sendAnyway": "無視して送信"
         },
         "toast": {
             "quickSendSuccessDetail": "本の送信がスケジュールされました。",
@@ -273,7 +274,8 @@
         "magicShelf": {
             "optionsLabel": "オプション",
             "editMagicShelf": "マジックシェルフを編集",
-            "deleteMagicShelf": "マジックシェルフを削除"
+            "deleteMagicShelf": "マジックシェルフを削除",
+            "exportJson": "JSONをコピー"
         },
         "confirm": {
             "rescanLibraryMessage": "ライブラリ「{{ name }}」を更新してもよろしいですか？",
@@ -483,7 +485,10 @@
             "comicCharacter": "コミックキャラクター",
             "comicTeam": "コミックチーム",
             "comicLocation": "コミックロケーション",
-            "comicCreator": "コミッククリエイター"
+            "comicCreator": "コミッククリエイター",
+            "lubimyczytacRating": "Lubimyczytac評価",
+            "ranobedbRating": "Ranobedb評価",
+            "audibleRating": "Audible評価"
         },
         "readStatus": {
             "unread": "未読",
@@ -619,7 +624,9 @@
             "lockFailedDetail": "メタデータのロック中にエラーが発生しました。",
             "unlockFailedSummary": "ロック解除に失敗しました",
             "unlockFailedDetail": "メタデータのロック解除中にエラーが発生しました。"
-        }
+        },
+        "selectBookFallback": "書籍を選択",
+        "noRating": "評価なし"
     },
     "lockUnlockDialog": {
         "title": "メタデータのロック/解除",
@@ -767,6 +774,21 @@
             "selectAll": "すべての本を選択",
             "deselectAll": "すべての本の選択を解除",
             "deleteSelected": "選択した本を削除"
+        },
+        "book": "本",
+        "books": "本",
+        "synopsis": "あらすじ",
+        "booksInSeries": "シリーズ冊数",
+        "nextUp": "次は次へ",
+        "continueReading": "続きを読む",
+        "readButton": "読む",
+        "viewDetails": "詳細を見る",
+        "continueButton": "続ける",
+        "listPages": "ページ",
+        "stats": {
+            "totalPages": "総ページ数",
+            "formats": "形式",
+            "owned": "所有物"
         }
     },
     "duplicateMerger": {
@@ -816,5 +838,21 @@
             "mergeFailedDetail": "このグループのマージができませんでした。",
             "mergePartialDetail": "{{ success }}件マージ成功、{{ failed }}件失敗。"
         }
+    },
+    "bulkIsbnImport": {
+        "closeTooltip": "閉じる",
+        "libraryLabel": "図書館",
+        "libraryPlaceholder": "ライブラリを選択",
+        "tabFile": "ファイルをアップロード",
+        "chooseFile": "ファイルを選択",
+        "parseButton": "パース",
+        "clearButton": "消去",
+        "validationLibraryRequired": "ライブラリを選択",
+        "cancelButton": "キャンセル",
+        "startImportButton": "インポート開始",
+        "unknownError": "不明なエラー",
+        "summaryTitle": "インポート完了",
+        "summaryFailed": "失敗",
+        "doneButton": "終了"
     }
 }

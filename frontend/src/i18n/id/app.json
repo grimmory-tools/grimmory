@@ -1,5 +1,8 @@
 {
     "offline": "Anda sedang offline",
     "loading": "Memuat Grimmory…",
-    "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya."
+    "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya.",
+    "offlineLoadingDescription": "Grimmory butuh koneksi ke server untuk memuat.",
+    "offlineDescription": "Periksa koneksi anda dan coba lagi.",
+    "connectionLost": "Koneksi anda terputus. Beberapa fitur mungkin tidak berfungsi"
 }
