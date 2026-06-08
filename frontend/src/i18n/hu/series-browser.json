@@ -1,1 +1,24 @@
-{}
+{
+    "sort": {
+        "nameAsc": "",
+        "recentlyRead": "",
+        "nameDesc": "",
+        "progress": "",
+        "recentlyAdded": "",
+        "bookCount": ""
+    },
+    "readNext": "",
+    "searchPlaceholder": "",
+    "browseAllSeries": "",
+    "noSeriesFound": "",
+    "noSeriesInCategory": "",
+    "filters": {
+        "completed": "",
+        "abandoned": "",
+        "all": "",
+        "notStarted": "",
+        "inProgress": ""
+    },
+    "booksRead": "",
+    "pageTitle": ""
+}
