@@ -1,5 +1,24 @@
 {
     "pageTitle": "Seri",
     "browseAllSeries": "Jelajahi Seluruh Seri",
-    "searchPlaceholder": "Cari berdasarkan nama seri atau penulis..."
+    "searchPlaceholder": "Cari berdasarkan nama seri atau penulis...",
+    "sort": {
+        "nameAsc": "",
+        "recentlyRead": "",
+        "nameDesc": "",
+        "progress": "",
+        "recentlyAdded": "",
+        "bookCount": ""
+    },
+    "readNext": "",
+    "noSeriesFound": "",
+    "noSeriesInCategory": "",
+    "filters": {
+        "completed": "",
+        "abandoned": "",
+        "all": "",
+        "notStarted": "",
+        "inProgress": ""
+    },
+    "booksRead": ""
 }
