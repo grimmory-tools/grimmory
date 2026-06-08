@@ -195,7 +195,7 @@ class EpubMetadataExtractorTest {
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
             assertThat(metadata.getTitle()).isEqualTo("Main Title");
-            assertThat(metadata.getSubtitle()).isEqualTo("The Subtitle");
+            assertThat(metadata.getSubtitle()).isNull();
         }
 
         @Test
@@ -207,7 +207,7 @@ class EpubMetadataExtractorTest {
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
             assertThat(metadata.getTitle()).isEqualTo("Main Title");
-            assertThat(metadata.getSubtitle()).isEqualTo("The Subtitle");
+            assertThat(metadata.getSubtitle()).isNull();
         }
 
         @Test
@@ -237,7 +237,7 @@ class EpubMetadataExtractorTest {
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
             assertThat(metadata.getTitle()).isEqualTo("test");
-            assertThat(metadata.getSubtitle()).isEqualTo("The Subtitle");
+            assertThat(metadata.getSubtitle()).isNull();
         }
 
         @Test

@@ -207,7 +207,6 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             Map<String, String> titlesById = new HashMap<>();
             Map<String, String> titleTypeById = new HashMap<>();
             boolean hasTitle = false;
-            boolean hasSubtitle = false;
 
             for (int i = 0; i < children.getLength(); i++) {
                 if (!(children.item(i) instanceof Element el)) continue;
@@ -225,9 +224,6 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                         if (!hasTitle) {
                             hasTitle = true;
                             builderMeta.title(text);
-                        } else if (!hasSubtitle) {
-                            hasSubtitle = true;
-                            builderMeta.subtitle(text);
                         }
                     }
                     case "meta" -> {
