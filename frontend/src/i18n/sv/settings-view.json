@@ -121,37 +121,5 @@
         "sidebarWidthDesc": "Styr bredden på navigeringssidopanelen och bokfilterpanelen.",
         "saved": "Inställningar uppdaterade",
         "savedDetail": "Din inställning för sidopanelens bredd har sparats."
-    },
-    "theme": {
-        "customPrimaryColors": {
-            "violet": "",
-            "pink": "",
-            "lime": "",
-            "sky": "",
-            "amber": "",
-            "rose": "",
-            "cyan": "",
-            "purple": "",
-            "fuchsia": "",
-            "blue": "",
-            "orange": "",
-            "green": "",
-            "red": "",
-            "yellow": "",
-            "indigo": "",
-            "emerald": "",
-            "teal": ""
-        },
-        "syncSavedDetail": "",
-        "savedDetail": "",
-        "customPrimaryOptionLabel": "",
-        "oledDarkMode": "",
-        "sectionTitle": "",
-        "sectionDesc": ""
-    },
-    "saveFailedDetail": "",
-    "language": {
-        "savedDetail": "",
-        "label": ""
     }
 }
