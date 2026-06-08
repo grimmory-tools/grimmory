@@ -15,9 +15,7 @@
         "aspectRatio": "Próg proporcji: {{value}}",
         "aspectRatioDesc": "Obrazy o proporcjach przekraczających ten próg zostaną przycięte. Wartość 2,5 oznacza, że obrazy ponad 2,5x wyższe (lub szersze) niż normalne zostaną przycięte.",
         "smartCropping": "Inteligentne przycinanie",
-        "smartCroppingDesc": "Pomijaj jednokolorowe regiony przy określaniu miejsca przycinania. Skupia obraz okładki na najbardziej istotnej treści.",
-        "regenerateAllBtn": "",
-        "regenerateMissingBtn": ""
+        "smartCroppingDesc": "Pomijaj jednokolorowe regiony przy określaniu miejsca przycinania. Skupia obraz okładki na najbardziej istotnej treści."
     },
     "search": {
         "sectionTitle": "Wyszukiwanie i rekomendacje",
