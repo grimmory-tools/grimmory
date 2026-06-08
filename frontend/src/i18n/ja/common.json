@@ -23,13 +23,5 @@
     "discard": "破棄",
     "review": "確認",
     "displaySettings": "表示設定",
-    "cardSize": "カードサイズ",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "libraryPathInaccessible": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "カードサイズ"
 }

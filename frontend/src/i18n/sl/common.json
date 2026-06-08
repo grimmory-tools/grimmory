@@ -24,12 +24,5 @@
     "review": "Preglej",
     "libraryPathInaccessible": "Pot do knjižnice ni dostopna",
     "displaySettings": "Nastavitve prikaza",
-    "cardSize": "Velikost kartice",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "Velikost kartice"
 }

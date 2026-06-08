@@ -24,12 +24,5 @@
     "review": "Überprüfen",
     "libraryPathInaccessible": "Der Pfad zur Bibliothek ist nicht zugreifbar",
     "displaySettings": "Anzeigeeinstellungen",
-    "cardSize": "Kartengröße",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "Kartengröße"
 }

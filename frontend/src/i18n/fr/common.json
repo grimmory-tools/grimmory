@@ -23,13 +23,5 @@
     "discard": "Abandonner",
     "review": "Vérifier",
     "displaySettings": "Paramètres d'affichage",
-    "cardSize": "Taille des cartes",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "libraryPathInaccessible": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "Taille des cartes"
 }

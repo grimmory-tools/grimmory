@@ -24,12 +24,5 @@
     "review": "Granska",
     "libraryPathInaccessible": "Bibliotekssökvägen är otillgänglig",
     "displaySettings": "Visningsinställningar",
-    "cardSize": "Kortstorlek",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "Kortstorlek"
 }
