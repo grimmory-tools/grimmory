@@ -121,5 +121,35 @@
         "sidebarWidthDesc": "Керує шириною навігаційної бічної панелі та панелі фільтрів книг.",
         "saved": "Налаштування оновлено",
         "savedDetail": "Ваше налаштування ширини бічної панелі збережено."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": ""
     }
 }
