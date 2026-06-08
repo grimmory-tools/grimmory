@@ -27,7 +27,11 @@
         "ratingTaste": "Сравнение вкусов в оценках",
         "seriesProgress": "Трекер прогресса серий",
         "readingDna": "Профиль читательского ДНК",
-        "readingHabits": "Анализ читательских привычек"
+        "readingHabits": "Анализ читательских привычек",
+        "bookFlow": "",
+        "publicationEra": "",
+        "readingDebt": "",
+        "sessionArchetypes": ""
     },
     "sessionHeatmap": {
         "title": "Активность сеансов чтения",
@@ -470,5 +474,57 @@
         "statusAbandoned": "Заброшено",
         "statusOther": "Другое",
         "trend": "Тренд"
+    },
+    "bookFlow": {
+        "noData": "",
+        "totalBooks": "",
+        "noDataHint": "",
+        "description": "",
+        "avgRating": "",
+        "completionRate": "",
+        "busiestQuarter": "",
+        "colRating": "",
+        "colAdded": "",
+        "colStatus": "",
+        "topStatus": "",
+        "title": "",
+        "tooltip": ""
+    },
+    "publicationEra": {
+        "noDataHint": "",
+        "title": "",
+        "tooltip": "",
+        "noData": "",
+        "description": "",
+        "bestDecade": "",
+        "avgRating": "",
+        "booksRated": ""
+    },
+    "readingDebt": {
+        "booksFinished": "",
+        "description": "",
+        "shrinking": "",
+        "backlog": "",
+        "booksAdded": "",
+        "growing": "",
+        "noData": "",
+        "trendLabel": "",
+        "noDataHint": "",
+        "title": "",
+        "currentBacklog": "",
+        "tooltip": ""
+    },
+    "sessionArchetypes": {
+        "archetype_afternoon": "",
+        "noData": "",
+        "title": "",
+        "tooltip": "",
+        "dominantType": "",
+        "archetype_morning": "",
+        "archetype_evening": "",
+        "description": "",
+        "noDataHint": "",
+        "archetype_night": "",
+        "sessions": ""
     }
 }
