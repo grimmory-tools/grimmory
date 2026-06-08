@@ -23,7 +23,8 @@
         "savedDetail": "",
         "customPrimaryOptionLabel": "",
         "oledDarkMode": "",
-        "sectionTitle": ""
+        "sectionTitle": "",
+        "sectionDesc": ""
     },
     "librarySort": {
         "viewTable": "",
@@ -150,6 +151,7 @@
     },
     "description": "",
     "language": {
-        "savedDetail": ""
+        "savedDetail": "",
+        "label": ""
     }
 }
