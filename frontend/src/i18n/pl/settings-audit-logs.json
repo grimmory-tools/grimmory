@@ -1,19 +1,19 @@
 {
-  "title": "Dziennik audytu",
-  "description": "Przeglądaj rejestr istotnych działań administracyjnych wykonanych w systemie.",
-  "sectionTitle": "Dziennik aktywności",
-  "filterPlaceholder": "Filtruj według akcji",
-  "userFilterPlaceholder": "Filtruj według użytkownika",
-  "dateRangePlaceholder": "Filtruj według zakresu dat",
-  "clearFilters": "Wyczyść wszystkie filtry",
-  "autoRefresh": "Automatyczne odświeżanie (10s)",
-  "pageReport": "Wyświetlanie {first} do {last} z {totalRecords} wpisów",
-  "empty": "Nie znaleziono wpisów w dzienniku audytu",
-  "columns": {
-    "timestamp": "Kiedy",
-    "user": "Użytkownik",
-    "action": "Akcja",
-    "description": "Opis",
-    "ip": "Adres IP"
-  }
+    "title": "Dziennik audytu",
+    "description": "Przeglądaj rejestr istotnych działań administracyjnych wykonanych w systemie.",
+    "sectionTitle": "Dziennik aktywności",
+    "filterPlaceholder": "Filtruj według akcji",
+    "userFilterPlaceholder": "Filtruj według użytkownika",
+    "dateRangePlaceholder": "Filtruj według zakresu dat",
+    "clearFilters": "Wyczyść wszystkie filtry",
+    "autoRefresh": "Automatyczne odświeżanie (10s)",
+    "pageReport": "Wyświetlanie {first} do {last} z {totalRecords} wpisów",
+    "empty": "Nie znaleziono wpisów w dzienniku audytu",
+    "columns": {
+        "timestamp": "Kiedy",
+        "user": "Użytkownik",
+        "action": "Akcja",
+        "description": "Opis",
+        "ip": "Adres IP"
+    }
 }
