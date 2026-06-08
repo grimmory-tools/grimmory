@@ -1,69 +1,69 @@
 {
-  "title": "Gestore attività di sistema",
-  "description": "Gestisci le attività automatizzate del sistema per la manutenzione della libreria, l'aggiornamento dei metadati e la pulizia della cache. Pianifica operazioni ricorrenti usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">espressioni cron di Spring</a>.",
-  "systemTasks": {
-    "sectionTitle": "Attività di sistema",
-    "sectionDesc": "Esegui attività manualmente, monitora il progresso in tempo reale e configura l'automazione pianificata."
-  },
-  "loading": "Caricamento attività...",
-  "emptyTitle": "Nessuna attività disponibile",
-  "status": {
-    "running": "In esecuzione",
-    "stale": "Bloccata",
-    "neverRun": "Mai eseguita",
-    "justNow": "Appena ora"
-  },
-  "cron": {
-    "noSchedule": "Nessuna pianificazione",
-    "edit": "Modifica",
-    "placeholder": "es., 0 2 * * *",
-    "validationPrefix": "L'espressione cron deve avere esattamente 6 campi (secondi, minuti, ore, giorno, mese, giorno della settimana)",
-    "invalidField": "Campo {{name}} non valido: {{value}}",
-    "updateSuccess": "La configurazione dell'attività pianificata è stata aggiornata con successo.",
-    "updateError": "Aggiornamento della configurazione dell'attività pianificata fallito."
-  },
-  "buttons": {
-    "run": "Esegui",
-    "rerun": "Riesegui"
-  },
-  "metadataReplace": {
-    "label": "Modalità sostituzione metadati:",
-    "selectMode": "Seleziona modalità",
-    "replaceMissing": "Aggiorna solo metadati mancanti (Raccomandato)",
-    "replaceAll": "Sostituisci tutti i metadati (Sovrascrivi esistenti)",
-    "replaceMissingDesc": "Aggiorna solo i libri con metadati mancanti. I metadati esistenti verranno preservati.",
-    "replaceAllDesc": "Sostituisci tutti i metadati per tutti i libri, anche se hanno già metadati. Usa con cautela poiché sovrascriverà i dati esistenti."
-  },
-  "progress": {
-    "staleWarning": "Questa attività sembra bloccata. Nessun aggiornamento ricevuto da oltre 5 minuti.",
-    "statusLabel": "Stato:",
-    "progressLabel": "Progresso:",
-    "startedLabel": "Avviata:",
-    "processing": "Elaborazione...",
-    "stuckMessage": "L'attività sembra essere bloccata (nessun aggiornamento ricevuto)"
-  },
-  "toast": {
-    "taskQueued": "Attività in coda",
-    "taskQueuedDetail": "{{name}} è stata messa in coda e verrà eseguita in background.",
-    "taskCompleted": "Attività completata",
-    "taskCompletedDetail": "{{name}} è stata completata con successo.",
-    "taskFailed": "Attività fallita",
-    "taskFailedDetail": "{{name}} non è riuscita a completarsi.",
-    "taskStarted": "Attività avviata",
-    "taskStartedDetail": "{{name}} è stata avviata con successo.",
-    "startError": "Avvio di {{name}} fallito.",
-    "alreadyRunning": "Attività già in esecuzione",
-    "alreadyRunningDetail": "Questa attività è già in corso o in attesa.",
-    "taskCancelled": "Attività annullata",
-    "cancelledDetail": "L'attività è stata annullata con successo.",
-    "cancelFailed": "Annullamento fallito",
-    "cancelError": "Impossibile annullare l'attività. L'attività potrebbe essere già completata o fallita.",
-    "cancelNoId": "Impossibile annullare l'attività senza ID.",
-    "loadError": "Caricamento attività fallito",
-    "metadataScheduled": "Aggiornamento metadati pianificato",
-    "metadataScheduledDetail": "L'aggiornamento dei metadati per i libri selezionati è stato pianificato con successo.",
-    "metadataAlreadyRunningDetail": "Un'attività di aggiornamento metadati è già in corso. Attendi il suo completamento prima di avviarne un'altra.",
-    "metadataFailed": "Aggiornamento metadati fallito",
-    "metadataFailedDetail": "Si è verificato un errore imprevisto durante la pianificazione dell'aggiornamento dei metadati. Riprova più tardi o contatta il supporto se il problema persiste."
-  }
+    "title": "Gestore attività di sistema",
+    "description": "Gestisci le attività automatizzate del sistema per la manutenzione della libreria, l'aggiornamento dei metadati e la pulizia della cache. Pianifica operazioni ricorrenti usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">espressioni cron di Spring</a>.",
+    "systemTasks": {
+        "sectionTitle": "Attività di sistema",
+        "sectionDesc": "Esegui attività manualmente, monitora il progresso in tempo reale e configura l'automazione pianificata."
+    },
+    "loading": "Caricamento attività...",
+    "emptyTitle": "Nessuna attività disponibile",
+    "status": {
+        "running": "In esecuzione",
+        "stale": "Bloccata",
+        "neverRun": "Mai eseguita",
+        "justNow": "Appena ora"
+    },
+    "cron": {
+        "noSchedule": "Nessuna pianificazione",
+        "edit": "Modifica",
+        "placeholder": "es., 0 2 * * *",
+        "validationPrefix": "L'espressione cron deve avere esattamente 6 campi (secondi, minuti, ore, giorno, mese, giorno della settimana)",
+        "invalidField": "Campo {{name}} non valido: {{value}}",
+        "updateSuccess": "La configurazione dell'attività pianificata è stata aggiornata con successo.",
+        "updateError": "Aggiornamento della configurazione dell'attività pianificata fallito."
+    },
+    "buttons": {
+        "run": "Esegui",
+        "rerun": "Riesegui"
+    },
+    "metadataReplace": {
+        "label": "Modalità sostituzione metadati:",
+        "selectMode": "Seleziona modalità",
+        "replaceMissing": "Aggiorna solo metadati mancanti (Raccomandato)",
+        "replaceAll": "Sostituisci tutti i metadati (Sovrascrivi esistenti)",
+        "replaceMissingDesc": "Aggiorna solo i libri con metadati mancanti. I metadati esistenti verranno preservati.",
+        "replaceAllDesc": "Sostituisci tutti i metadati per tutti i libri, anche se hanno già metadati. Usa con cautela poiché sovrascriverà i dati esistenti."
+    },
+    "progress": {
+        "staleWarning": "Questa attività sembra bloccata. Nessun aggiornamento ricevuto da oltre 5 minuti.",
+        "statusLabel": "Stato:",
+        "progressLabel": "Progresso:",
+        "startedLabel": "Avviata:",
+        "processing": "Elaborazione...",
+        "stuckMessage": "L'attività sembra essere bloccata (nessun aggiornamento ricevuto)"
+    },
+    "toast": {
+        "taskQueued": "Attività in coda",
+        "taskQueuedDetail": "{{name}} è stata messa in coda e verrà eseguita in background.",
+        "taskCompleted": "Attività completata",
+        "taskCompletedDetail": "{{name}} è stata completata con successo.",
+        "taskFailed": "Attività fallita",
+        "taskFailedDetail": "{{name}} non è riuscita a completarsi.",
+        "taskStarted": "Attività avviata",
+        "taskStartedDetail": "{{name}} è stata avviata con successo.",
+        "startError": "Avvio di {{name}} fallito.",
+        "alreadyRunning": "Attività già in esecuzione",
+        "alreadyRunningDetail": "Questa attività è già in corso o in attesa.",
+        "taskCancelled": "Attività annullata",
+        "cancelledDetail": "L'attività è stata annullata con successo.",
+        "cancelFailed": "Annullamento fallito",
+        "cancelError": "Impossibile annullare l'attività. L'attività potrebbe essere già completata o fallita.",
+        "cancelNoId": "Impossibile annullare l'attività senza ID.",
+        "loadError": "Caricamento attività fallito",
+        "metadataScheduled": "Aggiornamento metadati pianificato",
+        "metadataScheduledDetail": "L'aggiornamento dei metadati per i libri selezionati è stato pianificato con successo.",
+        "metadataAlreadyRunningDetail": "Un'attività di aggiornamento metadati è già in corso. Attendi il suo completamento prima di avviarne un'altra.",
+        "metadataFailed": "Aggiornamento metadati fallito",
+        "metadataFailedDetail": "Si è verificato un errore imprevisto durante la pianificazione dell'aggiornamento dei metadati. Riprova più tardi o contatta il supporto se il problema persiste."
+    }
 }
