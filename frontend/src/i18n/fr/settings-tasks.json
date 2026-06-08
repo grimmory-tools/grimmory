@@ -1,69 +1,69 @@
 {
-  "title": "Gestionnaire de tâches système",
-  "description": "Gérez les tâches système automatisées pour la maintenance de la bibliothèque, l'actualisation des métadonnées et le nettoyage du cache. Planifiez des opérations récurrentes à l'aide d'<a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expressions cron Spring</a>.",
-  "systemTasks": {
-    "sectionTitle": "Tâches système",
-    "sectionDesc": "Exécutez des tâches manuellement, surveillez la progression en temps réel et configurez l'automatisation planifiée."
-  },
-  "loading": "Chargement des tâches...",
-  "emptyTitle": "Aucune tâche disponible",
-  "status": {
-    "running": "En cours",
-    "stale": "Périmée",
-    "neverRun": "Jamais exécutée",
-    "justNow": "À l'instant"
-  },
-  "cron": {
-    "noSchedule": "Pas de planification",
-    "edit": "Modifier",
-    "placeholder": "ex. 0 2 * * *",
-    "validationPrefix": "L'expression cron doit avoir exactement 6 champs (secondes, minutes, heures, jour, mois, jour de la semaine)",
-    "invalidField": "Champ {{name}} invalide : {{value}}",
-    "updateSuccess": "La configuration de la tâche planifiée a été mise à jour avec succès.",
-    "updateError": "Échec de la mise à jour de la configuration de la tâche planifiée."
-  },
-  "buttons": {
-    "run": "Exécuter",
-    "rerun": "Réexécuter"
-  },
-  "metadataReplace": {
-    "label": "Mode de remplacement des métadonnées :",
-    "selectMode": "Sélectionner le mode",
-    "replaceMissing": "Mettre à jour uniquement les métadonnées manquantes (Recommandé)",
-    "replaceAll": "Remplacer toutes les métadonnées (Écraser les existantes)",
-    "replaceMissingDesc": "Met à jour uniquement les livres dont les métadonnées sont manquantes. Les métadonnées existantes seront préservées.",
-    "replaceAllDesc": "Remplace toutes les métadonnées pour tous les livres, même s'ils en ont déjà. Utilisez avec précaution car cela écrasera les données existantes."
-  },
-  "progress": {
-    "staleWarning": "Cette tâche semble bloquée. Aucune mise à jour reçue depuis plus de 5 minutes.",
-    "statusLabel": "Statut :",
-    "progressLabel": "Progression :",
-    "startedLabel": "Démarrée :",
-    "processing": "Traitement...",
-    "stuckMessage": "La tâche semble bloquée (aucune mise à jour reçue)"
-  },
-  "toast": {
-    "taskQueued": "Tâche en file d'attente",
-    "taskQueuedDetail": "{{name}} a été mise en file d'attente et s'exécutera en arrière-plan.",
-    "taskCompleted": "Tâche terminée",
-    "taskCompletedDetail": "{{name}} a été terminée avec succès.",
-    "taskFailed": "Échec de la tâche",
-    "taskFailedDetail": "{{name}} n'a pas pu être terminée.",
-    "taskStarted": "Tâche démarrée",
-    "taskStartedDetail": "{{name}} a été démarrée avec succès.",
-    "startError": "Échec du démarrage de {{name}}.",
-    "alreadyRunning": "Tâche déjà en cours",
-    "alreadyRunningDetail": "Cette tâche est déjà en cours ou en attente.",
-    "taskCancelled": "Tâche annulée",
-    "cancelledDetail": "La tâche a été annulée avec succès.",
-    "cancelFailed": "Échec de l'annulation",
-    "cancelError": "Impossible d'annuler la tâche. La tâche est peut-être déjà terminée ou a échoué.",
-    "cancelNoId": "Impossible d'annuler une tâche sans identifiant.",
-    "loadError": "Échec du chargement des tâches",
-    "metadataScheduled": "Mise à jour des métadonnées planifiée",
-    "metadataScheduledDetail": "La mise à jour des métadonnées pour les livres sélectionnés a été planifiée avec succès.",
-    "metadataAlreadyRunningDetail": "Une tâche d'actualisation des métadonnées est déjà en cours. Veuillez attendre qu'elle se termine avant d'en lancer une autre.",
-    "metadataFailed": "Échec de la mise à jour des métadonnées",
-    "metadataFailedDetail": "Une erreur inattendue s'est produite lors de la planification de la mise à jour des métadonnées. Veuillez réessayer plus tard ou contacter le support si le problème persiste."
-  }
+    "title": "Gestionnaire de tâches système",
+    "description": "Gérez les tâches système automatisées pour la maintenance de la bibliothèque, l'actualisation des métadonnées et le nettoyage du cache. Planifiez des opérations récurrentes à l'aide d'<a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expressions cron Spring</a>.",
+    "systemTasks": {
+        "sectionTitle": "Tâches système",
+        "sectionDesc": "Exécutez des tâches manuellement, surveillez la progression en temps réel et configurez l'automatisation planifiée."
+    },
+    "loading": "Chargement des tâches...",
+    "emptyTitle": "Aucune tâche disponible",
+    "status": {
+        "running": "En cours",
+        "stale": "Périmée",
+        "neverRun": "Jamais exécutée",
+        "justNow": "À l'instant"
+    },
+    "cron": {
+        "noSchedule": "Pas de planification",
+        "edit": "Modifier",
+        "placeholder": "ex. 0 2 * * *",
+        "validationPrefix": "L'expression cron doit avoir exactement 6 champs (secondes, minutes, heures, jour, mois, jour de la semaine)",
+        "invalidField": "Champ {{name}} invalide : {{value}}",
+        "updateSuccess": "La configuration de la tâche planifiée a été mise à jour avec succès.",
+        "updateError": "Échec de la mise à jour de la configuration de la tâche planifiée."
+    },
+    "buttons": {
+        "run": "Exécuter",
+        "rerun": "Réexécuter"
+    },
+    "metadataReplace": {
+        "label": "Mode de remplacement des métadonnées :",
+        "selectMode": "Sélectionner le mode",
+        "replaceMissing": "Mettre à jour uniquement les métadonnées manquantes (Recommandé)",
+        "replaceAll": "Remplacer toutes les métadonnées (Écraser les existantes)",
+        "replaceMissingDesc": "Met à jour uniquement les livres dont les métadonnées sont manquantes. Les métadonnées existantes seront préservées.",
+        "replaceAllDesc": "Remplace toutes les métadonnées pour tous les livres, même s'ils en ont déjà. Utilisez avec précaution car cela écrasera les données existantes."
+    },
+    "progress": {
+        "staleWarning": "Cette tâche semble bloquée. Aucune mise à jour reçue depuis plus de 5 minutes.",
+        "statusLabel": "Statut :",
+        "progressLabel": "Progression :",
+        "startedLabel": "Démarrée :",
+        "processing": "Traitement...",
+        "stuckMessage": "La tâche semble bloquée (aucune mise à jour reçue)"
+    },
+    "toast": {
+        "taskQueued": "Tâche en file d'attente",
+        "taskQueuedDetail": "{{name}} a été mise en file d'attente et s'exécutera en arrière-plan.",
+        "taskCompleted": "Tâche terminée",
+        "taskCompletedDetail": "{{name}} a été terminée avec succès.",
+        "taskFailed": "Échec de la tâche",
+        "taskFailedDetail": "{{name}} n'a pas pu être terminée.",
+        "taskStarted": "Tâche démarrée",
+        "taskStartedDetail": "{{name}} a été démarrée avec succès.",
+        "startError": "Échec du démarrage de {{name}}.",
+        "alreadyRunning": "Tâche déjà en cours",
+        "alreadyRunningDetail": "Cette tâche est déjà en cours ou en attente.",
+        "taskCancelled": "Tâche annulée",
+        "cancelledDetail": "La tâche a été annulée avec succès.",
+        "cancelFailed": "Échec de l'annulation",
+        "cancelError": "Impossible d'annuler la tâche. La tâche est peut-être déjà terminée ou a échoué.",
+        "cancelNoId": "Impossible d'annuler une tâche sans identifiant.",
+        "loadError": "Échec du chargement des tâches",
+        "metadataScheduled": "Mise à jour des métadonnées planifiée",
+        "metadataScheduledDetail": "La mise à jour des métadonnées pour les livres sélectionnés a été planifiée avec succès.",
+        "metadataAlreadyRunningDetail": "Une tâche d'actualisation des métadonnées est déjà en cours. Veuillez attendre qu'elle se termine avant d'en lancer une autre.",
+        "metadataFailed": "Échec de la mise à jour des métadonnées",
+        "metadataFailedDetail": "Une erreur inattendue s'est produite lors de la planification de la mise à jour des métadonnées. Veuillez réessayer plus tard ou contacter le support si le problème persiste."
+    }
 }
