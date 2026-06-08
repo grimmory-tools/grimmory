@@ -1,4 +1,24 @@
 {
     "pageTitle": "Zápisník",
-    "pageDescription": "Všetky vaše zvýraznenia, poznámky a záložky z celej knižnice na jednom mieste."
+    "pageDescription": "Všetky vaše zvýraznenia, poznámky a záložky z celej knižnice na jednom mieste.",
+    "sortOldest": "",
+    "highlight": "",
+    "sortNewest": "",
+    "allBooks": "",
+    "searchPlaceholder": "",
+    "export": "",
+    "noEntries": "",
+    "annotations": "",
+    "noResults": "",
+    "filterBookmarks": "",
+    "bookmark": "",
+    "annotation": "",
+    "filterHighlights": "",
+    "filterNotes": "",
+    "noEntriesHint": "",
+    "exportMarkdown": "",
+    "chapter": "",
+    "filterByBook": "",
+    "note": "",
+    "filterAll": ""
 }
