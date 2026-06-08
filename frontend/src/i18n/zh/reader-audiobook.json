@@ -1,64 +1,64 @@
 {
-  "loading": "正在加载有声书...",
-  "untitled": "无标题",
-  "unknownAuthor": "未知作者",
-  "coverAlt": "封面",
-  "header": {
-    "backTooltip": "返回",
-    "bookmarksTooltip": "书签",
-    "chaptersTracksTooltip": "章节/曲目"
-  },
-  "trackInfo": {
-    "trackOf": "曲目 {{ current }} / {{ total }}",
-    "chapterOf": "章节 {{ current }} / {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "上一曲目",
-    "previousChapterTooltip": "上一章节",
-    "rewindTooltip": "-30秒",
-    "forwardTooltip": "+30秒",
-    "nextTrackTooltip": "下一曲目",
-    "nextChapterTooltip": "下一章节"
-  },
-  "extra": {
-    "addBookmark": "添加书签",
-    "sleepTimer": "睡眠定时器",
-    "endOfChapter": "章节结束"
-  },
-  "details": {
-    "narratedBy": "朗读者：{{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "总时长 {{ duration }}"
-  },
-  "sidebar": {
-    "tracks": "曲目",
-    "chapters": "章节"
-  },
-  "bookmarks": {
-    "title": "书签",
-    "empty": "暂无书签",
-    "emptyHint": "添加书签以保存当前位置",
-    "deleteTooltip": "删除",
-    "bookmarkAt": "书签位于 {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 分钟",
-    "minutes30": "30 分钟",
-    "minutes45": "45 分钟",
-    "minutes60": "60 分钟",
-    "endOfChapter": "章节结束",
-    "cancelTimer": "取消定时器"
-  },
-  "toast": {
-    "loadFailed": "加载有声书失败",
-    "audioLoadFailed": "加载音频失败",
-    "sleepTimerSet": "播放将在 {{ minutes }} 分钟后停止",
-    "sleepTimerEndOfChapter": "播放将在章节结束时停止",
-    "sleepTimerStopped": "播放已被睡眠定时器停止",
-    "bookmarkAdded": "书签已添加",
-    "bookmarkExists": "书签已存在",
-    "bookmarkExistsDetail": "此位置已存在书签",
-    "bookmarkFailed": "添加书签失败",
-    "bookmarkDeleted": "书签已删除"
-  }
+    "loading": "正在加载有声书...",
+    "untitled": "无标题",
+    "unknownAuthor": "未知作者",
+    "coverAlt": "封面",
+    "header": {
+        "backTooltip": "返回",
+        "bookmarksTooltip": "书签",
+        "chaptersTracksTooltip": "章节/曲目"
+    },
+    "trackInfo": {
+        "trackOf": "曲目 {{ current }} / {{ total }}",
+        "chapterOf": "章节 {{ current }} / {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "上一曲目",
+        "previousChapterTooltip": "上一章节",
+        "rewindTooltip": "-30秒",
+        "forwardTooltip": "+30秒",
+        "nextTrackTooltip": "下一曲目",
+        "nextChapterTooltip": "下一章节"
+    },
+    "extra": {
+        "addBookmark": "添加书签",
+        "sleepTimer": "睡眠定时器",
+        "endOfChapter": "章节结束"
+    },
+    "details": {
+        "narratedBy": "朗读者：{{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "总时长 {{ duration }}"
+    },
+    "sidebar": {
+        "tracks": "曲目",
+        "chapters": "章节"
+    },
+    "bookmarks": {
+        "title": "书签",
+        "empty": "暂无书签",
+        "emptyHint": "添加书签以保存当前位置",
+        "deleteTooltip": "删除",
+        "bookmarkAt": "书签位于 {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 分钟",
+        "minutes30": "30 分钟",
+        "minutes45": "45 分钟",
+        "minutes60": "60 分钟",
+        "endOfChapter": "章节结束",
+        "cancelTimer": "取消定时器"
+    },
+    "toast": {
+        "loadFailed": "加载有声书失败",
+        "audioLoadFailed": "加载音频失败",
+        "sleepTimerSet": "播放将在 {{ minutes }} 分钟后停止",
+        "sleepTimerEndOfChapter": "播放将在章节结束时停止",
+        "sleepTimerStopped": "播放已被睡眠定时器停止",
+        "bookmarkAdded": "书签已添加",
+        "bookmarkExists": "书签已存在",
+        "bookmarkExistsDetail": "此位置已存在书签",
+        "bookmarkFailed": "添加书签失败",
+        "bookmarkDeleted": "书签已删除"
+    }
 }
