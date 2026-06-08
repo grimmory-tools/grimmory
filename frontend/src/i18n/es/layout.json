@@ -36,7 +36,10 @@
         "documentation": "Documentación",
         "profile": "Perfil",
         "logout": "Cerrar Sesión",
-        "primaryNav": "Navegación primaria"
+        "primaryNav": "Navegación primaria",
+        "toggleNavigation": "",
+        "doneEditing": "",
+        "bookdrop": ""
     },
     "closeNavigation": "Cerrar navegación",
     "changelog": {
@@ -57,7 +60,18 @@
         "customPrimary": "Color personalizado",
         "syncAcrossDevices": "Sincronizar mi tema en todos mis dispositivos",
         "options": {
-            "grimmory": "Grimmory"
+            "grimmory": "Grimmory",
+            "violet": "",
+            "crimson": "",
+            "teal": "",
+            "forest": "",
+            "slate": "",
+            "custom": "",
+            "meadow": "",
+            "ember": "",
+            "fuchsia": "",
+            "rose": "",
+            "lagoon": ""
         }
     },
     "commandPalette": {
