@@ -86,13 +86,7 @@
         "insightTimeSpan": "时间跨度",
         "insightYearsOfLiterature": "年的文学作品",
         "insightPeakDecade": "高峰十年",
-        "insightPeakDecadeBooks": "{{ count }} 本",
-        "insightGoldenEraRange": "",
-        "insightGoldenEra": "",
-        "insightMostCommonYear": "",
-        "insightRarePicks": "",
-        "insightMostCommonYearBooks": "",
-        "insightRarityScore": ""
+        "insightPeakDecadeBooks": "{{ count }} 本"
     },
     "publicationTrend": {
         "title": "出版趋势",
@@ -183,8 +177,7 @@
         "insightAvgPer": "每个 {{ type }} 平均",
         "insightAvgPerValue": "{{ avg }} 本",
         "tooltipBooks": "{{ status }}：{{ value }} 本",
-        "tooltipBook": "{{ status }}：{{ value }} 本",
-        "descriptionSuffix": ""
+        "tooltipBook": "{{ status }}：{{ value }} 本"
     },
     "authorUniverse": {
         "title": "作者宇宙",

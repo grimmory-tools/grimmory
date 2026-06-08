@@ -6,128 +6,31 @@
         "books": "Buku",
         "authors": "Penulis",
         "series": "Seri",
-        "publishers": "Penerbit",
-        "loading": "",
-        "totalSeries": "",
-        "totalAuthors": "",
-        "librarySize": "",
-        "noData": "",
-        "noDataHint": "",
-        "dragToReorder": "",
-        "totalSize": "",
-        "totalPublishers": ""
+        "publishers": "Penerbit"
     },
     "config": {
-        "close": "Tutup",
-        "largeCharts": "",
-        "resetOrder": "",
-        "smallCharts": "",
-        "enableAll": "",
-        "title": "",
-        "disableAll": "",
-        "xlargeCharts": ""
+        "close": "Tutup"
     },
     "chartNames": {
-        "languages": "Bahasa",
-        "topItems": "",
-        "bookFormats": "",
-        "publicationTrend": "",
-        "publicationTimeline": "",
-        "authorUniverse": "",
-        "pageCount": "",
-        "readingJourney": "",
-        "metadataScore": ""
+        "languages": "Bahasa"
     },
     "language": {
-        "title": "Bahasa",
-        "noData": "",
-        "tooltipLabel": "",
-        "description": ""
+        "title": "Bahasa"
     },
     "pageCount": {
-        "axisBooks": "Buku",
-        "tooltipLabelPlural": "",
-        "axisPageCount": "",
-        "tooltipTitle": "",
-        "description": "",
-        "tooltipLabel": "",
-        "title": "",
-        "noData": ""
+        "axisBooks": "Buku"
     },
     "publicationTimeline": {
         "insightOldest": "Tertua",
-        "insightNewest": "Terbaru",
-        "tooltipBook": "",
-        "insightGoldenEraRange": "",
-        "tooltipBooks": "",
-        "insightGoldenEra": "",
-        "insightPeakDecadeBooks": "",
-        "insightTimeSpan": "",
-        "insightMostCommonYear": "",
-        "booksWithDates": "",
-        "insightMedian": "",
-        "insightRarePicks": "",
-        "insightMostCommonYearBooks": "",
-        "axisNumberOfBooks": "",
-        "description": "",
-        "noData": "",
-        "insightRarityScore": "",
-        "insightYearsOfLiterature": "",
-        "insightAverageYear": "",
-        "title": "",
-        "insightPeakDecade": ""
+        "insightNewest": "Terbaru"
     },
     "publicationTrend": {
         "axisBooks": "Buku",
         "insightBooksPerYear": "buku/tahun",
-        "insightClassics": "Klasik",
-        "tooltipBooks": "",
-        "insightPeakYear": "",
-        "insightCentury21Books": "",
-        "insightAvgPerYear": "",
-        "insightPeakYearBooks": "",
-        "tooltipBook": "",
-        "insightBest5YearSpan": "",
-        "insightCentury21": "",
-        "insightLast10Years": "",
-        "insightLast10YearsBooks": "",
-        "insightYearsCovered": "",
-        "tooltipTitle": "",
-        "noData": "",
-        "axisPublicationYear": "",
-        "insightUniqueYears": "",
-        "insightClassicsPre1970": "",
-        "title": "",
-        "insightTimeSpan": "",
-        "description": "",
-        "insightMostBooksPublished": ""
+        "insightClassics": "Klasik"
     },
     "readingJourney": {
-        "axisMonth": "Bulan",
-        "insightConsecutiveMonths": "",
-        "recentActivityBooks": "",
-        "insightAvgTimeToFinish": "",
-        "insightBestReadingMonth": "",
-        "insightFinishRate": "",
-        "insightPeakAcquisition": "",
-        "insightLast3Months": "",
-        "insightDaysAfterAdding": "",
-        "legendBooksFinished": "",
-        "insightLongestStreak": "",
-        "title": "",
-        "noData": "",
-        "description": "",
-        "insightCurrentBacklog": "",
-        "noDataHint": "",
-        "insightBooksFinished": "",
-        "insightRecentlyFinished": "",
-        "insightBacklogPercent": "",
-        "insightBooksPerMonthAvg": "",
-        "legendBooksAdded": "",
-        "recentActivityNone": "",
-        "insightCompletion": "",
-        "axisCumulativeBooks": "",
-        "tooltipBacklog": ""
+        "axisMonth": "Bulan"
     },
     "topItems": {
         "shown": "ditampilkan",
@@ -138,8 +41,7 @@
             "categories": "Kategori",
             "series": "Seri",
             "publishers": "Penerbit",
-            "tags": "Tag",
-            "moods": ""
+            "tags": "Tag"
         },
         "readStatus": {
             "read": "Baca",
@@ -147,78 +49,10 @@
             "reReading": "Baca Ulang",
             "unread": "Belum Dibaca",
             "paused": "Jeda",
-            "abandoned": "Ditinggalkan",
-            "notSet": "",
-            "partiallyRead": "",
-            "wontRead": ""
-        },
-        "insightTop": "",
-        "noDataHintPrefix": "",
-        "insightMostCompletedValue": "",
-        "titlePrefix": "",
-        "axisNumberOfBooks": "",
-        "insightMostCompleted": "",
-        "tooltipBooks": "",
-        "tooltipBook": "",
-        "insightTop5Coverage": "",
-        "descriptionSuffix": "",
-        "insightTopValue": "",
-        "insightAvgPer": "",
-        "descriptionPrefix": "",
-        "insightTop5CoverageValue": "",
-        "noDataSuffix": "",
-        "insightAvgPerValue": ""
+            "abandoned": "Ditinggalkan"
+        }
     },
     "authorUniverse": {
-        "legendUnread": "Belum Dibaca",
-        "tooltipAvgRating": "",
-        "tooltipNoRatings": "",
-        "insightMostPages": "",
-        "authorsBadge": "",
-        "legend25to49": "",
-        "tooltipTotalPages": "",
-        "noData": "",
-        "axisBooks": "",
-        "tooltipGenres": "",
-        "insightBiggestBacklog": "",
-        "legendNote": "",
-        "insightMostRead": "",
-        "tooltipRead": "",
-        "title": "",
-        "insightLongestReads": "",
-        "insightHighestRated": "",
-        "legend50to74": "",
-        "insightUntouchedAuthor": "",
-        "insightOverallProgress": "",
-        "legend1to24": "",
-        "insightMostVersatile": "",
-        "description": "",
-        "insightTop3Concentration": "",
-        "insightHiddenGem": "",
-        "legend75to100": "",
-        "tooltipBooks": "",
-        "insightMostCollected": "",
-        "axisRating": ""
-    },
-    "metadataScore": {
-        "excellent": "",
-        "noData": "",
-        "poor": "",
-        "fair": "",
-        "tooltipLabel": "",
-        "title": "",
-        "good": "",
-        "veryPoor": "",
-        "description": ""
-    },
-    "bookFormats": {
-        "noData": "",
-        "description": "",
-        "tooltipLabel": "",
-        "title": ""
-    },
-    "libraryFilter": {
-        "libraryFallback": "",
-        "allLibraries": ""
+        "legendUnread": "Belum Dibaca"
     }
 }
