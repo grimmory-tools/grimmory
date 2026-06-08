@@ -1,1 +1,41 @@
-{}
+{
+    "covers": {
+        "verticalCropping": "",
+        "regenerateStartedDetail": "",
+        "verticalCroppingDesc": "",
+        "sectionTitle": "",
+        "smartCroppingDesc": "",
+        "horizontalCroppingDesc": "",
+        "regenerateAllBtn": "",
+        "regenerateStarted": "",
+        "regenerate": "",
+        "regenerateError": "",
+        "smartCropping": "",
+        "aspectRatioDesc": "",
+        "regenerateDesc": "",
+        "aspectRatio": "",
+        "regenerateMissingBtn": "",
+        "horizontalCropping": ""
+    },
+    "fileManagement": {
+        "invalidInputDetail": "",
+        "invalidInput": "",
+        "restartWarning": "",
+        "maxUploadPlaceholder": "",
+        "maxUploadSize": "",
+        "maxUploadDesc": "",
+        "sectionTitle": ""
+    },
+    "title": "",
+    "settingsSaved": "",
+    "search": {
+        "similarBook": "",
+        "sectionTitle": "",
+        "autoBookSearchDesc": "",
+        "autoBookSearch": "",
+        "similarBookDesc": ""
+    },
+    "description": "",
+    "settingsSavedDetail": "",
+    "settingsError": ""
+}
