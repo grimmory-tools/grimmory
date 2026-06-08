@@ -41,10 +41,7 @@
         "toggleZoom": "Переключить масштаб (по странице / реальный размер)",
         "doubleTap": "Двойное нажатие",
         "toggleSlideshow": "Переключить слайд-шоу / автовоспроизведение",
-        "showHelpDialog": "Показать это окно справки",
-        "magnifierLensSize": "",
-        "magnifierZoom": "",
-        "toggleMagnifier": ""
+        "showHelpDialog": "Показать это окно справки"
     },
     "footer": {
         "prevBook": "Пред. книга",
@@ -80,9 +77,7 @@
         "fullscreenLabel": "Полноэкранный режим",
         "keyboardShortcutsLabel": "Горячие клавиши",
         "settings": "Настройки",
-        "closeReader": "Закрыть читалку",
-        "enableMagnifier": "",
-        "disableMagnifier": ""
+        "closeReader": "Закрыть читалку"
     },
     "quickSettings": {
         "fitMode": "Режим подгонки",
@@ -108,14 +103,7 @@
         "background": "Фон",
         "black": "Чёрный",
         "gray": "Серый",
-        "white": "Белый",
-        "clickToPaginate": "",
-        "magnifierLensSize": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "magnifierZoom": "",
-        "brightness": "",
-        "emulateBook": ""
+        "white": "Белый"
     },
     "sidebar": {
         "contentTab": "Содержание",
@@ -135,15 +123,5 @@
         "clearSearch": "Очистить поиск",
         "page": "Страница",
         "untitled": "Без названия"
-    },
-    "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
-    },
-    "continuation": {
-        "scrollForNext": ""
     }
 }
