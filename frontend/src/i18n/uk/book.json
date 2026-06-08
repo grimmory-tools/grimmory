@@ -47,8 +47,7 @@
             "noBooks": "У цій колекції немає книг!",
             "failedLibrary": "Не вдалося завантажити книги з бібліотеки!",
             "failedShelf": "Не вдалося завантажити книги з полиці!",
-            "activeFilters": "{{ count }} активних фільтрів",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} активних фільтрів"
         },
         "tooltip": {
             "clearFilters": "Очистити застосовані фільтри",
@@ -300,8 +299,7 @@
             "magicShelfDeletedDetail": "Магічну полицю видалено",
             "magicShelfDeleteFailedDetail": "Не вдалося видалити полицю",
             "failedSummary": "Не вдалося",
-            "magicShelfJsonCopiedDetail": "JSON магічної полиці скопійовано в буфер обміну",
-            "dialogLoadFailedDetail": ""
+            "magicShelfJsonCopiedDetail": "JSON магічної полиці скопійовано в буфер обміну"
         },
         "loading": {
             "deletingLibrary": "Видалення бібліотеки '{{ name }}'..."
@@ -495,10 +493,7 @@
             "comicCharacter": "Персонаж коміксу",
             "comicTeam": "Команда коміксу",
             "comicLocation": "Локація коміксу",
-            "comicCreator": "Творець коміксу",
-            "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "comicCreator": "Творець коміксу"
         },
         "readStatus": {
             "unread": "Не прочитано",
@@ -578,8 +573,7 @@
         "toast": {
             "updateSuccessDetail": "Книжкові полиці оновлено",
             "updateFailedDetail": "Не вдалося оновити книжкові полиці"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "Створити нову полицю",
@@ -635,12 +629,7 @@
             "lockFailedDetail": "Під час блокування метаданих сталася помилка.",
             "unlockFailedSummary": "Не вдалося розблокувати",
             "unlockFailedDetail": "Під час розблокування метаданих сталася помилка."
-        },
-        "noRating": "",
-        "ratingOutOf": "",
-        "selectBookFallback": "",
-        "selectBook": "",
-        "label": ""
+        }
     },
     "lockUnlockDialog": {
         "title": "Блокування або розблокування метаданих",

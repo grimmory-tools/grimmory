@@ -47,8 +47,7 @@
             "noBooks": "此集合没有图书！",
             "failedLibrary": "加载书库图书失败！",
             "failedShelf": "加载书架图书失败！",
-            "activeFilters": "{{ count }} 个活跃筛选条件",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} 个活跃筛选条件"
         },
         "tooltip": {
             "clearFilters": "清除已应用的筛选条件",
@@ -100,10 +99,7 @@
             "deleteBookMessage": "确定要删除「{{ title }}」吗？\n\n这将永久删除文件系统中的图书文件。\n\n此操作无法撤销。",
             "deleteBookHeader": "确认删除",
             "deleteFileMessage": "确定要删除附加文件「{{ fileName }}」吗？",
-            "deleteFileHeader": "确认删除文件",
-            "largeFileMessage": "",
-            "sendAnyway": "",
-            "largeFileHeader": ""
+            "deleteFileHeader": "确认删除文件"
         },
         "toast": {
             "quickSendSuccessDetail": "图书发送已安排。",
@@ -266,8 +262,7 @@
             "customFetchMetadata": "自定义获取元数据",
             "autoFetchMetadata": "自动获取元数据",
             "findDuplicates": "查找重复",
-            "deleteLibrary": "删除书库",
-            "bulkIsbnImport": ""
+            "deleteLibrary": "删除书库"
         },
         "shelf": {
             "publicShelfPrefix": "公开书架 - ",
@@ -279,8 +274,7 @@
         "magicShelf": {
             "optionsLabel": "选项",
             "editMagicShelf": "编辑智能书架",
-            "deleteMagicShelf": "删除智能书架",
-            "exportJson": ""
+            "deleteMagicShelf": "删除智能书架"
         },
         "confirm": {
             "rescanLibraryMessage": "确定要刷新书库：{{ name }}？",
@@ -299,9 +293,7 @@
             "shelfDeleteFailedDetail": "删除书架失败",
             "magicShelfDeletedDetail": "智能书架已删除",
             "magicShelfDeleteFailedDetail": "删除书架失败",
-            "failedSummary": "失败",
-            "magicShelfJsonCopiedDetail": "",
-            "dialogLoadFailedDetail": ""
+            "failedSummary": "失败"
         },
         "loading": {
             "deletingLibrary": "正在删除书库「{{ name }}」..."
@@ -436,8 +428,7 @@
         "validationTitleOrIsbn": "标题或 ISBN 为必填",
         "validationReady": "准备创建",
         "cancelButton": "取消",
-        "addButton": "添加实体书",
-        "fetchMetadataTooltip": ""
+        "addButton": "添加实体书"
     },
     "fileUploader": {
         "title": "上传附加文件",
@@ -460,9 +451,7 @@
             "fileTooLargeDetail": "{{ fileName }} 超过了最大文件大小 {{ maxSize }}",
             "fileTooLargeError": "文件超过最大大小 {{ maxSize }}",
             "uploadFailedUnknown": "由于未知错误，上传失败。"
-        },
-        "supplementaryAllFormats": "",
-        "supportedFormats": ""
+        }
     },
     "filter": {
         "title": "筛选条件",
@@ -495,10 +484,7 @@
             "comicCharacter": "漫画角色",
             "comicTeam": "漫画团队",
             "comicLocation": "漫画地点",
-            "comicCreator": "漫画创作者",
-            "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "comicCreator": "漫画创作者"
         },
         "readStatus": {
             "unread": "未读",
@@ -578,8 +564,7 @@
         "toast": {
             "updateSuccessDetail": "图书书架已更新",
             "updateFailedDetail": "更新图书书架失败"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "创建新书架",
@@ -635,12 +620,7 @@
             "lockFailedDetail": "锁定元数据时发生错误。",
             "unlockFailedSummary": "解锁失败",
             "unlockFailedDetail": "解锁元数据时发生错误。"
-        },
-        "noRating": "",
-        "ratingOutOf": "",
-        "selectBookFallback": "",
-        "selectBook": "",
-        "label": ""
+        }
     },
     "lockUnlockDialog": {
         "title": "锁定或解锁元数据",
@@ -788,31 +768,7 @@
             "selectAll": "选择所有图书",
             "deselectAll": "取消选择所有图书",
             "deleteSelected": "删除选中的图书"
-        },
-        "readButton": "",
-        "booksInSeries": "",
-        "continueButton": "",
-        "missingBooks": "",
-        "book": "",
-        "continueReading": "",
-        "stats": {
-            "avgGoodreads": "",
-            "avgHardcover": "",
-            "totalAudioDuration": "",
-            "owned": "",
-            "formats": "",
-            "avgPersonalRating": "",
-            "totalPages": "",
-            "avgAmazon": ""
-        },
-        "readPercent": "",
-        "completionOwned": "",
-        "viewDetails": "",
-        "listPages": "",
-        "synopsis": "",
-        "books": "",
-        "bookListTab": "",
-        "nextUp": ""
+        }
     },
     "duplicateMerger": {
         "title": "查找重复",
@@ -861,48 +817,5 @@
             "mergeFailedDetail": "无法合并此组。",
             "mergePartialDetail": "{{ success }} 个已合并，{{ failed }} 个失败。"
         }
-    },
-    "bulkIsbnImport": {
-        "fileFormatsHint": "",
-        "startImportButton": "",
-        "chooseFile": "",
-        "skippedCount": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "previewLabel": "",
-        "summaryTitle": "",
-        "tabPaste": "",
-        "clearButton": "",
-        "tabFile": "",
-        "validCount": "",
-        "cancelImportButton": "",
-        "summaryFailed": "",
-        "processingHint": "",
-        "closeTooltip": "",
-        "errorFileTooLarge": "",
-        "libraryPlaceholder": "",
-        "processingLabel": "",
-        "title": "",
-        "summaryNoMetadata": "",
-        "lookingUp": "",
-        "pastePlaceholder": "",
-        "libraryLabel": "",
-        "summaryCreated": "",
-        "doneButton": "",
-        "parseButton": "",
-        "validationLibraryRequired": "",
-        "unknownError": "",
-        "description": "",
-        "validationNoIsbns": "",
-        "validationReady": "",
-        "reason": {
-            "invalid": "",
-            "alreadyExists": ""
-        },
-        "errorTooMany": "",
-        "errorNoIsbns": "",
-        "cancelButton": "",
-        "duplicatesRemoved": ""
     }
 }

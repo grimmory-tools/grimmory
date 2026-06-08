@@ -47,8 +47,7 @@
             "noBooks": "Cette collection ne contient aucun livre !",
             "failedLibrary": "Échec du chargement des livres de la bibliothèque !",
             "failedShelf": "Échec du chargement des livres de l'étagère !",
-            "activeFilters": "{{ count }} filtres actifs",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} filtres actifs"
         },
         "tooltip": {
             "clearFilters": "Effacer les filtres appliqués",
@@ -136,8 +135,7 @@
             "readBook": "Lire le livre",
             "playAudiobook": "Écouter le livre audio",
             "bookMenu": "Menu d'actions du livre",
-            "continueReading": "Continuer la lecture",
-            "readStatusMenu": ""
+            "continueReading": "Continuer la lecture"
         }
     },
     "notes": {
@@ -266,8 +264,7 @@
             "customFetchMetadata": "Récupération personnalisée des métadonnées",
             "autoFetchMetadata": "Récupération automatique des métadonnées",
             "findDuplicates": "Rechercher les doublons",
-            "deleteLibrary": "Supprimer la bibliothèque",
-            "bulkIsbnImport": ""
+            "deleteLibrary": "Supprimer la bibliothèque"
         },
         "shelf": {
             "publicShelfPrefix": "Étagère publique - ",
@@ -299,9 +296,7 @@
             "shelfDeleteFailedDetail": "Échec de la suppression de l'étagère",
             "magicShelfDeletedDetail": "L'étagère magique a été supprimée",
             "magicShelfDeleteFailedDetail": "Échec de la suppression de l'étagère",
-            "failedSummary": "Échec",
-            "magicShelfJsonCopiedDetail": "",
-            "dialogLoadFailedDetail": ""
+            "failedSummary": "Échec"
         },
         "loading": {
             "deletingLibrary": "Suppression de la bibliothèque '{{ name }}'..."
@@ -436,8 +431,7 @@
         "validationTitleOrIsbn": "Le titre ou l'ISBN est requis",
         "validationReady": "Prêt à créer",
         "cancelButton": "Annuler",
-        "addButton": "Ajouter le livre physique",
-        "fetchMetadataTooltip": ""
+        "addButton": "Ajouter le livre physique"
     },
     "fileUploader": {
         "title": "Téléverser un fichier supplémentaire",
@@ -460,9 +454,7 @@
             "fileTooLargeDetail": "{{ fileName }} dépasse la taille maximale de {{ maxSize }}",
             "fileTooLargeError": "Le fichier dépasse la taille maximale de {{ maxSize }}",
             "uploadFailedUnknown": "Échec du téléversement en raison d'une erreur inconnue."
-        },
-        "supplementaryAllFormats": "",
-        "supportedFormats": ""
+        }
     },
     "filter": {
         "title": "Filtres",
@@ -578,8 +570,7 @@
         "toast": {
             "updateSuccessDetail": "Étagères des livres mises à jour",
             "updateFailedDetail": "Échec de la mise à jour des étagères des livres"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "Créer une nouvelle étagère",
@@ -638,9 +629,7 @@
         },
         "selectBook": "Sélectionner {{ title }}",
         "selectBookFallback": "Sélectionner un livre",
-        "noRating": "Pas de note",
-        "ratingOutOf": "",
-        "label": ""
+        "noRating": "Pas de note"
     },
     "lockUnlockDialog": {
         "title": "Verrouiller ou déverrouiller les métadonnées",
@@ -803,16 +792,8 @@
         "stats": {
             "totalPages": "Nombre total de pages",
             "formats": "Formats",
-            "owned": "Appartenant à",
-            "avgGoodreads": "",
-            "avgHardcover": "",
-            "totalAudioDuration": "",
-            "avgPersonalRating": "",
-            "avgAmazon": ""
-        },
-        "missingBooks": "",
-        "readPercent": "",
-        "completionOwned": ""
+            "owned": "Appartenant à"
+        }
     },
     "duplicateMerger": {
         "title": "Rechercher les doublons",
@@ -876,33 +857,6 @@
         "unknownError": "Erreur inconnue",
         "summaryTitle": "Importation terminée",
         "summaryFailed": "Échec",
-        "doneButton": "Terminé",
-        "fileFormatsHint": "",
-        "skippedCount": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "previewLabel": "",
-        "tabPaste": "",
-        "validCount": "",
-        "cancelImportButton": "",
-        "processingHint": "",
-        "errorFileTooLarge": "",
-        "processingLabel": "",
-        "title": "",
-        "summaryNoMetadata": "",
-        "lookingUp": "",
-        "pastePlaceholder": "",
-        "summaryCreated": "",
-        "description": "",
-        "validationNoIsbns": "",
-        "validationReady": "",
-        "reason": {
-            "invalid": "",
-            "alreadyExists": ""
-        },
-        "errorTooMany": "",
-        "errorNoIsbns": "",
-        "duplicatesRemoved": ""
+        "doneButton": "Terminé"
     }
 }
