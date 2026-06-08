@@ -23,5 +23,13 @@
     "discard": "Descartar",
     "review": "Revisar",
     "displaySettings": "Configurações de exibição",
-    "cardSize": "Tamanho do Cartão"
+    "cardSize": "Tamanho do Cartão",
+    "on": "",
+    "off": "",
+    "moreActionsFor": "",
+    "cardSizeControls": "",
+    "libraryPathInaccessible": "",
+    "decreaseCardSize": "",
+    "dialogLoadError": "",
+    "increaseCardSize": ""
 }
