@@ -1,64 +1,64 @@
 {
-  "loading": "Hörbuch wird geladen...",
-  "untitled": "Ohne Titel",
-  "unknownAuthor": "Unbekannter Autor",
-  "coverAlt": "Cover",
-  "header": {
-    "backTooltip": "Zurück",
-    "bookmarksTooltip": "Lesezeichen",
-    "chaptersTracksTooltip": "Kapitel/Titel"
-  },
-  "trackInfo": {
-    "trackOf": "Titel {{ current }} von {{ total }}",
-    "chapterOf": "Kapitel {{ current }} von {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Vorheriger Titel",
-    "previousChapterTooltip": "Vorheriges Kapitel",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Nächster Titel",
-    "nextChapterTooltip": "Nächstes Kapitel"
-  },
-  "extra": {
-    "addBookmark": "Lesezeichen hinzufügen",
-    "sleepTimer": "Schlaf-Timer",
-    "endOfChapter": "Ende des Kapitels"
-  },
-  "details": {
-    "narratedBy": "Gesprochen von {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} gesamt"
-  },
-  "sidebar": {
-    "tracks": "Titel",
-    "chapters": "Kapitel"
-  },
-  "bookmarks": {
-    "title": "Lesezeichen",
-    "empty": "Noch keine Lesezeichen",
-    "emptyHint": "Fügen Sie ein Lesezeichen hinzu, um Ihre Stelle zu speichern",
-    "deleteTooltip": "Löschen",
-    "bookmarkAt": "Lesezeichen bei {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 Minuten",
-    "minutes30": "30 Minuten",
-    "minutes45": "45 Minuten",
-    "minutes60": "60 Minuten",
-    "endOfChapter": "Ende des Kapitels",
-    "cancelTimer": "Timer abbrechen"
-  },
-  "toast": {
-    "loadFailed": "Hörbuch konnte nicht geladen werden",
-    "audioLoadFailed": "Audio konnte nicht geladen werden",
-    "sleepTimerSet": "Wiedergabe wird in {{ minutes }} Minuten gestoppt",
-    "sleepTimerEndOfChapter": "Wiedergabe wird am Ende des Kapitels gestoppt",
-    "sleepTimerStopped": "Wiedergabe durch Schlaf-Timer gestoppt",
-    "bookmarkAdded": "Lesezeichen hinzugefügt",
-    "bookmarkExists": "Lesezeichen vorhanden",
-    "bookmarkExistsDetail": "An dieser Position existiert bereits ein Lesezeichen",
-    "bookmarkFailed": "Lesezeichen konnte nicht hinzugefügt werden",
-    "bookmarkDeleted": "Lesezeichen gelöscht"
-  }
+    "loading": "Hörbuch wird geladen...",
+    "untitled": "Ohne Titel",
+    "unknownAuthor": "Unbekannter Autor",
+    "coverAlt": "Cover",
+    "header": {
+        "backTooltip": "Zurück",
+        "bookmarksTooltip": "Lesezeichen",
+        "chaptersTracksTooltip": "Kapitel/Titel"
+    },
+    "trackInfo": {
+        "trackOf": "Titel {{ current }} von {{ total }}",
+        "chapterOf": "Kapitel {{ current }} von {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Vorheriger Titel",
+        "previousChapterTooltip": "Vorheriges Kapitel",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Nächster Titel",
+        "nextChapterTooltip": "Nächstes Kapitel"
+    },
+    "extra": {
+        "addBookmark": "Lesezeichen hinzufügen",
+        "sleepTimer": "Schlaf-Timer",
+        "endOfChapter": "Ende des Kapitels"
+    },
+    "details": {
+        "narratedBy": "Gesprochen von {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} gesamt"
+    },
+    "sidebar": {
+        "tracks": "Titel",
+        "chapters": "Kapitel"
+    },
+    "bookmarks": {
+        "title": "Lesezeichen",
+        "empty": "Noch keine Lesezeichen",
+        "emptyHint": "Fügen Sie ein Lesezeichen hinzu, um Ihre Stelle zu speichern",
+        "deleteTooltip": "Löschen",
+        "bookmarkAt": "Lesezeichen bei {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 Minuten",
+        "minutes30": "30 Minuten",
+        "minutes45": "45 Minuten",
+        "minutes60": "60 Minuten",
+        "endOfChapter": "Ende des Kapitels",
+        "cancelTimer": "Timer abbrechen"
+    },
+    "toast": {
+        "loadFailed": "Hörbuch konnte nicht geladen werden",
+        "audioLoadFailed": "Audio konnte nicht geladen werden",
+        "sleepTimerSet": "Wiedergabe wird in {{ minutes }} Minuten gestoppt",
+        "sleepTimerEndOfChapter": "Wiedergabe wird am Ende des Kapitels gestoppt",
+        "sleepTimerStopped": "Wiedergabe durch Schlaf-Timer gestoppt",
+        "bookmarkAdded": "Lesezeichen hinzugefügt",
+        "bookmarkExists": "Lesezeichen vorhanden",
+        "bookmarkExistsDetail": "An dieser Position existiert bereits ein Lesezeichen",
+        "bookmarkFailed": "Lesezeichen konnte nicht hinzugefügt werden",
+        "bookmarkDeleted": "Lesezeichen gelöscht"
+    }
 }
