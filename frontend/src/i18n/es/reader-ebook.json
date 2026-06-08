@@ -136,9 +136,7 @@
         "searchInBook": "Buscar en el libro",
         "annotate": "Anotar",
         "addNote": "Añadir nota",
-        "deleteAnnotation": "Eliminar anotación",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "Eliminar anotación"
     },
     "shortcutsHelp": {
         "title": "Atajos de teclado",
@@ -158,8 +156,7 @@
         "other": "Otros",
         "showHelpDialog": "Mostrar este diálogo de ayuda",
         "swipeRight": "Deslizar a la derecha",
-        "swipeLeft": "Deslizar a la izquierda",
-        "toggleImmersive": ""
+        "swipeLeft": "Deslizar a la izquierda"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Tiempo restante en la sección: {{ time }}"

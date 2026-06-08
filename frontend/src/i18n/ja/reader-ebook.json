@@ -136,9 +136,7 @@
         "searchInBook": "本の中で検索",
         "annotate": "注釈",
         "addNote": "メモを追加",
-        "deleteAnnotation": "注釈を削除",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "注釈を削除"
     },
     "shortcutsHelp": {
         "title": "キーボードショートカット",
@@ -158,8 +156,7 @@
         "other": "その他",
         "showHelpDialog": "このヘルプダイアログを表示",
         "swipeRight": "右にスワイプ",
-        "swipeLeft": "左にスワイプ",
-        "toggleImmersive": ""
+        "swipeLeft": "左にスワイプ"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "セクションの残り時間: {{ time }}"

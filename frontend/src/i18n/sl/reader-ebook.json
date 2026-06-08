@@ -30,8 +30,7 @@
         "display": "Prikaz",
         "other": "Ostalo",
         "swipeRight": "Podrsaj desno",
-        "swipeLeft": "Podrsaj levo",
-        "toggleImmersive": ""
+        "swipeLeft": "Podrsaj levo"
     },
     "footer": {
         "go": "Pojdi",
@@ -157,9 +156,7 @@
         "searchInBook": "Išči v knjigi",
         "annotate": "Dodaj anotacijo",
         "addNote": "Dodaj opombo",
-        "deleteAnnotation": "Izbriši anotacijo",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "Izbriši anotacijo"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Preostali čas v razdelku: {{ time }}"
