@@ -47,7 +47,8 @@
             "noBooks": "Denna samling har inga böcker!",
             "failedLibrary": "Kunde inte ladda bibliotekets böcker!",
             "failedShelf": "Kunde inte ladda hyllans böcker!",
-            "activeFilters": "{{ count }} aktiva filter"
+            "activeFilters": "{{ count }} aktiva filter",
+            "failedBooks": ""
         },
         "tooltip": {
             "clearFilters": "Rensa tillämpade filter",
@@ -299,7 +300,8 @@
             "magicShelfDeletedDetail": "Magiska hyllan raderades",
             "magicShelfDeleteFailedDetail": "Kunde inte radera hylla",
             "failedSummary": "Misslyckades",
-            "magicShelfJsonCopiedDetail": "Magisk hylla-JSON kopierad till urklipp"
+            "magicShelfJsonCopiedDetail": "Magisk hylla-JSON kopierad till urklipp",
+            "dialogLoadFailedDetail": ""
         },
         "loading": {
             "deletingLibrary": "Raderar biblioteket '{{ name }}'..."
@@ -459,7 +461,8 @@
             "fileTooLargeError": "Filen överskrider maximal storlek på {{ maxSize }}",
             "uploadFailedUnknown": "Uppladdning misslyckades på grund av okänt fel."
         },
-        "supplementaryAllFormats": "Alla filformat stöds för kompletterande filer."
+        "supplementaryAllFormats": "Alla filformat stöds för kompletterande filer.",
+        "supportedFormats": ""
     },
     "filter": {
         "title": "Filter",
@@ -492,7 +495,10 @@
             "comicCharacter": "Serietidningskaraktär",
             "comicTeam": "Serietidningsteam",
             "comicLocation": "Serietidningsplats",
-            "comicCreator": "Serietidningsskapare"
+            "comicCreator": "Serietidningsskapare",
+            "ranobedbRating": "",
+            "audibleRating": "",
+            "lubimyczytacRating": ""
         },
         "readStatus": {
             "unread": "Oläst",
@@ -572,7 +578,8 @@
         "toast": {
             "updateSuccessDetail": "Bokhyllor uppdaterade",
             "updateFailedDetail": "Kunde inte uppdatera bokhyllor"
-        }
+        },
+        "searchPlaceholder": ""
     },
     "shelfCreator": {
         "title": "Skapa ny hylla",
@@ -628,7 +635,12 @@
             "lockFailedDetail": "Ett fel uppstod vid låsning av metadata.",
             "unlockFailedSummary": "Upplåsning misslyckades",
             "unlockFailedDetail": "Ett fel uppstod vid upplåsning av metadata."
-        }
+        },
+        "noRating": "",
+        "ratingOutOf": "",
+        "selectBookFallback": "",
+        "selectBook": "",
+        "label": ""
     },
     "lockUnlockDialog": {
         "title": "Lås eller lås upp metadata",
