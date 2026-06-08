@@ -22,5 +22,14 @@
     "dismiss": "Sluiten",
     "discard": "Verwerpen",
     "review": "Beoordelen",
-    "displaySettings": "Weergave-instellingen"
+    "displaySettings": "Weergave-instellingen",
+    "on": "",
+    "off": "",
+    "cardSize": "",
+    "moreActionsFor": "",
+    "cardSizeControls": "",
+    "libraryPathInaccessible": "",
+    "decreaseCardSize": "",
+    "dialogLoadError": "",
+    "increaseCardSize": ""
 }
