@@ -25,54 +25,25 @@
         "closeSearch": "Cerrar búsqueda",
         "zoomIn": "Acercar",
         "zoomOut": "Alejar",
-        "zoomPreset": "Zoom predefinido",
-        "annotationColor": "",
-        "ink": "",
-        "deselectTool": "",
-        "highlight": "",
-        "draw": "",
-        "pan": ""
+        "zoomPreset": "Zoom predefinido"
     },
     "toast": {
-        "failedToLoadBook": "Error al cargar el libro",
-        "annotationFailed": "",
-        "annotationSaved": "",
-        "bookmarkAdded": "",
-        "bookmarkRemoved": "",
-        "bookmarkExists": ""
+        "failedToLoadBook": "Error al cargar el libro"
     },
     "sidebar": {
         "deleteAnnotation": "Borrar anotación",
         "page": "Página",
         "title": "Barra lateral",
-        "close": "Cerrar barra lateral",
-        "contentsTab": "",
-        "annotationsTab": "",
-        "bookmarkHint": "",
-        "noContents": "",
-        "deleteBookmark": "",
-        "bookmarksTab": "",
-        "annotationHint": "",
-        "noBookmarks": "",
-        "noAnnotations": ""
+        "close": "Cerrar barra lateral"
     },
     "footer": {
         "of": "de",
         "pagePlaceholder": "Página",
-        "go": "Ir",
-        "nextPage": "",
-        "lastPage": "",
-        "bookViewer": "",
-        "previousPage": "",
-        "pageSlider": "",
-        "firstPage": "",
-        "docViewer": ""
+        "go": "Ir"
     },
     "docViewer": {
         "changesSaved": "Los cambios se guardaron correctamente.",
         "dismiss": "Descartar",
-        "saveDocument": "Guardar Cambios",
-        "saveFailed": "",
-        "changesSavedInfo": ""
+        "saveDocument": "Guardar Cambios"
     }
 }
