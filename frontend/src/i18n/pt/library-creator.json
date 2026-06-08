@@ -51,14 +51,7 @@
             "createdLargeDetail": "Biblioteca criada com {{count}} arquivos. Carregamento em andamento...",
             "createFailedSummary": "Criação Falhou",
             "createFailedDetail": "Ocorreu um erro ao criar a biblioteca. Tente novamente."
-        },
-        "organizationMode": "",
-        "organizationModeBookPerFile": "",
-        "organizationModeBookPerFolder": "",
-        "organizationModeAutoDetect": "",
-        "folderStructureHint": "",
-        "organizationModeLockedTooltip": "",
-        "organizationModeTooltip": ""
+        }
     },
     "loading": {
         "title": "Carregando Biblioteca",

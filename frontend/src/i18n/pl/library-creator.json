@@ -51,14 +51,7 @@
             "createdLargeDetail": "Biblioteka utworzona z {{count}} plikami. Ładowanie w toku...",
             "createFailedSummary": "Tworzenie nie powiodło się",
             "createFailedDetail": "Wystąpił błąd podczas tworzenia biblioteki. Spróbuj ponownie."
-        },
-        "organizationMode": "",
-        "organizationModeBookPerFile": "",
-        "organizationModeBookPerFolder": "",
-        "organizationModeAutoDetect": "",
-        "folderStructureHint": "",
-        "organizationModeLockedTooltip": "",
-        "organizationModeTooltip": ""
+        }
     },
     "loading": {
         "title": "Ładowanie biblioteki",
