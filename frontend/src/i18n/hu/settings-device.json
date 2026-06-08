@@ -85,7 +85,8 @@
         "syncConfig": "",
         "title": "",
         "apiKeyDesc": "",
-        "syncDisabledMsg": ""
+        "syncDisabledMsg": "",
+        "syncDesc": ""
     },
     "koreader": {
         "syncWithGrimmory": "",
