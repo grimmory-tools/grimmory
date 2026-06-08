@@ -1,69 +1,69 @@
 {
-  "title": "システムタスクマネージャー",
-  "description": "ライブラリの保守、メタデータの更新、キャッシュのクリーンアップのための自動化されたシステムタスクを管理します。<a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron式</a>を使用して定期実行をスケジュールします。",
-  "systemTasks": {
-    "sectionTitle": "システムタスク",
-    "sectionDesc": "タスクを手動で実行し、進捗をリアルタイムで監視し、スケジュールされた自動化を設定します。"
-  },
-  "loading": "タスクを読み込み中...",
-  "emptyTitle": "利用可能なタスクがありません",
-  "status": {
-    "running": "実行中",
-    "stale": "停滞",
-    "neverRun": "未実行",
-    "justNow": "たった今"
-  },
-  "cron": {
-    "noSchedule": "スケジュールなし",
-    "edit": "編集",
-    "placeholder": "例: 0 2 * * *",
-    "validationPrefix": "Cron式はちょうど6つのフィールド（秒、分、時、日、月、曜日）が必要です",
-    "invalidField": "無効な{{name}}フィールド: {{value}}",
-    "updateSuccess": "スケジュールタスクの設定が正常に更新されました。",
-    "updateError": "スケジュールタスクの設定の更新に失敗しました。"
-  },
-  "buttons": {
-    "run": "実行",
-    "rerun": "再実行"
-  },
-  "metadataReplace": {
-    "label": "メタデータ置換モード：",
-    "selectMode": "モードを選択",
-    "replaceMissing": "欠損メタデータのみ更新（推奨）",
-    "replaceAll": "すべてのメタデータを置換（既存を上書き）",
-    "replaceMissingDesc": "メタデータ情報が欠損している本のみ更新します。既存のメタデータは保持されます。",
-    "replaceAllDesc": "すでにメタデータがある本も含め、すべての本のメタデータを置換します。既存のデータが上書きされるため、注意して使用してください。"
-  },
-  "progress": {
-    "staleWarning": "このタスクは停止しているようです。5分以上更新がありません。",
-    "statusLabel": "ステータス：",
-    "progressLabel": "進捗：",
-    "startedLabel": "開始：",
-    "processing": "処理中...",
-    "stuckMessage": "タスクが停止しているようです（更新が受信されていません）"
-  },
-  "toast": {
-    "taskQueued": "タスクがキューに入りました",
-    "taskQueuedDetail": "{{name}}がキューに入り、バックグラウンドで実行されます。",
-    "taskCompleted": "タスクが完了しました",
-    "taskCompletedDetail": "{{name}}が正常に完了しました。",
-    "taskFailed": "タスクが失敗しました",
-    "taskFailedDetail": "{{name}}の完了に失敗しました。",
-    "taskStarted": "タスクを開始しました",
-    "taskStartedDetail": "{{name}}が正常に開始されました。",
-    "startError": "{{name}}の開始に失敗しました。",
-    "alreadyRunning": "タスクは既に実行中です",
-    "alreadyRunningDetail": "このタスクは既に実行中または保留中です。",
-    "taskCancelled": "タスクがキャンセルされました",
-    "cancelledDetail": "タスクが正常にキャンセルされました。",
-    "cancelFailed": "キャンセルに失敗しました",
-    "cancelError": "タスクのキャンセルに失敗しました。タスクは既に完了または失敗している可能性があります。",
-    "cancelNoId": "IDなしでタスクをキャンセルすることはできません。",
-    "loadError": "タスクの読み込みに失敗しました",
-    "metadataScheduled": "メタデータ更新がスケジュールされました",
-    "metadataScheduledDetail": "選択した本のメタデータ更新が正常にスケジュールされました。",
-    "metadataAlreadyRunningDetail": "メタデータ更新タスクは既に実行中です。完了するまでお待ちください。",
-    "metadataFailed": "メタデータ更新に失敗しました",
-    "metadataFailedDetail": "メタデータ更新のスケジュール中に予期しないエラーが発生しました。しばらくしてからもう一度お試しいただくか、問題が続く場合はサポートにお問い合わせください。"
-  }
+    "title": "システムタスクマネージャー",
+    "description": "ライブラリの保守、メタデータの更新、キャッシュのクリーンアップのための自動化されたシステムタスクを管理します。<a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron式</a>を使用して定期実行をスケジュールします。",
+    "systemTasks": {
+        "sectionTitle": "システムタスク",
+        "sectionDesc": "タスクを手動で実行し、進捗をリアルタイムで監視し、スケジュールされた自動化を設定します。"
+    },
+    "loading": "タスクを読み込み中...",
+    "emptyTitle": "利用可能なタスクがありません",
+    "status": {
+        "running": "実行中",
+        "stale": "停滞",
+        "neverRun": "未実行",
+        "justNow": "たった今"
+    },
+    "cron": {
+        "noSchedule": "スケジュールなし",
+        "edit": "編集",
+        "placeholder": "例: 0 2 * * *",
+        "validationPrefix": "Cron式はちょうど6つのフィールド（秒、分、時、日、月、曜日）が必要です",
+        "invalidField": "無効な{{name}}フィールド: {{value}}",
+        "updateSuccess": "スケジュールタスクの設定が正常に更新されました。",
+        "updateError": "スケジュールタスクの設定の更新に失敗しました。"
+    },
+    "buttons": {
+        "run": "実行",
+        "rerun": "再実行"
+    },
+    "metadataReplace": {
+        "label": "メタデータ置換モード：",
+        "selectMode": "モードを選択",
+        "replaceMissing": "欠損メタデータのみ更新（推奨）",
+        "replaceAll": "すべてのメタデータを置換（既存を上書き）",
+        "replaceMissingDesc": "メタデータ情報が欠損している本のみ更新します。既存のメタデータは保持されます。",
+        "replaceAllDesc": "すでにメタデータがある本も含め、すべての本のメタデータを置換します。既存のデータが上書きされるため、注意して使用してください。"
+    },
+    "progress": {
+        "staleWarning": "このタスクは停止しているようです。5分以上更新がありません。",
+        "statusLabel": "ステータス：",
+        "progressLabel": "進捗：",
+        "startedLabel": "開始：",
+        "processing": "処理中...",
+        "stuckMessage": "タスクが停止しているようです（更新が受信されていません）"
+    },
+    "toast": {
+        "taskQueued": "タスクがキューに入りました",
+        "taskQueuedDetail": "{{name}}がキューに入り、バックグラウンドで実行されます。",
+        "taskCompleted": "タスクが完了しました",
+        "taskCompletedDetail": "{{name}}が正常に完了しました。",
+        "taskFailed": "タスクが失敗しました",
+        "taskFailedDetail": "{{name}}の完了に失敗しました。",
+        "taskStarted": "タスクを開始しました",
+        "taskStartedDetail": "{{name}}が正常に開始されました。",
+        "startError": "{{name}}の開始に失敗しました。",
+        "alreadyRunning": "タスクは既に実行中です",
+        "alreadyRunningDetail": "このタスクは既に実行中または保留中です。",
+        "taskCancelled": "タスクがキャンセルされました",
+        "cancelledDetail": "タスクが正常にキャンセルされました。",
+        "cancelFailed": "キャンセルに失敗しました",
+        "cancelError": "タスクのキャンセルに失敗しました。タスクは既に完了または失敗している可能性があります。",
+        "cancelNoId": "IDなしでタスクをキャンセルすることはできません。",
+        "loadError": "タスクの読み込みに失敗しました",
+        "metadataScheduled": "メタデータ更新がスケジュールされました",
+        "metadataScheduledDetail": "選択した本のメタデータ更新が正常にスケジュールされました。",
+        "metadataAlreadyRunningDetail": "メタデータ更新タスクは既に実行中です。完了するまでお待ちください。",
+        "metadataFailed": "メタデータ更新に失敗しました",
+        "metadataFailedDetail": "メタデータ更新のスケジュール中に予期しないエラーが発生しました。しばらくしてからもう一度お試しいただくか、問題が続く場合はサポートにお問い合わせください。"
+    }
 }
