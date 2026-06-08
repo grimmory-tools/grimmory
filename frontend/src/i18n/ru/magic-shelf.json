@@ -106,10 +106,7 @@
         "seriesGaps": "Пропуски в серии",
         "seriesPosition": "Позиция в серии",
         "readingProgress": "Прогресс чтения (%)",
-        "metadataPresence": "Наличие метаданных",
-        "audiobookBitrate": "",
-        "audiobookCodec": "",
-        "audiobookChapterCount": ""
+        "metadataPresence": "Наличие метаданных"
     },
     "fieldGroups": {
         "organization": "Организация",
@@ -260,10 +257,7 @@
         "comicColorists": "Колористы",
         "comicLetterers": "Леттереры",
         "comicCoverArtists": "Художники обложки",
-        "comicEditors": "Редакторы",
-        "audiobookCodec": "",
-        "audiobookBitrate": "",
-        "audiobookChapterCount": ""
+        "comicEditors": "Редакторы"
     },
     "toast": {
         "validationErrorSummary": "Ошибка валидации",
@@ -272,14 +266,5 @@
         "successDetail": "Умная полка успешно сохранена.",
         "errorSummary": "Ошибка",
         "errorDetailDefault": "Не удалось сохранить умную полку."
-    },
-    "importJson": {
-        "buttonLabel": "",
-        "successDetail": "",
-        "structureError": "",
-        "emptyError": "",
-        "apply": "",
-        "placeholder": "",
-        "parseError": ""
     }
 }

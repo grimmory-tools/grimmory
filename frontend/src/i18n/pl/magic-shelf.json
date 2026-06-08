@@ -106,10 +106,7 @@
         "seriesGaps": "Luki w serii",
         "seriesPosition": "Pozycja w serii",
         "readingProgress": "Postęp czytania (%)",
-        "metadataPresence": "Obecność metadanych",
-        "audiobookBitrate": "",
-        "audiobookCodec": "",
-        "audiobookChapterCount": ""
+        "metadataPresence": "Obecność metadanych"
     },
     "fieldGroups": {
         "organization": "Organizacja",
@@ -260,10 +257,7 @@
         "comicColorists": "Koloryści",
         "comicLetterers": "Liternicy",
         "comicCoverArtists": "Autorzy okładek",
-        "comicEditors": "Redaktorzy",
-        "audiobookCodec": "",
-        "audiobookBitrate": "",
-        "audiobookChapterCount": ""
+        "comicEditors": "Redaktorzy"
     },
     "toast": {
         "validationErrorSummary": "Błąd walidacji",
@@ -272,14 +266,5 @@
         "successDetail": "Inteligentna półka została pomyślnie zapisana.",
         "errorSummary": "Błąd",
         "errorDetailDefault": "Nie udało się zapisać inteligentnej półki."
-    },
-    "importJson": {
-        "buttonLabel": "",
-        "successDetail": "",
-        "structureError": "",
-        "emptyError": "",
-        "apply": "",
-        "placeholder": "",
-        "parseError": ""
     }
 }

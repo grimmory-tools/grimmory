@@ -106,10 +106,7 @@
         "seriesGaps": "シリーズの欠巻",
         "seriesPosition": "シリーズ内の位置",
         "readingProgress": "読書進捗 (%)",
-        "metadataPresence": "メタデータの有無",
-        "audiobookBitrate": "",
-        "audiobookCodec": "",
-        "audiobookChapterCount": ""
+        "metadataPresence": "メタデータの有無"
     },
     "fieldGroups": {
         "organization": "整理",
@@ -260,10 +257,7 @@
         "comicColorists": "カラリスト",
         "comicLetterers": "レタラー",
         "comicCoverArtists": "カバーアーティスト",
-        "comicEditors": "エディター",
-        "audiobookCodec": "",
-        "audiobookBitrate": "",
-        "audiobookChapterCount": ""
+        "comicEditors": "エディター"
     },
     "toast": {
         "validationErrorSummary": "バリデーションエラー",
@@ -272,14 +266,5 @@
         "successDetail": "マジックシェルフが正常に保存されました。",
         "errorSummary": "エラー",
         "errorDetailDefault": "マジックシェルフの保存に失敗しました。"
-    },
-    "importJson": {
-        "buttonLabel": "",
-        "successDetail": "",
-        "structureError": "",
-        "emptyError": "",
-        "apply": "",
-        "placeholder": "",
-        "parseError": ""
     }
 }
