@@ -1,1 +1,34 @@
-{}
+{
+    "title": "",
+    "usernamePlaceholder": "",
+    "toast": {
+        "passwordChanged": "",
+        "profileUpdateFailed": "",
+        "errorNoUser": "",
+        "passwordChangeFailed": "",
+        "profileUpdated": "",
+        "noChanges": ""
+    },
+    "validation": {
+        "passwordMismatch": "",
+        "passwordMinLength": "",
+        "confirmPasswordRequired": "",
+        "currentPasswordRequired": "",
+        "newPasswordRequired": ""
+    },
+    "currentPassword": "",
+    "email": "",
+    "description": "",
+    "username": "",
+    "basicInfo": "",
+    "newPassword": "",
+    "fullNamePlaceholder": "",
+    "editProfile": "",
+    "confirmNewPassword": "",
+    "saveChanges": "",
+    "emailPlaceholder": "",
+    "loading": "",
+    "security": "",
+    "changePassword": "",
+    "fullName": ""
+}
