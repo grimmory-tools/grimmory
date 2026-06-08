@@ -1,4 +1,69 @@
 {
     "title": "Správca úloh systému",
-    "description": "Spravujte automatizované systémové úlohy pre údržbu knižnice, obnovovanie metadát a čistenie vyrovnávacej pamäte. Naplánujte opakujúce sa operácie pomocou <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron výrazov</a>."
+    "description": "Spravujte automatizované systémové úlohy pre údržbu knižnice, obnovovanie metadát a čistenie vyrovnávacej pamäte. Naplánujte opakujúce sa operácie pomocou <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron výrazov</a>.",
+    "toast": {
+        "taskStarted": "",
+        "metadataFailedDetail": "",
+        "alreadyRunningDetail": "",
+        "metadataScheduled": "",
+        "taskQueued": "",
+        "taskFailedDetail": "",
+        "cancelNoId": "",
+        "taskFailed": "",
+        "loadError": "",
+        "taskStartedDetail": "",
+        "taskCompleted": "",
+        "taskCancelled": "",
+        "cancelError": "",
+        "metadataAlreadyRunningDetail": "",
+        "cancelFailed": "",
+        "taskCompletedDetail": "",
+        "cancelledDetail": "",
+        "metadataScheduledDetail": "",
+        "taskQueuedDetail": "",
+        "alreadyRunning": "",
+        "startError": "",
+        "metadataFailed": ""
+    },
+    "systemTasks": {
+        "sectionTitle": "",
+        "sectionDesc": ""
+    },
+    "metadataReplace": {
+        "label": "",
+        "selectMode": "",
+        "replaceMissingDesc": "",
+        "replaceAll": "",
+        "replaceMissing": "",
+        "replaceAllDesc": ""
+    },
+    "status": {
+        "stale": "",
+        "running": "",
+        "neverRun": "",
+        "justNow": ""
+    },
+    "cron": {
+        "edit": "",
+        "validationPrefix": "",
+        "updateSuccess": "",
+        "invalidField": "",
+        "updateError": "",
+        "noSchedule": "",
+        "placeholder": ""
+    },
+    "progress": {
+        "progressLabel": "",
+        "processing": "",
+        "staleWarning": "",
+        "startedLabel": "",
+        "stuckMessage": "",
+        "statusLabel": ""
+    },
+    "buttons": {
+        "rerun": "",
+        "run": ""
+    },
+    "loading": "",
+    "emptyTitle": ""
 }
