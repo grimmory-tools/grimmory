@@ -11,7 +11,34 @@
         "series": "系列",
         "notebook": "笔记本",
         "update": "（更新）",
-        "authors": "作者"
+        "authors": "作者",
+        "documentation": "",
+        "account": "",
+        "search": "",
+        "more": "",
+        "updateAvailable": "",
+        "settings": "",
+        "tools": "",
+        "editSidebar": "",
+        "toggleNavigation": "",
+        "add": "",
+        "expandSidebar": "",
+        "resizeSidebar": "",
+        "goToDashboard": "",
+        "doneEditing": "",
+        "notifications": "",
+        "createMagicShelf": "",
+        "collapseSidebar": "",
+        "uploadBook": "",
+        "primaryNav": "",
+        "libraryStats": "",
+        "versionCopyFailed": "",
+        "profile": "",
+        "readingStats": "",
+        "bookdrop": "",
+        "createLibrary": "",
+        "metadataManager": "",
+        "versionCopied": ""
     },
     "closeNavigation": "关闭导航",
     "changelog": {
@@ -22,6 +49,46 @@
     },
     "theme": {
         "primary": "主色",
-        "surface": "表面色"
+        "surface": "表面色",
+        "options": {
+            "violet": "",
+            "crimson": "",
+            "cobalt": "",
+            "teal": "",
+            "forest": "",
+            "slate": "",
+            "grimmory": "",
+            "custom": "",
+            "meadow": "",
+            "ember": "",
+            "fuchsia": "",
+            "rose": "",
+            "lagoon": ""
+        },
+        "light": "",
+        "dark": "",
+        "theme": "",
+        "mode": "",
+        "appearance": "",
+        "syncAcrossDevices": "",
+        "system": "",
+        "customPrimary": ""
+    },
+    "commandPalette": {
+        "groups": {
+            "shelf": "",
+            "series": "",
+            "page": "",
+            "author": "",
+            "magicShelf": "",
+            "library": "",
+            "action": "",
+            "book": ""
+        },
+        "hintSelect": "",
+        "ariaLabel": "",
+        "empty": "",
+        "placeholder": "",
+        "hintNavigate": ""
     }
 }
