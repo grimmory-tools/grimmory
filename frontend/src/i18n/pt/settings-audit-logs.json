@@ -1,19 +1,19 @@
 {
-  "title": "Logs de Auditoria",
-  "description": "Visualize um registro de ações administrativas significativas realizadas no sistema.",
-  "sectionTitle": "Log de Atividades",
-  "filterPlaceholder": "Filtrar por ação",
-  "userFilterPlaceholder": "Filtrar por usuário",
-  "dateRangePlaceholder": "Filtrar por intervalo de datas",
-  "clearFilters": "Limpar todos os filtros",
-  "autoRefresh": "Atualização automática (10s)",
-  "pageReport": "Mostrando {first} a {last} de {totalRecords} registros",
-  "empty": "Nenhum log de auditoria encontrado",
-  "columns": {
-    "timestamp": "Quando",
-    "user": "Usuário",
-    "action": "Ação",
-    "description": "Descrição",
-    "ip": "Endereço IP"
-  }
+    "title": "Logs de Auditoria",
+    "description": "Visualize um registro de ações administrativas significativas realizadas no sistema.",
+    "sectionTitle": "Log de Atividades",
+    "filterPlaceholder": "Filtrar por ação",
+    "userFilterPlaceholder": "Filtrar por usuário",
+    "dateRangePlaceholder": "Filtrar por intervalo de datas",
+    "clearFilters": "Limpar todos os filtros",
+    "autoRefresh": "Atualização automática (10s)",
+    "pageReport": "Mostrando {first} a {last} de {totalRecords} registros",
+    "empty": "Nenhum log de auditoria encontrado",
+    "columns": {
+        "timestamp": "Quando",
+        "user": "Usuário",
+        "action": "Ação",
+        "description": "Descrição",
+        "ip": "Endereço IP"
+    }
 }
