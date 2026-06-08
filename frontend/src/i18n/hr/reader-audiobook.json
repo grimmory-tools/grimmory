@@ -1,64 +1,64 @@
 {
-  "loading": "Učitavanje audioknjige...",
-  "untitled": "Bez naslova",
-  "unknownAuthor": "Nepoznati autor",
-  "coverAlt": "Naslovnica",
-  "header": {
-    "backTooltip": "Natrag",
-    "bookmarksTooltip": "Knjižne oznake",
-    "chaptersTracksTooltip": "Poglavlja/Zapisi"
-  },
-  "trackInfo": {
-    "trackOf": "Zapis {{ current }} od {{ total }}",
-    "chapterOf": "Poglavlje {{ current }} od {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Prethodni zapis",
-    "previousChapterTooltip": "Prethodno poglavlje",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Sljedeći zapis",
-    "nextChapterTooltip": "Sljedeće poglavlje"
-  },
-  "extra": {
-    "addBookmark": "Dodaj knjižnu oznaku",
-    "sleepTimer": "Tajmer za spavanje",
-    "endOfChapter": "Kraj poglavlja"
-  },
-  "details": {
-    "narratedBy": "Čita {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} ukupno"
-  },
-  "sidebar": {
-    "tracks": "Zapisi",
-    "chapters": "Poglavlja"
-  },
-  "bookmarks": {
-    "title": "Knjižne oznake",
-    "empty": "Još nema knjižnih oznaka",
-    "emptyHint": "Dodajte knjižnu oznaku da sačuvate svoje mjesto",
-    "deleteTooltip": "Obriši",
-    "bookmarkAt": "Knjižna oznaka na {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minuta",
-    "minutes30": "30 minuta",
-    "minutes45": "45 minuta",
-    "minutes60": "60 minuta",
-    "endOfChapter": "Kraj poglavlja",
-    "cancelTimer": "Otkaži tajmer"
-  },
-  "toast": {
-    "loadFailed": "Učitavanje audioknjige nije uspjelo",
-    "audioLoadFailed": "Učitavanje zvuka nije uspjelo",
-    "sleepTimerSet": "Reprodukcija će se zaustaviti za {{ minutes }} minuta",
-    "sleepTimerEndOfChapter": "Reprodukcija će se zaustaviti na kraju poglavlja",
-    "sleepTimerStopped": "Reprodukcija zaustavljena tajmerom za spavanje",
-    "bookmarkAdded": "Knjižna oznaka dodana",
-    "bookmarkExists": "Knjižna oznaka postoji",
-    "bookmarkExistsDetail": "Knjižna oznaka već postoji na ovoj poziciji",
-    "bookmarkFailed": "Dodavanje knjižne oznake nije uspjelo",
-    "bookmarkDeleted": "Knjižna oznaka obrisana"
-  }
+    "loading": "Učitavanje audioknjige...",
+    "untitled": "Bez naslova",
+    "unknownAuthor": "Nepoznati autor",
+    "coverAlt": "Naslovnica",
+    "header": {
+        "backTooltip": "Natrag",
+        "bookmarksTooltip": "Knjižne oznake",
+        "chaptersTracksTooltip": "Poglavlja/Zapisi"
+    },
+    "trackInfo": {
+        "trackOf": "Zapis {{ current }} od {{ total }}",
+        "chapterOf": "Poglavlje {{ current }} od {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Prethodni zapis",
+        "previousChapterTooltip": "Prethodno poglavlje",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Sljedeći zapis",
+        "nextChapterTooltip": "Sljedeće poglavlje"
+    },
+    "extra": {
+        "addBookmark": "Dodaj knjižnu oznaku",
+        "sleepTimer": "Tajmer za spavanje",
+        "endOfChapter": "Kraj poglavlja"
+    },
+    "details": {
+        "narratedBy": "Čita {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} ukupno"
+    },
+    "sidebar": {
+        "tracks": "Zapisi",
+        "chapters": "Poglavlja"
+    },
+    "bookmarks": {
+        "title": "Knjižne oznake",
+        "empty": "Još nema knjižnih oznaka",
+        "emptyHint": "Dodajte knjižnu oznaku da sačuvate svoje mjesto",
+        "deleteTooltip": "Obriši",
+        "bookmarkAt": "Knjižna oznaka na {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minuta",
+        "minutes30": "30 minuta",
+        "minutes45": "45 minuta",
+        "minutes60": "60 minuta",
+        "endOfChapter": "Kraj poglavlja",
+        "cancelTimer": "Otkaži tajmer"
+    },
+    "toast": {
+        "loadFailed": "Učitavanje audioknjige nije uspjelo",
+        "audioLoadFailed": "Učitavanje zvuka nije uspjelo",
+        "sleepTimerSet": "Reprodukcija će se zaustaviti za {{ minutes }} minuta",
+        "sleepTimerEndOfChapter": "Reprodukcija će se zaustaviti na kraju poglavlja",
+        "sleepTimerStopped": "Reprodukcija zaustavljena tajmerom za spavanje",
+        "bookmarkAdded": "Knjižna oznaka dodana",
+        "bookmarkExists": "Knjižna oznaka postoji",
+        "bookmarkExistsDetail": "Knjižna oznaka već postoji na ovoj poziciji",
+        "bookmarkFailed": "Dodavanje knjižne oznake nije uspjelo",
+        "bookmarkDeleted": "Knjižna oznaka obrisana"
+    }
 }
