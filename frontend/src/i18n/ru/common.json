@@ -23,5 +23,13 @@
     "discard": "Отменить изменения",
     "review": "Просмотреть",
     "displaySettings": "Настройки отображения",
-    "cardSize": "Размер карточки"
+    "cardSize": "Размер карточки",
+    "on": "",
+    "off": "",
+    "moreActionsFor": "",
+    "cardSizeControls": "",
+    "libraryPathInaccessible": "",
+    "decreaseCardSize": "",
+    "dialogLoadError": "",
+    "increaseCardSize": ""
 }
