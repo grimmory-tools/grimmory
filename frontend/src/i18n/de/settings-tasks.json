@@ -1,69 +1,69 @@
 {
-  "title": "System-Aufgabenverwaltung",
-  "description": "Verwalten Sie automatisierte Systemaufgaben für Bibliothekswartung, Metadaten-Aktualisierung und Cache-Bereinigung. Planen Sie wiederkehrende Vorgänge mit <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring-Cron-Ausdrücken</a>.",
-  "systemTasks": {
-    "sectionTitle": "Systemaufgaben",
-    "sectionDesc": "Führen Sie Aufgaben manuell aus, überwachen Sie den Fortschritt in Echtzeit und konfigurieren Sie geplante Automatisierungen."
-  },
-  "loading": "Aufgaben werden geladen...",
-  "emptyTitle": "Keine Aufgaben verfügbar",
-  "status": {
-    "running": "Wird ausgeführt",
-    "stale": "Inaktiv",
-    "neverRun": "Noch nie ausgeführt",
-    "justNow": "Gerade eben"
-  },
-  "cron": {
-    "noSchedule": "Kein Zeitplan",
-    "edit": "Bearbeiten",
-    "placeholder": "z.B. 0 2 * * *",
-    "validationPrefix": "Der Cron-Ausdruck muss genau 6 Felder haben (Sekunden, Minuten, Stunden, Tag, Monat, Wochentag)",
-    "invalidField": "Ungültiges {{name}}-Feld: {{value}}",
-    "updateSuccess": "Geplante Aufgabenkonfiguration wurde erfolgreich aktualisiert.",
-    "updateError": "Geplante Aufgabenkonfiguration konnte nicht aktualisiert werden."
-  },
-  "buttons": {
-    "run": "Ausführen",
-    "rerun": "Erneut ausführen"
-  },
-  "metadataReplace": {
-    "label": "Metadaten-Ersetzungsmodus:",
-    "selectMode": "Modus auswählen",
-    "replaceMissing": "Nur fehlende Metadaten aktualisieren (empfohlen)",
-    "replaceAll": "Alle Metadaten ersetzen (vorhandene überschreiben)",
-    "replaceMissingDesc": "Nur Bücher aktualisieren, denen Metadateninformationen fehlen. Vorhandene Metadaten bleiben erhalten.",
-    "replaceAllDesc": "Alle Metadaten für alle Bücher ersetzen, auch wenn sie bereits Metadaten haben. Verwenden Sie diese Option mit Vorsicht, da vorhandene Daten überschrieben werden."
-  },
-  "progress": {
-    "staleWarning": "Diese Aufgabe scheint zu hängen. Seit über 5 Minuten wurden keine Aktualisierungen empfangen.",
-    "statusLabel": "Status:",
-    "progressLabel": "Fortschritt:",
-    "startedLabel": "Gestartet:",
-    "processing": "Wird verarbeitet...",
-    "stuckMessage": "Aufgabe scheint zu hängen (keine Aktualisierungen empfangen)"
-  },
-  "toast": {
-    "taskQueued": "Aufgabe eingereiht",
-    "taskQueuedDetail": "{{name}} wurde eingereiht und wird im Hintergrund ausgeführt.",
-    "taskCompleted": "Aufgabe abgeschlossen",
-    "taskCompletedDetail": "{{name}} wurde erfolgreich abgeschlossen.",
-    "taskFailed": "Aufgabe fehlgeschlagen",
-    "taskFailedDetail": "{{name}} konnte nicht abgeschlossen werden.",
-    "taskStarted": "Aufgabe gestartet",
-    "taskStartedDetail": "{{name}} wurde erfolgreich gestartet.",
-    "startError": "{{name}} konnte nicht gestartet werden.",
-    "alreadyRunning": "Aufgabe wird bereits ausgeführt",
-    "alreadyRunningDetail": "Diese Aufgabe wird bereits ausgeführt oder steht aus.",
-    "taskCancelled": "Aufgabe abgebrochen",
-    "cancelledDetail": "Aufgabe wurde erfolgreich abgebrochen.",
-    "cancelFailed": "Abbruch fehlgeschlagen",
-    "cancelError": "Aufgabe konnte nicht abgebrochen werden. Die Aufgabe ist möglicherweise bereits abgeschlossen oder fehlgeschlagen.",
-    "cancelNoId": "Aufgabe kann ohne ID nicht abgebrochen werden.",
-    "loadError": "Aufgaben konnten nicht geladen werden",
-    "metadataScheduled": "Metadaten-Aktualisierung geplant",
-    "metadataScheduledDetail": "Die Metadaten-Aktualisierung für die ausgewählten Bücher wurde erfolgreich geplant.",
-    "metadataAlreadyRunningDetail": "Eine Metadaten-Aktualisierung wird bereits ausgeführt. Bitte warten Sie, bis sie abgeschlossen ist, bevor Sie eine weitere starten.",
-    "metadataFailed": "Metadaten-Aktualisierung fehlgeschlagen",
-    "metadataFailedDetail": "Beim Planen der Metadaten-Aktualisierung ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht."
-  }
+    "title": "System-Aufgabenverwaltung",
+    "description": "Verwalten Sie automatisierte Systemaufgaben für Bibliothekswartung, Metadaten-Aktualisierung und Cache-Bereinigung. Planen Sie wiederkehrende Vorgänge mit <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring-Cron-Ausdrücken</a>.",
+    "systemTasks": {
+        "sectionTitle": "Systemaufgaben",
+        "sectionDesc": "Führen Sie Aufgaben manuell aus, überwachen Sie den Fortschritt in Echtzeit und konfigurieren Sie geplante Automatisierungen."
+    },
+    "loading": "Aufgaben werden geladen...",
+    "emptyTitle": "Keine Aufgaben verfügbar",
+    "status": {
+        "running": "Wird ausgeführt",
+        "stale": "Inaktiv",
+        "neverRun": "Noch nie ausgeführt",
+        "justNow": "Gerade eben"
+    },
+    "cron": {
+        "noSchedule": "Kein Zeitplan",
+        "edit": "Bearbeiten",
+        "placeholder": "z.B. 0 2 * * *",
+        "validationPrefix": "Der Cron-Ausdruck muss genau 6 Felder haben (Sekunden, Minuten, Stunden, Tag, Monat, Wochentag)",
+        "invalidField": "Ungültiges {{name}}-Feld: {{value}}",
+        "updateSuccess": "Geplante Aufgabenkonfiguration wurde erfolgreich aktualisiert.",
+        "updateError": "Geplante Aufgabenkonfiguration konnte nicht aktualisiert werden."
+    },
+    "buttons": {
+        "run": "Ausführen",
+        "rerun": "Erneut ausführen"
+    },
+    "metadataReplace": {
+        "label": "Metadaten-Ersetzungsmodus:",
+        "selectMode": "Modus auswählen",
+        "replaceMissing": "Nur fehlende Metadaten aktualisieren (empfohlen)",
+        "replaceAll": "Alle Metadaten ersetzen (vorhandene überschreiben)",
+        "replaceMissingDesc": "Nur Bücher aktualisieren, denen Metadateninformationen fehlen. Vorhandene Metadaten bleiben erhalten.",
+        "replaceAllDesc": "Alle Metadaten für alle Bücher ersetzen, auch wenn sie bereits Metadaten haben. Verwenden Sie diese Option mit Vorsicht, da vorhandene Daten überschrieben werden."
+    },
+    "progress": {
+        "staleWarning": "Diese Aufgabe scheint zu hängen. Seit über 5 Minuten wurden keine Aktualisierungen empfangen.",
+        "statusLabel": "Status:",
+        "progressLabel": "Fortschritt:",
+        "startedLabel": "Gestartet:",
+        "processing": "Wird verarbeitet...",
+        "stuckMessage": "Aufgabe scheint zu hängen (keine Aktualisierungen empfangen)"
+    },
+    "toast": {
+        "taskQueued": "Aufgabe eingereiht",
+        "taskQueuedDetail": "{{name}} wurde eingereiht und wird im Hintergrund ausgeführt.",
+        "taskCompleted": "Aufgabe abgeschlossen",
+        "taskCompletedDetail": "{{name}} wurde erfolgreich abgeschlossen.",
+        "taskFailed": "Aufgabe fehlgeschlagen",
+        "taskFailedDetail": "{{name}} konnte nicht abgeschlossen werden.",
+        "taskStarted": "Aufgabe gestartet",
+        "taskStartedDetail": "{{name}} wurde erfolgreich gestartet.",
+        "startError": "{{name}} konnte nicht gestartet werden.",
+        "alreadyRunning": "Aufgabe wird bereits ausgeführt",
+        "alreadyRunningDetail": "Diese Aufgabe wird bereits ausgeführt oder steht aus.",
+        "taskCancelled": "Aufgabe abgebrochen",
+        "cancelledDetail": "Aufgabe wurde erfolgreich abgebrochen.",
+        "cancelFailed": "Abbruch fehlgeschlagen",
+        "cancelError": "Aufgabe konnte nicht abgebrochen werden. Die Aufgabe ist möglicherweise bereits abgeschlossen oder fehlgeschlagen.",
+        "cancelNoId": "Aufgabe kann ohne ID nicht abgebrochen werden.",
+        "loadError": "Aufgaben konnten nicht geladen werden",
+        "metadataScheduled": "Metadaten-Aktualisierung geplant",
+        "metadataScheduledDetail": "Die Metadaten-Aktualisierung für die ausgewählten Bücher wurde erfolgreich geplant.",
+        "metadataAlreadyRunningDetail": "Eine Metadaten-Aktualisierung wird bereits ausgeführt. Bitte warten Sie, bis sie abgeschlossen ist, bevor Sie eine weitere starten.",
+        "metadataFailed": "Metadaten-Aktualisierung fehlgeschlagen",
+        "metadataFailedDetail": "Beim Planen der Metadaten-Aktualisierung ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht."
+    }
 }
