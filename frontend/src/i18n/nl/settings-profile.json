@@ -1,34 +1,34 @@
 {
-  "title": "Gebruikersprofiel",
-  "description": "Beheer uw accountgegevens en beveiligingsinstellingen",
-  "basicInfo": "Basisgegevens",
-  "username": "Gebruikersnaam",
-  "usernamePlaceholder": "Gebruikersnaam...",
-  "fullName": "Volledige naam",
-  "fullNamePlaceholder": "Voer volledige naam in...",
-  "email": "E-mail",
-  "emailPlaceholder": "Voer e-mail in...",
-  "editProfile": "Profiel bewerken",
-  "saveChanges": "Wijzigingen opslaan",
-  "security": "Beveiligingsinstellingen",
-  "currentPassword": "Huidig wachtwoord",
-  "newPassword": "Nieuw wachtwoord",
-  "confirmNewPassword": "Nieuw wachtwoord bevestigen",
-  "changePassword": "Wachtwoord wijzigen",
-  "loading": "Gebruikersgegevens laden...",
-  "validation": {
-    "currentPasswordRequired": "Huidig wachtwoord is vereist.",
-    "newPasswordRequired": "Nieuw wachtwoord is vereist.",
-    "passwordMinLength": "Wachtwoord moet minimaal 6 tekens bevatten.",
-    "confirmPasswordRequired": "Bevestig uw nieuwe wachtwoord.",
-    "passwordMismatch": "Wachtwoorden komen niet overeen."
-  },
-  "toast": {
-    "errorNoUser": "Gebruikersgegevens niet beschikbaar.",
-    "noChanges": "Geen wijzigingen gedetecteerd.",
-    "profileUpdated": "Profiel succesvol bijgewerkt",
-    "profileUpdateFailed": "Kon profiel niet bijwerken",
-    "passwordChanged": "Wachtwoord succesvol gewijzigd",
-    "passwordChangeFailed": "Kon wachtwoord niet wijzigen"
-  }
+    "title": "Gebruikersprofiel",
+    "description": "Beheer uw accountgegevens en beveiligingsinstellingen",
+    "basicInfo": "Basisgegevens",
+    "username": "Gebruikersnaam",
+    "usernamePlaceholder": "Gebruikersnaam...",
+    "fullName": "Volledige naam",
+    "fullNamePlaceholder": "Voer volledige naam in...",
+    "email": "E-mail",
+    "emailPlaceholder": "Voer e-mail in...",
+    "editProfile": "Profiel bewerken",
+    "saveChanges": "Wijzigingen opslaan",
+    "security": "Beveiligingsinstellingen",
+    "currentPassword": "Huidig wachtwoord",
+    "newPassword": "Nieuw wachtwoord",
+    "confirmNewPassword": "Nieuw wachtwoord bevestigen",
+    "changePassword": "Wachtwoord wijzigen",
+    "loading": "Gebruikersgegevens laden...",
+    "validation": {
+        "currentPasswordRequired": "Huidig wachtwoord is vereist.",
+        "newPasswordRequired": "Nieuw wachtwoord is vereist.",
+        "passwordMinLength": "Wachtwoord moet minimaal 6 tekens bevatten.",
+        "confirmPasswordRequired": "Bevestig uw nieuwe wachtwoord.",
+        "passwordMismatch": "Wachtwoorden komen niet overeen."
+    },
+    "toast": {
+        "errorNoUser": "Gebruikersgegevens niet beschikbaar.",
+        "noChanges": "Geen wijzigingen gedetecteerd.",
+        "profileUpdated": "Profiel succesvol bijgewerkt",
+        "profileUpdateFailed": "Kon profiel niet bijwerken",
+        "passwordChanged": "Wachtwoord succesvol gewijzigd",
+        "passwordChangeFailed": "Kon wachtwoord niet wijzigen"
+    }
 }
