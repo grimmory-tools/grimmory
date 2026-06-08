@@ -230,8 +230,7 @@
         "duration": "Dauer",
         "totalDuration": "Gesamtdauer",
         "noChapters": "Keine Kapitelinformationen verfügbar.",
-        "fileName": "Datei",
-        "detachTooltip": ""
+        "fileName": "Datei"
     },
     "viewer": {
         "metadataLocked": "Die Metadaten dieses Buches sind gesperrt.",
@@ -391,15 +390,11 @@
             "detachFileCopyMetadata": "Metadaten in neues Buch kopieren",
             "largeFileMessage": "Diese Datei ist größer als 25 MB. Manche E-Mail-Anbieter lehnen große Anhänge möglicherweise ab.\n\nMöchtest du sie trotzdem senden?",
             "largeFileHeader": "Warnung: Große Datei",
-            "sendAnyway": "Trotzdem senden",
-            "detachFileHeader": "",
-            "detachFileBtn": ""
+            "sendAnyway": "Trotzdem senden"
         },
         "audiobookAbridged": "Gekürzt",
         "menuMarkPhysical": "Als physisch markieren",
-        "menuUnmarkPhysical": "Markierung als physisch entfernen",
-        "firstAuthorBadge": "",
-        "shelvesLabel": ""
+        "menuUnmarkPhysical": "Markierung als physisch entfernen"
     },
     "sidecar": {
         "title": "Sidecar-Metadaten",
@@ -510,10 +505,7 @@
             "authors": "Autoren",
             "genres": "Genres",
             "seriesPlural": "Serien",
-            "languages": "Sprachen",
-            "publishers": "",
-            "tags": "",
-            "moods": ""
+            "languages": "Sprachen"
         },
         "placeholders": {
             "searchAuthors": "Autoren suchen...",

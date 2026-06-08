@@ -396,10 +396,7 @@
             "sendAnyway": "Svejedno pošalji"
         },
         "audiobookAbridged": "Skraćeno",
-        "firstAuthorBadge": "GLAVNI",
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "shelvesLabel": ""
+        "firstAuthorBadge": "GLAVNI"
     },
     "sidecar": {
         "title": "Prateći metapodaci",
@@ -506,14 +503,7 @@
             "tag": "Oznaka",
             "series": "Serijal",
             "publisher": "Izdavač",
-            "language": "Jezik",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "language": "Jezik"
         },
         "placeholders": {
             "searchAuthors": "Pretraži autore...",
