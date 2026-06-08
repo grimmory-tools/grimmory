@@ -14,7 +14,7 @@
   --sidebar-header-padding-inline-start: var(--space-2);
   --sidebar-header-padding-inline-end: var(--space-1);
   --sidebar-header-gap-after: var(--space-2);
-  --sidebar-row-min-height: 2.25rem;
+  --sidebar-row-min-height: 1.9688rem;
   --sidebar-row-padding-block: var(--space-2);
   --sidebar-row-padding-inline-start: var(--space-2);
   --sidebar-row-padding-inline-end: var(--space-1);
@@ -25,10 +25,10 @@
   --sidebar-group-gap: var(--space-3);
   --sidebar-section-spacing-before: var(--space-3);
   --sidebar-section-spacing-after: var(--space-1);
-  --sidebar-section-min-height: 1.25rem;
+  --sidebar-section-min-height: 1.0938rem;
   --sidebar-section-inline-start: var(--space-2);
   --sidebar-section-inline-end: var(--space-3);
-  --sidebar-section-font-size: var(--text-xs);
+  --sidebar-section-font-size: var(--app-text-xs);
   --sidebar-section-font-weight: 500;
   --sidebar-focus-ring: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 50%, transparent);
 
@@ -98,7 +98,7 @@ body.layout-resizing-cursor {
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-sm);
     color: var(--color-text);
-    font-size: var(--text-base);
+    font-size: var(--app-text-base);
     cursor: pointer;
 
     &:hover {
@@ -157,7 +157,7 @@ body.layout-resizing-cursor {
     display: block;
     width: 100%;
     height: 1px;
-    margin: 0 0.4rem;
+    margin: 0 0.35rem;
     background-color: var(--color-border);
   }
 

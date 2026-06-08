@@ -29,11 +29,11 @@
   }
 
   > .app-button {
-    --app-button-padding-x: 1rem;
+    --app-button-padding-x: 0.875rem;
   }
 
   > .app-button-icon {
-    width: calc(var(--app-button-height) + 0.375rem);
+    width: calc(var(--app-button-height) + 0.3281rem);
   }
 
   > .app-button-primary {

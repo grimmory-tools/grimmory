@@ -38,14 +38,14 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .author-header {
   display: flex;
-  gap: 1.5rem;
-  padding: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1.3125rem;
+  padding: 0.4375rem;
+  margin-bottom: 1.3125rem;
 
   @media (width <= 767px) {
     flex-direction: column;
@@ -82,7 +82,7 @@
   color: var(--color-text-secondary);
 
   i {
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 
   @media (width <= 767px) {
@@ -96,13 +96,13 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .author-title-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6563rem;
   flex-wrap: wrap;
 
   @media (width <= 767px) {
@@ -121,18 +121,18 @@
 }
 
 .author-title {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 800;
   line-height: 1.25;
   margin: 0;
 
   @media (width >= 768px) {
-    font-size: 1.875rem;
+    font-size: 1.6406rem;
   }
 }
 
 .description-box {
-  padding: 1rem 0.5rem 0.5rem;
+  padding: 0.875rem 0.4375rem 0.4375rem;
 
   @media (width <= 767px) {
     text-align: left;
@@ -145,7 +145,7 @@
 }
 
 .readonly-editor {
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   color: var(--color-text-secondary);
   line-height: 1.6;
   white-space: pre-wrap;
@@ -156,13 +156,13 @@
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  padding: 0 0.5rem;
+  padding: 0 0.4375rem;
 }
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 0.9625rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   color: var(--color-text);
 }
 
@@ -179,18 +179,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3rem;
+  padding: 2.625rem;
   text-align: center;
 
   i {
-    font-size: 2.5rem;
+    font-size: 2.1875rem;
     color: var(--color-text-secondary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6563rem;
   }
 
   p {
     color: var(--color-text-secondary);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     margin: 0;
   }
 }

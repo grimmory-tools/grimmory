@@ -15,7 +15,7 @@
 .dialog-content {
   height: calc(95dvh - 90px - 80px);
   overflow-y: auto;
-  padding: 1rem;
+  padding: 0.875rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
@@ -28,8 +28,8 @@
   }
 
   .spinner {
-    width: 2rem;
-    height: 2rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 
@@ -46,7 +46,7 @@
   .progress-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     cursor: help;
     transition: all 0.3s ease;
 
@@ -56,8 +56,8 @@
   }
 
   .progress-bar {
-    width: 10rem;
-    height: 0.75rem;
+    width: 8.75rem;
+    height: 0.6563rem;
 
     @media (width <= 640px) {
       width: 100%;
@@ -65,7 +65,7 @@
   }
 
   .progress-text {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     font-weight: 500;
     color: var(--text-secondary-color);
     white-space: nowrap;
@@ -75,7 +75,7 @@
   .footer-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     justify-content: flex-end;
   }
 

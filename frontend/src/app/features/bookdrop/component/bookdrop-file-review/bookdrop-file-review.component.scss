@@ -14,31 +14,31 @@
 }
 
 .header {
-  padding: 1.5rem;
+  padding: 1.3125rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--p-content-border-color);
-  gap: 1rem;
+  gap: 0.875rem;
 
   @media #{variables.$mobile-shell-media-query} {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 }
 
 .header-content {
   h2 {
-    font-size: 1.25rem;
+    font-size: 1.0938rem;
     font-weight: 600;
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.2188rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4375rem;
   }
 
   p {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     color: var(--color-text-secondary);
 
     strong {
@@ -64,7 +64,7 @@
 .external-link-icon {
   color: rgb(2 132 199);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
 }
 
 .card-body {
@@ -89,7 +89,7 @@
   align-items: center;
 
   > * + * {
-    margin-top: 0.75rem;
+    margin-top: 0.6563rem;
   }
 
   span {
@@ -97,13 +97,13 @@
   }
 
   p-progressspinner {
-    width: 2rem;
-    height: 2rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 
 .controls-section {
-  padding: 1rem;
+  padding: 0.875rem;
   margin: 0;
   border-bottom: 1px solid var(--p-content-border-color);
 }
@@ -119,22 +119,22 @@
   z-index: 50;
 
   > * + * {
-    margin-top: 0.75rem;
+    margin-top: 0.6563rem;
   }
 
   p-progressspinner {
-    width: 2rem;
-    height: 2rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 
 .saving-message {
   background: var(--color-card);
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 0.3281rem;
 
   span {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     color: var(--color-text);
     text-align: center;
   }
@@ -144,11 +144,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.875rem;
   flex-wrap: wrap;
 
   label {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     color: var(--color-text-secondary);
     font-weight: 500;
   }
@@ -157,12 +157,12 @@
 .default-controls {
   display: flex;
   flex-grow: 1;
-  gap: 1rem;
+  gap: 0.875rem;
   align-items: center;
   justify-content: flex-end;
 
   p-select {
-    width: 8rem;
+    width: 7rem;
   }
 
   @media #{variables.$mobile-shell-media-query} {
@@ -212,7 +212,7 @@ p-inputgroup.disabled {
 
 .action-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
   align-items: center;
 
   @media (width <= 640px) {
@@ -232,7 +232,7 @@ p-inputgroup.disabled {
     }
 
     p-button.bulkedit, p-button.extractpattern {
-      width: calc(50% - 0.5rem);
+      width: calc(50% - 0.4375rem);
 
       ::ng-deep button {
         width: 100%;
@@ -254,7 +254,7 @@ p-inputgroup.disabled {
   justify-content: center;
   color: var(--color-text-secondary);
   font-style: italic;
-  padding: 2rem 0;
+  padding: 1.75rem 0;
 }
 
 .file-item {
@@ -265,9 +265,9 @@ p-inputgroup.disabled {
 .file-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.875rem;
   border-bottom: 1px solid var(--color-border);
-  padding: 1rem;
+  padding: 0.875rem;
   flex-wrap: wrap;
 }
 
@@ -276,13 +276,13 @@ p-inputgroup.disabled {
 }
 
 .status-indicator {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
 }
 
 .cover-image {
-  width: 1.5rem;
-  height: 2rem;
-  border-radius: 0.125rem;
+  width: 1.3125rem;
+  height: 1.75rem;
+  border-radius: 0.1094rem;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s;
@@ -301,13 +301,13 @@ div.cover-image {
   display: block;
   background-color: rgb(255 255 255 / 10%);
   text-align: center;
-  line-height: 2rem;
+  line-height: 1.75rem;
 }
 
 .file-name {
   flex: 1;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: wrap;
@@ -333,7 +333,7 @@ div.cover-image {
 
 .file-library {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
   justify-content: flex-end;
   align-items: center;
 
@@ -344,7 +344,7 @@ div.cover-image {
 
 .library-select,
 .path-select {
-  width: 8rem;
+  width: 7rem;
 
   @media #{variables.$mobile-shell-media-query} {
     flex-basis: 50%;
@@ -356,11 +356,11 @@ div.cover-image {
 }
 
 .footer, .footer-mobile {
-  padding: 1rem;
+  padding: 0.875rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .footer {
@@ -382,7 +382,7 @@ div.cover-image {
 .footer-left,
 .footer-right {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
   align-items: center;
 }
 
@@ -428,17 +428,17 @@ div.cover-image {
 }
 
 .spacer {
-  min-width: 10rem;
+  min-width: 8.75rem;
 }
 
 .icon-padding-left {
-  padding-left: 0.5rem;
+  padding-left: 0.4375rem;
 }
 
 .cover-placeholder {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
 }
 
 .selected-count-label {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
 }

@@ -19,7 +19,7 @@
 .section-notice {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .warning-notice {
@@ -90,21 +90,21 @@
 }
 
 .sidecar-section-header {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1.3125rem;
+  padding-top: 1.3125rem;
   border-top: 1px solid var(--border-color);
 }
 
 .nested-setting {
-  margin-left: 1.5rem;
-  padding-left: 1rem;
+  margin-left: 1.3125rem;
+  padding-left: 0.875rem;
   border-left: 2px solid var(--border-color);
 }
 
 code {
   background: var(--ground-background);
-  padding: 0.125rem 0.375rem;
+  padding: 0.1094rem 0.3281rem;
   border-radius: 4px;
   font-family: monospace;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
 }

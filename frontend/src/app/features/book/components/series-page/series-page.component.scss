@@ -40,7 +40,7 @@
 
 .series-details {
   > * + * {
-    margin-top: 1rem;
+    margin-top: 0.875rem;
   }
 }
 
@@ -48,8 +48,8 @@
 
 .series-hero {
   display: flex;
-  gap: 1.5rem;
-  padding: 0.5rem;
+  gap: 1.3125rem;
+  padding: 0.4375rem;
   align-items: stretch;
 
   @media #{variables.$mobile-shell-media-query} {
@@ -87,22 +87,22 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .series-title {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 800;
   line-height: 1.25;
   margin: 0;
 
   @media (width >= 768px) {
-    font-size: 1.875rem;
+    font-size: 1.6406rem;
   }
 }
 
 .series-authors {
-  font-size: 1rem;
+  font-size: var(--app-text-base);
   margin: 0;
 }
 
@@ -120,8 +120,8 @@
 .metadata-cards {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
+  gap: 0.35rem;
+  margin-top: 0.4375rem;
 
   @media (width <= 767px) {
     justify-content: center;
@@ -131,16 +131,16 @@
 .meta-card {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 0.4rem;
-  font-size: 0.85rem;
+  gap: 0.3063rem;
+  padding: 0.3063rem 0.6125rem;
+  border-radius: 0.35rem;
+  font-size: 0.7438rem;
   font-weight: 600;
   border: 1px solid;
   white-space: nowrap;
 
   i {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 }
 
@@ -196,7 +196,7 @@ $meta-card-colors: (
 .ratings-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 
   @media (width <= 767px) {
     justify-content: center;
@@ -206,16 +206,16 @@ $meta-card-colors: (
 .rating-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.375rem;
+  gap: 0.2625rem;
+  padding: 0.2188rem 0.525rem;
+  border-radius: 0.3281rem;
   background: color-mix(in srgb, var(--color-border), transparent 50%);
   border: 1px solid var(--color-border);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .rating-icon {
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
 
   &.personal { color: var(--color-yellow-400); }
   &.goodreads { color: var(--color-violet-500); }
@@ -230,7 +230,7 @@ $meta-card-colors: (
 
 .rating-label {
   color: var(--color-text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.6125rem;
 }
 
 // ── Categories ──
@@ -242,7 +242,7 @@ $meta-card-colors: (
 
 .categories-list {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   width: max-content;
 
   @media (width <= 767px) {
@@ -261,9 +261,9 @@ $meta-card-colors: (
 .description-section {
   background: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
+  border-radius: 0.6563rem;
   overflow: hidden;
-  margin: 0 0.5rem;
+  margin: 0 0.4375rem;
   transition: box-shadow 0.3s ease;
 
   &:hover {
@@ -278,23 +278,23 @@ $meta-card-colors: (
 .description-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.875rem;
+  gap: 0.4375rem;
+  padding: 0.5469rem 0.7656rem;
   background: var(--color-card);
   border-bottom: 1px solid var(--color-border);
-  border-radius: 0.75rem 0.75rem 0 0;
+  border-radius: 0.6563rem 0.6563rem 0 0;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--color-text);
 
   i {
-    font-size: 0.95rem;
+    font-size: 0.8313rem;
     color: var(--color-primary);
   }
 }
 
 .description-body {
-  padding: 0.875rem;
+  padding: 0.7656rem;
 }
 
 .description-content {
@@ -313,21 +313,21 @@ $meta-card-colors: (
 .description-html {
   color: var(--color-text-secondary);
   line-height: 1.6;
-  font-size: 0.9375rem;
+  font-size: 0.8203rem;
   overflow-wrap: break-word;
 }
 
 .expand-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.5rem;
+  gap: 0.3281rem;
+  margin-top: 0.4375rem;
+  padding: 0.2188rem 0.4375rem;
   background: transparent;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 0.2188rem;
   color: var(--color-primary);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
@@ -338,7 +338,7 @@ $meta-card-colors: (
   }
 
   i {
-    font-size: 0.7rem;
+    font-size: 0.6125rem;
   }
 }
 
@@ -347,7 +347,7 @@ $meta-card-colors: (
 .hero-status {
   display: flex;
   align-items: flex-end;
-  gap: 0.75rem;
+  gap: 0.6563rem;
   width: 100%;
   margin-top: auto;
 
@@ -363,16 +363,16 @@ $meta-card-colors: (
 .read-progress-card {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.6563rem 0.875rem;
+  border-radius: 0.4375rem;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   flex: 1;
   min-width: 0;
 
   @media (width >= 768px) {
-    min-width: 16rem;
-    max-width: 22rem;
+    min-width: 14rem;
+    max-width: 19.25rem;
   }
 }
 
@@ -383,8 +383,8 @@ $meta-card-colors: (
 
 .read-progress-bar {
   display: flex;
-  height: 0.625rem;
-  border-radius: 0.375rem;
+  height: 0.5469rem;
+  border-radius: 0.3281rem;
   overflow: hidden;
   background: color-mix(in srgb, var(--color-border), transparent 50%);
   gap: 2px;
@@ -393,15 +393,15 @@ $meta-card-colors: (
 .read-progress-segment {
   height: 100%;
   min-width: 4px;
-  border-radius: 0.375rem;
+  border-radius: 0.3281rem;
 }
 
 .read-progress-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  gap: 0.35rem;
+  margin-top: 0.4375rem;
+  font-size: var(--app-text-xs);
   color: var(--color-text-secondary);
   align-items: center;
 }
@@ -409,18 +409,18 @@ $meta-card-colors: (
 .legend-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.1rem 0.4rem 0.1rem 0.3rem;
+  gap: 0.2188rem;
+  padding: 0.0875rem 0.35rem 0.0875rem 0.2625rem;
   border-radius: 9999px;
   border: 1px solid;
-  font-size: 0.7rem;
+  font-size: 0.6125rem;
   background: color-mix(in srgb, var(--color-border), transparent 60%);
 }
 
 .legend-dot {
   display: inline-block;
-  width: 0.4rem;
-  height: 0.4rem;
+  width: 0.35rem;
+  height: 0.35rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -428,7 +428,7 @@ $meta-card-colors: (
 .read-percent-label {
   margin-left: auto;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: var(--app-text-xs);
   color: var(--color-text-secondary);
 }
 
@@ -437,9 +437,9 @@ $meta-card-colors: (
 .next-up-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.85rem;
-  border-radius: 0.5rem;
+  gap: 0.6563rem;
+  padding: 0.525rem 0.7438rem;
+  border-radius: 0.4375rem;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   cursor: pointer;
@@ -452,16 +452,16 @@ $meta-card-colors: (
   }
 
   @media (width >= 768px) {
-    min-width: 16rem;
-    max-width: 22rem;
+    min-width: 14rem;
+    max-width: 19.25rem;
   }
 }
 
 .next-up-thumb {
-  width: 2.75rem;
-  height: 4rem;
+  width: 2.4063rem;
+  height: 3.5rem;
   object-fit: cover;
-  border-radius: 0.25rem;
+  border-radius: 0.2188rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
 }
@@ -469,30 +469,30 @@ $meta-card-colors: (
 .next-up-info {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.175rem;
   min-width: 0;
   flex: 1;
 }
 
 .next-up-label {
-  font-size: 0.65rem;
+  font-size: 0.5687rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2188rem;
 
   i {
-    font-size: 0.6rem;
+    font-size: 0.525rem;
     color: var(--color-primary-text);
   }
 }
 
 .next-up-title {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.7438rem;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -502,17 +502,17 @@ $meta-card-colors: (
 .next-up-progress-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.15rem;
+  gap: 0.35rem;
+  margin-top: 0.1313rem;
 }
 
 .next-up-progress {
   flex: 1;
-  height: 0.25rem;
+  height: 0.2188rem;
 }
 
 .next-up-percent {
-  font-size: 0.7rem;
+  font-size: 0.6125rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   flex-shrink: 0;
@@ -521,18 +521,18 @@ $meta-card-colors: (
 // ── Section title ──
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 0.9625rem;
   font-weight: 700;
   color: var(--color-text-secondary);
-  margin: 0.75rem 0 0;
+  margin: 0.6563rem 0 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.5rem 0;
+  gap: 0.4375rem;
+  padding: 0.6563rem 0.4375rem 0;
   border-top: 1px solid var(--color-border);
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     color: var(--color-text-secondary);
   }
 }
@@ -551,7 +551,7 @@ $meta-card-colors: (
   align-items: start;
   justify-content: start;
   width: 100%;
-  padding-inline: 0.5rem;
+  padding-inline: 0.4375rem;
   box-sizing: border-box;
 
   @media #{variables.$mobile-shell-media-query} {
@@ -570,18 +570,18 @@ $meta-card-colors: (
 .book-list-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 0.4375rem;
+  padding: 0.4375rem;
   min-height: 100%;
 }
 
 .book-list-card {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.65rem 0.85rem;
+  gap: 0.7438rem;
+  padding: 0.5687rem 0.7438rem;
   cursor: pointer;
-  border-radius: 0.5rem;
+  border-radius: 0.4375rem;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
@@ -593,8 +593,8 @@ $meta-card-colors: (
   }
 
   @media (width <= 768px) {
-    gap: 0.5rem;
-    padding: 0.5rem;
+    gap: 0.4375rem;
+    padding: 0.4375rem;
   }
 }
 
@@ -603,23 +603,23 @@ $meta-card-colors: (
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.3281rem;
   background: color-mix(in srgb, var(--color-primary), transparent 85%);
 }
 
 .list-series-number {
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--color-primary);
 }
 
 .list-thumb {
-  width: 2.75rem;
-  height: 4rem;
+  width: 2.4063rem;
+  height: 3.5rem;
   object-fit: cover;
-  border-radius: 0.375rem;
+  border-radius: 0.3281rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
 }
@@ -627,14 +627,14 @@ $meta-card-colors: (
 .list-book-info {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.175rem;
   min-width: 0;
   flex: 1;
 }
 
 .list-book-title {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.8313rem;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -644,8 +644,8 @@ $meta-card-colors: (
 .list-book-meta {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.85rem;
+  gap: 0.3063rem;
+  font-size: 0.7438rem;
   color: var(--color-text-secondary);
   flex-wrap: wrap;
 }
@@ -659,7 +659,7 @@ $meta-card-colors: (
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 16rem;
+  max-width: 14rem;
 }
 
 .list-book-year,
@@ -671,21 +671,21 @@ $meta-card-colors: (
 .list-right-col {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6563rem;
   flex-shrink: 0;
 }
 
 .list-badges {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .list-status-badge {
   display: inline-block;
-  padding: 0.25rem 0.6rem;
+  padding: 0.2188rem 0.525rem;
   border-radius: 9999px;
-  font-size: 0.7rem;
+  font-size: 0.6125rem;
   font-weight: 700;
   color: white;
   white-space: nowrap;
@@ -694,9 +694,9 @@ $meta-card-colors: (
 
 .list-format-badge {
   display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.7rem;
+  padding: 0.175rem 0.4375rem;
+  border-radius: 0.2188rem;
+  font-size: 0.6125rem;
   font-weight: 700;
   border: 1px solid;
   white-space: nowrap;
@@ -713,27 +713,27 @@ $meta-card-colors: (
 .list-progress-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.15rem;
+  gap: 0.35rem;
+  margin-top: 0.1313rem;
 }
 
 .list-progress-bar {
-  width: 5rem;
-  height: 0.25rem;
-  border-radius: 0.25rem;
+  width: 4.375rem;
+  height: 0.2188rem;
+  border-radius: 0.2188rem;
   background: color-mix(in srgb, var(--color-border), transparent 50%);
   overflow: hidden;
 }
 
 .list-progress-fill {
   height: 100%;
-  border-radius: 0.25rem;
+  border-radius: 0.2188rem;
   background: var(--color-primary);
   transition: width 0.3s ease;
 }
 
 .list-progress-text {
-  font-size: 0.65rem;
+  font-size: 0.5687rem;
   font-weight: 600;
   color: var(--color-text-secondary);
 }
@@ -743,27 +743,27 @@ $meta-card-colors: (
 .list-rating-row {
   display: flex;
   align-items: center;
-  gap: 0.1rem;
-  margin-top: 0.1rem;
+  gap: 0.0875rem;
+  margin-top: 0.0875rem;
 }
 
 .list-star {
-  font-size: 0.65rem;
+  font-size: 0.5687rem;
   color: var(--color-yellow-400);
 }
 
 .list-rating-value {
-  font-size: 0.65rem;
+  font-size: 0.5687rem;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin-left: 0.25rem;
+  margin-left: 0.2188rem;
 }
 
 // ── List: action buttons ──
 
 .list-actions {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.3063rem;
 }
 
 $list-action-btn-colors: (
@@ -775,15 +775,15 @@ $list-action-btn-colors: (
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 0.4rem;
+  width: 1.8375rem;
+  height: 1.8375rem;
+  border-radius: 0.35rem;
   border: 1px solid;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
   }
 
   @each $variant, $color in $list-action-btn-colors {
@@ -809,7 +809,7 @@ $list-action-btn-colors: (
 
 .empty-state {
   text-align: center;
-  padding: 2rem;
+  padding: 1.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -821,7 +821,7 @@ $list-action-btn-colors: (
   justify-content: center;
   align-items: center;
   height: 100%;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 // ── Footer ──
@@ -851,7 +851,7 @@ $list-action-btn-colors: (
   right: 10%;
   display: flex;
   align-items: center;
-  padding: 1rem 0.5rem 0.5rem;
+  padding: 0.875rem 0.4375rem 0.4375rem;
   z-index: 100;
   border-radius: 10px 10px 0 0;
   border: 1px solid rgb(255 255 255 / 50%);
@@ -876,7 +876,7 @@ $list-action-btn-colors: (
 .footer-left {
   display: flex;
   align-items: center;
-  padding-left: 0.5rem;
+  padding-left: 0.4375rem;
   width: 25%;
 }
 
@@ -892,10 +892,10 @@ $list-action-btn-colors: (
 
 .footer-action-group {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 
   @media (width >= 768px) {
-    gap: 1.5rem;
+    gap: 1.3125rem;
   }
 }
 
@@ -907,35 +907,35 @@ $list-action-btn-colors: (
 .selected-count-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.7875rem;
   color: var(--color-text);
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 }
 
 .badge-icon {
-  margin-right: 0.5rem;
+  margin-right: 0.4375rem;
 }
 
 .badge-count {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--app-text-base);
 }
 
 .badge-label {
-  margin-left: 0.25rem;
+  margin-left: 0.2188rem;
 }
 
 @media (width <= 768px) {
   .selected-count-badge {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7438rem;
 
     i {
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
     }
   }
 }

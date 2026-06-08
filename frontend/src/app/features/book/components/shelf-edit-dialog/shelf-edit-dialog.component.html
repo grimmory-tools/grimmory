@@ -52,7 +52,7 @@
       @if (isAdmin) {
         <div class="shelf-row">
         <span class="label">{{ t('visibilityLabel') }}</span>
-          <div class="visibility-section" style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="visibility-section" style="display: flex; align-items: center; gap: 0.4375rem;">
             <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf"></p-checkbox>
             <label for="publicShelf" style="cursor: pointer; user-select: none;">{{ t('publicShelfLabel') }}</label>
           </div>

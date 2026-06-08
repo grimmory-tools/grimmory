@@ -16,7 +16,7 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: 1.5rem;
+  padding: 1.3125rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
@@ -24,7 +24,7 @@
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.3125rem;
 }
 
 :host ::ng-deep {
@@ -47,26 +47,26 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .upload-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 0 1rem;
+  gap: 1.75rem;
+  padding: 0 0.875rem;
 }
 
 .file-list-scroll {
-  max-height: 24rem;
-  max-width: 22rem;
+  max-height: 21rem;
+  max-width: 19.25rem;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding-right: 0.4375rem;
 
   @media (width >= 768px) {
     max-width: none;
@@ -83,13 +83,13 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .file-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.875rem;
   overflow: hidden;
   flex: 1;
 }
@@ -111,7 +111,7 @@
 }
 
 .status-icon {
-  padding: 0.75rem;
+  padding: 0.6563rem;
 }
 
 .empty-state {
@@ -125,17 +125,17 @@
 .empty-icon {
   border: 2px solid;
   border-radius: 9999px;
-  padding: 2rem;
-  font-size: 2.25rem;
+  padding: 1.75rem;
+  font-size: 1.9688rem;
   color: var(--p-text-muted-color);
 }
 
 .empty-text {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1.3125rem;
+  margin-bottom: 0.4375rem;
 }
 
 .empty-subtext {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.4375rem;
+  margin-bottom: 0.4375rem;
 }

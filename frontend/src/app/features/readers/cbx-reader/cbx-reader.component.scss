@@ -10,7 +10,7 @@
     flex: 0 0 auto;
     width: 100%;
     text-align: center;
-    font-size: 0.88rem;
+    font-size: 0.77rem;
     color: rgb(255 255 255 / 45%);
     opacity: 0;
     transform: translateY(6px);
@@ -55,9 +55,9 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem 1rem;
-    padding: 0.65rem 1rem;
-    margin: 0 0.5rem;
+    gap: 0.6563rem 0.875rem;
+    padding: 0.5687rem 0.875rem;
+    margin: 0 0.4375rem;
     background: rgb(30 40 55 / 95%);
     border: 1px solid rgb(255 255 255 / 12%);
     border-radius: 8px;
@@ -68,7 +68,7 @@
   .webtoon-suggestion-text {
     margin: 0;
     flex: 1 1 200px;
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
     line-height: 1.35;
     color: rgb(255 255 255 / 88%);
   }
@@ -76,17 +76,17 @@
   .webtoon-suggestion-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4375rem;
     align-items: center;
   }
 
   .webtoon-btn {
-    padding: 0.4rem 0.75rem;
+    padding: 0.35rem 0.6563rem;
     border-radius: 6px;
     border: 1px solid rgb(255 255 255 / 20%);
     background: rgb(255 255 255 / 8%);
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
 
@@ -107,7 +107,7 @@
       border-color: transparent;
       background: transparent;
       color: rgb(255 255 255 / 55%);
-      font-size: 0.8rem;
+      font-size: 0.7rem;
 
       &:hover {
         color: rgb(255 255 255 / 85%);
@@ -186,7 +186,7 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    padding: 0.5rem;
+    padding: 0.4375rem;
     background: #0f0f0f;
     min-height: 0;
 
@@ -204,7 +204,7 @@
 
       .end-of-comic-action {
         flex: 0 0 auto;
-        margin-top: 1rem;
+        margin-top: 0.875rem;
       }
     }
 
@@ -227,7 +227,7 @@
     &:not(.infinite-scroll) {
       .pages-wrapper {
         display: flex;
-        gap: 1rem;
+        gap: 0.875rem;
         align-items: center;
         justify-content: center;
         width: 100%;
@@ -238,7 +238,7 @@
       .previous-page-layer,
       .current-page-layer {
         display: flex;
-        gap: 1rem;
+        gap: 0.875rem;
         align-items: center;
         justify-content: center;
         width: 100%;
@@ -306,7 +306,7 @@
           .current-page-layer {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1rem;
+            gap: 0.875rem;
             width: 100%;
           }
 
@@ -341,7 +341,7 @@
 
         .page-image {
           width: auto;
-          height: calc(100dvh - 1rem);
+          height: calc(100dvh - 0.875rem);
           max-width: none;
         }
 
@@ -361,7 +361,7 @@
 
           .page-image {
             width: auto;
-            height: calc(100dvh - 1rem);
+            height: calc(100dvh - 0.875rem);
             max-width: none;
           }
 
@@ -432,7 +432,7 @@
 
         &.two-page-view {
           .page-image {
-            max-width: calc(50% - 0.5rem);
+            max-width: calc(50% - 0.4375rem);
             max-height: 100%;
             width: auto;
             height: auto;
@@ -456,7 +456,7 @@
 
         &.two-page-view {
           .page-image {
-            max-width: calc(50% - 0.5rem);
+            max-width: calc(50% - 0.4375rem);
             max-height: 100%;
             width: auto;
             height: auto;
@@ -481,10 +481,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 0.875rem;
         width: 100%;
         min-width: 0;
-        padding: 1rem 0;
+        padding: 0.875rem 0;
         overflow-anchor: none;
       }
 
@@ -498,13 +498,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 0.875rem;
       }
 
       @include cbx-reader-continuation-affordance;
 
       .cbx-continuation-hint {
-        padding: 0.5rem 1rem 1rem;
+        padding: 0.4375rem 0.875rem 0.875rem;
       }
 
       .page-image {
@@ -529,7 +529,7 @@
 
         .page-image {
           width: auto;
-          height: calc(100vh - 2rem);
+          height: calc(100vh - 1.75rem);
           max-width: 100%;
         }
       }
@@ -558,7 +558,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 2rem);
+          max-height: calc(100vh - 1.75rem);
           width: auto;
           height: auto;
         }
@@ -571,14 +571,14 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 2rem);
+          max-height: calc(100vh - 1.75rem);
           width: auto;
           height: auto;
         }
       }
 
       .loading-more {
-        padding: 2rem;
+        padding: 1.75rem;
         display: flex;
         justify-content: center;
       }
@@ -616,7 +616,7 @@
       @include cbx-reader-continuation-affordance;
 
       .cbx-continuation-hint {
-        padding: 0.75rem 1rem 1.25rem;
+        padding: 0.6563rem 0.875rem 1.0938rem;
       }
 
       .long-strip-image {
@@ -643,7 +643,7 @@
 
         .long-strip-image {
           width: auto;
-          height: calc(100vh - 2rem);
+          height: calc(100vh - 1.75rem);
           max-width: 100%;
         }
       }
@@ -671,7 +671,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 2rem);
+          max-height: calc(100vh - 1.75rem);
           width: auto;
           height: auto;
         }
@@ -684,7 +684,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 2rem);
+          max-height: calc(100vh - 1.75rem);
           width: auto;
           height: auto;
         }
@@ -702,7 +702,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.3125rem;
       text-align: center;
 
       .loading-text {
@@ -724,14 +724,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem 1rem;
+    padding: 1.75rem 0.875rem;
 
     .next-book-action-button {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      padding: 2rem 3rem;
+      gap: 0.6563rem;
+      padding: 1.75rem 2.625rem;
       background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
       border: none;
       border-radius: 12px;
@@ -753,15 +753,15 @@
       }
 
       .action-icon {
-        font-size: 2.5rem;
+        font-size: 2.1875rem;
       }
 
       .action-text {
-        font-size: 1.1rem;
+        font-size: 0.9625rem;
       }
 
       .book-title {
-        font-size: 0.95rem;
+        font-size: 0.8313rem;
         font-weight: 400;
         opacity: 0.9;
         max-width: 350px;
@@ -785,22 +785,22 @@
     }
 
     .end-of-comic-action {
-      padding: 1.5rem 1rem;
+      padding: 1.3125rem 0.875rem;
 
       .next-book-action-button {
         min-width: 240px;
-        padding: 1.5rem 2rem;
+        padding: 1.3125rem 1.75rem;
 
         .action-icon {
-          font-size: 2rem;
+          font-size: 1.75rem;
         }
 
         .action-text {
-          font-size: 1rem;
+          font-size: var(--app-text-base);
         }
 
         .book-title {
-          font-size: 0.85rem;
+          font-size: 0.7438rem;
           max-width: 250px;
         }
       }
@@ -822,7 +822,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.3125rem;
 }
 
 .spinner {
@@ -836,7 +836,7 @@
 
 .loader-text {
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 0.9625rem;
   margin: 0;
   font-weight: 500;
 }
@@ -884,7 +884,7 @@
   }
 
   .zone-arrow {
-    font-size: 2rem;
+    font-size: 1.75rem;
     color: rgb(255 255 255 / 30%);
     opacity: 0;
     transition: opacity 0.3s ease;

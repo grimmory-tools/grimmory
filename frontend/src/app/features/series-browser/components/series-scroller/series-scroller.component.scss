@@ -1,7 +1,7 @@
 .series-scroller-container {
   border-radius: 20px;
-  padding: 1rem 2rem 0;
-  margin-bottom: 2rem;
+  padding: 0.875rem 1.75rem 0;
+  margin-bottom: 1.75rem;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(20px);
@@ -10,9 +10,9 @@
 
 .series-scroller-title {
   text-align: left;
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   padding: 0;
   background: linear-gradient(135deg, var(--color-text-strong), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
@@ -34,7 +34,7 @@
 }
 
 .series-scroller-empty {
-  padding: 3rem 2rem;
+  padding: 2.625rem 1.75rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -48,10 +48,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
 
     i {
-      font-size: 2rem;
+      font-size: 1.75rem;
       color: white;
       filter: drop-shadow(0 2px 4px rgb(0 0 0 / 30%));
     }
@@ -59,7 +59,7 @@
 
   p {
     color: var(--color-text-secondary);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     font-weight: 500;
     max-width: 400px;
     line-height: 1.7;
@@ -70,8 +70,8 @@
   display: flex;
   overflow: auto hidden;
   scroll-snap-type: x mandatory;
-  padding: 1rem 0.5rem;
-  gap: 1.25rem;
+  padding: 0.875rem 0.4375rem;
+  gap: 1.0938rem;
   width: 100%;
   position: relative;
   z-index: 2;
@@ -83,10 +83,10 @@
 
 @media (width <= 767px) {
   .series-scroller-container {
-    padding: 1rem 1rem 0;
+    padding: 0.875rem 0.875rem 0;
   }
 
   .series-scroller-track {
-    gap: 1rem;
+    gap: 0.875rem;
   }
 }

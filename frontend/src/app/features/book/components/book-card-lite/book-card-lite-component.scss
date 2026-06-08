@@ -9,7 +9,7 @@
     aspect-ratio: 5 / 7;
     object-fit: cover;
     display: block;
-    border-radius: 0.5rem;
+    border-radius: 0.4375rem;
   }
 
   &.audiobook-only {
@@ -41,7 +41,7 @@
     left: 4px;
     background-color: rgb(0 0 0 / 70%);
     color: white;
-    font-size: 0.75rem;
+    font-size: var(--app-text-xs);
     padding: 1px 3px;
     border-radius: 3px;
     z-index: 3;

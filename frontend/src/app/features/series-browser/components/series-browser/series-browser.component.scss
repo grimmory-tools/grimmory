@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding: 1.1rem 0 0;
+  padding: 0.9625rem 0 0;
 }
 
 .loading-state {
@@ -20,13 +20,13 @@
 
 // Browse Header
 .browse-header {
-  padding: 0.75rem var(--browser-gutter-inline) 0;
+  padding: 0.6563rem var(--browser-gutter-inline) 0;
 }
 
 .browse-title {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 800;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6563rem;
   background: linear-gradient(135deg, var(--color-text-strong), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -36,8 +36,8 @@
 .browse-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  gap: 0.6563rem;
+  margin-bottom: 0.4375rem;
   align-items: center;
 }
 
@@ -53,20 +53,20 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--color-text-muted);
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
     z-index: 1;
   }
 
   .search-input {
     width: 100%;
-    padding-left: 2.25rem;
-    font-size: 0.9rem;
+    padding-left: 1.9688rem;
+    font-size: 0.7875rem;
   }
 }
 
 .filter-sort-wrapper {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6563rem;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -100,12 +100,12 @@
 .display-settings-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   min-width: 180px;
 }
 
 .display-settings-label {
-  font-size: 0.85rem;
+  font-size: 0.7438rem;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -115,13 +115,13 @@
   flex: 1 1 auto;
   width: 100%;
   min-height: 0;
-  padding: 1rem var(--browser-gutter-inline);
+  padding: 0.875rem var(--browser-gutter-inline);
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
 
   @media #{variables.$mobile-shell-media-query} {
-    padding-block: 0.5rem;
+    padding-block: 0.4375rem;
   }
 }
 
@@ -131,18 +131,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 3.5rem 1.75rem;
   text-align: center;
 
   .empty-icon {
-    font-size: 3rem;
+    font-size: 2.625rem;
     color: var(--color-text-muted);
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
   }
 
   p {
     color: var(--color-text-muted);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     font-weight: 500;
   }
 }
@@ -151,11 +151,11 @@
   .series-browser-page {
     --browser-gutter-inline: var(--space-4);
 
-    padding: 1.5rem 0 0;
+    padding: 1.3125rem 0 0;
   }
 
   .browse-header {
-    padding-top: 0.5rem;
+    padding-top: 0.4375rem;
   }
 
   .browse-controls {
