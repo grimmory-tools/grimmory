@@ -37,9 +37,7 @@
         "writeOnScanDesc": "Создавать сопроводительные JSON-файлы при первом добавлении книг в библиотеку во время сканирования.",
         "includeCover": "Включить файл обложки",
         "includeCoverDesc": "Также сохранять изображение обложки как <code>BookName.cover.jpg</code> рядом с сопроводительным JSON-файлом.",
-        "loadError": "Не удалось загрузить настройки.",
-        "networkModeTitle": "",
-        "networkModeDesc": ""
+        "loadError": "Не удалось загрузить настройки."
     },
     "providers": {
         "sectionTitle": "Провайдеры метаданных",
@@ -65,38 +63,7 @@
     },
     "fieldSelector": {
         "sectionTitle": "Включённые поля в редакторе и средстве выбора метаданных",
-        "sectionDesc": "Выберите, какие поля метаданных отображать при редактировании информации о книге или выборе метаданных от провайдеров. Отключённые поля будут скрыты из интерфейса.",
-        "fields": {
-            "amazonRating": "",
-            "asin": "",
-            "goodreadsRating": "",
-            "goodreadsReviewCount": "",
-            "hardcoverRating": "",
-            "hardcoverId": "",
-            "audibleRating": "",
-            "googleId": "",
-            "ranobedbId": "",
-            "amazonReviewCount": "",
-            "lubimyczytacId": "",
-            "ranobedbRating": "",
-            "lubimyczytacRating": "",
-            "comicvineId": "",
-            "hardcoverBookId": "",
-            "audibleReviewCount": "",
-            "hardcoverReviewCount": "",
-            "audibleId": "",
-            "goodreadsId": ""
-        },
-        "providers": {
-            "goodreads": "",
-            "amazon": "",
-            "googleBooks": "",
-            "lubimyczytac": "",
-            "hardcover": "",
-            "ranobedb": "",
-            "audible": "",
-            "comicvine": ""
-        }
+        "sectionDesc": "Выберите, какие поля метаданных отображать при редактировании информации о книге или выборе метаданных от провайдеров. Отключённые поля будут скрыты из интерфейса."
     },
     "publicReviews": {
         "sectionTitle": "Публичные рецензии",
@@ -122,34 +89,6 @@
         "saveSuccess": "Веса успешно сохранены",
         "saveError": "Не удалось сохранить веса",
         "recalcSuccess": "Оценки совпадения всех книг были успешно пересчитаны.",
-        "recalcError": "Не удалось пересчитать оценки совпадения.",
-        "fields": {
-            "amazonReviewCount": "",
-            "hardcoverRating": "",
-            "doubanReviewCount": "",
-            "authors": "",
-            "seriesName": "",
-            "amazonRating": "",
-            "doubanRating": "",
-            "publisher": "",
-            "seriesTotal": "",
-            "language": "",
-            "coverImage": "",
-            "categories": "",
-            "subtitle": "",
-            "ranobedbRating": "",
-            "title": "",
-            "isbn10": "",
-            "publishedDate": "",
-            "goodreadsRating": "",
-            "seriesNumber": "",
-            "audibleReviewCount": "",
-            "isbn13": "",
-            "description": "",
-            "pageCount": "",
-            "hardcoverReviewCount": "",
-            "goodreadsReviewCount": "",
-            "audibleRating": ""
-        }
+        "recalcError": "Не удалось пересчитать оценки совпадения."
     }
 }

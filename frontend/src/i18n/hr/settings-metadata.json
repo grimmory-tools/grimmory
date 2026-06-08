@@ -65,38 +65,7 @@
     },
     "fieldSelector": {
         "sectionTitle": "Omogućena polja u uređivaču i biraču metapodataka",
-        "sectionDesc": "Odaberite koja polja metapodataka prikazivati prilikom uređivanja informacija o knjizi ili biranja metapodataka od pružatelja. Onemogućena polja će biti skrivena iz sučelja.",
-        "fields": {
-            "amazonRating": "",
-            "asin": "",
-            "goodreadsRating": "",
-            "goodreadsReviewCount": "",
-            "hardcoverRating": "",
-            "hardcoverId": "",
-            "audibleRating": "",
-            "googleId": "",
-            "ranobedbId": "",
-            "amazonReviewCount": "",
-            "lubimyczytacId": "",
-            "ranobedbRating": "",
-            "lubimyczytacRating": "",
-            "comicvineId": "",
-            "hardcoverBookId": "",
-            "audibleReviewCount": "",
-            "hardcoverReviewCount": "",
-            "audibleId": "",
-            "goodreadsId": ""
-        },
-        "providers": {
-            "goodreads": "",
-            "amazon": "",
-            "googleBooks": "",
-            "lubimyczytac": "",
-            "hardcover": "",
-            "ranobedb": "",
-            "audible": "",
-            "comicvine": ""
-        }
+        "sectionDesc": "Odaberite koja polja metapodataka prikazivati prilikom uređivanja informacija o knjizi ili biranja metapodataka od pružatelja. Onemogućena polja će biti skrivena iz sučelja."
     },
     "publicReviews": {
         "sectionTitle": "Javne recenzije",
@@ -133,23 +102,7 @@
             "categories": "Kategorije",
             "coverImage": "Slika naslovnice",
             "seriesName": "Naziv serije",
-            "seriesNumber": "Broj serije",
-            "amazonReviewCount": "",
-            "hardcoverRating": "",
-            "doubanReviewCount": "",
-            "amazonRating": "",
-            "doubanRating": "",
-            "seriesTotal": "",
-            "language": "",
-            "ranobedbRating": "",
-            "isbn10": "",
-            "goodreadsRating": "",
-            "audibleReviewCount": "",
-            "isbn13": "",
-            "pageCount": "",
-            "hardcoverReviewCount": "",
-            "goodreadsReviewCount": "",
-            "audibleRating": ""
+            "seriesNumber": "Broj serije"
         }
     }
 }
