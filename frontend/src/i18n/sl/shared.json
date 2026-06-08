@@ -39,8 +39,7 @@
             "missingDataSummary": "Manjkajoči podatki",
             "missingDataDetail": "Prosim, pred nalaganjem izberi knjižnico in pot.",
             "uploadFailedDefault": "Nalaganje ni uspelo zaradi neznane napake."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Spremeni geslo",

@@ -39,8 +39,7 @@
             "missingDataSummary": "Brakujące dane",
             "missingDataDetail": "Proszę wybrać bibliotekę i ścieżkę przed przesyłaniem.",
             "uploadFailedDefault": "Przesyłanie nie powiodło się z powodu nieznanego błędu."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Zmień hasło",

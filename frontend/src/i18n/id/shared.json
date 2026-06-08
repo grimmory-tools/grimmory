@@ -11,36 +11,7 @@
         "statusUploading": "Mengunggah",
         "statusUploaded": "Diunggah",
         "statusFailed": "Gagal",
-        "destinationLibrary": "Perpustakaan",
-        "selectLibrary": "",
-        "supportedFormats": "",
-        "clearTooltip": "",
-        "dragDropTitle": "",
-        "statusTooLarge": "",
-        "selectFiles": "",
-        "description": "",
-        "librarySelection": "",
-        "toast": {
-            "noDestinationDetail": "",
-            "uploadFailedDefault": "",
-            "fileTooLargeDetail": "",
-            "missingDataSummary": "",
-            "noDestinationSummary": "",
-            "missingDataDetail": "",
-            "fileTooLargeSummary": ""
-        },
-        "filesCount": "",
-        "failedCount": "",
-        "uploadFailedTooltip": "",
-        "fileTooLargeTooltip": "",
-        "maxFileSize": "",
-        "uploadTooltip": "",
-        "destinationBookdrop": "",
-        "uploadDestination": "",
-        "chooseTooltip": "",
-        "subpathLabel": "",
-        "selectSubpath": "",
-        "uploadHint": ""
+        "destinationLibrary": "Perpustakaan"
     },
     "metadataProgress": {
         "tagReview": "Tinjau",
@@ -51,104 +22,10 @@
         "cancelBtn": "Batal",
         "statusCompleted": "Selesai",
         "statusError": "Eror",
-        "statusCancelled": "Dibatalkan",
-        "cancelFailedSummary": "",
-        "cancellationScheduledSummary": "",
-        "cancelFailedDetail": "",
-        "statusInProgress": "",
-        "taskCancelled": "",
-        "cancellationScheduledDetail": "",
-        "bookProgress": "",
-        "taskStalled": "",
-        "taskTitle": "",
-        "cancelTooltip": "",
-        "discardTooltip": ""
+        "statusCancelled": "Dibatalkan"
     },
     "setup": {
         "usernameLabel": "Nama Pengguna",
-        "passwordLabel": "Kata Sandi",
-        "creatingAccountBtn": "",
-        "validation": {
-            "passwordsMismatch": "",
-            "nameRequired": "",
-            "passwordMinLength": "",
-            "usernameRequired": "",
-            "emailRequired": "",
-            "confirmPasswordRequired": ""
-        },
-        "successMessage": "",
-        "fullNamePlaceholder": "",
-        "createAccountBtn": "",
-        "confirmPasswordLabel": "",
-        "usernamePlaceholder": "",
-        "subtitle": "",
-        "confirmPasswordPlaceholder": "",
-        "emailLabel": "",
-        "title": "",
-        "toast": {
-            "createFailedDefault": ""
-        },
-        "passwordPlaceholder": "",
-        "emailPlaceholder": "",
-        "fullNameLabel": ""
-    },
-    "directoryPicker": {
-        "directoryEmpty": "",
-        "foldersAvailable": "",
-        "selectCurrentBtn": "",
-        "selectAllBtn": "",
-        "selectAllTooltip": "",
-        "foldersSelected": "",
-        "description": "",
-        "selectCurrentTooltip": "",
-        "title": "",
-        "foldersSelectedPlural": "",
-        "emptyDescription": "",
-        "folderAvailable": "",
-        "deselectAllBtn": "",
-        "currentPath": "",
-        "foldersWillBeSelected": "",
-        "searchPlaceholder": "",
-        "deselectAllTooltip": "",
-        "folderWillBeSelected": "",
-        "goUpTooltip": "",
-        "selectDirectoriesBtn": "",
-        "loadingDirectories": "",
-        "noMatchesFound": "",
-        "noMatchesDescription": ""
-    },
-    "reader": {
-        "failedToLoadPages": "",
-        "failedToLoadBook": ""
-    },
-    "changePassword": {
-        "toast": {
-            "success": "",
-            "failedSummary": "",
-            "failedDetailDefault": ""
-        },
-        "subtitle": "",
-        "newPasswordPlaceholder": "",
-        "validation": {
-            "sameAsCurrentPassword": "",
-            "passwordsMismatch": "",
-            "allFieldsRequired": "",
-            "passwordsDoNotMatch": ""
-        },
-        "title": "",
-        "newPasswordLabel": "",
-        "currentPasswordLabel": "",
-        "confirmPasswordLabel": "",
-        "updateBtn": "",
-        "confirmPasswordPlaceholder": "",
-        "currentPasswordPlaceholder": ""
-    },
-    "settingsHelper": {
-        "settingsSavedSummary": "",
-        "saveErrorDetail": "",
-        "settingsSavedDetail": ""
-    },
-    "liveNotification": {
-        "defaultMessage": ""
+        "passwordLabel": "Kata Sandi"
     }
 }

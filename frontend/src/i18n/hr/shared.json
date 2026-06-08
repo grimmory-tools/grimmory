@@ -39,8 +39,7 @@
             "missingDataSummary": "Nedostaju podaci",
             "missingDataDetail": "Odaberite knjižnicu i putanju prije učitavanja.",
             "uploadFailedDefault": "Učitavanje nije uspjelo zbog nepoznate pogreške."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Promjena lozinke",

@@ -39,8 +39,7 @@
             "missingDataSummary": "Data saknas",
             "missingDataDetail": "Välj ett bibliotek och sökväg innan du laddar upp.",
             "uploadFailedDefault": "Uppladdning misslyckades på grund av okänt fel."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Byt lösenord",
