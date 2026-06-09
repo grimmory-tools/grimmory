@@ -67,7 +67,11 @@
         "autoZoom": "Samodejna povečava",
         "pageFit": "Prilagodi strani",
         "pageWidth": "Prilagodi širini",
-        "actualSize": "Dejanska velikost"
+        "actualSize": "Dejanska velikost",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Bralnik stripov: Privzete nastavitve",
@@ -95,7 +99,10 @@
         "infinite": "Neskončno",
         "gray": "Siva",
         "black": "Črna",
-        "white": "Bela"
+        "white": "Bela",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Pretočni bralnik PDF: Privzete nastavitve",
