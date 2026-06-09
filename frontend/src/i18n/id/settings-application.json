@@ -1,41 +1,6 @@
 {
     "title": "Preferensi Global",
     "covers": {
-        "sectionTitle": "Gambar Sampul Buku",
-        "verticalCropping": "",
-        "regenerateStartedDetail": "",
-        "verticalCroppingDesc": "",
-        "smartCroppingDesc": "",
-        "horizontalCroppingDesc": "",
-        "regenerateAllBtn": "",
-        "regenerateStarted": "",
-        "regenerate": "",
-        "regenerateError": "",
-        "smartCropping": "",
-        "aspectRatioDesc": "",
-        "regenerateDesc": "",
-        "aspectRatio": "",
-        "regenerateMissingBtn": "",
-        "horizontalCropping": ""
-    },
-    "fileManagement": {
-        "invalidInputDetail": "",
-        "invalidInput": "",
-        "restartWarning": "",
-        "maxUploadPlaceholder": "",
-        "maxUploadSize": "",
-        "maxUploadDesc": "",
-        "sectionTitle": ""
-    },
-    "settingsSaved": "",
-    "search": {
-        "similarBook": "",
-        "sectionTitle": "",
-        "autoBookSearchDesc": "",
-        "autoBookSearch": "",
-        "similarBookDesc": ""
-    },
-    "description": "",
-    "settingsSavedDetail": "",
-    "settingsError": ""
+        "sectionTitle": "Gambar Sampul Buku"
+    }
 }

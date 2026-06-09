@@ -15,9 +15,7 @@
         "aspectRatio": "Limiar de Proporção: {{value}}",
         "aspectRatioDesc": "Imagens com proporções que excedem este limiar serão cortadas. Um valor de 2.5 significa que imagens mais de 2.5x mais altas (ou mais largas) que o normal serão cortadas.",
         "smartCropping": "Corte Inteligente",
-        "smartCroppingDesc": "Ignorar regiões de cor uniforme ao determinar onde cortar. Foca a imagem da capa no conteúdo mais relevante.",
-        "regenerateAllBtn": "",
-        "regenerateMissingBtn": ""
+        "smartCroppingDesc": "Ignorar regiões de cor uniforme ao determinar onde cortar. Foca a imagem da capa no conteúdo mais relevante."
     },
     "search": {
         "sectionTitle": "Pesquisa e Recomendações",

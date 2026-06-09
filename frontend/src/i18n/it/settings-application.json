@@ -15,9 +15,7 @@
         "aspectRatio": "Soglia rapporto d'aspetto: {{value}}",
         "aspectRatioDesc": "Le immagini con rapporti d'aspetto superiori a questa soglia verranno ritagliate. Un valore di 2.5 significa che le immagini più di 2.5 volte più alte (o più larghe) del normale verranno ritagliate.",
         "smartCropping": "Ritaglio intelligente",
-        "smartCroppingDesc": "Ignora le regioni di colore uniforme quando si determina dove ritagliare. Focalizza l'immagine di copertina sul contenuto più rilevante.",
-        "regenerateAllBtn": "",
-        "regenerateMissingBtn": ""
+        "smartCroppingDesc": "Ignora le regioni di colore uniforme quando si determina dove ritagliare. Focalizza l'immagine di copertina sul contenuto più rilevante."
     },
     "search": {
         "sectionTitle": "Ricerca e raccomandazioni",
