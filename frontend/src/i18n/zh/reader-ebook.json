@@ -136,9 +136,7 @@
         "searchInBook": "在书中搜索",
         "annotate": "标注",
         "addNote": "添加笔记",
-        "deleteAnnotation": "删除标注",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "删除标注"
     },
     "shortcutsHelp": {
         "title": "键盘快捷键",
@@ -158,8 +156,7 @@
         "other": "其他",
         "showHelpDialog": "显示此帮助对话框",
         "swipeRight": "右滑",
-        "swipeLeft": "左滑",
-        "toggleImmersive": ""
+        "swipeLeft": "左滑"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "本节剩余时间：{{ time }}"

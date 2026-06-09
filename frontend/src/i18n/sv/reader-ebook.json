@@ -136,9 +136,7 @@
         "searchInBook": "Sök i boken",
         "annotate": "Annotera",
         "addNote": "Lägg till anteckning",
-        "deleteAnnotation": "Radera annotering",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "Radera annotering"
     },
     "shortcutsHelp": {
         "title": "Tangentbordsgenvägar",
@@ -158,8 +156,7 @@
         "other": "Övrigt",
         "showHelpDialog": "Visa denna hjälpdialog",
         "swipeRight": "Svep höger",
-        "swipeLeft": "Svep vänster",
-        "toggleImmersive": ""
+        "swipeLeft": "Svep vänster"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Tid kvar i avsnitt: {{ time }}"

@@ -136,9 +136,7 @@
         "searchInBook": "Искать в книге",
         "annotate": "Аннотировать",
         "addNote": "Добавить заметку",
-        "deleteAnnotation": "Удалить аннотацию",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "Удалить аннотацию"
     },
     "shortcutsHelp": {
         "title": "Горячие клавиши",
@@ -158,8 +156,7 @@
         "other": "Прочее",
         "showHelpDialog": "Показать это окно справки",
         "swipeRight": "Свайп вправо",
-        "swipeLeft": "Свайп влево",
-        "toggleImmersive": ""
+        "swipeLeft": "Свайп влево"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Осталось в разделе: {{ time }}"

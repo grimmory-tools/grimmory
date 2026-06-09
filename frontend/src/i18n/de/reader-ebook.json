@@ -136,9 +136,7 @@
         "searchInBook": "Im Buch suchen",
         "annotate": "Markieren",
         "addNote": "Notiz hinzufügen",
-        "deleteAnnotation": "Markierung löschen",
-        "goToLink": "",
-        "removeLink": ""
+        "deleteAnnotation": "Markierung löschen"
     },
     "shortcutsHelp": {
         "title": "Tastenkürzel",
@@ -158,8 +156,7 @@
         "other": "Sonstiges",
         "showHelpDialog": "Diesen Hilfedialog anzeigen",
         "swipeRight": "Nach rechts wischen",
-        "swipeLeft": "Nach links wischen",
-        "toggleImmersive": ""
+        "swipeLeft": "Nach links wischen"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Verbleibende Zeit im Abschnitt: {{ time }}"
