@@ -67,11 +67,7 @@
         "autoZoom": "Zoom automatique",
         "pageFit": "Ajuster à la page",
         "pageWidth": "Largeur de page",
-        "actualSize": "Taille réelle",
-        "scrollLayoutDesc": "",
-        "vertical": "",
-        "horizontal": "",
-        "scrollLayout": ""
+        "actualSize": "Taille réelle"
     },
     "cbx": {
         "sectionTitle": "Lecteur de bandes dessinées : Paramètres par défaut",
@@ -99,10 +95,7 @@
         "infinite": "Infini",
         "gray": "Gris",
         "black": "Noir",
-        "white": "Blanc",
-        "stripMaxWidthDesc": "",
-        "stripMaxWidth": "",
-        "longStrip": ""
+        "white": "Blanc"
     },
     "streamingPdf": {
         "sectionTitle": "Lecteur PDF en streaming : Paramètres par défaut",

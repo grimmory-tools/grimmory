@@ -67,11 +67,7 @@
         "autoZoom": "Авто",
         "pageFit": "По странице",
         "pageWidth": "По ширине",
-        "actualSize": "Реальный размер",
-        "scrollLayoutDesc": "",
-        "vertical": "",
-        "horizontal": "",
-        "scrollLayout": ""
+        "actualSize": "Реальный размер"
     },
     "cbx": {
         "sectionTitle": "Читалка комиксов: настройки по умолчанию",
@@ -99,10 +95,7 @@
         "infinite": "Бесконечный",
         "gray": "Серый",
         "black": "Чёрный",
-        "white": "Белый",
-        "stripMaxWidthDesc": "",
-        "stripMaxWidth": "",
-        "longStrip": ""
+        "white": "Белый"
     },
     "streamingPdf": {
         "sectionTitle": "Потоковая PDF-читалка: настройки по умолчанию",

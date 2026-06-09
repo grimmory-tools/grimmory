@@ -67,11 +67,7 @@
         "autoZoom": "Auto-zoom",
         "pageFit": "Anpassa sida",
         "pageWidth": "Sidbredd",
-        "actualSize": "Verklig storlek",
-        "scrollLayoutDesc": "",
-        "vertical": "",
-        "horizontal": "",
-        "scrollLayout": ""
+        "actualSize": "Verklig storlek"
     },
     "cbx": {
         "sectionTitle": "Serietidningsläsare: Standardinställningar",
@@ -99,10 +95,7 @@
         "infinite": "Oändlig",
         "gray": "Grå",
         "black": "Svart",
-        "white": "Vit",
-        "stripMaxWidthDesc": "",
-        "stripMaxWidth": "",
-        "longStrip": ""
+        "white": "Vit"
     },
     "streamingPdf": {
         "sectionTitle": "Strömmande PDF-läsare: Standardinställningar",
