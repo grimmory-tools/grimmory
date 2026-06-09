@@ -110,7 +110,12 @@
         "gray": "Grå",
         "white": "Vit",
         "magnifierLensSize": "Linsstorlek",
-        "magnifierZoom": "Förstoring"
+        "magnifierZoom": "Förstoring",
+        "clickToPaginate": "",
+        "stripMaxWidth": "",
+        "autoCloseMenu": "",
+        "brightness": "",
+        "emulateBook": ""
     },
     "sidebar": {
         "contentTab": "Innehåll",
@@ -130,5 +135,15 @@
         "clearSearch": "Rensa sökning",
         "page": "Sida",
         "untitled": "Utan titel"
+    },
+    "webtoonHint": {
+        "never": "",
+        "dismiss": "",
+        "switch": "",
+        "regionLabel": "",
+        "message": ""
+    },
+    "continuation": {
+        "scrollForNext": ""
     }
 }
