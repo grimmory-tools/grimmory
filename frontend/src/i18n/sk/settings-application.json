@@ -1,4 +1,41 @@
 {
     "title": "Všeobecné nastavenia",
-    "description": "Nakonfigurujte globálne nastavenia pre vašu inštanciu Grimmory, vrátane spracovania obrázkov obálok, preferencií vyhľadávania a limitov pre nahrávanie súborov."
+    "description": "Nakonfigurujte globálne nastavenia pre vašu inštanciu Grimmory, vrátane spracovania obrázkov obálok, preferencií vyhľadávania a limitov pre nahrávanie súborov.",
+    "covers": {
+        "verticalCropping": "",
+        "regenerateStartedDetail": "",
+        "verticalCroppingDesc": "",
+        "sectionTitle": "",
+        "smartCroppingDesc": "",
+        "horizontalCroppingDesc": "",
+        "regenerateAllBtn": "",
+        "regenerateStarted": "",
+        "regenerate": "",
+        "regenerateError": "",
+        "smartCropping": "",
+        "aspectRatioDesc": "",
+        "regenerateDesc": "",
+        "aspectRatio": "",
+        "regenerateMissingBtn": "",
+        "horizontalCropping": ""
+    },
+    "fileManagement": {
+        "invalidInputDetail": "",
+        "invalidInput": "",
+        "restartWarning": "",
+        "maxUploadPlaceholder": "",
+        "maxUploadSize": "",
+        "maxUploadDesc": "",
+        "sectionTitle": ""
+    },
+    "settingsSaved": "",
+    "search": {
+        "similarBook": "",
+        "sectionTitle": "",
+        "autoBookSearchDesc": "",
+        "autoBookSearch": "",
+        "similarBookDesc": ""
+    },
+    "settingsSavedDetail": "",
+    "settingsError": ""
 }
