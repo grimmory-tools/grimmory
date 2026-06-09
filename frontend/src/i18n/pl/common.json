@@ -23,5 +23,13 @@
     "discard": "Odrzuć",
     "review": "Przegląd",
     "displaySettings": "Ustawienia wyświetlania",
-    "cardSize": "Rozmiar karty"
+    "cardSize": "Rozmiar karty",
+    "on": "",
+    "off": "",
+    "moreActionsFor": "",
+    "cardSizeControls": "",
+    "libraryPathInaccessible": "",
+    "decreaseCardSize": "",
+    "dialogLoadError": "",
+    "increaseCardSize": ""
 }
