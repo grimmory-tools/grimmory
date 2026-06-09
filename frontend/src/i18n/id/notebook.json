@@ -9,5 +9,16 @@
     "note": "Catatan",
     "bookmark": "Markah",
     "annotation": "anotasi",
-    "annotations": "anotasi"
+    "annotations": "anotasi",
+    "sortOldest": "",
+    "highlight": "",
+    "sortNewest": "",
+    "allBooks": "",
+    "searchPlaceholder": "",
+    "noEntries": "",
+    "noResults": "",
+    "filterHighlights": "",
+    "noEntriesHint": "",
+    "exportMarkdown": "",
+    "filterByBook": ""
 }
