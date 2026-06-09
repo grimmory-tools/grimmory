@@ -14,7 +14,10 @@
         "aspectRatio": "Beeldverhoudingsdrempel: {{value}}",
         "aspectRatioDesc": "Afbeeldingen met een beeldverhouding boven deze drempel worden bijgesneden. Een waarde van 2,5 betekent dat afbeeldingen meer dan 2,5x hoger (of breder) dan normaal worden bijgesneden.",
         "smartCropping": "Slim bijsnijden",
-        "smartCroppingDesc": "Sla uniforme kleurgebieden over bij het bepalen waar bijgesneden moet worden. Richt de omslagafbeelding op de meest relevante inhoud."
+        "smartCroppingDesc": "Sla uniforme kleurgebieden over bij het bepalen waar bijgesneden moet worden. Richt de omslagafbeelding op de meest relevante inhoud.",
+        "regenerateAllBtn": "",
+        "regenerateDesc": "",
+        "regenerateMissingBtn": ""
     },
     "search": {
         "sectionTitle": "Zoeken en aanbevelingen",
