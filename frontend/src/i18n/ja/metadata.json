@@ -131,8 +131,7 @@
             "audiobookUploadFailed": "オーディオブックカバーのアップロード中にエラーが発生しました",
             "fileMetadataLoaded": "ブックファイルからメタデータを読み込みました。確認して保存してください。",
             "fileMetadataFailed": "ブックファイルからのメタデータ抽出に失敗しました"
-        },
-        "writtenToFileTooltip": ""
+        }
     },
     "picker": {
         "loadingMetadata": "完全なメタデータを読み込み中...",
@@ -222,16 +221,7 @@
         "downloadTooltip": "ダウンロード",
         "deleteTooltip": "削除",
         "downloadAllTooltip": "すべてのファイルをZIPアーカイブとしてダウンロード",
-        "physicalBookHint": "デジタルコピーをアップロードするか、メタデータを手動で追加できます。",
-        "totalDuration": "",
-        "noChapters": "",
-        "chapters": "",
-        "endTime": "",
-        "chapterTitle": "",
-        "duration": "",
-        "detachTooltip": "",
-        "fileName": "",
-        "startTime": ""
+        "physicalBookHint": "デジタルコピーをアップロードするか、メタデータを手動で追加できます。"
     },
     "viewer": {
         "metadataLocked": "この本のメタデータはロックされています。",
@@ -366,11 +356,7 @@
             "dateUpdatedSummary": "日付を更新しました",
             "dateUpdatedDetail": "本の完了日が更新されました。",
             "dateUpdateFailedSummary": "更新に失敗しました",
-            "dateUpdateFailedDetail": "本の完了日を更新できませんでした。",
-            "detachFileErrorSummary": "",
-            "detachFileErrorDetail": "",
-            "detachFileSuccessDetail": "",
-            "detachFileSuccessSummary": ""
+            "dateUpdateFailedDetail": "本の完了日を更新できませんでした。"
         },
         "confirm": {
             "resetProgressMessage": "「{{ title }}」の読書進捗をリセットしますか？",
@@ -386,20 +372,8 @@
             "deleteFileBtn": "ファイルを削除",
             "deleteBookMessage": "「{{ title }}」を削除してもよろしいですか？\n\nライブラリからブックレコードが完全に削除されます。\n\nこの操作は元に戻せません。",
             "deleteBookAllFilesMessage": "「{{ title }}」を削除してもよろしいですか？\n\nブックレコードと関連するすべてのファイルがファイルシステムから完全に削除されます。\n\nこの操作は元に戻せません。",
-            "deleteEverythingBtn": "すべて削除",
-            "detachFileHeader": "",
-            "largeFileHeader": "",
-            "largeFileMessage": "",
-            "detachFileMessage": "",
-            "detachFileCopyMetadata": "",
-            "detachFileBtn": "",
-            "sendAnyway": ""
-        },
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "firstAuthorBadge": "",
-        "shelvesLabel": "",
-        "audiobookAbridged": ""
+            "deleteEverythingBtn": "すべて削除"
+        }
     },
     "sidecar": {
         "title": "サイドカーメタデータ",
@@ -506,14 +480,7 @@
             "tag": "タグ",
             "series": "シリーズ",
             "publisher": "出版社",
-            "language": "言語",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "language": "言語"
         },
         "placeholders": {
             "searchAuthors": "著者を検索...",

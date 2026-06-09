@@ -131,8 +131,7 @@
             "audiobookUploadFailed": "上传有声书封面时发生错误",
             "fileMetadataLoaded": "已从图书文件加载元数据。请查看并保存。",
             "fileMetadataFailed": "从图书文件提取元数据失败"
-        },
-        "writtenToFileTooltip": ""
+        }
     },
     "picker": {
         "loadingMetadata": "正在加载完整元数据...",
@@ -222,16 +221,7 @@
         "downloadTooltip": "下载",
         "deleteTooltip": "删除",
         "downloadAllTooltip": "将所有文件下载为 ZIP 压缩包",
-        "physicalBookHint": "您可以上传数字副本或手动添加元数据。",
-        "totalDuration": "",
-        "noChapters": "",
-        "chapters": "",
-        "endTime": "",
-        "chapterTitle": "",
-        "duration": "",
-        "detachTooltip": "",
-        "fileName": "",
-        "startTime": ""
+        "physicalBookHint": "您可以上传数字副本或手动添加元数据。"
     },
     "viewer": {
         "metadataLocked": "此图书元数据已锁定。",
@@ -366,11 +356,7 @@
             "dateUpdatedSummary": "日期已更新",
             "dateUpdatedDetail": "图书完成日期已更新。",
             "dateUpdateFailedSummary": "更新失败",
-            "dateUpdateFailedDetail": "无法更新图书完成日期。",
-            "detachFileErrorSummary": "",
-            "detachFileErrorDetail": "",
-            "detachFileSuccessDetail": "",
-            "detachFileSuccessSummary": ""
+            "dateUpdateFailedDetail": "无法更新图书完成日期。"
         },
         "confirm": {
             "resetProgressMessage": "重置「{{ title }}」的阅读进度？",
@@ -386,20 +372,8 @@
             "deleteFileBtn": "删除文件",
             "deleteBookMessage": "确定要删除「{{ title }}」吗？\n\n这将从您的书库中永久删除图书记录。\n\n此操作无法撤销。",
             "deleteBookAllFilesMessage": "确定要删除「{{ title }}」吗？\n\n这将从您的文件系统中永久删除图书记录及所有关联文件。\n\n此操作无法撤销。",
-            "deleteEverythingBtn": "删除所有",
-            "detachFileHeader": "",
-            "largeFileHeader": "",
-            "largeFileMessage": "",
-            "detachFileMessage": "",
-            "detachFileCopyMetadata": "",
-            "detachFileBtn": "",
-            "sendAnyway": ""
-        },
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "firstAuthorBadge": "",
-        "shelvesLabel": "",
-        "audiobookAbridged": ""
+            "deleteEverythingBtn": "删除所有"
+        }
     },
     "sidecar": {
         "title": "Sidecar 元数据",
@@ -506,14 +480,7 @@
             "tag": "标签",
             "series": "系列",
             "publisher": "出版社",
-            "language": "语言",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "language": "语言"
         },
         "placeholders": {
             "searchAuthors": "搜索作者...",

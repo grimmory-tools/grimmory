@@ -131,8 +131,7 @@
             "audiobookUploadFailed": "Wystąpił błąd podczas przesyłania okładki audiobooka",
             "fileMetadataLoaded": "Metadane wczytane z pliku książki. Przejrzyj i zapisz.",
             "fileMetadataFailed": "Nie udało się wyodrębnić metadanych z pliku książki"
-        },
-        "writtenToFileTooltip": ""
+        }
     },
     "picker": {
         "loadingMetadata": "Ładowanie pełnych metadanych...",
@@ -222,16 +221,7 @@
         "downloadTooltip": "Pobierz",
         "deleteTooltip": "Usuń",
         "downloadAllTooltip": "Pobierz wszystkie pliki jako archiwum ZIP",
-        "physicalBookHint": "Możesz przesłać kopię cyfrową lub ręcznie dodać metadane.",
-        "totalDuration": "",
-        "noChapters": "",
-        "chapters": "",
-        "endTime": "",
-        "chapterTitle": "",
-        "duration": "",
-        "detachTooltip": "",
-        "fileName": "",
-        "startTime": ""
+        "physicalBookHint": "Możesz przesłać kopię cyfrową lub ręcznie dodać metadane."
     },
     "viewer": {
         "metadataLocked": "Metadane tej książki są zablokowane.",
@@ -366,11 +356,7 @@
             "dateUpdatedSummary": "Data zaktualizowana",
             "dateUpdatedDetail": "Data ukończenia książki została zaktualizowana.",
             "dateUpdateFailedSummary": "Aktualizacja nie powiodła się",
-            "dateUpdateFailedDetail": "Nie udało się zaktualizować daty ukończenia książki.",
-            "detachFileErrorSummary": "",
-            "detachFileErrorDetail": "",
-            "detachFileSuccessDetail": "",
-            "detachFileSuccessSummary": ""
+            "dateUpdateFailedDetail": "Nie udało się zaktualizować daty ukończenia książki."
         },
         "confirm": {
             "resetProgressMessage": "Zresetować postęp czytania dla \"{{ title }}\"?",
@@ -386,20 +372,8 @@
             "deleteFileBtn": "Usuń plik",
             "deleteBookMessage": "Czy na pewno chcesz usunąć \"{{ title }}\"?\n\nSpowoduje to trwałe usunięcie rekordu książki z Twojej biblioteki.\n\nTej operacji nie można cofnąć.",
             "deleteBookAllFilesMessage": "Czy na pewno chcesz usunąć \"{{ title }}\"?\n\nSpowoduje to trwałe usunięcie rekordu książki ORAZ wszystkich powiązanych plików z systemu plików.\n\nTej operacji nie można cofnąć.",
-            "deleteEverythingBtn": "Usuń wszystko",
-            "detachFileHeader": "",
-            "largeFileHeader": "",
-            "largeFileMessage": "",
-            "detachFileMessage": "",
-            "detachFileCopyMetadata": "",
-            "detachFileBtn": "",
-            "sendAnyway": ""
-        },
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "firstAuthorBadge": "",
-        "shelvesLabel": "",
-        "audiobookAbridged": ""
+            "deleteEverythingBtn": "Usuń wszystko"
+        }
     },
     "sidecar": {
         "title": "Metadane Sidecar",
@@ -506,14 +480,7 @@
             "tag": "Tag",
             "series": "Seria",
             "publisher": "Wydawca",
-            "language": "Język",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "language": "Język"
         },
         "placeholders": {
             "searchAuthors": "Szukaj autorów...",

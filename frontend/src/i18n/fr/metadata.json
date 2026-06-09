@@ -131,8 +131,7 @@
             "audiobookUploadFailed": "Une erreur s'est produite lors du téléversement de la couverture du livre audio",
             "fileMetadataLoaded": "Métadonnées chargées depuis le fichier du livre. Vérifiez et enregistrez.",
             "fileMetadataFailed": "Échec de l'extraction des métadonnées du fichier du livre"
-        },
-        "writtenToFileTooltip": ""
+        }
     },
     "picker": {
         "loadingMetadata": "Chargement des métadonnées complètes...",
@@ -222,16 +221,7 @@
         "downloadTooltip": "Télécharger",
         "deleteTooltip": "Supprimer",
         "downloadAllTooltip": "Télécharger tous les fichiers en archive ZIP",
-        "physicalBookHint": "Vous pouvez téléverser une copie numérique ou ajouter des métadonnées manuellement.",
-        "totalDuration": "",
-        "noChapters": "",
-        "chapters": "",
-        "endTime": "",
-        "chapterTitle": "",
-        "duration": "",
-        "detachTooltip": "",
-        "fileName": "",
-        "startTime": ""
+        "physicalBookHint": "Vous pouvez téléverser une copie numérique ou ajouter des métadonnées manuellement."
     },
     "viewer": {
         "metadataLocked": "Les métadonnées de ce livre sont verrouillées.",
@@ -366,11 +356,7 @@
             "dateUpdatedSummary": "Date mise à jour",
             "dateUpdatedDetail": "La date de fin du livre a été mise à jour.",
             "dateUpdateFailedSummary": "Échec de la mise à jour",
-            "dateUpdateFailedDetail": "Impossible de mettre à jour la date de fin du livre.",
-            "detachFileErrorSummary": "",
-            "detachFileErrorDetail": "",
-            "detachFileSuccessDetail": "",
-            "detachFileSuccessSummary": ""
+            "dateUpdateFailedDetail": "Impossible de mettre à jour la date de fin du livre."
         },
         "confirm": {
             "resetProgressMessage": "Réinitialiser la progression de lecture pour « {{ title }} » ?",
@@ -386,20 +372,8 @@
             "deleteFileBtn": "Supprimer le fichier",
             "deleteBookMessage": "Êtes-vous sûr de vouloir supprimer « {{ title }} » ?\n\nCela supprimera définitivement l'enregistrement du livre de votre bibliothèque.\n\nCette action est irréversible.",
             "deleteBookAllFilesMessage": "Êtes-vous sûr de vouloir supprimer « {{ title }} » ?\n\nCela supprimera définitivement l'enregistrement du livre ET tous les fichiers associés de votre système de fichiers.\n\nCette action est irréversible.",
-            "deleteEverythingBtn": "Tout supprimer",
-            "detachFileHeader": "",
-            "largeFileHeader": "",
-            "largeFileMessage": "",
-            "detachFileMessage": "",
-            "detachFileCopyMetadata": "",
-            "detachFileBtn": "",
-            "sendAnyway": ""
-        },
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "firstAuthorBadge": "",
-        "shelvesLabel": "",
-        "audiobookAbridged": ""
+            "deleteEverythingBtn": "Tout supprimer"
+        }
     },
     "sidecar": {
         "title": "Métadonnées Sidecar",
@@ -506,14 +480,7 @@
             "tag": "Tag",
             "series": "Série",
             "publisher": "Éditeur",
-            "language": "Langue",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "language": "Langue"
         },
         "placeholders": {
             "searchAuthors": "Rechercher des auteurs...",
