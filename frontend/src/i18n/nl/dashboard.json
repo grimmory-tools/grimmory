@@ -34,7 +34,8 @@
             "lastListened": "Verder luisteren",
             "latestAdded": "Recent toegevoegd",
             "random": "Ontdek iets nieuws",
-            "default": "Scroller"
+            "default": "Scroller",
+            "magicShelf": ""
         },
         "sortFields": {
             "title": "Titel",
@@ -58,6 +59,8 @@
         "sortDirections": {
             "asc": "Oplopend",
             "desc": "Aflopend"
-        }
+        },
+        "magicShelf": "",
+        "selectMagicShelf": ""
     }
 }
