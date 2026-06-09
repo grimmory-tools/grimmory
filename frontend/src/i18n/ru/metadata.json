@@ -131,7 +131,8 @@
             "audiobookUploadFailed": "Произошла ошибка при загрузке обложки аудиокниги",
             "fileMetadataLoaded": "Метаданные загружены из файла книги. Проверьте и сохраните.",
             "fileMetadataFailed": "Не удалось извлечь метаданные из файла книги"
-        }
+        },
+        "writtenToFileTooltip": ""
     },
     "picker": {
         "loadingMetadata": "Загрузка полных метаданных...",
@@ -221,7 +222,16 @@
         "downloadTooltip": "Скачать",
         "deleteTooltip": "Удалить",
         "downloadAllTooltip": "Скачать все файлы в виде ZIP-архива",
-        "physicalBookHint": "Вы можете загрузить цифровую копию или добавить метаданные вручную."
+        "physicalBookHint": "Вы можете загрузить цифровую копию или добавить метаданные вручную.",
+        "totalDuration": "",
+        "noChapters": "",
+        "chapters": "",
+        "endTime": "",
+        "chapterTitle": "",
+        "duration": "",
+        "detachTooltip": "",
+        "fileName": "",
+        "startTime": ""
     },
     "viewer": {
         "metadataLocked": "Метаданные этой книги заблокированы.",
@@ -356,7 +366,11 @@
             "dateUpdatedSummary": "Дата обновлена",
             "dateUpdatedDetail": "Дата завершения книги обновлена.",
             "dateUpdateFailedSummary": "Ошибка обновления",
-            "dateUpdateFailedDetail": "Не удалось обновить дату завершения книги."
+            "dateUpdateFailedDetail": "Не удалось обновить дату завершения книги.",
+            "detachFileErrorSummary": "",
+            "detachFileErrorDetail": "",
+            "detachFileSuccessDetail": "",
+            "detachFileSuccessSummary": ""
         },
         "confirm": {
             "resetProgressMessage": "Сбросить прогресс чтения для «{{ title }}»?",
@@ -372,8 +386,20 @@
             "deleteFileBtn": "Удалить файл",
             "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге из Вашей библиотеки.\n\nЭто действие нельзя отменить.",
             "deleteBookAllFilesMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге И все связанные файлы из Вашей файловой системы.\n\nЭто действие нельзя отменить.",
-            "deleteEverythingBtn": "Удалить всё"
-        }
+            "deleteEverythingBtn": "Удалить всё",
+            "detachFileHeader": "",
+            "largeFileHeader": "",
+            "largeFileMessage": "",
+            "detachFileMessage": "",
+            "detachFileCopyMetadata": "",
+            "detachFileBtn": "",
+            "sendAnyway": ""
+        },
+        "menuMarkPhysical": "",
+        "menuUnmarkPhysical": "",
+        "firstAuthorBadge": "",
+        "shelvesLabel": "",
+        "audiobookAbridged": ""
     },
     "sidecar": {
         "title": "Сопроводительные метаданные",
@@ -480,7 +506,14 @@
             "tag": "Тег",
             "series": "Серия",
             "publisher": "Издательство",
-            "language": "Язык"
+            "language": "Язык",
+            "publishers": "",
+            "genres": "",
+            "tags": "",
+            "authors": "",
+            "seriesPlural": "",
+            "moods": "",
+            "languages": ""
         },
         "placeholders": {
             "searchAuthors": "Поиск авторов...",
