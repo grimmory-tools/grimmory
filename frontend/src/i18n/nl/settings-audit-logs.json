@@ -1,3 +1,19 @@
 {
-    "description": "Bekijk een overzicht van beheerdersrelevante acties die in het systeem zijn uitgevoerd."
+    "description": "Bekijk een overzicht van beheerdersrelevante acties die in het systeem zijn uitgevoerd.",
+    "title": "",
+    "columns": {
+        "timestamp": "",
+        "action": "",
+        "ip": "",
+        "user": "",
+        "description": ""
+    },
+    "filterPlaceholder": "",
+    "pageReport": "",
+    "dateRangePlaceholder": "",
+    "clearFilters": "",
+    "sectionTitle": "",
+    "empty": "",
+    "autoRefresh": "",
+    "userFilterPlaceholder": ""
 }
