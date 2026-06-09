@@ -1,34 +1,4 @@
 {
     "title": "Profil používateľa",
-    "description": "Spravujte informácie o svojom účte a nastavenia zabezpečenia",
-    "usernamePlaceholder": "",
-    "toast": {
-        "passwordChanged": "",
-        "profileUpdateFailed": "",
-        "errorNoUser": "",
-        "passwordChangeFailed": "",
-        "profileUpdated": "",
-        "noChanges": ""
-    },
-    "validation": {
-        "passwordMismatch": "",
-        "passwordMinLength": "",
-        "confirmPasswordRequired": "",
-        "currentPasswordRequired": "",
-        "newPasswordRequired": ""
-    },
-    "currentPassword": "",
-    "email": "",
-    "username": "",
-    "basicInfo": "",
-    "newPassword": "",
-    "fullNamePlaceholder": "",
-    "editProfile": "",
-    "confirmNewPassword": "",
-    "saveChanges": "",
-    "emailPlaceholder": "",
-    "loading": "",
-    "security": "",
-    "changePassword": "",
-    "fullName": ""
+    "description": "Spravujte informácie o svojom účte a nastavenia zabezpečenia"
 }
