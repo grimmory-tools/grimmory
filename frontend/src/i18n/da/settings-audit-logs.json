@@ -1,1 +1,19 @@
-{}
+{
+    "title": "",
+    "columns": {
+        "timestamp": "",
+        "action": "",
+        "ip": "",
+        "user": "",
+        "description": ""
+    },
+    "filterPlaceholder": "",
+    "pageReport": "",
+    "description": "",
+    "dateRangePlaceholder": "",
+    "clearFilters": "",
+    "sectionTitle": "",
+    "empty": "",
+    "autoRefresh": "",
+    "userFilterPlaceholder": ""
+}
