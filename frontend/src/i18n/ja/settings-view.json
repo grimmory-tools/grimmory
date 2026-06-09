@@ -121,5 +121,35 @@
         "sidebarWidthDesc": "ナビゲーションサイドバーとブックフィルターパネルの幅を制御します。",
         "saved": "設定を更新しました",
         "savedDetail": "サイドバー幅の設定が保存されました。"
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": ""
     }
 }
