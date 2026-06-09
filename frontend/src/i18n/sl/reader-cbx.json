@@ -110,7 +110,12 @@
         "gray": "Sivo",
         "white": "Belo",
         "magnifierLensSize": "Velikost leče",
-        "magnifierZoom": "Povečava"
+        "magnifierZoom": "Povečava",
+        "clickToPaginate": "",
+        "stripMaxWidth": "",
+        "autoCloseMenu": "",
+        "brightness": "",
+        "emulateBook": ""
     },
     "sidebar": {
         "contentTab": "Vsebina",
@@ -130,5 +135,15 @@
         "clearSearch": "Počisti iskanje",
         "page": "Stran",
         "untitled": "Brez naslova"
+    },
+    "webtoonHint": {
+        "never": "",
+        "dismiss": "",
+        "switch": "",
+        "regionLabel": "",
+        "message": ""
+    },
+    "continuation": {
+        "scrollForNext": ""
     }
 }
