@@ -12,10 +12,8 @@ import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.util.koreader.EpubCfiService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -95,8 +93,7 @@ public class KoreaderService {
         }
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void syncProgressToKoreader(long bookId, float percentage, long userId) {
         try {
             koreaderUserRepository.findByBookLoreUserId(userId)
