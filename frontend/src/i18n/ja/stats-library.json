@@ -86,13 +86,7 @@
         "insightTimeSpan": "期間",
         "insightYearsOfLiterature": "年間の文学",
         "insightPeakDecade": "ピーク年代",
-        "insightPeakDecadeBooks": "{{ count }}冊",
-        "insightGoldenEraRange": "",
-        "insightGoldenEra": "",
-        "insightMostCommonYear": "",
-        "insightRarePicks": "",
-        "insightMostCommonYearBooks": "",
-        "insightRarityScore": ""
+        "insightPeakDecadeBooks": "{{ count }}冊"
     },
     "publicationTrend": {
         "title": "出版トレンド",
@@ -183,8 +177,7 @@
         "insightAvgPer": "{{ type }}あたりの平均",
         "insightAvgPerValue": "{{ avg }}冊",
         "tooltipBooks": "{{ status }}: {{ value }}冊",
-        "tooltipBook": "{{ status }}: {{ value }}冊",
-        "noDataPrefix": ""
+        "tooltipBook": "{{ status }}: {{ value }}冊"
     },
     "authorUniverse": {
         "title": "著者ユニバース",
