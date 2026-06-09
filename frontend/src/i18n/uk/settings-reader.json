@@ -67,7 +67,11 @@
         "autoZoom": "Автомасштабування",
         "pageFit": "Заповнення сторінки",
         "pageWidth": "За шириною",
-        "actualSize": "Оригінальний розмір"
+        "actualSize": "Оригінальний розмір",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Рідер коміксів: Стандартні налаштування",
@@ -95,7 +99,10 @@
         "infinite": "Нескінченний",
         "gray": "Сірий",
         "black": "Чорний",
-        "white": "Білий"
+        "white": "Білий",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Потоковий PDF-рідер: Стандартні налаштування",
