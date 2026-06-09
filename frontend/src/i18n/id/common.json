@@ -22,14 +22,5 @@
     "dismiss": "Abaikan",
     "discard": "Buang",
     "review": "Tinjau",
-    "displaySettings": "Pengaturan tampilan",
-    "on": "",
-    "off": "",
-    "cardSize": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "libraryPathInaccessible": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "displaySettings": "Pengaturan tampilan"
 }

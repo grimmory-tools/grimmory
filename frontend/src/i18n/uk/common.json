@@ -24,12 +24,5 @@
     "review": "Перевірити",
     "libraryPathInaccessible": "Шлях до бібліотеки недоступний",
     "displaySettings": "Налаштування відображення",
-    "cardSize": "Розмір картки",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "cardSize": "Розмір картки"
 }
