@@ -1,9 +1,9 @@
-import {computed, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {computed, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Book, BookRecommendation} from '../../../book/model/book.model';
-import {Subject} from 'rxjs';
-import {distinctUntilChanged, filter, map, takeUntil,} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {Tab, TabList, TabPanel, TabPanels, Tabs,} from 'primeng/tabs';
@@ -44,17 +44,17 @@ enum BookMetadataTab {
   ],
   styleUrls: ['./book-metadata-center.component.scss'],
 })
-export class BookMetadataCenterComponent implements OnInit, OnDestroy {
+export class BookMetadataCenterComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private bookService = inject(BookService);
   private userService = inject(UserService);
   private appSettingsService = inject(AppSettingsService);
   private metadataHostService = inject(BookMetadataHostService);
+  private destroyRef = inject(DestroyRef);
   readonly config = inject(DynamicDialogConfig, {optional: true});
   readonly ref = inject(DynamicDialogRef, {optional: true});
   BookMetadataTab = BookMetadataTab;
-  private destroy$ = new Subject<void>();
 
   private currentBookId = signal<number | null>(this.config?.data?.bookId ?? null);
   private bookQuery = injectQuery(() => {
@@ -136,7 +136,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
         .pipe(
           map(params => Number(params.get('bookId'))),
           filter(bookId => !isNaN(bookId)),
-          takeUntil(this.destroy$)
+          takeUntilDestroyed(this.destroyRef)
         )
         .subscribe(bookId => this.currentBookId.set(bookId));
     }
@@ -145,7 +145,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
       .pipe(
         filter((bookId): bookId is number => !!bookId),
         distinctUntilChanged(),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(bookId => this.currentBookId.set(bookId));
 
@@ -153,7 +153,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
       .pipe(
         map(params => params.get('tab')),
         distinctUntilChanged(),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(tabParam => {
         if (this.validTabs.includes(tabParam as BookMetadataTab) && this.canOpenTab(tabParam as BookMetadataTab)) {
@@ -188,8 +188,4 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }
