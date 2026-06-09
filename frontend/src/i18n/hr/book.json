@@ -47,8 +47,7 @@
             "noBooks": "Ova kolekcija nema knjiga!",
             "failedLibrary": "Učitavanje knjiga zbirke nije uspjelo!",
             "failedShelf": "Učitavanje knjiga police nije uspjelo!",
-            "activeFilters": "{{ count }} aktivnih filtera",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} aktivnih filtera"
         },
         "tooltip": {
             "clearFilters": "Očisti primijenjene filtere",
@@ -266,8 +265,7 @@
             "customFetchMetadata": "Prilagođeni dohvat metapodataka",
             "autoFetchMetadata": "Automatski dohvat metapodataka",
             "findDuplicates": "Pronađi duplikate",
-            "deleteLibrary": "Obriši knjižnicu",
-            "bulkIsbnImport": ""
+            "deleteLibrary": "Obriši knjižnicu"
         },
         "shelf": {
             "publicShelfPrefix": "Javna polica - ",
@@ -300,8 +298,7 @@
             "magicShelfDeletedDetail": "Čarobna polica je obrisana",
             "magicShelfDeleteFailedDetail": "Brisanje police nije uspjelo",
             "failedSummary": "Neuspjelo",
-            "magicShelfJsonCopiedDetail": "JSON datoteke čarobne police kopiran je u međuspremnik",
-            "dialogLoadFailedDetail": ""
+            "magicShelfJsonCopiedDetail": "JSON datoteke čarobne police kopiran je u međuspremnik"
         },
         "loading": {
             "deletingLibrary": "Brisanje zbirke '{{ name }}'..."
@@ -461,8 +458,7 @@
             "fileTooLargeError": "Datoteka premašuje maksimalnu veličinu od {{ maxSize }}",
             "uploadFailedUnknown": "Učitavanje nije uspjelo zbog nepoznate pogreške."
         },
-        "supplementaryAllFormats": "Za dodatne datoteke podržani su svi formati datoteka.",
-        "supportedFormats": ""
+        "supplementaryAllFormats": "Za dodatne datoteke podržani su svi formati datoteka."
     },
     "filter": {
         "title": "Filteri",
@@ -495,10 +491,7 @@
             "comicCharacter": "Lik iz stripa",
             "comicTeam": "Tim iz stripa",
             "comicLocation": "Lokacija iz stripa",
-            "comicCreator": "Autor stripa",
-            "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "comicCreator": "Autor stripa"
         },
         "readStatus": {
             "unread": "Nepročitano",
@@ -578,8 +571,7 @@
         "toast": {
             "updateSuccessDetail": "Police knjiga ažurirane",
             "updateFailedDetail": "Ažuriranje polica knjiga nije uspjelo"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "Kreiraj novu policu",
@@ -635,12 +627,7 @@
             "lockFailedDetail": "Došlo je do pogreške prilikom zaključavanja metapodataka.",
             "unlockFailedSummary": "Otključavanje nije uspjelo",
             "unlockFailedDetail": "Došlo je do pogreške prilikom otključavanja metapodataka."
-        },
-        "noRating": "",
-        "ratingOutOf": "",
-        "selectBookFallback": "",
-        "selectBook": "",
-        "label": ""
+        }
     },
     "lockUnlockDialog": {
         "title": "Zaključaj ili otključaj metapodatke",
@@ -861,48 +848,5 @@
             "deleteHeader": "Potvrdi brisanje",
             "deleteMessage": "Ovo će trajno obrisati {{ count }} knjigu/e i njihove datoteke s diska. Ova radnja se ne može poništiti."
         }
-    },
-    "bulkIsbnImport": {
-        "fileFormatsHint": "",
-        "startImportButton": "",
-        "chooseFile": "",
-        "skippedCount": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "previewLabel": "",
-        "summaryTitle": "",
-        "tabPaste": "",
-        "clearButton": "",
-        "tabFile": "",
-        "validCount": "",
-        "cancelImportButton": "",
-        "summaryFailed": "",
-        "processingHint": "",
-        "closeTooltip": "",
-        "errorFileTooLarge": "",
-        "libraryPlaceholder": "",
-        "processingLabel": "",
-        "title": "",
-        "summaryNoMetadata": "",
-        "lookingUp": "",
-        "pastePlaceholder": "",
-        "libraryLabel": "",
-        "summaryCreated": "",
-        "doneButton": "",
-        "parseButton": "",
-        "validationLibraryRequired": "",
-        "unknownError": "",
-        "description": "",
-        "validationNoIsbns": "",
-        "validationReady": "",
-        "reason": {
-            "invalid": "",
-            "alreadyExists": ""
-        },
-        "errorTooMany": "",
-        "errorNoIsbns": "",
-        "cancelButton": "",
-        "duplicatesRemoved": ""
     }
 }

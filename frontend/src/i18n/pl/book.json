@@ -47,8 +47,7 @@
             "noBooks": "Ta kolekcja nie zawiera książek!",
             "failedLibrary": "Nie udało się załadować książek biblioteki!",
             "failedShelf": "Nie udało się załadować książek półki!",
-            "activeFilters": "{{ count }} aktywnych filtrów",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} aktywnych filtrów"
         },
         "tooltip": {
             "clearFilters": "Wyczyść zastosowane filtry",
@@ -100,10 +99,7 @@
             "deleteBookMessage": "Czy na pewno chcesz usunąć \"{{ title }}\"?\n\nSpowoduje to trwałe usunięcie pliku książki z systemu plików.\n\nTej operacji nie można cofnąć.",
             "deleteBookHeader": "Potwierdź usunięcie",
             "deleteFileMessage": "Czy na pewno chcesz usunąć dodatkowy plik \"{{ fileName }}\"?",
-            "deleteFileHeader": "Potwierdź usunięcie pliku",
-            "largeFileMessage": "",
-            "sendAnyway": "",
-            "largeFileHeader": ""
+            "deleteFileHeader": "Potwierdź usunięcie pliku"
         },
         "toast": {
             "quickSendSuccessDetail": "Wysyłanie książki zostało zaplanowane.",
@@ -136,8 +132,7 @@
             "readBook": "Czytaj książkę",
             "playAudiobook": "Odtwórz audiobook",
             "bookMenu": "Menu akcji książki",
-            "continueReading": "Kontynuuj czytanie",
-            "readStatusMenu": ""
+            "continueReading": "Kontynuuj czytanie"
         }
     },
     "notes": {
@@ -266,8 +261,7 @@
             "customFetchMetadata": "Niestandardowe pobieranie metadanych",
             "autoFetchMetadata": "Automatyczne pobieranie metadanych",
             "findDuplicates": "Znajdź duplikaty",
-            "deleteLibrary": "Usuń bibliotekę",
-            "bulkIsbnImport": ""
+            "deleteLibrary": "Usuń bibliotekę"
         },
         "shelf": {
             "publicShelfPrefix": "Półka publiczna - ",
@@ -279,8 +273,7 @@
         "magicShelf": {
             "optionsLabel": "Opcje",
             "editMagicShelf": "Edytuj inteligentną półkę",
-            "deleteMagicShelf": "Usuń inteligentną półkę",
-            "exportJson": ""
+            "deleteMagicShelf": "Usuń inteligentną półkę"
         },
         "confirm": {
             "rescanLibraryMessage": "Czy na pewno chcesz odświeżyć bibliotekę: {{ name }}?",
@@ -299,9 +292,7 @@
             "shelfDeleteFailedDetail": "Nie udało się usunąć półki",
             "magicShelfDeletedDetail": "Inteligentna półka została usunięta",
             "magicShelfDeleteFailedDetail": "Nie udało się usunąć półki",
-            "failedSummary": "Niepowodzenie",
-            "magicShelfJsonCopiedDetail": "",
-            "dialogLoadFailedDetail": ""
+            "failedSummary": "Niepowodzenie"
         },
         "loading": {
             "deletingLibrary": "Usuwanie biblioteki '{{ name }}'..."
@@ -436,8 +427,7 @@
         "validationTitleOrIsbn": "Tytuł lub ISBN jest wymagany",
         "validationReady": "Gotowe do utworzenia",
         "cancelButton": "Anuluj",
-        "addButton": "Dodaj książkę fizyczną",
-        "fetchMetadataTooltip": ""
+        "addButton": "Dodaj książkę fizyczną"
     },
     "fileUploader": {
         "title": "Prześlij dodatkowy plik",
@@ -460,9 +450,7 @@
             "fileTooLargeDetail": "{{ fileName }} przekracza maksymalny rozmiar pliku {{ maxSize }}",
             "fileTooLargeError": "Plik przekracza maksymalny rozmiar {{ maxSize }}",
             "uploadFailedUnknown": "Przesyłanie nie powiodło się z powodu nieznanego błędu."
-        },
-        "supplementaryAllFormats": "",
-        "supportedFormats": ""
+        }
     },
     "filter": {
         "title": "Filtry",
@@ -495,10 +483,7 @@
             "comicCharacter": "Postać komiksowa",
             "comicTeam": "Drużyna komiksowa",
             "comicLocation": "Lokacja komiksowa",
-            "comicCreator": "Twórca komiksu",
-            "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "comicCreator": "Twórca komiksu"
         },
         "readStatus": {
             "unread": "Nieprzeczytana",
@@ -578,8 +563,7 @@
         "toast": {
             "updateSuccessDetail": "Półki książek zostały zaktualizowane",
             "updateFailedDetail": "Nie udało się zaktualizować półek książek"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "Utwórz nową półkę",
@@ -635,12 +619,7 @@
             "lockFailedDetail": "Wystąpił błąd podczas blokowania metadanych.",
             "unlockFailedSummary": "Odblokowywanie nie powiodło się",
             "unlockFailedDetail": "Wystąpił błąd podczas odblokowywania metadanych."
-        },
-        "noRating": "",
-        "ratingOutOf": "",
-        "selectBookFallback": "",
-        "selectBook": "",
-        "label": ""
+        }
     },
     "lockUnlockDialog": {
         "title": "Zablokuj lub odblokuj metadane",
@@ -788,31 +767,7 @@
             "selectAll": "Zaznacz wszystkie książki",
             "deselectAll": "Odznacz wszystkie książki",
             "deleteSelected": "Usuń zaznaczone książki"
-        },
-        "readButton": "",
-        "booksInSeries": "",
-        "continueButton": "",
-        "missingBooks": "",
-        "book": "",
-        "continueReading": "",
-        "stats": {
-            "avgGoodreads": "",
-            "avgHardcover": "",
-            "totalAudioDuration": "",
-            "owned": "",
-            "formats": "",
-            "avgPersonalRating": "",
-            "totalPages": "",
-            "avgAmazon": ""
-        },
-        "readPercent": "",
-        "completionOwned": "",
-        "viewDetails": "",
-        "listPages": "",
-        "synopsis": "",
-        "books": "",
-        "bookListTab": "",
-        "nextUp": ""
+        }
     },
     "duplicateMerger": {
         "title": "Znajdź duplikaty",
@@ -861,48 +816,5 @@
             "mergeFailedDetail": "Nie udało się scalić tej grupy.",
             "mergePartialDetail": "{{ success }} scalonych, {{ failed }} nieudanych."
         }
-    },
-    "bulkIsbnImport": {
-        "fileFormatsHint": "",
-        "startImportButton": "",
-        "chooseFile": "",
-        "skippedCount": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "previewLabel": "",
-        "summaryTitle": "",
-        "tabPaste": "",
-        "clearButton": "",
-        "tabFile": "",
-        "validCount": "",
-        "cancelImportButton": "",
-        "summaryFailed": "",
-        "processingHint": "",
-        "closeTooltip": "",
-        "errorFileTooLarge": "",
-        "libraryPlaceholder": "",
-        "processingLabel": "",
-        "title": "",
-        "summaryNoMetadata": "",
-        "lookingUp": "",
-        "pastePlaceholder": "",
-        "libraryLabel": "",
-        "summaryCreated": "",
-        "doneButton": "",
-        "parseButton": "",
-        "validationLibraryRequired": "",
-        "unknownError": "",
-        "description": "",
-        "validationNoIsbns": "",
-        "validationReady": "",
-        "reason": {
-            "invalid": "",
-            "alreadyExists": ""
-        },
-        "errorTooMany": "",
-        "errorNoIsbns": "",
-        "cancelButton": "",
-        "duplicatesRemoved": ""
     }
 }

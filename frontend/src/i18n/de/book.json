@@ -47,8 +47,7 @@
             "noBooks": "Diese Sammlung enthält keine Bücher!",
             "failedLibrary": "Bücher der Bibliothek konnten nicht geladen werden!",
             "failedShelf": "Bücher des Regals konnten nicht geladen werden!",
-            "activeFilters": "{{ count }} aktive Filter",
-            "failedBooks": ""
+            "activeFilters": "{{ count }} aktive Filter"
         },
         "tooltip": {
             "clearFilters": "Angewendete Filter löschen",
@@ -300,8 +299,7 @@
             "magicShelfDeletedDetail": "Magisches Regal wurde gelöscht",
             "magicShelfDeleteFailedDetail": "Regal konnte nicht gelöscht werden",
             "failedSummary": "Fehlgeschlagen",
-            "magicShelfJsonCopiedDetail": "Magisches Regal JSON in die Zwischenablage kopiert",
-            "dialogLoadFailedDetail": ""
+            "magicShelfJsonCopiedDetail": "Magisches Regal JSON in die Zwischenablage kopiert"
         },
         "loading": {
             "deletingLibrary": "Bibliothek '{{ name }}' wird gelöscht..."
@@ -461,8 +459,7 @@
             "fileTooLargeError": "Datei überschreitet die maximale Größe von {{ maxSize }}",
             "uploadFailedUnknown": "Hochladen aufgrund eines unbekannten Fehlers fehlgeschlagen."
         },
-        "supplementaryAllFormats": "Für Zusatzdateien werden alle Dateiformate unterstützt.",
-        "supportedFormats": ""
+        "supplementaryAllFormats": "Für Zusatzdateien werden alle Dateiformate unterstützt."
     },
     "filter": {
         "title": "Filter",
@@ -495,10 +492,7 @@
             "comicCharacter": "Comic-Charakter",
             "comicTeam": "Comic-Team",
             "comicLocation": "Comic-Ort",
-            "comicCreator": "Comic-Zeichner",
-            "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "comicCreator": "Comic-Zeichner"
         },
         "readStatus": {
             "unread": "Ungelesen",
@@ -578,8 +572,7 @@
         "toast": {
             "updateSuccessDetail": "Bücherregale aktualisiert",
             "updateFailedDetail": "Aktualisierung der Bücherregale fehlgeschlagen"
-        },
-        "searchPlaceholder": ""
+        }
     },
     "shelfCreator": {
         "title": "Neues Regal erstellen",
@@ -635,12 +628,7 @@
             "lockFailedDetail": "Beim Sperren der Metadaten ist ein Fehler aufgetreten.",
             "unlockFailedSummary": "Entsperren fehlgeschlagen",
             "unlockFailedDetail": "Beim Entsperren der Metadaten ist ein Fehler aufgetreten."
-        },
-        "noRating": "",
-        "ratingOutOf": "",
-        "selectBookFallback": "",
-        "selectBook": "",
-        "label": ""
+        }
     },
     "lockUnlockDialog": {
         "title": "Metadaten sperren oder entsperren",
@@ -788,31 +776,7 @@
             "selectAll": "Alle Bücher auswählen",
             "deselectAll": "Alle Bücher abwählen",
             "deleteSelected": "Ausgewählte Bücher löschen"
-        },
-        "readButton": "",
-        "booksInSeries": "",
-        "continueButton": "",
-        "missingBooks": "",
-        "book": "",
-        "continueReading": "",
-        "stats": {
-            "avgGoodreads": "",
-            "avgHardcover": "",
-            "totalAudioDuration": "",
-            "owned": "",
-            "formats": "",
-            "avgPersonalRating": "",
-            "totalPages": "",
-            "avgAmazon": ""
-        },
-        "readPercent": "",
-        "completionOwned": "",
-        "viewDetails": "",
-        "listPages": "",
-        "synopsis": "",
-        "books": "",
-        "bookListTab": "",
-        "nextUp": ""
+        }
     },
     "duplicateMerger": {
         "title": "Duplikate finden",
@@ -894,15 +858,6 @@
         "processingHint": "Bereits erstellte Bücher bleiben erhalten, wenn Sie abbrechen.",
         "cancelImportButton": "Import stoppen",
         "summaryTitle": "Import beendet",
-        "summaryFailed": "Fehlgeschlagen",
-        "fileFormatsHint": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "clearButton": "",
-        "summaryNoMetadata": "",
-        "summaryCreated": "",
-        "doneButton": "",
-        "parseButton": ""
+        "summaryFailed": "Fehlgeschlagen"
     }
 }
