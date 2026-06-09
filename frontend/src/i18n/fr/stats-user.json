@@ -27,11 +27,7 @@
         "ratingTaste": "Comparaison des goûts de notation",
         "seriesProgress": "Suivi de progression des séries",
         "readingDna": "Profil ADN de lecture",
-        "readingHabits": "Analyse des habitudes de lecture",
-        "bookFlow": "",
-        "publicationEra": "",
-        "readingDebt": "",
-        "sessionArchetypes": ""
+        "readingHabits": "Analyse des habitudes de lecture"
     },
     "sessionHeatmap": {
         "title": "Activité des sessions de lecture",
@@ -474,57 +470,5 @@
         "statusAbandoned": "Abandonné",
         "statusOther": "Autre",
         "trend": "Tendance"
-    },
-    "bookFlow": {
-        "noData": "",
-        "totalBooks": "",
-        "noDataHint": "",
-        "description": "",
-        "avgRating": "",
-        "completionRate": "",
-        "busiestQuarter": "",
-        "colRating": "",
-        "colAdded": "",
-        "colStatus": "",
-        "topStatus": "",
-        "title": "",
-        "tooltip": ""
-    },
-    "publicationEra": {
-        "noDataHint": "",
-        "title": "",
-        "tooltip": "",
-        "noData": "",
-        "description": "",
-        "bestDecade": "",
-        "avgRating": "",
-        "booksRated": ""
-    },
-    "readingDebt": {
-        "booksFinished": "",
-        "description": "",
-        "shrinking": "",
-        "backlog": "",
-        "booksAdded": "",
-        "growing": "",
-        "noData": "",
-        "trendLabel": "",
-        "noDataHint": "",
-        "title": "",
-        "currentBacklog": "",
-        "tooltip": ""
-    },
-    "sessionArchetypes": {
-        "archetype_afternoon": "",
-        "noData": "",
-        "title": "",
-        "tooltip": "",
-        "dominantType": "",
-        "archetype_morning": "",
-        "archetype_evening": "",
-        "description": "",
-        "noDataHint": "",
-        "archetype_night": "",
-        "sessions": ""
     }
 }

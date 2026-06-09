@@ -2,45 +2,15 @@
     "main": {
         "title": "Statistik Bacaan {{ name }}",
         "chartConfig": "Konfigurasi Bagan",
-        "close": "Tutup",
-        "resetLayout": "",
-        "customizeLayout": "",
-        "hideAll": "",
-        "showAll": ""
+        "close": "Tutup"
     },
     "sessionHeatmap": {
-        "consistency": "Konsistensi",
-        "readingSessions_plural": "",
-        "totalDays": "",
-        "milestone7DayStreak": "",
-        "longestStreak": "",
-        "previousYear": "",
-        "description": "",
-        "currentStreak": "",
-        "nextYear": "",
-        "title": "",
-        "milestoneYearOfReading": "",
-        "tooltip": "",
-        "readingSessions": "",
-        "readingSession": "",
-        "milestone100ReadingDays": "",
-        "milestone365ReadingDays": "",
-        "milestone30DayStreak": ""
+        "consistency": "Konsistensi"
     },
     "sessionTimeline": {
         "tooltipDuration": "Durasi:",
         "tooltipFormat": "Format:",
-        "unknown": "Tidak Diketahui",
-        "selectWeek": "",
-        "description": "",
-        "selectYear": "",
-        "tooltip": "",
-        "title": "",
-        "previousWeek": "",
-        "tooltipTime": "",
-        "week": "",
-        "readingSession": "",
-        "nextWeek": ""
+        "unknown": "Tidak Diketahui"
     },
     "genreStats": {
         "axisGenres": "Genre",
@@ -49,26 +19,12 @@
         "hr": "jam",
         "hrs": "jam",
         "min": "menit",
-        "sec": "detik",
-        "tooltip": "",
-        "axisTimeRead": "",
-        "title": "",
-        "description": "",
-        "readingTime": ""
+        "sec": "detik"
     },
     "completionTimeline": {
         "axisMonth": "Bulan",
         "completed": "Selesai",
-        "paused": "Jeda",
-        "tooltipBook": "",
-        "tooltipBooks": "",
-        "previousYear": "",
-        "title": "",
-        "axisNumberOfBooks": "",
-        "nextYear": "",
-        "discontinued": "",
-        "activeReading": "",
-        "description": ""
+        "paused": "Jeda"
     },
     "favoriteDays": {
         "january": "Januari",
@@ -83,20 +39,7 @@
         "october": "Oktober",
         "november": "November",
         "december": "Desember",
-        "sessions": "Sesi",
-        "title": "",
-        "axisNumberOfSessions": "",
-        "allYears": "",
-        "description": "",
-        "tooltip": "",
-        "durationHours": "",
-        "tooltipSessionsPlural": "",
-        "selectYear": "",
-        "axisDayOfWeek": "",
-        "tooltipSessions": "",
-        "selectMonth": "",
-        "allMonths": "",
-        "axisDurationHours": ""
+        "sessions": "Sesi"
     },
     "peakHours": {
         "january": "Januari",
@@ -113,19 +56,7 @@
         "december": "Desember",
         "sessions": "Sesi",
         "tooltipSessions": "{{ label }}: {{ value }} sesi",
-        "tooltipSessionsPlural": "{{ label }}: {{ value }} sesi",
-        "selectYear": "",
-        "allYears": "",
-        "title": "",
-        "axisNumberOfSessions": "",
-        "tooltipMin": "",
-        "tooltip": "",
-        "axisHourOfDay": "",
-        "selectMonth": "",
-        "avgDurationMin": "",
-        "description": "",
-        "allMonths": "",
-        "axisAvgDuration": ""
+        "tooltipSessionsPlural": "{{ label }}: {{ value }} sesi"
     },
     "personalRating": {
         "tooltip": "Menunjukkan berapa banyak buku yang telah Anda beri peringkat dari 1 hingga 10. Membantu Anda melihat apakah Anda cenderung memberi peringkat secara murah hati, kejam, atau terkumpul di sekitar skor tertentu. Hanya buku dengan peringkat pribadi yang disertakan.",
@@ -135,8 +66,7 @@
         "booksByPersonalRating": "Buku Berdasarkan Peringkat Pribadi",
         "tooltipTitle": "Peringkat Pribadi: {{ label }}",
         "tooltipBook": "{{ value }} buku",
-        "tooltipBooks": "{{ value }} buku",
-        "title": ""
+        "tooltipBooks": "{{ value }} buku"
     },
     "readStatus": {
         "title": "Distribusi Status Pembacaan",
@@ -148,10 +78,7 @@
         "read": "Baca",
         "partiallyRead": "Dibaca Sebagian",
         "paused": "Jeda",
-        "abandoned": "Tinggalkan",
-        "tooltipLabel": "",
-        "wontRead": "",
-        "noStatus": ""
+        "abandoned": "Tinggalkan"
     },
     "readingDna": {
         "traits": {
@@ -161,59 +88,8 @@
             "patient": "Sabar",
             "social": "Sosial",
             "nostalgic": "Nostalgia",
-            "ambitious": "Ambisius",
-            "adventurous": ""
-        },
-        "description": "",
-        "descriptions": {
-            "ambitious": {
-                "mid": "",
-                "high": "",
-                "low": ""
-            },
-            "perfectionist": {
-                "high": "",
-                "low": "",
-                "mid": ""
-            },
-            "nostalgic": {
-                "mid": "",
-                "high": "",
-                "low": ""
-            },
-            "patient": {
-                "high": "",
-                "low": "",
-                "mid": ""
-            },
-            "adventurous": {
-                "high": "",
-                "mid": "",
-                "low": ""
-            },
-            "emotional": {
-                "low": "",
-                "mid": "",
-                "high": ""
-            },
-            "intellectual": {
-                "high": "",
-                "low": "",
-                "mid": ""
-            },
-            "social": {
-                "low": "",
-                "high": "",
-                "mid": ""
-            }
-        },
-        "tooltipPersonality": "",
-        "title": "",
-        "personalityTraits": "",
-        "tooltipScore": "",
-        "tooltipDefaultDescription": "",
-        "tooltip": "",
-        "readingDnaProfile": ""
+            "ambitious": "Ambisius"
+        }
     },
     "readingHabits": {
         "habits": {
@@ -222,99 +98,15 @@
             "organization": "Organisasi",
             "intensity": "Intensitas",
             "methodology": "Metodologi",
-            "momentum": "Momentum",
-            "multitasking": "",
-            "completionism": ""
-        },
-        "descriptions": {
-            "exploration": {
-                "high": "",
-                "low": "",
-                "mid": ""
-            },
-            "methodology": {
-                "mid": "",
-                "high": "",
-                "low": ""
-            },
-            "momentum": {
-                "high": "",
-                "low": "",
-                "mid": ""
-            },
-            "completionism": {
-                "mid": "",
-                "high": "",
-                "low": ""
-            },
-            "intensity": {
-                "low": "",
-                "high": "",
-                "mid": ""
-            },
-            "multitasking": {
-                "high": "",
-                "mid": "",
-                "low": ""
-            },
-            "consistency": {
-                "low": "",
-                "mid": "",
-                "high": ""
-            },
-            "organization": {
-                "mid": "",
-                "low": "",
-                "high": ""
-            }
-        },
-        "tooltip": "",
-        "tooltipScore": "",
-        "readingHabitsProfile": "",
-        "tooltipHabit": "",
-        "title": "",
-        "description": "",
-        "tooltipDefaultDescription": "",
-        "habitPatterns": ""
+            "momentum": "Momentum"
+        }
     },
     "readingProgress": {
-        "completed": "Selesai",
-        "almostFinished": "",
-        "gettingIntoIt": "",
-        "description": "",
-        "booksByProgress": "",
-        "halfwayThrough": "",
-        "tooltip": "",
-        "justStarted": "",
-        "notStarted": "",
-        "tooltipLabel": "",
-        "title": ""
+        "completed": "Selesai"
     },
     "ratingTaste": {
         "mainstream": "Arus Utama",
-        "balanced": "Seimbang",
-        "tasteProfile": "",
-        "tooltip": "",
-        "booksAnalyzed": "",
-        "quadrantHiddenGems": "",
-        "tooltipDifference": "",
-        "description": "",
-        "quadrantDescPopularFavorites": "",
-        "tooltipYourRating": "",
-        "avgDeviation": "",
-        "quadrantOverrated": "",
-        "tooltipUnknownBook": "",
-        "title": "",
-        "axisExternalRating": "",
-        "tooltipCategory": "",
-        "quadrantDescOverrated": "",
-        "tooltipExternalRating": "",
-        "quadrantAgreedMisses": "",
-        "quadrantPopularFavorites": "",
-        "quadrantDescHiddenGems": "",
-        "quadrantDescAgreedMisses": "",
-        "uniqueTaste": "",
-        "axisPersonalRating": ""
+        "balanced": "Seimbang"
     },
     "seriesProgress": {
         "series": "Seri",
@@ -324,207 +116,36 @@
         "paused": "Jeda",
         "abandoned": "Ditinggalkan",
         "unread": "Belum Dibaca",
-        "next": "Berikutnya:",
-        "description": "",
-        "notStarted": "",
-        "partiallyRead": "",
-        "tooltipYourRating": "",
-        "wontRead": "",
-        "inProgress": "",
-        "topRated": "",
-        "noData": "",
-        "sortByBooks": "",
-        "tooltip": "",
-        "noMatchingSearch": "",
-        "tooltipSeriesTotal": "",
-        "sortByName": "",
-        "searchSeries": "",
-        "tooltipRead": "",
-        "booksRead": "",
-        "sortByProgress": "",
-        "sortByRating": "",
-        "pageInfo": "",
-        "allStatus": "",
-        "noDataHint": "",
-        "title": "",
-        "avgCompletion": "",
-        "ofTotal": "",
-        "seriesBreakdown": "",
-        "axisCompletion": "",
-        "inSeriesHint": ""
+        "next": "Berikutnya:"
     },
     "pageTurner": {
         "shrinking": "Menyusut",
-        "growing": "Tumbuh",
-        "decreasing": "",
-        "guiltyPleasure": "",
-        "steady": "",
-        "tooltipAvgSession": "",
-        "tooltip": "",
-        "tooltipRating": "",
-        "sessionDurationTrend": "",
-        "gapBetweenSessionsTrend": "",
-        "mostGripping": "",
-        "increasing": "",
-        "title": "",
-        "description": "",
-        "tooltipSessions": "",
-        "tooltipGripScore": "",
-        "gripScore": "",
-        "avgGripScore": "",
-        "finishBurst": "",
-        "axisGripScore": ""
+        "growing": "Tumbuh"
     },
     "completionRace": {
         "books": "Buku",
         "sessions": "Sesi",
         "fastest": "Tercepat",
-        "slowest": "Terlambat",
-        "avgDays": "",
-        "medianDays": "",
-        "tooltip": "",
-        "title": "",
-        "noDataHint": "",
-        "description": "",
-        "tooltipDayProgress": "",
-        "noData": "",
-        "axisDaysSinceFirstSession": "",
-        "previousYear": "",
-        "nextYear": "",
-        "axisProgress": ""
+        "slowest": "Terlambat"
     },
     "readingSurvival": {
-        "started": "Dimulai",
-        "description": "",
-        "tooltip": "",
-        "dangerZone": "",
-        "axisProgressThreshold": "",
-        "title": "",
-        "noDataHint": "",
-        "noData": "",
-        "tooltipSurvival": "",
-        "axisBooksSurviving": "",
-        "medianDropout": "",
-        "survivalRate": "",
-        "completionRate": "",
-        "tooltipProgress": ""
+        "started": "Dimulai"
     },
     "readingClock": {
-        "balanced": "Seimbang",
-        "noData": "",
-        "description": "",
-        "readerType": "",
-        "noDataHint": "",
-        "nightOwl": "",
-        "totalRead": "",
-        "earlyBird": "",
-        "title": "",
-        "tooltipReading": "",
-        "tooltip": "",
-        "peakHour": ""
+        "balanced": "Seimbang"
     },
     "bookLength": {
         "statusRead": "Baca",
         "statusReading": "Membaca",
         "statusAbandoned": "Ditinggalkan",
         "statusOther": "Lainnya",
-        "trend": "Tren",
-        "tooltipStatus": "",
-        "tooltipUnknownBook": "",
-        "axisPersonalRating": "",
-        "title": "",
-        "axisPageCount": "",
-        "description": "",
-        "booksAnalyzed": "",
-        "sweetSpot": "",
-        "highestRated": "",
-        "tooltipPages": "",
-        "tooltip": "",
-        "tooltipRating": ""
+        "trend": "Tren"
     },
     "bookFlow": {
         "colAdded": "Ditambahkan",
-        "colStatus": "Status",
-        "noData": "",
-        "totalBooks": "",
-        "noDataHint": "",
-        "description": "",
-        "avgRating": "",
-        "completionRate": "",
-        "busiestQuarter": "",
-        "colRating": "",
-        "topStatus": "",
-        "title": "",
-        "tooltip": ""
+        "colStatus": "Status"
     },
     "readingDebt": {
-        "trendLabel": "Tren",
-        "booksFinished": "",
-        "description": "",
-        "shrinking": "",
-        "backlog": "",
-        "booksAdded": "",
-        "growing": "",
-        "noData": "",
-        "noDataHint": "",
-        "title": "",
-        "currentBacklog": "",
-        "tooltip": ""
-    },
-    "chartNames": {
-        "heatmap": "",
-        "readingSurvival": "",
-        "completionRace": "",
-        "ratingTaste": "",
-        "bookFlow": "",
-        "bookLength": "",
-        "readingHeatmap": "",
-        "publicationEra": "",
-        "readingDebt": "",
-        "genreStats": "",
-        "readingClock": "",
-        "sessionArchetypes": "",
-        "readingProgress": "",
-        "readStatus": "",
-        "pageTurner": "",
-        "favoriteDays": "",
-        "seriesProgress": "",
-        "personalRating": "",
-        "timeline": "",
-        "readingDna": "",
-        "completionTimeline": "",
-        "readingHabits": "",
-        "peakHours": ""
-    },
-    "readingHeatmap": {
-        "title": "",
-        "description": "",
-        "booksRead": "",
-        "tooltipBooks": "",
-        "tooltipBook": "",
-        "tooltip": ""
-    },
-    "publicationEra": {
-        "noDataHint": "",
-        "title": "",
-        "tooltip": "",
-        "noData": "",
-        "description": "",
-        "bestDecade": "",
-        "avgRating": "",
-        "booksRated": ""
-    },
-    "sessionArchetypes": {
-        "archetype_afternoon": "",
-        "noData": "",
-        "title": "",
-        "tooltip": "",
-        "dominantType": "",
-        "archetype_morning": "",
-        "archetype_evening": "",
-        "description": "",
-        "noDataHint": "",
-        "archetype_night": "",
-        "sessions": ""
+        "trendLabel": "Tren"
     }
 }
