@@ -25,7 +25,8 @@
         "savedDetail": "",
         "customPrimaryOptionLabel": "",
         "oledDarkMode": "",
-        "sectionTitle": ""
+        "sectionTitle": "",
+        "sectionDesc": ""
     },
     "librarySort": {
         "viewTable": "",
@@ -150,6 +151,7 @@
         "displayMode": ""
     },
     "language": {
-        "savedDetail": ""
+        "savedDetail": "",
+        "label": ""
     }
 }
