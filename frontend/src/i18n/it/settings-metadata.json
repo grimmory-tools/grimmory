@@ -37,9 +37,7 @@
         "writeOnScanDesc": "Crea file JSON sidecar quando i libri vengono aggiunti per la prima volta alla libreria durante la scansione.",
         "includeCover": "Includi file immagine copertina",
         "includeCoverDesc": "Salva anche l'immagine di copertina come <code>NomeLibro.cover.jpg</code> accanto al file JSON sidecar.",
-        "loadError": "Caricamento impostazioni fallito.",
-        "networkModeTitle": "",
-        "networkModeDesc": ""
+        "loadError": "Caricamento impostazioni fallito."
     },
     "providers": {
         "sectionTitle": "Provider metadati",
@@ -65,38 +63,7 @@
     },
     "fieldSelector": {
         "sectionTitle": "Campi abilitati nell'editor e selettore metadati",
-        "sectionDesc": "Seleziona quali campi metadati visualizzare durante la modifica delle informazioni del libro o la selezione dei metadati dai provider. I campi disabilitati saranno nascosti dall'interfaccia.",
-        "fields": {
-            "amazonRating": "",
-            "asin": "",
-            "goodreadsRating": "",
-            "goodreadsReviewCount": "",
-            "hardcoverRating": "",
-            "hardcoverId": "",
-            "audibleRating": "",
-            "googleId": "",
-            "ranobedbId": "",
-            "amazonReviewCount": "",
-            "lubimyczytacId": "",
-            "ranobedbRating": "",
-            "lubimyczytacRating": "",
-            "comicvineId": "",
-            "hardcoverBookId": "",
-            "audibleReviewCount": "",
-            "hardcoverReviewCount": "",
-            "audibleId": "",
-            "goodreadsId": ""
-        },
-        "providers": {
-            "goodreads": "",
-            "amazon": "",
-            "googleBooks": "",
-            "lubimyczytac": "",
-            "hardcover": "",
-            "ranobedb": "",
-            "audible": "",
-            "comicvine": ""
-        }
+        "sectionDesc": "Seleziona quali campi metadati visualizzare durante la modifica delle informazioni del libro o la selezione dei metadati dai provider. I campi disabilitati saranno nascosti dall'interfaccia."
     },
     "publicReviews": {
         "sectionTitle": "Recensioni pubbliche",
@@ -122,34 +89,6 @@
         "saveSuccess": "Pesi salvati con successo",
         "saveError": "Salvataggio pesi fallito",
         "recalcSuccess": "Tutti i punteggi di corrispondenza dei libri sono stati ricalcolati con successo.",
-        "recalcError": "Ricalcolo dei punteggi di corrispondenza fallito.",
-        "fields": {
-            "amazonReviewCount": "",
-            "hardcoverRating": "",
-            "doubanReviewCount": "",
-            "authors": "",
-            "seriesName": "",
-            "amazonRating": "",
-            "doubanRating": "",
-            "publisher": "",
-            "seriesTotal": "",
-            "language": "",
-            "coverImage": "",
-            "categories": "",
-            "subtitle": "",
-            "ranobedbRating": "",
-            "title": "",
-            "isbn10": "",
-            "publishedDate": "",
-            "goodreadsRating": "",
-            "seriesNumber": "",
-            "audibleReviewCount": "",
-            "isbn13": "",
-            "description": "",
-            "pageCount": "",
-            "hardcoverReviewCount": "",
-            "goodreadsReviewCount": "",
-            "audibleRating": ""
-        }
+        "recalcError": "Ricalcolo dei punteggi di corrispondenza fallito."
     }
 }

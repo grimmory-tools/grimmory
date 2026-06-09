@@ -37,9 +37,7 @@
         "writeOnScanDesc": "Twórz pliki sidecar JSON, gdy książki są po raz pierwszy dodawane do biblioteki podczas skanowania.",
         "includeCover": "Dołącz plik okładki",
         "includeCoverDesc": "Zapisuj również obraz okładki jako <code>NazwaKsiążki.cover.jpg</code> obok pliku sidecar JSON.",
-        "loadError": "Nie udało się załadować ustawień.",
-        "networkModeTitle": "",
-        "networkModeDesc": ""
+        "loadError": "Nie udało się załadować ustawień."
     },
     "providers": {
         "sectionTitle": "Dostawcy metadanych",
@@ -65,38 +63,7 @@
     },
     "fieldSelector": {
         "sectionTitle": "Włączone pola w edytorze i selekcji metadanych",
-        "sectionDesc": "Wybierz, które pola metadanych wyświetlać podczas edycji informacji o książce lub wybierania metadanych od dostawców. Wyłączone pola zostaną ukryte z interfejsu.",
-        "fields": {
-            "amazonRating": "",
-            "asin": "",
-            "goodreadsRating": "",
-            "goodreadsReviewCount": "",
-            "hardcoverRating": "",
-            "hardcoverId": "",
-            "audibleRating": "",
-            "googleId": "",
-            "ranobedbId": "",
-            "amazonReviewCount": "",
-            "lubimyczytacId": "",
-            "ranobedbRating": "",
-            "lubimyczytacRating": "",
-            "comicvineId": "",
-            "hardcoverBookId": "",
-            "audibleReviewCount": "",
-            "hardcoverReviewCount": "",
-            "audibleId": "",
-            "goodreadsId": ""
-        },
-        "providers": {
-            "goodreads": "",
-            "amazon": "",
-            "googleBooks": "",
-            "lubimyczytac": "",
-            "hardcover": "",
-            "ranobedb": "",
-            "audible": "",
-            "comicvine": ""
-        }
+        "sectionDesc": "Wybierz, które pola metadanych wyświetlać podczas edycji informacji o książce lub wybierania metadanych od dostawców. Wyłączone pola zostaną ukryte z interfejsu."
     },
     "publicReviews": {
         "sectionTitle": "Recenzje publiczne",
@@ -122,34 +89,6 @@
         "saveSuccess": "Wagi zapisane pomyślnie",
         "saveError": "Nie udało się zapisać wag",
         "recalcSuccess": "Wszystkie wyniki dopasowania książek zostały pomyślnie przeliczone.",
-        "recalcError": "Nie udało się przeliczyć wyników dopasowania.",
-        "fields": {
-            "amazonReviewCount": "",
-            "hardcoverRating": "",
-            "doubanReviewCount": "",
-            "authors": "",
-            "seriesName": "",
-            "amazonRating": "",
-            "doubanRating": "",
-            "publisher": "",
-            "seriesTotal": "",
-            "language": "",
-            "coverImage": "",
-            "categories": "",
-            "subtitle": "",
-            "ranobedbRating": "",
-            "title": "",
-            "isbn10": "",
-            "publishedDate": "",
-            "goodreadsRating": "",
-            "seriesNumber": "",
-            "audibleReviewCount": "",
-            "isbn13": "",
-            "description": "",
-            "pageCount": "",
-            "hardcoverReviewCount": "",
-            "goodreadsReviewCount": "",
-            "audibleRating": ""
-        }
+        "recalcError": "Nie udało się przeliczyć wyników dopasowania."
     }
 }
