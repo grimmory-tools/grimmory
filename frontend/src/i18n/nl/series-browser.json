@@ -1,24 +1,4 @@
 {
     "pageTitle": "Reeksen",
-    "browseAllSeries": "Blader in Alle Series",
-    "sort": {
-        "nameAsc": "",
-        "recentlyRead": "",
-        "nameDesc": "",
-        "progress": "",
-        "recentlyAdded": "",
-        "bookCount": ""
-    },
-    "readNext": "",
-    "searchPlaceholder": "",
-    "noSeriesFound": "",
-    "noSeriesInCategory": "",
-    "filters": {
-        "completed": "",
-        "abandoned": "",
-        "all": "",
-        "notStarted": "",
-        "inProgress": ""
-    },
-    "booksRead": ""
+    "browseAllSeries": "Blader in Alle Series"
 }
