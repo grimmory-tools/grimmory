@@ -50,45 +50,49 @@ describe('LibrariesSummaryService', () => {
         fileSizeKb: 1024,
         metadata: {
           bookId: 1,
-          authors: ['Alice', 'Bob'],
+          authors: ['Alice', 'Alice ', 'Bob'],
           seriesName: 'Series A',
-          publisher: 'Publisher X',
+          publisher: 'Publisher A',
         },
       } as Book,
       {
         id: 2,
-        libraryId: 1,
-        libraryName: 'Alpha',
-        fileSizeKb: 1024,
+        libraryId: 2,
+        libraryName: 'Beta',
+        fileSizeKb: 4096,
         metadata: {
           bookId: 2,
-          authors: ['Alice', 'Carol'],
-          publisher: 'Publisher X',
+          authors: ['Zed'],
+          seriesName: 'Series B',
+          publisher: 'Publisher B',
         },
       } as Book,
       {
         id: 3,
-        libraryId: 2,
-        libraryName: 'Beta',
-        fileSizeKb: 10240,
+        libraryId: 1,
+        libraryName: 'Alpha',
+        fileSizeKb: 1024 * 1024,
         metadata: {
           bookId: 3,
-          authors: ['Dave'],
+          authors: ['Carol'],
+          seriesName: 'Series A',
+          publisher: 'Publisher A',
         },
       } as Book,
     ]);
     selectedLibrary.set(1);
 
     const service = TestBed.inject(LibrariesSummaryService);
+    const summary = service.booksSummary();
 
-    expect(service.booksSummary()).toEqual({
+    expect(summary).toEqual({
       totalBooks: 2,
-      totalSizeKb: 2048,
+      totalSizeKb: 1024 + 1024 * 1024,
       totalAuthors: 3,
       totalSeries: 1,
       totalPublishers: 1,
     });
-    expect(service.formattedSize()).toBe('2.00 MB');
+    expect(service.formattedSize()).toBe('1.00 GB');
   });
 
   it('uses primary file size when the book does not expose a top-level file size', () => {
