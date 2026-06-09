@@ -37,7 +37,15 @@
         "emailClaim": "Claim de l'e-mail",
         "emailPlaceholder": "ex. email",
         "nameClaim": "Claim du nom d'affichage",
-        "namePlaceholder": "ex. name"
+        "namePlaceholder": "ex. name",
+        "clientSecretHint": "",
+        "sessionDuration": "",
+        "groupsPlaceholder": "",
+        "groupsClaim": "",
+        "sessionDurationPlaceholder": "",
+        "sessionDurationHint": "",
+        "backchannelLogoutHint": "",
+        "backchannelLogoutUri": ""
     },
     "provisioning": {
         "sectionTitle": "Provisionnement des utilisateurs",
@@ -49,7 +57,10 @@
         "defaultPerms": "Permissions par défaut",
         "readBooks": "Lire des livres",
         "defaultLibraryAccess": "Accès par défaut aux bibliothèques",
-        "selectLibraries": "Sélectionnez les bibliothèques auxquelles les nouveaux utilisateurs peuvent accéder"
+        "selectLibraries": "Sélectionnez les bibliothèques auxquelles les nouveaux utilisateurs peuvent accéder",
+        "linkLocalLabel": "",
+        "linkLocalDesc": "",
+        "linkLocalWarning": ""
     },
     "toast": {
         "saved": "Enregistré",
@@ -58,6 +69,72 @@
         "providerSaved": "Paramètres du fournisseur OIDC enregistrés.",
         "providerError": "Échec de l'enregistrement des paramètres du fournisseur OIDC.",
         "provisionSaved": "Paramètres de provisionnement automatique OIDC enregistrés.",
-        "provisionError": "Échec de l'enregistrement des paramètres de provisionnement automatique OIDC."
+        "provisionError": "Échec de l'enregistrement des paramètres de provisionnement automatique OIDC.",
+        "syncModeSaved": "",
+        "sessionDurationError": "",
+        "groupMappingDeleted": "",
+        "sessionDurationSaved": "",
+        "groupMappingError": "",
+        "syncModeError": "",
+        "copiedToClipboard": "",
+        "groupMappingSaved": ""
+    },
+    "infoPanel": {
+        "sectionTitle": "",
+        "pkceMethod": "",
+        "redirectUri": "",
+        "backChannelLogoutUri": "",
+        "postLogoutRedirectUri": "",
+        "sectionDesc": "",
+        "grantType": "",
+        "requiredScopes": ""
+    },
+    "groupMapping": {
+        "syncModeHint": "",
+        "sectionTitle": "",
+        "librariesLabel": "",
+        "descriptionPlaceholder": "",
+        "colPermissions": "",
+        "syncModeLabel": "",
+        "addTitle": "",
+        "colGroupClaim": "",
+        "colLibraries": "",
+        "colDescription": "",
+        "colAdmin": "",
+        "permissionsLabel": "",
+        "groupClaimLabel": "",
+        "sectionDesc": "",
+        "editTitle": "",
+        "addMapping": "",
+        "adminLabel": "",
+        "descriptionLabel": "",
+        "groupClaimPlaceholder": ""
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
+    },
+    "oidcOnly": {
+        "enabled": "",
+        "saved": "",
+        "sectionTitle": "",
+        "description": "",
+        "label": "",
+        "backdoorHint": "",
+        "error": "",
+        "disabled": "",
+        "sectionDesc": ""
+    },
+    "testConnection": {
+        "error": "",
+        "button": "",
+        "failed": "",
+        "passed": "",
+        "checks": ""
     }
 }
