@@ -53,10 +53,7 @@
         "logout": "Déconnexion",
         "updateAvailable": "Mise à jour disponible",
         "versionCopied": "Version {{ version }} copiée dans le presse-papiers.",
-        "versionCopyFailed": "Impossible de copier la version {{ version }}.",
-        "toggleNavigation": "",
-        "goToDashboard": "",
-        "bookdrop": ""
+        "versionCopyFailed": "Impossible de copier la version {{ version }}."
     },
     "closeNavigation": "Fermer la navigation",
     "changelog": {
