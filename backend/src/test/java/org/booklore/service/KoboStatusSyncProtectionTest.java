@@ -18,6 +18,7 @@ import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.kobo.KoboSettingsService;
+import org.booklore.service.koreader.KoreaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,6 +62,9 @@ class KoboStatusSyncProtectionTest {
 
     @Mock
     private HardcoverSyncService hardcoverSyncService;
+
+    @Mock
+    private KoreaderService koreaderService;
 
     @InjectMocks
     private KoboReadingStateService service;

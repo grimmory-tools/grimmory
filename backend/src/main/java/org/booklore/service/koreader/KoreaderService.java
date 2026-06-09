@@ -12,8 +12,10 @@ import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.util.koreader.EpubCfiService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -93,38 +95,46 @@ public class KoreaderService {
         }
     }
 
-    @Transactional
-    public void syncProgressToKoreader(Long bookId, Float percentage, Long userId) {
-        if (percentage == null) return;
-
-        koreaderUserRepository.findByBookLoreUserId(userId)
-                .filter(KoreaderUserEntity::isSyncEnabled)
-                .filter(KoreaderUserEntity::isSyncWithBookloreReader)
-                .ifPresent(koreaderUser -> {
-                    BookEntity book = bookRepository.findById(bookId).orElse(null);
-                    BookLoreUserEntity user = userRepository.findById(userId).orElse(null);
-                    if (book == null || user == null) return;
-
-                    UserBookProgressEntity progress = getOrCreateUserProgress(user, book);
-
-                    float koreaderPercent = percentage / 100.0f;
-                    progress.setKoreaderProgressPercent(koreaderPercent);
-                    progress.setKoreaderLastSyncTime(Instant.now());
-
-                    BookFileEntity primaryFile = book.getPrimaryBookFile();
-                    if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
-                            && progress.getEpubProgress() != null) {
-                        try {
-                            String xpointer = epubCfiService.convertCfiToProgressXPointer(
-                                    book.getFullFilePath(), progress.getEpubProgress());
-                            progress.setKoreaderProgress(xpointer);
-                        } catch (Exception e) {
-                            log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void syncProgressToKoreader(long bookId, float percentage, long userId) {
+        try {
+            koreaderUserRepository.findByBookLoreUserId(userId)
+                    .filter(KoreaderUserEntity::isSyncEnabled)
+                    .filter(KoreaderUserEntity::isSyncWithWebReader)
+                    .ifPresent(koreaderUser -> {
+                        BookEntity book = bookRepository.findById(bookId).orElse(null);
+                        BookLoreUserEntity user = userRepository.findById(userId).orElse(null);
+                        if (book == null || user == null) {
+                            log.warn("KOReader sync skipped: bookId={} or userId={} was not found", bookId, userId);
+                            return;
                         }
-                    }
 
-                    progressRepository.save(progress);
-                });
+                        UserBookProgressEntity progress = getOrCreateUserProgress(user, book);
+
+                        float koreaderPercent = percentage / 100.0f;
+                        progress.setKoreaderProgressPercent(koreaderPercent);
+                        progress.setKoreaderLastSyncTime(Instant.now());
+                        progress.setKoreaderProgress(null);
+
+                        BookFileEntity primaryFile = book.getPrimaryBookFile();
+                        if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
+                                && progress.getEpubProgress() != null) {
+                            try {
+                                String xpointer = epubCfiService.convertCfiToProgressXPointer(
+                                        primaryFile.getFullFilePath(), progress.getEpubProgress());
+                                progress.setKoreaderProgress(xpointer);
+                            } catch (Exception e) {
+                                progress.setKoreaderProgress(null);
+                                log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
+                            }
+                        }
+
+                        progressRepository.save(progress);
+                    });
+        } catch (Exception e) {
+            log.warn("Failed to sync progress to KOReader for userId={} bookId={}", userId, bookId, e);
+        }
     }
 
     private void saveToFileProgress(BookLoreUserEntity user, BookEntity book, UserBookProgressEntity progress) {

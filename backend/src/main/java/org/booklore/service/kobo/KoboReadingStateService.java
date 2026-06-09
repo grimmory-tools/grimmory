@@ -17,6 +17,7 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
+import org.booklore.service.koreader.KoreaderService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +57,7 @@ public class KoboReadingStateService {
     private final KoboSettingsService koboSettingsService;
     private final KoboReadingStateBuilder readingStateBuilder;
     private final HardcoverSyncService hardcoverSyncService;
+    private final KoreaderService koreaderService;
 
     @Transactional
     public KoboReadingStateResponse saveReadingState(List<KoboReadingState> readingStates) {
@@ -251,6 +253,7 @@ public class KoboReadingStateService {
                     && progress.getKoboProgressPercent() != null
                     && (!progress.getKoboProgressPercent().equals(previousKoboProgressPercent)
                     || progress.getReadStatus() != previousReadStatus)) {
+                koreaderService.syncProgressToKoreader(book.getId(), progress.getKoboProgressPercent(), userId);
                 hardcoverSyncService.syncProgressToHardcover(book.getId(), progress.getKoboProgressPercent(), userId);
             }
         } catch (NumberFormatException e) {
