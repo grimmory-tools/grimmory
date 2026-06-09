@@ -47,7 +47,8 @@
             "noBooks": "В этой коллекции нет книг!",
             "failedLibrary": "Не удалось загрузить книги библиотеки!",
             "failedShelf": "Не удалось загрузить книги полки!",
-            "activeFilters": "{{ count }} активных фильтров"
+            "activeFilters": "{{ count }} активных фильтров",
+            "failedBooks": ""
         },
         "tooltip": {
             "clearFilters": "Очистить применённые фильтры",
@@ -99,7 +100,10 @@
             "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто навсегда удалит файл книги из вашей файловой системы.\n\nЭто действие нельзя отменить.",
             "deleteBookHeader": "Подтверждение удаления",
             "deleteFileMessage": "Вы уверены, что хотите удалить дополнительный файл «{{ fileName }}»?",
-            "deleteFileHeader": "Подтверждение удаления файла"
+            "deleteFileHeader": "Подтверждение удаления файла",
+            "largeFileMessage": "",
+            "sendAnyway": "",
+            "largeFileHeader": ""
         },
         "toast": {
             "quickSendSuccessDetail": "Отправка книги запланирована.",
@@ -132,7 +136,8 @@
             "readBook": "Читать книгу",
             "playAudiobook": "Воспроизвести аудиокнигу",
             "bookMenu": "Меню действий с книгой",
-            "continueReading": "Продолжить чтение"
+            "continueReading": "Продолжить чтение",
+            "readStatusMenu": ""
         }
     },
     "notes": {
@@ -261,7 +266,8 @@
             "customFetchMetadata": "Настраиваемое получение метаданных",
             "autoFetchMetadata": "Автоматическое получение метаданных",
             "findDuplicates": "Найти дубликаты",
-            "deleteLibrary": "Удалить библиотеку"
+            "deleteLibrary": "Удалить библиотеку",
+            "bulkIsbnImport": ""
         },
         "shelf": {
             "publicShelfPrefix": "Публичная полка - ",
@@ -273,7 +279,8 @@
         "magicShelf": {
             "optionsLabel": "Опции",
             "editMagicShelf": "Редактировать умную полку",
-            "deleteMagicShelf": "Удалить умную полку"
+            "deleteMagicShelf": "Удалить умную полку",
+            "exportJson": ""
         },
         "confirm": {
             "rescanLibraryMessage": "Вы уверены, что хотите обновить библиотеку: {{ name }}?",
@@ -292,7 +299,9 @@
             "shelfDeleteFailedDetail": "Не удалось удалить полку",
             "magicShelfDeletedDetail": "Умная полка удалена",
             "magicShelfDeleteFailedDetail": "Не удалось удалить полку",
-            "failedSummary": "Ошибка"
+            "failedSummary": "Ошибка",
+            "magicShelfJsonCopiedDetail": "",
+            "dialogLoadFailedDetail": ""
         },
         "loading": {
             "deletingLibrary": "Удаление библиотеки '{{ name }}'..."
@@ -427,7 +436,8 @@
         "validationTitleOrIsbn": "Необходимо указать название или ISBN",
         "validationReady": "Готово к созданию",
         "cancelButton": "Отмена",
-        "addButton": "Добавить физическую книгу"
+        "addButton": "Добавить физическую книгу",
+        "fetchMetadataTooltip": ""
     },
     "fileUploader": {
         "title": "Загрузить дополнительный файл",
@@ -450,7 +460,9 @@
             "fileTooLargeDetail": "{{ fileName }} превышает максимальный размер файла {{ maxSize }}",
             "fileTooLargeError": "Файл превышает максимальный размер {{ maxSize }}",
             "uploadFailedUnknown": "Загрузка не удалась из-за неизвестной ошибки."
-        }
+        },
+        "supplementaryAllFormats": "",
+        "supportedFormats": ""
     },
     "filter": {
         "title": "Фильтры",
@@ -483,7 +495,10 @@
             "comicCharacter": "Персонаж комикса",
             "comicTeam": "Команда комикса",
             "comicLocation": "Место действия комикса",
-            "comicCreator": "Создатель комикса"
+            "comicCreator": "Создатель комикса",
+            "ranobedbRating": "",
+            "audibleRating": "",
+            "lubimyczytacRating": ""
         },
         "readStatus": {
             "unread": "Не прочитано",
@@ -563,7 +578,8 @@
         "toast": {
             "updateSuccessDetail": "Полки книг обновлены",
             "updateFailedDetail": "Не удалось обновить полки книг"
-        }
+        },
+        "searchPlaceholder": ""
     },
     "shelfCreator": {
         "title": "Создать новую полку",
@@ -619,7 +635,12 @@
             "lockFailedDetail": "Произошла ошибка при блокировке метаданных.",
             "unlockFailedSummary": "Ошибка разблокировки",
             "unlockFailedDetail": "Произошла ошибка при разблокировке метаданных."
-        }
+        },
+        "noRating": "",
+        "ratingOutOf": "",
+        "selectBookFallback": "",
+        "selectBook": "",
+        "label": ""
     },
     "lockUnlockDialog": {
         "title": "Заблокировать или разблокировать метаданные",
@@ -767,7 +788,31 @@
             "selectAll": "Выбрать все книги",
             "deselectAll": "Снять выделение со всех книг",
             "deleteSelected": "Удалить выбранные книги"
-        }
+        },
+        "readButton": "",
+        "booksInSeries": "",
+        "continueButton": "",
+        "missingBooks": "",
+        "book": "",
+        "continueReading": "",
+        "stats": {
+            "avgGoodreads": "",
+            "avgHardcover": "",
+            "totalAudioDuration": "",
+            "owned": "",
+            "formats": "",
+            "avgPersonalRating": "",
+            "totalPages": "",
+            "avgAmazon": ""
+        },
+        "readPercent": "",
+        "completionOwned": "",
+        "viewDetails": "",
+        "listPages": "",
+        "synopsis": "",
+        "books": "",
+        "bookListTab": "",
+        "nextUp": ""
     },
     "duplicateMerger": {
         "title": "Найти дубликаты",
@@ -816,5 +861,48 @@
             "deleteHeader": "Подтвердите удаление",
             "deleteMessage": "Это навсегда удалит {{ count }} книг(у/и) и их файлы с диска. Это действие нельзя отменить."
         }
+    },
+    "bulkIsbnImport": {
+        "fileFormatsHint": "",
+        "startImportButton": "",
+        "chooseFile": "",
+        "skippedCount": "",
+        "failedIsbnsLabel": "",
+        "summaryCancelled": "",
+        "createdNoMetadata": "",
+        "previewLabel": "",
+        "summaryTitle": "",
+        "tabPaste": "",
+        "clearButton": "",
+        "tabFile": "",
+        "validCount": "",
+        "cancelImportButton": "",
+        "summaryFailed": "",
+        "processingHint": "",
+        "closeTooltip": "",
+        "errorFileTooLarge": "",
+        "libraryPlaceholder": "",
+        "processingLabel": "",
+        "title": "",
+        "summaryNoMetadata": "",
+        "lookingUp": "",
+        "pastePlaceholder": "",
+        "libraryLabel": "",
+        "summaryCreated": "",
+        "doneButton": "",
+        "parseButton": "",
+        "validationLibraryRequired": "",
+        "unknownError": "",
+        "description": "",
+        "validationNoIsbns": "",
+        "validationReady": "",
+        "reason": {
+            "invalid": "",
+            "alreadyExists": ""
+        },
+        "errorTooMany": "",
+        "errorNoIsbns": "",
+        "cancelButton": "",
+        "duplicatesRemoved": ""
     }
 }
