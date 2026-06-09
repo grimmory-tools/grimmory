@@ -111,13 +111,13 @@
   &::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid rgb(255 255 255 / 15%);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
   }
 
   span {
     padding: 0 0.875rem;
     font-size: var(--app-text-sm);
-    color: rgb(255 255 255 / 50%);
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 }
@@ -125,15 +125,24 @@
 .oidc-button {
   ::ng-deep button {
     height: 2.4063rem;
-    background: rgb(255 255 255 / 5%);
-    border: 1px solid rgb(255 255 255 / 15%);
-    color: rgb(255 255 255 / 90%);
+    background: color-mix(in srgb, var(--color-text) 5%, var(--color-card));
+    border: 1px solid color-mix(in srgb, var(--color-border) 85%, var(--color-text) 15%);
+    color: var(--color-text);
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-      background: rgb(255 255 255 / 10%);
-      border-color: rgb(255 255 255 / 25%);
+      background: color-mix(in srgb, var(--color-text) 8%, var(--color-card));
+      border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
       transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    }
+
+    &:disabled {
+      color: var(--color-text-secondary);
+      opacity: 0.7;
     }
   }
 }
