@@ -106,7 +106,10 @@
         "seriesGaps": "系列缺口",
         "seriesPosition": "系列位置",
         "readingProgress": "阅读进度 (%)",
-        "metadataPresence": "元数据存在性"
+        "metadataPresence": "元数据存在性",
+        "audiobookBitrate": "",
+        "audiobookCodec": "",
+        "audiobookChapterCount": ""
     },
     "fieldGroups": {
         "organization": "组织",
@@ -257,7 +260,10 @@
         "comicColorists": "着色师",
         "comicLetterers": "文字师",
         "comicCoverArtists": "封面画师",
-        "comicEditors": "编辑"
+        "comicEditors": "编辑",
+        "audiobookCodec": "",
+        "audiobookBitrate": "",
+        "audiobookChapterCount": ""
     },
     "toast": {
         "validationErrorSummary": "验证错误",
@@ -266,5 +272,14 @@
         "successDetail": "智能书架保存成功。",
         "errorSummary": "错误",
         "errorDetailDefault": "保存智能书架失败。"
+    },
+    "importJson": {
+        "buttonLabel": "",
+        "successDetail": "",
+        "structureError": "",
+        "emptyError": "",
+        "apply": "",
+        "placeholder": "",
+        "parseError": ""
     }
 }
