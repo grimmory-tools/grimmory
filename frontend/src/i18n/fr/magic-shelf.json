@@ -107,7 +107,9 @@
         "seriesPosition": "Position dans la série",
         "readingProgress": "Progression de lecture (%)",
         "metadataPresence": "Présence de métadonnées",
-        "audiobookCodec": "Codec"
+        "audiobookCodec": "Codec",
+        "audiobookBitrate": "",
+        "audiobookChapterCount": ""
     },
     "fieldGroups": {
         "organization": "Organisation",
@@ -258,7 +260,10 @@
         "comicColorists": "Coloristes",
         "comicLetterers": "Lettreurs",
         "comicCoverArtists": "Artistes de couverture",
-        "comicEditors": "Éditeurs"
+        "comicEditors": "Éditeurs",
+        "audiobookCodec": "",
+        "audiobookBitrate": "",
+        "audiobookChapterCount": ""
     },
     "toast": {
         "validationErrorSummary": "Erreur de validation",
@@ -267,5 +272,14 @@
         "successDetail": "Étagère magique enregistrée avec succès.",
         "errorSummary": "Erreur",
         "errorDetailDefault": "Échec de l'enregistrement de l'étagère magique."
+    },
+    "importJson": {
+        "buttonLabel": "",
+        "successDetail": "",
+        "structureError": "",
+        "emptyError": "",
+        "apply": "",
+        "placeholder": "",
+        "parseError": ""
     }
 }
