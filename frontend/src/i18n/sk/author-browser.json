@@ -1,4 +1,141 @@
 {
     "pageTitle": "Autori",
-    "browseAllAuthors": "Prehliadať všetkých autorov"
+    "browseAllAuthors": "Prehliadať všetkých autorov",
+    "filters": {
+        "allRead": "",
+        "hasPhoto": "",
+        "genre": "",
+        "unread": "",
+        "unmatched": "",
+        "readStatus": "",
+        "matchStatus": "",
+        "photoStatus": "",
+        "matched": "",
+        "all": "",
+        "reset": "",
+        "library": "",
+        "someRead": "",
+        "inProgress": "",
+        "bookCount": "",
+        "noPhoto": ""
+    },
+    "sort": {
+        "seriesCount": "",
+        "recentlyRead": "",
+        "name": "",
+        "avgRating": "",
+        "matched": "",
+        "photo": "",
+        "recentlyAdded": "",
+        "readingProgress": "",
+        "bookCount": ""
+    },
+    "editor": {
+        "lockAllBtn": "",
+        "uploadPhotoTooltip": "",
+        "lockField": "",
+        "saving": "",
+        "nameLabel": "",
+        "toast": {
+            "photoUploadErrorDetail": "",
+            "successDetail": "",
+            "errorDetail": "",
+            "photoUploadedDetail": "",
+            "errorSummary": "",
+            "successSummary": "",
+            "photoUploadedSummary": ""
+        },
+        "saveBtn": "",
+        "searchPhotoTooltip": "",
+        "unlockField": "",
+        "unlockAllBtn": "",
+        "searchPhotoTitle": "",
+        "asinLabel": "",
+        "descriptionLabel": ""
+    },
+    "toast": {
+        "deleteFailedSummary": "",
+        "deleteSelectedSuccessSummary": "",
+        "deleteSelectedSuccessDetail": "",
+        "deleteSuccessDetail": "",
+        "quickMatchSuccessDetail": "",
+        "autoMatchSuccessDetail": "",
+        "autoMatchFailedDetail": "",
+        "quickMatchSuccessSummary": "",
+        "quickMatchFailedDetail": "",
+        "quickMatchFailedSummary": "",
+        "autoMatchSuccessSummary": "",
+        "deleteFailedDetail": "",
+        "autoMatchFailedSummary": "",
+        "deleteSuccessSummary": ""
+    },
+    "footer": {
+        "autoMatch": "",
+        "selected": "",
+        "selectAll": "",
+        "deleteSelected": "",
+        "deselectAll": ""
+    },
+    "photoSearch": {
+        "selectBtn": "",
+        "queryLabel": "",
+        "noResults": "",
+        "readyHint": "",
+        "resetTooltip": "",
+        "resultsFound": "",
+        "readyTitle": "",
+        "searchBtn": "",
+        "photoAlt": "",
+        "queryPlaceholder": "",
+        "noResultsHint": "",
+        "searching": ""
+    },
+    "match": {
+        "matchBtn": "",
+        "asinLabel": "",
+        "searchBtn": "",
+        "toast": {
+            "matchSuccessSummary": "",
+            "matchFailedSummary": "",
+            "searchFailedDetail": "",
+            "searchFailedSummary": "",
+            "matchFailedDetail": "",
+            "matchSuccessDetail": ""
+        },
+        "resultsFound": "",
+        "authorNameLabel": "",
+        "regionLabel": "",
+        "noResultsHint": "",
+        "readyToSearch": "",
+        "authorNamePlaceholder": "",
+        "searching": "",
+        "asinPlaceholder": "",
+        "readyToSearchHint": "",
+        "noResults": ""
+    },
+    "detail": {
+        "booksTab": "",
+        "quickMatchTooltip": "",
+        "showMore": "",
+        "noBooksFound": "",
+        "showLess": "",
+        "editTab": "",
+        "booksBy": "",
+        "loading": "",
+        "matchTab": ""
+    },
+    "card": {
+        "menu": {
+            "viewAuthor": "",
+            "quickMatch": "",
+            "editAuthor": "",
+            "deleteAuthor": ""
+        },
+        "book": "",
+        "books": "",
+        "matched": "",
+        "quickMatch": ""
+    },
+    "searchPlaceholder": "",
+    "noAuthorsFound": ""
 }
