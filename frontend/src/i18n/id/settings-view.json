@@ -145,11 +145,13 @@
         "savedDetail": "",
         "customPrimaryOptionLabel": "",
         "oledDarkMode": "",
-        "sectionTitle": ""
+        "sectionTitle": "",
+        "sectionDesc": ""
     },
     "saveFailedDetail": "",
     "description": "",
     "language": {
-        "savedDetail": ""
+        "savedDetail": "",
+        "label": ""
     }
 }
