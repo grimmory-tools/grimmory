@@ -39,7 +39,8 @@
             "missingDataSummary": "缺少数据",
             "missingDataDetail": "请在上传前选择书库和路径。",
             "uploadFailedDefault": "由于未知错误，上传失败。"
-        }
+        },
+        "supportedFormats": ""
     },
     "changePassword": {
         "title": "修改密码",
