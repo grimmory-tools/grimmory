@@ -119,7 +119,9 @@
         "syncConfig": "",
         "title": "",
         "apiKeyDesc": "",
-        "syncDisabledMsg": ""
+        "syncDisabledMsg": "",
+        "syncLabel": "",
+        "syncDesc": ""
     },
     "copyFailedDetail": "",
     "copiedDetail": "",
