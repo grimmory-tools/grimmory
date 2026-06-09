@@ -67,7 +67,11 @@
         "autoZoom": "Automatski zum",
         "pageFit": "Prilagodi stranicu",
         "pageWidth": "Širina stranice",
-        "actualSize": "Stvarna veličina"
+        "actualSize": "Stvarna veličina",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Čitač stripova: Zadane postavke",
@@ -95,7 +99,10 @@
         "infinite": "Beskonačno",
         "gray": "Siva",
         "black": "Crna",
-        "white": "Bijela"
+        "white": "Bijela",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Streaming PDF čitač: Zadane postavke",
