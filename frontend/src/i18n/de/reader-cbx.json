@@ -110,12 +110,7 @@
         "gray": "Grau",
         "white": "Weiß",
         "magnifierLensSize": "Lupengröße",
-        "magnifierZoom": "Vergrößerung",
-        "clickToPaginate": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "brightness": "",
-        "emulateBook": ""
+        "magnifierZoom": "Vergrößerung"
     },
     "sidebar": {
         "contentTab": "Inhalt",
@@ -135,15 +130,5 @@
         "clearSearch": "Suche löschen",
         "page": "Seite",
         "untitled": "Ohne Titel"
-    },
-    "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
-    },
-    "continuation": {
-        "scrollForNext": ""
     }
 }

@@ -41,10 +41,7 @@
         "toggleZoom": "切换缩放（适合页面 / 实际大小）",
         "doubleTap": "双击",
         "toggleSlideshow": "切换幻灯片 / 自动播放",
-        "showHelpDialog": "显示此帮助对话框",
-        "magnifierLensSize": "",
-        "magnifierZoom": "",
-        "toggleMagnifier": ""
+        "showHelpDialog": "显示此帮助对话框"
     },
     "footer": {
         "prevBook": "上一本",
@@ -80,9 +77,7 @@
         "fullscreenLabel": "全屏",
         "keyboardShortcutsLabel": "键盘快捷键",
         "settings": "设置",
-        "closeReader": "关闭阅读器",
-        "enableMagnifier": "",
-        "disableMagnifier": ""
+        "closeReader": "关闭阅读器"
     },
     "quickSettings": {
         "fitMode": "适配模式",
@@ -108,14 +103,7 @@
         "background": "背景",
         "black": "黑色",
         "gray": "灰色",
-        "white": "白色",
-        "clickToPaginate": "",
-        "magnifierLensSize": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "magnifierZoom": "",
-        "brightness": "",
-        "emulateBook": ""
+        "white": "白色"
     },
     "sidebar": {
         "contentTab": "内容",
@@ -135,15 +123,5 @@
         "clearSearch": "清除搜索",
         "page": "页",
         "untitled": "无标题"
-    },
-    "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
-    },
-    "continuation": {
-        "scrollForNext": ""
     }
 }

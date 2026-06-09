@@ -42,9 +42,7 @@
         "doubleTap": "Dvostruki dodir",
         "toggleSlideshow": "Uključi/isključi prezentaciju / automatsku reprodukciju",
         "showHelpDialog": "Prikaži ovaj dijalog pomoći",
-        "toggleMagnifier": "Uključi/isključi povećalo",
-        "magnifierLensSize": "",
-        "magnifierZoom": ""
+        "toggleMagnifier": "Uključi/isključi povećalo"
     },
     "footer": {
         "prevBook": "Preth. knjiga",
@@ -108,14 +106,7 @@
         "background": "Pozadina",
         "black": "Crna",
         "gray": "Siva",
-        "white": "Bijela",
-        "clickToPaginate": "",
-        "magnifierLensSize": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "magnifierZoom": "",
-        "brightness": "",
-        "emulateBook": ""
+        "white": "Bijela"
     },
     "sidebar": {
         "contentTab": "Sadržaj",
@@ -135,15 +126,5 @@
         "clearSearch": "Očisti pretragu",
         "page": "Stranica",
         "untitled": "Bez naslova"
-    },
-    "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
-    },
-    "continuation": {
-        "scrollForNext": ""
     }
 }

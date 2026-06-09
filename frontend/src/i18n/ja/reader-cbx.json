@@ -41,10 +41,7 @@
         "toggleZoom": "ズーム切替（ページフィット / 実際のサイズ）",
         "doubleTap": "ダブルタップ",
         "toggleSlideshow": "スライドショー / 自動再生の切替",
-        "showHelpDialog": "このヘルプダイアログを表示",
-        "magnifierLensSize": "",
-        "magnifierZoom": "",
-        "toggleMagnifier": ""
+        "showHelpDialog": "このヘルプダイアログを表示"
     },
     "footer": {
         "prevBook": "前の本",
@@ -80,9 +77,7 @@
         "fullscreenLabel": "フルスクリーン",
         "keyboardShortcutsLabel": "キーボードショートカット",
         "settings": "設定",
-        "closeReader": "リーダーを閉じる",
-        "enableMagnifier": "",
-        "disableMagnifier": ""
+        "closeReader": "リーダーを閉じる"
     },
     "quickSettings": {
         "fitMode": "フィットモード",
@@ -108,14 +103,7 @@
         "background": "背景",
         "black": "ブラック",
         "gray": "グレー",
-        "white": "ホワイト",
-        "clickToPaginate": "",
-        "magnifierLensSize": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "magnifierZoom": "",
-        "brightness": "",
-        "emulateBook": ""
+        "white": "ホワイト"
     },
     "sidebar": {
         "contentTab": "コンテンツ",
@@ -135,15 +123,5 @@
         "clearSearch": "検索をクリア",
         "page": "ページ",
         "untitled": "無題"
-    },
-    "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
-    },
-    "continuation": {
-        "scrollForNext": ""
     }
 }
