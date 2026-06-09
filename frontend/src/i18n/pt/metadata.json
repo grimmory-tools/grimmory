@@ -131,7 +131,8 @@
             "audiobookUploadFailed": "Ocorreu um erro ao enviar a capa do audiolivro",
             "fileMetadataLoaded": "Metadados carregados do arquivo do livro. Revise e salve.",
             "fileMetadataFailed": "Falha ao extrair metadados do arquivo do livro"
-        }
+        },
+        "writtenToFileTooltip": ""
     },
     "picker": {
         "loadingMetadata": "Carregando metadados completos...",
@@ -221,7 +222,16 @@
         "downloadTooltip": "Baixar",
         "deleteTooltip": "Excluir",
         "downloadAllTooltip": "Baixar todos os arquivos como arquivo ZIP",
-        "physicalBookHint": "Você pode enviar uma cópia digital ou adicionar metadados manualmente."
+        "physicalBookHint": "Você pode enviar uma cópia digital ou adicionar metadados manualmente.",
+        "totalDuration": "",
+        "noChapters": "",
+        "chapters": "",
+        "endTime": "",
+        "chapterTitle": "",
+        "duration": "",
+        "detachTooltip": "",
+        "fileName": "",
+        "startTime": ""
     },
     "viewer": {
         "metadataLocked": "Os metadados deste livro estão bloqueados.",
@@ -356,7 +366,11 @@
             "dateUpdatedSummary": "Data Atualizada",
             "dateUpdatedDetail": "A data de conclusão do livro foi atualizada.",
             "dateUpdateFailedSummary": "Atualização Falhou",
-            "dateUpdateFailedDetail": "Não foi possível atualizar a data de conclusão do livro."
+            "dateUpdateFailedDetail": "Não foi possível atualizar a data de conclusão do livro.",
+            "detachFileErrorSummary": "",
+            "detachFileErrorDetail": "",
+            "detachFileSuccessDetail": "",
+            "detachFileSuccessSummary": ""
         },
         "confirm": {
             "resetProgressMessage": "Redefinir o progresso de leitura de \"{{ title }}\"?",
@@ -372,8 +386,20 @@
             "deleteFileBtn": "Excluir Arquivo",
             "deleteBookMessage": "Tem certeza de que deseja excluir \"{{ title }}\"?\n\nIsso removerá permanentemente o registro do livro da sua biblioteca.\n\nEssa ação não pode ser desfeita.",
             "deleteBookAllFilesMessage": "Tem certeza de que deseja excluir \"{{ title }}\"?\n\nIsso removerá permanentemente o registro do livro E todos os arquivos associados do seu sistema de arquivos.\n\nEssa ação não pode ser desfeita.",
-            "deleteEverythingBtn": "Excluir Tudo"
-        }
+            "deleteEverythingBtn": "Excluir Tudo",
+            "detachFileHeader": "",
+            "largeFileHeader": "",
+            "largeFileMessage": "",
+            "detachFileMessage": "",
+            "detachFileCopyMetadata": "",
+            "detachFileBtn": "",
+            "sendAnyway": ""
+        },
+        "menuMarkPhysical": "",
+        "menuUnmarkPhysical": "",
+        "firstAuthorBadge": "",
+        "shelvesLabel": "",
+        "audiobookAbridged": ""
     },
     "sidecar": {
         "title": "Metadados Sidecar",
@@ -480,7 +506,14 @@
             "tag": "Tag",
             "series": "Série",
             "publisher": "Editora",
-            "language": "Idioma"
+            "language": "Idioma",
+            "publishers": "",
+            "genres": "",
+            "tags": "",
+            "authors": "",
+            "seriesPlural": "",
+            "moods": "",
+            "languages": ""
         },
         "placeholders": {
             "searchAuthors": "Pesquisar autores...",
