@@ -121,5 +121,35 @@
         "sidebarWidthDesc": "控制导航侧边栏和书籍筛选面板的宽度。",
         "saved": "偏好已更新",
         "savedDetail": "您的侧边栏宽度偏好已保存。"
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": ""
     }
 }
