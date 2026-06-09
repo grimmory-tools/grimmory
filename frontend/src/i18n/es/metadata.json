@@ -398,7 +398,8 @@
             "largeFileMessage": "Este archivo supera los 25 MB. Algunos proveedores de correo pueden rechazar archivos adjuntos grandes.\n\n¿Deseas enviarlo de todos modos?",
             "largeFileHeader": "Advertencia de archivo grande",
             "sendAnyway": "Enviar de todos modos"
-        }
+        },
+        "shelvesLabel": ""
     },
     "sidecar": {
         "title": "Metadatos Sidecar",
