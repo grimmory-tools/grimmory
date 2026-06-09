@@ -104,7 +104,9 @@
         "autoAddEnabled": "Nya böcker läggs automatiskt till på Kobo-hyllan",
         "autoAddDisabled": "Automatiskt tillägg till Kobo-hyllan inaktiverat",
         "pros": "Fördelar:",
-        "cons": "Nackdelar:"
+        "cons": "Nackdelar:",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Hardcover-integration",
