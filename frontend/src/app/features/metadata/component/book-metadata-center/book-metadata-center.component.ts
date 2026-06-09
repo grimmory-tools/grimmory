@@ -18,6 +18,13 @@ import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component'
 import {injectQuery, queryOptions} from '@tanstack/angular-query-experimental';
 import {bookRecommendationsQueryKey} from '../../../book/service/book-query-keys';
 
+enum BookMetadataTab {
+  View = 'view',
+  Edit = 'edit',
+  Match = 'match',
+  Sidecar = 'sidecar',
+}
+
 @Component({
   selector: 'app-book-metadata-center',
   standalone: true,
@@ -46,6 +53,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
   private metadataHostService = inject(BookMetadataHostService);
   readonly config = inject(DynamicDialogConfig, {optional: true});
   readonly ref = inject(DynamicDialogRef, {optional: true});
+  BookMetadataTab = BookMetadataTab;
   private destroy$ = new Subject<void>();
 
   private currentBookId = signal<number | null>(this.config?.data?.bookId ?? null);
@@ -84,7 +92,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
       (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
     )
   );
-  private _tab: string = 'view';
+  private _tab: BookMetadataTab = BookMetadataTab.View;
   readonly canEditMetadata = computed(() => {
     const user = this.userService.currentUser();
     return user?.permissions?.canEditMetadata ?? false;
@@ -101,13 +109,13 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
 
     return (this.admin() || this.canEditMetadata()) && !this.isPhysical && this.isLocalStorage() && sidecarEnabled;
   }
-  private validTabs = ['view', 'edit', 'match', 'sidecar'];
+  private validTabs = Object.values(BookMetadataTab);
 
-  get tab(): string {
+  get tab(): BookMetadataTab {
     return this._tab;
   }
 
-  set tab(value: string) {
+  set tab(value: BookMetadataTab) {
     this._tab = value;
 
     if (!this.config) {
@@ -143,14 +151,41 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
 
     this.route.queryParamMap
       .pipe(
-        map(params => params.get('tab') ?? 'view'),
+        map(params => params.get('tab')),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(tabParam => {
-        this._tab = this.validTabs.includes(tabParam) ? tabParam : 'view';
+        if (this.validTabs.includes(tabParam as BookMetadataTab) && this.canOpenTab(tabParam as BookMetadataTab)) {
+          this._tab = tabParam as BookMetadataTab;
+        } else {
+          const defaultTab = BookMetadataTab.View;
+          this._tab = defaultTab;
+          if (!this.config) {
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: {tab: defaultTab},
+              queryParamsHandling: 'merge',
+              replaceUrl: true
+            });
+          }
+        }
       });
 
+  }
+
+  protected canOpenTab(tab: BookMetadataTab): boolean {
+    switch (tab) {
+      case BookMetadataTab.View:
+        return true;
+      case BookMetadataTab.Edit:
+      case BookMetadataTab.Match:
+        return this.admin() || this.canEditMetadata();
+      case BookMetadataTab.Sidecar:
+        return this.canShowSidecarTab;
+      default:
+        return false;
+    }
   }
 
   ngOnDestroy(): void {
