@@ -1,18 +1,9 @@
 {
     "form": {
-        "public": "Publik",
-        "removeIcon": "",
-        "selectIcon": "",
-        "clickToChange": "",
-        "shelfIcon": "",
-        "namePlaceholder": "",
-        "shelfName": ""
+        "public": "Publik"
     },
     "actions": {
-        "cancel": "Batal",
-        "addRule": "",
-        "saveFilter": "",
-        "addGroup": ""
+        "cancel": "Batal"
     },
     "group": {
         "condition": "Kondisi:"
@@ -20,34 +11,7 @@
     "placeholders": {
         "operator": "Operator",
         "value": "Nilai",
-        "amount": "Jumlah",
-        "startValue": "",
-        "selectSeriesGap": "",
-        "selectLibraries": "",
-        "endYear": "",
-        "selectSeriesPosition": "",
-        "endDate": "",
-        "endValue": "",
-        "startYear": "",
-        "selectSeriesStatus": "",
-        "selectPeriod": "",
-        "selectFileType": "",
-        "selectStatuses": "",
-        "selectShelves": "",
-        "field": "",
-        "enterValues": "",
-        "selectLibrary": "",
-        "selectContentRatings": "",
-        "selectUnit": "",
-        "selectContentRating": "",
-        "selectStatus": "",
-        "selectGenres": "",
-        "selectMetadataField": "",
-        "selectGenre": "",
-        "selectFileTypes": "",
-        "selectShelf": "",
-        "selectValue": "",
-        "startDate": ""
+        "amount": "Jumlah"
     },
     "conditions": {
         "and": "DAN",
@@ -70,77 +34,19 @@
         "description": "Deskripsi",
         "narrator": "Narator",
         "abridged": "Ringkasan",
-        "audiobookCodec": "Kodek",
-        "seriesPosition": "",
-        "fileSize": "",
-        "ageRating": "",
-        "pageCount": "",
-        "readingProgress": "",
-        "personalRating": "",
-        "audibleRating": "",
-        "contentRating": "",
-        "metadataPresence": "",
-        "dateFinished": "",
-        "publishedDate": "",
-        "fileType": "",
-        "audiobookBitrate": "",
-        "goodreadsReviewCount": "",
-        "seriesTotal": "",
-        "goodreadsRating": "",
-        "lubimyczytacRating": "",
-        "seriesGaps": "",
-        "amazonRating": "",
-        "addedOn": "",
-        "amazonReviewCount": "",
-        "isPhysical": "",
-        "audibleReviewCount": "",
-        "lastReadTime": "",
-        "audiobookDuration": "",
-        "audiobookChapterCount": "",
-        "ranobedbRating": "",
-        "readStatus": "",
-        "seriesNumber": "",
-        "metadataScore": "",
-        "hardcoverRating": "",
-        "seriesStatus": "",
-        "seriesName": "",
-        "hardcoverReviewCount": ""
+        "audiobookCodec": "Kodek"
     },
     "fieldGroups": {
         "organization": "Organisasi",
         "series": "Seri",
-        "dates": "Tanggal",
-        "audiobook": "",
-        "fileIdentifiers": "",
-        "tagsMoods": "",
-        "bookInfo": "",
-        "ratingsReviews": "",
-        "qualityMetadata": ""
+        "dates": "Tanggal"
     },
     "operators": {
         "equals": "Setara",
         "empty": "Kosong",
         "contains": "Mengandung",
         "between": "Antara",
-        "has": "Memiliki",
-        "lessThan": "",
-        "startsWith": "",
-        "thisPeriod": "",
-        "notEqual": "",
-        "is": "",
-        "hasNot": "",
-        "olderThan": "",
-        "endsWith": "",
-        "isNot": "",
-        "doesNotContain": "",
-        "includesAll": "",
-        "includesAny": "",
-        "excludesAll": "",
-        "greaterOrEqual": "",
-        "greaterThan": "",
-        "notEmpty": "",
-        "lessOrEqual": "",
-        "withinLast": ""
+        "has": "Memiliki"
     },
     "booleanValues": {
         "yes": "Ya",
@@ -158,18 +64,10 @@
         "reading": "Membaca",
         "read": "Baca",
         "paused": "Jeda",
-        "abandoned": "Ditinggalkan",
-        "partiallyRead": "",
-        "wontRead": "",
-        "reReading": "",
-        "unset": ""
+        "abandoned": "Ditinggalkan"
     },
     "seriesStatuses": {
-        "ongoing": "Sedang Berjalan",
-        "reading": "",
-        "fullyRead": "",
-        "notStarted": "",
-        "completed": ""
+        "ongoing": "Sedang Berjalan"
     },
     "dateUnits": {
         "days": "Hari",
@@ -180,14 +78,7 @@
     "metadataFieldGroups": {
         "series": "Seri",
         "ratings": "Rating",
-        "comic": "Komik",
-        "contentClassification": "",
-        "audiobook": "",
-        "externalIds": "",
-        "bookInfo": "",
-        "reviewCounts": "",
-        "identifiers": "",
-        "authorsCategories": ""
+        "comic": "Komik"
     },
     "metadataFields": {
         "title": "Judul",
@@ -210,76 +101,10 @@
         "comicCharacters": "Karakter",
         "comicTeams": "Tim",
         "comicLocations": "Lokasi",
-        "comicEditors": "Editor",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "audibleReviewCount": "",
-        "hardcoverRating": "",
-        "comicColorists": "",
-        "seriesNumber": "",
-        "lubimyczytacId": "",
-        "comicInkers": "",
-        "lubimyczytacRating": "",
-        "thumbnailUrl": "",
-        "googleId": "",
-        "comicLetterers": "",
-        "comicCoverArtists": "",
-        "personalRating": "",
-        "hardcoverReviewCount": "",
-        "seriesTotal": "",
-        "seriesName": "",
-        "goodreadsId": "",
-        "ageRating": "",
-        "audibleId": "",
-        "comicvineId": "",
-        "hardcoverId": "",
-        "publishedDate": "",
-        "contentRating": "",
-        "comicPencillers": "",
-        "moods": "",
-        "pageCount": "",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "amazonReviewCount": "",
-        "ranobedbId": "",
-        "amazonRating": ""
+        "comicEditors": "Editor"
     },
     "toast": {
         "successSummary": "Sukses",
-        "errorSummary": "Eror",
-        "validationErrorSummary": "",
-        "validationErrorDetail": "",
-        "errorDetailDefault": "",
-        "successDetail": ""
-    },
-    "seriesPositions": {
-        "nextUnread": "",
-        "lastInSeries": "",
-        "firstInSeries": ""
-    },
-    "importJson": {
-        "buttonLabel": "",
-        "successDetail": "",
-        "structureError": "",
-        "emptyError": "",
-        "apply": "",
-        "placeholder": "",
-        "parseError": ""
-    },
-    "header": {
-        "description": "",
-        "titleEdit": "",
-        "titleCreate": ""
-    },
-    "seriesGaps": {
-        "missingLatest": "",
-        "duplicateNumber": "",
-        "missingFirst": "",
-        "anyGap": ""
-    },
-    "datePeriods": {
-        "week": "",
-        "year": "",
-        "month": ""
+        "errorSummary": "Eror"
     }
 }
