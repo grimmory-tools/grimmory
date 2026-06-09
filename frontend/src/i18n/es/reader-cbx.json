@@ -110,7 +110,12 @@
         "gray": "Gris",
         "white": "Blanco",
         "magnifierLensSize": "Tamaño de lente",
-        "magnifierZoom": "Aumento"
+        "magnifierZoom": "Aumento",
+        "clickToPaginate": "",
+        "stripMaxWidth": "",
+        "autoCloseMenu": "",
+        "brightness": "",
+        "emulateBook": ""
     },
     "sidebar": {
         "contentTab": "Contenido",
@@ -130,5 +135,15 @@
         "clearSearch": "Limpiar búsqueda",
         "page": "Página",
         "untitled": "Sin título"
+    },
+    "webtoonHint": {
+        "never": "",
+        "dismiss": "",
+        "switch": "",
+        "regionLabel": "",
+        "message": ""
+    },
+    "continuation": {
+        "scrollForNext": ""
     }
 }
