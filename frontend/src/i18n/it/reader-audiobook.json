@@ -1,64 +1,64 @@
 {
-  "loading": "Caricamento audiolibro...",
-  "untitled": "Senza titolo",
-  "unknownAuthor": "Autore sconosciuto",
-  "coverAlt": "Copertina",
-  "header": {
-    "backTooltip": "Indietro",
-    "bookmarksTooltip": "Segnalibri",
-    "chaptersTracksTooltip": "Capitoli/Tracce"
-  },
-  "trackInfo": {
-    "trackOf": "Traccia {{ current }} di {{ total }}",
-    "chapterOf": "Capitolo {{ current }} di {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Traccia precedente",
-    "previousChapterTooltip": "Capitolo precedente",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Traccia successiva",
-    "nextChapterTooltip": "Capitolo successivo"
-  },
-  "extra": {
-    "addBookmark": "Aggiungi segnalibro",
-    "sleepTimer": "Timer spegnimento",
-    "endOfChapter": "Fine capitolo"
-  },
-  "details": {
-    "narratedBy": "Narrato da {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} totale"
-  },
-  "sidebar": {
-    "tracks": "Tracce",
-    "chapters": "Capitoli"
-  },
-  "bookmarks": {
-    "title": "Segnalibri",
-    "empty": "Ancora nessun segnalibro",
-    "emptyHint": "Aggiungi un segnalibro per salvare la tua posizione",
-    "deleteTooltip": "Elimina",
-    "bookmarkAt": "Segnalibro a {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minuti",
-    "minutes30": "30 minuti",
-    "minutes45": "45 minuti",
-    "minutes60": "60 minuti",
-    "endOfChapter": "Fine capitolo",
-    "cancelTimer": "Annulla timer"
-  },
-  "toast": {
-    "loadFailed": "Impossibile caricare l'audiolibro",
-    "audioLoadFailed": "Impossibile caricare l'audio",
-    "sleepTimerSet": "La riproduzione si interromperà tra {{ minutes }} minuti",
-    "sleepTimerEndOfChapter": "La riproduzione si interromperà alla fine del capitolo",
-    "sleepTimerStopped": "Riproduzione interrotta dal timer spegnimento",
-    "bookmarkAdded": "Segnalibro aggiunto",
-    "bookmarkExists": "Segnalibro esistente",
-    "bookmarkExistsDetail": "Un segnalibro esiste già in questa posizione",
-    "bookmarkFailed": "Impossibile aggiungere il segnalibro",
-    "bookmarkDeleted": "Segnalibro eliminato"
-  }
+    "loading": "Caricamento audiolibro...",
+    "untitled": "Senza titolo",
+    "unknownAuthor": "Autore sconosciuto",
+    "coverAlt": "Copertina",
+    "header": {
+        "backTooltip": "Indietro",
+        "bookmarksTooltip": "Segnalibri",
+        "chaptersTracksTooltip": "Capitoli/Tracce"
+    },
+    "trackInfo": {
+        "trackOf": "Traccia {{ current }} di {{ total }}",
+        "chapterOf": "Capitolo {{ current }} di {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Traccia precedente",
+        "previousChapterTooltip": "Capitolo precedente",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Traccia successiva",
+        "nextChapterTooltip": "Capitolo successivo"
+    },
+    "extra": {
+        "addBookmark": "Aggiungi segnalibro",
+        "sleepTimer": "Timer spegnimento",
+        "endOfChapter": "Fine capitolo"
+    },
+    "details": {
+        "narratedBy": "Narrato da {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} totale"
+    },
+    "sidebar": {
+        "tracks": "Tracce",
+        "chapters": "Capitoli"
+    },
+    "bookmarks": {
+        "title": "Segnalibri",
+        "empty": "Ancora nessun segnalibro",
+        "emptyHint": "Aggiungi un segnalibro per salvare la tua posizione",
+        "deleteTooltip": "Elimina",
+        "bookmarkAt": "Segnalibro a {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minuti",
+        "minutes30": "30 minuti",
+        "minutes45": "45 minuti",
+        "minutes60": "60 minuti",
+        "endOfChapter": "Fine capitolo",
+        "cancelTimer": "Annulla timer"
+    },
+    "toast": {
+        "loadFailed": "Impossibile caricare l'audiolibro",
+        "audioLoadFailed": "Impossibile caricare l'audio",
+        "sleepTimerSet": "La riproduzione si interromperà tra {{ minutes }} minuti",
+        "sleepTimerEndOfChapter": "La riproduzione si interromperà alla fine del capitolo",
+        "sleepTimerStopped": "Riproduzione interrotta dal timer spegnimento",
+        "bookmarkAdded": "Segnalibro aggiunto",
+        "bookmarkExists": "Segnalibro esistente",
+        "bookmarkExistsDetail": "Un segnalibro esiste già in questa posizione",
+        "bookmarkFailed": "Impossibile aggiungere il segnalibro",
+        "bookmarkDeleted": "Segnalibro eliminato"
+    }
 }

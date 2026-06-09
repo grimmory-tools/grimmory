@@ -1,69 +1,69 @@
 {
-  "title": "Systemuppgiftshanterare",
-  "description": "Hantera automatiserade systemuppgifter för biblioteksunderhåll, metadatauppdatering och cacherensning. Schemalägg återkommande operationer med <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron-uttryck</a>.",
-  "systemTasks": {
-    "sectionTitle": "Systemuppgifter",
-    "sectionDesc": "Utför uppgifter manuellt, övervaka framsteg i realtid och konfigurera schemalagd automatisering."
-  },
-  "loading": "Laddar uppgifter...",
-  "emptyTitle": "Inga uppgifter tillgängliga",
-  "status": {
-    "running": "Körs",
-    "stale": "Inaktuell",
-    "neverRun": "Aldrig körd",
-    "justNow": "Just nu"
-  },
-  "cron": {
-    "noSchedule": "Inget schema",
-    "edit": "Redigera",
-    "placeholder": "t.ex. 0 2 * * *",
-    "validationPrefix": "Cron-uttrycket måste ha exakt 6 fält (sekunder, minuter, timmar, dag, månad, veckodag)",
-    "invalidField": "Ogiltigt {{name}}-fält: {{value}}",
-    "updateSuccess": "Schemalagd uppgiftskonfiguration har uppdaterats.",
-    "updateError": "Kunde inte uppdatera schemalagd uppgiftskonfiguration."
-  },
-  "buttons": {
-    "run": "Kör",
-    "rerun": "Kör om"
-  },
-  "metadataReplace": {
-    "label": "Metadataersättningsläge:",
-    "selectMode": "Välj läge",
-    "replaceMissing": "Uppdatera bara saknad metadata (rekommenderat)",
-    "replaceAll": "Ersätt all metadata (skriv över befintlig)",
-    "replaceMissingDesc": "Uppdatera bara böcker som saknar metadatainformation. Befintlig metadata bevaras.",
-    "replaceAllDesc": "Ersätt all metadata för alla böcker, även om de redan har metadata. Använd med försiktighet då detta skriver över befintlig data."
-  },
-  "progress": {
-    "staleWarning": "Denna uppgift verkar ha fastnat. Inga uppdateringar mottagna på över 5 minuter.",
-    "statusLabel": "Status:",
-    "progressLabel": "Framsteg:",
-    "startedLabel": "Startad:",
-    "processing": "Bearbetar...",
-    "stuckMessage": "Uppgiften verkar ha fastnat (inga uppdateringar mottagna)"
-  },
-  "toast": {
-    "taskQueued": "Uppgift köad",
-    "taskQueuedDetail": "{{name}} har köats och körs i bakgrunden.",
-    "taskCompleted": "Uppgift slutförd",
-    "taskCompletedDetail": "{{name}} har slutförts.",
-    "taskFailed": "Uppgift misslyckades",
-    "taskFailedDetail": "{{name}} kunde inte slutföras.",
-    "taskStarted": "Uppgift startad",
-    "taskStartedDetail": "{{name}} har startats.",
-    "startError": "Kunde inte starta {{name}}.",
-    "alreadyRunning": "Uppgift körs redan",
-    "alreadyRunningDetail": "Denna uppgift pågår redan eller väntar.",
-    "taskCancelled": "Uppgift avbruten",
-    "cancelledDetail": "Uppgiften har avbrutits.",
-    "cancelFailed": "Avbrytning misslyckades",
-    "cancelError": "Kunde inte avbryta uppgiften. Uppgiften kan redan vara slutförd eller misslyckad.",
-    "cancelNoId": "Kan inte avbryta uppgift utan ID.",
-    "loadError": "Kunde inte ladda uppgifter",
-    "metadataScheduled": "Metadatauppdatering schemalagd",
-    "metadataScheduledDetail": "Metadatauppdateringen för de valda böckerna har schemalagts.",
-    "metadataAlreadyRunningDetail": "En metadatauppdatering pågår redan. Vänta tills den slutförs innan du startar en ny.",
-    "metadataFailed": "Metadatauppdatering misslyckades",
-    "metadataFailedDetail": "Ett oväntat fel uppstod vid schemaläggning av metadatauppdateringen. Försök igen senare eller kontakta support om problemet kvarstår."
-  }
+    "title": "Systemuppgiftshanterare",
+    "description": "Hantera automatiserade systemuppgifter för biblioteksunderhåll, metadatauppdatering och cacherensning. Schemalägg återkommande operationer med <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron-uttryck</a>.",
+    "systemTasks": {
+        "sectionTitle": "Systemuppgifter",
+        "sectionDesc": "Utför uppgifter manuellt, övervaka framsteg i realtid och konfigurera schemalagd automatisering."
+    },
+    "loading": "Laddar uppgifter...",
+    "emptyTitle": "Inga uppgifter tillgängliga",
+    "status": {
+        "running": "Körs",
+        "stale": "Inaktuell",
+        "neverRun": "Aldrig körd",
+        "justNow": "Just nu"
+    },
+    "cron": {
+        "noSchedule": "Inget schema",
+        "edit": "Redigera",
+        "placeholder": "t.ex. 0 2 * * *",
+        "validationPrefix": "Cron-uttrycket måste ha exakt 6 fält (sekunder, minuter, timmar, dag, månad, veckodag)",
+        "invalidField": "Ogiltigt {{name}}-fält: {{value}}",
+        "updateSuccess": "Schemalagd uppgiftskonfiguration har uppdaterats.",
+        "updateError": "Kunde inte uppdatera schemalagd uppgiftskonfiguration."
+    },
+    "buttons": {
+        "run": "Kör",
+        "rerun": "Kör om"
+    },
+    "metadataReplace": {
+        "label": "Metadataersättningsläge:",
+        "selectMode": "Välj läge",
+        "replaceMissing": "Uppdatera bara saknad metadata (rekommenderat)",
+        "replaceAll": "Ersätt all metadata (skriv över befintlig)",
+        "replaceMissingDesc": "Uppdatera bara böcker som saknar metadatainformation. Befintlig metadata bevaras.",
+        "replaceAllDesc": "Ersätt all metadata för alla böcker, även om de redan har metadata. Använd med försiktighet då detta skriver över befintlig data."
+    },
+    "progress": {
+        "staleWarning": "Denna uppgift verkar ha fastnat. Inga uppdateringar mottagna på över 5 minuter.",
+        "statusLabel": "Status:",
+        "progressLabel": "Framsteg:",
+        "startedLabel": "Startad:",
+        "processing": "Bearbetar...",
+        "stuckMessage": "Uppgiften verkar ha fastnat (inga uppdateringar mottagna)"
+    },
+    "toast": {
+        "taskQueued": "Uppgift köad",
+        "taskQueuedDetail": "{{name}} har köats och körs i bakgrunden.",
+        "taskCompleted": "Uppgift slutförd",
+        "taskCompletedDetail": "{{name}} har slutförts.",
+        "taskFailed": "Uppgift misslyckades",
+        "taskFailedDetail": "{{name}} kunde inte slutföras.",
+        "taskStarted": "Uppgift startad",
+        "taskStartedDetail": "{{name}} har startats.",
+        "startError": "Kunde inte starta {{name}}.",
+        "alreadyRunning": "Uppgift körs redan",
+        "alreadyRunningDetail": "Denna uppgift pågår redan eller väntar.",
+        "taskCancelled": "Uppgift avbruten",
+        "cancelledDetail": "Uppgiften har avbrutits.",
+        "cancelFailed": "Avbrytning misslyckades",
+        "cancelError": "Kunde inte avbryta uppgiften. Uppgiften kan redan vara slutförd eller misslyckad.",
+        "cancelNoId": "Kan inte avbryta uppgift utan ID.",
+        "loadError": "Kunde inte ladda uppgifter",
+        "metadataScheduled": "Metadatauppdatering schemalagd",
+        "metadataScheduledDetail": "Metadatauppdateringen för de valda böckerna har schemalagts.",
+        "metadataAlreadyRunningDetail": "En metadatauppdatering pågår redan. Vänta tills den slutförs innan du startar en ny.",
+        "metadataFailed": "Metadatauppdatering misslyckades",
+        "metadataFailedDetail": "Ett oväntat fel uppstod vid schemaläggning av metadatauppdateringen. Försök igen senare eller kontakta support om problemet kvarstår."
+    }
 }

@@ -117,13 +117,6 @@ describe('LayoutService', () => {
     expect(service.mobileDrawerOpen()).toBe(false);
   });
 
-  it('updates the document root font size when the scale changes', () => {
-    service.scale.set(18);
-    TestBed.flushEffects();
-
-    expect(document.documentElement.style.fontSize).toBe('18px');
-  });
-
   it('persists the collapsed state when toggled', () => {
     expect(service.sidebarCollapsed()).toBe(false);
 

@@ -10,6 +10,7 @@ code.
 - [First-Time Contributors](#first-time-contributors)
 - [Quick Guide](#quick-guide)
   - [I'd like to contribute code](#id-like-to-contribute-code)
+  - [I'd like to contribute translations](#id-like-to-contribute-translations)
   - [Something isn't working](#something-isnt-working)
   - [I have an idea or feature request](#i-have-an-idea-or-feature-request)
   - [I've implemented something and want to submit it](#ive-implemented-something-and-want-to-submit-it)
@@ -70,6 +71,26 @@ start working on it. If you need help or guidance, comment on the issue. Issues 
 friendly to newcomers are tagged [`good first issue`][good-first-issue].
 
 [good-first-issue]: https://github.com/grimmory-tools/grimmory/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good+first+issue%22
+
+### I'd like to contribute translations
+
+Please use the [Grimmory Weblate project](https://hosted.weblate.org/engage/grimmory/) for
+non-English localization work. Weblate tracks `develop`, shows missing and outdated strings, and
+sends translation updates back to the repository as reviewed pull requests.
+
+When translating, preserve placeholders exactly, such as `{{ name }}`, `{{ count }}`, and
+`{{ provider }}`. Do not translate placeholder names. Keep HTML tags intact when they appear in a
+source string, and translate naturally for your language rather than copying English phrasing word
+for word.
+
+Do not hand-edit non-English translations in regular code pull requests unless explicitly requested
+to do so by a maintainer. Do not pre-fill other languages' localizations with English. Empty target
+strings make it easier to surface those keys for translators than copied English.
+
+Developers should add and change source strings in `frontend/src/i18n/en/*.json`. Each JSON file is
+a Transloco domain and maps to a Weblate component. When adding a new source-string domain, add the
+English JSON file, add matching empty JSON files for each non-English locale, then import/export the
+domain from each locale `index.ts`.
 
 ### Something isn't working
 

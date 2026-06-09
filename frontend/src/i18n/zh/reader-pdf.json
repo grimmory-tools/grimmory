@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "切换到浅色模式",
-    "switchToDarkMode": "切换到深色模式",
-    "closePdfReader": "关闭 PDF 阅读器"
-  },
-  "toast": {
-    "failedToLoadBook": "加载书籍失败"
-  }
+    "toolbar": {
+        "switchToLightMode": "切换到浅色模式",
+        "switchToDarkMode": "切换到深色模式",
+        "closePdfReader": "关闭 PDF 阅读器"
+    },
+    "toast": {
+        "failedToLoadBook": "加载书籍失败"
+    }
 }

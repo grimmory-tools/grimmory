@@ -1,17 +1,17 @@
 {
-  "tabs": {
-    "reader": "Leitor",
-    "view": "Visualização",
-    "metadata1": "Metadados 1",
-    "metadata2": "Metadados 2",
-    "application": "Aplicação",
-    "users": "Usuários",
-    "email": "Email",
-    "patterns": "Padrões",
-    "authentication": "Autenticação",
-    "tasks": "Tarefas",
-    "auditLogs": "Logs de Auditoria",
-    "opds": "OPDS",
-    "devices": "Dispositivos"
-  }
+    "tabs": {
+        "reader": "Leitor",
+        "view": "Visualização",
+        "metadata1": "Metadados 1",
+        "metadata2": "Metadados 2",
+        "application": "Aplicação",
+        "users": "Usuários",
+        "email": "Email",
+        "patterns": "Padrões",
+        "authentication": "Autenticação",
+        "tasks": "Tarefas",
+        "auditLogs": "Logs de Auditoria",
+        "opds": "OPDS",
+        "devices": "Dispositivos"
+    }
 }

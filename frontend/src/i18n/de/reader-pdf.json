@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Zum hellen Modus wechseln",
-    "switchToDarkMode": "Zum dunklen Modus wechseln",
-    "closePdfReader": "PDF-Reader schließen"
-  },
-  "toast": {
-    "failedToLoadBook": "Das Buch konnte nicht geladen werden"
-  }
+    "toolbar": {
+        "switchToLightMode": "Zum hellen Modus wechseln",
+        "switchToDarkMode": "Zum dunklen Modus wechseln",
+        "closePdfReader": "PDF-Reader schließen"
+    },
+    "toast": {
+        "failedToLoadBook": "Das Buch konnte nicht geladen werden"
+    }
 }

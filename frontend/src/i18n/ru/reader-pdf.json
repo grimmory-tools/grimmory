@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Переключить на светлый режим",
-    "switchToDarkMode": "Переключить на тёмный режим",
-    "closePdfReader": "Закрыть PDF-читалку"
-  },
-  "toast": {
-    "failedToLoadBook": "Не удалось загрузить книгу"
-  }
+    "toolbar": {
+        "switchToLightMode": "Переключить на светлый режим",
+        "switchToDarkMode": "Переключить на тёмный режим",
+        "closePdfReader": "Закрыть PDF-читалку"
+    },
+    "toast": {
+        "failedToLoadBook": "Не удалось загрузить книгу"
+    }
 }

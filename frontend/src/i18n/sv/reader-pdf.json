@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Växla till ljust läge",
-    "switchToDarkMode": "Växla till mörkt läge",
-    "closePdfReader": "Stäng PDF-läsaren"
-  },
-  "toast": {
-    "failedToLoadBook": "Kunde inte ladda boken"
-  }
+    "toolbar": {
+        "switchToLightMode": "Växla till ljust läge",
+        "switchToDarkMode": "Växla till mörkt läge",
+        "closePdfReader": "Stäng PDF-läsaren"
+    },
+    "toast": {
+        "failedToLoadBook": "Kunde inte ladda boken"
+    }
 }

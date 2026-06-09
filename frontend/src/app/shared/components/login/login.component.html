@@ -26,13 +26,13 @@
           </div>
 
           @if (infoMessage) {
-            <div class="info-message" style="margin-bottom: 1rem;">
+            <div class="info-message" style="margin-bottom: 0.875rem;">
               <p-message severity="info">{{ infoMessage }}</p-message>
             </div>
           }
 
           @if (errorMessage) {
-            <div class="error-message" style="margin-bottom: 1rem;">
+            <div class="error-message" style="margin-bottom: 0.875rem;">
               <p-message severity="error">{{ errorMessage }}</p-message>
             </div>
           }
@@ -52,7 +52,6 @@
                   required
                   [(ngModel)]="username"
                   [placeholder]="t('usernamePlaceholder')"
-                  class="form-input"
                   autocomplete="username"
                 />
               </div>

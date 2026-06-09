@@ -31,6 +31,14 @@ interface AppThemeColorScheme {
 
 interface AppThemePresetComponents {
   components?: {
+    inputtext?: {
+      root?: {
+        focusBorderColor?: string;
+        focusRing?: {
+          shadow?: string;
+        };
+      };
+    };
     button?: {
       colorScheme?: {
         light?: {
@@ -47,6 +55,13 @@ describe('theme-palette-extend', () => {
 
     expect(preset.semantic?.colorScheme?.light?.content?.background).toBe('var(--color-page)');
     expect(preset.semantic?.colorScheme?.dark?.content?.background).toBe('var(--color-page)');
+  });
+
+  it('bridges Prime input focus styles to app control tokens', () => {
+    const inputtext = (ExtendedAura as AppThemePresetComponents).components?.inputtext?.root;
+
+    expect(inputtext?.focusBorderColor).toBe('var(--control-focus-border)');
+    expect(inputtext?.focusRing?.shadow).toBe('none');
   });
 
   it('uses balanced light outlined button tokens', () => {

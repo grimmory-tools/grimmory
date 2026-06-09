@@ -1,7 +1,7 @@
 .dashboard-scroller-container {
   border-radius: 20px;
-  padding: 1rem 2rem 0;
-  margin-bottom: 2rem;
+  padding: 0.875rem 1.75rem 0;
+  margin-bottom: 1.75rem;
   position: relative;
   overflow: hidden;
   background: transparent;
@@ -10,9 +10,9 @@
 
 .dashboard-scroller-title {
   text-align: left;
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   padding: 0;
   background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary), var(--color-primary));
   background-clip: text;
@@ -34,7 +34,7 @@
 }
 
 .dashboard-scroller-no-books {
-  padding: 3rem 2rem;
+  padding: 2.625rem 1.75rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,18 +50,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
     position: relative;
 
     i {
-      font-size: 2rem;
+      font-size: 1.75rem;
       color: var(--color-text);
     }
   }
 
   p {
     color: var(--color-text-secondary);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     font-weight: 500;
     max-width: 400px;
     line-height: 1.7;
@@ -72,8 +72,8 @@
   display: flex;
   overflow: auto hidden;
   scroll-snap-type: x mandatory;
-  padding: 1rem 0.5rem;
-  gap: 2rem;
+  padding: 0.875rem 0.4375rem;
+  gap: 1.75rem;
   width: 100%;
   position: relative;
   z-index: 2;
@@ -97,7 +97,7 @@
 }
 
 .magic-shelf-icon {
-  margin-left: 0.5rem;
+  margin-left: 0.4375rem;
   color: var(--color-primary) !important;
   background: none !important;
   background-clip: unset !important;
@@ -118,19 +118,19 @@
   }
 
   .dashboard-scroller-no-books {
-    padding: 4rem 1rem;
+    padding: 3.5rem 0.875rem;
 
     .empty-state-icon {
       width: 80px;
       height: 80px;
 
       i {
-        font-size: 2rem;
+        font-size: 1.75rem;
       }
     }
 
     p {
-      font-size: 1.1rem;
+      font-size: 0.9625rem;
     }
   }
 }

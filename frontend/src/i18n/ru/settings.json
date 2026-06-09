@@ -1,17 +1,17 @@
 {
-  "tabs": {
-    "reader": "Читалка",
-    "view": "Вид",
-    "metadata1": "Метаданные 1",
-    "metadata2": "Метаданные 2",
-    "application": "Приложение",
-    "users": "Пользователи",
-    "email": "Email",
-    "patterns": "Шаблоны",
-    "authentication": "Аутентификация",
-    "tasks": "Задачи",
-    "auditLogs": "Журнал аудита",
-    "opds": "OPDS",
-    "devices": "Устройства"
-  }
+    "tabs": {
+        "reader": "Читалка",
+        "view": "Вид",
+        "metadata1": "Метаданные 1",
+        "metadata2": "Метаданные 2",
+        "application": "Приложение",
+        "users": "Пользователи",
+        "email": "Email",
+        "patterns": "Шаблоны",
+        "authentication": "Аутентификация",
+        "tasks": "Задачи",
+        "auditLogs": "Журнал аудита",
+        "opds": "OPDS",
+        "devices": "Устройства"
+    }
 }

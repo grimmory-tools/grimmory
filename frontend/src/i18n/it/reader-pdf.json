@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Passa alla modalità chiara",
-    "switchToDarkMode": "Passa alla modalità scura",
-    "closePdfReader": "Chiudi lettore PDF"
-  },
-  "toast": {
-    "failedToLoadBook": "Impossibile caricare il libro"
-  }
+    "toolbar": {
+        "switchToLightMode": "Passa alla modalità chiara",
+        "switchToDarkMode": "Passa alla modalità scura",
+        "closePdfReader": "Chiudi lettore PDF"
+    },
+    "toast": {
+        "failedToLoadBook": "Impossibile caricare il libro"
+    }
 }

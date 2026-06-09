@@ -1,64 +1,64 @@
 {
-  "loading": "Ładowanie audiobooka...",
-  "untitled": "Bez tytułu",
-  "unknownAuthor": "Nieznany autor",
-  "coverAlt": "Okładka",
-  "header": {
-    "backTooltip": "Wstecz",
-    "bookmarksTooltip": "Zakładki",
-    "chaptersTracksTooltip": "Rozdziały/Ścieżki"
-  },
-  "trackInfo": {
-    "trackOf": "Ścieżka {{ current }} z {{ total }}",
-    "chapterOf": "Rozdział {{ current }} z {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Poprzednia ścieżka",
-    "previousChapterTooltip": "Poprzedni rozdział",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Następna ścieżka",
-    "nextChapterTooltip": "Następny rozdział"
-  },
-  "extra": {
-    "addBookmark": "Dodaj zakładkę",
-    "sleepTimer": "Wyłącznik czasowy",
-    "endOfChapter": "Koniec rozdziału"
-  },
-  "details": {
-    "narratedBy": "Czyta {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} łącznie"
-  },
-  "sidebar": {
-    "tracks": "Ścieżki",
-    "chapters": "Rozdziały"
-  },
-  "bookmarks": {
-    "title": "Zakładki",
-    "empty": "Brak zakładek",
-    "emptyHint": "Dodaj zakładkę, aby zapisać swoje miejsce",
-    "deleteTooltip": "Usuń",
-    "bookmarkAt": "Zakładka w {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minut",
-    "minutes30": "30 minut",
-    "minutes45": "45 minut",
-    "minutes60": "60 minut",
-    "endOfChapter": "Koniec rozdziału",
-    "cancelTimer": "Anuluj timer"
-  },
-  "toast": {
-    "loadFailed": "Nie udało się załadować audiobooka",
-    "audioLoadFailed": "Nie udało się załadować audio",
-    "sleepTimerSet": "Odtwarzanie zatrzyma się za {{ minutes }} minut",
-    "sleepTimerEndOfChapter": "Odtwarzanie zatrzyma się na końcu rozdziału",
-    "sleepTimerStopped": "Odtwarzanie zatrzymane przez wyłącznik czasowy",
-    "bookmarkAdded": "Zakładka dodana",
-    "bookmarkExists": "Zakładka istnieje",
-    "bookmarkExistsDetail": "Zakładka już istnieje w tej pozycji",
-    "bookmarkFailed": "Nie udało się dodać zakładki",
-    "bookmarkDeleted": "Zakładka usunięta"
-  }
+    "loading": "Ładowanie audiobooka...",
+    "untitled": "Bez tytułu",
+    "unknownAuthor": "Nieznany autor",
+    "coverAlt": "Okładka",
+    "header": {
+        "backTooltip": "Wstecz",
+        "bookmarksTooltip": "Zakładki",
+        "chaptersTracksTooltip": "Rozdziały/Ścieżki"
+    },
+    "trackInfo": {
+        "trackOf": "Ścieżka {{ current }} z {{ total }}",
+        "chapterOf": "Rozdział {{ current }} z {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Poprzednia ścieżka",
+        "previousChapterTooltip": "Poprzedni rozdział",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Następna ścieżka",
+        "nextChapterTooltip": "Następny rozdział"
+    },
+    "extra": {
+        "addBookmark": "Dodaj zakładkę",
+        "sleepTimer": "Wyłącznik czasowy",
+        "endOfChapter": "Koniec rozdziału"
+    },
+    "details": {
+        "narratedBy": "Czyta {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} łącznie"
+    },
+    "sidebar": {
+        "tracks": "Ścieżki",
+        "chapters": "Rozdziały"
+    },
+    "bookmarks": {
+        "title": "Zakładki",
+        "empty": "Brak zakładek",
+        "emptyHint": "Dodaj zakładkę, aby zapisać swoje miejsce",
+        "deleteTooltip": "Usuń",
+        "bookmarkAt": "Zakładka w {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minut",
+        "minutes30": "30 minut",
+        "minutes45": "45 minut",
+        "minutes60": "60 minut",
+        "endOfChapter": "Koniec rozdziału",
+        "cancelTimer": "Anuluj timer"
+    },
+    "toast": {
+        "loadFailed": "Nie udało się załadować audiobooka",
+        "audioLoadFailed": "Nie udało się załadować audio",
+        "sleepTimerSet": "Odtwarzanie zatrzyma się za {{ minutes }} minut",
+        "sleepTimerEndOfChapter": "Odtwarzanie zatrzyma się na końcu rozdziału",
+        "sleepTimerStopped": "Odtwarzanie zatrzymane przez wyłącznik czasowy",
+        "bookmarkAdded": "Zakładka dodana",
+        "bookmarkExists": "Zakładka istnieje",
+        "bookmarkExistsDetail": "Zakładka już istnieje w tej pozycji",
+        "bookmarkFailed": "Nie udało się dodać zakładki",
+        "bookmarkDeleted": "Zakładka usunięta"
+    }
 }

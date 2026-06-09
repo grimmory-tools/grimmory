@@ -1,64 +1,64 @@
 {
-  "loading": "Chargement du livre audio...",
-  "untitled": "Sans titre",
-  "unknownAuthor": "Auteur inconnu",
-  "coverAlt": "Couverture",
-  "header": {
-    "backTooltip": "Retour",
-    "bookmarksTooltip": "Signets",
-    "chaptersTracksTooltip": "Chapitres/Pistes"
-  },
-  "trackInfo": {
-    "trackOf": "Piste {{ current }} sur {{ total }}",
-    "chapterOf": "Chapitre {{ current }} sur {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Piste précédente",
-    "previousChapterTooltip": "Chapitre précédent",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Piste suivante",
-    "nextChapterTooltip": "Chapitre suivant"
-  },
-  "extra": {
-    "addBookmark": "Ajouter un signet",
-    "sleepTimer": "Minuterie de sommeil",
-    "endOfChapter": "Fin du chapitre"
-  },
-  "details": {
-    "narratedBy": "Narré par {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} au total"
-  },
-  "sidebar": {
-    "tracks": "Pistes",
-    "chapters": "Chapitres"
-  },
-  "bookmarks": {
-    "title": "Signets",
-    "empty": "Pas encore de signets",
-    "emptyHint": "Ajoutez un signet pour sauvegarder votre position",
-    "deleteTooltip": "Supprimer",
-    "bookmarkAt": "Signet à {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minutes",
-    "minutes30": "30 minutes",
-    "minutes45": "45 minutes",
-    "minutes60": "60 minutes",
-    "endOfChapter": "Fin du chapitre",
-    "cancelTimer": "Annuler la minuterie"
-  },
-  "toast": {
-    "loadFailed": "Échec du chargement du livre audio",
-    "audioLoadFailed": "Échec du chargement de l'audio",
-    "sleepTimerSet": "La lecture s'arrêtera dans {{ minutes }} minutes",
-    "sleepTimerEndOfChapter": "La lecture s'arrêtera à la fin du chapitre",
-    "sleepTimerStopped": "Lecture arrêtée par la minuterie de sommeil",
-    "bookmarkAdded": "Signet ajouté",
-    "bookmarkExists": "Signet existant",
-    "bookmarkExistsDetail": "Un signet existe déjà à cette position",
-    "bookmarkFailed": "Échec de l'ajout du signet",
-    "bookmarkDeleted": "Signet supprimé"
-  }
+    "loading": "Chargement du livre audio...",
+    "untitled": "Sans titre",
+    "unknownAuthor": "Auteur inconnu",
+    "coverAlt": "Couverture",
+    "header": {
+        "backTooltip": "Retour",
+        "bookmarksTooltip": "Signets",
+        "chaptersTracksTooltip": "Chapitres/Pistes"
+    },
+    "trackInfo": {
+        "trackOf": "Piste {{ current }} sur {{ total }}",
+        "chapterOf": "Chapitre {{ current }} sur {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Piste précédente",
+        "previousChapterTooltip": "Chapitre précédent",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Piste suivante",
+        "nextChapterTooltip": "Chapitre suivant"
+    },
+    "extra": {
+        "addBookmark": "Ajouter un signet",
+        "sleepTimer": "Minuterie de sommeil",
+        "endOfChapter": "Fin du chapitre"
+    },
+    "details": {
+        "narratedBy": "Narré par {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} au total"
+    },
+    "sidebar": {
+        "tracks": "Pistes",
+        "chapters": "Chapitres"
+    },
+    "bookmarks": {
+        "title": "Signets",
+        "empty": "Pas encore de signets",
+        "emptyHint": "Ajoutez un signet pour sauvegarder votre position",
+        "deleteTooltip": "Supprimer",
+        "bookmarkAt": "Signet à {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minutes",
+        "minutes30": "30 minutes",
+        "minutes45": "45 minutes",
+        "minutes60": "60 minutes",
+        "endOfChapter": "Fin du chapitre",
+        "cancelTimer": "Annuler la minuterie"
+    },
+    "toast": {
+        "loadFailed": "Échec du chargement du livre audio",
+        "audioLoadFailed": "Échec du chargement de l'audio",
+        "sleepTimerSet": "La lecture s'arrêtera dans {{ minutes }} minutes",
+        "sleepTimerEndOfChapter": "La lecture s'arrêtera à la fin du chapitre",
+        "sleepTimerStopped": "Lecture arrêtée par la minuterie de sommeil",
+        "bookmarkAdded": "Signet ajouté",
+        "bookmarkExists": "Signet existant",
+        "bookmarkExistsDetail": "Un signet existe déjà à cette position",
+        "bookmarkFailed": "Échec de l'ajout du signet",
+        "bookmarkDeleted": "Signet supprimé"
+    }
 }

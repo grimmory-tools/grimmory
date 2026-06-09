@@ -38,6 +38,9 @@ import { MetadataProgressService } from '../../service/metadata-progress.service
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
 import { MetadataBatchStatus } from '../../model/metadata-batch-progress.model';
 import { LibraryImportProgressService } from '../../service/library-import-progress.service';
+import { AppThemeService } from '../../service/app-theme.service';
+import type { AppearancePreference } from '../../model/app-state.model';
+import { APPEARANCE_OPTIONS } from '../theme/appearance-options';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
@@ -140,6 +143,7 @@ export class AppSidebarComponent {
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
+  private readonly themeService = inject(AppThemeService);
 
   readonly currentUser = this.userService.currentUser;
   private readonly allAuthors = this.authorService.allAuthors;
@@ -155,6 +159,14 @@ export class AppSidebarComponent {
   private readonly translate = (key: string): string => this.t.translate(key);
   protected readonly userPopoverOpen = signal(false);
   protected readonly userPopoverOrigin = signal<CdkOverlayOrigin | null>(null);
+  protected readonly appearanceMenuOpen = signal(false);
+  protected readonly appearanceOptions = APPEARANCE_OPTIONS;
+  protected readonly selectedAppearancePreference = this.themeService.appearancePreference;
+  protected readonly selectedAppearanceLabel = computed(() => {
+    this.activeLang();
+    const selectedOption = APPEARANCE_OPTIONS.find(option => option.value === this.selectedAppearancePreference());
+    return selectedOption ? this.translate(selectedOption.labelKey) : '';
+  });
   protected readonly canAccessReadingStats = computed(() => {
     const user = this.currentUser();
     return !!user && (user.permissions.admin || user.permissions.canAccessUserStats);
@@ -267,6 +279,15 @@ export class AppSidebarComponent {
 
   protected closeUserPopover(): void {
     this.userPopoverOpen.set(false);
+    this.appearanceMenuOpen.set(false);
+  }
+
+  protected toggleAppearanceMenu(): void {
+    this.appearanceMenuOpen.update(open => !open);
+  }
+
+  protected updateAppearancePreference(appearancePreference: AppearancePreference): void {
+    this.themeService.setAppearancePreference(appearancePreference);
   }
 
   protected openDocumentation(): void {

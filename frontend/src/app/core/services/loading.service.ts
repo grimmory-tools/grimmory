@@ -12,7 +12,7 @@ export class LoadingService {
     loader.innerHTML = `
       <div class="loader-content">
         <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: var(--primary-color);"></i>
-        <p style="margin-top: 1rem; color: var(--text-color);">${message}</p>
+        <p style="margin-top: 0.875rem; color: var(--text-color);">${message}</p>
       </div>
     `;
     loader.style.cssText = `
@@ -34,7 +34,7 @@ export class LoadingService {
       content.style.cssText = `
         text-align: center;
         background: var(--card-background);
-        padding: 2rem;
+        padding: 1.75rem;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       `;

@@ -1,64 +1,64 @@
 {
-  "loading": "オーディオブックを読み込み中...",
-  "untitled": "無題",
-  "unknownAuthor": "著者不明",
-  "coverAlt": "カバー",
-  "header": {
-    "backTooltip": "戻る",
-    "bookmarksTooltip": "ブックマーク",
-    "chaptersTracksTooltip": "チャプター/トラック"
-  },
-  "trackInfo": {
-    "trackOf": "トラック {{ current }} / {{ total }}",
-    "chapterOf": "チャプター {{ current }} / {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "前のトラック",
-    "previousChapterTooltip": "前のチャプター",
-    "rewindTooltip": "-30秒",
-    "forwardTooltip": "+30秒",
-    "nextTrackTooltip": "次のトラック",
-    "nextChapterTooltip": "次のチャプター"
-  },
-  "extra": {
-    "addBookmark": "ブックマークを追加",
-    "sleepTimer": "スリープタイマー",
-    "endOfChapter": "チャプターの終わり"
-  },
-  "details": {
-    "narratedBy": "ナレーター: {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "合計 {{ duration }}"
-  },
-  "sidebar": {
-    "tracks": "トラック",
-    "chapters": "チャプター"
-  },
-  "bookmarks": {
-    "title": "ブックマーク",
-    "empty": "ブックマークはまだありません",
-    "emptyHint": "ブックマークを追加して場所を保存しましょう",
-    "deleteTooltip": "削除",
-    "bookmarkAt": "{{ time }} のブックマーク"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15分",
-    "minutes30": "30分",
-    "minutes45": "45分",
-    "minutes60": "60分",
-    "endOfChapter": "チャプターの終わり",
-    "cancelTimer": "タイマーをキャンセル"
-  },
-  "toast": {
-    "loadFailed": "オーディオブックの読み込みに失敗しました",
-    "audioLoadFailed": "音声の読み込みに失敗しました",
-    "sleepTimerSet": "{{ minutes }}分後に再生を停止します",
-    "sleepTimerEndOfChapter": "チャプターの終わりで再生を停止します",
-    "sleepTimerStopped": "スリープタイマーにより再生が停止しました",
-    "bookmarkAdded": "ブックマークを追加しました",
-    "bookmarkExists": "ブックマークが既に存在します",
-    "bookmarkExistsDetail": "この位置にはすでにブックマークがあります",
-    "bookmarkFailed": "ブックマークの追加に失敗しました",
-    "bookmarkDeleted": "ブックマークを削除しました"
-  }
+    "loading": "オーディオブックを読み込み中...",
+    "untitled": "無題",
+    "unknownAuthor": "著者不明",
+    "coverAlt": "カバー",
+    "header": {
+        "backTooltip": "戻る",
+        "bookmarksTooltip": "ブックマーク",
+        "chaptersTracksTooltip": "チャプター/トラック"
+    },
+    "trackInfo": {
+        "trackOf": "トラック {{ current }} / {{ total }}",
+        "chapterOf": "チャプター {{ current }} / {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "前のトラック",
+        "previousChapterTooltip": "前のチャプター",
+        "rewindTooltip": "-30秒",
+        "forwardTooltip": "+30秒",
+        "nextTrackTooltip": "次のトラック",
+        "nextChapterTooltip": "次のチャプター"
+    },
+    "extra": {
+        "addBookmark": "ブックマークを追加",
+        "sleepTimer": "スリープタイマー",
+        "endOfChapter": "チャプターの終わり"
+    },
+    "details": {
+        "narratedBy": "ナレーター: {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "合計 {{ duration }}"
+    },
+    "sidebar": {
+        "tracks": "トラック",
+        "chapters": "チャプター"
+    },
+    "bookmarks": {
+        "title": "ブックマーク",
+        "empty": "ブックマークはまだありません",
+        "emptyHint": "ブックマークを追加して場所を保存しましょう",
+        "deleteTooltip": "削除",
+        "bookmarkAt": "{{ time }} のブックマーク"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15分",
+        "minutes30": "30分",
+        "minutes45": "45分",
+        "minutes60": "60分",
+        "endOfChapter": "チャプターの終わり",
+        "cancelTimer": "タイマーをキャンセル"
+    },
+    "toast": {
+        "loadFailed": "オーディオブックの読み込みに失敗しました",
+        "audioLoadFailed": "音声の読み込みに失敗しました",
+        "sleepTimerSet": "{{ minutes }}分後に再生を停止します",
+        "sleepTimerEndOfChapter": "チャプターの終わりで再生を停止します",
+        "sleepTimerStopped": "スリープタイマーにより再生が停止しました",
+        "bookmarkAdded": "ブックマークを追加しました",
+        "bookmarkExists": "ブックマークが既に存在します",
+        "bookmarkExistsDetail": "この位置にはすでにブックマークがあります",
+        "bookmarkFailed": "ブックマークの追加に失敗しました",
+        "bookmarkDeleted": "ブックマークを削除しました"
+    }
 }

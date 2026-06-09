@@ -1,19 +1,19 @@
 {
-  "title": "監査ログ",
-  "description": "システム全体で実行された管理上重要な操作の記録を確認します。",
-  "sectionTitle": "アクティビティログ",
-  "filterPlaceholder": "アクションで絞り込み",
-  "userFilterPlaceholder": "ユーザーで絞り込み",
-  "dateRangePlaceholder": "日付範囲で絞り込み",
-  "clearFilters": "すべてのフィルターをクリア",
-  "autoRefresh": "自動更新（10秒）",
-  "pageReport": "{first}～{last} / {totalRecords}件を表示",
-  "empty": "監査ログが見つかりません",
-  "columns": {
-    "timestamp": "日時",
-    "user": "ユーザー",
-    "action": "アクション",
-    "description": "説明",
-    "ip": "IPアドレス"
-  }
+    "title": "監査ログ",
+    "description": "システム全体で実行された管理上重要な操作の記録を確認します。",
+    "sectionTitle": "アクティビティログ",
+    "filterPlaceholder": "アクションで絞り込み",
+    "userFilterPlaceholder": "ユーザーで絞り込み",
+    "dateRangePlaceholder": "日付範囲で絞り込み",
+    "clearFilters": "すべてのフィルターをクリア",
+    "autoRefresh": "自動更新（10秒）",
+    "pageReport": "{first}～{last} / {totalRecords}件を表示",
+    "empty": "監査ログが見つかりません",
+    "columns": {
+        "timestamp": "日時",
+        "user": "ユーザー",
+        "action": "アクション",
+        "description": "説明",
+        "ip": "IPアドレス"
+    }
 }

@@ -5,7 +5,7 @@
 }
 
 .author-title-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: var(--color-violet-500);
 }
 
@@ -18,14 +18,14 @@
 }
 
 .chart-legend-info {
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 
   .legend-note {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.4375rem;
+    font-size: 0.7rem;
+    padding: 0.4375rem 0.6563rem;
     color: var(--color-text-secondary);
 
     @include chart-shared.neutral-surface(6px);
@@ -43,21 +43,21 @@
 }
 
 .insights-section {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
+  margin-top: 1.0938rem;
+  padding-top: 0.875rem;
   border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .insights-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .insight-card {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.525rem;
   background: linear-gradient(
     135deg,
     color-mix(in srgb, var(--color-violet-500) 10%, transparent),
@@ -65,7 +65,7 @@
   );
   border: 1px solid color-mix(in srgb, var(--color-violet-500) 20%, transparent);
   border-radius: 8px;
-  padding: 0.6rem 0.85rem;
+  padding: 0.525rem 0.7438rem;
   transition: all 0.2s ease;
 
   &:hover {
@@ -80,12 +80,12 @@
 
   .insight-icon {
     color: var(--color-amber-500);
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     flex-shrink: 0;
   }
 
   .insight-text {
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     color: var(--color-text);
     line-height: 1.3;
   }
@@ -102,7 +102,7 @@
 
   .chart-legend-info {
     .legend-note {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
     }
   }
 }
@@ -113,15 +113,15 @@
   }
 
   .author-count-badge {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.75rem;
+    font-size: 0.7rem;
+    padding: 0.2625rem 0.6563rem;
   }
 
   .insight-card {
-    padding: 0.5rem 0.7rem;
+    padding: 0.4375rem 0.6125rem;
 
     .insight-text {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
     }
   }
 }

@@ -404,6 +404,53 @@
                 <span>{{ t('readingStats') }}</span>
               </button>
             }
+
+            <div class="flex flex-col-reverse">
+              <button
+                type="button"
+                class="menu-item user-account-popover-action"
+                aria-controls="user-account-appearance-menu"
+                [attr.aria-expanded]="appearanceMenuOpen()"
+                (click)="toggleAppearanceMenu()"
+              >
+                <i class="pi pi-palette" aria-hidden="true"></i>
+                <span>{{ 'layout.theme.appearance' | transloco }}</span>
+                <span class="ml-auto mr-1.5 min-w-0 max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{{ selectedAppearanceLabel() }}</span>
+                <i
+                  class="pi pi-chevron-down size-2.5 shrink-0 text-[0.6875rem] text-text-secondary! transition-transform duration-150"
+                  [class.rotate-180]="appearanceMenuOpen()"
+                  aria-hidden="true">
+                </i>
+              </button>
+
+              <div
+                id="user-account-appearance-menu"
+                class="pointer-events-none grid origin-bottom grid-rows-[0fr] translate-y-0.5 opacity-0 transition-[grid-template-rows,opacity,transform] duration-150 ease-out data-[open=true]:pointer-events-auto data-[open=true]:mt-0.5 data-[open=true]:border-t data-[open=true]:border-border data-[open=true]:pt-0.5 data-[open=true]:grid-rows-[1fr] data-[open=true]:translate-y-0 data-[open=true]:opacity-100 motion-reduce:transition-none"
+                [attr.aria-label]="'layout.theme.appearance' | transloco"
+                [attr.aria-hidden]="!appearanceMenuOpen()"
+                [attr.data-open]="appearanceMenuOpen()"
+                [attr.inert]="appearanceMenuOpen() ? null : ''"
+              >
+                <div class="min-h-0 overflow-hidden">
+                  <div class="flex flex-col gap-0.5 pb-0.5 pl-[calc(var(--control-icon-size)+var(--menu-item-gap))]">
+                    @for (option of appearanceOptions; track option.value) {
+                      <button
+                        type="button"
+                        class="menu-item user-account-popover-action aria-pressed:bg-active-surface aria-pressed:text-primary! aria-pressed:[&_.pi]:text-primary!"
+                        [attr.aria-pressed]="selectedAppearancePreference() === option.value"
+                        (click)="updateAppearancePreference(option.value)"
+                      >
+                        <i [class]="option.icon" aria-hidden="true"></i>
+                        <span>{{ option.labelKey | transloco }}</span>
+                        @if (selectedAppearancePreference() === option.value) {
+                          <i class="pi pi-check ml-auto text-primary!" aria-hidden="true"></i>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <footer class="user-account-popover-footer">

@@ -45,8 +45,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.3125rem;
+  height: 1.3125rem;
   padding: 0;
   border: 0;
   border-radius: 5px;
@@ -79,7 +79,7 @@
 }
 
 .cover-thumbnail {
-  height: 2rem;
+  height: 1.75rem;
   aspect-ratio: 5 / 7;
   object-fit: cover;
   border-radius: 4px;
@@ -96,7 +96,7 @@
   width: 20px;
   height: 20px;
   margin: 0 auto;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 700;
 }
 
@@ -142,7 +142,7 @@
 .cell-action,
 .cell-cover {
   justify-content: center;
-  padding-inline: 0.5rem;
+  padding-inline: 0.4375rem;
 }
 
 .cell-cover {
@@ -159,7 +159,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--book-table-rating-gap);
-  min-width: 7rem;
+  min-width: 6.125rem;
 }
 
 .rating-value {

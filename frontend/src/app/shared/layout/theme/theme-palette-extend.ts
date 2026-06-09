@@ -51,6 +51,17 @@ const appHighlight = {
   focusColor: 'var(--color-primary-text)',
 };
 
+const appInputText = {
+  focusBorderColor: 'var(--control-focus-border)',
+  focusRing: {
+    width: '0',
+    style: 'none',
+    color: 'transparent',
+    offset: '0',
+    shadow: 'none',
+  },
+};
+
 const contentSurface = {
   background: 'var(--color-page)',
   borderColor: 'var(--color-border)',
@@ -62,6 +73,99 @@ const overlaySurface = {
   borderColor: 'var(--color-border)',
   color: 'var(--color-text)',
 };
+
+const compactPrimeFontCss = `
+.p-button:not(.p-button-sm):not(.p-button-lg),
+.p-inputtext:not(.p-inputtext-sm):not(.p-inputtext-lg),
+.p-textarea:not(.p-textarea-sm):not(.p-textarea-lg),
+.p-select:not(.p-select-sm):not(.p-select-lg) .p-select-label,
+.p-multiselect:not(.p-multiselect-sm):not(.p-multiselect-lg) .p-multiselect-label,
+.p-cascadeselect:not(.p-cascadeselect-sm):not(.p-cascadeselect-lg) .p-cascadeselect-label,
+.p-treeselect:not(.p-treeselect-sm):not(.p-treeselect-lg) .p-treeselect-label,
+.p-autocomplete-input,
+.p-autocomplete-input-multiple,
+.p-togglebutton:not(.p-togglebutton-sm):not(.p-togglebutton-lg),
+.p-inputchips-input-item input,
+.p-terminal-prompt-value,
+.p-datepicker-day-view,
+.p-datepicker-time-picker span {
+  font-size: var(--app-text-base);
+}
+`;
+
+const PRIME_REM_SCALE = 0.875;
+
+function isDigit(value: string): boolean {
+  return value >= '0' && value <= '9';
+}
+
+function findRemNumberStart(value: string, remIndex: number): number | undefined {
+  let start = remIndex;
+  let digitCount = 0;
+
+  while (start > 0 && isDigit(value[start - 1])) {
+    start -= 1;
+    digitCount += 1;
+  }
+
+  if (start > 0 && value[start - 1] === '.') {
+    start -= 1;
+    while (start > 0 && isDigit(value[start - 1])) {
+      start -= 1;
+      digitCount += 1;
+    }
+  }
+
+  if (start > 0 && value[start - 1] === '-') {
+    start -= 1;
+  }
+
+  return digitCount > 0 ? start : undefined;
+}
+
+function scaleRemString(value: string): string {
+  let result = '';
+  let cursor = 0;
+
+  while (cursor < value.length) {
+    const remIndex = value.indexOf('rem', cursor);
+    if (remIndex === -1) {
+      return result + value.slice(cursor);
+    }
+
+    const numberStart = findRemNumberStart(value, remIndex);
+    if (numberStart === undefined) {
+      result += value.slice(cursor, remIndex + 3);
+      cursor = remIndex + 3;
+      continue;
+    }
+
+    const scaled = Number.parseFloat(
+      (Number(value.slice(numberStart, remIndex)) * PRIME_REM_SCALE).toFixed(4)
+    ).toString();
+    result += `${value.slice(cursor, numberStart)}${scaled}rem`;
+    cursor = remIndex + 3;
+  }
+
+  return result;
+}
+
+function scalePrimeRems<T>(value: T): T {
+  if (typeof value === 'string') {
+    return scaleRemString(value) as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map(scalePrimeRems) as T;
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, scalePrimeRems(entry)])
+    ) as T;
+  }
+  return value;
+}
+
+const AppPrimeBasePreset = scalePrimeRems(Aura);
 
 function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly string[]): ColorPalette {
   return Object.fromEntries(
@@ -96,7 +200,8 @@ function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
   };
 }
 
-const AppPrimePreset = definePreset(Aura, {
+const AppPrimePreset = definePreset(AppPrimeBasePreset, {
+  css: compactPrimeFontCss,
   semantic: {
     colorScheme: {
       light: {
@@ -126,6 +231,7 @@ const AppPrimePreset = definePreset(Aura, {
     tieredmenu: { root: menuRoot },
     contextmenu: { root: menuRoot },
     menubar: { submenu: menuRoot },
+    inputtext: { root: appInputText },
     button: {
       colorScheme: {
         light: { outlined: lightOutlinedButton },

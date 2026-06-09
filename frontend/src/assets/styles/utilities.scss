@@ -51,13 +51,13 @@
   flex-shrink: 0;
   height: 1px;
   min-height: 1px;
-  margin: 0.25rem 0;
+  margin: 0.2188rem 0;
   background: linear-gradient(90deg, transparent, var(--color-border), transparent);
 }
 
 .chart-info-icon {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   cursor: help;
   transition: color var(--transition-base);
 
@@ -96,17 +96,17 @@
 
 .browser-grid-options {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 }
 
 .browser-grid-option-btn {
   flex: 1;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2188rem 0.4375rem;
   border: 1px solid var(--p-content-border-color);
   border-radius: 6px;
   background-color: var(--color-card);
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: var(--app-text-base);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;

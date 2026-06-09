@@ -1,69 +1,69 @@
 {
-  "title": "系统任务管理器",
-  "description": "管理书库维护、元数据刷新和缓存清理的自动化系统任务。使用 <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron 表达式</a>安排定期操作。",
-  "systemTasks": {
-    "sectionTitle": "系统任务",
-    "sectionDesc": "手动执行任务、实时监控进度并配置定时自动化。"
-  },
-  "loading": "正在加载任务...",
-  "emptyTitle": "没有可用的任务",
-  "status": {
-    "running": "运行中",
-    "stale": "已过期",
-    "neverRun": "从未运行",
-    "justNow": "刚刚"
-  },
-  "cron": {
-    "noSchedule": "无计划",
-    "edit": "编辑",
-    "placeholder": "例如 0 2 * * *",
-    "validationPrefix": "Cron 表达式必须恰好有 6 个字段（秒、分、时、日、月、星期）",
-    "invalidField": "无效的 {{name}} 字段：{{value}}",
-    "updateSuccess": "定时任务配置已成功更新。",
-    "updateError": "更新定时任务配置失败。"
-  },
-  "buttons": {
-    "run": "运行",
-    "rerun": "重新运行"
-  },
-  "metadataReplace": {
-    "label": "元数据替换模式：",
-    "selectMode": "选择模式",
-    "replaceMissing": "仅更新缺失的元数据（推荐）",
-    "replaceAll": "替换所有元数据（覆盖现有数据）",
-    "replaceMissingDesc": "仅更新缺少元数据信息的书籍。现有元数据将被保留。",
-    "replaceAllDesc": "替换所有书籍的元数据，即使它们已有元数据。请谨慎使用，因为这将覆盖现有数据。"
-  },
-  "progress": {
-    "staleWarning": "此任务似乎已卡住。超过 5 分钟未收到更新。",
-    "statusLabel": "状态：",
-    "progressLabel": "进度：",
-    "startedLabel": "开始于：",
-    "processing": "处理中...",
-    "stuckMessage": "任务似乎已卡住（未收到更新）"
-  },
-  "toast": {
-    "taskQueued": "任务已排队",
-    "taskQueuedDetail": "{{name}} 已排队，将在后台运行。",
-    "taskCompleted": "任务完成",
-    "taskCompletedDetail": "{{name}} 已成功完成。",
-    "taskFailed": "任务失败",
-    "taskFailedDetail": "{{name}} 未能完成。",
-    "taskStarted": "任务已启动",
-    "taskStartedDetail": "{{name}} 已成功启动。",
-    "startError": "启动 {{name}} 失败。",
-    "alreadyRunning": "任务已在运行",
-    "alreadyRunningDetail": "此任务正在进行中或等待中。",
-    "taskCancelled": "任务已取消",
-    "cancelledDetail": "任务已成功取消。",
-    "cancelFailed": "取消失败",
-    "cancelError": "取消任务失败。该任务可能已经完成或失败。",
-    "cancelNoId": "无法取消没有 ID 的任务。",
-    "loadError": "加载任务失败",
-    "metadataScheduled": "元数据更新已计划",
-    "metadataScheduledDetail": "所选书籍的元数据更新已成功计划。",
-    "metadataAlreadyRunningDetail": "元数据刷新任务已在进行中。请等待其完成后再启动新任务。",
-    "metadataFailed": "元数据更新失败",
-    "metadataFailedDetail": "计划元数据更新时发生意外错误。请稍后重试或联系支持团队。"
-  }
+    "title": "系统任务管理器",
+    "description": "管理书库维护、元数据刷新和缓存清理的自动化系统任务。使用 <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron 表达式</a>安排定期操作。",
+    "systemTasks": {
+        "sectionTitle": "系统任务",
+        "sectionDesc": "手动执行任务、实时监控进度并配置定时自动化。"
+    },
+    "loading": "正在加载任务...",
+    "emptyTitle": "没有可用的任务",
+    "status": {
+        "running": "运行中",
+        "stale": "已过期",
+        "neverRun": "从未运行",
+        "justNow": "刚刚"
+    },
+    "cron": {
+        "noSchedule": "无计划",
+        "edit": "编辑",
+        "placeholder": "例如 0 2 * * *",
+        "validationPrefix": "Cron 表达式必须恰好有 6 个字段（秒、分、时、日、月、星期）",
+        "invalidField": "无效的 {{name}} 字段：{{value}}",
+        "updateSuccess": "定时任务配置已成功更新。",
+        "updateError": "更新定时任务配置失败。"
+    },
+    "buttons": {
+        "run": "运行",
+        "rerun": "重新运行"
+    },
+    "metadataReplace": {
+        "label": "元数据替换模式：",
+        "selectMode": "选择模式",
+        "replaceMissing": "仅更新缺失的元数据（推荐）",
+        "replaceAll": "替换所有元数据（覆盖现有数据）",
+        "replaceMissingDesc": "仅更新缺少元数据信息的书籍。现有元数据将被保留。",
+        "replaceAllDesc": "替换所有书籍的元数据，即使它们已有元数据。请谨慎使用，因为这将覆盖现有数据。"
+    },
+    "progress": {
+        "staleWarning": "此任务似乎已卡住。超过 5 分钟未收到更新。",
+        "statusLabel": "状态：",
+        "progressLabel": "进度：",
+        "startedLabel": "开始于：",
+        "processing": "处理中...",
+        "stuckMessage": "任务似乎已卡住（未收到更新）"
+    },
+    "toast": {
+        "taskQueued": "任务已排队",
+        "taskQueuedDetail": "{{name}} 已排队，将在后台运行。",
+        "taskCompleted": "任务完成",
+        "taskCompletedDetail": "{{name}} 已成功完成。",
+        "taskFailed": "任务失败",
+        "taskFailedDetail": "{{name}} 未能完成。",
+        "taskStarted": "任务已启动",
+        "taskStartedDetail": "{{name}} 已成功启动。",
+        "startError": "启动 {{name}} 失败。",
+        "alreadyRunning": "任务已在运行",
+        "alreadyRunningDetail": "此任务正在进行中或等待中。",
+        "taskCancelled": "任务已取消",
+        "cancelledDetail": "任务已成功取消。",
+        "cancelFailed": "取消失败",
+        "cancelError": "取消任务失败。该任务可能已经完成或失败。",
+        "cancelNoId": "无法取消没有 ID 的任务。",
+        "loadError": "加载任务失败",
+        "metadataScheduled": "元数据更新已计划",
+        "metadataScheduledDetail": "所选书籍的元数据更新已成功计划。",
+        "metadataAlreadyRunningDetail": "元数据刷新任务已在进行中。请等待其完成后再启动新任务。",
+        "metadataFailed": "元数据更新失败",
+        "metadataFailedDetail": "计划元数据更新时发生意外错误。请稍后重试或联系支持团队。"
+    }
 }

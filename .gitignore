@@ -48,13 +48,11 @@ frontend/test-results/
 frontend/output/
 frontend/playwright-report/
 frontend/.playwright-browsers/
-frontend/node_modules/
+node_modules/
 backend/src/main/resources/application-local.yaml
 /shared/
 
 /scratch
-/.yarn/
-/frontend/.yarn/
-/tools/release/node_modules
-/tools/release/.yarn/
+/pnpm-debug.log
+/.pnpm-store/
 .worktrees/

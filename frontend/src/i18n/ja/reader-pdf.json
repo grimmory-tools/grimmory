@@ -1,10 +1,10 @@
 {
-  "toolbar": {
-    "switchToLightMode": "ライトモードに切替",
-    "switchToDarkMode": "ダークモードに切替",
-    "closePdfReader": "PDFリーダーを閉じる"
-  },
-  "toast": {
-    "failedToLoadBook": "本の読み込みに失敗しました"
-  }
+    "toolbar": {
+        "switchToLightMode": "ライトモードに切替",
+        "switchToDarkMode": "ダークモードに切替",
+        "closePdfReader": "PDFリーダーを閉じる"
+    },
+    "toast": {
+        "failedToLoadBook": "本の読み込みに失敗しました"
+    }
 }
