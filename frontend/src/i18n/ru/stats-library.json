@@ -86,7 +86,13 @@
         "insightTimeSpan": "Временной охват",
         "insightYearsOfLiterature": "лет литературы",
         "insightPeakDecade": "Пиковое десятилетие",
-        "insightPeakDecadeBooks": "{{ count }} книг"
+        "insightPeakDecadeBooks": "{{ count }} книг",
+        "insightGoldenEraRange": "",
+        "insightGoldenEra": "",
+        "insightMostCommonYear": "",
+        "insightRarePicks": "",
+        "insightMostCommonYearBooks": "",
+        "insightRarityScore": ""
     },
     "publicationTrend": {
         "title": "Тенденция публикаций",
