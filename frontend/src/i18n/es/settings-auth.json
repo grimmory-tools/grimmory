@@ -127,5 +127,14 @@
         "groupMappingSaved": "Mapeo de grupo guardado.",
         "groupMappingDeleted": "Mapeo de grupo eliminado.",
         "groupMappingError": "Error al guardar el mapeo de grupo."
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
     }
 }
