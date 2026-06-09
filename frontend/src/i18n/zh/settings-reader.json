@@ -67,7 +67,11 @@
         "autoZoom": "自动缩放",
         "pageFit": "适应页面",
         "pageWidth": "适应宽度",
-        "actualSize": "实际大小"
+        "actualSize": "实际大小",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "漫画阅读器：默认设置",
@@ -95,7 +99,10 @@
         "infinite": "无限",
         "gray": "灰色",
         "black": "黑色",
-        "white": "白色"
+        "white": "白色",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "流式 PDF 阅读器：默认设置",
