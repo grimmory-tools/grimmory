@@ -121,37 +121,5 @@
         "sidebarWidthDesc": "Kontrolira širinu navigacijske bočne trake i panela filtera knjiga.",
         "saved": "Postavke ažurirane",
         "savedDetail": "Vaše postavke širine bočne trake su spremljene."
-    },
-    "theme": {
-        "customPrimaryColors": {
-            "violet": "",
-            "pink": "",
-            "lime": "",
-            "sky": "",
-            "amber": "",
-            "rose": "",
-            "cyan": "",
-            "purple": "",
-            "fuchsia": "",
-            "blue": "",
-            "orange": "",
-            "green": "",
-            "red": "",
-            "yellow": "",
-            "indigo": "",
-            "emerald": "",
-            "teal": ""
-        },
-        "syncSavedDetail": "",
-        "savedDetail": "",
-        "customPrimaryOptionLabel": "",
-        "oledDarkMode": "",
-        "sectionTitle": "",
-        "sectionDesc": ""
-    },
-    "saveFailedDetail": "",
-    "language": {
-        "savedDetail": "",
-        "label": ""
     }
 }
