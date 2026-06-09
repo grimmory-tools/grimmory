@@ -136,7 +136,9 @@
         "searchInBook": "Пошук у книзі",
         "annotate": "Анотувати",
         "addNote": "Додати нотатку",
-        "deleteAnnotation": "Видалити анотацію"
+        "deleteAnnotation": "Видалити анотацію",
+        "goToLink": "",
+        "removeLink": ""
     },
     "shortcutsHelp": {
         "title": "Гарячі клавіші",
@@ -156,7 +158,8 @@
         "other": "Інше",
         "showHelpDialog": "Показати це вікно довідки",
         "swipeRight": "Гортання вправо",
-        "swipeLeft": "Гортання вліво"
+        "swipeLeft": "Гортання вліво",
+        "toggleImmersive": ""
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Залишилось часу в розділі: {{ time }}"
