@@ -20,6 +20,7 @@ import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.kobo.KoboSettingsService;
+import org.booklore.service.koreader.KoreaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,9 @@ class KoboReadingStateServiceTest {
 
     @Mock
     private HardcoverSyncService hardcoverSyncService;
+
+    @Mock
+    private KoreaderService koreaderService;
 
     @Mock
     private UserBookFileProgressRepository fileProgressRepository;
@@ -1229,6 +1233,7 @@ class KoboReadingStateServiceTest {
 
         service.saveReadingState(List.of(readingState));
 
+        verify(koreaderService).syncProgressToKoreader(eq(100L), eq(50f), eq(1L));
         verify(hardcoverSyncService).syncProgressToHardcover(eq(100L), eq(50f), eq(1L));
     }
 
