@@ -67,7 +67,11 @@
         "autoZoom": "Automatischer Zoom",
         "pageFit": "Seite einpassen",
         "pageWidth": "Seitenbreite",
-        "actualSize": "Originalgröße"
+        "actualSize": "Originalgröße",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Comic-Reader: Standardeinstellungen",
@@ -95,7 +99,10 @@
         "infinite": "Unendlich",
         "gray": "Grau",
         "black": "Schwarz",
-        "white": "Weiß"
+        "white": "Weiß",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Streaming-PDF-Reader: Standardeinstellungen",
