@@ -57,8 +57,7 @@
         "organizationModeTooltip": "Kako se datoteke grupiraju u knjige tijekom skeniranja",
         "organizationModeBookPerFile": "Jedna knjiga po datoteci",
         "organizationModeBookPerFolder": "Jedna knjiga po mapi",
-        "organizationModeAutoDetect": "Automatsko otkrivanje (zastarjelo)",
-        "organizationModeLockedTooltip": ""
+        "organizationModeAutoDetect": "Automatsko otkrivanje (zastarjelo)"
     },
     "loading": {
         "title": "Učitavanje zbirke",
