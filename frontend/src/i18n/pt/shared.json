@@ -39,8 +39,7 @@
             "missingDataSummary": "Dados Ausentes",
             "missingDataDetail": "Selecione uma biblioteca e caminho antes de enviar.",
             "uploadFailedDefault": "Envio falhou por erro desconhecido."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Alterar Senha",

@@ -39,8 +39,7 @@
             "missingDataSummary": "Datos faltantes",
             "missingDataDetail": "Por favor, selecciona una biblioteca y ruta antes de subir.",
             "uploadFailedDefault": "Error al subir debido a un error desconocido."
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "Cambiar contraseña",

@@ -39,8 +39,7 @@
             "missingDataSummary": "データが不足しています",
             "missingDataDetail": "アップロードする前にライブラリとパスを選択してください。",
             "uploadFailedDefault": "不明なエラーによりアップロードに失敗しました。"
-        },
-        "supportedFormats": ""
+        }
     },
     "changePassword": {
         "title": "パスワードを変更",
