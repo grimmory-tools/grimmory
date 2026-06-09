@@ -104,9 +104,7 @@
         "autoAddEnabled": "I nuovi libri verranno automaticamente aggiunti allo scaffale Kobo",
         "autoAddDisabled": "Aggiunta automatica allo scaffale Kobo disabilitata",
         "pros": "Pro:",
-        "cons": "Contro:",
-        "forwardToKoboStore": "",
-        "forwardToKoboStoreDesc": ""
+        "cons": "Contro:"
     },
     "hardcover": {
         "title": "Integrazione Hardcover",

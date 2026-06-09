@@ -104,9 +104,7 @@
         "autoAddEnabled": "Neue Bücher werden automatisch zum Kobo-Regal hinzugefügt",
         "autoAddDisabled": "Automatisches Hinzufügen zum Kobo-Regal deaktiviert",
         "pros": "Vorteile:",
-        "cons": "Nachteile:",
-        "forwardToKoboStore": "",
-        "forwardToKoboStoreDesc": ""
+        "cons": "Nachteile:"
     },
     "hardcover": {
         "title": "Hardcover-Integration",
