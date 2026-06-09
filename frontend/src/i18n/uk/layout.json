@@ -11,7 +11,34 @@
         "series": "Серії",
         "authors": "Автори",
         "notebook": "Нотатник",
-        "update": "(Оновлення)"
+        "update": "(Оновлення)",
+        "documentation": "",
+        "account": "",
+        "search": "",
+        "more": "",
+        "updateAvailable": "",
+        "settings": "",
+        "tools": "",
+        "editSidebar": "",
+        "toggleNavigation": "",
+        "add": "",
+        "expandSidebar": "",
+        "resizeSidebar": "",
+        "goToDashboard": "",
+        "doneEditing": "",
+        "notifications": "",
+        "createMagicShelf": "",
+        "collapseSidebar": "",
+        "uploadBook": "",
+        "primaryNav": "",
+        "libraryStats": "",
+        "versionCopyFailed": "",
+        "profile": "",
+        "readingStats": "",
+        "bookdrop": "",
+        "createLibrary": "",
+        "metadataManager": "",
+        "versionCopied": ""
     },
     "closeNavigation": "Закрити навігацію",
     "changelog": {
@@ -22,6 +49,46 @@
     },
     "theme": {
         "primary": "Основна",
-        "surface": "Другорядна"
+        "surface": "Другорядна",
+        "options": {
+            "violet": "",
+            "crimson": "",
+            "cobalt": "",
+            "teal": "",
+            "forest": "",
+            "slate": "",
+            "grimmory": "",
+            "custom": "",
+            "meadow": "",
+            "ember": "",
+            "fuchsia": "",
+            "rose": "",
+            "lagoon": ""
+        },
+        "light": "",
+        "dark": "",
+        "theme": "",
+        "mode": "",
+        "appearance": "",
+        "syncAcrossDevices": "",
+        "system": "",
+        "customPrimary": ""
+    },
+    "commandPalette": {
+        "groups": {
+            "shelf": "",
+            "series": "",
+            "page": "",
+            "author": "",
+            "magicShelf": "",
+            "library": "",
+            "action": "",
+            "book": ""
+        },
+        "hintSelect": "",
+        "ariaLabel": "",
+        "empty": "",
+        "placeholder": "",
+        "hintNavigate": ""
     }
 }
