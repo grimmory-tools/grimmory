@@ -121,5 +121,35 @@
         "sidebarWidthDesc": "Controla el ancho de la barra de navegación lateral y del panel de filtros de libros.",
         "saved": "Preferencias actualizadas",
         "savedDetail": "Tu preferencia de ancho de la barra lateral se ha guardado."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": ""
     }
 }
