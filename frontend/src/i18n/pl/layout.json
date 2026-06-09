@@ -11,7 +11,34 @@
         "series": "Serie",
         "notebook": "Notatnik",
         "update": "(Aktualizacja)",
-        "authors": "Autorzy"
+        "authors": "Autorzy",
+        "documentation": "",
+        "account": "",
+        "search": "",
+        "more": "",
+        "updateAvailable": "",
+        "settings": "",
+        "tools": "",
+        "editSidebar": "",
+        "toggleNavigation": "",
+        "add": "",
+        "expandSidebar": "",
+        "resizeSidebar": "",
+        "goToDashboard": "",
+        "doneEditing": "",
+        "notifications": "",
+        "createMagicShelf": "",
+        "collapseSidebar": "",
+        "uploadBook": "",
+        "primaryNav": "",
+        "libraryStats": "",
+        "versionCopyFailed": "",
+        "profile": "",
+        "readingStats": "",
+        "bookdrop": "",
+        "createLibrary": "",
+        "metadataManager": "",
+        "versionCopied": ""
     },
     "closeNavigation": "Zamknij nawigację",
     "changelog": {
@@ -22,6 +49,46 @@
     },
     "theme": {
         "primary": "Główny",
-        "surface": "Powierzchnia"
+        "surface": "Powierzchnia",
+        "options": {
+            "violet": "",
+            "crimson": "",
+            "cobalt": "",
+            "teal": "",
+            "forest": "",
+            "slate": "",
+            "grimmory": "",
+            "custom": "",
+            "meadow": "",
+            "ember": "",
+            "fuchsia": "",
+            "rose": "",
+            "lagoon": ""
+        },
+        "light": "",
+        "dark": "",
+        "theme": "",
+        "mode": "",
+        "appearance": "",
+        "syncAcrossDevices": "",
+        "system": "",
+        "customPrimary": ""
+    },
+    "commandPalette": {
+        "groups": {
+            "shelf": "",
+            "series": "",
+            "page": "",
+            "author": "",
+            "magicShelf": "",
+            "library": "",
+            "action": "",
+            "book": ""
+        },
+        "hintSelect": "",
+        "ariaLabel": "",
+        "empty": "",
+        "placeholder": "",
+        "hintNavigate": ""
     }
 }
