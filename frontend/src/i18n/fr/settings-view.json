@@ -121,5 +121,35 @@
         "sidebarWidthDesc": "Contrôle la largeur de la barre latérale de navigation et du panneau de filtre des livres.",
         "saved": "Préférences mises à jour",
         "savedDetail": "Votre préférence de largeur de barre latérale a été enregistrée."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": ""
     }
 }
