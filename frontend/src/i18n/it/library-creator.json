@@ -51,7 +51,14 @@
             "createdLargeDetail": "Libreria creata con {{count}} file. Caricamento in corso...",
             "createFailedSummary": "Creazione fallita",
             "createFailedDetail": "Si è verificato un errore durante la creazione della libreria. Riprova."
-        }
+        },
+        "organizationMode": "",
+        "organizationModeBookPerFile": "",
+        "organizationModeBookPerFolder": "",
+        "organizationModeAutoDetect": "",
+        "folderStructureHint": "",
+        "organizationModeLockedTooltip": "",
+        "organizationModeTooltip": ""
     },
     "loading": {
         "title": "Caricamento libreria",
