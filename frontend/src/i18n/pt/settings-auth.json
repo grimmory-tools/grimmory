@@ -35,17 +35,7 @@
         "emailClaim": "Claim de Email",
         "emailPlaceholder": "ex. email",
         "nameClaim": "Claim de Nome de Exibição",
-        "namePlaceholder": "ex. name",
-        "clientSecretHint": "",
-        "sessionDuration": "",
-        "clientSecretPlaceholder": "",
-        "clientSecret": "",
-        "groupsPlaceholder": "",
-        "groupsClaim": "",
-        "sessionDurationPlaceholder": "",
-        "sessionDurationHint": "",
-        "backchannelLogoutHint": "",
-        "backchannelLogoutUri": ""
+        "namePlaceholder": "ex. name"
     },
     "provisioning": {
         "sectionTitle": "Provisionamento de Usuários",
@@ -57,10 +47,7 @@
         "defaultPerms": "Permissões Padrão",
         "readBooks": "Ler Livros",
         "defaultLibraryAccess": "Acesso Padrão às Bibliotecas",
-        "selectLibraries": "Selecione as bibliotecas que os novos usuários podem acessar",
-        "linkLocalLabel": "",
-        "linkLocalDesc": "",
-        "linkLocalWarning": ""
+        "selectLibraries": "Selecione as bibliotecas que os novos usuários podem acessar"
     },
     "toast": {
         "saved": "Salvo",
@@ -69,72 +56,6 @@
         "providerSaved": "Configurações do provedor OIDC salvas.",
         "providerError": "Falha ao salvar configurações do provedor OIDC.",
         "provisionSaved": "Configurações de provisionamento automático OIDC salvas.",
-        "provisionError": "Falha ao salvar configurações de provisionamento automático OIDC.",
-        "syncModeSaved": "",
-        "sessionDurationError": "",
-        "groupMappingDeleted": "",
-        "sessionDurationSaved": "",
-        "groupMappingError": "",
-        "syncModeError": "",
-        "copiedToClipboard": "",
-        "groupMappingSaved": ""
-    },
-    "infoPanel": {
-        "sectionTitle": "",
-        "pkceMethod": "",
-        "redirectUri": "",
-        "backChannelLogoutUri": "",
-        "postLogoutRedirectUri": "",
-        "sectionDesc": "",
-        "grantType": "",
-        "requiredScopes": ""
-    },
-    "groupMapping": {
-        "syncModeHint": "",
-        "sectionTitle": "",
-        "librariesLabel": "",
-        "descriptionPlaceholder": "",
-        "colPermissions": "",
-        "syncModeLabel": "",
-        "addTitle": "",
-        "colGroupClaim": "",
-        "colLibraries": "",
-        "colDescription": "",
-        "colAdmin": "",
-        "permissionsLabel": "",
-        "groupClaimLabel": "",
-        "sectionDesc": "",
-        "editTitle": "",
-        "addMapping": "",
-        "adminLabel": "",
-        "descriptionLabel": "",
-        "groupClaimPlaceholder": ""
-    },
-    "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
-    },
-    "oidcOnly": {
-        "enabled": "",
-        "saved": "",
-        "sectionTitle": "",
-        "description": "",
-        "label": "",
-        "backdoorHint": "",
-        "error": "",
-        "disabled": "",
-        "sectionDesc": ""
-    },
-    "testConnection": {
-        "error": "",
-        "button": "",
-        "failed": "",
-        "passed": "",
-        "checks": ""
+        "provisionError": "Falha ao salvar configurações de provisionamento automático OIDC."
     }
 }

@@ -35,17 +35,7 @@
         "emailClaim": "Утверждение email",
         "emailPlaceholder": "например, email",
         "nameClaim": "Утверждение отображаемого имени",
-        "namePlaceholder": "например, name",
-        "clientSecretHint": "",
-        "sessionDuration": "",
-        "clientSecretPlaceholder": "",
-        "clientSecret": "",
-        "groupsPlaceholder": "",
-        "groupsClaim": "",
-        "sessionDurationPlaceholder": "",
-        "sessionDurationHint": "",
-        "backchannelLogoutHint": "",
-        "backchannelLogoutUri": ""
+        "namePlaceholder": "например, name"
     },
     "provisioning": {
         "sectionTitle": "Создание пользователей",
@@ -57,10 +47,7 @@
         "defaultPerms": "Разрешения по умолчанию",
         "readBooks": "Чтение книг",
         "defaultLibraryAccess": "Доступ к библиотекам по умолчанию",
-        "selectLibraries": "Выберите библиотеки, доступные новым пользователям",
-        "linkLocalLabel": "",
-        "linkLocalDesc": "",
-        "linkLocalWarning": ""
+        "selectLibraries": "Выберите библиотеки, доступные новым пользователям"
     },
     "toast": {
         "saved": "Сохранено",
@@ -69,72 +56,6 @@
         "providerSaved": "Настройки провайдера OIDC сохранены.",
         "providerError": "Не удалось сохранить настройки провайдера OIDC.",
         "provisionSaved": "Настройки автоматического создания пользователей OIDC сохранены.",
-        "provisionError": "Не удалось сохранить настройки автоматического создания пользователей OIDC.",
-        "syncModeSaved": "",
-        "sessionDurationError": "",
-        "groupMappingDeleted": "",
-        "sessionDurationSaved": "",
-        "groupMappingError": "",
-        "syncModeError": "",
-        "copiedToClipboard": "",
-        "groupMappingSaved": ""
-    },
-    "infoPanel": {
-        "sectionTitle": "",
-        "pkceMethod": "",
-        "redirectUri": "",
-        "backChannelLogoutUri": "",
-        "postLogoutRedirectUri": "",
-        "sectionDesc": "",
-        "grantType": "",
-        "requiredScopes": ""
-    },
-    "groupMapping": {
-        "syncModeHint": "",
-        "sectionTitle": "",
-        "librariesLabel": "",
-        "descriptionPlaceholder": "",
-        "colPermissions": "",
-        "syncModeLabel": "",
-        "addTitle": "",
-        "colGroupClaim": "",
-        "colLibraries": "",
-        "colDescription": "",
-        "colAdmin": "",
-        "permissionsLabel": "",
-        "groupClaimLabel": "",
-        "sectionDesc": "",
-        "editTitle": "",
-        "addMapping": "",
-        "adminLabel": "",
-        "descriptionLabel": "",
-        "groupClaimPlaceholder": ""
-    },
-    "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
-    },
-    "oidcOnly": {
-        "enabled": "",
-        "saved": "",
-        "sectionTitle": "",
-        "description": "",
-        "label": "",
-        "backdoorHint": "",
-        "error": "",
-        "disabled": "",
-        "sectionDesc": ""
-    },
-    "testConnection": {
-        "error": "",
-        "button": "",
-        "failed": "",
-        "passed": "",
-        "checks": ""
+        "provisionError": "Не удалось сохранить настройки автоматического создания пользователей OIDC."
     }
 }

@@ -35,17 +35,7 @@
         "emailClaim": "Roszczenie adresu e-mail",
         "emailPlaceholder": "np. email",
         "nameClaim": "Roszczenie nazwy wyświetlanej",
-        "namePlaceholder": "np. name",
-        "clientSecretHint": "",
-        "sessionDuration": "",
-        "clientSecretPlaceholder": "",
-        "clientSecret": "",
-        "groupsPlaceholder": "",
-        "groupsClaim": "",
-        "sessionDurationPlaceholder": "",
-        "sessionDurationHint": "",
-        "backchannelLogoutHint": "",
-        "backchannelLogoutUri": ""
+        "namePlaceholder": "np. name"
     },
     "provisioning": {
         "sectionTitle": "Provisionowanie użytkowników",
@@ -57,10 +47,7 @@
         "defaultPerms": "Domyślne uprawnienia",
         "readBooks": "Czytanie książek",
         "defaultLibraryAccess": "Domyślny dostęp do biblioteki",
-        "selectLibraries": "Wybierz biblioteki, do których nowi użytkownicy będą mieli dostęp",
-        "linkLocalLabel": "",
-        "linkLocalDesc": "",
-        "linkLocalWarning": ""
+        "selectLibraries": "Wybierz biblioteki, do których nowi użytkownicy będą mieli dostęp"
     },
     "toast": {
         "saved": "Zapisano",
@@ -69,72 +56,6 @@
         "providerSaved": "Ustawienia dostawcy OIDC zapisane.",
         "providerError": "Nie udało się zapisać ustawień dostawcy OIDC.",
         "provisionSaved": "Ustawienia automatycznego provisionowania OIDC zapisane.",
-        "provisionError": "Nie udało się zapisać ustawień automatycznego provisionowania OIDC.",
-        "syncModeSaved": "",
-        "sessionDurationError": "",
-        "groupMappingDeleted": "",
-        "sessionDurationSaved": "",
-        "groupMappingError": "",
-        "syncModeError": "",
-        "copiedToClipboard": "",
-        "groupMappingSaved": ""
-    },
-    "infoPanel": {
-        "sectionTitle": "",
-        "pkceMethod": "",
-        "redirectUri": "",
-        "backChannelLogoutUri": "",
-        "postLogoutRedirectUri": "",
-        "sectionDesc": "",
-        "grantType": "",
-        "requiredScopes": ""
-    },
-    "groupMapping": {
-        "syncModeHint": "",
-        "sectionTitle": "",
-        "librariesLabel": "",
-        "descriptionPlaceholder": "",
-        "colPermissions": "",
-        "syncModeLabel": "",
-        "addTitle": "",
-        "colGroupClaim": "",
-        "colLibraries": "",
-        "colDescription": "",
-        "colAdmin": "",
-        "permissionsLabel": "",
-        "groupClaimLabel": "",
-        "sectionDesc": "",
-        "editTitle": "",
-        "addMapping": "",
-        "adminLabel": "",
-        "descriptionLabel": "",
-        "groupClaimPlaceholder": ""
-    },
-    "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
-    },
-    "oidcOnly": {
-        "enabled": "",
-        "saved": "",
-        "sectionTitle": "",
-        "description": "",
-        "label": "",
-        "backdoorHint": "",
-        "error": "",
-        "disabled": "",
-        "sectionDesc": ""
-    },
-    "testConnection": {
-        "error": "",
-        "button": "",
-        "failed": "",
-        "passed": "",
-        "checks": ""
+        "provisionError": "Nie udało się zapisać ustawień automatycznego provisionowania OIDC."
     }
 }

@@ -35,17 +35,7 @@
         "emailClaim": "邮箱声明",
         "emailPlaceholder": "例如 email",
         "nameClaim": "显示名称声明",
-        "namePlaceholder": "例如 name",
-        "clientSecretHint": "",
-        "sessionDuration": "",
-        "clientSecretPlaceholder": "",
-        "clientSecret": "",
-        "groupsPlaceholder": "",
-        "groupsClaim": "",
-        "sessionDurationPlaceholder": "",
-        "sessionDurationHint": "",
-        "backchannelLogoutHint": "",
-        "backchannelLogoutUri": ""
+        "namePlaceholder": "例如 name"
     },
     "provisioning": {
         "sectionTitle": "用户配置",
@@ -57,10 +47,7 @@
         "defaultPerms": "默认权限",
         "readBooks": "阅读书籍",
         "defaultLibraryAccess": "默认书库访问",
-        "selectLibraries": "选择新用户可以访问的书库",
-        "linkLocalLabel": "",
-        "linkLocalDesc": "",
-        "linkLocalWarning": ""
+        "selectLibraries": "选择新用户可以访问的书库"
     },
     "toast": {
         "saved": "已保存",
@@ -69,72 +56,6 @@
         "providerSaved": "OIDC 提供商设置已保存。",
         "providerError": "保存 OIDC 提供商设置失败。",
         "provisionSaved": "OIDC 自动配置设置已保存。",
-        "provisionError": "保存 OIDC 自动配置设置失败。",
-        "syncModeSaved": "",
-        "sessionDurationError": "",
-        "groupMappingDeleted": "",
-        "sessionDurationSaved": "",
-        "groupMappingError": "",
-        "syncModeError": "",
-        "copiedToClipboard": "",
-        "groupMappingSaved": ""
-    },
-    "infoPanel": {
-        "sectionTitle": "",
-        "pkceMethod": "",
-        "redirectUri": "",
-        "backChannelLogoutUri": "",
-        "postLogoutRedirectUri": "",
-        "sectionDesc": "",
-        "grantType": "",
-        "requiredScopes": ""
-    },
-    "groupMapping": {
-        "syncModeHint": "",
-        "sectionTitle": "",
-        "librariesLabel": "",
-        "descriptionPlaceholder": "",
-        "colPermissions": "",
-        "syncModeLabel": "",
-        "addTitle": "",
-        "colGroupClaim": "",
-        "colLibraries": "",
-        "colDescription": "",
-        "colAdmin": "",
-        "permissionsLabel": "",
-        "groupClaimLabel": "",
-        "sectionDesc": "",
-        "editTitle": "",
-        "addMapping": "",
-        "adminLabel": "",
-        "descriptionLabel": "",
-        "groupClaimPlaceholder": ""
-    },
-    "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
-    },
-    "oidcOnly": {
-        "enabled": "",
-        "saved": "",
-        "sectionTitle": "",
-        "description": "",
-        "label": "",
-        "backdoorHint": "",
-        "error": "",
-        "disabled": "",
-        "sectionDesc": ""
-    },
-    "testConnection": {
-        "error": "",
-        "button": "",
-        "failed": "",
-        "passed": "",
-        "checks": ""
+        "provisionError": "保存 OIDC 自动配置设置失败。"
     }
 }

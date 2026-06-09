@@ -42,10 +42,7 @@
         "sessionDuration": "Dauer der Sitzung (Stunden)",
         "sessionDurationPlaceholder": "Standardeinstellung",
         "sessionDurationHint": "Wie lange OIDC-Benutzer angemeldet bleiben. Bitte leer lassen, um die Standardwerte zu verwenden.",
-        "backchannelLogoutHint": "Bitte konfigurieren Sie diese URI in Ihrem OIDC-Anbieter, um die vom Server initiierte Sitzungsaufhebung zu aktivieren.",
-        "groupsPlaceholder": "",
-        "groupsClaim": "",
-        "backchannelLogoutUri": ""
+        "backchannelLogoutHint": "Bitte konfigurieren Sie diese URI in Ihrem OIDC-Anbieter, um die vom Server initiierte Sitzungsaufhebung zu aktivieren."
     },
     "provisioning": {
         "sectionTitle": "Benutzerbereitstellung",
@@ -72,12 +69,7 @@
         "provisionError": "OIDC-Auto-Provisioning-Einstellungen konnten nicht gespeichert werden.",
         "sessionDurationSaved": "Sitzungsdauer gespeichert.",
         "sessionDurationError": "Die Speicherung der Sitzungsdauer ist fehlgeschlagen.",
-        "copiedToClipboard": "In die Zwischenablage kopiert.",
-        "syncModeSaved": "",
-        "groupMappingDeleted": "",
-        "groupMappingError": "",
-        "syncModeError": "",
-        "groupMappingSaved": ""
+        "copiedToClipboard": "In die Zwischenablage kopiert."
     },
     "groupMapping": {
         "sectionTitle": "Gruppenzuordnung",
@@ -89,16 +81,7 @@
         "descriptionLabel": "Beschreibung",
         "descriptionPlaceholder": "Optionale Beschreibung",
         "permissionsLabel": "Berechtigungen",
-        "librariesLabel": "Bibliothekszugang",
-        "syncModeHint": "",
-        "syncModeLabel": "",
-        "addTitle": "",
-        "colGroupClaim": "",
-        "groupClaimLabel": "",
-        "editTitle": "",
-        "addMapping": "",
-        "adminLabel": "",
-        "groupClaimPlaceholder": ""
+        "librariesLabel": "Bibliothekszugang"
     },
     "testConnection": {
         "button": "Verbindung testen",
@@ -112,29 +95,12 @@
         "enabled": "Aktiviert",
         "disabled": "Deaktiviert",
         "description": "Deaktivieren Sie die lokale Anmeldung für alle Benutzer und leiten Sie automatisch zu OIDC weiter. Administratoren können sich weiterhin lokal über die Backdoor-URL anmelden.",
-        "backdoorHint": "Administrator-Backdoor: Bitte rufen Sie /login?local=true auf, um die lokale Anmeldung zu verwenden.",
-        "saved": "",
-        "sectionTitle": "",
-        "label": "",
-        "error": ""
+        "backdoorHint": "Administrator-Backdoor: Bitte rufen Sie /login?local=true auf, um die lokale Anmeldung zu verwenden."
     },
     "infoPanel": {
         "redirectUri": "Redirect URI",
         "pkceMethod": "PKCE Methode",
         "sectionDesc": "Bitte verwenden Sie diese Werte bei der Konfiguration der Client-Einstellungen Ihres OIDC-Anbieters.",
-        "requiredScopes": "Erforderliche Scopes",
-        "sectionTitle": "",
-        "backChannelLogoutUri": "",
-        "postLogoutRedirectUri": "",
-        "grantType": ""
-    },
-    "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
+        "requiredScopes": "Erforderliche Scopes"
     }
 }
