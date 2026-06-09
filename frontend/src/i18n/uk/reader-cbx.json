@@ -110,7 +110,12 @@
         "gray": "Сіре",
         "white": "Біле",
         "magnifierLensSize": "Розмір лінзи",
-        "magnifierZoom": "Збільшення"
+        "magnifierZoom": "Збільшення",
+        "clickToPaginate": "",
+        "stripMaxWidth": "",
+        "autoCloseMenu": "",
+        "brightness": "",
+        "emulateBook": ""
     },
     "sidebar": {
         "contentTab": "Вміст",
@@ -130,5 +135,15 @@
         "clearSearch": "Очистити пошук",
         "page": "Сторінка",
         "untitled": "Без назви"
+    },
+    "webtoonHint": {
+        "never": "",
+        "dismiss": "",
+        "switch": "",
+        "regionLabel": "",
+        "message": ""
+    },
+    "continuation": {
+        "scrollForNext": ""
     }
 }
