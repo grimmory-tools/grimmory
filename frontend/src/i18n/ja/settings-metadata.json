@@ -37,7 +37,9 @@
         "writeOnScanDesc": "スキャン中に本が最初にライブラリに追加される際にサイドカーJSONファイルを作成します。",
         "includeCover": "カバー画像ファイルを含める",
         "includeCoverDesc": "サイドカーJSONファイルと一緒に、カバー画像を<code>BookName.cover.jpg</code>として保存します。",
-        "loadError": "設定の読み込みに失敗しました。"
+        "loadError": "設定の読み込みに失敗しました。",
+        "networkModeTitle": "",
+        "networkModeDesc": ""
     },
     "providers": {
         "sectionTitle": "メタデータプロバイダー",
@@ -63,7 +65,38 @@
     },
     "fieldSelector": {
         "sectionTitle": "メタデータエディタとピッカーの有効フィールド",
-        "sectionDesc": "本の情報を編集したりプロバイダーからメタデータを選択する際に表示するメタデータフィールドを選択します。無効なフィールドはインターフェースに表示されません。"
+        "sectionDesc": "本の情報を編集したりプロバイダーからメタデータを選択する際に表示するメタデータフィールドを選択します。無効なフィールドはインターフェースに表示されません。",
+        "fields": {
+            "amazonRating": "",
+            "asin": "",
+            "goodreadsRating": "",
+            "goodreadsReviewCount": "",
+            "hardcoverRating": "",
+            "hardcoverId": "",
+            "audibleRating": "",
+            "googleId": "",
+            "ranobedbId": "",
+            "amazonReviewCount": "",
+            "lubimyczytacId": "",
+            "ranobedbRating": "",
+            "lubimyczytacRating": "",
+            "comicvineId": "",
+            "hardcoverBookId": "",
+            "audibleReviewCount": "",
+            "hardcoverReviewCount": "",
+            "audibleId": "",
+            "goodreadsId": ""
+        },
+        "providers": {
+            "goodreads": "",
+            "amazon": "",
+            "googleBooks": "",
+            "lubimyczytac": "",
+            "hardcover": "",
+            "ranobedb": "",
+            "audible": "",
+            "comicvine": ""
+        }
     },
     "publicReviews": {
         "sectionTitle": "パブリックレビュー",
@@ -89,6 +122,34 @@
         "saveSuccess": "ウェイトが正常に保存されました",
         "saveError": "ウェイトの保存に失敗しました",
         "recalcSuccess": "すべてのブックマッチスコアが正常に再計算されました。",
-        "recalcError": "マッチスコアの再計算に失敗しました。"
+        "recalcError": "マッチスコアの再計算に失敗しました。",
+        "fields": {
+            "amazonReviewCount": "",
+            "hardcoverRating": "",
+            "doubanReviewCount": "",
+            "authors": "",
+            "seriesName": "",
+            "amazonRating": "",
+            "doubanRating": "",
+            "publisher": "",
+            "seriesTotal": "",
+            "language": "",
+            "coverImage": "",
+            "categories": "",
+            "subtitle": "",
+            "ranobedbRating": "",
+            "title": "",
+            "isbn10": "",
+            "publishedDate": "",
+            "goodreadsRating": "",
+            "seriesNumber": "",
+            "audibleReviewCount": "",
+            "isbn13": "",
+            "description": "",
+            "pageCount": "",
+            "hardcoverReviewCount": "",
+            "goodreadsReviewCount": "",
+            "audibleRating": ""
+        }
     }
 }
