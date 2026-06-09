@@ -39,7 +39,8 @@
             "missingDataSummary": "Dati mancanti",
             "missingDataDetail": "Seleziona una libreria e un percorso prima di caricare.",
             "uploadFailedDefault": "Caricamento fallito per un errore sconosciuto."
-        }
+        },
+        "supportedFormats": ""
     },
     "changePassword": {
         "title": "Cambia password",
