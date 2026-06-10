@@ -52,14 +52,15 @@ class GrimmlinkV1ControllersTest {
     }
 
     @Test
-    void authorize_returnsFacadeResponse() {
-        Map<String, Object> expected = Map.of("username", "reader", "syncEnabled", true);
+    void authorize_returnsFacadeResponseWithStatus() {
+        Map<String, Object> expected = Map.of("status", "ok", "username", "reader", "syncEnabled", true);
         when(grimmlinkFacade.authorize()).thenReturn(expected);
 
         ResponseEntity<Map<String, Object>> response = authController.authorize();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expected, response.getBody());
+        assertEquals("ok", response.getBody().get("status"));
     }
 
     @Test

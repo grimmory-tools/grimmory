@@ -68,6 +68,7 @@ public class GrimmlinkFacade {
         Map<String, String> upstreamResponse = koreaderService.authorizeUser().getBody();
         BookLoreUserEntity reader = requireCurrentReaderEntity(false);
         Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", "ok");
         response.put("username", upstreamResponse != null ? upstreamResponse.getOrDefault("username", reader.getUsername()) : reader.getUsername());
         response.put("userId", reader.getId());
         if (reader.getKoreaderUser() != null) {
