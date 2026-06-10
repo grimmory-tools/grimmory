@@ -151,8 +151,23 @@ public class GrimmlinkFacade {
         BookLoreUserEntity reader = requireCurrentReaderEntity(true);
         BookEntity book = loadAccessibleBookById(reader, bookId);
         BookFileEntity file = resolveRequestedFile(book, request);
-        UserBookProgressEntity progress = userBookProgressRepository.findByUserIdAndBookId(reader.getId(), book.getId())
-                .orElseGet(UserBookProgressEntity::new);
+        UserBookProgressEntity existing = userBookProgressRepository.findByUserIdAndBookId(reader.getId(), book.getId())
+                .orElse(null);
+
+        // Conflict detection: client sent expectedUpdatedAt but stored timestamp differs
+        if (existing != null && existing.getLastReadTime() != null && request.getExpectedUpdatedAt() != null) {
+            Instant expected = Instant.ofEpochMilli(request.getExpectedUpdatedAt());
+            boolean isConflict = Math.abs(expected.toEpochMilli() - existing.getLastReadTime().toEpochMilli()) > 1000;
+            if (isConflict && !Boolean.TRUE.equals(request.getForce())) {
+                KoreaderProgress current = getPdfProgress(bookId);
+                current.setConflictDetected(true);
+                current.setUpdated(false);
+                current.setMessage("Timestamp conflict: server lastReadTime differs from client expectedUpdatedAt");
+                return current;
+            }
+        }
+
+        UserBookProgressEntity progress = existing != null ? existing : new UserBookProgressEntity();
         progress.setUser(reader);
         progress.setBook(book);
         progress.setPdfProgress(request.getCurrentPage());
@@ -176,7 +191,10 @@ public class GrimmlinkFacade {
             fileProgress.setLastReadTime(progress.getLastReadTime());
             userBookFileProgressRepository.save(fileProgress);
         }
-        return getPdfProgress(bookId);
+        KoreaderProgress result = getPdfProgress(bookId);
+        result.setConflictDetected(false);
+        result.setUpdated(true);
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -324,18 +342,19 @@ public class GrimmlinkFacade {
     }
 
     @Transactional(readOnly = true)
-    public GrimmlinkMetadataPullResponse pullMetadata(Long bookId, String bookHash, Long bookFileId, Instant since, Integer limit, String type) {
+    public GrimmlinkMetadataPullResponse pullMetadata(Long bookId, String bookHash, Long bookFileId, Instant since, Instant cursor, Integer limit, String type) {
         BookLoreUserEntity reader = requireCurrentReaderEntity(true);
         BookEntity book = resolvePullBook(reader, bookId, bookHash, bookFileId);
         BookFileEntity bookFile = bookFileId != null ? resolveBookFile(book, bookFileId) : null;
         GrimmlinkMetadataItemType itemType = normalizeMetadataType(type);
         int normalizedLimit = normalizeLimit(limit);
+        Instant effectiveSince = cursor != null ? cursor : since;
         List<GrimmlinkMetadataPullItem> items = metadataItemRepository
-                .findPullItems(reader.getId(), book.getId(), bookFile != null ? bookFile.getId() : null, itemType, since, PageRequest.of(0, normalizedLimit))
+                .findPullItems(reader.getId(), book.getId(), bookFile != null ? bookFile.getId() : null, itemType, effectiveSince, PageRequest.of(0, normalizedLimit))
                 .stream()
                 .map(this::toPullItem)
                 .toList();
-        Instant nextCursor = items.isEmpty() ? since : items.get(items.size() - 1).getUpdatedAt();
+        Instant nextCursor = items.isEmpty() ? effectiveSince : items.get(items.size() - 1).getUpdatedAt();
         return GrimmlinkMetadataPullResponse.builder()
                 .bookId(book.getId())
                 .bookFileId(bookFile != null ? bookFile.getId() : null)
@@ -352,7 +371,7 @@ public class GrimmlinkFacade {
         GrimmlinkMetadataSyncRequest normalized = request == null ? new GrimmlinkMetadataSyncRequest() : request;
         GrimmlinkMetadataSyncResponse push = syncMetadata(normalized);
         GrimmlinkMetadataPullResponse pull = push.isOk()
-                ? pullMetadata(normalized.getBookId(), normalized.getBookHash(), normalized.getBookFileId(), normalized.getSince(), normalized.getLimit(), normalized.getType())
+                ? pullMetadata(normalized.getBookId(), normalized.getBookHash(), normalized.getBookFileId(), normalized.getSince(), normalized.getCursor(), normalized.getLimit(), normalized.getType())
                 : GrimmlinkMetadataPullResponse.builder()
                 .bookId(push.getBookId())
                 .ok(false)
@@ -477,8 +496,14 @@ public class GrimmlinkFacade {
     }
 
     private BookEntity loadAccessibleBookByHash(BookLoreUserEntity reader, String bookHash) {
-        BookEntity book = bookRepository.findByCurrentHash(bookHash)
-                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash));
+        BookEntity book = bookRepository.findByCurrentHash(bookHash).orElse(null);
+        if (book == null) {
+            List<BookEntity> candidates = bookRepository.findAllByBookHash(bookHash);
+            book = candidates.isEmpty() ? null : candidates.get(0);
+        }
+        if (book == null) {
+            throw ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash);
+        }
         if (!canAccessBook(reader, book)) {
             throw ApiError.FORBIDDEN.createException("Book is not accessible to the authenticated user");
         }

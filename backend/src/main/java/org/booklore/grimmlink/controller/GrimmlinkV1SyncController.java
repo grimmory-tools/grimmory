@@ -44,9 +44,10 @@ public class GrimmlinkV1SyncController {
                                                                       @RequestParam(required = false) String bookHash,
                                                                       @RequestParam(required = false) Long bookFileId,
                                                                       @RequestParam(required = false) Instant since,
+                                                                      @RequestParam(required = false) Instant cursor,
                                                                       @RequestParam(required = false) Integer limit,
                                                                       @RequestParam(required = false) String type) {
-        return ResponseEntity.ok(grimmlinkFacade.pullMetadata(bookId, bookHash, bookFileId, since, limit, type));
+        return ResponseEntity.ok(grimmlinkFacade.pullMetadata(bookId, bookHash, bookFileId, since, cursor, limit, type));
     }
 
     @PostMapping("/metadata/batch")

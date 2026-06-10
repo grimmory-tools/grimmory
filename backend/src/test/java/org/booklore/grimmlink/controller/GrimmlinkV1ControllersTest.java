@@ -110,11 +110,28 @@ class GrimmlinkV1ControllersTest {
                 .ok(true)
                 .pull(pull)
                 .build();
-        when(grimmlinkFacade.pullMetadata(1L, null, null, since, 50, "annotation")).thenReturn(pull);
+        when(grimmlinkFacade.pullMetadata(1L, null, null, since, null, 50, "annotation")).thenReturn(pull);
         when(grimmlinkFacade.syncMetadataBatch(request)).thenReturn(batch);
 
-        assertEquals(pull, syncController.pullMetadata(1L, null, null, since, 50, "annotation").getBody());
+        assertEquals(pull, syncController.pullMetadata(1L, null, null, since, null, 50, "annotation").getBody());
         assertEquals(batch, syncController.syncMetadataBatch(request).getBody());
+    }
+
+    @Test
+    void metadataPull_withCursorOverridesSince() {
+        Instant since = Instant.parse("2026-06-05T00:00:00Z");
+        Instant cursor = Instant.parse("2026-06-10T00:00:00Z");
+        GrimmlinkMetadataPullResponse pull = GrimmlinkMetadataPullResponse.builder()
+                .bookId(1L)
+                .ok(true)
+                .since(since)
+                .nextCursor(cursor.plusSeconds(60))
+                .limit(50)
+                .items(List.of())
+                .build();
+        when(grimmlinkFacade.pullMetadata(1L, null, null, since, cursor, 50, "annotation")).thenReturn(pull);
+
+        assertEquals(pull, syncController.pullMetadata(1L, null, null, since, cursor, 50, "annotation").getBody());
     }
 
     @Test

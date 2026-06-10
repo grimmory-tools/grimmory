@@ -20,6 +20,7 @@ public class GrimmlinkMetadataSyncRequest {
     private String deviceId;
     private Instant timestamp;
     private Instant since;
+    private Instant cursor;
     private Integer limit;
     private String type;
     private GrimmlinkRatingPayload rating;
