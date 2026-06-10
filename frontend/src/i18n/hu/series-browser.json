@@ -1,11 +1,11 @@
 {
     "sort": {
         "nameAsc": "",
-        "recentlyRead": "",
+        "recentlyRead": "Nemrég olvasva",
         "nameDesc": "",
         "progress": "",
-        "recentlyAdded": "",
-        "bookCount": ""
+        "recentlyAdded": "Nemrég hozzáadva",
+        "bookCount": "Könyvek száma"
     },
     "readNext": "",
     "searchPlaceholder": "",
@@ -15,9 +15,9 @@
     "filters": {
         "completed": "",
         "abandoned": "",
-        "all": "",
+        "all": "Összes",
         "notStarted": "",
-        "inProgress": ""
+        "inProgress": "Folyamatban"
     },
     "booksRead": "",
     "pageTitle": ""
