@@ -15,14 +15,13 @@ import org.booklore.service.kobo.CbxConversionService;
 import org.booklore.service.kobo.KepubConversionService;
 import org.booklore.service.kobo.KoboSpanMapService;
 import org.booklore.util.FileUtils;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +36,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.io.ByteArrayOutputStream;
-import org.springframework.core.io.ByteArrayResource;
 
 @Slf4j
 @AllArgsConstructor
@@ -54,7 +51,7 @@ public class BookDownloadService {
     private final KoboSpanMapService koboSpanMapService;
     private final AppSettingService appSettingService;
 
-    public ResponseEntity<Resource> downloadBook(Long bookId) {
+    public ResponseEntity<StreamingResponseBody> downloadBook(Long bookId) {
         try {
             BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                     .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -75,26 +72,14 @@ public class BookDownloadService {
                 return downloadFolderAsZip(file, primaryFile.getFileName());
             }
 
-            File bookFile = file.toFile();
-
-            // Use FileSystemResource which properly handles file resources and closing
-            Resource resource = new FileSystemResource(bookFile);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .contentLength(bookFile.length())
-                    .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(file))
-                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-                    .header(HttpHeaders.PRAGMA, "no-cache")
-                    .header(HttpHeaders.EXPIRES, "0")
-                    .body(resource);
+            return streamFile(file);
         } catch (Exception e) {
             log.error("Failed to download book {}: {}", bookId, e.getMessage(), e);
             throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
         }
     }
 
-    public ResponseEntity<Resource> downloadBookFile(Long bookId, Long fileId) {
+    public ResponseEntity<StreamingResponseBody> downloadBookFile(Long bookId, Long fileId) {
         try {
             BookFileEntity bookFileEntity = bookFileRepository.findByIdWithBookAndLibraryPath(fileId)
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException(fileId));
@@ -116,21 +101,27 @@ public class BookDownloadService {
                 return downloadFolderAsZip(file, bookFileEntity.getFileName());
             }
 
-            File bookFile = file.toFile();
-            Resource resource = new FileSystemResource(bookFile);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .contentLength(bookFile.length())
-                    .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(file))
-                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-                    .header(HttpHeaders.PRAGMA, "no-cache")
-                    .header(HttpHeaders.EXPIRES, "0")
-                    .body(resource);
+            return streamFile(file);
         } catch (Exception e) {
             log.error("Failed to download book file {}: {}", fileId, e.getMessage(), e);
             throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(fileId);
         }
+    }
+
+    private ResponseEntity<StreamingResponseBody> streamFile(Path file) {
+        StreamingResponseBody body = outputStream -> {
+            try (InputStream in = Files.newInputStream(file)) {
+                in.transferTo(outputStream);
+            }
+        };
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(file.toFile().length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(file))
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .header(HttpHeaders.EXPIRES, "0")
+                .body(body);
     }
 
     private String getContentDisposition(File file) {
@@ -151,7 +142,7 @@ public class BookDownloadService {
                 .toString();
     }
 
-    public void downloadAllBookFiles(Long bookId, HttpServletResponse response) {
+    public ResponseEntity<StreamingResponseBody> downloadAllBookFiles(Long bookId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -173,77 +164,71 @@ public class BookDownloadService {
 
             // For folder-based audiobooks, let it fall through to ZIP creation
             if (!singleFile.isFolderBased() || !Files.isDirectory(filePath)) {
-                File file = filePath.toFile();
-                setResponseHeaders(response, file);
-                streamFileToResponse(file, response);
-                return;
+                return streamFile(filePath);
             }
         }
 
-        // Sort files by filename for consistent ordering
-        allFiles.sort(Comparator.comparing(BookFileEntity::getFileName));
+        // Resolve entity data upfront so streaming only handles file I/O
+        List<ZipSource> sources = allFiles.stream()
+                .sorted(Comparator.comparing(BookFileEntity::getFileName))
+                .map(f -> new ZipSource(
+                        FileUtils.requirePathWithinBase(f.getFullFilePath(), libraryRoot),
+                        f.getFileName(),
+                        f.isFolderBased()))
+                .toList();
 
-        // Create ZIP with all files
         String bookTitle = bookEntity.getMetadata() != null && bookEntity.getMetadata().getTitle() != null
                 ? bookEntity.getMetadata().getTitle()
                 : "book-" + bookId;
-        String safeTitle = NON_ALPHANUMERIC_PATTERN.matcher(bookTitle).replaceAll("_");
-        String zipFileName = safeTitle + ".zip";
+        String zipFileName = NON_ALPHANUMERIC_PATTERN.matcher(bookTitle).replaceAll("_") + ".zip";
 
-        response.setContentType("application/zip");
+        StreamingResponseBody body = outputStream -> {
+            try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+                for (ZipSource source : sources) {
+                    if (!Files.exists(source.path())) {
+                        log.warn("Skipping missing file during ZIP creation: {}", source.path());
+                        continue;
+                    }
 
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(zipFileName));
-
-        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
-            for (BookFileEntity bookFile : allFiles) {
-                Path filePath = FileUtils.requirePathWithinBase(bookFile.getFullFilePath(), libraryRoot);
-
-                if (!Files.exists(filePath)) {
-                    log.warn("Skipping missing file during ZIP creation: {}", filePath);
-                    continue;
-                }
-
-                // Handle folder-based audiobooks - add all files from the folder
-                if (bookFile.isFolderBased() && Files.isDirectory(filePath)) {
-                    String folderPrefix = bookFile.getFileName() + "/";
-                    try (var audioFiles = Files.list(filePath)) {
-                        for (Path audioFile : audioFiles
-                                .filter(Files::isRegularFile)
-                                .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                                .toList()) {
-                            String entryName = folderPrefix + audioFile.getFileName().toString();
-                            ZipEntry zipEntry = new ZipEntry(entryName);
-                            zipEntry.setSize(Files.size(audioFile));
-                            zos.putNextEntry(zipEntry);
-
-                            try (InputStream fis = Files.newInputStream(audioFile)) {
-                                fis.transferTo(zos);
+                    // Handle folder-based audiobooks - add all files from the folder
+                    if (source.folderBased() && Files.isDirectory(source.path())) {
+                        String folderPrefix = source.name() + "/";
+                        try (var audioFiles = Files.list(source.path())) {
+                            for (Path audioFile : audioFiles
+                                    .filter(Files::isRegularFile)
+                                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                                    .toList()) {
+                                addZipEntry(zos, folderPrefix + audioFile.getFileName().toString(), audioFile);
                             }
-
-                            zos.closeEntry();
                         }
+                    } else {
+                        addZipEntry(zos, source.name(), source.path());
                     }
-                } else {
-                    // Regular file
-                    ZipEntry zipEntry = new ZipEntry(bookFile.getFileName());
-                    zipEntry.setSize(Files.size(filePath));
-                    zos.putNextEntry(zipEntry);
-
-                    try (InputStream fis = Files.newInputStream(filePath)) {
-                        fis.transferTo(zos);
-                    }
-
-                    zos.closeEntry();
                 }
             }
-            zos.finish();
-            response.getOutputStream().flush();
+            log.info("Successfully streamed ZIP for book {} with {} files", bookId, sources.size());
+        };
 
-            log.info("Successfully created and streamed ZIP for book {} with {} files", bookId, allFiles.size());
-        } catch (IOException e) {
-            log.error("Failed to create ZIP for book {}: {}", bookId, e.getMessage(), e);
-            throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("application/zip"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(zipFileName))
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .header(HttpHeaders.EXPIRES, "0")
+                .body(body);
+    }
+
+    private void addZipEntry(ZipOutputStream zos, String entryName, Path file) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(entryName);
+        zipEntry.setSize(Files.size(file));
+        zos.putNextEntry(zipEntry);
+        try (InputStream in = Files.newInputStream(file)) {
+            in.transferTo(zos);
         }
+        zos.closeEntry();
+    }
+
+    private record ZipSource(Path path, String name, boolean folderBased) {
     }
 
     public void downloadKoboBook(Long bookId, HttpServletResponse response) {
@@ -333,36 +318,28 @@ public class BookDownloadService {
         }
     }
 
-    private ResponseEntity<Resource> downloadFolderAsZip(Path folderPath, String folderName) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-            // Get all files in the folder, sorted by name
-            try (var files = Files.list(folderPath)) {
+    private ResponseEntity<StreamingResponseBody> downloadFolderAsZip(Path folderPath, String folderName) {
+        StreamingResponseBody body = outputStream -> {
+            try (ZipOutputStream zos = new ZipOutputStream(outputStream);
+                 var files = Files.list(folderPath)) {
+                // Get all files in the folder, sorted by name
                 for (Path audioFile : files
                         .filter(Files::isRegularFile)
                         .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                         .toList()) {
-                    ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
-                    zos.putNextEntry(entry);
+                    zos.putNextEntry(new ZipEntry(audioFile.getFileName().toString()));
                     Files.copy(audioFile, zos);
                     zos.closeEntry();
                 }
             }
-        }
-
-        byte[] zipBytes = baos.toByteArray();
-        Resource resource = new ByteArrayResource(zipBytes);
-
-        String zipFileName = folderName + ".zip";
+        };
 
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("application/zip"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(zipFileName))
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
+                .header(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(folderName + ".zip"))
                 .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
                 .header(HttpHeaders.PRAGMA, "no-cache")
                 .header(HttpHeaders.EXPIRES, "0")
-                .body(resource);
+                .body(body);
     }
 }
