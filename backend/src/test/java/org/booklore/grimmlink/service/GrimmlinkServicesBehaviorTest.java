@@ -1,9 +1,8 @@
-package org.booklore.grimmlink.facade;
+package org.booklore.grimmlink.service;
 
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.grimmlink.dto.*;
 import org.booklore.grimmlink.repository.GrimmlinkMetadataItemRepository;
-import org.booklore.grimmlink.service.GrimmlinkHashMatcher;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,11 +35,11 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Comprehensive behavior tests for GrimmlinkFacade.
+ * Comprehensive behavior tests for the focused Grimmlink services.
  * Covers: reading session idempotency, PDF bridge, metadata syncMode,
  * book hash matcher, progress sync, shelf cursor pagination.
  */
-class GrimmlinkFacadeBehaviorTest {
+class GrimmlinkServicesBehaviorTest {
 
     @Mock private KoreaderService koreaderService;
     @Mock private UserRepository userRepository;
@@ -59,8 +57,11 @@ class GrimmlinkFacadeBehaviorTest {
     @Mock private BookMapper bookMapper;
     @Mock private ObjectMapper objectMapper;
 
-    @InjectMocks
-    private GrimmlinkFacade grimmlinkFacade;
+    private GrimmlinkBookService bookService;
+    private GrimmlinkProgressService progressService;
+    private GrimmlinkPdfBridgeService pdfBridgeService;
+    private GrimmlinkReadingSessionService readingSessionService;
+    private GrimmlinkMetadataService metadataService;
 
     private AutoCloseable mocks;
     private BookLoreUserEntity reader;
@@ -71,6 +72,39 @@ class GrimmlinkFacadeBehaviorTest {
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
+        GrimmlinkAuthService authService = new GrimmlinkAuthService(koreaderService, userRepository);
+        bookService = new GrimmlinkBookService(
+                authService,
+                hashMatcher,
+                bookRepository,
+                userBookProgressRepository,
+                bookMapper,
+                bookDownloadService);
+        progressService = new GrimmlinkProgressService(
+                authService,
+                bookService,
+                hashMatcher,
+                bookFileRepository,
+                userBookProgressRepository,
+                userBookFileProgressRepository);
+        pdfBridgeService = new GrimmlinkPdfBridgeService(
+                authService,
+                bookService,
+                bookFileRepository,
+                userBookProgressRepository,
+                userBookFileProgressRepository);
+        readingSessionService = new GrimmlinkReadingSessionService(
+                authService,
+                bookService,
+                readingSessionRepository);
+        metadataService = new GrimmlinkMetadataService(
+                authService,
+                bookService,
+                hashMatcher,
+                bookRepository,
+                bookFileRepository,
+                metadataItemRepository,
+                objectMapper);
 
         library = new LibraryEntity();
         library.setId(11L);
@@ -130,7 +164,7 @@ class GrimmlinkFacadeBehaviorTest {
                 "dev-1"
         )).thenReturn(Optional.of(new ReadingSessionEntity()));
 
-        grimmlinkFacade.recordReadingSession(request);
+        readingSessionService.recordReadingSession(request);
 
         verify(readingSessionRepository, never()).save(any());
     }
@@ -158,7 +192,7 @@ class GrimmlinkFacadeBehaviorTest {
             return s;
         });
 
-        grimmlinkFacade.recordReadingSession(request);
+        readingSessionService.recordReadingSession(request);
 
         verify(readingSessionRepository).save(any());
     }
@@ -201,7 +235,8 @@ class GrimmlinkFacadeBehaviorTest {
             return s;
         });
 
-        GrimmlinkReadingSessionBatchResponse response = grimmlinkFacade.recordReadingSessionsBatch(batch);
+        GrimmlinkReadingSessionBatchResponse response =
+                readingSessionService.recordReadingSessionsBatch(batch);
 
         assertNotNull(response);
         assertEquals(2, response.getTotalRequested());
@@ -222,7 +257,8 @@ class GrimmlinkFacadeBehaviorTest {
         batch.setBookId(99L);
         batch.setSessions(List.of());
 
-        GrimmlinkReadingSessionBatchResponse response = grimmlinkFacade.recordReadingSessionsBatch(batch);
+        GrimmlinkReadingSessionBatchResponse response =
+                readingSessionService.recordReadingSessionsBatch(batch);
 
         assertNotNull(response);
         assertEquals(0, response.getTotalRequested());
@@ -241,7 +277,7 @@ class GrimmlinkFacadeBehaviorTest {
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.empty());
 
-        KoreaderProgress result = grimmlinkFacade.getPdfProgress(99L);
+        KoreaderProgress result = pdfBridgeService.getPdfProgress(99L);
 
         assertNotNull(result);
         assertEquals(99L, result.getBookId());
@@ -259,7 +295,7 @@ class GrimmlinkFacadeBehaviorTest {
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.of(existing));
 
-        KoreaderProgress result = grimmlinkFacade.getPdfProgress(99L);
+        KoreaderProgress result = pdfBridgeService.getPdfProgress(99L);
 
         assertNotNull(result);
         assertEquals(Float.valueOf(42.5f), result.getPercentage());
@@ -281,7 +317,7 @@ class GrimmlinkFacadeBehaviorTest {
                 anyLong(), anyLong(), any(), any()))
                 .thenReturn(Optional.empty());
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -300,7 +336,7 @@ class GrimmlinkFacadeBehaviorTest {
                 anyLong(), anyLong(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -323,7 +359,7 @@ class GrimmlinkFacadeBehaviorTest {
                 anyLong(), anyLong(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -345,7 +381,7 @@ class GrimmlinkFacadeBehaviorTest {
                 anyLong(), anyLong(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -363,7 +399,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .id(99L).title("Book Title").build();
         when(bookMapper.toBook(book)).thenReturn(mapped);
 
-        org.booklore.model.dto.Book result = grimmlinkFacade.getBookByHash("accessible-hash");
+        org.booklore.model.dto.Book result = bookService.getBookByHash("accessible-hash");
 
         assertNotNull(result);
         assertEquals(99L, result.getId());
@@ -384,7 +420,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .currentPage(10)
                 .build();
 
-        grimmlinkFacade.updateProgress(progress);
+        progressService.updateProgress(progress);
 
         verify(hashMatcher, times(2)).resolveAccessibleBookByHash(any(), eq("hash-xyz"));
     }
@@ -410,7 +446,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .device_id("dev-42")
                 .build();
 
-        grimmlinkFacade.updateProgress(request);
+        progressService.updateProgress(request);
 
         verify(koreaderService, never()).saveProgress(anyString(), any());
 
@@ -442,7 +478,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .percentage(0.3f)
                 .build();
 
-        grimmlinkFacade.updateProgress(request);
+        progressService.updateProgress(request);
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
@@ -464,7 +500,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .percentage(0.5f)
                 .build();
 
-        grimmlinkFacade.updateProgress(request);
+        progressService.updateProgress(request);
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
@@ -486,7 +522,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .percentage(0.995f) // 99.5% -> READ
                 .build();
 
-        grimmlinkFacade.updateProgress(request);
+        progressService.updateProgress(request);
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
@@ -506,7 +542,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .thenReturn(Optional.empty());
         when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        grimmlinkFacade.updateReadStatus(99L, "READING");
+        bookService.updateReadStatus(99L, "READING");
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
@@ -519,7 +555,7 @@ class GrimmlinkFacadeBehaviorTest {
     // ──────────────────────────────────────────
 
     @Test
-    void getProgress_withCurrentHash_returnsProgressData() {
+    void getProgress_withKoreaderLastSyncTime_returnsTimestampAndProgressData() {
         when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-abc")))
                 .thenReturn(book);
         UserBookProgressEntity existing = new UserBookProgressEntity();
@@ -528,19 +564,36 @@ class GrimmlinkFacadeBehaviorTest {
         existing.setKoreaderProgress("{\"page\":50}");
         existing.setKoreaderDevice("android");
         existing.setKoreaderDeviceId("dev-99");
+        existing.setKoreaderLastSyncTime(Instant.parse("2026-06-11T10:05:00Z"));
         existing.setLastReadTime(Instant.parse("2026-06-11T10:00:00Z"));
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.of(existing));
 
-        KoreaderProgress result = grimmlinkFacade.getProgress("hash-abc");
+        KoreaderProgress result = progressService.getProgress("hash-abc");
 
         assertNotNull(result);
         assertEquals(Float.valueOf(75.0f), result.getPercentage());
         assertEquals("{\"page\":50}", result.getProgress());
         assertEquals("android", result.getDevice());
         assertEquals("dev-99", result.getDevice_id());
-        assertEquals(Instant.parse("2026-06-11T10:00:00Z"), result.getUpdatedAt());
+        assertEquals(Long.valueOf(1781172300L), result.getTimestamp());
+        assertEquals(Instant.parse("2026-06-11T10:05:00Z"), result.getUpdatedAt());
         assertEquals(Long.valueOf(99L), result.getBookId());
+    }
+
+    @Test
+    void getProgress_withoutKoreaderLastSyncTime_fallsBackToLastReadTime() {
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-abc")))
+                .thenReturn(book);
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setLastReadTime(Instant.parse("2026-06-11T10:00:00Z"));
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+
+        KoreaderProgress result = progressService.getProgress("hash-abc");
+
+        assertEquals(Long.valueOf(1781172000L), result.getTimestamp());
+        assertEquals(Instant.parse("2026-06-11T10:00:00Z"), result.getUpdatedAt());
     }
 
     @Test
@@ -550,12 +603,13 @@ class GrimmlinkFacadeBehaviorTest {
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.empty());
 
-        KoreaderProgress result = grimmlinkFacade.getProgress("initial-hash-xyz");
+        KoreaderProgress result = progressService.getProgress("initial-hash-xyz");
 
         assertNotNull(result);
         assertEquals(Long.valueOf(99L), result.getBookId());
         // No progress → percentage is null
         assertNull(result.getPercentage());
+        verify(hashMatcher).resolveAccessibleBookByHash(reader, "initial-hash-xyz");
     }
 
     @Test
@@ -564,7 +618,7 @@ class GrimmlinkFacadeBehaviorTest {
                 .thenThrow(ApiError.FORBIDDEN.createException("access denied"));
 
         assertThrows(APIException.class,
-                () -> grimmlinkFacade.getProgress("restricted-hash"));
+                () -> progressService.getProgress("restricted-hash"));
     }
 
     // ──────────────────────────────────────────
@@ -583,7 +637,7 @@ class GrimmlinkFacadeBehaviorTest {
                 eq(7L), eq(99L), any(), any())).thenReturn(Optional.empty());
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -602,7 +656,7 @@ class GrimmlinkFacadeBehaviorTest {
                 eq(7L), eq(99L), any(), any())).thenReturn(Optional.empty());
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         assertNotNull(response);
         assertTrue(response.isOk());
@@ -618,7 +672,7 @@ class GrimmlinkFacadeBehaviorTest {
         when(hashMatcher.resolveAccessibleBookByHash(any(), eq("forbidden-hash")))
                 .thenThrow(ApiError.FORBIDDEN.createException("access denied"));
 
-        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+        GrimmlinkMetadataBatchResponse response = metadataService.syncMetadataBatch(request);
 
         // Should return metadataNotFoundResponse (not throw)
         assertNotNull(response);

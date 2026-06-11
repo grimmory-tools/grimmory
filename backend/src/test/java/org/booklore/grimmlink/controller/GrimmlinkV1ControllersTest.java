@@ -1,7 +1,13 @@
 package org.booklore.grimmlink.controller;
 
 import org.booklore.grimmlink.dto.*;
-import org.booklore.grimmlink.facade.GrimmlinkFacade;
+import org.booklore.grimmlink.service.GrimmlinkAuthService;
+import org.booklore.grimmlink.service.GrimmlinkBookService;
+import org.booklore.grimmlink.service.GrimmlinkMetadataService;
+import org.booklore.grimmlink.service.GrimmlinkPdfBridgeService;
+import org.booklore.grimmlink.service.GrimmlinkProgressService;
+import org.booklore.grimmlink.service.GrimmlinkReadingSessionService;
+import org.booklore.grimmlink.service.GrimmlinkShelfService;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.dto.request.ReadingSessionRequest;
@@ -23,7 +29,25 @@ import static org.mockito.Mockito.*;
 class GrimmlinkV1ControllersTest {
 
     @Mock
-    private GrimmlinkFacade grimmlinkFacade;
+    private GrimmlinkAuthService authService;
+
+    @Mock
+    private GrimmlinkBookService bookService;
+
+    @Mock
+    private GrimmlinkProgressService progressService;
+
+    @Mock
+    private GrimmlinkMetadataService metadataService;
+
+    @Mock
+    private GrimmlinkShelfService shelfService;
+
+    @Mock
+    private GrimmlinkPdfBridgeService pdfBridgeService;
+
+    @Mock
+    private GrimmlinkReadingSessionService readingSessionService;
 
     @InjectMocks
     private GrimmlinkV1AuthController authController;
@@ -52,9 +76,9 @@ class GrimmlinkV1ControllersTest {
     }
 
     @Test
-    void authorize_returnsFacadeResponseWithStatus() {
+    void authorize_returnsServiceResponseWithStatus() {
         Map<String, Object> expected = Map.of("status", "ok", "username", "reader", "syncEnabled", true);
-        when(grimmlinkFacade.authorize()).thenReturn(expected);
+        when(authService.authorize()).thenReturn(expected);
 
         ResponseEntity<Map<String, Object>> response = authController.authorize();
 
@@ -66,19 +90,19 @@ class GrimmlinkV1ControllersTest {
     @Test
     void bookByHash_returnsBook() {
         Book book = Book.builder().id(12L).title("Title").build();
-        when(grimmlinkFacade.getBookByHash("hash")).thenReturn(book);
+        when(bookService.getBookByHash("hash")).thenReturn(book);
 
         assertEquals(book, bookController.getBookByHash("hash").getBody());
     }
 
     @Test
-    void progressRoutes_delegateToFacade() {
+    void progressRoutes_delegateToService() {
         KoreaderProgress progress = KoreaderProgress.builder().document("hash").progress("p").percentage(0.5F).build();
-        when(grimmlinkFacade.getProgress("hash")).thenReturn(progress);
+        when(progressService.getProgress("hash")).thenReturn(progress);
 
         assertEquals(progress, syncController.getProgress("hash").getBody());
         assertEquals("progress updated", syncController.updateProgress(progress).getBody().get("status"));
-        verify(grimmlinkFacade).updateProgress(progress);
+        verify(progressService).updateProgress(progress);
     }
 
     @Test
@@ -89,13 +113,13 @@ class GrimmlinkV1ControllersTest {
                 .results(GrimmlinkMetadataSyncResults.builder().annotations(List.of()).bookmarks(List.of()).build())
                 .build();
         GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
-        when(grimmlinkFacade.syncMetadata(request)).thenReturn(expected);
+        when(metadataService.syncMetadata(request)).thenReturn(expected);
 
         assertEquals(expected, syncController.syncMetadata(request).getBody());
     }
 
     @Test
-    void metadataPullAndBatch_delegateToFacade() {
+    void metadataPullAndBatch_delegateToService() {
         Instant since = Instant.parse("2026-06-05T00:00:00Z");
         GrimmlinkMetadataPullResponse pull = GrimmlinkMetadataPullResponse.builder()
                 .bookId(1L)
@@ -110,8 +134,9 @@ class GrimmlinkV1ControllersTest {
                 .ok(true)
                 .pull(pull)
                 .build();
-        when(grimmlinkFacade.pullMetadata(1L, null, null, since, null, 50, "annotation")).thenReturn(pull);
-        when(grimmlinkFacade.syncMetadataBatch(request)).thenReturn(batch);
+        when(metadataService.pullMetadata(1L, null, null, since, null, 50, "annotation"))
+                .thenReturn(pull);
+        when(metadataService.syncMetadataBatch(request)).thenReturn(batch);
 
         assertEquals(pull, syncController.pullMetadata(1L, null, null, since, null, 50, "annotation").getBody());
         assertEquals(batch, syncController.syncMetadataBatch(request).getBody());
@@ -129,19 +154,21 @@ class GrimmlinkV1ControllersTest {
                 .limit(50)
                 .items(List.of())
                 .build();
-        when(grimmlinkFacade.pullMetadata(1L, null, null, since, cursor, 50, "annotation")).thenReturn(pull);
+        when(metadataService.pullMetadata(1L, null, null, since, cursor, 50, "annotation"))
+                .thenReturn(pull);
 
         assertEquals(pull, syncController.pullMetadata(1L, null, null, since, cursor, 50, "annotation").getBody());
     }
 
     @Test
-    void shelfRoutes_delegateToFacade() {
+    void shelfRoutes_delegateToService() {
         var shelf = GrimmlinkShelfSummary.builder().id(1L).name("Shelf").type("regular").build();
         var book = GrimmlinkBookSummary.builder().bookId(2L).title("Book").build();
         var removal = GrimmlinkShelfRemovalResponse.builder().shelfId(1L).bookId(2L).removed(true).status("removed").build();
-        when(grimmlinkFacade.listShelves(null)).thenReturn(List.of(shelf));
-        when(grimmlinkFacade.listShelfBooks("magic", 1L, null, null, null)).thenReturn(List.of(book));
-        when(grimmlinkFacade.removeBookFromShelf("regular", 1L, 2L)).thenReturn(removal);
+        when(shelfService.listShelves(null)).thenReturn(List.of(shelf));
+        when(shelfService.listShelfBooks("magic", 1L, null, null, null))
+                .thenReturn(List.of(book));
+        when(shelfService.removeBookFromShelf("regular", 1L, 2L)).thenReturn(removal);
 
         assertEquals(List.of(shelf), shelfController.listShelves(null).getBody());
         assertEquals(List.of(book), shelfController.listShelfBooksByType("magic", 1L, null, null, null).getBody());
@@ -149,14 +176,14 @@ class GrimmlinkV1ControllersTest {
     }
 
     @Test
-    void readStatusAndBridgeRoutes_delegateToFacade() {
+    void readStatusAndBridgeRoutes_delegateToServices() {
         GrimmlinkReadStatusRequest statusRequest = new GrimmlinkReadStatusRequest();
         statusRequest.setStatus("READ");
-        when(grimmlinkFacade.getSupportedReadStatuses()).thenReturn(List.of("UNREAD", "READING", "READ"));
-        when(grimmlinkFacade.updateReadStatus(5L, "READ")).thenReturn(Map.of("updated", true));
+        when(bookService.getSupportedReadStatuses()).thenReturn(List.of("UNREAD", "READING", "READ"));
+        when(bookService.updateReadStatus(5L, "READ")).thenReturn(Map.of("updated", true));
         KoreaderProgress progress = KoreaderProgress.builder().bookId(5L).currentPage(10).build();
-        when(grimmlinkFacade.getPdfProgress(5L)).thenReturn(progress);
-        when(grimmlinkFacade.updatePdfProgress(5L, progress)).thenReturn(progress);
+        when(pdfBridgeService.getPdfProgress(5L)).thenReturn(progress);
+        when(pdfBridgeService.updatePdfProgress(5L, progress)).thenReturn(progress);
 
         assertEquals(List.of("UNREAD", "READING", "READ"), bookController.getSupportedReadStatuses().getBody().get("statuses"));
         assertEquals(true, bookController.updateReadStatus(5L, statusRequest).getBody().get("updated"));
@@ -165,7 +192,7 @@ class GrimmlinkV1ControllersTest {
     }
 
     @Test
-    void readingSessionRoutes_delegateToFacade() {
+    void readingSessionRoutes_delegateToService() {
         ReadingSessionRequest single = new ReadingSessionRequest();
         single.setBookId(7L);
         single.setStartTime(Instant.now());
@@ -177,10 +204,10 @@ class GrimmlinkV1ControllersTest {
                 .successCount(1)
                 .results(List.of())
                 .build();
-        when(grimmlinkFacade.recordReadingSessionsBatch(batch)).thenReturn(expected);
+        when(readingSessionService.recordReadingSessionsBatch(batch)).thenReturn(expected);
 
         assertEquals(HttpStatus.ACCEPTED, readingSessionController.recordSession(single).getStatusCode());
-        verify(grimmlinkFacade).recordReadingSession(single);
+        verify(readingSessionService).recordReadingSession(single);
         assertEquals(expected, readingSessionController.recordBatchSessions(batch).getBody());
     }
 }

@@ -7,7 +7,7 @@ import org.booklore.grimmlink.GrimmlinkRoutes;
 import org.booklore.grimmlink.dto.GrimmlinkBookSummary;
 import org.booklore.grimmlink.dto.GrimmlinkShelfRemovalResponse;
 import org.booklore.grimmlink.dto.GrimmlinkShelfSummary;
-import org.booklore.grimmlink.facade.GrimmlinkFacade;
+import org.booklore.grimmlink.service.GrimmlinkShelfService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +21,11 @@ import java.util.UUID;
 @RequestMapping(GrimmlinkRoutes.API_PREFIX + "/shelves")
 public class GrimmlinkV1ShelfController {
 
-    private final GrimmlinkFacade grimmlinkFacade;
+    private final GrimmlinkShelfService shelfService;
 
     @GetMapping
     public ResponseEntity<List<GrimmlinkShelfSummary>> listShelves(@RequestParam(required = false) String type) {
-        return ResponseEntity.ok(grimmlinkFacade.listShelves(type));
+        return ResponseEntity.ok(shelfService.listShelves(type));
     }
 
     @GetMapping("/{shelfId}/books")
@@ -33,7 +33,8 @@ public class GrimmlinkV1ShelfController {
                                                                      @RequestParam(required = false) Integer limit,
                                                                      @RequestParam(required = false) Integer offset,
                                                                      @RequestParam(required = false) String cursor) {
-        return ResponseEntity.ok(grimmlinkFacade.listShelfBooks("regular", shelfId, limit, offset, cursor));
+        return ResponseEntity.ok(
+                shelfService.listShelfBooks("regular", shelfId, limit, offset, cursor));
     }
 
     @GetMapping("/{shelfType}/{shelfId}/books")
@@ -44,7 +45,8 @@ public class GrimmlinkV1ShelfController {
                                                                           @RequestParam(required = false) String cursor) {
         String debugId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         try {
-            return ResponseEntity.ok(grimmlinkFacade.listShelfBooks(shelfType, shelfId, limit, offset, cursor));
+            return ResponseEntity.ok(
+                    shelfService.listShelfBooks(shelfType, shelfId, limit, offset, cursor));
         } catch (APIException ex) {
             log.error("GrimmLink shelf fetch failed debugId={} shelfType={} shelfId={} status={} message={}",
                     debugId, shelfType, shelfId, ex.getStatus(), ex.getMessage(), ex);
@@ -59,13 +61,13 @@ public class GrimmlinkV1ShelfController {
     @PostMapping("/{shelfId}/books/{bookId}/remove")
     public ResponseEntity<GrimmlinkShelfRemovalResponse> removeBookFromShelf(@PathVariable Long shelfId,
                                                                              @PathVariable Long bookId) {
-        return ResponseEntity.ok(grimmlinkFacade.removeBookFromShelf("regular", shelfId, bookId));
+        return ResponseEntity.ok(shelfService.removeBookFromShelf("regular", shelfId, bookId));
     }
 
     @PostMapping("/{shelfType}/{shelfId}/books/{bookId}/remove")
     public ResponseEntity<GrimmlinkShelfRemovalResponse> removeBookFromShelfByType(@PathVariable String shelfType,
                                                                                    @PathVariable Long shelfId,
                                                                                    @PathVariable Long bookId) {
-        return ResponseEntity.ok(grimmlinkFacade.removeBookFromShelf(shelfType, shelfId, bookId));
+        return ResponseEntity.ok(shelfService.removeBookFromShelf(shelfType, shelfId, bookId));
     }
 }

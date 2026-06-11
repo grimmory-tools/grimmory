@@ -2,7 +2,7 @@ package org.booklore.grimmlink.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.booklore.grimmlink.GrimmlinkRoutes;
-import org.booklore.grimmlink.facade.GrimmlinkFacade;
+import org.booklore.grimmlink.service.GrimmlinkAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +15,10 @@ import java.util.Map;
 @RequestMapping(GrimmlinkRoutes.API_PREFIX)
 public class GrimmlinkV1AuthController {
 
-    private final GrimmlinkFacade grimmlinkFacade;
+    private final GrimmlinkAuthService authService;
 
     @GetMapping("/auth")
     public ResponseEntity<Map<String, Object>> authorize() {
-        return ResponseEntity.ok(grimmlinkFacade.authorize());
+        return ResponseEntity.ok(authService.authorize());
     }
 }

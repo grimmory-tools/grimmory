@@ -7,7 +7,8 @@ import org.booklore.grimmlink.dto.GrimmlinkMetadataBatchResponse;
 import org.booklore.grimmlink.dto.GrimmlinkMetadataPullResponse;
 import org.booklore.grimmlink.dto.GrimmlinkMetadataSyncRequest;
 import org.booklore.grimmlink.dto.GrimmlinkMetadataSyncResponse;
-import org.booklore.grimmlink.facade.GrimmlinkFacade;
+import org.booklore.grimmlink.service.GrimmlinkMetadataService;
+import org.booklore.grimmlink.service.GrimmlinkProgressService;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,22 +22,23 @@ import java.util.Map;
 @RequestMapping(GrimmlinkRoutes.API_PREFIX + "/syncs")
 public class GrimmlinkV1SyncController {
 
-    private final GrimmlinkFacade grimmlinkFacade;
+    private final GrimmlinkProgressService progressService;
+    private final GrimmlinkMetadataService metadataService;
 
     @GetMapping(value = "/progress/{bookHash}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<KoreaderProgress> getProgress(@PathVariable String bookHash) {
-        return ResponseEntity.ok(grimmlinkFacade.getProgress(bookHash));
+        return ResponseEntity.ok(progressService.getProgress(bookHash));
     }
 
     @PutMapping("/progress")
     public ResponseEntity<Map<String, String>> updateProgress(@Valid @RequestBody KoreaderProgress progress) {
-        grimmlinkFacade.updateProgress(progress);
+        progressService.updateProgress(progress);
         return ResponseEntity.ok(Map.of("status", "progress updated"));
     }
 
     @PostMapping("/metadata")
     public ResponseEntity<GrimmlinkMetadataSyncResponse> syncMetadata(@RequestBody(required = false) GrimmlinkMetadataSyncRequest request) {
-        return ResponseEntity.ok(grimmlinkFacade.syncMetadata(request));
+        return ResponseEntity.ok(metadataService.syncMetadata(request));
     }
 
     @GetMapping(value = "/metadata", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,11 +49,18 @@ public class GrimmlinkV1SyncController {
                                                                       @RequestParam(required = false) Instant cursor,
                                                                       @RequestParam(required = false) Integer limit,
                                                                       @RequestParam(required = false) String type) {
-        return ResponseEntity.ok(grimmlinkFacade.pullMetadata(bookId, bookHash, bookFileId, since, cursor, limit, type));
+        return ResponseEntity.ok(metadataService.pullMetadata(
+                bookId,
+                bookHash,
+                bookFileId,
+                since,
+                cursor,
+                limit,
+                type));
     }
 
     @PostMapping("/metadata/batch")
     public ResponseEntity<GrimmlinkMetadataBatchResponse> syncMetadataBatch(@RequestBody(required = false) GrimmlinkMetadataSyncRequest request) {
-        return ResponseEntity.ok(grimmlinkFacade.syncMetadataBatch(request));
+        return ResponseEntity.ok(metadataService.syncMetadataBatch(request));
     }
 }

@@ -1,8 +1,7 @@
-package org.booklore.grimmlink.facade;
+package org.booklore.grimmlink.service;
 
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.grimmlink.repository.GrimmlinkMetadataItemRepository;
-import org.booklore.grimmlink.service.GrimmlinkHashMatcher;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.request.ReadingSessionRequest;
 import org.booklore.model.entity.*;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class GrimmlinkFacadeReadingSessionTest {
+class GrimmlinkReadingSessionServiceTest {
 
     @Mock private KoreaderService koreaderService;
     @Mock private UserRepository userRepository;
@@ -50,14 +48,25 @@ class GrimmlinkFacadeReadingSessionTest {
     @Mock private BookMapper bookMapper;
     @Mock private ObjectMapper objectMapper;
 
-    @InjectMocks
-    private GrimmlinkFacade grimmlinkFacade;
+    private GrimmlinkReadingSessionService readingSessionService;
 
     private AutoCloseable mocks;
 
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
+        GrimmlinkAuthService authService = new GrimmlinkAuthService(koreaderService, userRepository);
+        GrimmlinkBookService bookService = new GrimmlinkBookService(
+                authService,
+                hashMatcher,
+                bookRepository,
+                userBookProgressRepository,
+                bookMapper,
+                bookDownloadService);
+        readingSessionService = new GrimmlinkReadingSessionService(
+                authService,
+                bookService,
+                readingSessionRepository);
     }
 
     @AfterEach
@@ -127,7 +136,7 @@ class GrimmlinkFacadeReadingSessionTest {
         request.setCurrentPage(23);
         request.setTotalPages(4022);
 
-        grimmlinkFacade.recordReadingSession(request);
+        readingSessionService.recordReadingSession(request);
 
         ArgumentCaptor<ReadingSessionEntity> sessionCaptor = ArgumentCaptor.forClass(ReadingSessionEntity.class);
         verify(readingSessionRepository).save(sessionCaptor.capture());

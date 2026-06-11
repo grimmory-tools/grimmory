@@ -1,15 +1,15 @@
-package org.booklore.grimmlink.facade;
+package org.booklore.grimmlink.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GrimmlinkFacadeTransactionTest {
+class GrimmlinkAuthServiceTransactionTest {
 
     @Test
     void authorizeKeepsHibernateSessionOpenForKoreaderUserRelation() throws NoSuchMethodException {
-        Transactional transactional = GrimmlinkFacade.class
+        Transactional transactional = GrimmlinkAuthService.class
                 .getDeclaredMethod("authorize")
                 .getAnnotation(Transactional.class);
 
