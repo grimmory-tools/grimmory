@@ -61,7 +61,9 @@
     "googleApiPlaceholder": "Enter Google Books API key",
     "apiToken": "API Token",
     "hardcoverPlaceholder": "Enter Hardcover API token",
-    "comicvinePlaceholder": "Enter Comic Vine API token"
+    "comicvinePlaceholder": "Enter Comic Vine API token",
+    "ranobedbPreferRomajiLabel": "Prefer Romaji",
+    "ranobedbPreferRomajiDesc": "When enabled, Japanese releases use Romaji instead of Japanese where possible."
   },
   "publicReviews": {
     "sectionTitle": "Public Reviews",
