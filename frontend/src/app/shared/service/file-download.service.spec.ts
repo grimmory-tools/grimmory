@@ -4,21 +4,21 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {FileDownloadService} from './file-download.service';
 import {AuthService} from './auth.service';
+import {API_CONFIG} from '../../core/config/api-config';
 
 describe('FileDownloadService', () => {
+  const apiUrl = `${API_CONFIG.BASE_URL}/api/v1/books/1/download`;
   let service: FileDownloadService;
   let ensureAccessToken: ReturnType<typeof vi.fn>;
-  let getInternalAccessToken: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     ensureAccessToken = vi.fn().mockReturnValue(of('tok'));
-    getInternalAccessToken = vi.fn().mockReturnValue('stale-tok');
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         FileDownloadService,
-        {provide: AuthService, useValue: {ensureAccessToken, getInternalAccessToken}},
+        {provide: AuthService, useValue: {ensureAccessToken}},
       ]
     });
 
@@ -40,10 +40,10 @@ describe('FileDownloadService', () => {
   it('navigates to the download url with a fresh access token appended', () => {
     const {anchor, click} = stubAnchor();
 
-    service.downloadFile('/files/1', 'book.epub');
+    service.downloadFile(apiUrl, 'book.epub');
 
     expect(ensureAccessToken).toHaveBeenCalledOnce();
-    expect(anchor.href).toBe('/files/1?token=tok');
+    expect(anchor.href).toBe(`${apiUrl}?token=tok`);
     expect(anchor.download).toBe('book.epub');
     expect(click).toHaveBeenCalledOnce();
   });
@@ -51,38 +51,35 @@ describe('FileDownloadService', () => {
   it('uses & as the separator when the url already has a query string', () => {
     const {anchor} = stubAnchor();
 
-    service.downloadFile('/files/1?foo=bar', 'book.epub');
+    service.downloadFile(`${apiUrl}?foo=bar`, 'book.epub');
 
-    expect(anchor.href).toBe('/files/1?foo=bar&token=tok');
+    expect(anchor.href).toBe(`${apiUrl}?foo=bar&token=tok`);
   });
 
   it('url-encodes the token', () => {
     ensureAccessToken.mockReturnValue(of('a b/c+d'));
     const {anchor} = stubAnchor();
 
-    service.downloadFile('/files/1', 'book.epub');
+    service.downloadFile(apiUrl, 'book.epub');
 
-    expect(anchor.href).toBe('/files/1?token=a%20b%2Fc%2Bd');
+    expect(anchor.href).toBe(`${apiUrl}?token=a%20b%2Fc%2Bd`);
   });
 
-  it('falls back to the stored access token when refresh fails', () => {
-    ensureAccessToken.mockReturnValue(throwError(() => new Error('refresh failed')));
+  it('does not append the token to a non-API (cross-origin) url', () => {
     const {anchor, click} = stubAnchor();
 
-    service.downloadFile('/files/1', 'book.epub');
+    service.downloadFile('https://example.com/evil', 'book.epub');
 
-    expect(anchor.href).toBe('/files/1?token=stale-tok');
+    expect(anchor.href).toBe('https://example.com/evil');
     expect(click).toHaveBeenCalledOnce();
   });
 
-  it('downloads without a token when none is available', () => {
+  it('does not start a download when the token refresh fails', () => {
     ensureAccessToken.mockReturnValue(throwError(() => new Error('refresh failed')));
-    getInternalAccessToken.mockReturnValue(null);
-    const {anchor, click} = stubAnchor();
+    const createElement = vi.spyOn(document, 'createElement');
 
-    service.downloadFile('/files/1', 'book.epub');
+    service.downloadFile(apiUrl, 'book.epub');
 
-    expect(anchor.href).toBe('/files/1');
-    expect(click).toHaveBeenCalledOnce();
+    expect(createElement).not.toHaveBeenCalled();
   });
 });
