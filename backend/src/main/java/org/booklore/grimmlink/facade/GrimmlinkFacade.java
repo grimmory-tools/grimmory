@@ -89,7 +89,23 @@ public class GrimmlinkFacade {
 
     @Transactional(readOnly = true)
     public KoreaderProgress getProgress(String bookHash) {
-        return koreaderService.getProgress(bookHash);
+        BookLoreUserEntity reader = requireCurrentReaderEntity(true);
+        BookEntity book = hashMatcher.resolveAccessibleBookByHash(reader, bookHash);
+        UserBookProgressEntity progress = userBookProgressRepository.findByUserIdAndBookId(reader.getId(), book.getId())
+                .orElse(null);
+        BookFileEntity primaryFile = resolvePrimaryFile(book);
+        return KoreaderProgress.builder()
+                .bookId(book.getId())
+                .bookFileId(primaryFile != null ? primaryFile.getId() : null)
+                .bookHash(bookHash)
+                .document(bookHash)
+                .fileFormat(primaryFile != null && primaryFile.getBookType() != null ? primaryFile.getBookType().name() : null)
+                .percentage(progress != null ? progress.getKoreaderProgressPercent() : null)
+                .progress(progress != null ? progress.getKoreaderProgress() : null)
+                .updatedAt(progress != null ? progress.getLastReadTime() : null)
+                .device(progress != null ? progress.getKoreaderDevice() : null)
+                .device_id(progress != null ? progress.getKoreaderDeviceId() : null)
+                .build();
     }
 
     @Transactional
@@ -230,7 +246,7 @@ public class GrimmlinkFacade {
         progress.setPdfProgress(request.getCurrentPage());
         progress.setPdfProgressPercent(normalizePercent(request.getPercentage()));
         progress.setKoreaderProgress(firstNonBlank(request.getRawKoreaderProgress(), request.getProgress()));
-        progress.setKoreaderProgressPercent(request.getPercentage());
+        progress.setKoreaderProgressPercent(normalizePercent(request.getPercentage()));
         progress.setKoreaderDevice(request.getDevice());
         progress.setKoreaderDeviceId(request.getDeviceId());
         progress.setKoreaderLastSyncTime(Instant.now());
@@ -664,7 +680,11 @@ public class GrimmlinkFacade {
             return bookRepository.findByIdWithBookFiles(request.getBookId()).filter(book -> canAccessBook(reader, book));
         }
         if (trimToNull(request.getBookHash()) != null) {
-            return bookRepository.findByCurrentHash(request.getBookHash()).filter(book -> canAccessBook(reader, book));
+            try {
+                return Optional.of(hashMatcher.resolveAccessibleBookByHash(reader, request.getBookHash()));
+            } catch (Exception e) {
+                return Optional.empty();
+            }
         }
         return Optional.empty();
     }

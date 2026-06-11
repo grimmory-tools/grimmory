@@ -4,6 +4,8 @@ import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.grimmlink.dto.*;
 import org.booklore.grimmlink.repository.GrimmlinkMetadataItemRepository;
 import org.booklore.grimmlink.service.GrimmlinkHashMatcher;
+import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.dto.request.ReadingSessionRequest;
@@ -510,5 +512,115 @@ class GrimmlinkFacadeBehaviorTest {
         verify(userBookProgressRepository).save(captor.capture());
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(ReadStatus.READING, saved.getReadStatus());
+    }
+
+    // ──────────────────────────────────────────
+    // 7) GET PROGRESS with HASH MATCHER
+    // ──────────────────────────────────────────
+
+    @Test
+    void getProgress_withCurrentHash_returnsProgressData() {
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-abc")))
+                .thenReturn(book);
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(20L);
+        existing.setKoreaderProgressPercent(75.0f);
+        existing.setKoreaderProgress("{\"page\":50}");
+        existing.setKoreaderDevice("android");
+        existing.setKoreaderDeviceId("dev-99");
+        existing.setLastReadTime(Instant.parse("2026-06-11T10:00:00Z"));
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+
+        KoreaderProgress result = grimmlinkFacade.getProgress("hash-abc");
+
+        assertNotNull(result);
+        assertEquals(Float.valueOf(75.0f), result.getPercentage());
+        assertEquals("{\"page\":50}", result.getProgress());
+        assertEquals("android", result.getDevice());
+        assertEquals("dev-99", result.getDevice_id());
+        assertEquals(Instant.parse("2026-06-11T10:00:00Z"), result.getUpdatedAt());
+        assertEquals(Long.valueOf(99L), result.getBookId());
+    }
+
+    @Test
+    void getProgress_withInitialHash_usesHashMatcher() {
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("initial-hash-xyz")))
+                .thenReturn(book);
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.empty());
+
+        KoreaderProgress result = grimmlinkFacade.getProgress("initial-hash-xyz");
+
+        assertNotNull(result);
+        assertEquals(Long.valueOf(99L), result.getBookId());
+        // No progress → percentage is null
+        assertNull(result.getPercentage());
+    }
+
+    @Test
+    void getProgress_inaccessibleHash_throwsException() {
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("restricted-hash")))
+                .thenThrow(ApiError.FORBIDDEN.createException("access denied"));
+
+        assertThrows(APIException.class,
+                () -> grimmlinkFacade.getProgress("restricted-hash"));
+    }
+
+    // ──────────────────────────────────────────
+    // 8) METADATA PUSH by HASH (resolveMetadataBook)
+    // ──────────────────────────────────────────
+
+    @Test
+    void syncMetadata_pushByHash_currentHashResolvesViaHashMatcher() {
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setSyncMode("push");
+        request.setBookHash("current-hash-123");
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("current-hash-123")))
+                .thenReturn(book);
+        when(metadataItemRepository.findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                eq(7L), eq(99L), any(), any())).thenReturn(Optional.empty());
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+
+        assertNotNull(response);
+        assertTrue(response.isOk());
+        verify(hashMatcher).resolveAccessibleBookByHash(any(), eq("current-hash-123"));
+    }
+
+    @Test
+    void syncMetadata_pushByInitialHash_resolvesViaHashMatcher() {
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setSyncMode("push");
+        request.setBookHash("initial-hash-456");
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("initial-hash-456")))
+                .thenReturn(book);
+        when(metadataItemRepository.findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                eq(7L), eq(99L), any(), any())).thenReturn(Optional.empty());
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+
+        assertNotNull(response);
+        assertTrue(response.isOk());
+        verify(hashMatcher).resolveAccessibleBookByHash(any(), eq("initial-hash-456"));
+    }
+
+    @Test
+    void syncMetadata_pushByInaccessibleHash_returnsMetadataNotFound() {
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setSyncMode("push");
+        request.setBookHash("forbidden-hash");
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("forbidden-hash")))
+                .thenThrow(ApiError.FORBIDDEN.createException("access denied"));
+
+        GrimmlinkMetadataBatchResponse response = grimmlinkFacade.syncMetadataBatch(request);
+
+        // Should return metadataNotFoundResponse (not throw)
+        assertNotNull(response);
     }
 }
