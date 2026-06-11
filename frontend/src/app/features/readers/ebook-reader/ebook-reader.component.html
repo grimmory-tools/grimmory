@@ -19,7 +19,8 @@
     </div>
   }
 
-  <app-reader-header></app-reader-header>
+  <app-reader-header
+    (hoverChange)="onHeaderHovered($event)"></app-reader-header>
 
   <div class="reader-content" style="position: relative;">
     @if (isCurrentCfiBookmarked()) {
@@ -36,7 +37,8 @@
     [progressData]="progressData()"
     [forceVisible]="forceNavbarVisible()"
     [sectionFractions]="sectionFractions()"
-    (progressChange)="onProgressChange($event)">
+    (progressChange)="onProgressChange($event)"
+    (hoverChange)="onFooterHovered($event)">
   </app-reader-navbar>
 
   <app-reader-sidebar></app-reader-sidebar>
