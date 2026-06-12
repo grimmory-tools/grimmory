@@ -1,64 +1,64 @@
 {
-  "loading": "Загрузка аудиокниги...",
-  "untitled": "Без названия",
-  "unknownAuthor": "Неизвестный автор",
-  "coverAlt": "Обложка",
-  "header": {
-    "backTooltip": "Назад",
-    "bookmarksTooltip": "Закладки",
-    "chaptersTracksTooltip": "Главы/Треки"
-  },
-  "trackInfo": {
-    "trackOf": "Трек {{ current }} из {{ total }}",
-    "chapterOf": "Глава {{ current }} из {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Предыдущий трек",
-    "previousChapterTooltip": "Предыдущая глава",
-    "rewindTooltip": "-30с",
-    "forwardTooltip": "+30с",
-    "nextTrackTooltip": "Следующий трек",
-    "nextChapterTooltip": "Следующая глава"
-  },
-  "extra": {
-    "addBookmark": "Добавить закладку",
-    "sleepTimer": "Таймер сна",
-    "endOfChapter": "Конец главы"
-  },
-  "details": {
-    "narratedBy": "Читает {{ narrator }}",
-    "kbps": "{{ bitrate }} кбит/с",
-    "totalDuration": "{{ duration }} всего"
-  },
-  "sidebar": {
-    "tracks": "Треки",
-    "chapters": "Главы"
-  },
-  "bookmarks": {
-    "title": "Закладки",
-    "empty": "Пока нет закладок",
-    "emptyHint": "Добавьте закладку, чтобы сохранить своё место",
-    "deleteTooltip": "Удалить",
-    "bookmarkAt": "Закладка на {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 минут",
-    "minutes30": "30 минут",
-    "minutes45": "45 минут",
-    "minutes60": "60 минут",
-    "endOfChapter": "Конец главы",
-    "cancelTimer": "Отменить таймер"
-  },
-  "toast": {
-    "loadFailed": "Не удалось загрузить аудиокнигу",
-    "audioLoadFailed": "Не удалось загрузить аудио",
-    "sleepTimerSet": "Воспроизведение остановится через {{ minutes }} минут",
-    "sleepTimerEndOfChapter": "Воспроизведение остановится в конце главы",
-    "sleepTimerStopped": "Воспроизведение остановлено таймером сна",
-    "bookmarkAdded": "Закладка добавлена",
-    "bookmarkExists": "Закладка существует",
-    "bookmarkExistsDetail": "Закладка уже существует на этой позиции",
-    "bookmarkFailed": "Не удалось добавить закладку",
-    "bookmarkDeleted": "Закладка удалена"
-  }
+    "loading": "Загрузка аудиокниги...",
+    "untitled": "Без названия",
+    "unknownAuthor": "Неизвестный автор",
+    "coverAlt": "Обложка",
+    "header": {
+        "backTooltip": "Назад",
+        "bookmarksTooltip": "Закладки",
+        "chaptersTracksTooltip": "Главы/Треки"
+    },
+    "trackInfo": {
+        "trackOf": "Трек {{ current }} из {{ total }}",
+        "chapterOf": "Глава {{ current }} из {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Предыдущий трек",
+        "previousChapterTooltip": "Предыдущая глава",
+        "rewindTooltip": "-30с",
+        "forwardTooltip": "+30с",
+        "nextTrackTooltip": "Следующий трек",
+        "nextChapterTooltip": "Следующая глава"
+    },
+    "extra": {
+        "addBookmark": "Добавить закладку",
+        "sleepTimer": "Таймер сна",
+        "endOfChapter": "Конец главы"
+    },
+    "details": {
+        "narratedBy": "Читает {{ narrator }}",
+        "kbps": "{{ bitrate }} кбит/с",
+        "totalDuration": "{{ duration }} всего"
+    },
+    "sidebar": {
+        "tracks": "Треки",
+        "chapters": "Главы"
+    },
+    "bookmarks": {
+        "title": "Закладки",
+        "empty": "Пока нет закладок",
+        "emptyHint": "Добавьте закладку, чтобы сохранить своё место",
+        "deleteTooltip": "Удалить",
+        "bookmarkAt": "Закладка на {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 минут",
+        "minutes30": "30 минут",
+        "minutes45": "45 минут",
+        "minutes60": "60 минут",
+        "endOfChapter": "Конец главы",
+        "cancelTimer": "Отменить таймер"
+    },
+    "toast": {
+        "loadFailed": "Не удалось загрузить аудиокнигу",
+        "audioLoadFailed": "Не удалось загрузить аудио",
+        "sleepTimerSet": "Воспроизведение остановится через {{ minutes }} минут",
+        "sleepTimerEndOfChapter": "Воспроизведение остановится в конце главы",
+        "sleepTimerStopped": "Воспроизведение остановлено таймером сна",
+        "bookmarkAdded": "Закладка добавлена",
+        "bookmarkExists": "Закладка существует",
+        "bookmarkExistsDetail": "Закладка уже существует на этой позиции",
+        "bookmarkFailed": "Не удалось добавить закладку",
+        "bookmarkDeleted": "Закладка удалена"
+    }
 }

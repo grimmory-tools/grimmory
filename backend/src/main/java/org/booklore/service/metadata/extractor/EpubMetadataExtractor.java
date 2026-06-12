@@ -206,6 +206,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
             Map<String, String> titlesById = new HashMap<>();
             Map<String, String> titleTypeById = new HashMap<>();
+            boolean hasTitle = false;
 
             for (int i = 0; i < children.getLength(); i++) {
                 if (!(children.item(i) instanceof Element el)) continue;
@@ -218,7 +219,10 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                         String id = el.getAttribute("id");
                         if (StringUtils.isNotBlank(id)) {
                             titlesById.put(id, text);
-                        } else {
+                        }
+
+                        if (!hasTitle) {
+                            hasTitle = true;
                             builderMeta.title(text);
                         }
                     }
@@ -404,7 +408,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             for (Map.Entry<String, String> entry : titlesById.entrySet()) {
                 String id = entry.getKey();
                 String value = entry.getValue();
-                String type = titleTypeById.getOrDefault(id, "main");
+                String type = titleTypeById.get(id);
                 if ("main".equals(type)) builderMeta.title(value);
                 else if ("subtitle".equals(type)) builderMeta.subtitle(value);
             }

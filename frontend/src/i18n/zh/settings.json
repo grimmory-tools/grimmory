@@ -1,17 +1,17 @@
 {
-  "tabs": {
-    "reader": "阅读器",
-    "view": "视图",
-    "metadata1": "元数据 1",
-    "metadata2": "元数据 2",
-    "application": "应用程序",
-    "users": "用户",
-    "email": "邮件",
-    "patterns": "命名模式",
-    "authentication": "认证",
-    "tasks": "任务",
-    "auditLogs": "审计日志",
-    "opds": "OPDS",
-    "devices": "设备"
-  }
+    "tabs": {
+        "reader": "阅读器",
+        "view": "视图",
+        "metadata1": "元数据 1",
+        "metadata2": "元数据 2",
+        "application": "应用程序",
+        "users": "用户",
+        "email": "邮件",
+        "patterns": "命名模式",
+        "authentication": "认证",
+        "tasks": "任务",
+        "auditLogs": "审计日志",
+        "opds": "OPDS",
+        "devices": "设备"
+    }
 }

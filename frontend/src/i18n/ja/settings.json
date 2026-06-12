@@ -1,17 +1,17 @@
 {
-  "tabs": {
-    "reader": "リーダー",
-    "view": "表示",
-    "metadata1": "メタデータ 1",
-    "metadata2": "メタデータ 2",
-    "application": "アプリケーション",
-    "users": "ユーザー",
-    "email": "メール",
-    "patterns": "パターン",
-    "authentication": "認証",
-    "tasks": "タスク",
-    "auditLogs": "監査ログ",
-    "opds": "OPDS",
-    "devices": "デバイス"
-  }
+    "tabs": {
+        "reader": "リーダー",
+        "view": "表示",
+        "metadata1": "メタデータ 1",
+        "metadata2": "メタデータ 2",
+        "application": "アプリケーション",
+        "users": "ユーザー",
+        "email": "メール",
+        "patterns": "パターン",
+        "authentication": "認証",
+        "tasks": "タスク",
+        "auditLogs": "監査ログ",
+        "opds": "OPDS",
+        "devices": "デバイス"
+    }
 }

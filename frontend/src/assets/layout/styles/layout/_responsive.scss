@@ -26,7 +26,7 @@
     background-color: var(--surface-page);
 
     .layout-main {
-      --mobile-topbar-height: 3.5rem;
+      --mobile-topbar-height: 3.0625rem;
 
       box-sizing: border-box;
       padding:
@@ -42,7 +42,7 @@
       --sidebar-shell-padding-inline-end: var(--space-4);
       --sidebar-header-padding-block: var(--space-2);
       --sidebar-header-gap-after: var(--space-3);
-      --sidebar-row-min-height: 3rem;
+      --sidebar-row-min-height: 2.625rem;
       --sidebar-row-padding-block: var(--space-3);
       --sidebar-row-padding-inline-start: var(--space-3);
       --sidebar-row-padding-inline-end: var(--space-3);
@@ -52,10 +52,10 @@
       --sidebar-group-gap: var(--space-4);
       --sidebar-section-spacing-before: var(--space-4);
       --sidebar-section-spacing-after: var(--space-1);
-      --sidebar-section-min-height: 2rem;
+      --sidebar-section-min-height: 1.75rem;
       --sidebar-section-inline-start: var(--space-3);
       --sidebar-section-inline-end: var(--space-3);
-      --sidebar-section-font-size: var(--text-base);
+      --sidebar-section-font-size: var(--app-text-base);
       --sidebar-section-font-weight: 600;
 
       position: fixed;
@@ -125,7 +125,7 @@
     .layout-wrapper {
       .layout-sidebar {
         width: fit-content;
-        max-width: calc(100dvw - 1rem);
+        max-width: calc(100dvw - 0.875rem);
         border-right: 1px solid var(--border-color);
         padding:
           calc(var(--space-3) + env(safe-area-inset-top))

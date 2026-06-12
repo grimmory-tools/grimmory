@@ -1,64 +1,64 @@
 {
-  "loading": "Carregando audiolivro...",
-  "untitled": "Sem Título",
-  "unknownAuthor": "Autor Desconhecido",
-  "coverAlt": "Capa",
-  "header": {
-    "backTooltip": "Voltar",
-    "bookmarksTooltip": "Marcadores",
-    "chaptersTracksTooltip": "Capítulos/Faixas"
-  },
-  "trackInfo": {
-    "trackOf": "Faixa {{ current }} de {{ total }}",
-    "chapterOf": "Capítulo {{ current }} de {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Faixa Anterior",
-    "previousChapterTooltip": "Capítulo Anterior",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Próxima Faixa",
-    "nextChapterTooltip": "Próximo Capítulo"
-  },
-  "extra": {
-    "addBookmark": "Adicionar Marcador",
-    "sleepTimer": "Timer de Sono",
-    "endOfChapter": "Fim do capítulo"
-  },
-  "details": {
-    "narratedBy": "Narrado por {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} no total"
-  },
-  "sidebar": {
-    "tracks": "Faixas",
-    "chapters": "Capítulos"
-  },
-  "bookmarks": {
-    "title": "Marcadores",
-    "empty": "Nenhum marcador ainda",
-    "emptyHint": "Adicione um marcador para salvar seu lugar",
-    "deleteTooltip": "Excluir",
-    "bookmarkAt": "Marcador em {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minutos",
-    "minutes30": "30 minutos",
-    "minutes45": "45 minutos",
-    "minutes60": "60 minutos",
-    "endOfChapter": "Fim do capítulo",
-    "cancelTimer": "Cancelar timer"
-  },
-  "toast": {
-    "loadFailed": "Falha ao carregar audiolivro",
-    "audioLoadFailed": "Falha ao carregar áudio",
-    "sleepTimerSet": "A reprodução será interrompida em {{ minutes }} minutos",
-    "sleepTimerEndOfChapter": "A reprodução será interrompida no fim do capítulo",
-    "sleepTimerStopped": "Reprodução interrompida pelo timer de sono",
-    "bookmarkAdded": "Marcador Adicionado",
-    "bookmarkExists": "Marcador Existente",
-    "bookmarkExistsDetail": "Já existe um marcador nesta posição",
-    "bookmarkFailed": "Falha ao adicionar marcador",
-    "bookmarkDeleted": "Marcador Excluído"
-  }
+    "loading": "Carregando audiolivro...",
+    "untitled": "Sem Título",
+    "unknownAuthor": "Autor Desconhecido",
+    "coverAlt": "Capa",
+    "header": {
+        "backTooltip": "Voltar",
+        "bookmarksTooltip": "Marcadores",
+        "chaptersTracksTooltip": "Capítulos/Faixas"
+    },
+    "trackInfo": {
+        "trackOf": "Faixa {{ current }} de {{ total }}",
+        "chapterOf": "Capítulo {{ current }} de {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Faixa Anterior",
+        "previousChapterTooltip": "Capítulo Anterior",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Próxima Faixa",
+        "nextChapterTooltip": "Próximo Capítulo"
+    },
+    "extra": {
+        "addBookmark": "Adicionar Marcador",
+        "sleepTimer": "Timer de Sono",
+        "endOfChapter": "Fim do capítulo"
+    },
+    "details": {
+        "narratedBy": "Narrado por {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} no total"
+    },
+    "sidebar": {
+        "tracks": "Faixas",
+        "chapters": "Capítulos"
+    },
+    "bookmarks": {
+        "title": "Marcadores",
+        "empty": "Nenhum marcador ainda",
+        "emptyHint": "Adicione um marcador para salvar seu lugar",
+        "deleteTooltip": "Excluir",
+        "bookmarkAt": "Marcador em {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minutos",
+        "minutes30": "30 minutos",
+        "minutes45": "45 minutos",
+        "minutes60": "60 minutos",
+        "endOfChapter": "Fim do capítulo",
+        "cancelTimer": "Cancelar timer"
+    },
+    "toast": {
+        "loadFailed": "Falha ao carregar audiolivro",
+        "audioLoadFailed": "Falha ao carregar áudio",
+        "sleepTimerSet": "A reprodução será interrompida em {{ minutes }} minutos",
+        "sleepTimerEndOfChapter": "A reprodução será interrompida no fim do capítulo",
+        "sleepTimerStopped": "Reprodução interrompida pelo timer de sono",
+        "bookmarkAdded": "Marcador Adicionado",
+        "bookmarkExists": "Marcador Existente",
+        "bookmarkExistsDetail": "Já existe um marcador nesta posição",
+        "bookmarkFailed": "Falha ao adicionar marcador",
+        "bookmarkDeleted": "Marcador Excluído"
+    }
 }

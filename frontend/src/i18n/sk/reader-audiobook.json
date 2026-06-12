@@ -1,4 +1,64 @@
 {
     "loading": "Načítavanie audioknihy...",
-    "untitled": "Bez názvu"
+    "untitled": "Bez názvu",
+    "trackInfo": {
+        "trackOf": "",
+        "chapterOf": ""
+    },
+    "bookmarks": {
+        "empty": "",
+        "bookmarkAt": "",
+        "deleteTooltip": "",
+        "emptyHint": "",
+        "title": ""
+    },
+    "details": {
+        "kbps": "",
+        "totalDuration": "",
+        "narratedBy": ""
+    },
+    "toast": {
+        "sleepTimerSet": "",
+        "sleepTimerStopped": "",
+        "sleepTimerEndOfChapter": "",
+        "loadFailed": "",
+        "audioLoadFailed": "",
+        "bookmarkExistsDetail": "",
+        "bookmarkAdded": "",
+        "bookmarkFailed": "",
+        "bookmarkDeleted": "",
+        "bookmarkExists": ""
+    },
+    "sleepTimerMenu": {
+        "cancelTimer": "",
+        "minutes30": "",
+        "minutes15": "",
+        "minutes60": "",
+        "endOfChapter": "",
+        "minutes45": ""
+    },
+    "controls": {
+        "forwardTooltip": "",
+        "previousChapterTooltip": "",
+        "rewindTooltip": "",
+        "nextTrackTooltip": "",
+        "previousTrackTooltip": "",
+        "nextChapterTooltip": ""
+    },
+    "coverAlt": "",
+    "header": {
+        "chaptersTracksTooltip": "",
+        "backTooltip": "",
+        "bookmarksTooltip": ""
+    },
+    "sidebar": {
+        "chapters": "",
+        "tracks": ""
+    },
+    "extra": {
+        "sleepTimer": "",
+        "addBookmark": "",
+        "endOfChapter": ""
+    },
+    "unknownAuthor": ""
 }

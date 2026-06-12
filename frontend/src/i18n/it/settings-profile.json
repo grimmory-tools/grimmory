@@ -1,34 +1,34 @@
 {
-  "title": "Profilo utente",
-  "description": "Gestisci le informazioni del tuo account e le impostazioni di sicurezza",
-  "basicInfo": "Informazioni di base",
-  "username": "Nome utente",
-  "usernamePlaceholder": "Nome utente...",
-  "fullName": "Nome completo",
-  "fullNamePlaceholder": "Inserisci nome completo...",
-  "email": "Email",
-  "emailPlaceholder": "Inserisci email...",
-  "editProfile": "Modifica profilo",
-  "saveChanges": "Salva modifiche",
-  "security": "Impostazioni di sicurezza",
-  "currentPassword": "Password attuale",
-  "newPassword": "Nuova password",
-  "confirmNewPassword": "Conferma nuova password",
-  "changePassword": "Cambia password",
-  "loading": "Caricamento dati utente...",
-  "validation": {
-    "currentPasswordRequired": "La password attuale è obbligatoria.",
-    "newPasswordRequired": "La nuova password è obbligatoria.",
-    "passwordMinLength": "La password deve avere almeno 6 caratteri.",
-    "confirmPasswordRequired": "Conferma la tua nuova password.",
-    "passwordMismatch": "Le password non corrispondono."
-  },
-  "toast": {
-    "errorNoUser": "Dati utente non disponibili.",
-    "noChanges": "Nessuna modifica rilevata.",
-    "profileUpdated": "Profilo aggiornato con successo",
-    "profileUpdateFailed": "Aggiornamento profilo fallito",
-    "passwordChanged": "Password cambiata con successo",
-    "passwordChangeFailed": "Cambio password fallito"
-  }
+    "title": "Profilo utente",
+    "description": "Gestisci le informazioni del tuo account e le impostazioni di sicurezza",
+    "basicInfo": "Informazioni di base",
+    "username": "Nome utente",
+    "usernamePlaceholder": "Nome utente...",
+    "fullName": "Nome completo",
+    "fullNamePlaceholder": "Inserisci nome completo...",
+    "email": "Email",
+    "emailPlaceholder": "Inserisci email...",
+    "editProfile": "Modifica profilo",
+    "saveChanges": "Salva modifiche",
+    "security": "Impostazioni di sicurezza",
+    "currentPassword": "Password attuale",
+    "newPassword": "Nuova password",
+    "confirmNewPassword": "Conferma nuova password",
+    "changePassword": "Cambia password",
+    "loading": "Caricamento dati utente...",
+    "validation": {
+        "currentPasswordRequired": "La password attuale è obbligatoria.",
+        "newPasswordRequired": "La nuova password è obbligatoria.",
+        "passwordMinLength": "La password deve avere almeno 6 caratteri.",
+        "confirmPasswordRequired": "Conferma la tua nuova password.",
+        "passwordMismatch": "Le password non corrispondono."
+    },
+    "toast": {
+        "errorNoUser": "Dati utente non disponibili.",
+        "noChanges": "Nessuna modifica rilevata.",
+        "profileUpdated": "Profilo aggiornato con successo",
+        "profileUpdateFailed": "Aggiornamento profilo fallito",
+        "passwordChanged": "Password cambiata con successo",
+        "passwordChangeFailed": "Cambio password fallito"
+    }
 }

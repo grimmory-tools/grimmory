@@ -1,6 +1,7 @@
 package org.booklore.service.book;
 
 import lombok.RequiredArgsConstructor;
+import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.mapper.v2.BookMapperV2;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -8,11 +9,14 @@ import org.booklore.model.dto.BookRecommendationLite;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.repository.UserContentRestrictionRepository;
+import org.booklore.security.policy.ContentRestrictionSpecification;
 import org.booklore.service.restriction.ContentRestrictionService;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,7 @@ public class BookQueryService {
     private final BookRepository bookRepository;
     private final BookMapperV2 bookMapperV2;
     private final ContentRestrictionService contentRestrictionService;
+    private final UserContentRestrictionRepository restrictionRepository;
 
     public List<Book> getAllBooks(boolean includeDescription, boolean stripForListView) {
         List<BookEntity> books = bookRepository.findAllWithMetadata();
@@ -46,12 +51,27 @@ public class BookQueryService {
     }
 
     public Page<Book> getAllBooksByLibraryIdsPaged(Collection<Long> libraryIds, Long userId, Pageable pageable) {
-        Page<BookEntity> page = bookRepository.findAllWithMetadataByLibraryIdsPage(libraryIds, pageable);
-        List<BookEntity> filtered = contentRestrictionService.applyRestrictions(page.getContent(), userId);
-        List<Book> dtos = filtered.stream()
+        Page<BookEntity> page = bookRepository.findAll(visibleBooks(libraryIds, userId), pageable);
+        Map<Long, BookEntity> booksById = bookRepository
+                .findAllWithMetadataByIds(page.getContent().stream().map(BookEntity::getId).collect(Collectors.toSet()))
+                .stream()
+                .collect(Collectors.toMap(BookEntity::getId, book -> book));
+        List<Book> dtos = page.getContent().stream()
+                .map(book -> booksById.get(book.getId()))
+                .filter(Objects::nonNull)
                 .map(book -> mapBookToDto(book, false, userId, true))
                 .toList();
         return new PageImpl<>(dtos, pageable, page.getTotalElements());
+    }
+
+    private Specification<BookEntity> visibleBooks(Collection<Long> libraryIds, Long userId) {
+        Specification<BookEntity> inLibraries = (root, query, cb) ->
+                libraryIds == null || libraryIds.isEmpty()
+                        ? cb.disjunction()
+                        : root.get("library").get("id").in(libraryIds);
+        return AppBookSpecification.notDeleted()
+                .and(inLibraries)
+                .and(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(userId)));
     }
 
     public List<BookEntity> getAllFullBookEntitiesBatch(Pageable pageable) {

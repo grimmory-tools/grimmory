@@ -104,7 +104,9 @@
         "autoAddEnabled": "新しい本はKoboシェルフに自動的に追加されます",
         "autoAddDisabled": "Koboシェルフへの自動追加が無効になりました",
         "pros": "メリット：",
-        "cons": "デメリット："
+        "cons": "デメリット：",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Hardcover統合",

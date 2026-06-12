@@ -1,34 +1,34 @@
 {
-  "title": "Профиль пользователя",
-  "description": "Управляйте информацией Вашей учётной записи и настройками безопасности",
-  "basicInfo": "Основная информация",
-  "username": "Имя пользователя",
-  "usernamePlaceholder": "Имя пользователя...",
-  "fullName": "Полное имя",
-  "fullNamePlaceholder": "Введите полное имя...",
-  "email": "Электронная почта",
-  "emailPlaceholder": "Введите email...",
-  "editProfile": "Редактировать профиль",
-  "saveChanges": "Сохранить изменения",
-  "security": "Настройки безопасности",
-  "currentPassword": "Текущий пароль",
-  "newPassword": "Новый пароль",
-  "confirmNewPassword": "Подтвердите новый пароль",
-  "changePassword": "Изменить пароль",
-  "loading": "Загрузка данных пользователя...",
-  "validation": {
-    "currentPasswordRequired": "Текущий пароль обязателен.",
-    "newPasswordRequired": "Новый пароль обязателен.",
-    "passwordMinLength": "Пароль должен содержать минимум 6 символов.",
-    "confirmPasswordRequired": "Пожалуйста, подтвердите новый пароль.",
-    "passwordMismatch": "Пароли не совпадают."
-  },
-  "toast": {
-    "errorNoUser": "Данные пользователя недоступны.",
-    "noChanges": "Изменений не обнаружено.",
-    "profileUpdated": "Профиль успешно обновлён",
-    "profileUpdateFailed": "Не удалось обновить профиль",
-    "passwordChanged": "Пароль успешно изменён",
-    "passwordChangeFailed": "Не удалось изменить пароль"
-  }
+    "title": "Профиль пользователя",
+    "description": "Управляйте информацией Вашей учётной записи и настройками безопасности",
+    "basicInfo": "Основная информация",
+    "username": "Имя пользователя",
+    "usernamePlaceholder": "Имя пользователя...",
+    "fullName": "Полное имя",
+    "fullNamePlaceholder": "Введите полное имя...",
+    "email": "Электронная почта",
+    "emailPlaceholder": "Введите email...",
+    "editProfile": "Редактировать профиль",
+    "saveChanges": "Сохранить изменения",
+    "security": "Настройки безопасности",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmNewPassword": "Подтвердите новый пароль",
+    "changePassword": "Изменить пароль",
+    "loading": "Загрузка данных пользователя...",
+    "validation": {
+        "currentPasswordRequired": "Текущий пароль обязателен.",
+        "newPasswordRequired": "Новый пароль обязателен.",
+        "passwordMinLength": "Пароль должен содержать минимум 6 символов.",
+        "confirmPasswordRequired": "Пожалуйста, подтвердите новый пароль.",
+        "passwordMismatch": "Пароли не совпадают."
+    },
+    "toast": {
+        "errorNoUser": "Данные пользователя недоступны.",
+        "noChanges": "Изменений не обнаружено.",
+        "profileUpdated": "Профиль успешно обновлён",
+        "profileUpdateFailed": "Не удалось обновить профиль",
+        "passwordChanged": "Пароль успешно изменён",
+        "passwordChangeFailed": "Не удалось изменить пароль"
+    }
 }

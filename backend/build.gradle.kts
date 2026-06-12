@@ -232,7 +232,6 @@ dependencies {
     implementation(platform("tools.jackson:jackson-bom:3.1.4"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-blackbird")
 
     // --- Jackson 2 (Compatibility) ---
     // jackson-annotations version is managed by Jackson 3 BOM (requires 2.20+)

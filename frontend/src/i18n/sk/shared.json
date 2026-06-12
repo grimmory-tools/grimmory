@@ -1,5 +1,154 @@
 {
     "bookUploader": {
-        "title": "Importovať knihy"
+        "title": "Importovať knihy",
+        "selectLibrary": "",
+        "supportedFormats": "",
+        "clearTooltip": "",
+        "dragDropTitle": "",
+        "statusReady": "",
+        "uploading": "",
+        "statusTooLarge": "",
+        "clearBtn": "",
+        "destinationLibrary": "",
+        "selectFiles": "",
+        "description": "",
+        "librarySelection": "",
+        "libraryLabel": "",
+        "toast": {
+            "noDestinationDetail": "",
+            "uploadFailedDefault": "",
+            "fileTooLargeDetail": "",
+            "missingDataSummary": "",
+            "noDestinationSummary": "",
+            "missingDataDetail": "",
+            "fileTooLargeSummary": ""
+        },
+        "filesCount": "",
+        "statusUploading": "",
+        "failedCount": "",
+        "uploadFailedTooltip": "",
+        "fileTooLargeTooltip": "",
+        "maxFileSize": "",
+        "statusFailed": "",
+        "uploadTooltip": "",
+        "destinationBookdrop": "",
+        "uploadDestination": "",
+        "chooseTooltip": "",
+        "subpathLabel": "",
+        "chooseBtn": "",
+        "statusUploaded": "",
+        "uploadBtn": "",
+        "complete": "",
+        "selectSubpath": "",
+        "uploadHint": ""
+    },
+    "setup": {
+        "creatingAccountBtn": "",
+        "validation": {
+            "passwordsMismatch": "",
+            "nameRequired": "",
+            "passwordMinLength": "",
+            "usernameRequired": "",
+            "emailRequired": "",
+            "confirmPasswordRequired": ""
+        },
+        "successMessage": "",
+        "fullNamePlaceholder": "",
+        "createAccountBtn": "",
+        "confirmPasswordLabel": "",
+        "usernameLabel": "",
+        "usernamePlaceholder": "",
+        "subtitle": "",
+        "confirmPasswordPlaceholder": "",
+        "emailLabel": "",
+        "title": "",
+        "toast": {
+            "createFailedDefault": ""
+        },
+        "passwordPlaceholder": "",
+        "passwordLabel": "",
+        "emailPlaceholder": "",
+        "fullNameLabel": ""
+    },
+    "directoryPicker": {
+        "directoryEmpty": "",
+        "foldersAvailable": "",
+        "selectCurrentBtn": "",
+        "selectAllBtn": "",
+        "selectAllTooltip": "",
+        "foldersSelected": "",
+        "description": "",
+        "selectCurrentTooltip": "",
+        "title": "",
+        "foldersSelectedPlural": "",
+        "emptyDescription": "",
+        "folderAvailable": "",
+        "deselectAllBtn": "",
+        "currentPath": "",
+        "foldersWillBeSelected": "",
+        "searchPlaceholder": "",
+        "deselectAllTooltip": "",
+        "folderWillBeSelected": "",
+        "goUpTooltip": "",
+        "selectDirectoriesBtn": "",
+        "loadingDirectories": "",
+        "noMatchesFound": "",
+        "noMatchesDescription": ""
+    },
+    "metadataProgress": {
+        "cancelFailedSummary": "",
+        "dismissBtn": "",
+        "reviewBtn": "",
+        "statusCancelled": "",
+        "statusError": "",
+        "cancellationScheduledSummary": "",
+        "cancelBtn": "",
+        "cancelFailedDetail": "",
+        "statusInProgress": "",
+        "statusCompleted": "",
+        "tagAuto": "",
+        "taskCancelled": "",
+        "cancellationScheduledDetail": "",
+        "bookProgress": "",
+        "taskStalled": "",
+        "tagReview": "",
+        "taskTitle": "",
+        "cancelTooltip": "",
+        "discardBtn": "",
+        "discardTooltip": ""
+    },
+    "reader": {
+        "failedToLoadPages": "",
+        "failedToLoadBook": ""
+    },
+    "changePassword": {
+        "toast": {
+            "success": "",
+            "failedSummary": "",
+            "failedDetailDefault": ""
+        },
+        "subtitle": "",
+        "newPasswordPlaceholder": "",
+        "validation": {
+            "sameAsCurrentPassword": "",
+            "passwordsMismatch": "",
+            "allFieldsRequired": "",
+            "passwordsDoNotMatch": ""
+        },
+        "title": "",
+        "newPasswordLabel": "",
+        "currentPasswordLabel": "",
+        "confirmPasswordLabel": "",
+        "updateBtn": "",
+        "confirmPasswordPlaceholder": "",
+        "currentPasswordPlaceholder": ""
+    },
+    "settingsHelper": {
+        "settingsSavedSummary": "",
+        "saveErrorDetail": "",
+        "settingsSavedDetail": ""
+    },
+    "liveNotification": {
+        "defaultMessage": ""
     }
 }

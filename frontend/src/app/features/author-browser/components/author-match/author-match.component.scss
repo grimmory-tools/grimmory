@@ -1,23 +1,23 @@
 .match-container {
-  padding: 1rem;
+  padding: 0.875rem;
 }
 
 .search-form {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.3125rem;
 }
 
 .search-fields {
   display: flex;
-  gap: 1rem;
+  gap: 0.875rem;
   align-items: flex-end;
 
   .field {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
 
     label {
-      font-size: 0.85rem;
+      font-size: 0.7438rem;
       font-weight: 600;
       color: var(--color-text-secondary);
     }
@@ -49,8 +49,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 3rem;
+  gap: 0.6563rem;
+  padding: 2.625rem;
   color: var(--color-text-secondary);
 }
 
@@ -59,45 +59,45 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3rem;
+  padding: 2.625rem;
   text-align: center;
 
   i {
-    font-size: 2.5rem;
+    font-size: 2.1875rem;
     color: var(--color-text-secondary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6563rem;
   }
 
   p {
     color: var(--color-text-secondary);
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     margin: 0;
   }
 
   .hint {
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     color: var(--color-text-secondary);
-    margin-top: 0.25rem;
+    margin-top: 0.2188rem;
   }
 }
 
 .results-header {
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   color: var(--color-text-secondary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
   font-weight: 600;
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .result-card {
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--color-border), transparent 60%);
   background: color-mix(in srgb, var(--color-card), transparent 30%);
@@ -132,7 +132,7 @@
   color: var(--color-text-secondary);
 
   i {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 }
 
@@ -141,26 +141,26 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2188rem;
 }
 
 .result-name {
-  font-size: 1rem;
+  font-size: var(--app-text-base);
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
 }
 
 .result-asin {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--color-text-secondary);
   font-family: monospace;
 }
 
 .result-description {
-  font-size: 0.85rem;
+  font-size: 0.7438rem;
   color: var(--color-text-secondary);
-  margin: 0.25rem 0 0;
+  margin: 0.2188rem 0 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;

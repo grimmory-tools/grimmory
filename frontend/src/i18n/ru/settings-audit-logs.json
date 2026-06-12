@@ -1,19 +1,19 @@
 {
-  "title": "Журнал аудита",
-  "description": "Просмотр записей о значимых действиях администратора в системе.",
-  "sectionTitle": "Журнал активности",
-  "filterPlaceholder": "Фильтр по действию",
-  "userFilterPlaceholder": "Фильтр по пользователю",
-  "dateRangePlaceholder": "Фильтр по диапазону дат",
-  "clearFilters": "Очистить все фильтры",
-  "autoRefresh": "Автообновление (10с)",
-  "pageReport": "Показано {first} по {last} из {totalRecords} записей",
-  "empty": "Записи аудита не найдены",
-  "columns": {
-    "timestamp": "Когда",
-    "user": "Пользователь",
-    "action": "Действие",
-    "description": "Описание",
-    "ip": "IP-адрес"
-  }
+    "title": "Журнал аудита",
+    "description": "Просмотр записей о значимых действиях администратора в системе.",
+    "sectionTitle": "Журнал активности",
+    "filterPlaceholder": "Фильтр по действию",
+    "userFilterPlaceholder": "Фильтр по пользователю",
+    "dateRangePlaceholder": "Фильтр по диапазону дат",
+    "clearFilters": "Очистить все фильтры",
+    "autoRefresh": "Автообновление (10с)",
+    "pageReport": "Показано {first} по {last} из {totalRecords} записей",
+    "empty": "Записи аудита не найдены",
+    "columns": {
+        "timestamp": "Когда",
+        "user": "Пользователь",
+        "action": "Действие",
+        "description": "Описание",
+        "ip": "IP-адрес"
+    }
 }

@@ -1,64 +1,64 @@
 {
-  "loading": "Laddar ljudbok...",
-  "untitled": "Utan titel",
-  "unknownAuthor": "Okänd författare",
-  "coverAlt": "Omslag",
-  "header": {
-    "backTooltip": "Tillbaka",
-    "bookmarksTooltip": "Bokmärken",
-    "chaptersTracksTooltip": "Kapitel/Spår"
-  },
-  "trackInfo": {
-    "trackOf": "Spår {{ current }} av {{ total }}",
-    "chapterOf": "Kapitel {{ current }} av {{ total }}"
-  },
-  "controls": {
-    "previousTrackTooltip": "Föregående spår",
-    "previousChapterTooltip": "Föregående kapitel",
-    "rewindTooltip": "-30s",
-    "forwardTooltip": "+30s",
-    "nextTrackTooltip": "Nästa spår",
-    "nextChapterTooltip": "Nästa kapitel"
-  },
-  "extra": {
-    "addBookmark": "Lägg till bokmärke",
-    "sleepTimer": "Insomningstimer",
-    "endOfChapter": "Slut på kapitel"
-  },
-  "details": {
-    "narratedBy": "Uppläst av {{ narrator }}",
-    "kbps": "{{ bitrate }} kbps",
-    "totalDuration": "{{ duration }} totalt"
-  },
-  "sidebar": {
-    "tracks": "Spår",
-    "chapters": "Kapitel"
-  },
-  "bookmarks": {
-    "title": "Bokmärken",
-    "empty": "Inga bokmärken ännu",
-    "emptyHint": "Lägg till ett bokmärke för att spara din plats",
-    "deleteTooltip": "Radera",
-    "bookmarkAt": "Bokmärke vid {{ time }}"
-  },
-  "sleepTimerMenu": {
-    "minutes15": "15 minuter",
-    "minutes30": "30 minuter",
-    "minutes45": "45 minuter",
-    "minutes60": "60 minuter",
-    "endOfChapter": "Slut på kapitel",
-    "cancelTimer": "Avbryt timer"
-  },
-  "toast": {
-    "loadFailed": "Kunde inte ladda ljudbok",
-    "audioLoadFailed": "Kunde inte ladda ljud",
-    "sleepTimerSet": "Uppspelningen stannar om {{ minutes }} minuter",
-    "sleepTimerEndOfChapter": "Uppspelningen stannar vid slut på kapitel",
-    "sleepTimerStopped": "Uppspelningen stoppades av insomningstimern",
-    "bookmarkAdded": "Bokmärke tillagt",
-    "bookmarkExists": "Bokmärke finns redan",
-    "bookmarkExistsDetail": "Ett bokmärke finns redan på denna position",
-    "bookmarkFailed": "Kunde inte lägga till bokmärke",
-    "bookmarkDeleted": "Bokmärke raderat"
-  }
+    "loading": "Laddar ljudbok...",
+    "untitled": "Utan titel",
+    "unknownAuthor": "Okänd författare",
+    "coverAlt": "Omslag",
+    "header": {
+        "backTooltip": "Tillbaka",
+        "bookmarksTooltip": "Bokmärken",
+        "chaptersTracksTooltip": "Kapitel/Spår"
+    },
+    "trackInfo": {
+        "trackOf": "Spår {{ current }} av {{ total }}",
+        "chapterOf": "Kapitel {{ current }} av {{ total }}"
+    },
+    "controls": {
+        "previousTrackTooltip": "Föregående spår",
+        "previousChapterTooltip": "Föregående kapitel",
+        "rewindTooltip": "-30s",
+        "forwardTooltip": "+30s",
+        "nextTrackTooltip": "Nästa spår",
+        "nextChapterTooltip": "Nästa kapitel"
+    },
+    "extra": {
+        "addBookmark": "Lägg till bokmärke",
+        "sleepTimer": "Insomningstimer",
+        "endOfChapter": "Slut på kapitel"
+    },
+    "details": {
+        "narratedBy": "Uppläst av {{ narrator }}",
+        "kbps": "{{ bitrate }} kbps",
+        "totalDuration": "{{ duration }} totalt"
+    },
+    "sidebar": {
+        "tracks": "Spår",
+        "chapters": "Kapitel"
+    },
+    "bookmarks": {
+        "title": "Bokmärken",
+        "empty": "Inga bokmärken ännu",
+        "emptyHint": "Lägg till ett bokmärke för att spara din plats",
+        "deleteTooltip": "Radera",
+        "bookmarkAt": "Bokmärke vid {{ time }}"
+    },
+    "sleepTimerMenu": {
+        "minutes15": "15 minuter",
+        "minutes30": "30 minuter",
+        "minutes45": "45 minuter",
+        "minutes60": "60 minuter",
+        "endOfChapter": "Slut på kapitel",
+        "cancelTimer": "Avbryt timer"
+    },
+    "toast": {
+        "loadFailed": "Kunde inte ladda ljudbok",
+        "audioLoadFailed": "Kunde inte ladda ljud",
+        "sleepTimerSet": "Uppspelningen stannar om {{ minutes }} minuter",
+        "sleepTimerEndOfChapter": "Uppspelningen stannar vid slut på kapitel",
+        "sleepTimerStopped": "Uppspelningen stoppades av insomningstimern",
+        "bookmarkAdded": "Bokmärke tillagt",
+        "bookmarkExists": "Bokmärke finns redan",
+        "bookmarkExistsDetail": "Ett bokmärke finns redan på denna position",
+        "bookmarkFailed": "Kunde inte lägga till bokmärke",
+        "bookmarkDeleted": "Bokmärke raderat"
+    }
 }

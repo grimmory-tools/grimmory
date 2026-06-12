@@ -1,19 +1,19 @@
 {
-  "title": "Log di audit",
-  "description": "Visualizza un registro delle azioni significative per l'amministrazione eseguite nel sistema.",
-  "sectionTitle": "Registro attività",
-  "filterPlaceholder": "Filtra per azione",
-  "userFilterPlaceholder": "Filtra per utente",
-  "dateRangePlaceholder": "Filtra per intervallo date",
-  "clearFilters": "Cancella tutti i filtri",
-  "autoRefresh": "Aggiornamento automatico (10s)",
-  "pageReport": "Visualizzazione da {first} a {last} di {totalRecords} voci",
-  "empty": "Nessun log di audit trovato",
-  "columns": {
-    "timestamp": "Quando",
-    "user": "Utente",
-    "action": "Azione",
-    "description": "Descrizione",
-    "ip": "Indirizzo IP"
-  }
+    "title": "Log di audit",
+    "description": "Visualizza un registro delle azioni significative per l'amministrazione eseguite nel sistema.",
+    "sectionTitle": "Registro attività",
+    "filterPlaceholder": "Filtra per azione",
+    "userFilterPlaceholder": "Filtra per utente",
+    "dateRangePlaceholder": "Filtra per intervallo date",
+    "clearFilters": "Cancella tutti i filtri",
+    "autoRefresh": "Aggiornamento automatico (10s)",
+    "pageReport": "Visualizzazione da {first} a {last} di {totalRecords} voci",
+    "empty": "Nessun log di audit trovato",
+    "columns": {
+        "timestamp": "Quando",
+        "user": "Utente",
+        "action": "Azione",
+        "description": "Descrizione",
+        "ip": "Indirizzo IP"
+    }
 }

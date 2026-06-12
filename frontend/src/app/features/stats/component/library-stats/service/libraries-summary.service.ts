@@ -29,7 +29,7 @@ export class LibrariesSummaryService {
       : books;
 
     const totalBooks = filteredBooks.length;
-    const totalSizeKb = filteredBooks.reduce((sum, book) => sum + (book.fileSizeKb || 0), 0);
+    const totalSizeKb = filteredBooks.reduce((sum, book) => sum + (book.fileSizeKb ?? book.primaryFile?.fileSizeKb ?? 0), 0);
 
     const authorSet = new Set<string>();
     const seriesSet = new Set<string>();

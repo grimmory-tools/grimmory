@@ -1,19 +1,19 @@
 {
-  "title": "Journaux d'audit",
-  "description": "Consultez un enregistrement des actions administratives significatives effectuées dans le système.",
-  "sectionTitle": "Journal d'activité",
-  "filterPlaceholder": "Filtrer par action",
-  "userFilterPlaceholder": "Filtrer par utilisateur",
-  "dateRangePlaceholder": "Filtrer par plage de dates",
-  "clearFilters": "Effacer tous les filtres",
-  "autoRefresh": "Actualisation automatique (10s)",
-  "pageReport": "Affichage de {first} à {last} sur {totalRecords} entrées",
-  "empty": "Aucun journal d'audit trouvé",
-  "columns": {
-    "timestamp": "Date",
-    "user": "Utilisateur",
-    "action": "Action",
-    "description": "Description",
-    "ip": "Adresse IP"
-  }
+    "title": "Journaux d'audit",
+    "description": "Consultez un enregistrement des actions administratives significatives effectuées dans le système.",
+    "sectionTitle": "Journal d'activité",
+    "filterPlaceholder": "Filtrer par action",
+    "userFilterPlaceholder": "Filtrer par utilisateur",
+    "dateRangePlaceholder": "Filtrer par plage de dates",
+    "clearFilters": "Effacer tous les filtres",
+    "autoRefresh": "Actualisation automatique (10s)",
+    "pageReport": "Affichage de {first} à {last} sur {totalRecords} entrées",
+    "empty": "Aucun journal d'audit trouvé",
+    "columns": {
+        "timestamp": "Date",
+        "user": "Utilisateur",
+        "action": "Action",
+        "description": "Description",
+        "ip": "Adresse IP"
+    }
 }

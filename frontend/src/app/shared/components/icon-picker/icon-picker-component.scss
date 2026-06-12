@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: 1.0938rem 1.3125rem;
   background: var(--color-page);
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
@@ -21,7 +21,7 @@
   .header-content {
     display: flex;
     align-items: center;
-    gap: 0.875rem;
+    gap: 0.7656rem;
   }
 
   .header-icon {
@@ -34,7 +34,7 @@
     border-radius: 10px;
 
     i {
-      font-size: 1.25rem;
+      font-size: 1.0938rem;
       color: var(--color-primary-contrast);
     }
   }
@@ -42,14 +42,14 @@
   .header-text {
     h1 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.0938rem;
       font-weight: 600;
       color: var(--color-text);
     }
 
     p {
-      margin: 0.125rem 0 0;
-      font-size: 0.875rem;
+      margin: 0.1094rem 0 0;
+      font-size: var(--app-text-sm);
       color: var(--color-text-secondary);
     }
   }
@@ -73,19 +73,19 @@
     .p-tablist {
       background: var(--color-page);
       border-bottom: 1px solid var(--color-border);
-      padding: 0 1rem;
+      padding: 0 0.875rem;
     }
 
     .p-tab {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.875rem 1rem;
-      font-size: 0.875rem;
+      gap: 0.4375rem;
+      padding: 0.7656rem 0.875rem;
+      font-size: var(--app-text-sm);
       font-weight: 500;
 
       i {
-        font-size: 0.9rem;
+        font-size: 0.7875rem;
       }
     }
 
@@ -107,9 +107,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1.25rem 1.5rem;
+  padding: 1.0938rem 1.3125rem;
   overflow-y: auto;
-  gap: 1.25rem;
+  gap: 1.0938rem;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -136,10 +136,10 @@
 
   .search-icon {
     position: absolute;
-    left: 0.875rem;
+    left: 0.7656rem;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
     color: var(--color-text-secondary);
     pointer-events: none;
     z-index: 1;
@@ -147,7 +147,7 @@
 
   .search-input {
     width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    padding: 0.6563rem 0.875rem 0.6563rem 2.1875rem;
   }
 }
 
@@ -155,7 +155,7 @@
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-  gap: 0.5rem;
+  gap: 0.4375rem;
   flex: 1;
   align-content: start;
 }
@@ -173,7 +173,7 @@
   transition: all 0.15s ease;
 
   > i {
-    font-size: 1.25rem;
+    font-size: 1.0938rem;
     color: var(--color-text);
     transition: color 0.15s ease;
   }
@@ -219,13 +219,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem;
+  gap: 0.6563rem;
+  padding: 2.625rem;
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
 
   i {
-    font-size: 1.5rem;
+    font-size: 1.3125rem;
   }
 }
 
@@ -237,7 +237,7 @@
 .trash-zone-container {
   position: sticky;
   bottom: 0;
-  padding-top: 1rem;
+  padding-top: 0.875rem;
   margin-top: auto;
 }
 
@@ -245,17 +245,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
-  padding: 0.875rem 1.25rem;
+  gap: 0.5469rem;
+  padding: 0.7656rem 1.0938rem;
   background: var(--color-page);
   border: 2px dashed var(--color-border);
   border-radius: 8px;
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   transition: all 0.2s ease;
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     color: var(--p-red-400);
   }
 
@@ -271,21 +271,21 @@
   background: var(--color-page);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 1.0938rem;
 
   .section-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
+    gap: 0.4375rem;
+    margin-bottom: 0.875rem;
+    font-size: 0.7438rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: var(--color-text-secondary);
 
     > i {
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       color: var(--color-primary);
     }
 
@@ -295,11 +295,11 @@
       justify-content: center;
       min-width: 20px;
       height: 20px;
-      padding: 0 0.375rem;
+      padding: 0 0.3281rem;
       background: var(--color-primary);
       color: var(--color-primary-contrast);
       border-radius: 10px;
-      font-size: 0.7rem;
+      font-size: 0.6125rem;
       font-weight: 600;
     }
 
@@ -309,7 +309,7 @@
   }
 
   &.queue-section {
-    margin-top: 1rem;
+    margin-top: 0.875rem;
   }
 }
 
@@ -317,30 +317,30 @@
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.875rem;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4375rem;
 
   label {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     font-weight: 500;
     color: var(--color-text);
   }
 
   .input-full {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.6563rem 0.875rem;
   }
 
   .code-textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.6563rem 0.875rem;
     font-family: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', monospace;
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     resize: vertical;
     line-height: 1.5;
   }
@@ -354,8 +354,8 @@
   overflow: hidden;
 
   .preview-label {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
+    padding: 0.4375rem 0.6563rem;
+    font-size: var(--app-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -368,7 +368,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 1.3125rem;
     min-height: 120px;
 
     ::ng-deep svg {
@@ -384,17 +384,17 @@
 .error-message {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  gap: 0.4375rem;
+  padding: 0.6563rem 0.875rem;
   background: rgb(239 68 68 / 10%);
   border: 1px solid rgb(239 68 68 / 20%);
   border-radius: 6px;
   color: var(--p-red-400);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 500;
 
   i {
-    font-size: 0.9rem;
+    font-size: 0.7875rem;
   }
 }
 
@@ -402,8 +402,8 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: 0.875rem;
+  padding-top: 0.875rem;
   border-top: 1px solid var(--color-border);
 }
 
@@ -411,10 +411,10 @@
 .queue-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.75rem;
+  gap: 0.6563rem;
   max-height: 280px;
   overflow-y: auto;
-  padding: 0.25rem;
+  padding: 0.2188rem;
 }
 
 .queue-item {
@@ -436,13 +436,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0.625rem;
+    padding: 0.4375rem 0.5469rem;
     background: var(--color-page);
     border-bottom: 1px solid var(--color-border);
   }
 
   .queue-item-name {
-    font-size: 0.75rem;
+    font-size: var(--app-text-xs);
     font-weight: 600;
     color: var(--color-text);
     overflow: hidden;
@@ -469,7 +469,7 @@
     }
 
     i {
-      font-size: 0.625rem;
+      font-size: 0.5469rem;
     }
   }
 
@@ -477,7 +477,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem;
+    padding: 0.6563rem;
     min-height: 60px;
 
     ::ng-deep svg {
@@ -489,8 +489,8 @@
   }
 
   .queue-item-error {
-    padding: 0.5rem 0.625rem;
-    font-size: 0.6875rem;
+    padding: 0.4375rem 0.5469rem;
+    font-size: 0.6016rem;
     color: var(--p-red-400);
     background: rgb(239 68 68 / 8%);
     border-top: 1px solid rgb(239 68 68 / 15%);
@@ -505,29 +505,29 @@
   }
 
   .dialog-header {
-    padding: 1rem;
+    padding: 0.875rem;
 
     .header-icon {
       width: 36px;
       height: 36px;
 
       i {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
     }
 
     .header-text h1 {
-      font-size: 1.125rem;
+      font-size: var(--app-text-lg);
     }
   }
 
   .tab-content {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   .icon-grid {
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 0.375rem;
+    gap: 0.3281rem;
   }
 
   .icon-item {

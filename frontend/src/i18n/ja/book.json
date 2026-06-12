@@ -47,7 +47,8 @@
             "noBooks": "このコレクションには本がありません！",
             "failedLibrary": "ライブラリの本の読み込みに失敗しました！",
             "failedShelf": "シェルフの本の読み込みに失敗しました！",
-            "activeFilters": "{{ count }}件のアクティブフィルター"
+            "activeFilters": "{{ count }}件のアクティブフィルター",
+            "failedBooks": ""
         },
         "tooltip": {
             "clearFilters": "適用されたフィルターをクリア",
@@ -99,7 +100,10 @@
             "deleteBookMessage": "「{{ title }}」を削除してもよろしいですか？\n\nファイルシステムからブックファイルが完全に削除されます。\n\nこの操作は元に戻せません。",
             "deleteBookHeader": "削除の確認",
             "deleteFileMessage": "追加ファイル「{{ fileName }}」を削除してもよろしいですか？",
-            "deleteFileHeader": "ファイル削除の確認"
+            "deleteFileHeader": "ファイル削除の確認",
+            "sendAnyway": "無視して送信",
+            "largeFileMessage": "",
+            "largeFileHeader": ""
         },
         "toast": {
             "quickSendSuccessDetail": "本の送信がスケジュールされました。",
@@ -132,7 +136,8 @@
             "readBook": "本を読む",
             "playAudiobook": "オーディオブックを再生",
             "bookMenu": "本の操作メニュー",
-            "continueReading": "読書を続ける"
+            "continueReading": "読書を続ける",
+            "readStatusMenu": ""
         }
     },
     "notes": {
@@ -261,7 +266,8 @@
             "customFetchMetadata": "メタデータをカスタム取得",
             "autoFetchMetadata": "メタデータを自動取得",
             "findDuplicates": "重複を検索",
-            "deleteLibrary": "ライブラリを削除"
+            "deleteLibrary": "ライブラリを削除",
+            "bulkIsbnImport": ""
         },
         "shelf": {
             "publicShelfPrefix": "公開シェルフ - ",
@@ -273,7 +279,8 @@
         "magicShelf": {
             "optionsLabel": "オプション",
             "editMagicShelf": "マジックシェルフを編集",
-            "deleteMagicShelf": "マジックシェルフを削除"
+            "deleteMagicShelf": "マジックシェルフを削除",
+            "exportJson": "JSONをコピー"
         },
         "confirm": {
             "rescanLibraryMessage": "ライブラリ「{{ name }}」を更新してもよろしいですか？",
@@ -292,7 +299,9 @@
             "shelfDeleteFailedDetail": "シェルフの削除に失敗しました",
             "magicShelfDeletedDetail": "マジックシェルフが削除されました",
             "magicShelfDeleteFailedDetail": "シェルフの削除に失敗しました",
-            "failedSummary": "失敗"
+            "failedSummary": "失敗",
+            "magicShelfJsonCopiedDetail": "",
+            "dialogLoadFailedDetail": ""
         },
         "loading": {
             "deletingLibrary": "ライブラリ「{{ name }}」を削除中..."
@@ -427,7 +436,8 @@
         "validationTitleOrIsbn": "タイトルまたはISBNが必要です",
         "validationReady": "作成の準備ができました",
         "cancelButton": "キャンセル",
-        "addButton": "物理本を追加"
+        "addButton": "物理本を追加",
+        "fetchMetadataTooltip": ""
     },
     "fileUploader": {
         "title": "追加ファイルをアップロード",
@@ -450,7 +460,9 @@
             "fileTooLargeDetail": "{{ fileName }}が最大ファイルサイズ{{ maxSize }}を超えています",
             "fileTooLargeError": "ファイルが最大サイズ{{ maxSize }}を超えています",
             "uploadFailedUnknown": "不明なエラーによりアップロードに失敗しました。"
-        }
+        },
+        "supplementaryAllFormats": "",
+        "supportedFormats": ""
     },
     "filter": {
         "title": "フィルター",
@@ -483,7 +495,10 @@
             "comicCharacter": "コミックキャラクター",
             "comicTeam": "コミックチーム",
             "comicLocation": "コミックロケーション",
-            "comicCreator": "コミッククリエイター"
+            "comicCreator": "コミッククリエイター",
+            "lubimyczytacRating": "Lubimyczytac評価",
+            "ranobedbRating": "Ranobedb評価",
+            "audibleRating": "Audible評価"
         },
         "readStatus": {
             "unread": "未読",
@@ -563,7 +578,8 @@
         "toast": {
             "updateSuccessDetail": "本のシェルフが更新されました",
             "updateFailedDetail": "本のシェルフの更新に失敗しました"
-        }
+        },
+        "searchPlaceholder": ""
     },
     "shelfCreator": {
         "title": "新しいシェルフを作成",
@@ -619,7 +635,12 @@
             "lockFailedDetail": "メタデータのロック中にエラーが発生しました。",
             "unlockFailedSummary": "ロック解除に失敗しました",
             "unlockFailedDetail": "メタデータのロック解除中にエラーが発生しました。"
-        }
+        },
+        "selectBookFallback": "書籍を選択",
+        "noRating": "評価なし",
+        "ratingOutOf": "",
+        "selectBook": "",
+        "label": ""
     },
     "lockUnlockDialog": {
         "title": "メタデータのロック/解除",
@@ -767,7 +788,31 @@
             "selectAll": "すべての本を選択",
             "deselectAll": "すべての本の選択を解除",
             "deleteSelected": "選択した本を削除"
-        }
+        },
+        "book": "本",
+        "books": "本",
+        "synopsis": "あらすじ",
+        "booksInSeries": "シリーズ冊数",
+        "nextUp": "次は次へ",
+        "continueReading": "続きを読む",
+        "readButton": "読む",
+        "viewDetails": "詳細を見る",
+        "continueButton": "続ける",
+        "listPages": "ページ",
+        "stats": {
+            "totalPages": "総ページ数",
+            "formats": "形式",
+            "owned": "所有物",
+            "avgGoodreads": "",
+            "avgHardcover": "",
+            "totalAudioDuration": "",
+            "avgPersonalRating": "",
+            "avgAmazon": ""
+        },
+        "missingBooks": "",
+        "readPercent": "",
+        "completionOwned": "",
+        "bookListTab": ""
     },
     "duplicateMerger": {
         "title": "重複を検索",
@@ -816,5 +861,48 @@
             "mergeFailedDetail": "このグループのマージができませんでした。",
             "mergePartialDetail": "{{ success }}件マージ成功、{{ failed }}件失敗。"
         }
+    },
+    "bulkIsbnImport": {
+        "closeTooltip": "閉じる",
+        "libraryLabel": "図書館",
+        "libraryPlaceholder": "ライブラリを選択",
+        "tabFile": "ファイルをアップロード",
+        "chooseFile": "ファイルを選択",
+        "parseButton": "パース",
+        "clearButton": "消去",
+        "validationLibraryRequired": "ライブラリを選択",
+        "cancelButton": "キャンセル",
+        "startImportButton": "インポート開始",
+        "unknownError": "不明なエラー",
+        "summaryTitle": "インポート完了",
+        "summaryFailed": "失敗",
+        "doneButton": "終了",
+        "fileFormatsHint": "",
+        "skippedCount": "",
+        "failedIsbnsLabel": "",
+        "summaryCancelled": "",
+        "createdNoMetadata": "",
+        "previewLabel": "",
+        "tabPaste": "",
+        "validCount": "",
+        "cancelImportButton": "",
+        "processingHint": "",
+        "errorFileTooLarge": "",
+        "processingLabel": "",
+        "title": "",
+        "summaryNoMetadata": "",
+        "lookingUp": "",
+        "pastePlaceholder": "",
+        "summaryCreated": "",
+        "description": "",
+        "validationNoIsbns": "",
+        "validationReady": "",
+        "reason": {
+            "invalid": "",
+            "alreadyExists": ""
+        },
+        "errorTooMany": "",
+        "errorNoIsbns": "",
+        "duplicatesRemoved": ""
     }
 }

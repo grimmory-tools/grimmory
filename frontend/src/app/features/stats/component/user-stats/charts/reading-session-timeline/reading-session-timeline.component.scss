@@ -7,20 +7,20 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
+  margin-bottom: 0.4375rem;
+  gap: 0.875rem;
 
   .header-title {
     h3 {
       color: var(--text-color, #fff);
-      font-size: 1.25rem;
+      font-size: 1.0938rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
     }
 
     .timeline-subtitle {
       color: var(--text-secondary-color);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -35,7 +35,7 @@
       background: color-mix(in srgb, var(--color-text) 5%, transparent);
       border: 1px solid var(--color-border);
       border-radius: 6px;
-      padding: 0.6rem;
+      padding: 0.525rem;
       color: var(--color-text);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -54,7 +54,7 @@
       }
 
       i {
-        font-size: 0.875rem;
+        font-size: var(--app-text-sm);
       }
     }
 
@@ -65,7 +65,7 @@
       min-width: 120px;
 
       .week-label {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
         font-weight: 600;
         color: var(--color-text);
         white-space: nowrap;
@@ -73,10 +73,10 @@
       }
 
       .week-dates {
-        font-size: 0.75rem;
+        font-size: var(--app-text-xs);
         color: var(--text-secondary-color);
         white-space: nowrap;
-        margin-top: 0.1rem;
+        margin-top: 0.0875rem;
         line-height: 1.2;
       }
     }
@@ -84,7 +84,7 @@
 
   .filter-controls {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.6563rem;
     align-items: center;
     justify-self: end;
   }
@@ -94,9 +94,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
+  gap: 0.875rem;
+  margin-bottom: 0.875rem;
+  padding: 0.6563rem;
   background: color-mix(in srgb, var(--color-text) 5%, transparent);
   border-radius: 8px;
   border: 1px solid var(--color-border);
@@ -105,7 +105,7 @@
     background: color-mix(in srgb, var(--color-text) 5%, transparent);
     border: 1px solid var(--color-border);
     border-radius: 6px;
-    padding: 0.6rem 6rem;
+    padding: 0.525rem 5.25rem;
     color: var(--color-text);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -124,7 +124,7 @@
     }
 
     i {
-      font-size: 0.875rem;
+      font-size: var(--app-text-sm);
     }
   }
 
@@ -135,17 +135,17 @@
     min-width: 150px;
 
     .week-label {
-      font-size: 1.125rem;
+      font-size: var(--app-text-lg);
       font-weight: 600;
       color: var(--color-text);
       white-space: nowrap;
     }
 
     .week-dates {
-      font-size: 0.85rem;
+      font-size: 0.7438rem;
       color: var(--text-secondary-color);
       white-space: nowrap;
-      margin-top: 0.25rem;
+      margin-top: 0.2188rem;
     }
   }
 }
@@ -153,13 +153,13 @@
 .timeline-content {
   position: relative;
   width: 100%;
-  padding: 1rem;
+  padding: 0.875rem;
   overflow: visible;
 }
 
 .hour-markers {
   display: flex;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
 
   .day-label-spacer {
     width: 100px;
@@ -186,7 +186,7 @@
 
   .hour-label {
     display: none;
-    font-size: 0.75rem;
+    font-size: var(--app-text-xs);
     color: var(--color-text-secondary);
     position: absolute;
     left: 0;
@@ -212,10 +212,10 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     font-weight: 500;
     color: var(--color-text);
-    padding-right: 1rem;
+    padding-right: 0.875rem;
   }
 
   .timeline-track {
@@ -343,7 +343,7 @@
       height: 100%;
       padding: 4px 8px;
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.6125rem;
       font-weight: 500;
       text-align: center;
       gap: 2px;
@@ -358,7 +358,7 @@
       }
 
       .session-duration {
-        font-size: 0.65rem;
+        font-size: 0.5687rem;
         opacity: 0.9;
         white-space: nowrap;
         line-height: 1;
@@ -389,8 +389,8 @@
 
   .session-tooltip-content {
     display: flex;
-    gap: 1rem;
-    padding: 0.75rem;
+    gap: 0.875rem;
+    padding: 0.6563rem;
   }
 
   .session-tooltip-cover {
@@ -417,11 +417,11 @@
   .session-tooltip-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    gap: 0.6563rem;
+    margin-bottom: 0.6563rem;
 
     i {
-      font-size: 1.1rem;
+      font-size: 0.9625rem;
       color: rgb(239 68 68 / 100%);
     }
   }
@@ -429,7 +429,7 @@
   .session-tooltip-title {
     color: #fff;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.8313rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -441,24 +441,24 @@
       transparent 0%,
       rgb(255 255 255 / 10%) 50%,
       transparent 100%);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6563rem;
   }
 
   .session-tooltip-body {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.5469rem;
   }
 
   .session-tooltip-row {
     display: grid;
     grid-template-columns: auto auto 1fr;
     align-items: center;
-    gap: 0.625rem;
-    font-size: 0.875rem;
+    gap: 0.5469rem;
+    font-size: var(--app-text-sm);
 
     i {
-      font-size: 0.875rem;
+      font-size: var(--app-text-sm);
       color: rgb(255 255 255 / 60%);
       width: 16px;
       text-align: center;
@@ -478,7 +478,7 @@
 }
 
 .timeline-title-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: rgb(239 68 68 / 100%);
   vertical-align: middle;
   margin-right: 0.25em;
@@ -487,7 +487,7 @@
 @media (width <= 1024px) {
   .timeline-header {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.6563rem;
 
     .header-title {
       grid-column: 1;
@@ -504,7 +504,7 @@
       justify-self: stretch;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       ::ng-deep p-select {
         width: 100%;
@@ -521,34 +521,34 @@
   .timeline-header {
     .header-title {
       h3 {
-        font-size: 1.1rem;
+        font-size: 0.9625rem;
       }
 
       .timeline-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.7438rem;
       }
     }
 
     .week-info {
-      padding: 0.6rem;
+      padding: 0.525rem;
 
       .week-display {
         min-width: 100px;
 
         .week-label {
-          font-size: 0.9rem;
+          font-size: 0.7875rem;
         }
 
         .week-dates {
-          font-size: 0.7rem;
+          font-size: 0.6125rem;
         }
       }
 
       .week-nav-btn {
-        padding: 0.35rem 0.5rem;
+        padding: 0.3063rem 0.4375rem;
 
         i {
-          font-size: 0.8rem;
+          font-size: 0.7rem;
         }
       }
     }
@@ -556,14 +556,14 @@
 
   .timeline-content {
     min-height: 300px;
-    padding: 0.75rem;
+    padding: 0.6563rem;
   }
 
   .timeline-row {
     .day-label {
       width: 70px;
-      font-size: 0.75rem;
-      padding-right: 0.5rem;
+      font-size: var(--app-text-xs);
+      padding-right: 0.4375rem;
     }
   }
 
@@ -575,13 +575,13 @@
 
   .hour-marker {
     .hour-label {
-      font-size: 0.6rem;
+      font-size: 0.525rem;
     }
   }
 
   .session-block {
     .session-content {
-      font-size: 0.65rem;
+      font-size: 0.5687rem;
 
       .session-duration {
         display: none;
@@ -592,23 +592,23 @@
   .session-tooltip {
     min-width: 240px;
     max-width: 280px;
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
 
     .tooltip-header {
-      padding: 0.75rem;
+      padding: 0.6563rem;
 
       .tooltip-title {
-        font-size: 0.875rem;
+        font-size: var(--app-text-sm);
       }
     }
 
     .tooltip-body {
-      padding: 0.75rem;
+      padding: 0.6563rem;
     }
 
     .tooltip-row {
-      font-size: 0.8rem;
-      gap: 0.5rem;
+      font-size: 0.7rem;
+      gap: 0.4375rem;
     }
   }
 }
@@ -617,11 +617,11 @@
   .timeline-header {
     .header-title {
       h3 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       .timeline-subtitle {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
       }
     }
 
@@ -634,11 +634,11 @@
         min-width: 90px;
 
         .week-label {
-          font-size: 0.85rem;
+          font-size: 0.7438rem;
         }
 
         .week-dates {
-          font-size: 0.65rem;
+          font-size: 0.5687rem;
         }
       }
     }

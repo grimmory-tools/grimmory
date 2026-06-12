@@ -1,34 +1,34 @@
 {
-  "title": "Perfil do Usuário",
-  "description": "Gerencie as informações da sua conta e configurações de segurança",
-  "basicInfo": "Informações Básicas",
-  "username": "Nome de Usuário",
-  "usernamePlaceholder": "Nome de usuário...",
-  "fullName": "Nome Completo",
-  "fullNamePlaceholder": "Insira o nome completo...",
-  "email": "Email",
-  "emailPlaceholder": "Insira o email...",
-  "editProfile": "Editar Perfil",
-  "saveChanges": "Salvar Alterações",
-  "security": "Configurações de Segurança",
-  "currentPassword": "Senha Atual",
-  "newPassword": "Nova Senha",
-  "confirmNewPassword": "Confirmar Nova Senha",
-  "changePassword": "Alterar Senha",
-  "loading": "Carregando dados do usuário...",
-  "validation": {
-    "currentPasswordRequired": "A senha atual é obrigatória.",
-    "newPasswordRequired": "A nova senha é obrigatória.",
-    "passwordMinLength": "A senha deve ter pelo menos 6 caracteres.",
-    "confirmPasswordRequired": "Confirme sua nova senha.",
-    "passwordMismatch": "As senhas não coincidem."
-  },
-  "toast": {
-    "errorNoUser": "Dados do usuário não disponíveis.",
-    "noChanges": "Nenhuma alteração detectada.",
-    "profileUpdated": "Perfil atualizado com sucesso",
-    "profileUpdateFailed": "Falha ao atualizar o perfil",
-    "passwordChanged": "Senha alterada com sucesso",
-    "passwordChangeFailed": "Falha ao alterar a senha"
-  }
+    "title": "Perfil do Usuário",
+    "description": "Gerencie as informações da sua conta e configurações de segurança",
+    "basicInfo": "Informações Básicas",
+    "username": "Nome de Usuário",
+    "usernamePlaceholder": "Nome de usuário...",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Insira o nome completo...",
+    "email": "Email",
+    "emailPlaceholder": "Insira o email...",
+    "editProfile": "Editar Perfil",
+    "saveChanges": "Salvar Alterações",
+    "security": "Configurações de Segurança",
+    "currentPassword": "Senha Atual",
+    "newPassword": "Nova Senha",
+    "confirmNewPassword": "Confirmar Nova Senha",
+    "changePassword": "Alterar Senha",
+    "loading": "Carregando dados do usuário...",
+    "validation": {
+        "currentPasswordRequired": "A senha atual é obrigatória.",
+        "newPasswordRequired": "A nova senha é obrigatória.",
+        "passwordMinLength": "A senha deve ter pelo menos 6 caracteres.",
+        "confirmPasswordRequired": "Confirme sua nova senha.",
+        "passwordMismatch": "As senhas não coincidem."
+    },
+    "toast": {
+        "errorNoUser": "Dados do usuário não disponíveis.",
+        "noChanges": "Nenhuma alteração detectada.",
+        "profileUpdated": "Perfil atualizado com sucesso",
+        "profileUpdateFailed": "Falha ao atualizar o perfil",
+        "passwordChanged": "Senha alterada com sucesso",
+        "passwordChangeFailed": "Falha ao alterar a senha"
+    }
 }
