@@ -1,14 +1,89 @@
-import {describe, it} from 'vitest';
+import {signal} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {TranslocoService} from '@jsverse/transloco';
+import {MessageService} from 'primeng/api';
+import {of, type Observable} from 'rxjs';
+import {describe, expect, it, vi} from 'vitest';
 
-// NOTE(frontend-seam): Real coverage here needs seams around table row editing, confirm dialog
-// usage, password dialog state, and dialog-launcher interactions so user administration can be
-// exercised without building the full Prime table and modal stack.
-describe.skip('UserManagementComponent', () => {
-  it('needs service seams to verify user loading, edit toggling, and save payload shaping', () => {
+import {AppSettings} from '../../../shared/model/app-settings.model';
+import {AppSettingsService} from '../../../shared/service/app-settings.service';
+import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
+import {LibraryService} from '../../book/service/library.service';
+import {UserManagementComponent, type UserWithEditing} from './user-management.component';
+import {User, UserService} from './user.service';
+
+function buildUser(overrides: Partial<User['permissions']> = {}): User {
+  return {
+    id: 1,
+    username: 'admin',
+    name: 'Admin',
+    email: 'admin@example.com',
+    locale: 'en',
+    theme: 'grimmory',
+    themeAccent: null,
+    themeSyncEnabled: true,
+    assignedLibraries: [],
+    permissions: {admin: false, ...overrides} as User['permissions'],
+    userSettings: {} as User['userSettings'],
+  };
+}
+
+interface UserManagementTestEnv {
+  userState: ReturnType<typeof signal<User | null>>;
+  appSettingsState: ReturnType<typeof signal<AppSettings | null>>;
+  getUsers: () => Observable<UserWithEditing[]>;
+}
+
+function setupUserManagementTest(env: UserManagementTestEnv): void {
+  TestBed.configureTestingModule({
+    imports: [UserManagementComponent],
+    providers: [
+      {
+        provide: UserService,
+        useValue: {
+          currentUser: () => env.userState(),
+          getUsers: env.getUsers
+        }
+      },
+      { provide: LibraryService, useValue: { libraries: signal([]) } },
+      {
+        provide: DialogLauncherService,
+        useValue: {
+          openLibraryCreateDialog: vi.fn(() => Promise.resolve(null)),
+          openMagicShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
+          openFileUploadDialog: vi.fn(() => Promise.resolve(null)),
+        },
+      },
+      {provide: AppSettingsService, useValue: {appSettings: () => env.appSettingsState()}},
+      {provide: MessageService, useValue: {add: vi.fn()}},
+      {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
+    ],
+  });
+}
+
+describe('UserManagementComponent', () => {
+  it('loads and hydrates users on init', () => {
+    const userState = signal<User | null>(buildUser({admin: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUsers = vi.fn(() => of([buildUser({admin: true})] as UserWithEditing[]));
+
+    setupUserManagementTest({userState, appSettingsState, getUsers}); 
+
+    const fixture = TestBed.createComponent(UserManagementComponent);
+    const component = fixture.componentInstance;
+    component.ngOnInit();
+
+    expect(getUsers).toHaveBeenCalledOnce();
+    expect(component.users()).toHaveLength(1);
+
+    fixture.destroy();
+  });
+
+  it.skip('needs service seams to verify user loading, edit toggling, and save payload shaping', () => {
     // TODO(seam): Cover loadUsers, toggleEdit, and saveUser once the table-editing state and async user-service flows are isolated.
   });
 
-  it('needs dialog seams to verify create-user refresh, delete confirmation, and password-change validation', () => {
+  it.skip('needs dialog seams to verify create-user refresh, delete confirmation, and password-change validation', () => {
     // TODO(seam): Cover openCreateUserDialog, deleteUser, and submitPasswordChange after extracting confirm and modal runtime concerns.
   });
 });

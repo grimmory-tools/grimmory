@@ -19,7 +19,7 @@ import {DialogLauncherService} from '../../../shared/services/dialog-launcher.se
 import {ContentRestrictionsEditorComponent} from './content-restrictions-editor/content-restrictions-editor.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
-interface UserWithEditing extends User {
+export interface UserWithEditing extends User {
   isEditing?: boolean;
   selectedLibraryIds?: number[];
   libraryNames?: string;
