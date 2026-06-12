@@ -62,7 +62,9 @@ public class GrimmlinkMetadataService {
                         GrimmlinkMetadataItemType.RATING,
                         normalized.getRating().getDedupeKey(),
                         normalized.getRating().getUpdatedAt(),
-                        normalized)
+                        normalized.getDevice(),
+                        normalized.getDeviceId(),
+                        normalized.getRating())
                 : null;
         List<GrimmlinkItemResult> annotations = normalized.getAnnotations().stream()
                 .map(item -> upsertMetadataItem(
@@ -72,6 +74,8 @@ public class GrimmlinkMetadataService {
                         GrimmlinkMetadataItemType.ANNOTATION,
                         item.getDedupeKey(),
                         item.getUpdatedAt(),
+                        normalized.getDevice(),
+                        normalized.getDeviceId(),
                         item))
                 .toList();
         List<GrimmlinkItemResult> bookmarks = normalized.getBookmarks().stream()
@@ -82,6 +86,8 @@ public class GrimmlinkMetadataService {
                         GrimmlinkMetadataItemType.BOOKMARK,
                         item.getDedupeKey(),
                         item.getUpdatedAt(),
+                        normalized.getDevice(),
+                        normalized.getDeviceId(),
                         item))
                 .toList();
         return GrimmlinkMetadataSyncResponse.builder()
@@ -289,6 +295,8 @@ public class GrimmlinkMetadataService {
             GrimmlinkMetadataItemType type,
             String dedupeKey,
             Instant clientUpdatedAt,
+            String device,
+            String deviceId,
             Object payload) {
         String normalizedKey = bookService.trimToNull(dedupeKey);
         if (normalizedKey == null) {
@@ -310,12 +318,8 @@ public class GrimmlinkMetadataService {
         entity.setBookFile(bookFile);
         entity.setItemType(type);
         entity.setDedupeKey(normalizedKey);
-        entity.setDevice(payload instanceof GrimmlinkMetadataSyncRequest metadataRequest
-                ? bookService.trimToNull(metadataRequest.getDevice())
-                : null);
-        entity.setDeviceId(payload instanceof GrimmlinkMetadataSyncRequest metadataRequest
-                ? bookService.trimToNull(metadataRequest.getDeviceId())
-                : null);
+        entity.setDevice(bookService.trimToNull(device));
+        entity.setDeviceId(bookService.trimToNull(deviceId));
         entity.setContentHash(contentHash);
         entity.setPayloadJson(payloadJson);
         entity.setClientUpdatedAt(clientUpdatedAt);

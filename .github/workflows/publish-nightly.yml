@@ -1,8 +1,6 @@
-name: Nightly - Build and Publish
+name: Nightly - Disabled in Fork
 
 on:
-  schedule:
-    - cron: '0 4 * * *'
   workflow_dispatch:
     inputs:
       post_discord:
@@ -14,6 +12,9 @@ on:
 jobs:
   resolve_ref:
     name: Resolve Nightly Ref
+    # Retained for upstream parity. Fork test images are published by
+    # publish-develop.yml and this legacy workflow must not publish tags.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       actions: read

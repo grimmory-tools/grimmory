@@ -37,6 +37,25 @@ class AdjacentOpfCoverLocatorTest {
     }
 
     @Test
+    void prefersCoverImagePropertyBeforeIdOrHrefHint() throws Exception {
+        Path folder = Files.createDirectories(tempDir.resolve("books"));
+        Path hintedCover = Files.createFile(folder.resolve("cover-old.jpg"));
+        Path propertyCover = Files.createFile(folder.resolve("front.jpg"));
+        Path opf = folder.resolve("demo.opf");
+        Files.writeString(opf, """
+                <package xmlns="http://www.idpf.org/2007/opf">
+                  <manifest>
+                    <item id="cover-old" href="cover-old.jpg" media-type="image/jpeg"/>
+                    <item id="front" href="front.jpg" media-type="image/jpeg" properties="cover-image"/>
+                  </manifest>
+                </package>
+                """);
+
+        assertThat(hintedCover).exists();
+        assertThat(locator.find(opf, libraryFile(folder, "demo.epub"))).contains(propertyCover);
+    }
+
+    @Test
     void rejectsManifestPathEscape() throws Exception {
         Path folder = Files.createDirectories(tempDir.resolve("books"));
         Files.createFile(tempDir.resolve("outside.jpg"));

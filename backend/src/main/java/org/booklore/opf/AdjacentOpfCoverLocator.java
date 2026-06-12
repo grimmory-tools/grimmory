@@ -68,8 +68,18 @@ public class AdjacentOpfCoverLocator {
                 }
             }
 
+            Optional<Path> byCoverProperty = items.stream()
+                    .filter(ManifestItem::hasCoverImageProperty)
+                    .map(ManifestItem::href)
+                    .map(href -> resolveSafe(folder, href))
+                    .flatMap(Optional::stream)
+                    .findFirst();
+            if (byCoverProperty.isPresent()) {
+                return byCoverProperty;
+            }
+
             return items.stream()
-                    .filter(ManifestItem::isLikelyCover)
+                    .filter(ManifestItem::hasCoverHint)
                     .map(ManifestItem::href)
                     .map(href -> resolveSafe(folder, href))
                     .flatMap(Optional::stream)
@@ -161,12 +171,23 @@ public class AdjacentOpfCoverLocator {
     }
 
     private record ManifestItem(String id, String href, String mediaType, String properties) {
-        boolean isLikelyCover() {
+        boolean hasCoverImageProperty() {
+            if (!mediaType.toLowerCase(Locale.ROOT).startsWith("image/")) {
+                return false;
+            }
+            for (String property : properties.toLowerCase(Locale.ROOT).split("\\s+")) {
+                if ("cover-image".equals(property)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        boolean hasCoverHint() {
             String lowerId = id.toLowerCase(Locale.ROOT);
             String lowerHref = href.toLowerCase(Locale.ROOT);
-            String lowerProperties = properties.toLowerCase(Locale.ROOT);
-            return lowerProperties.contains("cover-image")
-                    || (mediaType.startsWith("image/") && (lowerId.contains("cover") || lowerHref.contains("cover")));
+            return mediaType.toLowerCase(Locale.ROOT).startsWith("image/")
+                    && (lowerId.contains("cover") || lowerHref.contains("cover"));
         }
     }
 }

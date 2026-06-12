@@ -78,22 +78,26 @@ public class GrimmlinkProgressService {
                 !isNew && progress.getReadStatusModifiedTime() != null
                 ? progress.getReadStatus()
                 : null;
+        Instant clientTime = resolveClientTime(request);
+        boolean preserveManualStatus = previousManualStatus != null
+                && progress.getReadStatusModifiedTime().isAfter(clientTime);
         Float normalizedPercent = normalizePercent(request.getPercentage());
+        Float displayPercent = normalizedPercent != null
+                ? normalizedPercent
+                : calculatePageRatio(request.getCurrentPage(), request.getTotalPages());
 
         progress.setUser(reader);
         progress.setBook(book);
         progress.setKoreaderProgress(bookService.firstNonBlank(
                 request.getRawKoreaderProgress(), request.getProgress()));
-        progress.setKoreaderProgressPercent(normalizedPercent);
+        progress.setKoreaderProgressPercent(displayPercent);
         progress.setKoreaderDevice(request.getDevice());
         progress.setKoreaderDeviceId(request.getDevice_id());
         progress.setKoreaderLastSyncTime(Instant.now());
-        progress.setLastReadTime(Instant.now());
+        progress.setLastReadTime(clientTime);
 
         if (normalizedPercent != null) {
-            if (previousManualStatus != null
-                    && previousManualStatus != org.booklore.model.enums.ReadStatus.UNREAD
-                    && previousManualStatus != org.booklore.model.enums.ReadStatus.READING) {
+            if (preserveManualStatus) {
                 progress.setReadStatus(previousManualStatus);
             } else {
                 org.booklore.model.enums.ReadStatus derived = deriveReadStatus(normalizedPercent);
@@ -127,7 +131,10 @@ public class GrimmlinkProgressService {
         fileProgress.setBookFile(file);
         fileProgress.setPositionData(bookService.firstNonBlank(request.getProgress(), request.getLocation()));
         fileProgress.setPositionHref(request.getLocation());
-        fileProgress.setProgressPercent(normalizePercent(request.getPercentage()));
+        Float normalizedPercent = normalizePercent(request.getPercentage());
+        fileProgress.setProgressPercent(normalizedPercent != null
+                ? normalizedPercent
+                : calculatePageRatio(request.getCurrentPage(), request.getTotalPages()));
         fileProgress.setLastReadTime(resolveClientTime(request));
         userBookFileProgressRepository.save(fileProgress);
     }
@@ -146,6 +153,13 @@ public class GrimmlinkProgressService {
             return null;
         }
         return percentage <= 1.0f ? percentage * 100.0f : percentage;
+    }
+
+    static Float calculatePageRatio(Integer currentPage, Integer totalPages) {
+        if (currentPage == null || totalPages == null || currentPage < 0 || totalPages <= 0) {
+            return null;
+        }
+        return Math.min(100.0f, currentPage * 100.0f / totalPages);
     }
 
     private org.booklore.model.enums.ReadStatus deriveReadStatus(Float normalizedPercent) {

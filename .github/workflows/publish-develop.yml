@@ -71,7 +71,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:develop
-            ghcr.io/${{ github.repository }}:develop-latest
             ghcr.io/${{ github.repository }}:${{ steps.tags.outputs.version_tag }}
           build-args: |
             APP_VERSION=${{ steps.tags.outputs.version_tag }}
@@ -90,7 +89,6 @@ jobs:
             echo "## Develop image published"
             echo
             echo "- \`ghcr.io/${{ github.repository }}:develop\`"
-            echo "- \`ghcr.io/${{ github.repository }}:develop-latest\`"
             echo "- \`ghcr.io/${{ github.repository }}:${VERSION_TAG}\`"
             echo "- Platforms: \`linux/amd64,linux/arm64\`"
           } >> "$GITHUB_STEP_SUMMARY"

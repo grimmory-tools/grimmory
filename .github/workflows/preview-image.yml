@@ -76,7 +76,6 @@ jobs:
             echo "platforms=${platforms}"
             echo "image_tags<<EOF"
             echo "${{ env.ghcr_image }}:preview"
-            echo "${{ env.ghcr_image }}:preview-latest"
             echo "${{ env.ghcr_image }}:${preview_tag}"
             if [ -n "$PR_NUMBER" ]; then
               echo "${{ env.ghcr_image }}:pr-${PR_NUMBER}-${short_sha}"

@@ -92,21 +92,28 @@ That workflow will:
 - publish `ghcr.io/grimmory-tools/grimmory:latest`,
 - and flip the GitHub release from draft to published.
 
-## Nightly Builds
+## Develop Builds
 
-Nightly builds are separate from stable releases.
+Develop builds are separate from stable releases and are the fork's primary
+test channel.
 
-They come from `develop` through [`.github/workflows/publish-nightly.yml`](../.github/workflows/publish-nightly.yml) and publish:
+They come from `develop` through
+[`.github/workflows/publish-develop.yml`](../.github/workflows/publish-develop.yml)
+and publish the moving `develop` test channel plus a pinned
+`develop-YYYYMMDD-<sha>` tag.
 
-- `nightly`
-- `nightly-YYYYMMDD-<sha>`
-- `grimmory-openapi.json`
+The retained upstream nightly workflow is disabled in the fork and does not
+publish nightly tags. See
+[Fork Docker Images](FORK-DOCKER-IMAGES.md) for channel selection and rollback
+guidance.
 
 ## Preview Builds
 
 Manual preview builds for PRs or arbitrary refs are separate from stable releases.
 
-Use the preview-image workflow if you want a one-off test image without creating a stable release.
+Use the preview-image workflow if you want a one-off test image without
+creating a stable release. Preview builds are intended for manually selected
+redesign or upstream-friendly work before promotion to `develop` or `main`.
 
 ## Notes
 

@@ -2,6 +2,8 @@ package org.booklore.grimmlink.service;
 
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.grimmlink.dto.*;
+import org.booklore.grimmlink.model.GrimmlinkMetadataItemEntity;
+import org.booklore.grimmlink.model.GrimmlinkMetadataItemType;
 import org.booklore.grimmlink.repository.GrimmlinkMetadataItemRepository;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
@@ -23,6 +25,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
@@ -62,6 +66,7 @@ class GrimmlinkServicesBehaviorTest {
     private GrimmlinkPdfBridgeService pdfBridgeService;
     private GrimmlinkReadingSessionService readingSessionService;
     private GrimmlinkMetadataService metadataService;
+    private GrimmlinkShelfService shelfService;
 
     private AutoCloseable mocks;
     private BookLoreUserEntity reader;
@@ -105,6 +110,13 @@ class GrimmlinkServicesBehaviorTest {
                 bookFileRepository,
                 metadataItemRepository,
                 objectMapper);
+        shelfService = new GrimmlinkShelfService(
+                authService,
+                bookService,
+                bookRepository,
+                shelfRepository,
+                magicShelfRepository,
+                magicShelfBookService);
 
         library = new LibraryEntity();
         library.setId(11L);
@@ -301,6 +313,55 @@ class GrimmlinkServicesBehaviorTest {
         assertEquals(Float.valueOf(42.5f), result.getPercentage());
     }
 
+    @Test
+    void updatePdfProgress_detectsConflictWithoutForce() {
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(10L);
+        existing.setLastReadTime(Instant.parse("2026-06-10T12:00:00Z"));
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+
+        KoreaderProgress request = KoreaderProgress.builder()
+                .currentPage(20)
+                .expectedUpdatedAt(Instant.parse("2026-06-10T11:00:00Z").toEpochMilli())
+                .build();
+
+        KoreaderProgress result = pdfBridgeService.updatePdfProgress(99L, request);
+
+        assertTrue(result.getConflictDetected());
+        assertFalse(result.getUpdated());
+        assertEquals("remote_newer", result.getConversionStatus());
+        verify(userBookProgressRepository, never()).save(any());
+    }
+
+    @Test
+    void updatePdfProgress_forceOverwritesConflict() {
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(10L);
+        existing.setLastReadTime(Instant.parse("2026-06-10T12:00:00Z"));
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+        when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(userBookFileProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        KoreaderProgress request = KoreaderProgress.builder()
+                .currentPage(20)
+                .percentage(0.25f)
+                .expectedUpdatedAt(Instant.parse("2026-06-10T11:00:00Z").toEpochMilli())
+                .force(true)
+                .build();
+
+        KoreaderProgress result = pdfBridgeService.updatePdfProgress(99L, request);
+
+        assertFalse(result.getConflictDetected());
+        assertTrue(result.getUpdated());
+        assertEquals("ok", result.getConversionStatus());
+        assertEquals(Integer.valueOf(20), existing.getPdfProgress());
+        assertEquals(Float.valueOf(25.0f), existing.getPdfProgressPercent());
+        verify(userBookProgressRepository).save(existing);
+        verify(userBookFileProgressRepository).save(any());
+    }
+
     // ──────────────────────────────────────────
     // 3) METADATA SYNC MODE — push/pull/incremental dispatch
     // ──────────────────────────────────────────
@@ -476,6 +537,7 @@ class GrimmlinkServicesBehaviorTest {
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
                 .percentage(0.3f)
+                .updatedAt(Instant.parse("2026-06-10T11:00:00Z"))
                 .build();
 
         progressService.updateProgress(request);
@@ -485,6 +547,101 @@ class GrimmlinkServicesBehaviorTest {
         UserBookProgressEntity saved = captor.getValue();
 
         assertEquals(ReadStatus.READ, saved.getReadStatus());
+    }
+
+    @Test
+    void downloadBook_checksAccessAndReturnsBinaryResponse() {
+        Resource resource = mock(Resource.class);
+        ResponseEntity<Resource> expected = ResponseEntity.ok(resource);
+        when(bookDownloadService.downloadBook(99L)).thenReturn(expected);
+
+        ResponseEntity<Resource> result = bookService.downloadBook(99L);
+
+        assertSame(expected, result);
+        verify(bookDownloadService).downloadBook(99L);
+    }
+
+    @Test
+    void removeBookFromRegularShelf_onlyRemovesMembership() {
+        ShelfEntity shelf = new ShelfEntity();
+        shelf.setId(3L);
+        shelf.setUser(reader);
+        book.setShelves(new java.util.HashSet<>(Set.of(shelf)));
+        when(shelfRepository.findByIdWithUser(3L)).thenReturn(Optional.of(shelf));
+
+        GrimmlinkShelfRemovalResponse response =
+                shelfService.removeBookFromShelf("regular", 3L, 99L);
+
+        assertTrue(response.isRemoved());
+        assertTrue(book.getShelves().isEmpty());
+        verify(bookRepository).save(book);
+        verifyNoInteractions(bookDownloadService);
+    }
+
+    @Test
+    void removeBookFromMagicShelf_isUnsupported() {
+        GrimmlinkShelfRemovalResponse response =
+                shelfService.removeBookFromShelf("magic", 3L, 99L);
+
+        assertFalse(response.isRemoved());
+        assertEquals("unsupported", response.getStatus());
+        verifyNoInteractions(shelfRepository);
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void updateProgress_replacesOlderManualReadStatus() {
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(10L);
+        existing.setReadStatus(ReadStatus.READ);
+        existing.setReadStatusModifiedTime(Instant.parse("2026-06-10T12:00:00Z"));
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+        when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        KoreaderProgress request = KoreaderProgress.builder()
+                .document("hash-123")
+                .percentage(0.3f)
+                .updatedAt(Instant.parse("2026-06-10T13:00:00Z"))
+                .build();
+
+        progressService.updateProgress(request);
+
+        ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
+        verify(userBookProgressRepository).save(captor.capture());
+        assertEquals(ReadStatus.READING, captor.getValue().getReadStatus());
+    }
+
+    @Test
+    void updateProgress_usesPageRatioForDisplayWithoutDerivingReadStatus() {
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.empty());
+        when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        KoreaderProgress request = KoreaderProgress.builder()
+                .document("hash-123")
+                .currentPage(25)
+                .totalPages(100)
+                .updatedAt(Instant.parse("2026-06-10T13:00:00Z"))
+                .build();
+
+        progressService.updateProgress(request);
+
+        ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
+        verify(userBookProgressRepository).save(captor.capture());
+        UserBookProgressEntity saved = captor.getValue();
+        assertEquals(Float.valueOf(25.0f), saved.getKoreaderProgressPercent());
+        assertNull(saved.getReadStatus());
+
+        ArgumentCaptor<UserBookFileProgressEntity> fileCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
+        verify(userBookFileProgressRepository).save(fileCaptor.capture());
+        assertEquals(Float.valueOf(25.0f), fileCaptor.getValue().getProgressPercent());
     }
 
     @Test
@@ -676,5 +833,57 @@ class GrimmlinkServicesBehaviorTest {
 
         // Should return metadataNotFoundResponse (not throw)
         assertNotNull(response);
+    }
+
+    @Test
+    void syncMetadata_preservesPayloadShapeAndDeviceProvenance() throws Exception {
+        GrimmlinkRatingPayload rating = new GrimmlinkRatingPayload();
+        rating.setDedupeKey("rating-1");
+        rating.setValue(4);
+
+        GrimmlinkAnnotationPayload annotation = new GrimmlinkAnnotationPayload();
+        annotation.setDedupeKey("annotation-1");
+        annotation.setText("highlight");
+
+        GrimmlinkBookmarkPayload bookmark = new GrimmlinkBookmarkPayload();
+        bookmark.setDedupeKey("bookmark-1");
+        bookmark.setTitle("chapter");
+
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setBookId(99L);
+        request.setDevice("KOReader");
+        request.setDeviceId("device-42");
+        request.setRating(rating);
+        request.setAnnotations(List.of(annotation));
+        request.setBookmarks(List.of(bookmark));
+
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        when(metadataItemRepository.findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                anyLong(), anyLong(), any(), anyString()))
+                .thenReturn(Optional.empty());
+        when(metadataItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        GrimmlinkMetadataSyncResponse response = metadataService.syncMetadata(request);
+
+        assertTrue(response.isOk());
+        verify(objectMapper).writeValueAsString(rating);
+        verify(objectMapper).writeValueAsString(annotation);
+        verify(objectMapper).writeValueAsString(bookmark);
+        verify(objectMapper, never()).writeValueAsString(request);
+
+        ArgumentCaptor<GrimmlinkMetadataItemEntity> captor =
+                ArgumentCaptor.forClass(GrimmlinkMetadataItemEntity.class);
+        verify(metadataItemRepository, times(3)).save(captor.capture());
+        assertEquals(
+                Set.of(
+                        GrimmlinkMetadataItemType.RATING,
+                        GrimmlinkMetadataItemType.ANNOTATION,
+                        GrimmlinkMetadataItemType.BOOKMARK),
+                captor.getAllValues().stream()
+                        .map(GrimmlinkMetadataItemEntity::getItemType)
+                        .collect(java.util.stream.Collectors.toSet()));
+        assertTrue(captor.getAllValues().stream()
+                .allMatch(item -> "KOReader".equals(item.getDevice())
+                        && "device-42".equals(item.getDeviceId())));
     }
 }

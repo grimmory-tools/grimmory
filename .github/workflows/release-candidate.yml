@@ -49,16 +49,16 @@ jobs:
 
           candidate_sha="$(git rev-parse HEAD)"
           base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          latest_nightly_json="$(
-            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&status=success&per_page=1"
+          latest_develop_json="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-develop.yml/runs?branch=develop&status=success&per_page=1"
           )"
-          latest_nightly_sha="$(printf '%s' "$latest_nightly_json" | jq -r '.workflow_runs[0].head_sha // ""')"
-          latest_nightly_created_at="$(printf '%s' "$latest_nightly_json" | jq -r '.workflow_runs[0].created_at // ""')"
+          latest_develop_sha="$(printf '%s' "$latest_develop_json" | jq -r '.workflow_runs[0].head_sha // ""')"
+          latest_develop_created_at="$(printf '%s' "$latest_develop_json" | jq -r '.workflow_runs[0].created_at // ""')"
           current_version="$base_tag"
-          if [ -n "$latest_nightly_sha" ] && [ -n "$latest_nightly_created_at" ]; then
-            latest_nightly_date="$(date -u -d "$latest_nightly_created_at" +%Y%m%d)"
-            latest_nightly_short_sha="$(printf '%s' "$latest_nightly_sha" | cut -c1-7)"
-            current_version="nightly-${latest_nightly_date}-${latest_nightly_short_sha}"
+          if [ -n "$latest_develop_sha" ] && [ -n "$latest_develop_created_at" ]; then
+            latest_develop_date="$(date -u -d "$latest_develop_created_at" +%Y%m%d)"
+            latest_develop_short_sha="$(printf '%s' "$latest_develop_sha" | cut -c1-7)"
+            current_version="develop-${latest_develop_date}-${latest_develop_short_sha}"
           fi
 
           echo "candidate_sha=${candidate_sha}" >> "$GITHUB_OUTPUT"
