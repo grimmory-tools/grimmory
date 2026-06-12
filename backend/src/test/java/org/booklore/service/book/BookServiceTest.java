@@ -29,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -323,10 +324,10 @@ class BookServiceTest {
 
     @Test
     void downloadBook_delegatesToDownloadService() {
-        ResponseEntity<Resource> response = ResponseEntity.ok(mock(Resource.class));
+        ResponseEntity<StreamingResponseBody> response = ResponseEntity.ok(mock(StreamingResponseBody.class));
         when(bookDownloadService.downloadBook(1L)).thenReturn(response);
 
-        ResponseEntity<Resource> result = bookService.downloadBook(1L);
+        ResponseEntity<StreamingResponseBody> result = bookService.downloadBook(1L);
 
         assertEquals(response, result);
     }

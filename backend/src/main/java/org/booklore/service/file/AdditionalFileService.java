@@ -8,17 +8,15 @@ import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -96,7 +94,7 @@ public class AdditionalFileService {
         }
     }
 
-    public ResponseEntity<Resource> downloadAdditionalFile(Long bookId, Long fileId) throws IOException {
+    public ResponseEntity<StreamingResponseBody> downloadAdditionalFile(Long bookId, Long fileId) throws IOException {
         Optional<BookFileEntity> fileOpt = additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
         if (fileOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -115,7 +113,11 @@ public class AdditionalFileService {
             return downloadFolderAsZip(file, filePath);
         }
 
-        Resource resource = new UrlResource(filePath.toUri());
+        StreamingResponseBody body = outputStream -> {
+            try (InputStream in = Files.newInputStream(filePath)) {
+                in.transferTo(outputStream);
+            }
+        };
 
         String encodedFilename = URLEncoder.encode(file.getFileName(), StandardCharsets.UTF_8).replace("+", "%20");
         String fallbackFilename = NON_ASCII.matcher(file.getFileName()).replaceAll("_");
@@ -124,29 +126,24 @@ public class AdditionalFileService {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .body(resource);
+                .body(body);
     }
 
-    private ResponseEntity<Resource> downloadFolderAsZip(BookFileEntity file, Path folderPath) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-            // Get all files in the folder, sorted by name
-            try (var files = Files.list(folderPath)) {
+    private ResponseEntity<StreamingResponseBody> downloadFolderAsZip(BookFileEntity file, Path folderPath) {
+        StreamingResponseBody body = outputStream -> {
+            try (ZipOutputStream zos = new ZipOutputStream(outputStream);
+                 var files = Files.list(folderPath)) {
+                // Get all files in the folder, sorted by name
                 for (Path audioFile : files
                         .filter(Files::isRegularFile)
                         .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                         .toList()) {
-                    ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
-                    zos.putNextEntry(entry);
+                    zos.putNextEntry(new ZipEntry(audioFile.getFileName().toString()));
                     Files.copy(audioFile, zos);
                     zos.closeEntry();
                 }
             }
-        }
-
-        byte[] zipBytes = baos.toByteArray();
-        Resource resource = new ByteArrayResource(zipBytes);
+        };
 
         String zipFileName = file.getFileName() + ".zip";
         String encodedFilename = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8).replace("+", "%20");
@@ -157,8 +154,7 @@ public class AdditionalFileService {
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("application/zip"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
-                .body(resource);
+                .body(body);
     }
 
     private void validateAdditionalFile(BookFileEntity file, BookEntity book) {
