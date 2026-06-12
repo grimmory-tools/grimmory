@@ -85,10 +85,6 @@ export class HardcoverSettingsComponent {
     this.hardcoverImport();
   }
 
-  triggerHardcoverImport() {
-    this.hardcoverImport();
-  }
-
   onHardcoverSyncToggle(enabled: boolean) {
     this.hardcoverSyncEnabled.set(enabled);
     const message = enabled
@@ -111,24 +107,6 @@ export class HardcoverSettingsComponent {
           severity: 'error',
           summary: this.t.translate('settingsDevice.hardcover.importFailed'),
           detail: this.t.translate('settingsDevice.hardcover.importError')
-        });
-      }
-    })
-  }
-
-  private hardcoverImport() {
-    this.hardcoverSyncSettingsService.startImport({
-      hardcoverSyncEnabled: this.hardcoverSyncEnabled,
-      hardcoverApiKey: this.hardcoverApiKey
-    }).subscribe({
-      next: () => {
-        this.messageService.add({severity: 'success', summary: "noice"});
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: "niet goed",
-          detail: "niet goed"
         });
       }
     })
