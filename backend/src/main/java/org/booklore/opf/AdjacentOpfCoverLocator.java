@@ -3,11 +3,9 @@ package org.booklore.opf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
-import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,8 +46,9 @@ public class AdjacentOpfCoverLocator {
     }
 
     private Optional<Path> findManifestCover(Path opfPath, Path folder) {
-        try (InputStream input = Files.newInputStream(opfPath)) {
-            Element root = SecureXmlUtils.createSecureDocumentBuilder(true).parse(input).getDocumentElement();
+        try {
+            String xml = Files.readString(opfPath, StandardCharsets.UTF_8);
+            Element root = OpfXmlParser.parse(xml).getDocumentElement();
             if (root == null) {
                 return Optional.empty();
             }

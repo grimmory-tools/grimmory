@@ -81,6 +81,26 @@ class AdjacentOpfCoverLocatorTest {
         assertThat(locator.find(opf, libraryFile(folder, "demo.epub"))).contains(cover);
     }
 
+    @Test
+    void readsManifestCoverWhenRdfNamespaceIsMissing() throws Exception {
+        Path folder = Files.createDirectories(tempDir.resolve("books"));
+        Path opf = folder.resolve("demo.opf");
+        Path cover = Files.createFile(folder.resolve("front.jpg"));
+        Files.writeString(opf, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/">
+                  <rdf:Description>
+                    <meta name="cover" content="front"/>
+                    <manifest>
+                      <item id="front" href="front.jpg" media-type="image/jpeg" properties="cover-image"/>
+                    </manifest>
+                  </rdf:Description>
+                </rdf:RDF>
+                """);
+
+        assertThat(locator.find(opf, libraryFile(folder, "demo.epub"))).contains(cover);
+    }
+
     private LibraryFile libraryFile(Path folder, String fileName) {
         var libraryPath = new LibraryPathEntity();
         libraryPath.setPath(tempDir.toString());
