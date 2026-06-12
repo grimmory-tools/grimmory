@@ -190,6 +190,9 @@ export interface BookMetadata {
   audibleId?: string;
   audibleRating?: number | null;
   audibleReviewCount?: number | null;
+  itunesId?: string;
+  itunesRating?: number | null;
+  itunesReviewCount?: number | null;
   narrator?: string;
   abridged?: boolean | null;
   narratorLocked?: boolean;
@@ -287,6 +290,9 @@ export interface MetadataClearFlags {
   audibleId?: boolean;
   audibleRating?: boolean;
   audibleReviewCount?: boolean;
+  itunesId?: boolean;
+  itunesRating?: boolean;
+  itunesReviewCount?: boolean;
   narrator?: boolean;
   abridged?: boolean;
   authors?: boolean;

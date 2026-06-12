@@ -135,6 +135,15 @@ public class BookMetadataEntity {
     @Column(name = "audible_review_count")
     private Integer audibleReviewCount;
 
+    @Column(name = "itunes_id", length = 100)
+    private String itunesId;
+
+    @Column(name = "itunes_rating")
+    private Double itunesRating;
+
+    @Column(name = "itunes_review_count")
+    private Integer itunesReviewCount;
+
     @Column(name = "title_locked")
     @Builder.Default
     private Boolean titleLocked = Boolean.FALSE;
@@ -283,6 +292,18 @@ public class BookMetadataEntity {
     @Builder.Default
     private Boolean audibleReviewCountLocked = Boolean.FALSE;
 
+    @Column(name = "itunes_id_locked")
+    @Builder.Default
+    private Boolean itunesIdLocked = Boolean.FALSE;
+
+    @Column(name = "itunes_rating_locked")
+    @Builder.Default
+    private Boolean itunesRatingLocked = Boolean.FALSE;
+
+    @Column(name = "itunes_review_count_locked")
+    @Builder.Default
+    private Boolean itunesReviewCountLocked = Boolean.FALSE;
+
     @Column(name = "narrator", length = 500)
     private String narrator;
 
@@ -352,6 +373,7 @@ public class BookMetadataEntity {
         this.lubimyczytacId = trimOrNull(this.lubimyczytacId);
         this.ranobedbId = trimOrNull(this.ranobedbId);
         this.audibleId = trimOrNull(this.audibleId);
+        this.itunesId = trimOrNull(this.itunesId);
         this.contentRating = trimOrNull(this.contentRating);
         this.narrator = trimOrNull(this.narrator);
     }
@@ -455,6 +477,9 @@ public class BookMetadataEntity {
         this.audibleIdLocked = lock;
         this.audibleRatingLocked = lock;
         this.audibleReviewCountLocked = lock;
+        this.itunesIdLocked = lock;
+        this.itunesRatingLocked = lock;
+        this.itunesReviewCountLocked = lock;
         this.reviewsLocked = lock;
         this.narratorLocked = lock;
         this.abridgedLocked = lock;
@@ -503,6 +528,9 @@ public class BookMetadataEntity {
                 && Boolean.TRUE.equals(this.audibleIdLocked)
                 && Boolean.TRUE.equals(this.audibleRatingLocked)
                 && Boolean.TRUE.equals(this.audibleReviewCountLocked)
+                && Boolean.TRUE.equals(this.itunesIdLocked)
+                && Boolean.TRUE.equals(this.itunesRatingLocked)
+                && Boolean.TRUE.equals(this.itunesReviewCountLocked)
                 && Boolean.TRUE.equals(this.reviewsLocked)
                 && Boolean.TRUE.equals(this.narratorLocked)
                 && Boolean.TRUE.equals(this.abridgedLocked)

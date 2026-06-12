@@ -15,12 +15,19 @@ public class MetadataProviderSettings {
     @JsonProperty("lubimyczytac")
     private Lubimyczytac lubimyczytac;
     private Audible audible;
+    private Itunes itunes;
 
     @Data
     public static class Amazon {
         private boolean enabled;
         private String cookie;
         private String domain;
+    }
+
+    @Data
+    public static class Itunes {
+        private boolean enabled;
+        private String country;
     }
 
     @Data

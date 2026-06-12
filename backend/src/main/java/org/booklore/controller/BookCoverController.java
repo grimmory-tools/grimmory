@@ -1,11 +1,13 @@
 package org.booklore.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.BulkBookIdsRequest;
 import org.booklore.model.dto.request.CoverFetchRequest;
 import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
+import org.booklore.service.metadata.ItunesCoverService;
 import org.booklore.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +26,9 @@ import reactor.core.scheduler.Schedulers;
 import java.util.Map;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/books")
 @AllArgsConstructor
@@ -33,6 +37,7 @@ public class BookCoverController {
 
     private final BookCoverService bookCoverService;
     private final DuckDuckGoCoverService duckDuckGoCoverService;
+    private final ItunesCoverService itunesCoverService;
 
     @Operation(summary = "Upload cover image from file", description = "Upload a cover image for a book from a file. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "200", description = "Cover image uploaded successfully")
@@ -156,11 +161,26 @@ public class BookCoverController {
     public Flux<ServerSentEvent<CoverImage>> getImages(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Cover fetch request") @RequestBody CoverFetchRequest request) {
-        return duckDuckGoCoverService.getCovers(request)
+        // TODO: replace this for virtual threads. Flux fine for now.
+        Flux<CoverImage> itunesCovers = itunesCoverService.getCovers(request)
+                .onErrorResume(e -> {
+                    log.error("iTunes cover fetch failed", e);
+                    return Flux.empty();
+                });
+
+        Flux<CoverImage> ddgCovers = duckDuckGoCoverService.getCovers(request)
+                .onErrorResume(e -> {
+                    log.error("DuckDuckGo cover fetch failed", e);
+                    return Flux.empty();
+                });
+
+        AtomicInteger index = new AtomicInteger(1);
+        return Flux.concat(itunesCovers, ddgCovers)
+                .map(image -> new CoverImage(image.getUrl(), image.getWidth(), image.getHeight(), index.getAndIncrement()))
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(image -> ServerSentEvent.<CoverImage>builder()
                         .data(image)
                         .build())
-                .onErrorMap(e -> ApiError.INTERNAL_SERVER_ERROR.createException("DuckDuckGo cover fetch failed"));
+                .onErrorMap(e -> ApiError.INTERNAL_SERVER_ERROR.createException("Cover fetch failed"));
     }
 }

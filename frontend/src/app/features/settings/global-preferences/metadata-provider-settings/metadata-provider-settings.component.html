@@ -145,6 +145,26 @@
                 </div>
               }
             </div>
+
+            <div class="setting-item">
+              <div class="setting-header">
+                <p-toggleswitch [(ngModel)]="itunesEnabled"></p-toggleswitch>
+                <span class="setting-label">iTunes</span>
+              </div>
+              @if (itunesEnabled) {
+                <div class="setting-options">
+                  <div class="config-field">
+                    <span class="config-label">{{ t('storefront') }}</span>
+                    <p-select
+                      [options]="itunesCountries"
+                      [(ngModel)]="selectedItunesCountry"
+                      [placeholder]="t('selectStorefront')"
+                      class="config-select">
+                    </p-select>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </div>
 

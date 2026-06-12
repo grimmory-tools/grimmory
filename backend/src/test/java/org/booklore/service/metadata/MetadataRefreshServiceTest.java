@@ -822,11 +822,11 @@ class MetadataRefreshServiceTest {
         }
 
         @Test
-        void audible_defaultCase_returnsTrue() {
+        void audible_defaultCase_returnsFalse() {
             MetadataProviderSettings ps = new MetadataProviderSettings();
             AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
 
-            assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isTrue();
+            assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isFalse();
         }
     }
 
