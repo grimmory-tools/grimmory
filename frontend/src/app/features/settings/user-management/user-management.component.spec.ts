@@ -49,9 +49,7 @@ function setupUserManagementTest(env: UserManagementTestEnv): void {
       {
         provide: DialogLauncherService,
         useValue: {
-          openLibraryCreateDialog: vi.fn(() => Promise.resolve(null)),
-          openMagicShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
-          openFileUploadDialog: vi.fn(() => Promise.resolve(null)),
+          openCreateUserDialog: vi.fn(() => Promise.resolve(null)),
         },
       },
       {provide: AppSettingsService, useValue: {appSettings: () => env.appSettingsState()}},
