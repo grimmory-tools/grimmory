@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { type FieldState, type ValidationError } from '@angular/forms/signals';
@@ -102,6 +103,7 @@ export class AppMessageComponent {
   readonly styleClass = input('');
 
   private readonly transloco = inject(TranslocoService);
+  private readonly document = inject(DOCUMENT);
   private readonly activeLang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
   private readonly summaryIssueIndex = signal(0);
 
@@ -167,13 +169,13 @@ export class AppMessageComponent {
 
   private focusAndReveal(issue: ValidationError.WithFieldTree): void {
     issue.fieldTree().focusBoundControl();
-    const field = (document.activeElement as HTMLElement | null)?.closest('app-field');
-    if (!(field instanceof HTMLElement)) return;
+    const field = (this.document.activeElement as HTMLElement | null)?.closest<HTMLElement>('app-field') ?? null;
+    if (!field) return;
 
-    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    field.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     const highlightColor = 'color-mix(in srgb, var(--color-danger) 12%, transparent)';
     const highlightShadow = `0 0 0 6px ${highlightColor}`;
-    field.animate(
+    field.animate?.(
       [
         { borderRadius: '0.25rem', backgroundColor: highlightColor, boxShadow: highlightShadow },
         {
