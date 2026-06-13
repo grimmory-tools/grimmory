@@ -231,12 +231,13 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
               AND (b.deleted IS NULL OR b.deleted = false)
               AND bf.isBookFormat = true
               AND bf.bookType <> org.booklore.model.enums.BookFileType.AUDIOBOOK
-              AND b.library.id IN :libraryIds
+              AND (:allLibraries = true OR b.library.id IN :libraryIds)
               AND ubp.lastReadTime IS NOT NULL
             ORDER BY ubp.lastReadTime DESC
             """)
     List<Long> findTopContinueReadingBookIds(
             @Param("userId") Long userId,
+            @Param("allLibraries") boolean allLibraries,
             @Param("libraryIds") Collection<Long> libraryIds,
             Pageable pageable);
 
@@ -252,12 +253,13 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
               AND (b.deleted IS NULL OR b.deleted = false)
               AND bf.isBookFormat = true
               AND bf.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-              AND b.library.id IN :libraryIds
+              AND (:allLibraries = true OR b.library.id IN :libraryIds)
               AND ubp.lastReadTime IS NOT NULL
             ORDER BY ubp.lastReadTime DESC
             """)
     List<Long> findTopContinueListeningBookIds(
             @Param("userId") Long userId,
+            @Param("allLibraries") boolean allLibraries,
             @Param("libraryIds") Collection<Long> libraryIds,
             Pageable pageable);
 }

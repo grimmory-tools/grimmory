@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.Pageable;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
@@ -26,6 +27,7 @@ import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.book.BookService;
 import org.booklore.service.opds.MagicShelfBookService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -151,6 +153,45 @@ class AppBookServiceProgressTest {
 
         assertThrows(APIException.class, () -> service.updateBookProgress(bookId, request));
         verify(bookService, never()).updateReadProgress(any());
+    }
+
+    @Test
+    void getContinueReading_adminQueriesAllLibraries() {
+        mockAdminUser();
+        when(userBookProgressRepository.findTopContinueReadingBookIds(
+                eq(userId), eq(true), eq(Collections.emptySet()), any(Pageable.class)))
+                .thenReturn(List.of());
+
+        assertTrue(service.getContinueReading(10).isEmpty());
+
+        verify(userBookProgressRepository).findTopContinueReadingBookIds(
+                eq(userId), eq(true), eq(Collections.emptySet()), any(Pageable.class));
+    }
+
+    @Test
+    void getContinueReading_nonAdminQueriesAssignedLibraries() {
+        mockNonAdminUser(Set.of(libraryId));
+        when(userBookProgressRepository.findTopContinueReadingBookIds(
+                eq(userId), eq(false), eq(Set.of(libraryId)), any(Pageable.class)))
+                .thenReturn(List.of());
+
+        assertTrue(service.getContinueReading(10).isEmpty());
+
+        verify(userBookProgressRepository).findTopContinueReadingBookIds(
+                eq(userId), eq(false), eq(Set.of(libraryId)), any(Pageable.class));
+    }
+
+    @Test
+    void getContinueListening_adminQueriesAllLibraries() {
+        mockAdminUser();
+        when(userBookProgressRepository.findTopContinueListeningBookIds(
+                eq(userId), eq(true), eq(Collections.emptySet()), any(Pageable.class)))
+                .thenReturn(List.of());
+
+        assertTrue(service.getContinueListening(10).isEmpty());
+
+        verify(userBookProgressRepository).findTopContinueListeningBookIds(
+                eq(userId), eq(true), eq(Collections.emptySet()), any(Pageable.class));
     }
 
     // -------------------------------------------------------------------------

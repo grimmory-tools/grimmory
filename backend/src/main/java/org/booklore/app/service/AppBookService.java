@@ -265,7 +265,10 @@ public class AppBookService {
         int maxItems = validateLimit(limit, 10);
 
         List<Long> topIds = userBookProgressRepository.findTopContinueReadingBookIds(
-                userId, accessibleLibraryIds, PageRequest.of(0, maxItems));
+                userId,
+                accessibleLibraryIds == null,
+                accessibleLibraryIds != null ? accessibleLibraryIds : Collections.emptySet(),
+                PageRequest.of(0, maxItems));
 
         if (topIds.isEmpty()) return Collections.emptyList();
 
@@ -288,7 +291,10 @@ public class AppBookService {
         int maxItems = validateLimit(limit, 10);
 
         List<Long> topIds = userBookProgressRepository.findTopContinueListeningBookIds(
-                userId, accessibleLibraryIds, PageRequest.of(0, maxItems));
+                userId,
+                accessibleLibraryIds == null,
+                accessibleLibraryIds != null ? accessibleLibraryIds : Collections.emptySet(),
+                PageRequest.of(0, maxItems));
 
         if (topIds.isEmpty()) return Collections.emptyList();
 
