@@ -71,12 +71,19 @@ public class UserService {
             auditService.log(AuditAction.PERMISSIONS_CHANGED, "User", id, "Changed permissions for user: " + user.getUsername());
         }
 
-        if (updateRequest.getAssignedLibraries() != null && getMyself().getPermissions().isAdmin()) {
-            List<Long> libraryIds = updateRequest.getAssignedLibraries();
-            Set<LibraryEntity> updatedLibraries = new HashSet<>(libraryRepository.findAllById(libraryIds));
-            user.setLibraries(updatedLibraries);
+        if (updateRequest.getAssignedLibraries() == null || (updateRequest.getAssignedLibraries().isEmpty() && updateRequest.getPermissions() != null && !updateRequest.getPermissions().isAdmin() )) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
         }
 
+        List<Long> libraryIds = updateRequest.getAssignedLibraries();
+        Set<LibraryEntity> updatedLibraries = new HashSet<>(libraryRepository.findAllById(libraryIds));
+
+        if(updateRequest.getPermissions() != null && !updateRequest.getPermissions().isAdmin() && updatedLibraries.isEmpty()){
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
+        }
+
+        user.setLibraries(updatedLibraries);                  
+        
         userRepository.save(user);
         auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user: " + user.getUsername());
         return bookLoreUserTransformer.toDTO(user);

@@ -624,6 +624,19 @@
   ::ng-deep .p-password {
     width: 100%;
   }
+  
+  .field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.3281rem;
+    color: #ef4444;
+    font-size: var(--app-text-sm);
+    margin-top: -0.2188rem;
+
+    i {
+      font-size: var(--app-text-sm);
+    }
+  }
 
   ::ng-deep .p-inputtext,
   ::ng-deep .p-password-input {
