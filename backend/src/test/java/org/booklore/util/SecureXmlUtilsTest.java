@@ -12,31 +12,54 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SecureXmlUtilsTest {
 
     @Test
-    void normalizesMissingRdfNamespaceBeforeParsing() throws Exception {
+    void normalizesMissingXmpNamespacesBeforeParsing() throws Exception {
         String xml = """
-                <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <rdf:RDF>
                   <rdf:Description>
                     <dc:title>Recovered title</dc:title>
                   </rdf:Description>
                 </rdf:RDF>
                 """;
 
-        String normalized = SecureXmlUtils.normalizeMissingRdfNamespace(xml);
+        String normalized = SecureXmlUtils.normalizeMissingXmpNamespaces(xml);
         var document = SecureXmlUtils.parseXml(normalized, true);
 
         assertThat(normalized)
-                .contains("xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
+                .contains("xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"")
+                .contains("xmlns:dc=\"http://purl.org/dc/elements/1.1/\"");
         assertThat(document.getElementsByTagNameNS("*", "title").item(0).getTextContent())
                 .isEqualTo("Recovered title");
     }
 
     @Test
-    void leavesDeclaredRdfNamespaceUnchanged() {
+    void normalizesMissingDcNamespaceWhenRdfIsDeclared() throws Exception {
         String xml = """
-                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                  <rdf:Description>
+                    <dc:title>Recovered title</dc:title>
+                  </rdf:Description>
+                </rdf:RDF>
                 """;
 
-        assertThat(SecureXmlUtils.normalizeMissingRdfNamespace(xml)).isEqualTo(xml);
+        String normalized = SecureXmlUtils.normalizeMissingXmpNamespaces(xml);
+        var document = SecureXmlUtils.parseXml(normalized, true);
+
+        assertThat(normalized).contains("xmlns:dc=\"http://purl.org/dc/elements/1.1/\"");
+        assertThat(document.getElementsByTagNameNS("*", "title").item(0).getTextContent())
+                .isEqualTo("Recovered title");
+    }
+
+    @Test
+    void leavesDeclaredXmpNamespacesUnchanged() {
+        String xml = """
+                <rdf:RDF
+                    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                    xmlns:dc="http://purl.org/dc/elements/1.1/">
+                  <dc:title>Title</dc:title>
+                </rdf:RDF>
+                """;
+
+        assertThat(SecureXmlUtils.normalizeMissingXmpNamespaces(xml)).isEqualTo(xml);
     }
 
     @Test
@@ -44,7 +67,7 @@ class SecureXmlUtilsTest {
         String xml = """
                 <x:xmpmeta xmlns:x="adobe:ns:meta/">
                   <rdf:RDF>
-                    <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <rdf:Description>
                       <dc:title>Recovered title</dc:title>
                     </rdf:Description>
                   </rdf:RDF>
@@ -65,7 +88,7 @@ class SecureXmlUtilsTest {
             PrintStream originalError = System.err;
             try (PrintStream capturedError = new PrintStream(parserErrors, true, StandardCharsets.UTF_8)) {
                 System.setErr(capturedError);
-                String normalized = SecureXmlUtils.normalizeMissingRdfNamespace(xml);
+                String normalized = SecureXmlUtils.normalizeMissingXmpNamespaces(xml);
                 return XmpMetadataParser.parse(normalized.getBytes(StandardCharsets.UTF_8));
             } finally {
                 System.setErr(originalError);

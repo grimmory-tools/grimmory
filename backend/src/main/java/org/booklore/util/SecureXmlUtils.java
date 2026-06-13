@@ -24,8 +24,11 @@ public class SecureXmlUtils {
     private static final DocumentBuilderFactory NS_AWARE_FACTORY;
     private static final DocumentBuilderFactory NON_NS_AWARE_FACTORY;
     private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    private static final String DC_NAMESPACE = "http://purl.org/dc/elements/1.1/";
     private static final Pattern RDF_ROOT_PATTERN = Pattern.compile("<rdf:RDF\\b([^>]*)>");
     private static final Pattern RDF_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:rdf\\s*=");
+    private static final Pattern DC_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:dc\\s*=");
+    private static final Pattern DC_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?dc:|\\sdc:)");
 
     static {
         try {
@@ -62,25 +65,33 @@ public class SecureXmlUtils {
     }
 
     public static Document parseXml(String xml, boolean namespaceAware) throws Exception {
-        try {
-            return parseStrict(xml, namespaceAware);
-        } catch (SAXParseException e) {
-            if (!namespaceAware || !isMissingRdfNamespace(e, xml)) {
-                throw e;
-            }
-            return parseStrict(normalizeMissingRdfNamespace(xml), true);
-        }
+        String normalizedXml = namespaceAware ? normalizeMissingXmpNamespaces(xml) : xml;
+        return parseStrict(normalizedXml, namespaceAware);
     }
 
-    public static String normalizeMissingRdfNamespace(String xml) {
+    public static String normalizeMissingXmpNamespaces(String xml) {
         if (xml == null) {
             return xml;
         }
         Matcher rootMatcher = RDF_ROOT_PATTERN.matcher(xml);
-        if (!rootMatcher.find() || RDF_NAMESPACE_PATTERN.matcher(rootMatcher.group(1)).find()) {
+        if (!rootMatcher.find()) {
             return xml;
         }
-        String normalizedRoot = "<rdf:RDF xmlns:rdf=\"" + RDF_NAMESPACE + "\"" + rootMatcher.group(1) + ">";
+
+        String rootAttributes = rootMatcher.group(1);
+        StringBuilder missingNamespaces = new StringBuilder();
+        if (!RDF_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
+            missingNamespaces.append(" xmlns:rdf=\"").append(RDF_NAMESPACE).append('"');
+        }
+        if (DC_PREFIX_USAGE_PATTERN.matcher(xml).find()
+                && !DC_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
+            missingNamespaces.append(" xmlns:dc=\"").append(DC_NAMESPACE).append('"');
+        }
+        if (missingNamespaces.isEmpty()) {
+            return xml;
+        }
+
+        String normalizedRoot = "<rdf:RDF" + missingNamespaces + rootAttributes + ">";
         return rootMatcher.replaceFirst(Matcher.quoteReplacement(normalizedRoot));
     }
 
@@ -88,12 +99,6 @@ public class SecureXmlUtils {
         var builder = createSecureDocumentBuilder(namespaceAware);
         builder.setErrorHandler(new SilentErrorHandler());
         return builder.parse(new InputSource(new StringReader(xml)));
-    }
-
-    private static boolean isMissingRdfNamespace(SAXParseException error, String xml) {
-        return error.getMessage() != null
-                && error.getMessage().contains("The prefix \"rdf\" for element \"rdf:RDF\" is not bound")
-                && !normalizeMissingRdfNamespace(xml).equals(xml);
     }
 
     private static final class SilentErrorHandler extends DefaultHandler {
