@@ -1,10 +1,10 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
 import {of, type Observable} from 'rxjs';
 import {describe, expect, it, vi} from 'vitest';
 
+import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {AppSettings} from '../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
@@ -36,7 +36,7 @@ interface UserManagementTestEnv {
 
 function setupUserManagementTest(env: UserManagementTestEnv): void {
   TestBed.configureTestingModule({
-    imports: [UserManagementComponent],
+    imports: [UserManagementComponent, getTranslocoModule()],
     providers: [
       {
         provide: UserService,
@@ -54,7 +54,6 @@ function setupUserManagementTest(env: UserManagementTestEnv): void {
       },
       {provide: AppSettingsService, useValue: {appSettings: () => env.appSettingsState()}},
       {provide: MessageService, useValue: {add: vi.fn()}},
-      {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
     ],
   });
 }
@@ -69,7 +68,7 @@ describe('UserManagementComponent', () => {
 
     const fixture = TestBed.createComponent(UserManagementComponent);
     const component = fixture.componentInstance;
-    component.ngOnInit();
+    fixture.detectChanges();
 
     expect(getUsers).toHaveBeenCalledOnce();
     expect(component.users()).toHaveLength(1);
