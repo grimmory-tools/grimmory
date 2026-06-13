@@ -167,7 +167,7 @@ describe('AuthenticationSettingsComponent', () => {
     expect(component.availablePermissions.find(p => p.value === 'permissionDeleteBook')?.selected).toBe(false);
     expect(component.editingLibraryIds).toEqual([1, 2]);
     expect(component.sessionDurationHours).toBe(12);
-    expect(component.groupSyncMode).toBe('ON_LOGIN');
+    expect(component.groupSyncMode()).toBe('ON_LOGIN');
     expect(component.oidcForceOnlyMode).toBe(true);
     expect(component.oidcProvider.providerName).toBe('Example IdP');
     expect(component.oidcProvider.claimMapping).toEqual({
@@ -177,7 +177,7 @@ describe('AuthenticationSettingsComponent', () => {
       groups: 'memberOf',
     });
     expect(component.mobileRedirectUris).toEqual(['grimmory://oauth2-callback']);
-    expect(component.groupMappings).toEqual(mappings);
+    expect(component.groupMappings()).toEqual(mappings);
     expect(groupMappingService.getAll).toHaveBeenCalledOnce();
   });
 
@@ -191,31 +191,23 @@ describe('AuthenticationSettingsComponent', () => {
   });
 
   it('opens a new group mapping dialog with blank state', () => {
-    component.editingGroupMapping = {
+    component.groupMappingDraft.set({
       oidcGroupClaim: 'existing',
       isAdmin: true,
       permissions: ['permissionUpload'],
       libraryIds: [1],
       description: 'Existing',
-    };
-    component.editingGroupMappingPerms = component.availablePermissions.map(permission => ({
-      ...permission,
-      selected: true,
-    }));
-    component.editingGroupMappingLibraryIds = [1];
+    });
 
     component.openNewGroupMapping();
 
-    expect(component.showGroupMappingDialog).toBe(true);
-    expect(component.editingGroupMapping).toEqual({
+    expect(component.groupMappingDraft()).toEqual({
       oidcGroupClaim: '',
       isAdmin: false,
       permissions: [],
       libraryIds: [],
       description: '',
     });
-    expect(component.editingGroupMappingPerms.every(permission => !permission.selected)).toBe(true);
-    expect(component.editingGroupMappingLibraryIds).toEqual([]);
   });
 
   it('opens an existing group mapping dialog with cloned state and selected permissions', () => {
@@ -230,12 +222,11 @@ describe('AuthenticationSettingsComponent', () => {
 
     component.openEditGroupMapping(mapping);
 
-    expect(component.showGroupMappingDialog).toBe(true);
-    expect(component.editingGroupMapping).toEqual(mapping);
-    expect(component.editingGroupMapping).not.toBe(mapping);
-    expect(component.editingGroupMappingPerms.find(permission => permission.value === 'permissionUpload')?.selected).toBe(true);
-    expect(component.editingGroupMappingPerms.find(permission => permission.value === 'permissionDeleteBook')?.selected).toBe(false);
-    expect(component.editingGroupMappingLibraryIds).toEqual([1, 2]);
+    const draft = component.groupMappingDraft();
+    expect(draft).toEqual({...mapping, permissions: ['permissionUpload']});
+    expect(draft).not.toBe(mapping);
+    expect(draft?.permissions).not.toBe(mapping.permissions);
+    expect(draft?.libraryIds).not.toBe(mapping.libraryIds);
   });
 
   it('toggles OIDC enablement and reports persistence failures', () => {
@@ -371,7 +362,7 @@ describe('AuthenticationSettingsComponent', () => {
 
   it('saves the group sync mode and reports failures', () => {
     appSettingsService.saveSettings.mockReturnValueOnce(of(void 0));
-    component.groupSyncMode = 'ON_LOGIN_ADDITIVE';
+    component.groupSyncMode.set('ON_LOGIN_ADDITIVE');
 
     component.saveGroupSyncMode();
 
@@ -428,12 +419,13 @@ describe('AuthenticationSettingsComponent', () => {
     groupMappingService.update.mockReturnValue(of(createdMapping));
     groupMappingService.delete.mockReturnValue(of(void 0));
     groupMappingService.getAll.mockReturnValue(of([createdMapping]));
-    component.editingGroupMapping = {oidcGroupClaim: 'readers', isAdmin: false, permissions: [], libraryIds: [], description: ''};
-    component.editingGroupMappingPerms = component.availablePermissions.map(permission => ({
-      ...permission,
-      selected: permission.value === 'permissionUpload',
-    }));
-    component.editingGroupMappingLibraryIds = [1];
+    component.groupMappingDraft.set({
+      oidcGroupClaim: 'readers',
+      isAdmin: false,
+      permissions: ['permissionUpload'],
+      libraryIds: [1],
+      description: '',
+    });
 
     component.saveGroupMapping();
 
@@ -445,12 +437,7 @@ describe('AuthenticationSettingsComponent', () => {
       description: '',
     });
 
-    component.editingGroupMapping = createdMapping;
-    component.editingGroupMappingPerms = component.availablePermissions.map(permission => ({
-      ...permission,
-      selected: false,
-    }));
-    component.editingGroupMappingLibraryIds = [2];
+    component.groupMappingDraft.set({...createdMapping, permissions: [], libraryIds: [2]});
     component.saveGroupMapping();
 
     expect(groupMappingService.update).toHaveBeenCalledWith(9, {
