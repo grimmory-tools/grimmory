@@ -12,6 +12,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserContentRestrictionRepository;
 import org.booklore.security.policy.ContentRestrictionSpecification;
 import org.booklore.service.restriction.ContentRestrictionService;
+import org.booklore.util.BookUtils;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -154,9 +155,7 @@ public class BookQueryService {
         }
 
         if (dto.getShelves() != null && userId != null) {
-            dto.setShelves(dto.getShelves().stream()
-                    .filter(shelf -> userId.equals(shelf.getUserId()))
-                    .collect(Collectors.toSet()));
+            dto.setShelves(BookUtils.filterShelvesByUserId(dto.getShelves(), userId));
         }
 
         if (stripForListView) {
