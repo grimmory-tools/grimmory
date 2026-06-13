@@ -50,6 +50,44 @@ class SecureXmlUtilsTest {
     }
 
     @Test
+    void normalizesMissingXmpNamespace() throws Exception {
+        String xml = """
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/">
+                  <rdf:Description>
+                    <xmp:CreatorTool>Adobe Acrobat</xmp:CreatorTool>
+                    <dc:title>Document Title</dc:title>
+                  </rdf:Description>
+                </rdf:RDF>
+                """;
+
+        String normalized = SecureXmlUtils.normalizeMissingXmpNamespaces(xml);
+        var document = SecureXmlUtils.parseXml(normalized, true);
+
+        assertThat(normalized).contains("xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"");
+        assertThat(document.getElementsByTagNameNS("*", "CreatorTool").item(0).getTextContent())
+                .isEqualTo("Adobe Acrobat");
+        assertThat(document.getElementsByTagNameNS("*", "title").item(0).getTextContent())
+                .isEqualTo("Document Title");
+    }
+
+    @Test
+    void normalizesMissingXmpNamespaceWithOnlyXmpUsage() throws Exception {
+        String xml = """
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/">
+                  <rdf:Description>
+                    <xmp:CreatorTool>Adobe Acrobat</xmp:CreatorTool>
+                  </rdf:Description>
+                </rdf:RDF>
+                """;
+
+        String normalized = SecureXmlUtils.normalizeMissingXmpNamespaces(xml);
+
+        assertThat(normalized).contains("xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"");
+    }
+
+    @Test
     void leavesDeclaredXmpNamespacesUnchanged() {
         String xml = """
                 <rdf:RDF
