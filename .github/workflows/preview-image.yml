@@ -17,11 +17,6 @@ on:
         required: false
         default: false
         type: boolean
-      build_arm64:
-        description: 'Also publish linux/arm64; disabled by default for faster previews'
-        required: false
-        default: false
-        type: boolean
 
 env:
   ghcr_image: ghcr.io/${{ github.repository_owner }}/grimmory
@@ -46,7 +41,6 @@ jobs:
       - name: Generate Preview Metadata
         id: metadata
         env:
-          BUILD_ARM64: ${{ inputs.build_arm64 }}
           PR_NUMBER: ${{ inputs.pr_number }}
         run: |
           set -eu
@@ -62,18 +56,13 @@ jobs:
 
           short_sha="$(git rev-parse --short=7 HEAD)"
           preview_tag="preview-${short_sha}"
-          platforms="linux/amd64"
-
-          if [ "$BUILD_ARM64" = "true" ]; then
-            platforms="linux/amd64,linux/arm64"
-          fi
 
           echo "preview_tag=${preview_tag}" >> "$GITHUB_ENV"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "image_ref=${{ env.ghcr_image }}:${preview_tag}" >> "$GITHUB_ENV"
 
           {
-            echo "platforms=${platforms}"
+            echo "platforms=linux/amd64,linux/arm64"
             echo "image_tags<<EOF"
             echo "${{ env.ghcr_image }}:preview"
             echo "${{ env.ghcr_image }}:${preview_tag}"
@@ -84,7 +73,6 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Set Up QEMU for Multi-Arch Builds
-        if: ${{ inputs.build_arm64 }}
         uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
         with:
           cache-image: false
@@ -149,8 +137,6 @@ jobs:
             echo '```text'
             echo "$IMAGE_TAGS"
             echo '```'
-            echo
-            echo "Preview defaults to \`linux/amd64\`; enable \`build_arm64\` for a multi-arch image."
             echo
             echo "### Docker Compose"
             echo '```yaml'
