@@ -87,13 +87,6 @@ function createInitialModel(): EverythingFormModel {
     AppMessageComponent,
     AppTagComponent,
   ],
-  providers: [
-    {
-      provide: APP_FIELD_ERROR_REVEAL,
-      useFactory: (form: EverythingFormExampleComponent) => form.submitAttempted,
-      deps: [forwardRef(() => EverythingFormExampleComponent)],
-    },
-  ],
   templateUrl: './everything-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
