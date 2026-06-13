@@ -698,7 +698,7 @@ class GrimmlinkServicesBehaviorTest {
     }
 
     @Test
-    void updateProgress_reflowableUsesPageRatioOnlyWhenPercentageIsMissing() {
+    void updateProgress_reflowablePrefersPageRatioOverReportedPercentage() {
         library.setFormatPriority(List.of(BookFileType.EPUB));
         bookFile.setBookType(BookFileType.EPUB);
         when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
@@ -709,6 +709,7 @@ class GrimmlinkServicesBehaviorTest {
         progressService.updateProgress(KoreaderProgress.builder()
                 .document("hash-123")
                 .progress("/body/DocFragment[3]/body/p[35]/text().0")
+                .percentage(33.0f)
                 .currentPage(10)
                 .totalPages(10000)
                 .build());
@@ -784,6 +785,31 @@ class GrimmlinkServicesBehaviorTest {
                 .build());
 
         assertEquals(ReadStatus.UNREAD, existing.getReadStatus());
+    }
+
+    @Test
+    void updateProgress_reflowableRestoresReadingWhenResetLeftStatusBlank() {
+        library.setFormatPriority(List.of(BookFileType.EPUB));
+        bookFile.setBookType(BookFileType.EPUB);
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(10L);
+        existing.setReadStatus(null);
+        existing.setReadStatusModifiedTime(Instant.parse("2026-06-10T12:00:00Z"));
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+
+        progressService.updateProgress(KoreaderProgress.builder()
+                .document("hash-123")
+                .progress("/body/DocFragment[8]/body/p[29]/text().0")
+                .percentage(33.0f)
+                .currentPage(55)
+                .totalPages(16653)
+                .build());
+
+        assertEquals(ReadStatus.READING, existing.getReadStatus());
+        assertEquals(55.0f / 16653.0f, existing.getKoreaderProgressPercent(), 0.000001f);
     }
 
     @Test
@@ -951,11 +977,11 @@ class GrimmlinkServicesBehaviorTest {
     }
 
     @Test
-    void resolveReflowableDisplayPercent_doesNotParseNativeProgressAsRatio() {
+    void resolveReflowableDisplayPercent_prefersPagesAndDoesNotParseNativeProgressAsRatio() {
         assertNull(GrimmlinkProgressService.resolveReflowableDisplayPercent(
                 KoreaderProgress.builder().progress("0.10").build()));
         assertEquals(
-                Float.valueOf(20.4f),
+                Float.valueOf(0.1f),
                 GrimmlinkProgressService.resolveReflowableDisplayPercent(
                         KoreaderProgress.builder()
                                 .percentage(20.4f)

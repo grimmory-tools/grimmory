@@ -193,10 +193,10 @@ public class GrimmlinkProgressService {
     }
 
     static Float resolveReflowableDisplayPercent(KoreaderProgress request) {
-        Float percentage = clampPercent(request.getPercentage());
-        return percentage != null
-                ? percentage
-                : calculatePageRatio(request.getCurrentPage(), request.getTotalPages());
+        Float pageRatio = calculatePageRatio(request.getCurrentPage(), request.getTotalPages());
+        return pageRatio != null
+                ? pageRatio
+                : clampPercent(request.getPercentage());
     }
 
     static Float resolvePercent(KoreaderProgress request) {
@@ -256,12 +256,15 @@ public class GrimmlinkProgressService {
     }
 
     private void updateReflowableReadStatus(UserBookProgressEntity progress) {
+        ReadStatus currentStatus = progress.getReadStatus();
+        if (currentStatus == null) {
+            progress.setReadStatus(ReadStatus.READING);
+            return;
+        }
         if (progress.getReadStatusModifiedTime() != null) {
             return;
         }
-        ReadStatus currentStatus = progress.getReadStatus();
-        if (currentStatus == null
-                || currentStatus == ReadStatus.UNSET
+        if (currentStatus == ReadStatus.UNSET
                 || currentStatus == ReadStatus.UNREAD) {
             progress.setReadStatus(ReadStatus.READING);
         }
