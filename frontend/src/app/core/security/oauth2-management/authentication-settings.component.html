@@ -537,7 +537,8 @@
             <label for="groupSyncMode">{{ t('groupMapping.syncModeLabel') }}</label>
             <p-select
               inputId="groupSyncMode"
-              [(ngModel)]="groupSyncMode"
+              [ngModel]="groupSyncMode()"
+              (ngModelChange)="groupSyncMode.set($event)"
               [options]="groupSyncModeOptions"
               optionLabel="label"
               optionValue="value"
@@ -557,8 +558,8 @@
           </div>
         </div>
 
-        @if (groupMappings.length > 0) {
-          <p-table [value]="groupMappings" [tableStyle]="{'min-width': '100%'}" styleClass="p-datatable-sm">
+        @if (groupMappings().length > 0) {
+          <p-table [value]="groupMappings()" [tableStyle]="{'min-width': '100%'}" styleClass="p-datatable-sm">
             <ng-template #header>
               <tr>
                 <th>{{ t('groupMapping.colGroupClaim') }}</th>
@@ -602,72 +603,77 @@
     </div>
 
     <p-dialog
-      [header]="editingGroupMapping.id ? t('groupMapping.editTitle') : t('groupMapping.addTitle')"
-      [(visible)]="showGroupMappingDialog"
+      [header]="groupMappingDraft()?.id ? t('groupMapping.editTitle') : t('groupMapping.addTitle')"
+      [visible]="!!groupMappingDraft()"
+      (onHide)="groupMappingDraft.set(null)"
       [modal]="true"
       [style]="{width: '550px', maxWidth: '95vw'}"
       [dismissableMask]="true">
-      <div class="config-grid" style="gap: 0.875rem;">
-        <div class="config-item full-width">
-          <label for="gmGroupClaim">{{ t('groupMapping.groupClaimLabel') }}</label>
-          <input pInputText id="gmGroupClaim" [(ngModel)]="editingGroupMapping.oidcGroupClaim" [placeholder]="t('groupMapping.groupClaimPlaceholder')"/>
-        </div>
-        <div class="config-item full-width">
-          <label for="gmDescription">{{ t('groupMapping.descriptionLabel') }}</label>
-          <input pInputText id="gmDescription" [(ngModel)]="editingGroupMapping.description" [placeholder]="t('groupMapping.descriptionPlaceholder')"/>
-        </div>
-        <div class="config-item full-width">
-          <div class="provisioning-toggle" style="padding: 0;">
-            <div class="toggle-content">
-              <span class="toggle-label">{{ t('groupMapping.adminLabel') }}</span>
-            </div>
-            <p-toggleswitch
-              [(ngModel)]="editingGroupMapping.isAdmin"
-              (onChange)="onAdminCheckboxChange()"
-            />
+      @if (groupMappingDraft(); as draft) {
+        <div class="config-grid" style="gap: 0.875rem;">
+          <div class="config-item full-width">
+            <label for="gmGroupClaim">{{ t('groupMapping.groupClaimLabel') }}</label>
+            <input pInputText id="gmGroupClaim" [ngModel]="draft.oidcGroupClaim" (ngModelChange)="updateGroupMappingDraft({oidcGroupClaim: $event})" [placeholder]="t('groupMapping.groupClaimPlaceholder')"/>
           </div>
-        </div>
-        <div class="config-item full-width">
-          <h4 class="group-title">{{ t('groupMapping.permissionsLabel') }}</h4>
-          <div class="permissions-grid">
-            <div class="permission-item">
-              <p-checkbox [binary]="true" [disabled]="true" [ngModel]="true" inputId="gmPermRead"></p-checkbox>
-              <label for="gmPermRead">{{ t('provisioning.readBooks') }}</label>
-            </div>
-            <ng-container *transloco="let a; prefix: 'settingsUsers'">
-            @for (perm of editingGroupMappingPerms; track perm) {
-              <div class="permission-item">
-                <p-checkbox
-                  [(ngModel)]="perm.selected"
-                  [binary]="true"
-                  [inputId]="'gm_' + perm.value"
-                  [disabled]="editingGroupMapping.isAdmin"
-                />
-                <label [for]="'gm_' + perm.value">{{ a(perm.translationKey) }}</label>
+          <div class="config-item full-width">
+            <label for="gmDescription">{{ t('groupMapping.descriptionLabel') }}</label>
+            <input pInputText id="gmDescription" [ngModel]="draft.description" (ngModelChange)="updateGroupMappingDraft({description: $event})" [placeholder]="t('groupMapping.descriptionPlaceholder')"/>
+          </div>
+          <div class="config-item full-width">
+            <div class="provisioning-toggle" style="padding: 0;">
+              <div class="toggle-content">
+                <span class="toggle-label">{{ t('groupMapping.adminLabel') }}</span>
               </div>
-            }
-            </ng-container>
+              <p-toggleswitch
+                [ngModel]="draft.isAdmin"
+                (ngModelChange)="setGroupMappingAdmin($event)"
+              />
+            </div>
+          </div>
+          <div class="config-item full-width">
+            <h4 class="group-title">{{ t('groupMapping.permissionsLabel') }}</h4>
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <p-checkbox [binary]="true" [disabled]="true" [ngModel]="true" inputId="gmPermRead"></p-checkbox>
+                <label for="gmPermRead">{{ t('provisioning.readBooks') }}</label>
+              </div>
+              <ng-container *transloco="let a; prefix: 'settingsUsers'">
+              @for (perm of availablePermissions; track perm.value) {
+                <div class="permission-item">
+                  <p-checkbox
+                    [ngModel]="draft.permissions.includes(perm.value)"
+                    (ngModelChange)="setGroupMappingPermission(perm.value, $event)"
+                    [binary]="true"
+                    [inputId]="'gm_' + perm.value"
+                    [disabled]="draft.isAdmin"
+                  />
+                  <label [for]="'gm_' + perm.value">{{ a(perm.translationKey) }}</label>
+                </div>
+              }
+              </ng-container>
+            </div>
+          </div>
+          <div class="config-item full-width">
+            <h4 class="group-title">{{ t('groupMapping.librariesLabel') }}</h4>
+            <p-multiSelect
+              [options]="allLibraries"
+              optionLabel="name"
+              optionValue="id"
+              [ngModel]="draft.libraryIds"
+              (ngModelChange)="updateGroupMappingDraft({libraryIds: $event})"
+              [placeholder]="t('provisioning.selectLibraries')"
+              appendTo="body"
+              class="libraries-select">
+            </p-multiSelect>
           </div>
         </div>
-        <div class="config-item full-width">
-          <h4 class="group-title">{{ t('groupMapping.librariesLabel') }}</h4>
-          <p-multiSelect
-            [options]="allLibraries"
-            optionLabel="name"
-            optionValue="id"
-            [(ngModel)]="editingGroupMappingLibraryIds"
-            [placeholder]="t('provisioning.selectLibraries')"
-            appendTo="body"
-            class="libraries-select">
-          </p-multiSelect>
-        </div>
-      </div>
+      }
       <ng-template #footer>
         <p-button
           [label]="'common.save' | transloco"
           icon="pi pi-check"
           (click)="saveGroupMapping()"
-          [disabled]="!editingGroupMapping.oidcGroupClaim">
+          [disabled]="!groupMappingDraft()?.oidcGroupClaim">
         </p-button>
       </ng-template>
     </p-dialog>

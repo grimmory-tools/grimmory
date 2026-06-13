@@ -1,6 +1,6 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, effect, inject} from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {Component, effect, inject, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
@@ -33,7 +33,6 @@ import {Chip} from 'primeng/chip';
     Button,
     MultiSelect,
     InputNumber,
-    ReactiveFormsModule,
     ExternalDocLinkComponent,
     TranslocoDirective,
     TranslocoPipe,
@@ -105,17 +104,14 @@ export class AuthenticationSettingsComponent {
   showTestDetails = false;
 
   // Group mapping
-  groupSyncMode: string = 'DISABLED';
+  readonly groupSyncMode = signal('DISABLED');
   groupSyncModeOptions = [
     {label: 'Disabled', value: 'DISABLED'},
     {label: 'On Login (Replace)', value: 'ON_LOGIN'},
     {label: 'On Login (Additive)', value: 'ON_LOGIN_ADDITIVE'}
   ];
-  groupMappings: OidcGroupMapping[] = [];
-  showGroupMappingDialog = false;
-  editingGroupMapping: OidcGroupMapping = this.emptyGroupMapping();
-  editingGroupMappingPerms: {label: string; value: string; selected: boolean; translationKey: string}[] = [];
-  editingGroupMappingLibraryIds: number[] = [];
+  readonly groupMappings = signal<OidcGroupMapping[]>([]);
+  readonly groupMappingDraft = signal<OidcGroupMapping | null>(null);
 
   oidcProvider: OidcProviderDetails = {
     providerName: '',
@@ -163,7 +159,7 @@ export class AuthenticationSettingsComponent {
     };
 
     this.sessionDurationHours = settings.oidcSessionDurationHours ?? null;
-    this.groupSyncMode = settings.oidcGroupSyncMode ?? 'DISABLED';
+    this.groupSyncMode.set(settings.oidcGroupSyncMode ?? 'DISABLED');
     this.oidcForceOnlyMode = settings.oidcForceOnlyMode ?? false;
     this.mobileRedirectUris = settings.oidcRedirectUris?.length
       ? [...settings.oidcRedirectUris]
@@ -340,14 +336,14 @@ export class AuthenticationSettingsComponent {
 
   // Group mapping methods
   loadGroupMappings(): void {
-    this.groupMappingService.getAll().subscribe(mappings => this.groupMappings = mappings);
+    this.groupMappingService.getAll().subscribe(mappings => this.groupMappings.set(mappings));
   }
 
   saveGroupSyncMode(): void {
     const payload = [
       {
         key: AppSettingKey.OIDC_GROUP_SYNC_MODE,
-        newValue: this.groupSyncMode
+        newValue: this.groupSyncMode()
       }
     ];
     this.appSettingsService.saveSettings(payload).subscribe({
@@ -365,34 +361,48 @@ export class AuthenticationSettingsComponent {
   }
 
   openNewGroupMapping(): void {
-    this.editingGroupMapping = this.emptyGroupMapping();
-    this.initGroupMappingPerms([]);
-    this.editingGroupMappingLibraryIds = [];
-    this.showGroupMappingDialog = true;
+    this.groupMappingDraft.set(this.emptyGroupMapping());
   }
 
   openEditGroupMapping(mapping: OidcGroupMapping): void {
-    this.editingGroupMapping = {...mapping};
-    this.initGroupMappingPerms(mapping.permissions);
-    this.editingGroupMappingLibraryIds = [...mapping.libraryIds];
-    this.showGroupMappingDialog = true;
+    this.groupMappingDraft.set({
+      ...mapping,
+      permissions: mapping.permissions.filter(permission => permission !== 'permissionRead'),
+      libraryIds: [...mapping.libraryIds],
+    });
   }
 
-  private initGroupMappingPerms(selectedPerms: string[]): void {
-    this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
-      ...p,
-      selected: selectedPerms.includes(p.value)
-    }));
+  updateGroupMappingDraft(patch: Partial<OidcGroupMapping>): void {
+    this.groupMappingDraft.update(draft => draft ? {...draft, ...patch} : draft);
+  }
+
+  setGroupMappingAdmin(isAdmin: boolean): void {
+    this.updateGroupMappingDraft(isAdmin
+      ? {isAdmin, permissions: this.availablePermissions.map(p => p.value)}
+      : {isAdmin});
+  }
+
+  setGroupMappingPermission(permission: string, selected: boolean): void {
+    this.groupMappingDraft.update(draft => {
+      if (!draft) return draft;
+
+      const permissions = selected
+        ? [...draft.permissions, permission]
+        : draft.permissions.filter(value => value !== permission);
+      return {...draft, permissions: [...new Set(permissions)]};
+    });
   }
 
   saveGroupMapping(): void {
+    const draft = this.groupMappingDraft();
+    if (!draft) return;
+
     const mapping: OidcGroupMapping = {
-      ...this.editingGroupMapping,
+      ...draft,
       permissions: [
         'permissionRead',
-        ...this.editingGroupMappingPerms.filter(p => p.selected).map(p => p.value)
-      ],
-      libraryIds: this.editingGroupMappingLibraryIds
+        ...draft.permissions
+      ]
     };
 
     const obs = mapping.id
@@ -401,7 +411,7 @@ export class AuthenticationSettingsComponent {
 
     obs.subscribe({
       next: () => {
-        this.showGroupMappingDialog = false;
+        this.groupMappingDraft.set(null);
         this.loadGroupMappings();
         this.messageService.add({
           severity: 'success',
@@ -482,15 +492,6 @@ export class AuthenticationSettingsComponent {
         });
       }
     });
-  }
-
-  onAdminCheckboxChange(): void {
-    if (this.editingGroupMapping.isAdmin) {
-      this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
-        ...p,
-        selected: true,
-      }));
-    }
   }
 
   private emptyGroupMapping(): OidcGroupMapping {
