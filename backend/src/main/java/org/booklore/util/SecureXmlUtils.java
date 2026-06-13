@@ -26,12 +26,18 @@ public class SecureXmlUtils {
     private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     private static final String DC_NAMESPACE = "http://purl.org/dc/elements/1.1/";
     private static final String XMP_NAMESPACE = "http://ns.adobe.com/xap/1.0/";
+    private static final String XMPIDQ_NAMESPACE = "http://ns.adobe.com/xmp/identifier/qual/1.0/";
+    private static final String CALIBRE_NAMESPACE = "http://calibre.kovidgoyal.net/2009/metadata";
     private static final Pattern RDF_ROOT_PATTERN = Pattern.compile("<rdf:RDF\\b([^>]*)>");
     private static final Pattern RDF_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:rdf\\s*=");
     private static final Pattern DC_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:dc\\s*=");
     private static final Pattern DC_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?dc:|\\sdc:)");
     private static final Pattern XMP_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:xmp\\s*=");
     private static final Pattern XMP_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?xmp:|\\sxmp:)");
+    private static final Pattern XMPIDQ_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:xmpidq\\s*=");
+    private static final Pattern XMPIDQ_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?xmpidq:|\\sxmpidq:)");
+    private static final Pattern CALIBRE_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:calibre\\s*=");
+    private static final Pattern CALIBRE_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?calibre:|\\scalibre:)");
 
     static {
         try {
@@ -93,6 +99,14 @@ public class SecureXmlUtils {
         if (XMP_PREFIX_USAGE_PATTERN.matcher(xml).find()
                 && !XMP_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
             missingNamespaces.append(" xmlns:xmp=\"").append(XMP_NAMESPACE).append('"');
+        }
+        if (XMPIDQ_PREFIX_USAGE_PATTERN.matcher(xml).find()
+                && !XMPIDQ_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
+            missingNamespaces.append(" xmlns:xmpidq=\"").append(XMPIDQ_NAMESPACE).append('"');
+        }
+        if (CALIBRE_PREFIX_USAGE_PATTERN.matcher(xml).find()
+                && !CALIBRE_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
+            missingNamespaces.append(" xmlns:calibre=\"").append(CALIBRE_NAMESPACE).append('"');
         }
         if (missingNamespaces.isEmpty()) {
             return xml;
