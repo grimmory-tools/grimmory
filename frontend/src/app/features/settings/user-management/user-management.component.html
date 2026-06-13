@@ -216,7 +216,7 @@
                             [disabled]="user.permissions.admin">
                           </p-multiSelect>
                         } @else {
-                          <span>{{ user.libraryNames || t('userInfo.allLibrariesAdmin') }}</span>
+                          <span>{{ getLibraryAccessLabel(user) }}</span>
                         }
                       </div>
                     </div>

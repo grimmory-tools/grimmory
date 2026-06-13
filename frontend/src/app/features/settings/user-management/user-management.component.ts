@@ -121,6 +121,18 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
+  getLibraryAccessLabel(user: UserWithEditing): string {
+    if (user.libraryNames) {
+      return user.libraryNames;
+    }
+
+    return this.t.translate(
+      user.permissions.admin
+        ? 'settingsUsers.userInfo.allLibrariesAdmin'
+        : 'settingsUsers.userInfo.noLibrariesAssigned'
+    );
+  }
+
   saveUser(user: UserWithEditing) {
     user.selectedLibraryIds = [...this.editingLibraryIds];
     const updateRequest: UserUpdateRequest = {
