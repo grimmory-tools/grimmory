@@ -1,7 +1,7 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { type MenuItem } from 'primeng/api';
 import { cn } from '../cn';
-import { connectedItemClass } from '../connected-group';
+import { connectedGroupClass, connectedItemClass } from '../connected-group';
 import { AppButtonComponent } from '../button/app-button.component';
 import { type ButtonSize, type ButtonTone, type ButtonVariant } from '../button/app-button.variants';
 import { AppMenuComponent } from '../menu/app-menu.component';
@@ -88,7 +88,7 @@ export class AppSplitButtonComponent {
   readonly clicked = output<MouseEvent>();
 
   protected readonly isMenuDisabled = computed(() => this.disabled() || this.loading() || this.model().length === 0);
-  protected readonly rootClass = computed(() => cn('isolate inline-flex', this.fluid() && 'w-full', this.styleClass()));
+  protected readonly rootClass = computed(() => cn(connectedGroupClass, this.fluid() && 'w-full', this.styleClass()));
   protected readonly mainButtonClass = computed(() =>
     cn(
       connectedItemClass({ first: true, last: false, prominent: this.tone() !== 'neutral' }),

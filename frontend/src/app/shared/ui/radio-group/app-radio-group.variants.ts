@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 import { buttonVariants } from '../button/app-button.variants';
 import { cn } from '../cn';
-import { connectedItemClass } from '../connected-group';
+import { connectedGroupClass, connectedItemClass } from '../connected-group';
 import { neutralControlBorderClass } from '../control.styles';
 
 export type AppRadioGroupVariant = 'list' | 'card' | 'segmented';
@@ -12,7 +12,7 @@ export const appRadioGroupRootVariants = cva('', {
     variant: {
       list: 'flex flex-col gap-2',
       card: 'flex flex-col gap-2',
-      segmented: 'isolate inline-flex items-stretch',
+      segmented: cn(connectedGroupClass, 'items-stretch'),
     },
   },
   defaultVariants: { variant: 'list' },

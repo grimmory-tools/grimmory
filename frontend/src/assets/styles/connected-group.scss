@@ -19,8 +19,30 @@
 
 .app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active):has(
   + .app-cg-item.app-cg-prominent
-) {
+),
+.app-cg-group > :has(> .app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active)):has(
+  + :has(> .app-cg-item.app-cg-prominent)
+) > .app-cg-item {
   border-right-color: transparent;
+}
+
+.app-cg-group > :has(> .app-cg-item:not(:hover)):has(+ :has(> .app-cg-item:hover)) > .app-cg-item,
+.app-cg-group > :has(> .app-cg-item:not(:hover)):has(+ :has(> .app-cg-item.app-cg-active)) > .app-cg-item {
+  border-right-color: transparent;
+}
+
+.app-cg-group > :has(> .app-cg-item:hover) + :has(> .app-cg-item) > .app-cg-item,
+.app-cg-group > :has(> .app-cg-item.app-cg-active) + :has(> .app-cg-item:not(:hover, .app-cg-active))
+  > .app-cg-item {
+  border-left-color: transparent;
+}
+
+.app-cg-group > :has(> .app-cg-item.app-cg-prominent) + :has(> .app-cg-item:not(
+  :hover,
+  .app-cg-active,
+  .app-cg-prominent
+)) > .app-cg-item {
+  border-left-color: transparent;
 }
 
 .app-cg-item:not(:hover):has(+ .app-cg-item:hover),

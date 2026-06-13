@@ -1,5 +1,7 @@
 import { cn } from './cn';
 
+export const connectedGroupClass = 'app-cg-group isolate inline-flex';
+
 interface ConnectedItemState {
   first: boolean;
   last: boolean;
