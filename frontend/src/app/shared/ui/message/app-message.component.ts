@@ -1,9 +1,15 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { type FieldState, type ValidationError } from '@angular/forms/signals';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AppButtonComponent } from '../button/app-button.component';
 import { cn } from '../cn';
-import { appFieldErrorMessage, type AppFieldLike } from '../field/app-field.context';
+import {
+  APP_FIELD_DEFAULT_ERROR_KEY,
+  appFieldErrorKey,
+  appFieldErrorMessage,
+  type AppFieldLike,
+} from '../field/app-field.context';
 import { MESSAGE_ICONS, messageVariants, type MessageColor } from './app-message.variants';
 
 type SummaryLayout = 'list' | 'inline';
@@ -28,6 +34,9 @@ type SummaryLayout = 'list' | 'inline';
               @if (hasMultipleSummaryIssues()) {
                 <div class="relative flex min-w-0 items-center gap-2 pr-20 text-current">
                   <span class="min-w-0 flex-1 truncate font-medium text-current">
+                    {{ activeIssueMessage() }}
+                  </span>
+                  <span class="shrink-0 text-xs text-current/80">
                     {{ 'shared.ui.message.issuePosition' | transloco: { current: activeSummaryIndex() + 1, count: summaryCount() } }}
                   </span>
                   <div class="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
@@ -92,14 +101,17 @@ export class AppMessageComponent {
   readonly inline = input(false, { transform: booleanAttribute });
   readonly styleClass = input('');
 
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
   private readonly summaryIssueIndex = signal(0);
 
   private readonly fieldState = computed<FieldState<unknown> | null>(() => this.field()?.() ?? null);
 
   protected readonly fieldMessages = computed<readonly string[]>(() => {
+    this.activeLang();
     const state = this.fieldState();
     if (!state || !state.touched()) return [];
-    return state.errors().map(appFieldErrorMessage);
+    return state.errors().map(error => appFieldErrorMessage(error, this.translateFallbackError));
   });
   protected readonly fieldText = computed(() => this.fieldMessages().join(' '));
 
@@ -116,8 +128,9 @@ export class AppMessageComponent {
   });
   protected readonly hasMultipleSummaryIssues = computed(() => this.summaryCount() > 1);
   protected readonly activeIssueMessage = computed(() => {
+    this.activeLang();
     const issue = this.summaryIssues()[this.activeSummaryIndex()];
-    return issue ? appFieldErrorMessage(issue) : '';
+    return issue ? appFieldErrorMessage(issue, this.translateFallbackError) : '';
   });
 
   protected readonly visible = computed(() => {
@@ -133,7 +146,10 @@ export class AppMessageComponent {
     cn(messageVariants({ color: this.resolvedColor() }), this.inline() && 'inline-flex align-middle', this.styleClass()),
   );
 
-  protected readonly issueLabel = appFieldErrorMessage;
+  protected issueLabel(issue: ValidationError): string {
+    this.activeLang();
+    return appFieldErrorMessage(issue, this.translateFallbackError);
+  }
 
   protected focusIssue(issue: ValidationError.WithFieldTree): void {
     this.focusAndReveal(issue);
@@ -171,4 +187,10 @@ export class AppMessageComponent {
       { duration: 1400, easing: 'ease-out' },
     );
   }
+
+  private readonly translateFallbackError = (kind: string): string => {
+    const key = appFieldErrorKey(kind);
+    const translated = this.transloco.translate(key);
+    return translated === key ? this.transloco.translate(APP_FIELD_DEFAULT_ERROR_KEY) : translated;
+  };
 }

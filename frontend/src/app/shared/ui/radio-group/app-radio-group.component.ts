@@ -28,6 +28,7 @@ export interface RadioOption<T> {
   readonly disabled?: boolean;
 }
 
+const defaultCompareWith = <T>(optionValue: T, selectedValue: T): boolean => Object.is(optionValue, selectedValue);
 let nextGroupId = 0;
 
 @Component({
@@ -92,6 +93,7 @@ export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
   readonly ariaLabelledBy = input('');
   readonly ariaDescribedBy = input('');
   readonly styleClass = input('');
+  readonly compareWith = input<(optionValue: T, selectedValue: T) => boolean>(defaultCompareWith);
 
   private readonly fieldContext = inject(APP_FIELD, { optional: true });
   private readonly autoName = `app-radio-group-${++nextGroupId}`;
@@ -125,15 +127,17 @@ export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
   );
 
   protected isSelected(option: RadioOption<T>): boolean {
-    return option.value === this.value();
+    const value = this.value();
+    return value != null && this.compareWith()(option.value, value);
   }
 
   protected segmentClass(index: number): string {
     const options = this.options();
     const value = this.value();
+    const option = options[index];
     return appRadioGroupSegmentClass({
       size: this.size(),
-      selected: options[index]?.value === value,
+      selected: value != null && option != null && this.compareWith()(option.value, value),
       first: index === 0,
       last: index === options.length - 1,
     });

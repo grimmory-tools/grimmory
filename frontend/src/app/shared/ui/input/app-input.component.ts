@@ -126,6 +126,7 @@ export class AppInputComponent implements FormValueControl<string> {
   protected readonly showTrailingAction = computed(() => this.showRevealToggle() || this.trailingIcon() !== '');
   private readonly showPasswordLabel = translateSignal('shared.ui.input.showPassword');
   private readonly hidePasswordLabel = translateSignal('shared.ui.input.hidePassword');
+  private readonly trailingActionDefaultLabel = translateSignal('shared.ui.input.trailingAction');
   protected readonly resolvedType = computed(() =>
     this.showRevealToggle() && this.passwordVisible() ? 'text' : this.type(),
   );
@@ -141,7 +142,7 @@ export class AppInputComponent implements FormValueControl<string> {
       return this.passwordVisible() ? this.hidePasswordLabel() : this.showPasswordLabel();
     }
 
-    return this.trailingAriaLabel() || null;
+    return this.trailingAriaLabel() || this.trailingActionDefaultLabel();
   });
   protected readonly trailingActionPressed = computed(() => {
     if (this.showRevealToggle()) {

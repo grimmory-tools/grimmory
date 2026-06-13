@@ -11,7 +11,13 @@ export interface AppFieldContext {
 }
 
 export const APP_FIELD = new InjectionToken<AppFieldContext>('APP_FIELD');
+export const APP_FIELD_DEFAULT_ERROR_KEY = 'shared.ui.validation.default';
 
-export function appFieldErrorMessage(error: ValidationError): string {
-  return typeof error.message === 'string' ? error.message : error.kind;
+export function appFieldErrorKey(kind: string): string {
+  return `shared.ui.validation.${kind}`;
+}
+
+export function appFieldErrorMessage(error: ValidationError, fallback?: (kind: string) => string): string {
+  if (typeof error.message === 'string' && error.message.length > 0) return error.message;
+  return fallback ? fallback(error.kind) : error.kind;
 }

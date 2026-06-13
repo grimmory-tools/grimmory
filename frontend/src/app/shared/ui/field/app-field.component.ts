@@ -5,12 +5,22 @@ import {
   computed,
   contentChild,
   forwardRef,
+  inject,
   input,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormField as SignalFormField, type FieldState } from '@angular/forms/signals';
+import { TranslocoService } from '@jsverse/transloco';
 import { cn } from '../cn';
-import { APP_FIELD, appFieldErrorMessage, type AppFieldContext, type AppFieldLike } from './app-field.context';
+import {
+  APP_FIELD,
+  APP_FIELD_DEFAULT_ERROR_KEY,
+  appFieldErrorKey,
+  appFieldErrorMessage,
+  type AppFieldContext,
+  type AppFieldLike,
+} from './app-field.context';
 
 let nextFieldId = 0;
 
@@ -68,6 +78,8 @@ export class AppFieldComponent implements AppFieldContext {
   readonly fieldId = input('');
   readonly styleClass = input('');
 
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
   private readonly generatedId = `app-field-${++nextFieldId}`;
   protected readonly editing = signal(false);
   private readonly projectedFormField = contentChild(SignalFormField, { descendants: true });
@@ -79,10 +91,11 @@ export class AppFieldComponent implements AppFieldContext {
   readonly labelId = computed(() => (this.label() ? `${this.controlId()}-label` : null));
 
   protected readonly displayErrors = computed<readonly string[]>(() => {
+    this.activeLang();
     const state = this.fieldState();
     if (state) {
       if (!state.touched() || this.editing()) return [];
-      return state.errors().map(appFieldErrorMessage);
+      return state.errors().map(error => appFieldErrorMessage(error, this.translateFallbackError));
     }
 
     const errors = this.errors();
@@ -111,4 +124,10 @@ export class AppFieldComponent implements AppFieldContext {
   protected readonly showRequiredMark = computed(() => this.fieldState()?.required() ?? this.required());
   protected readonly hidden = computed(() => this.fieldState()?.hidden() ?? false);
   protected readonly rootClass = computed(() => cn('flex flex-col gap-1.5', this.styleClass()));
+
+  private readonly translateFallbackError = (kind: string): string => {
+    const key = appFieldErrorKey(kind);
+    const translated = this.transloco.translate(key);
+    return translated === key ? this.transloco.translate(APP_FIELD_DEFAULT_ERROR_KEY) : translated;
+  };
 }

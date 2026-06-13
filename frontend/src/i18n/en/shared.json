@@ -168,7 +168,8 @@
     },
     "input": {
       "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "hidePassword": "Hide password",
+      "trailingAction": "Input action"
     },
     "message": {
       "issueCount": "{{ count }} issues",
@@ -192,6 +193,17 @@
     "tag": {
       "removeTag": "Remove tag",
       "removeLabel": "Remove {{ label }}"
+    },
+    "validation": {
+      "default": "Invalid value",
+      "email": "Enter a valid email",
+      "max": "Value is too high",
+      "maxLength": "Use a shorter value",
+      "min": "Value is too low",
+      "minLength": "Use a longer value",
+      "parse": "Enter a valid value",
+      "pattern": "Enter a valid value",
+      "required": "This field is required"
     }
   }
 }

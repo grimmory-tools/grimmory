@@ -155,7 +155,7 @@ export abstract class AppSelectBaseDirective<T> {
 
   protected onTriggerKeydown(event: KeyboardEvent): void {
     const combobox = this.combobox();
-    if (this.disabled() || !combobox || combobox.expanded()) return;
+    if (this.isUnavailable() || !combobox || combobox.expanded()) return;
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter' && event.key !== ' ') return;
 
     event.preventDefault();
@@ -172,7 +172,7 @@ export abstract class AppSelectBaseDirective<T> {
   }
 
   protected onTriggerBlur(event: FocusEvent): void {
-    if (this.disabled()) return;
+    if (this.isUnavailable()) return;
     const relatedTarget = event.relatedTarget;
     const overlayElement = this.overlay()?.overlayRef?.overlayElement;
     if (relatedTarget instanceof Node && overlayElement?.contains(relatedTarget)) return;
@@ -181,6 +181,7 @@ export abstract class AppSelectBaseDirective<T> {
 
   protected clear(event: MouseEvent): void {
     event.stopPropagation();
+    if (this.isUnavailable()) return;
     this.clearValue();
     this.touched.set(true);
     this.cleared.emit();

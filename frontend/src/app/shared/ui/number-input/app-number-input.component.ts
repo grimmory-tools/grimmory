@@ -36,7 +36,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
       [attr.aria-busy]="pending() ? 'true' : null"
       [attr.min]="min()"
       [attr.max]="max()"
-      [attr.step]="step()"
+      [attr.step]="normalizedStep()"
       [value]="rawValue()"
       [disabled]="disabled()"
       [readonly]="readonly()"
@@ -108,6 +108,10 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,
   );
   protected readonly showInvalid = computed(() => this.invalid() && (this.fieldContext?.validationVisible() ?? true));
+  protected readonly normalizedStep = computed(() => {
+    const step = this.step();
+    return Number.isFinite(step) && step > 0 ? step : 1;
+  });
 
   protected readonly atMax = computed(() => {
     const max = this.max();
@@ -151,7 +155,7 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
 
   protected nudge(direction: 1 | -1): void {
     const base = this.value() ?? this.min() ?? 0;
-    this.value.set(this.roundToStep(this.clamp(base + direction * this.step())));
+    this.value.set(this.roundToStep(this.clamp(base + direction * this.normalizedStep())));
   }
 
   private clamp(n: number): number {
@@ -163,7 +167,7 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
   }
 
   private roundToStep(n: number): number {
-    const decimals = (String(this.step()).split('.')[1] ?? '').length;
+    const decimals = (String(this.normalizedStep()).split('.')[1] ?? '').length;
     return decimals ? Number(n.toFixed(decimals)) : n;
   }
 
