@@ -13,6 +13,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,23 +26,24 @@ public class SecureXmlUtils {
     // DocumentBuilderFactory is thread-safe after configuration cache one per namespace-aware mode
     private static final DocumentBuilderFactory NS_AWARE_FACTORY;
     private static final DocumentBuilderFactory NON_NS_AWARE_FACTORY;
-    private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-    private static final String DC_NAMESPACE = "http://purl.org/dc/elements/1.1/";
-    private static final String XMP_NAMESPACE = "http://ns.adobe.com/xap/1.0/";
-    private static final String XMPIDQ_NAMESPACE = "http://ns.adobe.com/xmp/identifier/qual/1.0/";
-    private static final String CALIBRE_NAMESPACE = "http://calibre.kovidgoyal.net/2009/metadata";
+
+    /**
+     * Known XMP namespace prefixes and their URIs.
+     * Add new prefixes here — no other code change needed.
+     */
+    private static final Map<String, String> KNOWN_NAMESPACES = Map.ofEntries(
+            Map.entry("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+            Map.entry("dc", "http://purl.org/dc/elements/1.1/"),
+            Map.entry("xmp", "http://ns.adobe.com/xap/1.0/"),
+            Map.entry("xmpidq", "http://ns.adobe.com/xmp/identifier/qual/1.0/"),
+            Map.entry("calibre", "http://calibre.kovidgoyal.net/2009/metadata"),
+            Map.entry("calibreSI", "http://calibre-ebook.com/xmp-namespace/seriesIndex"),
+            Map.entry("booklore", "http://booklore.org/metadata/1.0/")
+    );
+
     private static final Pattern RDF_ROOT_PATTERN = Pattern.compile("<rdf:RDF\\b([^>]*)>");
-    private static final Pattern RDF_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:rdf\\s*=");
-    private static final Pattern DC_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:dc\\s*=");
-    private static final Pattern DC_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?dc:|\\sdc:)");
-    private static final Pattern XMP_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:xmp\\s*=");
-    private static final Pattern XMP_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?xmp:|\\sxmp:)");
-    private static final Pattern XMPIDQ_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:xmpidq\\s*=");
-    private static final Pattern XMPIDQ_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?xmpidq:|\\sxmpidq:)");
-    private static final Pattern CALIBRE_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:calibre\\s*=");
-    private static final Pattern CALIBRE_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?calibre:|\\scalibre:)");
-    private static final Pattern CALIBRESI_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns:calibreSI\\s*=");
-    private static final Pattern CALIBRESI_PREFIX_USAGE_PATTERN = Pattern.compile("(?:</?calibreSI:|\\scalibreSI:)");
+    private static final Pattern DECLARED_NS_PATTERN = Pattern.compile("\\bxmlns:([a-zA-Z][a-zA-Z0-9]*)\\s*=");
+    private static final Pattern PREFIX_USAGE_PATTERN = Pattern.compile("(?:<|</|\\s)([a-zA-Z][a-zA-Z0-9]*):");
 
     static {
         try {
@@ -90,30 +94,31 @@ public class SecureXmlUtils {
         }
 
         String rootAttributes = rootMatcher.group(1);
+
+        // Collect prefixes already declared on the root element
+        Set<String> declaredPrefixes = new HashSet<>();
+        Matcher declMatcher = DECLARED_NS_PATTERN.matcher(rootAttributes);
+        while (declMatcher.find()) {
+            declaredPrefixes.add(declMatcher.group(1));
+        }
+
+        // Scan the document for all used prefixes
+        Set<String> usedPrefixes = new HashSet<>();
+        Matcher usageMatcher = PREFIX_USAGE_PATTERN.matcher(xml);
+        while (usageMatcher.find()) {
+            usedPrefixes.add(usageMatcher.group(1));
+        }
+
+        // Inject declarations for known-but-undeclared prefixes that are actually used
         StringBuilder missingNamespaces = new StringBuilder();
-        if (!RDF_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:rdf=\"").append(RDF_NAMESPACE).append('"');
+        for (var entry : KNOWN_NAMESPACES.entrySet()) {
+            String prefix = entry.getKey();
+            if (usedPrefixes.contains(prefix) && !declaredPrefixes.contains(prefix)) {
+                missingNamespaces.append(" xmlns:").append(prefix)
+                        .append("=\"").append(entry.getValue()).append('"');
+            }
         }
-        if (DC_PREFIX_USAGE_PATTERN.matcher(xml).find()
-                && !DC_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:dc=\"").append(DC_NAMESPACE).append('"');
-        }
-        if (XMP_PREFIX_USAGE_PATTERN.matcher(xml).find()
-                && !XMP_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:xmp=\"").append(XMP_NAMESPACE).append('"');
-        }
-        if (XMPIDQ_PREFIX_USAGE_PATTERN.matcher(xml).find()
-                && !XMPIDQ_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:xmpidq=\"").append(XMPIDQ_NAMESPACE).append('"');
-        }
-        if (CALIBRE_PREFIX_USAGE_PATTERN.matcher(xml).find()
-                && !CALIBRE_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:calibre=\"").append(CALIBRE_NAMESPACE).append('"');
-        }
-        if (CALIBRESI_PREFIX_USAGE_PATTERN.matcher(xml).find()
-                && !CALIBRESI_NAMESPACE_PATTERN.matcher(rootAttributes).find()) {
-            missingNamespaces.append(" xmlns:calibreSI=\"").append(CALIBRE_NAMESPACE).append('"');
-        }
+
         if (missingNamespaces.isEmpty()) {
             return xml;
         }
