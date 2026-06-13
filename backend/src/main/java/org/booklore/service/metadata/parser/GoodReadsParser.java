@@ -42,7 +42,45 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private static final String GRAPHQL_ENDPOINT = "https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql";
     private static final String API_KEY = "da2-xpgsdydkbregjhpr6ejzqdhuwy";
-    private static final String GRAPHQL_QUERY = "query getBookPageData($legacyBookId:Int!){getBookByLegacyId(legacyId:$legacyBookId){title description imageUrl primaryContributorEdge{node{name}}secondaryContributorEdges{node{name}}bookSeries{userPosition series{title}}bookGenres{genre{name}}details{numPages publicationTime publisher isbn isbn13 language{name}}work{stats{averageRating ratingsCount}}}}";
+    private static final String GRAPHQL_QUERY = """
+            query getBookPageData($legacyBookId: Int!) {
+                getBookByLegacyId(legacyId: $legacyBookId) {
+                    title
+                    description
+                    imageUrl
+                    primaryContributorEdge { node { name } }
+                    secondaryContributorEdges { node { name } }
+                    bookSeries { userPosition series { title } }
+                    bookGenres { genre { name } }
+                    details {
+                        numPages
+                        publicationTime
+                        publisher
+                        isbn
+                        isbn13
+                        language { name }
+                    }
+                    work {
+                        stats { averageRating ratingsCount }
+                        reviews {
+                            edges {
+                                node {
+                                    text
+                                    rating
+                                    spoilerStatus
+                                    updatedAt
+                                    creator {
+                                        name
+                                        followersCount
+                                        textReviewsCount
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            """;
 
     private static final String BASE_AUTOCOMPLETE_URL = "https://www.goodreads.com/book/auto_complete?format=json&q=";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
@@ -225,13 +263,13 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
             extractBookDetails(bookNode, builder);
             extractWorkDetails(bookNode, builder);
 
-            appSettingService.getAppSettings()
-                    .getMetadataPublicReviewsSettings()
-                    .getProviders()
-                    .stream()
-                    .filter(cfg -> cfg.getProvider() == MetadataProvider.GoodReads && cfg.isEnabled())
-                    .findFirst()
-                    .ifPresent(cfg -> extractReviews(bookNode, builder, cfg.getMaxReviews()));
+            var reviewSettings = appSettingService.getAppSettings().getMetadataPublicReviewsSettings();
+            if (reviewSettings != null && reviewSettings.getProviders() != null) {
+                reviewSettings.getProviders().stream()
+                        .filter(cfg -> cfg.getProvider() == MetadataProvider.GoodReads && cfg.isEnabled())
+                        .findFirst()
+                        .ifPresent(cfg -> extractReviews(bookNode, builder, cfg.getMaxReviews()));
+            }
 
         } catch (Exception e) {
             log.error("Error parsing book details for providerBookId: {}", goodreadsId, e);
@@ -275,31 +313,36 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         List<BookReview> reviews = new ArrayList<>();
 
         JsonNode work = bookNode.get("work");
-        if (work == null || !work.isObject())
+        if (work == null || !work.isObject()) {
             return;
+        }
 
         JsonNode reviewsJson = work.get("reviews");
         if (reviewsJson == null || !reviewsJson.isObject()) {
             reviewsJson = work.get("reviewStats");
-            if (reviewsJson == null)
+            if (reviewsJson == null) {
                 return;
+            }
         }
 
         JsonNode edges = reviewsJson.get("edges");
-        if (edges == null || !edges.isArray())
+        if (edges == null || !edges.isArray()) {
             return;
+        }
 
         int count = 0;
         for (int i = 0; i < edges.size() && count < maxReviews; i++) {
             JsonNode reviewNode = edges.get(i).path("node");
-            if (reviewNode == null || reviewNode.isMissingNode())
+            if (reviewNode == null || reviewNode.isMissingNode()) {
                 continue;
+            }
 
             try {
                 String rawBody = reviewNode.path("text").asText(null);
                 String plainBody = rawBody != null ? Jsoup.parse(rawBody).text() : null;
-                if (plainBody == null || plainBody.trim().isEmpty())
+                if (plainBody == null || plainBody.trim().isEmpty()) {
                     continue;
+                }
 
                 JsonNode creator = reviewNode.get("creator");
                 String reviewerName = creator != null ? creator.path("name").asText(null) : null;
@@ -307,11 +350,13 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 Integer textReviewsCount = null;
                 if (creator != null) {
                     JsonNode fn = creator.path("followersCount");
-                    if (fn.canConvertToInt())
+                    if (fn.canConvertToInt()) {
                         followersCount = fn.asInt();
+                    }
                     JsonNode trn = creator.path("textReviewsCount");
-                    if (trn.canConvertToInt())
+                    if (trn.canConvertToInt()) {
                         textReviewsCount = trn.asInt();
+                    }
                 }
 
                 JsonNode updatedAtNode = reviewNode.path("updatedAt");
