@@ -2,15 +2,18 @@ package org.booklore.grimmlink.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.booklore.grimmlink.dto.GrimmlinkReadingSessionBatchRequest;
 import org.booklore.grimmlink.dto.GrimmlinkReadingSessionBatchResponse;
 import org.booklore.grimmlink.dto.GrimmlinkReadingSessionItemRequest;
 import org.booklore.model.dto.request.ReadingSessionRequest;
+import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.ReadingSessionEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.ReadingSessionRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,23 @@ public class GrimmlinkReadingSessionService {
     private final GrimmlinkAuthService authService;
     private final GrimmlinkBookService bookService;
     private final ReadingSessionRepository readingSessionRepository;
+
+    @Transactional(readOnly = true)
+    public List<ReadingSessionResponse> getReadingSessions(Long bookId, int limit) {
+        if (limit < 1 || limit > 100) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    "limit must be between 1 and 100");
+        }
+
+        BookLoreUserEntity reader = authService.requireCurrentReader(true);
+        bookService.loadAccessibleBookById(reader, bookId);
+
+        return readingSessionRepository
+                .findByUserIdAndBookId(reader.getId(), bookId, PageRequest.of(0, limit))
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
     @Transactional
     public void recordReadingSession(ReadingSessionRequest request) {
@@ -185,6 +205,27 @@ public class GrimmlinkReadingSessionService {
                 .endLocation(item.getEndLocation())
                 .currentPage(item.getCurrentPage())
                 .totalPages(item.getTotalPages())
+                .build();
+    }
+
+    private ReadingSessionResponse toResponse(ReadingSessionEntity session) {
+        String title = session.getBook() != null && session.getBook().getMetadata() != null
+                ? session.getBook().getMetadata().getTitle()
+                : null;
+        return ReadingSessionResponse.builder()
+                .id(session.getId())
+                .bookId(session.getBook() != null ? session.getBook().getId() : null)
+                .bookTitle(title)
+                .bookType(session.getBookType())
+                .startTime(session.getStartTime())
+                .endTime(session.getEndTime())
+                .durationSeconds(session.getDurationSeconds())
+                .startProgress(session.getStartProgress())
+                .endProgress(session.getEndProgress())
+                .progressDelta(session.getProgressDelta())
+                .startLocation(session.getStartLocation())
+                .endLocation(session.getEndLocation())
+                .createdAt(session.getCreatedAt())
                 .build();
     }
 

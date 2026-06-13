@@ -11,6 +11,7 @@ import org.booklore.grimmlink.service.GrimmlinkShelfService;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.dto.request.ReadingSessionRequest;
+import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -66,6 +67,9 @@ class GrimmlinkV1ControllersTest {
 
     @InjectMocks
     private GrimmlinkV1ReadingSessionController readingSessionController;
+
+    @InjectMocks
+    private GrimmlinkV1CapabilitiesController capabilitiesController;
 
     @BeforeEach
     void setUp() {
@@ -204,10 +208,27 @@ class GrimmlinkV1ControllersTest {
                 .successCount(1)
                 .results(List.of())
                 .build();
+        List<ReadingSessionResponse> sessions = List.of(
+                ReadingSessionResponse.builder().id(9L).bookId(7L).build());
+        when(readingSessionService.getReadingSessions(7L, 25)).thenReturn(sessions);
         when(readingSessionService.recordReadingSessionsBatch(batch)).thenReturn(expected);
 
+        assertEquals(sessions, readingSessionController.getSessions(7L, 25).getBody());
         assertEquals(HttpStatus.ACCEPTED, readingSessionController.recordSession(single).getStatusCode());
         verify(readingSessionService).recordReadingSession(single);
         assertEquals(expected, readingSessionController.recordBatchSessions(batch).getBody());
+    }
+
+    @Test
+    void capabilities_returnsSupportedV1Features() {
+        GrimmlinkCapabilitiesResponse response = capabilitiesController.getCapabilities().getBody();
+
+        assertEquals("v1", response.apiVersion());
+        assertEquals(true, response.webUiProgress());
+        assertEquals(true, response.progressSync());
+        assertEquals(true, response.pdfBridge());
+        assertEquals(true, response.readingSessions());
+        assertEquals(true, response.metadataSync());
+        assertEquals(true, response.shelves());
     }
 }

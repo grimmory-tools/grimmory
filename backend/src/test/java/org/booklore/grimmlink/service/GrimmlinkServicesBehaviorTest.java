@@ -26,6 +26,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import tools.jackson.databind.ObjectMapper;
 
@@ -278,6 +280,66 @@ class GrimmlinkServicesBehaviorTest {
         assertTrue(response.getResults().isEmpty());
     }
 
+    @Test
+    void getReadingSessions_returnsNewestFirstLimitedSessions() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Session Book");
+        book.setMetadata(metadata);
+
+        ReadingSessionEntity newest = ReadingSessionEntity.builder()
+                .id(2L)
+                .book(book)
+                .bookType(BookFileType.PDF)
+                .startTime(Instant.parse("2026-06-10T12:00:00Z"))
+                .endTime(Instant.parse("2026-06-10T12:05:00Z"))
+                .durationSeconds(300)
+                .build();
+        ReadingSessionEntity older = ReadingSessionEntity.builder()
+                .id(1L)
+                .book(book)
+                .bookType(BookFileType.PDF)
+                .startTime(Instant.parse("2026-06-10T10:00:00Z"))
+                .endTime(Instant.parse("2026-06-10T10:05:00Z"))
+                .durationSeconds(300)
+                .build();
+        when(readingSessionRepository.findByUserIdAndBookId(eq(7L), eq(99L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(newest, older)));
+
+        var result = readingSessionService.getReadingSessions(99L, 2);
+
+        assertEquals(List.of(2L, 1L), result.stream().map(r -> r.getId()).toList());
+        assertEquals("Session Book", result.getFirst().getBookTitle());
+        verify(bookRepository).findByIdWithBookFiles(99L);
+        verify(readingSessionRepository).findByUserIdAndBookId(
+                eq(7L),
+                eq(99L),
+                argThat(pageable -> pageable.getPageNumber() == 0 && pageable.getPageSize() == 2));
+    }
+
+    @Test
+    void getReadingSessions_returnsEmptyList() {
+        when(readingSessionRepository.findByUserIdAndBookId(eq(7L), eq(99L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        assertTrue(readingSessionService.getReadingSessions(99L, 50).isEmpty());
+    }
+
+    @Test
+    void getReadingSessions_rejectsInvalidLimitBeforeQuerying() {
+        assertThrows(APIException.class, () -> readingSessionService.getReadingSessions(99L, 0));
+        assertThrows(APIException.class, () -> readingSessionService.getReadingSessions(99L, 101));
+        verifyNoInteractions(readingSessionRepository);
+    }
+
+    @Test
+    void getReadingSessions_checksBookAccessBeforeQuerying() {
+        when(bookRepository.findByIdWithBookFiles(99L)).thenReturn(Optional.empty());
+
+        assertThrows(APIException.class, () -> readingSessionService.getReadingSessions(99L, 50));
+
+        verifyNoInteractions(readingSessionRepository);
+    }
+
     // ──────────────────────────────────────────
     // 2) PDF BRIDGE — FORMAT CHECK + GET PROGRESS
     // ──────────────────────────────────────────
@@ -346,7 +408,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .currentPage(20)
-                .percentage(0.25f)
+                .percentage(25.0f)
                 .expectedUpdatedAt(Instant.parse("2026-06-10T11:00:00Z").toEpochMilli())
                 .force(true)
                 .build();
@@ -358,8 +420,30 @@ class GrimmlinkServicesBehaviorTest {
         assertEquals("ok", result.getConversionStatus());
         assertEquals(Integer.valueOf(20), existing.getPdfProgress());
         assertEquals(Float.valueOf(25.0f), existing.getPdfProgressPercent());
+        assertEquals("20", existing.getKoreaderProgress());
+        assertEquals(Float.valueOf(25.0f), existing.getKoreaderProgressPercent());
+        assertEquals("WEB_READER", existing.getKoreaderDevice());
+        assertEquals("web-reader", existing.getKoreaderDeviceId());
+        assertNotNull(existing.getKoreaderLastSyncTime());
         verify(userBookProgressRepository).save(existing);
         verify(userBookFileProgressRepository).save(any());
+    }
+
+    @Test
+    void updatePdfProgress_usesProgressRatioFallback() {
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.empty());
+        when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        pdfBridgeService.updatePdfProgress(99L, KoreaderProgress.builder()
+                .progress("0.10")
+                .build());
+
+        ArgumentCaptor<UserBookProgressEntity> captor =
+                ArgumentCaptor.forClass(UserBookProgressEntity.class);
+        verify(userBookProgressRepository).save(captor.capture());
+        assertEquals(Float.valueOf(10.0f), captor.getValue().getPdfProgressPercent());
+        assertEquals(Float.valueOf(10.0f), captor.getValue().getKoreaderProgressPercent());
     }
 
     // ──────────────────────────────────────────
@@ -477,7 +561,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress progress = KoreaderProgress.builder()
                 .document("hash-xyz")
-                .percentage(0.5f)
+                .percentage(50.0f)
                 .currentPage(10)
                 .build();
 
@@ -500,7 +584,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
-                .percentage(0.5f)
+                .percentage(50.0f)
                 .currentPage(10)
                 .progress("some-progress")
                 .device("android")
@@ -536,7 +620,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
-                .percentage(0.3f)
+                .percentage(30.0f)
                 .updatedAt(Instant.parse("2026-06-10T11:00:00Z"))
                 .build();
 
@@ -604,7 +688,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
-                .percentage(0.3f)
+                .percentage(30.0f)
                 .updatedAt(Instant.parse("2026-06-10T13:00:00Z"))
                 .build();
 
@@ -616,7 +700,7 @@ class GrimmlinkServicesBehaviorTest {
     }
 
     @Test
-    void updateProgress_usesPageRatioForDisplayWithoutDerivingReadStatus() {
+    void updateProgress_usesPageRatioFallback() {
         when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
                 .thenReturn(book);
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
@@ -636,12 +720,69 @@ class GrimmlinkServicesBehaviorTest {
         verify(userBookProgressRepository).save(captor.capture());
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(Float.valueOf(25.0f), saved.getKoreaderProgressPercent());
-        assertNull(saved.getReadStatus());
+        assertEquals(ReadStatus.READING, saved.getReadStatus());
 
         ArgumentCaptor<UserBookFileProgressEntity> fileCaptor =
                 ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
         verify(userBookFileProgressRepository).save(fileCaptor.capture());
         assertEquals(Float.valueOf(25.0f), fileCaptor.getValue().getProgressPercent());
+    }
+
+    @Test
+    void resolvePercent_treatsPercentageAsPercent() {
+        assertEquals(
+                Float.valueOf(1.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder()
+                                .percentage(1.0f)
+                                .progress("0.50")
+                                .currentPage(400)
+                                .totalPages(4000)
+                                .build()));
+        assertEquals(
+                Float.valueOf(10.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().percentage(10.0f).build()));
+        assertEquals(
+                Float.valueOf(50.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().percentage(50.0f).build()));
+    }
+
+    @Test
+    void resolvePercent_usesProgressRatioThenPageFallback() {
+        assertEquals(
+                Float.valueOf(1.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().progress("0.01").build()));
+        assertEquals(
+                Float.valueOf(10.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().progress("0.10").build()));
+        assertEquals(
+                Float.valueOf(10.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder()
+                                .progress("not-a-number")
+                                .currentPage(400)
+                                .totalPages(4000)
+                                .build()));
+    }
+
+    @Test
+    void resolvePercent_clampsFinalValue() {
+        assertEquals(
+                Float.valueOf(0.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().percentage(-5.0f).build()));
+        assertEquals(
+                Float.valueOf(100.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().progress("1.50").build()));
+        assertEquals(
+                Float.valueOf(100.0f),
+                GrimmlinkProgressService.resolvePercent(
+                        KoreaderProgress.builder().currentPage(5000).totalPages(4000).build()));
     }
 
     @Test
@@ -654,7 +795,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
-                .percentage(0.5f)
+                .percentage(50.0f)
                 .build();
 
         progressService.updateProgress(request);
@@ -676,7 +817,7 @@ class GrimmlinkServicesBehaviorTest {
 
         KoreaderProgress request = KoreaderProgress.builder()
                 .document("hash-123")
-                .percentage(0.995f) // 99.5% -> READ
+                .percentage(99.5f)
                 .build();
 
         progressService.updateProgress(request);

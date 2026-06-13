@@ -81,16 +81,13 @@ public class GrimmlinkProgressService {
         Instant clientTime = resolveClientTime(request);
         boolean preserveManualStatus = previousManualStatus != null
                 && progress.getReadStatusModifiedTime().isAfter(clientTime);
-        Float normalizedPercent = normalizePercent(request.getPercentage());
-        Float displayPercent = normalizedPercent != null
-                ? normalizedPercent
-                : calculatePageRatio(request.getCurrentPage(), request.getTotalPages());
+        Float normalizedPercent = resolvePercent(request);
 
         progress.setUser(reader);
         progress.setBook(book);
         progress.setKoreaderProgress(bookService.firstNonBlank(
                 request.getRawKoreaderProgress(), request.getProgress()));
-        progress.setKoreaderProgressPercent(displayPercent);
+        progress.setKoreaderProgressPercent(normalizedPercent);
         progress.setKoreaderDevice(request.getDevice());
         progress.setKoreaderDeviceId(request.getDevice_id());
         progress.setKoreaderLastSyncTime(Instant.now());
@@ -131,10 +128,7 @@ public class GrimmlinkProgressService {
         fileProgress.setBookFile(file);
         fileProgress.setPositionData(bookService.firstNonBlank(request.getProgress(), request.getLocation()));
         fileProgress.setPositionHref(request.getLocation());
-        Float normalizedPercent = normalizePercent(request.getPercentage());
-        fileProgress.setProgressPercent(normalizedPercent != null
-                ? normalizedPercent
-                : calculatePageRatio(request.getCurrentPage(), request.getTotalPages()));
+        fileProgress.setProgressPercent(resolvePercent(request));
         fileProgress.setLastReadTime(resolveClientTime(request));
         userBookFileProgressRepository.save(fileProgress);
     }
@@ -148,18 +142,46 @@ public class GrimmlinkProgressService {
         return bookService.resolvePrimaryFile(book);
     }
 
-    static Float normalizePercent(Float percentage) {
+    static Float resolvePercent(KoreaderProgress request) {
+        Float percentage = clampPercent(request.getPercentage());
+        if (percentage != null) {
+            return percentage;
+        }
+
+        Float progressRatio = parseProgressRatio(request.getProgress());
+        if (progressRatio != null) {
+            return clampPercent(progressRatio * 100.0f);
+        }
+
+        return calculatePageRatio(request.getCurrentPage(), request.getTotalPages());
+    }
+
+    private static Float parseProgressRatio(String progress) {
+        if (progress == null || progress.isBlank()) {
+            return null;
+        }
+        try {
+            return Float.parseFloat(progress.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    static Float clampPercent(Float percentage) {
         if (percentage == null) {
             return null;
         }
-        return percentage <= 1.0f ? percentage * 100.0f : percentage;
+        if (!Float.isFinite(percentage)) {
+            return null;
+        }
+        return Math.max(0.0f, Math.min(100.0f, percentage));
     }
 
     static Float calculatePageRatio(Integer currentPage, Integer totalPages) {
         if (currentPage == null || totalPages == null || currentPage < 0 || totalPages <= 0) {
             return null;
         }
-        return Math.min(100.0f, currentPage * 100.0f / totalPages);
+        return clampPercent(currentPage * 100.0f / totalPages);
     }
 
     private org.booklore.model.enums.ReadStatus deriveReadStatus(Float normalizedPercent) {

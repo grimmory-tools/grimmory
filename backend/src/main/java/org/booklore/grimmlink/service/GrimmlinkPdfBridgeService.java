@@ -20,6 +20,9 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class GrimmlinkPdfBridgeService {
 
+    private static final String WEB_READER_DEVICE = "WEB_READER";
+    private static final String WEB_READER_DEVICE_ID = "web-reader";
+
     private final GrimmlinkAuthService authService;
     private final GrimmlinkBookService bookService;
     private final BookFileRepository bookFileRepository;
@@ -85,18 +88,21 @@ public class GrimmlinkPdfBridgeService {
         }
 
         UserBookProgressEntity progress = existing != null ? existing : new UserBookProgressEntity();
+        Float resolvedPercent = GrimmlinkProgressService.resolvePercent(request);
+        Instant lastReadTime = GrimmlinkProgressService.resolveClientTime(request);
         progress.setUser(reader);
         progress.setBook(book);
         progress.setPdfProgress(request.getCurrentPage());
-        progress.setPdfProgressPercent(GrimmlinkProgressService.normalizePercent(request.getPercentage()));
+        progress.setPdfProgressPercent(resolvedPercent);
         progress.setKoreaderProgress(bookService.firstNonBlank(
-                request.getRawKoreaderProgress(), request.getProgress()));
-        progress.setKoreaderProgressPercent(
-                GrimmlinkProgressService.normalizePercent(request.getPercentage()));
-        progress.setKoreaderDevice(request.getDevice());
-        progress.setKoreaderDeviceId(request.getDeviceId());
+                request.getRawKoreaderProgress(),
+                request.getProgress(),
+                request.getCurrentPage() != null ? String.valueOf(request.getCurrentPage()) : null));
+        progress.setKoreaderProgressPercent(resolvedPercent);
+        progress.setKoreaderDevice(WEB_READER_DEVICE);
+        progress.setKoreaderDeviceId(WEB_READER_DEVICE_ID);
         progress.setKoreaderLastSyncTime(Instant.now());
-        progress.setLastReadTime(GrimmlinkProgressService.resolveClientTime(request));
+        progress.setLastReadTime(lastReadTime);
         userBookProgressRepository.save(progress);
 
         if (file != null) {
@@ -110,9 +116,8 @@ public class GrimmlinkPdfBridgeService {
                     : request.getProgress());
             fileProgress.setPositionHref(bookService.firstNonBlank(
                     request.getRawKoreaderLocation(), request.getLocation()));
-            fileProgress.setProgressPercent(
-                    GrimmlinkProgressService.normalizePercent(request.getPercentage()));
-            fileProgress.setLastReadTime(progress.getLastReadTime());
+            fileProgress.setProgressPercent(resolvedPercent);
+            fileProgress.setLastReadTime(lastReadTime);
             userBookFileProgressRepository.save(fileProgress);
         }
 
