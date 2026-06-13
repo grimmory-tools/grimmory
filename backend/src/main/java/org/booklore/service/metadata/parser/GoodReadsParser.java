@@ -40,6 +40,7 @@ import java.util.function.Function;
 public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final TypeReference<List<GoodreadsAutocompleteEntry>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
 
+    // Located in Goodreads _app JS chunk, visible in DevTools → Network → GraphQL requests
     private static final String GRAPHQL_ENDPOINT = "https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql";
     private static final String API_KEY = "da2-xpgsdydkbregjhpr6ejzqdhuwy";
     private static final String GRAPHQL_QUERY = """
