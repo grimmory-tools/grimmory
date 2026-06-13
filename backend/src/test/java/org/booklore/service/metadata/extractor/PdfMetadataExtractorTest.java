@@ -97,12 +97,12 @@ class PdfMetadataExtractorTest {
     }
 
     @Test
-    void extractsMetadataWhenRawXmpUsesRdfRootWithoutRdfNamespace() throws Exception {
+    void extractsMetadataWhenRawXmpUsesUndeclaredRdfAndDcPrefixes() throws Exception {
         File pdf = createPdfWithRawXmp("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <x:xmpmeta xmlns:x="adobe:ns:meta/">
                   <rdf:RDF>
-                    <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <rdf:Description>
                       <dc:title>Recovered PDF Title</dc:title>
                       <dc:creator>
                         <rdf:Seq>

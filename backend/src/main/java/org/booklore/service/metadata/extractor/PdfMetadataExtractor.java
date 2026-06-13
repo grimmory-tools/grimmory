@@ -129,7 +129,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             byte[] rawXmpBytes = doc.xmpMetadata();
             String normalizedXmp = rawXmpBytes == null
                     ? null
-                    : SecureXmlUtils.normalizeMissingRdfNamespace(new String(rawXmpBytes, StandardCharsets.UTF_8));
+                    : SecureXmlUtils.normalizeMissingXmpNamespaces(new String(rawXmpBytes, StandardCharsets.UTF_8));
             XmpMetadata xmp = XmpMetadataParser.parse(
                     normalizedXmp == null ? null : normalizedXmp.getBytes(StandardCharsets.UTF_8));
             Optional<RawXmpMetadata> rawXmp = parseRawXmp(normalizedXmp);
