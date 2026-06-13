@@ -61,7 +61,9 @@
     "googleApiPlaceholder": "Enter Google Books API key",
     "apiToken": "API Token",
     "hardcoverPlaceholder": "Enter Hardcover API token",
-    "comicvinePlaceholder": "Enter Comic Vine API token"
+    "comicvinePlaceholder": "Enter Comic Vine API token",
+    "goodreadsWarning": "The Goodreads metadata provider is currently reported as degraded for most users.",
+    "goodreadsWarningReadMore": "Read more in Github Issue #1713."
   },
   "publicReviews": {
     "sectionTitle": "Public Reviews",
