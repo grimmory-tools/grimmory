@@ -119,7 +119,7 @@ public class ReadingProgressService {
 
         if (progress.getKoreaderProgressPercent() != null) {
             book.setKoreaderProgress(KoProgress.builder()
-                    .percentage(clampAndRoundPercent(progress.getKoreaderProgressPercent()))
+                    .percentage(normalizeStoredKoreaderPercent(progress.getKoreaderProgressPercent()))
                     .build());
         }
 
@@ -196,11 +196,12 @@ public class ReadingProgressService {
         return value != null ? Math.round(value * 10f) / 10f : null;
     }
 
-    private Float clampAndRoundPercent(Float value) {
+    private Float normalizeStoredKoreaderPercent(Float value) {
         if (value == null) {
             return null;
         }
-        return roundToOneDecimal(Math.max(0.0f, Math.min(100.0f, value)));
+        float percentage = value > 1.0f ? value : value * 100.0f;
+        return roundToOneDecimal(Math.max(0.0f, Math.min(100.0f, percentage)));
     }
 
     // ==================== Methods from BookUpdateService ====================
@@ -421,7 +422,8 @@ public class ReadingProgressService {
     private void mirrorPdfProgressToKoreader(UserBookProgressEntity progress, String location,
                                               Float percentage, Instant now) {
         progress.setKoreaderProgress(location);
-        progress.setKoreaderProgressPercent(percentage);
+        progress.setKoreaderProgressPercent(
+                percentage != null ? percentage / 100.0f : null);
         progress.setKoreaderDevice(WEB_READER_DEVICE);
         progress.setKoreaderDeviceId(WEB_READER_DEVICE_ID);
         progress.setKoreaderLastSyncTime(now);

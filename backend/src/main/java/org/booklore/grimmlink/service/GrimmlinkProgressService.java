@@ -49,7 +49,9 @@ public class GrimmlinkProgressService {
                 .fileFormat(primaryFile != null && primaryFile.getBookType() != null
                         ? primaryFile.getBookType().name()
                         : null)
-                .percentage(progress != null ? progress.getKoreaderProgressPercent() : null)
+                .percentage(progress != null
+                        ? fromStoredKoreaderFraction(progress.getKoreaderProgressPercent())
+                        : null)
                 .progress(progress != null ? progress.getKoreaderProgress() : null)
                 .updatedAt(effectiveTime)
                 .device(progress != null ? progress.getKoreaderDevice() : null)
@@ -87,7 +89,7 @@ public class GrimmlinkProgressService {
         progress.setBook(book);
         progress.setKoreaderProgress(bookService.firstNonBlank(
                 request.getRawKoreaderProgress(), request.getProgress()));
-        progress.setKoreaderProgressPercent(normalizedPercent);
+        progress.setKoreaderProgressPercent(toStoredKoreaderFraction(normalizedPercent));
         progress.setKoreaderDevice(request.getDevice());
         progress.setKoreaderDeviceId(request.getDevice_id());
         progress.setKoreaderLastSyncTime(Instant.now());
@@ -175,6 +177,20 @@ public class GrimmlinkProgressService {
             return null;
         }
         return Math.max(0.0f, Math.min(100.0f, percentage));
+    }
+
+    static Float toStoredKoreaderFraction(Float percentage) {
+        Float clamped = clampPercent(percentage);
+        return clamped != null ? clamped / 100.0f : null;
+    }
+
+    static Float fromStoredKoreaderFraction(Float storedValue) {
+        if (storedValue == null || !Float.isFinite(storedValue)) {
+            return null;
+        }
+        // The legacy field stores a 0-1 fraction. Values above 1 may have been
+        // written by early GrimmLink v1 previews, so preserve them as percent.
+        return clampPercent(storedValue > 1.0f ? storedValue : storedValue * 100.0f);
     }
 
     static Float calculatePageRatio(Integer currentPage, Integer totalPages) {

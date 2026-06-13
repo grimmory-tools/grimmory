@@ -421,7 +421,7 @@ class GrimmlinkServicesBehaviorTest {
         assertEquals(Integer.valueOf(20), existing.getPdfProgress());
         assertEquals(Float.valueOf(25.0f), existing.getPdfProgressPercent());
         assertEquals("20", existing.getKoreaderProgress());
-        assertEquals(Float.valueOf(25.0f), existing.getKoreaderProgressPercent());
+        assertEquals(Float.valueOf(0.25f), existing.getKoreaderProgressPercent());
         assertEquals("WEB_READER", existing.getKoreaderDevice());
         assertEquals("web-reader", existing.getKoreaderDeviceId());
         assertNotNull(existing.getKoreaderLastSyncTime());
@@ -443,7 +443,7 @@ class GrimmlinkServicesBehaviorTest {
                 ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
         assertEquals(Float.valueOf(10.0f), captor.getValue().getPdfProgressPercent());
-        assertEquals(Float.valueOf(10.0f), captor.getValue().getKoreaderProgressPercent());
+        assertEquals(Float.valueOf(0.10f), captor.getValue().getKoreaderProgressPercent());
     }
 
     // ──────────────────────────────────────────
@@ -600,7 +600,7 @@ class GrimmlinkServicesBehaviorTest {
         UserBookProgressEntity saved = captor.getValue();
         assertNotNull(saved);
         assertEquals("some-progress", saved.getKoreaderProgress());
-        assertEquals(Float.valueOf(50.0f), saved.getKoreaderProgressPercent());
+        assertEquals(Float.valueOf(0.50f), saved.getKoreaderProgressPercent());
         assertEquals("android", saved.getKoreaderDevice());
         assertEquals("dev-42", saved.getKoreaderDeviceId());
     }
@@ -719,7 +719,7 @@ class GrimmlinkServicesBehaviorTest {
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         verify(userBookProgressRepository).save(captor.capture());
         UserBookProgressEntity saved = captor.getValue();
-        assertEquals(Float.valueOf(25.0f), saved.getKoreaderProgressPercent());
+        assertEquals(Float.valueOf(0.25f), saved.getKoreaderProgressPercent());
         assertEquals(ReadStatus.READING, saved.getReadStatus());
 
         ArgumentCaptor<UserBookFileProgressEntity> fileCaptor =
@@ -783,6 +783,16 @@ class GrimmlinkServicesBehaviorTest {
                 Float.valueOf(100.0f),
                 GrimmlinkProgressService.resolvePercent(
                         KoreaderProgress.builder().currentPage(5000).totalPages(4000).build()));
+    }
+
+    @Test
+    void koreaderLegacyStorage_roundTripsIncomingPercent() {
+        for (float percentage : List.of(1.0f, 10.0f, 20.4f, 50.0f)) {
+            Float stored = GrimmlinkProgressService.toStoredKoreaderFraction(percentage);
+            assertEquals(
+                    percentage,
+                    GrimmlinkProgressService.fromStoredKoreaderFraction(stored));
+        }
     }
 
     @Test
@@ -858,7 +868,7 @@ class GrimmlinkServicesBehaviorTest {
                 .thenReturn(book);
         UserBookProgressEntity existing = new UserBookProgressEntity();
         existing.setId(20L);
-        existing.setKoreaderProgressPercent(75.0f);
+        existing.setKoreaderProgressPercent(0.75f);
         existing.setKoreaderProgress("{\"page\":50}");
         existing.setKoreaderDevice("android");
         existing.setKoreaderDeviceId("dev-99");

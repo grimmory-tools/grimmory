@@ -98,7 +98,8 @@ public class GrimmlinkPdfBridgeService {
                 request.getRawKoreaderProgress(),
                 request.getProgress(),
                 request.getCurrentPage() != null ? String.valueOf(request.getCurrentPage()) : null));
-        progress.setKoreaderProgressPercent(resolvedPercent);
+        progress.setKoreaderProgressPercent(
+                GrimmlinkProgressService.toStoredKoreaderFraction(resolvedPercent));
         progress.setKoreaderDevice(WEB_READER_DEVICE);
         progress.setKoreaderDeviceId(WEB_READER_DEVICE_ID);
         progress.setKoreaderLastSyncTime(Instant.now());
