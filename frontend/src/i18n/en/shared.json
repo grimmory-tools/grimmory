@@ -150,5 +150,48 @@
     "toast": {
       "createFailedDefault": "Failed to create admin user. Try again."
     }
+  },
+  "message": {
+    "issueCount": "{{ count }} issues",
+    "issuePosition": "{{ current }} of {{ count }} issues",
+    "previousIssue": "Previous issue",
+    "nextIssue": "Next issue"
+  },
+  "ui": {
+    "autocomplete": {
+      "noResults": "No results",
+      "removeTag": "Remove {{ tag }}"
+    },
+    "datePicker": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month"
+    },
+    "input": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "message": {
+      "issueCount": "{{ count }} issues",
+      "issuePosition": "{{ current }} of {{ count }} issues",
+      "previousIssue": "Previous issue",
+      "nextIssue": "Next issue"
+    },
+    "rating": {
+      "valueText": "{{ rating }} out of {{ max }} stars",
+      "setRatingTo": "Set rating to {{ rating }} out of {{ max }} stars"
+    },
+    "select": {
+      "clearSelection": "Clear selection",
+      "noResults": "No results",
+      "search": "Search",
+      "selectedCount": "{{ count }} selected"
+    },
+    "spinner": {
+      "loading": "Loading"
+    },
+    "tag": {
+      "removeTag": "Remove tag",
+      "removeLabel": "Remove {{ label }}"
+    }
   }
 }

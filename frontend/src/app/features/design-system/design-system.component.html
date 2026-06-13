@@ -1,0 +1,608 @@
+<main cdkScrollable class="design-system-page">
+  <header class="page-header flex flex-wrap items-center justify-between gap-3">
+    <h1>Design System</h1>
+    <div class="flex flex-wrap items-center gap-2">
+      <app-button variant="soft" size="sm" icon="pi pi-folder" label="Create library" (clicked)="openExample('library')" />
+      <app-button variant="soft" size="sm" icon="pi pi-mobile" label="Device settings" (clicked)="openExample('device')" />
+      <app-button variant="soft" size="sm" icon="pi pi-list" label="Everything" (clicked)="openExample('everything')" />
+    </div>
+  </header>
+
+  <section class="showcase-section">
+    <h2>Buttons</h2>
+
+    <div class="variant-grid">
+      @for (example of buttonExamples; track example.tone + example.variant) {
+        <div class="variant-cell">
+          <span class="variant-label">{{ example.tone }} / {{ example.variant }}</span>
+          <div class="button-row">
+            @for (size of buttonSizes; track size) {
+              <app-button
+                [tone]="example.tone"
+                [variant]="example.variant"
+                [size]="size"
+                icon="pi pi-bolt"
+                [label]="size" />
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="sample-row">
+      <app-button iconOnly icon="pi pi-chevron-left" ariaLabel="Previous" />
+      <app-button iconOnly rounded icon="pi pi-heart" ariaLabel="Favourite" />
+      <app-button label="Loading" icon="pi pi-save" loading />
+      <app-button label="Disabled" disabled />
+      <app-button fluid label="Full width" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Split Buttons</h2>
+
+    <div class="sample-row">
+      <app-split-button
+        tone="primary"
+        label="Open"
+        icon="pi pi-folder-open"
+        [model]="menuItems" />
+      <app-split-button
+        label="Download"
+        icon="pi pi-download"
+        [model]="menuItems" />
+      <app-split-button
+        tone="danger"
+        variant="soft"
+        label="Delete"
+        icon="pi pi-trash"
+        [model]="menuItems" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Inputs</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Small</span>
+        <app-input size="sm" placeholder="Small input" />
+      </div>
+      <div class="field">
+        <span>Medium</span>
+        <app-input [(value)]="inputValue" />
+      </div>
+      <div class="field">
+        <span>Large</span>
+        <app-input size="lg" placeholder="Large input" />
+      </div>
+      <div class="field">
+        <span>Invalid</span>
+        <app-input invalid value="Needs attention" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-input disabled value="Disabled input" />
+      </div>
+      <div class="field">
+        <span>Password</span>
+        <app-input type="password" value="password" revealToggle />
+      </div>
+      <div class="field">
+        <span>Trailing Action</span>
+        <app-input value="Search text" trailingIcon="pi pi-times" trailingAriaLabel="Clear text" />
+      </div>
+      <div class="field">
+        <span>Leading Icon</span>
+        <app-input type="search" leadingIcon="pi pi-search" placeholder="Search..." />
+      </div>
+      <div class="field">
+        <span>Leading + Trailing</span>
+        <app-input
+          type="search"
+          value="Search text"
+          leadingIcon="pi pi-search"
+          trailingIcon="pi pi-times"
+          trailingAriaLabel="Clear search" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Number Inputs</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Range (8-72)</span>
+        <app-number-input [(value)]="fontSizeValue" [min]="8" [max]="72" />
+      </div>
+      <div class="field">
+        <span>Step 0.5</span>
+        <app-number-input [(value)]="weightValue" [min]="0" [max]="10" [step]="0.5" />
+      </div>
+      <div class="field">
+        <span>With unit</span>
+        <app-number-input [value]="250" [min]="1" [max]="1000" unit="MB" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-number-input [value]="42" disabled />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Sliders</h2>
+
+    <div class="flex max-w-md flex-col gap-5">
+      <div class="field">
+        <span>Range value ({{ aspectRatioValue.toFixed(1) }})</span>
+        <app-slider [(value)]="aspectRatioValue" [min]="1.5" [max]="3" [step]="0.1" ariaLabel="Range value" />
+      </div>
+      <div class="field">
+        <span>Percentage ({{ compressionValue }}%)</span>
+        <app-slider [(value)]="compressionValue" [min]="1" [max]="100" ariaLabel="Percentage" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-slider [value]="40" disabled ariaLabel="Disabled slider" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Ratings</h2>
+
+    <div class="flex flex-col gap-5">
+      <div class="field">
+        <span>Expandable ({{ personalRating }})</span>
+        <app-rating [(value)]="personalRating" expandable ariaLabel="Expandable rating" />
+      </div>
+      <div class="field">
+        <span>Editable ({{ ratingValue }})</span>
+        <app-rating [(value)]="ratingValue" ariaLabel="Editable rating" />
+      </div>
+      <div class="field">
+        <span>Read-only</span>
+        <app-rating [value]="4.3" readonly showValue />
+      </div>
+      <div class="field">
+        <span>Sizes</span>
+        <div class="flex items-center gap-4">
+          <app-rating [value]="3.5" readonly size="sm" />
+          <app-rating [value]="3.5" readonly size="md" />
+          <app-rating [value]="3.5" readonly size="lg" />
+        </div>
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-rating [value]="3" disabled ariaLabel="Disabled rating" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Checkboxes</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Default</span>
+        <app-checkbox ariaLabel="Default checkbox" />
+      </div>
+      <div class="field">
+        <span>Checked</span>
+        <app-checkbox [(checked)]="checkboxAccepted" ariaLabel="Checked checkbox" />
+      </div>
+      <div class="field">
+        <span>Indeterminate</span>
+        <app-checkbox [indeterminate]="true" ariaLabel="Indeterminate checkbox" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-checkbox disabled [checked]="true" ariaLabel="Disabled checkbox" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Switches</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Off</span>
+        <app-switch ariaLabel="Off switch" />
+      </div>
+      <div class="field">
+        <span>On</span>
+        <app-switch [(checked)]="switchEnabled" ariaLabel="On switch" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-switch disabled [checked]="true" ariaLabel="Disabled switch" />
+      </div>
+      <div class="field">
+        <span>Small</span>
+        <app-switch size="sm" [checked]="true" ariaLabel="Small switch" />
+      </div>
+      <div class="field">
+        <span>Large</span>
+        <app-switch size="lg" [checked]="true" ariaLabel="Large switch" />
+      </div>
+    </div>
+
+    <div class="input-grid">
+      <app-field label="Labeled switch" hint="Inline help text.">
+        <app-switch [(checked)]="switchEnabled" />
+      </app-field>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Radio Groups</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>List</span>
+        <app-radio-group [(value)]="radioViewValue" [options]="radioViewOptions" ariaLabel="Options" />
+      </div>
+
+      <div class="field">
+        <span>Segmented</span>
+        <app-radio-group variant="segmented" [(value)]="radioViewValue" [options]="radioViewOptions" ariaLabel="Segmented options" />
+      </div>
+
+      <app-field label="Radio group" hint="Choose one.">
+        <app-radio-group [formField]="profileForm.viewMode" [options]="radioViewOptions" />
+      </app-field>
+    </div>
+
+    <div class="input-grid">
+      <app-radio-group variant="card" [(value)]="radioDensityValue" [options]="radioDensityOptions" ariaLabel="Card options" />
+
+      <app-field label="Card radio group" hint="Card layout with descriptions.">
+        <app-radio-group variant="card" [(value)]="radioDensityValue" [options]="radioDensityOptions" />
+      </app-field>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Selects</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Default</span>
+        <app-select
+          [(value)]="selectValue"
+          [options]="selectOptions" />
+      </div>
+      <div class="field">
+        <span>Small</span>
+        <app-select
+          size="sm"
+          [options]="selectOptions"
+          placeholder="Choose option" />
+      </div>
+      <div class="field">
+        <span>Clearable</span>
+        <app-select
+          showClear
+          [options]="selectOptions"
+          placeholder="Choose option" />
+      </div>
+      <div class="field">
+        <span>Filter</span>
+        <app-select
+          filter
+          [options]="selectOptions"
+          placeholder="Search options" />
+      </div>
+      <div class="field">
+        <span>Grouped</span>
+        <app-select
+          [groups]="groupedSelectOptions"
+          placeholder="Choose option" />
+      </div>
+      <div class="field">
+        <span>Swatches</span>
+        <app-select
+          [(value)]="themeValue"
+          [options]="themeSelectOptions">
+          <ng-template appSelectSelected let-option>
+            @if (option) {
+              <span class="select-rich-option">
+                <span class="select-swatch" [style.background]="$any(option).color"></span>
+                <span>{{ $any(option).label }}</span>
+              </span>
+            }
+          </ng-template>
+          <ng-template appSelectOption let-option>
+            <span class="select-rich-option">
+              <span class="select-swatch" [style.background]="$any(option).color"></span>
+              <span>{{ $any(option).label }}</span>
+            </span>
+          </ng-template>
+        </app-select>
+      </div>
+      <div class="field">
+        <span>Invalid</span>
+        <app-select
+          invalid
+          [options]="selectOptions"
+          placeholder="Choose option" />
+      </div>
+      <div class="field">
+        <span>Disabled</span>
+        <app-select
+          disabled
+          value="a"
+          [options]="selectOptions" />
+      </div>
+      <div class="field">
+        <span>Multiple</span>
+        <app-multi-select
+          showClear
+          filter
+          [(value)]="multiSelectValue"
+          [options]="selectOptions"
+          placeholder="Choose options" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Date Pickers</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Default</span>
+        <app-date-picker [(value)]="dateValue" placeholder="Select a date" ariaLabel="Example date" />
+      </div>
+      <div class="field">
+        <span>Small</span>
+        <app-date-picker size="sm" [(value)]="dateValue" placeholder="Select a date" ariaLabel="Small date" />
+      </div>
+      <div class="field">
+        <span>Bounded (this month)</span>
+        <app-date-picker
+          [(value)]="dateValue"
+          minDate="2026-06-01"
+          maxDate="2026-06-30"
+          placeholder="Within June"
+          ariaLabel="Bounded date" />
+      </div>
+      <div class="field">
+        <span>Range</span>
+        <app-date-range-picker [(value)]="dateRangeValue" placeholder="Select a range" ariaLabel="Date range" />
+      </div>
+      <div class="field">
+        <app-field [field]="profileForm.birthday" label="Birthday">
+          <app-date-picker [formField]="profileForm.birthday" placeholder="Pick a date" />
+        </app-field>
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Autocomplete</h2>
+
+    <div class="max-w-md">
+      <app-autocomplete
+        [(value)]="autocompleteValue"
+        [suggestions]="filteredAutocompleteOptions()"
+        (complete)="filterAutocompleteOptions($event)"
+        placeholder="Start typing..."
+        ariaLabel="Autocomplete" />
+    </div>
+    <div class="max-w-md">
+      <app-multi-autocomplete
+        [(value)]="tags"
+        [suggestions]="filteredTags()"
+        (complete)="filterTags($event)"
+        placeholder="Add tags..."
+        ariaLabel="Tags"
+        removeTagLabel="Remove tag" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Textareas</h2>
+
+    <div class="input-grid">
+      <div class="field">
+        <span>Default</span>
+        <app-textarea [(value)]="textareaValue" rows="1" />
+      </div>
+      <div class="field">
+        <span>Auto Resize</span>
+        <app-textarea autoResize rows="2" value="Example text" />
+      </div>
+      <div class="field">
+        <span>Invalid</span>
+        <app-textarea invalid rows="1" value="Needs attention" />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Form Fields</h2>
+
+    <div class="input-grid">
+      <app-field label="Display name" hint="Required.">
+        <app-input [formField]="profileForm.displayName" placeholder="Display name" />
+      </app-field>
+
+      <app-field label="Email" hint="Valid email address.">
+        <app-input type="email" [formField]="profileForm.email" placeholder="name@example.com" />
+      </app-field>
+
+      <app-field label="Notes" hint="At least 10 characters.">
+        <app-textarea [formField]="profileForm.bio" rows="2" placeholder="Notes" />
+      </app-field>
+
+      <app-field label="Static error" hint="Hint stays visible with errors." [errors]="['Required field.']">
+        <app-input value="Example value" invalid />
+      </app-field>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Messages</h2>
+
+    <div class="flex max-w-md flex-col gap-2">
+      <app-message color="neutral">Neutral message.</app-message>
+      <app-message color="primary">Primary message.</app-message>
+      <app-message color="green">Success message.</app-message>
+      <app-message color="amber">Warning message.</app-message>
+      <app-message color="red">Error message.</app-message>
+    </div>
+
+    <p class="text-sm text-text-muted dark:text-text-secondary">
+      Group validation:
+    </p>
+    <div class="flex max-w-md flex-wrap items-center gap-2">
+      <app-button label="Validate group" (clicked)="validateSyncGroup()" />
+      <app-message inline [field]="syncForm.sync" />
+    </div>
+
+    <p class="text-sm text-text-muted dark:text-text-secondary">
+      Form summary:
+    </p>
+    <div class="flex max-w-md flex-col gap-2">
+      <app-message [field]="profileForm" summary />
+      <app-message [field]="profileForm" summary summaryLayout="inline" />
+      <app-button label="Validate page" (clicked)="validateProfile()" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Accordion</h2>
+
+    <div class="max-w-md">
+      <app-accordion [items]="accordionItems" [(value)]="accordionValue">
+        <ng-template appAccordionHeader let-item>{{ item.title }}</ng-template>
+        <ng-template appAccordionActions>
+          <app-button size="sm" variant="ghost" icon="pi pi-cog" iconOnly ariaLabel="Configure" />
+        </ng-template>
+        <ng-template appAccordionContent let-item>{{ item.body }}</ng-template>
+      </app-accordion>
+    </div>
+
+    <p class="text-sm text-text-muted dark:text-text-secondary">Multiple items open.</p>
+    <div class="max-w-md">
+      <app-accordion multiple [items]="accordionItems" [(value)]="accordionMultiValue">
+        <ng-template appAccordionHeader let-item>
+          <span class="inline-flex items-center gap-2"><i class="pi pi-folder text-text-muted" aria-hidden="true"></i>{{ item.title }}</span>
+        </ng-template>
+        <ng-template appAccordionContent let-item>{{ item.body }}</ng-template>
+      </app-accordion>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Spinners</h2>
+
+    <div class="flex flex-wrap items-center gap-6">
+      <app-spinner size="sm" ariaLabel="Loading" />
+      <app-spinner size="md" ariaLabel="Loading" />
+      <app-spinner size="lg" ariaLabel="Loading" />
+      <app-spinner size="lg" styleClass="text-text-muted" ariaLabel="Loading" />
+      <span class="inline-flex items-center gap-2 text-sm text-text-muted dark:text-text-secondary">
+        <app-spinner size="sm" ariaLabel="Loading" /> Loading...
+      </span>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Menus</h2>
+
+    <app-button label="Open menu" icon="pi pi-ellipsis-v" (clicked)="debugMenu.toggle($event)" />
+    <app-menu #debugMenu [model]="menuItems" />
+  </section>
+
+  <section class="showcase-section">
+    <h2>Tooltips</h2>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <app-button label="Top" [appTooltip]="'Defaults to the top'" />
+      <app-button label="Bottom" [appTooltip]="'Below the trigger'" appTooltipPosition="bottom" />
+      <app-button label="Left" [appTooltip]="'To the left'" appTooltipPosition="left" />
+      <app-button label="Right" [appTooltip]="'To the right'" appTooltipPosition="right" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Tags</h2>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag label="Neutral" />
+      <app-tag color="primary" label="Primary" />
+      <app-tag color="green" label="Green" />
+      <app-tag color="red" label="Red" />
+      <app-tag color="amber" label="Amber" />
+      <app-tag color="sky" label="Sky" />
+      <app-tag color="blue" label="Blue" />
+      <app-tag color="teal" label="Teal" />
+      <app-tag color="indigo" label="Indigo" />
+      <app-tag color="purple" label="Purple" />
+      <app-tag color="pink" label="Pink" />
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag size="sm" color="green" label="Small" />
+      <app-tag size="md" color="green" label="Medium" />
+      <app-tag color="amber" icon="pi pi-exclamation-triangle" label="With icon" />
+      <app-tag color="sky">Projected content</app-tag>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag color="blue" clickable label="Clickable" ariaLabel="Clickable tag" />
+      <app-tag color="indigo" removable label="Removable" removeLabel="Remove tag" />
+      <app-tag customColor="#6366f1" label="Custom color" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <h2>Tabs</h2>
+
+    <div class="flex min-w-0 flex-col gap-6">
+      <app-tabs
+        [tabs]="settingsTabs"
+        variant="underline"
+        ariaLabel="Underline tabs example"
+        [(selectedTabId)]="underlineTab"
+      />
+      <app-tabs
+        [tabs]="settingsTabs"
+        variant="segmented"
+        ariaLabel="Segmented tabs example"
+        [(selectedTabId)]="segmentedTab"
+      />
+      <div class="flex min-w-0 flex-col items-start gap-3">
+        <app-tabs
+          [tabs]="settingsTabs"
+          variant="segmented"
+          size="sm"
+          collapse="never"
+          ariaLabel="Small segmented tabs"
+          [(selectedTabId)]="segmentedTabSm"
+        />
+        <app-tabs
+          [tabs]="settingsTabs"
+          variant="segmented"
+          size="lg"
+          collapse="never"
+          ariaLabel="Large segmented tabs"
+          [(selectedTabId)]="segmentedTabLg"
+        />
+      </div>
+
+      <app-tabs
+        [tabs]="manyTabs"
+        variant="underline"
+        ariaLabel="Many tabs example"
+        [(selectedTabId)]="manyTab"
+      />
+    </div>
+  </section>
+
+</main>

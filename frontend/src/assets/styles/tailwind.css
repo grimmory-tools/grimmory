@@ -5,6 +5,30 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+      scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), 1);
+  }
+}
+
+@utility animate-in {
+  animation: enter 120ms ease-out;
+}
+@utility fade-in-0 {
+  --tw-enter-opacity: 0;
+}
+@utility zoom-in-98 {
+  --tw-enter-scale: 0.98;
+}
+@utility slide-in-from-top-1 {
+  --tw-enter-translate-y: -0.25rem;
+}
+@utility slide-in-from-bottom-1 {
+  --tw-enter-translate-y: 0.25rem;
+}
+
 @theme static {
   --font-sans: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
 
@@ -61,6 +85,9 @@
   --color-logo-start: var(--color-primary-400);
   --color-logo-end: var(--color-primary-600);
   --color-logo-bookmark: #FF2126;
+
+  --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 6%), 0 2px 4px 0 rgb(0 0 0 / 4%);
+  --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 12%), 0 2px 6px -2px rgb(0 0 0 / 8%);
 }
 
 :root {
@@ -113,6 +140,8 @@
   --color-logo-bookmark: var(--color-white);
   --color-warning: var(--color-amber-400);
   --color-info: var(--color-sky-400);
+  --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 50%), 0 2px 4px 0 rgb(0 0 0 / 40%);
+  --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 55%), 0 2px 6px -2px rgb(0 0 0 / 45%);
 }
 
 [data-app-theme="grimmory"] {
@@ -481,7 +510,6 @@
   --color-logo-end: var(--color-gray-300);
 }
 
-/* Custom theme: zinc surface, primary palette chosen at runtime via the picker. */
 [data-app-theme="custom"] {
   --app-primary-tint: 5%;
   --color-primary-50: var(--color-orange-50);
@@ -516,6 +544,8 @@
   --color-border: color-mix(in srgb, var(--color-text) 18%, transparent);
   --color-card-outline: color-mix(in srgb, var(--color-text) 14%, transparent);
   --color-active-surface: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 60%), 0 2px 4px 0 rgb(0 0 0 / 50%);
+  --shadow-pop: 0 4px 14px -2px rgb(0 0 0 / 70%), 0 2px 8px -2px rgb(0 0 0 / 55%);
 }
 
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");

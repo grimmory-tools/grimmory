@@ -1,0 +1,124 @@
+<main cdkScrollable class="h-full overflow-y-auto bg-page p-6 text-text sm:p-8">
+  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <header class="flex flex-col gap-3">
+      <app-button
+        variant="ghost"
+        size="sm"
+        icon="pi pi-chevron-left"
+        label="Back to design system"
+        styleClass="self-start"
+        (clicked)="back()" />
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-extrabold text-text-strong">Device settings</h1>
+      </div>
+    </header>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag [color]="deviceForm().valid() ? 'green' : 'red'" [label]="deviceForm().valid() ? 'valid' : 'invalid'" />
+      <app-tag [color]="deviceForm().dirty() ? 'amber' : 'neutral'" [label]="deviceForm().dirty() ? 'dirty' : 'pristine'" />
+      <app-tag [color]="deviceForm().touched() ? 'sky' : 'neutral'" [label]="deviceForm().touched() ? 'touched' : 'untouched'" />
+      @if (deviceForm().submitting()) {
+        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+      }
+    </div>
+
+    <form [formRoot]="deviceForm" class="flex flex-col divide-y divide-border">
+      <section class="flex flex-col gap-5 pb-7">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
+              <i class="pi pi-book text-text-muted" aria-hidden="true"></i> Hardcover
+            </h2>
+            <app-switch [formField]="deviceForm.hardcover.enabled" ariaLabel="Enable Hardcover sync" />
+          </div>
+        </div>
+
+        @if (!deviceForm.hardcover.apiKey().hidden()) {
+          <app-field [field]="deviceForm.hardcover.apiKey" label="API key" hint='Starts with "hc_".'>
+            <app-input type="password" revealToggle [formField]="deviceForm.hardcover.apiKey" placeholder="hc_…" />
+          </app-field>
+        }
+      </section>
+
+      <section class="flex flex-col gap-5 py-7">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
+              <i class="pi pi-tablet text-text-muted" aria-hidden="true"></i> Kobo
+            </h2>
+            <app-switch [formField]="deviceForm.kobo.enabled" ariaLabel="Enable Kobo sync" />
+          </div>
+        </div>
+
+        @if (!deviceForm.kobo.twoWaySync().hidden()) {
+          <app-field [field]="deviceForm.kobo.twoWaySync" label="Two-way progress sync" hint="Requires KEPUB.">
+            <app-switch [formField]="deviceForm.kobo.twoWaySync" />
+          </app-field>
+
+          <app-field [field]="deviceForm.kobo.convertToKepub" label="Convert to KEPUB" hint="Needed for two-way sync.">
+            <app-switch [formField]="deviceForm.kobo.convertToKepub" />
+          </app-field>
+
+          <app-field [field]="deviceForm.kobo.markAsReading" label="Mark as reading at {{ model().kobo.markAsReading }}%" hint="1-10%.">
+            <app-slider [formField]="deviceForm.kobo.markAsReading" ariaLabel="Mark as reading threshold" />
+          </app-field>
+
+          <app-field [field]="deviceForm.kobo.markAsFinished" label="Mark as finished at {{ model().kobo.markAsFinished }}%" hint="90-100%.">
+            <app-slider [formField]="deviceForm.kobo.markAsFinished" ariaLabel="Mark as finished threshold" />
+          </app-field>
+
+          <app-field [field]="deviceForm.kobo.conversionLimitMb" label="Conversion size limit" hint="1-250 MB.">
+            <app-number-input [formField]="deviceForm.kobo.conversionLimitMb" unit="MB" />
+          </app-field>
+        }
+      </section>
+
+      <section class="flex flex-col gap-5 py-7">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
+              <i class="pi pi-mobile text-text-muted" aria-hidden="true"></i> KOReader
+            </h2>
+            <app-switch [formField]="deviceForm.koreader.enabled" ariaLabel="Enable KOReader sync" />
+          </div>
+        </div>
+
+        @if (!deviceForm.koreader.username().hidden()) {
+          <app-field [field]="deviceForm.koreader.syncWithWebReader" label="Also sync with the web reader" hint="Shares progress.">
+            <app-switch [formField]="deviceForm.koreader.syncWithWebReader" />
+          </app-field>
+
+          <app-field [field]="deviceForm.koreader.username" label="Sync username" hint="Required when enabled.">
+            <app-input [formField]="deviceForm.koreader.username" placeholder="reader" />
+          </app-field>
+
+          <app-field [field]="deviceForm.koreader.password" label="Sync password" hint="At least 6 characters.">
+            <app-input type="password" revealToggle [formField]="deviceForm.koreader.password" placeholder="••••••" />
+          </app-field>
+        }
+      </section>
+
+      <div class="flex flex-wrap items-center gap-3 pt-6">
+        <app-button
+          type="submit"
+          tone="primary"
+          label="Save settings"
+          icon="pi pi-save"
+          [loading]="deviceForm().submitting()"
+          [disabled]="deviceForm().submitting()" />
+        <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
+        <app-button variant="ghost" label="Reset" (clicked)="reset()" />
+        @if (submitState() === 'saved') {
+          <app-message inline color="green" class="ml-auto">Settings saved.</app-message>
+        } @else if (submitAttempted()) {
+          <app-message class="ml-auto" [field]="deviceForm" summary summaryLayout="inline" />
+        }
+      </div>
+    </form>
+
+    <details class="border-t border-border pt-4">
+      <summary class="cursor-pointer text-sm font-semibold text-text-strong">Form value</summary>
+      <pre class="mt-3 overflow-x-auto text-xs text-text-muted dark:text-text-secondary">{{ model() | json }}</pre>
+    </details>
+  </div>
+</main>

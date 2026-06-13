@@ -10,7 +10,7 @@ import {Book, BookMetadata} from '../../../model/book.model';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
-import {RatingComponent} from '../../../../../shared/components/rating/rating.component';
+import {AppRatingComponent} from '../../../../../shared/ui/rating/app-rating.component';
 import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
 
 interface BookTableCellLink {
@@ -89,7 +89,7 @@ const CLICKABLE_FILTER_KEYS: Record<string, string> = {
     CoverPlaceholderComponent,
     FormsModule,
     NgClass,
-    RatingComponent,
+    AppRatingComponent,
     RouterLink,
     Tooltip,
     TranslocoDirective,

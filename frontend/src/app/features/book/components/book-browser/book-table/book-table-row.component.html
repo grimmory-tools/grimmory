@@ -79,11 +79,9 @@
         @case ('rating') {
           <span class="rating-wrapper" [title]="cell.rating === null ? '' : cell.display">
             <app-rating
-              [value]="cell.rating"
+              readonly
+              [value]="cell.rating ?? 0"
               [ariaLabel]="cell.rating === null ? t('book.table.noRating') : t('book.table.ratingOutOf', {rating: cell.display, max: 5})" />
-            @if (cell.rating !== null) {
-              <span class="rating-value">({{ cell.display }})</span>
-            }
           </span>
         }
         @case ('clickable') {
