@@ -9,7 +9,7 @@
     "filters": {
         "all": "Alle",
         "notStarted": "Nicht begonnen",
-        "inProgress": "In Bearbeitung",
+        "inProgress": "Im Gange",
         "completed": "Abgeschlossen",
         "abandoned": "Abgebrochen"
     },
