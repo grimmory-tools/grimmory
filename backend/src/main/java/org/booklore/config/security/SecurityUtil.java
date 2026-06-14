@@ -94,6 +94,17 @@ public class SecurityUtil {
         var user = getCurrentUser();
         return user != null && user.getPermissions().isCanDeleteBook();
     }
+
+    public boolean canConvertBook() {
+        var user = getCurrentUser();
+        return user != null && user.getPermissions().isCanConvertBook();
+    }
+
+    public boolean canMoveOrganizeFiles() {
+        var user = getCurrentUser();
+        return user != null && user.getPermissions().isCanMoveOrganizeFiles();
+    }
+
     public boolean canAccessOpds() {
         var user = getCurrentUser();
         return user != null && user.getPermissions().isCanAccessOpds();

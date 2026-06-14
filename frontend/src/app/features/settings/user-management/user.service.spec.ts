@@ -74,6 +74,7 @@ function buildUser(overrides: BuildUserOverrides = {}): User {
     canEmailBook: false,
     canDeleteBook: false,
     canEditMetadata: false,
+    canConvertBook: false,
     canManageLibrary: false,
     canManageMetadataConfig: false,
     canSyncKoReader: false,

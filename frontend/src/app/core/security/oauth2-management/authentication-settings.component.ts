@@ -62,6 +62,7 @@ export class AuthenticationSettingsComponent {
     {label: 'Manage Icons', value: 'permissionManageIcons', selected: false, translationKey: 'perms.manageIcons'},
     {label: 'Manage Fonts', value: 'permissionManageFonts', selected: false, translationKey: 'perms.manageFonts'},
     {label: 'Edit Single Metadata', value: 'permissionEditMetadata', selected: false, translationKey: 'perms.editSingleMetadata'},
+    {label: 'Convert Books', value: 'permissionConvertBook', selected: false, translationKey: 'perms.convertBook'},
     {label: 'Bulk Auto Fetch Metadata', value: 'permissionBulkAutoFetchMetadata', selected: false, translationKey: 'perms.bulkAutoFetch'},
     {label: 'Bulk Custom Fetch Metadata', value: 'permissionBulkCustomFetchMetadata', selected: false, translationKey: 'perms.bulkCustomFetch'},
     {label: 'Access Bulk Metadata Editor', value: 'permissionBulkEditMetadata', selected: false, translationKey: 'perms.accessBulkEditor'},

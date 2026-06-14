@@ -15,7 +15,7 @@
         "bookMgmt": "Boekbeheer: {{count}}/5",
         "systemAccess": "Systeemtoegang: {{count}}/3",
         "systemConfig": "Systeemconfiguratie: {{count}}/5",
-        "metadataEditing": "Metadatabewerking: {{count}}/7",
+        "metadataEditing": "Metadatabewerking: {{count}}/8",
         "deviceSync": "Apparaatsynchronisatie: {{count}}/3",
         "bulkReset": ""
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Iconen beheren",
         "manageFonts": "Lettertypen beheren",
         "editSingleMetadata": "Enkele metadata bewerken",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Bulk automatisch metadata ophalen",
         "bulkCustomFetch": "Bulk aangepast metadata ophalen",
         "accessBulkEditor": "Toegang tot bulk metadata-editor",

@@ -22,6 +22,7 @@
         "uploadBooks": "",
         "accessBookdrop": "",
         "editSingleMetadata": "",
+        "convertBook": "Convert Books",
         "accessBulkEditor": "",
         "downloadBooks": "",
         "viewUserStats": "",

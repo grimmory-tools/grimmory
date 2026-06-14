@@ -124,7 +124,7 @@ class UserProvisioningServiceTest {
     @Test
     void provisionOidcUser_appliesPermissionsFromDefaultPermissionsList() {
         provisionDetails.setDefaultPermissions(List.of(
-                "permissionUpload", "permissionDownload", "permissionEditMetadata"));
+                "permissionUpload", "permissionDownload", "permissionEditMetadata", "permissionConvertBook"));
 
         userProvisioningService.provisionOidcUser(
                 "jdoe", "jdoe@example.com", "John Doe",
@@ -137,6 +137,7 @@ class UserProvisioningServiceTest {
         assertThat(perms.isPermissionUpload()).isTrue();
         assertThat(perms.isPermissionDownload()).isTrue();
         assertThat(perms.isPermissionEditMetadata()).isTrue();
+        assertThat(perms.isPermissionConvertBook()).isTrue();
     }
 
     @Test
@@ -154,6 +155,7 @@ class UserProvisioningServiceTest {
         assertThat(perms.isPermissionUpload()).isTrue();
         assertThat(perms.isPermissionDownload()).isFalse();
         assertThat(perms.isPermissionEditMetadata()).isFalse();
+        assertThat(perms.isPermissionConvertBook()).isFalse();
         assertThat(perms.isPermissionManageLibrary()).isFalse();
         assertThat(perms.isPermissionEmailBook()).isFalse();
         assertThat(perms.isPermissionDeleteBook()).isFalse();

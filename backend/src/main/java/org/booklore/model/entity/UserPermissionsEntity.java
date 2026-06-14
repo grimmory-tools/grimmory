@@ -35,6 +35,10 @@ public class UserPermissionsEntity {
     @Builder.Default
     private boolean permissionEditMetadata = false;
 
+    @Column(name = "permission_convert_book", nullable = false)
+    @Builder.Default
+    private boolean permissionConvertBook = false;
+
     @Column(name = "permission_manipulate_library", nullable = false)
     @Builder.Default
     private boolean permissionManageLibrary = false;

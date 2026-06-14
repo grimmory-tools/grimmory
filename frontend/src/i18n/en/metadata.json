@@ -399,7 +399,9 @@
       "largeFileMessage": "This file exceeds 25MB. Some email providers may reject large attachments.\n\nDo you want to send it anyway?",
       "largeFileHeader": "Large File Warning",
       "sendAnyway": "Send Anyway"
-    }
+    },
+    "convertBtn": "Convert",
+    "convertTooltip": "Convert this book"
   },
   "sidecar": {
     "title": "Sidecar Metadata",

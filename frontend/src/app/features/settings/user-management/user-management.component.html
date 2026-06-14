@@ -105,10 +105,10 @@
                       <i class="pi pi-cog"></i>
                       <span>{{ getSystemConfigPermissionsCount(user) }}/5</span>
                     </div>
-                    <div class="permission-badge" [attr.data-level]="getPermissionLevel(getMetadataEditingPermissionsCount(user), 7)"
+                    <div class="permission-badge" [attr.data-level]="getPermissionLevel(getMetadataEditingPermissionsCount(user), 8)"
                          [pTooltip]="t('permBadges.metadataEditing', { count: getMetadataEditingPermissionsCount(user) })">
                       <i class="pi pi-pencil"></i>
-                      <span>{{ getMetadataEditingPermissionsCount(user) }}/7</span>
+                      <span>{{ getMetadataEditingPermissionsCount(user) }}/8</span>
                     </div>
                     <div class="permission-badge" [attr.data-level]="getPermissionLevel(getDeviceSyncPermissionsCount(user), 3)"
                          [pTooltip]="t('permBadges.deviceSync', { count: getDeviceSyncPermissionsCount(user) })">
@@ -330,6 +330,10 @@
                           <div class="permission-item">
                             <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" [disabled]="isPermissionDisabled(user)" inputId="metadata-{{user.id}}"></p-checkbox>
                             <label [for]="'metadata-'+user.id">{{ t('perms.editSingleMetadata') }}</label>
+                          </div>
+                          <div class="permission-item">
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canConvertBook" [disabled]="isPermissionDisabled(user)" inputId="convertbook-{{user.id}}"></p-checkbox>
+                            <label [for]="'convertbook-'+user.id">{{ t('perms.convertBook') }}</label>
                           </div>
                           <div class="permission-item">
                             <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkAutoFetchMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkautofetch-{{user.id}}"></p-checkbox>

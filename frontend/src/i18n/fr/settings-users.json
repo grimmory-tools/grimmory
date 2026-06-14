@@ -15,7 +15,7 @@
         "bookMgmt": "Gestion des livres : {{count}}/5",
         "systemAccess": "Accès système : {{count}}/3",
         "systemConfig": "Configuration système : {{count}}/5",
-        "metadataEditing": "Édition des métadonnées : {{count}}/7",
+        "metadataEditing": "Édition des métadonnées : {{count}}/8",
         "deviceSync": "Synchronisation appareil : {{count}}/3",
         "bulkReset": "Réinitialisation en masse : {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Gérer les icônes",
         "manageFonts": "Gérer les polices",
         "editSingleMetadata": "Modifier les métadonnées individuelles",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Récupération automatique en masse des métadonnées",
         "bulkCustomFetch": "Récupération personnalisée en masse des métadonnées",
         "accessBulkEditor": "Accéder à l'éditeur de métadonnées en masse",

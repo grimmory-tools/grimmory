@@ -216,6 +216,16 @@
               </div>
 
               <div class="permission-item">
+                <p-checkbox formControlName="permissionConvertBook" [binary]="true" inputId="perm-convert"></p-checkbox>
+                <label for="perm-convert" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-sync permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.convertBook') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
                 <p-checkbox formControlName="permissionManipulateLibrary" [binary]="true" inputId="perm-library"></p-checkbox>
                 <label for="perm-library" class="permission-label">
                   <div class="permission-icon-wrapper">

@@ -17,6 +17,7 @@ public class UserUpdateRequest {
         private boolean canUpload;
         private boolean canDownload;
         private boolean canEditMetadata;
+        private boolean canConvertBook;
         private boolean canManageLibrary;
         private boolean canEmailBook;
         private boolean canDeleteBook;

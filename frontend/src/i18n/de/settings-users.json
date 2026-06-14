@@ -15,7 +15,7 @@
         "bookMgmt": "Buchverwaltung: {{count}}/5",
         "systemAccess": "Systemzugriff: {{count}}/3",
         "systemConfig": "Systemkonfiguration: {{count}}/5",
-        "metadataEditing": "Metadaten-Bearbeitung: {{count}}/7",
+        "metadataEditing": "Metadaten-Bearbeitung: {{count}}/8",
         "deviceSync": "Gerätesynchronisierung: {{count}}/3",
         "bulkReset": "Massen-Zurücksetzen: {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Symbole verwalten",
         "manageFonts": "Schriftarten verwalten",
         "editSingleMetadata": "Einzelne Metadaten bearbeiten",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Massen-Auto-Abruf von Metadaten",
         "bulkCustomFetch": "Massen-Benutzerdefinierter-Abruf von Metadaten",
         "accessBulkEditor": "Massen-Metadaten-Editor aufrufen",

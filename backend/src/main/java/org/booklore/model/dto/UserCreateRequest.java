@@ -27,6 +27,7 @@ public class UserCreateRequest {
     private boolean permissionUpload;
     private boolean permissionDownload;
     private boolean permissionEditMetadata;
+    private boolean permissionConvertBook;
     private boolean permissionManageLibrary;
     private boolean permissionEmailBook;
     private boolean permissionDeleteBook;

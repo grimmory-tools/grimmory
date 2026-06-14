@@ -151,6 +151,32 @@ export class BookDialogHelperService {
       });
     });
   }
+  async openBookConverterDialog(book: Book): Promise<DynamicDialogRef | null> {
+    return this.dialogLauncherService.launchLazyDialog(async () => {
+      const {BookConverterComponent} = await import('../book-converter/book-converter.component');
+      return this.openDialog(BookConverterComponent, {
+        showHeader: false,
+        styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
+        data: {
+          books: [book],
+        },
+      });
+    });
+  }
+
+  async openBulkBookConverterDialog(books: Book[]): Promise<DynamicDialogRef | null> {
+    return this.dialogLauncherService.launchLazyDialog(async () => {
+      const {BookConverterComponent} = await import('../book-converter/book-converter.component');
+      return this.openDialog(BookConverterComponent, {
+        showHeader: false,
+        styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
+        data: {
+          books,
+        },
+      });
+    });
+  }
+
 
   async openCoverSearchDialog(bookId: number, coverType?: 'ebook' | 'audiobook'): Promise<DynamicDialogRef | null> {
     return this.dialogLauncherService.launchLazyDialog(async () => {

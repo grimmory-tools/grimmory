@@ -15,7 +15,7 @@
         "bookMgmt": "Управление книгами: {{count}}/5",
         "systemAccess": "Доступ к системе: {{count}}/3",
         "systemConfig": "Конфигурация системы: {{count}}/5",
-        "metadataEditing": "Редактирование метаданных: {{count}}/7",
+        "metadataEditing": "Редактирование метаданных: {{count}}/8",
         "deviceSync": "Синхронизация устройств: {{count}}/3",
         "bulkReset": "Массовый сброс: {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Управление иконками",
         "manageFonts": "Управление шрифтами",
         "editSingleMetadata": "Редактирование метаданных одной книги",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Массовое автоматическое получение метаданных",
         "bulkCustomFetch": "Массовое пользовательское получение метаданных",
         "accessBulkEditor": "Доступ к массовому редактору метаданных",

@@ -42,6 +42,14 @@ public enum UserPermission {
             UserPermissionsEntity::isPermissionEditMetadata,
             UserPermissionsEntity::setPermissionEditMetadata
     ),
+    CAN_CONVERT_BOOK(
+            "Convert books",
+            BookLoreUser.UserPermissions::isCanConvertBook,
+            BookLoreUser.UserPermissions::setCanConvertBook,
+            UserUpdateRequest.Permissions::isCanConvertBook,
+            UserPermissionsEntity::isPermissionConvertBook,
+            UserPermissionsEntity::setPermissionConvertBook
+    ),
     CAN_MANAGE_LIBRARY(
             "Manage library",
             BookLoreUser.UserPermissions::isCanManageLibrary,

@@ -1,0 +1,62 @@
+<ng-container *transloco="let t; prefix: 'book.converter'">
+<div class="book-converter-container">
+  <div class="panel-header">
+    <div class="header-icon-wrapper">
+      <i class="pi pi-sync header-icon"></i>
+    </div>
+    <div class="header-text">
+      <h2 class="panel-title">{{ t(titleKey()) }}</h2>
+      <p class="panel-description">{{ t('description') }}</p>
+    </div>
+    <p-button
+      icon="pi pi-times"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      (click)="dynamicDialogRef.close()"
+      class="close-button">
+    </p-button>
+  </div>
+
+  <div class="dialog-content">
+    <div class="form-fields">
+      @if (targetFormats().length > 0) {
+        <div class="form-field">
+          <label class="field-label" for="book-converter-target-format">{{ t('targetFormat') }}</label>
+          <p-select
+            inputId="book-converter-target-format"
+            [options]="targetFormats()"
+            [placeholder]="t('selectFormat')"
+            [ngModel]="selectedFormat()"
+            (ngModelChange)="selectedFormat.set($event)"
+            appendTo="body"
+            class="full-width">
+          </p-select>
+        </div>
+
+        @if (books.length > 1) {
+          <div class="info-banner">
+            <i class="pi pi-info-circle"></i>
+            <span>{{ t('alreadyPresentHint') }}</span>
+          </div>
+        }
+      } @else {
+        <div class="warning-banner">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ t('noFormats') }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="dialog-footer">
+    <p-button
+      icon="pi pi-sync"
+      [label]="isSubmitting() ? t('converting') : t('convert')"
+      [loading]="isSubmitting()"
+      [disabled]="!canSubmit()"
+      (onClick)="submit()">
+    </p-button>
+  </div>
+</div>
+</ng-container>

@@ -93,7 +93,17 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     --enable-native-access=ALL-UNNAMED \
     --enable-preview"
 
-RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
+RUN printf '%s\n' \
+    '@edge-main https://dl-cdn.alpinelinux.org/alpine/edge/main' \
+    '@edge-community https://dl-cdn.alpinelinux.org/alpine/edge/community' \
+    '@edge-testing https://dl-cdn.alpinelinux.org/alpine/edge/testing' \
+    >> /etc/apk/repositories
+
+RUN apk add --no-cache --upgrade \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    musl@edge-main su-exec libstdc++ libgcc libarchive calibre@edge-testing && \
     mkdir -p /bookdrop
 
 # Manually link `libarchive.so.13` so java and other libraries can see it

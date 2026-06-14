@@ -17,6 +17,7 @@
         "manageIcons": "Upravljanje ikon",
         "manageFonts": "Upravljanje pisav",
         "editSingleMetadata": "Urejanje posameznih metapodatkov",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Množično samodejno pridobivanje metapodatkov",
         "bulkCustomFetch": "Množično ročno pridobivanje metapodatkov",
         "accessBulkEditor": "Dostop do urejevalnika množičnih metapodatkov",
@@ -78,7 +79,7 @@
         "bookMgmt": "Upravljanje knjig: {{count}}/5",
         "systemAccess": "Sistemski dostop: {{count}}/3",
         "systemConfig": "Konfiguracija sistema: {{count}}/5",
-        "metadataEditing": "Urejanje metapodatkov: {{count}}/7",
+        "metadataEditing": "Urejanje metapodatkov: {{count}}/8",
         "deviceSync": "Sinhronizacija naprav: {{count}}/3",
         "bulkReset": "Množična ponastavitev: {{count}}/3"
     },

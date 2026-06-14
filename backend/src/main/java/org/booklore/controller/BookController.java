@@ -5,6 +5,7 @@ import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookRecommendation;
 import org.booklore.model.dto.BookViewerSettings;
+import org.booklore.model.dto.request.BookConversionRequest;
 import org.booklore.model.dto.request.AttachBookFileRequest;
 import org.booklore.model.dto.request.CreatePhysicalBookRequest;
 import org.booklore.model.dto.request.DuplicateDetectionRequest;
@@ -13,12 +14,15 @@ import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.dto.request.ReadStatusUpdateRequest;
 import org.booklore.model.dto.request.ShelvesAssignmentRequest;
 import org.booklore.model.dto.response.AttachBookFileResponse;
+import org.booklore.model.dto.response.BookConversionCapabilityResponse;
+import org.booklore.model.dto.response.BookConversionResponse;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.dto.response.DuplicateGroup;
 import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
 import org.booklore.model.enums.ResetProgressType;
 import org.booklore.service.book.BookFileAttachmentService;
+import org.booklore.service.book.BookConversionService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
@@ -65,6 +69,8 @@ public class BookController {
     private final ReadingProgressService readingProgressService;
     private final PhysicalBookService physicalBookService;
     private final DuplicateDetectionService duplicateDetectionService;
+    private final BookConversionService bookConversionService;
+
 
     @Operation(summary = "Get all books", description = "Retrieve a list of all books. Optionally include descriptions.")
     @ApiResponse(responseCode = "200", description = "List of books returned successfully")
@@ -84,6 +90,17 @@ public class BookController {
             @Parameter(hidden = true) Pageable pageable) {
         return ResponseEntity.ok(bookService.getBookDTOsPaged(pageable));
     }
+    @GetMapping("/conversion-capability")
+    public ResponseEntity<BookConversionCapabilityResponse> getConversionCapability() {
+        return ResponseEntity.ok(bookConversionService.getCapability());
+    }
+
+    @PostMapping("/convert")
+    @PreAuthorize("@securityUtil.canConvertBook() or @securityUtil.isAdmin()")
+    public ResponseEntity<BookConversionResponse> convertBooks(@RequestBody @Valid BookConversionRequest request) {
+        return ResponseEntity.accepted().body(bookConversionService.scheduleConversions(request));
+    }
+
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
     @ApiResponses({

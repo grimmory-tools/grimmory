@@ -15,7 +15,7 @@
         "bookMgmt": "书籍管理：{{count}}/5",
         "systemAccess": "系统访问：{{count}}/3",
         "systemConfig": "系统配置：{{count}}/5",
-        "metadataEditing": "元数据编辑：{{count}}/7",
+        "metadataEditing": "元数据编辑：{{count}}/8",
         "deviceSync": "设备同步：{{count}}/3",
         "bulkReset": "批量重置：{{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "管理图标",
         "manageFonts": "管理字体",
         "editSingleMetadata": "编辑单个元数据",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "批量自动获取元数据",
         "bulkCustomFetch": "批量自定义获取元数据",
         "accessBulkEditor": "访问批量元数据编辑器",

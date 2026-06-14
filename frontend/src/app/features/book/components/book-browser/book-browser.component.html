@@ -372,6 +372,16 @@
                             tooltipPosition="top">
                           </p-button>
                         }
+                        @if (canConvertSelectedBooks()) {
+                          <p-button
+                            outlined="true"
+                            icon="pi pi-sync"
+                            severity="info"
+                            (click)="convertSelectedBooks()"
+                            [pTooltip]="t('tooltip.convertSelected')"
+                            tooltipPosition="top">
+                          </p-button>
+                        }
                         @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
                           <p-button
                             outlined="true"
