@@ -13,6 +13,7 @@ import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.booklore.service.user.UserCacheService;
 
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public class HardcoverSyncSettingsService {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final KoboUserSettingsRepository koboUserSettingsRepository;
+    private final UserCacheService userCacheService;
 
     @Transactional
     public HardcoverSyncSettings getCurrentUserSettings() {
@@ -62,6 +64,7 @@ public class HardcoverSyncSettingsService {
         upsertSetting(user, UserSettingKey.HARDCOVER_SYNC_ENABLED, Boolean.toString(settings.isHardcoverSyncEnabled()));
 
         userRepository.save(user);
+        userCacheService.evictUserCache(userId);
 
         HardcoverSyncSettings updated = new HardcoverSyncSettings();
         updated.setHardcoverApiKey(apiKey);
@@ -94,6 +97,7 @@ public class HardcoverSyncSettingsService {
         }
         if (shouldSave) {
             userRepository.save(user);
+            userCacheService.evictUserCache(userId);
         }
 
         HardcoverSyncSettings settings = new HardcoverSyncSettings();

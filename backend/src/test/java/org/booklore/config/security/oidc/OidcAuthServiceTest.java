@@ -15,6 +15,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.oidc.OidcGroupMappingService;
 import org.booklore.service.user.UserProvisioningService;
+import org.booklore.service.user.UserCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,7 @@ class OidcAuthServiceTest {
     @Mock private OidcSessionRepository oidcSessionRepository;
     @Mock private OidcGroupMappingService oidcGroupMappingService;
     @Mock private AuditService auditService;
+    @Mock private UserCacheService userCacheService;
 
     @InjectMocks private OidcAuthService oidcAuthService;
 

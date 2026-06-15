@@ -28,6 +28,7 @@ public class DefaultSettingInitializer {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final DefaultUserSettingsProvider settingsProvider;
+    private final UserCacheService userCacheService;
     private static final Cache<Long, Boolean> initializedUsers = Caffeine.newBuilder()
             .maximumSize(1000)
             .expireAfterWrite(Duration.ofHours(24))
@@ -49,6 +50,7 @@ public class DefaultSettingInitializer {
             }
             patchPerBookSetting(user);
             userRepository.save(user);
+            userCacheService.evictUserCache(bookLoreUser.getId());
             initializedUsers.put(bookLoreUser.getId(), Boolean.TRUE);
         } finally {
             lock.unlock();

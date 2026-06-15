@@ -18,6 +18,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.oidc.OidcGroupMappingService;
 import org.booklore.service.user.UserProvisioningService;
+import org.booklore.service.user.UserCacheService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class OidcAuthService {
     private final OidcSessionRepository oidcSessionRepository;
     private final OidcGroupMappingService oidcGroupMappingService;
     private final AuditService auditService;
+    private final UserCacheService userCacheService;
 
     private static final ConcurrentMap<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
 
@@ -321,6 +323,7 @@ public class OidcAuthService {
         }
 
         oidcGroupMappingService.syncUserGroups(user, userClaims.groups());
+        userCacheService.evictUserCache(user.getId());
         return user;
     }
 }

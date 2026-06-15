@@ -51,6 +51,7 @@ public class UserService {
     private final ObjectMapper objectMapper;
     private final BookLoreUserTransformer bookLoreUserTransformer;
     private final AuditService auditService;
+    private final UserCacheService userCacheService;
 
     @Transactional(readOnly = true)
     public List<BookLoreUser> getBookLoreUsers() {
@@ -78,6 +79,7 @@ public class UserService {
         }
 
         userRepository.save(user);
+        userCacheService.evictUserCache(id);
         auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user: " + user.getUsername());
         return bookLoreUserTransformer.toDTO(user);
     }
@@ -127,6 +129,7 @@ public class UserService {
             throw ApiError.SELF_DELETION_NOT_ALLOWED.createException();
         }
         userRepository.delete(userToDelete);
+        userCacheService.evictUserCache(id);
         auditService.log(AuditAction.USER_DELETED, "User", id, "Deleted user: " + userToDelete.getUsername());
     }
 
@@ -166,6 +169,7 @@ public class UserService {
         bookLoreUserEntity.setDefaultPassword(false);
         bookLoreUserEntity.setPasswordHash(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(bookLoreUserEntity);
+        userCacheService.evictUserCache(bookLoreUser.getId());
         auditService.log(AuditAction.PASSWORD_CHANGED, "User", bookLoreUser.getId(), "Password changed by user: " + bookLoreUser.getUsername());
     }
 
@@ -177,6 +181,7 @@ public class UserService {
         }
         userEntity.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userEntity);
+        userCacheService.evictUserCache(request.getUserId());
         auditService.log(AuditAction.PASSWORD_CHANGED, "User", request.getUserId(), "Password changed for user: " + userEntity.getUsername());
     }
 
@@ -222,6 +227,7 @@ public class UserService {
         }
 
         userRepository.save(user);
+        userCacheService.evictUserCache(userId);
     }
 
     private boolean meetsMinimumPasswordRequirements(String password) {

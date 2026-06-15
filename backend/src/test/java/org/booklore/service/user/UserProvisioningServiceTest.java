@@ -47,6 +47,9 @@ class UserProvisioningServiceTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private UserCacheService userCacheService;
+
     @InjectMocks
     private UserProvisioningService userProvisioningService;
 
