@@ -27,14 +27,6 @@ public enum BookFileType {
         return extensions.contains(extension.toLowerCase());
     }
 
-    public BookCategory category() {
-        return switch (this) {
-            case AUDIOBOOK -> BookCategory.AUDIOBOOK;
-            case CBX -> BookCategory.COMIC;
-            case PDF, EPUB, FB2, MOBI, AZW3 -> BookCategory.EBOOK;
-        };
-    }
-
     public static Optional<BookFileType> fromName(String name) {
         if (name == null) return Optional.empty();
         return Arrays.stream(values())
