@@ -46,6 +46,12 @@ updates:
           - "*"
     ignore:
       - dependency-name: "typescript"
+      - dependency-name: "@angular/common"
+        versions: [ ">=22.0.0" ]
+      - dependency-name: "@angular/compiler"
+        versions: [ ">=22.0.0" ]
+      - dependency-name: "@angular/core"
+        versions: [ ">=22.0.0" ]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
