@@ -412,8 +412,8 @@ public class GrimmlinkMetadataService {
         if (dedupeKey == null) {
             return failedResult("bookmark", null, "missing_dedupe_key");
         }
-        // Handle bookmark deletion (empty content = deletion signal)
-        if (isBookmarkDeletion(payload)) {
+        // Handle bookmark deletion (explicit deleted flag)
+        if (Boolean.TRUE.equals(payload.getDeleted())) {
             removeGrimmoryBookmark(reader, book, dedupeKey);
             return GrimmlinkItemResult.builder()
                     .type("bookmark")
@@ -468,13 +468,6 @@ public class GrimmlinkMetadataService {
             bookmark.setCreatedAt(toLocalDateTime(payload.getCreatedAt()));
         }
         bookMarkRepository.save(bookmark);
-    }
-
-    private boolean isBookmarkDeletion(GrimmlinkBookmarkPayload payload) {
-        return payload.getTitle() == null
-                && payload.getNotes() == null
-                && bookmarkPage(payload) == null
-                && bookmarkAnchor(payload) == null;
     }
 
     private void removeGrimmoryBookmark(

@@ -14,4 +14,5 @@ public class GrimmlinkBookmarkPayload {
     private GrimmlinkLocationPayload location;
     private Instant createdAt;
     private Instant updatedAt;
+    private Boolean deleted;
 }

@@ -691,7 +691,8 @@ class GrimmlinkServicesBehaviorTest {
     void syncMetadata_removesExistingGrimmoryBookmark() {
         GrimmlinkBookmarkPayload bookmark = new GrimmlinkBookmarkPayload();
         bookmark.setDedupeKey("bookmark-page-42");
-        // Empty title/notes/page/location = deletion signal
+        bookmark.setDeleted(true);
+        // Explicit deleted flag = deletion signal
         GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
         request.setBookId(99L);
         request.setBookmarks(List.of(bookmark));
