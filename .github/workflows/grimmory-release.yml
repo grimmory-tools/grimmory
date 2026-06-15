@@ -1,29 +1,23 @@
-name: Grimmory - Main Release
+name: Grimmory - Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*-grimmory'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v3.2.1-grimmory)'
+        required: true
+        type: string
 
 concurrency:
-  group: grimmory-release-main
+  group: grimmory-release
   cancel-in-progress: false
 
 jobs:
-  test-suite:
-    name: Test Suite
-    uses: ./.github/workflows/test-suite.yml
-    permissions:
-      contents: read
-      checks: write
-    with:
-      checkout_ref: ${{ github.sha }}
-      save_gradle_cache: true
-
   build-and-release:
-    name: Build, Tag, and Publish
-    needs: [test-suite]
+    name: Build, Publish, and Release
     runs-on: ubuntu-latest
 
     permissions:
@@ -31,38 +25,20 @@ jobs:
       packages: write
 
     steps:
+      - name: Determine Release Tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "release_tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Compute Fork Version
-        id: version
-        run: |
-          set -eu
-          # Count releases to get build number
-          PREV_TAG=$(git tag --list 'v*-grimmory' --sort=-version:refname | head -n 1 || true)
-          if [ -n "$PREV_TAG" ]; then
-            BASE_VERSION="${PREV_TAG%%-grimmory}"
-            MAJOR="${BASE_VERSION%%.*}"
-            MINOR="${BASE_VERSION#*.}"
-            MINOR="${MINOR%.*}"
-            PATCH="${BASE_VERSION##*.}"
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          else
-            NEW_VERSION="0.1.0"
-          fi
-          echo "release_tag=v${NEW_VERSION}-grimmory" >> "$GITHUB_OUTPUT"
-          echo "release_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "=== computed: v${NEW_VERSION}-grimmory ==="
-
-      - name: Create Git Tag
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag -a "${{ steps.version.outputs.release_tag }}" -m "Grimmory release ${{ steps.version.outputs.release_tag }}"
-          git push origin "${{ steps.version.outputs.release_tag }}"
+          fetch-depth: 1
+          ref: main
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@v3
@@ -88,32 +64,34 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.release_tag }}
+            ghcr.io/${{ github.repository }}:${{ steps.tag.outputs.release_tag }}
           build-args: |
-            APP_VERSION=${{ steps.version.outputs.release_tag }}
+            APP_VERSION=${{ steps.tag.outputs.release_tag }}
             APP_REVISION=${{ github.sha }}
           cache-from: |
             type=gha,scope=image-shared
             type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
           cache-to: |
             type=gha,scope=image-shared,mode=max
-            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        if: ${{ github.event_name == 'push' }}
         with:
-          tag_name: ${{ steps.version.outputs.release_tag }}
-          name: Grimmory ${{ steps.version.outputs.release_tag }}
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          name: Grimmory ${{ steps.tag.outputs.release_tag }}
           generate_release_notes: true
 
       - name: Write Workflow Summary
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.release_tag }}
         run: |
           {
             echo "## Grimmory Release Published"
             echo
-            echo "- **Tag**: \`${{ steps.version.outputs.release_tag }}\`"
+            echo "- **Tag**: \`${RELEASE_TAG}\`"
             echo "- **Images**:"
             echo "  - \`ghcr.io/${{ github.repository }}:latest\`"
-            echo "  - \`ghcr.io/${{ github.repository }}:${{ steps.version.outputs.release_tag }}\`"
+            echo "  - \`ghcr.io/${{ github.repository }}:${RELEASE_TAG}\`"
             echo "- **Platforms**: \`linux/amd64,linux/arm64\`"
           } >> "$GITHUB_STEP_SUMMARY"
