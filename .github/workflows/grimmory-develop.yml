@@ -1,0 +1,94 @@
+name: Grimmory - Develop Build
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: grimmory-develop
+  cancel-in-progress: true
+
+jobs:
+  test-suite:
+    name: Test Suite
+    uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      checks: write
+    with:
+      checkout_ref: ${{ github.event_name == 'push' && github.sha || 'develop' }}
+      publish_test_results: false
+      save_gradle_cache: true
+
+  build-and-push:
+    name: Build and Push Develop Image
+    needs: [test-suite]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event_name == 'push' && github.sha || 'develop' }}
+
+      - name: Compute Image Tags
+        id: tags
+        run: |
+          set -eu
+          short_sha="$(git rev-parse --short=7 HEAD)"
+          build_date="$(date -u +%Y%m%d)"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version_tag=develop-${build_date}-${short_sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Set Up QEMU for Multi-Arch Builds
+        uses: docker/setup-qemu-action@v3
+        with:
+          cache-image: false
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and Push Develop Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:develop
+            ghcr.io/${{ github.repository }}:${{ steps.tags.outputs.version_tag }}
+          build-args: |
+            APP_VERSION=${{ steps.tags.outputs.version_tag }}
+            APP_REVISION=${{ steps.tags.outputs.commit_sha }}
+          cache-from: |
+            type=gha,scope=image-shared
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
+          cache-to: |
+            type=gha,scope=image-shared,mode=max
+
+      - name: Write Workflow Summary
+        env:
+          VERSION_TAG: ${{ steps.tags.outputs.version_tag }}
+        run: |
+          {
+            echo "## Develop image published"
+            echo
+            echo "- \`ghcr.io/${{ github.repository }}:develop\`"
+            echo "- \`ghcr.io/${{ github.repository }}:${VERSION_TAG}\`"
+            echo "- Platforms: \`linux/amd64,linux/arm64\`"
+          } >> "$GITHUB_STEP_SUMMARY"
