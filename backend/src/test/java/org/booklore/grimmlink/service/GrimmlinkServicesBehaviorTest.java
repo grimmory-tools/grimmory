@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Comprehensive behavior tests for the focused Grimmlink services.
- * Covers: reading session idempotency, PDF bridge, metadata syncMode,
+ * Covers: reading session idempotency, shared PDF progress, metadata syncMode,
  * book hash matcher, progress sync, shelf cursor pagination.
  */
 class GrimmlinkServicesBehaviorTest {
@@ -65,7 +65,6 @@ class GrimmlinkServicesBehaviorTest {
 
     private GrimmlinkBookService bookService;
     private GrimmlinkProgressService progressService;
-    private GrimmlinkPdfBridgeService pdfBridgeService;
     private GrimmlinkReadingSessionService readingSessionService;
     private GrimmlinkMetadataService metadataService;
     private GrimmlinkShelfService shelfService;
@@ -91,12 +90,6 @@ class GrimmlinkServicesBehaviorTest {
                 authService,
                 bookService,
                 hashMatcher,
-                bookFileRepository,
-                userBookProgressRepository,
-                userBookFileProgressRepository);
-        pdfBridgeService = new GrimmlinkPdfBridgeService(
-                authService,
-                bookService,
                 bookFileRepository,
                 userBookProgressRepository,
                 userBookFileProgressRepository);
@@ -341,109 +334,118 @@ class GrimmlinkServicesBehaviorTest {
     }
 
     // ──────────────────────────────────────────
-    // 2) PDF BRIDGE — FORMAT CHECK + GET PROGRESS
+    // 2) SHARED PDF PROGRESS — WEB <-> KOREADER
     // ──────────────────────────────────────────
 
     @Test
-    void getPdfProgress_returnsProgressForPdf() {
-        // getPdfProgress uses resolvePrimaryFile(book) -> book.getPrimaryBookFile() -> bookFile
-        // It does NOT use bookFileRepository
-        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
-                .thenReturn(Optional.empty());
-
-        KoreaderProgress result = pdfBridgeService.getPdfProgress(99L);
-
-        assertNotNull(result);
-        assertEquals(99L, result.getBookId());
-        assertEquals(5, result.getBookFileId().intValue());
-    }
-
-    @Test
-    void getPdfProgress_returnsExistingProgress() {
+    void getProgress_pdfReturnsWebMirroredProgress() {
         UserBookProgressEntity existing = new UserBookProgressEntity();
         existing.setId(10L);
-        existing.setPdfProgressPercent(42.5f);
-        existing.setPdfProgress(85); // current page
-        existing.setLastReadTime(Instant.parse("2026-06-10T12:00:00Z"));
+        existing.setKoreaderProgress("85");
+        existing.setKoreaderProgressPercent(0.425f);
+        existing.setKoreaderDevice("WEB_READER");
+        existing.setKoreaderDeviceId("web-reader");
+        existing.setKoreaderLastSyncTime(Instant.parse("2026-06-10T12:00:00Z"));
 
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.of(existing));
 
-        KoreaderProgress result = pdfBridgeService.getPdfProgress(99L);
+        KoreaderProgress result = progressService.getProgress("hash-123");
 
-        assertNotNull(result);
+        assertEquals(Integer.valueOf(85), result.getCurrentPage());
+        assertEquals("85", result.getProgress());
         assertEquals(Float.valueOf(42.5f), result.getPercentage());
+        assertEquals("WEB_READER", result.getDevice());
+        assertEquals("web-reader", result.getDeviceId());
+        assertEquals(Instant.parse("2026-06-10T12:00:00Z"), result.getUpdatedAt());
     }
 
     @Test
-    void updatePdfProgress_detectsConflictWithoutForce() {
+    void getProgress_pdfFallsBackToLegacyProjection() {
         UserBookProgressEntity existing = new UserBookProgressEntity();
         existing.setId(10L);
+        existing.setPdfProgress(85);
+        existing.setPdfProgressPercent(42.5f);
         existing.setLastReadTime(Instant.parse("2026-06-10T12:00:00Z"));
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.of(existing));
 
-        KoreaderProgress request = KoreaderProgress.builder()
-                .currentPage(20)
-                .expectedUpdatedAt(Instant.parse("2026-06-10T11:00:00Z").toEpochMilli())
-                .build();
+        KoreaderProgress result = progressService.getProgress("hash-123");
 
-        KoreaderProgress result = pdfBridgeService.updatePdfProgress(99L, request);
-
-        assertTrue(result.getConflictDetected());
-        assertFalse(result.getUpdated());
-        assertEquals("remote_newer", result.getConversionStatus());
-        verify(userBookProgressRepository, never()).save(any());
+        assertEquals(Integer.valueOf(85), result.getCurrentPage());
+        assertEquals("85", result.getProgress());
+        assertEquals(Float.valueOf(42.5f), result.getPercentage());
+        assertEquals(Instant.parse("2026-06-10T12:00:00Z"), result.getUpdatedAt());
     }
 
     @Test
-    void updatePdfProgress_forceOverwritesConflict() {
+    void getProgress_pdfPrefersPageProjectionOverRatioProgress() {
         UserBookProgressEntity existing = new UserBookProgressEntity();
         existing.setId(10L);
-        existing.setLastReadTime(Instant.parse("2026-06-10T12:00:00Z"));
+        existing.setPdfProgress(20);
+        existing.setKoreaderProgress("0.25");
+        existing.setKoreaderProgressPercent(0.25f);
+
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(existing));
+
+        KoreaderProgress result = progressService.getProgress("hash-123");
+
+        assertEquals(Integer.valueOf(20), result.getCurrentPage());
+        assertEquals("20", result.getProgress());
+        assertEquals(Float.valueOf(25.0f), result.getPercentage());
+    }
+
+    @Test
+    void updateProgress_pdfUpdatesWebProjectionAndFileProgress() {
+        UserBookProgressEntity existing = new UserBookProgressEntity();
+        existing.setId(10L);
+        when(hashMatcher.resolveAccessibleBookByHash(any(), eq("hash-123")))
+                .thenReturn(book);
         when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
                 .thenReturn(Optional.of(existing));
         when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(userBookFileProgressRepository.findByUserIdAndBookFileId(7L, 5L))
+                .thenReturn(Optional.empty());
         when(userBookFileProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         KoreaderProgress request = KoreaderProgress.builder()
+                .document("hash-123")
+                .bookFileId(5L)
                 .currentPage(20)
                 .percentage(25.0f)
-                .expectedUpdatedAt(Instant.parse("2026-06-10T11:00:00Z").toEpochMilli())
-                .force(true)
+                .progress("0.25")
+                .device("KOReader")
+                .device_id("reader-1")
+                .updatedAt(Instant.parse("2026-06-10T11:00:00Z"))
                 .build();
 
-        KoreaderProgress result = pdfBridgeService.updatePdfProgress(99L, request);
+        when(bookFileRepository.findById(5L)).thenReturn(Optional.of(bookFile));
+        progressService.updateProgress(request);
 
-        assertFalse(result.getConflictDetected());
-        assertTrue(result.getUpdated());
-        assertEquals("ok", result.getConversionStatus());
         assertEquals(Integer.valueOf(20), existing.getPdfProgress());
         assertEquals(Float.valueOf(25.0f), existing.getPdfProgressPercent());
-        assertEquals("20", existing.getKoreaderProgress());
+        assertEquals("0.25", existing.getKoreaderProgress());
         assertEquals(Float.valueOf(0.25f), existing.getKoreaderProgressPercent());
-        assertEquals("WEB_READER", existing.getKoreaderDevice());
-        assertEquals("web-reader", existing.getKoreaderDeviceId());
+        assertEquals("KOReader", existing.getKoreaderDevice());
+        assertEquals("reader-1", existing.getKoreaderDeviceId());
         assertNotNull(existing.getKoreaderLastSyncTime());
         verify(userBookProgressRepository).save(existing);
-        verify(userBookFileProgressRepository).save(any());
-    }
 
-    @Test
-    void updatePdfProgress_usesProgressRatioFallback() {
-        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
-                .thenReturn(Optional.empty());
-        when(userBookProgressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-        pdfBridgeService.updatePdfProgress(99L, KoreaderProgress.builder()
-                .progress("0.10")
-                .build());
-
-        ArgumentCaptor<UserBookProgressEntity> captor =
-                ArgumentCaptor.forClass(UserBookProgressEntity.class);
-        verify(userBookProgressRepository).save(captor.capture());
-        assertEquals(Float.valueOf(10.0f), captor.getValue().getPdfProgressPercent());
-        assertEquals(Float.valueOf(0.10f), captor.getValue().getKoreaderProgressPercent());
+        ArgumentCaptor<UserBookFileProgressEntity> fileCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
+        verify(userBookFileProgressRepository).save(fileCaptor.capture());
+        assertEquals("20", fileCaptor.getValue().getPositionData());
+        assertEquals(Float.valueOf(25.0f), fileCaptor.getValue().getProgressPercent());
+        assertEquals(Instant.parse("2026-06-10T11:00:00Z"),
+                fileCaptor.getValue().getLastReadTime());
     }
 
     // ──────────────────────────────────────────

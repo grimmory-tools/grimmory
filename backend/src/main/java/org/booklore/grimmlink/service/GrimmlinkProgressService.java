@@ -40,6 +40,14 @@ public class GrimmlinkProgressService {
         boolean reflowable = isReflowable(primaryFile);
         String storedProgress = progress != null ? progress.getKoreaderProgress() : null;
         String nativeLocation = reflowable ? usableNativeLocation(storedProgress) : null;
+        String fixedPageProgress = isPdf(primaryFile)
+                ? bookService.firstNonBlank(
+                        progress != null && progress.getPdfProgress() != null
+                                ? String.valueOf(progress.getPdfProgress())
+                                : null,
+                        storedProgress)
+                : storedProgress;
+        Float percentage = progressPercentage(progress, primaryFile);
         Instant effectiveTime = progress != null
                 ? progress.getKoreaderLastSyncTime() != null
                         ? progress.getKoreaderLastSyncTime()
@@ -54,11 +62,10 @@ public class GrimmlinkProgressService {
                 .fileFormat(primaryFile != null && primaryFile.getBookType() != null
                         ? primaryFile.getBookType().name()
                         : null)
-                .percentage(progress != null
-                        ? fromStoredKoreaderFraction(progress.getKoreaderProgressPercent())
-                        : null)
-                .progress(reflowable ? nativeLocation : storedProgress)
+                .percentage(percentage)
+                .progress(reflowable ? nativeLocation : fixedPageProgress)
                 .location(reflowable ? nativeLocation : null)
+                .currentPage(isPdf(primaryFile) ? parsePage(fixedPageProgress) : null)
                 .updatedAt(effectiveTime)
                 .device(progress != null ? progress.getKoreaderDevice() : null)
                 .device_id(progress != null ? progress.getKoreaderDeviceId() : null)
@@ -107,6 +114,7 @@ public class GrimmlinkProgressService {
         if (reflowable) {
             updateReflowableReadStatus(progress);
         } else {
+            updatePdfProjection(progress, requestedFile, request, displayPercent);
             updateFixedPageReadStatus(progress, displayPercent, clientTime);
         }
         userBookProgressRepository.save(progress);
@@ -139,9 +147,12 @@ public class GrimmlinkProgressService {
                 .orElseGet(UserBookFileProgressEntity::new);
         fileProgress.setUser(reader);
         fileProgress.setBookFile(file);
+        Integer pdfPage = isPdf(file) ? resolvePage(request) : null;
         fileProgress.setPositionData(nativeLocation != null
                 ? nativeLocation
-                : bookService.firstNonBlank(request.getProgress(), request.getLocation()));
+                : pdfPage != null
+                        ? String.valueOf(pdfPage)
+                        : bookService.firstNonBlank(request.getProgress(), request.getLocation()));
         fileProgress.setPositionHref(nativeLocation != null ? nativeLocation : request.getLocation());
         fileProgress.setProgressPercent(displayPercent);
         fileProgress.setLastReadTime(clientTime);
@@ -155,6 +166,55 @@ public class GrimmlinkProgressService {
                     .orElse(null);
         }
         return bookService.resolvePrimaryFile(book);
+    }
+
+    private Float progressPercentage(UserBookProgressEntity progress, BookFileEntity file) {
+        if (progress == null) {
+            return null;
+        }
+        Float koreaderPercent = fromStoredKoreaderFraction(progress.getKoreaderProgressPercent());
+        if (koreaderPercent != null) {
+            return koreaderPercent;
+        }
+        return isPdf(file) ? clampPercent(progress.getPdfProgressPercent()) : null;
+    }
+
+    private void updatePdfProjection(UserBookProgressEntity progress,
+                                     BookFileEntity file,
+                                     KoreaderProgress request,
+                                     Float displayPercent) {
+        if (!isPdf(file)) {
+            return;
+        }
+        Integer page = resolvePage(request);
+        if (page != null) {
+            progress.setPdfProgress(page);
+        }
+        if (displayPercent != null) {
+            progress.setPdfProgressPercent(displayPercent);
+        }
+    }
+
+    private static boolean isPdf(BookFileEntity file) {
+        return file != null && file.getBookType() == BookFileType.PDF;
+    }
+
+    private Integer resolvePage(KoreaderProgress request) {
+        if (request.getCurrentPage() != null) {
+            return request.getCurrentPage();
+        }
+        return parsePage(bookService.firstNonBlank(request.getProgress(), request.getLocation()));
+    }
+
+    private static Integer parsePage(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private static boolean isReflowable(BookFileEntity file) {

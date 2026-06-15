@@ -16,7 +16,7 @@ public class GrimmlinkV1CapabilitiesController {
                     "v1",
                     true,
                     true,
-                    true,
+                    false,
                     true,
                     true,
                     true);

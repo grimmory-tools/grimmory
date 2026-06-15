@@ -4,7 +4,6 @@ import org.booklore.grimmlink.dto.*;
 import org.booklore.grimmlink.service.GrimmlinkAuthService;
 import org.booklore.grimmlink.service.GrimmlinkBookService;
 import org.booklore.grimmlink.service.GrimmlinkMetadataService;
-import org.booklore.grimmlink.service.GrimmlinkPdfBridgeService;
 import org.booklore.grimmlink.service.GrimmlinkProgressService;
 import org.booklore.grimmlink.service.GrimmlinkReadingSessionService;
 import org.booklore.grimmlink.service.GrimmlinkShelfService;
@@ -45,9 +44,6 @@ class GrimmlinkV1ControllersTest {
     private GrimmlinkShelfService shelfService;
 
     @Mock
-    private GrimmlinkPdfBridgeService pdfBridgeService;
-
-    @Mock
     private GrimmlinkReadingSessionService readingSessionService;
 
     @InjectMocks
@@ -61,9 +57,6 @@ class GrimmlinkV1ControllersTest {
 
     @InjectMocks
     private GrimmlinkV1ShelfController shelfController;
-
-    @InjectMocks
-    private GrimmlinkV1BridgeController bridgeController;
 
     @InjectMocks
     private GrimmlinkV1ReadingSessionController readingSessionController;
@@ -180,19 +173,14 @@ class GrimmlinkV1ControllersTest {
     }
 
     @Test
-    void readStatusAndBridgeRoutes_delegateToServices() {
+    void readStatusRoutes_delegateToServices() {
         GrimmlinkReadStatusRequest statusRequest = new GrimmlinkReadStatusRequest();
         statusRequest.setStatus("READ");
         when(bookService.getSupportedReadStatuses()).thenReturn(List.of("UNREAD", "READING", "READ"));
         when(bookService.updateReadStatus(5L, "READ")).thenReturn(Map.of("updated", true));
-        KoreaderProgress progress = KoreaderProgress.builder().bookId(5L).currentPage(10).build();
-        when(pdfBridgeService.getPdfProgress(5L)).thenReturn(progress);
-        when(pdfBridgeService.updatePdfProgress(5L, progress)).thenReturn(progress);
 
         assertEquals(List.of("UNREAD", "READING", "READ"), bookController.getSupportedReadStatuses().getBody().get("statuses"));
         assertEquals(true, bookController.updateReadStatus(5L, statusRequest).getBody().get("updated"));
-        assertEquals(progress, bridgeController.getPdfProgress(5L).getBody());
-        assertEquals(progress, bridgeController.updatePdfProgress(5L, progress).getBody());
     }
 
     @Test
@@ -226,7 +214,7 @@ class GrimmlinkV1ControllersTest {
         assertEquals("v1", response.apiVersion());
         assertEquals(true, response.webUiProgress());
         assertEquals(true, response.progressSync());
-        assertEquals(true, response.pdfBridge());
+        assertEquals(false, response.pdfBridge());
         assertEquals(true, response.readingSessions());
         assertEquals(true, response.metadataSync());
         assertEquals(true, response.shelves());
