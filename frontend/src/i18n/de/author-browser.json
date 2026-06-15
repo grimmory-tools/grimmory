@@ -1,35 +1,35 @@
 {
     "filters": {
-        "allRead": "",
-        "hasPhoto": "",
-        "genre": "",
-        "unread": "",
-        "unmatched": "",
-        "readStatus": "",
-        "matchStatus": "",
-        "photoStatus": "",
-        "matched": "",
-        "all": "",
-        "reset": "",
-        "library": "",
-        "someRead": "",
-        "inProgress": "",
-        "bookCount": "",
-        "noPhoto": ""
+        "allRead": "Alle gelesenen",
+        "hasPhoto": "Hat Foto",
+        "genre": "Genre",
+        "unread": "Ungelesen",
+        "unmatched": "Nicht übereinstimmend",
+        "readStatus": "Lesestatus",
+        "matchStatus": "Status der Übereinstimmung",
+        "photoStatus": "Foto Status",
+        "matched": "Übereinstimmend",
+        "all": "Alle",
+        "reset": "Filter zurücksetzen",
+        "library": "Bibliothek",
+        "someRead": "Teilweise gelesene",
+        "inProgress": "Im Gange",
+        "bookCount": "Anzahl Bücher",
+        "noPhoto": "Kein Foto"
     },
     "sort": {
-        "seriesCount": "",
-        "recentlyRead": "",
-        "name": "",
-        "avgRating": "",
-        "matched": "",
-        "photo": "",
-        "recentlyAdded": "",
-        "readingProgress": "",
-        "bookCount": ""
+        "seriesCount": "Anzahl Serien",
+        "recentlyRead": "Kürzlich gelesen",
+        "name": "Name",
+        "avgRating": "Durchschnittliche Bewertung",
+        "matched": "Übereinstimmend",
+        "photo": "Foto",
+        "recentlyAdded": "Kürzlich hinzugefügt",
+        "readingProgress": "Lesefortschritt",
+        "bookCount": "Anzahl Bücher"
     },
     "editor": {
-        "lockAllBtn": "",
+        "lockAllBtn": "Alle sperren",
         "uploadPhotoTooltip": "",
         "lockField": "",
         "saving": "",
@@ -39,23 +39,23 @@
             "successDetail": "",
             "errorDetail": "",
             "photoUploadedDetail": "",
-            "errorSummary": "",
-            "successSummary": "",
+            "errorSummary": "Aktualisierung fehlgeschlagen",
+            "successSummary": "Autor aktualisiert",
             "photoUploadedSummary": ""
         },
         "saveBtn": "",
-        "searchPhotoTooltip": "",
+        "searchPhotoTooltip": "Foto suchen",
         "unlockField": "",
-        "unlockAllBtn": "",
-        "searchPhotoTitle": "",
+        "unlockAllBtn": "Alle entsperren",
+        "searchPhotoTitle": "Nach Autorfoto suchen",
         "asinLabel": "",
         "descriptionLabel": ""
     },
     "toast": {
-        "deleteFailedSummary": "",
-        "deleteSelectedSuccessSummary": "",
-        "deleteSelectedSuccessDetail": "",
-        "deleteSuccessDetail": "",
+        "deleteFailedSummary": "Löschvorgang fehlgeschlagen",
+        "deleteSelectedSuccessSummary": "Autoren gelöscht",
+        "deleteSelectedSuccessDetail": "Ausgewählte Autoren wurden erfolgreich gelöscht.",
+        "deleteSuccessDetail": "Autor wurde erfolgreich gelöscht.",
         "quickMatchSuccessDetail": "",
         "autoMatchSuccessDetail": "",
         "autoMatchFailedDetail": "",
@@ -65,14 +65,14 @@
         "autoMatchSuccessSummary": "",
         "deleteFailedDetail": "",
         "autoMatchFailedSummary": "",
-        "deleteSuccessSummary": ""
+        "deleteSuccessSummary": "Autor gelöscht"
     },
     "footer": {
         "autoMatch": "",
-        "selected": "",
-        "selectAll": "",
-        "deleteSelected": "",
-        "deselectAll": ""
+        "selected": "ausgewählt",
+        "selectAll": "Alle auswählen",
+        "deleteSelected": "Ausgewählte löschen",
+        "deselectAll": "Auswahl aufheben"
     },
     "photoSearch": {
         "selectBtn": "",
@@ -134,8 +134,8 @@
         "matched": "",
         "quickMatch": ""
     },
-    "browseAllAuthors": "",
-    "searchPlaceholder": "",
-    "noAuthorsFound": "",
-    "pageTitle": ""
+    "browseAllAuthors": "Alle Autoren durchsuchen",
+    "searchPlaceholder": "Nach Autorennamen suchen...",
+    "noAuthorsFound": "Keine Autoren stimmen mit der Suche überein.",
+    "pageTitle": "Autoren"
 }
