@@ -554,6 +554,32 @@ class GrimmlinkServicesBehaviorTest {
     }
 
     @Test
+    void syncMetadata_removesCurrentGrimmoryPersonalRating() {
+        UserBookProgressEntity progress = UserBookProgressEntity.builder()
+                .user(reader)
+                .book(book)
+                .personalRating(8)
+                .build();
+        when(userBookProgressRepository.findByUserIdAndBookId(7L, 99L))
+                .thenReturn(Optional.of(progress));
+
+        GrimmlinkRatingPayload rating = new GrimmlinkRatingPayload();
+        rating.setDedupeKey("rating-8");
+        rating.setValue(0);
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setBookId(99L);
+        request.setRating(rating);
+
+        GrimmlinkMetadataSyncResponse response = metadataService.syncMetadata(request);
+
+        assertTrue(response.isOk());
+        verify(metadataItemRepository).findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                7L, 99L, GrimmlinkMetadataItemType.RATING, "rating-8");
+        assertNull(progress.getPersonalRating());
+        verify(userBookProgressRepository).save(progress);
+    }
+
+    @Test
     void syncMetadata_createsCurrentGrimmoryPdfBookmark() {
         GrimmlinkBookmarkPayload bookmark = new GrimmlinkBookmarkPayload();
         bookmark.setDedupeKey("bookmark-page-42");
@@ -659,6 +685,47 @@ class GrimmlinkServicesBehaviorTest {
         assertEquals(42, payload.get("page"));
         assertEquals("Page 42", payload.get("title"));
         assertEquals("Remember this", payload.get("notes"));
+    }
+
+    @Test
+    void syncMetadata_removesExistingGrimmoryBookmark() {
+        GrimmlinkBookmarkPayload bookmark = new GrimmlinkBookmarkPayload();
+        bookmark.setDedupeKey("bookmark-page-42");
+        // Empty title/notes/page/location = deletion signal
+        GrimmlinkMetadataSyncRequest request = new GrimmlinkMetadataSyncRequest();
+        request.setBookId(99L);
+        request.setBookmarks(List.of(bookmark));
+
+        BookMarkEntity existing = BookMarkEntity.builder()
+                .id(17L)
+                .user(reader)
+                .book(book)
+                .pageNumber(42)
+                .title("Page 42")
+                .notes("Remember this")
+                .build();
+        GrimmlinkMetadataItemEntity existingItem = new GrimmlinkMetadataItemEntity();
+        existingItem.setPayloadJson("{\"dedupeKey\":\"bookmark-page-42\",\"page\":42,\"title\":\"Page 42\",\"notes\":\"Remember this\"}");
+
+        GrimmlinkBookmarkPayload archivedPayload = new GrimmlinkBookmarkPayload();
+        archivedPayload.setDedupeKey("bookmark-page-42");
+        archivedPayload.setPage(42);
+        archivedPayload.setTitle("Page 42");
+        archivedPayload.setNotes("Remember this");
+
+        when(metadataItemRepository.findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                7L, 99L, GrimmlinkMetadataItemType.BOOKMARK, "bookmark-page-42"))
+                .thenReturn(Optional.of(existingItem));
+        when(objectMapper.readValue(anyString(), eq(GrimmlinkBookmarkPayload.class)))
+                .thenReturn(archivedPayload);
+        when(bookMarkRepository.findFirstByPageNumberAndBookIdAndUserId(42, 99L, 7L))
+                .thenReturn(Optional.of(existing));
+
+        GrimmlinkMetadataSyncResponse response = metadataService.syncMetadata(request);
+
+        assertTrue(response.isOk());
+        verify(bookMarkRepository).delete(existing);
+        verify(metadataItemRepository).delete(existingItem);
     }
 
     @Test

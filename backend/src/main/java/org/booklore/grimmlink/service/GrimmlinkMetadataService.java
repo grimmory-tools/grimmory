@@ -328,16 +328,36 @@ public class GrimmlinkMetadataService {
             BookFileEntity bookFile,
             GrimmlinkMetadataSyncRequest request) {
         GrimmlinkRatingPayload payload = request.getRating();
+        String dedupeKey = bookService.trimToNull(payload.getDedupeKey());
+        // Handle rating removal (value=0 or value=null signals deletion)
+        if (payload.getValue() == null || payload.getValue() == 0) {
+            if (dedupeKey != null) {
+                metadataItemRepository.findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                        reader.getId(), book.getId(),
+                        GrimmlinkMetadataItemType.RATING, dedupeKey)
+                        .ifPresent(metadataItemRepository::delete);
+            }
+            userBookProgressRepository.findByUserIdAndBookId(reader.getId(), book.getId())
+                    .ifPresent(progress -> {
+                        progress.setPersonalRating(null);
+                        userBookProgressRepository.save(progress);
+                    });
+            return GrimmlinkItemResult.builder()
+                    .type("rating")
+                    .dedupeKey(dedupeKey)
+                    .status("removed")
+                    .build();
+        }
         Integer normalizedRating = normalizePersonalRating(payload);
         if (normalizedRating == null) {
-            return failedResult("rating", payload.getDedupeKey(), "invalid_rating");
+            return failedResult("rating", dedupeKey, "invalid_rating");
         }
         GrimmlinkItemResult result = upsertMetadataItem(
                 reader,
                 book,
                 bookFile,
                 GrimmlinkMetadataItemType.RATING,
-                payload.getDedupeKey(),
+                dedupeKey,
                 payload.getUpdatedAt(),
                 request.getDevice(),
                 request.getDeviceId(),
@@ -376,12 +396,25 @@ public class GrimmlinkMetadataService {
             BookFileEntity bookFile,
             GrimmlinkMetadataSyncRequest request,
             GrimmlinkBookmarkPayload payload) {
+        String dedupeKey = bookService.trimToNull(payload.getDedupeKey());
+        if (dedupeKey == null) {
+            return failedResult("bookmark", null, "missing_dedupe_key");
+        }
+        // Handle bookmark deletion (empty content = deletion signal)
+        if (isBookmarkDeletion(payload)) {
+            removeGrimmoryBookmark(reader, book, dedupeKey);
+            return GrimmlinkItemResult.builder()
+                    .type("bookmark")
+                    .dedupeKey(dedupeKey)
+                    .status("deleted")
+                    .build();
+        }
         GrimmlinkItemResult result = upsertMetadataItem(
                 reader,
                 book,
                 bookFile,
                 GrimmlinkMetadataItemType.BOOKMARK,
-                payload.getDedupeKey(),
+                dedupeKey,
                 payload.getUpdatedAt(),
                 request.getDevice(),
                 request.getDeviceId(),
@@ -423,6 +456,49 @@ public class GrimmlinkMetadataService {
             bookmark.setCreatedAt(toLocalDateTime(payload.getCreatedAt()));
         }
         bookMarkRepository.save(bookmark);
+    }
+
+    private boolean isBookmarkDeletion(GrimmlinkBookmarkPayload payload) {
+        return payload.getTitle() == null
+                && payload.getNotes() == null
+                && bookmarkPage(payload) == null
+                && bookmarkAnchor(payload) == null;
+    }
+
+    private void removeGrimmoryBookmark(
+            BookLoreUserEntity reader,
+            BookEntity book,
+            String dedupeKey) {
+        // 1. Look up existing metadata_item to extract page/CFI for BookMark deletion
+        Optional<GrimmlinkMetadataItemEntity> existing = metadataItemRepository
+                .findByUserIdAndBookIdAndItemTypeAndDedupeKey(
+                        reader.getId(), book.getId(),
+                        GrimmlinkMetadataItemType.BOOKMARK, dedupeKey);
+        existing.ifPresent(entity -> {
+            String payloadJson = entity.getPayloadJson();
+            if (payloadJson != null && !payloadJson.isBlank()) {
+                try {
+                    GrimmlinkBookmarkPayload archivedPayload = objectMapper.readValue(
+                            payloadJson, GrimmlinkBookmarkPayload.class);
+                    Integer page = bookmarkPage(archivedPayload);
+                    if (page != null) {
+                        bookMarkRepository.findFirstByPageNumberAndBookIdAndUserId(page, book.getId(), reader.getId())
+                                .ifPresent(bookMarkRepository::delete);
+                        return;
+                    }
+                    String cfi = bookmarkAnchor(archivedPayload);
+                    if (cfi != null) {
+                        bookMarkRepository.findFirstByCfiAndBookIdAndUserId(cfi, book.getId(), reader.getId())
+                                .ifPresent(bookMarkRepository::delete);
+                        return;
+                    }
+                } catch (Exception ignored) {
+                    // Could not parse archived payload; BookMarkEntity won't be deleted
+                }
+            }
+        });
+        // 2. Delete the metadata item
+        existing.ifPresent(metadataItemRepository::delete);
     }
 
     private Integer bookmarkPage(GrimmlinkBookmarkPayload payload) {
