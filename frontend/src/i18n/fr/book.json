@@ -47,7 +47,8 @@
             "noBooks": "Cette collection ne contient aucun livre !",
             "failedLibrary": "Échec du chargement des livres de la bibliothèque !",
             "failedShelf": "Échec du chargement des livres de l'étagère !",
-            "activeFilters": "{{ count }} filtres actifs"
+            "activeFilters": "{{ count }} filtres actifs",
+            "failedBooks": ""
         },
         "tooltip": {
             "clearFilters": "Effacer les filtres appliqués",
@@ -135,7 +136,8 @@
             "readBook": "Lire le livre",
             "playAudiobook": "Écouter le livre audio",
             "bookMenu": "Menu d'actions du livre",
-            "continueReading": "Continuer la lecture"
+            "continueReading": "Continuer la lecture",
+            "readStatusMenu": ""
         }
     },
     "notes": {
@@ -264,7 +266,8 @@
             "customFetchMetadata": "Récupération personnalisée des métadonnées",
             "autoFetchMetadata": "Récupération automatique des métadonnées",
             "findDuplicates": "Rechercher les doublons",
-            "deleteLibrary": "Supprimer la bibliothèque"
+            "deleteLibrary": "Supprimer la bibliothèque",
+            "bulkIsbnImport": ""
         },
         "shelf": {
             "publicShelfPrefix": "Étagère publique - ",
@@ -276,7 +279,8 @@
         "magicShelf": {
             "optionsLabel": "Options",
             "editMagicShelf": "Modifier l'étagère magique",
-            "deleteMagicShelf": "Supprimer l'étagère magique"
+            "deleteMagicShelf": "Supprimer l'étagère magique",
+            "exportJson": "Copier JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Êtes-vous sûr de vouloir rafraîchir la bibliothèque : {{ name }} ?",
@@ -295,7 +299,9 @@
             "shelfDeleteFailedDetail": "Échec de la suppression de l'étagère",
             "magicShelfDeletedDetail": "L'étagère magique a été supprimée",
             "magicShelfDeleteFailedDetail": "Échec de la suppression de l'étagère",
-            "failedSummary": "Échec"
+            "failedSummary": "Échec",
+            "magicShelfJsonCopiedDetail": "",
+            "dialogLoadFailedDetail": ""
         },
         "loading": {
             "deletingLibrary": "Suppression de la bibliothèque '{{ name }}'..."
@@ -430,7 +436,8 @@
         "validationTitleOrIsbn": "Le titre ou l'ISBN est requis",
         "validationReady": "Prêt à créer",
         "cancelButton": "Annuler",
-        "addButton": "Ajouter le livre physique"
+        "addButton": "Ajouter le livre physique",
+        "fetchMetadataTooltip": ""
     },
     "fileUploader": {
         "title": "Téléverser un fichier supplémentaire",
@@ -453,7 +460,9 @@
             "fileTooLargeDetail": "{{ fileName }} dépasse la taille maximale de {{ maxSize }}",
             "fileTooLargeError": "Le fichier dépasse la taille maximale de {{ maxSize }}",
             "uploadFailedUnknown": "Échec du téléversement en raison d'une erreur inconnue."
-        }
+        },
+        "supplementaryAllFormats": "",
+        "supportedFormats": ""
     },
     "filter": {
         "title": "Filtres",
@@ -486,7 +495,10 @@
             "comicCharacter": "Personnage de BD",
             "comicTeam": "Équipe de BD",
             "comicLocation": "Lieu de BD",
-            "comicCreator": "Créateur de BD"
+            "comicCreator": "Créateur de BD",
+            "lubimyczytacRating": "Note Lubimyczytac",
+            "ranobedbRating": "Note RanobeDB",
+            "audibleRating": "Note Audible"
         },
         "readStatus": {
             "unread": "Non lu",
@@ -566,7 +578,8 @@
         "toast": {
             "updateSuccessDetail": "Étagères des livres mises à jour",
             "updateFailedDetail": "Échec de la mise à jour des étagères des livres"
-        }
+        },
+        "searchPlaceholder": ""
     },
     "shelfCreator": {
         "title": "Créer une nouvelle étagère",
@@ -622,7 +635,12 @@
             "lockFailedDetail": "Une erreur est survenue lors du verrouillage des métadonnées.",
             "unlockFailedSummary": "Échec du déverrouillage",
             "unlockFailedDetail": "Une erreur est survenue lors du déverrouillage des métadonnées."
-        }
+        },
+        "selectBook": "Sélectionner {{ title }}",
+        "selectBookFallback": "Sélectionner un livre",
+        "noRating": "Pas de note",
+        "ratingOutOf": "",
+        "label": ""
     },
     "lockUnlockDialog": {
         "title": "Verrouiller ou déverrouiller les métadonnées",
@@ -770,7 +788,31 @@
             "selectAll": "Sélectionner tous les livres",
             "deselectAll": "Désélectionner tous les livres",
             "deleteSelected": "Supprimer les livres sélectionnés"
-        }
+        },
+        "bookListTab": "Liste de livres",
+        "book": "Livre",
+        "books": "Livres",
+        "synopsis": "Synopsis",
+        "booksInSeries": "Livres dans la série",
+        "nextUp": "À suivre",
+        "continueReading": "Continuer la lecture",
+        "readButton": "Lus",
+        "viewDetails": "Voir les détails",
+        "continueButton": "Continuer",
+        "listPages": "pages",
+        "stats": {
+            "totalPages": "Nombre total de pages",
+            "formats": "Formats",
+            "owned": "Appartenant à",
+            "avgGoodreads": "",
+            "avgHardcover": "",
+            "totalAudioDuration": "",
+            "avgPersonalRating": "",
+            "avgAmazon": ""
+        },
+        "missingBooks": "",
+        "readPercent": "",
+        "completionOwned": ""
     },
     "duplicateMerger": {
         "title": "Rechercher les doublons",
@@ -819,5 +861,48 @@
             "deleteHeader": "Confirmer la suppression",
             "deleteMessage": "Cela supprimera définitivement {{ count }} livre(s) et leurs fichiers du disque. Cette action est irréversible."
         }
+    },
+    "bulkIsbnImport": {
+        "closeTooltip": "Fermer",
+        "libraryLabel": "Bibliothèque",
+        "libraryPlaceholder": "Sélectionner une bibliothèque",
+        "tabFile": "Téléverser un fichier",
+        "chooseFile": "Choisir un fichier",
+        "parseButton": "Analyser",
+        "clearButton": "Nettoyer",
+        "validationLibraryRequired": "Sélectionner une bibliothèque",
+        "cancelButton": "Annuler",
+        "startImportButton": "Commencer l'importation",
+        "unknownError": "Erreur inconnue",
+        "summaryTitle": "Importation terminée",
+        "summaryFailed": "Échec",
+        "doneButton": "Terminé",
+        "fileFormatsHint": "",
+        "skippedCount": "",
+        "failedIsbnsLabel": "",
+        "summaryCancelled": "",
+        "createdNoMetadata": "",
+        "previewLabel": "",
+        "tabPaste": "",
+        "validCount": "",
+        "cancelImportButton": "",
+        "processingHint": "",
+        "errorFileTooLarge": "",
+        "processingLabel": "",
+        "title": "",
+        "summaryNoMetadata": "",
+        "lookingUp": "",
+        "pastePlaceholder": "",
+        "summaryCreated": "",
+        "description": "",
+        "validationNoIsbns": "",
+        "validationReady": "",
+        "reason": {
+            "invalid": "",
+            "alreadyExists": ""
+        },
+        "errorTooMany": "",
+        "errorNoIsbns": "",
+        "duplicatesRemoved": ""
     }
 }

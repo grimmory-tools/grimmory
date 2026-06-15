@@ -1,17 +1,17 @@
 {
-  "tabs": {
-    "reader": "Czytnik",
-    "view": "Widok",
-    "metadata1": "Metadane 1",
-    "metadata2": "Metadane 2",
-    "application": "Aplikacja",
-    "users": "Użytkownicy",
-    "email": "E-mail",
-    "patterns": "Wzorce",
-    "authentication": "Uwierzytelnianie",
-    "tasks": "Zadania",
-    "auditLogs": "Dziennik audytu",
-    "opds": "OPDS",
-    "devices": "Urządzenia"
-  }
+    "tabs": {
+        "reader": "Czytnik",
+        "view": "Widok",
+        "metadata1": "Metadane 1",
+        "metadata2": "Metadane 2",
+        "application": "Aplikacja",
+        "users": "Użytkownicy",
+        "email": "E-mail",
+        "patterns": "Wzorce",
+        "authentication": "Uwierzytelnianie",
+        "tasks": "Zadania",
+        "auditLogs": "Dziennik audytu",
+        "opds": "OPDS",
+        "devices": "Urządzenia"
+    }
 }

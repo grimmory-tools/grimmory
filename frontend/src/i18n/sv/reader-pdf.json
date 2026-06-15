@@ -1,10 +1,78 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Växla till ljust läge",
-    "switchToDarkMode": "Växla till mörkt läge",
-    "closePdfReader": "Stäng PDF-läsaren"
-  },
-  "toast": {
-    "failedToLoadBook": "Kunde inte ladda boken"
-  }
+    "toolbar": {
+        "switchToLightMode": "Växla till ljust läge",
+        "switchToDarkMode": "Växla till mörkt läge",
+        "closePdfReader": "Stäng PDF-läsaren",
+        "textNote": "",
+        "annotationColor": "",
+        "ink": "",
+        "zoomPreset": "",
+        "zoomIn": "",
+        "closeSearch": "",
+        "exitFullscreen": "",
+        "deselectTool": "",
+        "spreadMode": "",
+        "addBookmark": "",
+        "scrollLayout": "",
+        "searchNext": "",
+        "zoomOut": "",
+        "moreOptions": "",
+        "searchPlaceholder": "",
+        "searchPrevious": "",
+        "bookmarkAdd": "",
+        "highlight": "",
+        "bookmarkRemove": "",
+        "sidebar": "",
+        "scrollLayoutHorizontal": "",
+        "removeBookmark": "",
+        "freeText": "",
+        "draw": "",
+        "scrollLayoutVertical": "",
+        "fullscreen": "",
+        "rotatePage": "",
+        "search": "",
+        "pan": ""
+    },
+    "toast": {
+        "failedToLoadBook": "Kunde inte ladda boken",
+        "annotationFailed": "",
+        "annotationSaved": "",
+        "bookmarkAdded": "",
+        "bookmarkRemoved": "",
+        "bookmarkExists": ""
+    },
+    "sidebar": {
+        "deleteAnnotation": "",
+        "close": "",
+        "contentsTab": "",
+        "annotationsTab": "",
+        "page": "",
+        "bookmarkHint": "",
+        "noContents": "",
+        "deleteBookmark": "",
+        "title": "",
+        "bookmarksTab": "",
+        "annotationHint": "",
+        "noBookmarks": "",
+        "noAnnotations": ""
+    },
+    "docViewer": {
+        "dismiss": "",
+        "saveFailed": "",
+        "saveDocument": "",
+        "changesSavedInfo": "",
+        "changesSaved": ""
+    },
+    "footer": {
+        "nextPage": "",
+        "lastPage": "",
+        "bookViewer": "",
+        "of": "",
+        "go": "",
+        "previousPage": "",
+        "pageSlider": "",
+        "firstPage": "",
+        "docViewer": "",
+        "pagePlaceholder": ""
+    }
 }

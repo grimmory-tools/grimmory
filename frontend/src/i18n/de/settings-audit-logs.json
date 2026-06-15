@@ -1,19 +1,19 @@
 {
-  "title": "Audit-Protokolle",
-  "description": "Sehen Sie eine Aufzeichnung administrativ bedeutsamer Aktionen im gesamten System ein.",
-  "sectionTitle": "Aktivitätsprotokoll",
-  "filterPlaceholder": "Nach Aktion filtern",
-  "userFilterPlaceholder": "Nach Benutzer filtern",
-  "dateRangePlaceholder": "Nach Datumsbereich filtern",
-  "clearFilters": "Alle Filter löschen",
-  "autoRefresh": "Automatische Aktualisierung (10s)",
-  "pageReport": "Zeige {first} bis {last} von {totalRecords} Einträgen",
-  "empty": "Keine Audit-Protokolle gefunden",
-  "columns": {
-    "timestamp": "Wann",
-    "user": "Benutzer",
-    "action": "Aktion",
-    "description": "Beschreibung",
-    "ip": "IP-Adresse"
-  }
+    "title": "Audit-Protokolle",
+    "description": "Sehen Sie eine Aufzeichnung administrativ bedeutsamer Aktionen im gesamten System ein.",
+    "sectionTitle": "Aktivitätsprotokoll",
+    "filterPlaceholder": "Nach Aktion filtern",
+    "userFilterPlaceholder": "Nach Benutzer filtern",
+    "dateRangePlaceholder": "Nach Datumsbereich filtern",
+    "clearFilters": "Alle Filter löschen",
+    "autoRefresh": "Automatische Aktualisierung (10s)",
+    "pageReport": "Zeige {first} bis {last} von {totalRecords} Einträgen",
+    "empty": "Keine Audit-Protokolle gefunden",
+    "columns": {
+        "timestamp": "Wann",
+        "user": "Benutzer",
+        "action": "Aktion",
+        "description": "Beschreibung",
+        "ip": "IP-Adresse"
+    }
 }

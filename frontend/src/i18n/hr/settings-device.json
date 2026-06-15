@@ -104,7 +104,9 @@
         "autoAddEnabled": "Nove knjige će se automatski dodavati na Kobo policu",
         "autoAddDisabled": "Automatsko dodavanje na Kobo policu onemogućeno",
         "pros": "Prednosti:",
-        "cons": "Nedostaci:"
+        "cons": "Nedostaci:",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Hardcover integracija",

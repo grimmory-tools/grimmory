@@ -25,7 +25,7 @@
   background-clip: padding-box;
   color: var(--app-button-color);
   font: inherit;
-  font-size: var(--text-base);
+  font-size: var(--app-text-base);
   font-weight: 500;
   line-height: 1;
   text-decoration: none;
@@ -91,7 +91,7 @@
   --app-button-padding-x: var(--control-padding-x-sm);
   --app-button-icon-size: var(--control-icon-size-sm);
 
-  font-size: var(--text-sm);
+  font-size: var(--app-text-sm);
 }
 
 .app-button-icon {

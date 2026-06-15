@@ -16,7 +16,8 @@
         "systemAccess": "Systeemtoegang: {{count}}/3",
         "systemConfig": "Systeemconfiguratie: {{count}}/5",
         "metadataEditing": "Metadatabewerking: {{count}}/7",
-        "deviceSync": "Apparaatsynchronisatie: {{count}}/3"
+        "deviceSync": "Apparaatsynchronisatie: {{count}}/3",
+        "bulkReset": ""
     },
     "actions": {
         "editUser": "Gebruiker bewerken",
@@ -41,7 +42,8 @@
         "systemAccess": "Systeemtoegang",
         "systemConfig": "Systeemconfiguratie",
         "metadataEditing": "Metadatabewerking",
-        "deviceSync": "Apparaatsynchronisatie"
+        "deviceSync": "Apparaatsynchronisatie",
+        "bulkReset": ""
     },
     "perms": {
         "fullAdmin": "Volledige beheerderstoegang",
@@ -69,7 +71,8 @@
         "koboSync": "Kobo-synchronisatie",
         "bulkResetGrimmory": "Bulk Grimmory-leesvoortgang resetten",
         "bulkResetKoreader": "Bulk KOReader-leesvoortgang resetten",
-        "bulkResetReadStatus": "Bulk boekleesstatus resetten"
+        "bulkResetReadStatus": "Bulk boekleesstatus resetten",
+        "opdsFeedAccess": ""
     },
     "permissions": "Rechten",
     "contentRestrictions": {
@@ -94,7 +97,8 @@
             "category": "Categorie/Genre",
             "tag": "Tag",
             "mood": "Stemming",
-            "ageRating": "Leeftijdsclassificatie"
+            "ageRating": "Leeftijdsclassificatie",
+            "contentRating": ""
         },
         "modes": {
             "exclude": "Uitsluiten (Overeenkomende verbergen)",

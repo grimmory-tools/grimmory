@@ -35,13 +35,13 @@
 .login-subtitle {
   @include auth.auth-subtitle;
 
-  font-size: 1rem;
+  font-size: var(--app-text-base);
 }
 
 .oidc-warning {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  border-radius: 0.75rem;
+  margin-bottom: 1.3125rem;
+  padding: 0.875rem;
+  border-radius: 0.6563rem;
   background: rgb(245 158 11 / 10%);
   border: 1px solid rgb(245 158 11 / 30%);
   animation: fadeIn 0.3s ease-out;
@@ -50,24 +50,24 @@
 .warning-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .warning-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4375rem;
   color: #fbbf24;
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   font-weight: 600;
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 }
 
 .warning-message {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: #fcd34d;
   line-height: 1.5;
   margin: 0;
@@ -75,7 +75,7 @@
 
 .warning-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6563rem;
   justify-content: center;
 }
 
@@ -94,7 +94,7 @@
 .login-button {
   @include auth.auth-button;
 
-  margin-top: 0.5rem;
+  margin-top: 0.4375rem;
 }
 
 .error-message {
@@ -105,48 +105,57 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 1.5rem 0;
+  margin: 1.3125rem 0;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid rgb(255 255 255 / 15%);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
   }
 
   span {
-    padding: 0 1rem;
-    font-size: 0.875rem;
-    color: rgb(255 255 255 / 50%);
+    padding: 0 0.875rem;
+    font-size: var(--app-text-sm);
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 }
 
 .oidc-button {
   ::ng-deep button {
-    height: 2.75rem;
-    background: rgb(255 255 255 / 5%);
-    border: 1px solid rgb(255 255 255 / 15%);
-    color: rgb(255 255 255 / 90%);
+    height: 2.4063rem;
+    background: color-mix(in srgb, var(--color-text) 5%, var(--color-card));
+    border: 1px solid color-mix(in srgb, var(--color-border) 85%, var(--color-text) 15%);
+    color: var(--color-text);
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-      background: rgb(255 255 255 / 10%);
-      border-color: rgb(255 255 255 / 25%);
+      background: color-mix(in srgb, var(--color-text) 8%, var(--color-card));
+      border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
       transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    }
+
+    &:disabled {
+      color: var(--color-text-secondary);
+      opacity: 0.7;
     }
   }
 }
 
 .help-text {
   text-align: center;
-  margin-top: 0.5rem;
+  margin-top: 0.4375rem;
 }
 
 .text-link {
   background: none;
   border: none;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: rgb(255 255 255 / 50%);
   text-decoration: underline;
   cursor: pointer;

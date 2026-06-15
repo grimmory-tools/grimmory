@@ -8,13 +8,14 @@ export class ReaderHeaderFooterVisibilityManager {
   private isImmersive = false;
   private mouseY: number;
 
-  private readonly HEADER_HEIGHT = 20;
-  private readonly FOOTER_HEIGHT = 40;
   private readonly HEADER_TRIGGER_ZONE = 20;
   private readonly FOOTER_TRIGGER_ZONE = 30;
 
   private headerVisible = false;
   private footerVisible = false;
+
+  private headerHovered = false;
+  private footerHovered = false;
 
   private onStateChangeCallback?: (state: HeaderFooterVisibilityState) => void;
 
@@ -38,6 +39,8 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   handleMouseLeave(): void {
+    this.headerHovered = false;
+    this.footerHovered = false;
     if (!this.isPinned && !this.isImmersive) {
       this.setHeaderVisible(false);
       this.setFooterVisible(false);
@@ -59,6 +62,20 @@ export class ReaderHeaderFooterVisibilityManager {
     }
   }
 
+  setHeaderHovered(hovered: boolean): void {
+    this.headerHovered = hovered;
+    if (!this.isImmersive) {
+      this.updateVisibility();
+    }
+  }
+
+  setFooterHovered(hovered: boolean): void {
+    this.footerHovered = hovered;
+    if (!this.isImmersive) {
+      this.updateVisibility();
+    }
+  }
+
   togglePinned(): void {
     this.isPinned = !this.isPinned;
     this.updateVisibility();
@@ -75,6 +92,8 @@ export class ReaderHeaderFooterVisibilityManager {
     this.isImmersive = immersive;
     if (immersive) {
       this.isPinned = false;
+      this.headerHovered = false;
+      this.footerHovered = false;
       this.setHeaderVisible(false);
       this.setFooterVisible(false);
       this.notifyStateChange();
@@ -105,22 +124,21 @@ export class ReaderHeaderFooterVisibilityManager {
   private updateVisibility(): void {
     if (
       this.mouseY <= this.HEADER_TRIGGER_ZONE ||
-      (this.mouseY <= this.HEADER_HEIGHT && this.headerVisible) ||
+      this.headerHovered ||
       this.isPinned
     ) {
       this.setHeaderVisible(true);
-    } else if (this.mouseY > this.HEADER_HEIGHT) {
+    } else {
       this.setHeaderVisible(this.isPinned);
     }
 
-    const footerTop = this.windowHeight - this.FOOTER_HEIGHT;
     if (
       this.mouseY >= this.windowHeight - this.FOOTER_TRIGGER_ZONE ||
-      (this.mouseY >= footerTop && this.footerVisible) ||
+      this.footerHovered ||
       this.isPinned
     ) {
       this.setFooterVisible(true);
-    } else if (this.mouseY < footerTop) {
+    } else {
       this.setFooterVisible(this.isPinned);
     }
 

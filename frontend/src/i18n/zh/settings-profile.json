@@ -1,34 +1,34 @@
 {
-  "title": "用户资料",
-  "description": "管理您的账户信息和安全设置",
-  "basicInfo": "基本信息",
-  "username": "用户名",
-  "usernamePlaceholder": "用户名...",
-  "fullName": "全名",
-  "fullNamePlaceholder": "请输入全名...",
-  "email": "邮箱",
-  "emailPlaceholder": "请输入邮箱...",
-  "editProfile": "编辑资料",
-  "saveChanges": "保存更改",
-  "security": "安全设置",
-  "currentPassword": "当前密码",
-  "newPassword": "新密码",
-  "confirmNewPassword": "确认新密码",
-  "changePassword": "修改密码",
-  "loading": "正在加载用户数据...",
-  "validation": {
-    "currentPasswordRequired": "请输入当前密码。",
-    "newPasswordRequired": "请输入新密码。",
-    "passwordMinLength": "密码长度至少为 6 个字符。",
-    "confirmPasswordRequired": "请确认您的新密码。",
-    "passwordMismatch": "两次输入的密码不一致。"
-  },
-  "toast": {
-    "errorNoUser": "用户数据不可用。",
-    "noChanges": "未检测到更改。",
-    "profileUpdated": "资料更新成功",
-    "profileUpdateFailed": "资料更新失败",
-    "passwordChanged": "密码修改成功",
-    "passwordChangeFailed": "密码修改失败"
-  }
+    "title": "用户资料",
+    "description": "管理您的账户信息和安全设置",
+    "basicInfo": "基本信息",
+    "username": "用户名",
+    "usernamePlaceholder": "用户名...",
+    "fullName": "全名",
+    "fullNamePlaceholder": "请输入全名...",
+    "email": "邮箱",
+    "emailPlaceholder": "请输入邮箱...",
+    "editProfile": "编辑资料",
+    "saveChanges": "保存更改",
+    "security": "安全设置",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "confirmNewPassword": "确认新密码",
+    "changePassword": "修改密码",
+    "loading": "正在加载用户数据...",
+    "validation": {
+        "currentPasswordRequired": "请输入当前密码。",
+        "newPasswordRequired": "请输入新密码。",
+        "passwordMinLength": "密码长度至少为 6 个字符。",
+        "confirmPasswordRequired": "请确认您的新密码。",
+        "passwordMismatch": "两次输入的密码不一致。"
+    },
+    "toast": {
+        "errorNoUser": "用户数据不可用。",
+        "noChanges": "未检测到更改。",
+        "profileUpdated": "资料更新成功",
+        "profileUpdateFailed": "资料更新失败",
+        "passwordChanged": "密码修改成功",
+        "passwordChangeFailed": "密码修改失败"
+    }
 }

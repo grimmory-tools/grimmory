@@ -1,69 +1,69 @@
 {
-  "title": "Gerenciador de Tarefas do Sistema",
-  "description": "Gerencie tarefas automatizadas do sistema para manutenção de bibliotecas, atualização de metadados e limpeza de cache. Agende operações recorrentes usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expressões cron do Spring</a>.",
-  "systemTasks": {
-    "sectionTitle": "Tarefas do Sistema",
-    "sectionDesc": "Execute tarefas manualmente, monitore o progresso em tempo real e configure automação agendada."
-  },
-  "loading": "Carregando tarefas...",
-  "emptyTitle": "Nenhuma tarefa disponível",
-  "status": {
-    "running": "Em Execução",
-    "stale": "Parada",
-    "neverRun": "Nunca executada",
-    "justNow": "Agora mesmo"
-  },
-  "cron": {
-    "noSchedule": "Sem agendamento",
-    "edit": "Editar",
-    "placeholder": "ex., 0 2 * * *",
-    "validationPrefix": "A expressão cron deve ter exatamente 6 campos (segundos, minutos, horas, dia, mês, dia da semana)",
-    "invalidField": "Campo {{name}} inválido: {{value}}",
-    "updateSuccess": "A configuração da tarefa agendada foi atualizada com sucesso.",
-    "updateError": "Falha ao atualizar a configuração da tarefa agendada."
-  },
-  "buttons": {
-    "run": "Executar",
-    "rerun": "Reexecutar"
-  },
-  "metadataReplace": {
-    "label": "Modo de Substituição de Metadados:",
-    "selectMode": "Selecionar modo",
-    "replaceMissing": "Atualizar Apenas Metadados Ausentes (Recomendado)",
-    "replaceAll": "Substituir Todos os Metadados (Sobrescrever Existentes)",
-    "replaceMissingDesc": "Atualizar somente livros que não possuem informações de metadados. Os metadados existentes serão preservados.",
-    "replaceAllDesc": "Substituir todos os metadados de todos os livros, mesmo que já possuam metadados. Use com cautela, pois isso sobrescreverá dados existentes."
-  },
-  "progress": {
-    "staleWarning": "Esta tarefa parece estar travada. Nenhuma atualização recebida há mais de 5 minutos.",
-    "statusLabel": "Status:",
-    "progressLabel": "Progresso:",
-    "startedLabel": "Iniciada:",
-    "processing": "Processando...",
-    "stuckMessage": "A tarefa parece estar travada (nenhuma atualização recebida)"
-  },
-  "toast": {
-    "taskQueued": "Tarefa na Fila",
-    "taskQueuedDetail": "{{name}} foi adicionada à fila e será executada em segundo plano.",
-    "taskCompleted": "Tarefa Concluída",
-    "taskCompletedDetail": "{{name}} foi concluída com sucesso.",
-    "taskFailed": "Tarefa Falhou",
-    "taskFailedDetail": "{{name}} falhou ao concluir.",
-    "taskStarted": "Tarefa Iniciada",
-    "taskStartedDetail": "{{name}} foi iniciada com sucesso.",
-    "startError": "Falha ao iniciar {{name}}.",
-    "alreadyRunning": "Tarefa Já em Execução",
-    "alreadyRunningDetail": "Esta tarefa já está em andamento ou pendente.",
-    "taskCancelled": "Tarefa Cancelada",
-    "cancelledDetail": "A tarefa foi cancelada com sucesso.",
-    "cancelFailed": "Cancelamento Falhou",
-    "cancelError": "Falha ao cancelar a tarefa. A tarefa pode já ter sido concluída ou falhado.",
-    "cancelNoId": "Não é possível cancelar a tarefa sem ID.",
-    "loadError": "Falha ao carregar tarefas",
-    "metadataScheduled": "Atualização de Metadados Agendada",
-    "metadataScheduledDetail": "A atualização de metadados dos livros selecionados foi agendada com sucesso.",
-    "metadataAlreadyRunningDetail": "Uma tarefa de atualização de metadados já está em andamento. Aguarde sua conclusão antes de iniciar outra.",
-    "metadataFailed": "Atualização de Metadados Falhou",
-    "metadataFailedDetail": "Ocorreu um erro inesperado ao agendar a atualização de metadados. Tente novamente mais tarde ou entre em contato com o suporte se o problema persistir."
-  }
+    "title": "Gerenciador de Tarefas do Sistema",
+    "description": "Gerencie tarefas automatizadas do sistema para manutenção de bibliotecas, atualização de metadados e limpeza de cache. Agende operações recorrentes usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expressões cron do Spring</a>.",
+    "systemTasks": {
+        "sectionTitle": "Tarefas do Sistema",
+        "sectionDesc": "Execute tarefas manualmente, monitore o progresso em tempo real e configure automação agendada."
+    },
+    "loading": "Carregando tarefas...",
+    "emptyTitle": "Nenhuma tarefa disponível",
+    "status": {
+        "running": "Em Execução",
+        "stale": "Parada",
+        "neverRun": "Nunca executada",
+        "justNow": "Agora mesmo"
+    },
+    "cron": {
+        "noSchedule": "Sem agendamento",
+        "edit": "Editar",
+        "placeholder": "ex., 0 2 * * *",
+        "validationPrefix": "A expressão cron deve ter exatamente 6 campos (segundos, minutos, horas, dia, mês, dia da semana)",
+        "invalidField": "Campo {{name}} inválido: {{value}}",
+        "updateSuccess": "A configuração da tarefa agendada foi atualizada com sucesso.",
+        "updateError": "Falha ao atualizar a configuração da tarefa agendada."
+    },
+    "buttons": {
+        "run": "Executar",
+        "rerun": "Reexecutar"
+    },
+    "metadataReplace": {
+        "label": "Modo de Substituição de Metadados:",
+        "selectMode": "Selecionar modo",
+        "replaceMissing": "Atualizar Apenas Metadados Ausentes (Recomendado)",
+        "replaceAll": "Substituir Todos os Metadados (Sobrescrever Existentes)",
+        "replaceMissingDesc": "Atualizar somente livros que não possuem informações de metadados. Os metadados existentes serão preservados.",
+        "replaceAllDesc": "Substituir todos os metadados de todos os livros, mesmo que já possuam metadados. Use com cautela, pois isso sobrescreverá dados existentes."
+    },
+    "progress": {
+        "staleWarning": "Esta tarefa parece estar travada. Nenhuma atualização recebida há mais de 5 minutos.",
+        "statusLabel": "Status:",
+        "progressLabel": "Progresso:",
+        "startedLabel": "Iniciada:",
+        "processing": "Processando...",
+        "stuckMessage": "A tarefa parece estar travada (nenhuma atualização recebida)"
+    },
+    "toast": {
+        "taskQueued": "Tarefa na Fila",
+        "taskQueuedDetail": "{{name}} foi adicionada à fila e será executada em segundo plano.",
+        "taskCompleted": "Tarefa Concluída",
+        "taskCompletedDetail": "{{name}} foi concluída com sucesso.",
+        "taskFailed": "Tarefa Falhou",
+        "taskFailedDetail": "{{name}} falhou ao concluir.",
+        "taskStarted": "Tarefa Iniciada",
+        "taskStartedDetail": "{{name}} foi iniciada com sucesso.",
+        "startError": "Falha ao iniciar {{name}}.",
+        "alreadyRunning": "Tarefa Já em Execução",
+        "alreadyRunningDetail": "Esta tarefa já está em andamento ou pendente.",
+        "taskCancelled": "Tarefa Cancelada",
+        "cancelledDetail": "A tarefa foi cancelada com sucesso.",
+        "cancelFailed": "Cancelamento Falhou",
+        "cancelError": "Falha ao cancelar a tarefa. A tarefa pode já ter sido concluída ou falhado.",
+        "cancelNoId": "Não é possível cancelar a tarefa sem ID.",
+        "loadError": "Falha ao carregar tarefas",
+        "metadataScheduled": "Atualização de Metadados Agendada",
+        "metadataScheduledDetail": "A atualização de metadados dos livros selecionados foi agendada com sucesso.",
+        "metadataAlreadyRunningDetail": "Uma tarefa de atualização de metadados já está em andamento. Aguarde sua conclusão antes de iniciar outra.",
+        "metadataFailed": "Atualização de Metadados Falhou",
+        "metadataFailedDetail": "Ocorreu um erro inesperado ao agendar a atualização de metadados. Tente novamente mais tarde ou entre em contato com o suporte se o problema persistir."
+    }
 }

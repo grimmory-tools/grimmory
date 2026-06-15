@@ -10,7 +10,7 @@
 .settings-title {
   @include settings.settings-page-title;
 
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6563rem;
 }
 
 .settings-description {
@@ -20,8 +20,8 @@
 .access-denied-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: 0.875rem;
+  padding: 1.3125rem;
   border-radius: settings.$settings-card-border-radius;
   background: color-mix(in srgb, var(--ground-background) 85%, var(--p-red-600) 15%);
   border: 1px solid var(--p-content-border-color);
@@ -29,15 +29,15 @@
   max-width: 500px;
 
   > .pi {
-    font-size: 1.5rem;
+    font-size: 1.3125rem;
     flex-shrink: 0;
     color: var(--p-red-400);
   }
 
   .access-denied-content {
     h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
+      margin: 0 0 0.4375rem;
+      font-size: var(--app-text-base);
       font-weight: settings.$settings-section-title-weight;
       color: var(--p-red-300);
     }

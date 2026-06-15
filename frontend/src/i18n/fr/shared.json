@@ -39,7 +39,8 @@
             "missingDataSummary": "Données manquantes",
             "missingDataDetail": "Veuillez sélectionner une bibliothèque et un chemin avant de téléverser.",
             "uploadFailedDefault": "Échec du téléversement pour une raison inconnue."
-        }
+        },
+        "supportedFormats": ""
     },
     "changePassword": {
         "title": "Changer le mot de passe",

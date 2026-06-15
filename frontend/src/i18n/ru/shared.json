@@ -39,7 +39,8 @@
             "missingDataSummary": "Отсутствуют данные",
             "missingDataDetail": "Пожалуйста, выберите библиотеку и путь перед загрузкой.",
             "uploadFailedDefault": "Загрузка не удалась из-за неизвестной ошибки."
-        }
+        },
+        "supportedFormats": ""
     },
     "changePassword": {
         "title": "Изменить пароль",

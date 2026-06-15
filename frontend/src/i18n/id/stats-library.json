@@ -6,31 +6,128 @@
         "books": "Buku",
         "authors": "Penulis",
         "series": "Seri",
-        "publishers": "Penerbit"
+        "publishers": "Penerbit",
+        "loading": "",
+        "totalSeries": "",
+        "totalAuthors": "",
+        "librarySize": "",
+        "noData": "",
+        "noDataHint": "",
+        "dragToReorder": "",
+        "totalSize": "",
+        "totalPublishers": ""
     },
     "config": {
-        "close": "Tutup"
+        "close": "Tutup",
+        "largeCharts": "",
+        "resetOrder": "",
+        "smallCharts": "",
+        "enableAll": "",
+        "title": "",
+        "disableAll": "",
+        "xlargeCharts": ""
     },
     "chartNames": {
-        "languages": "Bahasa"
+        "languages": "Bahasa",
+        "topItems": "",
+        "bookFormats": "",
+        "publicationTrend": "",
+        "publicationTimeline": "",
+        "authorUniverse": "",
+        "pageCount": "",
+        "readingJourney": "",
+        "metadataScore": ""
     },
     "language": {
-        "title": "Bahasa"
+        "title": "Bahasa",
+        "noData": "",
+        "tooltipLabel": "",
+        "description": ""
     },
     "pageCount": {
-        "axisBooks": "Buku"
+        "axisBooks": "Buku",
+        "tooltipLabelPlural": "",
+        "axisPageCount": "",
+        "tooltipTitle": "",
+        "description": "",
+        "tooltipLabel": "",
+        "title": "",
+        "noData": ""
     },
     "publicationTimeline": {
         "insightOldest": "Tertua",
-        "insightNewest": "Terbaru"
+        "insightNewest": "Terbaru",
+        "tooltipBook": "",
+        "insightGoldenEraRange": "",
+        "tooltipBooks": "",
+        "insightGoldenEra": "",
+        "insightPeakDecadeBooks": "",
+        "insightTimeSpan": "",
+        "insightMostCommonYear": "",
+        "booksWithDates": "",
+        "insightMedian": "",
+        "insightRarePicks": "",
+        "insightMostCommonYearBooks": "",
+        "axisNumberOfBooks": "",
+        "description": "",
+        "noData": "",
+        "insightRarityScore": "",
+        "insightYearsOfLiterature": "",
+        "insightAverageYear": "",
+        "title": "",
+        "insightPeakDecade": ""
     },
     "publicationTrend": {
         "axisBooks": "Buku",
         "insightBooksPerYear": "buku/tahun",
-        "insightClassics": "Klasik"
+        "insightClassics": "Klasik",
+        "tooltipBooks": "",
+        "insightPeakYear": "",
+        "insightCentury21Books": "",
+        "insightAvgPerYear": "",
+        "insightPeakYearBooks": "",
+        "tooltipBook": "",
+        "insightBest5YearSpan": "",
+        "insightCentury21": "",
+        "insightLast10Years": "",
+        "insightLast10YearsBooks": "",
+        "insightYearsCovered": "",
+        "tooltipTitle": "",
+        "noData": "",
+        "axisPublicationYear": "",
+        "insightUniqueYears": "",
+        "insightClassicsPre1970": "",
+        "title": "",
+        "insightTimeSpan": "",
+        "description": "",
+        "insightMostBooksPublished": ""
     },
     "readingJourney": {
-        "axisMonth": "Bulan"
+        "axisMonth": "Bulan",
+        "insightConsecutiveMonths": "",
+        "recentActivityBooks": "",
+        "insightAvgTimeToFinish": "",
+        "insightBestReadingMonth": "",
+        "insightFinishRate": "",
+        "insightPeakAcquisition": "",
+        "insightLast3Months": "",
+        "insightDaysAfterAdding": "",
+        "legendBooksFinished": "",
+        "insightLongestStreak": "",
+        "title": "",
+        "noData": "",
+        "description": "",
+        "insightCurrentBacklog": "",
+        "noDataHint": "",
+        "insightBooksFinished": "",
+        "insightRecentlyFinished": "",
+        "insightBacklogPercent": "",
+        "insightBooksPerMonthAvg": "",
+        "legendBooksAdded": "",
+        "recentActivityNone": "",
+        "insightCompletion": "",
+        "axisCumulativeBooks": "",
+        "tooltipBacklog": ""
     },
     "topItems": {
         "shown": "ditampilkan",
@@ -41,7 +138,8 @@
             "categories": "Kategori",
             "series": "Seri",
             "publishers": "Penerbit",
-            "tags": "Tag"
+            "tags": "Tag",
+            "moods": ""
         },
         "readStatus": {
             "read": "Baca",
@@ -49,10 +147,78 @@
             "reReading": "Baca Ulang",
             "unread": "Belum Dibaca",
             "paused": "Jeda",
-            "abandoned": "Ditinggalkan"
-        }
+            "abandoned": "Ditinggalkan",
+            "notSet": "",
+            "partiallyRead": "",
+            "wontRead": ""
+        },
+        "insightTop": "",
+        "noDataHintPrefix": "",
+        "insightMostCompletedValue": "",
+        "titlePrefix": "",
+        "axisNumberOfBooks": "",
+        "insightMostCompleted": "",
+        "tooltipBooks": "",
+        "tooltipBook": "",
+        "insightTop5Coverage": "",
+        "descriptionSuffix": "",
+        "insightTopValue": "",
+        "insightAvgPer": "",
+        "descriptionPrefix": "",
+        "insightTop5CoverageValue": "",
+        "noDataSuffix": "",
+        "insightAvgPerValue": ""
     },
     "authorUniverse": {
-        "legendUnread": "Belum Dibaca"
+        "legendUnread": "Belum Dibaca",
+        "tooltipAvgRating": "",
+        "tooltipNoRatings": "",
+        "insightMostPages": "",
+        "authorsBadge": "",
+        "legend25to49": "",
+        "tooltipTotalPages": "",
+        "noData": "",
+        "axisBooks": "",
+        "tooltipGenres": "",
+        "insightBiggestBacklog": "",
+        "legendNote": "",
+        "insightMostRead": "",
+        "tooltipRead": "",
+        "title": "",
+        "insightLongestReads": "",
+        "insightHighestRated": "",
+        "legend50to74": "",
+        "insightUntouchedAuthor": "",
+        "insightOverallProgress": "",
+        "legend1to24": "",
+        "insightMostVersatile": "",
+        "description": "",
+        "insightTop3Concentration": "",
+        "insightHiddenGem": "",
+        "legend75to100": "",
+        "tooltipBooks": "",
+        "insightMostCollected": "",
+        "axisRating": ""
+    },
+    "metadataScore": {
+        "excellent": "",
+        "noData": "",
+        "poor": "",
+        "fair": "",
+        "tooltipLabel": "",
+        "title": "",
+        "good": "",
+        "veryPoor": "",
+        "description": ""
+    },
+    "bookFormats": {
+        "noData": "",
+        "description": "",
+        "tooltipLabel": "",
+        "title": ""
+    },
+    "libraryFilter": {
+        "libraryFallback": "",
+        "allLibraries": ""
     }
 }

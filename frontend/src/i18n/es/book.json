@@ -47,7 +47,8 @@
             "noBooks": "¡Esta colección no tiene libros!",
             "failedLibrary": "¡Error al cargar los libros de la biblioteca!",
             "failedShelf": "¡Error al cargar los libros del estante!",
-            "activeFilters": "{{ count }} filtros activos"
+            "activeFilters": "{{ count }} filtros activos",
+            "failedBooks": "¡Error al cargar los libros!"
         },
         "tooltip": {
             "clearFilters": "Limpiar filtros aplicados",
@@ -299,7 +300,8 @@
             "magicShelfDeletedDetail": "Estante mágico eliminado",
             "magicShelfDeleteFailedDetail": "Error al eliminar el estante",
             "magicShelfJsonCopiedDetail": "JSON del estante mágico copiado al portapapeles",
-            "failedSummary": "Error"
+            "failedSummary": "Error",
+            "dialogLoadFailedDetail": "Se produjo un error al cargar la ventana. Inténtalo de nuevo."
         },
         "loading": {
             "deletingLibrary": "Eliminando biblioteca '{{ name }}'..."
@@ -502,7 +504,8 @@
             "fileTooLargeDetail": "{{ fileName }} excede el tamaño máximo de {{ maxSize }}",
             "fileTooLargeError": "El archivo excede el tamaño máximo de {{ maxSize }}",
             "uploadFailedUnknown": "La subida falló por un error desconocido."
-        }
+        },
+        "supportedFormats": "Formatos de archivo compatibles: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>"
     },
     "filter": {
         "title": "Filtros",
@@ -535,7 +538,10 @@
             "comicCharacter": "Personaje de cómic",
             "comicTeam": "Equipo de cómic",
             "comicLocation": "Ubicación de cómic",
-            "comicCreator": "Creador de cómic"
+            "comicCreator": "Creador de cómic",
+            "lubimyczytacRating": "Calificación Lubimyczytac",
+            "ranobedbRating": "Calificación RanobeDB",
+            "audibleRating": "Calificación Audible"
         },
         "readStatus": {
             "unread": "No leído",
@@ -672,7 +678,12 @@
             "lockFailedDetail": "Se produjo un error al bloquear los metadatos.",
             "unlockFailedSummary": "Error al desbloquear",
             "unlockFailedDetail": "Se produjo un error al desbloquear los metadatos."
-        }
+        },
+        "label": "Tabla de Libros",
+        "selectBook": "Seleccionar {{ title }}",
+        "selectBookFallback": "Seleccionar libro",
+        "noRating": "Sin calificación",
+        "ratingOutOf": "{{ rating }} de {{ max }}"
     },
     "lockUnlockDialog": {
         "title": "Bloquear o desbloquear metadatos",

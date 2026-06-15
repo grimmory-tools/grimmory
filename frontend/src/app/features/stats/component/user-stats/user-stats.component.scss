@@ -2,7 +2,7 @@
   max-width: 1800px;
   margin: 0 auto;
   box-sizing: border-box;
-  padding: 0.5rem;
+  padding: 0.4375rem;
   height: 100%;
   overflow-y: auto;
 }
@@ -10,11 +10,11 @@
 .header-section {
   background: var(--color-card);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.875rem;
   backdrop-filter: blur(10px);
   border: 1px solid var(--p-content-border-color);
   box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   transition: all 0.3s ease;
 
   &:hover {
@@ -26,26 +26,26 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
+    gap: 1.75rem;
     position: relative;
   }
 
   .greeting {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6563rem;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
 
     i {
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       color: var(--color-primary);
     }
 
     h2 {
       color: var(--color-text);
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
       margin: 0;
       white-space: nowrap;
@@ -60,21 +60,21 @@
 .config-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .config-toggle-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  gap: 0.4375rem;
+  padding: 0.6563rem 1.0938rem;
   background: var(--color-card);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
   color: var(--color-text);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
+  font-size: 0.7875rem;
   white-space: nowrap;
 
   &:hover {
@@ -84,7 +84,7 @@
   }
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
   }
 }
 
@@ -96,14 +96,14 @@
 
   .p-dialog-content {
     background: var(--color-card);
-    padding: 1.5rem;
+    padding: 1.3125rem;
   }
 
   .p-dialog-footer {
     border-top: 1px solid var(--p-content-border-color);
-    padding: 1rem 1.5rem;
+    padding: 0.875rem 1.3125rem;
     display: flex;
-    gap: 0.75rem;
+    gap: 0.6563rem;
     justify-content: flex-end;
 
     .reset-btn {
@@ -114,7 +114,7 @@
     .show-all-btn {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
   }
 }
@@ -123,14 +123,14 @@
   .config-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.6563rem;
   }
 
   .config-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 1.25rem;
+    gap: 0.875rem;
+    padding: 0.4375rem 1.0938rem;
     background: var(--color-page);
     border: 1px solid var(--p-content-border-color);
     border-radius: 8px;
@@ -156,11 +156,11 @@
     .chart-title {
       flex: 1;
       color: var(--color-text);
-      font-size: 0.95rem;
+      font-size: 0.8313rem;
     }
 
     .visibility-toggle {
-      padding: 0.5rem;
+      padding: 0.4375rem;
       background: transparent;
       border: 1px solid var(--p-content-border-color);
       border-radius: 6px;
@@ -191,14 +191,14 @@
 .charts-container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
+  gap: 1.3125rem;
   overflow: visible;
 }
 
 .chart-card {
   background: var(--color-card);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.3125rem;
   backdrop-filter: blur(10px);
   border: 1px solid var(--p-content-border-color);
   box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
@@ -217,9 +217,9 @@
 
   .chart-drag-handle {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.5rem;
+    top: 0.4375rem;
+    right: 0.4375rem;
+    padding: 0.4375rem;
     background: rgb(0 0 0 / 30%);
     border-radius: 6px;
     cursor: grab;
@@ -333,17 +333,17 @@
 
 @media (width <= 768px) {
   .user-stats-container {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   ::ng-deep .config-dialog {
     .p-dialog-content {
-      padding: 1rem;
+      padding: 0.875rem;
     }
 
     .p-dialog-footer {
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       .reset-btn {
         margin-right: 0;
@@ -357,12 +357,12 @@
   }
 
   .config-panel {
-    padding: 1rem;
+    padding: 0.875rem;
 
     .config-panel-header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 1rem;
+      gap: 0.875rem;
 
       .reset-btn {
         width: 100%;
@@ -372,11 +372,11 @@
   }
 
   .header-section {
-    padding: 1rem;
+    padding: 0.875rem;
 
     .header-content {
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.875rem;
       position: static;
     }
 
@@ -385,11 +385,11 @@
       transform: none;
 
       i {
-        font-size: 1.25rem;
+        font-size: 1.0938rem;
       }
 
       h2 {
-        font-size: 1.25rem;
+        font-size: 1.0938rem;
         white-space: normal;
       }
     }
@@ -407,11 +407,11 @@
 
   .charts-container {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 0.875rem;
   }
 
   .chart-card {
-    padding: 1rem;
+    padding: 0.875rem;
 
     .chart-drag-handle {
       opacity: 1;
@@ -436,35 +436,35 @@
 
 @media (width <= 480px) {
   .user-stats-container {
-    padding: 0.75rem;
+    padding: 0.6563rem;
   }
 
   .config-toggle-btn {
-    padding: 0.5rem 0.75rem;
+    padding: 0.4375rem 0.6563rem;
   }
 
   ::ng-deep .config-dialog {
     .p-dialog-content {
-      padding: 0.75rem;
+      padding: 0.6563rem;
     }
   }
 
   .config-panel {
-    padding: 0.75rem;
+    padding: 0.6563rem;
   }
 
   .header-section {
-    padding: 0.75rem;
+    padding: 0.6563rem;
 
     .greeting {
-      gap: 0.5rem;
+      gap: 0.4375rem;
 
       i {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
       }
 
       h2 {
-        font-size: 1rem;
+        font-size: var(--app-text-base);
         white-space: normal;
       }
     }
@@ -472,11 +472,11 @@
 
   .charts-container {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.6563rem;
   }
 
   .chart-card {
-    padding: 0.75rem;
+    padding: 0.6563rem;
 
     &.chart-small-square,
     &.chart-small,

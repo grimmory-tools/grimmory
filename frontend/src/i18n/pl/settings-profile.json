@@ -1,34 +1,34 @@
 {
-  "title": "Profil użytkownika",
-  "description": "Zarządzaj informacjami o koncie i ustawieniami bezpieczeństwa",
-  "basicInfo": "Podstawowe informacje",
-  "username": "Nazwa użytkownika",
-  "usernamePlaceholder": "Nazwa użytkownika...",
-  "fullName": "Imię i nazwisko",
-  "fullNamePlaceholder": "Wpisz imię i nazwisko...",
-  "email": "E-mail",
-  "emailPlaceholder": "Wpisz adres e-mail...",
-  "editProfile": "Edytuj profil",
-  "saveChanges": "Zapisz zmiany",
-  "security": "Ustawienia bezpieczeństwa",
-  "currentPassword": "Obecne hasło",
-  "newPassword": "Nowe hasło",
-  "confirmNewPassword": "Potwierdź nowe hasło",
-  "changePassword": "Zmień hasło",
-  "loading": "Ładowanie danych użytkownika...",
-  "validation": {
-    "currentPasswordRequired": "Obecne hasło jest wymagane.",
-    "newPasswordRequired": "Nowe hasło jest wymagane.",
-    "passwordMinLength": "Hasło musi mieć co najmniej 6 znaków.",
-    "confirmPasswordRequired": "Potwierdź nowe hasło.",
-    "passwordMismatch": "Hasła nie są zgodne."
-  },
-  "toast": {
-    "errorNoUser": "Dane użytkownika niedostępne.",
-    "noChanges": "Nie wykryto zmian.",
-    "profileUpdated": "Profil zaktualizowany pomyślnie",
-    "profileUpdateFailed": "Nie udało się zaktualizować profilu",
-    "passwordChanged": "Hasło zmienione pomyślnie",
-    "passwordChangeFailed": "Nie udało się zmienić hasła"
-  }
+    "title": "Profil użytkownika",
+    "description": "Zarządzaj informacjami o koncie i ustawieniami bezpieczeństwa",
+    "basicInfo": "Podstawowe informacje",
+    "username": "Nazwa użytkownika",
+    "usernamePlaceholder": "Nazwa użytkownika...",
+    "fullName": "Imię i nazwisko",
+    "fullNamePlaceholder": "Wpisz imię i nazwisko...",
+    "email": "E-mail",
+    "emailPlaceholder": "Wpisz adres e-mail...",
+    "editProfile": "Edytuj profil",
+    "saveChanges": "Zapisz zmiany",
+    "security": "Ustawienia bezpieczeństwa",
+    "currentPassword": "Obecne hasło",
+    "newPassword": "Nowe hasło",
+    "confirmNewPassword": "Potwierdź nowe hasło",
+    "changePassword": "Zmień hasło",
+    "loading": "Ładowanie danych użytkownika...",
+    "validation": {
+        "currentPasswordRequired": "Obecne hasło jest wymagane.",
+        "newPasswordRequired": "Nowe hasło jest wymagane.",
+        "passwordMinLength": "Hasło musi mieć co najmniej 6 znaków.",
+        "confirmPasswordRequired": "Potwierdź nowe hasło.",
+        "passwordMismatch": "Hasła nie są zgodne."
+    },
+    "toast": {
+        "errorNoUser": "Dane użytkownika niedostępne.",
+        "noChanges": "Nie wykryto zmian.",
+        "profileUpdated": "Profil zaktualizowany pomyślnie",
+        "profileUpdateFailed": "Nie udało się zaktualizować profilu",
+        "passwordChanged": "Hasło zmienione pomyślnie",
+        "passwordChangeFailed": "Nie udało się zmienić hasła"
+    }
 }

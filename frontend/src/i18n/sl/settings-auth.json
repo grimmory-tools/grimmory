@@ -127,5 +127,14 @@
         "backdoorHint": "Skrbniška zadnja vrata: dostopaj preko /login?local=true za uporabo lokalne prijave.",
         "saved": "Samo OIDC način je bil posodobljen.",
         "error": "Posodobitev samo OIDC načina ni uspela."
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
     }
 }

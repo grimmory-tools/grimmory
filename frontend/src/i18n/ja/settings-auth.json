@@ -35,7 +35,17 @@
         "emailClaim": "メールクレーム",
         "emailPlaceholder": "例: email",
         "nameClaim": "表示名クレーム",
-        "namePlaceholder": "例: name"
+        "namePlaceholder": "例: name",
+        "clientSecretHint": "",
+        "sessionDuration": "",
+        "clientSecretPlaceholder": "",
+        "clientSecret": "",
+        "groupsPlaceholder": "",
+        "groupsClaim": "",
+        "sessionDurationPlaceholder": "",
+        "sessionDurationHint": "",
+        "backchannelLogoutHint": "",
+        "backchannelLogoutUri": ""
     },
     "provisioning": {
         "sectionTitle": "ユーザープロビジョニング",
@@ -47,7 +57,10 @@
         "defaultPerms": "デフォルト権限",
         "readBooks": "本を読む",
         "defaultLibraryAccess": "デフォルトライブラリアクセス",
-        "selectLibraries": "新しいユーザーがアクセスできるライブラリを選択"
+        "selectLibraries": "新しいユーザーがアクセスできるライブラリを選択",
+        "linkLocalLabel": "",
+        "linkLocalDesc": "",
+        "linkLocalWarning": ""
     },
     "toast": {
         "saved": "保存しました",
@@ -56,6 +69,72 @@
         "providerSaved": "OIDCプロバイダー設定が保存されました。",
         "providerError": "OIDCプロバイダー設定の保存に失敗しました。",
         "provisionSaved": "OIDC自動プロビジョニング設定が保存されました。",
-        "provisionError": "OIDC自動プロビジョニング設定の保存に失敗しました。"
+        "provisionError": "OIDC自動プロビジョニング設定の保存に失敗しました。",
+        "syncModeSaved": "",
+        "sessionDurationError": "",
+        "groupMappingDeleted": "",
+        "sessionDurationSaved": "",
+        "groupMappingError": "",
+        "syncModeError": "",
+        "copiedToClipboard": "",
+        "groupMappingSaved": ""
+    },
+    "infoPanel": {
+        "sectionTitle": "",
+        "pkceMethod": "",
+        "redirectUri": "",
+        "backChannelLogoutUri": "",
+        "postLogoutRedirectUri": "",
+        "sectionDesc": "",
+        "grantType": "",
+        "requiredScopes": ""
+    },
+    "groupMapping": {
+        "syncModeHint": "",
+        "sectionTitle": "",
+        "librariesLabel": "",
+        "descriptionPlaceholder": "",
+        "colPermissions": "",
+        "syncModeLabel": "",
+        "addTitle": "",
+        "colGroupClaim": "",
+        "colLibraries": "",
+        "colDescription": "",
+        "colAdmin": "",
+        "permissionsLabel": "",
+        "groupClaimLabel": "",
+        "sectionDesc": "",
+        "editTitle": "",
+        "addMapping": "",
+        "adminLabel": "",
+        "descriptionLabel": "",
+        "groupClaimPlaceholder": ""
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
+    },
+    "oidcOnly": {
+        "enabled": "",
+        "saved": "",
+        "sectionTitle": "",
+        "description": "",
+        "label": "",
+        "backdoorHint": "",
+        "error": "",
+        "disabled": "",
+        "sectionDesc": ""
+    },
+    "testConnection": {
+        "error": "",
+        "button": "",
+        "failed": "",
+        "passed": "",
+        "checks": ""
     }
 }

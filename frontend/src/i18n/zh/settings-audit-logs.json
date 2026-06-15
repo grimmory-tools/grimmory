@@ -1,19 +1,19 @@
 {
-  "title": "审计日志",
-  "description": "查看系统中执行的管理员级别操作记录。",
-  "sectionTitle": "活动日志",
-  "filterPlaceholder": "按操作筛选",
-  "userFilterPlaceholder": "按用户筛选",
-  "dateRangePlaceholder": "按日期范围筛选",
-  "clearFilters": "清除所有筛选条件",
-  "autoRefresh": "自动刷新（10秒）",
-  "pageReport": "显示第 {first} 到第 {last} 条，共 {totalRecords} 条记录",
-  "empty": "未找到审计日志",
-  "columns": {
-    "timestamp": "时间",
-    "user": "用户",
-    "action": "操作",
-    "description": "描述",
-    "ip": "IP 地址"
-  }
+    "title": "审计日志",
+    "description": "查看系统中执行的管理员级别操作记录。",
+    "sectionTitle": "活动日志",
+    "filterPlaceholder": "按操作筛选",
+    "userFilterPlaceholder": "按用户筛选",
+    "dateRangePlaceholder": "按日期范围筛选",
+    "clearFilters": "清除所有筛选条件",
+    "autoRefresh": "自动刷新（10秒）",
+    "pageReport": "显示第 {first} 到第 {last} 条，共 {totalRecords} 条记录",
+    "empty": "未找到审计日志",
+    "columns": {
+        "timestamp": "时间",
+        "user": "用户",
+        "action": "操作",
+        "description": "描述",
+        "ip": "IP 地址"
+    }
 }

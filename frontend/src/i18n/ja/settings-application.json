@@ -15,7 +15,9 @@
         "aspectRatio": "アスペクト比しきい値: {{value}}",
         "aspectRatioDesc": "このしきい値を超えるアスペクト比の画像がトリミングされます。2.5の値は、通常の2.5倍以上縦長（または横長）の画像がトリミングされることを意味します。",
         "smartCropping": "スマートトリミング",
-        "smartCroppingDesc": "トリミング位置を決定する際に均一な色の領域をスキップします。カバー画像を最も関連性の高いコンテンツに焦点を当てます。"
+        "smartCroppingDesc": "トリミング位置を決定する際に均一な色の領域をスキップします。カバー画像を最も関連性の高いコンテンツに焦点を当てます。",
+        "regenerateAllBtn": "",
+        "regenerateMissingBtn": ""
     },
     "search": {
         "sectionTitle": "検索とおすすめ",

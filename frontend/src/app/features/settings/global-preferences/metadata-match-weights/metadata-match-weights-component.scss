@@ -1,39 +1,39 @@
 .settings-card {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.0938rem;
   background: var(--color-card);
   border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.3125rem;
 
   @media (width <= 768px) {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0.875rem;
+    gap: 0.875rem;
   }
 }
 
 .section-header {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2188rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.25rem;
+  gap: 0.4375rem;
+  font-size: 1.0938rem;
   font-weight: 600;
   color: var(--color-text);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4375rem;
 
   .pi {
     color: var(--color-primary);
-    font-size: 1.125rem;
+    font-size: var(--app-text-lg);
   }
 }
 
 .section-description {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   line-height: 1.5;
   color: var(--p-text-muted-color);
   margin: 0;
@@ -42,22 +42,22 @@
 .section-body {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding-left: 1rem;
+  gap: 1.75rem;
+  padding-left: 0.875rem;
 
   @media (width <= 768px) {
-    padding-left: 0.5rem;
+    padding-left: 0.4375rem;
   }
 }
 
 .setting-item {
-  padding: 0.875rem 1rem;
+  padding: 0.7656rem 0.875rem;
   border-radius: 6px;
   border-left: 3px solid var(--color-primary);
   background: var(--color-card);
 
   @media (width <= 768px) {
-    padding: 0.75rem;
+    padding: 0.6563rem;
   }
 }
 
@@ -65,29 +65,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.875rem;
 
   @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.6563rem;
   }
 }
 
 .action-info {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.1094rem;
 }
 
 .action-label {
-  font-size: 0.9375rem;
+  font-size: 0.8203rem;
   font-weight: 500;
   color: var(--color-text);
 }
 
 .action-description {
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   color: var(--p-text-muted-color);
   line-height: 1.4;
 }
@@ -95,18 +95,18 @@
 .weights-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.4375rem;
+  margin-bottom: 0.6563rem;
 }
 
 .weights-icon {
   color: var(--color-primary);
-  font-size: 0.875rem;
+  font-size: var(--app-text-sm);
   flex-shrink: 0;
 }
 
 .weights-label {
-  font-size: 0.9375rem;
+  font-size: 0.8203rem;
   font-weight: 500;
   color: var(--color-text);
   margin: 0;
@@ -115,19 +115,19 @@
 .weights-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6563rem;
 }
 
 .weights-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 0.625rem;
-  padding-top: 0.5rem;
+  gap: 0.5469rem;
+  padding-top: 0.4375rem;
   border-top: 1px dashed var(--p-content-border-color);
 
   @media (width <= 768px) {
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 0.4375rem;
   }
 
   @media (width <= 400px) {
@@ -139,28 +139,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.625rem;
+  gap: 0.4375rem;
+  padding: 0.4375rem 0.5469rem;
   background: var(--color-card);
   border: 1px solid var(--p-content-border-color);
   border-radius: 4px;
 
   .field-label {
-    font-size: 0.875rem;
+    font-size: var(--app-text-sm);
     font-weight: 500;
     color: var(--color-text);
     text-transform: capitalize;
   }
 
   ::ng-deep p-inputnumber {
-    width: 6rem;
+    width: 5.25rem;
   }
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 0.75rem;
+  padding-top: 0.6563rem;
   border-top: 1px dashed var(--p-content-border-color);
 
   @media (width <= 768px) {

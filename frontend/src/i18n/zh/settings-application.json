@@ -15,7 +15,9 @@
         "aspectRatio": "宽高比阈值：{{value}}",
         "aspectRatioDesc": "宽高比超过此阈值的图片将被裁剪。值为 2.5 表示高度（或宽度）超过正常值 2.5 倍的图片将被裁剪。",
         "smartCropping": "智能裁剪",
-        "smartCroppingDesc": "在确定裁剪位置时跳过纯色区域，将封面图片聚焦在最相关的内容上。"
+        "smartCroppingDesc": "在确定裁剪位置时跳过纯色区域，将封面图片聚焦在最相关的内容上。",
+        "regenerateAllBtn": "",
+        "regenerateMissingBtn": ""
     },
     "search": {
         "sectionTitle": "搜索与推荐",

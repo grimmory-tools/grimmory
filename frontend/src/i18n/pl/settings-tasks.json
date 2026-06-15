@@ -1,69 +1,69 @@
 {
-  "title": "Menedżer zadań systemowych",
-  "description": "Zarządzaj automatycznymi zadaniami systemowymi do konserwacji biblioteki, odświeżania metadanych i czyszczenia pamięci podręcznej. Zaplanuj powtarzające się operacje za pomocą <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">wyrażeń cron Spring</a>.",
-  "systemTasks": {
-    "sectionTitle": "Zadania systemowe",
-    "sectionDesc": "Wykonuj zadania ręcznie, monitoruj postęp w czasie rzeczywistym i konfiguruj automatyzację harmonogramu."
-  },
-  "loading": "Ładowanie zadań...",
-  "emptyTitle": "Brak dostępnych zadań",
-  "status": {
-    "running": "Uruchomione",
-    "stale": "Przestarzałe",
-    "neverRun": "Nigdy nie uruchomione",
-    "justNow": "Właśnie teraz"
-  },
-  "cron": {
-    "noSchedule": "Brak harmonogramu",
-    "edit": "Edytuj",
-    "placeholder": "np. 0 2 * * *",
-    "validationPrefix": "Wyrażenie cron musi mieć dokładnie 6 pól (sekundy, minuty, godziny, dzień, miesiąc, dzień tygodnia)",
-    "invalidField": "Nieprawidłowe pole {{name}}: {{value}}",
-    "updateSuccess": "Konfiguracja zaplanowanego zadania została pomyślnie zaktualizowana.",
-    "updateError": "Nie udało się zaktualizować konfiguracji zaplanowanego zadania."
-  },
-  "buttons": {
-    "run": "Uruchom",
-    "rerun": "Uruchom ponownie"
-  },
-  "metadataReplace": {
-    "label": "Tryb zastępowania metadanych:",
-    "selectMode": "Wybierz tryb",
-    "replaceMissing": "Aktualizuj tylko brakujące metadane (zalecane)",
-    "replaceAll": "Zastąp wszystkie metadane (nadpisz istniejące)",
-    "replaceMissingDesc": "Aktualizuj tylko książki, którym brakuje informacji o metadanych. Istniejące metadane zostaną zachowane.",
-    "replaceAllDesc": "Zastąp wszystkie metadane dla wszystkich książek, nawet jeśli już mają metadane. Używaj ostrożnie, ponieważ nadpisze istniejące dane."
-  },
-  "progress": {
-    "staleWarning": "To zadanie wygląda na zablokowane. Brak aktualizacji od ponad 5 minut.",
-    "statusLabel": "Status:",
-    "progressLabel": "Postęp:",
-    "startedLabel": "Rozpoczęto:",
-    "processing": "Przetwarzanie...",
-    "stuckMessage": "Zadanie wygląda na zablokowane (brak otrzymanych aktualizacji)"
-  },
-  "toast": {
-    "taskQueued": "Zadanie w kolejce",
-    "taskQueuedDetail": "{{name}} zostało dodane do kolejki i uruchomi się w tle.",
-    "taskCompleted": "Zadanie zakończone",
-    "taskCompletedDetail": "{{name}} zostało pomyślnie zakończone.",
-    "taskFailed": "Zadanie nie powiodło się",
-    "taskFailedDetail": "{{name}} nie udało się zakończyć.",
-    "taskStarted": "Zadanie uruchomione",
-    "taskStartedDetail": "{{name}} zostało pomyślnie uruchomione.",
-    "startError": "Nie udało się uruchomić {{name}}.",
-    "alreadyRunning": "Zadanie już uruchomione",
-    "alreadyRunningDetail": "To zadanie jest już w toku lub oczekuje.",
-    "taskCancelled": "Zadanie anulowane",
-    "cancelledDetail": "Zadanie zostało pomyślnie anulowane.",
-    "cancelFailed": "Anulowanie nie powiodło się",
-    "cancelError": "Nie udało się anulować zadania. Zadanie mogło być już zakończone lub niepowodzenie.",
-    "cancelNoId": "Nie można anulować zadania bez ID.",
-    "loadError": "Nie udało się załadować zadań",
-    "metadataScheduled": "Zaplanowano aktualizację metadanych",
-    "metadataScheduledDetail": "Aktualizacja metadanych dla wybranych książek została pomyślnie zaplanowana.",
-    "metadataAlreadyRunningDetail": "Zadanie odświeżania metadanych jest już w toku. Poczekaj na jego zakończenie przed uruchomieniem kolejnego.",
-    "metadataFailed": "Aktualizacja metadanych nie powiodła się",
-    "metadataFailedDetail": "Wystąpił nieoczekiwany błąd podczas planowania aktualizacji metadanych. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną."
-  }
+    "title": "Menedżer zadań systemowych",
+    "description": "Zarządzaj automatycznymi zadaniami systemowymi do konserwacji biblioteki, odświeżania metadanych i czyszczenia pamięci podręcznej. Zaplanuj powtarzające się operacje za pomocą <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">wyrażeń cron Spring</a>.",
+    "systemTasks": {
+        "sectionTitle": "Zadania systemowe",
+        "sectionDesc": "Wykonuj zadania ręcznie, monitoruj postęp w czasie rzeczywistym i konfiguruj automatyzację harmonogramu."
+    },
+    "loading": "Ładowanie zadań...",
+    "emptyTitle": "Brak dostępnych zadań",
+    "status": {
+        "running": "Uruchomione",
+        "stale": "Przestarzałe",
+        "neverRun": "Nigdy nie uruchomione",
+        "justNow": "Właśnie teraz"
+    },
+    "cron": {
+        "noSchedule": "Brak harmonogramu",
+        "edit": "Edytuj",
+        "placeholder": "np. 0 2 * * *",
+        "validationPrefix": "Wyrażenie cron musi mieć dokładnie 6 pól (sekundy, minuty, godziny, dzień, miesiąc, dzień tygodnia)",
+        "invalidField": "Nieprawidłowe pole {{name}}: {{value}}",
+        "updateSuccess": "Konfiguracja zaplanowanego zadania została pomyślnie zaktualizowana.",
+        "updateError": "Nie udało się zaktualizować konfiguracji zaplanowanego zadania."
+    },
+    "buttons": {
+        "run": "Uruchom",
+        "rerun": "Uruchom ponownie"
+    },
+    "metadataReplace": {
+        "label": "Tryb zastępowania metadanych:",
+        "selectMode": "Wybierz tryb",
+        "replaceMissing": "Aktualizuj tylko brakujące metadane (zalecane)",
+        "replaceAll": "Zastąp wszystkie metadane (nadpisz istniejące)",
+        "replaceMissingDesc": "Aktualizuj tylko książki, którym brakuje informacji o metadanych. Istniejące metadane zostaną zachowane.",
+        "replaceAllDesc": "Zastąp wszystkie metadane dla wszystkich książek, nawet jeśli już mają metadane. Używaj ostrożnie, ponieważ nadpisze istniejące dane."
+    },
+    "progress": {
+        "staleWarning": "To zadanie wygląda na zablokowane. Brak aktualizacji od ponad 5 minut.",
+        "statusLabel": "Status:",
+        "progressLabel": "Postęp:",
+        "startedLabel": "Rozpoczęto:",
+        "processing": "Przetwarzanie...",
+        "stuckMessage": "Zadanie wygląda na zablokowane (brak otrzymanych aktualizacji)"
+    },
+    "toast": {
+        "taskQueued": "Zadanie w kolejce",
+        "taskQueuedDetail": "{{name}} zostało dodane do kolejki i uruchomi się w tle.",
+        "taskCompleted": "Zadanie zakończone",
+        "taskCompletedDetail": "{{name}} zostało pomyślnie zakończone.",
+        "taskFailed": "Zadanie nie powiodło się",
+        "taskFailedDetail": "{{name}} nie udało się zakończyć.",
+        "taskStarted": "Zadanie uruchomione",
+        "taskStartedDetail": "{{name}} zostało pomyślnie uruchomione.",
+        "startError": "Nie udało się uruchomić {{name}}.",
+        "alreadyRunning": "Zadanie już uruchomione",
+        "alreadyRunningDetail": "To zadanie jest już w toku lub oczekuje.",
+        "taskCancelled": "Zadanie anulowane",
+        "cancelledDetail": "Zadanie zostało pomyślnie anulowane.",
+        "cancelFailed": "Anulowanie nie powiodło się",
+        "cancelError": "Nie udało się anulować zadania. Zadanie mogło być już zakończone lub niepowodzenie.",
+        "cancelNoId": "Nie można anulować zadania bez ID.",
+        "loadError": "Nie udało się załadować zadań",
+        "metadataScheduled": "Zaplanowano aktualizację metadanych",
+        "metadataScheduledDetail": "Aktualizacja metadanych dla wybranych książek została pomyślnie zaplanowana.",
+        "metadataAlreadyRunningDetail": "Zadanie odświeżania metadanych jest już w toku. Poczekaj na jego zakończenie przed uruchomieniem kolejnego.",
+        "metadataFailed": "Aktualizacja metadanych nie powiodła się",
+        "metadataFailedDetail": "Wystąpił nieoczekiwany błąd podczas planowania aktualizacji metadanych. Spróbuj ponownie później lub skontaktuj się z pomocą techniczną."
+    }
 }

@@ -8,9 +8,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4375rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.875rem;
 
   .chart-title {
     flex: 1;
@@ -18,17 +18,17 @@
 
     h3 {
       color: var(--color-text);
-      font-size: 1.25rem;
+      font-size: 1.0938rem;
       font-weight: 500;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4375rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4375rem;
     }
 
     .chart-description {
       color: var(--color-text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       margin: 0;
       line-height: 1.4;
     }
@@ -40,19 +40,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
 
     @include chart-shared.accent-surface(8px);
 
     .badge-value {
-      font-size: 1.5rem;
+      font-size: 1.3125rem;
       font-weight: 600;
 
       @include chart-shared.accent-text;
     }
 
     .badge-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -61,38 +61,38 @@
 }
 
 .book-length-icon {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   color: var(--color-cyan-500);
 }
 
 .stats-row {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.6563rem;
+  margin-bottom: 0.875rem;
   flex-wrap: wrap;
 
   .stat-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.4375rem 0.875rem;
     flex: 1;
 
     @include chart-shared.neutral-surface;
 
     .stat-value-sm {
-      font-size: 0.9rem;
+      font-size: 0.7875rem;
       font-weight: 500;
       color: var(--color-text);
       text-align: center;
     }
 
     .stat-label {
-      font-size: 0.75rem;
+      font-size: var(--app-text-xs);
       color: var(--color-text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 0.25rem;
+      margin-top: 0.2188rem;
     }
   }
 }
@@ -108,24 +108,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.625rem;
   text-align: center;
   color: var(--color-text-secondary);
 
   i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2.1875rem;
+    margin-bottom: 0.875rem;
     opacity: 0.5;
   }
 
   p {
-    font-size: 1rem;
-    margin: 0 0 0.5rem;
+    font-size: var(--app-text-base);
+    margin: 0 0 0.4375rem;
     color: var(--color-text);
   }
 
   small {
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     opacity: 0.7;
   }
 }
@@ -139,11 +139,11 @@
 @media (width <= 480px) {
   .chart-header {
     .chart-title h3 {
-      font-size: 1rem;
+      font-size: var(--app-text-base);
     }
 
     .stats-badge .badge-value {
-      font-size: 1.25rem;
+      font-size: 1.0938rem;
     }
   }
 

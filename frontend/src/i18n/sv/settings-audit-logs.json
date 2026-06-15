@@ -1,19 +1,19 @@
 {
-  "title": "Granskningsloggar",
-  "description": "Visa en logg över administrativt betydelsefulla åtgärder utförda i systemet.",
-  "sectionTitle": "Aktivitetslogg",
-  "filterPlaceholder": "Filtrera efter åtgärd",
-  "userFilterPlaceholder": "Filtrera efter användare",
-  "dateRangePlaceholder": "Filtrera efter datumintervall",
-  "clearFilters": "Rensa alla filter",
-  "autoRefresh": "Auto-uppdatera (10s)",
-  "pageReport": "Visar {first} till {last} av {totalRecords} poster",
-  "empty": "Inga granskningsloggar hittades",
-  "columns": {
-    "timestamp": "När",
-    "user": "Användare",
-    "action": "Åtgärd",
-    "description": "Beskrivning",
-    "ip": "IP-adress"
-  }
+    "title": "Granskningsloggar",
+    "description": "Visa en logg över administrativt betydelsefulla åtgärder utförda i systemet.",
+    "sectionTitle": "Aktivitetslogg",
+    "filterPlaceholder": "Filtrera efter åtgärd",
+    "userFilterPlaceholder": "Filtrera efter användare",
+    "dateRangePlaceholder": "Filtrera efter datumintervall",
+    "clearFilters": "Rensa alla filter",
+    "autoRefresh": "Auto-uppdatera (10s)",
+    "pageReport": "Visar {first} till {last} av {totalRecords} poster",
+    "empty": "Inga granskningsloggar hittades",
+    "columns": {
+        "timestamp": "När",
+        "user": "Användare",
+        "action": "Åtgärd",
+        "description": "Beskrivning",
+        "ip": "IP-adress"
+    }
 }

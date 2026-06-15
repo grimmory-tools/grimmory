@@ -1,10 +1,78 @@
 {
-  "toolbar": {
-    "switchToLightMode": "Cambiar a modo claro",
-    "switchToDarkMode": "Cambiar a modo oscuro",
-    "closePdfReader": "Cerrar lector PDF"
-  },
-  "toast": {
-    "failedToLoadBook": "Error al cargar el libro"
-  }
+    "toolbar": {
+        "switchToLightMode": "Cambiar a modo claro",
+        "switchToDarkMode": "Cambiar a modo oscuro",
+        "closePdfReader": "Cerrar lector PDF",
+        "fullscreen": "Pantalla completa",
+        "exitFullscreen": "Salir de Pantalla completa",
+        "sidebar": "Contenidos",
+        "search": "Buscar",
+        "searchPlaceholder": "Buscar en documento...",
+        "searchNext": "Resultado siguiente",
+        "searchPrevious": "Resultado Previo",
+        "rotatePage": "Rotar página",
+        "spreadMode": "Diseño de página",
+        "scrollLayout": "Diseño de desplazamiento",
+        "scrollLayoutVertical": "Desplazamiento vertical",
+        "scrollLayoutHorizontal": "Desplazamiento horizontal",
+        "bookmarkAdd": "Añadir marcador",
+        "bookmarkRemove": "Remover marcador",
+        "addBookmark": "Añadir marcador",
+        "removeBookmark": "Remover marcador",
+        "freeText": "Nota de texto",
+        "moreOptions": "Más opciones",
+        "textNote": "Nota de texto",
+        "closeSearch": "Cerrar búsqueda",
+        "zoomIn": "Acercar",
+        "zoomOut": "Alejar",
+        "zoomPreset": "Zoom predefinido",
+        "annotationColor": "",
+        "ink": "",
+        "deselectTool": "",
+        "highlight": "",
+        "draw": "",
+        "pan": ""
+    },
+    "toast": {
+        "failedToLoadBook": "Error al cargar el libro",
+        "annotationFailed": "",
+        "annotationSaved": "",
+        "bookmarkAdded": "",
+        "bookmarkRemoved": "",
+        "bookmarkExists": ""
+    },
+    "sidebar": {
+        "deleteAnnotation": "Borrar anotación",
+        "page": "Página",
+        "title": "Barra lateral",
+        "close": "Cerrar barra lateral",
+        "contentsTab": "",
+        "annotationsTab": "",
+        "bookmarkHint": "",
+        "noContents": "",
+        "deleteBookmark": "",
+        "bookmarksTab": "",
+        "annotationHint": "",
+        "noBookmarks": "",
+        "noAnnotations": ""
+    },
+    "footer": {
+        "of": "de",
+        "pagePlaceholder": "Página",
+        "go": "Ir",
+        "nextPage": "",
+        "lastPage": "",
+        "bookViewer": "",
+        "previousPage": "",
+        "pageSlider": "",
+        "firstPage": "",
+        "docViewer": ""
+    },
+    "docViewer": {
+        "changesSaved": "Los cambios se guardaron correctamente.",
+        "dismiss": "Descartar",
+        "saveDocument": "Guardar Cambios",
+        "saveFailed": "",
+        "changesSavedInfo": ""
+    }
 }

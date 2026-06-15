@@ -127,5 +127,14 @@
         "backdoorHint": "Administratorski backdoor: access /login?local=true za korištenje lokalne prijave.",
         "saved": "Ažuriran je samo OIDC način rada.",
         "error": "Nije uspjelo ažuriranje načina rada samo za OIDC."
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
     }
 }

@@ -8,14 +8,73 @@
         "opdsDesc": "Schakel de OPDS-server in om uw boekcollectie te benaderen via OPDS-compatibele lees-apps zoals KOReader, Moon+ Reader, etc.",
         "komgaLabel": "Komga API",
         "komgaDesc": "Schakel de Komga-compatibele API in om Komga-clients (Tachiyomi, Komelia, etc.) te gebruiken met Grimmory. Gebruikt dezelfde OPDS-gebruikersaccounts voor authenticatie.",
-        "groupUnknownLabel": "Onbekende reeksen groeperen"
+        "groupUnknownLabel": "Onbekende reeksen groeperen",
+        "enabled": "",
+        "grouped": "",
+        "disabled": "",
+        "individual": "",
+        "groupUnknownDesc": ""
     },
     "createDialog": {
         "username": "Gebruikersnaam",
-        "password": "Wachtwoord"
+        "password": "Wachtwoord",
+        "create": "",
+        "title": "",
+        "enterPassword": "",
+        "enterUsername": "",
+        "sortOrder": "",
+        "selectSortOrder": "",
+        "sortHint": ""
     },
     "accessRestricted": "Toegang beperkt",
     "contactAdmin": "Neem contact op met uw beheerder om toestemming aan te vragen.",
     "settingsSaved": "Instellingen opgeslagen",
-    "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen."
+    "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen.",
+    "endpoints": {
+        "opdsCatalog": "",
+        "sectionDesc": "",
+        "opdsHint": "",
+        "sectionTitle": "",
+        "komgaBase": "",
+        "komgaHint": "",
+        "copyUrl": ""
+    },
+    "users": {
+        "sectionDesc": "",
+        "emptySubtitle": "",
+        "addUser": "",
+        "sectionTitle": "",
+        "emptyTitle": "",
+        "editSortOrder": "",
+        "deleteUser": ""
+    },
+    "deleteHeader": "",
+    "loadError": "",
+    "sortOrders": {
+        "authorAsc": "",
+        "titleDesc": "",
+        "ratingAsc": "",
+        "seriesDesc": "",
+        "seriesAsc": "",
+        "authorDesc": "",
+        "titleAsc": "",
+        "recent": "",
+        "ratingDesc": ""
+    },
+    "deleteConfirm": "",
+    "groupDisabled": "",
+    "opdsEnabled": "",
+    "createSuccess": "",
+    "groupEnabled": "",
+    "accessDenied": "",
+    "createError": "",
+    "komgaEnabled": "",
+    "sortUpdateSuccess": "",
+    "opdsCopied": "",
+    "opdsDisabled": "",
+    "komgaCopied": "",
+    "sortUpdateError": "",
+    "deleteSuccess": "",
+    "deleteError": "",
+    "komgaDisabled": ""
 }

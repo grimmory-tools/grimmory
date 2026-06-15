@@ -56,9 +56,9 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       overflow: hidden;
     }
 
-    .placeholder.size-sm { padding: min(0.5rem, 4cqi); }
-    .placeholder.size-md { padding: min(1rem, 6cqi); }
-    .placeholder.size-lg { padding: min(1.5rem, 8cqi); }
+    .placeholder.size-sm { padding: min(0.4375rem, 4cqi); }
+    .placeholder.size-md { padding: min(0.875rem, 6cqi); }
+    .placeholder.size-lg { padding: min(1.3125rem, 8cqi); }
 
     .placeholder-title {
       color: rgba(255, 255, 255, 0.9);

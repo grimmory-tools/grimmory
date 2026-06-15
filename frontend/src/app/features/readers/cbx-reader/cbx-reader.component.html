@@ -2,7 +2,8 @@
   [class.rtl-reading]="readingDirection() === CbxReadingDirection.RTL"
   [class.fullscreen-mode]="isFullscreen()" [class.slideshow-active]="isSlideshowActive()">
   <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked()"
-    [currentPageHasNotes]="currentPageHasNotes()"></app-cbx-header>
+    [currentPageHasNotes]="currentPageHasNotes()"
+    (hoverChange)="onHeaderHovered($event)"></app-cbx-header>
 
   <app-cbx-sidebar></app-cbx-sidebar>
 
@@ -185,5 +186,6 @@
     }
   </div>
 
-  <app-cbx-footer></app-cbx-footer>
+  <app-cbx-footer
+    (hoverChange)="onFooterHovered($event)"></app-cbx-footer>
 </div>

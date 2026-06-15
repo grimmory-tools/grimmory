@@ -127,5 +127,14 @@
         "backdoorHint": "Admin-bakdörr: gå till /login?local=true för att använda lokal inloggning.",
         "saved": "Endast OIDC-läge uppdaterat.",
         "error": "Misslyckades med att uppdatera endast OIDC-läge."
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
     }
 }

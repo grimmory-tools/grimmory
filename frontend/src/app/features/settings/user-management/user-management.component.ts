@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -19,7 +19,7 @@ import {DialogLauncherService} from '../../../shared/services/dialog-launcher.se
 import {ContentRestrictionsEditorComponent} from './content-restrictions-editor/content-restrictions-editor.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
-interface UserWithEditing extends User {
+export interface UserWithEditing extends User {
   isEditing?: boolean;
   selectedLibraryIds?: number[];
   libraryNames?: string;
@@ -56,7 +56,7 @@ export class UserManagementComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   get allLibraries() { return this.libraryService.libraries(); }
 
-  users: UserWithEditing[] = [];
+  users: WritableSignal<UserWithEditing[]> = signal([]);
   currentUser: User | null = null;
   editingLibraryIds: number[] = [];
   expandedRows: Record<string, boolean> = {};
@@ -82,13 +82,13 @@ export class UserManagementComponent implements OnInit {
   loadUsers() {
     this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.users = data.map((user) => ({
+        this.users.set(data.map((user: UserWithEditing) => ({
           ...user,
           isEditing: false,
           selectedLibraryIds: user.assignedLibraries?.map((lib) => lib.id!).filter(id => id !== undefined) as number[] || [],
           libraryNames:
             user.assignedLibraries?.map((lib) => lib.name).join(', ') || '',
-        }));
+        })));
       },
       error: () => {
         this.messageService.add({
@@ -119,6 +119,18 @@ export class UserManagementComponent implements OnInit {
           ?.map((lib: Library) => lib.name)
           .join(', ') || '';
     }
+  }
+
+  getLibraryAccessLabel(user: UserWithEditing): string {
+    if (user.libraryNames) {
+      return user.libraryNames;
+    }
+
+    return this.t.translate(
+      user.permissions.admin
+        ? 'settingsUsers.userInfo.allLibrariesAdmin'
+        : 'settingsUsers.userInfo.noLibrariesAssigned'
+    );
   }
 
   saveUser(user: UserWithEditing) {

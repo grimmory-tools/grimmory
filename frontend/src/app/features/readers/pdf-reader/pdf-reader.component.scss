@@ -520,7 +520,7 @@ $transition-fast: 150ms ease;
     background: $chrome-control-bg;
     color: $text-secondary;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.7438rem;
     font-weight: 500;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
     height: 30px;
@@ -564,12 +564,12 @@ $transition-fast: 150ms ease;
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.7438rem;
   box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
   pointer-events: none;
 
   i {
-    font-size: 1rem;
+    font-size: var(--app-text-base);
     color: $active-color;
   }
 }

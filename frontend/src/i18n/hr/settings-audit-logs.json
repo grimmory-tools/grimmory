@@ -1,19 +1,19 @@
 {
-  "title": "Revizijski zapisi",
-  "description": "Pregledajte zapisnik administrativno značajnih radnji izvršenih u sustavu.",
-  "sectionTitle": "Zapisnik aktivnosti",
-  "filterPlaceholder": "Filtriraj po radnji",
-  "userFilterPlaceholder": "Filtriraj po korisniku",
-  "dateRangePlaceholder": "Filtriraj po rasponu datuma",
-  "clearFilters": "Očisti sve filtere",
-  "autoRefresh": "Automatsko osvježavanje (10s)",
-  "pageReport": "Prikazujem {first} do {last} od {totalRecords} unosa",
-  "empty": "Nema pronađenih revizijskih zapisa",
-  "columns": {
-    "timestamp": "Kada",
-    "user": "Korisnik",
-    "action": "Radnja",
-    "description": "Opis",
-    "ip": "IP adresa"
-  }
+    "title": "Revizijski zapisi",
+    "description": "Pregledajte zapisnik administrativno značajnih radnji izvršenih u sustavu.",
+    "sectionTitle": "Zapisnik aktivnosti",
+    "filterPlaceholder": "Filtriraj po radnji",
+    "userFilterPlaceholder": "Filtriraj po korisniku",
+    "dateRangePlaceholder": "Filtriraj po rasponu datuma",
+    "clearFilters": "Očisti sve filtere",
+    "autoRefresh": "Automatsko osvježavanje (10s)",
+    "pageReport": "Prikazujem {first} do {last} od {totalRecords} unosa",
+    "empty": "Nema pronađenih revizijskih zapisa",
+    "columns": {
+        "timestamp": "Kada",
+        "user": "Korisnik",
+        "action": "Radnja",
+        "description": "Opis",
+        "ip": "IP adresa"
+    }
 }

@@ -121,5 +121,37 @@
         "sidebarWidthDesc": "Nadzoruje širino navigacijske vrstice in plošče s filtri.",
         "saved": "Nastavitve posodobljene",
         "savedDetail": "Tvoja nastavitev širine stranske vrstice je bila shranjena."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": "",
+        "sectionDesc": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": "",
+        "label": ""
     }
 }

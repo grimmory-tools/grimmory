@@ -1,34 +1,34 @@
 {
-  "title": "Profil utilisateur",
-  "description": "Gérez les informations de votre compte et vos paramètres de sécurité",
-  "basicInfo": "Informations de base",
-  "username": "Nom d'utilisateur",
-  "usernamePlaceholder": "Nom d'utilisateur...",
-  "fullName": "Nom complet",
-  "fullNamePlaceholder": "Entrez le nom complet...",
-  "email": "E-mail",
-  "emailPlaceholder": "Entrez l'e-mail...",
-  "editProfile": "Modifier le profil",
-  "saveChanges": "Enregistrer les modifications",
-  "security": "Paramètres de sécurité",
-  "currentPassword": "Mot de passe actuel",
-  "newPassword": "Nouveau mot de passe",
-  "confirmNewPassword": "Confirmer le nouveau mot de passe",
-  "changePassword": "Changer le mot de passe",
-  "loading": "Chargement des données utilisateur...",
-  "validation": {
-    "currentPasswordRequired": "Le mot de passe actuel est requis.",
-    "newPasswordRequired": "Le nouveau mot de passe est requis.",
-    "passwordMinLength": "Le mot de passe doit comporter au moins 6 caractères.",
-    "confirmPasswordRequired": "Veuillez confirmer votre nouveau mot de passe.",
-    "passwordMismatch": "Les mots de passe ne correspondent pas."
-  },
-  "toast": {
-    "errorNoUser": "Données utilisateur non disponibles.",
-    "noChanges": "Aucune modification détectée.",
-    "profileUpdated": "Profil mis à jour avec succès",
-    "profileUpdateFailed": "Échec de la mise à jour du profil",
-    "passwordChanged": "Mot de passe modifié avec succès",
-    "passwordChangeFailed": "Échec du changement de mot de passe"
-  }
+    "title": "Profil utilisateur",
+    "description": "Gérez les informations de votre compte et vos paramètres de sécurité",
+    "basicInfo": "Informations de base",
+    "username": "Nom d'utilisateur",
+    "usernamePlaceholder": "Nom d'utilisateur...",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Entrez le nom complet...",
+    "email": "E-mail",
+    "emailPlaceholder": "Entrez l'e-mail...",
+    "editProfile": "Modifier le profil",
+    "saveChanges": "Enregistrer les modifications",
+    "security": "Paramètres de sécurité",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "changePassword": "Changer le mot de passe",
+    "loading": "Chargement des données utilisateur...",
+    "validation": {
+        "currentPasswordRequired": "Le mot de passe actuel est requis.",
+        "newPasswordRequired": "Le nouveau mot de passe est requis.",
+        "passwordMinLength": "Le mot de passe doit comporter au moins 6 caractères.",
+        "confirmPasswordRequired": "Veuillez confirmer votre nouveau mot de passe.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
+    },
+    "toast": {
+        "errorNoUser": "Données utilisateur non disponibles.",
+        "noChanges": "Aucune modification détectée.",
+        "profileUpdated": "Profil mis à jour avec succès",
+        "profileUpdateFailed": "Échec de la mise à jour du profil",
+        "passwordChanged": "Mot de passe modifié avec succès",
+        "passwordChangeFailed": "Échec du changement de mot de passe"
+    }
 }

@@ -47,7 +47,8 @@
             "noBooks": "Ta zbirka nima knjig!",
             "failedLibrary": "Napaka pri nalaganju knjig iz knjižnice!",
             "failedShelf": "Napaka pri nalaganju knjig s police!",
-            "activeFilters": "{{ count }} aktivnih filtrov"
+            "activeFilters": "{{ count }} aktivnih filtrov",
+            "failedBooks": ""
         },
         "tooltip": {
             "clearFilters": "Počisti uporabljene filtre",
@@ -299,7 +300,8 @@
             "magicShelfDeletedDetail": "Magična polica je bila izbrisana",
             "magicShelfDeleteFailedDetail": "Napaka pri brisanju police",
             "failedSummary": "Napaka",
-            "magicShelfJsonCopiedDetail": "JSON za čarobno polico kopiran v odložišče"
+            "magicShelfJsonCopiedDetail": "JSON za čarobno polico kopiran v odložišče",
+            "dialogLoadFailedDetail": ""
         },
         "loading": {
             "deletingLibrary": "Brisanje knjižnice '{{ name }}'..."
@@ -459,7 +461,8 @@
             "fileTooLargeError": "Datoteka presega največjo dovoljeno velikost {{ maxSize }}",
             "uploadFailedUnknown": "Nalaganje ni uspelo zaradi neznane napake."
         },
-        "supplementaryAllFormats": "Za dodatne datoteke so podprte vse oblike zapisa datotek."
+        "supplementaryAllFormats": "Za dodatne datoteke so podprte vse oblike zapisa datotek.",
+        "supportedFormats": ""
     },
     "filter": {
         "title": "Filtri",
@@ -492,7 +495,10 @@
             "comicCharacter": "Stripovski lik",
             "comicTeam": "Stripovska ekipa",
             "comicLocation": "Stripovska lokacija",
-            "comicCreator": "Stripovski ustvarjalec"
+            "comicCreator": "Stripovski ustvarjalec",
+            "ranobedbRating": "",
+            "audibleRating": "",
+            "lubimyczytacRating": ""
         },
         "readStatus": {
             "unread": "Neprebrano",
@@ -572,7 +578,8 @@
         "toast": {
             "updateSuccessDetail": "Police so posodobljene",
             "updateFailedDetail": "Napaka pri posodabljanju polic"
-        }
+        },
+        "searchPlaceholder": ""
     },
     "shelfCreator": {
         "title": "Ustvari novo polico",
@@ -628,7 +635,12 @@
             "lockFailedDetail": "Prišlo je do napake pri zaklepanju metapodatkov.",
             "unlockFailedSummary": "Odklepanje ni uspelo",
             "unlockFailedDetail": "Prišlo je do napake pri odklepanju metapodatkov."
-        }
+        },
+        "noRating": "",
+        "ratingOutOf": "",
+        "selectBookFallback": "",
+        "selectBook": "",
+        "label": ""
     },
     "lockUnlockDialog": {
         "title": "Zakleni ali odkleni metapodatke",

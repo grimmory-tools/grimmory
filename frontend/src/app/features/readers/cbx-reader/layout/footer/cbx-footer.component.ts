@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, EventEmitter, inject, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {Book} from '../../../../book/model/book.model';
@@ -18,6 +18,7 @@ export class CbxFooterComponent {
 
   readonly forceVisible = this.footerService.forceVisible;
   readonly state = this.footerService.state;
+  @Output() hoverChange = new EventEmitter<boolean>();
 
   goToPageInput: number | null = null;
 

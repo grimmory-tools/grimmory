@@ -20,6 +20,7 @@ body {
   background-color: var(--color-app);
   color: var(--color-text);
   font-family: var(--font-family), serif;
+  font-size: var(--app-text-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,7 +63,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 1.5rem 0 1rem;
+  margin: 1.3125rem 0 0.875rem;
   color: var(--color-text-strong);
   font-weight: 500;
   line-height: 1.2;
@@ -74,31 +75,31 @@ h6 {
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: var(--text-3xl);
 }
 
 h3 {
-  font-size: 1.75rem;
+  font-size: var(--text-2xl);
 }
 
 h4 {
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
 }
 
 h5 {
-  font-size: 1.25rem;
+  font-size: var(--text-lg);
 }
 
 h6 {
-  font-size: 1rem;
+  font-size: var(--text-sm);
 }
 
 p {
-  margin: 0 0 1rem;
+  margin: 0 0 0.875rem;
   color: var(--color-text);
   line-height: 1.5;
   overflow-wrap: break-word;
@@ -113,20 +114,20 @@ p.p-secondary {
 }
 
 mark {
-  padding: 0.25rem 0.4rem;
+  padding: 0.2188rem 0.35rem;
   border-radius: var(--radius-lg);
   background: #fff8e1;
   font-family: monospace;
 }
 
 blockquote {
-  margin: 1rem 0;
-  padding: 0 2rem;
+  margin: 0.875rem 0;
+  padding: 0 1.75rem;
   border-left: 4px solid #90a4ae;
 }
 
 hr {
-  margin: 1rem 0;
+  margin: 0.875rem 0;
   border-top: solid var(--color-border);
   border-width: 1px 0 0;
 }

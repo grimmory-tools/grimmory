@@ -35,7 +35,17 @@
         "emailClaim": "Claim email",
         "emailPlaceholder": "es. email",
         "nameClaim": "Claim nome visualizzato",
-        "namePlaceholder": "es. name"
+        "namePlaceholder": "es. name",
+        "clientSecretHint": "",
+        "sessionDuration": "",
+        "clientSecretPlaceholder": "",
+        "clientSecret": "",
+        "groupsPlaceholder": "",
+        "groupsClaim": "",
+        "sessionDurationPlaceholder": "",
+        "sessionDurationHint": "",
+        "backchannelLogoutHint": "",
+        "backchannelLogoutUri": ""
     },
     "provisioning": {
         "sectionTitle": "Provisioning utenti",
@@ -47,7 +57,10 @@
         "defaultPerms": "Permessi predefiniti",
         "readBooks": "Leggere libri",
         "defaultLibraryAccess": "Accesso librerie predefinito",
-        "selectLibraries": "Seleziona le librerie a cui i nuovi utenti possono accedere"
+        "selectLibraries": "Seleziona le librerie a cui i nuovi utenti possono accedere",
+        "linkLocalLabel": "",
+        "linkLocalDesc": "",
+        "linkLocalWarning": ""
     },
     "toast": {
         "saved": "Salvato",
@@ -56,6 +69,72 @@
         "providerSaved": "Impostazioni provider OIDC salvate.",
         "providerError": "Salvataggio impostazioni provider OIDC fallito.",
         "provisionSaved": "Impostazioni auto-provisioning OIDC salvate.",
-        "provisionError": "Salvataggio impostazioni auto-provisioning OIDC fallito."
+        "provisionError": "Salvataggio impostazioni auto-provisioning OIDC fallito.",
+        "syncModeSaved": "",
+        "sessionDurationError": "",
+        "groupMappingDeleted": "",
+        "sessionDurationSaved": "",
+        "groupMappingError": "",
+        "syncModeError": "",
+        "copiedToClipboard": "",
+        "groupMappingSaved": ""
+    },
+    "infoPanel": {
+        "sectionTitle": "",
+        "pkceMethod": "",
+        "redirectUri": "",
+        "backChannelLogoutUri": "",
+        "postLogoutRedirectUri": "",
+        "sectionDesc": "",
+        "grantType": "",
+        "requiredScopes": ""
+    },
+    "groupMapping": {
+        "syncModeHint": "",
+        "sectionTitle": "",
+        "librariesLabel": "",
+        "descriptionPlaceholder": "",
+        "colPermissions": "",
+        "syncModeLabel": "",
+        "addTitle": "",
+        "colGroupClaim": "",
+        "colLibraries": "",
+        "colDescription": "",
+        "colAdmin": "",
+        "permissionsLabel": "",
+        "groupClaimLabel": "",
+        "sectionDesc": "",
+        "editTitle": "",
+        "addMapping": "",
+        "adminLabel": "",
+        "descriptionLabel": "",
+        "groupClaimPlaceholder": ""
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
+    },
+    "oidcOnly": {
+        "enabled": "",
+        "saved": "",
+        "sectionTitle": "",
+        "description": "",
+        "label": "",
+        "backdoorHint": "",
+        "error": "",
+        "disabled": "",
+        "sectionDesc": ""
+    },
+    "testConnection": {
+        "error": "",
+        "button": "",
+        "failed": "",
+        "passed": "",
+        "checks": ""
     }
 }
