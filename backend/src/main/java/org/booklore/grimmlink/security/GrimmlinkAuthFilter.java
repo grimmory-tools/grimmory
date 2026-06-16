@@ -32,26 +32,49 @@ public class GrimmlinkAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        String method = request.getMethod();
+        String requestURI = request.getRequestURI();
+        String dispatcherType = request.getDispatcherType().name();
+
         String username = request.getHeader("x-auth-user");
         String key = request.getHeader("x-auth-key");
-        if (username == null || username.isBlank() || key == null || key.isBlank()) {
+
+        boolean hasUser = username != null && !username.isBlank();
+        boolean hasKey = key != null && !key.isBlank();
+        int keyLength = key != null ? key.length() : 0;
+
+        log.debug("GrimmLink auth: method={}, uri={}, dispatcherType={}, x-auth-user-present={}, x-auth-key-present={}, key-length={}",
+                method, requestURI, dispatcherType, hasUser, hasKey, keyLength);
+
+        if (!hasUser || !hasKey) {
+            log.debug("GrimmLink auth FAILED: missing headers — method={}, uri={}, dispatcherType={}",
+                    method, requestURI, dispatcherType);
             writeUnauthorized(response, "Missing GrimmLink authentication headers");
             return;
         }
 
         var koreaderUser = koreaderUserRepository.findByUsername(username).orElse(null);
         if (koreaderUser == null || koreaderUser.getPasswordMD5() == null || !md5Matches(koreaderUser.getPasswordMD5(), key)) {
+            log.debug("GrimmLink auth FAILED: invalid credentials — method={}, uri={}, dispatcherType={}",
+                    method, requestURI, dispatcherType);
             writeUnauthorized(response, "Invalid GrimmLink credentials");
             return;
         }
         if (!koreaderUser.isSyncEnabled()) {
+            log.debug("GrimmLink auth FAILED: sync disabled — method={}, uri={}, dispatcherType={}",
+                    method, requestURI, dispatcherType);
             writeForbidden(response, "Sync is disabled for this user");
             return;
         }
         if (koreaderUser.getBookLoreUser() == null || !userRepository.existsById(koreaderUser.getBookLoreUser().getId())) {
+            log.debug("GrimmLink auth FAILED: unlinked user — method={}, uri={}, dispatcherType={}",
+                    method, requestURI, dispatcherType);
             writeUnauthorized(response, "GrimmLink user is not linked to a Grimmory user");
             return;
         }
+
+        log.debug("GrimmLink auth SUCCESS: method={}, uri={}, dispatcherType={}, user={}",
+                method, requestURI, dispatcherType, username);
 
         Long bookLoreUserId = koreaderUser.getBookLoreUser().getId();
         KoreaderUserDetails userDetails = new KoreaderUserDetails(
