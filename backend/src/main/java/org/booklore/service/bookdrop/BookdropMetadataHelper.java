@@ -67,5 +67,6 @@ public class BookdropMetadataHelper {
         if (source.getIsbn13() != null) target.setIsbn13(source.getIsbn13());
         if (source.getAsin() != null) target.setAsin(source.getAsin());
         if (source.getApplebooksId() != null) target.setApplebooksId(source.getApplebooksId());
+        if (source.getOpenlibraryId() != null) target.setOpenlibraryId(source.getOpenlibraryId());
     }
 }

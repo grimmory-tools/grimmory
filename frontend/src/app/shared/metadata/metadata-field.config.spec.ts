@@ -41,6 +41,7 @@ describe('metadata-field.config', () => {
 
   it('filters provider-backed fields when provider flags are supplied', () => {
     const enabledFields = {
+      openlibraryId: false,
       googleId: true,
       asin: false,
       amazonRating: false,

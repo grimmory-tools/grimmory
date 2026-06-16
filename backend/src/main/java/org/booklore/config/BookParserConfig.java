@@ -21,19 +21,21 @@ public class BookParserConfig {
             RanobeDbParser ranobedbParser,
             LubimyCzytacParser lubimyczytacParser,
             AudibleParser audibleParser,
-            AppleBooksParser appleBooksParser
+            AppleBooksParser appleBooksParser,
+            OpenLibraryParser openLibraryParser
     ) {
-        return Map.of(
-                MetadataProvider.Amazon, amazonBookParser,
-                MetadataProvider.GoodReads, goodReadsParser,
-                MetadataProvider.Google, googleParser,
-                MetadataProvider.Hardcover, hardcoverParser,
-                MetadataProvider.Comicvine, comicvineBookParser,
-                MetadataProvider.Douban, doubanBookParser,
-                MetadataProvider.Lubimyczytac, lubimyczytacParser,
-                MetadataProvider.Ranobedb, ranobedbParser,
-                MetadataProvider.Audible, audibleParser,
-                MetadataProvider.AppleBooks, appleBooksParser
+        return Map.ofEntries(
+                Map.entry(MetadataProvider.OpenLibrary, openLibraryParser),
+                Map.entry(MetadataProvider.Amazon, amazonBookParser),
+                Map.entry(MetadataProvider.GoodReads, goodReadsParser),
+                Map.entry(MetadataProvider.Google, googleParser),
+                Map.entry(MetadataProvider.Hardcover, hardcoverParser),
+                Map.entry(MetadataProvider.Comicvine, comicvineBookParser),
+                Map.entry(MetadataProvider.Douban, doubanBookParser),
+                Map.entry(MetadataProvider.Lubimyczytac, lubimyczytacParser),
+                Map.entry(MetadataProvider.Ranobedb, ranobedbParser),
+                Map.entry(MetadataProvider.Audible, audibleParser),
+                Map.entry(MetadataProvider.AppleBooks, appleBooksParser)
         );
     }
 }

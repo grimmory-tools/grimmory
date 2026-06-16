@@ -30,6 +30,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
     'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10',
     'language', 'categories', 'cover', 'pageCount',
+    'openlibraryId',
     'asin', 'amazonRating', 'amazonReviewCount',
     'googleId',
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
@@ -42,6 +43,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   ];
 
   providerSpecificFields: (keyof FieldOptions)[] = [
+    'openlibraryId',
     'asin', 'amazonRating', 'amazonReviewCount',
     'googleId',
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
@@ -59,8 +61,33 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  providers: string[] = ['Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible', 'AppleBooks'];
-  providersWithClear: string[] = ['Clear All', 'Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible', 'AppleBooks'];
+  providers: string[] = [
+    'OpenLibrary',
+    'Amazon',
+    'Google',
+    'GoodReads',
+    'Hardcover',
+    'Comicvine',
+    'Douban',
+    'Lubimyczytac',
+    'Ranobedb',
+    'Audible',
+    'AppleBooks'
+  ];
+  providersWithClear: string[] = [
+    'Clear All',
+    'OpenLibrary',
+    'Amazon',
+    'Google',
+    'GoodReads',
+    'Hardcover',
+    'Comicvine',
+    'Douban',
+    'Lubimyczytac',
+    'Ranobedb',
+    'Audible',
+    'AppleBooks'
+  ];
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
@@ -89,6 +116,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   private justSubmitted = false;
 
   private providerSpecificFieldsList = [
+    // OpenLibrary
+    'openlibraryId',
+
     // Amazon
     'asin', 'amazonRating', 'amazonReviewCount',
 
@@ -273,6 +303,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'pageCount': 'Page Count',
       'rating': 'Rating',
       'reviewCount': 'Review Count',
+      'openlibraryId': 'OpenLibrary ID',
       'asin': 'Amazon ASIN',
       'goodreadsId': 'Goodreads ID',
       'comicvineId': 'Comicvine ID',

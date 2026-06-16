@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class MetadataProviderSpecificFields {
+    private Boolean openlibraryId;
     private Boolean asin;
     private Boolean amazonRating;
     private Boolean amazonReviewCount;

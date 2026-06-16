@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class MetadataProviderSettings {
+    private OpenLibrary openLibrary;
     private Amazon amazon;
     private Google google;
     private Goodreads goodReads;
@@ -16,6 +17,11 @@ public class MetadataProviderSettings {
     private Lubimyczytac lubimyczytac;
     private Audible audible;
     private AppleBooks appleBooks;
+
+    @Data
+    public static class OpenLibrary {
+        private boolean enabled;
+    }
 
     @Data
     public static class Amazon {

@@ -347,6 +347,9 @@ public class AppSettingService {
     private MetadataProviderSettings getDefaultMetadataProviderSettings() {
         MetadataProviderSettings defaultMetadataProviderSettings = new MetadataProviderSettings();
 
+        MetadataProviderSettings.OpenLibrary defaultOpenLibrary = new MetadataProviderSettings.OpenLibrary();
+        defaultOpenLibrary.setEnabled(false);
+
         MetadataProviderSettings.Amazon defaultAmazon = new MetadataProviderSettings.Amazon();
         defaultAmazon.setEnabled(true);
         defaultAmazon.setCookie(null);
@@ -376,6 +379,7 @@ public class AppSettingService {
         defaultAppleBooks.setEnabled(false);
         defaultAppleBooks.setCountry("US");
 
+        defaultMetadataProviderSettings.setOpenLibrary(defaultOpenLibrary);
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
@@ -413,6 +417,7 @@ public class AppSettingService {
                 .categories(goodreadsGoogleProvider)
                 .cover(goodreadsGoogleProvider)
                 .pageCount(goodreadsGoogleProvider)
+                .openlibraryId(nullProvider)
                 .asin(nullProvider)
                 .goodreadsId(nullProvider)
                 .comicvineId(nullProvider)
@@ -455,6 +460,7 @@ public class AppSettingService {
                 .categories(true)
                 .cover(true)
                 .pageCount(true)
+                .openlibraryId(true)
                 .asin(true)
                 .goodreadsId(true)
                 .comicvineId(true)
@@ -608,6 +614,7 @@ public class AppSettingService {
 
     private MetadataProviderSpecificFields getDefaultMetadataProviderSpecificFields() {
         MetadataProviderSpecificFields fields = new MetadataProviderSpecificFields();
+        fields.setOpenlibraryId(true);
         fields.setAsin(true);
         fields.setAmazonRating(true);
         fields.setAmazonReviewCount(true);

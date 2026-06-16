@@ -120,6 +120,7 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
         String lang = mobiMetadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(mobiMetadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(mobiMetadata.getAsin(), 10));
         metadata.setAmazonRating(mobiMetadata.getAmazonRating());
         metadata.setAmazonReviewCount(mobiMetadata.getAmazonReviewCount());
