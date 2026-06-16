@@ -7,9 +7,9 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.0.6"
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.0.Final"
+    id("org.hibernate.orm") version "7.4.1.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -167,9 +167,9 @@ dependencies {
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.8.0")
+    implementation("org.flywaydb:flyway-mysql:12.8.1")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -229,7 +229,7 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.1.4"))
+    implementation(platform("tools.jackson:jackson-bom:3.2.0"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
 
