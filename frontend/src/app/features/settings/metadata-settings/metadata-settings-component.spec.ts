@@ -94,7 +94,7 @@ function buildMetadataRefreshOptions(): MetadataRefreshOptions {
   const FIELDS = [
     'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
     'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10', 'language',
-    'pageCount', 'categories', 'cover', 'asin', 'goodreadsId', 'comicvineId',
+    'pageCount', 'categories', 'cover', 'asin', 'goodreadsId', 'comicvineId', 'openlibraryId',
     'hardcoverId', 'hardcoverBookId', 'googleId', 'lubimyczytacId',
     'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount',
     'hardcoverRating', 'hardcoverReviewCount', 'lubimyczytacRating',

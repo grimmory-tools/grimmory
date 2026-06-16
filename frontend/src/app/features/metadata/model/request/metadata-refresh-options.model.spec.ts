@@ -17,6 +17,7 @@ const provider = (value: string | null): FieldProvider => ({
 describe('metadata-refresh-options.model', () => {
   it('supports replace-mode driven refresh settings', () => {
     const fieldOptions: FieldOptions = {
+      openlibraryId: provider('openlibrary'),
       title: provider('google'),
       description: provider('google'),
       authors: provider('google'),
@@ -78,6 +79,7 @@ describe('metadata-refresh-options.model', () => {
         isbn10: true,
         language: true,
         pageCount: true,
+        openlibraryId: true,
         asin: true,
         goodreadsId: true,
         comicvineId: false,
