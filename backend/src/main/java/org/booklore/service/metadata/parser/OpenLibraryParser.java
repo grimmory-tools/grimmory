@@ -241,6 +241,7 @@ public class OpenLibraryParser implements BookParser {
             log.error("OpenLibrary request failed", e);
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw e;
         }
     }
@@ -505,6 +506,7 @@ public class OpenLibraryParser implements BookParser {
                             sink.next(metadata);
                         }
                     } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                         throw e;
                     } catch (Exception e) {
                         log.error("Error fetching metadata for Work: {}", document.key, e);
