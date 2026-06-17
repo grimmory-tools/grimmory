@@ -37,7 +37,8 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'comicvineId',
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount'
+    'audibleId', 'audibleRating', 'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
   ];
 
   providerSpecificFields: (keyof FieldOptions)[] = [
@@ -49,6 +50,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
     'audibleId', 'audibleRating', 'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
   ];
 
   nonProviderSpecificFields: (keyof FieldOptions)[] = [
@@ -57,8 +59,8 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  providers: string[] = ['Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible'];
-  providersWithClear: string[] = ['Clear All', 'Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible'];
+  providers: string[] = ['Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible', 'Apple Books'];
+  providersWithClear: string[] = ['Clear All', 'Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible', 'Apple Books'];
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
@@ -110,6 +112,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
     // Audible
     'audibleId', 'audibleRating', 'audibleReviewCount',
+
+    // Apple Books
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
 
     // Generic provider-specific
     'moods', 'tags'
@@ -287,6 +292,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'audibleId': 'Audible ID',
       'audibleRating': 'Audible Rating',
       'audibleReviewCount': 'Audible Review Count',
+      'applebooksId': 'Apple Books ID',
+      'applebooksRating': 'Apple Books Rating',
+      'applebooksReviewCount': 'Apple Books Review Count',
       'moods': 'Moods (Hardcover)',
       'tags': 'Tags (Hardcover)'
     };

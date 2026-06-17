@@ -36,6 +36,9 @@ public class MetadataClearFlags {
     private boolean audibleId;
     private boolean audibleRating;
     private boolean audibleReviewCount;
+    private boolean applebooksId;
+    private boolean applebooksRating;
+    private boolean applebooksReviewCount;
     private boolean authors;
     private boolean categories;
     private boolean moods;

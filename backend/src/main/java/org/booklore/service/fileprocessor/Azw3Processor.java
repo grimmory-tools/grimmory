@@ -132,6 +132,9 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
         metadata.setComicvineId(truncate(azw3Metadata.getComicvineId(), 100));
         metadata.setRanobedbId(truncate(azw3Metadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(azw3Metadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(azw3Metadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(azw3Metadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(azw3Metadata.getApplebooksReviewCount());
 
         bookCreatorService.addAuthorsToBook(azw3Metadata.getAuthors(), bookEntity);
 

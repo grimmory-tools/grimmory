@@ -938,6 +938,48 @@
                   </div>
                 </div>
               }
+              @if (isFieldVisible('applebooksId')) {
+                <div class="field-group metadata-id-field">
+                  <label for="applebooksId">{{ t('applebooksId') }} @if (isEmbeddable('applebooksId', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                  <div class="field-with-lock">
+                    <input pSize="small" pInputText id="applebooksId" formControlName="applebooksId"/>
+                    @if (!book.metadata!['applebooksIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('applebooksId')" severity="success"></p-button>
+                    }
+                    @if (book.metadata!['applebooksIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('applebooksId')" severity="warn"></p-button>
+                    }
+                  </div>
+                </div>
+              }
+              @if (isFieldVisible('applebooksRating')) {
+                <div class="field-group metadata-id-field">
+                  <label for="applebooksRating">{{ t('applebooksRating') }} @if (isEmbeddable('applebooksRating', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                  <div class="field-with-lock">
+                    <input pSize="small" pInputText id="applebooksRating" formControlName="applebooksRating"/>
+                    @if (!book.metadata!['applebooksRatingLocked']) {
+                      <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('applebooksRating')" severity="success"></p-button>
+                    }
+                    @if (book.metadata!['applebooksRatingLocked']) {
+                      <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('applebooksRating')" severity="warn"></p-button>
+                    }
+                  </div>
+                </div>
+              }
+              @if (isFieldVisible('applebooksReviewCount')) {
+                <div class="field-group metadata-id-field">
+                  <label for="applebooksReviewCount">{{ t('applebooksReviewCount') }} @if (isEmbeddable('applebooksReviewCount', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                  <div class="field-with-lock">
+                    <input pSize="small" pInputText id="applebooksReviewCount" formControlName="applebooksReviewCount"/>
+                    @if (!book.metadata!['applebooksReviewCountLocked']) {
+                      <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('applebooksReviewCount')" severity="success"></p-button>
+                    }
+                    @if (book.metadata!['applebooksReviewCountLocked']) {
+                      <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('applebooksReviewCount')" severity="warn"></p-button>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           </div>
         }

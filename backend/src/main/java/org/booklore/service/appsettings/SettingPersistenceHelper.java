@@ -109,6 +109,10 @@ public class SettingPersistenceHelper {
         MetadataProviderSettings.Ranobedb defaultRanobedb = new MetadataProviderSettings.Ranobedb();
         defaultRanobedb.setEnabled(false);
 
+        MetadataProviderSettings.AppleBooks defaultAppleBooks = new MetadataProviderSettings.AppleBooks();
+        defaultAppleBooks.setEnabled(false);
+        defaultAppleBooks.setCountry("US");
+
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
@@ -116,6 +120,7 @@ public class SettingPersistenceHelper {
         defaultMetadataProviderSettings.setComicvine(defaultComicvine);
         defaultMetadataProviderSettings.setRanobedb(defaultRanobedb);
         defaultMetadataProviderSettings.setDouban(defaultDouban);
+        defaultMetadataProviderSettings.setAppleBooks(defaultAppleBooks);
 
         return defaultMetadataProviderSettings;
     }
@@ -350,6 +355,9 @@ public class SettingPersistenceHelper {
         fields.setAudibleId(true);
         fields.setAudibleRating(true);
         fields.setAudibleReviewCount(true);
+        fields.setApplebooksId(true);
+        fields.setApplebooksRating(true);
+        fields.setApplebooksReviewCount(true);
         return fields;
     }
 }

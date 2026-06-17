@@ -323,7 +323,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   private getProviderFromMetadata(metadata: BookMetadata): string | null {
-    if (metadata.audibleId) return 'audible'; 
+    if (metadata.audibleId) return 'audible';
+    if (metadata.applebooksId) return 'applebooks';
     if (metadata.asin) return 'amazon';
     if (metadata.goodreadsId) return 'goodreads';
     if (metadata.googleId) return 'google';
@@ -463,6 +464,18 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     if (metadata.audibleId) {
       // Audible has to come before Amazon because they both have an ASIN.
       return `<a href="https://www.audible.com/pd/${metadata.audibleId}" target="_blank">Audible</a>`;
+    } else if (metadata.applebooksId) {
+      if (!metadata.applebooksId.includes(":")) {
+        return `<a href="https://books.apple.com/us/book/id${metadata.applebooksId}" target="_blank">Apple Books</a>`;
+      }
+
+      const [ wrapperType, itemId ] = metadata.applebooksId.split(":", 2)
+
+      if (wrapperType.toLowerCase() == "audiobook") {
+        return `<a href="https://books.apple.com/us/audiobook/id${itemId}" target="_blank">Apple Books</a>`;
+      } else {
+        return `<a href="https://books.apple.com/us/book/id${itemId}" target="_blank">Apple Books</a>`;
+      }
     } else if (metadata.asin) {
       return `<a href="https://www.amazon.com/dp/${metadata.asin}" target="_blank">Amazon</a>`;
     } else if (metadata.goodreadsId) {
@@ -491,7 +504,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
   trackByMetadata(index: number, metadata: BookMetadata): string {
     return metadata.googleId || metadata.goodreadsId || metadata.asin ||
-      metadata.hardcoverId || metadata.comicvineId || metadata.audibleId || index.toString();
+      metadata.hardcoverId || metadata.comicvineId || metadata.audibleId ||
+      metadata.applebooksId || index.toString();
   }
 
   onProviderClick(event: Event) {
