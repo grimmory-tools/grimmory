@@ -51,7 +51,14 @@
             "createdLargeDetail": "书库已创建，包含 {{count}} 个文件。加载进行中...",
             "createFailedSummary": "创建失败",
             "createFailedDetail": "创建书库时发生错误，请重试。"
-        }
+        },
+        "organizationMode": "",
+        "organizationModeBookPerFile": "",
+        "organizationModeBookPerFolder": "",
+        "organizationModeAutoDetect": "",
+        "folderStructureHint": "",
+        "organizationModeLockedTooltip": "",
+        "organizationModeTooltip": ""
     },
     "loading": {
         "title": "正在加载书库",

@@ -86,7 +86,13 @@
         "insightTimeSpan": "Étendue temporelle",
         "insightYearsOfLiterature": "années de littérature",
         "insightPeakDecade": "Décennie phare",
-        "insightPeakDecadeBooks": "{{ count }} livres"
+        "insightPeakDecadeBooks": "{{ count }} livres",
+        "insightGoldenEraRange": "",
+        "insightGoldenEra": "",
+        "insightMostCommonYear": "",
+        "insightRarePicks": "",
+        "insightMostCommonYearBooks": "",
+        "insightRarityScore": ""
     },
     "publicationTrend": {
         "title": "Tendance de publication",

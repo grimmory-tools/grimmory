@@ -104,7 +104,9 @@
         "autoAddEnabled": "新图书将自动添加到 Kobo 书架",
         "autoAddDisabled": "自动添加到 Kobo 书架已禁用",
         "pros": "优点：",
-        "cons": "缺点："
+        "cons": "缺点：",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Hardcover 集成",

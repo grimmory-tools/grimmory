@@ -1,135 +1,85 @@
-import {HttpHeaders, provideHttpClient} from '@angular/common/http';
-import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
+import {of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {FileDownloadService} from './file-download.service';
+import {AuthService} from './auth.service';
+import {API_CONFIG} from '../../core/config/api-config';
 
 describe('FileDownloadService', () => {
+  const apiUrl = `${API_CONFIG.BASE_URL}/api/v1/books/1/download`;
   let service: FileDownloadService;
-  let httpTestingController: HttpTestingController;
+  let ensureAccessToken: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    ensureAccessToken = vi.fn().mockReturnValue(of('tok'));
+
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         FileDownloadService,
+        {provide: AuthService, useValue: {ensureAccessToken}},
       ]
     });
 
     service = TestBed.inject(FileDownloadService);
-    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    httpTestingController.verify();
+    vi.restoreAllMocks();
     TestBed.resetTestingModule();
   });
 
-  it('downloads a blob', () => {
+  function stubAnchor() {
     const click = vi.fn();
     const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
-    const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:download');
-    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+    return {anchor, click};
+  }
 
-    service.downloadFile('/files/1', 'fallback.epub');
+  it('navigates to the download url with a fresh access token appended', () => {
+    const {anchor, click} = stubAnchor();
 
-    const request = httpTestingController.expectOne('/files/1');
-    expect(request.request.method).toBe('GET');
-    expect(request.request.responseType).toBe('blob');
-    request.flush(new Blob(['content']), {
-      headers: new HttpHeaders({
-        'Content-Disposition': "attachment; filename*=UTF-8''server%20name.epub",
-      }),
-    });
+    service.downloadFile(apiUrl, 'book.epub');
 
-    expect(createElementSpy).toHaveBeenCalledWith('a');
-    expect(createObjectUrlSpy).toHaveBeenCalled();
+    expect(ensureAccessToken).toHaveBeenCalledOnce();
+    expect(anchor.href).toBe(`${apiUrl}?token=tok`);
+    expect(anchor.download).toBe('book.epub');
     expect(click).toHaveBeenCalledOnce();
-    expect(revokeObjectUrlSpy).toHaveBeenCalledWith('blob:download');
   });
 
-  it('downloads using the utf-8-only filename from the response header', () => {
-    const click = vi.fn();
-    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+  it('uses & as the separator when the url already has a query string', () => {
+    const {anchor} = stubAnchor();
 
-    service.downloadFile('/files/1', 'fallback.epub');
+    service.downloadFile(`${apiUrl}?foo=bar`, 'book.epub');
 
-    const request = httpTestingController.expectOne('/files/1');
-    request.flush(new Blob(['content']), {
-      headers: new HttpHeaders({
-        'Content-Disposition': "attachment; filename*=UTF-8''server%20name.epub",
-      }),
-    });
-
-    expect(anchor.download).toBe('server name.epub');
+    expect(anchor.href).toBe(`${apiUrl}?foo=bar&token=tok`);
   });
 
-  it('downloads a blob using the ascii filename from the response header', () => {
-    const click = vi.fn();
-    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+  it('url-encodes the token', () => {
+    ensureAccessToken.mockReturnValue(of('a b/c+d'));
+    const {anchor} = stubAnchor();
 
-    service.downloadFile('/files/1', 'fallback.epub');
+    service.downloadFile(apiUrl, 'book.epub');
 
-    const request = httpTestingController.expectOne('/files/1');
-    request.flush(new Blob(['content']), {
-      headers: new HttpHeaders({
-        'Content-Disposition': "attachment; filename=\"server name.epub\"",
-      }),
-    });
-
-    expect(anchor.download).toBe('server name.epub');
+    expect(anchor.href).toBe(`${apiUrl}?token=a%20b%2Fc%2Bd`);
   });
 
-  it('downloads a blob using the unquoted ascii filename from the response header', () => {
-    const click = vi.fn();
-    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+  it('does not append the token to a non-API (cross-origin) url', () => {
+    const {anchor, click} = stubAnchor();
 
-    service.downloadFile('/files/1', 'fallback.epub');
+    service.downloadFile('https://example.com/evil', 'book.epub');
 
-    const request = httpTestingController.expectOne('/files/1');
-    request.flush(new Blob(['content']), {
-      headers: new HttpHeaders({
-        'Content-Disposition': "attachment; filename=server_name.epub",
-      }),
-    });
-
-    expect(anchor.download).toBe('server_name.epub');
+    expect(anchor.href).toBe('https://example.com/evil');
+    expect(click).toHaveBeenCalledOnce();
   });
 
-  it('downloads a blob using the both utf-8 and ascii from the response header', () => {
-    const click = vi.fn();
-    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+  it('does not start a download when the token refresh fails', () => {
+    ensureAccessToken.mockReturnValue(throwError(() => new Error('refresh failed')));
+    const createElement = vi.spyOn(document, 'createElement');
 
-    service.downloadFile('/files/1', 'fallback.epub');
+    service.downloadFile(apiUrl, 'book.epub');
 
-    const request = httpTestingController.expectOne('/files/1');
-    request.flush(new Blob(['content']), {
-      headers: new HttpHeaders({
-        'Content-Disposition': "attachment; filename=\"server name.epub\"; filename*=UTF-8''server%20name.epub",
-      }),
-    });
-
-    expect(anchor.download).toBe('server name.epub');
-  });
-
-  it('falls back to the provided filename when the response has no content-disposition header', () => {
-    const click = vi.fn();
-    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
-
-    service.downloadFile('/files/2', 'fallback.epub');
-
-    const request = httpTestingController.expectOne('/files/2');
-    request.flush(new Blob(['content']));
-
-    expect(anchor.download).toBe('fallback.epub');
+    expect(createElement).not.toHaveBeenCalled();
   });
 });

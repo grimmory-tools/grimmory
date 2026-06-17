@@ -27,7 +27,11 @@
         "ratingTaste": "評価テイスト比較",
         "seriesProgress": "シリーズ進捗トラッカー",
         "readingDna": "読書DNAプロフィール",
-        "readingHabits": "読書習慣分析"
+        "readingHabits": "読書習慣分析",
+        "bookFlow": "",
+        "publicationEra": "",
+        "readingDebt": "",
+        "sessionArchetypes": ""
     },
     "sessionHeatmap": {
         "title": "読書セッション活動",
@@ -470,5 +474,57 @@
         "statusAbandoned": "中断",
         "statusOther": "その他",
         "trend": "トレンド"
+    },
+    "bookFlow": {
+        "noData": "",
+        "totalBooks": "",
+        "noDataHint": "",
+        "description": "",
+        "avgRating": "",
+        "completionRate": "",
+        "busiestQuarter": "",
+        "colRating": "",
+        "colAdded": "",
+        "colStatus": "",
+        "topStatus": "",
+        "title": "",
+        "tooltip": ""
+    },
+    "publicationEra": {
+        "noDataHint": "",
+        "title": "",
+        "tooltip": "",
+        "noData": "",
+        "description": "",
+        "bestDecade": "",
+        "avgRating": "",
+        "booksRated": ""
+    },
+    "readingDebt": {
+        "booksFinished": "",
+        "description": "",
+        "shrinking": "",
+        "backlog": "",
+        "booksAdded": "",
+        "growing": "",
+        "noData": "",
+        "trendLabel": "",
+        "noDataHint": "",
+        "title": "",
+        "currentBacklog": "",
+        "tooltip": ""
+    },
+    "sessionArchetypes": {
+        "archetype_afternoon": "",
+        "noData": "",
+        "title": "",
+        "tooltip": "",
+        "dominantType": "",
+        "archetype_morning": "",
+        "archetype_evening": "",
+        "description": "",
+        "noDataHint": "",
+        "archetype_night": "",
+        "sessions": ""
     }
 }

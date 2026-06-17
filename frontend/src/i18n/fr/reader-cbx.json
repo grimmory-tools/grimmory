@@ -41,7 +41,10 @@
         "toggleZoom": "Basculer le zoom (ajuster à la page / taille réelle)",
         "doubleTap": "Double appui",
         "toggleSlideshow": "Basculer le diaporama / lecture automatique",
-        "showHelpDialog": "Afficher cette fenêtre d'aide"
+        "showHelpDialog": "Afficher cette fenêtre d'aide",
+        "magnifierLensSize": "",
+        "magnifierZoom": "",
+        "toggleMagnifier": ""
     },
     "footer": {
         "prevBook": "Livre précédent",
@@ -77,7 +80,9 @@
         "fullscreenLabel": "Plein écran",
         "keyboardShortcutsLabel": "Raccourcis clavier",
         "settings": "Paramètres",
-        "closeReader": "Fermer le lecteur"
+        "closeReader": "Fermer le lecteur",
+        "enableMagnifier": "",
+        "disableMagnifier": ""
     },
     "quickSettings": {
         "fitMode": "Mode d'ajustement",
@@ -103,7 +108,14 @@
         "background": "Arrière-plan",
         "black": "Noir",
         "gray": "Gris",
-        "white": "Blanc"
+        "white": "Blanc",
+        "clickToPaginate": "",
+        "magnifierLensSize": "",
+        "stripMaxWidth": "",
+        "autoCloseMenu": "",
+        "magnifierZoom": "",
+        "brightness": "",
+        "emulateBook": ""
     },
     "sidebar": {
         "contentTab": "Contenu",
@@ -123,5 +135,15 @@
         "clearSearch": "Effacer la recherche",
         "page": "Page",
         "untitled": "Sans titre"
+    },
+    "webtoonHint": {
+        "never": "",
+        "dismiss": "",
+        "switch": "",
+        "regionLabel": "",
+        "message": ""
+    },
+    "continuation": {
+        "scrollForNext": ""
     }
 }

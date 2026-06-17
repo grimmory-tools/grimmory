@@ -7,9 +7,9 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.0.6"
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.0.Final"
+    id("org.hibernate.orm") version "7.4.1.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -161,15 +161,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("com.nimbusds:nimbus-jose-jwt:10.9")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.9.1")
 
     // --- Reactive Streams ---
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.6.2")
+    implementation("org.flywaydb:flyway-mysql:12.8.1")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -197,7 +197,7 @@ dependencies {
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.22")
+    implementation("com.github.RouHim:jaudiotagger:2.0.23")
 
     // --- Archive Support ---
     implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
@@ -229,10 +229,9 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.1.3"))
+    implementation(platform("tools.jackson:jackson-bom:3.2.0"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-blackbird")
 
     // --- Jackson 2 (Compatibility) ---
     // jackson-annotations version is managed by Jackson 3 BOM (requires 2.20+)

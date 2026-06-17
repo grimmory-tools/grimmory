@@ -11,6 +11,7 @@
         "authentication": "Authenticatie",
         "tasks": "Taken",
         "opds": "OPDS",
-        "devices": "Apparaten"
+        "devices": "Apparaten",
+        "auditLogs": ""
     }
 }

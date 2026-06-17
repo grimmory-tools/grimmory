@@ -121,5 +121,37 @@
         "sidebarWidthDesc": "Kontroluje szerokość paska nawigacji i panelu filtrów książek.",
         "saved": "Preferencje zaktualizowane",
         "savedDetail": "Preferencja szerokości paska bocznego została zapisana."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": "",
+        "sectionDesc": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": "",
+        "label": ""
     }
 }

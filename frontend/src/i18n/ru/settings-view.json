@@ -121,5 +121,37 @@
         "sidebarWidthDesc": "Управляет шириной навигационной боковой панели и панели фильтров книг.",
         "saved": "Настройки обновлены",
         "savedDetail": "Настройка ширины боковой панели сохранена."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": "",
+        "sectionDesc": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": "",
+        "label": ""
     }
 }

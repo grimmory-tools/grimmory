@@ -1,0 +1,42 @@
+
+.app-cg-item {
+  transition-property: background-color, color;
+}
+
+.app-cg-item:hover,
+.app-cg-item.app-cg-active,
+.app-cg-item.app-cg-prominent {
+  z-index: 1;
+}
+
+.app-cg-item:hover {
+  z-index: 2;
+}
+
+.app-cg-item:not(.app-cg-last, :hover, .app-cg-active, .app-cg-prominent),
+.app-cg-item:not(:hover):has(+ .app-cg-item:is(:hover, .app-cg-active)),
+.app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active):has(
+  + .app-cg-item.app-cg-prominent
+),
+.app-cg-group > *:has(+ * > .app-cg-item:is(:hover, .app-cg-active)) > .app-cg-item:not(:hover),
+.app-cg-group
+  > *:has(+ * > .app-cg-item.app-cg-prominent)
+  > .app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active) {
+  border-right-color: transparent;
+}
+
+.app-cg-item:is(:hover, .app-cg-active) + .app-cg-item:not(:hover, .app-cg-active),
+.app-cg-item.app-cg-prominent + .app-cg-item:not(:hover, .app-cg-active, .app-cg-prominent) {
+  border-left-color: transparent;
+}
+
+.app-cg-group
+  > *:has(> .app-cg-item:is(:hover, .app-cg-active))
+  + *
+  > .app-cg-item:not(:hover, .app-cg-active),
+.app-cg-group
+  > *:has(> .app-cg-item.app-cg-prominent)
+  + *
+  > .app-cg-item:not(:hover, .app-cg-active, .app-cg-prominent) {
+  border-left-color: transparent;
+}

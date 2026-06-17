@@ -1,0 +1,116 @@
+<main cdkScrollable class="h-full overflow-y-auto bg-page p-6 text-text sm:p-8">
+  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <header class="flex flex-col gap-3">
+      <app-button
+        variant="ghost"
+        size="sm"
+        icon="pi pi-chevron-left"
+        label="Back to design system"
+        styleClass="self-start"
+        (clicked)="back()" />
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-extrabold text-text-strong">Everything</h1>
+      </div>
+    </header>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag [color]="everythingForm().valid() ? 'green' : 'red'" [label]="everythingForm().valid() ? 'valid' : 'invalid'" />
+      <app-tag [color]="everythingForm().dirty() ? 'amber' : 'neutral'" [label]="everythingForm().dirty() ? 'dirty' : 'pristine'" />
+      <app-tag [color]="everythingForm().touched() ? 'sky' : 'neutral'" [label]="everythingForm().touched() ? 'touched' : 'untouched'" />
+      @if (everythingForm().submitting()) {
+        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+      }
+    </div>
+
+    <form [formRoot]="everythingForm" class="flex flex-col gap-5">
+      <app-field [field]="everythingForm.text" label="Text input" hint="Required.">
+        <app-input [formField]="everythingForm.text" placeholder="Type something" />
+      </app-field>
+
+      <app-field [field]="everythingForm.textarea" label="Textarea" hint="Required.">
+        <app-textarea [formField]="everythingForm.textarea" rows="3" placeholder="A longer value" />
+      </app-field>
+
+      <app-field [field]="everythingForm.number" label="Number" hint="0-100.">
+        <app-number-input [formField]="everythingForm.number" unit="pt" />
+      </app-field>
+
+      <app-field [field]="everythingForm.select" label="Single select" hint="Pick one.">
+        <app-select [formField]="everythingForm.select" [options]="selectOptions" placeholder="Choose one" />
+      </app-field>
+
+      <app-field [field]="everythingForm.multiSelect" label="Multi-select" hint="Pick at least one.">
+        <app-multi-select [formField]="everythingForm.multiSelect" [options]="selectOptions" showClear filter placeholder="Choose any" />
+      </app-field>
+
+      <app-field [field]="everythingForm.autocomplete" label="Autocomplete" hint="Pick or type.">
+        <app-autocomplete
+          [formField]="everythingForm.autocomplete"
+          [suggestions]="autocompleteSuggestions()"
+          (complete)="filterAutocomplete($event)"
+          placeholder="Type to search"
+          ariaLabel="Autocomplete" />
+      </app-field>
+
+      <app-field [field]="everythingForm.multiAutocomplete" label="Multi-autocomplete (tags)" hint="Add at least one.">
+        <app-multi-autocomplete
+          [formField]="everythingForm.multiAutocomplete"
+          [suggestions]="multiAutocompleteSuggestions()"
+          (complete)="filterMultiAutocomplete($event)"
+          placeholder="Add tags"
+          ariaLabel="Tags"
+          removeTagLabel="Remove tag" />
+      </app-field>
+
+      <app-field [field]="everythingForm.checkbox" label="Checkbox" hint="Must be checked.">
+        <app-checkbox [formField]="everythingForm.checkbox" />
+      </app-field>
+
+      <app-field [field]="everythingForm.switch" label="Switch" hint="Optional.">
+        <app-switch [formField]="everythingForm.switch" />
+      </app-field>
+
+      <app-field [field]="everythingForm.radio" label="Radio group" hint="Choose one.">
+        <app-radio-group [formField]="everythingForm.radio" [options]="radioOptions" />
+      </app-field>
+
+      <app-field [field]="everythingForm.slider" label="Slider — {{ model().slider }}" hint="0-100.">
+        <app-slider [formField]="everythingForm.slider" ariaLabel="Slider" />
+      </app-field>
+
+      <app-field [field]="everythingForm.rating" label="Rating" hint="Required.">
+        <app-rating [formField]="everythingForm.rating" ariaLabel="Rating" />
+      </app-field>
+
+      <app-field [field]="everythingForm.date" label="Date" hint="Required.">
+        <app-date-picker [formField]="everythingForm.date" placeholder="Pick a date" ariaLabel="Date" />
+      </app-field>
+
+      <app-field [field]="everythingForm.dateRange" label="Date range" hint="Start and end required.">
+        <app-date-range-picker [formField]="everythingForm.dateRange" placeholder="Pick a range" ariaLabel="Date range" />
+      </app-field>
+
+      <div class="flex flex-wrap items-center gap-3 border-t border-border pt-5">
+        <app-button
+          type="submit"
+          tone="primary"
+          label="Save"
+          icon="pi pi-save"
+          [loading]="everythingForm().submitting()"
+          [disabled]="everythingForm().submitting()" />
+        <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
+        <app-button variant="ghost" label="Reset" (clicked)="reset()" />
+        @if (submitState() === 'saved') {
+          <app-message inline color="green" class="ml-auto">Saved.</app-message>
+        } @else if (submitAttempted()) {
+          <app-message class="ml-auto" [field]="everythingForm" summary summaryLayout="inline" />
+        }
+      </div>
+    </form>
+
+    <details class="border-t border-border pt-4">
+      <summary class="cursor-pointer text-sm font-semibold text-text-strong">Form value</summary>
+      <pre class="mt-3 overflow-x-auto text-xs text-text-muted dark:text-text-secondary">{{ model() | json }}</pre>
+    </details>
+  </div>
+</main>

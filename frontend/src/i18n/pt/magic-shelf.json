@@ -106,7 +106,10 @@
         "seriesGaps": "Lacunas da Série",
         "seriesPosition": "Posição na Série",
         "readingProgress": "Progresso de Leitura (%)",
-        "metadataPresence": "Presença de Metadados"
+        "metadataPresence": "Presença de Metadados",
+        "audiobookBitrate": "",
+        "audiobookCodec": "",
+        "audiobookChapterCount": ""
     },
     "fieldGroups": {
         "organization": "Organização",
@@ -257,7 +260,10 @@
         "comicColorists": "Coloristas",
         "comicLetterers": "Letristas",
         "comicCoverArtists": "Artistas de Capa",
-        "comicEditors": "Editores"
+        "comicEditors": "Editores",
+        "audiobookCodec": "",
+        "audiobookBitrate": "",
+        "audiobookChapterCount": ""
     },
     "toast": {
         "validationErrorSummary": "Erro de Validação",
@@ -266,5 +272,14 @@
         "successDetail": "Prateleira mágica salva com sucesso.",
         "errorSummary": "Erro",
         "errorDetailDefault": "Falha ao salvar prateleira mágica."
+    },
+    "importJson": {
+        "buttonLabel": "",
+        "successDetail": "",
+        "structureError": "",
+        "emptyError": "",
+        "apply": "",
+        "placeholder": "",
+        "parseError": ""
     }
 }

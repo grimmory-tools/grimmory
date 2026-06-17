@@ -136,7 +136,9 @@
         "searchInBook": "Szukaj w książce",
         "annotate": "Adnotuj",
         "addNote": "Dodaj notatkę",
-        "deleteAnnotation": "Usuń adnotację"
+        "deleteAnnotation": "Usuń adnotację",
+        "goToLink": "",
+        "removeLink": ""
     },
     "shortcutsHelp": {
         "title": "Skróty klawiaturowe",
@@ -156,7 +158,8 @@
         "other": "Inne",
         "showHelpDialog": "Pokaż to okno pomocy",
         "swipeRight": "Przesuń w prawo",
-        "swipeLeft": "Przesuń w lewo"
+        "swipeLeft": "Przesuń w lewo",
+        "toggleImmersive": ""
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Pozostały czas w sekcji: {{ time }}"

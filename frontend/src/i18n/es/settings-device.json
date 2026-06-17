@@ -104,7 +104,9 @@
         "autoAddEnabled": "Los libros nuevos se añadirán automáticamente al estante Kobo",
         "autoAddDisabled": "Auto-añadir al estante Kobo deshabilitado",
         "pros": "Ventajas:",
-        "cons": "Desventajas:"
+        "cons": "Desventajas:",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Integración Hardcover",

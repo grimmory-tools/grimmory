@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {CbxHeaderService} from './cbx-header.service';
 import {ReaderIconComponent} from '../../../ebook-reader';
@@ -15,6 +15,7 @@ export class CbxHeaderComponent {
 
   @Input() isCurrentPageBookmarked = false;
   @Input() currentPageHasNotes = false;
+  @Output() hoverChange = new EventEmitter<boolean>();
 
   readonly forceVisible = this.headerService.forceVisible;
   readonly state = this.headerService.state;

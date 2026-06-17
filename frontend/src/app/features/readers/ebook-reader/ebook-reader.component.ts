@@ -591,6 +591,14 @@ export class EbookReaderComponent implements OnInit {
     this.visibilityManager.handleFooterZoneEnter();
   }
 
+  onHeaderHovered(hovered: boolean): void {
+    this.visibilityManager.setHeaderHovered(hovered);
+  }
+
+  onFooterHovered(hovered: boolean): void {
+    this.visibilityManager.setFooterHovered(hovered);
+  }
+
   toggleImmersiveMode(): void {
     const newValue = !this.immersiveMode();
     this.immersiveMode.set(newValue);

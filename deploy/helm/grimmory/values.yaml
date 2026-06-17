@@ -153,6 +153,16 @@ persistence:
     enabled: true
     size: 10Gi
     existingClaim: ""
+# Additional environment variables for the application container.
+# Example:
+# extraEnv:
+#   - name: USER_ID
+#     value: "1000"
+#   - name: GROUP_ID
+#     value: "1000"
+#   - name: APP_USER
+#     value: "booklore"
+extraEnv: []
 extraVolumes: []
 extraVolumeMounts: []
 

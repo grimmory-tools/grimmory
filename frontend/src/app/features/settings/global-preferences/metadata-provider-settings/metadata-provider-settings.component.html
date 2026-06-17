@@ -163,6 +163,26 @@
               </div>
               }
             </div>
+
+            <div class="setting-item">
+              <div class="setting-header">
+                <p-toggleswitch [(ngModel)]="goodreadsEnabled"></p-toggleswitch>
+                <span class="setting-label">Goodreads</span>
+              </div>
+              @if (goodreadsEnabled) {
+                <div class="warning-notice warning-notice-danger">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <div>
+                    <p>
+                      {{ t('goodreadsWarning') }}
+                      <a href="https://github.com/grimmory-tools/grimmory/issues/1713">
+                        {{ t('goodreadsWarningReadMore') }}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </div>
 
@@ -170,12 +190,6 @@
           <h4 class="provider-group-title">{{ t('readyToUseTitle') }}</h4>
 
           <div class="simple-providers-grid">
-            <div class="setting-item simple-provider">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="goodreadsEnabled"></p-toggleswitch>
-                <span class="setting-label">Goodreads</span>
-              </div>
-            </div>
 
             <div class="setting-item simple-provider">
               <div class="setting-header">

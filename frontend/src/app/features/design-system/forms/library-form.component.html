@@ -1,0 +1,84 @@
+<main cdkScrollable class="h-full overflow-y-auto bg-page p-6 text-text sm:p-8">
+  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <header class="flex flex-col gap-3">
+      <app-button
+        variant="ghost"
+        size="sm"
+        icon="pi pi-chevron-left"
+        label="Back to design system"
+        styleClass="self-start"
+        (clicked)="back()" />
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-extrabold text-text-strong">Create library</h1>
+      </div>
+    </header>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <app-tag [color]="libraryForm().valid() ? 'green' : 'red'" [label]="libraryForm().valid() ? 'valid' : 'invalid'" />
+      <app-tag [color]="libraryForm().dirty() ? 'amber' : 'neutral'" [label]="libraryForm().dirty() ? 'dirty' : 'pristine'" />
+      <app-tag [color]="libraryForm().touched() ? 'sky' : 'neutral'" [label]="libraryForm().touched() ? 'touched' : 'untouched'" />
+      @if (libraryForm().submitting()) {
+        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+      }
+    </div>
+
+    <form [formRoot]="libraryForm" class="flex flex-col gap-5">
+      <app-field [field]="libraryForm.name" label="Library name" hint="2+ characters.">
+        <app-input [formField]="libraryForm.name" placeholder="e.g. Science Fiction" />
+      </app-field>
+
+      <app-field [field]="libraryForm.folders" label="Folders" hint="Press Enter to add.">
+        <app-multi-autocomplete
+          [formField]="libraryForm.folders"
+          [suggestions]="folderSuggestions()"
+          (complete)="filterFolders($event)"
+          placeholder="/books/sci-fi"
+          ariaLabel="Folders"
+          removeTagLabel="Remove folder" />
+      </app-field>
+
+      <app-field [field]="libraryForm.organizationMode" label="Organization" hint="How files map to books.">
+        <app-radio-group variant="card" [formField]="libraryForm.organizationMode" [options]="organizationOptions" />
+      </app-field>
+
+      <app-field [field]="libraryForm.metadataSource" label="Metadata source" hint="Default: embedded.">
+        <app-select [formField]="libraryForm.metadataSource" [options]="metadataSourceOptions" />
+      </app-field>
+
+      <app-field [field]="libraryForm.allowedFormats" label="Allowed formats" hint="At least one required.">
+        <app-multi-select
+          [formField]="libraryForm.allowedFormats"
+          [options]="formatOptions"
+          showClear
+          filter
+          placeholder="Choose formats" />
+      </app-field>
+
+      <app-field [field]="libraryForm.watch" label="Watch folders" hint="Import new files.">
+        <app-switch [formField]="libraryForm.watch" />
+      </app-field>
+
+      <div class="flex flex-wrap items-center gap-3 border-t border-border pt-5">
+        <app-button
+          type="submit"
+          tone="primary"
+          label="Save library"
+          icon="pi pi-save"
+          [loading]="libraryForm().submitting()"
+          [disabled]="libraryForm().submitting()" />
+        <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
+        <app-button variant="ghost" label="Reset" (clicked)="reset()" />
+        @if (submitState() === 'saved') {
+          <app-message inline color="green" class="ml-auto">Library saved.</app-message>
+        } @else if (submitAttempted()) {
+          <app-message class="ml-auto" [field]="libraryForm" summary summaryLayout="inline" />
+        }
+      </div>
+    </form>
+
+    <details class="border-t border-border pt-4">
+      <summary class="cursor-pointer text-sm font-semibold text-text-strong">Form value</summary>
+      <pre class="mt-3 overflow-x-auto text-xs text-text-muted dark:text-text-secondary">{{ model() | json }}</pre>
+    </details>
+  </div>
+</main>

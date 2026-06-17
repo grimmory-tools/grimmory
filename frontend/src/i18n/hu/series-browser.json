@@ -1,1 +1,24 @@
-{}
+{
+    "sort": {
+        "nameAsc": "",
+        "recentlyRead": "Nemrég olvasva",
+        "nameDesc": "",
+        "progress": "",
+        "recentlyAdded": "Nemrég hozzáadva",
+        "bookCount": "Könyvek száma"
+    },
+    "readNext": "",
+    "searchPlaceholder": "",
+    "browseAllSeries": "",
+    "noSeriesFound": "",
+    "noSeriesInCategory": "",
+    "filters": {
+        "completed": "",
+        "abandoned": "",
+        "all": "Összes",
+        "notStarted": "",
+        "inProgress": "Folyamatban"
+    },
+    "booksRead": "",
+    "pageTitle": ""
+}

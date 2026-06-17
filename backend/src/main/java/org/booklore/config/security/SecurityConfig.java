@@ -219,6 +219,23 @@ public class SecurityConfig {
 
     @Bean
     @Order(8)
+    public SecurityFilterChain bookDownloadSecurityChain(HttpSecurity http, QueryParameterJwtFilter queryParameterJwtFilter) throws Exception {
+        http
+                .securityMatcher("/api/v1/books/*/download", "/api/v1/books/*/download-all", "/api/v1/books/*/files/*/download")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(queryParameterJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    @Order(9)
     public SecurityFilterChain wsSecurityChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/ws/**")
@@ -238,7 +255,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(9)
+    @Order(10)
     public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
         var parser = new PathPatternParser();
         final List<PathPattern> matchPatterns = Stream.of(
@@ -289,7 +306,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(10)
+    @Order(11)
     public SecurityFilterChain staticResourcesSecurityChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)

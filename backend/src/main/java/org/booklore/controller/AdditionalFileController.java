@@ -11,9 +11,9 @@ import org.booklore.service.book.BookFileDetachmentService;
 import org.booklore.service.file.AdditionalFileService;
 import org.booklore.service.upload.FileUploadService;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,7 +81,7 @@ public class AdditionalFileController {
     )
     @GetMapping("/{fileId}/download")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> downloadAdditionalFile(
+    public ResponseEntity<StreamingResponseBody> downloadAdditionalFile(
             @PathVariable Long bookId,
             @PathVariable Long fileId) throws IOException {
         return additionalFileService.downloadAdditionalFile(bookId, fileId);

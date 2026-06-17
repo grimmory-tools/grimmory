@@ -23,6 +23,7 @@ export class ReaderNavbarComponent {
     return this._sectionFractions;
   }
   @Output() progressChange = new EventEmitter<number>();
+  @Output() hoverChange = new EventEmitter<boolean>();
 
   private managerService = inject(ReaderViewManagerService);
   showLocationPopover = false;

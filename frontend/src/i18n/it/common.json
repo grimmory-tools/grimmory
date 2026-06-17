@@ -23,5 +23,13 @@
     "discard": "Scarta",
     "review": "Rivedi",
     "displaySettings": "Impostazioni visualizzazione",
-    "cardSize": "Dimensione scheda"
+    "cardSize": "Dimensione scheda",
+    "on": "",
+    "off": "",
+    "moreActionsFor": "",
+    "cardSizeControls": "",
+    "libraryPathInaccessible": "",
+    "decreaseCardSize": "",
+    "dialogLoadError": "",
+    "increaseCardSize": ""
 }

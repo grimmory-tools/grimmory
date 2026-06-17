@@ -32,7 +32,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -43,6 +42,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -189,7 +189,7 @@ public class BookController {
     @GetMapping("/{bookId}/download")
     @PreAuthorize("@securityUtil.canDownload() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> downloadBook(@Parameter(description = "ID of the book to download") @PathVariable("bookId") Long bookId) {
+    public ResponseEntity<StreamingResponseBody> downloadBook(@Parameter(description = "ID of the book to download") @PathVariable("bookId") Long bookId) {
         return bookService.downloadBook(bookId);
     }
 
@@ -202,10 +202,9 @@ public class BookController {
     @GetMapping("/{bookId}/download-all")
     @PreAuthorize("@securityUtil.canDownload() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void downloadAllBookFiles(
-            @Parameter(description = "ID of the book") @PathVariable("bookId") Long bookId,
-            HttpServletResponse response) {
-        bookService.downloadAllBookFiles(bookId, response);
+    public ResponseEntity<StreamingResponseBody> downloadAllBookFiles(
+            @Parameter(description = "ID of the book") @PathVariable("bookId") Long bookId) {
+        return bookService.downloadAllBookFiles(bookId);
     }
 
     @Operation(summary = "Get viewer settings", description = "Retrieve viewer settings for a specific book file.")

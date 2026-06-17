@@ -67,7 +67,11 @@
         "autoZoom": "Zoom automatico",
         "pageFit": "Adatta pagina",
         "pageWidth": "Larghezza pagina",
-        "actualSize": "Dimensione reale"
+        "actualSize": "Dimensione reale",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Lettore fumetti: impostazioni predefinite",
@@ -95,7 +99,10 @@
         "infinite": "Infinito",
         "gray": "Grigio",
         "black": "Nero",
-        "white": "Bianco"
+        "white": "Bianco",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Lettore PDF in streaming: impostazioni predefinite",
