@@ -10,4 +10,5 @@ public class UserProfileUpdateRequest {
     private String theme;
     private String themeAccent;
     private Boolean themeSyncEnabled;
+    private String uiFont;
 }

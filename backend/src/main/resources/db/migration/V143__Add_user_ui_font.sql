@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN ui_font VARCHAR(32) NOT NULL DEFAULT 'default';

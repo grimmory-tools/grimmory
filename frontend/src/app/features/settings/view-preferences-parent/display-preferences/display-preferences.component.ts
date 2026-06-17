@@ -17,6 +17,8 @@ import type {AppearancePreference, AppTheme, CustomPrimary} from '../../../../sh
 import {APPEARANCE_OPTIONS} from '../../../../shared/layout/theme/appearance-options';
 import {UserService} from '../../user-management/user.service';
 import type {User, UserProfileUpdateRequest} from '../../user-management/user.service';
+import {AppUiFontService} from '../../../../shared/service/app-ui-font.service';
+import {ACCESSIBLE_UI_FONT, DEFAULT_UI_FONT} from '../../../../shared/model/ui-font.model';
 
 @Component({
   selector: 'app-display-preferences',
@@ -34,6 +36,7 @@ import type {User, UserProfileUpdateRequest} from '../../user-management/user.se
 export class DisplayPreferencesComponent {
   private readonly themeService = inject(AppThemeService);
   private readonly localeService = inject(AppLocaleService);
+  private readonly uiFontService = inject(AppUiFontService);
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
@@ -51,6 +54,8 @@ export class DisplayPreferencesComponent {
     label: LANG_LABELS[value] ?? value,
   }));
   protected readonly selectedAppearancePreference = this.themeService.appearancePreference;
+  protected readonly selectedUiFont = this.uiFontService.uiFont;
+  protected readonly useAccessibleUiFont = computed(() => this.selectedUiFont() === ACCESSIBLE_UI_FONT);
   protected readonly selectedThemePreference = this.themeService.themePreference;
   protected readonly oledDarkMode = this.themeService.oledDarkMode;
   protected readonly showOledDarkModeToggle = computed(() => this.themeService.effectiveAppearance() === 'dark');
@@ -82,6 +87,21 @@ export class DisplayPreferencesComponent {
 
     await this.localeService.applyLocale(updatedUser.locale);
     this.showSavedToast('settingsView.language.savedDetail');
+  }
+
+  protected async updateAccessibleUiFont(useAccessibleFont: boolean): Promise<void> {
+    const uiFont = useAccessibleFont ? ACCESSIBLE_UI_FONT : DEFAULT_UI_FONT;
+    if (uiFont === this.selectedUiFont()) return;
+
+    const previousUiFont = this.selectedUiFont();
+    this.uiFontService.applyUiFont(uiFont);
+
+    if (!await this.updateCurrentUserProfile({uiFont})) {
+      this.uiFontService.applyUiFont(previousUiFont);
+      return;
+    }
+
+    this.showSavedToast('settingsView.uiFont.savedDetail');
   }
 
   protected async updateThemePreference(themePreference: AppTheme): Promise<void> {

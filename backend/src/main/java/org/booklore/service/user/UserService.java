@@ -43,6 +43,7 @@ public class UserService {
             "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal",
             "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"
     );
+    private static final Set<String> SUPPORTED_UI_FONTS = Set.of("default", "atkinson");
 
     private final UserRepository userRepository;
     private final LibraryRepository libraryRepository;
@@ -108,6 +109,11 @@ public class UserService {
         applyThemePreferences(user, updateRequest.getTheme(), updateRequest.getThemeAccent());
         if (updateRequest.getThemeSyncEnabled() != null) {
             user.setThemeSyncEnabled(updateRequest.getThemeSyncEnabled());
+        }
+
+        if (updateRequest.getUiFont() != null) {
+            validateUiFont(updateRequest.getUiFont());
+            user.setUiFont(updateRequest.getUiFont());
         }
 
         userRepository.save(user);
@@ -266,6 +272,12 @@ public class UserService {
     private void validateThemeAccent(String themeAccent) {
         if (!SUPPORTED_THEME_ACCENTS.contains(themeAccent)) {
             throw ApiError.INVALID_INPUT.createException("Unsupported theme accent: " + themeAccent);
+        }
+    }
+
+    private void validateUiFont(String uiFont) {
+        if (!SUPPORTED_UI_FONTS.contains(uiFont)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported UI font: " + uiFont);
         }
     }
 }
