@@ -75,12 +75,15 @@ public class UserService {
             auditService.log(AuditAction.PERMISSIONS_CHANGED, "User", id, "Changed permissions for user: " + user.getUsername());
         }
 
-        if (updateRequest.getAssignedLibraries() == null || (updateRequest.getAssignedLibraries().isEmpty() && !isTargetAdmin)) {
-            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
+        if (updateRequest.getAssignedLibraries() == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Assigned Libraries is missing from request.");
         }
 
-        List<Long> libraryIds = updateRequest.getAssignedLibraries();
-        Set<LibraryEntity> updatedLibraries = new HashSet<>(libraryRepository.findAllById(libraryIds));
+        Set<LibraryEntity> updatedLibraries = new HashSet<>();
+
+        if (!updateRequest.getAssignedLibraries().isEmpty()) {
+            updatedLibraries.addAll(libraryRepository.findAllById(updateRequest.getAssignedLibraries()));
+        }
 
         if(!isTargetAdmin && updatedLibraries.isEmpty()){
             throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
