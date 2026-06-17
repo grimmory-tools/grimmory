@@ -66,17 +66,31 @@ public class UserService {
         user.setName(updateRequest.getName());
         user.setEmail(updateRequest.getEmail());
 
+        boolean isTargetAdmin = updateRequest.getPermissions() == null ?
+                user.getPermissions().isPermissionAdmin() :
+                updateRequest.getPermissions().isAdmin();
+
         if (updateRequest.getPermissions() != null && getMyself().getPermissions().isAdmin()) {
             UserPermission.copyFromRequestToEntity(updateRequest.getPermissions(), user.getPermissions());
             auditService.log(AuditAction.PERMISSIONS_CHANGED, "User", id, "Changed permissions for user: " + user.getUsername());
         }
 
-        if (updateRequest.getAssignedLibraries() != null && getMyself().getPermissions().isAdmin()) {
-            List<Long> libraryIds = updateRequest.getAssignedLibraries();
-            Set<LibraryEntity> updatedLibraries = new HashSet<>(libraryRepository.findAllById(libraryIds));
-            user.setLibraries(updatedLibraries);
+        if (updateRequest.getAssignedLibraries() == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Assigned Libraries is missing from request.");
         }
 
+        Set<LibraryEntity> updatedLibraries = new HashSet<>();
+
+        if (!updateRequest.getAssignedLibraries().isEmpty()) {
+            updatedLibraries.addAll(libraryRepository.findAllById(updateRequest.getAssignedLibraries()));
+        }
+
+        if(!isTargetAdmin && updatedLibraries.isEmpty()){
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
+        }
+
+        user.setLibraries(updatedLibraries);                  
+        
         userRepository.save(user);
         auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user: " + user.getUsername());
         return bookLoreUserTransformer.toDTO(user);
