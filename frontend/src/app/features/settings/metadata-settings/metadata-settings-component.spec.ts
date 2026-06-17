@@ -99,7 +99,9 @@ function buildMetadataRefreshOptions(): MetadataRefreshOptions {
     'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount',
     'hardcoverRating', 'hardcoverReviewCount', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating', 'audibleId', 'audibleRating',
-    'audibleReviewCount', 'moods', 'tags',
+    'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
+    'moods', 'tags',
   ] as const;
 
   const fieldOptions = Object.fromEntries(

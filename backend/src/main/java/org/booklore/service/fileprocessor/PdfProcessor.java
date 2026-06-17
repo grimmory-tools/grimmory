@@ -161,6 +161,10 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             if (StringUtils.isNotBlank(extracted.getLubimyczytacId())) {
                 bookEntity.getMetadata().setLubimyczytacId(extracted.getLubimyczytacId());
             }
+            if (StringUtils.isNotBlank(extracted.getApplebooksId())) {
+                bookEntity.getMetadata().setApplebooksId(extracted.getApplebooksId());
+            }
+
             if (StringUtils.isNotBlank(extracted.getIsbn10())) {
                 bookEntity.getMetadata().setIsbn10(truncate(extracted.getIsbn10(), 10));
             }

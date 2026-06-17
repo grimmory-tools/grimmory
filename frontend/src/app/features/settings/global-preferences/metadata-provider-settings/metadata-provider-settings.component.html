@@ -155,15 +155,36 @@
                 <span class="setting-label">RanobeDB</span>
               </div>
               @if (ranobedbEnabled) {
-              <div class="setting-options">
-                <div class="config-field">
-                  <div class="config-label-row">
-                    <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji"></p-toggleswitch>
-                    <span class="config-label">{{ t('ranobedbPreferRomajiLabel') }}</span>
+                <div class="setting-options">
+                  <div class="config-field">
+                    <div class="config-label-row">
+                      <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji"></p-toggleswitch>
+                      <span class="config-label">{{ t('ranobedbPreferRomajiLabel') }}</span>
+                    </div>
+                    <p class="config-description">{{ t('ranobedbPreferRomajiDesc') }}</p>
                   </div>
-                  <p class="config-description">{{ t('ranobedbPreferRomajiDesc') }}</p>
                 </div>
+              }
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-header">
+
+                <p-toggleswitch [(ngModel)]="appleBooksEnabled"></p-toggleswitch>
+                <span class="setting-label">Apple Books</span>
               </div>
+              @if (appleBooksEnabled) {
+                <div class="setting-options">
+                  <div class="config-field">
+                    <span class="config-label">{{ t('region') }}</span>
+                    <p-select
+                      [options]="appleBooksCountries"
+                      [(ngModel)]="selectedAppleBooksCountry"
+                      [placeholder]="t('selectCountry')"
+                      class="config-select">
+                    </p-select>
+                  </div>
+                </div>
               }
             </div>
           </div>

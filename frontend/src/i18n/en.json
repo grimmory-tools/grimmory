@@ -756,6 +756,9 @@
         "hardcoverReviewCount": "Hardcover Rating #",
         "audibleRating": "Audible Rating",
         "audibleReviewCount": "Audible Rating #",
+        "applebooksId": "Apple Books ID",
+        "applebooksRating": "Apple Books ★",
+        "applebooksReviewCount": "Apple Books #",
         "doubanRating": "Douban Rating",
         "doubanReviewCount": "Douban Rating #",
         "ranobedbRating": "Ranobedb Rating"
@@ -770,6 +773,7 @@
         "goodreads": "Goodreads",
         "hardcover": "Hardcover",
         "audible": "Audible",
+        "applebooks": "Apple Books",
         "comicvine": "Comicvine",
         "lubimyczytac": "Lubimyczytac",
         "ranobedb": "Ranobedb"
@@ -793,7 +797,10 @@
         "ranobedbRating": "Ranobedb Rating",
         "audibleId": "Audible ID",
         "audibleRating": "Audible Rating",
-        "audibleReviewCount": "Audible Review Count"
+        "audibleReviewCount": "Audible Review Count",
+        "applebooksId": "Apple Books ID",
+        "applebooksRating": "Apple Books Rating",
+        "applebooksReviewCount": "Apple Books Review Count"
       }
     }
   },

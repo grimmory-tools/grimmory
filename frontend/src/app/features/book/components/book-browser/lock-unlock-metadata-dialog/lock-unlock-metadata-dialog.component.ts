@@ -39,6 +39,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     'seriesNameLocked', 'seriesNumberLocked', 'seriesTotalLocked', 'authorsLocked', 'categoriesLocked', 'moodsLocked', 'tagsLocked',
     'amazonRatingLocked', 'amazonReviewCountLocked', 'goodreadsRatingLocked', 'goodreadsReviewCountLocked',
     'hardcoverRatingLocked', 'hardcoverReviewCountLocked', 'goodreadsIdLocked', 'hardcoverIdLocked', 'hardcoverBookIdLocked', 'googleIdLocked', 'comicvineIdLocked',
+    'applebooksIdLocked', 'applebooksRatingLocked', 'applebooksReviewCountLocked',
     'ranobedbIdLocked', 'ranobedbRatingLocked'
   ];
 
@@ -75,6 +76,9 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     comicvineIdLocked: 'Comicvine ID',
     ranobedbIdLocked: 'Ranobedb ID',
     ranobedbRatingLocked: 'Ranobedb ★',
+    applebooksIdLocked: 'Apple Books ID',
+    applebooksRatingLocked: 'Apple Books Rating',
+    applebooksReviewCountLocked: 'Apple Books Reviews',
   };
 
   isSaving = false;

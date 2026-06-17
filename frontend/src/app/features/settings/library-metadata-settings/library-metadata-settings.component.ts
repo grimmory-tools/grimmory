@@ -240,6 +240,9 @@ export class LibraryMetadataSettingsComponent {
         audibleId: {p1: null, p2: null, p3: null, p4: null},
         audibleRating: {p1: null, p2: null, p3: null, p4: null},
         audibleReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        applebooksId: {p1: null, p2: null, p3: null, p4: null},
+        applebooksRating: {p1: null, p2: null, p3: null, p4: null},
+        applebooksReviewCount: {p1: null, p2: null, p3: null, p4: null},
         moods: {p1: null, p2: null, p3: null, p4: null},
         tags: {p1: null, p2: null, p3: null, p4: null}
       }

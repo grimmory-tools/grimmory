@@ -82,6 +82,20 @@ export class MetadataProviderSettingsComponent {
     {label: 'audible.in', value: 'in'}
   ];
 
+  appleBooksCountries = [
+    {label: 'US', value: 'US'},
+    {label: 'CA', value: 'CA'},
+    {label: 'GB', value: 'GB'},
+    {label: 'DE', value: 'DE'},
+    {label: 'FR', value: 'FR'},
+    {label: 'PL', value: 'PL'},
+    {label: 'JP', value: 'JP'},
+    {label: 'AU', value: 'AU'},
+    {label: 'IT', value: 'IT'},
+    {label: 'ES', value: 'ES'},
+  ]
+
+  selectedAppleBooksCountry = 'US';
   selectedAudibleDomain = 'com';
   audibleEnabled: boolean = false;
 
@@ -98,6 +112,7 @@ export class MetadataProviderSettingsComponent {
   ranobedbEnabled: boolean = false;
   ranobedbPreferRomaji: boolean = false;
   googleApiKey: string = '';
+  appleBooksEnabled: boolean = false;
 
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
@@ -130,6 +145,8 @@ export class MetadataProviderSettingsComponent {
     this.ranobedbPreferRomaji = metadataProviderSettings?.ranobedb?.preferRomaji ?? false;
     this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
+    this.appleBooksEnabled = metadataProviderSettings?.appleBooks?.enabled ?? false;
+    this.selectedAppleBooksCountry = metadataProviderSettings?.appleBooks?.country ?? 'US';
   }
 
   onTokenChange(newToken: string): void {
@@ -180,7 +197,11 @@ export class MetadataProviderSettingsComponent {
           audible: {
             enabled: this.audibleEnabled,
             domain: this.selectedAudibleDomain
-          }
+          },
+          appleBooks: {
+            enabled: this.appleBooksEnabled,
+            country: this.selectedAppleBooksCountry,
+          },
         }
       }
     ];

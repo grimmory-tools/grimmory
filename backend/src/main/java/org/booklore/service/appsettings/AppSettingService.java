@@ -372,6 +372,10 @@ public class AppSettingService {
         MetadataProviderSettings.Ranobedb defaultRanobedb = new MetadataProviderSettings.Ranobedb();
         defaultRanobedb.setEnabled(false);
 
+        MetadataProviderSettings.AppleBooks defaultAppleBooks = new MetadataProviderSettings.AppleBooks();
+        defaultAppleBooks.setEnabled(false);
+        defaultAppleBooks.setCountry("US");
+
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
@@ -379,6 +383,7 @@ public class AppSettingService {
         defaultMetadataProviderSettings.setComicvine(defaultComicvine);
         defaultMetadataProviderSettings.setRanobedb(defaultRanobedb);
         defaultMetadataProviderSettings.setDouban(defaultDouban);
+        defaultMetadataProviderSettings.setAppleBooks(defaultAppleBooks);
 
         return defaultMetadataProviderSettings;
     }
@@ -427,6 +432,9 @@ public class AppSettingService {
                 .audibleId(nullProvider)
                 .audibleRating(nullProvider)
                 .audibleReviewCount(nullProvider)
+                .applebooksId(nullProvider)
+                .applebooksRating(nullProvider)
+                .applebooksReviewCount(nullProvider)
                 .moods(nullProvider)
                 .tags(nullProvider)
                 .build();
@@ -466,6 +474,9 @@ public class AppSettingService {
                 .audibleId(true)
                 .audibleRating(true)
                 .audibleReviewCount(true)
+                .applebooksId(true)
+                .applebooksRating(true)
+                .applebooksReviewCount(true)
                 .moods(true)
                 .tags(true)
                 .build();
@@ -613,6 +624,9 @@ public class AppSettingService {
         fields.setAudibleId(true);
         fields.setAudibleRating(true);
         fields.setAudibleReviewCount(true);
+        fields.setApplebooksId(true);
+        fields.setApplebooksRating(true);
+        fields.setApplebooksReviewCount(true);
         return fields;
     }
 }
