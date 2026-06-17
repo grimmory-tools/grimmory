@@ -66,19 +66,23 @@ public class UserService {
         user.setName(updateRequest.getName());
         user.setEmail(updateRequest.getEmail());
 
+        boolean isTargetAdmin = updateRequest.getPermissions() == null ?
+                user.getPermissions().isPermissionAdmin() :
+                updateRequest.getPermissions().isAdmin();
+
         if (updateRequest.getPermissions() != null && getMyself().getPermissions().isAdmin()) {
             UserPermission.copyFromRequestToEntity(updateRequest.getPermissions(), user.getPermissions());
             auditService.log(AuditAction.PERMISSIONS_CHANGED, "User", id, "Changed permissions for user: " + user.getUsername());
         }
 
-        if (updateRequest.getAssignedLibraries() == null || (updateRequest.getAssignedLibraries().isEmpty() && updateRequest.getPermissions() != null && !updateRequest.getPermissions().isAdmin() )) {
+        if (updateRequest.getAssignedLibraries() == null || (updateRequest.getAssignedLibraries().isEmpty() && !isTargetAdmin)) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
         }
 
         List<Long> libraryIds = updateRequest.getAssignedLibraries();
         Set<LibraryEntity> updatedLibraries = new HashSet<>(libraryRepository.findAllById(libraryIds));
 
-        if(updateRequest.getPermissions() != null && !updateRequest.getPermissions().isAdmin() && updatedLibraries.isEmpty()){
+        if(!isTargetAdmin && updatedLibraries.isEmpty()){
             throw ApiError.GENERIC_BAD_REQUEST.createException("At least one library must be assigned.");
         }
 
