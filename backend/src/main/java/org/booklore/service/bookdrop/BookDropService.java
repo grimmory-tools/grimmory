@@ -420,8 +420,7 @@ public class BookDropService {
             // that caused moves between filesystems to end up with a file at the target
             // with 0 bytes.
             //
-            // Instead, we are using `Files.copy` directly instead of copying to `tmp` and
-            // then moving.
+            // Instead, we are using `Files.copy` directly
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
             log.info("Copied file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
