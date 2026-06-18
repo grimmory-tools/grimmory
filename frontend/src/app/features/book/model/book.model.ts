@@ -190,6 +190,9 @@ export interface BookMetadata {
   audibleId?: string;
   audibleRating?: number | null;
   audibleReviewCount?: number | null;
+  applebooksId?: string;
+  applebooksRating?: number | null;
+  applebooksReviewCount?: number | null;
   narrator?: string;
   abridged?: boolean | null;
   narratorLocked?: boolean;
@@ -238,6 +241,9 @@ export interface BookMetadata {
   audibleIdLocked?: boolean;
   audibleRatingLocked?: boolean;
   audibleReviewCountLocked?: boolean;
+  applebooksIdLocked?: boolean;
+  applebooksRatingLocked?: boolean;
+  applebooksReviewCountLocked?: boolean;
   coverUpdatedOnLocked?: boolean;
   authorsLocked?: boolean;
   categoriesLocked?: boolean;
@@ -287,6 +293,9 @@ export interface MetadataClearFlags {
   audibleId?: boolean;
   audibleRating?: boolean;
   audibleReviewCount?: boolean;
+  applebooksId?: boolean;
+  applebooksRating?: boolean;
+  applebooksReviewCount?: boolean;
   narrator?: boolean;
   abridged?: boolean;
   authors?: boolean;

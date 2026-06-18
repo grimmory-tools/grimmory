@@ -133,6 +133,9 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
         metadata.setComicvineId(truncate(mobiMetadata.getComicvineId(), 100));
         metadata.setRanobedbId(truncate(mobiMetadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(mobiMetadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(mobiMetadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(mobiMetadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(mobiMetadata.getApplebooksReviewCount());
 
         bookCreatorService.addAuthorsToBook(mobiMetadata.getAuthors(), bookEntity);
 

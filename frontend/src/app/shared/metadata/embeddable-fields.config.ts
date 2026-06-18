@@ -11,6 +11,7 @@ const EBOOK_EMBEDDABLE: ReadonlySet<string> = new Set([
   'lubimyczytacId', 'lubimyczytacRating',
   'comicvineId', 'ranobedbId', 'ranobedbRating',
   'audibleId', 'audibleRating', 'audibleReviewCount',
+  'applebooksId', 'applebooksRating', 'applebooksReviewCount',
 ]);
 
 const CBX_EMBEDDABLE: ReadonlySet<string> = new Set([
