@@ -34,3 +34,4 @@ public class CreateBookNoteV2Request {
     @Size(max = 500, message = "Chapter title must not exceed 500 characters")
     private String chapterTitle;
 }
+
