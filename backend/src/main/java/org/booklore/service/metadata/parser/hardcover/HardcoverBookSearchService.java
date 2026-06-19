@@ -143,23 +143,6 @@ public class HardcoverBookSearchService {
         return hits != null ? hits : Collections.emptyList();
     }
 
-    public HardcoverBookDetails fetchBookDetails(int bookId) {
-        String apiToken = getApiToken();
-        if (apiToken == null) {
-            return null;
-        }
-
-        GraphQLRequest body = new GraphQLRequest();
-        body.setQuery("query BookDetails($id: Int!) { books_by_pk(id: $id) { id title cached_tags } }");
-        body.setVariables(Map.of("id", bookId));
-
-        HardcoverBookDetailsResponse response = executeRequest(body, HardcoverBookDetailsResponse.class, apiToken);
-        if (response == null || response.getData() == null) {
-            return null;
-        }
-        return response.getData().getBooksByPk();
-    }
-
     private <T> T executeRequest(GraphQLRequest body, Class<T> responseType, String apiToken) {
         enforceRateLimit();
 
