@@ -115,30 +115,40 @@ public class HardcoverParser implements BookParser {
 
     private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
-        List<GraphQLResponse.Document> originalDocs = docs;
-
+        String searchAuthorLowercase = searchAuthor.toLowerCase();
         for (GraphQLResponse.Document doc : docs) {
-            int distance = levenshtein.apply(searchAuthor, doc.getAuthorNames().toString());
-            doc.setLevenshteinDistance(distance);
-        }
-        docs = docs.stream()
-                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
-                .toList();
+            if (doc.getAuthorNames().isEmpty()) {
+                doc.setLevenshteinDistanceAuthor(Double.MAX_VALUE);
+                continue;
+            }
+            List<String> normalizedAuthors = doc.getAuthorNames().stream()
+                    .map(String::toLowerCase)
+                    .toList();
 
-        final double best = docs.getFirst().getLevenshteinDistance();
-        final double worst = docs.getLast().getLevenshteinDistance();
-        final double threshold = Math.min(best, worst) + 1;
+            //Find the author in the list of authors with the closest name to the search term
+            double minDistance = normalizedAuthors.stream()
+                    .map(author -> levenshtein.apply(searchAuthorLowercase, author))
+                    .min(Double::compare)
+                    .orElse(Integer.MAX_VALUE);
 
-        List<GraphQLResponse.Document> newDocs = docs.stream()
-                .filter(doc -> doc.getLevenshteinDistance() <= threshold)
-                .toList();
-
-        if (newDocs.isEmpty()) {
-            return originalDocs;
-        } else {
-            return newDocs;
+            doc.setLevenshteinDistanceAuthor(minDistance);
         }
 
+        // find the edition with the lowest dist
+        final double best = docs.stream()
+                .mapToDouble(GraphQLResponse.Document::getLevenshteinDistanceAuthor)
+                .min()
+                .orElse(Double.MAX_VALUE);
+
+
+        double threshold = searchAuthor.length()*0.8;
+
+        //Try to return the searches where the distance is no greater than aproximately the length of the search term
+        return best < threshold
+            ? docs
+            : docs.stream()
+            .filter(doc -> doc.getLevenshteinDistanceAuthor() <= threshold)
+            .toList();
     }
 
     private List<GraphQLResponse.Document> filterTitle(List<GraphQLResponse.Document> docs, String searchTitle) {
