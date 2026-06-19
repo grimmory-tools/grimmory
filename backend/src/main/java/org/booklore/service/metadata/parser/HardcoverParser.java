@@ -57,17 +57,17 @@ public class HardcoverParser implements BookParser {
         List<BookMetadata> results = new ArrayList<>();
         for (GraphQLResponse.BookWithEditions book : books) {
             if (book.getEditions() == null || book.getEditions().isEmpty()) {
-                BookMetadata metadata = mapBookToMetadata(books.getFirst());
-                results.add(metadata);
-                return results;
+                continue;
             }
-            for (GraphQLResponse.Edition edition : book.getEditions()) {
-                log.debug("Processing edition '{}' with id '{}' of book '{}'", edition.getTitle(), edition.getId(),
-                        book.getTitle());
-                BookMetadata metadata = mapBookToMetadata(book, edition);
-                if (metadata != null) {
-                    results.add(metadata);
-                }
+
+            BookMetadata metadata = new BookMetadata();
+            log.debug("Processing edition '{}' with id '{}' of book '{}'", book.getEditions().getFirst().getTitle(),
+                    book.getEditions().getFirst().getId(),
+                    book.getTitle());
+            mapBookToMetadata(book, book.getEditions().getFirst(), metadata);
+
+            if (metadata != null) {
+                results.add(metadata);
             }
         }
         return results;
