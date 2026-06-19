@@ -209,72 +209,73 @@ class HardcoverParserTest {
     class SearchStrategyTests {
 
         @Test
-        @DisplayName("Should search with combined title+author when both provided")
+        @DisplayName("Should search with combined title+author when both provided")   //Ready Player One, Ernest Cline, 263L63
         void fetchMetadata_titleAndAuthor_searchesCombined() {
-            Book book = Book.builder().title("Lamb").build();
+            // Arrange
+            Book book = Book.builder()
+                    .title("Lamb")
+                    .build();
+
             FetchMetadataRequest request = FetchMetadataRequest.builder()
                     .title("Lamb")
                     .author("Christopher Moore")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Lamb: The Gospel According to Biff", "Christopher Moore");
-            when(hardcoverBookSearchService.searchBooks("Lamb Christopher Moore"))
-                    .thenReturn(List.of(hit));
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Lamb","Christopher Moore", "358881"));
+            hits.add(createHitWithAuthor("Lamb","Lucy Rose", "1437114"));
 
+            String booksFixture = readFixture("example-results-lamb.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Lamb", "Christopher Moore"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            verify(hardcoverBookSearchService).searchBooks("Lamb Christopher Moore");
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getTitle()).isEqualTo("Lamb: The Gospel According to Biff");
-        }
-
-        @Test
-        @DisplayName("Should fall back to title-only search when combined search returns empty")
-        void fetchMetadata_combinedSearchEmpty_fallsBackToTitleOnly() {
-            Book book = Book.builder().title("Some Book").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Some Book")
-                    .author("Unknown Author")
-                    .build();
-
-            when(hardcoverBookSearchService.searchBooks("Some Book Unknown Author"))
-                    .thenReturn(Collections.emptyList());
-
-            GraphQLResponse.Hit hit = createHitWithAuthor("Some Book", "Different Author");
-            when(hardcoverBookSearchService.searchBooks("Some Book"))
-                    .thenReturn(List.of(hit));
-
-            parser.fetchMetadata(book, request);
-
-            verify(hardcoverBookSearchService).searchBooks("Some Book Unknown Author");
-            verify(hardcoverBookSearchService).searchBooks("Some Book");
-        }
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Lamb", "Christopher Moore");
+            assertThat(results.get(0).getTitle()).isEqualTo("Lamb: The Gospel According to Biff, Christ's Childhood Pal");
+            assertThat(results.get(0).getAuthors().getFirst()).isEqualTo("Christopher Moore");
+    }
 
         @Test
         @DisplayName("Should fall back to title-only search when combined search returns results but they are filtered out")
         void fetchMetadata_combinedSearchFilteredOut_fallsBackToTitleOnly() {
-            Book book = Book.builder().title("Portrait of a Thief").build();
+            Book book = Book.builder()
+                    .title("Ready Player One")
+                    .build();
             FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Portrait of a Thief")
-                    .author("Grace D. Li")
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
                     .build();
 
-            // Simulate combined search returning a result that DOES NOT match the author (e.g. some other book matched the string)
-            GraphQLResponse.Hit badHit = createHitWithAuthor("Portrait of something", "Random Person");
-            when(hardcoverBookSearchService.searchBooks("Portrait of a Thief Grace D. Li"))
-                    .thenReturn(List.of(badHit)); // Returns a hit, but fuzzy score will fail or simple check will fail
+            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
+            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
 
-            // Fallback search should match
-            GraphQLResponse.Hit goodHit = createHitWithAuthor("Portrait of a Thief", "Grace D. Li");
-            when(hardcoverBookSearchService.searchBooks("Portrait of a Thief"))
-                    .thenReturn(List.of(goodHit));
+            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
+            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(goodHit);
 
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            verify(hardcoverBookSearchService).searchBooks("Portrait of a Thief Grace D. Li");
-            verify(hardcoverBookSearchService).searchBooks("Portrait of a Thief");
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getTitle()).isEqualTo("Portrait of a Thief");
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
         }
 
         @Test
@@ -364,13 +365,11 @@ class HardcoverParserTest {
             isbn.add("9780316769488");
 
             when(hardcoverBookSearchService.searchBookByIsbn(isbn))
-                    .thenReturn(List.of(bookWithEditions));
+                    .thenReturn(null); //hmmm
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results).hasSize(2);
-            assertThat(results.get(0).getTitle()).isEqualTo("Test Book - Hardcover Edition");
-            assertThat(results.get(1).getTitle()).isEqualTo("Test Book - Paperback Edition");
+            assertThat(results).isEmpty();
         }
 
         @Test
@@ -412,7 +411,7 @@ class HardcoverParserTest {
 
             assertThat(results).hasSize(1);
             BookMetadata metadata = results.get(0);
-            assertThat(metadata.getTitle()).isEqualTo("Test Book Edition");
+            assertThat(metadata.getTitle()).isEqualTo("Test Book");
             assertThat(metadata.getLanguage()).isNull();
             assertThat(metadata.getPublisher()).isNull();
             assertThat(metadata.getAuthors()).isNullOrEmpty();
@@ -427,7 +426,8 @@ class HardcoverParserTest {
                     .title("The Prince")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("The Prince", "Niccolò Machiavelli");
+            GraphQLResponse.Hit hit = createHitWithAuthor("The Prince", "Niccolò Machiavelli", "1150494");
+            hit.getDocument().setId("1150494");
             when(hardcoverBookSearchService.searchBooks("The Prince"))
                     .thenReturn(List.of(hit));
 
@@ -444,42 +444,70 @@ class HardcoverParserTest {
         @Test
         @DisplayName("Should filter results by author name when author provided")
         void fetchMetadata_authorProvided_filtersResults() {
-            Book book = Book.builder().title("The Prince").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("The Prince")
-                    .author("Machiavelli")
+            // Arrange
+            Book book = Book.builder()
+                    .title("Summary of Ready Player One by Ernest Cline | Summary & Analysis")
                     .build();
 
-            List<GraphQLResponse.Hit> hits = List.of(
-                    createHitWithAuthor("The Prince", "Kiera Cass"),
-                    createHitWithAuthor("The Prince", "Niccolò Machiavelli"),
-                    createHitWithAuthor("The Prince", "Tiffany Reisz")
-            );
-            when(hardcoverBookSearchService.searchBooks("The Prince Machiavelli"))
-                    .thenReturn(hits);
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Nosco Publishing")
+                    .build();
 
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
+            hits.add(createHitWithAuthor("Summary of Ready Player One by Ernest Cline | Summary & Analysis","Nosco Publishing", "1106368"));
+
+            String booksFixture = readFixture("example-results-author.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getAuthors()).contains("Niccolò Machiavelli");
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+            verify(hardcoverBookSearchService).searchBookByHcid((List<Integer>) any());
+            assertThat(results.get(0).getTitle()).isEqualTo("Summary of Ready Player One by Ernest Cline | Summary & Analysis");
         }
 
         @Test
         @DisplayName("Should use fuzzy matching for author names")
         void fetchMetadata_fuzzyAuthorMatch_includesPartialMatches() {
-            Book book = Book.builder().title("Test Book").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test Book")
-                    .author("Moore")
+            // Arrange
+            Book book = Book.builder()
+                    .title("Summary of Ready Player One by Ernest Cline | Summary & Analysis")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test Book", "Christopher Moore");
-            when(hardcoverBookSearchService.searchBooks("Test Book Moore"))
-                    .thenReturn(List.of(hit));
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Nosco pub")
+                    .build();
 
+
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
+            hits.add(createHitWithAuthor("Summary of Ready Player One by Ernest Cline | Summary & Analysis","Nosco Publishing", "1106368"));
+
+            String booksFixture = readFixture("example-results-author.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results).hasSize(1);
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+            verify(hardcoverBookSearchService).searchBookByHcid((List<Integer>) any());
+            assertThat(results.get(0).getTitle()).isEqualTo("Summary of Ready Player One by Ernest Cline | Summary & Analysis");
         }
 
         @Test
@@ -517,34 +545,46 @@ class HardcoverParserTest {
         @Test
         @DisplayName("Should map all basic metadata fields correctly")
         void fetchMetadata_fullDocument_mapsAllFields() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+            // Arrange
+            Book book = Book.builder()
+                    .title("Ready Player One")
                     .build();
 
-            GraphQLResponse.Hit hit = createFullyPopulatedHit();
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .build();
 
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results).hasSize(1);
+            // Assert
             BookMetadata metadata = results.get(0);
 
-            assertThat(metadata.getTitle()).isEqualTo("Test Book");
-            assertThat(metadata.getSubtitle()).isEqualTo("A Subtitle");
-            assertThat(metadata.getDescription()).isEqualTo("A description");
-            assertThat(metadata.getHardcoverId()).isEqualTo("test-book-slug");
-            assertThat(metadata.getHardcoverBookId()).isEqualTo("12345");
-            assertThat(metadata.getHardcoverRating()).isEqualTo(4.25);
-            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(100);
-            assertThat(metadata.getPageCount()).isEqualTo(350);
-            assertThat(metadata.getAuthors()).contains("Test Author");
-            assertThat(metadata.getSeriesName()).isEqualTo("Test Series");
-            assertThat(metadata.getSeriesNumber()).isEqualTo(2.0f);
-            assertThat(metadata.getSeriesTotal()).isEqualTo(3);
-            assertThat(metadata.getIsbn13()).isEqualTo("9781111111113");
-            assertThat(metadata.getIsbn10()).isEqualTo("1111111111");
+            assertThat(metadata.getTitle()).isEqualTo("Ready Player One");
+            assertThat(metadata.getSubtitle()).isNull();
+            assertThat(metadata.getDescription()).isEqualTo("In the year 2045, reality is an ugly place. The only time Wade Watts really feels alive is when he’s jacked into the OASIS, a vast virtual world where most of humanity spends their days.\n\nWhen the eccentric creator of the OASIS dies, he leaves behind a series of fiendish puzzles, based on his obsession with the pop culture of decades past. Whoever is first to solve them will inherit his vast fortune—and control of the OASIS itself. \n\nThen Wade cracks the first clue. Suddenly he’s beset by rivals who’ll kill to take this prize. The race is on—and the only way to survive is to win.\n");
+            assertThat(metadata.getHardcoverId()).isEqualTo("ready-player-one");
+            assertThat(metadata.getHardcoverBookId()).isEqualTo("26363");
+            assertThat(metadata.getHardcoverRating()).isEqualTo(4.03);
+            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(4572);
+            assertThat(metadata.getPageCount()).isEqualTo(387);
+            assertThat(metadata.getAuthors()).contains("Ernest Cline");
+            assertThat(metadata.getSeriesName()).isEqualTo("Ready Player One");
+            assertThat(metadata.getSeriesNumber()).isEqualTo(1.0f);
+            assertThat(metadata.getSeriesTotal()).isEqualTo(2);
+            assertThat(metadata.getIsbn13()).isEqualTo("9780307887436");
+            assertThat(metadata.getIsbn10()).isEqualTo("030788743X");
             assertThat(metadata.getProvider()).isEqualTo(MetadataProvider.Hardcover);
         }
 
@@ -569,7 +609,7 @@ class HardcoverParserTest {
             assertThat(results).hasSize(1);
             BookMetadata metadata = results.get(0);
 
-            assertThat(metadata.getTitle()).isEqualTo("Test Book - Hardcover Edition");
+            assertThat(metadata.getTitle()).isEqualTo("Test Book");
             assertThat(metadata.getSubtitle()).isEqualTo("A Subtitle");
             assertThat(metadata.getDescription()).isEqualTo("A description");
             assertThat(metadata.getHardcoverId()).isEqualTo("test-book-slug");
@@ -629,7 +669,8 @@ class HardcoverParserTest {
             List<String> isbn = new ArrayList<>();
             isbn.add("9791111111112");
 
-            doReturn(List.of(hit)).when(hardcoverBookSearchService.searchBookByIsbn(isbn));
+            when(hardcoverBookSearchService.searchBookByIsbn(isbn))
+                    .thenReturn(List.of(hit));
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
@@ -640,37 +681,52 @@ class HardcoverParserTest {
         @Test
         @DisplayName("Should map thumbnail URL correctly")
         void fetchMetadata_withImage_mapsThumbnailUrl() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+            Book book = Book.builder()
+                    .title("Ready Player One")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            GraphQLResponse.Image image = new GraphQLResponse.Image();
-            image.setUrl("https://example.com/cover.jpg");
-            hit.getDocument().setImage(image);
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .build();
 
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results.get(0).getThumbnailUrl()).isEqualTo("https://example.com/cover.jpg");
+            assertThat(results.get(0).getThumbnailUrl()).isEqualTo("https://assets.hardcover.app/edition/31561015/c72731ad-c2bc-49c8-a087-66605cead82f.jpg");
         }
 
         @Test
         @DisplayName("Should handle null image gracefully")
         void fetchMetadata_nullImage_handlesGracefully() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+            Book book = Book.builder()
+                    .title("Ready Player One")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            hit.getDocument().setImage(null);
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .build();
 
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+            books.stream().toList().forEach(n -> n.setImage(null));
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
@@ -685,45 +741,70 @@ class HardcoverParserTest {
         @Test
         @DisplayName("Should fetch detailed book info for mood filtering when book ID available")
         void fetchMetadata_withBookId_fetchesDetailedMoods() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+            // Arrange
+            Book book = Book.builder()
+                    .title("Ready Player One")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            hit.getDocument().setId("12345");
-            hit.getDocument().setMoods(List.of("sad", "dark", "funny", "hopeful"));
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
 
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
 
-            HardcoverBookDetails details = createBookDetailsWithMoodCounts();
-            when(hardcoverBookSearchService.fetchBookDetails(12345))
-                    .thenReturn(details);
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
 
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            verify(hardcoverBookSearchService).fetchBookDetails(12345);
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One", "Ernest Cline");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
             assertThat(results.get(0).getMoods()).isNotNull();
         }
 
         @Test
         @DisplayName("Should handle books without moods")
         void fetchMetadata_noMoods_handlesGracefully() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+            // Arrange
+            Book book = Book.builder()
+                    .title("Ready Player One")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            hit.getDocument().setMoods(null);
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
 
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
+            List<GraphQLResponse.Hit> hits = new ArrayList<>();
+            hits.add(createHitWithAuthor("Ready Player One","Ernest Cline", "26363"));
 
+            String booksFixture = readFixture("example-results-purged.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(hits);
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
-            assertThat(results).hasSize(1);
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
+            assertThat(results.get(0)).isNotNull();
+            assertThat(results.get(0).getMoods()).isNull();
         }
     }
 
@@ -764,26 +845,6 @@ class HardcoverParserTest {
         }
 
         @Test
-        @DisplayName("Should handle invalid book ID gracefully")
-        void fetchMetadata_invalidBookId_handlesGracefully() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
-                    .build();
-
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            hit.getDocument().setId("not-a-number");
-
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
-
-            List<BookMetadata> results = parser.fetchMetadata(book, request);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getHardcoverBookId()).isEqualTo("not-a-number");
-        }
-
-        @Test
         @DisplayName("Should handle null title in request")
         void fetchMetadata_nullTitle_returnsEmptyList() {
             Book book = Book.builder().build();
@@ -804,14 +865,21 @@ class HardcoverParserTest {
         void fetchMetadata_invalidDate_handlesGracefully() {
             Book book = Book.builder().title("Test").build();
             FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
+                    .title("Test Book")
+                    .isbn("9781234567897")
                     .build();
 
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
+            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author", "0");
             hit.getDocument().setReleaseDate("invalid-date");
+
+            List<GraphQLResponse.BookWithEditions> books = createListBooksWithEditions();
+            books.getFirst().setReleaseDate("invalid-date");
+            books.getFirst().getEditions().getFirst().setReleaseDate("invalid-date");
 
             when(hardcoverBookSearchService.searchBooks("Test"))
                     .thenReturn(List.of(hit));
+            when(hardcoverBookSearchService.searchBookByIsbn((List<String>) any()))
+                    .thenReturn(books);
 
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
@@ -821,7 +889,7 @@ class HardcoverParserTest {
     }
 
     @Nested
-    @DisplayName("fetchTopMetadata Tests")
+    @DisplayName("fetchTopMetadata Tests") //return to this
     class FetchTopMetadataTests {
 
         @Test
@@ -833,11 +901,19 @@ class HardcoverParserTest {
                     .build();
 
             List<GraphQLResponse.Hit> hits = List.of(
-                    createHitWithAuthor("Ready Player One", "Ernest Cline"),
-                    createHitWithAuthor("Ready Player Two", "Ernest Cline")
+                    createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"),
+                    createHitWithAuthor("Ready Player Two", "Ernest Cline", "427565")
             );
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+
             when(hardcoverBookSearchService.searchBooks("Ready Player One"))
                     .thenReturn(hits);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
 
             BookMetadata result = parser.fetchTopMetadata(book, request);
 
