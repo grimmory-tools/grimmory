@@ -100,6 +100,7 @@ public class HardcoverBookSearchService {
                             code2
                           }
                           reading_format_id
+                          score
                         }
                       }
                     }""");
