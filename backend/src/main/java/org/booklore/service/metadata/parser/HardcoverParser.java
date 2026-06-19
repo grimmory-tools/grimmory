@@ -62,9 +62,6 @@ public class HardcoverParser implements BookParser {
         return processBooks(hits);
     }
 
-        results = filterEditions(results, book);
-        return processBooks(results);
-    }
     private List<BookMetadata> processBooks(List<GraphQLResponse.BookWithEditions> books) {
         if (books == null || books.isEmpty()) {
             return Collections.emptyList();
