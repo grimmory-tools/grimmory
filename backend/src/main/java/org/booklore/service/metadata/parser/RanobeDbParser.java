@@ -11,6 +11,7 @@ import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
 import org.booklore.util.LanguageNormalizer;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
@@ -109,6 +110,18 @@ public class RanobeDbParser implements BookParser {
     public List<BookMetadata> getMetadataListByTerm(SearchTerms term, Boolean fetchTop) {
         log.info("Ranobedb: Fetching metadata for term: '{}'", term);
 
+        List<BookMetadata> metadataList = getMetadataList(term, fetchTop);
+
+        if (metadataList != null && metadataList.isEmpty() && term.authorId != null) {
+            log.info("RanobeDB: Failed to find results with author, trying again with only the title.");
+            metadataList = getMetadataList(new SearchTerms(term.title(), null), fetchTop);
+        }
+
+        if (metadataList != null) return metadataList;
+        return Collections.emptyList();
+    }
+
+    private @Nullable List<BookMetadata> getMetadataList(SearchTerms term, Boolean fetchTop) {
         try {
             // Apply rate limiting before making the API request
             waitForRateLimit();
@@ -145,7 +158,7 @@ public class RanobeDbParser implements BookParser {
       } catch (IOException | InterruptedException e) {
           log.error("Error fetching metadata from Ranobedb Search API", e);
       }
-      return Collections.emptyList();
+        return null;
     }
 
     private SearchTerms getSearchTerm(Book book, FetchMetadataRequest request) {
