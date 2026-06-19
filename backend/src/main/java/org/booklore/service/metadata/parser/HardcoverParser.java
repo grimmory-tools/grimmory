@@ -178,43 +178,41 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<GraphQLResponse.BookWithEditions> searchById(List<GraphQLResponse.Document> docs, FetchMetadataRequest request) {
-        List<String> isbnList = new ArrayList<>();
-
-        // for the top result, grab all isbns (all editions)
-        GraphQLResponse.Document topMatch = docs.getFirst();
-        if (topMatch.getIsbns() != null && !topMatch.getIsbns().isEmpty()) {
-            isbnList.addAll(topMatch.getIsbns());
+        if (docs == null || docs.isEmpty()) {
+            log.warn("No documents provided for search by ID.");
+            return Collections.emptyList();
         }
+        // Extract hcid values from the docs
+        List<Integer> hcid = docs.stream()
+                .map(doc -> {
+                    try {
+                        return Integer.parseInt(doc.getId());
+                    }
+                    catch (NumberFormatException e) {
+                        log.warn("Invalid ID: {}", doc.getId(), e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
 
-        int hcid;
-        //if the results contain no isbn's search by the hcid
-        if ((isbnList == null || isbnList.isEmpty()) && (docs.getFirst().getId() != null && !docs.getFirst().getId().isEmpty())) {
-            hcid = Integer.parseInt(docs.getFirst().getId());
-            return hardcoverBookSearchService.searchBookByIsbn(hcid);
-        }
-        log.info("Searching by ISBN for {}'", request.getTitle());
-        return hardcoverBookSearchService.searchBookByIsbn(isbnList);
+        log.info("Searching by Hardcover ID for {}", request.getTitle());
+        List<GraphQLResponse.BookWithEditions> results = hardcoverBookSearchService.searchBookByHcid(hcid);
+
+        Map<Integer, GraphQLResponse.BookWithEditions> bookMap = results.stream()
+                .collect(Collectors.toMap(
+                    GraphQLResponse.BookWithEditions::getId,
+                    Function.identity()
+                ));
+
+        // Return results in the same order as (hcid) recived
+        return hcid.stream()
+                .map(bookMap::get)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
-    private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results,
-            Book book) {
-        List<GraphQLResponse.BookWithEditions> originalResults = new ArrayList<>(results);
-        BookCategory category = null;
-        try {
-            category = BookFileType
-                    .fromExtension(book.getPrimaryFile().getExtension())
-                    .map(BookFileType::category)
-                    .orElse(BookCategory.Hardcover);
-        } catch (Exception _) {
-            return results; //write this better?
-        }
-
-        int readingFormatId;
-        switch (category) {
-            case AUDIOBOOK -> readingFormatId = 2;
-            case EBOOK -> readingFormatId = 4;
-            default -> readingFormatId = 1;
-        }
+    private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results, Book book) {
         for (GraphQLResponse.BookWithEditions result : results) {
             filterEditionsByFormat(results, result, book);
             filterEditionsByLanguage(results, result);
