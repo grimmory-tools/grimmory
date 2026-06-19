@@ -87,7 +87,16 @@ public class HardcoverParser implements BookParser {
         return hardcoverBookSearchService.searchBooks(title);
     }
 
-    private List<GraphQLResponse.Document> filterSearchByTitle(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request) {
+    private String formatRequestAuthor(String input) {
+        if (input == null) {
+            return "";
+        }
+        String[] authorArray = input.split(", ");
+        input = authorArray.length > 0 ? authorArray[0] : "";
+        return input;
+    }
+
+    private List<GraphQLResponse.Document> filterSearch(List<GraphQLResponse.Hit> hits, FetchMetadataRequest request) {
         if (hits == null || hits.isEmpty()) {
             log.info("Hardcover: No results found for title '{}'", request.getTitle());
             return Collections.emptyList();
