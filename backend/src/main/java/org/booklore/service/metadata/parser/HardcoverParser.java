@@ -216,31 +216,57 @@ public class HardcoverParser implements BookParser {
             default -> readingFormatId = 1;
         }
         for (GraphQLResponse.BookWithEditions result : results) {
-            if (result.getEditions() == null || result.getEditions().isEmpty()) {
-                continue;
-            }
-            List<GraphQLResponse.Edition> keep = new ArrayList<>();
-            List<GraphQLResponse.Edition> hardcovers = new ArrayList<>();
-
-            for (GraphQLResponse.Edition edition : result.getEditions()) {
-                if (edition.getReadingFormatId() == readingFormatId) {
-                    keep.add(edition);
-                } else if (edition.getReadingFormatId() == 1) {
-                    hardcovers.add(edition);
-                }
-            }
-            List<GraphQLResponse.Edition> filtered = !keep.isEmpty() ? keep : hardcovers;
-            result.setEditions(filtered);
-        }
-        if (results.stream().allMatch(r -> r.getEditions() == null || r.getEditions().isEmpty())) {
-            return originalResults;
+            filterEditionsByFormat(results, result, book);
+            filterEditionsByLanguage(results, result);
         }
         return results;
     }
 
-    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book) {
-        GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
-        return mapBookToMetadata(book, edition);
+    private List<GraphQLResponse.BookWithEditions> filterEditionsByFormat(List<GraphQLResponse.BookWithEditions> results, GraphQLResponse.BookWithEditions result, Book book)
+    {
+        if (book.getPrimaryFile() == null){
+            return results;
+        }
+
+        boolean isAudiobook = book.getPrimaryFile().getBookType().equals(BookFileType.AUDIOBOOK);
+        List<GraphQLResponse.Edition> audiobooks = new ArrayList<>();
+        List<GraphQLResponse.Edition> hardcovers = new ArrayList<>();
+
+        for (GraphQLResponse.Edition edition : result.getEditions()) {
+            if (edition.getReadingFormatId() == 2) {
+                audiobooks.add(edition);
+            } else {
+                hardcovers.add(edition);
+            }
+        }
+
+        if (isAudiobook && !audiobooks.isEmpty()) {
+            result.setEditions(audiobooks);
+        }
+        else{
+            result.setEditions(hardcovers);
+        }
+
+        return results;
+    }
+
+    private List<GraphQLResponse.BookWithEditions> filterEditionsByLanguage(List<GraphQLResponse.BookWithEditions> results, GraphQLResponse.BookWithEditions result){
+        String localeLanguage = Locale.getDefault().getLanguage();
+
+        List<GraphQLResponse.Edition> filteredEditions = results.getFirst().getEditions().stream()
+                .filter(edition -> {
+                    String languageCode = edition.getLanguage() != null
+                            ? edition.getLanguage().getCode2()
+                            : null;
+                    return languageCode != null && languageCode.equals(localeLanguage);
+                })
+                .toList();
+
+        if (!filteredEditions.isEmpty()){
+            result.setEditions(filteredEditions);
+        }
+
+        return results;
     }
 
     private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition, BookMetadata metadata) {
