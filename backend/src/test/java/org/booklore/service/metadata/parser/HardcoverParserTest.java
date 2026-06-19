@@ -999,7 +999,7 @@ class HardcoverParserTest {
 
             List<GraphQLResponse.Hit> hit = new ArrayList<>();
             hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
                     .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
@@ -1012,7 +1012,7 @@ class HardcoverParserTest {
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
             // Assert
-            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One", "Ernest Cline");
 
             assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
             assertThat(results.get(0).getIsbn10()).isEqualTo("030788743X");
@@ -1033,7 +1033,7 @@ class HardcoverParserTest {
 
             List<GraphQLResponse.Hit> hit = new ArrayList<>();
             hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
                     .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
@@ -1046,7 +1046,7 @@ class HardcoverParserTest {
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
             // Assert
-            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One", "Ernest Cline");
 
             assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
             assertThat(results.get(0).getIsbn10()).isEqualTo("2266242334");
@@ -1068,7 +1068,7 @@ class HardcoverParserTest {
 
             List<GraphQLResponse.Hit> hit = new ArrayList<>();
             hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
                     .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
@@ -1081,7 +1081,7 @@ class HardcoverParserTest {
             List<BookMetadata> results = parser.fetchMetadata(book, request);
 
             // Assert
-            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One", "Ernest Cline");
 
             assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
             assertThat(results.get(0).getIsbn10()).isEqualTo("030788743X");
