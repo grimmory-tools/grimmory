@@ -94,23 +94,29 @@ public class HardcoverParser implements BookParser {
         }
 
         String searchTitle = request.getTitle() != null ? request.getTitle() : "";
-        String searchAuthor = request.getAuthor() != null ? request.getAuthor().trim() : "";
+        String searchAuthor = request.getAuthor() != null ? formatRequestAuthor(request.getAuthor()) : "";
 
         //convert hits into document format.
         List<GraphQLResponse.Document> docs = hits.stream()
                 .map(GraphQLResponse.Hit::getDocument)
+                .filter(Objects::nonNull)
                 .toList();
 
-        // Filter by author if not blank
-        if (searchAuthor.isEmpty()) {
+        log.debug("Filtering by title: '{}', author: '{}'", searchTitle, searchAuthor);
+        if (!searchTitle.isBlank()) {
             docs = filterTitle(docs, searchTitle);
-        } else {
-            docs = filterAuthor(docs, searchAuthor);
-            docs = filterTitle(docs, searchTitle);
+            log.debug("Filtered by title: {} ({} results)", searchTitle, docs.size());
         }
 
-        // Order Collections with most isbn's at the top
-        return sortSearchResultsByISBNCount(docs);
+        if (!searchAuthor.isBlank()) {
+            docs = filterAuthor(docs, searchAuthor);
+            log.debug("Filtered by author: {} ({} results)", searchAuthor, docs.size());
+        }
+
+        // Sort the search results in order of their calculated lev-dist (asc).
+        return docs.stream()
+                .sorted(Comparator.comparingDouble(GraphQLResponse.Document::getLevenshteinDistanceTitle))
+                .toList();
     }
 
     private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
