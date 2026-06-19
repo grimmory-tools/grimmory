@@ -1,20 +1,30 @@
 package org.booklore.service.metadata.parser;
 
 import org.booklore.model.dto.Book;
+import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverCachedTag;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,16 +45,163 @@ import static org.mockito.Mockito.*;
  * - Edition filtering logic
  */
 class HardcoverParserTest {
-
+    private static final Logger log = LoggerFactory.getLogger(HardcoverParserTest.class);
     @Mock
     private HardcoverBookSearchService hardcoverBookSearchService;
 
     private HardcoverParser parser;
 
+    private MockedStatic<Jsoup> mockJsoup;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         parser = new HardcoverParser(hardcoverBookSearchService);
+        mockJsoup = mockStatic(Jsoup.class);
+        Locale.setDefault(Locale.ENGLISH);
+    }
+
+    @AfterEach
+    void tearDown() {
+        mockJsoup.close();
+    }
+
+    private GraphQLResponse.Hit createHitWithAuthor(String title, String author, String id) {
+        GraphQLResponse.Document doc = new GraphQLResponse.Document();
+        doc.setTitle(title);
+        doc.setSlug(title.toLowerCase().replace(" ", "-"));
+        doc.setAuthorNames(Set.of(author));
+        doc.setId(id);
+        doc.setUsersCount(5);
+
+        GraphQLResponse.Hit hit = new GraphQLResponse.Hit();
+        hit.setDocument(doc);
+        return hit;
+    }
+
+    private GraphQLResponse.BookWithEditions createBookWithEditions() {
+        GraphQLResponse.BookWithEditions book = new GraphQLResponse.BookWithEditions();
+
+        book.setId(12345);
+        book.setSlug("test-book-slug");
+        book.setTitle("Test Book");
+        book.setSubtitle("A Subtitle");
+        book.setDescription("A description");
+        book.setRating(4.25);
+        book.setRatingsCount(100);
+        book.setReviewsCount(50);
+        book.setPages(350);
+        book.setReleaseDate("2023-01-15");
+        book.setReleaseYear(2023);
+
+        // Series info
+        GraphQLResponse.Series series = new GraphQLResponse.Series();
+        series.setName("Test Series");
+        series.setBooksCount(5);
+        series.setPrimaryBooksCount(3);
+
+        GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
+        featuredSeries.setSeries(series);
+        featuredSeries.setPosition(2f);
+        book.setFeaturedBookSeries(featuredSeries);
+
+        GraphQLResponse.Image image = new GraphQLResponse.Image();
+        image.setUrl("https://example.com/cover.jpg");
+        book.setImage(image);
+
+        // Cached contributors for the book
+        GraphQLResponse.Author bookAuthor = new GraphQLResponse.Author();
+        bookAuthor.setId(1);
+        bookAuthor.setSlug("test-author");
+        bookAuthor.setName("Test Author");
+
+        GraphQLResponse.Contributor bookContributor = new GraphQLResponse.Contributor();
+        bookContributor.setAuthor(bookAuthor);
+        bookContributor.setContribution("Author");
+        book.setCachedContributors(List.of(bookContributor));
+
+        // Editions
+        GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
+        edition.setId(1);
+        edition.setTitle("Test Book - Hardcover Edition");
+        edition.setSubtitle("A Subtitle");
+        edition.setPages(350);
+        edition.setReleaseDate("2023-01-15");
+        edition.setReleaseYear(2023);
+
+        // Cached contributors for the edition
+        GraphQLResponse.Author editionAuthor = new GraphQLResponse.Author();
+        editionAuthor.setId(1);
+        editionAuthor.setSlug("test-author");
+        editionAuthor.setName("Test Author");
+
+        GraphQLResponse.Contributor editionContributor = new GraphQLResponse.Contributor();
+        editionContributor.setAuthor(editionAuthor);
+        editionContributor.setContribution("Author");
+        edition.setCachedContributors(List.of(editionContributor));
+
+        GraphQLResponse.Image editionImage = new GraphQLResponse.Image();
+        editionImage.setUrl("https://example.com/edition-cover.jpg");
+        edition.setImage(editionImage);
+
+        edition.setIsbn10("123456789X");
+        edition.setIsbn13("9781234567897");
+
+        GraphQLResponse.Publisher publisher = new GraphQLResponse.Publisher();
+        publisher.setName("Test Publisher");
+        edition.setPublisher(publisher);
+
+        GraphQLResponse.Language language = new GraphQLResponse.Language();
+        language.setCode2("en");
+        edition.setLanguage(language);
+
+        book.setEditions(List.of(edition));
+
+        // Cached tags for the book (moods, genres, tags)
+        GraphQLResponse.CachedTags cachedTags = new GraphQLResponse.CachedTags();
+        cachedTags.setMood(List.of(createCachedTag("adventurous", 15), createCachedTag("exciting", 12), createCachedTag("novotes", 0)));
+        cachedTags.setGenre(List.of(createCachedTag("fiction", 20), createCachedTag("fantasy", 18), createCachedTag("novotes", 0)));
+        cachedTags.setTag(List.of(createCachedTag("epic", 10), createCachedTag("quest", 8), createCachedTag("novotes", 0)));
+        book.setCachedTags(cachedTags);
+
+        return book;
+    }
+
+    private List<GraphQLResponse.BookWithEditions> createListBooksWithEditions(){
+        return List.of(createBookWithEditions());
+    }
+
+    private HardcoverCachedTag createCachedTag(String tag, int count) {
+        HardcoverCachedTag cachedTag = new HardcoverCachedTag();
+        cachedTag.setTag(tag);
+        cachedTag.setCount(count);
+        return cachedTag;
+    }
+
+    private String readFixture(String fixtureName) {
+        String filename = Paths.get("hardcover", fixtureName + ".fixture").toString();
+
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
+            assert is != null;
+
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException("Failed to load fixture: " + filename, e);
+        }
+    }
+
+    private GraphQLResponse parseFixture(String fixture) {
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        return objectMapper.readValue(fixture, GraphQLResponse.class);
+    }
+
+    private List<GraphQLResponse.BookWithEditions> parseBooks(String fixture){
+        return parseFixture(fixture)
+                .getData()
+                .getBooks();
     }
 
     @Nested
