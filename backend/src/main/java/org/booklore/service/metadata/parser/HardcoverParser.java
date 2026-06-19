@@ -73,18 +73,37 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private List<GraphQLResponse.Hit> searchByTitle(FetchMetadataRequest fetchMetadataRequest) {
+    private List<GraphQLResponse.Document> searchByTitle(FetchMetadataRequest fetchMetadataRequest) {
+        List<GraphQLResponse.Document> results = new ArrayList<>();
         String title = fetchMetadataRequest.getTitle();
+
         if (title == null || title.isBlank()) {
             log.warn("Hardcover: No title provided for search");
             return Collections.emptyList();
         }
-        // format the title
-        title = Pattern.compile("[^a-zA-Z0-9\\s]+")
-                .matcher(title.trim().toLowerCase()).replaceAll("");
-        // search via title only
-        log.info("Hardcover: Searching for title '{}'", title);
-        return hardcoverBookSearchService.searchBooks(title);
+        String author = fetchMetadataRequest.getAuthor();
+
+        // 1. Try Title + Author
+        if (author != null && !author.isBlank()) {
+            author = formatRequestAuthor(author);
+            log.info("Hardcover: Searching with title+author: '{} {}'", title, author);
+            List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title, author);
+            results = filterSearch(hits, fetchMetadataRequest);
+        }
+
+        // 2. If no valid results found (or no author provided), Try Title only
+        if (results.isEmpty()) {
+            log.info("Hardcover: Searching with title only: '{}'", title);
+            List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(title);
+            results = filterSearch(hits, fetchMetadataRequest);
+        }
+
+        // 3. Return empty if no results
+        if (results.isEmpty()) {
+            log.info("No results searching: {} {}", title, author);
+            return Collections.emptyList();
+        }
+        return results;
     }
 
     private String formatRequestAuthor(String input) {
