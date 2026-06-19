@@ -116,11 +116,25 @@ public class HardcoverBookSearchService {
         return response.getData().getBooks();
     }
 
-    public List<GraphQLResponse.Hit> searchBooks(String query) {
-        return searchBooks(query, DEFAULT_PER_PAGE);
+    public List<GraphQLResponse.Hit> searchBooks(String title) {
+        return searchBooks(title, "alternative_titles: " + title, "10,5,3", "title, alternative_titles, description", DEFAULT_PER_PAGE);
     }
 
-    public List<GraphQLResponse.Hit> searchBooks(String query, int perPage) {
+    public List<GraphQLResponse.Hit> searchBooks(String title, int limit) {
+        return searchBooks(title, "alternative_titles: " + title, "10,5,3", "title, alternative_titles, description", limit);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String title, String author) {
+        author = title + " "  + author;
+        return searchBooks(author, "", "5,3,10,5", "title, alternative_titles, author_names, description", DEFAULT_PER_PAGE);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String title, String author, int limit) {
+        author = title + " "  + author;
+        return searchBooks(author, "", "5,3,10,5", "title, alternative_titles, author_names, description", limit);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String query, String filterBy, String weights, String fields, int perPage) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -129,8 +143,20 @@ public class HardcoverBookSearchService {
         int sanitizedPerPage = Math.clamp(perPage, 1, 100);
 
         GraphQLRequest body = new GraphQLRequest();
-        body.setQuery("query BookSearch($q: String!, $limit: Int!) { search(query: $q, query_type: \"Book\", per_page: $limit, page: 1) { results } }");
-        body.setVariables(Map.of("q", query, "limit", sanitizedPerPage));
+        body.setQuery("""
+                query BookSearch($q: String!, $limit: Int, $filterBy: String, $weights: String, $fields: String) {
+                search(query: $q,
+                filter_by: $filterBy,
+                weights: $weights,
+                fields: $fields,
+                sort: "users_count:desc",
+                typos: "2",
+                query_type: "Book",
+                per_page: $limit,
+                page: 1)
+                
+                {results }}""");
+        body.setVariables(Map.of("q", query, "filterBy", filterBy, "weights", weights, "fields", fields, "limit", sanitizedPerPage));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
