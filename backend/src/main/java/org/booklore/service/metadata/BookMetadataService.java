@@ -11,9 +11,7 @@ import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.dto.request.ToggleAllLockRequest;
+import org.booklore.model.dto.request.*;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.*;
@@ -21,14 +19,13 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.service.metadata.parser.DetailedMetadataProvider;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -38,10 +35,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import org.booklore.model.dto.request.IsbnLookupRequest;
-
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -136,10 +134,11 @@ public class BookMetadataService {
             MetadataRefreshOptions options = appSettingService.getAppSettings().getDefaultMetadataRefreshOptions();
             if (options != null && options.getFieldOptions() != null) {
                 MetadataRefreshOptions.FieldProvider titleProvider = options.getFieldOptions().getTitle();
-                if (titleProvider != null) {
+                MetadataRefreshOptions.FieldProvider isbnProvider = options.getFieldOptions().getIsbn13();
+                if (isbnProvider != null) {
                     List<MetadataProvider> chain = Stream.of(
-                                    titleProvider.getP1(), titleProvider.getP2(),
-                                    titleProvider.getP3(), titleProvider.getP4())
+                                    isbnProvider.getP1(), isbnProvider.getP2(),
+                                    isbnProvider.getP3(), isbnProvider.getP4())
                             .filter(Objects::nonNull)
                             .distinct()
                             .toList();
