@@ -36,15 +36,18 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
-        return searchBookByIsbn(isbn, 0);
-    }
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(int hcid) {
-        List<String> empty = new ArrayList<>();
-        empty.add("0");
-        return searchBookByIsbn(empty, hcid);
+        List<Integer> empty = new ArrayList<>();
+        empty.add(0);
+        return searchBookById(isbn, empty);
     }
 
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn, int hcid) {
+    public List<GraphQLResponse.BookWithEditions> searchBookByHcid(List<Integer> hcid) {
+        List<String> empty = new ArrayList<>();
+        empty.add("0");
+        return searchBookById(empty, hcid);
+    }
+
+    public List<GraphQLResponse.BookWithEditions> searchBookById(List<String> isbn, List<Integer> hcid) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -52,9 +55,9 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("""
-                query BookSearchByIsbn($isbn: [String!]!, $hcid: Int!) {
+                query BookSearchByIsbn($isbn: [String!]!, $hcid: [Int!]!) {
                     books(
-                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_eq: $hcid}} ]}}
+                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_in: $hcid}} ]}}
                     ) {
                         id
                         slug
@@ -80,7 +83,7 @@ public class HardcoverBookSearchService {
                           url
                         }
                         cached_tags
-                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_eq: 1682803}}]}, order_by: [{score: desc}]) {
+                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_in: $hcid}}]}, order_by: [{score: desc}]) {
                           id
                           title
                           subtitle
