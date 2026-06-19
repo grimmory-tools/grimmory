@@ -387,9 +387,19 @@ public class HardcoverParser implements BookParser {
         }
     }
 
-    private void mapCachedContributors(BookMetadata metadata, GraphQLResponse.BookWithEditions book,
-            GraphQLResponse.Edition edition) {
+    private void mapCachedContributors(BookMetadata metadata, GraphQLResponse.BookWithEditions book){
         if (book.getCachedContributors() != null) {
+            metadata.setAuthors(book.getCachedContributors().stream()
+                    .map(GraphQLResponse.Contributor::getAuthor)
+                    .filter(Objects::nonNull)
+                    .map(GraphQLResponse.Author::getName)
+                    .filter(Objects::nonNull)
+                    .toList());
+        }
+    }
+
+    private void mapCachedContributors(BookMetadata metadata, GraphQLResponse.Edition edition) {
+        if (edition.getCachedContributors() != null) {
             metadata.setAuthors(edition.getCachedContributors().stream()
                     .map(GraphQLResponse.Contributor::getAuthor)
                     .filter(Objects::nonNull)
