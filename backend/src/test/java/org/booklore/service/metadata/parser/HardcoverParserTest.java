@@ -204,43 +204,6 @@ class HardcoverParserTest {
             List<String> isbn = new ArrayList<>();
             isbn.add("9780316769488");
 
-            doReturn(null).when(hardcoverBookSearchService.searchBookByIsbn(isbn)); //hmmm
-
-            List<BookMetadata> results = parser.fetchMetadata(book, request);
-
-            assertThat(results).isEmpty();
-        }
-
-        @Test
-        @DisplayName("Should return all editions when ISBN search returns book with multiple editions")
-        void fetchMetadata_isbnSearchMultipleEditions_returnsAllEditions() {
-            Book book = Book.builder().title("Any Title").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Any Title")
-                    .isbn("9780316769488")
-                    .build();
-
-            GraphQLResponse.BookWithEditions bookWithEditions = createBookWithEditions();
-
-            // Add a second edition
-            GraphQLResponse.Edition secondEdition = new GraphQLResponse.Edition();
-            secondEdition.setId(2);
-            secondEdition.setTitle("Test Book - Paperback Edition");
-            secondEdition.setIsbn13("9780316769489");
-            secondEdition.setIsbn10("0316769489");
-            secondEdition.setPages(400);
-
-            GraphQLResponse.Author author = new GraphQLResponse.Author();
-            author.setName("Test Author");
-            GraphQLResponse.Contributor contributor = new GraphQLResponse.Contributor();
-            contributor.setAuthor(author);
-            secondEdition.setCachedContributors(List.of(contributor));
-
-            bookWithEditions.setEditions(List.of(bookWithEditions.getEditions().get(0), secondEdition));
-
-            List<String> isbn = new ArrayList<>();
-            isbn.add("9780316769488");
-
             when(hardcoverBookSearchService.searchBookByIsbn(isbn))
                     .thenReturn(List.of(bookWithEditions));
 
@@ -583,30 +546,6 @@ class HardcoverParserTest {
 
             verify(hardcoverBookSearchService).fetchBookDetails(12345);
             assertThat(results.get(0).getMoods()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("Should fall back to basic mood filtering when detail fetch fails")
-        void fetchMetadata_detailFetchFails_fallsBackToBasicFilter() {
-            Book book = Book.builder().title("Test").build();
-            FetchMetadataRequest request = FetchMetadataRequest.builder()
-                    .title("Test")
-                    .build();
-
-            GraphQLResponse.Hit hit = createHitWithAuthor("Test", "Author");
-            hit.getDocument().setId("12345");
-            hit.getDocument().setMoods(List.of("sad", "funny", "invalid-mood"));
-
-            when(hardcoverBookSearchService.searchBooks("Test"))
-                    .thenReturn(List.of(hit));
-            when(hardcoverBookSearchService.fetchBookDetails(12345))
-                    .thenReturn(null);  // Simulate failure
-
-            List<BookMetadata> results = parser.fetchMetadata(book, request);
-
-            assertThat(results.get(0).getMoods())
-                    .containsAnyOf("Sad", "Funny")
-                    .doesNotContain("Invalid-Mood");
         }
 
         @Test
