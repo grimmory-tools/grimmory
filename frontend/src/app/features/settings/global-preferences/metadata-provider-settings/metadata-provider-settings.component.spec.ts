@@ -51,6 +51,14 @@ describe('MetadataProviderSettingsComponent', () => {
     expect(component.googleApiKeyConfigured).toBe(false);
   });
 
+  it('hydrates Google Books as enabled with an API key', () => {
+    appSettingsSignal.set(buildSettings({enabled: true, apiKey: 'valid-key'}));
+    fixture.detectChanges();
+
+    expect(component.googleEnabled).toBe(true);
+    expect(component.googleApiKeyConfigured).toBe(true);
+  });
+
   it('disables Google Books when the API key is cleared', () => {
     component.googleEnabled = true;
 
