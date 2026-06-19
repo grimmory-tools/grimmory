@@ -142,39 +142,30 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<GraphQLResponse.Document> filterTitle(List<GraphQLResponse.Document> docs, String searchTitle) {
-        List<GraphQLResponse.Document> originalDocs = docs;
-
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
 
+        String searchTitleLower = searchTitle.toLowerCase();
         for (GraphQLResponse.Document doc : docs) {
-            int distance = levenshtein.apply(searchTitle, doc.getTitle());
-            doc.setLevenshteinDistance(distance);
+            if (doc.getTitle().isEmpty()) {
+                continue;
+            }
+            // calculate the lev.dist for the Work-level title and the search provided term
+            double totalScore = levenshtein.apply(searchTitleLower, doc.getTitle().toLowerCase());
+
+            if (doc.getAlternativeTitles() != null) {
+                List<String> normalizedTitles = doc.getAlternativeTitles().stream()
+                        .map(String::toLowerCase)
+                        .toList();
+                //repeart the lev.dist calc for each of the alternative titles
+                totalScore += normalizedTitles.stream()
+                        .map(title -> levenshtein.apply(searchTitleLower, title))
+                        .min(Double::compare)
+                        .orElse(Integer.MAX_VALUE);
+            }
+            // (minTitleDist+minAltTitleDist)/1+userCount. best scores should approach 0
+            doc.setLevenshteinDistanceTitle((totalScore+1)/(doc.getUsersCount()+1));
         }
-
-        docs = docs.stream()
-                .sorted(Comparator.comparingInt(GraphQLResponse.Document::getLevenshteinDistance))
-                .toList();
-
-        final double best = docs.getFirst().getLevenshteinDistance();
-        final double worst = docs.getLast().getLevenshteinDistance();
-        final double threshold = Math.min(best, worst) + 1;
-
-        List<GraphQLResponse.Document> newDocs = docs.stream()
-                .filter(doc -> doc.getLevenshteinDistance() <= threshold)
-                .toList();
-
-        if (newDocs.isEmpty()) {
-            return originalDocs;
-        }
-        return newDocs;
-
-    }
-
-    private List<GraphQLResponse.Document> sortSearchResultsByISBNCount(List<GraphQLResponse.Document> docs) {
-        return docs.stream()
-                .sorted(Comparator.comparingInt(doc -> doc.getIsbns().size()))
-                .toList()
-                .reversed();
+        return docs.stream().toList();
     }
 
     private List<GraphQLResponse.BookWithEditions> searchById(List<GraphQLResponse.Document> docs, FetchMetadataRequest request) {
