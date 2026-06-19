@@ -343,4 +343,8 @@ export class UserManagementComponent implements OnInit {
   isPermissionDisabled(user: UserWithEditing): boolean {
     return !user.isEditing || user.permissions.admin;
   }
+  
+  editUserBtnEnabled(user: User) : boolean {
+    return !(this.editingLibraryIds.length === 0 && !user.permissions.admin);
+  }
 }
