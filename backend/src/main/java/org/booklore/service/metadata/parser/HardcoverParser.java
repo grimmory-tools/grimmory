@@ -7,7 +7,6 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.enums.BookCategory;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
@@ -21,7 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,19 +31,36 @@ public class HardcoverParser implements BookParser {
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        List<String> isbnCleaned = new ArrayList<>();
-        isbnCleaned.add(ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn()));
 
-        boolean searchByIsbn = isbnCleaned.getFirst() != null && !isbnCleaned.getFirst().isBlank();
-        if (searchByIsbn) {
-            log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned);
-            List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
-            return processBooks(hits);
+        //Try search by Isbn
+        List<BookMetadata> metadata = searchByIsbn(fetchMetadataRequest);
+        if (!metadata.isEmpty()) {
+            return metadata;
         }
-        // Search by Title/Author
-        List<GraphQLResponse.Hit> hits = searchByTitle(fetchMetadataRequest);
-        List<GraphQLResponse.Document> docs = filterSearchByTitle(hits, fetchMetadataRequest);
+
+        // Else Search by Title/Author
+        List<GraphQLResponse.Document> docs = searchByTitle(fetchMetadataRequest);
+
+        // Then Search by hardcover id for any returned search results
         List<GraphQLResponse.BookWithEditions> results = searchById(docs, fetchMetadataRequest);
+
+        // further filter editions of returned books
+        filterEditions(results, book);
+        return processBooks(results);
+    }
+
+    private List<BookMetadata> searchByIsbn(FetchMetadataRequest request) {
+        List<String> isbnCleaned = new ArrayList<>();
+
+        isbnCleaned.add(ParserUtils.cleanIsbn(request.getIsbn()));
+        if (isbnCleaned == null) {
+            return Collections.emptyList();
+        }
+
+        log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned.get(0));
+        List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
+        return processBooks(hits);
+    }
 
         results = filterEditions(results, book);
         return processBooks(results);
