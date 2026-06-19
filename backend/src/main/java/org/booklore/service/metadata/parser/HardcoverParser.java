@@ -192,6 +192,7 @@ public class HardcoverParser implements BookParser {
 
         //Try to return the searches where the distance is no greater than aproximately the length of the search term
         return best > threshold
+            ? Collections.emptyList()
             : docs.stream()
             .filter(doc -> doc.getLevenshteinDistanceAuthor() <= threshold)
             .toList();

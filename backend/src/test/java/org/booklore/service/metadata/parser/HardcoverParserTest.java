@@ -962,15 +962,10 @@ class HardcoverParserTest {
                     .author("Ernest Cline")
                     .build();
 
-            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
-            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
-                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
-
-            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
-            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            List<GraphQLResponse.Hit> hit = new ArrayList<>();
+            hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
             when(hardcoverBookSearchService.searchBooks("Ready Player One"))
-                    .thenReturn(goodHit);
+                    .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
             List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
@@ -1001,15 +996,11 @@ class HardcoverParserTest {
                     .author("Ernest Cline")
                     .build();
 
-            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
-            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
-                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
 
-            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
-            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            List<GraphQLResponse.Hit> hit = new ArrayList<>();
+            hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
             when(hardcoverBookSearchService.searchBooks("Ready Player One"))
-                    .thenReturn(goodHit);
+                    .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
             List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
@@ -1040,15 +1031,10 @@ class HardcoverParserTest {
                     .author("Ernest Cline")
                     .build();
 
-            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
-            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
-                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
-
-            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
-            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            List<GraphQLResponse.Hit> hit = new ArrayList<>();
+            hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
             when(hardcoverBookSearchService.searchBooks("Ready Player One"))
-                    .thenReturn(goodHit);
+                    .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
             List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
@@ -1080,15 +1066,10 @@ class HardcoverParserTest {
                     .author("Ernest Cline")
                     .build();
 
-            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
-            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
-            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
-                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
-
-            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
-            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            List<GraphQLResponse.Hit> hit = new ArrayList<>();
+            hit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
             when(hardcoverBookSearchService.searchBooks("Ready Player One"))
-                    .thenReturn(goodHit);
+                    .thenReturn(hit);
 
             String booksFixture = readFixture("example-results.json");
             List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
