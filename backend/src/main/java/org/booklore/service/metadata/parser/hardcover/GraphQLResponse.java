@@ -163,7 +163,8 @@ public class GraphQLResponse {
         @JsonProperty("users_read_count")
         private Integer usersReadCount;
 
-        private Integer levenshteinDistance;
+        private Double levenshteinDistanceTitle;
+        private Double levenshteinDistanceAuthor;
     }
 
     @Getter
