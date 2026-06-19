@@ -51,7 +51,14 @@
             "createdLargeDetail": "Библиотека создана с {{count}} файлами. Загрузка выполняется...",
             "createFailedSummary": "Ошибка создания",
             "createFailedDetail": "Произошла ошибка при создании библиотеки. Попробуйте снова."
-        }
+        },
+        "organizationMode": "",
+        "organizationModeBookPerFile": "",
+        "organizationModeBookPerFolder": "",
+        "organizationModeAutoDetect": "",
+        "folderStructureHint": "",
+        "organizationModeLockedTooltip": "",
+        "organizationModeTooltip": ""
     },
     "loading": {
         "title": "Загрузка библиотеки",

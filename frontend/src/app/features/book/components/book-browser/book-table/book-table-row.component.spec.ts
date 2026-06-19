@@ -85,7 +85,8 @@ describe('BookTableRowComponent', () => {
     expect(links[0]?.textContent?.trim()).toBe('Alpha');
     expect(links[0]?.getAttribute('href')).toBe('/book/1');
     expect(links[1]?.textContent?.trim()).toBe('Test Author');
-    expect(rating?.textContent).toContain('(4.2)');
+    expect(rating?.querySelector('app-rating')).toBeTruthy();
+    expect(rating?.getAttribute('title')).toBe('4.2');
     expect(cells[3]?.textContent?.trim()).toBe('1.5 MB');
   });
 

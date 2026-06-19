@@ -21,50 +21,50 @@
   <div class="tabs-wrapper" [class.dialog-mode]="config">
     <p-tabs [(value)]="tab" lazy="true" scrollable>
     <p-tablist>
-      <p-tab value="view">
+      <p-tab [value]="BookMetadataTab.View">
         <i [class]="'pi pi-book'"></i>
         {{ t('tabView') }}
       </p-tab>
-      @if (admin() || canEditMetadata()) {
-        <p-tab value="edit">
+      @if (canOpenTab(BookMetadataTab.Edit)) {
+        <p-tab [value]="BookMetadataTab.Edit">
           <i [class]="'pi pi-pencil'"></i>
           {{ t('tabEdit') }}
         </p-tab>
       }
-      @if (admin() || canEditMetadata()) {
-        <p-tab value="match">
+      @if (canOpenTab(BookMetadataTab.Match)) {
+        <p-tab [value]="BookMetadataTab.Match">
           <i [class]="'pi pi-search'"></i>
           {{ t('tabSearch') }}
         </p-tab>
       }
-      @if (canShowSidecarTab) {
-        <p-tab value="sidecar">
+      @if (canOpenTab(BookMetadataTab.Sidecar)) {
+        <p-tab [value]="BookMetadataTab.Sidecar">
           <i [class]="'pi pi-file'"></i>
           {{ t('tabSidecar') }}
         </p-tab>
       }
     </p-tablist>
     <p-tabpanels class="tabpanels-responsive">
-      <p-tabpanel value="view">
+      <p-tabpanel [value]="BookMetadataTab.View">
         <app-metadata-viewer
           [book]="book()"
           [recommendedBooks]="recommendedBooks()">
         </app-metadata-viewer>
       </p-tabpanel>
-      @if (admin() || canEditMetadata()) {
-        <p-tabpanel value="edit">
+      @if (canOpenTab(BookMetadataTab.Edit)) {
+        <p-tabpanel [value]="BookMetadataTab.Edit">
           <app-metadata-editor
             [book]="book()">
           </app-metadata-editor>
         </p-tabpanel>
       }
-      @if (admin() || canEditMetadata()) {
-        <p-tabpanel value="match">
-          <app-metadata-searcher [book]="book()" [isActiveTab]="tab === 'match'"></app-metadata-searcher>
+      @if (canOpenTab(BookMetadataTab.Match)) {
+        <p-tabpanel [value]="BookMetadataTab.Match">
+          <app-metadata-searcher [book]="book()" [isActiveTab]="tab === BookMetadataTab.Match"></app-metadata-searcher>
         </p-tabpanel>
       }
-      @if (canShowSidecarTab) {
-        <p-tabpanel value="sidecar">
+      @if (canOpenTab(BookMetadataTab.Sidecar)) {
+        <p-tabpanel [value]="BookMetadataTab.Sidecar">
           <app-sidecar-viewer [book]="book()"></app-sidecar-viewer>
         </p-tabpanel>
       }

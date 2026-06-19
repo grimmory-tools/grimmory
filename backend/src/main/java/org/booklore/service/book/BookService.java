@@ -1,7 +1,6 @@
 package org.booklore.service.book;
 
 import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
@@ -31,6 +30,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -346,12 +346,12 @@ public class BookService {
         }
     }
 
-    public ResponseEntity<Resource> downloadBook(Long bookId) {
+    public ResponseEntity<StreamingResponseBody> downloadBook(Long bookId) {
         return bookDownloadService.downloadBook(bookId);
     }
 
-    public void downloadAllBookFiles(Long bookId, HttpServletResponse response) {
-        bookDownloadService.downloadAllBookFiles(bookId, response);
+    public ResponseEntity<StreamingResponseBody> downloadAllBookFiles(Long bookId) {
+        return bookDownloadService.downloadAllBookFiles(bookId);
     }
 
     public ResponseEntity<Resource> getBookContent(long bookId) {

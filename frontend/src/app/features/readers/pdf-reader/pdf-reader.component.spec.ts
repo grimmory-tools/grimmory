@@ -5,16 +5,11 @@ import {PdfReaderComponent} from './pdf-reader.component';
 interface PdfReaderHarness {
   embedPdfIframe: {contentWindow: {postMessage: ReturnType<typeof vi.fn>}} | null;
   embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
-  cachedPdfBuffer: ArrayBuffer | null;
   pdfBlobUrl: string | null;
   authService: {getInternalAccessToken: () => string | null};
   cacheStorageService: {delete: ReturnType<typeof vi.fn>};
   bookId: number;
   saveEmbedPdfDocument: () => Promise<boolean>;
-}
-
-function bytes(buffer: ArrayBuffer): number[] {
-  return Array.from(new Uint8Array(buffer));
 }
 
 function makeComponent(savedBuffer: ArrayBuffer): PdfReaderHarness {
@@ -26,7 +21,6 @@ function makeComponent(savedBuffer: ArrayBuffer): PdfReaderHarness {
       })
     }
   };
-  component.cachedPdfBuffer = new Uint8Array([9, 9, 9]).buffer;
   component.pdfBlobUrl = 'blob:old-pdf';
   component.authService = {getInternalAccessToken: () => null};
   component.cacheStorageService = {delete: vi.fn(() => Promise.resolve(true))};
@@ -76,8 +70,6 @@ describe('PdfReaderComponent save handling', () => {
 
     await expect(save).resolves.toBe(true);
 
-    expect(bytes(component.cachedPdfBuffer!)).toEqual([4, 5, 6]);
-    expect(component.cachedPdfBuffer).not.toBe(savedBuffer);
     expect(revokeObjectUrl).toHaveBeenCalledWith('blob:old-pdf');
     expect(createObjectUrl).toHaveBeenCalledTimes(1);
     expect(component.pdfBlobUrl).toBe('blob:saved-pdf');

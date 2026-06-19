@@ -9,16 +9,16 @@
     "filters": {
         "all": "Alle",
         "notStarted": "Nicht begonnen",
-        "inProgress": "In Bearbeitung",
+        "inProgress": "Im Gange",
         "completed": "Abgeschlossen",
         "abandoned": "Abgebrochen"
     },
     "sort": {
         "nameAsc": "Name (A-Z)",
         "nameDesc": "Name (Z-A)",
-        "bookCount": "Buchanzahl",
+        "bookCount": "Anzahl Bücher",
         "progress": "Fortschritt",
-        "recentlyRead": "Zuletzt gelesen",
-        "recentlyAdded": "Zuletzt hinzugefügt"
+        "recentlyRead": "Kürzlich gelesen",
+        "recentlyAdded": "Kürzlich hinzugefügt"
     }
 }

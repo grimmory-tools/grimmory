@@ -27,7 +27,7 @@ describe('app routes', () => {
     const shellRoute = routes.find(route => route.path === '' && Array.isArray(route.children));
     const children = shellRoute?.children ?? [];
 
-    expect(children).toHaveLength(17);
+    expect(children).toHaveLength(21);
     expect(shellRoute?.canActivateChild).toEqual([AuthChildGuard]);
     expect(children.find(route => route.path === 'dashboard')?.canActivate).toBeUndefined();
     expect(children.find(route => route.path === 'all-books')?.canActivate).toBeUndefined();
@@ -38,6 +38,10 @@ describe('app routes', () => {
     expect(typeof children.find(route => route.path === 'shelf/:shelfId/books')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'unshelved-books')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'design-system')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'design-system/form/library')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'design-system/form/device')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'design-system/form/everything')?.loadComponent).toBe('function');
   });
 
   it('defines guarded lazy routes for metadata, stats, and bookdrop', () => {

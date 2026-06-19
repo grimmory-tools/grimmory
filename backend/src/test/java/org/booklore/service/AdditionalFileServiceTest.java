@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -231,7 +231,7 @@ class AdditionalFileServiceTest {
         Long fileId = 1L;
         when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.empty());
 
-        ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
+        ResponseEntity<StreamingResponseBody> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
@@ -257,7 +257,7 @@ class AdditionalFileServiceTest {
             Path actualPath = entityWithNonExistentFile.getFullFilePath();
             filesMock.when(() -> Files.exists(actualPath)).thenReturn(false);
 
-            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
+            ResponseEntity<StreamingResponseBody> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
             assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
             assertNull(result.getBody());
@@ -277,7 +277,7 @@ class AdditionalFileServiceTest {
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.exists(fileEntity.getFullFilePath())).thenReturn(true);
 
-            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
+            ResponseEntity<StreamingResponseBody> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
             assertEquals(HttpStatus.OK, result.getStatusCode());
             assertNotNull(result.getBody());

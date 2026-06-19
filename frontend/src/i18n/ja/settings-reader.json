@@ -67,7 +67,11 @@
         "autoZoom": "自動ズーム",
         "pageFit": "ページフィット",
         "pageWidth": "ページ幅",
-        "actualSize": "実際のサイズ"
+        "actualSize": "実際のサイズ",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "コミックブックリーダー：デフォルト設定",
@@ -95,7 +99,10 @@
         "infinite": "無限",
         "gray": "グレー",
         "black": "ブラック",
-        "white": "ホワイト"
+        "white": "ホワイト",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "ストリーミングPDFリーダー：デフォルト設定",

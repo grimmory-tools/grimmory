@@ -10,6 +10,8 @@
         "authentication": "Autentikasi",
         "tasks": "Tugas",
         "opds": "OPDS",
-        "devices": "Perangkat"
+        "devices": "Perangkat",
+        "auditLogs": "",
+        "metadata2": ""
     }
 }

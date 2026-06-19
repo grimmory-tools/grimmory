@@ -1,1 +1,141 @@
-{}
+{
+    "filters": {
+        "allRead": "Alle gelesenen",
+        "hasPhoto": "Hat Foto",
+        "genre": "Genre",
+        "unread": "Ungelesen",
+        "unmatched": "Nicht übereinstimmend",
+        "readStatus": "Lesestatus",
+        "matchStatus": "Status der Übereinstimmung",
+        "photoStatus": "Foto Status",
+        "matched": "Übereinstimmend",
+        "all": "Alle",
+        "reset": "Filter zurücksetzen",
+        "library": "Bibliothek",
+        "someRead": "Teilweise gelesene",
+        "inProgress": "Im Gange",
+        "bookCount": "Anzahl Bücher",
+        "noPhoto": "Kein Foto"
+    },
+    "sort": {
+        "seriesCount": "Anzahl Serien",
+        "recentlyRead": "Kürzlich gelesen",
+        "name": "Name",
+        "avgRating": "Durchschnittliche Bewertung",
+        "matched": "Übereinstimmend",
+        "photo": "Foto",
+        "recentlyAdded": "Kürzlich hinzugefügt",
+        "readingProgress": "Lesefortschritt",
+        "bookCount": "Anzahl Bücher"
+    },
+    "editor": {
+        "lockAllBtn": "Alle sperren",
+        "uploadPhotoTooltip": "",
+        "lockField": "",
+        "saving": "",
+        "nameLabel": "",
+        "toast": {
+            "photoUploadErrorDetail": "",
+            "successDetail": "",
+            "errorDetail": "",
+            "photoUploadedDetail": "",
+            "errorSummary": "Aktualisierung fehlgeschlagen",
+            "successSummary": "Autor aktualisiert",
+            "photoUploadedSummary": ""
+        },
+        "saveBtn": "",
+        "searchPhotoTooltip": "Foto suchen",
+        "unlockField": "",
+        "unlockAllBtn": "Alle entsperren",
+        "searchPhotoTitle": "Nach Autorfoto suchen",
+        "asinLabel": "",
+        "descriptionLabel": ""
+    },
+    "toast": {
+        "deleteFailedSummary": "Löschvorgang fehlgeschlagen",
+        "deleteSelectedSuccessSummary": "Autoren gelöscht",
+        "deleteSelectedSuccessDetail": "Ausgewählte Autoren wurden erfolgreich gelöscht.",
+        "deleteSuccessDetail": "Autor wurde erfolgreich gelöscht.",
+        "quickMatchSuccessDetail": "",
+        "autoMatchSuccessDetail": "",
+        "autoMatchFailedDetail": "",
+        "quickMatchSuccessSummary": "",
+        "quickMatchFailedDetail": "",
+        "quickMatchFailedSummary": "",
+        "autoMatchSuccessSummary": "",
+        "deleteFailedDetail": "",
+        "autoMatchFailedSummary": "",
+        "deleteSuccessSummary": "Autor gelöscht"
+    },
+    "footer": {
+        "autoMatch": "",
+        "selected": "ausgewählt",
+        "selectAll": "Alle auswählen",
+        "deleteSelected": "Ausgewählte löschen",
+        "deselectAll": "Auswahl aufheben"
+    },
+    "photoSearch": {
+        "selectBtn": "",
+        "queryLabel": "",
+        "noResults": "",
+        "readyHint": "",
+        "resetTooltip": "",
+        "resultsFound": "",
+        "readyTitle": "",
+        "searchBtn": "",
+        "photoAlt": "",
+        "queryPlaceholder": "",
+        "noResultsHint": "",
+        "searching": ""
+    },
+    "match": {
+        "matchBtn": "",
+        "asinLabel": "",
+        "searchBtn": "",
+        "toast": {
+            "matchSuccessSummary": "",
+            "matchFailedSummary": "",
+            "searchFailedDetail": "",
+            "searchFailedSummary": "",
+            "matchFailedDetail": "",
+            "matchSuccessDetail": ""
+        },
+        "resultsFound": "",
+        "authorNameLabel": "",
+        "regionLabel": "",
+        "noResultsHint": "",
+        "readyToSearch": "",
+        "authorNamePlaceholder": "",
+        "searching": "",
+        "asinPlaceholder": "",
+        "readyToSearchHint": "",
+        "noResults": ""
+    },
+    "detail": {
+        "booksTab": "",
+        "quickMatchTooltip": "",
+        "showMore": "",
+        "noBooksFound": "",
+        "showLess": "",
+        "editTab": "",
+        "booksBy": "",
+        "loading": "",
+        "matchTab": ""
+    },
+    "card": {
+        "menu": {
+            "viewAuthor": "",
+            "quickMatch": "",
+            "editAuthor": "",
+            "deleteAuthor": ""
+        },
+        "book": "",
+        "books": "",
+        "matched": "",
+        "quickMatch": ""
+    },
+    "browseAllAuthors": "Alle Autoren durchsuchen",
+    "searchPlaceholder": "Nach Autorennamen suchen...",
+    "noAuthorsFound": "Keine Autoren stimmen mit der Suche überein.",
+    "pageTitle": "Autoren"
+}

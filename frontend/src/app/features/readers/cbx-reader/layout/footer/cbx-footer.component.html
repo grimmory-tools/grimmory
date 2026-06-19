@@ -1,4 +1,5 @@
-<div class="cbx-footer" [class.is-visible]="forceVisible()">
+<div class="cbx-footer" [class.is-visible]="forceVisible()"
+  (mouseenter)="hoverChange.emit(true)" (mouseleave)="hoverChange.emit(false)">
 
   @if (state().hasSeries) {
     <button

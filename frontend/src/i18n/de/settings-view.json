@@ -121,5 +121,37 @@
         "sidebarWidthDesc": "Steuert die Breite der Navigations-Seitenleiste und des Buchfilterpanels.",
         "saved": "Einstellungen aktualisiert",
         "savedDetail": "Ihre Seitenleistenbreiten-Einstellung wurde gespeichert."
+    },
+    "theme": {
+        "customPrimaryColors": {
+            "violet": "",
+            "pink": "",
+            "lime": "",
+            "sky": "",
+            "amber": "",
+            "rose": "",
+            "cyan": "",
+            "purple": "",
+            "fuchsia": "",
+            "blue": "",
+            "orange": "",
+            "green": "",
+            "red": "",
+            "yellow": "",
+            "indigo": "",
+            "emerald": "",
+            "teal": ""
+        },
+        "syncSavedDetail": "",
+        "savedDetail": "",
+        "customPrimaryOptionLabel": "",
+        "oledDarkMode": "",
+        "sectionTitle": "",
+        "sectionDesc": ""
+    },
+    "saveFailedDetail": "",
+    "language": {
+        "savedDetail": "",
+        "label": ""
     }
 }

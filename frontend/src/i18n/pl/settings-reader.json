@@ -67,7 +67,11 @@
         "autoZoom": "Auto powiększenie",
         "pageFit": "Dopasuj stronę",
         "pageWidth": "Szerokość strony",
-        "actualSize": "Rzeczywisty rozmiar"
+        "actualSize": "Rzeczywisty rozmiar",
+        "scrollLayoutDesc": "",
+        "vertical": "",
+        "horizontal": "",
+        "scrollLayout": ""
     },
     "cbx": {
         "sectionTitle": "Czytnik komiksów: Ustawienia domyślne",
@@ -95,7 +99,10 @@
         "infinite": "Nieskończony",
         "gray": "Szary",
         "black": "Czarny",
-        "white": "Biały"
+        "white": "Biały",
+        "stripMaxWidthDesc": "",
+        "stripMaxWidth": "",
+        "longStrip": ""
     },
     "streamingPdf": {
         "sectionTitle": "Strumieniowy czytnik PDF: Ustawienia domyślne",

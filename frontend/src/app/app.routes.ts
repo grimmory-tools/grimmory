@@ -53,6 +53,10 @@ export const routes: Routes = [
       {path: 'library-stats', loadComponent: () => import('./features/stats/component/library-stats/library-stats.component').then(m => m.LibraryStatsComponent), canActivate: [LibraryStatsGuard]},
       {path: 'reading-stats', loadComponent: () => import('./features/stats/component/user-stats/user-stats.component').then(m => m.UserStatsComponent), canActivate: [UserStatsGuard]},
       {path: 'notebook', loadComponent: () => import('./features/notebook/components/notebook/notebook.component').then(m => m.NotebookComponent)},
+      {path: 'design-system', loadComponent: () => import('./features/design-system/design-system.component').then(m => m.DesignSystemComponent)},
+      {path: 'design-system/form/library', loadComponent: () => import('./features/design-system/forms/library-form.component').then(m => m.LibraryFormExampleComponent)},
+      {path: 'design-system/form/device', loadComponent: () => import('./features/design-system/forms/device-form.component').then(m => m.DeviceFormExampleComponent)},
+      {path: 'design-system/form/everything', loadComponent: () => import('./features/design-system/forms/everything-form.component').then(m => m.EverythingFormExampleComponent)},
     ]
   },
   {

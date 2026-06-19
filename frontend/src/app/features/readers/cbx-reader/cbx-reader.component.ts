@@ -1859,6 +1859,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  onHeaderHovered(hovered: boolean): void {
+    this.visibilityManager.setHeaderHovered(hovered);
+  }
+
+  onFooterHovered(hovered: boolean): void {
+    this.visibilityManager.setFooterHovered(hovered);
+  }
+
   private handleSwipeGesture() {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 

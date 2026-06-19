@@ -32,6 +32,7 @@
     "libraries": "Libraries",
     "notSet": "Not set",
     "allLibrariesAdmin": "All libraries (Admin)",
+    "noLibrariesAssigned": "No libraries assigned",
     "selectLibraries": "Select Libraries",
     "enterFullName": "Enter full name",
     "enterEmail": "Enter email"

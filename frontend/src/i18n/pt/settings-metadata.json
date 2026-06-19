@@ -37,7 +37,9 @@
         "writeOnScanDesc": "Criar arquivos JSON sidecar quando os livros são adicionados pela primeira vez à biblioteca durante a verificação.",
         "includeCover": "Incluir Arquivo de Imagem da Capa",
         "includeCoverDesc": "Também salvar a imagem da capa como <code>NomeDoLivro.cover.jpg</code> ao lado do arquivo JSON sidecar.",
-        "loadError": "Falha ao carregar configurações."
+        "loadError": "Falha ao carregar configurações.",
+        "networkModeTitle": "",
+        "networkModeDesc": ""
     },
     "providers": {
         "sectionTitle": "Provedores de Metadados",
@@ -63,7 +65,38 @@
     },
     "fieldSelector": {
         "sectionTitle": "Campos Ativados no Editor e Seletor de Metadados",
-        "sectionDesc": "Selecione quais campos de metadados exibir ao editar informações do livro ou selecionar metadados de provedores. Campos desativados serão ocultados da interface."
+        "sectionDesc": "Selecione quais campos de metadados exibir ao editar informações do livro ou selecionar metadados de provedores. Campos desativados serão ocultados da interface.",
+        "fields": {
+            "amazonRating": "",
+            "asin": "",
+            "goodreadsRating": "",
+            "goodreadsReviewCount": "",
+            "hardcoverRating": "",
+            "hardcoverId": "",
+            "audibleRating": "",
+            "googleId": "",
+            "ranobedbId": "",
+            "amazonReviewCount": "",
+            "lubimyczytacId": "",
+            "ranobedbRating": "",
+            "lubimyczytacRating": "",
+            "comicvineId": "",
+            "hardcoverBookId": "",
+            "audibleReviewCount": "",
+            "hardcoverReviewCount": "",
+            "audibleId": "",
+            "goodreadsId": ""
+        },
+        "providers": {
+            "goodreads": "",
+            "amazon": "",
+            "googleBooks": "",
+            "lubimyczytac": "",
+            "hardcover": "",
+            "ranobedb": "",
+            "audible": "",
+            "comicvine": ""
+        }
     },
     "publicReviews": {
         "sectionTitle": "Avaliações Públicas",
@@ -89,6 +122,34 @@
         "saveSuccess": "Pesos salvos com sucesso",
         "saveError": "Falha ao salvar pesos",
         "recalcSuccess": "Todas as pontuações de correspondência dos livros foram recalculadas com sucesso.",
-        "recalcError": "Falha ao recalcular pontuações de correspondência."
+        "recalcError": "Falha ao recalcular pontuações de correspondência.",
+        "fields": {
+            "amazonReviewCount": "",
+            "hardcoverRating": "",
+            "doubanReviewCount": "",
+            "authors": "",
+            "seriesName": "",
+            "amazonRating": "",
+            "doubanRating": "",
+            "publisher": "",
+            "seriesTotal": "",
+            "language": "",
+            "coverImage": "",
+            "categories": "",
+            "subtitle": "",
+            "ranobedbRating": "",
+            "title": "",
+            "isbn10": "",
+            "publishedDate": "",
+            "goodreadsRating": "",
+            "seriesNumber": "",
+            "audibleReviewCount": "",
+            "isbn13": "",
+            "description": "",
+            "pageCount": "",
+            "hardcoverReviewCount": "",
+            "goodreadsReviewCount": "",
+            "audibleRating": ""
+        }
     }
 }

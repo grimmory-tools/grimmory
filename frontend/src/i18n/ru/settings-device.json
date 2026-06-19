@@ -104,7 +104,9 @@
         "autoAddEnabled": "Новые книги будут автоматически добавляться на полку Kobo",
         "autoAddDisabled": "Автоматическое добавление на полку Kobo отключено",
         "pros": "Преимущества:",
-        "cons": "Недостатки:"
+        "cons": "Недостатки:",
+        "forwardToKoboStore": "",
+        "forwardToKoboStoreDesc": ""
     },
     "hardcover": {
         "title": "Интеграция Hardcover",

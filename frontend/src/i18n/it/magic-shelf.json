@@ -106,7 +106,10 @@
         "seriesGaps": "Lacune serie",
         "seriesPosition": "Posizione serie",
         "readingProgress": "Progresso lettura (%)",
-        "metadataPresence": "Presenza metadati"
+        "metadataPresence": "Presenza metadati",
+        "audiobookBitrate": "",
+        "audiobookCodec": "",
+        "audiobookChapterCount": ""
     },
     "fieldGroups": {
         "organization": "Organizzazione",
@@ -257,7 +260,10 @@
         "comicColorists": "Coloristi",
         "comicLetterers": "Letteristi",
         "comicCoverArtists": "Copertinisti",
-        "comicEditors": "Editori"
+        "comicEditors": "Editori",
+        "audiobookCodec": "",
+        "audiobookBitrate": "",
+        "audiobookChapterCount": ""
     },
     "toast": {
         "validationErrorSummary": "Errore di validazione",
@@ -266,5 +272,14 @@
         "successDetail": "Scaffale magico salvato con successo.",
         "errorSummary": "Errore",
         "errorDetailDefault": "Salvataggio scaffale magico fallito."
+    },
+    "importJson": {
+        "buttonLabel": "",
+        "successDetail": "",
+        "structureError": "",
+        "emptyError": "",
+        "apply": "",
+        "placeholder": "",
+        "parseError": ""
     }
 }

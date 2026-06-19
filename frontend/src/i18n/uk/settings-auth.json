@@ -127,5 +127,14 @@
         "backdoorHint": "Адмінський backdoor: відкрийте /login?local=true для локального входу.",
         "saved": "Режим лише OIDC оновлено.",
         "error": "Не вдалося оновити режим лише OIDC."
+    },
+    "mobileRedirectUris": {
+        "placeholder": "",
+        "removeLabel": "",
+        "title": "",
+        "label": "",
+        "hintSuffix": "",
+        "description": "",
+        "hintPrefix": ""
     }
 }

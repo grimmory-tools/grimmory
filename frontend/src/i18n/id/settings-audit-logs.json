@@ -1,3 +1,19 @@
 {
-    "title": "Log Audit"
+    "title": "Log Audit",
+    "columns": {
+        "timestamp": "",
+        "action": "",
+        "ip": "",
+        "user": "",
+        "description": ""
+    },
+    "filterPlaceholder": "",
+    "pageReport": "",
+    "description": "",
+    "dateRangePlaceholder": "",
+    "clearFilters": "",
+    "sectionTitle": "",
+    "empty": "",
+    "autoRefresh": "",
+    "userFilterPlaceholder": ""
 }

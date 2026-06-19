@@ -94,4 +94,65 @@ describe('LibrariesSummaryService', () => {
     });
     expect(service.formattedSize()).toBe('1.00 GB');
   });
+
+  it('uses primary file size when the book does not expose a top-level file size', () => {
+    books.set([
+      {
+        id: 1,
+        libraryId: 1,
+        libraryName: 'Alpha',
+        primaryFile: {
+          bookId: 1,
+          fileSizeKb: 2048,
+        },
+        metadata: {
+          bookId: 1,
+          authors: ['Alice'],
+        },
+      } as Book,
+    ]);
+
+    const service = TestBed.inject(LibrariesSummaryService);
+
+    expect(service.booksSummary()).toEqual({
+      totalBooks: 1,
+      totalSizeKb: 2048,
+      totalAuthors: 1,
+      totalSeries: 0,
+      totalPublishers: 0,
+    });
+    expect(service.formattedSize()).toBe('2.00 MB');
+  });
+
+  it('prioritizes top-level file size when the book has a primary file size', () => {
+    books.set([
+      {
+        id: 1,
+        libraryId: 1,
+        libraryName: 'Alpha',
+        primaryFile: {
+          bookId: 1,
+          fileSizeKb: 2048,
+        },
+        fileSizeKb: 4096,
+        metadata: {
+          bookId: 1,
+          authors: ['Alice'],
+        },
+      } as Book,
+    ]);
+
+    const service = TestBed.inject(LibrariesSummaryService);
+
+    expect(service.booksSummary()).toEqual({
+      totalBooks: 1,
+      totalSizeKb: 4096,
+      totalAuthors: 1,
+      totalSeries: 0,
+      totalPublishers: 0,
+    });
+    expect(service.formattedSize()).toBe('4.00 MB');
+  });
+
+
 });

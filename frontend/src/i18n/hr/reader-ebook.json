@@ -136,7 +136,9 @@
         "searchInBook": "Pretraži u knjizi",
         "annotate": "Označi",
         "addNote": "Dodaj bilješku",
-        "deleteAnnotation": "Obriši oznaku"
+        "deleteAnnotation": "Obriši oznaku",
+        "goToLink": "",
+        "removeLink": ""
     },
     "shortcutsHelp": {
         "title": "Tipkovnički prečaci",
@@ -156,7 +158,8 @@
         "other": "Ostalo",
         "showHelpDialog": "Prikaži ovaj dijalog pomoći",
         "swipeRight": "Povucite desno",
-        "swipeLeft": "Povucite lijevo"
+        "swipeLeft": "Povucite lijevo",
+        "toggleImmersive": ""
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Preostalo vrijeme u odjeljku: {{ time }}"

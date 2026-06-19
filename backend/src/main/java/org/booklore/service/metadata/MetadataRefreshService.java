@@ -365,6 +365,9 @@ public class MetadataRefreshService {
             addProviderToSet(fieldOptions.getLubimyczytacRating(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getRanobedbId(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getRanobedbRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleId(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getAudibleReviewCount(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getMoods(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getTags(), uniqueProviders, appSettings);
         }
@@ -396,6 +399,7 @@ public class MetadataRefreshService {
             case Ranobedb -> settings.getRanobedb() != null && settings.getRanobedb().isEnabled();
             case Douban -> settings.getDouban() != null && settings.getDouban().isEnabled();
             case Lubimyczytac -> settings.getLubimyczytac() != null && settings.getLubimyczytac().isEnabled();
+            case Audible -> settings.getAudible() != null && settings.getAudible().isEnabled();
             default -> true;
         };
     }
@@ -654,6 +658,30 @@ public class MetadataRefreshService {
             }
         } else if (isReplaceAll && existingMetadata != null) {
             metadata.setRanobedbRating(existingMetadata.getRanobedbRating());
+        }
+
+        if (enabledFields.isAudibleId()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleId(metadataMap.get(Audible).getAudibleId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleId(existingMetadata.getAudibleId());
+        }
+
+        if (enabledFields.isAudibleRating()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleRating(metadataMap.get(Audible).getAudibleRating());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleRating(existingMetadata.getAudibleRating());
+        }
+
+        if (enabledFields.isAudibleReviewCount()) {
+            if (metadataMap.containsKey(Audible)) {
+                metadata.setAudibleReviewCount(metadataMap.get(Audible).getAudibleReviewCount());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setAudibleReviewCount(existingMetadata.getAudibleReviewCount());
         }
 
         if (enabledFields.isMoods()) {

@@ -412,21 +412,18 @@ public class BookDropService {
     }
 
     private BookdropFileResult performFileMove(BookdropFileEntity bookdropFile, Path source, Path target, LibraryEntity library, LibraryPathEntity path, BookMetadata metadata) {
-        Path tempPath = null;
         try {
-            String suffix = "";
-            String fileName = bookdropFile.getFileName();
-            int lastDotIndex = fileName.lastIndexOf('.');
-            if (lastDotIndex >= 0) {
-                suffix = fileName.substring(lastDotIndex);
-            }
-            tempPath = Files.createTempFile("bookdrop-finalize-", suffix);
-            Files.copy(source, tempPath, StandardCopyOption.REPLACE_EXISTING);
-
             Files.createDirectories(target.getParent());
-            Files.move(tempPath, target, StandardCopyOption.REPLACE_EXISTING);
 
-            log.info("Moved file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
+            // We used to use `Files.copy` to copy from `/bookdrop` to tmp, then used `Files.move`
+            // to get the file to its target destination.  However, there seemed to be a bug
+            // that caused moves between filesystems to end up with a file at the target
+            // with 0 bytes.
+            //
+            // Instead, we are using `Files.copy` directly
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+            log.info("Copied file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
 
             BookdropFileResult result;
             try {
@@ -453,8 +450,6 @@ public class BookDropService {
             log.error("Failed to move file id={}, name={} from '{}' to '{}': {}", bookdropFile.getId(), bookdropFile.getFileName(), source, target, e.getMessage(), e);
             cleanupFailedMove(target);
             return failureResult(bookdropFile.getFileName(), "Failed to move file: " + e.getMessage());
-        } finally {
-            cleanupTempFile(tempPath);
         }
     }
 
@@ -529,16 +524,6 @@ public class BookDropService {
             }
         } catch (IOException e) {
             log.warn("Failed to cleanup partially created target file: {}: {}", target, e.getMessage());
-        }
-    }
-
-    private void cleanupTempFile(Path tempPath) {
-        if (tempPath != null) {
-            try {
-                Files.deleteIfExists(tempPath);
-            } catch (Exception e) {
-                log.warn("Failed to cleanup temp file: {}", tempPath, e);
-            }
         }
     }
 

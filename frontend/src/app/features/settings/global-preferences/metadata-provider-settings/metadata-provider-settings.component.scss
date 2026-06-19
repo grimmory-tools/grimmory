@@ -159,3 +159,32 @@
   padding-top: 0.4375rem;
   border-top: 1px solid var(--p-content-border-color);
 }
+
+.warning-notice {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  @include settings.settings-warning-notice;
+}
+
+.warning-notice-danger {
+  border-left-color: var(--color-red-700);
+  color: var(--color-red-700);
+
+  .pi,
+  strong {
+    color: var(--color-red-700);
+  }
+}
+
+:host-context(.dark) {
+  .warning-notice-danger {
+    border-left-color: var(--color-red-300);
+    color: var(--color-red-300);
+
+    .pi,
+    strong {
+      color: var(--color-red-300);
+    }
+  }
+}

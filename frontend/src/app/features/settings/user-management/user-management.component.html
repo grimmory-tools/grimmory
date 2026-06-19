@@ -34,7 +34,7 @@
     </div>
 
     <div class="section-body">
-      @if (users.length === 0) {
+      @if (users().length === 0) {
         <div class="empty-state">
           <i class="pi pi-users"></i>
           <p class="empty-title">{{ t('emptyState.title') }}</p>
@@ -42,7 +42,7 @@
         </div>
       } @else {
         <div class="users-list">
-          @for (user of users; track user.id) {
+          @for (user of users(); track user.id) {
             <div class="user-card" [class.is-expanded]="isRowExpanded(user)" [class.is-admin]="user.permissions.admin">
               <div class="user-card-header">
                 <div class="user-main-info">
@@ -163,6 +163,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="saveUser(user)"
+                      [disabled] = "!editUserBtnEnabled(user)"
                       [pTooltip]="t('actions.saveChanges')">
                     </p-button>
                     <p-button
@@ -215,8 +216,16 @@
                             appendTo="body"
                             [disabled]="user.permissions.admin">
                           </p-multiSelect>
+                          @if (editingLibraryIds.length === 0 && !user.permissions.admin) {
+                            <div class="form-field">
+                            <small class="field-error">
+                              <i class="pi pi-exclamation-circle"></i>
+                              {{ t('createDialog.libraryRequired') }}
+                            </small>
+                            </div>
+                          }
                         } @else {
-                          <span>{{ user.libraryNames || t('userInfo.allLibrariesAdmin') }}</span>
+                          <span>{{ getLibraryAccessLabel(user) }}</span>
                         }
                       </div>
                     </div>

@@ -22,6 +22,7 @@ import org.booklore.service.komga.KomgaService;
 import org.booklore.service.opds.OpdsUserV2Service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -185,7 +186,7 @@ public class KomgaController {
 
     @Operation(summary = "Download book file")
     @GetMapping("/v1/books/{bookId}/file")
-    public ResponseEntity<Resource> downloadBook(
+    public ResponseEntity<StreamingResponseBody> downloadBook(
             @Parameter(description = "Book ID") @PathVariable Long bookId) {
         validateBookContentAccess(bookId);
 

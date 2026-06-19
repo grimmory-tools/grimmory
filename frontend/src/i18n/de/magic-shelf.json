@@ -279,6 +279,7 @@
         "emptyError": "Bitte fügen Sie zunächst eine JSON-Konfiguration ein.",
         "parseError": "Ungültiges JSON. Bitte überprüfen Sie die Syntax und versuchen Sie es erneut.",
         "structureError": "Die Struktur ist ungültig. Die JSON-Datei muss „type“: „group“ und ein „rules“-Array enthalten.",
-        "successDetail": "Die Regeln wurden erfolgreich importiert. Bitte überprüfen Sie diese und speichern Sie sie, sobald Sie fertig sind."
+        "successDetail": "Die Regeln wurden erfolgreich importiert. Bitte überprüfen Sie diese und speichern Sie sie, sobald Sie fertig sind.",
+        "placeholder": ""
     }
 }

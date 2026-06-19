@@ -35,7 +35,7 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@4bc351f7f2614e48088386e2a0ad917ca3a7e4ba # v2.81.5
+        uses: taiki-e/install-action@15449e3094499af05d8d964a1c884208e4b8b595 # v2.81.11
         with:
           tool: just
 
@@ -74,7 +74,7 @@ jobs:
         continue-on-error: true
 
       - name: Publish Backend Test Results
-        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
           files: backend/build/test-results/**/*.xml
@@ -121,12 +121,12 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@4bc351f7f2614e48088386e2a0ad917ca3a7e4ba # v2.81.5
+        uses: taiki-e/install-action@15449e3094499af05d8d964a1c884208e4b8b595 # v2.81.11
         with:
           tool: just
 
       - name: Set Up pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
       - name: Set Up Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -150,7 +150,7 @@ jobs:
         continue-on-error: true
 
       - name: Publish Frontend Test Results
-        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
           files: frontend/test-results/vitest-results.xml

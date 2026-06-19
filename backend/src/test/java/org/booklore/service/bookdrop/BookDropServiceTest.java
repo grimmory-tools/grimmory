@@ -18,7 +18,6 @@ import org.booklore.repository.BookdropFileRepository;
 import org.booklore.repository.LibraryPathRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
-import org.booklore.service.event.BookAddedEvent;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -268,10 +267,8 @@ class BookDropServiceTest {
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.createTempFile(anyString(), anyString())).thenReturn(tempDir.resolve("temp-file"));
             filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any())).thenReturn(1024L);
             filesMock.when(() -> Files.createDirectories(any(Path.class))).thenReturn(tempDir);
-            filesMock.when(() -> Files.move(any(Path.class), any(Path.class), any())).thenReturn(tempDir);
             filesMock.when(() -> Files.deleteIfExists(any(Path.class))).thenReturn(true);
 
             BookdropFinalizeResult result = bookDropService.finalizeImport(request);
@@ -435,7 +432,7 @@ class BookDropServiceTest {
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.createTempFile(anyString(), anyString()))
+            filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any()))
                     .thenThrow(new IOException("Disk full"));
 
             BookdropFinalizeResult result = bookDropService.finalizeImport(request);
@@ -490,16 +487,13 @@ class BookDropServiceTest {
         when(appProperties.getPathConfig()).thenReturn(tempDir.toString());
 
         Path sourcePath = Path.of(bookdropFileEntity.getFilePath());
-        Path tempPath = tempDir.resolve("temp-file");
         Path targetPath = tempDir.resolve("moved-book.pdf");
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.createTempFile(anyString(), anyString())).thenReturn(tempPath);
-            filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any())).thenReturn(tempPath);
+            filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any())).thenReturn(targetPath);
             filesMock.when(() -> Files.createDirectories(any(Path.class))).thenReturn(tempDir);
-            filesMock.when(() -> Files.move(any(Path.class), any(Path.class), any())).thenReturn(targetPath);
-            
+
             BookdropFinalizeResult result = bookDropService.finalizeImport(request);
 
             assertNotNull(result);
@@ -536,16 +530,13 @@ class BookDropServiceTest {
         when(processor.processFile(any())).thenThrow(new RuntimeException("Processing failed"));
 
         Path sourcePath = Path.of(bookdropFileEntity.getFilePath());
-        Path tempPath = tempDir.resolve("temp-file");
         Path targetPath = tempDir.resolve("moved-book.pdf");
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.createTempFile(anyString(), anyString())).thenReturn(tempPath);
-            filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any())).thenReturn(tempPath);
+            filesMock.when(() -> Files.copy(any(Path.class), any(Path.class), any())).thenReturn(targetPath);
             filesMock.when(() -> Files.createDirectories(any(Path.class))).thenReturn(tempDir);
-            filesMock.when(() -> Files.move(any(Path.class), any(Path.class), any())).thenReturn(targetPath);
-            
+
             filesMock.when(() -> Files.deleteIfExists(targetPath)).thenReturn(true);
 
             BookdropFinalizeResult result = bookDropService.finalizeImport(request);

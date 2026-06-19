@@ -37,7 +37,9 @@
         "writeOnScanDesc": "扫描期间首次将书籍添加到书库时创建 Sidecar JSON 文件。",
         "includeCover": "包含封面图片文件",
         "includeCoverDesc": "同时将封面图片保存为 Sidecar JSON 文件旁的 <code>BookName.cover.jpg</code>。",
-        "loadError": "加载设置失败。"
+        "loadError": "加载设置失败。",
+        "networkModeTitle": "",
+        "networkModeDesc": ""
     },
     "providers": {
         "sectionTitle": "元数据提供商",
@@ -63,7 +65,38 @@
     },
     "fieldSelector": {
         "sectionTitle": "元数据编辑器和选择器中的启用字段",
-        "sectionDesc": "选择编辑书籍信息或从提供商选择元数据时显示哪些元数据字段。禁用的字段将从界面中隐藏。"
+        "sectionDesc": "选择编辑书籍信息或从提供商选择元数据时显示哪些元数据字段。禁用的字段将从界面中隐藏。",
+        "fields": {
+            "amazonRating": "",
+            "asin": "",
+            "goodreadsRating": "",
+            "goodreadsReviewCount": "",
+            "hardcoverRating": "",
+            "hardcoverId": "",
+            "audibleRating": "",
+            "googleId": "",
+            "ranobedbId": "",
+            "amazonReviewCount": "",
+            "lubimyczytacId": "",
+            "ranobedbRating": "",
+            "lubimyczytacRating": "",
+            "comicvineId": "",
+            "hardcoverBookId": "",
+            "audibleReviewCount": "",
+            "hardcoverReviewCount": "",
+            "audibleId": "",
+            "goodreadsId": ""
+        },
+        "providers": {
+            "goodreads": "",
+            "amazon": "",
+            "googleBooks": "",
+            "lubimyczytac": "",
+            "hardcover": "",
+            "ranobedb": "",
+            "audible": "",
+            "comicvine": ""
+        }
     },
     "publicReviews": {
         "sectionTitle": "公开评论",
@@ -89,6 +122,34 @@
         "saveSuccess": "权重保存成功",
         "saveError": "保存权重失败",
         "recalcSuccess": "所有书籍的匹配分数已成功重新计算。",
-        "recalcError": "重新计算匹配分数失败。"
+        "recalcError": "重新计算匹配分数失败。",
+        "fields": {
+            "amazonReviewCount": "",
+            "hardcoverRating": "",
+            "doubanReviewCount": "",
+            "authors": "",
+            "seriesName": "",
+            "amazonRating": "",
+            "doubanRating": "",
+            "publisher": "",
+            "seriesTotal": "",
+            "language": "",
+            "coverImage": "",
+            "categories": "",
+            "subtitle": "",
+            "ranobedbRating": "",
+            "title": "",
+            "isbn10": "",
+            "publishedDate": "",
+            "goodreadsRating": "",
+            "seriesNumber": "",
+            "audibleReviewCount": "",
+            "isbn13": "",
+            "description": "",
+            "pageCount": "",
+            "hardcoverReviewCount": "",
+            "goodreadsReviewCount": "",
+            "audibleRating": ""
+        }
     }
 }
