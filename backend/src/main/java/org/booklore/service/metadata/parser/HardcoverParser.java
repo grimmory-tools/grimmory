@@ -283,21 +283,24 @@ public class HardcoverParser implements BookParser {
         return metadata;
     }
 
-    private BookMetadata mapEditions(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition,
+    private BookMetadata mapEditions(GraphQLResponse.Edition edition,
             BookMetadata metadata) {
 
-        metadata.setTitle(edition.getTitle());
-        metadata.setSubtitle(edition.getSubtitle());
-
-        metadata.setPageCount(edition.getPages());
-        mapIsbn(metadata, edition);
-
-        mapLanguage(metadata, edition);
-        mapPublisher(metadata, edition);
-
-        mapEditionReleaseDate(metadata, edition);
-        mapCachedContributors(metadata, book, edition);
-
+        if (metadata.getIsbn13() == null || metadata.getIsbn13().isBlank()) {
+            mapIsbn(metadata, edition);
+        }
+        if (metadata.getLanguage() == null || metadata.getLanguage().isBlank()) {
+            mapLanguage(metadata, edition);
+        }
+        if (metadata.getPublisher() == null || metadata.getPublisher().isBlank() ) {
+            mapPublisher(metadata, edition);
+        }
+        if (metadata.getPublishedDate() == null) {
+            mapEditionReleaseDate(metadata, edition);
+        }
+        if (metadata.getAuthors() == null || metadata.getAuthors().isEmpty()) {
+            mapCachedContributors(metadata, edition);
+        }
         return metadata;
     }
 
