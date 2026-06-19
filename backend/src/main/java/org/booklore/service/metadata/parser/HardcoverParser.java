@@ -50,12 +50,12 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<BookMetadata> searchByIsbn(FetchMetadataRequest request) {
-        List<String> isbnCleaned = new ArrayList<>();
 
-        isbnCleaned.add(ParserUtils.cleanIsbn(request.getIsbn()));
-        if (isbnCleaned == null) {
+        String cleanedIsbn = ParserUtils.cleanIsbn(request.getIsbn());
+        if (cleanedIsbn == null || cleanedIsbn.isBlank()) {
             return Collections.emptyList();
         }
+        List<String> isbnCleaned = List.of(cleanedIsbn);
 
         log.info("Hardcover: Fetching metadata using ISBN {}", isbnCleaned.get(0));
         List<GraphQLResponse.BookWithEditions> hits = hardcoverBookSearchService.searchBookByIsbn(isbnCleaned);
@@ -164,7 +164,7 @@ public class HardcoverParser implements BookParser {
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
         String searchAuthorLowercase = searchAuthor.toLowerCase();
         for (GraphQLResponse.Document doc : docs) {
-            if (doc.getAuthorNames().isEmpty()) {
+            if (doc.getAuthorNames() == null || doc.getAuthorNames().isEmpty()) {
                 doc.setLevenshteinDistanceAuthor(Double.MAX_VALUE);
                 continue;
             }
@@ -191,8 +191,7 @@ public class HardcoverParser implements BookParser {
         double threshold = searchAuthor.length()*0.8;
 
         //Try to return the searches where the distance is no greater than aproximately the length of the search term
-        return best < threshold
-            ? docs
+        return best > threshold
             : docs.stream()
             .filter(doc -> doc.getLevenshteinDistanceAuthor() <= threshold)
             .toList();
@@ -203,7 +202,8 @@ public class HardcoverParser implements BookParser {
 
         String searchTitleLower = searchTitle.toLowerCase();
         for (GraphQLResponse.Document doc : docs) {
-            if (doc.getTitle().isEmpty()) {
+            if (doc.getTitle() == null || doc.getTitle().isBlank()) {
+                doc.setLevenshteinDistanceTitle(Double.MAX_VALUE);
                 continue;
             }
             // calculate the lev.dist for the Work-level title and the search provided term
@@ -219,8 +219,10 @@ public class HardcoverParser implements BookParser {
                         .min(Double::compare)
                         .orElse(Integer.MAX_VALUE);
             }
+
             // (minTitleDist+minAltTitleDist)/1+userCount. best scores should approach 0
-            doc.setLevenshteinDistanceTitle((totalScore+1)/(doc.getUsersCount()+1));
+            int usersCount = doc.getUsersCount() == null ? 0 : doc.getUsersCount();
+            doc.setLevenshteinDistanceTitle((totalScore + 1)/(usersCount + 1));
         }
         return docs.stream().toList();
     }
@@ -299,7 +301,11 @@ public class HardcoverParser implements BookParser {
     private List<GraphQLResponse.BookWithEditions> filterEditionsByLanguage(List<GraphQLResponse.BookWithEditions> results, GraphQLResponse.BookWithEditions result){
         String localeLanguage = Locale.getDefault().getLanguage();
 
-        List<GraphQLResponse.Edition> filteredEditions = results.getFirst().getEditions().stream()
+        if (result.getEditions() == null || result.getEditions().isEmpty()) {
+            return results;
+        }
+
+        List<GraphQLResponse.Edition> filteredEditions = result.getEditions().stream()
                 .filter(edition -> {
                     String languageCode = edition.getLanguage() != null
                             ? edition.getLanguage().getCode2()
@@ -415,13 +421,13 @@ public class HardcoverParser implements BookParser {
     }
 
     private void mapSeriesInfo(BookMetadata metadata, GraphQLResponse.BookWithEditions book) {
-        if (book.getFeaturedBookSeries() == null) {
-            return;
+        if (book.getFeaturedBookSeries() == null || book.getFeaturedBookSeries().getSeries() == null) {
+
+                return;
         }
-        if (book.getFeaturedBookSeries() != null) {
-            metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
-            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
-        }
+        metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
+        metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
+
         if (book.getFeaturedBookSeries().getPosition() != null) {
             try {
                 metadata.setSeriesNumber(Float.parseFloat(String.valueOf(book.getFeaturedBookSeries().getPosition())));

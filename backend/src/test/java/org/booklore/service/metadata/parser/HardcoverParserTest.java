@@ -46,6 +46,8 @@ import static org.mockito.Mockito.*;
  */
 class HardcoverParserTest {
     private static final Logger log = LoggerFactory.getLogger(HardcoverParserTest.class);
+    private Locale previousDefaultLocale;
+
     @Mock
     private HardcoverBookSearchService hardcoverBookSearchService;
 
@@ -58,11 +60,13 @@ class HardcoverParserTest {
         MockitoAnnotations.openMocks(this);
         parser = new HardcoverParser(hardcoverBookSearchService);
         mockJsoup = mockStatic(Jsoup.class);
+        previousDefaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.ENGLISH);
     }
 
     @AfterEach
     void tearDown() {
+        Locale.setDefault(previousDefaultLocale);
         mockJsoup.close();
     }
 
