@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
 
+
 /**
  * Unit tests for HardcoverParser.
  * <p>
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.*;
  * - Author filtering logic
  * - Mood/genre/tag mapping with quality filtering
  * - Edge cases and error handling
+ * - Edition filtering logic
  */
 class HardcoverParserTest {
 
@@ -703,171 +705,170 @@ class HardcoverParserTest {
         }
     }
 
-    private GraphQLResponse.Hit createHitWithAuthor(String title, String author) {
-        GraphQLResponse.Document doc = new GraphQLResponse.Document();
-        doc.setTitle(title);
-        doc.setSlug(title.toLowerCase().replace(" ", "-"));
-        doc.setAuthorNames(Set.of(author));
-        doc.setId(String.valueOf(new Random().nextInt(100000)));
+    @Nested
+    @DisplayName("Edition Filtering Tests")
+        class EditionFilteringTests{
 
-        GraphQLResponse.Hit hit = new GraphQLResponse.Hit();
-        hit.setDocument(doc);
-        return hit;
+        @Test
+        @DisplayName("Should Return Audiobooks when file format is provided")
+        void fetchAudiobookEditions_whenFormat_returnsList(){
+
+            BookFile file = BookFile.builder()
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .build();
+            Book book = Book.builder()
+                    .title("Ready Player One")
+                    .primaryFile(file)
+                    .build();
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
+
+            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
+            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
+
+            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
+            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(goodHit);
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
+            List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
+            assertThat(results.get(0).getIsbn10()).isEqualTo("0307913147");
+            assertThat(results.get(0).getIsbn13()).isEqualTo("9780307913142");
+        }
+
+        @Test
+        @DisplayName("Should Return Original list if no file format is provided")
+        void fetchEditions_whenNoFormat_returnsList(){
+
+            Book book = Book.builder()
+                    .title("Ready Player One")
+                    .build();
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
+
+            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
+            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
+
+            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
+            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(goodHit);
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
+            List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
+            assertThat(results.get(0).getIsbn10()).isEqualTo("030788743X");
+            assertThat(results.get(0).getIsbn13()).isEqualTo("9780307887436");
+        }
+
+        @Test
+        @DisplayName("Should Return only French editions when locale is provided")
+        void fetchEditions_whenNonEnglish_returnsList(){
+            Locale.setDefault(Locale.FRENCH);
+            Book book = Book.builder()
+                    .title("Ready Player One")
+                    .build();
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
+
+            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
+            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
+
+            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
+            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(goodHit);
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
+            List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
+            assertThat(results.get(0).getIsbn10()).isEqualTo("2266242334");
+            assertThat(results.get(0).getIsbn13()).isEqualTo("9782266242332");
+            assertThat(results.get(0).getLanguage()).isEqualTo("fr");
+        }
+
+        @Test
+        @DisplayName("Should Return Original list if no editions for provied locale are found")
+        void fetchEditions_whenNoLocale_returnsList(){
+            Locale.setDefault(Locale.ROOT);
+            Book book = Book.builder()
+                    .title("Ready Player One")
+                    .build();
+            FetchMetadataRequest request = FetchMetadataRequest.builder()
+                    .title("Ready Player One")
+                    .author("Ernest Cline")
+                    .build();
+
+            List<GraphQLResponse.Hit> badHit = new ArrayList<>();
+            badHit.add(createHitWithAuthor("Ready Player One", "Random Person", "0"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One", "Ernest Cline"))
+                    .thenReturn(badHit); // Returns a hit, but fuzzy score will fail or simple check will fail
+
+            List<GraphQLResponse.Hit> goodHit = new ArrayList<>();
+            goodHit.add(createHitWithAuthor("Ready Player One", "Ernest Cline", "26363"));
+            when(hardcoverBookSearchService.searchBooks("Ready Player One"))
+                    .thenReturn(goodHit);
+
+            String booksFixture = readFixture("example-results.json");
+            List<GraphQLResponse.BookWithEditions> books = parseBooks(booksFixture);
+
+            when(hardcoverBookSearchService.searchBookByHcid((List<Integer>) any()))
+                    .thenReturn(books);
+
+            // Act
+            List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+            // Assert
+            verify(hardcoverBookSearchService).searchBooks("Ready Player One");
+
+            assertThat(results.get(0).getTitle()).isEqualTo("Ready Player One");
+            assertThat(results.get(0).getIsbn10()).isEqualTo("030788743X");
+            assertThat(results.get(0).getIsbn13()).isEqualTo("9780307887436");
+        }
     }
 
-    private GraphQLResponse.Hit createFullyPopulatedHit() {
-        GraphQLResponse.Document doc = new GraphQLResponse.Document();
-        doc.setId("12345");
-        doc.setSlug("test-book-slug");
-        doc.setTitle("Test Book");
-        doc.setSubtitle("A Subtitle");
-        doc.setDescription("A description");
-        doc.setAuthorNames(Set.of("Test Author"));
-        doc.setRating(4.25);
-        doc.setRatingsCount(100);
-        doc.setPages(350);
-        doc.setReleaseDate("2023-01-15");
-        doc.setIsbns(List.of("9781111111113", "1111111111", "9781234567897", "123456789X", "9791111111112"));
-        doc.setGenres(List.of("Fiction", "Fantasy"));
-        doc.setMoods(List.of("adventurous", "exciting"));
-        doc.setTags(List.of("Epic"));
-
-        // Series info
-        GraphQLResponse.Series series = new GraphQLResponse.Series();
-        series.setName("Test Series");
-        series.setBooksCount(5);
-        series.setPrimaryBooksCount(3);
-
-        GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
-        featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2f);
-        doc.setFeaturedSeries(featuredSeries);
-
-        // Image
-        GraphQLResponse.Image image = new GraphQLResponse.Image();
-        image.setUrl("https://example.com/cover.jpg");
-        doc.setImage(image);
-
-        GraphQLResponse.Hit hit = new GraphQLResponse.Hit();
-        hit.setDocument(doc);
-        return hit;
-    }
-
-    private HardcoverBookDetails createBookDetailsWithMoodCounts() {
-        HardcoverBookDetails details = new HardcoverBookDetails();
-        details.setId(12345);
-        details.setTitle("Test Book");
-
-        Map<String, List<HardcoverCachedTag>> cachedTags = new HashMap<>();
-
-        List<HardcoverCachedTag> moods = new ArrayList<>();
-        moods.add(createCachedTag("sad", 15));
-        moods.add(createCachedTag("dark", 12));
-        moods.add(createCachedTag("emotional", 8));
-        moods.add(createCachedTag("funny", 2));  // Low count, should be filtered
-        cachedTags.put("Mood", moods);
-
-        List<HardcoverCachedTag> genres = new ArrayList<>();
-        genres.add(createCachedTag("Fiction", 10));
-        genres.add(createCachedTag("Drama", 8));
-        cachedTags.put("Genre", genres);
-
-        details.setCachedTags(cachedTags);
-        return details;
-    }
-
-    private GraphQLResponse.BookWithEditions createBookWithEditions() {
-        GraphQLResponse.BookWithEditions book = new GraphQLResponse.BookWithEditions();
-
-        book.setId(12345);
-        book.setSlug("test-book-slug");
-        book.setTitle("Test Book");
-        book.setSubtitle("A Subtitle");
-        book.setDescription("A description");
-        book.setRating(4.25);
-        book.setRatingsCount(100);
-        book.setReviewsCount(50);
-        book.setPages(350);
-        book.setReleaseDate("2023-01-15");
-        book.setReleaseYear(2023);
-
-        // Series info
-        GraphQLResponse.Series series = new GraphQLResponse.Series();
-        series.setName("Test Series");
-        series.setBooksCount(5);
-        series.setPrimaryBooksCount(3);
-
-        GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
-        featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2f);
-        book.setFeaturedBookSeries(featuredSeries);
-
-        GraphQLResponse.Image image = new GraphQLResponse.Image();
-        image.setUrl("https://example.com/cover.jpg");
-        book.setImage(image);
-
-        // Cached contributors for the book
-        GraphQLResponse.Author bookAuthor = new GraphQLResponse.Author();
-        bookAuthor.setId(1);
-        bookAuthor.setSlug("test-author");
-        bookAuthor.setName("Test Author");
-
-        GraphQLResponse.Contributor bookContributor = new GraphQLResponse.Contributor();
-        bookContributor.setAuthor(bookAuthor);
-        bookContributor.setContribution("Author");
-        book.setCachedContributors(List.of(bookContributor));
-
-        // Editions
-        GraphQLResponse.Edition edition = new GraphQLResponse.Edition();
-        edition.setId(1);
-        edition.setTitle("Test Book - Hardcover Edition");
-        edition.setSubtitle("A Subtitle");
-        edition.setPages(350);
-        edition.setReleaseDate("2023-01-15");
-        edition.setReleaseYear(2023);
-
-        // Cached contributors for the edition
-        GraphQLResponse.Author editionAuthor = new GraphQLResponse.Author();
-        editionAuthor.setId(1);
-        editionAuthor.setSlug("test-author");
-        editionAuthor.setName("Test Author");
-
-        GraphQLResponse.Contributor editionContributor = new GraphQLResponse.Contributor();
-        editionContributor.setAuthor(editionAuthor);
-        editionContributor.setContribution("Author");
-        edition.setCachedContributors(List.of(editionContributor));
-
-        GraphQLResponse.Image editionImage = new GraphQLResponse.Image();
-        editionImage.setUrl("https://example.com/edition-cover.jpg");
-        edition.setImage(editionImage);
-
-        edition.setIsbn10("123456789X");
-        edition.setIsbn13("9781234567897");
-
-        GraphQLResponse.Publisher publisher = new GraphQLResponse.Publisher();
-        publisher.setName("Test Publisher");
-        edition.setPublisher(publisher);
-
-        GraphQLResponse.Language language = new GraphQLResponse.Language();
-        language.setCode2("en");
-        edition.setLanguage(language);
-
-        book.setEditions(List.of(edition));
-
-        // Cached tags for the book (moods, genres, tags)
-        GraphQLResponse.CachedTags cachedTags = new GraphQLResponse.CachedTags();
-        cachedTags.setMood(List.of(createCachedTag("adventurous", 15), createCachedTag("exciting", 12), createCachedTag("novotes", 0)));
-        cachedTags.setGenre(List.of(createCachedTag("fiction", 20), createCachedTag("fantasy", 18), createCachedTag("novotes", 0)));
-        cachedTags.setTag(List.of(createCachedTag("epic", 10), createCachedTag("quest", 8), createCachedTag("novotes", 0)));
-        book.setCachedTags(cachedTags);
-
-        return book;
-    }
-
-    private HardcoverCachedTag createCachedTag(String tag, int count) {
-        HardcoverCachedTag cachedTag = new HardcoverCachedTag();
-        cachedTag.setTag(tag);
-        cachedTag.setCount(count);
-        return cachedTag;
-    }
 }
