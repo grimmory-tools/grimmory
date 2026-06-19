@@ -243,43 +243,39 @@ public class HardcoverParser implements BookParser {
         return mapBookToMetadata(book, edition);
     }
 
-    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition) {
+    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition, BookMetadata metadata) {
 
-        BookMetadata metadata = new BookMetadata();
         metadata.setHardcoverId(book.getSlug());
 
-        if (metadata.getTitle() == null) {
+        mapBookId(metadata, book);
 
-            mapBookId(metadata, book);
-            mapSeiesData(metadata, book);
-            mapRating(metadata, book);
-
-            metadata.setDescription(book.getDescription());
-            metadata.setHardcoverReviewCount(book.getRatingsCount());
-
-            GraphQLResponse.CachedTags cachedTags = book.getCachedTags();
-            mapMoods(metadata, cachedTags);
-            mapCategories(metadata, cachedTags);
-            mapTags(metadata, cachedTags);
-            mapSeriesInfo(metadata, book);
-
-            metadata.setThumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null);
-            metadata.setProvider(MetadataProvider.Hardcover);
-
-            if (edition == null) {
-
-                metadata.setTitle(book.getTitle());
-                metadata.setSubtitle(book.getSubtitle());
-                metadata.setPageCount(book.getPages());
-
-                mapReleaseDate(metadata, book);
-                // mapCachedContributors(metadata, book, edition); can't call this with edition
-            } else {
-                mapEditions(book, edition, metadata);
-            }
-        } else {
-            mapEditions(book, edition, metadata);
+        if (edition.getSubtitle() != null && book.getTitle().contains(edition.getSubtitle())) {
+            book.setTitle(book.getTitle().replace(": " + book.getSubtitle(), ""));
         }
+
+        metadata.setTitle(book.getTitle());
+        metadata.setSubtitle(edition.getSubtitle());
+        metadata.setPageCount(book.getPages());
+
+        mapCachedContributors(metadata, book);
+        mapReleaseDate(metadata, book);
+        mapSeiesData(metadata, book);
+        mapRating(metadata, book);
+
+        metadata.setDescription(book.getDescription());
+        metadata.setHardcoverReviewCount(book.getRatingsCount());
+
+        GraphQLResponse.CachedTags cachedTags = book.getCachedTags();
+        mapMoods(metadata, cachedTags);
+        mapCategories(metadata, cachedTags);
+        mapTags(metadata, cachedTags);
+        mapSeriesInfo(metadata, book);
+
+        metadata.setThumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null);
+        metadata.setProvider(MetadataProvider.Hardcover);
+
+        mapEditions(edition, metadata);
+
         return metadata;
     }
 
