@@ -20,6 +20,8 @@ public class HighlightController {
 
     @PostMapping
     public ResponseEntity<Void> receiveHighlight(@RequestBody HighlightPayload payload) {
+        log.info("KOReader Sync -> Cor: {} | Capítulo: {} | Nota: {}", payload.getColor(), payload.getChapterTitle(), payload.getNote());
+        
         try {
             CreateBookNoteV2Request request = new CreateBookNoteV2Request();
             request.setBookId(payload.getBookId());
@@ -28,9 +30,9 @@ public class HighlightController {
             request.setChapterTitle(payload.getChapterTitle());
 
             String note = payload.getNote();
-            request.setNoteContent(note == null || note.trim().isEmpty() ? " " : note);
+            // Correção: Enviar "Destaque" para que o frontend renderize o cartão colorido em vez do cartão de Nota.
+            request.setNoteContent(note == null || note.trim().isEmpty() ? "Destaque" : note);
 
-            // Validação de cor em conformidade com o @Pattern do DTO
             String rawColor = payload.getColor();
             if (rawColor != null && rawColor.matches("^#[0-9A-Fa-f]{6}$")) {
                 request.setColor(rawColor);
