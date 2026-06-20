@@ -9,4 +9,5 @@ public class HighlightPayload {
     private String note;
     private String cfi;
     private String color;
+    private String chapterTitle;
 }

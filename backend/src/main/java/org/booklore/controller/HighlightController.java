@@ -25,6 +25,7 @@ public class HighlightController {
             request.setBookId(payload.getBookId());
             request.setCfi(payload.getCfi() != null && !payload.getCfi().isEmpty() ? payload.getCfi() : "epubcfi(/0)");
             request.setSelectedText(payload.getText());
+            request.setChapterTitle(payload.getChapterTitle());
 
             String note = payload.getNote();
             request.setNoteContent(note == null || note.trim().isEmpty() ? " " : note);
