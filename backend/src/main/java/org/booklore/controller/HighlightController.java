@@ -30,8 +30,7 @@ public class HighlightController {
             request.setChapterTitle(payload.getChapterTitle());
 
             String note = payload.getNote();
-            // Correção: Enviar "Destaque" para que o frontend renderize o cartão colorido em vez do cartão de Nota.
-            request.setNoteContent(note == null || note.trim().isEmpty() ? "Destaque" : note);
+            request.setNoteContent(note == null || note.trim().isEmpty() ? null : note);
 
             String rawColor = payload.getColor();
             if (rawColor != null && rawColor.matches("^#[0-9A-Fa-f]{6}$")) {
