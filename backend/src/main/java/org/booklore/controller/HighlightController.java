@@ -30,7 +30,7 @@ public class HighlightController {
             request.setChapterTitle(payload.getChapterTitle());
 
             String note = payload.getNote();
-            request.setNoteContent(note == null || note.trim().isEmpty() ? null : note);
+            request.setNoteContent(note == null || note.trim().isEmpty() ? "" : note);
 
             String rawColor = payload.getColor();
             if (rawColor != null && rawColor.matches("^#[0-9A-Fa-f]{6}$")) {
