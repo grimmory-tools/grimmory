@@ -8,4 +8,5 @@ public class HighlightPayload {
     private String text;
     private String note;
     private String cfi;
+    private String color;
 }

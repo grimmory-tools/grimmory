@@ -9,7 +9,6 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/highlights")
@@ -29,7 +28,14 @@ public class HighlightController {
 
             String note = payload.getNote();
             request.setNoteContent(note == null || note.trim().isEmpty() ? " " : note);
-            request.setColor("#FFE58F"); 
+
+            // Validação de cor em conformidade com o @Pattern do DTO
+            String rawColor = payload.getColor();
+            if (rawColor != null && rawColor.matches("^#[0-9A-Fa-f]{6}$")) {
+                request.setColor(rawColor);
+            } else {
+                request.setColor("#FFE58F"); 
+            }
 
             bookNoteV2Service.createNote(request);
         } catch (Exception e) {
