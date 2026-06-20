@@ -3,8 +3,8 @@ package org.booklore.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.request.HighlightPayload;
-import org.booklore.model.dto.CreateBookNoteV2Request;
-import org.booklore.service.book.BookNoteV2Service;
+import org.booklore.model.dto.CreateAnnotationRequest;
+import org.booklore.service.book.AnnotationService;
 import org.booklore.config.security.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HighlightController {
 
-    private final BookNoteV2Service bookNoteV2Service;
+    private final AnnotationService annotationService; // Alterado para AnnotationService
     private final AuthenticationService authenticationService;
 
     @PostMapping
@@ -23,14 +23,14 @@ public class HighlightController {
         log.info("KOReader Sync -> Cor: {} | Capítulo: {} | Nota: {}", payload.getColor(), payload.getChapterTitle(), payload.getNote());
         
         try {
-            CreateBookNoteV2Request request = new CreateBookNoteV2Request();
+            CreateAnnotationRequest request = new CreateAnnotationRequest(); // Usando DTO correto
             request.setBookId(payload.getBookId());
             request.setCfi(payload.getCfi() != null && !payload.getCfi().isEmpty() ? payload.getCfi() : "epubcfi(/0)");
-            request.setSelectedText(payload.getText());
+            request.setText(payload.getText());
             request.setChapterTitle(payload.getChapterTitle());
 
             String note = payload.getNote();
-            request.setNoteContent(note == null || note.trim().isEmpty() ? "" : note);
+            request.setNote(note == null || note.trim().isEmpty() ? null : note); // Retornamos o null autêntico
 
             String rawColor = payload.getColor();
             if (rawColor != null && rawColor.matches("^#[0-9A-Fa-f]{6}$")) {
@@ -39,7 +39,9 @@ public class HighlightController {
                 request.setColor("#FFE58F"); 
             }
 
-            bookNoteV2Service.createNote(request);
+            request.setStyle("highlight"); // Obrigatório na nova tabela
+
+            annotationService.createAnnotation(request); // Chamada ao serviço de anotações
         } catch (Exception e) {
             log.error("Error saving highlight", e);
         }
@@ -51,7 +53,7 @@ public class HighlightController {
         log.info("Deleting highlight | Book: {} | CFI: {}", bookId, cfi);
         try {
             Long userId = authenticationService.getAuthenticatedUser().getId();
-            bookNoteV2Service.deleteByCfiAndBookIdAndUserId(cfi, bookId, userId);
+            annotationService.deleteByCfiAndBookIdAndUserId(cfi, bookId, userId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Error deleting highlight", e);
