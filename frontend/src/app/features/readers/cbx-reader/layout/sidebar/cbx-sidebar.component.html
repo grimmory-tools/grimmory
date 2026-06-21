@@ -106,6 +106,7 @@
                     [placeholder]="'readerCbx.sidebar.searchNotesPlaceholder' | transloco"
                     [ngModel]="notesSearchQuery()"
                     (ngModelChange)="onNotesSearchInput($event)"
+                    aria-label="{{ 'readerCbx.sidebar.searchNotesPlaceholder' | transloco }}"
                   />
                   @if (notesSearchQuery()) {
                     <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">

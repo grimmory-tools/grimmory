@@ -5,6 +5,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {AppThemeService} from './app-theme.service';
 import {DEFAULT_CUSTOM_PRIMARY} from '../model/app-state.model';
 import {AppLocaleService} from './app-locale.service';
+import {AppUiFontService} from './app-ui-font.service';
 
 @Injectable({providedIn: 'root'})
 export class StartupService {
@@ -13,6 +14,7 @@ export class StartupService {
   private queryClient = inject(QueryClient);
   private appThemeService = inject(AppThemeService);
   private appLocaleService = inject(AppLocaleService);
+  private appUiFontService = inject(AppUiFontService);
 
   async load(): Promise<void> {
     if (this.authService.token()) {
@@ -26,6 +28,7 @@ export class StartupService {
 
   private async applyUserPreferences(user: User): Promise<void> {
     this.applyTheme(user);
+    this.appUiFontService.applyUiFont(user.uiFont);
     await this.appLocaleService.applyLocale(user.locale);
   }
 

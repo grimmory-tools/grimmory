@@ -54,6 +54,10 @@ public class BookLoreUserEntity {
     @Column(name = "theme_sync_enabled", nullable = false)
     private boolean themeSyncEnabled = true;
 
+    @Builder.Default
+    @Column(name = "ui_font", nullable = false, length = 32)
+    private String uiFont = "default";
+
     @Column(name = "provisioning_method")
     @Enumerated(EnumType.STRING)
     private ProvisioningMethod provisioningMethod;

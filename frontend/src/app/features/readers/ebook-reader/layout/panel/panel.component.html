@@ -50,7 +50,7 @@
                   [placeholder]="t('searchPlaceholder')"
                   [(ngModel)]="searchQuery"
                   (ngModelChange)="onSearchInput($event)"
-                 
+                  aria-label="{{ t('searchPlaceholder') }}"
                 />
                 @if (searchQuery) {
                   <button class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
@@ -120,6 +120,7 @@
                     [placeholder]="t('searchNotes')"
                     [ngModel]="notesSearchQuery()"
                     (ngModelChange)="onNotesSearchInput($event)"
+                    aria-label="{{ t('searchNotes') }}"
                   />
                   @if (notesSearchQuery()) {
                     <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
