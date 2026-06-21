@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,15 +35,11 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
-        List<Integer> empty = new ArrayList<>();
-        empty.add(0);
-        return searchBookById(isbn, empty);
+        return searchBookById(isbn, List.of(0));
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByHcid(List<Integer> hcid) {
-        List<String> empty = new ArrayList<>();
-        empty.add("0");
-        return searchBookById(empty, hcid);
+        return searchBookById(List.of("0"), hcid);
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookById(List<String> isbn, List<Integer> hcid) {
@@ -120,7 +115,7 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String title) {
-        return searchBooks(title, "alternative_titles: " + title, "10,5,3", "title, alternative_titles, description", DEFAULT_PER_PAGE);
+        return searchBooks(title, DEFAULT_PER_PAGE);
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String title, int limit) {
@@ -128,8 +123,7 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String title, String author) {
-        author = title + " "  + author;
-        return searchBooks(author, "", "5,3,10,5", "title, alternative_titles, author_names, description", DEFAULT_PER_PAGE);
+        return searchBooks(title, author, DEFAULT_PER_PAGE);
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String title, String author, int limit) {
@@ -147,16 +141,15 @@ public class HardcoverBookSearchService {
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("""
                 query BookSearch($q: String!, $limit: Int, $filterBy: String, $weights: String, $fields: String) {
-                search(query: $q,
-                filter_by: $filterBy,
-                weights: $weights,
-                fields: $fields,
-                sort: "users_count:desc",
-                typos: "2",
-                query_type: "Book",
-                per_page: $limit,
-                page: 1)
-                
+                    search(query: $q,
+                            filter_by: $filterBy,
+                            weights: $weights,
+                            fields: $fields,
+                            sort: "users_count:desc",
+                            typos: "2",
+                            query_type: "Book",
+                            per_page: $limit,
+                            page: 1)
                 {results }}""");
         body.setVariables(Map.of("q", query, "filterBy", filterBy, "weights", weights, "fields", fields, "limit", sanitizedPerPage));
 
