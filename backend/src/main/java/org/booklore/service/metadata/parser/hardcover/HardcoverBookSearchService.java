@@ -133,8 +133,7 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String title, String author, int limit) {
-        author = title + " "  + author;
-        return searchBooks(author, "", "5,3,10,5", "title, alternative_titles, author_names, description", limit);
+        return searchBooks(title + " "  + author, "", "5,3,10,5", "title, alternative_titles, author_names, description", limit);
     }
 
     public List<GraphQLResponse.Hit> searchBooks(String query, String filterBy, String weights, String fields, int perPage) {
