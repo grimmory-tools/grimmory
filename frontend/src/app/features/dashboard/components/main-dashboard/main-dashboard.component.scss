@@ -70,37 +70,6 @@
   background-color: rgb(0 0 0 / 50%);
 }
 
-.dashboard-settings-button {
-  position: fixed;
-  top: 5.25rem;
-  right: 1.75rem;
-  z-index: 100;
-
-  ::ng-deep .p-button {
-    box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
-    background: transparent;
-    border: 1px solid var(--color-border);
-
-    &:hover {
-      background: color-mix(in srgb, var(--color-app) 70%, var(--color-page));
-      transform: scale(1.05);
-      transition: all 0.2s ease;
-    }
-  }
-}
-
-@media (width <= 768px) {
-  .dashboard-settings-button {
-    top: 4.375rem;
-    right: 0.875rem;
-
-    ::ng-deep .p-button {
-      width: 2.1875rem;
-      height: 2.1875rem;
-    }
-  }
-}
-
 .scroller-placeholder {
   height: 260px;
   margin-bottom: 1.75rem;
