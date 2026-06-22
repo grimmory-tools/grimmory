@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { API_CONFIG } from '../../core/config/api-config';
-import { IconCacheService } from './icon-cache.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { CustomSvgCacheService } from './custom-svg-cache.service';
 import DOMPurify from 'dompurify';
 
 interface SvgIconData {
@@ -28,18 +27,14 @@ interface SvgIconBatchResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class IconService {
+export class CustomSvgService {
 
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/icons`;
-  private requestCache = new Map<string, Observable<string>>();
+  private readonly requestCache = new Map<string, Observable<string>>();
 
-  private http = inject(HttpClient);
-  private iconCache = inject(IconCacheService);
-  private sanitizer = inject(DomSanitizer);
+  private readonly http = inject(HttpClient);
+  private readonly customSvgCache = inject(CustomSvgCacheService);
 
-  /**
-   * Sanitizes SVG content using DOMPurify.
-   */
   private sanitizeSvgContent(content: string): string {
     return DOMPurify.sanitize(content, {
       USE_PROFILES: { svg: true },
@@ -54,8 +49,8 @@ export class IconService {
   }
 
   getSvgIconContent(iconName: string): Observable<string> {
-    const cached = this.iconCache.getCachedSanitized(iconName);
-    if (cached) {
+    const cached = this.customSvgCache.getCachedSanitized(iconName);
+    if (cached !== null) {
       return of('');
     }
 
@@ -64,8 +59,8 @@ export class IconService {
         responseType: 'text'
       }).pipe(
         tap(content => {
-          const sanitized = this.sanitizer.bypassSecurityTrustHtml(this.sanitizeSvgContent(content));
-          this.iconCache.cacheIcon(iconName, content, sanitized);
+          const sanitized = this.sanitizeSvgContent(content);
+          this.customSvgCache.cacheIcon(iconName, content, sanitized);
         }),
         shareReplay({ bufferSize: 1, refCount: true }),
         finalize(() => this.requestCache.delete(iconName))
@@ -77,17 +72,17 @@ export class IconService {
     return this.requestCache.get(iconName)!;
   }
 
-  getSanitizedSvgContent(iconName: string): Observable<SafeHtml> {
-    const cached = this.iconCache.getCachedSanitized(iconName);
-    if (cached) {
+  getSanitizedSvgContent(iconName: string): Observable<string> {
+    const cached = this.customSvgCache.getCachedSanitized(iconName);
+    if (cached !== null) {
       return of(cached);
     }
 
-    return new Observable<SafeHtml>(observer => {
+    return new Observable<string>(observer => {
       this.getSvgIconContent(iconName).subscribe({
         next: () => {
-          const sanitized = this.iconCache.getCachedSanitized(iconName);
-          if (sanitized) {
+          const sanitized = this.customSvgCache.getCachedSanitized(iconName);
+          if (sanitized !== null) {
             observer.next(sanitized);
             observer.complete();
           }
@@ -100,7 +95,7 @@ export class IconService {
   deleteSvgIcon(svgName: string): Observable<unknown> {
     return this.http.delete(`${this.baseUrl}/${encodeURIComponent(svgName)}`).pipe(
       tap(() => {
-        this.iconCache.removeIcon(svgName);
+        this.customSvgCache.removeIcon(svgName);
         this.requestCache.delete(svgName);
       })
     );
@@ -113,8 +108,8 @@ export class IconService {
           if (result.success) {
             const iconData = icons.find(icon => icon.svgName === result.iconName);
             if (iconData) {
-              const sanitized = this.sanitizer.bypassSecurityTrustHtml(this.sanitizeSvgContent(iconData.svgData));
-              this.iconCache.cacheIcon(iconData.svgName, iconData.svgData, sanitized);
+              const sanitized = this.sanitizeSvgContent(iconData.svgData);
+              this.customSvgCache.cacheIcon(iconData.svgName, iconData.svgData, sanitized);
             }
           }
         });

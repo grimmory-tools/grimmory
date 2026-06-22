@@ -115,7 +115,8 @@
   }
 
   .expand-icon {
-    font-size: var(--app-text-lg);
+    width: var(--app-text-lg);
+    height: var(--app-text-lg);
     color: var(--color-text-secondary);
   }
 }

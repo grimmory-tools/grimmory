@@ -10,7 +10,7 @@ import { Library, MetadataSource, OrganizationMode } from '../book/model/library
 import { BookType } from '../book/model/book.model';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { Tooltip } from 'primeng/tooltip';
-import { IconPickerService, IconSelection } from '../../shared/service/icon-picker.service';
+import { IconPickerService } from '../../shared/service/icon-picker.service';
 import { Button } from 'primeng/button';
 import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 import { DialogLauncherService } from '../../shared/services/dialog-launcher.service';
@@ -20,6 +20,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LibraryImportProgressService } from '../../shared/service/library-import-progress.service';
+import { IconSelection, toIconSelection } from '../../shared/icons/icon-selection';
 
 interface FormatEntry { type: BookType; label: string }
 
@@ -139,12 +140,7 @@ export class LibraryCreatorComponent {
     this.folders.set(paths.map(p => p.path));
 
     if (icon != null && iconType) {
-      if (iconType === 'CUSTOM_SVG') {
-        this.selectedIcon.set({ type: 'CUSTOM_SVG', value: icon });
-      } else {
-        const value = icon.slice(0, 6) === 'pi pi-' ? icon : `pi pi-${icon}`;
-        this.selectedIcon.set({ type: 'PRIME_NG', value });
-      }
+      this.selectedIcon.set(toIconSelection(icon, iconType));
     }
 
     if (formatPriority && formatPriority.length > 0) {

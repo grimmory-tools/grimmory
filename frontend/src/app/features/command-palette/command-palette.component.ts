@@ -7,6 +7,7 @@ import { filter, take } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LucideSearch, LucideX } from '@lucide/angular';
 
 import { CoverPlaceholderComponent } from '../../shared/components/cover-generator/cover-generator.component';
 import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
@@ -17,7 +18,7 @@ import { CommandPaletteService } from './command-palette.service';
 @Component({
   selector: 'app-command-palette',
   standalone: true,
-  imports: [A11yModule, OverlayModule, FormsModule, TranslocoDirective, TranslocoPipe, IconDisplayComponent, CoverPlaceholderComponent],
+  imports: [A11yModule, OverlayModule, FormsModule, TranslocoDirective, TranslocoPipe, IconDisplayComponent, CoverPlaceholderComponent, LucideSearch, LucideX],
   templateUrl: './command-palette.component.html',
   styleUrl: './command-palette.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

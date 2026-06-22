@@ -2,7 +2,7 @@
   <header class="dialog-header">
     <div class="header-content">
       <div class="header-icon">
-        <i class="pi pi-palette"></i>
+        <svg lucidePalette aria-hidden="true"></svg>
       </div>
       <div class="header-text">
         <h1>Choose an Icon</h1>
@@ -22,31 +22,30 @@
     <p-tabs [(value)]="activeTabIndex">
       <p-tablist>
         <p-tab value="0">
-          <i class="pi pi-prime"></i>
-          <span>Prime Icons</span>
+          <svg lucideSparkles aria-hidden="true"></svg>
+          <span>Default</span>
         </p-tab>
         <p-tab value="1">
-          <i class="pi pi-images"></i>
+          <svg lucideImages aria-hidden="true"></svg>
           <span>SVG Library</span>
         </p-tab>
         @if (canManageIcons) {
           <p-tab value="2">
-            <i class="pi pi-plus-circle"></i>
+            <svg lucideCirclePlus aria-hidden="true"></svg>
             <span>Add Custom</span>
           </p-tab>
         }
       </p-tablist>
 
       <p-tabpanels>
-        <!-- Prime Icons Tab -->
         <p-tabpanel value="0">
           <div class="tab-content">
             <div class="search-container">
-              <i class="pi pi-search search-icon"></i>
+              <svg lucideSearch class="search-icon" aria-hidden="true"></svg>
               <input
                 type="text"
                 pInputText
-                placeholder="Search Prime icons..."
+                placeholder="Search icons"
                 [(ngModel)]="searchText"
                 class="search-input"
               />
@@ -61,9 +60,11 @@
                   (click)="selectIcon(icon)"
                   (keydown.enter)="selectIcon(icon)"
                   [class.selected]="icon === selectedIcon"
-                  [title]="icon"
+                  [title]="displayIconName(icon)"
                 >
-                  <i [class]="icon"></i>
+                  @if (getLucideIconData(icon); as iconData) {
+                    <svg [lucideIcon]="iconData" aria-hidden="true"></svg>
+                  }
                 </div>
               }
             </div>
@@ -109,7 +110,7 @@
                     (dragstart)="onSvgIconDragStart(iconName)"
                     (dragend)="onSvgIconDragEnd()"
                   >
-                    <div class="svg-icon-inline" [innerHTML]="getSvgContent(iconName)"></div>
+                    <div class="svg-icon-inline" [appSvgContent]="getSvgContent(iconName)"></div>
                   </div>
                 }
               </div>
@@ -171,7 +172,7 @@
                   @if (svgContent && svgPreview) {
                     <div class="preview-card">
                       <div class="preview-label">Preview</div>
-                      <div class="preview-content" [innerHTML]="svgPreview"></div>
+                      <div class="preview-content" [appSvgContent]="svgPreview"></div>
                     </div>
                   }
 
@@ -221,7 +222,7 @@
                             <i class="pi pi-times"></i>
                           </button>
                         </div>
-                        <div class="queue-item-preview" [innerHTML]="entry.preview"></div>
+                        <div class="queue-item-preview" [appSvgContent]="entry.preview"></div>
                         @if (entry.error) {
                           <div class="queue-item-error">{{ entry.error }}</div>
                         }

@@ -131,7 +131,7 @@ describe('buildLibrarySection', () => {
   });
 
   it('renders each library with route, count, health, and icon metadata', () => {
-    const libs = [library({ id: 5, name: 'Fiction', icon: 'pi-book', iconType: 'PRIME_NG' })];
+    const libs = [library({ id: 5, name: 'Fiction', icon: 'book', iconType: 'LUCIDE' })];
     const counts = new Map([[5, 42]]);
 
     const [section] = buildLibrarySection(libs, counts, { field: 'name', order: 'asc' }, translate, libraryDeps);
@@ -139,8 +139,8 @@ describe('buildLibrarySection', () => {
       id: 'library:5',
       label: 'Fiction',
       type: 'library',
-      icon: 'pi-book',
-      iconType: 'PRIME_NG',
+      icon: 'book',
+      iconType: 'LUCIDE',
       routerLink: ['/library/5/books'],
       bookCount: 42,
       unhealthy: false,
@@ -216,7 +216,7 @@ describe('buildMagicShelfSection', () => {
 
   it('renders sorted magic shelves with route, icon, and count', () => {
     const shelves = [
-      magicShelf({ id: 2, name: 'Beta', icon: 'pi-sparkles', iconType: 'PRIME_NG' }),
+      magicShelf({ id: 2, name: 'Beta', icon: 'sparkles', iconType: 'LUCIDE' }),
       magicShelf({ id: 1, name: 'Alpha' }),
     ];
     const counts = new Map([[1, 4], [2, 7]]);
@@ -227,7 +227,7 @@ describe('buildMagicShelfSection', () => {
         id: 'magicShelf:1', label: 'Alpha', routerLink: ['/magic-shelf/1/books'], bookCount: 4,
       }),
       expect.objectContaining({
-        id: 'magicShelf:2', label: 'Beta', icon: 'pi-sparkles', iconType: 'PRIME_NG',
+        id: 'magicShelf:2', label: 'Beta', icon: 'sparkles', iconType: 'LUCIDE',
         routerLink: ['/magic-shelf/2/books'], bookCount: 7,
       }),
     ]);

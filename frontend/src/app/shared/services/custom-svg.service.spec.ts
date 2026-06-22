@@ -1,47 +1,40 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {IconCacheService} from './icon-cache.service';
-import {IconService} from './icon.service';
+import {CustomSvgCacheService} from './custom-svg-cache.service';
+import {CustomSvgService} from './custom-svg.service';
 
-describe('IconService', () => {
-  let service: IconService;
+describe('CustomSvgService', () => {
+  let service: CustomSvgService;
   let httpTestingController: HttpTestingController;
-  let iconCache: {
+  let customSvgCache: {
     getCachedSanitized: ReturnType<typeof vi.fn>;
     cacheIcon: ReturnType<typeof vi.fn>;
     removeIcon: ReturnType<typeof vi.fn>;
   };
-  let bypassSecurityTrustHtml: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    iconCache = {
+    customSvgCache = {
       getCachedSanitized: vi.fn(() => null),
       cacheIcon: vi.fn(),
       removeIcon: vi.fn(),
     };
-    bypassSecurityTrustHtml = vi.fn(value => value as SafeHtml);
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        IconService,
+        CustomSvgService,
         {
-          provide: IconCacheService,
-          useValue: iconCache,
-        },
-        {
-          provide: DomSanitizer,
-          useValue: {bypassSecurityTrustHtml},
+          provide: CustomSvgCacheService,
+          useValue: customSvgCache,
         },
       ],
     });
 
-    service = TestBed.inject(IconService);
+    service = TestBed.inject(CustomSvgService);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
 
@@ -65,7 +58,7 @@ describe('IconService', () => {
   });
 
   it('short-circuits svg content requests when the sanitized icon is already cached', () => {
-    iconCache.getCachedSanitized.mockReturnValue('cached-safe-html' as SafeHtml);
+    customSvgCache.getCachedSanitized.mockReturnValue('cached-svg');
 
     let result: string | undefined;
     service.getSvgIconContent('sun').subscribe(value => {
@@ -88,8 +81,7 @@ describe('IconService', () => {
     request.flush('<svg><rect /></svg>');
 
     expect(result).toBe('<svg><rect /></svg>');
-    expect(bypassSecurityTrustHtml).toHaveBeenCalled();
-    expect(iconCache.cacheIcon).toHaveBeenCalledWith(
+    expect(customSvgCache.cacheIcon).toHaveBeenCalledWith(
       'sun',
       '<svg><rect /></svg>',
       expect.stringContaining('<svg>')
@@ -97,15 +89,15 @@ describe('IconService', () => {
   });
 
   it('returns cached sanitized svg content without issuing a request', () => {
-    iconCache.getCachedSanitized.mockReturnValue('cached-safe-html' as SafeHtml);
+    customSvgCache.getCachedSanitized.mockReturnValue('cached-svg');
 
-    let result: SafeHtml | undefined;
+    let result: string | undefined;
     service.getSanitizedSvgContent('moon').subscribe(value => {
       result = value;
     });
 
     httpTestingController.expectNone(req => req.url.includes('/api/v1/icons/moon/content'));
-    expect(result).toBe('cached-safe-html');
+    expect(result).toBe('cached-svg');
   });
 
   it('removes icons from the cache after deletion', () => {
@@ -115,7 +107,7 @@ describe('IconService', () => {
     expect(request.request.method).toBe('DELETE');
     request.flush(null);
 
-    expect(iconCache.removeIcon).toHaveBeenCalledWith('sun rise');
+    expect(customSvgCache.removeIcon).toHaveBeenCalledWith('sun rise');
   });
 
   it('caches only successfully saved icons from batch saves', () => {
@@ -139,7 +131,7 @@ describe('IconService', () => {
       ],
     });
 
-    expect(iconCache.cacheIcon).toHaveBeenCalledTimes(1);
-    expect(iconCache.cacheIcon).toHaveBeenCalledWith('sun', '<svg>sun</svg>', '<svg>sun</svg>');
+    expect(customSvgCache.cacheIcon).toHaveBeenCalledTimes(1);
+    expect(customSvgCache.cacheIcon).toHaveBeenCalledWith('sun', '<svg>sun</svg>', '<svg>sun</svg>');
   });
 });

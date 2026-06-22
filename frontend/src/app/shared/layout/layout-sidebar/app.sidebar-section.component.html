@@ -12,11 +12,11 @@
       <span>{{ currentItem.label }}</span>
     </span>
     <span class="expand-icon-button" aria-hidden="true">
-      <i
-        [ngClass]="{ 'pi': true, 'pi-angle-up': expanded, 'pi-angle-down': !expanded }"
-        class="expand-icon"
-        aria-hidden="true"
-      ></i>
+      @if (expanded) {
+        <svg lucideChevronUp class="expand-icon" aria-hidden="true"></svg>
+      } @else {
+        <svg lucideChevronDown class="expand-icon" aria-hidden="true"></svg>
+      }
     </span>
   </button>
   <div class="sidebar-section-divider" aria-hidden="true"></div>

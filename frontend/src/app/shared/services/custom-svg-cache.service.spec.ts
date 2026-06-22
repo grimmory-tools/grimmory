@@ -1,11 +1,11 @@
 import {describe, expect, it} from 'vitest';
 
-import {IconCacheService} from './icon-cache.service';
+import {CustomSvgCacheService} from './custom-svg-cache.service';
 
-describe('IconCacheService', () => {
+describe('CustomSvgCacheService', () => {
   it('stores, retrieves, removes, and sorts cached icon names', () => {
-    const service = new IconCacheService();
-    const sanitized = {id: 'sanitized'} as never;
+    const service = new CustomSvgCacheService();
+    const sanitized = '<svg>sanitized</svg>';
 
     expect(service.getCachedSanitized('missing')).toBeNull();
 

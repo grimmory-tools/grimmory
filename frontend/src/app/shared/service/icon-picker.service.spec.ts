@@ -29,12 +29,12 @@ describe('IconPickerService', () => {
 
   it('returns the icon selected by the dialog', async () => {
     dialogLauncherService.openIconPickerDialog.mockResolvedValue({
-      onClose: of({type: 'PRIME_NG', value: 'pi pi-book'}),
+      onClose: of({type: 'LUCIDE', value: 'book'}),
     });
 
     await expect(firstValueFrom(service.open())).resolves.toEqual({
-      type: 'PRIME_NG',
-      value: 'pi pi-book',
+      type: 'LUCIDE',
+      value: 'book',
     });
   });
 });

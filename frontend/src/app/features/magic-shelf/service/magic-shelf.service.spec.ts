@@ -14,8 +14,8 @@ function buildMagicShelf(overrides: Partial<MagicShelf> = {}): MagicShelf {
   return {
     id: 1,
     name: 'Favorites',
-    icon: 'pi pi-star',
-    iconType: 'PRIME_NG',
+    icon: 'star',
+    iconType: 'LUCIDE',
     filterJson: JSON.stringify(buildGroupRule()),
     isPublic: false,
     ...overrides,
@@ -152,8 +152,8 @@ describe('MagicShelfService', () => {
 
     service.saveShelf({
       name: 'Magic',
-      icon: 'pi pi-bolt',
-      iconType: 'PRIME_NG',
+      icon: 'zap',
+      iconType: 'LUCIDE',
       group,
       isPublic: true,
     }).subscribe();
@@ -162,8 +162,8 @@ describe('MagicShelfService', () => {
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(expect.objectContaining({
       name: 'Magic',
-      icon: 'pi pi-bolt',
-      iconType: 'PRIME_NG',
+      icon: 'zap',
+      iconType: 'LUCIDE',
       filterJson: JSON.stringify(group),
       isPublic: true,
     }));

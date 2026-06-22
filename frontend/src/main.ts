@@ -21,10 +21,12 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { provideLucideConfig } from '@lucide/angular';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
+    provideLucideConfig({ size: '1em', strokeWidth: 2 }),
     provideTanStackQuery(new QueryClient({
       defaultOptions: {
         queries: {

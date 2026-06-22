@@ -107,7 +107,7 @@ public class KoboSettingsService {
                     ShelfCreateRequest.builder()
                             .name(ShelfType.KOBO.getName())
                             .icon(ShelfType.KOBO.getIcon())
-                            .iconType(IconType.PRIME_NG)
+                            .iconType(IconType.LUCIDE)
                             .build()
             );
         }

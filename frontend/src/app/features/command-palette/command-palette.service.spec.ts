@@ -14,7 +14,7 @@ import { ShelfService } from '../book/service/shelf.service';
 import { MagicShelfService } from '../magic-shelf/service/magic-shelf.service';
 import { UrlHelperService } from '../../shared/service/url-helper.service';
 import { UserService } from '../settings/user-management/user.service';
-import { IconService } from '../../shared/services/icon.service';
+import { CustomSvgService } from '../../shared/services/custom-svg.service';
 import { DialogLauncherService } from '../../shared/services/dialog-launcher.service';
 
 import { CommandPaletteService } from './command-palette.service';
@@ -68,7 +68,7 @@ describe('CommandPaletteService', () => {
         { provide: UserService, useValue: { currentUser: signal({ permissions: {} }) } },
         { provide: MessageService, useValue: { add: vi.fn() } },
         { provide: UrlHelperService, useValue: urlHelper },
-        { provide: IconService, useValue: { getSvgIconContent: vi.fn(() => of('')) } },
+        { provide: CustomSvgService, useValue: { getSvgIconContent: vi.fn(() => of('')) } },
         {
           provide: DialogLauncherService,
           useValue: {

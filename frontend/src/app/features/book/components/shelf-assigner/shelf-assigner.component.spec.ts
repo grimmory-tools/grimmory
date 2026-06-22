@@ -196,7 +196,7 @@ describe('ShelfAssignerComponent', () => {
     ]);
   });
 
-  it('maps custom svg and PrimeNG shelf icons to icon-display selections', () => {
+  it('maps custom svg and Lucide shelf icons to icon-display selections', () => {
     const {component} = createHarness();
 
     expect(component.getShelfIcon(createShelf({
@@ -207,11 +207,11 @@ describe('ShelfAssignerComponent', () => {
       value: 'custom-icons/moon.svg',
     });
     expect(component.getShelfIcon(createShelf({
-      iconType: 'PRIME_NG',
+      iconType: 'LUCIDE',
       icon: 'bookmark',
     }))).toEqual({
-      type: 'PRIME_NG',
-      value: 'pi pi-bookmark',
+      type: 'LUCIDE',
+      value: 'bookmark',
     });
   });
 

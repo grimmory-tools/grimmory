@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { Menu } from 'primeng/menu';
 import { Tooltip } from 'primeng/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideEllipsisVertical } from '@lucide/angular';
+import { IconSelection, toIconSelection } from '../../icons/icon-selection';
 
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { IconDisplayComponent } from '../../components/icon-display/icon-display.component';
-import { IconSelection } from '../../service/icon-picker.service';
 import { LayoutService } from '../layout.service';
 import { SidebarLeaf } from '../navigation/nav-item.model';
 
@@ -22,6 +23,7 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
     IconDisplayComponent,
     Tooltip,
     TranslocoPipe,
+    LucideEllipsisVertical,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,10 +72,7 @@ export class AppSidebarItemRowComponent {
   getIconSelection(): IconSelection | null {
     const item = this.item();
     if (!item.icon) return null;
-    return {
-      type: item.iconType || 'PRIME_NG',
-      value: item.icon,
-    };
+    return toIconSelection(item.icon, item.iconType);
   }
 
   hasContextMenu(): boolean {

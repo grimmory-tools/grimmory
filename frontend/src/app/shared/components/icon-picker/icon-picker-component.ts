@@ -1,23 +1,24 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {IconService} from '../../services/icon.service';
-import {IconCacheService} from '../../services/icon-cache.service';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {CustomSvgService} from '../../services/custom-svg.service';
+import {CustomSvgCacheService} from '../../services/custom-svg-cache.service';
 import DOMPurify from 'dompurify';
 import {UrlHelperService} from '../../service/url-helper.service';
 import {MessageService} from 'primeng/api';
-import {IconCategoriesHelper} from '../../helpers/icon-categories.helper';
 import {Button} from 'primeng/button';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
 import {from, of} from 'rxjs';
 import {catchError, mergeMap, toArray} from 'rxjs/operators';
+import {LucideCirclePlus, LucideDynamicIcon, LucideImages, LucidePalette, LucideSearch, LucideSparkles, provideLucideConfig, type LucideIconData, type LucideIconNode} from '@lucide/angular';
+import iconNodes from 'lucide-static/icon-nodes.json';
+import {SvgContentDirective} from '../icon/svg-content.directive';
 
 interface SvgEntry {
   name: string;
   content: string;
-  preview: SafeHtml | null;
+  preview: string | null;
   error: string;
 }
 
@@ -34,13 +35,23 @@ interface SvgIconBatchResponse {
   results: IconSaveResult[];
 }
 
+const lucideIconNodes = iconNodes as unknown as Record<string, LucideIconNode[]>;
+
 @Component({
   selector: 'app-icon-picker-component',
   imports: [
     FormsModule,
     Button,
-    Tabs, TabList, Tab, TabPanels, TabPanel
+    Tabs, TabList, Tab, TabPanels, TabPanel,
+    SvgContentDirective,
+    LucideDynamicIcon,
+    LucideCirclePlus,
+    LucideImages,
+    LucidePalette,
+    LucideSearch,
+    LucideSparkles
   ],
+  providers: [provideLucideConfig({ size: 16, strokeWidth: 2 })],
   templateUrl: './icon-picker-component.html',
   styleUrl: './icon-picker-component.scss'
 })
@@ -65,16 +76,20 @@ export class IconPickerComponent implements OnInit {
   };
 
   ref = inject(DynamicDialogRef);
-  iconService = inject(IconService);
-  iconCache = inject(IconCacheService);
-  sanitizer = inject(DomSanitizer);
+  customSvgService = inject(CustomSvgService);
+  customSvgCache = inject(CustomSvgCacheService);
   urlHelper = inject(UrlHelperService);
   messageService = inject(MessageService);
   userService = inject(UserService);
 
   searchText: string = '';
   selectedIcon: string | null = null;
-  icons: string[] = IconCategoriesHelper.createIconList();
+  readonly lucideIconData = new Map<string, LucideIconData>(
+    Object.entries(lucideIconNodes)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([name, node]): [string, LucideIconData] => [name, {name, size: 24, node}]),
+  );
+  icons: string[] = [...this.lucideIconData.keys()];
 
   private _activeTabIndex: string = '0';
 
@@ -91,7 +106,7 @@ export class IconPickerComponent implements OnInit {
 
   svgContent: string = '';
   svgName: string = '';
-  svgPreview: SafeHtml | null = null;
+  svgPreview: string | null = null;
   errorMessage: string = '';
 
   svgEntries: SvgEntry[] = [];
@@ -131,14 +146,22 @@ export class IconPickerComponent implements OnInit {
 
   selectIcon(icon: string): void {
     this.selectedIcon = icon;
-    this.ref.close({type: 'PRIME_NG', value: icon});
+    this.ref.close({type: 'LUCIDE', value: icon});
+  }
+
+  displayIconName(icon: string): string {
+    return icon.trim().replaceAll('-', ' ');
+  }
+
+  getLucideIconData(icon: string): LucideIconData | null {
+    return this.lucideIconData.get(icon) ?? null;
   }
 
   private loadSvgIcons(): void {
     this.isLoadingSvgIcons = true;
     this.svgIconsError = '';
 
-    this.iconService.getIconNames().subscribe({
+    this.customSvgService.getIconNames().subscribe({
       next: (names) => {
         this.hasLoadedSvgIcons = true;
         if (names.length === 0) {
@@ -148,9 +171,9 @@ export class IconPickerComponent implements OnInit {
         }
         from(names).pipe(
           mergeMap(name =>
-            this.iconCache.getCachedSanitized(name)
+            this.customSvgCache.getCachedSanitized(name)
               ? of(null)
-              : this.iconService.getSvgIconContent(name).pipe(catchError(() => of(null))),
+              : this.customSvgService.getSvgIconContent(name).pipe(catchError(() => of(null))),
             5
           ),
           toArray()
@@ -167,8 +190,8 @@ export class IconPickerComponent implements OnInit {
     });
   }
 
-  getSvgContent(iconName: string): SafeHtml | null {
-    return this.iconCache.getCachedSanitized(iconName) || null;
+  getSvgContent(iconName: string): string | null {
+    return this.customSvgCache.getCachedSanitized(iconName) || null;
   }
 
   selectSvgIcon(iconName: string): void {
@@ -196,7 +219,7 @@ export class IconPickerComponent implements OnInit {
         USE_PROFILES: { svg: true },
         FORBID_TAGS: ['script', 'style', 'foreignObject']
       });
-      this.svgPreview = this.sanitizer.bypassSecurityTrustHtml(sanitized);
+      this.svgPreview = sanitized;
     } catch {
       this.svgPreview = null;
       this.errorMessage = this.ERROR_MESSAGES.PARSE_ERROR;
@@ -256,7 +279,7 @@ export class IconPickerComponent implements OnInit {
       svgData: entry.content
     }));
 
-    this.iconService.saveBatchSvgIcons(svgData).subscribe({
+    this.customSvgService.saveBatchSvgIcons(svgData).subscribe({
       next: (response: SvgIconBatchResponse) => {
         this.isSavingBatch = false;
         let successCount = 0;
@@ -310,7 +333,7 @@ export class IconPickerComponent implements OnInit {
   private deleteSvgIcon(iconName: string): void {
     this.isLoadingSvgIcons = true;
 
-    this.iconService.deleteSvgIcon(iconName).subscribe({
+    this.customSvgService.deleteSvgIcon(iconName).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',

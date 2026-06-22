@@ -84,7 +84,7 @@ class ShelfServiceTest {
         ShelfCreateRequest request = ShelfCreateRequest.builder()
                 .name("My Shelf")
                 .icon("heart")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .build();
 
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
@@ -92,7 +92,7 @@ class ShelfServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
         when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(
-                Shelf.builder().name("My Shelf").icon("heart").iconType(IconType.PRIME_NG).build());
+                Shelf.builder().name("My Shelf").icon("heart").iconType(IconType.LUCIDE).build());
 
         shelfService.createShelf(request);
 
@@ -101,7 +101,7 @@ class ShelfServiceTest {
 
         ShelfEntity saved = captor.getValue();
         assertEquals("heart", saved.getIcon());
-        assertEquals(IconType.PRIME_NG, saved.getIconType());
+        assertEquals(IconType.LUCIDE, saved.getIconType());
     }
 
     @Test
@@ -110,7 +110,7 @@ class ShelfServiceTest {
                 .id(1L)
                 .name("Old Shelf")
                 .icon("star")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .user(userEntity)
                 .build();
 
@@ -141,7 +141,7 @@ class ShelfServiceTest {
                 .id(1L)
                 .name("Old Shelf")
                 .icon("star")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .user(userEntity)
                 .build();
 
