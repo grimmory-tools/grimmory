@@ -1,4 +1,5 @@
 import { cva } from 'class-variance-authority';
+import { LucideCircleAlert, LucideCircleCheck, LucideInfo, LucideTriangleAlert, type LucideIconData } from '@lucide/angular';
 import { neutralControlBorderClass } from '../control.styles';
 
 export type MessageColor = 'neutral' | 'primary' | 'green' | 'amber' | 'red';
@@ -16,10 +17,10 @@ export const messageVariants = cva('flex min-h-9 items-center gap-2 rounded-md b
   defaultVariants: { color: 'neutral' },
 });
 
-export const MESSAGE_ICONS: Record<MessageColor, string> = {
-  neutral: 'pi pi-info-circle',
-  primary: 'pi pi-info-circle',
-  green: 'pi pi-check-circle',
-  amber: 'pi pi-exclamation-triangle',
-  red: 'pi pi-exclamation-circle',
+export const MESSAGE_ICONS: Record<MessageColor, LucideIconData> = {
+  neutral: LucideInfo.icon,
+  primary: LucideInfo.icon,
+  green: LucideCircleCheck.icon,
+  amber: LucideTriangleAlert.icon,
+  red: LucideCircleAlert.icon,
 };

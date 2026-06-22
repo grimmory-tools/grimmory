@@ -4,10 +4,9 @@
       <app-button
         variant="ghost"
         size="sm"
-        icon="pi pi-chevron-left"
         label="Back to design system"
         styleClass="self-start"
-        (clicked)="back()" />
+        (clicked)="back()"><svg lucideChevronLeft></svg></app-button>
       <div class="flex flex-col gap-1">
         <h1 class="text-2xl font-extrabold text-text-strong">Create library</h1>
       </div>
@@ -18,7 +17,7 @@
       <app-tag [color]="libraryForm().dirty() ? 'amber' : 'neutral'" [label]="libraryForm().dirty() ? 'dirty' : 'pristine'" />
       <app-tag [color]="libraryForm().touched() ? 'sky' : 'neutral'" [label]="libraryForm().touched() ? 'touched' : 'untouched'" />
       @if (libraryForm().submitting()) {
-        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+        <app-tag color="primary" label="submitting"><svg lucideLoaderCircle></svg></app-tag>
       }
     </div>
 
@@ -63,9 +62,8 @@
           type="submit"
           tone="primary"
           label="Save library"
-          icon="pi pi-save"
           [loading]="libraryForm().submitting()"
-          [disabled]="libraryForm().submitting()" />
+          [disabled]="libraryForm().submitting()"><svg lucideSave></svg></app-button>
         <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
         <app-button variant="ghost" label="Reset" (clicked)="reset()" />
         @if (submitState() === 'saved') {

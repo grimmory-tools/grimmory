@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
+import { LucideLoaderCircle } from '@lucide/angular';
 
 import { APP_FIELD } from '../field/app-field.context';
 
@@ -30,7 +31,7 @@ interface Star {
 @Component({
   selector: 'app-rating',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, LucideLoaderCircle],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'inline-flex' },
   template: `
@@ -57,7 +58,7 @@ interface Star {
           <span class="rating-label">{{ valueLabel() }}</span>
         }
         @if (pending()) {
-          <i class="pi pi-spinner pi-spin ml-1 text-xs text-text-muted" aria-hidden="true"></i>
+          <svg lucideLoaderCircle class="ml-1 size-4 animate-spin text-text-muted" aria-hidden="true"></svg>
         }
       </span>
     } @else {
@@ -109,7 +110,7 @@ interface Star {
           <span class="rating-label">{{ valueLabel() }}</span>
         }
         @if (pending()) {
-          <i class="pi pi-spinner pi-spin ml-1 text-xs text-text-muted" aria-hidden="true"></i>
+          <svg lucideLoaderCircle class="ml-1 size-4 animate-spin text-text-muted" aria-hidden="true"></svg>
         }
       </div>
     }

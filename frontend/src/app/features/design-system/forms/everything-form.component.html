@@ -4,10 +4,9 @@
       <app-button
         variant="ghost"
         size="sm"
-        icon="pi pi-chevron-left"
         label="Back to design system"
         styleClass="self-start"
-        (clicked)="back()" />
+        (clicked)="back()"><svg lucideChevronLeft></svg></app-button>
       <div class="flex flex-col gap-1">
         <h1 class="text-2xl font-extrabold text-text-strong">Everything</h1>
       </div>
@@ -18,7 +17,7 @@
       <app-tag [color]="everythingForm().dirty() ? 'amber' : 'neutral'" [label]="everythingForm().dirty() ? 'dirty' : 'pristine'" />
       <app-tag [color]="everythingForm().touched() ? 'sky' : 'neutral'" [label]="everythingForm().touched() ? 'touched' : 'untouched'" />
       @if (everythingForm().submitting()) {
-        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+        <app-tag color="primary" label="submitting"><svg lucideLoaderCircle></svg></app-tag>
       }
     </div>
 
@@ -95,9 +94,8 @@
           type="submit"
           tone="primary"
           label="Save"
-          icon="pi pi-save"
           [loading]="everythingForm().submitting()"
-          [disabled]="everythingForm().submitting()" />
+          [disabled]="everythingForm().submitting()"><svg lucideSave></svg></app-button>
         <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
         <app-button variant="ghost" label="Reset" (clicked)="reset()" />
         @if (submitState() === 'saved') {

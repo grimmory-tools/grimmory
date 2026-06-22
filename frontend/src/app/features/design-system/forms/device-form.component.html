@@ -4,10 +4,9 @@
       <app-button
         variant="ghost"
         size="sm"
-        icon="pi pi-chevron-left"
         label="Back to design system"
         styleClass="self-start"
-        (clicked)="back()" />
+        (clicked)="back()"><svg lucideChevronLeft></svg></app-button>
       <div class="flex flex-col gap-1">
         <h1 class="text-2xl font-extrabold text-text-strong">Device settings</h1>
       </div>
@@ -18,7 +17,7 @@
       <app-tag [color]="deviceForm().dirty() ? 'amber' : 'neutral'" [label]="deviceForm().dirty() ? 'dirty' : 'pristine'" />
       <app-tag [color]="deviceForm().touched() ? 'sky' : 'neutral'" [label]="deviceForm().touched() ? 'touched' : 'untouched'" />
       @if (deviceForm().submitting()) {
-        <app-tag color="primary" icon="pi pi-spin pi-spinner" label="submitting" />
+        <app-tag color="primary" label="submitting"><svg lucideLoaderCircle></svg></app-tag>
       }
     </div>
 
@@ -27,7 +26,7 @@
         <div class="flex flex-col gap-1">
           <div class="flex items-center justify-between gap-4">
             <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
-              <i class="pi pi-book text-text-muted" aria-hidden="true"></i> Hardcover
+              <svg lucideBook class="size-4 text-text-muted" aria-hidden="true"></svg> Hardcover
             </h2>
             <app-switch [formField]="deviceForm.hardcover.enabled" ariaLabel="Enable Hardcover sync" />
           </div>
@@ -44,7 +43,7 @@
         <div class="flex flex-col gap-1">
           <div class="flex items-center justify-between gap-4">
             <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
-              <i class="pi pi-tablet text-text-muted" aria-hidden="true"></i> Kobo
+              <svg lucideTablet class="size-4 text-text-muted" aria-hidden="true"></svg> Kobo
             </h2>
             <app-switch [formField]="deviceForm.kobo.enabled" ariaLabel="Enable Kobo sync" />
           </div>
@@ -77,7 +76,7 @@
         <div class="flex flex-col gap-1">
           <div class="flex items-center justify-between gap-4">
             <h2 class="m-0 inline-flex items-center gap-2 text-base font-bold text-text-strong">
-              <i class="pi pi-mobile text-text-muted" aria-hidden="true"></i> KOReader
+              <svg lucideSmartphone class="size-4 text-text-muted" aria-hidden="true"></svg> KOReader
             </h2>
             <app-switch [formField]="deviceForm.koreader.enabled" ariaLabel="Enable KOReader sync" />
           </div>
@@ -103,9 +102,8 @@
           type="submit"
           tone="primary"
           label="Save settings"
-          icon="pi pi-save"
           [loading]="deviceForm().submitting()"
-          [disabled]="deviceForm().submitting()" />
+          [disabled]="deviceForm().submitting()"><svg lucideSave></svg></app-button>
         <app-button variant="soft" label="Validate" (clicked)="validateAll()" />
         <app-button variant="ghost" label="Reset" (clicked)="reset()" />
         @if (submitState() === 'saved') {

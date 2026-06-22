@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
+import { LucideLoaderCircle } from '@lucide/angular';
 import { cn } from '../cn';
 import { APP_FIELD } from '../field/app-field.context';
 import { appTextareaVariants } from './app-textarea.variants';
@@ -18,6 +19,7 @@ import { appTextareaVariants } from './app-textarea.variants';
 @Component({
   selector: 'app-textarea',
   standalone: true,
+  imports: [LucideLoaderCircle],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -44,7 +46,7 @@ import { appTextareaVariants } from './app-textarea.variants';
       (blur)="touched.set(true)"></textarea>
     @if (pending()) {
       <span class="pointer-events-none absolute right-3 top-2.5 inline-flex text-text-muted">
-        <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
+        <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
       </span>
     }
   `,

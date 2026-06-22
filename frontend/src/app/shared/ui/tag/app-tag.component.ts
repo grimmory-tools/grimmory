@@ -1,11 +1,13 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { translateSignal } from '@jsverse/transloco';
+import { LucideX } from '@lucide/angular';
 import { cn } from '../cn';
 import { tagRemoveVariants, tagVariants, type TagColor, type TagSize } from './app-tag.variants';
 
 @Component({
   selector: 'app-tag',
   standalone: true,
+  imports: [LucideX],
   host: { class: 'inline-flex align-middle' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -18,9 +20,7 @@ import { tagRemoveVariants, tagVariants, type TagColor, type TagSize } from './a
         [style.border-color]="customBorder()"
         [attr.aria-label]="ariaLabel() || null"
         (click)="clicked.emit($event)">
-        @if (icon()) {
-          <i [class]="icon()" aria-hidden="true"></i>
-        }
+        <span class="inline-flex empty:hidden [&>svg]:size-[1em] [&>svg]:shrink-0"><ng-content select="svg" /></span>
         @if (label()) {
           <span>{{ label() }}</span>
         }
@@ -32,9 +32,7 @@ import { tagRemoveVariants, tagVariants, type TagColor, type TagSize } from './a
         [style.background-color]="customBg()"
         [style.color]="customTextColor()"
         [style.border-color]="customBorder()">
-        @if (icon()) {
-          <i [class]="icon()" aria-hidden="true"></i>
-        }
+        <span class="inline-flex empty:hidden [&>svg]:size-[1em] [&>svg]:shrink-0"><ng-content select="svg" /></span>
         @if (label()) {
           <span>{{ label() }}</span>
         }
@@ -45,7 +43,7 @@ import { tagRemoveVariants, tagVariants, type TagColor, type TagSize } from './a
             [class]="removeClass()"
             [attr.aria-label]="resolvedRemoveLabel()"
             (click)="$event.stopPropagation(); remove.emit($event)">
-            <i class="pi pi-times text-[0.7em]" aria-hidden="true"></i>
+            <svg lucideX class="size-[0.9em]" aria-hidden="true"></svg>
           </button>
         }
       </span>
@@ -56,7 +54,6 @@ export class AppTagComponent {
   readonly color = input<TagColor>('neutral');
   readonly size = input<TagSize>('md');
   readonly label = input('');
-  readonly icon = input('');
   readonly styleClass = input('');
   readonly customColor = input('');
   readonly clickable = input(false, { transform: booleanAttribute });
