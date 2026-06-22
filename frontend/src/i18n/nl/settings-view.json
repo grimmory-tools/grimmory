@@ -28,6 +28,52 @@
         "sectionTitle": "",
         "sectionDesc": ""
     },
+    "dashboardScrollers": {
+        "sectionTitle": "Dashboardconfiguratie",
+        "sectionDesc": "Voeg maximaal 5 scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
+        "type": "Type",
+        "selectType": "Selecteer type",
+        "magicShelf": "",
+        "selectMagicShelf": "",
+        "sortField": "Sorteerveld",
+        "selectField": "Selecteer veld",
+        "direction": "Richting",
+        "selectDirection": "Selecteer richting",
+        "maxItems": "Max. items",
+        "addScroller": "Scroller toevoegen",
+        "resetToDefault": "Naar standaard resetten",
+        "scrollerTypes": {
+            "lastRead": "Verder lezen",
+            "lastListened": "Verder luisteren",
+            "latestAdded": "Recent toegevoegd",
+            "random": "Ontdek iets nieuws",
+            "magicShelf": "",
+            "default": "Scroller"
+        },
+        "sortFields": {
+            "title": "Titel",
+            "fileName": "Bestandsnaam",
+            "filePath": "Bestandspad",
+            "addedOn": "Datum toegevoegd",
+            "author": "Auteur",
+            "authorSurnameVorname": "Auteur (Achternaam)",
+            "seriesName": "Reeksnaam",
+            "seriesNumber": "Reeksnummer",
+            "personalRating": "Persoonlijke beoordeling",
+            "publisher": "Uitgever",
+            "publishedDate": "Publicatiedatum",
+            "lastReadTime": "Laatst gelezen",
+            "readStatus": "Leesstatus",
+            "dateFinished": "Datum voltooid",
+            "readingProgress": "Leesvoortgang",
+            "bookType": "Boektype",
+            "pageCount": "Pagina's"
+        },
+        "sortDirections": {
+            "asc": "Oplopend",
+            "desc": "Aflopend"
+        }
+    },
     "librarySort": {
         "viewTable": "",
         "sortFieldCount": "",

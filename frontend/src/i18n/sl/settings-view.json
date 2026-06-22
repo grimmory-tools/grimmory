@@ -1,6 +1,52 @@
 {
     "title": "Nastavitve pogleda",
     "description": "Prilagodi način prikaza knjig v svoji knjižnici, vključno z mrežo, možnostmi razvrščanja in obnašanjem stranske vrstice.",
+    "dashboardScrollers": {
+        "sectionTitle": "Konfiguracija nadzorne plošče",
+        "sectionDesc": "Dodaj do 5 drsnikov iz različnih zbirk knjig in prilagodi njihovo delovanje",
+        "type": "Vrsta",
+        "selectType": "Izberi vrsto",
+        "magicShelf": "Čarobna polica",
+        "selectMagicShelf": "Izberi čarobno polico",
+        "sortField": "Polje za razvrščanje",
+        "selectField": "Izberi polje",
+        "direction": "Smer",
+        "selectDirection": "Izberi smer",
+        "maxItems": "Največje št. elementov",
+        "addScroller": "Dodaj drsnik",
+        "resetToDefault": "Ponastavi na privzeto",
+        "scrollerTypes": {
+            "lastRead": "Nadaljuj z branjem",
+            "lastListened": "Nadaljuj s poslušanjem",
+            "latestAdded": "Zadnje dodano",
+            "random": "Odkrij nekaj novega",
+            "magicShelf": "Čarobna polica",
+            "default": "Drsnik"
+        },
+        "sortFields": {
+            "title": "Naslov",
+            "fileName": "Ime datoteke",
+            "filePath": "Pot datoteke",
+            "addedOn": "Datum dodajanja",
+            "author": "Avtor",
+            "authorSurnameVorname": "Avtor (Priimek)",
+            "seriesName": "Ime zbirke",
+            "seriesNumber": "Številka v zbirki",
+            "personalRating": "Osebna ocena",
+            "publisher": "Založba",
+            "publishedDate": "Datum izida",
+            "lastReadTime": "Nazadnje brano",
+            "readStatus": "Status branja",
+            "dateFinished": "Datum dokončanja",
+            "readingProgress": "Napredek branja",
+            "bookType": "Oblika datoteke",
+            "pageCount": "Strani"
+        },
+        "sortDirections": {
+            "asc": "Naraščajoče",
+            "desc": "Padajoče"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Nastavitve pogleda in razvrščanja knjižnic ter polic",
         "sectionDesc": "Konfiguriraj privzete nastavitve in specifične povozitve za razvrščanje ter način pogleda (mreža ali tabela) v brskalniku.",
