@@ -92,7 +92,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === 0"
-                  (click)="moveUp(i)">
+                  (onClick)="moveUp(i)">
                 </p-button>
                 <p-button
                   icon="pi pi-arrow-down"
@@ -101,7 +101,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === config.scrollers.length - 1"
-                  (click)="moveDown(i)">
+                  (onClick)="moveDown(i)">
                 </p-button>
                 <p-button
                   icon="pi pi-trash"
@@ -109,7 +109,7 @@
                   rounded
                   size="small"
                   severity="danger"
-                  (click)="removeScroller(i)"
+                  (onClick)="removeScroller(i)"
                   [disabled]="config.scrollers.length === 1">
                 </p-button>
               </div>
@@ -126,7 +126,7 @@
             severity="primary"
             outlined
             size="small"
-            (click)="addScroller()"
+            (onClick)="addScroller()"
             [disabled]="config.scrollers.length >= MAX_SCROLLERS">
           </p-button>
           <p-button
@@ -135,7 +135,7 @@
             severity="secondary"
             text
             size="small"
-            (click)="resetToDefault()">
+            (onClick)="resetToDefault()">
           </p-button>
         </div>
         <p-button
@@ -143,7 +143,7 @@
           icon="pi pi-save"
           outlined
           severity="success"
-          (click)="save()">
+          (onClick)="save()">
         </p-button>
       </div>
     </div>
