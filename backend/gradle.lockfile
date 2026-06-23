@@ -1,6 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
+# To regenerate this file, run: ./gradlew :dependencies --write-locks
 biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0=compileClasspath,testCompileClasspath
 ch.qos.logback:logback-classic:1.5.34=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.5.34=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
@@ -75,7 +76,7 @@ org.awaitility:awaitility:4.3.0=testCompileClasspath,testRuntimeClasspath
 org.eclipse.angus:angus-activation:2.0.3=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 org.eclipse.angus:angus-mail:2.0.5=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 org.flywaydb:flyway-core:12.4.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-org.flywaydb:flyway-mysql:12.8.1=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.flywaydb:flyway-mysql:12.9.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.freemarker:freemarker:2.3.34=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.glassfish.jaxb:jaxb-core:4.0.9=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 org.glassfish.jaxb:jaxb-runtime:4.0.9=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
