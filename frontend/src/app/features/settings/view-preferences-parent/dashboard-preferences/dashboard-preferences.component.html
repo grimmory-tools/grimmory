@@ -20,7 +20,7 @@
               </div>
 
               <div class="scroller-fields">
-                <div class="scroller-field" [class.expanded]="scroller.type !== 'magicShelf'">
+                <div class="scroller-field" [class.expanded]="scroller.type !== ScrollerType.MAGIC_SHELF">
                   <label [for]="'dashboard-scroller-type-' + scroller.id">{{ t('type') }}</label>
                   <p-select
                     fluid
@@ -33,7 +33,7 @@
                   </p-select>
                 </div>
 
-                @if (scroller.type === 'magicShelf') {
+                @if (scroller.type === ScrollerType.MAGIC_SHELF) {
                   <div class="scroller-field">
                     <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
                     <p-select
@@ -127,7 +127,7 @@
             outlined
             size="small"
             (click)="addScroller()"
-            [disabled]="config.scrollers.length >= 5">
+            [disabled]="config.scrollers.length >= MAX_SCROLLERS">
           </p-button>
           <p-button
             [label]="t('resetToDefault')"

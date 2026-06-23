@@ -100,6 +100,8 @@ export class DashboardPreferencesComponent {
 
   readonly MIN_ITEMS = MIN_ITEMS;
   readonly MAX_ITEMS = MAX_ITEMS;
+  readonly MAX_SCROLLERS = MAX_SCROLLERS;
+  readonly ScrollerType = ScrollerType;
 
   private readonly syncConfigEffect = effect(() => {
     this.config = structuredClone(this.configService.config());
