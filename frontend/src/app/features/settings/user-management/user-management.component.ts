@@ -7,17 +7,14 @@ import {TableModule} from 'primeng/table';
 import {LowerCasePipe, TitleCasePipe} from '@angular/common';
 import {User, UserService, UserUpdateRequest} from './user.service';
 import {MessageService} from 'primeng/api';
-import {Checkbox} from 'primeng/checkbox';
-import {MultiSelect} from 'primeng/multiselect';
 import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
 import {Dialog} from 'primeng/dialog';
 import {Password} from 'primeng/password';
-import {InputText} from 'primeng/inputtext';
 import {Tooltip} from 'primeng/tooltip';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
-import {ContentRestrictionsEditorComponent} from './content-restrictions-editor/content-restrictions-editor.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import { EditUserDataRowComponent } from './edit-user-data-row/edit-user-data-row.component';
 
 export interface UserWithEditing extends User {
   isEditing?: boolean;
@@ -31,17 +28,14 @@ export interface UserWithEditing extends User {
     FormsModule,
     Button,
     TableModule,
-    Checkbox,
-    MultiSelect,
     Dialog,
     Password,
-    InputText,
     LowerCasePipe,
     TitleCasePipe,
     Tooltip,
-    ContentRestrictionsEditorComponent,
     TranslocoDirective,
-    TranslocoPipe
+    TranslocoPipe,
+    EditUserDataRowComponent,
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],
@@ -58,7 +52,6 @@ export class UserManagementComponent implements OnInit {
 
   users: WritableSignal<UserWithEditing[]> = signal([]);
   currentUser: User | null = null;
-  editingLibraryIds: number[] = [];
   expandedRows: Record<string, boolean> = {};
 
   isPasswordDialogVisible = false;
@@ -78,16 +71,16 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
-
   loadUsers() {
     this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.users.set(data.map((user: UserWithEditing) => ({
           ...user,
           isEditing: false,
-          selectedLibraryIds: user.assignedLibraries?.map((lib) => lib.id!).filter(id => id !== undefined) as number[] || [],
-          libraryNames:
-            user.assignedLibraries?.map((lib) => lib.name).join(', ') || '',
+          selectedLibraryIds: (user.assignedLibraries ?? [])
+            .map((lib) => lib.id)
+            .filter((id): id is number => id !== undefined),
+          libraryNames: user.assignedLibraries?.map((lib) => lib.name).join(', ') || '',
         })));
       },
       error: () => {
@@ -111,9 +104,7 @@ export class UserManagementComponent implements OnInit {
 
   toggleEdit(user: UserWithEditing) {
     user.isEditing = !user.isEditing;
-    if (user.isEditing) {
-      this.editingLibraryIds = [...(user.selectedLibraryIds || [])];
-    } else {
+    if (!user.isEditing) {
       user.libraryNames =
         user.assignedLibraries
           ?.map((lib: Library) => lib.name)
@@ -121,20 +112,11 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
-  getLibraryAccessLabel(user: UserWithEditing): string {
-    if (user.libraryNames) {
-      return user.libraryNames;
-    }
-
-    return this.t.translate(
-      user.permissions.admin
-        ? 'settingsUsers.userInfo.allLibrariesAdmin'
-        : 'settingsUsers.userInfo.noLibrariesAssigned'
-    );
+  onLibraryIdsChange(user: UserWithEditing, ids: number[]) {
+    user.selectedLibraryIds = ids;
   }
 
   saveUser(user: UserWithEditing) {
-    user.selectedLibraryIds = [...this.editingLibraryIds];
     const updateRequest: UserUpdateRequest = {
       name: user.name,
       email: user.email,
@@ -226,65 +208,39 @@ export class UserManagementComponent implements OnInit {
   }
 
   getBookManagementPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canUpload) count++;
-    if (permissions.canDownload) count++;
-    if (permissions.canDeleteBook) count++;
-    if (permissions.canManageLibrary) count++;
-    if (permissions.canEmailBook) count++;
-    return count;
+    const p = user.permissions;
+    return [p.canUpload, p.canDownload, p.canDeleteBook, p.canManageLibrary, p.canEmailBook]
+      .filter(Boolean).length;
   }
 
   getDeviceSyncPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canSyncKoReader) count++;
-    if (permissions.canSyncKobo) count++;
-    if (permissions.canAccessOpds) count++;
-    return count;
+    const p = user.permissions;
+    return [p.canSyncKoReader, p.canSyncKobo, p.canAccessOpds].filter(Boolean).length;
   }
 
   getSystemAccessPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canAccessBookdrop) count++;
-    if (permissions.canAccessLibraryStats) count++;
-    if (permissions.canAccessUserStats) count++;
-    return count;
+    const p = user.permissions;
+    return [p.canAccessBookdrop, p.canAccessLibraryStats, p.canAccessUserStats].filter(Boolean).length;
   }
 
   getSystemConfigPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canAccessTaskManager) count++;
-    if (permissions.canManageGlobalPreferences) count++;
-    if (permissions.canManageMetadataConfig) count++;
-    if (permissions.canManageIcons) count++;
-    if (permissions.canManageFonts) count++;
-    return count;
+    const p = user.permissions;
+    return [p.canAccessTaskManager, p.canManageGlobalPreferences, p.canManageMetadataConfig, p.canManageIcons, p.canManageFonts]
+      .filter(Boolean).length;
   }
 
   getMetadataEditingPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canEditMetadata) count++;
-    if (permissions.canBulkAutoFetchMetadata) count++;
-    if (permissions.canBulkCustomFetchMetadata) count++;
-    if (permissions.canBulkEditMetadata) count++;
-    if (permissions.canBulkRegenerateCover) count++;
-    if (permissions.canMoveOrganizeFiles) count++;
-    if (permissions.canBulkLockUnlockMetadata) count++;
-    return count;
+    const p = user.permissions;
+    return [p.canEditMetadata, p.canBulkAutoFetchMetadata, p.canBulkCustomFetchMetadata,
+            p.canBulkEditMetadata, p.canBulkRegenerateCover, p.canMoveOrganizeFiles, p.canBulkLockUnlockMetadata]
+      .filter(Boolean).length;
   }
 
   getBulkResetPermissionsCount(user: User): number {
-    const permissions = user.permissions;
-    let count = 0;
-    if (permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress) count++;
-    if (permissions.canBulkResetKoReaderReadProgress) count++;
-    if (permissions.canBulkResetBookReadStatus) count++;
-    return count;
+    const p = user.permissions;
+    return [(p.canBulkResetGrimmoryReadProgress ?? p.canBulkResetBookloreReadProgress),
+            p.canBulkResetKoReaderReadProgress, p.canBulkResetBookReadStatus]
+      .filter(Boolean).length;
   }
 
   getPermissionLevel(count: number, total: number): string {
@@ -307,44 +263,7 @@ export class UserManagementComponent implements OnInit {
     return this.expandedRows[user.id];
   }
 
-  onAdminCheckboxChange(user: User) {
-    if (user.permissions.admin) {
-      user.permissions.canUpload = true;
-      user.permissions.canDownload = true;
-      user.permissions.canDeleteBook = true;
-      user.permissions.canEditMetadata = true;
-      user.permissions.canManageLibrary = true;
-      user.permissions.canEmailBook = true;
-      user.permissions.canSyncKoReader = true;
-      user.permissions.canSyncKobo = true;
-      user.permissions.canAccessOpds = true;
-      user.permissions.canAccessBookdrop = true;
-      user.permissions.canAccessLibraryStats = true;
-      user.permissions.canAccessUserStats = true;
-      user.permissions.canManageMetadataConfig = true;
-      user.permissions.canManageGlobalPreferences = true;
-      user.permissions.canAccessTaskManager = true;
-      user.permissions.canManageEmailConfig = true;
-      user.permissions.canManageIcons = true;
-      user.permissions.canManageFonts = true;
-      user.permissions.canBulkAutoFetchMetadata = true;
-      user.permissions.canBulkCustomFetchMetadata = true;
-      user.permissions.canBulkEditMetadata = true;
-      user.permissions.canBulkRegenerateCover = true;
-      user.permissions.canMoveOrganizeFiles = true;
-      user.permissions.canBulkLockUnlockMetadata = true;
-      user.permissions.canBulkResetGrimmoryReadProgress = true;
-      user.permissions.canBulkResetBookloreReadProgress = true;
-      user.permissions.canBulkResetKoReaderReadProgress = true;
-      user.permissions.canBulkResetBookReadStatus = true;
-    }
-  }
-
-  isPermissionDisabled(user: UserWithEditing): boolean {
-    return !user.isEditing || user.permissions.admin;
-  }
-  
-  editUserBtnEnabled(user: User) : boolean {
-    return !(this.editingLibraryIds.length === 0 && !user.permissions.admin);
+  editUserBtnEnabled(user: UserWithEditing): boolean {
+    return !((user.selectedLibraryIds?.length === 0) && !user.permissions.admin);
   }
 }
