@@ -1,6 +1,52 @@
 {
     "title": "Preferências de Visualização",
     "description": "Personalize como os livros são exibidos na sua biblioteca, incluindo layout da grade, opções de ordenação e comportamento da barra lateral.",
+    "dashboardScrollers": {
+        "sectionTitle": "Configuração do Painel",
+        "sectionDesc": "Adicione até 5 carrosséis de diferentes coleções de livros e personalize seu comportamento",
+        "type": "Tipo",
+        "selectType": "Selecionar tipo",
+        "magicShelf": "Prateleira Mágica",
+        "selectMagicShelf": "Selecionar prateleira mágica",
+        "sortField": "Campo de Ordenação",
+        "selectField": "Selecionar campo",
+        "direction": "Direção",
+        "selectDirection": "Selecionar direção",
+        "maxItems": "Máximo de Itens",
+        "addScroller": "Adicionar Carrossel",
+        "resetToDefault": "Redefinir para Padrão",
+        "scrollerTypes": {
+            "lastRead": "Continuar Lendo",
+            "lastListened": "Continuar Ouvindo",
+            "latestAdded": "Adicionados Recentemente",
+            "random": "Descubra Algo Novo",
+            "magicShelf": "Prateleira Mágica",
+            "default": "Carrossel"
+        },
+        "sortFields": {
+            "title": "Título",
+            "fileName": "Nome do Arquivo",
+            "filePath": "Caminho do Arquivo",
+            "addedOn": "Data de Adição",
+            "author": "Autor",
+            "authorSurnameVorname": "Autor (Sobrenome)",
+            "seriesName": "Nome da Série",
+            "seriesNumber": "Número da Série",
+            "personalRating": "Avaliação Pessoal",
+            "publisher": "Editora",
+            "publishedDate": "Data de Publicação",
+            "lastReadTime": "Última Leitura",
+            "readStatus": "Status de Leitura",
+            "dateFinished": "Data de Conclusão",
+            "readingProgress": "Progresso de Leitura",
+            "bookType": "Tipo de Livro",
+            "pageCount": "Páginas"
+        },
+        "sortDirections": {
+            "asc": "Ascendente",
+            "desc": "Descendente"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Preferências de Visualização e Ordenação de Biblioteca e Prateleira",
         "sectionDesc": "Configure preferências padrão e por biblioteca/prateleira para ordenação e modo de visualização (grade ou tabela) no navegador.",

@@ -1,0 +1,144 @@
+@use '../../../../shared/styles/settings-shared' as settings;
+
+.settings-card {
+  @include settings.settings-card;
+}
+
+.section-header {
+  @include settings.settings-section-header;
+}
+
+.section-title {
+  @include settings.settings-section-title;
+}
+
+.section-description {
+  @include settings.settings-section-description;
+}
+
+.section-body {
+  @include settings.settings-section-body;
+}
+
+.scrollers-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.scroller-item {
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  border-color: var(--p-content-border-color);
+  background: var(--p-content-background);
+  padding: 0.875rem;
+  margin-bottom: 0.6563rem;
+  border-radius: 0.3281rem;
+
+  @media (width <= 768px) {
+    padding: 0.6563rem !important;
+  }
+}
+
+.scroller-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6563rem;
+
+  @media (width <= 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+}
+
+.scroller-controls-left {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.5687rem;
+
+  @media (width <= 768px) {
+    padding-bottom: 0;
+    align-self: flex-start;
+  }
+}
+
+.scroller-controls-right {
+  display: flex;
+  gap: 0.4375rem;
+  padding-bottom: 0.2188rem;
+
+  @media (width <= 768px) {
+    padding-bottom: 0;
+    align-self: flex-end;
+  }
+}
+
+.scroller-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6563rem;
+  flex: 1;
+
+  @media (width <= 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.6563rem;
+  }
+
+  @media (width <= 640px) {
+    gap: 0.4375rem;
+  }
+}
+
+.scroller-field {
+  label {
+    display: block;
+    margin-bottom: 0.4375rem;
+    color: var(--color-text-secondary);
+    font-size: var(--app-text-sm);
+    font-weight: 500;
+  }
+
+  &.expanded {
+    flex: 1;
+
+    @media (width <= 768px) {
+      flex: unset;
+    }
+  }
+}
+
+.max-items-field {
+  max-width: 7.875rem;
+  flex-shrink: 0;
+
+  @media (width <= 768px) {
+    max-width: none;
+  }
+}
+
+.setting-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6563rem;
+  margin-top: 0.875rem;
+
+  .actions-left {
+    display: flex;
+    align-items: center;
+    gap: 0.4375rem;
+  }
+
+  @media (width <= 640px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    .actions-left {
+      flex-direction: column;
+    }
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+}

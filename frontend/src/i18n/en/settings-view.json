@@ -38,6 +38,55 @@
             "rose": "Rose"
         }
     },
+    "dashboardScrollers": {
+        "sectionTitle": "Dashboard Configuration",
+        "sectionDesc": "Add up to 5 scrollers from different book collections and customize their behavior.",
+        "type": "Type",
+        "selectType": "Select type",
+        "magicShelf": "Magic Shelf",
+        "selectMagicShelf": "Select magic shelf",
+        "sortField": "Sort Field",
+        "selectField": "Select field",
+        "direction": "Direction",
+        "selectDirection": "Select direction",
+        "maxItems": "Max Items",
+        "addScroller": "Add Scroller",
+        "resetToDefault": "Reset to Default",
+        "saveSettings": "Save Settings",
+        "saveSuccess": "Preferences Saved",
+        "saveSuccessDetail": "Your dashboard scroller configuration has been saved.",
+        "scrollerTypes": {
+            "lastRead": "Continue Reading",
+            "lastListened": "Continue Listening",
+            "latestAdded": "Recently Added",
+            "random": "Discover Something New",
+            "magicShelf": "Magic Shelf",
+            "default": "Scroller"
+        },
+        "sortFields": {
+            "title": "Title",
+            "fileName": "File Name",
+            "filePath": "File Path",
+            "addedOn": "Date Added",
+            "author": "Author",
+            "authorSurnameVorname": "Author (Surname)",
+            "seriesName": "Series Name",
+            "seriesNumber": "Series Number",
+            "personalRating": "Personal Rating",
+            "publisher": "Publisher",
+            "publishedDate": "Published Date",
+            "lastReadTime": "Last Read",
+            "readStatus": "Read Status",
+            "dateFinished": "Date Finished",
+            "readingProgress": "Reading Progress",
+            "bookType": "File Format",
+            "pageCount": "Pages"
+        },
+        "sortDirections": {
+            "asc": "Ascending",
+            "desc": "Descending"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Library and Shelf View & Sort Preferences",
         "sectionDesc": "Configure default and per-library/shelf preferences for sorting and view mode (grid or table) in the browser.",

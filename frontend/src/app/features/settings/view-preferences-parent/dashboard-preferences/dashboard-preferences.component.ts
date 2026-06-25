@@ -1,23 +1,18 @@
 import {Component, computed, effect, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
 import {Select} from 'primeng/select';
 import {InputNumber} from 'primeng/inputnumber';
-import {DashboardConfig, ScrollerConfig, ScrollerType} from '../../models/dashboard-config.model';
-import {DashboardConfigService} from '../../services/dashboard-config.service';
+import {DashboardConfig, DEFAULT_MAX_ITEMS, MAX_ITEMS, MAX_SCROLLERS, MIN_ITEMS, ScrollerConfig, ScrollerType} from '../../../dashboard/models/dashboard-config.model';
+import {DashboardConfigService} from '../../../dashboard/services/dashboard-config.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
-import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-
-export const MAX_SCROLLERS = 5;
-export const DEFAULT_MAX_ITEMS = 20;
-export const MIN_ITEMS = 10;
-export const MAX_ITEMS = 20;
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-dashboard-settings',
+  selector: 'app-dashboard-preferences',
   standalone: true,
   imports: [
     FormsModule,
@@ -25,15 +20,14 @@ export const MAX_ITEMS = 20;
     Checkbox,
     Select,
     InputNumber,
-    TranslocoDirective,
-    TranslocoPipe
+    TranslocoDirective
   ],
-  templateUrl: './dashboard-settings.component.html',
-  styleUrls: ['./dashboard-settings.component.scss']
+  templateUrl: './dashboard-preferences.component.html',
+  styleUrls: ['./dashboard-preferences.component.scss']
 })
-export class DashboardSettingsComponent {
+export class DashboardPreferencesComponent {
   private readonly configService = inject(DashboardConfigService);
-  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly messageService = inject(MessageService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly translocoService = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.translocoService.langChanges$, {
@@ -44,7 +38,7 @@ export class DashboardSettingsComponent {
 
   readonly availableScrollerTypes = computed(() => {
     this.activeLanguage(); // Trigger on language change
-    const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
+    const t = (key: string) => this.translocoService.translate(`settingsView.dashboardScrollers.${key}`);
     return [
       {label: t('scrollerTypes.lastRead'), value: ScrollerType.LAST_READ},
       {label: t('scrollerTypes.lastListened'), value: ScrollerType.LAST_LISTENED},
@@ -56,7 +50,7 @@ export class DashboardSettingsComponent {
 
   readonly sortFieldOptions = computed(() => {
     this.activeLanguage();
-    const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
+    const t = (key: string) => this.translocoService.translate(`settingsView.dashboardScrollers.${key}`);
     return [
       {label: t('sortFields.title'), value: 'title'},
       {label: t('sortFields.fileName'), value: 'fileName'},
@@ -80,7 +74,7 @@ export class DashboardSettingsComponent {
 
   readonly sortDirectionOptions = computed(() => {
     this.activeLanguage();
-    const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
+    const t = (key: string) => this.translocoService.translate(`settingsView.dashboardScrollers.${key}`);
     return [
       {label: t('sortDirections.asc'), value: 'asc'},
       {label: t('sortDirections.desc'), value: 'desc'}
@@ -106,6 +100,8 @@ export class DashboardSettingsComponent {
 
   readonly MIN_ITEMS = MIN_ITEMS;
   readonly MAX_ITEMS = MAX_ITEMS;
+  readonly MAX_SCROLLERS = MAX_SCROLLERS;
+  readonly ScrollerType = ScrollerType;
 
   private readonly syncConfigEffect = effect(() => {
     this.config = structuredClone(this.configService.config());
@@ -188,15 +184,15 @@ export class DashboardSettingsComponent {
       scroller.title = this.getScrollerTitle(scroller);
     });
     this.configService.saveConfig(this.config);
-    this.dialogRef.close();
-  }
-
-  cancel(): void {
-    this.dialogRef.close();
+    this.messageService.add({
+      severity: 'success',
+      summary: this.translocoService.translate('settingsView.dashboardScrollers.saveSuccess'),
+      detail: this.translocoService.translate('settingsView.dashboardScrollers.saveSuccessDetail'),
+      life: 1500,
+    });
   }
 
   resetToDefault(): void {
     this.configService.resetToDefault();
-    this.dialogRef.close();
   }
 }
