@@ -120,7 +120,7 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             Optional<List<AudibleContributor>> narrators,
             @JsonProperty("category_ladders")
             Optional<List<AudibleCategoryLadder>> categoryLadders,
-            AudibleRating rating,
+            Optional<AudibleRating> rating,
             @JsonProperty("product_images")
             Optional<Map<String, String>> productImages,
             @JsonProperty("publisher_summary")
@@ -375,6 +375,11 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             return null;
         }
 
+        if (product.title == null) {
+            // If title is null, we can assume that this is not a valid book.
+            return null;
+        }
+
         AudiobookMetadata audiobookMetadata = AudiobookMetadata.builder()
                 .durationSeconds(product.runtimeLengthMinutes.map(r -> r * 60L).orElse(null))
                 .build();
@@ -426,8 +431,8 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
                 .publishedDate(product.releaseDate)
                 .language(LanguageNormalizer.normalize(product.language))
                 .thumbnailUrl(product.productImages.map(m -> m.get(IMAGE_SIZE)).orElse(null))
-                .audibleRating(product.rating.overallDistribution().averageRating)
-                .audibleReviewCount(product.rating.reviewCount)
+                .audibleRating(product.rating.map(r -> r.overallDistribution.averageRating).orElse(null))
+                .audibleReviewCount(product.rating.map(AudibleRating::reviewCount).orElse(null))
                 .abridged(abridged)
                 .audiobookMetadata(audiobookMetadata)
                 .build();

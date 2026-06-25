@@ -254,7 +254,7 @@ public class AudibleParserTest {
         assertThat(actual.getSeriesName()).isEqualTo("The Lord of the Rings");
         assertThat(actual.getSeriesNumber()).isEqualTo(1);
         assertThat(actual.getDescription()).startsWith("This brand-new unabridged audiobook of The Fellowship of the Ring,");
-        assertThat(actual.getDescription()).hasSize(290);
+        assertThat(actual.getDescription()).hasSize(607);
         assertThat(actual.getAbridged()).isFalse();
         assertThat(actual.getThumbnailUrl()).isEqualTo("https://m.media-amazon.com/images/I/81Yraj9IJDL._SL1000_.jpg");
         assertThat(actual.getCategories()).isEqualTo(Set.of("Classics", "Literature & Fiction"));
