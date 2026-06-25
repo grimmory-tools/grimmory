@@ -199,5 +199,10 @@
     "language": {
         "savedDetail": "",
         "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
+        "label": ""
     }
 }
