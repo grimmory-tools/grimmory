@@ -17,7 +17,7 @@
       <app-tag [color]="libraryForm().dirty() ? 'amber' : 'neutral'" [label]="libraryForm().dirty() ? 'dirty' : 'pristine'" />
       <app-tag [color]="libraryForm().touched() ? 'sky' : 'neutral'" [label]="libraryForm().touched() ? 'touched' : 'untouched'" />
       @if (libraryForm().submitting()) {
-        <app-tag color="primary" label="submitting"><svg lucideLoaderCircle></svg></app-tag>
+        <app-tag color="primary" label="submitting"><svg lucideLoaderCircle class="animate-spin"></svg></app-tag>
       }
     </div>
 
