@@ -241,7 +241,13 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 return null;
             }
 
-            return root.path("data").path("getBookByLegacyId");
+            JsonNode bookNode = root.path("data").path("getBookByLegacyId");
+
+            if (bookNode.isMissingNode() || bookNode.isNull()) {
+                return null;
+            }
+
+            return bookNode;
         } catch (NumberFormatException e) {
             log.error("Invalid Goodreads ID format: {}", goodreadsId);
             return null;
