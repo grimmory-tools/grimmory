@@ -61,7 +61,9 @@
         "googleApiPlaceholder": "输入 Google Books API 密钥",
         "apiToken": "API 令牌",
         "hardcoverPlaceholder": "输入 Hardcover API 令牌",
-        "comicvinePlaceholder": "输入 Comic Vine API 令牌"
+        "comicvinePlaceholder": "输入 Comic Vine API 令牌",
+        "goodreadsWarning": "",
+        "goodreadsWarningReadMore": ""
     },
     "fieldSelector": {
         "sectionTitle": "元数据编辑器和选择器中的启用字段",
