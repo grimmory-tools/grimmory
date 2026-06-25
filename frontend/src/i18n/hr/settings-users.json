@@ -72,7 +72,7 @@
         "koboSync": "Kobo sinkronizacija",
         "opdsFeedAccess": "Pristup OPDS feedu",
         "bulkResetGrimmory": "Skupno vraćanje Grimmory napretka čitanja",
-        "bulkResetKoreader": "Skupno vraćanje KOReader napretka čitanja",
+        "bulkResetKoreader": "Skupno vraćanje KoReader napretka čitanja",
         "bulkResetReadStatus": "Skupno vraćanje statusa čitanja knjiga"
     },
     "permissions": "Dozvole",
