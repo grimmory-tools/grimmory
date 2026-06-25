@@ -33,6 +33,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -82,9 +83,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 }
             }
             """;
-
     private static final String BASE_AUTOCOMPLETE_URL = "https://www.goodreads.com/book/auto_complete?format=json&q=";
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
+    private static final Pattern PATTERN_PATH_GOODREADS_ID = Pattern.compile("^/book/show/([0-9]+)[^/]+$");
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
 
     private final HttpClient httpClient;
@@ -198,21 +199,23 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 .GET()
                 .build();
         HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-        URI finalUri = response.uri();
-        String path = finalUri.getPath();
-        String id = path.substring(path.lastIndexOf('/') + 1);
+        String path = response.uri().getPath();
+        var goodreadsIdMatcher = PATTERN_PATH_GOODREADS_ID.matcher(path);
+        if (!goodreadsIdMatcher.matches()) {
+            return null;
+        }
+        String id = goodreadsIdMatcher.group(1);
         log.info("GoodReads: ISBN {} resolved to legacyId {}", isbn, id);
         return id;
     }
 
     private JsonNode fetchBookFromGraphql(String goodreadsId) {
-        String numericPart = goodreadsId.split("-")[0].split("\\.")[0];
         try {
-            int legacyId = Integer.parseInt(numericPart);
+            int legacyBookId = Integer.parseInt(goodreadsId);
 
             ObjectNode payload = objectMapper.createObjectNode()
                     .put("operationName", "getBookPageData")
-                    .set("variables", objectMapper.createObjectNode().put("legacyBookId", legacyId))
+                    .set("variables", objectMapper.createObjectNode().put("legacyBookId", legacyBookId))
                     .put("query", GRAPHQL_QUERY);
             String requestBody = payload.toString();
 
