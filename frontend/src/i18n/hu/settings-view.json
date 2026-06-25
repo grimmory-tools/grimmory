@@ -28,7 +28,7 @@
     },
     "dashboardScrollers": {
         "sectionTitle": "Kezdőlap Konfigurálása",
-        "sectionDesc": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket",
+        "sectionDesc": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket.",
         "type": "Típus",
         "selectType": "Típus kiválasztása",
         "magicShelf": "Varázspolc",
