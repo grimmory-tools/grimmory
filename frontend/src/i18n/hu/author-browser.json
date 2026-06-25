@@ -35,13 +35,13 @@
         "saving": "Mentés...",
         "nameLabel": "Név",
         "toast": {
-            "photoUploadErrorDetail": "",
+            "photoUploadErrorDetail": "Nem sikerült feltölteni a szerző fotóját.",
             "successDetail": "A szerző adatai sikeresen frissítve.",
-            "errorDetail": "",
-            "photoUploadedDetail": "",
-            "errorSummary": "",
+            "errorDetail": "Nem sikerült frissíteni a szerző adatait.",
+            "photoUploadedDetail": "Szerző fotója sikeresen feltöltésre került.",
+            "errorSummary": "Frissítés sikertelen",
             "successSummary": "Szerző frissítve",
-            "photoUploadedSummary": ""
+            "photoUploadedSummary": "Fotó feltöltve"
         },
         "saveBtn": "Mentés",
         "searchPhotoTooltip": "Fotó keresése",
@@ -75,52 +75,52 @@
         "deselectAll": "Összes kiválasztás megszüntetése"
     },
     "photoSearch": {
-        "selectBtn": "",
-        "queryLabel": "",
-        "noResults": "",
-        "readyHint": "",
-        "resetTooltip": "",
-        "resultsFound": "",
-        "readyTitle": "",
-        "searchBtn": "",
-        "photoAlt": "",
-        "queryPlaceholder": "",
+        "selectBtn": "Kiválasztás",
+        "queryLabel": "Szerző neve",
+        "noResults": "Nem található fotó",
+        "readyHint": "Szerző nevének beírásával és a Keresésre kattintással kereshető fotó",
+        "resetTooltip": "Keresés visszaállítása",
+        "resultsFound": "{{ count }} fotó található",
+        "readyTitle": "Fotók keresése",
+        "searchBtn": "Keresés",
+        "photoAlt": "Szerző fotó {{ index }}",
+        "queryPlaceholder": "Szerző nevének beírása fotó kereséséhez",
         "noResultsHint": "",
-        "searching": ""
+        "searching": "Fotók keresése..."
     },
     "match": {
         "matchBtn": "",
-        "asinLabel": "",
+        "asinLabel": "ASIN",
         "searchBtn": "",
         "toast": {
             "matchSuccessSummary": "",
-            "matchFailedSummary": "",
+            "matchFailedSummary": "Egyeztetés sikertelen",
             "searchFailedDetail": "",
-            "searchFailedSummary": "",
+            "searchFailedSummary": "Keresés sikertelen",
             "matchFailedDetail": "",
-            "matchSuccessDetail": ""
+            "matchSuccessDetail": "Szersző metaadatai sikeresen frissítve."
         },
         "resultsFound": "",
-        "authorNameLabel": "",
+        "authorNameLabel": "Szerző neve",
         "regionLabel": "",
         "noResultsHint": "",
         "readyToSearch": "",
-        "authorNamePlaceholder": "",
+        "authorNamePlaceholder": "Szerző nevének beírása kereséshez",
         "searching": "",
         "asinPlaceholder": "",
         "readyToSearchHint": "",
         "noResults": ""
     },
     "detail": {
-        "booksTab": "",
-        "quickMatchTooltip": "",
-        "showMore": "",
-        "noBooksFound": "",
-        "showLess": "",
-        "editTab": "",
-        "booksBy": "",
-        "loading": "",
-        "matchTab": ""
+        "booksTab": "Szerző adatai",
+        "quickMatchTooltip": "Gyors egyeztetés",
+        "showMore": "Több megjelenítése",
+        "noBooksFound": "Nem található könyv ettől a szerzőtől.",
+        "showLess": "Kevesebb megjelenítése",
+        "editTab": "Adatok szerkesztése",
+        "booksBy": "{{ name }} könyvei",
+        "loading": "Szerző adatainak betöltése...",
+        "matchTab": "Szerző keresése"
     },
     "card": {
         "menu": {
