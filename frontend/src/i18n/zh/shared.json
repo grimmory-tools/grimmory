@@ -150,5 +150,60 @@
         "toast": {
             "createFailedDefault": "创建管理员用户失败。请重试。"
         }
+    },
+    "ui": {
+        "validation": {
+            "min": "",
+            "maxLength": "",
+            "parse": "",
+            "email": "",
+            "required": "",
+            "max": "",
+            "default": "",
+            "minLength": "",
+            "pattern": ""
+        },
+        "tag": {
+            "removeTag": "",
+            "removeLabel": ""
+        },
+        "input": {
+            "hidePassword": "",
+            "trailingAction": "",
+            "showPassword": ""
+        },
+        "select": {
+            "noResults": "",
+            "selectedCount": "",
+            "clearSelection": "",
+            "search": ""
+        },
+        "rating": {
+            "valueText": "",
+            "setRatingTo": ""
+        },
+        "message": {
+            "issueCount": "",
+            "issuePosition": "",
+            "previousIssue": "",
+            "nextIssue": ""
+        },
+        "spinner": {
+            "loading": ""
+        },
+        "autocomplete": {
+            "noResults": "",
+            "removeTag": ""
+        },
+        "datePicker": {
+            "nextMonth": "",
+            "previousMonth": ""
+        }
+    },
+    "message": {
+        "previousIssue": "",
+        "nextIssue": "",
+        "issuePosition": "",
+        "issueCount": ""
     }
 }
