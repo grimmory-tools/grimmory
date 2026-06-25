@@ -12,17 +12,17 @@
 html {
   --mobile-shell-active: 0;
 
-  font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  font-family: var(--font-family);
   font-size: var(--font-size-root);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background-color: var(--color-app);
   color: var(--color-text);
-  font-family: var(--font-family), serif;
+  font-family: var(--font-family);
   font-size: var(--app-text-base);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 picture,
@@ -67,6 +67,7 @@ h6 {
   color: var(--color-text-strong);
   font-weight: 500;
   line-height: 1.2;
+  text-wrap: balance;
   overflow-wrap: break-word;
 
   &:first-child {
@@ -102,6 +103,7 @@ p {
   margin: 0 0 0.875rem;
   color: var(--color-text);
   line-height: 1.5;
+  text-wrap: pretty;
   overflow-wrap: break-word;
 
   &:last-child {
@@ -111,6 +113,12 @@ p {
 
 p.p-secondary {
   color: var(--color-text-secondary);
+}
+
+li,
+figcaption,
+blockquote {
+  text-wrap: pretty;
 }
 
 mark {

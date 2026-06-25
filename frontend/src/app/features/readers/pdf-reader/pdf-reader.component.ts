@@ -124,7 +124,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private initTimeout?: ReturnType<typeof setTimeout>;
   private isInitializingBookViewer = false;
   private pdfFetchAbortController?: AbortController;
-  private cachedPdfBuffer: ArrayBuffer | null = null;
   private suppressProgressSave = false;
   private initialPage = 1;
   private pendingDocTargetPage: number | null = null;
@@ -485,16 +484,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
       if (this.isPanActive()) {
         this.embedPdfBook.setPanMode(true);
-      }
-
-      // Cache the raw PDF bytes so the doc-viewer switch never needs a network request
-      if (!this.cachedPdfBuffer) {
-        const blobSrc = this.pdfBlobUrl || (this.bookData.startsWith('blob:') ? this.bookData : null);
-        if (blobSrc) {
-          fetch(blobSrc).then(r => r.arrayBuffer()).then(buf => {
-            this.cachedPdfBuffer = buf;
-          }).catch(() => { /* caching is best-effort */ });
-        }
       }
 
       // Initialize bookmark service early so toggleBookmark works before documentOpened$
@@ -979,24 +968,21 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     try {
       let pdfBuffer: ArrayBuffer;
 
-      if (this.cachedPdfBuffer) {
-        // Use the in-memory cache — completely network-free
-        pdfBuffer = this.cachedPdfBuffer.slice(0);
+      const source = this.pdfBlobUrl || this.bookData;
+      if (source.startsWith('blob:')) {
+        const res = await fetch(source);
+        pdfBuffer = await res.arrayBuffer();
       } else {
-        const source = this.pdfBlobUrl || this.bookData;
-        if (source.startsWith('blob:')) {
-          const res = await fetch(source);
-          pdfBuffer = await res.arrayBuffer();
-        } else {
-          const headers: Record<string, string> = {};
-          const token = this.authService.getInternalAccessToken();
-          if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-          }
-          const response = await fetch(source, { headers, credentials: 'include' });
-          if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
-          pdfBuffer = await response.arrayBuffer();
+        const headers: Record<string, string> = {};
+        const token = this.authService.getInternalAccessToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
         }
+        const response = await fetch(source, {headers, credentials: 'include'});
+        if (!response.ok) {
+          throw new Error(`PDF fetch failed: ${response.status}`);
+        }
+        pdfBuffer = await response.arrayBuffer();
       }
 
       if (this.viewerMode() !== 'document') return;
@@ -1159,7 +1145,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   private updateSavedPdfCache(buffer: ArrayBuffer): void {
     const savedBuffer = buffer.slice(0);
-    this.cachedPdfBuffer = savedBuffer;
     this.revokePdfBlobUrl();
     this.pdfBlobUrl = URL.createObjectURL(new Blob([savedBuffer], { type: 'application/pdf' }));
   }
@@ -1317,7 +1302,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.touchCleanup?.();
 
     this.revokePdfBlobUrl();
-    this.cachedPdfBuffer = null;
     if (this.bookData?.startsWith('blob:')) {
       URL.revokeObjectURL(this.bookData);
     }

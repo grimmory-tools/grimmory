@@ -443,9 +443,9 @@ public class LubimyCzytacParser implements BookParser {
     private boolean isConnectivityError(Exception e) {
         Throwable cause = e;
         while (cause != null) {
-            if (e instanceof ConnectException ||
-                    e instanceof UnresolvedAddressException ||
-                    e instanceof SocketTimeoutException) {
+            if (cause instanceof ConnectException ||
+                    cause instanceof UnresolvedAddressException ||
+                    cause instanceof SocketTimeoutException) {
                 return true;
             }
             cause = cause.getCause();

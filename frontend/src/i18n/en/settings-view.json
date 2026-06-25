@@ -6,9 +6,14 @@
         "label": "Language",
         "savedDetail": "Your language preference has been saved."
     },
+    "uiFont": {
+        "label": "Interface Font",
+        "accessibleLabel": "Use accessible font",
+        "savedDetail": "Your interface font preference has been saved."
+    },
     "theme": {
         "sectionTitle": "Display",
-        "sectionDesc": "Configure the language, appearance, and theme for your account.",
+        "sectionDesc": "Configure the language, interface font, appearance, and theme for your account.",
         "oledDarkMode": "OLED dark mode",
         "savedDetail": "Your display preferences have been saved.",
         "syncSavedDetail": "Your theme sync preference has been saved.",

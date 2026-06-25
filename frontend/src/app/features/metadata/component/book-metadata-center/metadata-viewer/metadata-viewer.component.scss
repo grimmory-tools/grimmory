@@ -347,6 +347,7 @@
 .rating-value {
   font-weight: 600;
   font-size: var(--app-text-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
 
@@ -440,6 +441,7 @@
 
 .metadata-value {
   color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -773,6 +775,7 @@
 
 .navigation-position {
   font-size: var(--app-text-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
 }
 
@@ -830,6 +833,7 @@
   font-size: 0.8313rem;
   color: var(--color-text);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .comic-volume-number,

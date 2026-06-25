@@ -163,6 +163,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="saveUser(user)"
+                      [disabled] = "!editUserBtnEnabled(user)"
                       [pTooltip]="t('actions.saveChanges')">
                     </p-button>
                     <p-button
@@ -215,6 +216,14 @@
                             appendTo="body"
                             [disabled]="user.permissions.admin">
                           </p-multiSelect>
+                          @if (editingLibraryIds.length === 0 && !user.permissions.admin) {
+                            <div class="form-field">
+                            <small class="field-error">
+                              <i class="pi pi-exclamation-circle"></i>
+                              {{ t('createDialog.libraryRequired') }}
+                            </small>
+                            </div>
+                          }
                         } @else {
                           <span>{{ getLibraryAccessLabel(user) }}</span>
                         }
