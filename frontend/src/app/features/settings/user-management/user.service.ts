@@ -334,6 +334,7 @@ export interface User {
     canEmailBook: boolean;
     canDeleteBook: boolean;
     canEditMetadata: boolean;
+    canConvertBook: boolean;
     canManageLibrary: boolean;
     canManageMetadataConfig: boolean;
     canSyncKoReader: boolean;

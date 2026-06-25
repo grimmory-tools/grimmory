@@ -57,6 +57,7 @@ public class UserProvisioningService {
         perms.setPermissionUpload(true);
         perms.setPermissionDownload(true);
         perms.setPermissionEditMetadata(true);
+        perms.setPermissionConvertBook(true);
         perms.setPermissionManageLibrary(true);
         perms.setPermissionEmailBook(true);
         perms.setPermissionDeleteBook(true);
@@ -105,6 +106,7 @@ public class UserProvisioningService {
         permissions.setPermissionUpload(request.isPermissionUpload());
         permissions.setPermissionDownload(request.isPermissionDownload());
         permissions.setPermissionEditMetadata(request.isPermissionEditMetadata());
+        permissions.setPermissionConvertBook(request.isPermissionConvertBook());
         permissions.setPermissionManageLibrary(request.isPermissionManageLibrary());
         permissions.setPermissionEmailBook(request.isPermissionEmailBook());
         permissions.setPermissionDeleteBook(request.isPermissionDeleteBook());
@@ -161,6 +163,7 @@ public class UserProvisioningService {
             perms.setPermissionUpload(defaultPermissions.contains("permissionUpload"));
             perms.setPermissionDownload(defaultPermissions.contains("permissionDownload"));
             perms.setPermissionEditMetadata(defaultPermissions.contains("permissionEditMetadata"));
+            perms.setPermissionConvertBook(defaultPermissions.contains("permissionConvertBook"));
             perms.setPermissionManageLibrary(defaultPermissions.contains("permissionManageLibrary"));
             perms.setPermissionEmailBook(defaultPermissions.contains("permissionEmailBook"));
             perms.setPermissionDeleteBook(defaultPermissions.contains("permissionDeleteBook"));
@@ -224,6 +227,7 @@ public class UserProvisioningService {
             permissions.setPermissionUpload(defaultPermissions.contains("permissionUpload"));
             permissions.setPermissionDownload(defaultPermissions.contains("permissionDownload"));
             permissions.setPermissionEditMetadata(defaultPermissions.contains("permissionEditMetadata"));
+            permissions.setPermissionConvertBook(defaultPermissions.contains("permissionConvertBook"));
             permissions.setPermissionManageLibrary(defaultPermissions.contains("permissionManageLibrary"));
             permissions.setPermissionEmailBook(defaultPermissions.contains("permissionEmailBook"));
             permissions.setPermissionDeleteBook(defaultPermissions.contains("permissionDeleteBook"));

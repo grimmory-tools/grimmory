@@ -15,7 +15,7 @@
         "bookMgmt": "ブック管理: {{count}}/5",
         "systemAccess": "システムアクセス: {{count}}/3",
         "systemConfig": "システム設定: {{count}}/5",
-        "metadataEditing": "メタデータ編集: {{count}}/7",
+        "metadataEditing": "メタデータ編集: {{count}}/8",
         "deviceSync": "デバイス同期: {{count}}/3",
         "bulkReset": "一括リセット: {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "アイコンを管理",
         "manageFonts": "フォントを管理",
         "editSingleMetadata": "単一メタデータを編集",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "メタデータ一括自動取得",
         "bulkCustomFetch": "メタデータ一括カスタム取得",
         "accessBulkEditor": "一括メタデータエディタにアクセス",

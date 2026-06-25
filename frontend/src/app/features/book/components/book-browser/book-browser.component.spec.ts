@@ -2,12 +2,13 @@ import {signal, WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, ParamMap, Router} from '@angular/router';
 import {BehaviorSubject, Subject} from 'rxjs';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi, type Mock} from 'vitest';
 import {ConfirmationService, MessageService} from 'primeng/api';
 
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
+import {BookConversionService} from '../../service/book-conversion.service';
 import {LibraryShelfMenuService} from '../../service/library-shelf-menu.service';
 import {Book} from '../../model/book.model';
 import {SortDirection, SortOption} from '../../model/sort.model';
@@ -64,6 +65,7 @@ function makeCurrentUser() {
       canEmailBook: false,
       canDeleteBook: false,
       canEditMetadata: false,
+      canConvertBook: false,
       canManageLibrary: false,
       canManageMetadataConfig: false,
       canSyncKoReader: false,
@@ -103,6 +105,13 @@ function makeCurrentUser() {
     },
   } as const;
 }
+interface BookSelectionServiceStub {
+  selectedBooks: WritableSignal<Set<number>>;
+  selectedCount: WritableSignal<number>;
+  deselectAll: Mock;
+  setCurrentBooks: Mock;
+}
+
 
 interface BookBrowserHarness {
   component: BookBrowserComponent;
@@ -110,6 +119,9 @@ interface BookBrowserHarness {
   booksError: WritableSignal<string | null>;
   isBooksLoading: WritableSignal<boolean>;
   paramMap$: BehaviorSubject<ParamMap>;
+  bookSelectionService: BookSelectionServiceStub;
+  openBulkBookConverterDialog: Mock;
+  bulkConverterClose$: Subject<boolean>;
   setHasNextPage: (value: boolean) => void;
   setIsFetchingNextPage: (value: boolean) => void;
   queryParamsService: {
@@ -135,6 +147,10 @@ function createHarness(options?: {
   booksError?: string | null;
   isBooksLoading?: boolean;
   translate?: (key: string) => string;
+  selectedBookIds?: number[];
+  conversionAvailable?: boolean;
+  currentUserAdmin?: boolean;
+  currentUserCanConvertBook?: boolean;
 }): BookBrowserHarness {
   const books = signal<Book[]>(
     options?.books ?? [
@@ -147,7 +163,28 @@ function createHarness(options?: {
   const isBooksLoading = signal<boolean>(options?.isBooksLoading ?? false);
   const isFetchingNextPage = signal(false);
   const hasNextPage = signal(false);
-  const currentUser = signal(makeCurrentUser());
+  const currentUserValue = makeCurrentUser();
+  const currentUser = signal({
+    ...currentUserValue,
+    permissions: {
+      ...currentUserValue.permissions,
+      admin: options?.currentUserAdmin ?? false,
+      canConvertBook: options?.currentUserCanConvertBook ?? false,
+    },
+  });
+  const selectedBooks = signal<Set<number>>(new Set(options?.selectedBookIds ?? []));
+  const selectedCount = signal(selectedBooks().size);
+  const bookSelectionService: BookSelectionServiceStub = {
+    selectedBooks,
+    selectedCount,
+    deselectAll: vi.fn(),
+    setCurrentBooks: vi.fn(),
+  };
+  const conversionCanConvert = signal(options?.conversionAvailable ?? false);
+  const bulkConverterClose$ = new Subject<boolean>();
+  const openBulkBookConverterDialog = vi.fn(() => Promise.resolve({
+    onClose: bulkConverterClose$.asObservable(),
+  }));
   const showFilter = signal(false);
   const seriesCollapsed = signal(false);
   const routerEvents$ = new Subject<unknown>();
@@ -226,12 +263,7 @@ function createHarness(options?: {
       },
       {
         provide: BookSelectionService,
-        useValue: {
-          selectedBooks: signal([]),
-          selectedCount: signal(0),
-          deselectAll: vi.fn(),
-          setCurrentBooks: vi.fn(),
-        },
+        useValue: bookSelectionService,
       },
       {
         provide: BookNavigationService,
@@ -286,7 +318,8 @@ function createHarness(options?: {
         },
       },
       {provide: BookMetadataManageService, useValue: {}},
-      {provide: BookDialogHelperService, useValue: {}},
+      {provide: BookConversionService, useValue: {canConvert: conversionCanConvert.asReadonly()}},
+      {provide: BookDialogHelperService, useValue: {openBulkBookConverterDialog}},
       {
         provide: BookMenuService,
         useValue: {
@@ -353,6 +386,9 @@ function createHarness(options?: {
     booksError,
     isBooksLoading,
     paramMap$,
+    bookSelectionService,
+    openBulkBookConverterDialog,
+    bulkConverterClose$,
     setHasNextPage: value => hasNextPage.set(value),
     setIsFetchingNextPage: value => isFetchingNextPage.set(value),
     queryParamsService,
@@ -477,6 +513,57 @@ describe('BookBrowserComponent', () => {
 
     expect(collapseBooksSpy).toHaveBeenCalled();
   });
+  it('gates bulk conversion on capability, selected books, and conversion permission', () => {
+    expect(createHarness({
+      selectedBookIds: [1],
+      conversionAvailable: false,
+      currentUserCanConvertBook: true,
+    }).component.canConvertSelectedBooks()).toBe(false);
+
+    expect(createHarness({
+      selectedBookIds: [],
+      conversionAvailable: true,
+      currentUserCanConvertBook: true,
+    }).component.canConvertSelectedBooks()).toBe(false);
+
+    expect(createHarness({
+      selectedBookIds: [1],
+      conversionAvailable: true,
+      currentUserCanConvertBook: true,
+    }).component.canConvertSelectedBooks()).toBe(true);
+
+    expect(createHarness({
+      selectedBookIds: [1],
+      conversionAvailable: true,
+      currentUserAdmin: true,
+    }).component.canConvertSelectedBooks()).toBe(true);
+  });
+
+  it('opens bulk conversion for selected books and clears selection after success', async () => {
+    const {
+      component,
+      openBulkBookConverterDialog,
+      bulkConverterClose$,
+      bookSelectionService,
+    } = createHarness({
+      selectedBookIds: [1, 2],
+      conversionAvailable: true,
+      currentUserCanConvertBook: true,
+    });
+
+    TestBed.flushEffects();
+    vi.runOnlyPendingTimers();
+
+    await component.convertSelectedBooks();
+
+    expect(openBulkBookConverterDialog).toHaveBeenCalledOnce();
+    expect(openBulkBookConverterDialog.mock.calls[0][0].map((book: Book) => book.id)).toEqual([2, 1]);
+
+    bulkConverterClose$.next(true);
+
+    expect(bookSelectionService.deselectAll).toHaveBeenCalledOnce();
+  });
+
 
   it.skip('uses the known total book count while more pages are available', () => {
     const {component, setHasNextPage} = createHarness({totalElements: 100});

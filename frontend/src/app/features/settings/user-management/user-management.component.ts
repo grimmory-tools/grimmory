@@ -269,6 +269,7 @@ export class UserManagementComponent implements OnInit {
     const permissions = user.permissions;
     let count = 0;
     if (permissions.canEditMetadata) count++;
+    if (permissions.canConvertBook) count++;
     if (permissions.canBulkAutoFetchMetadata) count++;
     if (permissions.canBulkCustomFetchMetadata) count++;
     if (permissions.canBulkEditMetadata) count++;
@@ -313,6 +314,7 @@ export class UserManagementComponent implements OnInit {
       user.permissions.canDownload = true;
       user.permissions.canDeleteBook = true;
       user.permissions.canEditMetadata = true;
+      user.permissions.canConvertBook = true;
       user.permissions.canManageLibrary = true;
       user.permissions.canEmailBook = true;
       user.permissions.canSyncKoReader = true;

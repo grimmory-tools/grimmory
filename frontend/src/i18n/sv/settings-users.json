@@ -15,7 +15,7 @@
         "bookMgmt": "Bokhantering: {{count}}/5",
         "systemAccess": "Systemåtkomst: {{count}}/3",
         "systemConfig": "Systemkonfiguration: {{count}}/5",
-        "metadataEditing": "Metadataredigering: {{count}}/7",
+        "metadataEditing": "Metadataredigering: {{count}}/8",
         "deviceSync": "Enhetssynk: {{count}}/3",
         "bulkReset": "Massåterställning: {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Hantera ikoner",
         "manageFonts": "Hantera typsnitt",
         "editSingleMetadata": "Redigera enskild metadata",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Automatisk masshämtning av metadata",
         "bulkCustomFetch": "Anpassad masshämtning av metadata",
         "accessBulkEditor": "Åtkomst till massmetadataredigeraren",

@@ -3,6 +3,7 @@ import {Button} from 'primeng/button';
 import {DecimalPipe, NgClass} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
+import {BookConversionService} from '../../../../book/service/book-conversion.service';
 import {Rating, RatingRateEvent} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
 import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
@@ -111,6 +112,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   protected userService = inject(UserService);
   private appSettingsService = inject(AppSettingsService);
   private confirmationService = inject(ConfirmationService);
+  private bookConversionService = inject(BookConversionService);
 
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -426,6 +428,18 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
     return items;
   });
+  readonly canConvertBook = computed(() => {
+    const book = this.currentBook();
+    const user = this.userState();
+    if (!book || !user || !this.bookConversionService.canConvert()) {
+      return false;
+    }
+    if (!user.permissions.admin && !user.permissions.canConvertBook) {
+      return false;
+    }
+    return this.hasAnyFiles(book) && book.primaryFile?.bookType !== 'AUDIOBOOK';
+  });
+
   get bookInSeries(): Book[] {
     return this.bookInSeriesSignal();
   }
@@ -1265,6 +1279,10 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
   protected readonly ResetProgressTypes = ResetProgressTypes;
   protected readonly ReadStatus = ReadStatus;
+
+  async convertBook(book: Book): Promise<void> {
+    await this.bookDialogHelperService.openBookConverterDialog(book);
+  }
 
   navigatePrevious(): void {
     const prevBookId = this.bookNavigationService.previousBookId();

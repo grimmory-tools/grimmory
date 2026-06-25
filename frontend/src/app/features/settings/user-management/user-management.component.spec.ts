@@ -76,6 +76,26 @@ describe('UserManagementComponent', () => {
     fixture.destroy();
   });
 
+
+  it('counts and grants book conversion permission with metadata permissions', () => {
+    const userState = signal<User | null>(buildUser({admin: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUsers = vi.fn(() => of([] as UserWithEditing[]));
+    const user = buildUser({canEditMetadata: true, canConvertBook: true});
+    const adminUser = buildUser({admin: true});
+
+    setupUserManagementTest({userState, appSettingsState, getUsers});
+
+    const fixture = TestBed.createComponent(UserManagementComponent);
+    const component = fixture.componentInstance;
+
+    expect(component.getMetadataEditingPermissionsCount(user)).toBe(2);
+
+    component.onAdminCheckboxChange(adminUser);
+    expect(adminUser.permissions.canConvertBook).toBe(true);
+
+    fixture.destroy();
+  });
   it.skip('needs service seams to verify user loading, edit toggling, and save payload shaping', () => {
     // TODO(seam): Cover loadUsers, toggleEdit, and saveUser once the table-editing state and async user-service flows are isolated.
   });

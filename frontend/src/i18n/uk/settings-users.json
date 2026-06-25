@@ -15,7 +15,7 @@
         "bookMgmt": "Керування книгами: {{count}}/5",
         "systemAccess": "Доступ до системи: {{count}}/3",
         "systemConfig": "Налаштування системи: {{count}}/5",
-        "metadataEditing": "Редагування метаданих: {{count}}/7",
+        "metadataEditing": "Редагування метаданих: {{count}}/8",
         "deviceSync": "Синхронізація пристроїв: {{count}}/3",
         "bulkReset": "Масове скидання: {{count}}/3"
     },
@@ -61,6 +61,7 @@
         "manageIcons": "Керувати іконками",
         "manageFonts": "Керувати шрифтами",
         "editSingleMetadata": "Редагувати окремі метадані",
+        "convertBook": "Convert Books",
         "bulkAutoFetch": "Масове автоотримання метаданих",
         "bulkCustomFetch": "Масове вибіркове отримання метаданих",
         "accessBulkEditor": "Доступ до масового редактора метаданих",

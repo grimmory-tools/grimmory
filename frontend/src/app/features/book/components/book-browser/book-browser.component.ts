@@ -5,6 +5,7 @@ import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
+import {BookConversionService} from '../../service/book-conversion.service';
 import {debounceTime, distinctUntilChanged, filter, map, skip, take} from 'rxjs/operators';
 import {combineLatest, finalize} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -98,6 +99,7 @@ export class BookBrowserComponent implements AfterViewInit {
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
   protected bookSelectionService = inject(BookSelectionService);
   protected appSettingsService = inject(AppSettingsService);
+  protected bookConversionService = inject(BookConversionService);
 
   private activatedRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
@@ -170,6 +172,14 @@ export class BookBrowserComponent implements AfterViewInit {
   private readonly seriesCollapsed = this.seriesCollapseFilter.seriesCollapsed;
   readonly selectedBooks = this.bookSelectionService.selectedBooks;
   readonly selectedCount = this.bookSelectionService.selectedCount;
+  readonly canConvertSelectedBooks = computed(() => {
+    const permissions = this.userService.currentUser()?.permissions;
+    if (!this.bookConversionService.canConvert() || !permissions || this.selectedCount() === 0) {
+      return false;
+    }
+    return permissions.admin || permissions.canConvertBook;
+  });
+
   readonly showFilter = this.sidebarFilterTogglePrefService.showFilter;
   private readonly currentUser$ = toObservable(this.userService.currentUser).pipe(filter(u => !!u));
   readonly entityInfo = computed<EntityInfo>(() => {
@@ -1026,6 +1036,18 @@ export class BookBrowserComponent implements AfterViewInit {
         });
       }
     });
+  }
+
+  async convertSelectedBooks(): Promise<void> {
+    const books = this.books().filter(book => this.selectedBooks().has(book.id));
+    this.dynamicDialogRef = await this.dialogHelperService.openBulkBookConverterDialog(books);
+    if (this.dynamicDialogRef) {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
+        if (result === true) {
+          this.bookSelectionService.deselectAll();
+        }
+      });
+    }
   }
 
   async moveFiles() {

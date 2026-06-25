@@ -679,6 +679,18 @@
                 </div>
               }
               <div class="action-group secondary-actions">
+                @if (canConvertBook()) {
+                  <p-button
+                    [label]="t('convertBtn')"
+                    icon="pi pi-sync"
+                    severity="info"
+                    outlined
+                    (onClick)="convertBook(book!)"
+                    [pTooltip]="t('convertTooltip')"
+                    tooltipPosition="top"
+                    class="mobile-icon-only">
+                  </p-button>
+                }
                 @if ((currentUser.permissions.canDownload || currentUser.permissions.admin) && hasAnyFiles(book)) {
                   @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
                     <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadMenuItems()" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>

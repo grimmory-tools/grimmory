@@ -8,6 +8,7 @@ import {TranslocoService} from '@jsverse/transloco';
 import {Book, BookFile, BookMetadata, BookRecommendation, ReadStatus} from '../../../../book/model/book.model';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
+import {BookConversionService} from '../../../../book/service/book-conversion.service';
 import {AppSettings} from '../../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
@@ -29,6 +30,7 @@ interface CurrentUser {
     canEmailBook?: boolean;
     canDeleteBook?: boolean;
     admin?: boolean;
+    canConvertBook?: boolean;
   };
   userSettings?: {
     metadataCenterViewMode?: 'route' | 'dialog';
@@ -48,6 +50,7 @@ describe('MetadataViewerComponent', () => {
   const canNavigatePrevious = signal(false);
   const canNavigateNext = signal(false);
   const currentPosition = signal<{ current: number; total: number } | null>(null);
+  const canConvert = signal(false);
 
   const readBook = vi.fn();
   const togglePhysicalFlag = vi.fn(() => of(void 0));
@@ -73,6 +76,7 @@ describe('MetadataViewerComponent', () => {
   const openFileMoverDialog = vi.fn(() => Promise.resolve(null));
   const openShelfAssignerDialog = vi.fn(() => Promise.resolve(null));
 
+  const openBookConverterDialog = vi.fn(() => Promise.resolve(null));
   const emailBookQuick = vi.fn(() => of(void 0));
   const refreshMetadataTask = vi.fn(() => of(void 0));
   const getAuthorByName = vi.fn(() => of({id: 41}));
@@ -157,6 +161,7 @@ describe('MetadataViewerComponent', () => {
     canNavigateNext.set(false);
     currentPosition.set(null);
 
+    canConvert.set(false);
     readBook.mockClear();
     togglePhysicalFlag.mockClear();
     deleteBooks.mockClear();
@@ -181,6 +186,7 @@ describe('MetadataViewerComponent', () => {
     openFileMoverDialog.mockClear();
     openShelfAssignerDialog.mockClear();
 
+    openBookConverterDialog.mockClear();
     emailBookQuick.mockClear();
     refreshMetadataTask.mockClear();
     getAuthorByName.mockClear();
@@ -212,6 +218,7 @@ describe('MetadataViewerComponent', () => {
             openBookFileAttacherDialog,
             openFileMoverDialog,
             openShelfAssignerDialog,
+            openBookConverterDialog,
           },
         },
         {provide: EmailService, useValue: {emailBookQuick}},
@@ -252,6 +259,7 @@ describe('MetadataViewerComponent', () => {
           },
         },
         {provide: BookMetadataHostService, useValue: {switchBook}},
+        {provide: BookConversionService, useValue: {canConvert}},
       ],
     });
   });
@@ -374,6 +382,43 @@ describe('MetadataViewerComponent', () => {
     const deleteSupplementaryItems = otherItems[6].items ?? [];
     runMenuCommand(deleteSupplementaryItems[0].command);
     expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
+  it('gates the detail conversion action on runtime capability and conversion permission', () => {
+    const component = createComponent();
+    const book = createBook();
+    component.book = book;
+
+    currentUser.set({
+      permissions: {
+        canConvertBook: true,
+      },
+    });
+
+    expect(component.canConvertBook()).toBe(false);
+
+    canConvert.set(true);
+    expect(component.canConvertBook()).toBe(true);
+
+    component.book = createBook({primaryFile: createFile(1, {bookType: 'AUDIOBOOK'})});
+    expect(component.canConvertBook()).toBe(false);
+
+    currentUser.set({
+      permissions: {
+        admin: true,
+      },
+    });
+    component.book = book;
+    expect(component.canConvertBook()).toBe(true);
+  });
+
+  it('opens the converter dialog for the current detail book', async () => {
+    const component = createComponent();
+    const book = createBook();
+
+    await component.convertBook(book);
+
+    expect(openBookConverterDialog).toHaveBeenCalledWith(book);
   });
 
   it('falls back to an empty series list when the series lookup fails', async () => {
