@@ -91,12 +91,10 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private final AppSettingService appSettingService;
     private final ObjectMapper objectMapper;
 
-    private record TitleInfo(String title, String subtitle) {
-    }
+    private record TitleInfo(String title, String subtitle) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record GoodreadsAutocompleteEntry(String bookId) {
-    }
+    private record GoodreadsAutocompleteEntry(String bookId) {}
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -108,11 +106,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 if (metadata != null) {
                     return metadata;
                 }
-                log.warn("GoodReads: Failed to parse details for existing ID: {}, falling back to search",
-                        existingGoodreadsId);
+                log.warn("GoodReads: Failed to parse details for existing ID: {}, falling back to search", existingGoodreadsId);
             } catch (Exception e) {
-                log.warn("GoodReads: Error fetching existing ID {}: {}, falling back to search", existingGoodreadsId,
-                        e.getMessage());
+                log.warn("GoodReads: Error fetching existing ID {}: {}, falling back to search", existingGoodreadsId, e.getMessage());
             }
         }
 
@@ -164,8 +160,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                         .toList();
 
                 for (String goodreadsId : searchResultIds) {
-                    if (sink.isCancelled())
+                    if (sink.isCancelled()) {
                         return;
+                    }
                     log.info("GoodReads: Fetching metadata for: Goodreads ID {}", goodreadsId);
                     try {
                         BookMetadata metadata = fetchAndParseBook(goodreadsId);
@@ -189,8 +186,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private BookMetadata fetchAndParseBook(String goodreadsId) {
         JsonNode bookNode = fetchBookFromGraphql(goodreadsId);
-        if (bookNode == null)
+        if (bookNode == null) {
             return null;
+        }
         return parseBookDetails(bookNode, goodreadsId);
     }
 
@@ -419,8 +417,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     private void extractWorkDetails(JsonNode bookNode, BookMetadata.BookMetadataBuilder builder) {
         JsonNode work = bookNode.get("work");
-        if (work == null || !work.isObject())
-            return;
+        if (work == null || !work.isObject()) {
+return;
+        }
 
         JsonNode statsJson = work.get("stats");
         if (statsJson != null && statsJson.isObject()) {
@@ -482,8 +481,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 millis = publicationTimeNode.asLong();
             } else {
                 String text = publicationTimeNode.asText(null);
-                if (text == null || text.isBlank() || "null".equals(text))
+                if (text == null || text.isBlank() || "null".equals(text)) {
                     return null;
+                }
                 millis = Long.parseLong(text);
             }
             return Instant.ofEpochMilli(millis)
