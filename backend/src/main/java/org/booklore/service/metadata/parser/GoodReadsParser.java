@@ -258,8 +258,9 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     }
 
     private BookMetadata parseBookDetails(JsonNode bookNode, String goodreadsId) {
-        if (bookNode == null || bookNode.isMissingNode())
+        if (bookNode == null || bookNode.isMissingNode() || bookNode.isNull()) {
             return null;
+        }
 
         BookMetadata.BookMetadataBuilder builder = BookMetadata.builder()
                 .goodreadsId(goodreadsId)
