@@ -497,8 +497,8 @@
             "comicLocation": "Lokacija iz stripa",
             "comicCreator": "Autor stripa",
             "ranobedbRating": "",
-            "audibleRating": "",
-            "lubimyczytacRating": ""
+            "audibleRating": "Audible ocjena",
+            "lubimyczytacRating": "Lubimyczytac ocjena"
         },
         "readStatus": {
             "unread": "Nepročitano",
@@ -864,8 +864,8 @@
     },
     "bulkIsbnImport": {
         "fileFormatsHint": "",
-        "startImportButton": "",
-        "chooseFile": "",
+        "startImportButton": "_Pokreni uvoz",
+        "chooseFile": "Odaberi datoteku",
         "skippedCount": "",
         "failedIsbnsLabel": "",
         "summaryCancelled": "",
@@ -874,12 +874,12 @@
         "summaryTitle": "",
         "tabPaste": "",
         "clearButton": "",
-        "tabFile": "",
+        "tabFile": "Učitaj datoteku",
         "validCount": "",
         "cancelImportButton": "",
-        "summaryFailed": "",
+        "summaryFailed": "Neuspjelo",
         "processingHint": "",
-        "closeTooltip": "",
+        "closeTooltip": "Zatvori",
         "errorFileTooLarge": "",
         "libraryPlaceholder": "",
         "processingLabel": "",
@@ -887,10 +887,10 @@
         "summaryNoMetadata": "",
         "lookingUp": "",
         "pastePlaceholder": "",
-        "libraryLabel": "",
+        "libraryLabel": "Zbirka",
         "summaryCreated": "",
-        "doneButton": "",
-        "parseButton": "",
+        "doneButton": "Gotovo",
+        "parseButton": "analiziraj",
         "validationLibraryRequired": "",
         "unknownError": "",
         "description": "",
@@ -902,7 +902,7 @@
         },
         "errorTooMany": "",
         "errorNoIsbns": "",
-        "cancelButton": "",
+        "cancelButton": "Odustani",
         "duplicatesRemoved": ""
     }
 }
