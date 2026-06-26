@@ -80,14 +80,14 @@ public class BookFacetRegistry {
                 continue;
             }
             if (value.startsWith(MAGIC_SHELF_PREFIX)) {
-                Long magicShelfId = Long.parseLong(value.substring(MAGIC_SHELF_PREFIX.length()));
-                specs.add(magicShelfBookService.toSpecification(userId, magicShelfId));
+                specs.add(magicShelfBookService.toSpecification(userId, parseMagicShelfId(value)));
             } else {
                 regularIds.add(value);
             }
         }
         if (!regularIds.isEmpty()) {
-            specs.add(AppBookSpecification.inShelves(regularIds, mode(logic)));
+            String inMode = logic == FacetLogic.AND ? "and" : "or";
+            specs.add(AppBookSpecification.inShelves(regularIds, inMode));
         }
         if (specs.isEmpty()) {
             return (root, query, cb) -> cb.conjunction();
@@ -97,6 +97,14 @@ public class BookFacetRegistry {
             case NOT -> Specification.not(Specification.anyOf(specs));
             case AND -> Specification.allOf(specs);
         };
+    }
+
+    private static long parseMagicShelfId(String value) {
+        try {
+            return Long.parseLong(value.substring(MAGIC_SHELF_PREFIX.length()));
+        } catch (NumberFormatException e) {
+            throw ApiError.INVALID_FACET.createException("Invalid magic shelf id: " + value);
+        }
     }
 
     private static String mode(FacetLogic logic) {

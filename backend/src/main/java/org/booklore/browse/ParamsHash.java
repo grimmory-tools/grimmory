@@ -19,19 +19,27 @@ public final class ParamsHash {
 
     public static String compute(String query, Map<String, List<String>> facets, FacetLogic logic) {
         StringBuilder canonical = new StringBuilder();
-        canonical.append("q=").append(query == null ? "" : query.trim());
-        canonical.append("|logic=").append(logic == null ? FacetLogic.AND : logic);
-        canonical.append("|facets=");
+        appendField(canonical, query == null ? "" : query.trim());
+        appendField(canonical, (logic == null ? FacetLogic.AND : logic).name());
         if (facets != null) {
             List<String> keys = new ArrayList<>(facets.keySet());
             keys.sort(String::compareTo);
             for (String key : keys) {
+                appendField(canonical, key);
                 List<String> values = new ArrayList<>(facets.get(key));
                 values.sort(String::compareTo);
-                canonical.append(key).append('=').append(String.join(",", values)).append(';');
+                appendField(canonical, Integer.toString(values.size()));
+                for (String value : values) {
+                    appendField(canonical, value);
+                }
             }
         }
         return hash(canonical.toString());
+    }
+
+    private static void appendField(StringBuilder sb, String value) {
+        String v = value == null ? "" : value;
+        sb.append(v.length()).append(':').append(v).append('|');
     }
 
     private static String hash(String input) {

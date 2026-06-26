@@ -39,6 +39,9 @@ public class CursorCodec {
         if (state.version() != CURRENT_VERSION) {
             throw ApiError.INVALID_CURSOR.createException("Unsupported cursor version: " + state.version());
         }
+        if (state.offset() < 0 || state.offset() > Integer.MAX_VALUE || state.limit() <= 0) {
+            throw ApiError.INVALID_CURSOR.createException("Cursor offset/limit out of range.");
+        }
         return state;
     }
 

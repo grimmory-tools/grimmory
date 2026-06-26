@@ -65,4 +65,11 @@ class ParamsHashTest {
                 ParamsHash.compute(null, Map.of(), FacetLogic.AND),
                 ParamsHash.compute(null, Map.of(), FacetLogic.AND));
     }
+
+    @Test
+    void valuesWithDelimitersDoNotCollide() {
+        assertNotEquals(
+                ParamsHash.compute(null, Map.of("author", List.of("A,B")), FacetLogic.AND),
+                ParamsHash.compute(null, Map.of("author", List.of("A", "B")), FacetLogic.AND));
+    }
 }

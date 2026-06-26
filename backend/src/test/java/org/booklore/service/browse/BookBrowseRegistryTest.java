@@ -231,7 +231,7 @@ class BookBrowseRegistryTest {
         Long horror = book("H", null, null, Instant.now(), List.of("Horror"), List.of(), null).getId();
         Long romance = book("R", null, null, Instant.now(), List.of("Romance"), List.of(), null).getId();
         em.flush();
-        assertThat(facetIds("genre", List.of("Horror"), FacetLogic.OR, user.getId())).containsExactly(horror);
+        assertThat(facetIds("genre", List.of("Horror"), FacetLogic.OR, user.getId())).containsExactlyInAnyOrder(horror);
         assertThat(facetIds("genre", List.of("Horror"), FacetLogic.NOT, user.getId())).contains(romance).doesNotContain(horror);
     }
 
@@ -242,7 +242,7 @@ class BookBrowseRegistryTest {
         progress(read, user, null, ReadStatus.READ, null, null);
         progress(unread, user, null, ReadStatus.UNREAD, null, null);
         em.flush();
-        assertThat(facetIds("read_status", List.of("READ"), FacetLogic.OR, user.getId())).containsExactly(read.getId());
+        assertThat(facetIds("read_status", List.of("READ"), FacetLogic.OR, user.getId())).containsExactlyInAnyOrder(read.getId());
     }
 
     // ---- query ----
@@ -254,9 +254,9 @@ class BookBrowseRegistryTest {
         Long byIsbn = book("Another", null, null, Instant.now(), List.of(), List.of(), "9780261103344").getId();
         em.flush();
 
-        assertThat(matchIds("hobbit")).containsExactly(byTitle);
-        assertThat(matchIds("tolkien")).containsExactly(byAuthor);
-        assertThat(matchIds("9780261103344")).containsExactly(byIsbn);
+        assertThat(matchIds("hobbit")).containsExactlyInAnyOrder(byTitle);
+        assertThat(matchIds("tolkien")).containsExactlyInAnyOrder(byAuthor);
+        assertThat(matchIds("9780261103344")).containsExactlyInAnyOrder(byIsbn);
     }
 
     private Set<Long> matchIds(String query) {
