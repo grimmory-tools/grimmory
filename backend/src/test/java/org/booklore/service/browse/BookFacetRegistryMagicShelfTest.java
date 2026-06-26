@@ -11,12 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -50,8 +49,8 @@ class BookFacetRegistryMagicShelfTest {
 
     @Test
     void unknownFacetThrows() {
-        assertThrows(APIException.class,
-                () -> registry.toSpecification("bogus", List.of("x"), FacetLogic.AND, 1L));
+        assertThatThrownBy(() -> registry.toSpecification("bogus", List.of("x"), FacetLogic.AND, 1L))
+                .isInstanceOf(APIException.class);
     }
 
     @Test
@@ -66,5 +65,12 @@ class BookFacetRegistryMagicShelfTest {
     void emptyShelfValuesDoesNotThrow() {
         assertThatCode(() -> registry.toSpecification("shelf", List.of(), FacetLogic.AND, 1L))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    void blankAndNullShelfTokensAreIgnored() {
+        assertThatCode(() -> registry.toSpecification("shelf", Arrays.asList(null, "", "   "), FacetLogic.AND, 1L))
+                .doesNotThrowAnyException();
+        verifyNoInteractions(magicShelfBookService);
     }
 }
