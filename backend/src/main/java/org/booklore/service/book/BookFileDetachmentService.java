@@ -1,7 +1,6 @@
 package org.booklore.service.book;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
@@ -18,7 +17,6 @@ import org.booklore.model.enums.AuditAction;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.audit.AuditService;
-import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +30,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookFileDetachmentService {
@@ -44,7 +41,6 @@ public class BookFileDetachmentService {
     private final BookMapper bookMapper;
     private final BookService bookService;
     private final AuditService auditService;
-    private final BookCoverService bookCoverService;
 
     @Transactional
     public DetachBookFileResponse detachBookFile(Long bookId, Long fileId, boolean copyMetadata) {
@@ -100,12 +96,6 @@ public class BookFileDetachmentService {
         targetFile.setBook(newBook);
 
         newBook = bookRepository.saveAndFlush(newBook);
-
-        try {
-            bookCoverService.regenerateCover(newBook.getId());
-        } catch (Exception e) {
-            log.warn("Failed to generate cover for detached book {}: {}", newBook.getId(), e.getMessage());
-        }
 
         auditService.log(AuditAction.BOOK_FILE_DETACHED, "Book", bookId,
                 "Detached file '" + targetFile.getFileName() + "' from book " + bookId + " to new book " + newBook.getId());
