@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -68,8 +69,7 @@ class ParamsHashTest {
 
     @Test
     void valuesWithDelimitersDoNotCollide() {
-        assertNotEquals(
-                ParamsHash.compute(null, Map.of("author", List.of("A,B")), FacetLogic.AND),
-                ParamsHash.compute(null, Map.of("author", List.of("A", "B")), FacetLogic.AND));
+        assertThat(ParamsHash.compute(null, Map.of("author", List.of("A,B")), FacetLogic.AND))
+                .isNotEqualTo(ParamsHash.compute(null, Map.of("author", List.of("A", "B")), FacetLogic.AND));
     }
 }

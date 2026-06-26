@@ -13,7 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -55,14 +56,15 @@ class BookFacetRegistryMagicShelfTest {
 
     @Test
     void malformedMagicShelfIdThrows() {
-        assertThrows(APIException.class,
-                () -> registry.toSpecification("shelf", List.of("magic:not-a-number"), FacetLogic.AND, 1L));
-        assertThrows(APIException.class,
-                () -> registry.toSpecification("shelf", List.of("magic:"), FacetLogic.AND, 1L));
+        assertThatThrownBy(() -> registry.toSpecification("shelf", List.of("magic:not-a-number"), FacetLogic.AND, 1L))
+                .isInstanceOf(APIException.class);
+        assertThatThrownBy(() -> registry.toSpecification("shelf", List.of("magic:"), FacetLogic.AND, 1L))
+                .isInstanceOf(APIException.class);
     }
 
     @Test
     void emptyShelfValuesDoesNotThrow() {
-        assertDoesNotThrow(() -> registry.toSpecification("shelf", List.of(), FacetLogic.AND, 1L));
+        assertThatCode(() -> registry.toSpecification("shelf", List.of(), FacetLogic.AND, 1L))
+                .doesNotThrowAnyException();
     }
 }

@@ -15,7 +15,7 @@ public class CursorCodec {
 
     public static final int CURRENT_VERSION = 1;
 
-    private final ObjectMapper mapper = JsonMapper.builder().build();
+    private final ObjectMapper mapper = JsonMapper.shared();
 
     public String encode(CursorState state) {
         byte[] json = mapper.writeValueAsBytes(state.withVersion(CURRENT_VERSION));

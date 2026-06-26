@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -210,7 +211,8 @@ class BookBrowseServiceTest {
         em.flush();
         String cursor = browse(null, null, null, null, 0, 20).page().cursor();
         assertThatThrownBy(() -> browse(null, List.of("genre:Horror"), null, cursor, 0, 20))
-                .isInstanceOf(APIException.class);
+                .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("does not match");
     }
 
     @Test
@@ -218,9 +220,11 @@ class BookBrowseServiceTest {
         book("Alpha", List.of());
         em.flush();
         assertThatThrownBy(() -> browse("random", null, null, null, 0, 20))
-                .isInstanceOf(APIException.class);
+                .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Unknown sort key");
         assertThatThrownBy(() -> browse("fileSizeKb", null, null, null, 0, 20))
-                .isInstanceOf(APIException.class);
+                .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Unknown sort key");
     }
 
     @Test
