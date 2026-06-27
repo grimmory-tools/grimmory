@@ -85,8 +85,13 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
           callbacks: {
             title: (context) => {
               const point = context[0].raw as MatrixDataPoint;
-              const date = new Date(point.date);
-              return date.toLocaleDateString('en-US', {
+              
+              // O bug ocorre aqui: new Date(point.date) assume UTC.
+              // Vamos decompor a string para criar uma data local manualmente.
+              const [year, month, day] = point.date.split('-').map(Number);
+              const date = new Date(year, month - 1, day);
+              
+              return date.toLocaleDateString(undefined, {
                 weekday: 'short',
                 year: 'numeric',
                 month: 'short',
