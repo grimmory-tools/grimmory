@@ -8,9 +8,11 @@ import org.booklore.model.dto.request.DetachBookFileRequest;
 import org.booklore.model.dto.response.DetachBookFileResponse;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.book.BookFileDetachmentService;
+import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.file.AdditionalFileService;
 import org.booklore.service.upload.FileUploadService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @RequestMapping("/api/v1/books/{bookId}/files")
 @RestController
 @AllArgsConstructor
@@ -29,6 +32,7 @@ public class AdditionalFileController {
     private final AdditionalFileService additionalFileService;
     private final FileUploadService fileUploadService;
     private final BookFileDetachmentService bookFileDetachmentService;
+    private final BookCoverService bookCoverService;
 
     @Operation(
             summary = "List additional book files",
@@ -114,6 +118,13 @@ public class AdditionalFileController {
             @PathVariable Long bookId,
             @PathVariable Long fileId,
             @RequestBody DetachBookFileRequest request) {
-        return ResponseEntity.ok(bookFileDetachmentService.detachBookFile(bookId, fileId, request.copyMetadata()));
+        DetachBookFileResponse response = bookFileDetachmentService.detachBookFile(bookId, fileId, request.copyMetadata());
+        Long newBookId = response.newBook().getId();
+        try {
+            bookCoverService.regenerateCover(newBookId);
+        } catch (Exception e) {
+            log.warn("Failed to generate cover for detached book {}: {}", newBookId, e.getMessage());
+        }
+        return ResponseEntity.ok(response);
     }
 }
