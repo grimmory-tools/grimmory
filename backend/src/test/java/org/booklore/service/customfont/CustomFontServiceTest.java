@@ -1,6 +1,8 @@
 package org.booklore.service.customfont;
 
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.CustomFontMapper;
 import org.booklore.model.dto.CustomFontDto;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -132,9 +134,12 @@ class CustomFontServiceTest {
         when(customFontRepository.countByUserId(userId)).thenReturn(0);
 
         // Act & Assert
-        assertThatThrownBy(() -> service.uploadFont(file, "Font", userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("File size exceeds maximum limit");
+        assertThatExceptionOfType(APIException.class)
+                .isThrownBy(() -> service.uploadFont(file, "Font", userId))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_TOO_LARGE.getStatus());
+                    assertThat(ex.getMessage()).contains("50");
+                });
 
         verify(customFontRepository, never()).save(any());
     }
