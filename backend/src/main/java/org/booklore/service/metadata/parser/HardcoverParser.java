@@ -72,16 +72,7 @@ public class HardcoverParser implements BookParser {
             if (book.getEditions() == null || book.getEditions().isEmpty()) {
                 continue;
             }
-
-            BookMetadata metadata = new BookMetadata();
-            log.debug("Processing edition '{}' with id '{}' of book '{}'", book.getEditions().getFirst().getTitle(),
-                    book.getEditions().getFirst().getId(),
-                    book.getTitle());
-            mapBookToMetadata(book, book.getEditions().getFirst(), metadata);
-
-            if (metadata != null) {
-                results.add(metadata);
-            }
+            mapBookToMetadata(book, book.getEditions().getFirst());
         }
         return results;
     }
