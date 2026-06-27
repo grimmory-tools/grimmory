@@ -98,12 +98,12 @@ describe('BookTableRowComponent', () => {
     const host = fixture.nativeElement as HTMLElement;
     const lockButton = host.querySelector<HTMLButtonElement>('.metadata-lock-button');
     const coverLink = host.querySelector<HTMLAnchorElement>('.cover-link');
-    const placeholder = host.querySelector<HTMLElement>('app-cover-placeholder');
+    const cover = host.querySelector<HTMLElement>('app-cover');
 
     expect(lockButton?.getAttribute('aria-label')).toBe('Unlocked');
     expect(lockButton?.getAttribute('aria-pressed')).toBe('false');
     expect(coverLink?.getAttribute('aria-label')).toBe('Alpha');
-    expect(placeholder?.getAttribute('aria-hidden')).toBe('true');
+    expect(cover?.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('formats file sizes with the matching unit', () => {

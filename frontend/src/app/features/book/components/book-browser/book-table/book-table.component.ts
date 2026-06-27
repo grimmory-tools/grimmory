@@ -11,7 +11,7 @@ import {injectVirtualizer} from '@tanstack/angular-virtual';
 import {Checkbox} from 'primeng/checkbox';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {RouteScrollPositionService} from '../../../../../shared/service/route-scroll-position.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
 import {patchAppBooksMetadataLockInCache} from '../../../service/book-query-cache';
 import {MessageService} from 'primeng/api';
@@ -70,7 +70,7 @@ const COVER_OVERLAY_POSITIONS: ConnectedPosition[] = [
     Checkbox,
     FormsModule,
     TranslocoDirective,
-    CoverPlaceholderComponent
+    CoverComponent
   ],
   styleUrls: ['./book-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

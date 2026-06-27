@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, Input} from '@angular/core';
 import {Book} from '../../model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {Button} from 'primeng/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Router} from '@angular/router';
@@ -16,7 +16,7 @@ import {Tooltip} from 'primeng/tooltip';
     Button,
     NgClass,
     Tooltip,
-    CoverPlaceholderComponent
+    CoverComponent
   ],
   templateUrl: './book-card-lite-component.html',
   styleUrl: './book-card-lite-component.scss'

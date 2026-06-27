@@ -1,0 +1,34 @@
+@if (showImage() && preview()) {
+  <p-image
+    styleClass="block h-full w-full"
+    [imageClass]="imageClass()"
+    [src]="src() ?? ''"
+    [alt]="alt()"
+    [loading]="loading()"
+    appendTo="body"
+    [preview]="true"
+    (onImageError)="onError()"
+  />
+} @else if (showImage()) {
+  <img
+    [class]="imageClass()"
+    [src]="src() ?? ''"
+    [alt]="alt()"
+    [attr.loading]="loading()"
+    decoding="async"
+    (error)="onError()"
+  />
+} @else {
+  <div
+    class="placeholder group flex aspect-[5/7] h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[inherit] p-1 text-center data-[size=md]:p-2 data-[size=lg]:gap-2 data-[size=lg]:p-4"
+    [attr.data-size]="size()"
+    [style.background]="color()"
+  >
+    <div class="placeholder-title line-clamp-3 max-w-full overflow-hidden break-words text-xs font-semibold leading-snug text-white/90 group-data-[size=md]:text-sm group-data-[size=lg]:text-base">
+      {{ title() }}
+    </div>
+    <div class="placeholder-author line-clamp-1 max-w-full overflow-hidden break-words text-xs text-white/55 group-data-[size=lg]:text-sm">
+      {{ authorsLabel() }}
+    </div>
+  </div>
+}

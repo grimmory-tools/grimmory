@@ -280,30 +280,20 @@ public class BookService {
         return bookUpdateService.assignShelvesToBooks(bookIds, shelfIdsToAssign, shelfIdsToUnassign);
     }
 
+    public Optional<Resource> getBookThumbnailIfPresent(long bookId) {
+        return resolveImageResource(fileService.getThumbnailFile(bookId), bookId);
+    }
+
     public Resource getBookThumbnail(long bookId) {
-        Path thumbnailPath = Paths.get(fileService.getThumbnailFile(bookId));
-        try {
-            if (Files.exists(thumbnailPath)) {
-                return new UrlResource(thumbnailPath.toUri());
-            } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
-        }
+        return getBookThumbnailIfPresent(bookId).orElseGet(this::getMissingCoverResource);
+    }
+
+    public Optional<Resource> getBookCoverIfPresent(long bookId) {
+        return resolveImageResource(fileService.getCoverFile(bookId), bookId);
     }
 
     public Resource getBookCover(long bookId) {
-        Path coverPath = Paths.get(fileService.getCoverFile(bookId));
-        try {
-            if (Files.exists(coverPath)) {
-                return new UrlResource(coverPath.toUri());
-            } else {
-                return getMissingCoverResource();
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
-        }
+        return getBookCoverIfPresent(bookId).orElseGet(this::getMissingCoverResource);
     }
 
     public Resource getBookCover(String coverHash) {
@@ -311,29 +301,32 @@ public class BookService {
         return getBookCover(bookEntity.getId());
     }
 
+    public Optional<Resource> getAudiobookThumbnailIfPresent(long bookId) {
+        return resolveImageResource(fileService.getAudiobookThumbnailFile(bookId), bookId);
+    }
+
     public Resource getAudiobookThumbnail(long bookId) {
-        Path thumbnailPath = Paths.get(fileService.getAudiobookThumbnailFile(bookId));
-        try {
-            if (Files.exists(thumbnailPath)) {
-                return new UrlResource(thumbnailPath.toUri());
-            } else {
-                return getMissingCoverResource();
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to load audiobook thumbnail for bookId=" + bookId, e);
-        }
+        return getAudiobookThumbnailIfPresent(bookId).orElseGet(this::getMissingCoverResource);
+    }
+
+    public Optional<Resource> getAudiobookCoverIfPresent(long bookId) {
+        return resolveImageResource(fileService.getAudiobookCoverFile(bookId), bookId);
     }
 
     public Resource getAudiobookCover(long bookId) {
-        Path coverPath = Paths.get(fileService.getAudiobookCoverFile(bookId));
+        return getAudiobookCoverIfPresent(bookId).orElseGet(this::getMissingCoverResource);
+    }
+
+    private Optional<Resource> resolveImageResource(String filePath, long bookId) {
+        Path path = Paths.get(filePath);
+        if (!Files.exists(path)) {
+            return Optional.empty();
+        }
         try {
-            if (Files.exists(coverPath)) {
-                return new UrlResource(coverPath.toUri());
-            } else {
-                return getMissingCoverResource();
-            }
+            return Optional.of(new UrlResource(path.toUri()));
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to load audiobook cover for bookId=" + bookId, e);
+            log.error("Failed to load image for bookId={} from path={}", bookId, filePath, e);
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("Failed to load image for bookId=" + bookId);
         }
     }
 
