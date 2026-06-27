@@ -1,6 +1,8 @@
 package org.booklore.service.customfont;
 
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.CustomFontMapper;
 import org.booklore.model.dto.CustomFontDto;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -14,8 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.servlet.autoconfigure.MultipartProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,6 +45,7 @@ class CustomFontServiceTest {
     CustomFontMapper customFontMapper;
 
     AppProperties appProperties;
+    MultipartProperties multipartProperties;
     CustomFontService service;
 
     @BeforeEach
@@ -48,7 +53,11 @@ class CustomFontServiceTest {
         MockitoAnnotations.openMocks(this);
         appProperties = new AppProperties();
         appProperties.setPathConfig(tempDir.toString());
-        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties);
+        multipartProperties = new MultipartProperties();
+        multipartProperties.setMaxFileSize(DataSize.ofMegabytes(1024));
+        multipartProperties.setMaxRequestSize(DataSize.ofMegabytes(1024));
+        CustomFontUploadLimitResolver customFontUploadLimitResolver = new CustomFontUploadLimitResolver(appProperties, multipartProperties);
+        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties, customFontUploadLimitResolver);
     }
 
     @Test
@@ -119,17 +128,64 @@ class CustomFontServiceTest {
     void uploadFont_withOversizedFile_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        byte[] largeContent = new byte[6 * 1024 * 1024]; // 6MB (exceeds 5MB limit)
+        byte[] largeContent = new byte[51 * 1024 * 1024]; // 51MB (exceeds default 50MB limit)
         MultipartFile file = new MockMultipartFile("font.ttf", "font.ttf", "font/ttf", largeContent);
 
         when(customFontRepository.countByUserId(userId)).thenReturn(0);
 
         // Act & Assert
-        assertThatThrownBy(() -> service.uploadFont(file, "Font", userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("File size exceeds maximum limit");
+        assertThatExceptionOfType(APIException.class)
+                .isThrownBy(() -> service.uploadFont(file, "Font", userId))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_TOO_LARGE.getStatus());
+                    assertThat(ex.getMessage()).contains("50");
+                });
 
         verify(customFontRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("uploadFont_withConfiguredMaxFileSize_shouldAllowLargerFile")
+    void uploadFont_withConfiguredMaxFileSize_shouldAllowLargerFile() throws IOException {
+        // Arrange
+        Long userId = 1L;
+        String fontName = "Large Font";
+        appProperties.getCustomFont().setMaxFileSizeMb(6);
+        byte[] fontContent = new byte[5 * 1024 * 1024 + 1];
+        fontContent[0] = 0x00;
+        fontContent[1] = 0x01;
+        fontContent[2] = 0x00;
+        fontContent[3] = 0x00;
+        MultipartFile file = new MockMultipartFile("font.ttf", "font.ttf", "font/ttf", fontContent);
+
+        BookLoreUserEntity user = new BookLoreUserEntity();
+        user.setId(userId);
+
+        CustomFontEntity savedEntity = CustomFontEntity.builder()
+                .id(1L)
+                .user(user)
+                .fontName(fontName)
+                .fileName("user_1_font_123.ttf")
+                .originalFileName("font.ttf")
+                .format(FontFormat.TTF)
+                .fileSize((long) fontContent.length)
+                .build();
+
+        CustomFontDto expectedDto = new CustomFontDto();
+        expectedDto.setId(1L);
+        expectedDto.setFontName(fontName);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(customFontRepository.countByUserId(userId)).thenReturn(0);
+        when(customFontRepository.save(any(CustomFontEntity.class))).thenReturn(savedEntity);
+        when(customFontMapper.toDto(savedEntity)).thenReturn(expectedDto);
+
+        // Act
+        CustomFontDto result = service.uploadFont(file, fontName, userId);
+
+        // Assert
+        assertThat(result.getFontName()).isEqualTo(fontName);
+        verify(customFontRepository).save(any(CustomFontEntity.class));
     }
 
     @Test

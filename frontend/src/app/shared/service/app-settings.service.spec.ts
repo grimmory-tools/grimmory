@@ -24,13 +24,15 @@ function buildPublicSettings(overrides: Partial<PublicAppSettings> = {}): Public
       },
     },
     oidcForceOnlyMode: false,
+    customFontMaxFileSizeMb: 50,
     ...overrides,
   };
 }
 
-function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
-  const publicSettings = buildPublicSettings();
-
+function buildAppSettings(
+  overrides: Partial<AppSettings> = {},
+  publicSettings: PublicAppSettings = buildPublicSettings(),
+): AppSettings {
   return {
     autoBookSearch: true,
     similarBookRecommendation: true,
@@ -51,6 +53,7 @@ function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
       defaultLibraryIds: [],
     },
     maxFileUploadSizeInMb: 50,
+    customFontMaxFileSizeMb: publicSettings.customFontMaxFileSizeMb,
     metadataProviderSettings: {} as never,
     metadataMatchWeights: {} as never,
     metadataPersistenceSettings: {} as never,
@@ -82,13 +85,7 @@ function flushInitialSettingsRequests(
   appSettings: AppSettings;
 } {
   const publicSettings = buildPublicSettings(overrides.publicSettings);
-  const appSettings = buildAppSettings({
-    oidcEnabled: publicSettings.oidcEnabled,
-    remoteAuthEnabled: publicSettings.remoteAuthEnabled,
-    oidcProviderDetails: publicSettings.oidcProviderDetails,
-    oidcForceOnlyMode: publicSettings.oidcForceOnlyMode,
-    ...overrides.appSettings,
-  });
+  const appSettings = buildAppSettings(overrides.appSettings, publicSettings);
 
   const publicRequests = httpTestingController.match(req => req.url.endsWith('/api/v1/public-settings'));
   expect(publicRequests.length).toBeGreaterThan(0);
@@ -164,6 +161,7 @@ describe('AppSettingsService', () => {
         oidcEnabled: true,
         remoteAuthEnabled: true,
         oidcForceOnlyMode: false,
+        customFontMaxFileSizeMb: 12,
       },
       appSettings: {
         oidcEnabled: true,
@@ -195,7 +193,7 @@ describe('AppSettingsService', () => {
     );
     expect(setQueryDataSpy).toHaveBeenCalledWith(
       PUBLIC_SETTINGS_QUERY_KEY,
-      expect.objectContaining({oidcEnabled: false}),
+      expect.objectContaining({oidcEnabled: false, customFontMaxFileSizeMb: 12}),
     );
   });
 });

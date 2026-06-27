@@ -8,6 +8,7 @@ import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.repository.AppSettingsRepository;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.customfont.CustomFontUploadLimitResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +37,8 @@ class AppSettingServiceTest {
     private AuditService auditService;
     @Mock
     private AppSettingsRepository appSettingsRepository;
+    @Mock
+    private CustomFontUploadLimitResolver customFontUploadLimitResolver;
 
     private SettingPersistenceHelper settingPersistenceHelper;
 
@@ -44,7 +47,7 @@ class AppSettingServiceTest {
     @BeforeEach
     void setUp() {
         settingPersistenceHelper = new SettingPersistenceHelper(appSettingsRepository, new ObjectMapper());
-        appSettingService = new AppSettingService(appProperties, settingPersistenceHelper, authenticationService, auditService);
+        appSettingService = new AppSettingService(appProperties, settingPersistenceHelper, authenticationService, auditService, customFontUploadLimitResolver);
 
         var permissions = new BookLoreUser.UserPermissions();
         permissions.setAdmin(true);
