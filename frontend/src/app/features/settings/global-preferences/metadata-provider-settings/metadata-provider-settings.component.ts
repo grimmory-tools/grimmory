@@ -89,6 +89,7 @@ export class MetadataProviderSettingsComponent {
   amazonCookie: string = '';
   hardcoverEnabled: boolean = false;
   amazonEnabled: boolean = false;
+  openLibraryEnabled: boolean = false;
   goodreadsEnabled: boolean = false;
   googleEnabled: boolean = false;
   comicvineEnabled: boolean = false;
@@ -112,6 +113,7 @@ export class MetadataProviderSettingsComponent {
 
   private applySettings(settings: NonNullable<ReturnType<typeof this.appSettingsService.appSettings>>): void {
     const metadataProviderSettings = settings.metadataProviderSettings;
+    this.openLibraryEnabled = metadataProviderSettings?.openLibrary?.enabled ?? false;
     this.amazonEnabled = metadataProviderSettings?.amazon?.enabled ?? false;
     this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
     this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
@@ -146,6 +148,9 @@ export class MetadataProviderSettingsComponent {
       {
         key: AppSettingKey.METADATA_PROVIDER_SETTINGS,
         newValue: {
+          openLibrary: {
+            enabled: this.openLibraryEnabled,
+          },
           amazon: {
             enabled: this.amazonEnabled,
             cookie: this.amazonCookie,

@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class MetadataProviderSettings {
+    private OpenLibrary openLibrary;
     private Amazon amazon;
     private Google google;
     private Goodreads goodReads;
@@ -15,6 +16,11 @@ public class MetadataProviderSettings {
     @JsonProperty("lubimyczytac")
     private Lubimyczytac lubimyczytac;
     private Audible audible;
+
+    @Data
+    public static class OpenLibrary {
+        private boolean enabled;
+    }
 
     @Data
     public static class Amazon {

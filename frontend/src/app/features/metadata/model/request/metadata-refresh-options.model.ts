@@ -38,6 +38,7 @@ export interface FieldOptions {
   isbn10: FieldProvider;
   language: FieldProvider;
   pageCount: FieldProvider;
+  openlibraryId: FieldProvider;
   asin: FieldProvider;
   goodreadsId: FieldProvider;
   comicvineId: FieldProvider;

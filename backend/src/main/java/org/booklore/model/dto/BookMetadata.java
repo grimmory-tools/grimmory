@@ -35,6 +35,7 @@ public class BookMetadata {
     private AudiobookMetadata audiobookMetadata;
     private ComicMetadata comicMetadata;
 
+    private String openlibraryId;
     private String asin;
     private Double amazonRating;
     private Integer amazonReviewCount;
@@ -82,6 +83,7 @@ public class BookMetadata {
     private Boolean seriesTotalLocked;
     private Boolean isbn13Locked;
     private Boolean isbn10Locked;
+    private Boolean openlibraryIdLocked;
     private Boolean asinLocked;
     private Boolean goodreadsIdLocked;
     private Boolean comicvineIdLocked;

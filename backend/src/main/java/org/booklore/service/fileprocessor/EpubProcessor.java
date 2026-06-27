@@ -127,6 +127,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         String lang = epubMetadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(epubMetadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(epubMetadata.getAsin(), 10));
         metadata.setAmazonRating(epubMetadata.getAmazonRating());
         metadata.setAmazonReviewCount(epubMetadata.getAmazonReviewCount());

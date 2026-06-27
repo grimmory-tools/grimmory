@@ -221,6 +221,7 @@ export class LibraryMetadataSettingsComponent {
         categories: {p1: null, p2: null, p3: null, p4: null},
         cover: {p1: null, p2: null, p3: null, p4: null},
         pageCount: {p1: null, p2: null, p3: null, p4: null},
+        openlibraryId: {p1: null, p2: null, p3: null, p4: null},
         asin: {p1: null, p2: null, p3: null, p4: null},
         goodreadsId: {p1: null, p2: null, p3: null, p4: null},
         comicvineId: {p1: null, p2: null, p3: null, p4: null},

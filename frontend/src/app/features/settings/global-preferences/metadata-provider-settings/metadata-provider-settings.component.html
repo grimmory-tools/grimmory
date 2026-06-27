@@ -172,6 +172,12 @@
           <h4 class="provider-group-title">{{ t('readyToUseTitle') }}</h4>
 
           <div class="simple-providers-grid">
+            <div class="setting-item simple-provider">
+              <div class="setting-header">
+                <p-toggleswitch [(ngModel)]="openLibraryEnabled"></p-toggleswitch>
+                <span class="setting-label">OpenLibrary</span>
+              </div>
+            </div>
 
             <div class="setting-item simple-provider">
               <div class="setting-header">

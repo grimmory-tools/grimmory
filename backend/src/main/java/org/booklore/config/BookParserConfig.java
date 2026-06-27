@@ -11,9 +11,20 @@ import java.util.Map;
 public class BookParserConfig {
 
     @Bean
-    public Map<MetadataProvider, BookParser> parserMap(GoogleParser googleParser, AmazonBookParser amazonBookParser,
-                                                       GoodReadsParser goodReadsParser, HardcoverParser hardcoverParser, ComicvineBookParser comicvineBookParser, DoubanBookParser doubanBookParser, RanobeDbParser ranobedbParser, LubimyCzytacParser lubimyczytacParser, AudibleParser audibleParser) {
+    public Map<MetadataProvider, BookParser> parserMap(
+            GoogleParser googleParser,
+            AmazonBookParser amazonBookParser,
+            GoodReadsParser goodReadsParser,
+            HardcoverParser hardcoverParser,
+            ComicvineBookParser comicvineBookParser,
+            DoubanBookParser doubanBookParser,
+            RanobeDbParser ranobedbParser,
+            LubimyCzytacParser lubimyczytacParser,
+            AudibleParser audibleParser,
+            OpenLibraryParser openLibraryParser
+    ) {
         return Map.of(
+                MetadataProvider.OpenLibrary, openLibraryParser,
                 MetadataProvider.Amazon, amazonBookParser,
                 MetadataProvider.GoodReads, goodReadsParser,
                 MetadataProvider.Google, googleParser,
