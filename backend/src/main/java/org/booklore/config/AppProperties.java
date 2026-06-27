@@ -43,6 +43,6 @@ public class AppProperties {
     @Getter
     @Setter
     public static class CustomFont {
-        private int maxFileSizeMb = 5;
+        private int maxFileSizeMb = 50;
     }
 }

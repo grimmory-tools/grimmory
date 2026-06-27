@@ -11,6 +11,7 @@ import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.PermissionType;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.customfont.CustomFontUploadLimitResolver;
 import org.booklore.util.UserPermissionUtils;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.annotation.CacheEvict;
@@ -39,12 +40,14 @@ public class AppSettingService {
     private final SettingPersistenceHelper settingPersistenceHelper;
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
+    private final CustomFontUploadLimitResolver customFontUploadLimitResolver;
 
-    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
+    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService, CustomFontUploadLimitResolver customFontUploadLimitResolver) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
         this.authenticationService = authenticationService;
         this.auditService = auditService;
+        this.customFontUploadLimitResolver = customFontUploadLimitResolver;
     }
 
     @Cacheable("appSettings")
@@ -265,11 +268,7 @@ public class AppSettingService {
     }
 
     private int getCustomFontMaxFileSizeMb() {
-        AppProperties.CustomFont customFont = appProperties.getCustomFont();
-        if (customFont == null || customFont.getMaxFileSizeMb() <= 0) {
-            return 5;
-        }
-        return customFont.getMaxFileSizeMb();
+        return customFontUploadLimitResolver.getMaxFileSizeMb();
     }
 
     public String getSettingValue(String key) {

@@ -14,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.servlet.autoconfigure.MultipartProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ class CustomFontServiceTest {
     CustomFontMapper customFontMapper;
 
     AppProperties appProperties;
+    MultipartProperties multipartProperties;
     CustomFontService service;
 
     @BeforeEach
@@ -48,7 +51,11 @@ class CustomFontServiceTest {
         MockitoAnnotations.openMocks(this);
         appProperties = new AppProperties();
         appProperties.setPathConfig(tempDir.toString());
-        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties);
+        multipartProperties = new MultipartProperties();
+        multipartProperties.setMaxFileSize(DataSize.ofMegabytes(1024));
+        multipartProperties.setMaxRequestSize(DataSize.ofMegabytes(1024));
+        CustomFontUploadLimitResolver customFontUploadLimitResolver = new CustomFontUploadLimitResolver(appProperties, multipartProperties);
+        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties, customFontUploadLimitResolver);
     }
 
     @Test
@@ -119,7 +126,7 @@ class CustomFontServiceTest {
     void uploadFont_withOversizedFile_shouldThrowException() {
         // Arrange
         Long userId = 1L;
-        byte[] largeContent = new byte[6 * 1024 * 1024]; // 6MB (exceeds default 5MB limit)
+        byte[] largeContent = new byte[51 * 1024 * 1024]; // 51MB (exceeds default 50MB limit)
         MultipartFile file = new MockMultipartFile("font.ttf", "font.ttf", "font/ttf", largeContent);
 
         when(customFontRepository.countByUserId(userId)).thenReturn(0);

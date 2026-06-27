@@ -85,8 +85,8 @@ API_DOCS_ENABLED=false
 # Storage: LOCAL (default) or NETWORK (disables file operations; see Network Storage section)
 DISK_TYPE=LOCAL
 
-# Optional: maximum custom font upload size in MB (defaults to 5)
-CUSTOM_FONT_MAX_FILE_SIZE_MB=5
+# Optional: maximum custom font upload size in MB (defaults to 50)
+CUSTOM_FONT_MAX_FILE_SIZE_MB=50
 
 # MariaDB
 DB_USER_ID=1000
@@ -129,7 +129,7 @@ services:
       - DATABASE_PASSWORD=${DB_PASSWORD}
       - API_DOCS_ENABLED=${API_DOCS_ENABLED}
       - DISK_TYPE=${DISK_TYPE}
-      - CUSTOM_FONT_MAX_FILE_SIZE_MB=${CUSTOM_FONT_MAX_FILE_SIZE_MB:-5}
+      - CUSTOM_FONT_MAX_FILE_SIZE_MB=${CUSTOM_FONT_MAX_FILE_SIZE_MB:-50}
     depends_on:
       mariadb:
         condition: service_healthy

@@ -1,4 +1,4 @@
-import {Component, ViewChild, ElementRef, OnDestroy, inject} from '@angular/core';
+import {Component, ViewChild, ElementRef, OnDestroy, computed, inject} from '@angular/core';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
@@ -35,14 +35,12 @@ export class FontUploadDialogComponent implements OnDestroy {
   readonly maxFonts = 10;
   readonly acceptedFormats = ['.ttf', '.otf', '.woff', '.woff2'];
 
-  get maxFileSize(): number {
-    const maxSizeMb = this.appSettingsService.publicAppSettings()?.customFontMaxFileSizeMb ?? 5;
+  readonly maxFileSize = computed(() => {
+    const maxSizeMb = this.appSettingsService.publicAppSettings()?.customFontMaxFileSizeMb ?? 50;
     return maxSizeMb * 1024 * 1024;
-  }
+  });
 
-  get maxFileSizeDisplay(): string {
-    return this.formatFileSize(this.maxFileSize);
-  }
+  readonly maxFileSizeDisplay = computed(() => this.formatFileSize(this.maxFileSize()));
 
   onUploadZoneClick(): void {
     if (this.isUploading) {
@@ -206,11 +204,11 @@ export class FontUploadDialogComponent implements OnDestroy {
       return false;
     }
 
-    if (file.size > this.maxFileSize) {
+    if (file.size > this.maxFileSize()) {
       this.messageService.add({
         severity: 'error',
         summary: this.t.translate('settingsReader.fonts.upload.fileTooLarge'),
-        detail: this.t.translate('settingsReader.fonts.upload.fileTooLargeDetail', {size: this.formatFileSize(this.maxFileSize)})
+        detail: this.t.translate('settingsReader.fonts.upload.fileTooLargeDetail', {size: this.formatFileSize(this.maxFileSize())})
       });
       return false;
     }
