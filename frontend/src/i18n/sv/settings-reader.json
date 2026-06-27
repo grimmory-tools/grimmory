@@ -163,7 +163,7 @@
             "selectFile": "Välj typsnittsfil",
             "dragDrop": "Dra och släpp typsnittsfil",
             "supportedFormats": "Format som stöds: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Maximal filstorlek: 5 MB",
+            "maxSize": "Maximal filstorlek: {{size}}",
             "fontPreview": "Förhandsvisning av typsnitt",
             "displayName": "Visningsnamn",
             "displayNameDesc": "Detta namn visas i typsnittsväljaren när du läser EPUB-böcker.",

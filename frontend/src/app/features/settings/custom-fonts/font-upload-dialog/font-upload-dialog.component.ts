@@ -3,6 +3,7 @@ import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
 import {formatFileSize} from '../../../../shared/model/custom-font.model';
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -18,6 +19,7 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 export class FontUploadDialogComponent implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   private customFontService = inject(CustomFontService);
+  private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
   private dialogRef = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
@@ -30,9 +32,17 @@ export class FontUploadDialogComponent implements OnDestroy {
   isLoadingPreview = false;
   currentPreviewToken: number | null = null;
 
-  readonly maxFileSize = 5242880;
   readonly maxFonts = 10;
   readonly acceptedFormats = ['.ttf', '.otf', '.woff', '.woff2'];
+
+  get maxFileSize(): number {
+    const maxSizeMb = this.appSettingsService.publicAppSettings()?.customFontMaxFileSizeMb ?? 5;
+    return maxSizeMb * 1024 * 1024;
+  }
+
+  get maxFileSizeDisplay(): string {
+    return this.formatFileSize(this.maxFileSize);
+  }
 
   onUploadZoneClick(): void {
     if (this.isUploading) {

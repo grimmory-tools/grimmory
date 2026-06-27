@@ -197,6 +197,7 @@ public class AppSettingService {
         }
         builder.oidcProviderDetails(details);
         builder.oidcForceOnlyMode(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false")));
+        builder.customFontMaxFileSizeMb(getCustomFontMaxFileSizeMb());
 
         return builder.build();
     }
@@ -237,6 +238,7 @@ public class AppSettingService {
         builder.komgaGroupUnknown(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.KOMGA_GROUP_UNKNOWN, "true")));
         builder.pdfCacheSizeInMb(Integer.parseInt(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.PDF_CACHE_SIZE_IN_MB, "5120")));
         builder.maxFileUploadSizeInMb(Integer.parseInt(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, "100")));
+        builder.customFontMaxFileSizeMb(getCustomFontMaxFileSizeMb());
         builder.metadataDownloadOnBookdrop(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, "true")));
 
         String sessionDurationStr = settingsMap.get(AppSettingKey.OIDC_SESSION_DURATION_HOURS.getDbKey());
@@ -260,6 +262,14 @@ public class AppSettingService {
         builder.diskType(appProperties.getDiskType());
 
         return builder.build();
+    }
+
+    private int getCustomFontMaxFileSizeMb() {
+        AppProperties.CustomFont customFont = appProperties.getCustomFont();
+        if (customFont == null || customFont.getMaxFileSizeMb() <= 0) {
+            return 5;
+        }
+        return customFont.getMaxFileSizeMb();
     }
 
     public String getSettingValue(String key) {

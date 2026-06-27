@@ -44,7 +44,8 @@ public class CustomFontService {
     private final AppProperties appProperties;
 
     private static final int MAX_FONTS_PER_USER = 10;
-    private static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
+    private static final int DEFAULT_MAX_FILE_SIZE_MB = 5;
+    private static final long BYTES_PER_MB = 1024L * 1024L;
     private static final String CUSTOM_FONTS_DIR = "custom-fonts";
     private static final int MAX_FONT_NAME_LENGTH = 100;
 
@@ -190,8 +191,9 @@ public class CustomFontService {
             throw new IllegalArgumentException("File is empty");
         }
 
-        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new IllegalArgumentException("File size exceeds maximum limit of 5MB");
+        int maxFileSizeMb = getMaxFileSizeMb();
+        if (file.getSize() > maxFileSizeMb * BYTES_PER_MB) {
+            throw new IllegalArgumentException("File size exceeds maximum limit of " + maxFileSizeMb + "MB");
         }
 
         int currentFontCount = customFontRepository.countByUserId(userId);
@@ -237,6 +239,14 @@ public class CustomFontService {
 
     private Path getFontDirectory(Long userId) {
         return Paths.get(appProperties.getPathConfig(), CUSTOM_FONTS_DIR, String.valueOf(userId));
+    }
+
+    private int getMaxFileSizeMb() {
+        AppProperties.CustomFont customFont = appProperties.getCustomFont();
+        if (customFont == null || customFont.getMaxFileSizeMb() <= 0) {
+            return DEFAULT_MAX_FILE_SIZE_MB;
+        }
+        return customFont.getMaxFileSizeMb();
     }
 
     /**

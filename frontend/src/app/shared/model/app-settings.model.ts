@@ -187,6 +187,7 @@ export interface AppSettings {
   oidcRedirectUris: string[];
   oidcAutoProvisionDetails: OidcAutoProvisionDetails;
   maxFileUploadSizeInMb: number;
+  customFontMaxFileSizeMb: number;
   metadataProviderSettings: MetadataProviderSettings;
   metadataMatchWeights: MetadataMatchWeights;
   metadataPersistenceSettings: MetadataPersistenceSettings;

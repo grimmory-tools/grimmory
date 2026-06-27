@@ -53,7 +53,7 @@
             </div>
             <h3 class="empty-title">{{ t('dragDrop') }}</h3>
             <p class="empty-description" [innerHTML]="t('supportedFormats')"></p>
-            <p class="empty-description">{{ t('maxSize') }}</p>
+            <p class="empty-description">{{ t('maxSize', { size: maxFileSizeDisplay }) }}</p>
           </div>
         </div>
       } @else {

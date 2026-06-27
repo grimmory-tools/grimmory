@@ -24,6 +24,7 @@ function buildPublicSettings(overrides: Partial<PublicAppSettings> = {}): Public
       },
     },
     oidcForceOnlyMode: false,
+    customFontMaxFileSizeMb: 5,
     ...overrides,
   };
 }
@@ -51,6 +52,7 @@ function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
       defaultLibraryIds: [],
     },
     maxFileUploadSizeInMb: 50,
+    customFontMaxFileSizeMb: publicSettings.customFontMaxFileSizeMb,
     metadataProviderSettings: {} as never,
     metadataMatchWeights: {} as never,
     metadataPersistenceSettings: {} as never,
@@ -169,6 +171,7 @@ describe('AppSettingsService', () => {
         oidcEnabled: true,
         remoteAuthEnabled: true,
         oidcForceOnlyMode: false,
+        customFontMaxFileSizeMb: 12,
       },
     });
     await Promise.resolve();
@@ -195,7 +198,7 @@ describe('AppSettingsService', () => {
     );
     expect(setQueryDataSpy).toHaveBeenCalledWith(
       PUBLIC_SETTINGS_QUERY_KEY,
-      expect.objectContaining({oidcEnabled: false}),
+      expect.objectContaining({oidcEnabled: false, customFontMaxFileSizeMb: 12}),
     );
   });
 });

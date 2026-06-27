@@ -13,6 +13,7 @@ export interface PublicAppSettings {
   remoteAuthEnabled: boolean;
   oidcProviderDetails: OidcProviderDetails;
   oidcForceOnlyMode: boolean;
+  customFontMaxFileSizeMb: number;
 }
 
 @Injectable({providedIn: 'root'})
@@ -77,7 +78,8 @@ export class AppSettingsService {
       oidcEnabled: appSettings.oidcEnabled,
       remoteAuthEnabled: appSettings.remoteAuthEnabled,
       oidcProviderDetails: appSettings.oidcProviderDetails,
-      oidcForceOnlyMode: appSettings.oidcForceOnlyMode
+      oidcForceOnlyMode: appSettings.oidcForceOnlyMode,
+      customFontMaxFileSizeMb: appSettings.customFontMaxFileSizeMb
     };
     const current = this.publicAppSettings();
 
@@ -86,6 +88,7 @@ export class AppSettingsService {
       current.oidcEnabled !== updatedPublicSettings.oidcEnabled ||
       current.remoteAuthEnabled !== updatedPublicSettings.remoteAuthEnabled ||
       current.oidcForceOnlyMode !== updatedPublicSettings.oidcForceOnlyMode ||
+      current.customFontMaxFileSizeMb !== updatedPublicSettings.customFontMaxFileSizeMb ||
       JSON.stringify(current.oidcProviderDetails) !== JSON.stringify(updatedPublicSettings.oidcProviderDetails)
     ) {
       this.queryClient.setQueryData(PUBLIC_SETTINGS_QUERY_KEY, updatedPublicSettings);

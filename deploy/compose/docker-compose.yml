@@ -20,6 +20,7 @@ services:
       - DATABASE_PASSWORD=your_secure_password
       - SWAGGER_ENABLED=false
       - FORCE_DISABLE_OIDC=false
+      - CUSTOM_FONT_MAX_FILE_SIZE_MB=${CUSTOM_FONT_MAX_FILE_SIZE_MB:-5}
       # ALLOWED_ORIGINS=
       # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
       # Uncomment and adjust if you want a tighter or looser cap:
