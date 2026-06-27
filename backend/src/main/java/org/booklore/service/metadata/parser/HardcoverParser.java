@@ -313,7 +313,8 @@ public class HardcoverParser implements BookParser {
         return results;
     }
 
-    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition, BookMetadata metadata) {
+    private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition) {
+        BookMetadata metadata = new BookMetadata();
 
         metadata.setHardcoverId(book.getSlug());
 
