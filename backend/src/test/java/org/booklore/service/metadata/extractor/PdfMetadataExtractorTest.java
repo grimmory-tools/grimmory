@@ -167,6 +167,38 @@ class PdfMetadataExtractorTest {
             assertThat(meta.getPublishedDate()).isNotNull();
             assertThat(meta.getPublishedDate().getYear()).isEqualTo(2023);
             assertThat(meta.getPublishedDate().getMonthValue()).isEqualTo(6);
+            assertThat(meta.getPublishedDate().getDayOfMonth()).isEqualTo(15);
+        }
+
+        @Test
+        void extractsCreationDate_withOffsetAndQuotes() throws Exception {
+            File pdf = createPdf(doc -> {
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                // PDF date format with offset and quotes: D:YYYYMMDDHHmmSSOHH'mm'
+                doc.setMetadata(MetadataTag.CREATION_DATE, "D:20230615120000+02'00'");
+            });
+            BookMetadata meta = extractor.extractMetadata(pdf);
+            assertThat(meta.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2023, 6, 15));
+        }
+
+        @Test
+        void extractsCreationDate_isoFormat() throws Exception {
+            File pdf = createPdf(doc -> {
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.CREATION_DATE, "2023-06-15T12:00:00Z");
+            });
+            BookMetadata meta = extractor.extractMetadata(pdf);
+            assertThat(meta.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2023, 6, 15));
+        }
+
+        @Test
+        void extractsCreationDate_yearOnly() throws Exception {
+            File pdf = createPdf(doc -> {
+                doc.setMetadata(MetadataTag.TITLE, "T");
+                doc.setMetadata(MetadataTag.CREATION_DATE, "2023");
+            });
+            BookMetadata meta = extractor.extractMetadata(pdf);
+            assertThat(meta.getPublishedDate()).isEqualTo(java.time.LocalDate.of(2023, 1, 1));
         }
 
         @Test
@@ -754,7 +786,7 @@ class PdfMetadataExtractorTest {
         }
 
         @Test
-        void genericIsbn_oddLength_fallsToIsbn13() throws Exception {
+        void genericIsbn_oddLength_isIgnored() throws Exception {
             File pdf = createPdfWithXmp("""
                 <xmp:Identifier>
                   <rdf:Bag>
@@ -766,7 +798,7 @@ class PdfMetadataExtractorTest {
                 </xmp:Identifier>
                 """);
             BookMetadata meta = extractor.extractMetadata(pdf);
-            assertThat(meta.getIsbn13()).isEqualTo("12345");
+            assertThat(meta.getIsbn13()).isNull();
             assertThat(meta.getIsbn10()).isNull();
         }
 
