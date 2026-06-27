@@ -413,7 +413,7 @@ public class CoverImageGenerator {
         int bottomBound = h - margin;
 
         String[] authors = author.split(",");
-        StringBuilder formattedAuthors = new StringBuilder();
+        StringBuilder formattedAuthors = new StringBuilder(128);
         for (int i = 0; i < authors.length; i++) {
             if (i > 0) formattedAuthors.append("\n").append(authors[i].trim());
             else formattedAuthors.append(authors[i].trim());
@@ -642,13 +642,13 @@ public class CoverImageGenerator {
 
     private List<String> wrapText(String text, FontMetrics fm, int maxW, int maxLines) {
         List<String> lines = new ArrayList<>();
-        StringBuilder cur = new StringBuilder();
+        StringBuilder cur = new StringBuilder(32);
 
         for (String word : WS.split(text.trim())) {
             if (fm.stringWidth(word) > maxW) {
                 if (!cur.isEmpty()) {
                     lines.add(cur.toString().trim());
-                    cur = new StringBuilder();
+                    cur.setLength(0);
                 }
                 lines.addAll(breakWord(word, fm, maxW));
                 continue;
@@ -660,7 +660,8 @@ public class CoverImageGenerator {
                 cur.append(" ").append(word);
             } else {
                 lines.add(cur.toString().trim());
-                cur = new StringBuilder(word);
+                cur.setLength(0);
+                cur.append(word);
             }
         }
 
@@ -679,12 +680,12 @@ public class CoverImageGenerator {
 
     private List<String> breakWord(String word, FontMetrics fm, int maxW) {
         List<String> parts = new ArrayList<>();
-        StringBuilder cur = new StringBuilder();
+        StringBuilder cur = new StringBuilder(32);
 
         for (char c : word.toCharArray()) {
             if (fm.stringWidth(cur.toString() + c) > maxW && !cur.isEmpty()) {
                 parts.add(cur.toString());
-                cur = new StringBuilder();
+                cur.setLength(0);
             }
             cur.append(c);
         }
