@@ -263,7 +263,10 @@ public class HardcoverParser implements BookParser {
                     // filter by language
                     List<GraphQLResponse.Edition> filteredByLanguage = filterEditionsByLanguage(filteredByFormat);
 
-                    result.setEditions(filteredByLanguage);
+                    // remove editions with no isbn
+                    List<GraphQLResponse.Edition> filteredByISBN = filterEditionsByISBN(filteredByLanguage);
+
+                    result.setEditions(filteredByISBN);
                     return result;
                 })
                 .toList();
@@ -287,12 +290,9 @@ public class HardcoverParser implements BookParser {
             }
         }
 
-        if (isAudiobook && !audiobooks.isEmpty()) {
-            return audiobooks;
-        }
-        else {
-            return hardcovers;
-        }
+        return isAudiobook && !audiobooks.isEmpty()
+            ? audiobooks
+            : hardcovers;
     }
 
     private List<GraphQLResponse.Edition> filterEditionsByLanguage(List<GraphQLResponse.Edition> result){
@@ -311,10 +311,25 @@ public class HardcoverParser implements BookParser {
                 })
                 .toList();
 
-        if (!filteredEditions.isEmpty()){
-            return filteredEditions;
+        return !filteredEditions.isEmpty()
+            ? filteredEditions
+            : result;
+    }
+
+    private List<GraphQLResponse.Edition> filterEditionsByISBN(List<GraphQLResponse.Edition> result){
+        if (result == null || result.isEmpty()) {
+            return result;
         }
-        return result;
+
+        List<GraphQLResponse.Edition> filteredEditions = result.stream()
+                .filter(edition -> {
+                    return edition.getIsbn10() != null || edition.getIsbn13() != null;
+                })
+                .toList();
+
+        return !filteredEditions.isEmpty()
+            ?   filteredEditions
+            :   result;
     }
 
     private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition) {
