@@ -134,11 +134,10 @@ public class BookMetadataService {
             MetadataRefreshOptions options = appSettingService.getAppSettings().getDefaultMetadataRefreshOptions();
             if (options != null && options.getFieldOptions() != null) {
                 MetadataRefreshOptions.FieldProvider titleProvider = options.getFieldOptions().getTitle();
-                MetadataRefreshOptions.FieldProvider isbnProvider = options.getFieldOptions().getIsbn13();
-                if (isbnProvider != null) {
+                if (titleProvider != null) {
                     List<MetadataProvider> chain = Stream.of(
-                                    isbnProvider.getP1(), isbnProvider.getP2(),
-                                    isbnProvider.getP3(), isbnProvider.getP4())
+                                    titleProvider.getP1(), titleProvider.getP2(),
+                                    titleProvider.getP3(), titleProvider.getP4())
                             .filter(Objects::nonNull)
                             .distinct()
                             .toList();
