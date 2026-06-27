@@ -62,6 +62,8 @@
     "apiToken": "API Token",
     "hardcoverPlaceholder": "Enter Hardcover API token",
     "comicvinePlaceholder": "Enter Comic Vine API token",
+    "ranobedbPreferRomajiLabel": "Prefer Romaji",
+    "ranobedbPreferRomajiDesc": "When enabled, Japanese releases use Romaji instead of Japanese where possible.",
     "goodreadsWarning": "The Goodreads metadata provider is currently reported as degraded for most users.",
     "goodreadsWarningReadMore": "Read more in Github Issue #1713."
   },

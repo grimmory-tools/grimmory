@@ -11,6 +11,7 @@ import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
 import org.booklore.util.LanguageNormalizer;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
@@ -21,7 +22,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.YearMonth;
+import java.time.DateTimeException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,17 +42,19 @@ public class RanobeDbParser implements BookParser {
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
     private final HttpClient httpClient = HttpClient.newHttpClient();
-    
-    // Rate limiter: 2 requests per second
-    private static final int MAX_REQUESTS_PER_SECOND = 2;
-    private static final long RATE_LIMIT_WINDOW_MS = 1000; // 1 second in milliseconds
+
+    // Rate limiter: 60 requests per minute
+    private static final int MAX_REQUESTS_PER_MINUTE = 60;
+    private static final long RATE_LIMIT_WINDOW_MS = 60000; // 60 seconds in milliseconds
     private final AtomicLong lastRequestTime = new AtomicLong(0);
-    private final AtomicLong tokenCount = new AtomicLong(MAX_REQUESTS_PER_SECOND);
+    private final AtomicLong tokenCount = new AtomicLong(MAX_REQUESTS_PER_MINUTE);
+
+    private record SearchTerms(String title, Integer authorId) {}
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
 
-        String searchTerm = getSearchTerm(book, fetchMetadataRequest);
+        SearchTerms searchTerm = getSearchTerm(book, fetchMetadataRequest);
         if (searchTerm == null) {
             log.warn("No valid search term provided for metadata fetch.");
             return Collections.emptyList();
@@ -60,7 +64,7 @@ public class RanobeDbParser implements BookParser {
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        String searchTerm = getSearchTerm(book, fetchMetadataRequest);
+        SearchTerms searchTerm = getSearchTerm(book, fetchMetadataRequest);
         if (searchTerm == null) {
             log.warn("No valid search term provided for metadata fetch.");
             return null;
@@ -68,40 +72,31 @@ public class RanobeDbParser implements BookParser {
         List<BookMetadata> metadataList = getMetadataListByTerm(searchTerm, true);
         return metadataList.isEmpty() ? null : metadataList.getFirst();
     }
-    
+
     private void waitForRateLimit() {
         while (true) {
             long currentTime = System.currentTimeMillis();
             long lastTime = lastRequestTime.get();
             long timeSinceLastRequest = currentTime - lastTime;
-            
+            long currentTokens = tokenCount.get();
+
             // Refill tokens based on time elapsed
-            if (timeSinceLastRequest >= RATE_LIMIT_WINDOW_MS) {
-                // More than 1 second has passed, refill to max tokens
-                if (lastRequestTime.compareAndSet(lastTime, currentTime)) {
-                    tokenCount.set(MAX_REQUESTS_PER_SECOND);
-                }
-            } else {
-                // Calculate how many tokens to add based on time elapsed
-                long tokensToAdd = (timeSinceLastRequest * MAX_REQUESTS_PER_SECOND) / RATE_LIMIT_WINDOW_MS;
-                if (tokensToAdd > 0) {
-                    long currentTokens = tokenCount.get();
-                    long newTokens = Math.min(currentTokens + tokensToAdd, MAX_REQUESTS_PER_SECOND);
-                    tokenCount.compareAndSet(currentTokens, newTokens);
+            if (timeSinceLastRequest > RATE_LIMIT_WINDOW_MS / MAX_REQUESTS_PER_MINUTE) {
+                long tokensToAdd = timeSinceLastRequest / (RATE_LIMIT_WINDOW_MS / MAX_REQUESTS_PER_MINUTE);
+                long newTokens = Math.min(currentTokens + tokensToAdd, MAX_REQUESTS_PER_MINUTE);
+                if (tokenCount.compareAndSet(currentTokens, newTokens)) {
+                    currentTokens = newTokens;
+                    lastRequestTime.set(System.currentTimeMillis());
                 }
             }
-            
+
             // Try to consume a token
-            long currentTokens = tokenCount.get();
-            if (currentTokens > 0) {
-                if (tokenCount.compareAndSet(currentTokens, currentTokens - 1)) {
-                    lastRequestTime.set(System.currentTimeMillis());
-                    return; // Successfully acquired a token
-                }
+            if (currentTokens > 0 && tokenCount.compareAndSet(currentTokens, currentTokens - 1)) {
+                return; // Successfully acquired a token
             } else {
                 // No tokens available, wait before retrying
                 try {
-                    long waitTime = RATE_LIMIT_WINDOW_MS / MAX_REQUESTS_PER_SECOND;
+                    long waitTime = RATE_LIMIT_WINDOW_MS / MAX_REQUESTS_PER_MINUTE;
                     Thread.sleep(waitTime);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -112,24 +107,38 @@ public class RanobeDbParser implements BookParser {
         }
     }
 
-    public List<BookMetadata> getMetadataListByTerm(String term, Boolean fetchTop) {
-      log.info("Ranobedb: Fetching metadata for term: '{}'", term);
+    public List<BookMetadata> getMetadataListByTerm(SearchTerms term, Boolean fetchTop) {
+        log.info("Ranobedb: Fetching metadata for term: '{}'", term);
 
-      try {
-          // Apply rate limiting before making the API request
-          waitForRateLimit();
-          
-          URI uri = UriComponentsBuilder.fromUriString(RANOBEDB_URL)
-                  .path("/books")
-                  .queryParam("q", term)
-                  .queryParam("query", term)
-                  .queryParam("limit", 5)
-                  .queryParam("rl", "en")
-                  .queryParam("rll", "or")
-                  .queryParam("rf", "digital,print")
-                  .queryParam("rfl", "or")
-                  .build()
-                  .toUri();
+        List<BookMetadata> metadataList = getMetadataList(term, fetchTop);
+
+        if (metadataList != null && metadataList.isEmpty() && term.authorId != null) {
+            log.info("RanobeDB: Failed to find results with author, trying again with only the title.");
+            metadataList = getMetadataList(new SearchTerms(term.title(), null), fetchTop);
+        }
+
+        if (metadataList != null) return metadataList;
+        return Collections.emptyList();
+    }
+
+    private @Nullable List<BookMetadata> getMetadataList(SearchTerms term, Boolean fetchTop) {
+        try {
+            // Apply rate limiting before making the API request
+            waitForRateLimit();
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(RANOBEDB_URL)
+                    .path("/books")
+                    .queryParam("q", term.title())
+                    .queryParam("limit", 20)
+                    .queryParam("rf", "digital")
+                    .queryParam("rfl", "or");
+
+            if (term.authorId() != null) {
+                builder.queryParam("staff", term.authorId())
+                        .queryParam("sl", "and");
+            }
+
+            URI uri = builder.build().toUri();
 
           HttpRequest request = HttpRequest.newBuilder()
                   .uri(uri)
@@ -141,7 +150,7 @@ public class RanobeDbParser implements BookParser {
 
           if (response.statusCode() == 200) {
               List<BookMetadata> metadataList = parseRanobeDbApiResponse(response.body(), fetchTop);
-              log.error("Ranobedb: Found {} results for term: '{}'", metadataList.size(), term);
+              log.info("Ranobedb: Found {} results for term: '{}'", metadataList.size(), term);
               return metadataList;
           } else {
               log.error("Ranobedb Search API returned status code {}", response.statusCode());
@@ -149,14 +158,58 @@ public class RanobeDbParser implements BookParser {
       } catch (IOException | InterruptedException e) {
           log.error("Error fetching metadata from Ranobedb Search API", e);
       }
-      return Collections.emptyList();
+        return null;
     }
 
-    private String getSearchTerm(Book book, FetchMetadataRequest request) {
+    private SearchTerms getSearchTerm(Book book, FetchMetadataRequest request) {
+        String title = null;
         if (request.getTitle() != null && !request.getTitle().isEmpty()) {
-            return request.getTitle();
+            title = request.getTitle();
         } else if (book.getPrimaryFile() != null && book.getPrimaryFile().getFileName() != null && !book.getPrimaryFile().getFileName().isEmpty()) {
-            return BookUtils.cleanFileName(book.getPrimaryFile().getFileName());
+            title = BookUtils.cleanFileName(book.getPrimaryFile().getFileName());
+        }
+        if (title == null) {
+            return null;
+        }
+        Integer authorId = getAuthorID(request.getAuthor());
+        return new SearchTerms(title, authorId);
+    }
+
+    private Integer getAuthorID(String author) {
+        if (author == null || author.isEmpty()) {
+            return null;
+        }
+        try {
+            // Apply rate limiting before making the API request
+            waitForRateLimit();
+
+            URI uri = UriComponentsBuilder.fromUriString(RANOBEDB_URL)
+                    .path("/staff")
+                    .queryParam("q", author)
+                    .queryParam("limit", 1)
+                    .build()
+                    .toUri();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .header("User-Agent", "BookLore/1.0 (Book and Comic Metadata Fetcher; +https://github.com/booklore-app/booklore)")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                // parse response and return first staff id
+                var root = objectMapper.readTree(response.body());
+                var staffArray = root.path("staff");
+                if (staffArray.isArray() && !staffArray.isEmpty()) {
+                    return staffArray.get(0).path("id").asInt();
+                }
+            } else {
+                log.error("Ranobedb Staff API returned status code {}", response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error("Error fetching staff from Ranobedb API", e);
         }
         return null;
     }
@@ -166,17 +219,19 @@ public class RanobeDbParser implements BookParser {
         if (searchResponse.getBooks() == null) {
             return Collections.emptyList();
         }
+        Boolean preferRomaji = appSettingService.getAppSettings().getMetadataProviderSettings().getRanobedb().isPreferRomaji();
+
         if (fetchTop && !searchResponse.getBooks().isEmpty()) {
-            BookMetadata topMetadata = searchResultToBookMetadata(searchResponse.getBooks().getFirst().getId());
+            BookMetadata topMetadata = searchResultToBookMetadata(searchResponse.getBooks().getFirst().getId(), preferRomaji);
             return topMetadata != null ? List.of(topMetadata) : Collections.emptyList();
         } else {
             return searchResponse.getBooks().stream()
-                    .map(book -> searchResultToBookMetadata(book.getId()))
+                    .map(book -> searchResultToBookMetadata(book.getId(), preferRomaji))
                     .toList();
         }
     }
 
-    private BookMetadata searchResultToBookMetadata(int bookId) {
+    private BookMetadata searchResultToBookMetadata(int bookId, Boolean preferRomaji) {
 
         try {
             // Apply rate limiting before making the API request
@@ -197,28 +252,36 @@ public class RanobeDbParser implements BookParser {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                RanobedbBookResponse responstObj = objectMapper.readValue(response.body(), RanobedbBookResponse.class);
-                RanobedbBookResponse.Book book = responstObj.getBook();
+                RanobedbBookResponse responseObj = objectMapper.readValue(response.body(), RanobedbBookResponse.class);
+                RanobedbBookResponse.Book book = responseObj.getBook();
                 if (book == null) {
                     return null;
                 }
 
-                RanobedbBookResponse.TitleEntry englishTitleEntry = book.getTitles().stream()
-                        .filter(titleEntry -> "en".equalsIgnoreCase(titleEntry.getLang()))
-                        .filter(titleEntry -> titleEntry.getOfficial())
+                RanobedbBookResponse.Release release = book.getReleases().stream()
+                        .filter(r -> "en".equalsIgnoreCase(r.getLang()))
+                        .findFirst()
+                        .orElseGet(() -> book.getReleases().stream()
+                                .filter(r -> "ja".equalsIgnoreCase(r.getLang()))
+                                .findFirst()
+                                .orElse(null));
+
+                String bookLang = release != null ? release.getLang() : book.getLang();
+
+                RanobedbBookResponse.Publisher publisher = book.getPublishers().stream()
+                        .filter(p -> bookLang.equalsIgnoreCase(p.getLang()))
+                        .filter(p -> RanobedbBookResponse.PublisherType.PUBLISHER.equals(p.getPublisherType()))
                         .findFirst()
                         .orElse(null);
 
-                RanobedbBookResponse.Release englishRelease = book.getReleases().stream()
-                        .filter(release -> "en".equalsIgnoreCase(release.getLang()))
-                        .findFirst()
-                        .orElse(null);
-
-                RanobedbBookResponse.Publisher englishPublisher = book.getPublishers().stream()
-                        .filter(publisher -> "en".equalsIgnoreCase(publisher.getLang()))
-                        .filter(publisher -> RanobedbBookResponse.PublisherType.PUBLISHER.equals(publisher.getPublisherType()))
-                        .findFirst()
-                        .orElse(null);
+                String publisherName = null;
+                if (publisher != null) {
+                    if (preferRomaji) {
+                        publisherName = publisher.getRomaji() != null ? publisher.getRomaji() : publisher.getName();
+                    } else {
+                        publisherName = publisher.getName();
+                    }
+                }
 
                 List<RanobedbBookResponse.SeriesBook> seriesBooks = book.getSeries() != null ? book.getSeries().getBooks() : List.of();
                 int seriesIndex = IntStream.range(0, seriesBooks.size())
@@ -229,7 +292,13 @@ public class RanobeDbParser implements BookParser {
                 List<String> authors = book.getEditions().stream()
                         .flatMap(edition -> edition.getStaff().stream())
                         .filter(staff -> RanobedbBookResponse.RoleType.AUTHOR.equals(staff.getRoleType()))
-                        .map(staff -> staff.getRomaji() != null ? staff.getRomaji() : staff.getName())
+                        .map(staff -> {
+                            if (preferRomaji) {
+                                return staff.getRomaji() != null ? staff.getRomaji() : staff.getName();
+                            } else {
+                                return staff.getName() != null ? staff.getName() : staff.getRomaji();
+                            }
+                        })
                         .toList();
 
                 HashSet<String> genres = book.getSeries() != null ? book.getSeries().getTags().stream()
@@ -238,7 +307,13 @@ public class RanobeDbParser implements BookParser {
                         .map(genre -> Pattern.compile("\\b(.)(.*?)\\b").matcher(genre).replaceAll(m -> m.group(1).toUpperCase() + m.group(2).toLowerCase()))
                         .collect(Collectors.toCollection(HashSet::new)) : new HashSet<>();
 
-                String title = englishTitleEntry != null ? englishTitleEntry.getTitle() : book.getTitle();
+                String title;
+                if (release != null) {
+                    title = preferRomaji && release.getRomaji() != null? release.getRomaji() : release.getTitle();
+                } else {
+                    title = preferRomaji && book.getRomaji() != null ? book.getRomaji() : book.getTitle();
+                }
+
                 String subtitle = null;
                 if (book.getSeries() != null && book.getSeries().getTitle() != null && title.startsWith(book.getSeries().getTitle())) {
                     String remainingTitle = title.substring(book.getSeries().getTitle().length()).trim();
@@ -249,6 +324,13 @@ public class RanobeDbParser implements BookParser {
                     }
                 }
 
+                String description;
+                if (release != null && release.getDescription() != null && !release.getDescription().isBlank()) {
+                    description = release.getDescription();
+                } else {
+                    description = "ja".equalsIgnoreCase(bookLang) ? book.getDescriptionJa() : book.getDescription();
+                }
+
                 return BookMetadata.builder()
                     .provider(MetadataProvider.Ranobedb)
                     .ranobedbId(String.valueOf(book.getId()))
@@ -257,17 +339,18 @@ public class RanobeDbParser implements BookParser {
                     .subtitle(subtitle)
                     .authors(authors)
                     .categories(genres)
-                    .publisher(englishPublisher != null ? englishPublisher.getName() : null)
+                    .publisher(publisherName)
                     .thumbnailUrl(book.getImage() != null ? RANOBEDB_IMAGE_URL + book.getImage().getFilename() : null)
-                    .description(book.getDescription())
-                    .language(LanguageNormalizer.normalize(englishRelease != null ? englishRelease.getLang() : book.getLang()))
+                    .description(description)
+                    .language(LanguageNormalizer.normalize(bookLang))
                     .seriesName(book.getSeries() != null ? book.getSeries().getTitle() : null)
                     .seriesNumber(seriesIndex != -1 ? seriesIndex + 1.0f : null)
                     .seriesTotal(seriesBooks.isEmpty() ? null : seriesBooks.size())
-                    .publishedDate(englishRelease != null ? parseDate(englishRelease.getReleaseDate()) : parseDate(book.getCReleaseDate()))
+                    .publishedDate(release != null ? parseDate(release.getReleaseDate()) : parseDate(book.getCReleaseDate()))
+                    .isbn13(release != null ? release.getIsbn13() : null)
                     .build();
             } else {
-                log.error("Ranobedb Get Book API returned status code {}", response.statusCode());
+                log.info("Ranobedb Get Book API returned status code {}", response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
             log.error("Error fetching metadata from Ranobedb Search API", e);
@@ -280,14 +363,22 @@ public class RanobeDbParser implements BookParser {
         if (dateInt == null || dateInt == 0) {
             return null;
         }
+        // Parse date from integer of the format (YYYYMMDD)
+        int year = (int) (dateInt / 10000);
+        int month = (int) ((dateInt / 100) % 100);
+        int day = (int) (dateInt % 100);
+
         try {
-            // Parse date from integer of the format (YYYYMMDD)
-            return LocalDate.of(
-                    (int)(dateInt / 10000),
-                    (int)((dateInt / 100) % 100),
-                    (int)(dateInt % 100)
-            );
-        } catch (DateTimeParseException e) {
+            return LocalDate.of(year, month, day);
+        } catch (DateTimeException ignored) {
+        }
+        // try to account for missing day/month
+        try {
+            month = (month >= 1 && month <= 12) ? month : 1;
+            int maxDay = YearMonth.of(year, month).lengthOfMonth();
+            day = (day >= 1 && day <= maxDay) ? day : 1;
+            return LocalDate.of(year, month, day);
+        } catch (DateTimeException e) {
             log.debug("Could not parse date: {}", dateInt);
             return null;
         }
