@@ -1,18 +1,13 @@
 package org.booklore.service.metadata;
 
 import org.booklore.exception.APIException;
-import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookMetadataMapper;
 import org.booklore.mapper.MetadataClearFlagsMapper;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.dto.request.IsbnLookupRequest;
-import org.booklore.model.dto.request.MetadataRefreshOptions;
-import org.booklore.model.dto.request.ToggleAllLockRequest;
+import org.booklore.model.dto.request.*;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
@@ -37,19 +32,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import org.springframework.transaction.TransactionStatus;
 
 @ExtendWith(MockitoExtension.class)
 class BookMetadataServiceTest {
@@ -178,7 +168,7 @@ class BookMetadataServiceTest {
             AppSettings settings = AppSettings.builder()
                     .defaultMetadataRefreshOptions(MetadataRefreshOptions.builder()
                             .fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
-                                    .title(MetadataRefreshOptions.FieldProvider.builder()
+                                    .isbn13(MetadataRefreshOptions.FieldProvider.builder()
                                             .p1(MetadataProvider.Google)
                                             .p2(MetadataProvider.Amazon)
                                             .build())

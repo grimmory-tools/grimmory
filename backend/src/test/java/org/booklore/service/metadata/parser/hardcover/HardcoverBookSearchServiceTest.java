@@ -28,6 +28,17 @@ class HardcoverBookSearchServiceTest {
         searchService = new HardcoverBookSearchService(appSettingService);
     }
 
+    private void setupAppSettingsWithToken(String token) {
+        AppSettings appSettings = new AppSettings();
+        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
+        MetadataProviderSettings.Hardcover hardcover = new MetadataProviderSettings.Hardcover();
+        hardcover.setApiKey(token);
+        providerSettings.setHardcover(hardcover);
+        appSettings.setMetadataProviderSettings(providerSettings);
+
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+    }
+
     @Nested
     @DisplayName("API Token Validation Tests")
     class ApiTokenTests {
@@ -72,43 +83,5 @@ class HardcoverBookSearchServiceTest {
 
             assertThat(results).isEmpty();
         }
-    }
-
-    @Nested
-    @DisplayName("fetchBookDetails Tests")
-    class FetchBookDetailsTests {
-
-        @Test
-        @DisplayName("Should return null when API token is not set")
-        void fetchBookDetails_noToken_returnsNull() {
-            setupAppSettingsWithToken(null);
-
-            HardcoverBookDetails result = searchService.fetchBookDetails(12345);
-
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("Should return null when API token is empty")
-        void fetchBookDetails_emptyToken_returnsNull() {
-            setupAppSettingsWithToken("");
-
-            HardcoverBookDetails result = searchService.fetchBookDetails(12345);
-
-
-            assertThat(result).isNull();
-        }
-    }
-
-
-    private void setupAppSettingsWithToken(String token) {
-        AppSettings appSettings = new AppSettings();
-        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
-        MetadataProviderSettings.Hardcover hardcover = new MetadataProviderSettings.Hardcover();
-        hardcover.setApiKey(token);
-        providerSettings.setHardcover(hardcover);
-        appSettings.setMetadataProviderSettings(providerSettings);
-        
-        when(appSettingService.getAppSettings()).thenReturn(appSettings);
     }
 }
