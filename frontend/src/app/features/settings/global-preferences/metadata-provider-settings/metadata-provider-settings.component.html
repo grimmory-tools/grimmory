@@ -51,11 +51,14 @@
 
             <div class="setting-item">
               <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="googleEnabled"></p-toggleswitch>
+                <p-toggleswitch
+                  [(ngModel)]="googleEnabled"
+                  [disabled]="!googleApiKeyConfigured">
+                </p-toggleswitch>
                 <span class="setting-label">Google Books</span>
               </div>
-              @if (googleEnabled) {
-                <div class="setting-options">
+              <div class="setting-options">
+                @if (googleEnabled) {
                   <div class="config-field">
                     <span class="config-label">{{ t('languageRestriction') }}</span>
                     <p-select
@@ -66,18 +69,19 @@
                       class="config-select">
                     </p-select>
                   </div>
-                  <div class="config-field">
-                    <span class="config-label">{{ t('apiKeyOptional') }}</span>
-                    <p class="config-description">{{ t('googleApiDesc') }}</p>
-                    <input
-                      type="text"
-                      pInputText
-                      [placeholder]="t('googleApiPlaceholder')"
-                      [(ngModel)]="googleApiKey"
-                      class="config-input"/>
-                  </div>
+                }
+                <div class="config-field">
+                  <span class="config-label">{{ t('apiKeyRequired') }}</span>
+                  <p class="config-description">{{ t('googleApiDesc') }}</p>
+                  <input
+                    type="text"
+                    pInputText
+                    [placeholder]="t('googleApiPlaceholder')"
+                    [(ngModel)]="googleApiKey"
+                    (ngModelChange)="onGoogleApiKeyChange($event)"
+                    class="config-input"/>
                 </div>
-              }
+              </div>
             </div>
 
             <div class="setting-item">

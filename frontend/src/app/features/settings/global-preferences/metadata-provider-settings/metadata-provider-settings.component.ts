@@ -116,9 +116,9 @@ export class MetadataProviderSettingsComponent {
     this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
     this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
     this.goodreadsEnabled = metadataProviderSettings?.goodReads?.enabled ?? false;
-    this.googleEnabled = metadataProviderSettings?.google?.enabled ?? false;
     this.selectedGoogleLanguage = metadataProviderSettings?.google?.language ?? '';
     this.googleApiKey = metadataProviderSettings?.google?.apiKey ?? '';
+    this.googleEnabled = (metadataProviderSettings?.google?.enabled ?? false) && this.googleApiKeyConfigured;
     this.hardcoverToken = metadataProviderSettings?.hardcover?.apiKey ?? '';
     this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
     this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
@@ -141,6 +141,17 @@ export class MetadataProviderSettingsComponent {
     this.comicvineToken = newToken;
   }
 
+  onGoogleApiKeyChange(newApiKey: string): void {
+    this.googleApiKey = newApiKey;
+    if (!this.googleApiKeyConfigured) {
+      this.googleEnabled = false;
+    }
+  }
+
+  get googleApiKeyConfigured(): boolean {
+    return this.googleApiKey.trim().length > 0;
+  }
+
   saveSettings(): void {
     const payload = [
       {
@@ -157,7 +168,7 @@ export class MetadataProviderSettingsComponent {
           },
           goodReads: {enabled: this.goodreadsEnabled},
           google: {
-            enabled: this.googleEnabled,
+            enabled: this.googleEnabled && this.googleApiKeyConfigured,
             language: this.selectedGoogleLanguage,
             apiKey: this.googleApiKey.trim()
           },
