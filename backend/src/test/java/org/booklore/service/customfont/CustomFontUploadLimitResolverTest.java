@@ -48,6 +48,18 @@ class CustomFontUploadLimitResolverTest {
         assertThat(resolver.getMaxFileSizeMb()).isEqualTo(75);
     }
 
+    @Test
+    void getMaxFileSizeMb_clampsToOneMbWhenMultipartCeilingIsBelowOneMb() {
+        AppProperties appProperties = new AppProperties();
+        appProperties.getCustomFont().setMaxFileSizeMb(200);
+        MultipartProperties multipartProperties = new MultipartProperties();
+        multipartProperties.setMaxFileSize(DataSize.ofKilobytes(512));
+        multipartProperties.setMaxRequestSize(DataSize.ofKilobytes(512));
+        CustomFontUploadLimitResolver resolver = new CustomFontUploadLimitResolver(appProperties, multipartProperties);
+
+        assertThat(resolver.getMaxFileSizeMb()).isEqualTo(1);
+    }
+
     private MultipartProperties multipartProperties(long maxFileSizeMb, long maxRequestSizeMb) {
         MultipartProperties multipartProperties = new MultipartProperties();
         multipartProperties.setMaxFileSize(DataSize.ofMegabytes(maxFileSizeMb));
