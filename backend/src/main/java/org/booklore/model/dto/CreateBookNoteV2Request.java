@@ -25,7 +25,7 @@ public class CreateBookNoteV2Request {
     @Size(max = 5000, message = "Selected text must not exceed 5000 characters")
     private String selectedText;
 
-    @NotEmpty(message = "Note content is required")
+    //@NotEmpty(message = "Note content is required")
     private String noteContent;
 
     @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Color must be a valid hex color (e.g., #FFFF00)")
@@ -34,3 +34,4 @@ public class CreateBookNoteV2Request {
     @Size(max = 500, message = "Chapter title must not exceed 500 characters")
     private String chapterTitle;
 }
+

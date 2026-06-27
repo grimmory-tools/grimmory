@@ -69,6 +69,11 @@ public class BookNoteV2Service {
     }
 
     @Transactional
+    public void deleteByCfiAndBookIdAndUserId(String cfi, Long bookId, Long userId) {
+        bookNoteV2Repository.deleteByCfiAndBookIdAndUserId(cfi, bookId, userId);
+    }
+
+    @Transactional
     public BookNoteV2 updateNote(Long noteId, UpdateBookNoteV2Request request) {
         BookNoteV2Entity note = findNoteByIdAndUser(noteId);
 

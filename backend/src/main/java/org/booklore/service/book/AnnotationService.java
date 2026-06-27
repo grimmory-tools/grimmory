@@ -87,6 +87,11 @@ public class AnnotationService {
         annotationRepository.delete(annotation);
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteByCfiAndBookIdAndUserId(String cfi, Long bookId, Long userId) {
+        annotationRepository.deleteByCfiAndBookIdAndUserId(cfi, bookId, userId);
+    }
+
     private Long getCurrentUserId() {
         return authenticationService.getAuthenticatedUser().getId();
     }
@@ -119,4 +124,5 @@ public class AnnotationService {
         Optional.ofNullable(request.getStyle()).ifPresent(annotation::setStyle);
         Optional.ofNullable(request.getNote()).ifPresent(annotation::setNote);
     }
+
 }
