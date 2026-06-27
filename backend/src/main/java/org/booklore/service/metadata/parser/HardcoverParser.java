@@ -255,17 +255,24 @@ public class HardcoverParser implements BookParser {
     }
 
     private List<GraphQLResponse.BookWithEditions> filterEditions(List<GraphQLResponse.BookWithEditions> results, Book book) {
-        for (GraphQLResponse.BookWithEditions result : results) {
-            filterEditionsByFormat(results, result, book);
-            filterEditionsByLanguage(results, result);
-        }
-        return results;
+        return results.stream()
+                .map(result -> {
+                    // filter by format
+                    List<GraphQLResponse.Edition> filteredByFormat = filterEditionsByFormat(result, book);
+
+                    // filter by language
+                    List<GraphQLResponse.Edition> filteredByLanguage = filterEditionsByLanguage(filteredByFormat);
+
+                    result.setEditions(filteredByLanguage);
+                    return result;
+                })
+                .toList();
     }
 
-    private List<GraphQLResponse.BookWithEditions> filterEditionsByFormat(List<GraphQLResponse.BookWithEditions> results, GraphQLResponse.BookWithEditions result, Book book)
+    private List<GraphQLResponse.Edition> filterEditionsByFormat(GraphQLResponse.BookWithEditions result, Book book)
     {
         if (book.getPrimaryFile() == null){
-            return results;
+            return result.getEditions();
         }
 
         boolean isAudiobook = book.getPrimaryFile().getBookType().equals(BookFileType.AUDIOBOOK);
@@ -281,23 +288,21 @@ public class HardcoverParser implements BookParser {
         }
 
         if (isAudiobook && !audiobooks.isEmpty()) {
-            result.setEditions(audiobooks);
+            return audiobooks;
         }
-        else{
-            result.setEditions(hardcovers);
+        else {
+            return hardcovers;
         }
-
-        return results;
     }
 
-    private List<GraphQLResponse.BookWithEditions> filterEditionsByLanguage(List<GraphQLResponse.BookWithEditions> results, GraphQLResponse.BookWithEditions result){
+    private List<GraphQLResponse.Edition> filterEditionsByLanguage(List<GraphQLResponse.Edition> result){
         String localeLanguage = Locale.getDefault().getLanguage();
 
-        if (result.getEditions() == null || result.getEditions().isEmpty()) {
-            return results;
+        if (result == null || result.isEmpty()) {
+            return result;
         }
 
-        List<GraphQLResponse.Edition> filteredEditions = result.getEditions().stream()
+        List<GraphQLResponse.Edition> filteredEditions = result.stream()
                 .filter(edition -> {
                     String languageCode = edition.getLanguage() != null
                             ? edition.getLanguage().getCode2()
@@ -307,10 +312,9 @@ public class HardcoverParser implements BookParser {
                 .toList();
 
         if (!filteredEditions.isEmpty()){
-            result.setEditions(filteredEditions);
+            return filteredEditions;
         }
-
-        return results;
+        return result;
     }
 
     private BookMetadata mapBookToMetadata(GraphQLResponse.BookWithEditions book, GraphQLResponse.Edition edition) {
