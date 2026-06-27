@@ -9,17 +9,26 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 @Tag(name = "Icons", description = "Endpoints for managing SVG icons")
 @AllArgsConstructor
 @RestController
+@Validated
 @RequestMapping("/api/v1/icons")
 public class IconController {
 
@@ -46,11 +55,29 @@ public class IconController {
     @Operation(summary = "Get SVG icon content", description = "Retrieve the SVG content of an icon by its name.")
     @ApiResponse(responseCode = "200", description = "SVG icon content retrieved successfully")
     @GetMapping("/{svgName}/content")
-    public ResponseEntity<String> getSvgIconContent(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<String> getSvgIconContent(
+            WebRequest request,
+            @Parameter(description = "SVG icon name")
+            @PathVariable
+            @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "Invalid icon name format")
+            String svgName) {
+        Instant lastModified = iconService.getIconLastModified(svgName);
+        String etag = (lastModified != null) ? "\"" + lastModified.toEpochMilli() + "\"" : null;
+
+        if (lastModified != null && request.checkNotModified(etag, lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).eTag(etag).build();
+        }
         String svgContent = iconService.getSvgIcon(svgName);
-        return ResponseEntity.ok()
-                .header("Content-Type", "image/svg+xml")
-                .body(svgContent);
+        var builder = ResponseEntity.ok()
+                .contentType(MediaType.valueOf("image/svg+xml"))
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(svgContent);
     }
 
     @Operation(summary = "Get paginated icon names", description = "Retrieve a paginated list of icon names (default 50 per page).")
@@ -67,7 +94,11 @@ public class IconController {
     @ApiResponse(responseCode = "200", description = "SVG icon deleted successfully")
     @DeleteMapping("/{svgName}")
     @PreAuthorize("@securityUtil.canManageIcons() or @securityUtil.isAdmin()")
-    public ResponseEntity<?> deleteSvgIcon(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<?> deleteSvgIcon(
+            @Parameter(description = "SVG icon name")
+            @PathVariable
+            @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "Invalid icon name format")
+            String svgName) {
         iconService.deleteSvgIcon(svgName);
         return ResponseEntity.ok().build();
     }
@@ -75,8 +106,22 @@ public class IconController {
     @Operation(summary = "Get all icon contents", description = "Retrieve all SVG icons as a map of icon names to their content.")
     @ApiResponse(responseCode = "200", description = "All icon contents retrieved successfully")
     @GetMapping("/all/content")
-    public ResponseEntity<Map<String, String>> getAllIconsContent() {
+    public ResponseEntity<Map<String, String>> getAllIconsContent(WebRequest request) {
+        Instant lastModified = iconService.getIconsLastModified();
+        String etag = (lastModified != null) ? "\"" + lastModified.toEpochMilli() + "\"" : null;
+
+        if (lastModified != null && request.checkNotModified(etag, lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).lastModified(lastModified).eTag(etag).build();
+        }
         Map<String, String> iconsMap = iconService.getAllIconsContent();
-        return ResponseEntity.ok(iconsMap);
+        var builder = ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate());
+        if (etag != null) {
+            builder.eTag(etag);
+        }
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+        return builder.body(iconsMap);
     }
 }

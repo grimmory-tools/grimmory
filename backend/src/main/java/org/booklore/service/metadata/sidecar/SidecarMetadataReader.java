@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Optional;
 
 @Slf4j
@@ -113,6 +114,21 @@ public class SidecarMetadataReader {
         }
         Path sidecarPath = getSidecarPath(bookPath);
         return Files.exists(sidecarPath);
+    }
+
+    public Instant getSidecarLastModified(Path bookPath) {
+        if (bookPath == null) {
+            return null;
+        }
+        Path sidecarPath = getSidecarPath(bookPath);
+        try {
+            if (Files.exists(sidecarPath)) {
+                return Files.getLastModifiedTime(sidecarPath).toInstant();
+            }
+        } catch (IOException e) {
+            log.warn("Failed to get last modified time for sidecar {}: {}", sidecarPath, e.getMessage());
+        }
+        return null;
     }
 
     public Path getSidecarPath(Path bookPath) {

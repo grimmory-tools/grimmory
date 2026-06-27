@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -239,6 +241,49 @@ public class IconService {
 
     Cache<String, String> getSvgCache() {
         return svgCache;
+    }
+
+    public Instant getIconsLastModified() {
+        Path iconsPath = getIconsSvgPath();
+        if (!Files.exists(iconsPath)) {
+            return null;
+        }
+
+        try {
+            Instant dirMtime = Files.getLastModifiedTime(iconsPath).toInstant();
+            try (Stream<Path> paths = Files.list(iconsPath)) {
+                Instant maxFileMtime = paths.filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(SVG_EXTENSION))
+                        .map(path -> {
+                            try {
+                                return Files.getLastModifiedTime(path).toInstant();
+                            } catch (IOException e) {
+                                log.warn("Failed to get last modified time for {}: {}", path, e.getMessage());
+                                return Instant.EPOCH;
+                            }
+                        })
+                        .max(Instant::compareTo)
+                        .orElse(Instant.EPOCH);
+                return dirMtime.isAfter(maxFileMtime) ? dirMtime : maxFileMtime;
+            }
+        } catch (IOException e) {
+            log.error("Failed to check icons directory last modified: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    public Instant getIconLastModified(String name) {
+        String filename = normalizeFilename(name);
+        Path filePath = getIconsSvgPath().resolve(filename);
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+        try {
+            return Files.getLastModifiedTime(filePath).toInstant();
+        } catch (IOException e) {
+            log.warn("Failed to check icon last modified for {}: {}", name, e.getMessage());
+            return null;
+        }
     }
 
     public Map<String, String> getAllIconsContent() {

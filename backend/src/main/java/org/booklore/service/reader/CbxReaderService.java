@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -83,7 +84,7 @@ public class CbxReaderService {
             })
             .build();
 
-    private record CachedArchiveMetadata(List<String> imageEntries, List<CbxPageDimension> pageDimensions, long lastModified) {
+    private record CachedArchiveMetadata(List<String> imageEntries, List<CbxPageDimension> pageDimensions, Instant lastModified) {
         CachedArchiveMetadata {
             imageEntries = List.copyOf(imageEntries);
             pageDimensions = pageDimensions != null ? List.copyOf(pageDimensions) : null;
@@ -109,8 +110,8 @@ public class CbxReaderService {
      * {@link #streamPageImage} calls hit Tier 2 (disk) instead of Tier 3
      * (native extraction per request).
      */
-    private void submitBackgroundCacheInit(Long bookId, String bookType, long lastModified) {
-        String key = bookId + ":" + bookType + ":" + lastModified;
+    private void submitBackgroundCacheInit(Long bookId, String bookType, Instant lastModified) {
+        String key = bookId + ":" + bookType + ":" + versionToken(lastModified);
         if (cacheInitSubmitted.add(key)) {
             cacheExecutor.submit(() -> {
                 try {
@@ -223,9 +224,14 @@ public class CbxReaderService {
         }
     }
 
+    public Instant getLastModified(Long bookId, String bookType) throws IOException {
+        Path cbxPath = getBookPath(bookId, bookType);
+        CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
+        return metadata.lastModified();
+    }
+
     /**
      * Reads image dimensions for all pages using only image headers (a few KB
-     * per page) instead of loading the full image.
      * <p>
      * For ZIP/CBZ archives the fast path uses {@link java.util.zip.ZipFile}
      * which supports random access, so each entry stream feeds directly into
@@ -382,8 +388,8 @@ public class CbxReaderService {
         archiveService.transferEntryTo(cbxPath, entryName, outputStream);
     }
 
-    private ZipFile getZipFile(Path cbxPath, long lastModified) {
-        String cacheKey = cbxPath.toString() + ":" + lastModified;
+    private ZipFile getZipFile(Path cbxPath, Instant lastModified) {
+        String cacheKey = cbxPath + ":" + versionToken(lastModified);
         return zipHandleCache.get(cacheKey, _ -> {
             try {
                 if (isZipPath(cbxPath)) {
@@ -396,14 +402,19 @@ public class CbxReaderService {
         });
     }
 
-    private String getCacheKey(Long bookId, String bookType, long lastModified) {
+    private String getCacheKey(Long bookId, String bookType, Instant lastModified) {
+        String version = versionToken(lastModified);
         if (bookType != null) {
             // Ensure we use the safe enum name to prevent path traversal
             BookFileType type = BookFileType.fromName(bookType)
                     .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
-            return bookId + "_" + type.name() + "_" + lastModified;
+            return bookId + "_" + type.name() + "_" + version;
         }
-        return bookId + "_" + lastModified;
+        return bookId + "_" + version;
+    }
+
+    private static String versionToken(Instant instant) {
+        return instant.getEpochSecond() + "_" + instant.getNano();
     }
 
     private Path getBookPath(Long bookId, String bookType) {
@@ -431,9 +442,9 @@ public class CbxReaderService {
 
     private CachedArchiveMetadata getCachedMetadata(Path cbxPath) throws IOException {
         String cacheKey = cbxPath.toString();
-        long currentModified = Files.getLastModifiedTime(cbxPath).toMillis();
+        Instant currentModified = Files.getLastModifiedTime(cbxPath).toInstant();
         CachedArchiveMetadata cached = archiveCache.getIfPresent(cacheKey);
-        if (cached != null && cached.lastModified() == currentModified) {
+        if (cached != null && cached.lastModified().equals(currentModified)) {
             log.debug("Cache hit for archive: {}", cbxPath.getFileName());
             return cached;
         }
@@ -448,7 +459,7 @@ public class CbxReaderService {
     }
 
     private CachedArchiveMetadata scanArchiveMetadata(Path cbxPath) throws IOException {
-        long lastModified = Files.getLastModifiedTime(cbxPath).toMillis();
+        Instant lastModified = Files.getLastModifiedTime(cbxPath).toInstant();
 
         List<String> entries = getImageEntries(cbxPath);
         return new CachedArchiveMetadata(entries, null, lastModified);
