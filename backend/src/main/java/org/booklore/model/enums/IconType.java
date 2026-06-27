@@ -1,7 +1,6 @@
 package org.booklore.model.enums;
 
 public enum IconType {
-    PRIME_NG,
+    LUCIDE,
     CUSTOM_SVG
 }
-

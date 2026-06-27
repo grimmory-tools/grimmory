@@ -5,7 +5,7 @@
         <!-- iOS needs both type="search" and a form with an action attribute. -->
         <form ngNoForm action="." class="command-palette-form" (submit)="$event.preventDefault()">
           <div class="command-palette-input-row">
-            <i class="pi pi-search" aria-hidden="true"></i>
+            <svg lucideSearch class="command-palette-search-icon" aria-hidden="true"></svg>
             <input
               #paletteInput
               type="search"
@@ -27,7 +27,7 @@
               [attr.aria-label]="'close' | transloco"
               (click)="svc.hide()"
             >
-              <i class="pi pi-times" aria-hidden="true"></i>
+              <svg lucideX aria-hidden="true"></svg>
             </button>
           </div>
         </form>
@@ -86,14 +86,12 @@
                         </div>
                       </ng-container>
                     } @else {
-                      @if (item.icon) {
-                        <app-icon-display
-                          class="command-palette-item-icon"
-                          [icon]="item.icon"
-                          size="18px"
-                          [displayEmpty]="true"
-                        ></app-icon-display>
-                      }
+                      <app-icon-display
+                        class="command-palette-item-icon"
+                        [icon]="item.icon ?? null"
+                        size="18px"
+                        [displayEmpty]="true"
+                      ></app-icon-display>
                       <span class="command-palette-item-title">{{ item.title }}</span>
                       @if (item.subtitle) {
                         <span class="command-palette-item-subtitle">{{ item.subtitle }}</span>

@@ -1,6 +1,52 @@
 {
     "title": "Ansichtseinstellungen",
     "description": "Passen Sie an, wie Bücher in Ihrer Bibliothek angezeigt werden, einschließlich Rasterlayout, Sortieroptionen und Seitenleistenverhalten.",
+    "dashboardScrollers": {
+        "sectionTitle": "Dashboard-Konfiguration",
+        "sectionDesc": "Fügen Sie bis zu 5 Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
+        "type": "Typ",
+        "selectType": "Typ auswählen",
+        "magicShelf": "Magisches Regal",
+        "selectMagicShelf": "Magisches Regal auswählen",
+        "sortField": "Sortierfeld",
+        "selectField": "Feld auswählen",
+        "direction": "Richtung",
+        "selectDirection": "Richtung auswählen",
+        "maxItems": "Max. Einträge",
+        "addScroller": "Scroller hinzufügen",
+        "resetToDefault": "Auf Standard zurücksetzen",
+        "scrollerTypes": {
+            "lastRead": "Weiterlesen",
+            "lastListened": "Weiter hören",
+            "latestAdded": "Kürzlich hinzugefügt",
+            "random": "Etwas Neues entdecken",
+            "magicShelf": "Magisches Regal",
+            "default": "Scroller"
+        },
+        "sortFields": {
+            "title": "Titel",
+            "fileName": "Dateiname",
+            "filePath": "Dateipfad",
+            "addedOn": "Hinzugefügt am",
+            "author": "Autor",
+            "authorSurnameVorname": "Autor (Nachname)",
+            "seriesName": "Serienname",
+            "seriesNumber": "Seriennummer",
+            "personalRating": "Persönliche Bewertung",
+            "publisher": "Verlag",
+            "publishedDate": "Veröffentlichungsdatum",
+            "lastReadTime": "Zuletzt gelesen",
+            "readStatus": "Lesestatus",
+            "dateFinished": "Beendet am",
+            "readingProgress": "Lesefortschritt",
+            "bookType": "Dateiformat",
+            "pageCount": "Seiten"
+        },
+        "sortDirections": {
+            "asc": "Aufsteigend",
+            "desc": "Absteigend"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Bibliotheks- und Regal-Ansicht & Sortiereinstellungen",
         "sectionDesc": "Konfigurieren Sie Standard- und bibliotheks-/regalspezifische Einstellungen für Sortierung und Ansichtsmodus (Raster oder Tabelle) im Browser.",
@@ -152,6 +198,11 @@
     "saveFailedDetail": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

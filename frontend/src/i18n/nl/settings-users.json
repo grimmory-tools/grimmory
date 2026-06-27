@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "Alle bibliotheken (Beheerder)",
         "selectLibraries": "Bibliotheken selecteren",
         "enterFullName": "Volledige naam invoeren",
-        "enterEmail": "E-mail invoeren"
+        "enterEmail": "E-mail invoeren",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "Beheer",

@@ -136,8 +136,7 @@ export function buildShelfSection(
     id: 'shelfUnshelved',
     label: translate('layout.menu.unshelved'),
     type: 'shelf',
-    icon: 'pi pi-inbox',
-    iconType: 'PRIME_NG',
+    icon: 'inbox',
     routerLink: ['/unshelved-books'],
     bookCount: unshelvedCount,
   }];

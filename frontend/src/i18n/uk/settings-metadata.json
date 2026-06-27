@@ -61,7 +61,9 @@
         "googleApiPlaceholder": "Введіть API-ключ Google Books",
         "apiToken": "API-токен",
         "hardcoverPlaceholder": "Введіть API-токен Hardcover",
-        "comicvinePlaceholder": "Введіть API-токен Comic Vine"
+        "comicvinePlaceholder": "Введіть API-токен Comic Vine",
+        "goodreadsWarning": "",
+        "goodreadsWarningReadMore": ""
     },
     "fieldSelector": {
         "sectionTitle": "Увімкнені поля в редакторі та виборі метаданих",

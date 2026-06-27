@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
+import { LucideMenu, LucideSearch, LucideX } from '@lucide/angular';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
 import { LayoutService } from '../layout.service';
 
@@ -7,7 +8,7 @@ import { LayoutService } from '../layout.service';
   selector: 'app-mobile-topbar',
   templateUrl: './app.mobile-topbar.component.html',
   styleUrl: './app.mobile-topbar.component.scss',
-  imports: [TranslocoDirective, TranslocoPipe],
+  imports: [TranslocoDirective, TranslocoPipe, LucideMenu, LucideSearch, LucideX],
 })
 export class AppMobileTopbarComponent {
   readonly layoutService = inject(LayoutService);

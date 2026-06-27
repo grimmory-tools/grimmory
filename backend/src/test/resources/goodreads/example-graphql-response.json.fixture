@@ -1,0 +1,39 @@
+{
+  "data": {
+    "getBookByLegacyId": {
+      "title": "A Clockwork Orange",
+      "description": "In Anthony Burgess's influential nightmare vision of the future, criminals take over after dark. Teen gang leader Alex narrates in fantastically inventive slang that echoes the brutal realities of a world that is both horrifying and yet mesmerizing. This edition includes the controversial final chapter that was omitted from the original American publication, offering readers a complete and unexpurgated experience of one of the most powerful and thought-provoking works of dystopian fiction ever written. A c",
+      "imageUrl": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1549260060i/41817486.jpg",
+      "primaryContributorEdge": {
+        "node": {
+          "name": "Anthony Burgess"
+        }
+      },
+      "secondaryContributorEdges": [],
+      "bookSeries": [],
+      "bookGenres": [
+        { "genre": { "name": "Classics" } },
+        { "genre": { "name": "Fiction" } },
+        { "genre": { "name": "Science Fiction" } },
+        { "genre": { "name": "Dystopia" } },
+        { "genre": { "name": "Literature" } }
+      ],
+      "details": {
+        "numPages": "240",
+        "publicationTime": 1.426896E12,
+        "publisher": "W. W. Norton & Company",
+        "isbn": "0393341763",
+        "isbn13": "9780393341768",
+        "language": {
+          "name": "English"
+        }
+      },
+      "work": {
+        "stats": {
+          "averageRating": "4.00",
+          "ratingsCount": "782433"
+        }
+      }
+    }
+  }
+}

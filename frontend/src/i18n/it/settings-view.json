@@ -1,6 +1,52 @@
 {
     "title": "Preferenze di visualizzazione",
     "description": "Personalizza come vengono visualizzati i libri nella tua libreria, incluso il layout a griglia, le opzioni di ordinamento e il comportamento della barra laterale.",
+    "dashboardScrollers": {
+        "sectionTitle": "Configurazione pannello di controllo",
+        "sectionDesc": "Aggiungi fino a 5 scroller da diverse collezioni di libri e personalizza il loro comportamento",
+        "type": "Tipo",
+        "selectType": "Seleziona tipo",
+        "magicShelf": "Scaffale magico",
+        "selectMagicShelf": "Seleziona scaffale magico",
+        "sortField": "Campo di ordinamento",
+        "selectField": "Seleziona campo",
+        "direction": "Direzione",
+        "selectDirection": "Seleziona direzione",
+        "maxItems": "Elementi massimi",
+        "addScroller": "Aggiungi scroller",
+        "resetToDefault": "Ripristina predefiniti",
+        "scrollerTypes": {
+            "lastRead": "Continua a leggere",
+            "lastListened": "Continua ad ascoltare",
+            "latestAdded": "Aggiunti di recente",
+            "random": "Scopri qualcosa di nuovo",
+            "magicShelf": "Scaffale magico",
+            "default": "Scroller"
+        },
+        "sortFields": {
+            "title": "Titolo",
+            "fileName": "Nome file",
+            "filePath": "Percorso file",
+            "addedOn": "Data aggiunta",
+            "author": "Autore",
+            "authorSurnameVorname": "Autore (Cognome)",
+            "seriesName": "Nome serie",
+            "seriesNumber": "Numero serie",
+            "personalRating": "Valutazione personale",
+            "publisher": "Editore",
+            "publishedDate": "Data di pubblicazione",
+            "lastReadTime": "Ultima lettura",
+            "readStatus": "Stato di lettura",
+            "dateFinished": "Data completamento",
+            "readingProgress": "Progresso di lettura",
+            "bookType": "Tipo di libro",
+            "pageCount": "Pagine"
+        },
+        "sortDirections": {
+            "asc": "Crescente",
+            "desc": "Decrescente"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Preferenze di visualizzazione e ordinamento libreria e scaffale",
         "sectionDesc": "Configura le preferenze predefinite e per libreria/scaffale per l'ordinamento e la modalità di visualizzazione (griglia o tabella) nel browser.",
@@ -152,6 +198,11 @@
     "saveFailedDetail": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

@@ -50,27 +50,27 @@
             <span>
               {{ t('iconLabel') }}
             </span>
-            @if (!selectedIcon()) {
-              <button class="icon-picker-trigger" (click)="openIconPicker()" type="button">
-                <i class="pi pi-plus"></i>
-                <span>{{ t('chooseIcon') }}</span>
-              </button>
-            } @else {
+            @if (selectedIcon(); as icon) {
               <div class="icon-selected">
                 <div class="icon-preview">
-                  <app-icon-display [icon]="selectedIcon()!" size="16px" />
+                  <app-icon-display [icon]="icon" size="16px" />
                 </div>
                 <span class="icon-value">
-                  @if (selectedIcon()!.type === 'PRIME_NG') {
-                    {{ selectedIcon()!.value }}
-                  } @else {
+                  @if (icon.type === 'CUSTOM_SVG') {
                     {{ t('customSvg') }}
+                  } @else {
+                    {{ icon.value }}
                   }
                 </span>
                 <button class="icon-clear" (click)="clearSelectedIcon()" type="button">
                   <i class="pi pi-times"></i>
                 </button>
               </div>
+            } @else {
+              <button class="icon-picker-trigger" (click)="openIconPicker()" type="button">
+                <i class="pi pi-plus"></i>
+                <span>{{ t('chooseIcon') }}</span>
+              </button>
             }
           </div>
         </div>

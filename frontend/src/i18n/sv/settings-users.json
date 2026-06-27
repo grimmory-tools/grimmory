@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "Alla bibliotek (Admin)",
         "selectLibraries": "Välj bibliotek",
         "enterFullName": "Ange fullständigt namn",
-        "enterEmail": "Ange e-post"
+        "enterEmail": "Ange e-post",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "Administration",

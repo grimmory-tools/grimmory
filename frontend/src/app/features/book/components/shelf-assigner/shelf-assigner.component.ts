@@ -13,11 +13,11 @@ import {BookDialogHelperService} from '../book-browser/book-dialog-helper.servic
 import {LoadingService} from '../../../../core/services/loading.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
-import {IconSelection} from '../../../../shared/service/icon-picker.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {InputText} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
+import {IconSelection, toIconSelection} from '../../../../shared/icons/icon-selection';
 
 @Component({
   selector: 'app-shelf-assigner',
@@ -129,12 +129,8 @@ export class ShelfAssignerComponent {
     return this.selectedShelves.some(s => s.id === shelf.id);
   }
 
-  getShelfIcon(shelf: Shelf): IconSelection {
-    if (shelf.iconType === 'CUSTOM_SVG') {
-      return {type: 'CUSTOM_SVG', value: shelf.icon ?? ""};
-    } else {
-      return {type: 'PRIME_NG', value: `pi pi-${shelf.icon}`};
-    }
+  getShelfIcon(shelf: Shelf): IconSelection | null {
+    return shelf.icon ? toIconSelection(shelf.icon, shelf.iconType) : null;
   }
 
   filterShelves(shelves: Shelf[]): Shelf[] {

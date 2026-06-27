@@ -36,9 +36,11 @@
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
 
-  i {
+  .command-palette-search-icon {
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
     color: var(--color-text-secondary);
-    font-size: var(--app-text-lg);
   }
 }
 
@@ -88,8 +90,9 @@
     outline-offset: 2px;
   }
 
-  i {
-    font-size: 1.0938rem;
+  svg {
+    width: 1.0938rem;
+    height: 1.0938rem;
   }
 }
 
@@ -295,12 +298,12 @@
       0
       calc(0.6563rem + env(safe-area-inset-left));
 
-    > .pi-search {
+    > .command-palette-search-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 2.1875rem;
+      width: 1.125rem;
     }
   }
 

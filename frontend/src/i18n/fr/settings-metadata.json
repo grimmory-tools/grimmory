@@ -61,7 +61,9 @@
         "googleApiPlaceholder": "Entrez la clé API Google Books",
         "apiToken": "Jeton API",
         "hardcoverPlaceholder": "Entrez le jeton API Hardcover",
-        "comicvinePlaceholder": "Entrez le jeton API Comic Vine"
+        "comicvinePlaceholder": "Entrez le jeton API Comic Vine",
+        "goodreadsWarning": "",
+        "goodreadsWarningReadMore": ""
     },
     "fieldSelector": {
         "sectionTitle": "Champs activés dans l'éditeur et le sélecteur de métadonnées",

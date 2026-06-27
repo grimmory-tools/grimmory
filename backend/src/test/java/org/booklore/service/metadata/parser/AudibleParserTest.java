@@ -8,29 +8,26 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.dto.settings.MetadataPublicReviewsSettings;
 import org.booklore.service.appsettings.AppSettingService;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -39,9 +36,9 @@ import static org.mockito.Mockito.*;
 public class AudibleParserTest {
     @Mock private AppSettingService mockAppSettingService;
 
-    private AudibleParser audibleParser;
+    @Mock private HttpClient mockHttpClient;
 
-    private MockedStatic<Jsoup> mockJsoup;
+    private AudibleParser audibleParser;
 
     private AppSettings getAppSettings(String domain) {
         MetadataProviderSettings.Audible audibleSettings = new MetadataProviderSettings.Audible();
@@ -73,19 +70,28 @@ public class AudibleParserTest {
                 .build();
     }
 
-    private Connection getConnection(Document document) throws IOException {
-        Connection mockConnection = mock(Connection.class);
+    @SuppressWarnings("unchecked")
+    private HttpResponse<InputStream> getMockResponse(int statusCode, String response) {
+        HttpResponse<InputStream> httpResponse = (HttpResponse<InputStream>) mock(HttpResponse.class);
 
-        Connection.Response mockResponse = mock(Connection.Response.class);
+        when(httpResponse.statusCode()).thenReturn(statusCode);
 
-        when(mockConnection.header(any(String.class), any(String.class))).thenReturn(mockConnection);
-        when(mockConnection.method(any(Connection.Method.class))).thenReturn(mockConnection);
-        when(mockConnection.timeout(anyInt())).thenReturn(mockConnection);
-        when(mockConnection.execute()).thenReturn(mockResponse);
+        if (response != null) {
+            when(httpResponse.body()).thenAnswer(
+                    (_) -> new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8))
+            );
+        }
 
-        when(mockResponse.parse()).thenReturn(document);
+        return httpResponse;
+    }
 
-        return mockConnection;
+    private void mockHttpClientResponse(String urlPrefix, int statusCode, String response) throws Exception {
+        when(
+                mockHttpClient.<InputStream>send(
+                        argThat(r -> r != null && r.uri().toString().startsWith(urlPrefix)),
+                        any()
+                )
+        ).thenAnswer((_) -> getMockResponse(statusCode, response));
     }
 
     private String readFixture(String fixtureName) throws IOException {
@@ -98,174 +104,176 @@ public class AudibleParserTest {
         }
     }
 
-    private void mockJsoupConnect(String url, String html) throws Exception {
-        Document document = Parser.parse(html, "");
-        Connection connection = getConnection(document);
-
-        mockJsoup.when(() -> Jsoup.connect(url))
-                .thenReturn(connection);
-    }
-
-    private void mockASINSearch(String keyword) throws Exception {
-        mockJsoupConnect(
-                "https://www.audible.com/search?keywords=" + keyword,
-                """
-                <html><body>
-                <div data-widget="productList">
-                <a href="https://www.audible.com/pd/something/SEARCHASIN">Example</a>
-                </div>
-                </body></html>
-                """
-        );
-
-    }
-
-    private void mockExampleProductPage() throws Exception {
-        mockJsoupConnect(
-                "https://www.audible.com/pd/B0FQSDKVQ8",
-                readFixture("example-book-B0FQSDKVQ8.html")
-        );
-    }
-
     @BeforeEach
     public void setup() throws Exception {
         audibleParser = new AudibleParser(
                 mockAppSettingService,
-                new ObjectMapper()
+                new ObjectMapper(),
+                mockHttpClient
         );
 
         when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("com"));
-
-        mockJsoup = mockStatic(Jsoup.class);
-    }
-
-    @AfterEach
-    void tearDown() {
-        mockJsoup.close();
     }
 
     @Test
     public void fetchTopMetadata_usesAsinFromBookWhenAvailable() throws Exception {
-        mockJsoupConnect("https://www.audible.com/pd/EXAMPLESKU", "<html />");
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
 
         Book book = getBook("EXAMPLESKU");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/EXAMPLESKU"));
+        assertThat(actual).isNotNull();
     }
 
     @Test
     public void fetchTopMetadata_useDomain() throws Exception {
-        mockJsoupConnect("https://www.audible.co.jp/pd/EXAMPLESKU", "<html />");
+        mockHttpClientResponse(
+                "https://api.audible.co.jp/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
+
         when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings( "co.jp"));
 
         Book book = getBook("EXAMPLESKU");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.co.jp/pd/EXAMPLESKU"));
+        assertThat(actual).isNotNull();
     }
 
     @Test
     public void fetchTopMetadata_removesExtraWhitespace() throws Exception {
-        mockJsoupConnect("https://www.audible.com/pd/EXAMPLESKU", "<html />");
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
 
         Book book = getBook("  EXAMPLESKU  ");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/EXAMPLESKU"));
+        assertThat(actual).isNotNull();
     }
 
     @Test
-    public void fetchTopMetadata_removesExtraCharacters() throws Exception {
-        mockJsoupConnect("https://www.audible.com/pd/EXAMPLESKU", "<html />");
+    public void fetchTopMetadata_removesExtraCharactersFromBook() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
 
         Book book = getBook("@EXAMPLESKU!!");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/EXAMPLESKU"));
+        assertThat(actual).isNotNull();
+    }
+
+    @Test
+    public void fetchTopMetadata_removesExtraCharactersFromRequest() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder()
+                .asin("@EXAMPLESKU!! ")
+                .build();
+
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertThat(actual).isNotNull();
     }
 
     @Test
     public void fetchTopMetadata_ignoresInvalidBookASIN() throws Exception {
-        mockASINSearch("Example");
-        mockJsoupConnect("https://www.audible.com/pd/SEARCHASIN", "<html />");
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products?",
+                200,
+                readFixture("example-search.json")
+        );
 
         // Not 10 characters, alpha-numeric.
         Book book = getBook("bad asin");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/SEARCHASIN"));
-    }
-
-    @Test
-    public void fetchTopMetadata_ignoresNonSearchResults_withResults() throws Exception {
-        mockExampleProductPage();
-
-        mockJsoupConnect(
-                "https://www.audible.com/search?keywords=Example",
-                """
-                <html><body>
-                <a href="https://www.audible.com/pd/something/AAAAAAAAAA">Example</a>
-                <div data-widget="productList">
-                <a href="https://www.audible.com/pd/something/B0FQSDKVQ8">Example</a>
-                </div>
-                </body></html>
-                """
-        );
-
-        Book book = getBook(null);
-        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
-
-        BookMetadata bookMetadata = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
-
-        assertNotNull(bookMetadata);
-        assertEquals("B0FQSDKVQ8", bookMetadata.getAsin());
-        assertEquals("PLC Programming for Industrial Automation", bookMetadata.getTitle());
-    }
-
-    @Test
-    public void fetchTopMetadata_ignoresNonSearchResults_noResults() throws Exception {
-        mockExampleProductPage();
-
-        mockJsoupConnect(
-                "https://www.audible.com/search?keywords=Example",
-                """
-                <html><body>
-                <a href="https://www.audible.com/pd/something/B0FQSDKVQ8">Example</a>
-                <div data-widget="productList">
-                </div>
-                </body></html>
-                """
-        );
-
-        Book book = getBook(null);
-        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
-
-        BookMetadata bookMetadata = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
-
-        assertNull(bookMetadata);
+        assertThat(actual).isNotNull();
     }
 
     @Test
     public void fetchTopMetadata_ignoresMissingBookASIN() throws Exception {
-        mockASINSearch("Example");
-        mockJsoupConnect("https://www.audible.com/pd/SEARCHASIN", "<html />");
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("missing-asin-lookup.json")
+        );
 
         Book book = getBook(null);
-        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().asin("EXAMPLESKU").build();
 
-        audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.audible.com/pd/SEARCHASIN"));
+        assertThat(actual).isNull();
+    }
+
+    @Test
+    public void fetchTopMetadata_parsesFields() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/1705047572",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().asin("1705047572").build();
+
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertThat(actual.getAsin()).isEqualTo("1705047572");
+        assertThat(actual.getTitle()).isEqualTo("The Fellowship of the Ring");
+        assertThat(actual.getSubtitle()).isEqualTo("Lord of the Rings, Book 1");
+        assertThat(actual.getAuthors()).hasSize(1);
+        assertThat(actual.getAuthors().getFirst()).isEqualTo("J. R. R. Tolkien");
+        assertThat(actual.getNarrator()).isEqualTo("Andy Serkis");
+        assertThat(actual.getSeriesName()).isEqualTo("The Lord of the Rings");
+        assertThat(actual.getSeriesNumber()).isEqualTo(1);
+        assertThat(actual.getDescription()).startsWith("This brand-new unabridged audiobook of The Fellowship of the Ring,");
+        assertThat(actual.getDescription()).hasSize(607);
+        assertThat(actual.getAbridged()).isFalse();
+        assertThat(actual.getThumbnailUrl()).isEqualTo("https://m.media-amazon.com/images/I/81Yraj9IJDL._SL1000_.jpg");
+        assertThat(actual.getCategories()).isEqualTo(Set.of("Classics", "Literature & Fiction"));
+    }
+
+    @Test
+    public void fetchMetadata_ignoresPodcasts() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products",
+                200,
+                readFixture("example-search-with-podcasts.json")
+        );
+
+        Book book = getBook(null);
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().title("Lore").build();
+
+        List<BookMetadata> actual = audibleParser.fetchMetadata(book, fetchMetadataRequest);
+
+        assertThat(actual).hasSize(13);
+        assertThat(actual.stream().map(BookMetadata::getAsin).anyMatch("B08JJSB33N"::equalsIgnoreCase)).isFalse();
     }
 }

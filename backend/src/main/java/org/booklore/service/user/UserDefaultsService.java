@@ -25,7 +25,7 @@ public class UserDefaultsService {
                 .user(user)
                 .name("Favorites")
                 .icon("heart")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .build();
         shelfRepository.save(shelf);
     }

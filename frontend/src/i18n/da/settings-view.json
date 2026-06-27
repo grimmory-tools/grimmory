@@ -26,6 +26,52 @@
         "sectionTitle": "",
         "sectionDesc": ""
     },
+    "dashboardScrollers": {
+        "sectionTitle": "",
+        "sectionDesc": "",
+        "type": "",
+        "selectType": "",
+        "magicShelf": "",
+        "selectMagicShelf": "",
+        "sortField": "",
+        "selectField": "",
+        "direction": "",
+        "selectDirection": "",
+        "maxItems": "",
+        "addScroller": "",
+        "resetToDefault": "",
+        "scrollerTypes": {
+            "lastRead": "",
+            "lastListened": "",
+            "latestAdded": "",
+            "random": "",
+            "magicShelf": "",
+            "default": ""
+        },
+        "sortFields": {
+            "title": "",
+            "fileName": "",
+            "filePath": "",
+            "addedOn": "",
+            "author": "",
+            "authorSurnameVorname": "",
+            "seriesName": "",
+            "seriesNumber": "",
+            "personalRating": "",
+            "publisher": "",
+            "publishedDate": "",
+            "lastReadTime": "",
+            "readStatus": "",
+            "dateFinished": "",
+            "readingProgress": "",
+            "bookType": "",
+            "pageCount": ""
+        },
+        "sortDirections": {
+            "asc": "",
+            "desc": ""
+        }
+    },
     "librarySort": {
         "viewTable": "",
         "sortFieldCount": "",
@@ -152,6 +198,11 @@
     "description": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

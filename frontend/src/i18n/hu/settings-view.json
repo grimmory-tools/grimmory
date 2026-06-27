@@ -26,6 +26,52 @@
         "sectionTitle": "",
         "sectionDesc": ""
     },
+    "dashboardScrollers": {
+        "sectionTitle": "Kezdőlap Konfigurálása",
+        "sectionDesc": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket.",
+        "type": "Típus",
+        "selectType": "Típus kiválasztása",
+        "magicShelf": "Varázspolc",
+        "selectMagicShelf": "Varázspolc kiválasztása",
+        "sortField": "Rendező Mező",
+        "selectField": "Mező kiválasztása",
+        "direction": "Irány",
+        "selectDirection": "Irány kiválasztása",
+        "maxItems": "Maximális Elemek",
+        "addScroller": "Könyveskocsi hozzáadása",
+        "resetToDefault": "Visszaállítás Alapértelmezettre",
+        "scrollerTypes": {
+            "lastRead": "Olvasás Folytatása",
+            "lastListened": "Lejátszás Folytatása",
+            "latestAdded": "Nemrégiben Hozzáadott",
+            "random": "Fedezz fel valami újat",
+            "magicShelf": "Varázspolc",
+            "default": "Könyveskocsi"
+        },
+        "sortFields": {
+            "title": "Cím",
+            "fileName": "Fájlnév",
+            "filePath": "Elérési Útvonal",
+            "addedOn": "Hozzáadás Dátuma",
+            "author": "Szerző",
+            "authorSurnameVorname": "Szerző (családnév)",
+            "seriesName": "Sorozat Neve",
+            "seriesNumber": "Sorozat Száma",
+            "personalRating": "Személyes Értékelés",
+            "publisher": "Kiadó",
+            "publishedDate": "Kiadás Dátuma",
+            "lastReadTime": "Utoljára Olvasott",
+            "readStatus": "Olvasás Állapota",
+            "dateFinished": "Befejezés Dátuma",
+            "readingProgress": "Olvasás Előrehaladottsága",
+            "bookType": "Fájlformátum",
+            "pageCount": "Oldalak"
+        },
+        "sortDirections": {
+            "asc": "Emelkedő",
+            "desc": "Csökkenő"
+        }
+    },
     "librarySort": {
         "viewTable": "",
         "sortFieldCount": "",
@@ -152,6 +198,11 @@
     "description": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

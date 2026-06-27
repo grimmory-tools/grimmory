@@ -88,7 +88,7 @@ class LibraryServiceIconTest {
                 .id(1L)
                 .name("My Library")
                 .icon("book")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .libraryPaths(new ArrayList<>())
                 .watch(false)
                 .build();
@@ -122,7 +122,7 @@ class LibraryServiceIconTest {
                 .id(1L)
                 .name("My Library")
                 .icon("book")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .libraryPaths(new ArrayList<>())
                 .watch(false)
                 .build();
@@ -156,7 +156,7 @@ class LibraryServiceIconTest {
                 .id(1L)
                 .name("Library With Icon")
                 .icon("star")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .libraryPaths(new ArrayList<>())
                 .watch(false)
                 .build();
@@ -218,7 +218,7 @@ class LibraryServiceIconTest {
         CreateLibraryRequest request = CreateLibraryRequest.builder()
                 .name("Icon Library")
                 .icon("book")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .paths(Collections.emptyList())
                 .watch(false)
                 .build();
@@ -231,7 +231,7 @@ class LibraryServiceIconTest {
             return entity;
         });
         when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(
-                Library.builder().name("Icon Library").icon("book").iconType(IconType.PRIME_NG).build());
+                Library.builder().name("Icon Library").icon("book").iconType(IconType.LUCIDE).build());
 
         libraryService.createLibrary(request);
 
@@ -240,6 +240,6 @@ class LibraryServiceIconTest {
 
         LibraryEntity saved = captor.getValue();
         assertEquals("book", saved.getIcon());
-        assertEquals(IconType.PRIME_NG, saved.getIconType());
+        assertEquals(IconType.LUCIDE, saved.getIconType());
     }
 }

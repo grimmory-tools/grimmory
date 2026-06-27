@@ -1,13 +1,14 @@
+import { LucideMonitor, LucideMoon, LucideSun, type LucideIconData } from '@lucide/angular';
 import type {AppearancePreference} from '../../model/app-state.model';
 
 export interface AppearanceOption {
   value: AppearancePreference;
   labelKey: string;
-  icon: string;
+  icon: LucideIconData;
 }
 
 export const APPEARANCE_OPTIONS: readonly AppearanceOption[] = [
-  {value: 'light', labelKey: 'layout.theme.light', icon: 'pi pi-sun'},
-  {value: 'dark', labelKey: 'layout.theme.dark', icon: 'pi pi-moon'},
-  {value: 'system', labelKey: 'layout.theme.system', icon: 'pi pi-desktop'},
+  {value: 'light', labelKey: 'layout.theme.light', icon: LucideSun.icon},
+  {value: 'dark', labelKey: 'layout.theme.dark', icon: LucideMoon.icon},
+  {value: 'system', labelKey: 'layout.theme.system', icon: LucideMonitor.icon},
 ];

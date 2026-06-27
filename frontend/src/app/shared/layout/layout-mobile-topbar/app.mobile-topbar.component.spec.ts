@@ -59,23 +59,24 @@ describe('AppMobileTopbarComponent', () => {
     expect(commandPaletteService.open).toHaveBeenCalledOnce();
   });
 
-  it('shows the search icon when the palette is closed', () => {
+  it('opens the command palette from the topbar button when the palette is closed', () => {
     commandPaletteService.isOpen.set(false);
     fixture.detectChanges();
 
-    const icon = fixture.nativeElement.querySelector('.mobile-topbar button:last-of-type i');
-    expect(icon?.classList.contains('pi-search')).toBe(true);
+    const button = fixture.nativeElement.querySelector('.mobile-topbar button:last-of-type') as HTMLButtonElement;
+    button.click();
+
+    expect(layoutService.closeMobileSidebar).toHaveBeenCalledOnce();
+    expect(commandPaletteService.open).toHaveBeenCalledOnce();
   });
 
-  it('swaps to a close button that hides the palette when it is open', () => {
+  it('hides the command palette from the topbar button when the palette is open', () => {
     commandPaletteService.isOpen.set(true);
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector('.mobile-topbar button:last-of-type') as HTMLButtonElement;
-    const icon = button.querySelector('i');
-    expect(icon?.classList.contains('pi-times')).toBe(true);
-
     button.click();
+
     expect(commandPaletteService.hide).toHaveBeenCalledOnce();
   });
 });

@@ -9,14 +9,10 @@ import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.dto.settings.MetadataPublicReviewsSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.ObjectMapper;
 
@@ -40,13 +36,11 @@ public class GoodReadsParserTest {
     @Mock
     private HttpClient httpClient;
 
-    private MockedStatic<Jsoup> mockJsoup;
-
     private GoodReadsParser parser;
 
     private String exampleSearchJsonFixture;
 
-    private String exampleBookHtmlFixture;
+    private String exampleGraphqlResponseFixture;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -57,16 +51,7 @@ public class GoodReadsParserTest {
         );
 
         exampleSearchJsonFixture = readFixture("example-search.json");
-        exampleBookHtmlFixture = readFixture("example-book.html");
-
-
-
-        mockJsoup = mockStatic(Jsoup.class);
-    }
-
-    @AfterEach
-    void tearDown() {
-        mockJsoup.close();
+        exampleGraphqlResponseFixture = readFixture("example-graphql-response.json");
     }
 
     private void mockSettings(boolean enabled) {
@@ -114,28 +99,14 @@ public class GoodReadsParserTest {
         return httpResponse;
     }
 
+    @SuppressWarnings("unchecked")
     private void mockHttpClientResponse(String urlPrefix, int statusCode, String response) throws Exception {
         when(
                 httpClient.<String>send(
-                        argThat(r -> r.uri().toString().startsWith(urlPrefix)),
+                        argThat(r -> r != null && r.uri() != null && r.uri().toString().startsWith(urlPrefix)),
                         any()
                 )
         ).thenAnswer((_) -> getMockResponse(statusCode, response));
-    }
-
-    private void mockJsoupResponse(String urlPrefix, String response) throws Exception {
-        Connection mockConnection = mock(Connection.class);
-
-        when(mockConnection.header(anyString(), anyString())).thenReturn(mockConnection);
-        when(mockConnection.method(any())).thenReturn(mockConnection);
-
-        // There may be a better way to get the parse to work here.
-        // However, this was the quickest and simplest way I could find.
-        mockJsoup.when(() -> Jsoup.parse(response)).thenCallRealMethod();
-
-        when(mockConnection.get()).thenAnswer(i -> Jsoup.parse(response));
-
-        mockJsoup.when(() -> Jsoup.connect(startsWith(urlPrefix))).thenReturn(mockConnection);
     }
 
     @Test
@@ -172,9 +143,9 @@ public class GoodReadsParserTest {
         // Mock enabled provider
         mockSettings(true);
 
-        // Two expected URLs
+        // Two expected URLs: search + GraphQL
         mockHttpClientResponse("https://www.goodreads.com/book/auto_complete", 200, exampleSearchJsonFixture);
-        mockJsoupResponse("https://www.goodreads.com/book/show/", exampleBookHtmlFixture);
+        mockHttpClientResponse("https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql", 200, exampleGraphqlResponseFixture);
 
         // When
         List<BookMetadata> results = parser.fetchMetadata(book, request);

@@ -53,7 +53,9 @@
         "comicvinePlaceholder": "",
         "apiToken": "",
         "selectLanguage": "",
-        "saveError": ""
+        "saveError": "",
+        "goodreadsWarning": "",
+        "goodreadsWarningReadMore": ""
     },
     "matchWeights": {
         "recalcError": "",

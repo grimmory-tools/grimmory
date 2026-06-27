@@ -3,55 +3,8 @@
         "pageTitle": "Dasbor",
         "welcomeTitle": "Selamat Datang di Grimmory!",
         "createLibrary": "",
-        "customizeDashboard": "",
         "welcomeDescription": "",
         "welcomeSubtitle": ""
-    },
-    "settings": {
-        "type": "Tipe",
-        "sortFields": {
-            "title": "Judul",
-            "author": "Penulis",
-            "publisher": "Penerbit",
-            "pageCount": "Halaman",
-            "personalRating": "",
-            "bookType": "",
-            "lastReadTime": "",
-            "authorSurnameVorname": "",
-            "seriesNumber": "",
-            "addedOn": "",
-            "fileName": "",
-            "readingProgress": "",
-            "publishedDate": "",
-            "seriesName": "",
-            "readStatus": "",
-            "filePath": "",
-            "dateFinished": ""
-        },
-        "sortDirections": {
-            "asc": "Naik",
-            "desc": "Turun"
-        },
-        "scrollerTypes": {
-            "lastListened": "",
-            "random": "",
-            "default": "",
-            "magicShelf": "",
-            "latestAdded": "",
-            "lastRead": ""
-        },
-        "resetToDefault": "",
-        "selectType": "",
-        "addScroller": "",
-        "maxItems": "",
-        "magicShelf": "",
-        "selectDirection": "",
-        "direction": "",
-        "description": "",
-        "selectField": "",
-        "title": "",
-        "selectMagicShelf": "",
-        "sortField": ""
     },
     "scroller": {
         "recentlyAdded": "",

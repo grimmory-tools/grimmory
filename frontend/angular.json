@@ -50,6 +50,11 @@
                 "glob": "**/*",
                 "input": "node_modules/@embedpdf/snippet/dist/",
                 "output": "/assets/embedpdf/"
+              },
+              {
+                "glob": "**/*.svg",
+                "input": "node_modules/lucide-static/icons",
+                "output": "/assets/lucide/"
               }
             ],
             "styles": [

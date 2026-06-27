@@ -1,5 +1,51 @@
 {
     "title": "Preferensi Tampilan",
+    "dashboardScrollers": {
+        "sectionTitle": "",
+        "sectionDesc": "",
+        "type": "Tipe",
+        "selectType": "",
+        "magicShelf": "",
+        "selectMagicShelf": "",
+        "sortField": "",
+        "selectField": "",
+        "direction": "",
+        "selectDirection": "",
+        "maxItems": "",
+        "addScroller": "",
+        "resetToDefault": "",
+        "scrollerTypes": {
+            "lastRead": "",
+            "lastListened": "",
+            "latestAdded": "",
+            "random": "",
+            "magicShelf": "",
+            "default": ""
+        },
+        "sortFields": {
+            "title": "Judul",
+            "fileName": "",
+            "filePath": "",
+            "addedOn": "",
+            "author": "Penulis",
+            "authorSurnameVorname": "",
+            "seriesName": "",
+            "seriesNumber": "",
+            "personalRating": "",
+            "publisher": "Penerbit",
+            "publishedDate": "",
+            "lastReadTime": "",
+            "readStatus": "",
+            "dateFinished": "",
+            "readingProgress": "",
+            "bookType": "",
+            "pageCount": "Halaman"
+        },
+        "sortDirections": {
+            "asc": "Naik",
+            "desc": "Turun"
+        }
+    },
     "librarySort": {
         "ascending": "Naik",
         "descending": "Turun",
@@ -152,6 +198,11 @@
     "description": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

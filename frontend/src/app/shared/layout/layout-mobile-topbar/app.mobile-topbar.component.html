@@ -6,7 +6,7 @@
     [attr.aria-label]="t('menu.toggleNavigation')"
     (click)="layoutService.onMenuToggle()"
   >
-    <i class="pi pi-bars" aria-hidden="true"></i>
+    <svg lucideMenu aria-hidden="true"></svg>
   </button>
   <div class="mobile-topbar-brand">
     <svg class="mobile-topbar-brand-icon" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -33,7 +33,7 @@
       [attr.aria-label]="'common.close' | transloco"
       (click)="closeSearch()"
     >
-      <i class="pi pi-times" aria-hidden="true"></i>
+      <svg lucideX aria-hidden="true"></svg>
     </button>
   } @else {
     <button
@@ -42,7 +42,7 @@
       [attr.aria-label]="t('menu.search')"
       (click)="openSearch()"
     >
-      <i class="pi pi-search" aria-hidden="true"></i>
+      <svg lucideSearch aria-hidden="true"></svg>
     </button>
   }
 </header>
