@@ -1,5 +1,51 @@
 package org.booklore.controller;
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.booklore.exception.ApiError;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.Shelf;
+import org.booklore.model.dto.kobo.Entitlement;
+import org.booklore.model.dto.kobo.KoboBookMetadata;
+import org.booklore.model.dto.kobo.KoboDeals;
+import org.booklore.model.dto.kobo.KoboEventsContainer;
+import org.booklore.model.dto.kobo.KoboReadingStateList;
+import org.booklore.model.dto.kobo.KoboReadingStateRequest;
+import org.booklore.model.dto.kobo.KoboResources;
+import org.booklore.model.dto.kobo.KoboTestResponse;
+import org.booklore.model.dto.kobo.KoboUserProfile;
+import org.booklore.service.ShelfService;
+import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.book.BookDownloadService;
+import org.booklore.service.book.BookService;
+import org.booklore.service.kobo.KoboDeviceAuthService;
+import org.booklore.service.kobo.KoboEntitlementService;
+import org.booklore.service.kobo.KoboEventsService;
+import org.booklore.service.kobo.KoboInitializationService;
+import org.booklore.service.kobo.KoboLibrarySyncService;
+import org.booklore.service.kobo.KoboRatingService;
+import org.booklore.service.kobo.KoboReadingStateService;
+import org.booklore.service.kobo.KoboServerProxy;
+import org.booklore.service.kobo.KoboThumbnailService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,23 +55,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.Shelf;
-import org.booklore.model.dto.kobo.*;
-import org.booklore.service.ShelfService;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.book.BookDownloadService;
-import org.booklore.service.book.BookService;
-import org.booklore.service.kobo.*;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
@@ -52,6 +81,7 @@ public class KoboController {
     private final KoboThumbnailService koboThumbnailService;
     private final ShelfService shelfService;
     private final BookDownloadService bookDownloadService;
+    private final KoboEventsService koboEventsService;
 
     private boolean isForwardingToKoboStore() {
         return appSettingService.getAppSettings().getKoboSettings().isForwardToKoboStore();
@@ -180,11 +210,10 @@ public class KoboController {
     @Operation(summary = "Publish analytics event", description = "Publish an analytics event for Kobo.")
     @ApiResponse(responseCode = "200", description = "Analytics event pushed successfully")
     @PostMapping("/v1/analytics/event")
-    public ResponseEntity<?> pushEvent() {
-        // Never pass along analytics events.
+    public ResponseEntity<?> pushEvent(@Parameter(description = "Events request body") @RequestBody KoboEventsContainer body) {
+        koboEventsService.handleEvents(body);
         return ResponseEntity.ok().build();
     }
-
 
     @Operation(summary = "Download Kobo book", description = "Download a book from the Kobo library.")
     @ApiResponse(responseCode = "200", description = "Book downloaded successfully")
