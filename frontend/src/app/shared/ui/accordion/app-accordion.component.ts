@@ -9,6 +9,7 @@ import {
   numberAttribute,
 } from '@angular/core';
 import { AccordionContent, AccordionGroup, AccordionPanel, AccordionTrigger } from '@angular/aria/accordion';
+import { LucideChevronDown } from '@lucide/angular';
 
 import {
   AppAccordionActionsDirective,
@@ -20,7 +21,7 @@ import { neutralControlBorderClass } from '../control.styles';
 @Component({
   selector: 'app-accordion',
   standalone: true,
-  imports: [NgTemplateOutlet, AccordionGroup, AccordionPanel, AccordionTrigger, AccordionContent],
+  imports: [NgTemplateOutlet, AccordionGroup, AccordionPanel, AccordionTrigger, AccordionContent, LucideChevronDown],
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -46,7 +47,7 @@ import { neutralControlBorderClass } from '../control.styles';
                     {{ item }}
                   }
                 </span>
-                <i [class]="chevronClass" [class.rotate-180]="trigger.expanded()" aria-hidden="true"></i>
+                <svg lucideChevronDown [class]="chevronClass" [class.rotate-180]="trigger.expanded()" aria-hidden="true"></svg>
               </button>
             </div>
             @if (actionsTemplate(); as tpl) {
@@ -104,7 +105,7 @@ export class AppAccordionComponent {
   protected readonly labelClass = 'min-w-0 flex-1 pr-7 text-left';
   protected readonly labelWithActionsClass = 'min-w-0 flex-1 pr-24 text-left';
   protected readonly chevronClass =
-    'pi pi-chevron-down pointer-events-none absolute right-3 top-1/2 shrink-0 -translate-y-1/2 text-xs text-text-muted transition-transform duration-200';
+    'pointer-events-none absolute right-3 top-1/2 size-4 shrink-0 -translate-y-1/2 text-text-muted transition-transform duration-200';
   protected readonly actionsOverlayClass = 'pointer-events-none absolute inset-y-0 right-8 flex items-center';
   protected readonly actionsClass = 'pointer-events-auto flex shrink-0 items-center gap-1';
   protected readonly contentClass = 'surface-page border-t border-border px-3 py-3 text-sm text-text';

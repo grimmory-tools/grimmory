@@ -122,9 +122,9 @@ export const DATE_PICKER_TEMPLATE = `
       <span
         class="pointer-events-none absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-text-muted">
         @if (pending()) {
-          <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
+          <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
         } @else {
-          <i class="pi pi-calendar text-sm" aria-hidden="true"></i>
+          <svg lucideCalendar class="size-4" aria-hidden="true"></svg>
         }
       </span>
     </div>
@@ -150,11 +150,11 @@ export const DATE_PICKER_TEMPLATE = `
         (focusout)="onPopupFocusOut($event)">
         <div class="mb-2 flex items-center justify-between gap-1">
           <button type="button" [class]="navButtonClass" [attr.aria-label]="'shared.ui.datePicker.previousMonth' | transloco" (click)="shiftMonth(-1)">
-            <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+            <svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>
           </button>
           <span aria-live="polite" class="text-sm font-semibold text-text-strong">{{ monthYearLabel() }}</span>
           <button type="button" [class]="navButtonClass" [attr.aria-label]="'shared.ui.datePicker.nextMonth' | transloco" (click)="shiftMonth(1)">
-            <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+            <svg lucideChevronRight class="size-4" aria-hidden="true"></svg>
           </button>
         </div>
 

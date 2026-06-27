@@ -3,6 +3,25 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router } from '@angular/router';
 import { email, form, FormField, minLength, required, validate } from '@angular/forms/signals';
 import { MenuItem } from 'primeng/api';
+import {
+  LucideChevronLeft,
+  LucideDownload,
+  LucideEllipsisVertical,
+  LucideFile,
+  LucideFolder,
+  LucideFolderOpen,
+  LucideHeart,
+  LucideList,
+  LucideSave,
+  LucideSearch,
+  LucideSettings,
+  LucideSmartphone,
+  LucideTag,
+  LucideTrash2,
+  LucideTriangleAlert,
+  LucideX,
+  LucideZap,
+} from '@lucide/angular';
 import { AppAccordionComponent } from '../../shared/ui/accordion/app-accordion.component';
 import {
   AppAccordionActionsDirective,
@@ -76,6 +95,21 @@ interface ButtonExample {
     AppTagComponent,
     AppTextareaComponent,
     AppTooltipDirective,
+    LucideFolder,
+    LucideSmartphone,
+    LucideList,
+    LucideZap,
+    LucideChevronLeft,
+    LucideHeart,
+    LucideSave,
+    LucideSettings,
+    LucideEllipsisVertical,
+    LucideFolderOpen,
+    LucideDownload,
+    LucideTrash2,
+    LucideSearch,
+    LucideX,
+    LucideTriangleAlert,
     FormField,
   ],
   templateUrl: './design-system.component.html',
@@ -137,9 +171,9 @@ export class DesignSystemComponent {
   ];
 
   readonly settingsTabs: TabItem[] = [
-    { id: 'general', label: 'General', icon: 'pi pi-cog' },
-    { id: 'metadata', label: 'Metadata', icon: 'pi pi-tag' },
-    { id: 'formats', label: 'Formats', icon: 'pi pi-file' },
+    { id: 'general', label: 'General', icon: LucideSettings.icon },
+    { id: 'metadata', label: 'Metadata', icon: LucideTag.icon },
+    { id: 'formats', label: 'Formats', icon: LucideFile.icon },
   ];
   readonly manyTabs: TabItem[] = [
     { id: 'general', label: 'General' },
