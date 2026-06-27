@@ -322,9 +322,7 @@ public class HardcoverParser implements BookParser {
         }
 
         List<GraphQLResponse.Edition> filteredEditions = result.stream()
-                .filter(edition -> {
-                    return edition.getIsbn10() != null || edition.getIsbn13() != null;
-                })
+                .filter(edition -> edition.getIsbn10() != null || edition.getIsbn13() != null)
                 .toList();
 
         return !filteredEditions.isEmpty()
