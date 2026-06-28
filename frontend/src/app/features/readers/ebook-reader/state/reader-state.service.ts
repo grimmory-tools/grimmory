@@ -19,6 +19,7 @@ export interface ReaderState {
   fontFamily: string | null;
   isDark: boolean;
   flow: 'paginated' | 'scrolled';
+  tapToTurnPage: boolean;
 }
 
 interface LegacyViewerSetting {
@@ -59,6 +60,7 @@ export class ReaderStateService {
     fontFamily: null,
     isDark: true,
     flow: 'paginated',
+    tapToTurnPage: true,
   };
 
   private readonly _state = signal<ReaderState>(this.defaultState);
@@ -131,6 +133,7 @@ export class ReaderStateService {
         if (settings.maxInlineSize != null) newState.maxInlineSize = settings.maxInlineSize;
         if (settings.maxBlockSize != null) newState.maxBlockSize = settings.maxBlockSize;
         if (settings.isDark != null) newState.isDark = settings.isDark;
+        if (settings.tapToTurnPage != null) newState.tapToTurnPage = settings.tapToTurnPage;
         if (settings.flow) newState.flow = settings.flow;
         if (settings.theme) {
           const theme = this.themes.find(t => t.name === settings.theme);
@@ -235,6 +238,10 @@ export class ReaderStateService {
 
   setFlow(flow: 'paginated' | 'scrolled'): void {
     this.updateState({flow});
+  }
+
+  setTapToTurnPage(enabled: boolean): void {
+    this.updateState({tapToTurnPage: enabled});
   }
 
   private updateState(partial: Partial<ReaderState>): void {

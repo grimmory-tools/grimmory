@@ -79,6 +79,7 @@ describe('ReaderStateService', () => {
           isDark: false,
           flow: 'scrolled',
           theme: 'gray',
+          tapToTurnPage: false,
         }
       }
     }));
@@ -89,6 +90,7 @@ describe('ReaderStateService', () => {
     const grayTheme = themes.find(theme => theme.name === 'gray');
 
     expect(bookService.getBookSetting).toHaveBeenCalledWith(11, 22);
+    expect(service.state().tapToTurnPage).toBe(false);
     expect(service.state().fontSize).toBe(18);
     expect(service.state().lineHeight).toBe(1.75);
     expect(service.state().fontFamily).toBe('custom:5');
@@ -178,6 +180,30 @@ describe('ReaderStateService', () => {
     expect(service.state().fontFamily).toBe('custom:12');
     expect(service.state().isDark).toBe(false);
     expect(service.state().flow).toBe('scrolled');
+  });
+
+  it('defaults tap-to-turn-page to enabled when the setting is absent', async () => {
+    userService.getMyself.mockReturnValue(of({
+      userSettings: {
+        perBookSetting: {epub: 'Global'},
+        ebookReaderSetting: {fontSize: 16},
+      }
+    }));
+    bookService.getBookSetting.mockReturnValue(of({ebookSettings: {}}));
+
+    await firstValueFrom(service.initializeState(1, 2));
+
+    expect(service.state().tapToTurnPage).toBe(true);
+  });
+
+  it('toggles tap-to-turn-page through the mutator', () => {
+    expect(service.state().tapToTurnPage).toBe(true);
+
+    service.setTapToTurnPage(false);
+    expect(service.state().tapToTurnPage).toBe(false);
+
+    service.setTapToTurnPage(true);
+    expect(service.state().tapToTurnPage).toBe(true);
   });
 
   it('ignores unknown theme names', () => {
