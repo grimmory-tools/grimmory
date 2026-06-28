@@ -32,7 +32,6 @@ describe('initializeAuthFactory', () => {
     remoteAuthEnabled: false,
     oidcProviderDetails: null!,
     oidcForceOnlyMode: false,
-    customFontMaxFileSizeMb: 50,
   };
 
   beforeEach(() => {

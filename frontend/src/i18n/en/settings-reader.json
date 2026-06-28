@@ -163,7 +163,7 @@
       "selectFile": "Select Font File",
       "dragDrop": "Drag and Drop Font File",
       "supportedFormats": "Supported formats: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-      "maxSize": "Maximum file size: {{size}}",
+      "maxSize": "Maximum file size: 50 MB",
       "fontPreview": "Font Preview",
       "displayName": "Font Display Name",
       "displayNameDesc": "This name will appear in the font selector when reading EPUB books.",

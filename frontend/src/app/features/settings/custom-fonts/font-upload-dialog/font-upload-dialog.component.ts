@@ -1,9 +1,8 @@
-import {Component, ViewChild, ElementRef, OnDestroy, computed, inject} from '@angular/core';
+import {Component, ViewChild, ElementRef, OnDestroy, inject} from '@angular/core';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
 import {formatFileSize} from '../../../../shared/model/custom-font.model';
-import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -19,7 +18,6 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 export class FontUploadDialogComponent implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   private customFontService = inject(CustomFontService);
-  private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
   private dialogRef = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
@@ -34,13 +32,7 @@ export class FontUploadDialogComponent implements OnDestroy {
 
   readonly maxFonts = 10;
   readonly acceptedFormats = ['.ttf', '.otf', '.woff', '.woff2'];
-
-  readonly maxFileSize = computed(() => {
-    const maxSizeMb = this.appSettingsService.publicAppSettings()?.customFontMaxFileSizeMb ?? 50;
-    return maxSizeMb * 1024 * 1024;
-  });
-
-  readonly maxFileSizeDisplay = computed(() => this.formatFileSize(this.maxFileSize()));
+  readonly maxFileSize = 50 * 1024 * 1024;
 
   onUploadZoneClick(): void {
     if (this.isUploading) {
@@ -204,11 +196,11 @@ export class FontUploadDialogComponent implements OnDestroy {
       return false;
     }
 
-    if (file.size > this.maxFileSize()) {
+    if (file.size > this.maxFileSize) {
       this.messageService.add({
         severity: 'error',
         summary: this.t.translate('settingsReader.fonts.upload.fileTooLarge'),
-        detail: this.t.translate('settingsReader.fonts.upload.fileTooLargeDetail', {size: this.formatFileSize(this.maxFileSize())})
+        detail: this.t.translate('settingsReader.fonts.upload.fileTooLargeDetail', {size: this.formatFileSize(this.maxFileSize)})
       });
       return false;
     }

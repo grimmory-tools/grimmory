@@ -163,7 +163,7 @@
             "selectFile": "Schriftdatei auswählen",
             "dragDrop": "Schriftdatei per Drag & Drop hierher ziehen",
             "supportedFormats": "Unterstützte Formate: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Maximale Dateigröße: {{size}}",
+            "maxSize": "Maximale Dateigröße: 50 MB",
             "fontPreview": "Schriftvorschau",
             "displayName": "Anzeigename der Schriftart",
             "displayNameDesc": "Dieser Name erscheint in der Schriftauswahl beim Lesen von EPUB-Büchern.",

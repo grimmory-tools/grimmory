@@ -163,7 +163,7 @@
             "selectFile": "Selecionar Arquivo de Fonte",
             "dragDrop": "Arraste e Solte o Arquivo de Fonte",
             "supportedFormats": "Formatos suportados: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Tamanho máximo do arquivo: {{size}}",
+            "maxSize": "Tamanho máximo do arquivo: 50 MB",
             "fontPreview": "Prévia da Fonte",
             "displayName": "Nome de Exibição da Fonte",
             "displayNameDesc": "Este nome aparecerá no seletor de fontes ao ler livros EPUB.",

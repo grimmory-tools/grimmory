@@ -163,7 +163,7 @@
             "selectFile": "Odaberite datoteku fonta",
             "dragDrop": "Povucite i ispustite datoteku fonta",
             "supportedFormats": "Podržani formati: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Maksimalna veličina datoteke: {{size}}",
+            "maxSize": "Maksimalna veličina datoteke: 50 MB",
             "fontPreview": "Pregled fonta",
             "displayName": "Prikazni naziv fonta",
             "displayNameDesc": "Ovaj naziv će se pojaviti u biraču fontova prilikom čitanja EPUB knjiga.",

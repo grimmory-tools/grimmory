@@ -11,7 +11,6 @@ import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.PermissionType;
 import org.booklore.service.audit.AuditService;
-import org.booklore.service.customfont.CustomFontUploadLimitResolver;
 import org.booklore.util.UserPermissionUtils;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,14 +39,12 @@ public class AppSettingService {
     private final SettingPersistenceHelper settingPersistenceHelper;
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
-    private final CustomFontUploadLimitResolver customFontUploadLimitResolver;
 
-    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService, CustomFontUploadLimitResolver customFontUploadLimitResolver) {
+    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
         this.authenticationService = authenticationService;
         this.auditService = auditService;
-        this.customFontUploadLimitResolver = customFontUploadLimitResolver;
     }
 
     @Cacheable("appSettings")
@@ -200,7 +197,6 @@ public class AppSettingService {
         }
         builder.oidcProviderDetails(details);
         builder.oidcForceOnlyMode(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false")));
-        builder.customFontMaxFileSizeMb(getCustomFontMaxFileSizeMb());
 
         return builder.build();
     }
@@ -241,7 +237,6 @@ public class AppSettingService {
         builder.komgaGroupUnknown(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.KOMGA_GROUP_UNKNOWN, "true")));
         builder.pdfCacheSizeInMb(Integer.parseInt(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.PDF_CACHE_SIZE_IN_MB, "5120")));
         builder.maxFileUploadSizeInMb(Integer.parseInt(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, "100")));
-        builder.customFontMaxFileSizeMb(getCustomFontMaxFileSizeMb());
         builder.metadataDownloadOnBookdrop(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, "true")));
 
         String sessionDurationStr = settingsMap.get(AppSettingKey.OIDC_SESSION_DURATION_HOURS.getDbKey());
@@ -265,10 +260,6 @@ public class AppSettingService {
         builder.diskType(appProperties.getDiskType());
 
         return builder.build();
-    }
-
-    private int getCustomFontMaxFileSizeMb() {
-        return customFontUploadLimitResolver.getMaxFileSizeMb();
     }
 
     public String getSettingValue(String key) {

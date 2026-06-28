@@ -163,7 +163,7 @@
             "selectFile": "Виберіть файл шрифту",
             "dragDrop": "Перетягніть файл шрифту",
             "supportedFormats": "Підтримувані формати: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Максимальний розмір файлу: {{size}}",
+            "maxSize": "Максимальний розмір файлу: 50 МБ",
             "fontPreview": "Попередній перегляд шрифту",
             "displayName": "Назва шрифту",
             "displayNameDesc": "Ця назва відображатиметься у списку шрифтів під час читання EPUB-книг.",

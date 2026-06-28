@@ -163,7 +163,7 @@
             "selectFile": "Sélectionner un fichier de police",
             "dragDrop": "Glisser-déposer un fichier de police",
             "supportedFormats": "Formats pris en charge : <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Taille maximale : {{size}}",
+            "maxSize": "Taille maximale : 50 Mo",
             "fontPreview": "Aperçu de la police",
             "displayName": "Nom d'affichage de la police",
             "displayNameDesc": "Ce nom apparaîtra dans le sélecteur de polices lors de la lecture de livres EPUB.",

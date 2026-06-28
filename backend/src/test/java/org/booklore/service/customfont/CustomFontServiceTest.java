@@ -16,10 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.servlet.autoconfigure.MultipartProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -45,7 +43,6 @@ class CustomFontServiceTest {
     CustomFontMapper customFontMapper;
 
     AppProperties appProperties;
-    MultipartProperties multipartProperties;
     CustomFontService service;
 
     @BeforeEach
@@ -53,11 +50,7 @@ class CustomFontServiceTest {
         MockitoAnnotations.openMocks(this);
         appProperties = new AppProperties();
         appProperties.setPathConfig(tempDir.toString());
-        multipartProperties = new MultipartProperties();
-        multipartProperties.setMaxFileSize(DataSize.ofMegabytes(1024));
-        multipartProperties.setMaxRequestSize(DataSize.ofMegabytes(1024));
-        CustomFontUploadLimitResolver customFontUploadLimitResolver = new CustomFontUploadLimitResolver(appProperties, multipartProperties);
-        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties, customFontUploadLimitResolver);
+        service = new CustomFontService(customFontRepository, userRepository, customFontMapper, appProperties);
     }
 
     @Test
@@ -145,12 +138,11 @@ class CustomFontServiceTest {
     }
 
     @Test
-    @DisplayName("uploadFont_withConfiguredMaxFileSize_shouldAllowLargerFile")
-    void uploadFont_withConfiguredMaxFileSize_shouldAllowLargerFile() throws IOException {
+    @DisplayName("uploadFont_withFileAboveOldLimit_shouldAllowFileUnder50Mb")
+    void uploadFont_withFileAboveOldLimit_shouldAllowFileUnder50Mb() throws IOException {
         // Arrange
         Long userId = 1L;
         String fontName = "Large Font";
-        appProperties.getCustomFont().setMaxFileSizeMb(6);
         byte[] fontContent = new byte[5 * 1024 * 1024 + 1];
         fontContent[0] = 0x00;
         fontContent[1] = 0x01;

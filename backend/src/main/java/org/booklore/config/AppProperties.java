@@ -12,7 +12,6 @@ public class AppProperties {
     private String bookdropFolder;
     private String version;
     private RemoteAuth remoteAuth;
-    private CustomFont customFont = new CustomFont();
     private Boolean forceDisableOidc = false;
 
     /**
@@ -38,11 +37,5 @@ public class AppProperties {
         private String headerGroups;
         private String adminGroup;
         private String groupsDelimiter = "\\s+";  // Default to whitespace for backward compatibility
-    }
-
-    @Getter
-    @Setter
-    public static class CustomFont {
-        private int maxFileSizeMb = 50;
     }
 }

@@ -163,7 +163,7 @@
             "selectFile": "Wybierz plik czcionki",
             "dragDrop": "Przeciągnij i upuść plik czcionki",
             "supportedFormats": "Obsługiwane formaty: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Maksymalny rozmiar pliku: {{size}}",
+            "maxSize": "Maksymalny rozmiar pliku: 50 MB",
             "fontPreview": "Podgląd czcionki",
             "displayName": "Nazwa wyświetlana czcionki",
             "displayNameDesc": "Ta nazwa będzie widoczna w selektorze czcionek podczas czytania książek EPUB.",

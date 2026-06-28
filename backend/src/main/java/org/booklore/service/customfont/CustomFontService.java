@@ -43,10 +43,10 @@ public class CustomFontService {
     private final UserRepository userRepository;
     private final CustomFontMapper customFontMapper;
     private final AppProperties appProperties;
-    private final CustomFontUploadLimitResolver customFontUploadLimitResolver;
 
     private static final int MAX_FONTS_PER_USER = 10;
-    private static final long BYTES_PER_MB = 1024L * 1024L;
+    private static final int MAX_FILE_SIZE_MB = 50;
+    private static final long MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024L * 1024L;
     private static final String CUSTOM_FONTS_DIR = "custom-fonts";
     private static final int MAX_FONT_NAME_LENGTH = 100;
 
@@ -192,9 +192,8 @@ public class CustomFontService {
             throw new IllegalArgumentException("File is empty");
         }
 
-        int maxFileSizeMb = customFontUploadLimitResolver.getMaxFileSizeMb();
-        if (file.getSize() > maxFileSizeMb * BYTES_PER_MB) {
-            throw ApiError.FILE_TOO_LARGE.createException(maxFileSizeMb);
+        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
+            throw ApiError.FILE_TOO_LARGE.createException(MAX_FILE_SIZE_MB);
         }
 
         int currentFontCount = customFontRepository.countByUserId(userId);

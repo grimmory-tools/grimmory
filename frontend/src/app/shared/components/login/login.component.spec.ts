@@ -28,7 +28,6 @@ function createPublicSettings(overrides: Partial<PublicAppSettings> = {}): Publi
         groups: 'groups',
       }
     },
-    customFontMaxFileSizeMb: 50,
     ...overrides
   };
 }

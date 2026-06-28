@@ -11,5 +11,4 @@ public class PublicAppSetting {
     private boolean remoteAuthEnabled;
     private OidcProviderDetails oidcProviderDetails;
     private boolean oidcForceOnlyMode;
-    private int customFontMaxFileSizeMb;
 }

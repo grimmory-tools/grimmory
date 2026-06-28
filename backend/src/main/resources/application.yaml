@@ -1,8 +1,6 @@
 app:
   path-config: ${APP_PATH_CONFIG:/app/data}
   bookdrop-folder: ${APP_BOOKDROP_FOLDER:/bookdrop}
-  custom-font:
-    max-file-size-mb: ${CUSTOM_FONT_MAX_FILE_SIZE_MB:50}
   api-docs:
     enabled: ${API_DOCS_ENABLED:false}
 
