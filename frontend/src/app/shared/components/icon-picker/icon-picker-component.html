@@ -74,15 +74,15 @@
         <!-- SVG Library Tab -->
         <p-tabpanel value="1">
           <div class="tab-content">
-            @if (isLoadingSvgIcons) {
+            @if (isLoadingSvgIcons()) {
               <div class="loading-state">
                 <i class="pi pi-spin pi-spinner"></i>
                 <span>Loading icons...</span>
               </div>
-            } @else if (svgIconsError) {
+            } @else if (svgIconsError()) {
               <div class="error-state">
                 <i class="pi pi-exclamation-triangle"></i>
-                <span>{{ svgIconsError }}</span>
+                <span>{{ svgIconsError() }}</span>
               </div>
             } @else {
               <div class="search-container">
@@ -176,10 +176,10 @@
                     </div>
                   }
 
-                  @if (errorMessage) {
+                  @if (errorMessage()) {
                     <div class="error-message">
                       <i class="pi pi-exclamation-circle"></i>
-                      <span>{{ errorMessage }}</span>
+                      <span>{{ errorMessage() }}</span>
                     </div>
                   }
                 </div>
@@ -195,12 +195,12 @@
                 </div>
               </section>
 
-              @if (svgEntries.length > 0) {
+              @if (svgEntries().length > 0) {
                 <section class="form-section queue-section">
                   <div class="section-header">
                     <i class="pi pi-list"></i>
                     <span>Queue</span>
-                    <span class="section-badge">{{ svgEntries.length }}</span>
+                    <span class="section-badge">{{ svgEntries().length }}</span>
                     <div class="section-actions">
                       <p-button
                         label="Clear All"
@@ -214,7 +214,7 @@
                   </div>
 
                   <div class="queue-grid">
-                    @for (entry of svgEntries; track entry.name; let i = $index) {
+                    @for (entry of svgEntries(); track entry.name; let i = $index) {
                       <div class="queue-item" [class.has-error]="entry.error">
                         <div class="queue-item-header">
                           <span class="queue-item-name">{{ entry.name }}</span>
@@ -230,10 +230,10 @@
                     }
                   </div>
 
-                  @if (batchErrorMessage) {
+                  @if (batchErrorMessage()) {
                     <div class="error-message">
                       <i class="pi pi-exclamation-circle"></i>
-                      <span>{{ batchErrorMessage }}</span>
+                      <span>{{ batchErrorMessage() }}</span>
                     </div>
                   }
 
@@ -242,8 +242,8 @@
                       label="Save All Icons"
                       icon="pi pi-save"
                       severity="success"
-                      [loading]="isSavingBatch"
-                      [disabled]="svgEntries.length === 0"
+                      [loading]="isSavingBatch()"
+                      [disabled]="svgEntries().length === 0"
                       (onClick)="saveAllSvgs()"
                     />
                   </div>
