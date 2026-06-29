@@ -80,7 +80,7 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
-    @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated page of books. Supports cursor pagination plus sort, facet, facet_logic, and query parameters; with none of these the legacy page/size behavior is preserved.")
+    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, facet_logic, and query parameters; with none of these the legacy page/size behavior is preserved.")
     @ApiResponse(responseCode = "200", description = "Page of books returned successfully")
     @GetMapping("/page")
     public ResponseEntity<BrowsePage<Book>> getBooksPaged(
