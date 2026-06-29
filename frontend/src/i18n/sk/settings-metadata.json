@@ -55,9 +55,7 @@
         "comicvinePlaceholder": "",
         "apiToken": "",
         "selectLanguage": "",
-        "saveError": "",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "saveError": ""
     },
     "matchWeights": {
         "recalcError": "",

@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Unesite Google Books API ključ",
         "apiToken": "API token",
         "hardcoverPlaceholder": "Unesite Hardcover API token",
-        "comicvinePlaceholder": "Unesite Comic Vine API token",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Unesite Comic Vine API token"
     },
     "fieldSelector": {
         "sectionTitle": "Omogućena polja u uređivaču i biraču metapodataka",
