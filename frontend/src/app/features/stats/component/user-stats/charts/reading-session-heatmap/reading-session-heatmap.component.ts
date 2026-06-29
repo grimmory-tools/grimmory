@@ -86,7 +86,6 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
             title: (context) => {
               const point = context[0].raw as MatrixDataPoint;
               const date = new Date(point.date);
-              
               return date.toLocaleDateString(undefined, {
                 timeZone: 'UTC',
                 weekday: 'short',
