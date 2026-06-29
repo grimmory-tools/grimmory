@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "すべてのライブラリ（管理者）",
         "selectLibraries": "ライブラリを選択",
         "enterFullName": "氏名を入力",
-        "enterEmail": "メールを入力"
+        "enterEmail": "メールを入力",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "管理",

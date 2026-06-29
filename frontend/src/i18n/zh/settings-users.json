@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "所有书库（管理员）",
         "selectLibraries": "选择书库",
         "enterFullName": "请输入全名",
-        "enterEmail": "请输入邮箱"
+        "enterEmail": "请输入邮箱",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "管理",

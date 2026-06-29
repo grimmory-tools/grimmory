@@ -97,7 +97,8 @@
         "allLibrariesAdmin": "Vse knjižnice (Skrbnik)",
         "selectLibraries": "Izberi knjižnice",
         "enterFullName": "Vnesi ime in priimek",
-        "enterEmail": "Vnesi e-pošto"
+        "enterEmail": "Vnesi e-pošto",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "Administracija",

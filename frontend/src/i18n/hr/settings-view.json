@@ -3,7 +3,7 @@
     "description": "Prilagodite kako se knjige prikazuju u vašoj knjižnici, uključujući raspored mreže, opcije sortiranja i ponašanje bočne trake.",
     "dashboardScrollers": {
         "sectionTitle": "Konfiguracija nadzorne ploče",
-        "sectionDesc": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje",
+        "sectionDesc": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje.",
         "type": "Vrsta",
         "selectType": "Odaberite vrstu",
         "magicShelf": "Čarobna polica",
@@ -198,6 +198,11 @@
     "saveFailedDetail": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

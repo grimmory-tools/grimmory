@@ -2,6 +2,7 @@ package org.booklore.service.customfont;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.CustomFontMapper;
 import org.booklore.model.dto.CustomFontDto;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -44,7 +45,8 @@ public class CustomFontService {
     private final AppProperties appProperties;
 
     private static final int MAX_FONTS_PER_USER = 10;
-    private static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
+    private static final int MAX_FILE_SIZE_MB = 50;
+    private static final long MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024L * 1024L;
     private static final String CUSTOM_FONTS_DIR = "custom-fonts";
     private static final int MAX_FONT_NAME_LENGTH = 100;
 
@@ -191,7 +193,7 @@ public class CustomFontService {
         }
 
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new IllegalArgumentException("File size exceeds maximum limit of 5MB");
+            throw ApiError.FILE_TOO_LARGE.createException(MAX_FILE_SIZE_MB);
         }
 
         int currentFontCount = customFontRepository.countByUserId(userId);

@@ -61,7 +61,9 @@
         "googleApiPlaceholder": "Wprowadź klucz API Google Books",
         "apiToken": "Token API",
         "hardcoverPlaceholder": "Wprowadź token API Hardcover",
-        "comicvinePlaceholder": "Wprowadź token API Comic Vine"
+        "comicvinePlaceholder": "Wprowadź token API Comic Vine",
+        "goodreadsWarning": "",
+        "goodreadsWarningReadMore": ""
     },
     "fieldSelector": {
         "sectionTitle": "Włączone pola w edytorze i selekcji metadanych",
