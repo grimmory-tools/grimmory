@@ -83,7 +83,7 @@ public class BookBrowseService {
         Page<Book> page = bookQueryService.findBooksPaged(spec, pageRequest, userId);
         enrich(page.getContent(), userId);
 
-        CursorState baseState = new CursorState(CursorCodec.CURRENT_VERSION, offset, limit, sortString, paramsHash);
+        CursorState baseState = new CursorState(offset, limit, sortString, paramsHash);
         String currentCursor = cursorCodec.encode(baseState);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
                 PAGE_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
@@ -95,7 +95,7 @@ public class BookBrowseService {
         long offset = pageable.getOffset();
         int limit = pageable.getPageSize();
         String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.AND);
-        CursorState baseState = new CursorState(CursorCodec.CURRENT_VERSION, offset, limit, null, paramsHash);
+        CursorState baseState = new CursorState(offset, limit, null, paramsHash);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
                 PAGE_PATH, "", offset, limit, page.getTotalElements(), baseState));
         return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), cursorCodec.encode(baseState), links);

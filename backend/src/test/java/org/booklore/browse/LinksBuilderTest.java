@@ -16,7 +16,7 @@ class LinksBuilderTest {
     private final LinksBuilder builder = new LinksBuilder(codec);
 
     private LinksBuilder.Context context(long offset, int limit, long total, String preservedQuery) {
-        CursorState base = new CursorState(CursorCodec.CURRENT_VERSION, offset, limit, "title", "hash00000000");
+        CursorState base = new CursorState(offset, limit, "title", "hash00000000");
         return new LinksBuilder.Context("/api/v1/books/page", preservedQuery, offset, limit, total, base);
     }
 
@@ -112,7 +112,7 @@ class LinksBuilderTest {
     void nullPreservedQueryStillProducesValidLinks() {
         List<Link> links = builder.build(new LinksBuilder.Context(
                 "/api/v1/books/page", null, 0, 20, 5,
-                new CursorState(CursorCodec.CURRENT_VERSION, 0, 20, "title", "hash00000000")));
+                new CursorState(0, 20, "title", "hash00000000")));
         assertTrue(hasRel(links, "self"));
         Link self = withRel(links, "self");
         assertTrue(self.href().startsWith("/api/v1/books/page?cursor="));

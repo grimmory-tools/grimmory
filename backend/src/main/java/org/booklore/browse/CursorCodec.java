@@ -13,12 +13,10 @@ import java.util.Objects;
 @Component
 public class CursorCodec {
 
-    public static final int CURRENT_VERSION = 1;
-
     private final ObjectMapper mapper = JsonMapper.shared();
 
     public String encode(CursorState state) {
-        byte[] json = mapper.writeValueAsBytes(state.withVersion(CURRENT_VERSION));
+        byte[] json = mapper.writeValueAsBytes(state);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(json);
     }
 
@@ -35,9 +33,6 @@ public class CursorCodec {
         }
         if (state == null) {
             throw ApiError.INVALID_CURSOR.createException("Cursor is malformed.");
-        }
-        if (state.version() != CURRENT_VERSION) {
-            throw ApiError.INVALID_CURSOR.createException("Unsupported cursor version: " + state.version());
         }
         if (state.offset() < 0 || state.offset() > Integer.MAX_VALUE || state.limit() <= 0) {
             throw ApiError.INVALID_CURSOR.createException("Cursor offset/limit out of range.");
