@@ -52,6 +52,7 @@
   font-style: normal;
   font-weight: 200 800;
   font-display: swap;
+  size-adjust: 107%;
   src: url("../fonts/AtkinsonHyperlegibleNext-wght.woff2") format("woff2");
 }
 
@@ -60,6 +61,7 @@
   font-style: italic;
   font-weight: 200 800;
   font-display: swap;
+  size-adjust: 107%;
   src: url("../fonts/AtkinsonHyperlegibleNext-Italic-wght.woff2") format("woff2");
 }
 

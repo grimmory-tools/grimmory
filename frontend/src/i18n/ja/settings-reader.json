@@ -163,7 +163,7 @@
             "selectFile": "フォントファイルを選択",
             "dragDrop": "フォントファイルをドラッグ＆ドロップ",
             "supportedFormats": "対応形式: <strong>TTF</strong>、<strong>OTF</strong>、<strong>WOFF</strong>、<strong>WOFF2</strong>",
-            "maxSize": "最大ファイルサイズ: 5 MB",
+            "maxSize": "最大ファイルサイズ: 50 MB",
             "fontPreview": "フォントプレビュー",
             "displayName": "フォント表示名",
             "displayNameDesc": "EPUB本を読む際のフォントセレクターに表示される名前です。",

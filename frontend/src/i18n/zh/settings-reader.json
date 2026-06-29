@@ -163,7 +163,7 @@
             "selectFile": "选择字体文件",
             "dragDrop": "拖放字体文件",
             "supportedFormats": "支持的格式：<strong>TTF</strong>、<strong>OTF</strong>、<strong>WOFF</strong>、<strong>WOFF2</strong>",
-            "maxSize": "最大文件大小：5 MB",
+            "maxSize": "最大文件大小：50 MB",
             "fontPreview": "字体预览",
             "displayName": "字体显示名称",
             "displayNameDesc": "此名称将在阅读 EPUB 图书时显示在字体选择器中。",

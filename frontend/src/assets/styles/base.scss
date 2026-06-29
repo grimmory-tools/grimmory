@@ -173,3 +173,9 @@ hr {
     transition-duration: 0.01ms !important;
   }
 }
+
+html.route-settling *,
+html.route-settling *::before,
+html.route-settling *::after {
+  transition: none !important;
+}
