@@ -2,12 +2,14 @@ package org.booklore.browse;
 
 import org.booklore.exception.APIException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SortParserTest {
 
@@ -15,58 +17,56 @@ class SortParserTest {
 
     @Test
     void blankSortYieldsTiebreakerOnly() {
-        assertEquals(List.of(new SortTerm("id", false)), SortParser.parse(null, KEYS));
-        assertEquals(List.of(new SortTerm("id", false)), SortParser.parse("   ", KEYS));
+        assertThat(SortParser.parse(null, KEYS)).containsExactly(new SortTerm("id", false));
+        assertThat(SortParser.parse("   ", KEYS)).containsExactly(new SortTerm("id", false));
     }
 
     @Test
     void parsesSingleAscendingKeyAndAppendsTiebreaker() {
-        List<SortTerm> terms = SortParser.parse("title", KEYS);
-        assertEquals(List.of(new SortTerm("title", false), new SortTerm("id", false)), terms);
+        assertThat(SortParser.parse("title", KEYS))
+                .containsExactly(new SortTerm("title", false), new SortTerm("id", false));
     }
 
     @Test
     void dashPrefixMarksDescending() {
-        List<SortTerm> terms = SortParser.parse("-title", KEYS);
-        assertEquals(List.of(new SortTerm("title", true), new SortTerm("id", false)), terms);
+        assertThat(SortParser.parse("-title", KEYS))
+                .containsExactly(new SortTerm("title", true), new SortTerm("id", false));
     }
 
     @Test
     void parsesMultipleTermsInOrder() {
-        List<SortTerm> terms = SortParser.parse("seriesName,-seriesNumber", KEYS);
-        assertEquals(
-                List.of(new SortTerm("seriesName", false), new SortTerm("seriesNumber", true), new SortTerm("id", false)),
-                terms);
+        assertThat(SortParser.parse("seriesName,-seriesNumber", KEYS))
+                .containsExactly(new SortTerm("seriesName", false), new SortTerm("seriesNumber", true), new SortTerm("id", false));
     }
 
     @Test
     void trimsWhitespaceAroundTokens() {
-        List<SortTerm> terms = SortParser.parse(" title , -seriesNumber ", KEYS);
-        assertEquals(
-                List.of(new SortTerm("title", false), new SortTerm("seriesNumber", true), new SortTerm("id", false)),
-                terms);
+        assertThat(SortParser.parse(" title , -seriesNumber ", KEYS))
+                .containsExactly(new SortTerm("title", false), new SortTerm("seriesNumber", true), new SortTerm("id", false));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "title", "-title", "seriesName,-seriesNumber"})
+    void alwaysEndsWithIdAscendingTiebreaker(String sort) {
+        List<SortTerm> terms = SortParser.parse(sort.isEmpty() ? null : sort, KEYS);
+        assertThat(terms).endsWith(new SortTerm("id", false));
     }
 
     @Test
-    void explicitTiebreakerKeyIsNotDuplicated() {
-        assertEquals(List.of(new SortTerm("id", false)), SortParser.parse("id", KEYS));
-        assertEquals(List.of(new SortTerm("id", true)), SortParser.parse("-id", KEYS));
-    }
-
-    @Test
-    void explicitTiebreakerMidListSuppressesAppendedOne() {
-        List<SortTerm> terms = SortParser.parse("id,title", KEYS);
-        assertEquals(List.of(new SortTerm("id", false), new SortTerm("title", false)), terms);
+    void idIsRejectedLikeAnUnknownSortKey() {
+        assertThatThrownBy(() -> SortParser.parse("id", KEYS)).isInstanceOf(APIException.class);
+        assertThatThrownBy(() -> SortParser.parse("-id", KEYS)).isInstanceOf(APIException.class);
+        assertThatThrownBy(() -> SortParser.parse("id,title", KEYS)).isInstanceOf(APIException.class);
     }
 
     @Test
     void unknownKeyIsRejected() {
-        assertThrows(APIException.class, () -> SortParser.parse("bogus", KEYS));
+        assertThatThrownBy(() -> SortParser.parse("bogus", KEYS)).isInstanceOf(APIException.class);
     }
 
     @Test
     void emptyTokenIsRejected() {
-        assertThrows(APIException.class, () -> SortParser.parse("title,,id", KEYS));
-        assertThrows(APIException.class, () -> SortParser.parse("-", KEYS));
+        assertThatThrownBy(() -> SortParser.parse("title,,id", KEYS)).isInstanceOf(APIException.class);
+        assertThatThrownBy(() -> SortParser.parse("-", KEYS)).isInstanceOf(APIException.class);
     }
 }

@@ -17,7 +17,6 @@ public final class SortParser {
 
     public static List<SortTerm> parse(String sortString, Set<String> knownKeys) {
         List<SortTerm> terms = new ArrayList<>();
-        boolean tiebreakerCovered = false;
 
         if (sortString != null && !sortString.isBlank()) {
             for (String raw : sortString.split(",", -1)) {
@@ -30,19 +29,15 @@ public final class SortParser {
                 if (token.isEmpty()) {
                     throw ApiError.INVALID_SORT.createException("Empty sort key in: " + sortString);
                 }
-                if (!knownKeys.contains(token)) {
+                // id is reserved for the implicit tiebreaker, so to callers it is not a sortable key.
+                if (token.equals(TIEBREAKER_KEY) || !knownKeys.contains(token)) {
                     throw ApiError.INVALID_SORT.createException("Unknown sort key: " + token);
                 }
                 terms.add(new SortTerm(token, descending));
-                if (token.equals(TIEBREAKER_KEY)) {
-                    tiebreakerCovered = true;
-                }
             }
         }
 
-        if (!tiebreakerCovered) {
-            terms.add(new SortTerm(TIEBREAKER_KEY, false));
-        }
+        terms.add(new SortTerm(TIEBREAKER_KEY, false));
         return terms;
     }
 }
