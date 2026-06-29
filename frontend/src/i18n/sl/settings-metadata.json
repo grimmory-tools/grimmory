@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Vnesi Google Books API ključ",
         "apiToken": "API žeton",
         "hardcoverPlaceholder": "Vnesi Hardcover API žeton",
-        "comicvinePlaceholder": "Vnesi Comic Vine API žeton",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Vnesi Comic Vine API žeton"
     },
     "fieldSelector": {
         "sectionTitle": "Omogočena polja v urejevalniku in izbirniku",

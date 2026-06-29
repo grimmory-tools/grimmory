@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Google-Books-API-Schlüssel eingeben",
         "apiToken": "API-Token",
         "hardcoverPlaceholder": "Hardcover-API-Token eingeben",
-        "comicvinePlaceholder": "Comic-Vine-API-Token eingeben",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Comic-Vine-API-Token eingeben"
     },
     "fieldSelector": {
         "sectionTitle": "Aktivierte Felder im Metadaten-Editor und -Picker",

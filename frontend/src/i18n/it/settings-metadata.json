@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Inserisci chiave API Google Books",
         "apiToken": "Token API",
         "hardcoverPlaceholder": "Inserisci token API Hardcover",
-        "comicvinePlaceholder": "Inserisci token API Comic Vine",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Inserisci token API Comic Vine"
     },
     "fieldSelector": {
         "sectionTitle": "Campi abilitati nell'editor e selettore metadati",
