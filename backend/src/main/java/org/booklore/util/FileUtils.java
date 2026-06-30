@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -179,14 +181,13 @@ public class FileUtils {
     }
 
     /**
-     * Get last modified time of the file in milliseconds since the
-     * epoch (00:00:00 GMT, January 1, 1970).
+     * Get last modified time of the file as an Instant.
      * @param filePath the path to the file
-     * @return milliseconds since the epoch, or null if an I/O error occurs
+     * @return Instant representing the last modified time, or null if an I/O error occurs
      */
-    public Long getFileLastModified(Path filePath) {
+    public Instant getFileLastModified(Path filePath) {
         try {
-            return Files.getLastModifiedTime(filePath).toMillis();
+            return Files.getLastModifiedTime(filePath).toInstant();
         } catch (IOException e) {
             log.error("Failed to get last modified for path [{}]: {}", filePath, e.getMessage(), e);
             return null;

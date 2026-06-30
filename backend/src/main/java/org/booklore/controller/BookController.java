@@ -40,7 +40,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+
+import java.time.Duration;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.validation.annotation.Validated;
@@ -74,7 +77,9 @@ public class BookController {
             @RequestParam(required = false, defaultValue = "false") boolean withDescription,
             @Parameter(description = "Remove other metadata fields from the response")
             @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
-        return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePrivate())
+                .body(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
     @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated list of books. Supports sorting via 'sort' parameter (e.g. sort=metadata.title,asc).")

@@ -36,11 +36,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.io.InputStream;
@@ -311,6 +313,41 @@ public class BookService {
         return getBookCover(bookEntity.getId());
     }
 
+    public String getBookCoverHash(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getBookCoverHash)
+                .orElse(null);
+    }
+
+    public Instant getBookThumbnailLastModified(long bookId) {
+        return getFileLastModified(fileService.getThumbnailFile(bookId));
+    }
+
+    public Instant getBookCoverLastModified(long bookId) {
+        return getFileLastModified(fileService.getCoverFile(bookId));
+    }
+
+    public String getAudiobookCoverHash(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getAudiobookCoverHash)
+                .orElse(null);
+    }
+
+    public Instant getAudiobookThumbnailLastModified(long bookId) {
+        return getFileLastModified(fileService.getAudiobookThumbnailFile(bookId));
+    }
+
+    public Instant getAudiobookCoverLastModified(long bookId) {
+        return getFileLastModified(fileService.getAudiobookCoverFile(bookId));
+    }
+
+    private Instant getFileLastModified(String filePath) {
+        if (filePath == null) {
+            return null;
+        }
+        return FileUtils.getFileLastModified(Path.of(filePath));
+    }
+
     public Resource getAudiobookThumbnail(long bookId) {
         Path thumbnailPath = Paths.get(fileService.getAudiobookThumbnailFile(bookId));
         try {
@@ -375,7 +412,7 @@ public class BookService {
         if (!file.exists()) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath);
         }
-        Long lastModified = FileUtils.getFileLastModified(Path.of(filePath));
+        Instant lastModified = FileUtils.getFileLastModified(Path.of(filePath));
         ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
 
         if (lastModified != null) {
