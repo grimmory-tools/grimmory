@@ -235,8 +235,10 @@ describe('AuthorCardComponent', () => {
     quickMatch$.next({
       id: 9,
       name: 'Ada Lovelace',
+      sortName: 'Lovelace, Ada',
       asin: 'B00MATCH',
       nameLocked: false,
+      sortNameLocked: false,
       descriptionLocked: false,
       asinLocked: true,
       photoLocked: false,

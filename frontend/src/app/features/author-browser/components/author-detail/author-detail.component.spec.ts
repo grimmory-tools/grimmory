@@ -34,9 +34,11 @@ describe('AuthorDetailComponent', () => {
   const baseAuthor: AuthorDetails = {
     id: 9,
     name: 'Ada Lovelace',
+    sortName: 'Lovelace, Ada',
     description: 'Analytical engine pioneer',
     asin: 'B00ADA',
     nameLocked: false,
+    sortNameLocked: false,
     descriptionLocked: false,
     asinLocked: false,
     photoLocked: false,
