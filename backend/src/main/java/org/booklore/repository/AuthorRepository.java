@@ -1,6 +1,7 @@
 package org.booklore.repository;
 
 import org.booklore.model.entity.AuthorEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,6 +34,9 @@ public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
 
     @Query("SELECT bm.bookId AS bookId, a.name AS authorName FROM AuthorEntity a JOIN a.bookMetadataEntityList bm WHERE bm.bookId IN :bookIds ORDER BY a.name")
     List<AuthorBookProjection> findAuthorNamesByBookIds(@Param("bookIds") Set<Long> bookIds);
+
+    @Query("SELECT a FROM AuthorEntity a WHERE a.id > :afterId ORDER BY a.id")
+    List<AuthorEntity> findAuthorsForMigrationBatch(@Param("afterId") long afterId, Pageable pageable);
 
     interface AuthorBookProjection {
         Long getBookId();

@@ -29,6 +29,24 @@ class AuthorEntityTest {
     }
 
     @Test
+    void leavesSortNameNullForNullName() {
+        AuthorEntity author = AuthorEntity.builder().build();
+
+        author.computeSortName();
+
+        assertThat(author.getSortName()).isNull();
+    }
+
+    @Test
+    void computesBlankSortNameForBlankName() {
+        AuthorEntity author = AuthorEntity.builder().name("   ").build();
+
+        author.computeSortName();
+
+        assertThat(author.getSortName()).isEmpty();
+    }
+
+    @Test
     void recomputesAfterUnlocking() {
         AuthorEntity author = AuthorEntity.builder()
                 .name("George Orwell")

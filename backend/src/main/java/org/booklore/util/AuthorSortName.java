@@ -2,9 +2,9 @@ package org.booklore.util;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -64,31 +64,31 @@ public final class AuthorSortName {
         if (name == null) {
             return null;
         }
-        String trimmed = name.trim();
+        var trimmed = name.trim();
         if (trimmed.isEmpty()) {
             return trimmed;
         }
 
-        List<String> tokens = new ArrayList<>(List.of(trimmed.split("\\s+")));
+        var tokens = new ArrayList<>(List.of(trimmed.split("\\s+")));
         if (tokens.size() < 2) {
             return trimmed;
         }
 
-        Set<String> lowerTokens = new HashSet<>();
-        for (String token : tokens) {
-            lowerTokens.add(token.toLowerCase());
+        var lowerTokens = new HashSet<String>();
+        for (var token : tokens) {
+            lowerTokens.add(token.toLowerCase(Locale.ROOT));
         }
         if (config.copyMethod() == CopyMethod.COPY || intersects(lowerTokens, config.copyWords())) {
             return trimmed;
         }
 
-        Deque<String> deque = new ArrayDeque<>(tokens);
-        while (!deque.isEmpty() && config.prefixes().contains(deque.peekFirst().toLowerCase())) {
+        var deque = new ArrayDeque<>(tokens);
+        while (!deque.isEmpty() && config.prefixes().contains(deque.peekFirst().toLowerCase(Locale.ROOT))) {
             deque.removeFirst();
         }
 
-        Deque<String> suffix = new ArrayDeque<>();
-        while (!deque.isEmpty() && config.suffixes().contains(deque.peekLast().toLowerCase())) {
+        var suffix = new ArrayDeque<String>();
+        while (!deque.isEmpty() && config.suffixes().contains(deque.peekLast().toLowerCase(Locale.ROOT))) {
             suffix.addFirst(deque.removeLast());
         }
 
@@ -96,27 +96,27 @@ public final class AuthorSortName {
             return trimmed;
         }
 
-        List<String> remaining = new ArrayList<>(deque);
+        var remaining = new ArrayList<>(deque);
         if (config.copyMethod() == CopyMethod.COMMA && String.join(" ", remaining).contains(",")) {
             return trimmed;
         }
 
         // Absorb consecutive surname prefixes into the surname, e.g. "van der Berg" stays together
         while (config.useSurnamePrefixes() && remaining.size() > 1
-                && config.surnamePrefixes().contains(remaining.get(remaining.size() - 2).toLowerCase())) {
-            String merged = remaining.remove(remaining.size() - 2) + " " + remaining.get(remaining.size() - 1);
+                && config.surnamePrefixes().contains(remaining.get(remaining.size() - 2).toLowerCase(Locale.ROOT))) {
+            var merged = remaining.remove(remaining.size() - 2) + " " + remaining.get(remaining.size() - 1);
             remaining.set(remaining.size() - 1, merged);
         }
 
         if (remaining.size() < 2) {
             // Only a surname survives after stripping prefixes/suffixes
-            List<String> single = new ArrayList<>(remaining);
+            var single = new ArrayList<>(remaining);
             single.addAll(suffix);
             return String.join(" ", single);
         }
 
-        String surname = remaining.remove(remaining.size() - 1);
-        List<String> result = new ArrayList<>();
+        var surname = remaining.remove(remaining.size() - 1);
+        var result = new ArrayList<String>();
         result.add(config.copyMethod() == CopyMethod.NOCOMMA ? surname : surname + ",");
         result.addAll(remaining);
         result.addAll(suffix);
@@ -124,7 +124,7 @@ public final class AuthorSortName {
     }
 
     private static boolean intersects(Set<String> a, Set<String> b) {
-        for (String value : a) {
+        for (var value : a) {
             if (b.contains(value)) {
                 return true;
             }
@@ -133,9 +133,9 @@ public final class AuthorSortName {
     }
 
     private static Set<String> withDotVariants(Set<String> values) {
-        Set<String> result = new HashSet<>();
-        for (String value : values) {
-            String lower = value.toLowerCase();
+        var result = new HashSet<String>();
+        for (var value : values) {
+            var lower = value.toLowerCase(Locale.ROOT);
             result.add(lower);
             result.add(lower.endsWith(".") ? lower : lower + ".");
         }
@@ -143,9 +143,9 @@ public final class AuthorSortName {
     }
 
     private static Set<String> lowercased(Set<String> values) {
-        Set<String> result = new HashSet<>();
-        for (String value : values) {
-            result.add(value.toLowerCase());
+        var result = new HashSet<String>();
+        for (var value : values) {
+            result.add(value.toLowerCase(Locale.ROOT));
         }
         return Set.copyOf(result);
     }

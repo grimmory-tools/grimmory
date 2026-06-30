@@ -1,16 +1,13 @@
 package org.booklore.service.migration.migrations;
 
-import org.booklore.model.entity.AuthorEntity;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.service.migration.Migration;
 import org.booklore.util.AuthorSortName;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
@@ -18,6 +15,7 @@ import java.util.List;
 public class PopulateAuthorSortNameMigration implements Migration {
 
     private final AuthorRepository authorRepository;
+    private final EntityManager entityManager;
 
     @Override
     public String getKey() {
@@ -33,31 +31,33 @@ public class PopulateAuthorSortNameMigration implements Migration {
     public void execute() {
         log.info("Starting migration: {}", getKey());
 
-        int batchSize = 1000;
-        int processedCount = 0;
-        int page = 0;
+        var batchSize = 1000;
+        var processedCount = 0;
+        long lastId = 0;
 
         while (true) {
-            Page<AuthorEntity> authorPage = authorRepository.findAll(PageRequest.of(page, batchSize));
-            List<AuthorEntity> authors = authorPage.getContent();
+            var authors = authorRepository.findAuthorsForMigrationBatch(lastId, PageRequest.of(0, batchSize));
             if (authors.isEmpty()) {
                 break;
             }
 
-            for (AuthorEntity author : authors) {
+            for (var author : authors) {
                 if (!author.isSortNameLocked()) {
                     author.setSortName(AuthorSortName.compute(author.getName()));
                 }
             }
 
             authorRepository.saveAll(authors);
+            lastId = authors.getLast().getId();
             processedCount += authors.size();
             log.info("Migration progress: {} authors processed", processedCount);
 
-            if (!authorPage.hasNext()) {
+            entityManager.flush();
+            entityManager.clear();
+
+            if (authors.size() < batchSize) {
                 break;
             }
-            page++;
         }
 
         log.info("Completed migration '{}'. Total authors processed: {}", getKey(), processedCount);
