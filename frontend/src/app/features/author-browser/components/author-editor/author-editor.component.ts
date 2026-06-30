@@ -50,6 +50,21 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   isUploading = signal(false);
   hasPhoto = true;
   photoTimestamp = Date.now();
+  private lastSavedName = '';
+
+  get isSortNameOverridden(): boolean {
+    return !!this.form?.get('sortNameLocked')?.value;
+  }
+
+  get sortNamePending(): boolean {
+    if (!this.form || this.isSortNameOverridden) return false;
+    const current = (this.form.get('name')?.value ?? '').trim();
+    return current !== this.lastSavedName.trim();
+  }
+
+  get autoSortName(): string {
+    return this.form?.get('sortName')?.value || '';
+  }
 
   get photoUrl(): string {
     return this.authorService.getAuthorPhotoUrl(this.authorId) + '&t=' + this.photoTimestamp;
@@ -70,6 +85,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     this.form = new FormGroup({
       name: new FormControl(this.author.name || ''),
       nameLocked: new FormControl(this.author.nameLocked || false),
+      sortName: new FormControl({value: this.author.sortName || '', disabled: !this.author.sortNameLocked}),
+      sortNameLocked: new FormControl(this.author.sortNameLocked || false),
       description: new FormControl(this.author.description || ''),
       descriptionLocked: new FormControl(this.author.descriptionLocked || false),
       asin: new FormControl(this.author.asin || ''),
@@ -77,6 +94,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       photoLocked: new FormControl(this.author.photoLocked || false)
     });
 
+    this.lastSavedName = this.author.name || '';
     this.applyLockStates();
   }
 
@@ -93,6 +111,22 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       } else {
         fieldControl.enable();
       }
+    }
+
+    this.saveMetadata();
+  }
+
+  toggleSortNameOverride(): void {
+    const lockedControl = this.form.get('sortNameLocked');
+    const fieldControl = this.form.get('sortName');
+    if (!lockedControl || !fieldControl) return;
+
+    const overriding = !lockedControl.value;
+    lockedControl.setValue(overriding);
+    if (overriding) {
+      fieldControl.enable();
+    } else {
+      fieldControl.disable();
     }
 
     this.saveMetadata();
@@ -183,9 +217,11 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     const formValue = this.form.getRawValue();
     const request = {
       name: formValue.name?.trim() || undefined,
+      sortName: formValue.sortName?.trim() || undefined,
       description: formValue.description?.trim(),
       asin: formValue.asin?.trim(),
       nameLocked: formValue.nameLocked,
+      sortNameLocked: formValue.sortNameLocked,
       descriptionLocked: formValue.descriptionLocked,
       asinLocked: formValue.asinLocked,
       photoLocked: formValue.photoLocked
@@ -194,6 +230,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     this.authorService.updateAuthor(this.authorId, request).subscribe({
       next: (updated) => {
         this.isSaving.set(false);
+        this.form.get('sortName')?.setValue(updated.sortName || '', {emitEvent: false});
+        this.lastSavedName = updated.name || '';
         this.authorUpdated.emit(updated);
         this.messageService.add({
           severity: 'success',

@@ -88,6 +88,27 @@
       </div>
 
       <div class="field-group">
+        <label for="authorSortName">{{ t('sortNameLabel') }}</label>
+        <div class="field-with-lock">
+          @if (isSortNameOverridden) {
+            <input pInputText id="authorSortName" formControlName="sortName"/>
+            <p-button [pTooltip]="t('useAutoSortNameTooltip')" tooltipPosition="top" icon="pi pi-lock" [outlined]="true" (onClick)="toggleSortNameOverride()" severity="warn"></p-button>
+          } @else {
+            <div class="sort-name-auto" [class.pending]="sortNamePending" id="authorSortName" aria-live="polite">
+              @if (sortNamePending) {
+                <i class="pi pi-sync"></i>
+                <span class="sort-name-text">{{ t('sortNamePendingValue') }}</span>
+              } @else {
+                <span class="sort-name-text">{{ autoSortName || '—' }}</span>
+              }
+              <span class="sort-name-badge">{{ t('sortNameAutoBadge') }}</span>
+            </div>
+            <p-button [pTooltip]="t('overrideSortNameTooltip')" tooltipPosition="top" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleSortNameOverride()" severity="success"></p-button>
+          }
+        </div>
+      </div>
+
+      <div class="field-group">
         <label for="authorAsin">{{ t('asinLabel') }}</label>
         <div class="field-with-lock">
           <input pInputText id="authorAsin" formControlName="asin"/>

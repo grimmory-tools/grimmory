@@ -69,6 +69,11 @@
   },
   "editor": {
     "nameLabel": "Name",
+    "sortNameLabel": "Sort name",
+    "sortNameAutoBadge": "Auto",
+    "sortNamePendingValue": "Updates on save",
+    "overrideSortNameTooltip": "Override sort name",
+    "useAutoSortNameTooltip": "Use automatic sort name",
     "asinLabel": "ASIN",
     "descriptionLabel": "Description",
     "saveBtn": "Save",

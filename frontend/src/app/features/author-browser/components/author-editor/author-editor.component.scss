@@ -97,6 +97,54 @@
   border-left: 0 !important;
 }
 
+.sort-name-auto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--p-inputtext-padding-y, 0.5rem) 0.75rem;
+  border: 1px solid var(--p-inputtext-border-color);
+  border-radius: 6px 0 0 6px;
+  background: color-mix(in srgb, var(--color-card), transparent 40%);
+  color: var(--color-text);
+  font-size: 0.875rem;
+
+  .sort-name-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sort-name-badge {
+    flex-shrink: 0;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary), transparent 85%);
+  }
+
+  i.pi-sync {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+
+  &.pending {
+    border-style: dashed;
+    color: var(--color-text-secondary);
+
+    .sort-name-text {
+      font-style: italic;
+    }
+  }
+}
+
 .description-with-lock {
   display: flex;
   flex-grow: 1;

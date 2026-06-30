@@ -21,9 +21,11 @@ describe('AuthorEditorComponent', () => {
   const baseAuthor: AuthorDetails = {
     id: 9,
     name: 'Ada Lovelace',
+    sortName: 'Lovelace, Ada',
     description: 'Analytical engine pioneer',
     asin: 'B00ADA',
     nameLocked: false,
+    sortNameLocked: false,
     descriptionLocked: false,
     asinLocked: false,
     photoLocked: false,
@@ -102,6 +104,37 @@ describe('AuthorEditorComponent', () => {
     expect(component.form.get('photoLocked')?.value).toBe(false);
   });
 
+  it('flags the auto sort name as pending once the name is edited, and clears it after save', () => {
+    const save$ = new Subject<AuthorDetails>();
+    updateAuthor.mockReturnValue(save$);
+
+    const component = createComponent();
+    component.ngOnInit();
+
+    expect(component.isSortNameOverridden).toBe(false);
+    expect(component.sortNamePending).toBe(false);
+
+    component.form.get('name')?.setValue('Augusta Ada King');
+    expect(component.sortNamePending).toBe(true);
+
+    component.onSave();
+    save$.next({...baseAuthor, name: 'Augusta Ada King', sortName: 'King, Augusta Ada'});
+    save$.complete();
+
+    expect(component.sortNamePending).toBe(false);
+    expect(component.autoSortName).toBe('King, Augusta Ada');
+  });
+
+  it('does not flag pending while overriding the sort name', () => {
+    const component = createComponent({author: {sortNameLocked: true, sortName: 'Custom'}});
+    component.ngOnInit();
+
+    component.form.get('name')?.setValue('Different Name');
+
+    expect(component.isSortNameOverridden).toBe(true);
+    expect(component.sortNamePending).toBe(false);
+  });
+
   it('restores photo state when a later author input change arrives', () => {
     const component = createComponent();
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(777);
@@ -148,9 +181,11 @@ describe('AuthorEditorComponent', () => {
     expect(component.isSaving()).toBe(true);
     expect(updateAuthor).toHaveBeenCalledWith(9, {
       name: undefined,
+      sortName: 'Lovelace, Ada',
       description: 'Updated description',
       asin: 'B00NEW',
       nameLocked: true,
+      sortNameLocked: false,
       descriptionLocked: false,
       asinLocked: true,
       photoLocked: true,

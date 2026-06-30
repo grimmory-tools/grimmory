@@ -80,6 +80,7 @@ public class AuthorMetadataService {
             summaries.add(AuthorSummary.builder()
                     .id(author.getId())
                     .name(author.getName())
+                    .sortName(author.getSortName())
                     .asin(author.getAsin())
                     .bookCount((int) bookCount)
                     .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId()))))
@@ -271,6 +272,12 @@ public class AuthorMetadataService {
         if (request.getName() != null) {
             author.setName(request.getName());
         }
+        if (request.getSortNameLocked() != null) {
+            author.setSortNameLocked(request.getSortNameLocked());
+        }
+        if (request.getSortName() != null) {
+            author.setSortName(request.getSortName().isBlank() ? null : request.getSortName().trim());
+        }
         if (request.getDescription() != null) {
             author.setDescription(request.getDescription().isBlank() ? null : request.getDescription());
         }
@@ -376,9 +383,11 @@ public class AuthorMetadataService {
         return AuthorDetails.builder()
                 .id(author.getId())
                 .name(author.getName())
+                .sortName(author.getSortName())
                 .description(author.getDescription())
                 .asin(author.getAsin())
                 .nameLocked(author.isNameLocked())
+                .sortNameLocked(author.isSortNameLocked())
                 .descriptionLocked(author.isDescriptionLocked())
                 .asinLocked(author.isAsinLocked())
                 .photoLocked(author.isPhotoLocked())
