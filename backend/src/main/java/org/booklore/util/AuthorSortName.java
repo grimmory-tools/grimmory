@@ -39,7 +39,7 @@ public final class AuthorSortName {
         public Config {
             prefixes = withDotVariants(prefixes);
             suffixes = withDotVariants(suffixes);
-            copyWords = lowercased(copyWords);
+            copyWords = withDotVariants(copyWords);
             surnamePrefixes = lowercased(surnamePrefixes);
         }
     }
@@ -136,8 +136,9 @@ public final class AuthorSortName {
         var result = new HashSet<String>();
         for (var value : values) {
             var lower = value.toLowerCase(Locale.ROOT);
-            result.add(lower);
-            result.add(lower.endsWith(".") ? lower : lower + ".");
+            var base = lower.endsWith(".") ? lower.substring(0, lower.length() - 1) : lower;
+            result.add(base);
+            result.add(base + ".");
         }
         return Set.copyOf(result);
     }

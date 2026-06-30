@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -33,10 +34,11 @@ public class PopulateAuthorSortNameMigration implements Migration {
 
         var batchSize = 1000;
         var processedCount = 0;
-        long lastId = 0;
+        var page = 0;
 
         while (true) {
-            var authors = authorRepository.findAuthorsForMigrationBatch(lastId, PageRequest.of(0, batchSize));
+            // Stable id ordering keeps offset paging consistent as rows are updated each batch.
+            var authors = authorRepository.findAll(PageRequest.of(page, batchSize, Sort.by("id"))).getContent();
             if (authors.isEmpty()) {
                 break;
             }
@@ -48,16 +50,17 @@ public class PopulateAuthorSortNameMigration implements Migration {
             }
 
             authorRepository.saveAll(authors);
-            lastId = authors.getLast().getId();
             processedCount += authors.size();
             log.info("Migration progress: {} authors processed", processedCount);
 
+            // Flush and detach the batch so the persistence context does not grow across the scan.
             entityManager.flush();
             entityManager.clear();
 
             if (authors.size() < batchSize) {
                 break;
             }
+            page++;
         }
 
         log.info("Completed migration '{}'. Total authors processed: {}", getKey(), processedCount);

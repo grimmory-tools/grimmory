@@ -43,7 +43,9 @@ class AuthorSortNameTest {
             arguments("Dr. Jr.", "Dr. Jr."),
             // Organisation names (copywords) are copied verbatim, case-insensitively
             arguments("National Geographic Society", "National Geographic Society"),
-            arguments("national geographic society", "national geographic society")
+            arguments("national geographic society", "national geographic society"),
+            // Copywords match with or without a trailing dot ("inc." set entry vs "Inc" token)
+            arguments("Marvel Comics Inc", "Marvel Comics Inc")
         );
     }
 
