@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class AppAuthorDetail {
     private Long id;
     private String name;
+    private String sortName;
     private String description;
     private String asin;
     private int bookCount;

@@ -86,6 +86,7 @@ public class AppAuthorService {
                     return AppAuthorSummary.builder()
                             .id(author.getId())
                             .name(author.getName())
+                            .sortName(author.getSortName())
                             .asin(author.getAsin())
                             .bookCount((int) bookCount)
                             .hasPhoto(authorHasPhoto)
@@ -128,6 +129,7 @@ public class AppAuthorService {
         return AppAuthorDetail.builder()
                 .id(author.getId())
                 .name(author.getName())
+                .sortName(author.getSortName())
                 .description(author.getDescription())
                 .asin(author.getAsin())
                 .bookCount(bookCount)
@@ -186,11 +188,12 @@ public class AppAuthorService {
 
     private String buildOrderClause(String sortBy, String sortDir) {
         String direction = "asc".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
+        String sortNameField = "COALESCE(a.sortName, a.name)";
         String field = switch (sortBy != null ? sortBy.toLowerCase() : "") {
-            case "name" -> "a.name";
+            case "name", "sortname", "sort_name" -> sortNameField;
             case "bookcount", "book_count" -> "COUNT(DISTINCT bm.id)";
             case "recent", "id" -> "a.id";
-            default -> "a.name";
+            default -> sortNameField;
         };
         return " ORDER BY " + field + " " + direction;
     }
