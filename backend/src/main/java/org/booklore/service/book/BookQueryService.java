@@ -52,7 +52,11 @@ public class BookQueryService {
     }
 
     public Page<Book> getAllBooksByLibraryIdsPaged(Collection<Long> libraryIds, Long userId, Pageable pageable) {
-        Page<BookEntity> page = bookRepository.findAll(visibleBooks(libraryIds, userId), pageable);
+        return findBooksPaged(visibleBooks(libraryIds, userId), pageable, userId);
+    }
+
+    public Page<Book> findBooksPaged(Specification<BookEntity> spec, Pageable pageable, Long userId) {
+        Page<BookEntity> page = bookRepository.findAll(spec, pageable);
         Map<Long, BookEntity> booksById = bookRepository
                 .findAllWithMetadataByIds(page.getContent().stream().map(BookEntity::getId).collect(Collectors.toSet()))
                 .stream()
