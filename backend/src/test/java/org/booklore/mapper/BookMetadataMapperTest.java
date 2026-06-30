@@ -1,6 +1,7 @@
 package org.booklore.mapper;
 
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,8 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -61,6 +65,19 @@ public class BookMetadataMapperTest {
         assertEquals("hc-id", dto.getHardcoverId());
         assertEquals(4.5, dto.getHardcoverRating());
         assertEquals("gr-id", dto.getGoodreadsId());
+    }
+
+    @Test
+    void mapsAuthorSortNamesInAuthorOrder() {
+        AuthorEntity first = AuthorEntity.builder().name("Aaron Zylocke").sortName("Zylocke, Aaron").build();
+        AuthorEntity second = AuthorEntity.builder().name("Zachary Adams").sortName("Adams, Zachary").build();
+        BookMetadataEntity entity = new BookMetadataEntity();
+        entity.setAuthors(List.of(first, second));
+        when(authorMapper.toAuthorNamesList(anyList())).thenReturn(List.of("Aaron Zylocke", "Zachary Adams"));
+
+        BookMetadata dto = bookMetadataMapper.toBookMetadata(entity);
+
+        assertEquals(List.of("Zylocke, Aaron", "Adams, Zachary"), dto.getAuthorSortNames());
     }
 }
 

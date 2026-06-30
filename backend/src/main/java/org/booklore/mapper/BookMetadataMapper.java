@@ -16,6 +16,16 @@ public interface BookMetadataMapper {
         }
     }
 
+    @AfterMapping
+    default void mapAuthorSortNames(BookMetadataEntity bookMetadataEntity, @MappingTarget BookMetadata bookMetadata) {
+        if (bookMetadata.getAuthors() == null || bookMetadataEntity.getAuthors() == null) {
+            return;
+        }
+        bookMetadata.setAuthorSortNames(bookMetadataEntity.getAuthors().stream()
+                .map(author -> author.getSortName() != null ? author.getSortName() : author.getName())
+                .toList());
+    }
+
     @Named("withRelations")
     @Mapping(target = "description", ignore = true)
     BookMetadata toBookMetadata(BookMetadataEntity bookMetadataEntity, @Context boolean includeDescription);

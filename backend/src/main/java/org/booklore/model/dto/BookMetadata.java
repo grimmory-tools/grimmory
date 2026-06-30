@@ -61,6 +61,7 @@ public class BookMetadata {
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;
     private List<String> authors;
+    private List<String> authorSortNames;
     private Set<String> categories;
     private Set<String> moods;
     private Set<String> tags;
