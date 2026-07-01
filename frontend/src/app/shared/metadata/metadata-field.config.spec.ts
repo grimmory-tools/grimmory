@@ -59,7 +59,10 @@ describe('metadata-field.config', () => {
       ranobedbRating: false,
       audibleId: false,
       audibleRating: false,
-      audibleReviewCount: false
+      audibleReviewCount: false,
+      applebooksId: false,
+      applebooksRating: false,
+      applebooksReviewCount: false,
     };
 
     expect(getProviderFields(enabledFields).map((field) => field.controlName)).toEqual(['googleId']);

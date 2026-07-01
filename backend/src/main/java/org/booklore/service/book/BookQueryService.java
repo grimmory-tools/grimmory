@@ -208,6 +208,9 @@ public class BookQueryService {
             m.setAudibleIdLocked(null);
             m.setAudibleRatingLocked(null);
             m.setAudibleReviewCountLocked(null);
+            m.setApplebooksIdLocked(null);
+            m.setApplebooksRatingLocked(null);
+            m.setApplebooksReviewCountLocked(null);
             m.setExternalUrlLocked(null);
             m.setCoverLocked(null);
             m.setAudiobookCoverLocked(null);
@@ -232,6 +235,7 @@ public class BookQueryService {
             m.setRanobedbId(null);
             m.setAudibleId(null);
             m.setDoubanId(null);
+            m.setApplebooksId(null);
 
             // Strip unused detail fields
             m.setSubtitle(null);
@@ -251,6 +255,7 @@ public class BookQueryService {
             m.setAudibleRating(null);
             m.setAudibleReviewCount(null);
             m.setLubimyczytacRating(null);
+            m.setApplebooksRating(null);
 
             // Strip empty metadata collections
             if (m.getMoods() != null && m.getMoods().isEmpty()) m.setMoods(null);
@@ -325,6 +330,7 @@ public class BookQueryService {
                 m.getLubimyczytacIdLocked(), m.getLubimyczytacRatingLocked(),
                 m.getRanobedbIdLocked(), m.getRanobedbRatingLocked(),
                 m.getAudibleIdLocked(), m.getAudibleRatingLocked(), m.getAudibleReviewCountLocked(),
+                m.getApplebooksIdLocked(), m.getApplebooksRatingLocked(), m.getApplebooksReviewCountLocked(),
                 m.getExternalUrlLocked(), m.getCoverLocked(), m.getAudiobookCoverLocked(),
                 m.getAuthorsLocked(), m.getCategoriesLocked(), m.getMoodsLocked(),
                 m.getTagsLocked(), m.getReviewsLocked(), m.getNarratorLocked(),

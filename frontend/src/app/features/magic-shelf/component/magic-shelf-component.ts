@@ -86,6 +86,8 @@ export type RuleField =
   | 'contentRating'
   | 'audibleRating'
   | 'audibleReviewCount'
+  | 'applebooksRating'
+  | 'applebooksReviewCount'
   | 'abridged'
   | 'audiobookDuration'
   | 'audiobookCodec'
@@ -181,6 +183,8 @@ const FIELD_CONFIGS: Record<RuleField, FullFieldConfig> = {
   contentRating: {label: 'contentRating'},
   audibleRating: {label: 'audibleRating', type: 'decimal', max: 5},
   audibleReviewCount: {label: 'audibleReviewCount', type: 'number'},
+  applebooksRating: {label: 'applebooksRating', type: 'decimal', max: 5},
+  applebooksReviewCount: {label: 'applebooksReviewCount', type: 'number'},
   abridged: {label: 'abridged', type: 'boolean'},
   audiobookDuration: {label: 'audiobookDuration', type: 'number'},
   audiobookCodec: {label: 'audiobookCodec'},
@@ -388,12 +392,14 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.metadataFields.ranobedbRating'), value: 'ranobedbRating'},
         {label: this.t.translate('magicShelf.metadataFields.lubimyczytacRating'), value: 'lubimyczytacRating'},
         {label: this.t.translate('magicShelf.metadataFields.audibleRating'), value: 'audibleRating'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksRating'), value: 'applebooksRating'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.reviewCounts'), items: [
         {label: this.t.translate('magicShelf.metadataFields.amazonReviewCount'), value: 'amazonReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.goodreadsReviewCount'), value: 'goodreadsReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.hardcoverReviewCount'), value: 'hardcoverReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.audibleReviewCount'), value: 'audibleReviewCount'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksReviewCount'), value: 'applebooksReviewCount'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.externalIds'), items: [
         {label: this.t.translate('magicShelf.metadataFields.goodreadsId'), value: 'goodreadsId'},
@@ -403,6 +409,7 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.metadataFields.lubimyczytacId'), value: 'lubimyczytacId'},
         {label: this.t.translate('magicShelf.metadataFields.ranobedbId'), value: 'ranobedbId'},
         {label: this.t.translate('magicShelf.metadataFields.comicvineId'), value: 'comicvineId'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksId'), value: 'applebooksId'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.audiobook'), items: [
         {label: this.t.translate('magicShelf.metadataFields.narrator'), value: 'narrator'},

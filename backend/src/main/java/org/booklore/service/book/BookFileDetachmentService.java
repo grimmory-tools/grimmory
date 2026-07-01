@@ -155,6 +155,9 @@ public class BookFileDetachmentService {
         copy.setLubimyczytacId(source.getLubimyczytacId());
         copy.setRanobedbId(source.getRanobedbId());
         copy.setAudibleId(source.getAudibleId());
+        copy.setApplebooksId(source.getApplebooksId());
+        copy.setApplebooksRating(source.getApplebooksRating());
+        copy.setApplebooksReviewCount(source.getApplebooksReviewCount());
         copy.setNarrator(source.getNarrator());
         copy.setAbridged(source.getAbridged());
         copy.setAgeRating(source.getAgeRating());

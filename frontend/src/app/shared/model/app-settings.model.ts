@@ -61,6 +61,7 @@ export interface MetadataProviderSettings {
   douban: Douban;
   lubimyczytac: Lubimyczytac;
   audible: Audible;
+  appleBooks: AppleBooks;
 }
 
 export interface Amazon {
@@ -104,6 +105,11 @@ export interface Lubimyczytac {
 export interface Audible {
   enabled: boolean;
   domain: string;
+}
+
+export interface AppleBooks {
+  enabled: boolean;
+  country: string;
 }
 
 export interface FormatWriteSettings {
@@ -221,6 +227,9 @@ export interface MetadataProviderSpecificFields {
   audibleId: boolean;
   audibleRating: boolean;
   audibleReviewCount: boolean;
+  applebooksId: boolean;
+  applebooksRating: boolean;
+  applebooksReviewCount: boolean;
 }
 
 export enum AppSettingKey {

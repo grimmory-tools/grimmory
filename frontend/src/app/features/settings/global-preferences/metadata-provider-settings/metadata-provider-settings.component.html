@@ -145,6 +145,26 @@
                 </div>
               }
             </div>
+
+            <div class="setting-item">
+              <div class="setting-header">
+                <p-toggleswitch [(ngModel)]="appleBooksEnabled"></p-toggleswitch>
+                <span class="setting-label">Apple Books</span>
+              </div>
+              @if (audibleEnabled) {
+                <div class="setting-options">
+                  <div class="config-field">
+                    <span class="config-label">{{ t('region') }}</span>
+                    <p-select
+                      [options]="appleBooksCountries"
+                      [(ngModel)]="selectedAppleBooksCountry"
+                      [placeholder]="t('selectCountry')"
+                      class="config-select">
+                    </p-select>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </div>
 

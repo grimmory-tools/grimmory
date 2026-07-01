@@ -128,7 +128,8 @@
       "audible": "Audible",
       "comicvine": "Comicvine",
       "lubimyczytac": "Lubimyczytac",
-      "ranobedb": "Ranobedb"
+      "ranobedb": "Ranobedb",
+      "applebooks": "Apple Books"
     },
     "fields": {
       "asin": "Amazon ASIN",
@@ -149,7 +150,10 @@
       "ranobedbRating": "Ranobedb Rating",
       "audibleId": "Audible ID",
       "audibleRating": "Audible Rating",
-      "audibleReviewCount": "Audible Review Count"
+      "audibleReviewCount": "Audible Review Count",
+      "applebooksId": "Apple Books ID",
+      "applebooksRating": "Apple Books Rating",
+      "applebooksReviewCount": "Apple Books Review Count"
     }
   }
 }
