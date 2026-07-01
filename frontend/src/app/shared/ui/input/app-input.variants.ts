@@ -19,8 +19,8 @@ export const appInputVariants = cva(
       variant: {
         outlined:
           `rounded-md border ${neutralControlBorderClass} bg-card shadow-control ` +
-          'focus:border-primary/60 focus:outline-1 focus:outline-offset-0 focus:outline-primary/60 ' +
-          'aria-invalid:border-danger aria-invalid:focus:border-danger aria-invalid:focus:outline-danger',
+          'focus-within:border-primary/60 focus-within:outline-1 focus-within:outline-offset-0 focus-within:outline-primary/60 ' +
+          'aria-invalid:border-danger aria-invalid:focus-within:border-danger aria-invalid:focus-within:outline-danger',
         bare: 'rounded-none border-0 bg-transparent shadow-none aria-invalid:text-danger',
       },
     },

@@ -13,6 +13,7 @@ import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/c
 import { Listbox, Option } from '@angular/aria/listbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideLoaderCircle } from '@lucide/angular';
 
 import { AppTagComponent } from '../tag/app-tag.component';
 import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive';
@@ -29,6 +30,7 @@ import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive'
     Option,
     AppTagComponent,
     TranslocoPipe,
+    LucideLoaderCircle,
   ],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,7 +78,7 @@ import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive'
           (blur)="touched.set(true)"
           [class]="innerInputClass" />
         @if (pending()) {
-          <i class="pi pi-spinner pi-spin shrink-0 text-xs text-text-muted" aria-hidden="true"></i>
+          <svg lucideLoaderCircle class="size-4 shrink-0 animate-spin text-text-muted" aria-hidden="true"></svg>
         }
       </div>
 

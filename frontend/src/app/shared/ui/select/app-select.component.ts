@@ -11,6 +11,7 @@ import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/c
 import { Listbox, Option } from '@angular/aria/listbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideCheck, LucideChevronDown, LucideLoaderCircle, LucideSearch, LucideX } from '@lucide/angular';
 
 import { AppSelectBaseDirective } from './app-select-base.directive';
 import { AppSelectSelectedTemplateDirective } from './app-select.templates';
@@ -28,6 +29,11 @@ import { type SelectOption } from './app-select.options';
     Listbox,
     Option,
     TranslocoPipe,
+    LucideCheck,
+    LucideChevronDown,
+    LucideLoaderCircle,
+    LucideSearch,
+    LucideX,
   ],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,7 +85,7 @@ import { type SelectOption } from './app-select.options';
             [class.w-9]="variant() !== 'bare'"
             [class.w-7]="variant() === 'bare'"
             (click)="clear($event)">
-            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+            <svg lucideX class="size-4" aria-hidden="true"></svg>
           </button>
         }
 
@@ -88,9 +94,9 @@ import { type SelectOption } from './app-select.options';
           [class.w-9]="variant() !== 'bare'"
           [class.w-7]="variant() === 'bare'">
           @if (pending()) {
-            <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
+            <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
           } @else {
-            <i class="pi pi-chevron-down text-xs transition-transform" [class.rotate-180]="cb.expanded()" aria-hidden="true"></i>
+            <svg lucideChevronDown class="size-4 transition-transform" [class.rotate-180]="cb.expanded()" aria-hidden="true"></svg>
           }
         </span>
       </div>
@@ -120,7 +126,7 @@ import { type SelectOption } from './app-select.options';
                   [placeholder]="filterPlaceholder() || ('shared.ui.select.search' | transloco)"
                   [readonly]="readonly()"
                   class="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-2 text-sm text-text-strong outline-hidden placeholder:text-text-muted focus:outline-hidden" />
-                <i class="pi pi-search shrink-0 text-xs" aria-hidden="true"></i>
+                <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
               </div>
             }
 
@@ -155,7 +161,7 @@ import { type SelectOption } from './app-select.options';
                       <span class="truncate leading-5">{{ option.label }}</span>
                     }
                     @if (isSelected(option)) {
-                      <i class="pi pi-check order-last ml-auto size-4 shrink-0 text-primary" aria-hidden="true"></i>
+                      <svg lucideCheck class="order-last ml-auto size-4 shrink-0 text-primary" aria-hidden="true"></svg>
                     }
                   </li>
                 }

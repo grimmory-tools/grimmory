@@ -14,6 +14,7 @@ import { AppSelectComponent } from '../../../shared/ui/select/app-select.compone
 import { AppSwitchComponent } from '../../../shared/ui/switch/app-switch.component';
 import { AppTagComponent } from '../../../shared/ui/tag/app-tag.component';
 import { type SelectOption } from '../../../shared/ui/select/app-select.options';
+import { LucideChevronLeft, LucideLoaderCircle, LucideSave } from '@lucide/angular';
 
 type OrganizationMode = 'BOOK_PER_FILE' | 'BOOK_PER_FOLDER';
 type MetadataSource = 'EMBEDDED' | 'SIDECAR' | 'PREFER_SIDECAR' | 'PREFER_EMBEDDED' | 'NONE';
@@ -61,6 +62,9 @@ function createInitialModel(): LibraryFormModel {
     AppSelectComponent,
     AppSwitchComponent,
     AppTagComponent,
+    LucideChevronLeft,
+    LucideSave,
+    LucideLoaderCircle,
   ],
   templateUrl: './library-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
