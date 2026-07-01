@@ -121,6 +121,7 @@
     "sectionTitle": "Enabled Fields in Metadata Editor & Picker",
     "sectionDesc": "Select which metadata fields to display when editing book information or picking metadata from providers. Disabled fields will be hidden from the interface.",
     "providers": {
+      "openlibrary": "OpenLibrary",
       "amazon": "Amazon",
       "googleBooks": "Google Books",
       "goodreads": "Goodreads",
@@ -131,6 +132,7 @@
       "ranobedb": "Ranobedb"
     },
     "fields": {
+      "openlibraryId": "OpenLibrary ID",
       "asin": "Amazon ASIN",
       "amazonRating": "Amazon Rating",
       "amazonReviewCount": "Amazon Review Count",

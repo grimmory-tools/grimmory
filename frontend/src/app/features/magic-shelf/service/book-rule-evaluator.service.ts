@@ -520,6 +520,7 @@ export class BookRuleEvaluatorService {
       case 'seriesName': return book.metadata?.seriesName;
       case 'isbn13': return book.metadata?.isbn13;
       case 'isbn10': return book.metadata?.isbn10;
+      case 'openlibraryId': return book.metadata?.openlibraryId;
       case 'asin': return book.metadata?.asin;
       case 'authors': return book.metadata?.authors;
       case 'categories': return book.metadata?.categories;

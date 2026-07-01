@@ -28,6 +28,7 @@ export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
   { label: 'ISBN-10', controlName: 'isbn10', lockedKey: 'isbn10Locked', fetchedKey: 'isbn10', type: 'string' },
   { label: 'ISBN-13', controlName: 'isbn13', lockedKey: 'isbn13Locked', fetchedKey: 'isbn13', type: 'string' },
   { label: 'Pages', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount', type: 'number' },
+  { label: 'OpenLibrary ID', controlName: 'openlibraryId', lockedKey: 'openlibraryIdLocked', fetchedKey: 'openlibraryId', type: 'string', providerKey: 'openlibraryId' },
   { label: 'Google ID', controlName: 'googleId', lockedKey: 'googleIdLocked', fetchedKey: 'googleId', type: 'string', providerKey: 'googleId' },
   { label: 'ASIN', controlName: 'asin', lockedKey: 'asinLocked', fetchedKey: 'asin', type: 'string', providerKey: 'asin' },
   { label: 'Amazon #', controlName: 'amazonReviewCount', lockedKey: 'amazonReviewCountLocked', fetchedKey: 'amazonReviewCount', type: 'number', providerKey: 'amazonReviewCount' },

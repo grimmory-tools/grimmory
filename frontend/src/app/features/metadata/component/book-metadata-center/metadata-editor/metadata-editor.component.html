@@ -672,6 +672,20 @@
         @if (providerSectionExpanded) {
           <div class="collapsible-content">
             <div class="field-row metadata-ids-row">
+              @if (isFieldVisible('openlibraryId')) {
+                <div class="field-group metadata-id-field">
+                  <label for="openlibraryId">{{ t('openlibraryId') }} @if (isEmbeddable('openlibraryId', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                  <div class="field-with-lock">
+                    <input pSize="small" pInputText id="openlibraryId" formControlName="openlibraryId"/>
+                    @if (!book.metadata!['openlibraryIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('openlibraryId')" severity="success"></p-button>
+                    }
+                    @if (book.metadata!['openlibraryIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('openlibraryId')" severity="warn"></p-button>
+                    }
+                  </div>
+                </div>
+              }
               @if (isFieldVisible('asin')) {
                 <div class="field-group metadata-id-field">
                   <label for="asin">{{ t('amazonAsin') }} @if (isEmbeddable('asin', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>

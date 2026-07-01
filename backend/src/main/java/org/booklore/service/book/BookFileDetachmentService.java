@@ -146,6 +146,7 @@ public class BookFileDetachmentService {
         copy.setRanobedbRating(source.getRanobedbRating());
         copy.setAudibleRating(source.getAudibleRating());
         copy.setAudibleReviewCount(source.getAudibleReviewCount());
+        copy.setOpenlibraryId(source.getOpenlibraryId());
         copy.setAsin(source.getAsin());
         copy.setGoodreadsId(source.getGoodreadsId());
         copy.setHardcoverId(source.getHardcoverId());

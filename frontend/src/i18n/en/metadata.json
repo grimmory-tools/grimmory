@@ -56,6 +56,7 @@
     "audiobookDetails": "Audiobook Details",
     "comicBookDetails": "Comic Book Details",
     "providerMetadata": "Provider Metadata",
+    "openlibraryId": "OpenLibrary ID",
     "amazonAsin": "Amazon ASIN",
     "amazonRating": "Amazon ★",
     "amazonReviewCount": "Amazon #",

@@ -34,7 +34,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
 export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   form: FormGroup;
   providers: string[] = [];
-  
+
   bookId!: number;
   loading = signal(false);
   searchTriggered = signal(false);
@@ -63,7 +63,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
   private subscription: Subscription = new Subscription();
   private cancelRequest$ = new Subject<void>();
-  
+
   // Signals for state
   allFetchedMetadata: WritableSignal<BookMetadata[]> = signal([]);
   metadataByProvider = signal<Map<string, BookMetadata[]>>(new Map());
@@ -118,7 +118,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   filteredMetadata = computed(() => {
     const all = this.interleavedMetadata();
     const filters = this.selectedProviderFilters();
-    
+
     if (filters.has('all')) {
       return all;
     } else {
@@ -132,7 +132,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   providerFilterOptions = computed(() => {
     const allCount = this.interleavedMetadata().length;
     const counts = this.providerCounts();
-    
+
     return [
       {label: `All (${allCount})`, value: 'all'},
       ...Array.from(counts.entries())
@@ -194,12 +194,12 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     this.detailLoading.set(false);
     this.selectedFetchedMetadata.set(null);
     this.allFetchedMetadata.set([]);
-    
+
     this.providerCounts.set(new Map());
     this.providerLoading.set(new Map());
     this.providerCompletionStatus.set(new Map());
     this.metadataByProvider.set(new Map());
-    
+
     this.selectedProviderFilters.set(new Set(['all']));
     this.bookId = book.id;
 
@@ -254,12 +254,12 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
       this.loading.set(true);
       this.allFetchedMetadata.set([]);
-      
+
       const initialCounts = new Map<string, number>();
       const initialLoading = new Map<string, boolean>();
       const initialCompletion = new Map<string, boolean>();
       const initialByProvider = new Map<string, BookMetadata[]>();
-      
+
       providerKeys.forEach((provider: string) => {
         const providerLower = provider.toLowerCase();
         initialCounts.set(providerLower, 0);
@@ -267,12 +267,12 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
         initialCompletion.set(providerLower, false);
         initialByProvider.set(providerLower, []);
       });
-      
+
       this.providerCounts.set(initialCounts);
       this.providerLoading.set(initialLoading);
       this.providerCompletionStatus.set(initialCompletion);
       this.metadataByProvider.set(initialByProvider);
-      
+
       this.selectedProviderFilters.set(new Set(['all']));
       this.cancelRequest$.next();
 
@@ -299,7 +299,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
                 this.providerCompletionStatus.update(map => new Map(map).set(provider, true));
               }
             }
-            
+
             this.allFetchedMetadata.update(all => [...all, metadata]);
           },
           error: (error) => {
@@ -323,7 +323,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   private getProviderFromMetadata(metadata: BookMetadata): string | null {
-    if (metadata.audibleId) return 'audible'; 
+    if (metadata.openlibraryId) return 'openlibrary';
+    if (metadata.audibleId) return 'audible';
     if (metadata.asin) return 'amazon';
     if (metadata.goodreadsId) return 'goodreads';
     if (metadata.googleId) return 'google';
@@ -343,7 +344,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     const providerLower = provider.toLowerCase();
 
     const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
-    
+
     this.selectedProviderFilters.update(filters => {
       const newFilters = new Set(filters);
       if (isModifierClick) {
@@ -460,7 +461,9 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   buildProviderLink(metadata: BookMetadata): string {
-    if (metadata.audibleId) {
+    if (metadata.openlibraryId) {
+      return `<a href="https://openlibrary.org/${metadata.openlibraryId.replace(/^\//, '')}" target="_blank">OpenLibrary</a>`
+    } else if (metadata.audibleId) {
       // Audible has to come before Amazon because they both have an ASIN.
       return `<a href="https://www.audible.com/pd/${metadata.audibleId}" target="_blank">Audible</a>`;
     } else if (metadata.asin) {
@@ -490,7 +493,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   trackByMetadata(index: number, metadata: BookMetadata): string {
-    return metadata.googleId || metadata.goodreadsId || metadata.asin ||
+    return metadata.openlibraryId || metadata.googleId || metadata.goodreadsId || metadata.asin ||
       metadata.hardcoverId || metadata.comicvineId || metadata.audibleId || index.toString();
   }
 

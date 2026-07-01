@@ -84,6 +84,9 @@ public class SettingPersistenceHelper {
     public MetadataProviderSettings getDefaultMetadataProviderSettings() {
         MetadataProviderSettings defaultMetadataProviderSettings = new MetadataProviderSettings();
 
+        MetadataProviderSettings.OpenLibrary defaultOpenLibrary = new MetadataProviderSettings.OpenLibrary();
+        defaultOpenLibrary.setEnabled(false);
+
         MetadataProviderSettings.Amazon defaultAmazon = new MetadataProviderSettings.Amazon();
         defaultAmazon.setEnabled(true);
         defaultAmazon.setCookie(null);
@@ -109,6 +112,7 @@ public class SettingPersistenceHelper {
         MetadataProviderSettings.Ranobedb defaultRanobedb = new MetadataProviderSettings.Ranobedb();
         defaultRanobedb.setEnabled(false);
 
+        defaultMetadataProviderSettings.setOpenLibrary(defaultOpenLibrary);
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
@@ -332,6 +336,7 @@ public class SettingPersistenceHelper {
 
     public MetadataProviderSpecificFields getDefaultMetadataProviderSpecificFields() {
         MetadataProviderSpecificFields fields = new MetadataProviderSpecificFields();
+        fields.setOpenlibraryId(true);
         fields.setAsin(true);
         fields.setAmazonRating(true);
         fields.setAmazonReviewCount(true);
