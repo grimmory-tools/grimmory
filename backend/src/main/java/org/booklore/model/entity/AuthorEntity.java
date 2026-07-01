@@ -2,6 +2,7 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.booklore.util.AuthorSortName;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 
@@ -25,6 +26,12 @@ public class AuthorEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "sort_name")
+    private String sortName;
+
+    @Column(name = "sort_name_locked", nullable = false)
+    private boolean sortNameLocked;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -47,6 +54,14 @@ public class AuthorEntity {
     @BatchSize(size = 20)
     @Builder.Default
     private Set<BookMetadataEntity> bookMetadataEntityList = new HashSet<>();
+
+    @PrePersist
+    @PreUpdate
+    public void computeSortName() {
+        if (!sortNameLocked) {
+            sortName = AuthorSortName.compute(name);
+        }
+    }
 
     @Override
     public final boolean equals(Object o) {
