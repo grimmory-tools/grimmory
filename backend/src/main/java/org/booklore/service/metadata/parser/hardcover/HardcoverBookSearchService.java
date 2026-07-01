@@ -1,7 +1,7 @@
 package org.booklore.service.metadata.parser.hardcover;
 
-import org.booklore.service.appsettings.AppSettingService;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.service.appsettings.AppSettingService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -10,15 +10,15 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Service
 public class HardcoverBookSearchService {
 
     public static final int DEFAULT_PER_PAGE = 10;
-    private static final long INITIAL_DELAY_MS = 1200;
+    private static final long INITIAL_DELAY_MS = 1000;
     private static final long MAX_DELAY_MS = 15000;
 
     private final RestClient restClient;
@@ -34,7 +34,15 @@ public class HardcoverBookSearchService {
                 .build();
     }
 
-    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(String isbn) {
+    public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
+        return searchBookById(isbn, List.of(0));
+    }
+
+    public List<GraphQLResponse.BookWithEditions> searchBookByHcid(List<Integer> hcid) {
+        return searchBookById(List.of("0"), hcid);
+    }
+
+    public List<GraphQLResponse.BookWithEditions> searchBookById(List<String> isbn, List<Integer> hcid) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -42,9 +50,9 @@ public class HardcoverBookSearchService {
 
         GraphQLRequest body = new GraphQLRequest();
         body.setQuery("""
-                query BookSearchByIsbn($isbn: String!) {
+                query BookSearchByIsbn($isbn: [String!]!, $hcid: [Int!]!) {
                     books(
-                        where: {editions: {_or: [{isbn_13: {_eq: $isbn}}, {isbn_10: {_eq: $isbn}}]}}
+                        where: {editions: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_in: $hcid}} ]}}
                     ) {
                         id
                         slug
@@ -70,7 +78,7 @@ public class HardcoverBookSearchService {
                           url
                         }
                         cached_tags
-                        editions(where: {_or: [{isbn_13: {_eq: $isbn}}, {isbn_10: {_eq: $isbn}}]}) {
+                        editions(where: {_or: [{isbn_13: {_in: $isbn}}, {isbn_10: {_in: $isbn}}, {book_id: {_in: $hcid}}]}, order_by: [{score: desc}]) {
                           id
                           title
                           subtitle
@@ -89,10 +97,12 @@ public class HardcoverBookSearchService {
                           language {
                             code2
                           }
+                          reading_format_id
+                          score
                         }
                       }
                     }""");
-        body.setVariables(Map.of("isbn", isbn));
+        body.setVariables(Map.of("isbn", isbn, "hcid", hcid));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
@@ -104,11 +114,23 @@ public class HardcoverBookSearchService {
         return response.getData().getBooks();
     }
 
-    public List<GraphQLResponse.Hit> searchBooks(String query) {
-        return searchBooks(query, DEFAULT_PER_PAGE);
+    public List<GraphQLResponse.Hit> searchBooks(String title) {
+        return searchBooks(title, DEFAULT_PER_PAGE);
     }
 
-    public List<GraphQLResponse.Hit> searchBooks(String query, int perPage) {
+    public List<GraphQLResponse.Hit> searchBooks(String title, int limit) {
+        return searchBooks(title, "alternative_titles: " + title, "10,5,3", "title, alternative_titles, description", limit);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String title, String author) {
+        return searchBooks(title, author, DEFAULT_PER_PAGE);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String title, String author, int limit) {
+        return searchBooks(title + " "  + author, "", "5,3,10,5", "title, alternative_titles, author_names, description", limit);
+    }
+
+    public List<GraphQLResponse.Hit> searchBooks(String query, String filterBy, String weights, String fields, int perPage) {
         String apiToken = getApiToken();
         if (apiToken == null) {
             return Collections.emptyList();
@@ -117,8 +139,19 @@ public class HardcoverBookSearchService {
         int sanitizedPerPage = Math.clamp(perPage, 1, 100);
 
         GraphQLRequest body = new GraphQLRequest();
-        body.setQuery("query BookSearch($q: String!, $limit: Int!) { search(query: $q, query_type: \"Book\", per_page: $limit, page: 1) { results } }");
-        body.setVariables(Map.of("q", query, "limit", sanitizedPerPage));
+        body.setQuery("""
+                query BookSearch($q: String!, $limit: Int, $filterBy: String, $weights: String, $fields: String) {
+                    search(query: $q,
+                            filter_by: $filterBy,
+                            weights: $weights,
+                            fields: $fields,
+                            sort: "users_count:desc",
+                            typos: "2",
+                            query_type: "Book",
+                            per_page: $limit,
+                            page: 1)
+                {results }}""");
+        body.setVariables(Map.of("q", query, "filterBy", filterBy, "weights", weights, "fields", fields, "limit", sanitizedPerPage));
 
         GraphQLResponse response = executeRequest(body, GraphQLResponse.class, apiToken);
         if (response == null || response.getData() == null ||
@@ -129,23 +162,6 @@ public class HardcoverBookSearchService {
 
         List<GraphQLResponse.Hit> hits = response.getData().getSearch().getResults().getHits();
         return hits != null ? hits : Collections.emptyList();
-    }
-
-    public HardcoverBookDetails fetchBookDetails(int bookId) {
-        String apiToken = getApiToken();
-        if (apiToken == null) {
-            return null;
-        }
-
-        GraphQLRequest body = new GraphQLRequest();
-        body.setQuery("query BookDetails($id: Int!) { books_by_pk(id: $id) { id title cached_tags } }");
-        body.setVariables(Map.of("id", bookId));
-
-        HardcoverBookDetailsResponse response = executeRequest(body, HardcoverBookDetailsResponse.class, apiToken);
-        if (response == null || response.getData() == null) {
-            return null;
-        }
-        return response.getData().getBooksByPk();
     }
 
     private <T> T executeRequest(GraphQLRequest body, Class<T> responseType, String apiToken) {
@@ -192,7 +208,7 @@ public class HardcoverBookSearchService {
         if (elapsed < delay) {
             try {
                 Thread.sleep(delay - elapsed);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                 Thread.currentThread().interrupt();
             }
         }
