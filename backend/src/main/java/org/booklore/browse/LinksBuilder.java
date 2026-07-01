@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-// Builds the paging links for a browse page (self/first/previous/next)
-// Each carries the request's facet/query params + a cursor offset
+// Builds the links for a browse page (self/first/previous/next/facet)
+// Paging links carry the request's facet/query params + a cursor offset
 @Component
 public class LinksBuilder {
 
@@ -18,6 +18,7 @@ public class LinksBuilder {
 
     public record Context(
             String pagePath,
+            String facetPath,
             String preservedQuery,
             long offset,
             int limit,
@@ -28,6 +29,7 @@ public class LinksBuilder {
 
     public List<Link> build(Context ctx) {
         List<Link> links = new ArrayList<>();
+        links.add(Link.json(List.of("facet"), ctx.facetPath()));
         links.add(pageLink(List.of("self"), ctx, ctx.offset()));
         links.add(pageLink(List.of("first"), ctx, 0));
 

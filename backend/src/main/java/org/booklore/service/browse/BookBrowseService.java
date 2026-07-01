@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 public class BookBrowseService {
 
     private static final String PAGE_PATH = "/api/v1/books/page";
+    private static final String FACET_PATH = "/api/v1/books/facets";
     private static final int MAX_PAGE_SIZE = 100;
 
     private final AuthenticationService authenticationService;
@@ -86,7 +87,7 @@ public class BookBrowseService {
         CursorState baseState = new CursorState(offset, limit, sortString, paramsHash);
         String currentCursor = cursorCodec.encode(baseState);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
+                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
 
         return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), currentCursor, links);
     }
@@ -97,7 +98,7 @@ public class BookBrowseService {
         String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.AND);
         CursorState baseState = new CursorState(offset, limit, null, paramsHash);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, "", offset, limit, page.getTotalElements(), baseState));
+                PAGE_PATH, FACET_PATH, "", offset, limit, page.getTotalElements(), baseState));
         return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), cursorCodec.encode(baseState), links);
     }
 

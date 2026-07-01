@@ -17,7 +17,7 @@ class LinksBuilderTest {
 
     private LinksBuilder.Context context(long offset, int limit, long total, String preservedQuery) {
         CursorState base = new CursorState(offset, limit, "title", "hash00000000");
-        return new LinksBuilder.Context("/api/v1/books/page", preservedQuery, offset, limit, total, base);
+        return new LinksBuilder.Context("/api/v1/books/page", "/api/v1/books/facets", preservedQuery, offset, limit, total, base);
     }
 
     private boolean hasRel(List<Link> links, String rel) {
@@ -31,10 +31,18 @@ class LinksBuilderTest {
     }
 
     @Test
-    void selfAndFirstAlwaysPresent() {
+    void alwaysIncludesFacetSelfAndFirst() {
         List<Link> links = builder.build(context(40, 20, 100, ""));
+        assertTrue(hasRel(links, "facet"));
         assertTrue(hasRel(links, "self"));
         assertTrue(hasRel(links, "first"));
+    }
+
+    @Test
+    void facetLinkPointsAtFacetsEndpointWithoutCursor() {
+        Link facet = withRel(builder.build(context(0, 20, 100, "")), "facet");
+        assertEquals("/api/v1/books/facets", facet.href());
+        assertEquals(Link.JSON_TYPE, facet.type());
     }
 
     @Test
@@ -111,7 +119,7 @@ class LinksBuilderTest {
     @Test
     void nullPreservedQueryStillProducesValidLinks() {
         List<Link> links = builder.build(new LinksBuilder.Context(
-                "/api/v1/books/page", null, 0, 20, 5,
+                "/api/v1/books/page", "/api/v1/books/facets", null, 0, 20, 5,
                 new CursorState(0, 20, "title", "hash00000000")));
         assertTrue(hasRel(links, "self"));
         Link self = withRel(links, "self");
