@@ -1,5 +1,11 @@
 package org.booklore.service.browse;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.BrowsePage;
 import org.booklore.browse.CursorCodec;
@@ -48,6 +54,9 @@ public class BookBrowseService {
     private final CursorCodec cursorCodec;
     private final LinksBuilder linksBuilder;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public BrowsePage<Book> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -90,6 +99,29 @@ public class BookBrowseService {
                 PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
 
         return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), currentCursor, links);
+    }
+
+    public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        Long userId = user.getId();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
+        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
+        List<SortTerm> sortTerms = SortParser.parse(sort, sortRegistry.registry().keys());
+        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        cq.select(root.get("id"));
+        Predicate predicate = filter.toPredicate(root, cq, cb);
+        if (predicate != null) {
+            cq.where(predicate);
+        }
+        cq.orderBy(sortRegistry.registry().toOrders(sortTerms, root, cq, cb, userId));
+
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public BrowsePage<Book> wrapLegacy(Page<Book> page, Pageable pageable) {
