@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, signal, WritableSignal, computed} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {CustomSvgService} from '../../services/custom-svg.service';
@@ -57,7 +57,7 @@ const lucideIconNodes = iconNodes as unknown as Record<string, LucideIconNode[]>
 })
 export class IconPickerComponent implements OnInit {
 
-  private hasLoadedSvgIcons = false;
+  private readonly hasLoadedSvgIcons: WritableSignal<boolean> = signal(false);
 
   private readonly MAX_ICON_NAME_LENGTH = 255;
   private readonly MAX_SVG_SIZE = 1048576; // 1MB
@@ -99,7 +99,7 @@ export class IconPickerComponent implements OnInit {
 
   set activeTabIndex(value: string) {
     this._activeTabIndex = value;
-    if (value === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
+    if (value === '1' && !this.hasLoadedSvgIcons() && !this.isLoadingSvgIcons()) {
       this.loadSvgIcons();
     }
   }
@@ -107,16 +107,16 @@ export class IconPickerComponent implements OnInit {
   svgContent: string = '';
   svgName: string = '';
   svgPreview: string | null = null;
-  errorMessage: string = '';
+  errorMessage: WritableSignal<string> = signal('');
 
-  svgEntries: SvgEntry[] = [];
-  isSavingBatch: boolean = false;
-  batchErrorMessage: string = '';
+  svgEntries: WritableSignal<SvgEntry[]> = signal([]);
+  isSavingBatch: WritableSignal<boolean> = signal(false);
+  batchErrorMessage: WritableSignal<string> = signal('');
 
-  svgIcons: string[] = [];
-  svgSearchText: string = '';
-  isLoadingSvgIcons: boolean = false;
-  svgIconsError: string = '';
+  svgIcons: WritableSignal<string[]> = signal([]);
+  svgSearchText: WritableSignal<string> = signal('');
+  isLoadingSvgIcons: WritableSignal<boolean> = signal(false);
+  svgIconsError: WritableSignal<string> = signal('');
   selectedSvgIcon: string | null = null;
 
   draggedSvgIcon: string | null = null;
@@ -127,9 +127,8 @@ export class IconPickerComponent implements OnInit {
     return user?.permissions.canManageIcons || user?.permissions.admin || false;
   }
 
-
   ngOnInit(): void {
-    if (this.activeTabIndex === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
+    if (this.activeTabIndex === '1' && !this.hasLoadedSvgIcons() && !this.isLoadingSvgIcons()) {
       this.loadSvgIcons();
     }
   }
@@ -139,10 +138,11 @@ export class IconPickerComponent implements OnInit {
     return this.icons.filter(icon => icon.toLowerCase().includes(this.searchText.toLowerCase()));
   }
 
-  filteredSvgIcons(): string[] {
-    if (!this.svgSearchText) return this.svgIcons;
-    return this.svgIcons.filter(icon => icon.toLowerCase().includes(this.svgSearchText.toLowerCase()));
-  }
+  readonly filteredSvgIcons = computed(
+    () => this.svgIcons().filter(
+      icon => icon.toLowerCase().includes(this.svgSearchText().toLowerCase())
+    )
+  );
 
   selectIcon(icon: string): void {
     this.selectedIcon = icon;
@@ -158,15 +158,15 @@ export class IconPickerComponent implements OnInit {
   }
 
   private loadSvgIcons(): void {
-    this.isLoadingSvgIcons = true;
-    this.svgIconsError = '';
+    this.isLoadingSvgIcons.set(true);
+    this.svgIconsError.set('');
 
     this.customSvgService.getIconNames().subscribe({
       next: (names) => {
-        this.hasLoadedSvgIcons = true;
+        this.hasLoadedSvgIcons.set(true);
         if (names.length === 0) {
-          this.svgIcons = [];
-          this.isLoadingSvgIcons = false;
+          this.svgIcons.set([]);
+          this.isLoadingSvgIcons.set(false);
           return;
         }
         from(names).pipe(
@@ -178,14 +178,14 @@ export class IconPickerComponent implements OnInit {
           ),
           toArray()
         ).subscribe(() => {
-          this.svgIcons = names;
-          this.isLoadingSvgIcons = false;
+          this.svgIcons.set(names);
+          this.isLoadingSvgIcons.set(false);
         });
       },
       error: () => {
-        this.isLoadingSvgIcons = false;
-        this.hasLoadedSvgIcons = false;
-        this.svgIconsError = this.ERROR_MESSAGES.LOAD_ICONS_ERROR;
+        this.isLoadingSvgIcons.set(false);
+        this.hasLoadedSvgIcons.set(false);
+        this.svgIconsError.set(this.ERROR_MESSAGES.LOAD_ICONS_ERROR);
       }
     });
   }
@@ -200,7 +200,7 @@ export class IconPickerComponent implements OnInit {
   }
 
   onSvgContentChange(): void {
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
     if (!this.svgContent.trim()) {
       this.svgPreview = null;
@@ -210,7 +210,7 @@ export class IconPickerComponent implements OnInit {
     const trimmedContent = this.svgContent.trim();
     if (!trimmedContent.includes('<svg')) {
       this.svgPreview = null;
-      this.errorMessage = this.ERROR_MESSAGES.MISSING_SVG_TAG;
+      this.errorMessage.set(this.ERROR_MESSAGES.MISSING_SVG_TAG);
       return;
     }
 
@@ -222,80 +222,104 @@ export class IconPickerComponent implements OnInit {
       this.svgPreview = sanitized;
     } catch {
       this.svgPreview = null;
-      this.errorMessage = this.ERROR_MESSAGES.PARSE_ERROR;
+      this.errorMessage.set(this.ERROR_MESSAGES.PARSE_ERROR);
     }
   }
 
   addSvgEntry(): void {
     const validationError = this.validateSvgInput();
     if (validationError) {
-      this.errorMessage = validationError;
+      this.errorMessage.set(validationError);
       return;
     }
 
-    const existingIndex = this.svgEntries.findIndex(entry => entry.name === this.svgName);
-    if (existingIndex !== -1) {
-      this.svgEntries[existingIndex] = {
-        name: this.svgName,
-        content: this.svgContent,
-        preview: this.svgPreview,
-        error: ''
-      };
-    } else {
-      this.svgEntries.push({
-        name: this.svgName,
-        content: this.svgContent,
-        preview: this.svgPreview,
-        error: ''
-      });
-    }
+    this.svgEntries.update(
+      s => {
+        s = [...s];
+        const existingIndex = s.findIndex(entry => entry.name === this.svgName);
+        if (existingIndex !== -1) {
+          s[existingIndex] = {
+            name: this.svgName,
+            content: this.svgContent,
+            preview: this.svgPreview,
+            error: ''
+          };
+        } else {
+          s.push({
+            name: this.svgName,
+            content: this.svgContent,
+            preview: this.svgPreview,
+            error: ''
+          });
+        }
+
+        return s;
+      }
+    )
+
+
 
     this.resetSvgForm();
-    this.errorMessage = '';
+    this.errorMessage.set('');
   }
 
   removeSvgEntry(index: number): void {
-    this.svgEntries.splice(index, 1);
+    this.svgEntries.update(s => s.filter((_, i) => i !== index));
   }
 
   clearAllEntries(): void {
-    this.svgEntries = [];
-    this.batchErrorMessage = '';
+    this.svgEntries.set([]);
+    this.batchErrorMessage.set('');
   }
 
   saveAllSvgs(): void {
-    if (this.svgEntries.length === 0) {
-      this.batchErrorMessage = 'No SVG icons to save';
+    if (this.svgEntries().length === 0) {
+      this.batchErrorMessage.set('No SVG icons to save');
       return;
     }
 
-    this.isSavingBatch = true;
-    this.batchErrorMessage = '';
+    this.isSavingBatch.set(true);
+    this.batchErrorMessage.set('');
 
-    this.svgEntries.forEach(entry => entry.error = '');
+    this.svgEntries.update(
+      s => s.map(
+        entry => ({
+          ...entry,
+          error: '',
+        })
+      )
+    );
 
-    const svgData = this.svgEntries.map(entry => ({
+    const svgData = this.svgEntries().map(entry => ({
       svgName: entry.name,
       svgData: entry.content
     }));
 
     this.customSvgService.saveBatchSvgIcons(svgData).subscribe({
       next: (response: SvgIconBatchResponse) => {
-        this.isSavingBatch = false;
+        this.isSavingBatch.set(false);
         let successCount = 0;
         let failureCount = 0;
-        
+        const errors: Record<string, string> = {}
+
         response.results.forEach(result => {
           if (result.success) {
             successCount++;
           } else {
             failureCount++;
-            const entry = this.svgEntries.find(e => e.name === result.iconName);
-            if (entry) {
-              entry.error = result.errorMessage;
-            }
+            errors[result.iconName] = result.errorMessage;
           }
         });
+
+        this.svgEntries.update(
+          s => s.map(
+            entry => ({
+              ...entry,
+              error: errors[entry.name] ?? '',
+            })
+          )
+        )
+
         if (successCount > 0 && failureCount === 0) {
           this.messageService.add({
             severity: 'success',
@@ -320,18 +344,18 @@ export class IconPickerComponent implements OnInit {
         }
 
         this.clearAllEntries();
-        this.hasLoadedSvgIcons = false;
+        this.hasLoadedSvgIcons.set(false);
         this.loadSvgIcons();
       },
       error: () => {
-        this.isSavingBatch = false;
-        this.batchErrorMessage = 'Failed to save SVG icons. Please try again.';
+        this.isSavingBatch.set(false);
+        this.batchErrorMessage.set('Failed to save SVG icons. Please try again.');
       }
     });
   }
 
   private deleteSvgIcon(iconName: string): void {
-    this.isLoadingSvgIcons = true;
+    this.isLoadingSvgIcons.set(true);
 
     this.customSvgService.deleteSvgIcon(iconName).subscribe({
       next: () => {
@@ -342,11 +366,13 @@ export class IconPickerComponent implements OnInit {
           life: 2500
         });
 
-        this.svgIcons = this.svgIcons.filter(name => name !== iconName);
-        this.isLoadingSvgIcons = false;
+        this.svgIcons.update(
+          value => value.filter(name => name !== iconName)
+        );
+        this.isLoadingSvgIcons.set(false);
       },
       error: (error) => {
-        this.isLoadingSvgIcons = false;
+        this.isLoadingSvgIcons.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Delete Failed',
@@ -386,7 +412,7 @@ export class IconPickerComponent implements OnInit {
     this.svgContent = '';
     this.svgName = '';
     this.svgPreview = null;
-    this.errorMessage = '';
+    this.errorMessage.set('');
   }
 
   onSvgIconDragStart(iconName: string): void {

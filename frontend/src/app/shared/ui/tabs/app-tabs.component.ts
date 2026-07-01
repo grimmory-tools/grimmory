@@ -14,6 +14,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { Tab as NgTab, TabList, Tabs } from '@angular/aria/tabs';
+import { LucideDynamicIcon, type LucideIconData } from '@lucide/angular';
 import { AppSelectComponent } from '../select/app-select.component';
 import { type SelectOption } from '../select/app-select.options';
 import { cn } from '../cn';
@@ -30,7 +31,7 @@ import {
 export interface TabItem {
   id: string;
   label: string;
-  icon?: string;
+  icon?: LucideIconData;
 }
 
 const COLLAPSE_HYSTERESIS = 8;
@@ -38,7 +39,7 @@ const COLLAPSE_HYSTERESIS = 8;
 @Component({
   selector: 'app-tabs',
   standalone: true,
-  imports: [Tabs, TabList, NgTab, AppSelectComponent],
+  imports: [Tabs, TabList, NgTab, AppSelectComponent, LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative block min-w-0' },
   template: `
@@ -71,8 +72,8 @@ const COLLAPSE_HYSTERESIS = 8;
               [style.width.px]="indicatorWidth()"></span>
             @for (tab of tabs(); track tab.id) {
               <button ngTab type="button" [value]="tab.id" [class]="tabClass()">
-                @if (tab.icon) {
-                  <i [class]="tab.icon + ' shrink-0 text-[0.875em] leading-none'" aria-hidden="true"></i>
+                @if (tab.icon; as tabIcon) {
+                  <svg [lucideIcon]="tabIcon" class="size-[0.875em] shrink-0 leading-none" aria-hidden="true"></svg>
                 }
                 <span class="leading-none">{{ tab.label }}</span>
               </button>

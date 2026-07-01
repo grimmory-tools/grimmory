@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Google Books APIキーを入力",
         "apiToken": "APIトークン",
         "hardcoverPlaceholder": "Hardcover APIトークンを入力",
-        "comicvinePlaceholder": "Comic Vine APIトークンを入力",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Comic Vine APIトークンを入力"
     },
     "fieldSelector": {
         "sectionTitle": "メタデータエディタとピッカーの有効フィールド",

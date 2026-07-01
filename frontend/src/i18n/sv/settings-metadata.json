@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Ange Google Books API-nyckel",
         "apiToken": "API-token",
         "hardcoverPlaceholder": "Ange Hardcover API-token",
-        "comicvinePlaceholder": "Ange Comic Vine API-token",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Ange Comic Vine API-token"
     },
     "fieldSelector": {
         "sectionTitle": "Aktiverade fält i metadataredigeraren och -väljaren",

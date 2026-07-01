@@ -3,6 +3,7 @@ import { type FormValueControl } from '@angular/forms/signals';
 import { Grid, GridCell, GridCellWidget, GridRow } from '@angular/aria/grid';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideCalendar, LucideChevronLeft, LucideChevronRight, LucideLoaderCircle } from '@lucide/angular';
 
 import {
   AppDatePickerBaseDirective,
@@ -22,7 +23,7 @@ const NO_SELECTION: DaySelectionFlags = { point: false, spanStart: false, spanEn
 @Component({
   selector: 'app-date-range-picker',
   standalone: true,
-  imports: [OverlayModule, Grid, GridRow, GridCell, GridCellWidget, TranslocoPipe],
+  imports: [OverlayModule, Grid, GridRow, GridCell, GridCellWidget, TranslocoPipe, LucideCalendar, LucideChevronLeft, LucideChevronRight, LucideLoaderCircle],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: DATE_PICKER_TEMPLATE,

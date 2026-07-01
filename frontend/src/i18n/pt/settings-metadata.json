@@ -61,9 +61,7 @@
         "googleApiPlaceholder": "Digite a chave de API do Google Books",
         "apiToken": "Token de API",
         "hardcoverPlaceholder": "Digite o token de API do Hardcover",
-        "comicvinePlaceholder": "Digite o token de API do Comic Vine",
-        "goodreadsWarning": "",
-        "goodreadsWarningReadMore": ""
+        "comicvinePlaceholder": "Digite o token de API do Comic Vine"
     },
     "fieldSelector": {
         "sectionTitle": "Campos Ativados no Editor e Seletor de Metadados",

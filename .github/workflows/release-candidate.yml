@@ -57,7 +57,7 @@ jobs:
           current_version="$base_tag"
           if [ -n "$latest_nightly_sha" ] && [ -n "$latest_nightly_created_at" ]; then
             latest_nightly_date="$(date -u -d "$latest_nightly_created_at" +%Y%m%d)"
-            latest_nightly_short_sha="$(printf '%s' "$latest_nightly_sha" | cut -c1-7)"
+            latest_nightly_short_sha="$(printf '%s' "$latest_nightly_sha" | cut -c1-8)"
             current_version="nightly-${latest_nightly_date}-${latest_nightly_short_sha}"
           fi
 

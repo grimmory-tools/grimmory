@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { transformedValue, type FormValueControl, type ParseResult } from '@angular/forms/signals';
+import { LucideChevronDown, LucideChevronUp } from '@lucide/angular';
 
 import { cn } from '../cn';
 import { APP_FIELD } from '../field/app-field.context';
@@ -19,6 +20,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
 @Component({
   selector: 'app-number-input',
   standalone: true,
+  imports: [LucideChevronDown, LucideChevronUp],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -59,7 +61,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
               [class]="stepButtonClass"
               [disabled]="disabled() || atMax()"
               (click)="nudge(1)">
-              <i class="pi pi-chevron-up text-xs leading-none" aria-hidden="true"></i>
+              <svg lucideChevronUp class="size-3" aria-hidden="true"></svg>
             </button>
             <button
               type="button"
@@ -68,7 +70,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
               [class]="stepButtonClass + ' border-t border-border'"
               [disabled]="disabled() || atMin()"
               (click)="nudge(-1)">
-              <i class="pi pi-chevron-down text-xs leading-none" aria-hidden="true"></i>
+              <svg lucideChevronDown class="size-3" aria-hidden="true"></svg>
             </button>
           </span>
         }

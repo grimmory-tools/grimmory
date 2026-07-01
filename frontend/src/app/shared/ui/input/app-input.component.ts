@@ -13,14 +13,16 @@ import {
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import { translateSignal } from '@jsverse/transloco';
+import { LucideEye, LucideEyeOff, LucideLoaderCircle } from '@lucide/angular';
 import { cn } from '../cn';
 import { APP_FIELD } from '../field/app-field.context';
 import { appInputVariants, type AppInputSize, type AppInputVariant } from './app-input.variants';
 
 type AppInputType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url';
 
-const TRAILING_ACTION_BUTTON_CLASS =
-  'absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center rounded-r-md text-text-muted ' +
+const ADORNMENT_CLASS = 'inline-flex shrink-0 items-center text-text-muted empty:hidden [&>svg]:size-4';
+const REVEAL_TOGGLE_CLASS =
+  'inline-flex size-7 shrink-0 items-center justify-center rounded-md text-text-muted ' +
   'transition-colors hover:text-text-strong ' +
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ' +
   'disabled:pointer-events-none disabled:opacity-50';
@@ -28,56 +30,55 @@ const TRAILING_ACTION_BUTTON_CLASS =
 @Component({
   selector: 'app-input',
   standalone: true,
-  host: { class: 'relative block w-full' },
+  imports: [LucideEye, LucideEyeOff, LucideLoaderCircle],
+  host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (leadingIcon()) {
-      <span class="pointer-events-none absolute inset-y-0 left-0 inline-flex w-10 items-center justify-center text-text-muted">
-        <i [class]="leadingIcon()" aria-hidden="true"></i>
-      </span>
-    }
-    <input
-      #input
-      [class]="inputClass()"
-      [type]="resolvedType()"
-      [attr.id]="resolvedInputId()"
-      [attr.name]="name() || null"
-      [attr.placeholder]="placeholder() || null"
-      [attr.autocomplete]="autocomplete() || null"
-      [attr.aria-label]="ariaLabel() || null"
-      [attr.aria-describedby]="resolvedDescribedBy()"
-      [attr.aria-invalid]="showInvalid() ? 'true' : null"
-      [attr.aria-busy]="pending() ? 'true' : null"
-      [attr.maxlength]="maxLength()"
-      [attr.minlength]="minLength()"
-      [attr.pattern]="patternAttr()"
-      [value]="value()"
-      [disabled]="disabled()"
-      [readonly]="readonly()"
-      [required]="required()"
-      (input)="onInput(input)"
-      (blur)="touched.set(true)"
-      (keydown)="keyedDown.emit($event)"
-      (keyup.enter)="onEnterKeyup($event)" />
-    @if (pending()) {
-      <span
-        class="pointer-events-none absolute inset-y-0 inline-flex w-10 items-center justify-center text-text-muted"
-        [class.right-10]="showTrailingAction()"
-        [class.right-0]="!showTrailingAction()">
-        <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
-      </span>
-    }
-    @if (showTrailingAction()) {
-      <button
-        type="button"
-        [class]="trailingActionButtonClass"
+    <div [class]="boxClass()" [attr.aria-invalid]="showInvalid() ? 'true' : null">
+      <span [class]="adornmentClass"><ng-content select="[appInputLeading]" /></span>
+      <input
+        #input
+        [class]="inputClass"
+        [type]="resolvedType()"
+        [attr.id]="resolvedInputId()"
+        [attr.name]="name() || null"
+        [attr.placeholder]="placeholder() || null"
+        [attr.autocomplete]="autocomplete() || null"
+        [attr.aria-label]="ariaLabel() || null"
+        [attr.aria-describedby]="resolvedDescribedBy()"
+        [attr.aria-invalid]="showInvalid() ? 'true' : null"
+        [attr.aria-busy]="pending() ? 'true' : null"
+        [attr.maxlength]="maxLength()"
+        [attr.minlength]="minLength()"
+        [attr.pattern]="patternAttr()"
+        [value]="value()"
         [disabled]="disabled()"
-        [attr.aria-label]="trailingActionAriaLabel()"
-        [attr.aria-pressed]="trailingActionPressed()"
-        (click)="onTrailingActionClick($event)">
-        <i [class]="trailingActionIcon()" aria-hidden="true"></i>
-      </button>
-    }
+        [readonly]="readonly()"
+        [required]="required()"
+        (input)="onInput(input)"
+        (blur)="touched.set(true)"
+        (keydown)="keyedDown.emit($event)"
+        (keyup.enter)="onEnterKeyup($event)" />
+      @if (pending()) {
+        <svg lucideLoaderCircle class="size-4 shrink-0 animate-spin text-text-muted" aria-hidden="true"></svg>
+      }
+      @if (showRevealToggle()) {
+        <button
+          type="button"
+          [class]="revealToggleClass"
+          [disabled]="disabled()"
+          [attr.aria-label]="revealAriaLabel()"
+          [attr.aria-pressed]="passwordVisible()"
+          (click)="passwordVisible.set(!passwordVisible())">
+          @if (passwordVisible()) {
+            <svg lucideEyeOff class="size-4" aria-hidden="true"></svg>
+          } @else {
+            <svg lucideEye class="size-4" aria-hidden="true"></svg>
+          }
+        </button>
+      }
+      <span [class]="adornmentClass"><ng-content select="[appInputTrailing]" /></span>
+    </div>
   `,
 })
 export class AppInputComponent implements FormValueControl<string> {
@@ -103,17 +104,13 @@ export class AppInputComponent implements FormValueControl<string> {
   readonly minLength = input<number | undefined>(undefined);
   readonly pattern = input<readonly RegExp[]>([]);
   readonly revealToggle = input(false, { transform: booleanAttribute });
-  readonly leadingIcon = input('');
-  readonly trailingIcon = input('');
-  readonly trailingAriaLabel = input('');
-  readonly trailingPressed = input<boolean | 'false' | 'true' | 'mixed' | null>(null);
 
   readonly keyedDown = output<KeyboardEvent>();
   readonly enterPressed = output<KeyboardEvent>();
-  readonly trailingClicked = output<MouseEvent>();
 
   private readonly fieldContext = inject(APP_FIELD, { optional: true });
-  protected readonly trailingActionButtonClass = TRAILING_ACTION_BUTTON_CLASS;
+  protected readonly adornmentClass = ADORNMENT_CLASS;
+  protected readonly revealToggleClass = REVEAL_TOGGLE_CLASS;
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,
@@ -123,47 +120,22 @@ export class AppInputComponent implements FormValueControl<string> {
 
   protected readonly passwordVisible = signal(false);
   protected readonly showRevealToggle = computed(() => this.type() === 'password' && this.revealToggle());
-  protected readonly showTrailingAction = computed(() => this.showRevealToggle() || this.trailingIcon() !== '');
   private readonly showPasswordLabel = translateSignal('shared.ui.input.showPassword');
   private readonly hidePasswordLabel = translateSignal('shared.ui.input.hidePassword');
-  private readonly trailingActionDefaultLabel = translateSignal('shared.ui.input.trailingAction');
   protected readonly resolvedType = computed(() =>
     this.showRevealToggle() && this.passwordVisible() ? 'text' : this.type(),
   );
-  protected readonly trailingActionIcon = computed(() => {
-    if (this.showRevealToggle()) {
-      return this.passwordVisible() ? 'pi pi-eye-slash' : 'pi pi-eye';
-    }
-
-    return this.trailingIcon();
-  });
-  protected readonly trailingActionAriaLabel = computed(() => {
-    if (this.showRevealToggle()) {
-      return this.passwordVisible() ? this.hidePasswordLabel() : this.showPasswordLabel();
-    }
-
-    return this.trailingAriaLabel() || this.trailingActionDefaultLabel();
-  });
-  protected readonly trailingActionPressed = computed(() => {
-    if (this.showRevealToggle()) {
-      return this.passwordVisible();
-    }
-
-    return this.trailingPressed();
-  });
-  protected readonly trailingPaddingClass = computed(() => {
-    const hasTrailingAction = this.showTrailingAction();
-    const pending = this.pending();
-
-    if (hasTrailingAction && pending) return 'pr-20';
-    if (hasTrailingAction || pending) return 'pr-10';
-    return '';
-  });
-  protected readonly inputClass = computed(() =>
+  protected readonly revealAriaLabel = computed(() =>
+    this.passwordVisible() ? this.hidePasswordLabel() : this.showPasswordLabel(),
+  );
+  protected readonly inputClass =
+    'min-w-0 flex-1 border-0 bg-transparent p-0 text-text-strong outline-hidden placeholder:text-text-muted ' +
+    '[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden disabled:cursor-default';
+  protected readonly boxClass = computed(() =>
     cn(
       appInputVariants({ size: this.size(), variant: this.variant() }),
-      this.leadingIcon() && 'pl-10',
-      this.trailingPaddingClass(),
+      'flex items-center gap-2',
+      this.disabled() && 'pointer-events-none opacity-50',
       this.styleClass(),
     ),
   );
@@ -180,15 +152,6 @@ export class AppInputComponent implements FormValueControl<string> {
 
   protected onEnterKeyup(event: Event): void {
     this.enterPressed.emit(event as KeyboardEvent);
-  }
-
-  protected onTrailingActionClick(event: MouseEvent): void {
-    if (this.showRevealToggle()) {
-      this.passwordVisible.update(visible => !visible);
-      return;
-    }
-
-    this.trailingClicked.emit(event);
   }
 
   focus(options?: FocusOptions): void {
