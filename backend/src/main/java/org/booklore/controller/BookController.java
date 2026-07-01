@@ -118,6 +118,21 @@ public class BookController {
         return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
+    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @ApiResponse(responseCode = "200", description = "Matching book ids returned successfully")
+    @GetMapping("/ids")
+    public ResponseEntity<List<Long>> getBookIds(
+            @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
+    }
+
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book details returned successfully"),
