@@ -52,7 +52,10 @@
     "maxWidth": "Max Width",
     "maxWidthDesc": "Limit the maximum width of the reading area for easier line tracking.",
     "maxHeight": "Max Height",
-    "maxHeightDesc": "Limit the maximum height of the reading area to fit your screen."
+    "maxHeightDesc": "Limit the maximum height of the reading area to fit your screen.",
+    "navigation": "Navigation",
+    "tapToTurnPage": "Tap to Turn Page",
+    "tapToTurnPageDesc": "Tap the left or right margin to turn pages. Tapping the center toggles the toolbars."
   },
   "pdf": {
     "sectionTitle": "PDF Reader: Default Settings",

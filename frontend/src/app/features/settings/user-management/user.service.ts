@@ -186,6 +186,7 @@ export interface EbookReaderSetting {
   fontFamily: string;
   isDark: boolean;
   flow: 'paginated' | 'scrolled';
+  tapToTurnPage: boolean;
 }
 
 export interface EpubReaderSetting {
