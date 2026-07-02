@@ -61,7 +61,7 @@ type SummaryLayout = 'list' | 'inline';
               } @else {
                 <button
                   type="button"
-                  class="block w-full truncate text-left font-medium text-current underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  class="block w-full truncate text-left font-medium text-current underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-coarse:py-1"
                   (click)="focusAdjacentSummaryIssue(1)">
                   {{ activeIssueMessage() }}
                 </button>
@@ -75,7 +75,7 @@ type SummaryLayout = 'list' | 'inline';
                   <li>
                     <button
                       type="button"
-                      class="rounded-sm text-left text-current underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                      class="rounded-sm text-left text-current underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-coarse:py-1"
                       (click)="focusIssue(issue)">
                       {{ issueLabel(issue) }}
                     </button>

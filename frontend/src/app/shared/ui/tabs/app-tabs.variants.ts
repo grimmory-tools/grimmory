@@ -1,4 +1,5 @@
 import { cva } from 'class-variance-authority';
+import { controlHeightBySize } from '../control.styles';
 
 export type TabsVariant = 'underline' | 'segmented';
 export type TabsPlacement = 'inline' | 'below';
@@ -38,12 +39,12 @@ export const appTabVariants = cva(
       size: { sm: '', md: '', lg: '' },
     },
     compoundVariants: [
-      { variant: 'underline', size: 'sm', class: 'px-3 py-2 text-xs' },
-      { variant: 'underline', size: 'md', class: 'px-3.5 py-2.5 text-sm' },
-      { variant: 'underline', size: 'lg', class: 'px-4 py-3 text-sm' },
-      { variant: 'segmented', size: 'sm', class: 'h-8 px-3 text-xs' },
-      { variant: 'segmented', size: 'md', class: 'h-9 px-3 text-sm' },
-      { variant: 'segmented', size: 'lg', class: 'h-10 px-4 text-sm' },
+      { variant: 'underline', size: 'sm', class: 'px-3 py-2 text-xs pointer-coarse:min-h-10' },
+      { variant: 'underline', size: 'md', class: 'px-3.5 py-2.5 text-sm pointer-coarse:min-h-11' },
+      { variant: 'underline', size: 'lg', class: 'px-4 py-3 text-sm pointer-coarse:min-h-12' },
+      { variant: 'segmented', size: 'sm', class: `${controlHeightBySize.sm} px-3 text-xs` },
+      { variant: 'segmented', size: 'md', class: `${controlHeightBySize.md} px-3 text-sm` },
+      { variant: 'segmented', size: 'lg', class: `${controlHeightBySize.lg} px-4 text-sm` },
     ],
     defaultVariants: { variant: 'underline', size: 'md' },
   },

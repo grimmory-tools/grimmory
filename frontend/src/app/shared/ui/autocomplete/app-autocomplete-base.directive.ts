@@ -68,7 +68,7 @@ export abstract class AppAutocompleteBaseDirective {
   protected readonly innerInputClass =
     'min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-inherit outline-hidden placeholder:text-text-muted disabled:cursor-default';
   protected readonly surfaceClass = cn(overlayListSurfaceClass, connectedOverlayPanelClass, 'box-border w-full p-0');
-  protected readonly listClass = cn(overlayListRootClass, 'max-h-60 overflow-y-auto p-1');
+  protected readonly listClass = cn(overlayListRootClass, 'max-h-60 overflow-y-auto overscroll-contain p-1');
   protected readonly optionClass = overlayListOptionClass;
   protected readonly emptyClass = overlayListEmptyItemClass;
 

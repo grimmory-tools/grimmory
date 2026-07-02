@@ -172,7 +172,8 @@ export const DATE_PICKER_TEMPLATE = `
             <tr>
               @for (weekday of weekdays(); track weekday.key) {
                 <th scope="col" class="p-0">
-                  <span class="flex size-9 items-center justify-center text-xs font-medium text-text-muted">
+                  <span
+                    class="flex size-9 items-center justify-center text-xs font-medium text-text-muted pointer-coarse:size-11">
                     <span class="sr-only">{{ weekday.long }}</span>
                     <span aria-hidden="true">{{ weekday.narrow }}</span>
                   </span>
@@ -263,7 +264,7 @@ export abstract class AppDatePickerBaseDirective {
   protected readonly popupClass = cn(overlayListSurfaceClass, connectedOverlayPanelClass, 'w-auto p-3');
   protected readonly navButtonClass =
     'flex size-7 items-center justify-center rounded-md border-0 bg-transparent text-text-muted outline-hidden ' +
-    'transition-colors hover:bg-surface-hover hover:text-text-strong ' +
+    'pointer-coarse:size-11 touch-manipulation transition-colors hover:bg-surface-hover hover:text-text-strong ' +
     'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary';
 
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);

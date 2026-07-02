@@ -37,7 +37,7 @@ import { appTextareaVariants } from './app-textarea.variants';
       [attr.minlength]="minLength()"
       [attr.rows]="rows()"
       [style.height]="initialHeight()"
-      [style.min-height]="minHeight()"
+      [style.--app-textarea-min]="minHeight()"
       [value]="value()"
       [disabled]="disabled()"
       [readonly]="readonly()"

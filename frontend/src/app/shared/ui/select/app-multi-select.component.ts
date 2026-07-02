@@ -72,18 +72,13 @@ import { type SelectOption } from './app-select.options';
           <button
             type="button"
             [attr.aria-label]="'shared.ui.select.clearSelection' | transloco"
-            class="relative z-20 flex h-full shrink-0 items-center justify-center border-0 bg-transparent p-0 text-text-muted transition-colors hover:text-text-strong"
-            [class.w-9]="variant() !== 'bare'"
-            [class.w-7]="variant() === 'bare'"
+            [class]="clearButtonClass()"
             (click)="clear($event)">
             <svg lucideX class="size-4" aria-hidden="true"></svg>
           </button>
         }
 
-        <span
-          class="flex h-full shrink-0 items-center justify-center text-text-muted"
-          [class.w-9]="variant() !== 'bare'"
-          [class.w-7]="variant() === 'bare'">
+        <span [class]="indicatorClass()">
           @if (pending()) {
             <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
           } @else {
@@ -107,7 +102,7 @@ import { type SelectOption } from './app-select.options';
           (attach)="onOverlayAttach()">
           <div [class]="surfaceClass">
             @if (filter()) {
-              <div class="flex h-9 items-center border-b border-border pl-3 pr-2 text-text-muted">
+              <div [class]="filterRowClass">
                 <input
                   #filterInput
                   type="text"
@@ -116,7 +111,7 @@ import { type SelectOption } from './app-select.options';
                   (keydown)="onFilterKeydown($event)"
                   [placeholder]="filterPlaceholder() || ('shared.ui.select.search' | transloco)"
                   [readonly]="readonly()"
-                  class="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-2 text-sm text-text-strong outline-hidden placeholder:text-text-muted focus:outline-hidden" />
+                  [class]="filterInputClass" />
                 <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
               </div>
             }

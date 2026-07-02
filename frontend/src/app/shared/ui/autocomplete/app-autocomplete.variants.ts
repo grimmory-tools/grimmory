@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { neutralControlBorderClass } from '../control.styles';
+import { controlMinHeightBySize, neutralControlBorderClass } from '../control.styles';
 
 export const autocompleteBoxVariants = cva(
   `flex w-full flex-wrap items-center gap-1.5 rounded-md border ${neutralControlBorderClass} bg-card text-text-strong shadow-control outline-hidden ` +
@@ -8,9 +8,9 @@ export const autocompleteBoxVariants = cva(
   {
     variants: {
       size: {
-        sm: 'min-h-8 px-3 py-1 text-xs',
-        md: 'min-h-9 px-3 py-1 text-sm',
-        lg: 'min-h-10 px-4 py-1.5 text-sm',
+        sm: `${controlMinHeightBySize.sm} px-3 py-1 text-xs pointer-coarse:text-base`,
+        md: `${controlMinHeightBySize.md} px-3 py-1 text-sm pointer-coarse:text-base`,
+        lg: `${controlMinHeightBySize.lg} px-4 py-1.5 text-sm pointer-coarse:text-base`,
       },
       disabled: { true: 'pointer-events-none opacity-50', false: '' },
       invalid: {

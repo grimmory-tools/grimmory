@@ -22,8 +22,8 @@ type AppInputType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url';
 
 const ADORNMENT_CLASS = 'inline-flex shrink-0 items-center text-text-muted empty:hidden [&>svg]:size-4';
 const REVEAL_TOGGLE_CLASS =
-  'inline-flex size-7 shrink-0 items-center justify-center rounded-md text-text-muted ' +
-  'transition-colors hover:text-text-strong ' +
+  'inline-flex size-7 shrink-0 items-center justify-center rounded-md text-text-muted -mr-1.5 pointer-coarse:size-10 pointer-coarse:-mr-3 ' +
+  'touch-manipulation transition-colors hover:text-text-strong ' +
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ' +
   'disabled:pointer-events-none disabled:opacity-50';
 

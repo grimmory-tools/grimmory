@@ -20,7 +20,10 @@ import { APP_FIELD } from '../field/app-field.context';
 const STAR_PATH =
   'M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z';
 
-const STAR_SIZES: Record<'sm' | 'md' | 'lg', string> = { sm: '14px', md: '18px', lg: '22px' };
+type RatingSize = 'sm' | 'md' | 'lg';
+
+const STAR_SIZES: Record<RatingSize, string> = { sm: '14px', md: '18px', lg: '22px' };
+const STAR_SIZES_COARSE: Record<RatingSize, string> = { sm: '18px', md: '22px', lg: '28px' };
 
 interface Star {
   readonly value: number;
@@ -47,7 +50,8 @@ interface Star {
         [attr.aria-invalid]="showInvalid() ? 'true' : null"
         [attr.aria-busy]="pending() ? 'true' : null"
         [class.opacity-50]="disabled()"
-        [style.--star-size]="starSize()">
+        [style.--star-size-fine]="starSize()"
+        [style.--star-size-coarse]="starSizeCoarse()">
         @for (star of starList(); track $index) {
           <span class="star" [style.--fill]="star.fill + '%'">
             <svg class="star-base" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="path" /></svg>
@@ -67,9 +71,11 @@ interface Star {
         [class.expandable]="expandable()"
         [class.expanded]="isExpanded()"
         [class.opacity-50]="disabled()"
-        [style.--star-size]="starSize()"
-        (mouseenter)="onEnter()"
-        (mouseleave)="onLeave()">
+        [style.--star-size-fine]="starSize()"
+        [style.--star-size-coarse]="starSizeCoarse()"
+        (pointerdown)="onPointerDown($event)"
+        (pointerenter)="onEnter($event)"
+        (pointerleave)="onLeave($event)">
         <input
           #input
           type="range"
@@ -88,7 +94,8 @@ interface Star {
           [attr.aria-busy]="pending() ? 'true' : null"
           [attr.aria-valuetext]="valueText()"
           (input)="onRange(input.value)"
-          (change)="touched.set(true)" />
+          (change)="touched.set(true)"
+          (blur)="onRangeBlur()" />
         @for (star of starList(); track $index) {
           <button
             type="button"
@@ -117,11 +124,27 @@ interface Star {
   `,
   styles: `
     .rating {
+      --star-size: var(--star-size-fine);
       position: relative;
       display: inline-flex;
       align-items: center;
       gap: 2px;
       line-height: 0;
+    }
+    @media (pointer: coarse) {
+      .rating {
+        --star-size: var(--star-size-coarse);
+      }
+      .editable .star:not(.hidden-star) {
+        width: calc(var(--star-size) + 4px);
+        height: calc(var(--star-size) + 18px);
+      }
+      .editable .star svg {
+        inset: 50% auto auto 50%;
+        width: var(--star-size);
+        height: var(--star-size);
+        transform: translate(-50%, -50%);
+      }
     }
     .editable:has(.range:focus-visible) {
       outline: 2px solid var(--color-primary);
@@ -198,7 +221,7 @@ export class AppRatingComponent implements FormValueControl<number> {
   readonly readonly = input(false, { transform: booleanAttribute });
   readonly expandable = input(false, { transform: booleanAttribute });
   readonly showValue = input(false, { transform: booleanAttribute });
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly size = input<RatingSize>('md');
 
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -213,10 +236,12 @@ export class AppRatingComponent implements FormValueControl<number> {
   protected readonly path = STAR_PATH;
   protected readonly formatRating = formatRating;
   protected readonly starSize = computed(() => STAR_SIZES[this.size()]);
+  protected readonly starSizeCoarse = computed(() => STAR_SIZES_COARSE[this.size()]);
   protected readonly step = computed(() => (this.expandable() ? 0.5 : 1));
 
   private readonly expanded = signal(false);
   private readonly hoverValue = signal<number | null>(null);
+  private lastPointerType = 'mouse';
   protected readonly isExpanded = computed(() => this.expandable() && this.expanded());
   protected readonly preview = computed(() => this.hoverValue() ?? this.value());
 
@@ -275,23 +300,33 @@ export class AppRatingComponent implements FormValueControl<number> {
     const nextValue = Number(raw);
     if (!Number.isFinite(nextValue)) return;
 
+    if (this.expandable() && !this.disabled()) this.expanded.set(true);
+
     this.value.set(Math.max(0, Math.min(this.stars(), nextValue)));
   }
 
-  protected onEnter(): void {
-    if (this.expandable() && !this.disabled()) this.expanded.set(true);
+  protected onRangeBlur(): void {
+    this.touched.set(true);
+    this.collapse();
   }
 
-  protected onLeave(): void {
-    if (!this.expandable()) return;
-    this.expanded.set(false);
-    this.hoverValue.set(null);
+  protected onEnter(event: PointerEvent): void {
+    if (event.pointerType === 'mouse' && this.expandable() && !this.disabled()) this.expanded.set(true);
+  }
+
+  protected onLeave(event: PointerEvent): void {
+    if (event.pointerType !== 'mouse') return;
+    this.collapse();
   }
 
   protected onStarHover(value: number): void {
     if (this.disabled()) return;
     if (this.expandable() && !this.isExpanded()) return;
     this.hoverValue.set(value);
+  }
+
+  protected onPointerDown(event: PointerEvent): void {
+    this.lastPointerType = event.pointerType || 'mouse';
   }
 
   protected onStarClick(value: number): void {
@@ -303,12 +338,17 @@ export class AppRatingComponent implements FormValueControl<number> {
       return;
     }
 
-    this.value.set(this.value() === value ? 0 : value);
+    const nextValue = this.value() === value ? 0 : value;
+    this.value.set(nextValue);
+    this.hoverValue.set(nextValue > 0 ? nextValue : null);
 
-    if (this.expandable()) {
-      this.expanded.set(false);
-      this.hoverValue.set(null);
-    }
+    if (this.lastPointerType !== 'mouse') this.collapse();
+  }
+
+  private collapse(): void {
+    if (!this.expandable()) return;
+    this.expanded.set(false);
+    this.hoverValue.set(null);
   }
 }
 

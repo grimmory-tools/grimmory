@@ -99,7 +99,7 @@ export class AppAccordionComponent {
     `${neutralControlBorderClass} bg-card shadow-control`;
   protected readonly headerRowClass = 'relative flex items-stretch';
   protected readonly triggerClass =
-    'relative flex h-full w-full cursor-pointer select-none items-center px-3 py-2.5 text-sm font-medium text-text-strong outline-hidden ' +
+    'relative flex h-full w-full cursor-pointer select-none items-center px-3 py-2.5 text-sm font-medium text-text-strong outline-hidden pointer-coarse:min-h-12 touch-manipulation ' +
     'transition-colors hover:bg-surface-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ' +
     'aria-disabled:cursor-default aria-disabled:opacity-50';
   protected readonly labelClass = 'min-w-0 flex-1 pr-7 text-left';
