@@ -1,0 +1,64 @@
+{
+  "loading": "",
+  "untitled": "",
+  "unknownAuthor": "",
+  "coverAlt": "",
+  "header": {
+    "backTooltip": "",
+    "bookmarksTooltip": "",
+    "chaptersTracksTooltip": ""
+  },
+  "trackInfo": {
+    "trackOf": "",
+    "chapterOf": ""
+  },
+  "controls": {
+    "previousTrackTooltip": "",
+    "previousChapterTooltip": "",
+    "rewindTooltip": "",
+    "forwardTooltip": "",
+    "nextTrackTooltip": "",
+    "nextChapterTooltip": ""
+  },
+  "extra": {
+    "addBookmark": "",
+    "sleepTimer": "",
+    "endOfChapter": ""
+  },
+  "details": {
+    "narratedBy": "",
+    "kbps": "",
+    "totalDuration": ""
+  },
+  "sidebar": {
+    "tracks": "",
+    "chapters": ""
+  },
+  "bookmarks": {
+    "title": "",
+    "empty": "",
+    "emptyHint": "",
+    "deleteTooltip": "",
+    "bookmarkAt": ""
+  },
+  "sleepTimerMenu": {
+    "minutes15": "",
+    "minutes30": "",
+    "minutes45": "",
+    "minutes60": "",
+    "endOfChapter": "",
+    "cancelTimer": ""
+  },
+  "toast": {
+    "loadFailed": "",
+    "audioLoadFailed": "",
+    "sleepTimerSet": "",
+    "sleepTimerEndOfChapter": "",
+    "sleepTimerStopped": "",
+    "bookmarkAdded": "",
+    "bookmarkExists": "",
+    "bookmarkExistsDetail": "",
+    "bookmarkFailed": "",
+    "bookmarkDeleted": ""
+  }
+}
