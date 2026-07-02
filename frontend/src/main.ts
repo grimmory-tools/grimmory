@@ -24,7 +24,7 @@ import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transl
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { provideLucideConfig } from '@lucide/angular';
 
-document.addEventListener('touchstart', () => {}, { passive: true });
+document.addEventListener('touchstart', () => undefined, { passive: true });
 
 bootstrapApplication(AppComponent, {
   providers: [
