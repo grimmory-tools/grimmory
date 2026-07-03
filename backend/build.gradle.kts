@@ -9,7 +9,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.1.Final"
+    id("org.hibernate.orm") version "7.4.3.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
     jacoco
 }
@@ -169,7 +169,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.9.0")
+    implementation("org.flywaydb:flyway-mysql:12.10.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -197,7 +197,7 @@ dependencies {
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.23")
+    implementation("com.github.RouHim:jaudiotagger:2.0.24")
 
     // --- Archive Support ---
     implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
