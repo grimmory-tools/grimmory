@@ -73,7 +73,7 @@
     "@tailwindcss/postcss": "^4.3.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^24.13.2",
+    "@types/node": "^26.0.1",
     "@vitest/coverage-v8": "^4.1.9",
     "angular-eslint": "^21.4.0",
     "eslint": "^10.6.0",
