@@ -3,6 +3,7 @@ CREATE TEMPORARY TABLE prime_to_lucide_icon_map (
   prime_icon VARCHAR(64) NOT NULL PRIMARY KEY,
   lucide_icon VARCHAR(64) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+-- Explicitly add character set / collation to handle improperly configured servers.
 
 INSERT INTO prime_to_lucide_icon_map (prime_icon, lucide_icon) VALUES
     ('address-book', 'contact'),
