@@ -742,13 +742,25 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     if (s1.length === 0 || s2.length === 0) return 0.0;
 
     const matchWindow = Math.max(s1.length, s2.length) / 2 - 1;
+    const { matches, s1Matches, s2Matches } = this.findMatches(s1, s2, matchWindow);
+
+    if (matches === 0) return 0.0;
+
+    const transpositions = this.countTranspositions(s1, s2, s1Matches, s2Matches);
+
+    // Jaro formula: (m/|s1| + m/|s2| + (m - t/2)/m) / 3
+    return (matches / s1.length + matches / s2.length + (matches - transpositions / 2) / matches) / 3.0;
+  }
+
+  private findMatches(s1: string, s2: string, matchWindow: number): {
+    matches: number;
+    s1Matches: boolean[];
+    s2Matches: boolean[];
+  } {
     const s1Matches = new Array(s1.length).fill(false);
     const s2Matches = new Array(s2.length).fill(false);
-
     let matches = 0;
-    let transpositions = 0;
 
-    // Find matches
     for (let i = 0; i < s1.length; i++) {
       const start = Math.max(0, i - matchWindow);
       const end = Math.min(i + matchWindow + 1, s2.length);
@@ -762,10 +774,13 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (matches === 0) return 0.0;
+    return { matches, s1Matches, s2Matches };
+  }
 
-    // Find transpositions
+  private countTranspositions(s1: string, s2: string, s1Matches: boolean[], s2Matches: boolean[]): number {
+    let transpositions = 0;
     let k = 0;
+
     for (let i = 0; i < s1.length; i++) {
       if (!s1Matches[i]) continue;
       while (!s2Matches[k]) k++;
@@ -773,7 +788,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       k++;
     }
 
-    // Jaro formula: (m/|s1| + m/|s2| + (m - t/2)/m) / 3
-    return (matches / s1.length + matches / s2.length + (matches - transpositions / 2) / matches) / 3.0;
+    return transpositions;
   }
 }
