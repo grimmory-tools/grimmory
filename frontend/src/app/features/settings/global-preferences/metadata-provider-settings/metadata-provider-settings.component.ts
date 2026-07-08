@@ -141,13 +141,6 @@ export class MetadataProviderSettingsComponent {
     this.comicvineToken = newToken;
   }
 
-  onGoogleApiKeyChange(newApiKey: string): void {
-    this.googleApiKey = newApiKey;
-    if (!this.googleApiKeyConfigured) {
-      this.googleEnabled = false;
-    }
-  }
-
   get googleApiKeyConfigured(): boolean {
     return this.googleApiKey.trim().length > 0;
   }

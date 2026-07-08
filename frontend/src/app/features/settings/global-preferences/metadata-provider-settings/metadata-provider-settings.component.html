@@ -71,14 +71,13 @@
                   </div>
                 }
                 <div class="config-field">
-                  <span class="config-label">{{ t('apiKeyRequired') }}</span>
+                  <span class="config-label">{{ t('googleApiLabel') }}</span>
                   <p class="config-description">{{ t('googleApiDesc') }}</p>
                   <input
                     type="text"
                     pInputText
                     [placeholder]="t('googleApiPlaceholder')"
                     [(ngModel)]="googleApiKey"
-                    (ngModelChange)="onGoogleApiKeyChange($event)"
                     class="config-input"/>
                 </div>
               </div>

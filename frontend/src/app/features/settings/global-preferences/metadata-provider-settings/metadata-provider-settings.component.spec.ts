@@ -59,15 +59,6 @@ describe('MetadataProviderSettingsComponent', () => {
     expect(component.googleApiKeyConfigured).toBe(true);
   });
 
-  it('disables Google Books when the API key is cleared', () => {
-    component.googleEnabled = true;
-
-    component.onGoogleApiKeyChange('   ');
-
-    expect(component.googleEnabled).toBe(false);
-    expect(component.googleApiKeyConfigured).toBe(false);
-  });
-
   it('persists Google Books as enabled when an API key is configured', () => {
     component.googleEnabled = true;
     component.googleApiKey = '  configured-key  ';
