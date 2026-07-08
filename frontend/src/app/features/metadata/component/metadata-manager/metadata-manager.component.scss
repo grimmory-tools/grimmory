@@ -457,3 +457,118 @@
 .full-width-input {
   width: 100%;
 }
+
+// Duplicates styling
+.duplicates-cell {
+  text-align: center;
+
+  .duplicate-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 16px;
+    background: rgb(251 146 60 / 10%);
+    border: 1px solid rgb(251 146 60 / 30%);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgb(251 146 60 / 20%);
+      border-color: rgb(251 146 60 / 50%);
+    }
+
+    .duplicate-icon {
+      color: rgb(251 146 60 / 80%);
+      font-size: 0.875rem;
+    }
+
+    .duplicate-count {
+      font-weight: 600;
+      color: rgb(251 146 60 / 90%);
+      font-size: 0.875rem;
+    }
+
+    .expand-icon {
+      color: rgb(251 146 60 / 70%);
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+    }
+  }
+
+  .no-duplicates {
+    opacity: 0.4;
+    font-size: 0.875rem;
+  }
+}
+
+.has-duplicates {
+  background: rgb(251 146 60 / 3%);
+}
+
+.expanded-row {
+  background: rgb(251 146 60 / 5%);
+  border-top: 1px solid rgb(251 146 60 / 20%);
+
+  td {
+    padding: 0 !important;
+  }
+
+  .duplicates-detail {
+    padding: 1rem 1.5rem;
+    width: 100%;
+
+    .duplicates-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgb(251 146 60 / 20%);
+
+      h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+
+    .duplicates-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .duplicate-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        background: var(--surface-ground);
+        border: 1px solid rgb(128 128 128 / 15%);
+        border-radius: 6px;
+        transition: all 0.2s;
+
+        &:hover {
+          background: var(--surface-hover);
+          border-color: var(--p-primary-color);
+          transform: translateX(4px);
+        }
+
+        .duplicate-name {
+          font-weight: 500;
+          color: var(--p-text-color);
+        }
+
+        .duplicate-books {
+          opacity: 0.7;
+          font-size: 0.875rem;
+          color: var(--p-text-color);
+        }
+      }
+    }
+  }
+}

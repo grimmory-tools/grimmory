@@ -101,6 +101,15 @@
                         <p-sortIcon field="count"></p-sortIcon>
                       </div>
                     </th>
+                    @if (tab.type === 'authors') {
+                      <th style="width: 10rem" pSortableColumn="probableDuplicates.length">
+                        <div class="header-content">
+                          <i class="pi pi-exclamation-triangle"></i>
+                          <span>{{ t('duplicatesColumn') }}</span>
+                          <p-sortIcon field="probableDuplicates.length"></p-sortIcon>
+                        </div>
+                      </th>
+                    }
                     <th class="actions-header">
                       <div class="header-content">
                         <i class="pi pi-cog"></i>
@@ -110,7 +119,7 @@
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
-                  <tr>
+                  <tr [class.has-duplicates]="tab.type === 'authors' && item.probableDuplicates && item.probableDuplicates.length > 0">
                     <td>
                       <p-checkbox
                         [(ngModel)]="item.selected"
@@ -128,6 +137,19 @@
                       </span>
                     </td>
                     <td>{{ item.count }}</td>
+                    @if (tab.type === 'authors') {
+                      <td class="duplicates-cell">
+                        @if (item.probableDuplicates && item.probableDuplicates.length > 0) {
+                          <div class="duplicate-indicator" (click)="toggleRowExpansion(item)" role="button" tabindex="0">
+                            <i class="pi pi-exclamation-triangle duplicate-icon"></i>
+                            <span class="duplicate-count">{{ item.probableDuplicates.length }}</span>
+                            <i class="pi expand-icon" [class.pi-chevron-down]="!item.isExpanded" [class.pi-chevron-up]="item.isExpanded"></i>
+                          </div>
+                        } @else {
+                          <span class="no-duplicates">-</span>
+                        }
+                      </td>
+                    }
                     <td class="actions-cell">
                       <p-button
                         icon="pi pi-filter"
@@ -155,6 +177,32 @@
                         (onClick)="openDeleteDialog(tab.type, item)"></p-button>
                     </td>
                   </tr>
+                  @if (tab.type === 'authors' && item.isExpanded && item.probableDuplicates && item.probableDuplicates.length > 0) {
+                    <tr class="expanded-row">
+                      <td colspan="5">
+                        <div class="duplicates-detail">
+                          <div class="duplicates-header">
+                            <h4>{{ t('possibleDuplicates') }}</h4>
+                            <p-button
+                              [label]="t('selectAllDuplicates')"
+                              icon="pi pi-check-square"
+                              severity="contrast"
+                              size="small"
+                              [outlined]="true"
+                              (onClick)="selectAllDuplicates(tab.type, item)"></p-button>
+                          </div>
+                          <div class="duplicates-list">
+                            @for (duplicate of item.probableDuplicates; track duplicate) {
+                              <div class="duplicate-item">
+                                <span class="duplicate-name">{{ duplicate }}</span>
+                                <span class="duplicate-books">({{ getMetadataItems(tab.type).find(i => i.value === duplicate)?.count || 0 }} {{ t('books') }})</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
                 </ng-template>
               </p-table>
             </div>
