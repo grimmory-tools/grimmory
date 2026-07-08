@@ -24,6 +24,8 @@ interface MetadataItem {
   count: number;
   bookIds: number[];
   selected: boolean;
+  probableDuplicates?: string[];
+  isExpanded?: boolean;
 }
 
 type MetadataType = 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages';
@@ -203,6 +205,13 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     this.series = this.mapToItems(seriesMap);
     this.publishers = this.mapToItems(publishersMap);
     this.languages = this.mapToItems(languagesMap);
+
+    // Compute duplicates for authors (and optionally series)
+    setTimeout(() => {
+      this.enrichWithDuplicates('authors');
+      // Uncomment if you want duplicate detection for series as well:
+      // this.enrichWithDuplicates('series');
+    }, 0);
   }
 
   private addToMap(map: Map<string, Set<number>>, values: string[] | undefined, bookId: number) {
@@ -619,5 +628,152 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       item.bookIds.forEach(bookId => uniqueBookIds.add(bookId));
     });
     return uniqueBookIds.size;
+  }
+
+  toggleRowExpansion(item: MetadataItem): void {
+    item.isExpanded = !item.isExpanded;
+  }
+
+  selectAllDuplicates(type: MetadataType, item: MetadataItem): void {
+    if (!item.probableDuplicates || item.probableDuplicates.length === 0) return;
+
+    // Select the current item and all its duplicates
+    this[type].forEach(metadataItem => {
+      if (metadataItem.value === item.value ||
+          item.probableDuplicates!.includes(metadataItem.value)) {
+        metadataItem.selected = true;
+      }
+    });
+
+    this.updateSelectAllState(type);
+  }
+
+  private enrichWithDuplicates(type: MetadataType): void {
+    const items = this[type];
+    const THRESHOLD = 0.85;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const duplicates: string[] = [];
+
+      for (let j = 0; j < items.length; j++) {
+        if (i === j) continue;
+
+        const isSimilar = type === 'authors'
+          ? this.areAuthorsSimilar(item.value, items[j].value, THRESHOLD)
+          : this.calculateJaroWinkler(item.value.toLowerCase(), items[j].value.toLowerCase()) >= THRESHOLD;
+
+        if (isSimilar) {
+          duplicates.push(items[j].value);
+        }
+      }
+
+      item.probableDuplicates = duplicates;
+      item.isExpanded = false;
+    }
+  }
+
+  private areAuthorsSimilar(name1: string, name2: string, threshold: number): boolean {
+    const lower1 = name1.toLowerCase();
+    const lower2 = name2.toLowerCase();
+
+    // Parse names into parts (first, middle, last)
+    const parts1 = lower1.split(/\s+/).filter(p => p.length > 0);
+    const parts2 = lower2.split(/\s+/).filter(p => p.length > 0);
+
+    // If both names are single words, use simple Jaro-Winkler
+    if (parts1.length === 1 && parts2.length === 1) {
+      return this.calculateJaroWinkler(lower1, lower2) >= threshold;
+    }
+
+    // If one is single-word and the other is multi-part, they should not match
+    // This prevents "Molière" from matching "Molière Hubert Carrier"
+    // (different people despite sharing a name component)
+    if (parts1.length === 1 || parts2.length === 1) {
+      return false;
+    }
+
+    // For multi-part names, check if both first AND last names are similar
+    // This prevents "Alessandro Baricco" from matching "Alessandro Volta"
+    const firstName1 = parts1[0];
+    const firstName2 = parts2[0];
+    const lastName1 = parts1[parts1.length - 1];
+    const lastName2 = parts2[parts2.length - 1];
+
+    const firstNameSimilarity = this.calculateJaroWinkler(firstName1, firstName2);
+    const lastNameSimilarity = this.calculateJaroWinkler(lastName1, lastName2);
+
+    // Both first and last names must meet a minimum threshold
+    // First name needs to be at least 0.75 similar, last name at least 0.75 similar
+    // And the average should meet the main threshold
+    const MIN_PART_THRESHOLD = 0.75;
+    const averageSimilarity = (firstNameSimilarity + lastNameSimilarity) / 2;
+
+    return firstNameSimilarity >= MIN_PART_THRESHOLD &&
+           lastNameSimilarity >= MIN_PART_THRESHOLD &&
+           averageSimilarity >= threshold;
+  }
+
+  private calculateJaroWinkler(s1: string, s2: string): number {
+    const jaro = this.calculateJaro(s1, s2);
+
+    // If the Jaro similarity is below a threshold, don't apply Winkler bonus
+    if (jaro < 0.7) {
+      return jaro;
+    }
+
+    // Calculate common prefix length (up to 4 characters)
+    let prefixLength = 0;
+    const maxPrefix = Math.min(4, s1.length, s2.length);
+    for (let i = 0; i < maxPrefix; i++) {
+      if (s1[i] === s2[i]) {
+        prefixLength++;
+      } else {
+        break;
+      }
+    }
+
+    // Jaro-Winkler formula: jw = jaro + (prefixLength * 0.1 * (1 - jaro))
+    return jaro + (prefixLength * 0.1 * (1 - jaro));
+  }
+
+  private calculateJaro(s1: string, s2: string): number {
+    if (s1 === s2) return 1.0;
+    if (s1.length === 0 || s2.length === 0) return 0.0;
+
+    const matchWindow = Math.max(s1.length, s2.length) / 2 - 1;
+    const s1Matches = new Array(s1.length).fill(false);
+    const s2Matches = new Array(s2.length).fill(false);
+
+    let matches = 0;
+    let transpositions = 0;
+
+    // Find matches
+    for (let i = 0; i < s1.length; i++) {
+      const start = Math.max(0, i - matchWindow);
+      const end = Math.min(i + matchWindow + 1, s2.length);
+
+      for (let j = start; j < end; j++) {
+        if (s2Matches[j] || s1[i] !== s2[j]) continue;
+        s1Matches[i] = true;
+        s2Matches[j] = true;
+        matches++;
+        break;
+      }
+    }
+
+    if (matches === 0) return 0.0;
+
+    // Find transpositions
+    let k = 0;
+    for (let i = 0; i < s1.length; i++) {
+      if (!s1Matches[i]) continue;
+      while (!s2Matches[k]) k++;
+      if (s1[i] !== s2[k]) transpositions++;
+      k++;
+    }
+
+    // Jaro formula: (m/|s1| + m/|s2| + (m - t/2)/m) / 3
+    return (matches / s1.length + matches / s2.length + (matches - transpositions / 2) / matches) / 3.0;
   }
 }
