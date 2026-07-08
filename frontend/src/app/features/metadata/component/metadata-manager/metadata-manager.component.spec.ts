@@ -1,16 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
 // Test the duplicate detection algorithms directly
-// These are private methods but we access them via type casting for testing
+// These are standalone test implementations of the algorithms
 
-// Helper to access private methods
-type ComponentType = {
-  calculateJaro: (s1: string, s2: string) => number;
-  calculateJaroWinkler: (s1: string, s2: string) => number;
-  areAuthorsSimilar: (name1: string, name2: string, threshold: number) => boolean;
-};
-
-// Create test implementations of the algorithms
+// Test implementations of the algorithms
 const calculateJaro = (s1: string, s2: string): number => {
   if (s1 === s2) return 1.0;
   if (s1.length === 0 || s2.length === 0) return 0.0;
