@@ -23,6 +23,7 @@
                 [title]="book.metadata?.title"
                 [authors]="book.metadata?.authors ?? []"
                 size="lg"
+                [preview]="true"
                 [alt]="t('ebookCover')" />
               @if (isUploading) {
                 <p-progressSpinner class="upload-spinner"></p-progressSpinner>
@@ -99,6 +100,7 @@
                 [title]="book.metadata?.title"
                 [authors]="book.metadata?.authors ?? []"
                 size="lg"
+                [preview]="true"
                 [alt]="t('audiobookCover')" />
               @if (isUploading) {
                 <p-progressSpinner class="upload-spinner"></p-progressSpinner>
