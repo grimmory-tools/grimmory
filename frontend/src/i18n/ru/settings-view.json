@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "По возрастанию",
             "desc": "По убыванию"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Настройки вида и сортировки библиотеки и полок",
