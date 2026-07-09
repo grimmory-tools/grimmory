@@ -9,7 +9,7 @@ import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideSearch, LucideX } from '@lucide/angular';
 
-import { CoverPlaceholderComponent } from '../../shared/components/cover-generator/cover-generator.component';
+import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 import { MOBILE_SHELL_ACTIVE_PROPERTY } from '../../shared/layout/layout.service';
 import { PaletteItem } from './command-palette.model';
@@ -18,7 +18,7 @@ import { CommandPaletteService } from './command-palette.service';
 @Component({
   selector: 'app-command-palette',
   standalone: true,
-  imports: [A11yModule, OverlayModule, FormsModule, TranslocoDirective, TranslocoPipe, IconDisplayComponent, CoverPlaceholderComponent, LucideSearch, LucideX],
+  imports: [A11yModule, OverlayModule, FormsModule, TranslocoDirective, TranslocoPipe, IconDisplayComponent, CoverComponent, LucideSearch, LucideX],
   templateUrl: './command-palette.component.html',
   styleUrl: './command-palette.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

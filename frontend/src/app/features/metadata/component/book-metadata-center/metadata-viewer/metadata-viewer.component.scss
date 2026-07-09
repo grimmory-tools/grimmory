@@ -65,11 +65,7 @@
 }
 
 .cover-progress-bar-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
+  margin-top: 0.4375rem;
   border-radius: 9999px;
   overflow: hidden;
   display: flex;
@@ -78,6 +74,8 @@
 }
 
 .cover-progress-bar {
+  --p-progressbar-background: var(--color-surface-300);
+
   z-index: 2;
   pointer-events: none;
   height: 6px;

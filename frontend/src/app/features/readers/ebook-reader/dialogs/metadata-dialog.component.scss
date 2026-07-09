@@ -131,27 +131,10 @@
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
   max-height: 300px;
-  object-fit: cover;
 
   @media (width <= 768px) {
     max-height: 240px;
   }
-}
-
-.cover-placeholder {
-  width: 100%;
-  aspect-ratio: 2/3;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--color-white) 4%, transparent) 0%, color-mix(in srgb, var(--color-white) 1%, transparent) 100%);
-  border: 2px dashed color-mix(in srgb, var(--color-white) 12%, transparent);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @media (width <= 768px) {
-    max-height: 240px;
-  }
-
 }
 
 .metadata-section {

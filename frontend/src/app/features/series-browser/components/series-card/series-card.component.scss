@@ -40,7 +40,6 @@
   position: absolute;
   width: calc(105px * var(--card-scale, 1));
   height: calc(152px * var(--card-scale, 1));
-  object-fit: cover;
   border-radius: 4px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
   transition: transform 0.3s ease, width 0.2s ease, height 0.2s ease;

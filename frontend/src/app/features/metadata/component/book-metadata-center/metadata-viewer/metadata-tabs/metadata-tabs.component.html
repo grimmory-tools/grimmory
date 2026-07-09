@@ -53,34 +53,28 @@
               <div class="cover-label">
                 <i class="pi pi-book"></i> {{ t('ebookCover') }}
               </div>
-              @if (urlHelper.getCoverUrl(currentBook.id, currentBook.metadata?.coverUpdatedOn); as coverUrl) {
-                <p-image
-                  [src]="coverUrl"
-                  [alt]="t('ebookCover')"
-                  width="200"
-                  appendTo="body"
-                  [preview]="true">
-                </p-image>
-              } @else {
-                <app-cover-placeholder style="width: 200px; height: 280px;" [title]="currentBook.metadata?.title ?? ''" [author]="(currentBook.metadata?.authors ?? []).join(', ')" size="lg" />
-              }
+              <app-cover
+                style="width: 200px; height: 280px;"
+                [src]="urlHelper.getCoverUrl(currentBook.id, currentBook.metadata?.coverUpdatedOn)"
+                [title]="currentBook.metadata?.title"
+                [authors]="currentBook.metadata?.authors ?? []"
+                size="lg"
+                [preview]="true"
+                [alt]="t('ebookCover')" />
             </div>
             <div class="cover-item">
               <div class="cover-label audiobook">
                 <i class="pi pi-headphones"></i> {{ t('audiobookCover') }}
               </div>
-              @if (urlHelper.getAudiobookCoverUrl(currentBook.id, currentBook.metadata?.audiobookCoverUpdatedOn); as coverUrl) {
-                <p-image
-                  [src]="coverUrl"
-                  [alt]="t('audiobookCover')"
-                  width="200"
-                  appendTo="body"
-                  [preview]="true"
-                  class="square-cover">
-                </p-image>
-              } @else {
-                <app-cover-placeholder style="width: 200px; height: 200px;" [title]="currentBook.metadata?.title ?? ''" [author]="(currentBook.metadata?.authors ?? []).join(', ')" size="lg" />
-              }
+              <app-cover
+                class="square-cover"
+                style="width: 200px; height: 200px;"
+                [src]="urlHelper.getAudiobookCoverUrl(currentBook.id, currentBook.metadata?.audiobookCoverUpdatedOn)"
+                [title]="currentBook.metadata?.title"
+                [authors]="currentBook.metadata?.authors ?? []"
+                size="lg"
+                [preview]="true"
+                [alt]="t('audiobookCover')" />
             </div>
           </div>
         </div>

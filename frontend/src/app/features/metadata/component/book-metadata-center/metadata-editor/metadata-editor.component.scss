@@ -6,14 +6,6 @@
   }
 }
 
-::ng-deep .cover-item p-image {
-  width: 150px;
-}
-
-::ng-deep p-image img {
-  margin: 0 auto;
-}
-
 ::ng-deep .p-autocomplete .p-chip .p-chip-label {
   font-size: 12px;
 }
@@ -142,12 +134,8 @@ label {
   position: relative;
   flex-shrink: 0;
 
-  &.audiobook-cover-section {
-    ::ng-deep .square-cover img {
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 0.4375rem;
-    }
+  .square-cover {
+    border-radius: 0.4375rem;
   }
 }
 

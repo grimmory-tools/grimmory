@@ -79,12 +79,13 @@
 }
 
 .cover-thumbnail {
+  width: calc(1.75rem * 5 / 7);
   height: 1.75rem;
   aspect-ratio: 5 / 7;
-  object-fit: cover;
   border-radius: 4px;
 
   &.square-cover {
+    width: 1.75rem;
     aspect-ratio: 1 / 1;
   }
 }
