@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "升序",
             "desc": "降序"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "书库和书架视图与排序偏好",
