@@ -79,7 +79,7 @@
                 scrollHeight="flex">
                 <ng-template pTemplate="header">
                   <tr>
-                    <th style="width: 2.625rem">
+                    <th scope="col" style="width: 2.625rem">
                       <div class="header-content">
                         <p-checkbox
                           [binary]="true"
@@ -87,14 +87,14 @@
                           (ngModelChange)="setSelectAll(tab.selectAllKey, $event); toggleAll(tab.type, $event, dataTable.filteredValue || dataTable.value)"></p-checkbox>
                       </div>
                     </th>
-                    <th pSortableColumn="value">
+                    <th scope="col" pSortableColumn="value">
                       <div class="header-content">
                         <i class="pi {{ tab.icon }}"></i>
                         <span>{{ t(tab.labelKey) }}</span>
                         <p-sortIcon field="value"></p-sortIcon>
                       </div>
                     </th>
-                    <th pSortableColumn="count">
+                    <th scope="col" pSortableColumn="count">
                       <div class="header-content">
                         <i class="pi pi-book"></i>
                         <span>{{ t('booksColumn') }}</span>
@@ -102,7 +102,7 @@
                       </div>
                     </th>
                     @if (tab.type === 'authors') {
-                      <th style="width: 10rem" pSortableColumn="probableDuplicates.length">
+                      <th scope="col" style="width: 10rem" pSortableColumn="probableDuplicates.length">
                         <div class="header-content">
                           <i class="pi pi-exclamation-triangle"></i>
                           <span>{{ t('duplicatesColumn') }}</span>
@@ -110,7 +110,7 @@
                         </div>
                       </th>
                     }
-                    <th class="actions-header">
+                    <th scope="col" class="actions-header">
                       <div class="header-content">
                         <i class="pi pi-cog"></i>
                         <span>{{ t('actionsColumn') }}</span>
@@ -140,11 +140,11 @@
                     @if (tab.type === 'authors') {
                       <td class="duplicates-cell">
                         @if (item.probableDuplicates && item.probableDuplicates.length > 0) {
-                          <div class="duplicate-indicator" (click)="toggleRowExpansion(item)" (keydown.enter)="toggleRowExpansion(item)" (keydown.space)="toggleRowExpansion(item); $event.preventDefault()" role="button" tabindex="0">
+                          <button type="button" class="duplicate-indicator" (click)="toggleRowExpansion(item)">
                             <i class="pi pi-exclamation-triangle duplicate-icon"></i>
                             <span class="duplicate-count">{{ item.probableDuplicates.length }}</span>
                             <i class="pi expand-icon" [class.pi-chevron-down]="!item.isExpanded" [class.pi-chevron-up]="item.isExpanded"></i>
-                          </div>
+                          </button>
                         } @else {
                           <span class="no-duplicates">-</span>
                         }

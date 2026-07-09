@@ -162,8 +162,8 @@ export function areAuthorsSimilar(name1: string, name2: string, threshold: numbe
 
   const firstName1 = parts1[0];
   const firstName2 = parts2[0];
-  const lastName1 = parts1[parts1.length - 1];
-  const lastName2 = parts2[parts2.length - 1];
+  const lastName1 = parts1.at(-1)!;
+  const lastName2 = parts2.at(-1)!;
 
   const firstNameSimilarity = calculateJaroWinkler(firstName1, firstName2);
   const lastNameSimilarity = calculateJaroWinkler(lastName1, lastName2);

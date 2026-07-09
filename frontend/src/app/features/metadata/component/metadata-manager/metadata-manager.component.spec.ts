@@ -156,18 +156,12 @@ describe('MetadataManagerComponent - Duplicate Detection', () => {
     });
 
     describe('whitespace handling', () => {
-      it('should handle extra whitespace', () => {
-        const result = areAuthorsSimilar('Stephen  King', 'Stephen King', THRESHOLD);
-        expect(result).toBe(true);
-      });
-
-      it('should handle leading/trailing whitespace', () => {
-        const result = areAuthorsSimilar(' Stephen King ', 'Stephen King', THRESHOLD);
-        expect(result).toBe(true);
-      });
-
-      it('should handle tabs and multiple spaces', () => {
-        const result = areAuthorsSimilar('Stephen\t\tKing', 'Stephen King', THRESHOLD);
+      it.each([
+        ['extra whitespace', 'Stephen  King', 'Stephen King'],
+        ['leading/trailing whitespace', ' Stephen King ', 'Stephen King'],
+        ['tabs and multiple spaces', 'Stephen\t\tKing', 'Stephen King'],
+      ])('should handle %s', (_description, name1, name2) => {
+        const result = areAuthorsSimilar(name1, name2, THRESHOLD);
         expect(result).toBe(true);
       });
     });
