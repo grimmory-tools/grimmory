@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Étagère créée : {{ name }}",
             "createFailedDetail": "Échec de la création de l'étagère"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Modifier l'étagère",
