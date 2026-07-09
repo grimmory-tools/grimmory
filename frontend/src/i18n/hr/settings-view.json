@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Uzlazno",
             "desc": "Silazno"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Postavke prikaza i sortiranja zbirki i polica",
