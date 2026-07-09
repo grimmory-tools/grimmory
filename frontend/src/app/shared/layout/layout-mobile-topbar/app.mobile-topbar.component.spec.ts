@@ -13,6 +13,7 @@ describe('AppMobileTopbarComponent', () => {
   let layoutService: {
     closeMobileSidebar: ReturnType<typeof vi.fn>;
     onMenuToggle: ReturnType<typeof vi.fn>;
+    currentPath: ReturnType<typeof signal>;
   };
   let commandPaletteService: {
     open: ReturnType<typeof vi.fn>;
@@ -28,6 +29,7 @@ describe('AppMobileTopbarComponent', () => {
     layoutService = {
       closeMobileSidebar: vi.fn(),
       onMenuToggle: vi.fn(),
+      currentPath: signal('/'),
     };
     commandPaletteService = {
       open: vi.fn(),
@@ -63,7 +65,7 @@ describe('AppMobileTopbarComponent', () => {
     commandPaletteService.isOpen.set(false);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('.mobile-topbar button:last-of-type') as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector('[aria-label="Search"]') as HTMLButtonElement;
     button.click();
 
     expect(layoutService.closeMobileSidebar).toHaveBeenCalledOnce();
@@ -74,7 +76,7 @@ describe('AppMobileTopbarComponent', () => {
     commandPaletteService.isOpen.set(true);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('.mobile-topbar button:last-of-type') as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector('[aria-label="Close"]') as HTMLButtonElement;
     button.click();
 
     expect(commandPaletteService.hide).toHaveBeenCalledOnce();

@@ -4,13 +4,13 @@ import { controlHeightBySize } from '../control.styles';
 export type TabsVariant = 'underline' | 'segmented';
 export type TabsPlacement = 'inline' | 'below';
 export type TabsSize = 'sm' | 'md' | 'lg';
-export type TabsCollapse = 'auto' | 'always' | 'never';
+export type TabsCollapse = 'auto' | 'always' | 'never' | 'scroll';
 
 export const appTabsRootVariants = cva('relative', {
   variants: {
     placement: {
       inline: '',
-      below: 'flex min-h-[3rem] items-end',
+      below: 'flex items-end',
     },
   },
   defaultVariants: { placement: 'inline' },
@@ -19,16 +19,24 @@ export const appTabsRootVariants = cva('relative', {
 export const appTabsListVariants = cva('relative flex min-w-0', {
   variants: {
     variant: {
-      underline: 'items-stretch gap-5 border-b border-border/70',
-      segmented: 'items-center gap-1 rounded-[10px] bg-text/[0.04] p-1 dark:bg-text/[0.04]',
+      underline: 'items-stretch gap-3 border-b border-border/70 md:gap-5',
+      segmented: 'items-center gap-1 rounded-lg bg-text/5 p-1 dark:bg-text/5',
+    },
+    placement: {
+      inline: '',
+      below: '',
     },
   },
-  defaultVariants: { variant: 'underline' },
+  compoundVariants: [
+    { variant: 'underline', placement: 'below', class: 'w-full' },
+    { variant: 'segmented', placement: 'below', class: 'mx-auto' },
+  ],
+  defaultVariants: { variant: 'underline', placement: 'inline' },
 });
 
 export const appTabVariants = cva(
   'relative z-10 inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap font-medium ' +
-    'leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' +
+    'leading-5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' +
     'aria-selected:focus-visible:outline-none',
   {
     variants: {
@@ -39,9 +47,9 @@ export const appTabVariants = cva(
       size: { sm: '', md: '', lg: '' },
     },
     compoundVariants: [
-      { variant: 'underline', size: 'sm', class: 'px-3 py-2 text-xs pointer-coarse:min-h-10' },
-      { variant: 'underline', size: 'md', class: 'px-3.5 py-2.5 text-sm pointer-coarse:min-h-11' },
-      { variant: 'underline', size: 'lg', class: 'px-4 py-3 text-sm pointer-coarse:min-h-12' },
+      { variant: 'underline', size: 'sm', class: 'h-9 px-2.5 text-xs md:px-3 pointer-coarse:min-h-10' },
+      { variant: 'underline', size: 'md', class: 'h-10 px-2.5 text-sm md:px-3.5 pointer-coarse:min-h-11' },
+      { variant: 'underline', size: 'lg', class: 'h-11 px-4 text-sm pointer-coarse:min-h-12' },
       { variant: 'segmented', size: 'sm', class: `${controlHeightBySize.sm} px-3 text-xs` },
       { variant: 'segmented', size: 'md', class: `${controlHeightBySize.md} px-3 text-sm` },
       { variant: 'segmented', size: 'lg', class: `${controlHeightBySize.lg} px-4 text-sm` },

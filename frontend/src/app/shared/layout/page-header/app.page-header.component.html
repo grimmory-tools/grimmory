@@ -1,0 +1,82 @@
+<ng-template #trailTpl>
+  <app-page-header-breadcrumbs [breadcrumbs]="breadcrumbs()" [mobile]="isMobile()" [dropCurrent]="leadVariant() === 'stacked'" />
+</ng-template>
+
+<ng-template #titleBlockTpl>
+  @if (hasTitleBlock() && pageHeader(); as currentHeader) {
+    <div class="flex min-w-0 items-center gap-3">
+      @if (leadMedia(); as lead) {
+        <div class="shrink-0"><ng-container [ngTemplateOutlet]="lead" /></div>
+      }
+      <div class="min-w-0">
+        @if (currentHeader.title) {
+          <div class="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <h1 class="m-0 line-clamp-2 text-balance text-2xl font-bold leading-tight text-text">
+              {{ currentHeader.title }}
+            </h1>
+            @if (currentHeader.count) {
+              <span class="shrink-0 text-sm font-medium tabular-nums text-text-secondary">
+                {{ currentHeader.count }}
+              </span>
+            }
+          </div>
+        }
+        @if (meta(); as metaTpl) {
+          <div class="mt-1 max-w-3xl text-sm font-medium leading-snug text-text-secondary">
+            <ng-container [ngTemplateOutlet]="metaTpl" />
+          </div>
+        }
+      </div>
+    </div>
+  }
+</ng-template>
+
+<ng-template #identity>
+  @if (breadcrumbs().length) {
+    <ng-container [ngTemplateOutlet]="trailTpl" />
+  }
+  <ng-container [ngTemplateOutlet]="titleBlockTpl" />
+</ng-template>
+
+@if (pageHeader(); as currentHeader) {
+  @if (leadAboveBar()) {
+    <div #leadAbove [class]="leadAboveClass()">
+      <ng-container [ngTemplateOutlet]="identity" />
+    </div>
+  }
+
+  <div #stuckSentinel aria-hidden="true" class="h-0 -mb-4 md:-mb-6"></div>
+  <div #stickyRegion [class]="stickyRegionClass()">
+    @if (trailOwnRow()) {
+      <div class="pt-5">
+        <ng-container [ngTemplateOutlet]="trailTpl" />
+      </div>
+    }
+    <div [class]="rowClass()">
+      @if (leadInBar()) {
+        <div [class]="leadPrincipalClass()">
+          @if (trailOwnRow()) {
+            <ng-container [ngTemplateOutlet]="titleBlockTpl" />
+          } @else {
+            <ng-container [ngTemplateOutlet]="identity" />
+          }
+        </div>
+      }
+      <div class="app-page-header-controls flex min-w-0 grow basis-auto items-center justify-end gap-2 empty:hidden">
+        <ng-content></ng-content>
+      </div>
+    </div>
+
+    @if (hasTabs()) {
+      <app-tabs
+        [tabs]="currentHeader.tabs ?? []"
+        [ariaLabel]="'layout.pageHeader.tabsAriaLabel' | transloco"
+        [selectedTabId]="activeTabId()"
+        (selectedTabIdChange)="onSelectedTabChange($event)"
+        size="md"
+        placement="below"
+        collapse="scroll"
+      />
+    }
+  </div>
+}
