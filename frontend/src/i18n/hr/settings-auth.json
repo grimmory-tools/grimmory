@@ -129,12 +129,12 @@
         "error": "Nije uspjelo ažuriranje načina rada samo za OIDC."
     },
     "mobileRedirectUris": {
-        "placeholder": "",
-        "removeLabel": "",
-        "title": "",
-        "label": "",
-        "hintSuffix": "",
-        "description": "",
-        "hintPrefix": ""
+        "placeholder": "Dodajte URI preusmjeravanja ili *",
+        "removeLabel": "Remove {{uri}}",
+        "title": "URI-ji za preusmjeravanje mobilnih uređaja",
+        "label": "Dopušteni URI-ji za preusmjeravanje s mobilnih uređaja",
+        "hintSuffix": "Da biste omogućili bilo koji URI, samo upotrijebite",
+        "description": "Stavite na bijelu listu URI-je za mobilno preusmjeravanje na koje se vaš OIDC tok smije vratiti.",
+        "hintPrefix": "Zadani URI za preusmjeravanje je"
     }
 }
