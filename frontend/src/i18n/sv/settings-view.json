@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Stigande",
             "desc": "Fallande"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Biblioteks- och hyllvy- och sorteringsinställningar",
