@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Croissant",
             "desc": "Décroissant"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Préférences d'affichage et de tri des bibliothèques et étagères",
