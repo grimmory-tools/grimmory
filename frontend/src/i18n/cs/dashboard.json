@@ -1,0 +1,19 @@
+{
+  "main": {
+    "pageTitle": "",
+    "welcomeTitle": "",
+    "welcomeSubtitle": "",
+    "welcomeDescription": "",
+    "createLibrary": ""
+  },
+  "scroller": {
+    "noBooksFound": "",
+    "loadError": "",
+    "continueListening": "",
+    "continueReading": "",
+    "recentlyAdded": "",
+    "discoverNew": "",
+    "magicShelf": "",
+    "default": ""
+  }
+}
