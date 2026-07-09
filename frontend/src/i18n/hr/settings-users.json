@@ -35,7 +35,7 @@
         "selectLibraries": "Odaberite zbirke",
         "enterFullName": "Unesite puno ime",
         "enterEmail": "Unesite e-mail",
-        "noLibrariesAssigned": ""
+        "noLibrariesAssigned": "Nema dodijeljenih zbirki"
     },
     "permGroups": {
         "administration": "Administracija",
