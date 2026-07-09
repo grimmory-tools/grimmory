@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "За зростанням",
             "desc": "За спаданням"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Налаштування вигляду та сортування бібліотеки й полиць",
