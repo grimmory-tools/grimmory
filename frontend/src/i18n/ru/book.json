@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Полка создана: {{ name }}",
             "createFailedDetail": "Не удалось создать полку"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Редактировать полку",
