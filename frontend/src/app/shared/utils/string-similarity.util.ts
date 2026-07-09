@@ -1,4 +1,12 @@
 /**
+ * Jaro-Winkler algorithm constants
+ */
+const JARO_WINKLER_PREFIX_SCALE = 0.1;
+const JARO_WINKLER_BOOST_THRESHOLD = 0.7;
+const MAX_PREFIX_LENGTH = 4;
+const MIN_NAME_PART_SIMILARITY = 0.75;
+
+/**
  * Calculates the Jaro similarity between two strings.
  * Returns a value between 0.0 (no similarity) and 1.0 (identical).
  *
@@ -91,12 +99,27 @@ function countTranspositions(s1: string, s2: string, s1Matches: boolean[], s2Mat
 export function calculateJaroWinkler(s1: string, s2: string): number {
   const jaro = calculateJaro(s1, s2);
 
-  if (jaro < 0.7) {
+  if (jaro < JARO_WINKLER_BOOST_THRESHOLD) {
     return jaro;
   }
 
+  const prefixLength = calculateCommonPrefixLength(s1, s2);
+
+  return jaro + (prefixLength * JARO_WINKLER_PREFIX_SCALE * (1 - jaro));
+}
+
+/**
+ * Calculates the length of the common prefix between two strings.
+ * Limited to a maximum of 4 characters as per Jaro-Winkler specification.
+ *
+ * @param s1 First string
+ * @param s2 Second string
+ * @returns Length of common prefix (0 to 4)
+ */
+function calculateCommonPrefixLength(s1: string, s2: string): number {
   let prefixLength = 0;
-  const maxPrefix = Math.min(4, s1.length, s2.length);
+  const maxPrefix = Math.min(MAX_PREFIX_LENGTH, s1.length, s2.length);
+
   for (let i = 0; i < maxPrefix; i++) {
     if (s1[i] === s2[i]) {
       prefixLength++;
@@ -105,7 +128,7 @@ export function calculateJaroWinkler(s1: string, s2: string): number {
     }
   }
 
-  return jaro + (prefixLength * 0.1 * (1 - jaro));
+  return prefixLength;
 }
 
 /**
@@ -144,11 +167,9 @@ export function areAuthorsSimilar(name1: string, name2: string, threshold: numbe
 
   const firstNameSimilarity = calculateJaroWinkler(firstName1, firstName2);
   const lastNameSimilarity = calculateJaroWinkler(lastName1, lastName2);
-
-  const MIN_PART_THRESHOLD = 0.75;
   const averageSimilarity = (firstNameSimilarity + lastNameSimilarity) / 2;
 
-  return firstNameSimilarity >= MIN_PART_THRESHOLD &&
-         lastNameSimilarity >= MIN_PART_THRESHOLD &&
+  return firstNameSimilarity >= MIN_NAME_PART_SIMILARITY &&
+         lastNameSimilarity >= MIN_NAME_PART_SIMILARITY &&
          averageSimilarity >= threshold;
 }
