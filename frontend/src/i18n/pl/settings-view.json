@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Rosnąco",
             "desc": "Malejąco"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Preferencje widoku i sortowania biblioteki i półki",
