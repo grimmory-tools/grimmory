@@ -140,7 +140,7 @@
                     @if (tab.type === 'authors') {
                       <td class="duplicates-cell">
                         @if (item.probableDuplicates && item.probableDuplicates.length > 0) {
-                          <div class="duplicate-indicator" (click)="toggleRowExpansion(item)" role="button" tabindex="0">
+                          <div class="duplicate-indicator" (click)="toggleRowExpansion(item)" (keydown.enter)="toggleRowExpansion(item)" (keydown.space)="toggleRowExpansion(item); $event.preventDefault()" role="button" tabindex="0">
                             <i class="pi pi-exclamation-triangle duplicate-icon"></i>
                             <span class="duplicate-count">{{ item.probableDuplicates.length }}</span>
                             <i class="pi expand-icon" [class.pi-chevron-down]="!item.isExpanded" [class.pi-chevron-up]="item.isExpanded"></i>
