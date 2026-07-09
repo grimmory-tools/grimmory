@@ -113,6 +113,7 @@ export class AppPageHeaderComponent {
     let stuckObserver: IntersectionObserver | null = null;
 
     afterRenderEffect(() => {
+      this.isMobile();
       const lead = this.leadAboveRef()?.nativeElement;
       const sentinel = this.stuckSentinelRef()?.nativeElement;
       leadObserver?.disconnect();
@@ -156,6 +157,7 @@ export class AppPageHeaderComponent {
 
     let sizeObserver: ResizeObserver | null = null;
     afterRenderEffect(() => {
+      this.isMobile();
       const region = this.stickyRegionRef()?.nativeElement;
       sizeObserver?.disconnect();
       if (!region || typeof ResizeObserver === 'undefined') return;

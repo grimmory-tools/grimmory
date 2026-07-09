@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoPipe } from '@jsverse/transloco';
 import { LucideArrowLeft, LucideMenu, LucideSearch, LucideX } from '@lucide/angular';
@@ -10,6 +10,7 @@ import { PageHeaderService } from '../page-header/page-header.service';
   selector: 'app-mobile-topbar',
   templateUrl: './app.mobile-topbar.component.html',
   styleUrl: './app.mobile-topbar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslocoDirective, TranslocoPipe, LucideArrowLeft, LucideMenu, LucideSearch, LucideX],
 })
 export class AppMobileTopbarComponent {
