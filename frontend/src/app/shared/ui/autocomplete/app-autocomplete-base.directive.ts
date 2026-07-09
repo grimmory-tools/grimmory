@@ -1,6 +1,7 @@
 import {
   booleanAttribute,
   computed,
+  contentChild,
   Directive,
   inject,
   input,
@@ -10,23 +11,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { Combobox } from '@angular/aria/combobox';
-import { CdkConnectedOverlay, Overlay } from '@angular/cdk/overlay';
 
-import { cn } from '../cn';
-import {
-  connectedOverlayPanelClass,
-  connectedOverlayPositions,
-  connectedOverlayScrollStrategy,
-  refreshConnectedOverlayPosition,
-} from '../connected-overlay';
 import { APP_FIELD } from '../field/app-field.context';
 import { type AppInputSize } from '../input/app-input.variants';
+import { type TagSize } from '../tag/app-tag.variants';
 import {
-  overlayListEmptyItemClass,
-  overlayListOptionClass,
-  overlayListRootClass,
-  overlayListSurfaceClass,
-} from '../overlay-list.styles';
+  toAutocompleteOption,
+  type AppAutocompleteOption,
+  type AppAutocompleteSuggestion,
+} from './app-autocomplete-option';
+import { AppAutocompleteOptionTemplateDirective } from './app-autocomplete-option-template.directive';
 import { autocompleteBoxVariants } from './app-autocomplete.variants';
 
 @Directive()
@@ -35,12 +29,15 @@ export abstract class AppAutocompleteBaseDirective {
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
+  readonly loadingMore = input(false, { transform: booleanAttribute });
+  readonly hasMore = input(false, { transform: booleanAttribute });
+  readonly errored = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
   readonly touched = model(false);
   readonly name = input('');
 
   readonly allowCustom = input(true, { transform: booleanAttribute });
-  readonly suggestions = input<readonly string[]>([]);
+  readonly suggestions = input<readonly AppAutocompleteSuggestion[]>([]);
   readonly size = input<AppInputSize>('md');
   readonly placeholder = input('');
   readonly emptyMessage = input('');
@@ -49,12 +46,13 @@ export abstract class AppAutocompleteBaseDirective {
   readonly ariaDescribedBy = input('');
 
   readonly complete = output<string>();
+  readonly opened = output<void>();
+  readonly loadMore = output<void>();
 
   private readonly fieldContext = inject(APP_FIELD, { optional: true });
-  private readonly overlayService = inject(Overlay);
   protected readonly combobox = viewChild(Combobox);
-  private readonly overlay = viewChild(CdkConnectedOverlay);
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
+  protected readonly optionTemplate = contentChild(AppAutocompleteOptionTemplateDirective);
 
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
@@ -62,15 +60,12 @@ export abstract class AppAutocompleteBaseDirective {
   );
   protected readonly showInvalid = computed(() => this.invalid() && (this.fieldContext?.validationVisible() ?? true));
   protected readonly isUnavailable = computed(() => this.disabled() || this.readonly());
-
-  protected readonly overlayPositions = connectedOverlayPositions;
-  protected readonly overlayScrollStrategy = connectedOverlayScrollStrategy(this.overlayService);
+  protected readonly normalizedSuggestions = computed<readonly AppAutocompleteOption[]>(() =>
+    this.suggestions().map(toAutocompleteOption),
+  );
+  protected readonly selectedTagSize = computed<TagSize>(() => (this.size() === 'sm' ? 'sm' : 'md'));
   protected readonly innerInputClass =
     'min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-inherit outline-hidden placeholder:text-text-muted disabled:cursor-default';
-  protected readonly surfaceClass = cn(overlayListSurfaceClass, connectedOverlayPanelClass, 'box-border w-full p-0');
-  protected readonly listClass = cn(overlayListRootClass, 'max-h-60 overflow-y-auto overscroll-contain p-1');
-  protected readonly optionClass = overlayListOptionClass;
-  protected readonly emptyClass = overlayListEmptyItemClass;
 
   protected readonly boxClass = computed(() =>
     autocompleteBoxVariants({ size: this.size(), disabled: this.disabled(), invalid: this.showInvalid() }),
@@ -82,8 +77,13 @@ export abstract class AppAutocompleteBaseDirective {
     input.focus();
   }
 
-  protected onOverlayAttach(): void {
-    refreshConnectedOverlayPosition(this.overlay());
+  protected onInputFocus(): void {
+    if (this.isUnavailable()) return;
+    this.opened.emit();
+  }
+
+  protected closePopup(): void {
+    this.combobox()?.close();
   }
 
   focus(options?: FocusOptions): void {

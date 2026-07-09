@@ -160,7 +160,7 @@
   "ui": {
     "autocomplete": {
       "noResults": "No results",
-      "removeTag": "Remove {{ tag }}"
+      "loadFailed": "Couldn't load results"
     },
     "datePicker": {
       "previousMonth": "Previous month",

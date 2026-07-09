@@ -192,8 +192,7 @@
             "loading": ""
         },
         "autocomplete": {
-            "noResults": "",
-            "removeTag": ""
+            "noResults": ""
         },
         "datePicker": {
             "nextMonth": "",
