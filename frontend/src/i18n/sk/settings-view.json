@@ -72,7 +72,10 @@
         "sortDirections": {
             "asc": "",
             "desc": ""
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "viewTable": "",
