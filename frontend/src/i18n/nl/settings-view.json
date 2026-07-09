@@ -72,7 +72,10 @@
         "sortDirections": {
             "asc": "Oplopend",
             "desc": "Aflopend"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "viewTable": "",
