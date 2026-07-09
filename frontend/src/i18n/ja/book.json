@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "シェルフを作成しました: {{ name }}",
             "createFailedDetail": "シェルフの作成に失敗しました"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "シェルフを編集",
