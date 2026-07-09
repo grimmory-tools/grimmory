@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Aufsteigend",
             "desc": "Absteigend"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Bibliotheks- und Regal-Ansicht & Sortiereinstellungen",
