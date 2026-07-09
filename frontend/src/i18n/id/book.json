@@ -895,7 +895,8 @@
         "title": "",
         "chooseIconSubtitle": "",
         "validationReady": "",
-        "validationRequired": ""
+        "validationRequired": "",
+        "customSvg": ""
     },
     "coverPref": {
         "toast": {
