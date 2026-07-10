@@ -25,11 +25,11 @@
     "libraryPathInaccessible": "Put do zbirke nije dostupan",
     "displaySettings": "Postavke prikaza",
     "cardSize": "Veličina kartice",
-    "on": "",
-    "off": "",
-    "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "on": "Uključeno",
+    "off": "Isključeno",
+    "moreActionsFor": "Više radnji za {{label}}",
+    "cardSizeControls": "Kontrole veličine kartice",
+    "decreaseCardSize": "Smanji veličinu kartice",
+    "dialogLoadError": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno.",
+    "increaseCardSize": "Povećajte veličinu kartice"
 }
