@@ -43,8 +43,8 @@
         "toggleSlideshow": "Uključi/isključi prezentaciju / automatsku reprodukciju",
         "showHelpDialog": "Prikaži ovaj dijalog pomoći",
         "toggleMagnifier": "Uključi/isključi povećalo",
-        "magnifierLensSize": "",
-        "magnifierZoom": ""
+        "magnifierLensSize": "Veličina leće povećala (kada je aktivno)",
+        "magnifierZoom": "Zumiranje povećalom (kada je aktivno)"
     },
     "footer": {
         "prevBook": "Preth. knjiga",
@@ -54,7 +54,7 @@
         "nextPage": "Sljedeća stranica",
         "lastPage": "Zadnja stranica",
         "of": "od",
-        "pageSlider": "Klizač stranica",
+        "pageSlider": "Klizač stranice",
         "pagePlaceholder": "Stranica",
         "go": "Idi",
         "noPreviousBook": "Nema prethodne knjige",
@@ -109,13 +109,13 @@
         "black": "Crna",
         "gray": "Siva",
         "white": "Bijela",
-        "clickToPaginate": "",
-        "magnifierLensSize": "",
-        "stripMaxWidth": "",
-        "autoCloseMenu": "",
-        "magnifierZoom": "",
-        "brightness": "",
-        "emulateBook": ""
+        "clickToPaginate": "Kliknite za numeriranje stranica",
+        "magnifierLensSize": "Veličina leća",
+        "stripMaxWidth": "Širina trake",
+        "autoCloseMenu": "Automatsko zatvaranje izbornika",
+        "magnifierZoom": "Povećanje",
+        "brightness": "Svjetlina",
+        "emulateBook": "Emuliraj knjigu"
     },
     "sidebar": {
         "contentTab": "Sadržaj",
@@ -123,13 +123,13 @@
         "notesTab": "Bilješke",
         "noPagesFound": "Stranice nisu pronađene",
         "noBookmarksYet": "Još nema knjižnih oznaka",
-        "bookmarkHint": "Dodirnite ikonu knjižne oznake da sačuvate svoje mjesto",
+        "bookmarkHint": "Dodirnite ikonu knjižne oznake da biste spremili svoje mjesto",
         "searchNotesPlaceholder": "Pretraži bilješke...",
         "noMatchingNotes": "Nema odgovarajućih bilješki",
         "tryDifferentSearch": "Pokušajte s drugim pojmovima pretraživanja",
         "noNotesYet": "Još nema bilješki",
         "notesHint": "Dodirnite ikonu bilješke za dodavanje bilješke za trenutnu stranicu",
-        "deleteBookmark": "Obriši knjižnu oznaku",
+        "deleteBookmark": "Izbriši knjižnu oznaku",
         "editNote": "Uredi bilješku",
         "deleteNote": "Obriši bilješku",
         "clearSearch": "Očisti pretragu",
@@ -137,13 +137,13 @@
         "untitled": "Bez naslova"
     },
     "webtoonHint": {
-        "never": "",
-        "dismiss": "",
-        "switch": "",
-        "regionLabel": "",
-        "message": ""
+        "never": "Ne pitaj više",
+        "dismiss": "Sakrij za sada",
+        "switch": "Koristite dugu traku",
+        "regionLabel": "Prijedlog za čitanje webtoona",
+        "message": "Ove stranice izgledaju kao vertikalni webtoon. Način rada s dugim trakama uklanja praznine i glatko pomiče cijelo poglavlje."
     },
     "continuation": {
-        "scrollForNext": ""
+        "scrollForNext": "Nastavite skrolati za sljedeću knjigu u ovoj seriji"
     }
 }
