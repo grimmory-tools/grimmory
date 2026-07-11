@@ -130,33 +130,67 @@ public class HardcoverParser implements BookParser {
         String searchAuthor = request.getAuthor() != null ? formatRequestAuthor(request.getAuthor()) : "";
 
         //convert hits into document format.
-        List<GraphQLResponse.Document> docs = hits.stream()
+        Stream<GraphQLResponse.Document> docs = hits.stream()
                 .map(GraphQLResponse.Hit::getDocument)
-                .filter(Objects::nonNull)
-                .toList();
+                .filter(Objects::nonNull);
 
         log.debug("Filtering by title: '{}', author: '{}'", searchTitle, searchAuthor);
+
         if (!searchTitle.isBlank()) {
-            docs = filterTitle(docs, searchTitle);
-            log.debug("Filtered by title: {} ({} results)", searchTitle, docs.size());
+            docs = docs
+                .map(mapTitleLevenshtein(searchTitle))
+                .sorted(Comparator.comparingDouble(ScoredDocument::score))
+                .map(ScoredDocument::document);
+            log.debug("Filtered by title: {}", searchTitle);
         }
 
         if (!searchAuthor.isBlank()) {
-            docs = filterAuthor(docs, searchAuthor);
-            log.debug("Filtered by author: {} ({} results)", searchAuthor, docs.size());
+            docs = docs
+                    .map(mapAuthorLevenshtien(searchAuthor))
+                    .sorted(Comparator.comparingDouble(ScoredDocument::score))
+                    .filter(doc -> doc.score <= (searchAuthor.length() * 0.8))
+                    .map(ScoredDocument::document);
         }
 
         return docs.toList();
     }
 
-    private List<GraphQLResponse.Document> filterAuthor(List<GraphQLResponse.Document> docs, String searchAuthor) {
+    private Function<GraphQLResponse.Document, ScoredDocument> mapTitleLevenshtein(String searchTitle) {
+        LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
+        String searchTitleLower = searchTitle.toLowerCase();
+
+        return (GraphQLResponse.Document doc) -> {
+            if (doc.getTitle() == null || doc.getTitle().isBlank()) {
+                return new ScoredDocument(doc, Double.MAX_VALUE);
+            }
+            // calculate the lev.dist for the Work-level title and the search provided term
+            double totalScore = levenshtein.apply(searchTitleLower, doc.getTitle().toLowerCase());
+
+            if (doc.getAlternativeTitles() != null) {
+                //repeat the lev.dist calc for each of the alternative titles
+                totalScore += doc.getAlternativeTitles()
+                        .stream()
+                        .map(String::toLowerCase)
+                        .map(title -> levenshtein.apply(searchTitleLower, title))
+                        .min(Double::compare)
+                        .orElse(Integer.MAX_VALUE);
+            }
+
+            // (minTitleDist+minAltTitleDist)/1+userCount. best scores should approach 0
+            int usersCount = doc.getUsersCount() == null ? 0 : doc.getUsersCount();
+            return new ScoredDocument(doc, (totalScore + 1)/(usersCount + 1));
+        };
+    }
+
+    private Function<GraphQLResponse.Document, ScoredDocument> mapAuthorLevenshtien(String searchAuthor) {
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
         String searchAuthorLowercase = searchAuthor.toLowerCase();
-        for (GraphQLResponse.Document doc : docs) {
+
+        return (GraphQLResponse.Document doc) -> {
             if (doc.getAuthorNames() == null || doc.getAuthorNames().isEmpty()) {
-                doc.setLevenshteinDistanceAuthor(Double.MAX_VALUE);
-                continue;
+                return new ScoredDocument(doc, Double.MAX_VALUE);
             }
+
             List<String> normalizedAuthors = doc.getAuthorNames().stream()
                     .map(String::toLowerCase)
                     .toList();
@@ -169,15 +203,8 @@ public class HardcoverParser implements BookParser {
 
             doc.setLevenshteinDistanceAuthor(minDistance);
 
-
-        double threshold = searchAuthor.length()*0.8;
-
-        //Try to return the searches where the distance is no greater than aproximately the length of the search term
-        return best > threshold
-            ? Collections.emptyList()
-            : docs.stream()
-            .filter(doc -> doc.getLevenshteinDistanceAuthor() <= threshold)
-            .toList();
+            return new ScoredDocument(doc, minDistance);
+        };
     }
 
     private List<GraphQLResponse.BookWithEditions> searchById(List<GraphQLResponse.Document> docs, FetchMetadataRequest request) {
@@ -474,4 +501,9 @@ public class HardcoverParser implements BookParser {
         List<BookMetadata> bookMetadata = fetchMetadata(book, fetchMetadataRequest);
         return bookMetadata.isEmpty() ? null : bookMetadata.getFirst();
     }
+
+    record ScoredDocument (
+            GraphQLResponse.Document document,
+            double score
+    ) {}
 }
