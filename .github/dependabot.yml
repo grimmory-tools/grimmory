@@ -46,6 +46,8 @@ updates:
           - "*"
     ignore:
       - dependency-name: "typescript"
+      - dependency-name: "@types/node"
+        versions: [">=25.0.0"]
       - dependency-name: "@angular/animations"
         versions: [">=22.0.0"]
       - dependency-name: "@angular-devkit/architect"
@@ -79,6 +81,8 @@ updates:
       - dependency-name: "@angular/service-worker"
         versions: [">=22.0.0"]
       - dependency-name: "angular-eslint"
+        versions: [">=22.0.0"]
+      - dependency-name: "ngx-infinite-scroll"
         versions: [">=22.0.0"]
 
   # GitHub Actions

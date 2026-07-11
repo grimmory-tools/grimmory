@@ -1,7 +1,7 @@
 @use "../../../../../assets/layout/styles/layout/variables";
 
 .author-browser-page {
-  --browser-gutter-inline: var(--page-gutter-inline);
+  --browser-gutter-inline: 1.125rem;
 
   display: flex;
   flex-direction: column;
@@ -257,7 +257,7 @@
 
 @media #{variables.$mobile-shell-media-query} {
   .author-browser-page {
-    --browser-gutter-inline: var(--space-4);
+    --browser-gutter-inline: 0.875rem;
 
     padding: 1.3125rem 0 0;
   }

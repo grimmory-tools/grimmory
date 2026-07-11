@@ -59,6 +59,12 @@
         "toggleNavigation": "Toggle navigation"
     },
     "closeNavigation": "Close navigation",
+    "pageHeader": {
+        "backTo": "Back to {{label}}",
+        "breadcrumbAriaLabel": "Breadcrumb",
+        "moreBreadcrumbs": "More breadcrumbs",
+        "tabsAriaLabel": "Page sections"
+    },
     "changelog": {
         "title": "What's New",
         "description": "Latest updates and improvements",

@@ -7,6 +7,6 @@
   min-height: 100dvh;
   overflow: hidden;
   scroll-behavior: smooth;
-  background-color: var(--surface-app);
+  background-color: var(--color-page);
   transition: grid-template-columns variables.$transition-duration;
 }

@@ -159,8 +159,7 @@
   },
   "ui": {
     "autocomplete": {
-      "noResults": "",
-      "removeTag": ""
+      "noResults": ""
     },
     "datePicker": {
       "previousMonth": "",
