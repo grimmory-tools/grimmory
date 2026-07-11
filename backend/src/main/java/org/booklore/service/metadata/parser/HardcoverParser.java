@@ -356,9 +356,8 @@ public class HardcoverParser implements BookParser {
     }
 
     private void mapBookId(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.BookWithEditions book) {
-        Integer bookId = book.getId();
-        if (bookId != null) {
-            builder.bookId(bookId.longValue());
+        if (book.getId() != null) {
+            builder.hardcoverBookId(book.getId().toString());
         }
     }
 
