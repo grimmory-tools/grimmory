@@ -62,7 +62,7 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@analogjs/vite-plugin-angular": "^2.6.2",
+    "@analogjs/vite-plugin-angular": "^2.6.3",
     "@angular-devkit/architect": "0.2102.18",
     "@angular-devkit/schematics": "21.2.18",
     "@angular/build": "^21.2.18",
