@@ -1,6 +1,5 @@
 import type { MenuItem } from 'primeng/api';
-
-export type NavIconType = 'PRIME_NG' | 'CUSTOM_SVG';
+import { IconType } from '../../icons/icon-selection';
 
 export type NavItemType =
   | 'library' | 'shelf' | 'magicShelf'
@@ -10,7 +9,7 @@ export interface NavItem {
   id: string;
   label: string;
   icon?: string;
-  iconType?: NavIconType;
+  iconType?: IconType;
   routerLink?: string[];
   type?: NavItemType;
   action?: () => void;

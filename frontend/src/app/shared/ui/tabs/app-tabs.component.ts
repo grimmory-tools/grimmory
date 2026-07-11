@@ -14,6 +14,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { Tab as NgTab, TabList, Tabs } from '@angular/aria/tabs';
+import { LucideDynamicIcon, type LucideIconData } from '@lucide/angular';
 import { AppSelectComponent } from '../select/app-select.component';
 import { type SelectOption } from '../select/app-select.options';
 import { cn } from '../cn';
@@ -30,15 +31,21 @@ import {
 export interface TabItem {
   id: string;
   label: string;
-  icon?: string;
+  icon?: LucideIconData;
 }
+
+const TAB_ICON_SIZE_CLASS: Record<TabsSize, string> = {
+  sm: 'size-3.5',
+  md: 'size-4',
+  lg: 'size-4',
+};
 
 const COLLAPSE_HYSTERESIS = 8;
 
 @Component({
   selector: 'app-tabs',
   standalone: true,
-  imports: [Tabs, TabList, NgTab, AppSelectComponent],
+  imports: [Tabs, TabList, NgTab, AppSelectComponent, LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative block min-w-0' },
   template: `
@@ -71,10 +78,10 @@ const COLLAPSE_HYSTERESIS = 8;
               [style.width.px]="indicatorWidth()"></span>
             @for (tab of tabs(); track tab.id) {
               <button ngTab type="button" [value]="tab.id" [class]="tabClass()">
-                @if (tab.icon) {
-                  <i [class]="tab.icon + ' shrink-0 text-[0.875em] leading-none'" aria-hidden="true"></i>
+                @if (tab.icon; as tabIcon) {
+                  <svg [lucideIcon]="tabIcon" [class]="tabIconClass()" aria-hidden="true"></svg>
                 }
-                <span class="leading-none">{{ tab.label }}</span>
+                <span class="leading-5">{{ tab.label }}</span>
               </button>
             }
           </div>
@@ -107,11 +114,16 @@ export class AppTabsComponent {
   private readonly indicatorReady = signal(false);
 
   protected readonly rowClass = computed(() =>
-    this.collapsed() ? 'pointer-events-none invisible absolute left-0 top-0 w-max max-w-full overflow-hidden' : 'block',
+    this.collapsed()
+      ? 'pointer-events-none invisible absolute left-0 top-0 w-max max-w-full overflow-hidden'
+      : this.collapse() === 'scroll'
+        ? 'block overflow-x-auto overflow-y-hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+        : 'block',
   );
   protected readonly rootClass = computed(() => appTabsRootVariants({ placement: this.placement() }));
-  protected readonly listClass = computed(() => appTabsListVariants({ variant: this.variant() }));
+  protected readonly listClass = computed(() => appTabsListVariants({ variant: this.variant(), placement: this.placement() }));
   protected readonly tabClass = computed(() => appTabVariants({ variant: this.variant(), size: this.size() }));
+  protected readonly tabIconClass = computed(() => cn('shrink-0 leading-none', TAB_ICON_SIZE_CLASS[this.size()]));
   protected readonly indicatorClass = computed(() => {
     const animated = this.indicatorReady() && 'transition-[transform,width] duration-200 ease-out';
     return this.variant() === 'segmented'
@@ -120,7 +132,7 @@ export class AppTabsComponent {
             'bg-primary/10 shadow-control dark:border-primary/30',
           animated,
         )
-      : cn('pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-t-[2px] bg-primary', animated);
+      : cn('pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-t-xs bg-primary', animated);
   });
 
   constructor() {

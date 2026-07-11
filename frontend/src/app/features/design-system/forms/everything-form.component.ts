@@ -22,6 +22,7 @@ import { AppDateRangePickerComponent, type DatePickerRange } from '../../../shar
 import { AppMessageComponent } from '../../../shared/ui/message/app-message.component';
 import { AppTagComponent } from '../../../shared/ui/tag/app-tag.component';
 import { type SelectOption } from '../../../shared/ui/select/app-select.options';
+import { LucideChevronLeft, LucideLoaderCircle, LucideSave } from '@lucide/angular';
 
 interface EverythingFormModel {
   text: string;
@@ -86,6 +87,9 @@ function createInitialModel(): EverythingFormModel {
     AppDateRangePickerComponent,
     AppMessageComponent,
     AppTagComponent,
+    LucideChevronLeft,
+    LucideSave,
+    LucideLoaderCircle,
   ],
   templateUrl: './everything-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

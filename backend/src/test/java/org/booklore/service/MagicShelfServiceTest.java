@@ -77,7 +77,7 @@ class MagicShelfServiceTest {
         MagicShelf dto = new MagicShelf();
         dto.setName("Favorites");
         dto.setIcon("star");
-        dto.setIconType(IconType.PRIME_NG);
+        dto.setIconType(IconType.LUCIDE);
         dto.setFilterJson("{\"rating\": 5}");
         dto.setIsPublic(false);
 
@@ -93,7 +93,7 @@ class MagicShelfServiceTest {
 
         assertNotNull(result);
         assertEquals("star", result.getIcon());
-        assertEquals(IconType.PRIME_NG, result.getIconType());
+        assertEquals(IconType.LUCIDE, result.getIconType());
     }
 
     @Test
@@ -103,7 +103,7 @@ class MagicShelfServiceTest {
                 .userId(1L)
                 .name("Old Shelf")
                 .icon("star")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .filterJson("{\"status\": \"reading\"}")
                 .build();
 
@@ -137,7 +137,7 @@ class MagicShelfServiceTest {
                 .userId(1L)
                 .name("Old Shelf")
                 .icon("star")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .filterJson("{\"status\": \"reading\"}")
                 .build();
 
@@ -170,7 +170,7 @@ class MagicShelfServiceTest {
                 .userId(1L)
                 .name("Shelf With Icon")
                 .icon("heart")
-                .iconType(IconType.PRIME_NG)
+                .iconType(IconType.LUCIDE)
                 .filterJson("{}")
                 .build();
 

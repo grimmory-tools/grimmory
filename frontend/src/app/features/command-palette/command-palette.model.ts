@@ -1,4 +1,4 @@
-import { IconSelection } from '../../shared/service/icon-picker.service';
+import { IconSelection } from '../../shared/icons/icon-selection';
 
 export type PaletteItemKind =
   | 'action'

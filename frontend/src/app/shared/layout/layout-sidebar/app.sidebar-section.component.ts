@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, HostBinding, computed, inject, input } from '@angular/core';
-import { NgClass } from '@angular/common';
 
 import { LayoutService } from '../layout.service';
 import { AppSidebarItemRowComponent } from './app.sidebar-item-row.component';
 import { SidebarLeaf, SidebarSection } from '../navigation/nav-item.model';
+import { LucideChevronDown, LucideChevronUp } from '@lucide/angular';
 
 @Component({
   // Attribute selector so the section renders into its host <li> inside a <ul>.
@@ -11,7 +11,7 @@ import { SidebarLeaf, SidebarSection } from '../navigation/nav-item.model';
   selector: '[appSidebarSection]',
   templateUrl: './app.sidebar-section.component.html',
   styleUrls: ['./app.sidebar-section.component.scss'],
-  imports: [NgClass, AppSidebarItemRowComponent],
+  imports: [LucideChevronDown, LucideChevronUp, AppSidebarItemRowComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSidebarSectionComponent {

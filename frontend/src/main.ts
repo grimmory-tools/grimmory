@@ -6,6 +6,7 @@ import { RxStompService } from './app/shared/websocket/rx-stomp.service';
 import { rxStompServiceFactory } from './app/shared/websocket/rx-stomp-service-factory';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './app/core/custom-reuse-strategy';
+import { NavigationTransitionGuard } from './app/core/navigation-transition-guard';
 import { providePrimeNG } from 'primeng/config';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
@@ -21,10 +22,14 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { provideLucideConfig } from '@lucide/angular';
+
+document.addEventListener('touchstart', () => undefined, { passive: true });
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
+    provideLucideConfig({ size: '1em', strokeWidth: 2 }),
     provideTanStackQuery(new QueryClient({
       defaultOptions: {
         queries: {
@@ -38,6 +43,9 @@ bootstrapApplication(AppComponent, {
       const initializeAuth = initializeAuthFactory();
       const startup = inject(StartupService);
       return Promise.resolve(initializeAuth()).then(() => startup.load());
+    }),
+    provideAppInitializer(() => {
+      inject(NavigationTransitionGuard);
     }),
     provideHttpClient(withInterceptors([AuthInterceptorService])),
     provideRouter(routes),

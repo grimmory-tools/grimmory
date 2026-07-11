@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "Усі бібліотеки (адміністратор)",
         "selectLibraries": "Виберіть бібліотеки",
         "enterFullName": "Введіть повне ім'я",
-        "enterEmail": "Введіть email"
+        "enterEmail": "Введіть email",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "Адміністрування",

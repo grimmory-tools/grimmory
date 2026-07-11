@@ -163,7 +163,7 @@
             "selectFile": "Izberi datoteko pisave",
             "dragDrop": "Povleci in spusti datoteko pisave sem",
             "supportedFormats": "Podprti formati: <strong>TTF</strong>, <strong>OTF</strong>, <strong>WOFF</strong>, <strong>WOFF2</strong>",
-            "maxSize": "Največja velikost datoteke: 5 MB",
+            "maxSize": "Največja velikost datoteke: 50 MB",
             "fontPreview": "Predogled pisave",
             "displayName": "Prikazno ime pisave",
             "displayNameDesc": "To ime se bo pojavilo v izbirniku pisav med branjem e-knjig.",

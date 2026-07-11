@@ -5,7 +5,8 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Observable, of, throwError} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {IconSelection, IconPickerService} from '../../../../shared/service/icon-picker.service';
+import {IconPickerService} from '../../../../shared/service/icon-picker.service';
+import {IconSelection} from '../../../../shared/icons/icon-selection';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Shelf} from '../../model/shelf.model';
 import {ShelfService} from '../../service/shelf.service';
@@ -67,8 +68,8 @@ describe('ShelfCreatorComponent', () => {
 
   it('picks an icon through the injected icon picker and ignores empty selections', () => {
     const pickedIcon: IconSelection = {
-      type: 'PRIME_NG',
-      value: 'pi pi-star',
+      type: 'LUCIDE',
+      value: 'star',
     };
     const {component, iconPickerService} = createHarness({
       iconPickerResult: pickedIcon,
@@ -114,16 +115,16 @@ describe('ShelfCreatorComponent', () => {
     component.shelfName = 'Weekend Reads';
     component.isPublic = true;
     component.selectedIcon = {
-      type: 'PRIME_NG',
-      value: 'pi pi-bookmark',
+      type: 'LUCIDE',
+      value: 'bookmark',
     };
 
     component.createShelf();
 
     expect(createShelf).toHaveBeenCalledWith({
       name: 'Weekend Reads',
-      icon: 'pi pi-bookmark',
-      iconType: 'PRIME_NG',
+      icon: 'bookmark',
+      iconType: 'LUCIDE',
       publicShelf: true,
     });
     expect(translate).toHaveBeenCalledWith('common.success');

@@ -63,16 +63,6 @@ export class DialogLauncherService {
     });
   }
 
-  async openDashboardSettingsDialog(): Promise<DynamicDialogRef | null> {
-    return this.launchLazyDialog(async () => {
-      const {DashboardSettingsComponent} = await import('../../features/dashboard/components/dashboard-settings/dashboard-settings.component');
-      return this.openDialog(DashboardSettingsComponent, {
-        showHeader: false,
-        styleClass: `${DialogSize.XL} ${DialogStyle.MINIMAL}`,
-      });
-    });
-  }
-
   async openLibraryCreateDialog(): Promise<DynamicDialogRef | null> {
     return this.launchLazyDialog(async () => {
       const {LibraryCreatorComponent} = await import('../../features/library-creator/library-creator.component');

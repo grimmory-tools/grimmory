@@ -59,7 +59,7 @@
       [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
       (click)="toggleAddMenu($event, addMenu)"
     >
-      <i class="pi pi-plus" aria-hidden="true"></i>
+      <svg lucidePlus aria-hidden="true"></svg>
     </button>
 
     <p-menu
@@ -82,7 +82,7 @@
         tooltipPosition="bottom"
         (click)="openUploadDialog()"
       >
-        <i class="pi pi-upload" aria-hidden="true"></i>
+        <svg lucideUpload aria-hidden="true"></svg>
       </button>
     }
 
@@ -100,7 +100,7 @@
       (click)="toggleHeaderNotificationsPopover(notificationsMobileOrigin)"
     >
       <span class="sidebar-notification-button-content">
-        <i class="pi pi-bell" aria-hidden="true"></i>
+        <svg lucideBell aria-hidden="true"></svg>
         @if (shouldShowNotificationBadge()) {
           <span class="sidebar-notification-badge">{{ completedTaskCount() }}</span>
         }
@@ -117,7 +117,7 @@
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
     >
-      <i class="pi pi-cog" aria-hidden="true"></i>
+      <svg lucideSettings aria-hidden="true"></svg>
     </a>
 
     @if (currentUser(); as user) {
@@ -141,7 +141,7 @@
       [attr.aria-label]="'layout.closeNavigation' | transloco"
       (click)="closeMobileSidebar()"
     >
-      <i class="pi pi-times" aria-hidden="true"></i>
+      <svg lucideX aria-hidden="true"></svg>
     </button>
   </div>
 
@@ -154,7 +154,7 @@
       tooltipPosition="right"
       (click)="openSearch()"
     >
-      <i class="pi pi-search" aria-hidden="true"></i>
+      <svg lucideSearch aria-hidden="true"></svg>
       <span class="sidebar-action-label">{{ t('search') }}</span>
       <kbd class="sidebar-search-shortcut" aria-hidden="true">{{ searchShortcutLabel }}</kbd>
     </button>
@@ -181,7 +181,7 @@
         [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
         (click)="toggleAddMenu($event, addMenu)"
       >
-        <i class="pi pi-plus" aria-hidden="true"></i>
+        <svg lucidePlus aria-hidden="true"></svg>
         <span class="sidebar-footer-action-label">{{ t('add') }}</span>
       </button>
 
@@ -195,7 +195,7 @@
           tooltipPosition="top"
           (click)="openUploadDialog()"
         >
-          <i class="pi pi-upload" aria-hidden="true"></i>
+          <svg lucideUpload aria-hidden="true"></svg>
           <span class="sidebar-footer-action-label">{{ t('uploadBook') }}</span>
         </button>
       }
@@ -214,7 +214,7 @@
         (click)="toggleFooterNotificationsPopover(notificationsFooterOrigin)"
       >
         <span class="sidebar-notification-button-content">
-          <i class="pi pi-bell" aria-hidden="true"></i>
+          <svg lucideBell aria-hidden="true"></svg>
           @if (shouldShowNotificationBadge()) {
             <span class="sidebar-notification-badge">{{ completedTaskCount() }}</span>
           }
@@ -232,7 +232,7 @@
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
       >
-        <i class="pi pi-cog" aria-hidden="true"></i>
+        <svg lucideSettings aria-hidden="true"></svg>
         <span class="sidebar-footer-action-label">{{ t('settings') }}</span>
       </a>
 
@@ -271,12 +271,11 @@
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"
         >
-          <i
-            class="pi"
-            [class.pi-angle-double-left]="!layoutService.sidebarCollapsed()"
-            [class.pi-angle-double-right]="layoutService.sidebarCollapsed()"
-            aria-hidden="true"
-          ></i>
+          @if (layoutService.sidebarCollapsed()) {
+            <svg lucidePanelLeftOpen aria-hidden="true"></svg>
+          } @else {
+            <svg lucidePanelLeftClose aria-hidden="true"></svg>
+          }
         </button>
       </div>
     } @else {
@@ -291,12 +290,11 @@
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"
         >
-          <i
-            class="pi"
-            [class.pi-angle-double-left]="!layoutService.sidebarCollapsed()"
-            [class.pi-angle-double-right]="layoutService.sidebarCollapsed()"
-            aria-hidden="true"
-          ></i>
+          @if (layoutService.sidebarCollapsed()) {
+            <svg lucidePanelLeftOpen aria-hidden="true"></svg>
+          } @else {
+            <svg lucidePanelLeftClose aria-hidden="true"></svg>
+          }
         </button>
       </div>
     }
@@ -367,7 +365,7 @@
                 [attr.aria-label]="t('documentation')"
                 (click)="openDocumentation()"
               >
-                <i class="pi pi-question-circle" aria-hidden="true"></i>
+                <svg lucideCircleQuestionMark aria-hidden="true"></svg>
               </button>
             </div>
 
@@ -379,7 +377,7 @@
                   type="button"
                   (click)="openChangelogDialog()"
                 >
-                  <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
+                  <svg lucideArrowUpRight aria-hidden="true"></svg>
                   <span>{{ t('updateAvailable') }}</span>
                 </button>
               </div>
@@ -389,7 +387,7 @@
           <div class="user-account-popover-body">
             @if (!user.permissions.demoUser) {
               <button type="button" class="menu-item user-account-popover-action" (click)="openAccountSettings()">
-                <i class="pi pi-user-edit" aria-hidden="true"></i>
+                <svg lucideUserPen aria-hidden="true"></svg>
                 <span>{{ 'settingsProfile.title' | transloco }}</span>
               </button>
             }
@@ -400,7 +398,7 @@
                 class="menu-item user-account-popover-action"
                 (click)="openReadingStats()"
               >
-                <i class="pi pi-chart-bar" aria-hidden="true"></i>
+                <svg lucideChartColumn aria-hidden="true"></svg>
                 <span>{{ t('readingStats') }}</span>
               </button>
             }
@@ -413,14 +411,15 @@
                 [attr.aria-expanded]="appearanceMenuOpen()"
                 (click)="toggleAppearanceMenu()"
               >
-                <i class="pi pi-palette" aria-hidden="true"></i>
+                <svg lucidePalette aria-hidden="true"></svg>
                 <span>{{ 'layout.theme.appearance' | transloco }}</span>
                 <span class="ml-auto mr-1.5 min-w-0 max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{{ selectedAppearanceLabel() }}</span>
-                <i
-                  class="pi pi-chevron-down size-2.5 shrink-0 text-[0.6875rem] text-text-secondary! transition-transform duration-150"
+                <svg
+                  lucideChevronDown
+                  class="size-2.5 shrink-0 text-text-secondary! transition-transform duration-150"
                   [class.rotate-180]="appearanceMenuOpen()"
                   aria-hidden="true">
-                </i>
+                </svg>
               </button>
 
               <div
@@ -436,14 +435,14 @@
                     @for (option of appearanceOptions; track option.value) {
                       <button
                         type="button"
-                        class="menu-item user-account-popover-action aria-pressed:bg-active-surface aria-pressed:text-primary! aria-pressed:[&_.pi]:text-primary!"
+                        class="menu-item user-account-popover-action aria-pressed:bg-active-surface aria-pressed:text-primary! aria-pressed:[&_svg]:text-primary!"
                         [attr.aria-pressed]="selectedAppearancePreference() === option.value"
                         (click)="updateAppearancePreference(option.value)"
                       >
-                        <i [class]="option.icon" aria-hidden="true"></i>
+                        <svg [lucideIcon]="option.icon" aria-hidden="true"></svg>
                         <span>{{ option.labelKey | transloco }}</span>
                         @if (selectedAppearancePreference() === option.value) {
-                          <i class="pi pi-check ml-auto text-primary!" aria-hidden="true"></i>
+                          <svg lucideCheck class="ml-auto text-primary!" aria-hidden="true"></svg>
                         }
                       </button>
                     }
@@ -455,7 +454,7 @@
 
           <footer class="user-account-popover-footer">
             <button type="button" class="menu-item user-account-popover-logout" (click)="logout()">
-              <i class="pi pi-sign-out" aria-hidden="true"></i>
+              <svg lucideLogOut aria-hidden="true"></svg>
               <span>{{ t('logout') }}</span>
             </button>
           </footer>

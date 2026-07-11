@@ -9,7 +9,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {AppRatingComponent} from '../../../../../shared/ui/rating/app-rating.component';
 import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
 
@@ -86,7 +86,7 @@ const CLICKABLE_FILTER_KEYS: Record<string, string> = {
   imports: [
     CdkOverlayOrigin,
     Checkbox,
-    CoverPlaceholderComponent,
+    CoverComponent,
     FormsModule,
     NgClass,
     AppRatingComponent,

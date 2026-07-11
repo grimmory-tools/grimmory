@@ -1,6 +1,52 @@
 {
     "title": "Postavke prikaza",
     "description": "Prilagodite kako se knjige prikazuju u vašoj knjižnici, uključujući raspored mreže, opcije sortiranja i ponašanje bočne trake.",
+    "dashboardScrollers": {
+        "sectionTitle": "Konfiguracija nadzorne ploče",
+        "sectionDesc": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje.",
+        "type": "Vrsta",
+        "selectType": "Odaberite vrstu",
+        "magicShelf": "Čarobna polica",
+        "selectMagicShelf": "Odaberite čarobnu policu",
+        "sortField": "Polje sortiranja",
+        "selectField": "Odaberite polje",
+        "direction": "Smjer",
+        "selectDirection": "Odaberite smjer",
+        "maxItems": "Maks. stavki",
+        "addScroller": "Dodaj klizač",
+        "resetToDefault": "Vrati na zadano",
+        "scrollerTypes": {
+            "lastRead": "Nastavi čitanje",
+            "lastListened": "Nastavi slušanje",
+            "latestAdded": "Nedavno dodano",
+            "random": "Otkrijte nešto novo",
+            "magicShelf": "Čarobna polica",
+            "default": "Klizač"
+        },
+        "sortFields": {
+            "title": "Naslov",
+            "fileName": "Naziv datoteke",
+            "filePath": "Putanja datoteke",
+            "addedOn": "Datum dodavanja",
+            "author": "Autor",
+            "authorSurnameVorname": "Autor (prezime)",
+            "seriesName": "Naziv serijala",
+            "seriesNumber": "Broj u serijalu",
+            "personalRating": "Osobna ocjena",
+            "publisher": "Izdavač",
+            "publishedDate": "Datum izdavanja",
+            "lastReadTime": "Zadnje čitano",
+            "readStatus": "Status čitanja",
+            "dateFinished": "Datum završetka",
+            "readingProgress": "Napredak čitanja",
+            "bookType": "Format datoteke",
+            "pageCount": "Stranice"
+        },
+        "sortDirections": {
+            "asc": "Uzlazno",
+            "desc": "Silazno"
+        }
+    },
     "librarySort": {
         "sectionTitle": "Postavke prikaza i sortiranja zbirki i polica",
         "sectionDesc": "Konfigurirajte zadane i specifične postavke za sortiranje i način prikaza (mreža ili tablica) u pregledniku za svaku knjižnicu/policu.",
@@ -152,6 +198,11 @@
     "saveFailedDetail": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

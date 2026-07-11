@@ -34,7 +34,8 @@
         "allLibrariesAdmin": "Wszystkie biblioteki (Administrator)",
         "selectLibraries": "Wybierz biblioteki",
         "enterFullName": "Wprowadź imię i nazwisko",
-        "enterEmail": "Wprowadź e-mail"
+        "enterEmail": "Wprowadź e-mail",
+        "noLibrariesAssigned": ""
     },
     "permGroups": {
         "administration": "Administracja",

@@ -7,6 +7,25 @@ import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angul
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
 import { AppButtonDirective } from '../../components/button/app-button.directive';
+import {
+  LucideArrowUpRight,
+  LucideBell,
+  LucideChartColumn,
+  LucideCheck,
+  LucideChevronDown,
+  LucideCircleQuestionMark,
+  LucideDynamicIcon,
+  LucideLogOut,
+  LucidePalette,
+  LucidePanelLeftClose,
+  LucidePanelLeftOpen,
+  LucidePlus,
+  LucideSearch,
+  LucideSettings,
+  LucideUpload,
+  LucideUserPen,
+  LucideX,
+} from '@lucide/angular';
 import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
@@ -109,6 +128,23 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
   imports: [
     AppSidebarSectionComponent,
     AppButtonDirective,
+    LucideArrowUpRight,
+    LucideBell,
+    LucideChartColumn,
+    LucideCheck,
+    LucideChevronDown,
+    LucideCircleQuestionMark,
+    LucideDynamicIcon,
+    LucideLogOut,
+    LucidePalette,
+    LucidePanelLeftClose,
+    LucidePanelLeftOpen,
+    LucidePlus,
+    LucideSearch,
+    LucideSettings,
+    LucideUpload,
+    LucideUserPen,
+    LucideX,
     Menu,
     UnifiedNotificationBoxComponent,
     RouterLink,
@@ -333,11 +369,18 @@ export class AppSidebarComponent {
     }
   }
 
+  // Temporary: PrimeNG p-menu cannot render non-Prime icons here.
+  private static readonly ADD_MENU_ICONS: Record<string, string> = {
+    createLibrary: 'pi pi-folder',
+    createShelf: 'pi pi-bookmark',
+    createMagicShelf: 'pi pi-sparkles',
+  };
+
   private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
     return items.flatMap((item): MenuItem[] =>
       item ? [{
         label: item.label,
-        icon: item.icon ? `pi ${item.icon}` : undefined,
+        icon: AppSidebarComponent.ADD_MENU_ICONS[item.id],
         routerLink: item.routerLink,
         command: item.action,
       }] : []

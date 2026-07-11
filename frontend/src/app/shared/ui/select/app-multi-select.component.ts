@@ -10,6 +10,7 @@ import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/c
 import { Listbox, Option } from '@angular/aria/listbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
+import { LucideCheck, LucideChevronDown, LucideLoaderCircle, LucideSearch, LucideX } from '@lucide/angular';
 
 import { cn } from '../cn';
 import { AppSelectBaseDirective } from './app-select-base.directive';
@@ -27,6 +28,11 @@ import { type SelectOption } from './app-select.options';
     Listbox,
     Option,
     TranslocoPipe,
+    LucideCheck,
+    LucideChevronDown,
+    LucideLoaderCircle,
+    LucideSearch,
+    LucideX,
   ],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,22 +72,17 @@ import { type SelectOption } from './app-select.options';
           <button
             type="button"
             [attr.aria-label]="'shared.ui.select.clearSelection' | transloco"
-            class="relative z-20 flex h-full shrink-0 items-center justify-center border-0 bg-transparent p-0 text-text-muted transition-colors hover:text-text-strong"
-            [class.w-9]="variant() !== 'bare'"
-            [class.w-7]="variant() === 'bare'"
+            [class]="clearButtonClass()"
             (click)="clear($event)">
-            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+            <svg lucideX class="size-4" aria-hidden="true"></svg>
           </button>
         }
 
-        <span
-          class="flex h-full shrink-0 items-center justify-center text-text-muted"
-          [class.w-9]="variant() !== 'bare'"
-          [class.w-7]="variant() === 'bare'">
+        <span [class]="indicatorClass()">
           @if (pending()) {
-            <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
+            <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
           } @else {
-            <i class="pi pi-chevron-down text-xs transition-transform" [class.rotate-180]="cb.expanded()" aria-hidden="true"></i>
+            <svg lucideChevronDown class="size-4 transition-transform" [class.rotate-180]="cb.expanded()" aria-hidden="true"></svg>
           }
         </span>
       </div>
@@ -101,7 +102,7 @@ import { type SelectOption } from './app-select.options';
           (attach)="onOverlayAttach()">
           <div [class]="surfaceClass">
             @if (filter()) {
-              <div class="flex h-9 items-center border-b border-border pl-3 pr-2 text-text-muted">
+              <div [class]="filterRowClass">
                 <input
                   #filterInput
                   type="text"
@@ -110,8 +111,8 @@ import { type SelectOption } from './app-select.options';
                   (keydown)="onFilterKeydown($event)"
                   [placeholder]="filterPlaceholder() || ('shared.ui.select.search' | transloco)"
                   [readonly]="readonly()"
-                  class="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-2 text-sm text-text-strong outline-hidden placeholder:text-text-muted focus:outline-hidden" />
-                <i class="pi pi-search shrink-0 text-xs" aria-hidden="true"></i>
+                  [class]="filterInputClass" />
+                <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
               </div>
             }
 
@@ -142,7 +143,7 @@ import { type SelectOption } from './app-select.options';
                     [disabled]="option.disabled === true"
                     [class]="optionClass">
                     <span [class]="checkboxClass(isSelected(option))">
-                      @if (isSelected(option)) { <i class="pi pi-check text-[0.625rem] text-white" aria-hidden="true"></i> }
+                      @if (isSelected(option)) { <svg lucideCheck class="size-3 text-white" aria-hidden="true"></svg> }
                     </span>
                     @if (optionTemplate(); as tpl) {
                       <ng-container [ngTemplateOutlet]="tpl.template" [ngTemplateOutletContext]="{ $implicit: option }" />

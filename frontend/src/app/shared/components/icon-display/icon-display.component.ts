@@ -1,25 +1,39 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {IconSelection} from '../../service/icon-picker.service';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef} from '@angular/core';
+import {IconSelection} from '../../icons/icon-selection';
 import {NgClass, NgStyle} from '@angular/common';
-import {IconCacheService} from '../../services/icon-cache.service';
-import {IconService} from '../../services/icon.service';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {CustomSvgCacheService} from '../../services/custom-svg-cache.service';
+import {CustomSvgService} from '../../services/custom-svg.service';
+import {AppIconDirective} from '../icon/app-icon.directive';
+import {SvgContentDirective} from '../icon/svg-content.directive';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+
+const ERROR_SVG = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="red">',
+  '<circle cx="12" cy="12" r="10"/>',
+  '<line x1="15" y1="9" x2="9" y2="15"/>',
+  '<line x1="9" y1="9" x2="15" y2="15"/>',
+  '</svg>',
+].join('');
 
 @Component({
   selector: 'app-icon-display',
   standalone: true,
-  imports: [NgClass, NgStyle],
+  imports: [NgClass, NgStyle, AppIconDirective, SvgContentDirective],
   template: `
     @if (icon) {
-      @if (icon.type === 'PRIME_NG') {
-        <i [class]="getPrimeNgIconClass(icon.value)" [ngClass]="iconClass" [ngStyle]="getPrimeNgStyle()"></i>
-      } @else {
+      @if (icon.type === 'CUSTOM_SVG') {
         <div
           class="svg-icon-inline"
-          [innerHTML]="getSvgContent(icon.value)"
+          [appSvgContent]="getSvgContent(icon.value)"
           [ngClass]="iconClass"
           [ngStyle]="getSvgStyle()"
         ></div>
+      } @else {
+        <svg
+          [appIcon]="icon.value"
+          [ngClass]="iconClass"
+          [ngStyle]="getSvgStyle()"
+        ></svg>
       }
     } @else if (displayEmpty) {
       <div
@@ -68,10 +82,10 @@ export class IconDisplayComponent implements OnInit, OnChanges {
   @Input() alt: string = 'Icon';
   @Input() displayEmpty: boolean = false;
 
-  private iconCache = inject(IconCacheService);
-  private iconService = inject(IconService);
-  private sanitizer = inject(DomSanitizer);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly customSvgCache = inject(CustomSvgCacheService);
+  private readonly customSvgService = inject(CustomSvgService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private lastLoadedIconName: string | null = null;
 
   ngOnInit(): void {
@@ -92,36 +106,25 @@ export class IconDisplayComponent implements OnInit, OnChanges {
 
   private loadIconIfNeeded(): void {
     if (this.icon?.type === 'CUSTOM_SVG' && this.icon.value !== this.lastLoadedIconName) {
-      this.lastLoadedIconName = this.icon.value;
+      const requestedIconName = this.icon.value;
+      this.lastLoadedIconName = requestedIconName;
 
-      if (!this.iconCache.getCachedSanitized(this.icon.value)) {
-        this.iconService.getSanitizedSvgContent(this.icon.value).subscribe({
-          next: () => this.cdr.markForCheck(),
-          error: () => {
-            if (this.icon?.type === 'CUSTOM_SVG') {
-              const errorSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="red"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-              const sanitized = this.sanitizer.bypassSecurityTrustHtml(errorSvg);
-              this.iconCache.cacheIcon(this.icon.value, errorSvg, sanitized);
+      if (this.customSvgCache.getCachedSanitized(requestedIconName) === null) {
+        this.customSvgService.getSanitizedSvgContent(requestedIconName)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.cdr.markForCheck(),
+            error: () => {
+              this.customSvgCache.cacheIcon(requestedIconName, ERROR_SVG, ERROR_SVG);
               this.cdr.markForCheck();
             }
-          }
-        });
+          });
       }
     }
   }
 
-  getSvgContent(iconName: string): SafeHtml | null {
-    return this.iconCache.getCachedSanitized(iconName) || null;
-  }
-
-  getPrimeNgIconClass(iconValue: string): string {
-    if (iconValue.startsWith('pi pi-')) {
-      return iconValue;
-    }
-    if (iconValue.startsWith('pi-')) {
-      return `pi ${iconValue}`;
-    }
-    return `pi pi-${iconValue}`;
+  getSvgContent(iconName: string): string | null {
+    return this.customSvgCache.getCachedSanitized(iconName);
   }
 
   getSvgStyle(): Record<string, string> {
@@ -139,19 +142,4 @@ export class IconDisplayComponent implements OnInit, OnChanges {
     };
   }
 
-  getPrimeNgStyle(): Record<string, string> {
-    const fontSize = this.size.endsWith('px')
-      ? `${parseInt(this.size) * 0.85}px`
-      : `calc(${this.size} * 0.85)`;
-
-    return {
-      fontSize: fontSize,
-      width: this.size,
-      height: this.size,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...this.iconStyle
-    };
-  }
 }

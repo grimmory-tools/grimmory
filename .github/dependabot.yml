@@ -48,6 +48,10 @@ updates:
       - dependency-name: "typescript"
       - dependency-name: "@angular/animations"
         versions: [">=22.0.0"]
+      - dependency-name: "@angular-devkit/architect"
+        versions: [">=0.2200.0"]
+      - dependency-name: "@angular-devkit/schematics"
+        versions: [">=22.0.0"]
       - dependency-name: "@angular/aria"
         versions: [">=22.0.0"]
       - dependency-name: "@angular/build"
@@ -73,6 +77,8 @@ updates:
       - dependency-name: "@angular/router"
         versions: [">=22.0.0"]
       - dependency-name: "@angular/service-worker"
+        versions: [">=22.0.0"]
+      - dependency-name: "angular-eslint"
         versions: [">=22.0.0"]
 
   # GitHub Actions

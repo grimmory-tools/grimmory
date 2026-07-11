@@ -69,8 +69,8 @@
           <div class="icon-info">
             <span class="icon-label">{{ t('selectedIcon') }}</span>
             <span class="icon-name">
-              @if (selectedIcon.type === 'PRIME_NG') {
-                {{ selectedIcon.value }}
+              @if (selectedIcon.type === 'CUSTOM_SVG') {
+                {{ t('customSvg') }}
               } @else {
                 {{ selectedIcon.value }}
               }

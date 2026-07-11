@@ -1,6 +1,52 @@
 {
     "title": "视图偏好",
     "description": "自定义书库中书籍的显示方式，包括网格布局、排序选项和侧边栏行为。",
+    "dashboardScrollers": {
+        "sectionTitle": "仪表板配置",
+        "sectionDesc": "从不同的书籍集合中添加最多 5 个滚动条，并自定义其行为",
+        "type": "类型",
+        "selectType": "选择类型",
+        "magicShelf": "智能书架",
+        "selectMagicShelf": "选择智能书架",
+        "sortField": "排序字段",
+        "selectField": "选择字段",
+        "direction": "方向",
+        "selectDirection": "选择方向",
+        "maxItems": "最大数量",
+        "addScroller": "添加滚动条",
+        "resetToDefault": "重置为默认",
+        "scrollerTypes": {
+            "lastRead": "继续阅读",
+            "lastListened": "继续收听",
+            "latestAdded": "最近添加",
+            "random": "发现新书",
+            "magicShelf": "智能书架",
+            "default": "滚动条"
+        },
+        "sortFields": {
+            "title": "标题",
+            "fileName": "文件名",
+            "filePath": "文件路径",
+            "addedOn": "添加日期",
+            "author": "作者",
+            "authorSurnameVorname": "作者（姓氏）",
+            "seriesName": "系列名称",
+            "seriesNumber": "系列编号",
+            "personalRating": "个人评分",
+            "publisher": "出版社",
+            "publishedDate": "出版日期",
+            "lastReadTime": "上次阅读",
+            "readStatus": "阅读状态",
+            "dateFinished": "完成日期",
+            "readingProgress": "阅读进度",
+            "bookType": "书籍类型",
+            "pageCount": "页数"
+        },
+        "sortDirections": {
+            "asc": "升序",
+            "desc": "降序"
+        }
+    },
     "librarySort": {
         "sectionTitle": "书库和书架视图与排序偏好",
         "sectionDesc": "配置浏览器中排序和视图模式（网格或表格）的默认和每个书库/书架偏好。",
@@ -152,6 +198,11 @@
     "saveFailedDetail": "",
     "language": {
         "savedDetail": "",
+        "label": ""
+    },
+    "uiFont": {
+        "savedDetail": "",
+        "accessibleLabel": "",
         "label": ""
     }
 }

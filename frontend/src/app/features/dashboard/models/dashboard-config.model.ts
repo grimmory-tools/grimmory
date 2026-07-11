@@ -1,4 +1,7 @@
-import {DEFAULT_MAX_ITEMS} from '../components/dashboard-settings/dashboard-settings.component';
+export const MAX_SCROLLERS = 5;
+export const DEFAULT_MAX_ITEMS = 20;
+export const MIN_ITEMS = 10;
+export const MAX_ITEMS = 20;
 
 export enum ScrollerType {
   LAST_READ = 'lastRead',

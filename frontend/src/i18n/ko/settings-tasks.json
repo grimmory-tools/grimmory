@@ -1,0 +1,69 @@
+{
+  "title": "",
+  "description": "",
+  "systemTasks": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
+  "loading": "",
+  "emptyTitle": "",
+  "status": {
+    "running": "",
+    "stale": "",
+    "neverRun": "",
+    "justNow": ""
+  },
+  "cron": {
+    "noSchedule": "",
+    "edit": "",
+    "placeholder": "",
+    "validationPrefix": "",
+    "invalidField": "",
+    "updateSuccess": "",
+    "updateError": ""
+  },
+  "buttons": {
+    "run": "",
+    "rerun": ""
+  },
+  "metadataReplace": {
+    "label": "",
+    "selectMode": "",
+    "replaceMissing": "",
+    "replaceAll": "",
+    "replaceMissingDesc": "",
+    "replaceAllDesc": ""
+  },
+  "progress": {
+    "staleWarning": "",
+    "statusLabel": "",
+    "progressLabel": "",
+    "startedLabel": "",
+    "processing": "",
+    "stuckMessage": ""
+  },
+  "toast": {
+    "taskQueued": "",
+    "taskQueuedDetail": "",
+    "taskCompleted": "",
+    "taskCompletedDetail": "",
+    "taskFailed": "",
+    "taskFailedDetail": "",
+    "taskStarted": "",
+    "taskStartedDetail": "",
+    "startError": "",
+    "alreadyRunning": "",
+    "alreadyRunningDetail": "",
+    "taskCancelled": "",
+    "cancelledDetail": "",
+    "cancelFailed": "",
+    "cancelError": "",
+    "cancelNoId": "",
+    "loadError": "",
+    "metadataScheduled": "",
+    "metadataScheduledDetail": "",
+    "metadataAlreadyRunningDetail": "",
+    "metadataFailed": "",
+    "metadataFailedDetail": ""
+  }
+}

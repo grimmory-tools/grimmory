@@ -9,12 +9,13 @@ import {BookService} from '../../book/service/book.service';
 import {BookRuleEvaluatorService} from './book-rule-evaluator.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {GroupRule} from '../component/magic-shelf-component';
+import {IconType} from '../../../shared/icons/icon-selection';
 
 export interface MagicShelf {
   id?: number | null;
   name: string;
   icon?: string | null;
-  iconType?: 'PRIME_NG' | 'CUSTOM_SVG' | null;
+  iconType?: IconType | null;
   filterJson: string;
   isPublic?: boolean;
 }
@@ -72,7 +73,7 @@ export class MagicShelfService {
     id?: number;
     name: string | null;
     icon: string | null;
-    iconType?: 'PRIME_NG' | 'CUSTOM_SVG';
+    iconType?: IconType | null;
     group: unknown;
     isPublic?: boolean | null;
   }): Observable<MagicShelf> {

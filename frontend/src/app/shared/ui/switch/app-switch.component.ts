@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { type FormCheckboxControl } from '@angular/forms/signals';
 import { cn } from '../cn';
-import { invisibleControlInputClass } from '../control.styles';
+import { expandedTouchTargetInputClass } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appSwitchRootVariants,
@@ -76,7 +76,7 @@ export class AppSwitchComponent implements FormCheckboxControl {
   protected readonly isUnavailable = computed(() => this.disabled() || this.readonly());
 
   protected readonly rootClass = computed(() => cn(appSwitchRootVariants({ size: this.size() }), this.styleClass()));
-  protected readonly inputClass = invisibleControlInputClass;
+  protected readonly inputClass = expandedTouchTargetInputClass;
   protected readonly trackClass = computed(() =>
     appSwitchTrackVariants({ disabled: this.isUnavailable(), invalid: this.showInvalid() }),
   );

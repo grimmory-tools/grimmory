@@ -11,6 +11,7 @@ import { AppNumberInputComponent } from '../../../shared/ui/number-input/app-num
 import { AppSliderComponent } from '../../../shared/ui/slider/app-slider.component';
 import { AppSwitchComponent } from '../../../shared/ui/switch/app-switch.component';
 import { AppTagComponent } from '../../../shared/ui/tag/app-tag.component';
+import { LucideBook, LucideChevronLeft, LucideLoaderCircle, LucideSave, LucideSmartphone, LucideTablet } from '@lucide/angular';
 
 interface DeviceFormModel {
   hardcover: { enabled: boolean; apiKey: string };
@@ -57,6 +58,12 @@ function createInitialModel(): DeviceFormModel {
     AppSliderComponent,
     AppSwitchComponent,
     AppTagComponent,
+    LucideBook,
+    LucideSmartphone,
+    LucideTablet,
+    LucideChevronLeft,
+    LucideSave,
+    LucideLoaderCircle,
   ],
   templateUrl: './device-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

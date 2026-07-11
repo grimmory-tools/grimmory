@@ -3,6 +3,7 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject,
 import { toSignal } from '@angular/core/rxjs-interop';
 import { type FieldState, type ValidationError } from '@angular/forms/signals';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LucideChevronDown, LucideChevronUp, LucideDynamicIcon } from '@lucide/angular';
 import { AppButtonComponent } from '../button/app-button.component';
 import { cn } from '../cn';
 import {
@@ -18,7 +19,7 @@ type SummaryLayout = 'list' | 'inline';
 @Component({
   selector: 'app-message',
   standalone: true,
-  imports: [AppButtonComponent, TranslocoPipe],
+  imports: [AppButtonComponent, TranslocoPipe, LucideDynamicIcon, LucideChevronUp, LucideChevronDown],
   host: {
     '[class.block]': '!inline()',
     '[class.inline-block]': 'inline()',
@@ -28,7 +29,7 @@ type SummaryLayout = 'list' | 'inline';
   template: `
     @if (visible()) {
       <div [class]="rootClass()" [attr.role]="role()">
-        <i [class]="iconClass()" aria-hidden="true"></i>
+        <svg [lucideIcon]="messageIcon()" [class]="iconClass()" aria-hidden="true"></svg>
         <div class="min-w-0 flex-1">
           @if (field() && summary()) {
             @if (summaryLayout() === 'inline') {
@@ -46,23 +47,21 @@ type SummaryLayout = 'list' | 'inline';
                       variant="ghost"
                       size="sm"
                       iconOnly
-                      icon="pi pi-chevron-up"
                       [ariaLabel]="'shared.ui.message.previousIssue' | transloco"
-                      (clicked)="focusAdjacentSummaryIssue(-1)" />
+                      (clicked)="focusAdjacentSummaryIssue(-1)"><svg lucideChevronUp aria-hidden="true"></svg></app-button>
                     <app-button
                       tone="danger"
                       variant="ghost"
                       size="sm"
                       iconOnly
-                      icon="pi pi-chevron-down"
                       [ariaLabel]="'shared.ui.message.nextIssue' | transloco"
-                      (clicked)="focusAdjacentSummaryIssue(1)" />
+                      (clicked)="focusAdjacentSummaryIssue(1)"><svg lucideChevronDown aria-hidden="true"></svg></app-button>
                   </div>
                 </div>
               } @else {
                 <button
                   type="button"
-                  class="block w-full truncate text-left font-medium text-current underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  class="block w-full truncate text-left font-medium text-current underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-coarse:py-1"
                   (click)="focusAdjacentSummaryIssue(1)">
                   {{ activeIssueMessage() }}
                 </button>
@@ -76,7 +75,7 @@ type SummaryLayout = 'list' | 'inline';
                   <li>
                     <button
                       type="button"
-                      class="rounded-sm text-left text-current underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                      class="rounded-sm text-left text-current underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-coarse:py-1"
                       (click)="focusIssue(issue)">
                       {{ issueLabel(issue) }}
                     </button>
@@ -141,9 +140,8 @@ export class AppMessageComponent {
   });
   protected readonly resolvedColor = computed<MessageColor>(() => (this.field() ? 'red' : this.color()));
   protected readonly role = computed(() => (this.resolvedColor() === 'red' ? 'alert' : 'status'));
-  protected readonly iconClass = computed(() =>
-    cn(MESSAGE_ICONS[this.resolvedColor()], 'mt-0.5 shrink-0 text-[1.05em] leading-none'),
-  );
+  protected readonly messageIcon = computed(() => MESSAGE_ICONS[this.resolvedColor()]);
+  protected readonly iconClass = computed(() => cn('mt-0.5 size-4 shrink-0 leading-none'));
   protected readonly rootClass = computed(() =>
     cn(messageVariants({ color: this.resolvedColor() }), this.inline() && 'inline-flex align-middle', this.styleClass()),
   );
