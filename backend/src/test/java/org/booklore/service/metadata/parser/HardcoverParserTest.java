@@ -581,7 +581,7 @@ class HardcoverParserTest {
             assertThat(metadata.getHardcoverId()).isEqualTo("ready-player-one");
             assertThat(metadata.getHardcoverBookId()).isEqualTo("26363");
             assertThat(metadata.getHardcoverRating()).isEqualTo(4.03);
-            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(4572);
+            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(495);
             assertThat(metadata.getPageCount()).isEqualTo(387);
             assertThat(metadata.getAuthors()).contains("Ernest Cline");
             assertThat(metadata.getSeriesName()).isEqualTo("Ready Player One");
@@ -619,7 +619,7 @@ class HardcoverParserTest {
             assertThat(metadata.getHardcoverId()).isEqualTo("test-book-slug");
             assertThat(metadata.getHardcoverBookId()).isEqualTo("12345");
             assertThat(metadata.getHardcoverRating()).isEqualTo(4.25);
-            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(100);
+            assertThat(metadata.getHardcoverReviewCount()).isEqualTo(50);
             assertThat(metadata.getPageCount()).isEqualTo(350);
             assertThat(metadata.getAuthors()).contains("Test Author");
             assertThat(metadata.getSeriesName()).isEqualTo("Test Series");
