@@ -15,7 +15,7 @@
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/git": "10.0.1",
     "@semantic-release/release-notes-generator": "14.1.1",
-    "conventional-changelog-conventionalcommits": "10.2.0",
+    "conventional-changelog-conventionalcommits": "10.2.1",
     "semantic-release": "25.0.5"
   }
 }
