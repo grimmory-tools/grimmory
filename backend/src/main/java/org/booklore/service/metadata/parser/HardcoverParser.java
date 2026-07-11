@@ -451,17 +451,6 @@ public class HardcoverParser implements BookParser {
         }
     }
 
-    private void mapCachedContributors(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.Edition edition) {
-        if (edition.getCachedContributors() != null) {
-            builder.authors(edition.getCachedContributors().stream()
-                    .map(GraphQLResponse.Contributor::getAuthor)
-                    .filter(Objects::nonNull)
-                    .map(GraphQLResponse.Author::getName)
-                    .filter(Objects::nonNull)
-                    .toList());
-        }
-    }
-
     private void mapEditionReleaseDate(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.Edition edition) {
         if (edition.getReleaseDate() != null) {
             try {
