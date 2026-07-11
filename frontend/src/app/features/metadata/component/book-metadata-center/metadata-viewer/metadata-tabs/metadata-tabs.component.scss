@@ -361,9 +361,7 @@
   align-items: center;
   gap: 0.6563rem;
 
-  ::ng-deep .square-cover img {
-    aspect-ratio: 1;
-    object-fit: cover;
+  .square-cover {
     border-radius: 0.4375rem;
   }
 }

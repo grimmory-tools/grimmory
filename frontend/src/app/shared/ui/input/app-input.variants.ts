@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { neutralControlBorderClass } from '../control.styles';
+import { controlHeightBySize, controlMinHeightBySize, neutralControlBorderClass } from '../control.styles';
 
 export type AppInputSize = 'sm' | 'md' | 'lg';
 export type AppInputVariant = 'outlined' | 'bare';
@@ -12,25 +12,25 @@ export const appInputVariants = cva(
   {
     variants: {
       size: {
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-sm',
+        sm: 'text-xs pointer-coarse:text-base',
+        md: 'text-sm pointer-coarse:text-base',
+        lg: 'text-sm pointer-coarse:text-base',
       },
       variant: {
         outlined:
           `rounded-md border ${neutralControlBorderClass} bg-card shadow-control ` +
-          'focus:border-primary/60 focus:outline-1 focus:outline-offset-0 focus:outline-primary/60 ' +
-          'aria-invalid:border-danger aria-invalid:focus:border-danger aria-invalid:focus:outline-danger',
+          'focus-within:border-primary/60 focus-within:outline-1 focus-within:outline-offset-0 focus-within:outline-primary/60 ' +
+          'aria-invalid:border-danger aria-invalid:focus-within:border-danger aria-invalid:focus-within:outline-danger',
         bare: 'rounded-none border-0 bg-transparent shadow-none aria-invalid:text-danger',
       },
     },
     compoundVariants: [
-      { variant: 'outlined', size: 'sm', class: 'h-8 px-3 leading-8' },
-      { variant: 'outlined', size: 'md', class: 'h-9 px-3 leading-9' },
-      { variant: 'outlined', size: 'lg', class: 'h-10 px-4 leading-10' },
-      { variant: 'bare', size: 'sm', class: 'h-full min-h-8 px-3' },
-      { variant: 'bare', size: 'md', class: 'h-full min-h-9 px-4' },
-      { variant: 'bare', size: 'lg', class: 'h-full min-h-10 px-4' },
+      { variant: 'outlined', size: 'sm', class: `${controlHeightBySize.sm} px-3 leading-8` },
+      { variant: 'outlined', size: 'md', class: `${controlHeightBySize.md} px-3 leading-9` },
+      { variant: 'outlined', size: 'lg', class: `${controlHeightBySize.lg} px-4 leading-10` },
+      { variant: 'bare', size: 'sm', class: `h-full ${controlMinHeightBySize.sm} px-3` },
+      { variant: 'bare', size: 'md', class: `h-full ${controlMinHeightBySize.md} px-4` },
+      { variant: 'bare', size: 'lg', class: `h-full ${controlMinHeightBySize.lg} px-4` },
     ],
     defaultVariants: { size: 'md', variant: 'outlined' },
   },

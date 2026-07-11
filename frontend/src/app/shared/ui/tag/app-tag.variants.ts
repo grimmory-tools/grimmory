@@ -38,7 +38,7 @@ export const tagVariants = cva(
       },
       clickable: {
         true:
-          'cursor-pointer transition-[background-color,border-color] duration-150 ' +
+          'cursor-pointer touch-manipulation transition-[background-color,border-color] duration-150 ' +
           'hover:border-current/40 active:translate-y-px ' +
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
         false: '',
@@ -49,7 +49,8 @@ export const tagVariants = cva(
 );
 
 export const tagRemoveVariants = cva(
-  '-my-0.5 inline-flex shrink-0 cursor-pointer items-center justify-center self-stretch rounded-r-full ' +
+  'relative -my-0.5 inline-flex shrink-0 cursor-pointer items-center justify-center self-stretch rounded-r-full ' +
+    "touch-manipulation pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5 pointer-coarse:after:content-[''] " +
     'transition-colors hover:bg-current/15 ' +
     'focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-current',
   {

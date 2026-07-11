@@ -58,7 +58,7 @@
         "organizationModeBookPerFile": "Jedna knjiga po datoteci",
         "organizationModeBookPerFolder": "Jedna knjiga po mapi",
         "organizationModeAutoDetect": "Automatsko otkrivanje (zastarjelo)",
-        "organizationModeLockedTooltip": ""
+        "organizationModeLockedTooltip": "Način organizacije ne može se promijeniti nakon stvaranja zbirke. Za korištenje drugog načina rada stvorite novu zbirku."
     },
     "loading": {
         "title": "Učitavanje zbirke",

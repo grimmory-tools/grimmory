@@ -74,7 +74,11 @@ public enum ApiError {
     OIDC_LOGOUT_REPLAY(HttpStatus.BAD_REQUEST, "Logout token has already been processed"),
     OIDC_LOGOUT_MISSING_JTI(HttpStatus.BAD_REQUEST, "Logout token missing required jti claim"),
     OIDC_INVALID_STATE(HttpStatus.BAD_REQUEST, "Invalid or expired OIDC state parameter"),
-    JWT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid JWT token: %s");
+    JWT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid JWT token: %s"),
+
+    INVALID_SORT(HttpStatus.BAD_REQUEST, "%s"),
+    INVALID_CURSOR(HttpStatus.BAD_REQUEST, "%s"),
+    INVALID_FACET(HttpStatus.BAD_REQUEST, "%s");
 
     private final HttpStatus status;
     private final String message;

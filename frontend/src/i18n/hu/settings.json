@@ -1,17 +1,17 @@
 {
     "tabs": {
-        "users": "",
-        "email": "",
-        "opds": "",
-        "authentication": "",
-        "auditLogs": "",
-        "patterns": "",
-        "tasks": "",
-        "devices": "",
-        "application": "",
-        "reader": "",
-        "view": "",
-        "metadata2": "",
-        "metadata1": ""
+        "users": "Felhasználók",
+        "email": "E-mail",
+        "opds": "OPDS",
+        "authentication": "OIDC",
+        "auditLogs": "Naplófájlok",
+        "patterns": "Mintázatok",
+        "tasks": "Feladatok",
+        "devices": "Eszközök",
+        "application": "Alkalmazás",
+        "reader": "Olvasó",
+        "view": "Nézet",
+        "metadata2": "Metaadat 2",
+        "metadata1": "Metaadat 1"
     }
 }

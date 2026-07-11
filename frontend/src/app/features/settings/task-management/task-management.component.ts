@@ -53,9 +53,9 @@ export class TaskManagementComponent implements OnInit {
 
   // State
   taskInfos: TaskInfo[] = [];
-  taskHistories = new Map<string, TaskHistory>();
-  loading = signal(false);
-  executingTasks = new Set<string>();
+  private readonly taskHistoriesByType = signal(new Map<string, TaskHistory>());
+  readonly loading = signal(false);
+  private readonly executingTaskTypes = signal(new Set<string>());
 
   // Metadata Replace Options
   metadataReplaceOptions = [
@@ -108,10 +108,7 @@ export class TaskManagementComponent implements OnInit {
       .subscribe({
         next: ({available, latest}) => {
           this.taskInfos = this.sortTasksByDisplayOrder(available);
-          this.taskHistories.clear();
-          latest.taskHistories.forEach(history => {
-            this.taskHistories.set(history.type, history);
-          });
+          this.taskHistoriesByType.set(new Map<string, TaskHistory>(latest.taskHistories.map(history => [history.type, history])));
         },
         error: (error) => {
           console.error('Error loading tasks:', error);
@@ -131,22 +128,25 @@ export class TaskManagementComponent implements OnInit {
   }
 
   private updateTaskWithProgress(progress: TaskProgressPayload): void {
-    const existingHistory = this.taskHistories.get(progress.taskType);
+    const now = new Date().toISOString();
+    const isTerminalStatus = progress.taskStatus === TaskStatus.COMPLETED || progress.taskStatus === TaskStatus.FAILED;
 
-    const updatedHistory: TaskHistory = {
-      id: progress.taskId,
-      type: progress.taskType,
-      status: progress.taskStatus,
-      progressPercentage: progress.progress,
-      message: progress.message,
-      createdAt: existingHistory?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      completedAt: (progress.taskStatus === TaskStatus.COMPLETED || progress.taskStatus === TaskStatus.FAILED)
-        ? new Date().toISOString()
-        : existingHistory?.completedAt || null
-    };
+    this.taskHistoriesByType.update(histories => {
+      const existingHistory = histories.get(progress.taskType);
 
-    this.taskHistories.set(progress.taskType, updatedHistory);
+      return new Map(histories).set(progress.taskType, {
+        id: progress.taskId,
+        type: progress.taskType,
+        status: progress.taskStatus,
+        progressPercentage: progress.progress,
+        message: progress.message,
+        createdAt: existingHistory?.createdAt ?? now,
+        updatedAt: now,
+        completedAt: isTerminalStatus
+          ? now
+          : existingHistory?.completedAt ?? null
+      });
+    });
 
     if (progress.taskStatus === TaskStatus.COMPLETED || progress.taskStatus === TaskStatus.FAILED) {
       setTimeout(() => this.loadTasks(), 1000);
@@ -166,7 +166,7 @@ export class TaskManagementComponent implements OnInit {
   // ============================================================================
 
   canExecuteTask(taskType: string): boolean {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     return this.canRunTask(history) || this.isTaskStale(history);
   }
 
@@ -175,7 +175,7 @@ export class TaskManagementComponent implements OnInit {
   }
 
   runTask(type: string): void {
-    const history = this.taskHistories.get(type);
+    const history = this.getTaskHistory(type);
     if (!this.canRunTask(history) && !this.isTaskStale(history)) {
       this.showMessage('warn', this.t.translate('settingsTasks.toast.alreadyRunning'), this.t.translate('settingsTasks.toast.alreadyRunningDetail'));
       return;
@@ -201,9 +201,9 @@ export class TaskManagementComponent implements OnInit {
 
     const isAsync = TASK_TYPE_CONFIG[type as TaskType]?.async || false;
 
-    this.executingTasks.add(type);
+    this.addExecutingTask(type);
     this.taskService.startTask(request)
-      .pipe(finalize(() => this.executingTasks.delete(type)))
+      .pipe(finalize(() => this.removeExecutingTask(type)))
       .subscribe({
         next: (response) => {
           const name = this.getTaskDisplayName(type);
@@ -228,15 +228,15 @@ export class TaskManagementComponent implements OnInit {
   }
 
   cancelTask(taskType: string): void {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     if (!history?.id) {
       this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsTasks.toast.cancelNoId'));
       return;
     }
 
-    this.executingTasks.add(taskType);
+    this.addExecutingTask(taskType);
     this.taskService.cancelTask(history.id)
-      .pipe(finalize(() => this.executingTasks.delete(taskType)))
+      .pipe(finalize(() => this.removeExecutingTask(taskType)))
       .subscribe({
         next: (response) => {
           if (response.cancelled) {
@@ -263,11 +263,11 @@ export class TaskManagementComponent implements OnInit {
   }
 
   isTaskExecuting(taskType: string): boolean {
-    return this.executingTasks.has(taskType);
+    return this.executingTaskTypes().has(taskType);
   }
 
   isTaskRunning(taskType: string): boolean {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     return history?.status === TaskStatus.IN_PROGRESS || history?.status === TaskStatus.PENDING;
   }
 
@@ -502,19 +502,19 @@ export class TaskManagementComponent implements OnInit {
   // ============================================================================
 
   getTaskHistory(taskType: string): TaskHistory | undefined {
-    return this.taskHistories.get(taskType);
+    return this.taskHistoriesByType().get(taskType);
   }
 
   getTaskProgressPercentage(taskType: string): number | null {
-    return this.taskHistories.get(taskType)?.progressPercentage || null;
+    return this.getTaskHistory(taskType)?.progressPercentage ?? null;
   }
 
   getTaskUpdatedAt(taskType: string): string | null {
-    return this.taskHistories.get(taskType)?.updatedAt || null;
+    return this.getTaskHistory(taskType)?.updatedAt || null;
   }
 
   getTaskStatusMessage(taskType: string): string {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     if (this.isTaskStale(history)) {
       return this.t.translate('settingsTasks.progress.stuckMessage');
     }
@@ -522,7 +522,7 @@ export class TaskManagementComponent implements OnInit {
   }
 
   getLastRunMessage(taskType: string): string {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     if (!history?.completedAt && !history?.updatedAt) {
       return this.t.translate('settingsTasks.status.neverRun');
     }
@@ -546,7 +546,7 @@ export class TaskManagementComponent implements OnInit {
   }
 
   getLastRunInfoClass(taskType: string): string {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     if (!history?.status) return 'info';
 
     switch (history.status) {
@@ -573,7 +573,7 @@ export class TaskManagementComponent implements OnInit {
   }
 
   getTaskButtonLabel(taskType: string): string {
-    const history = this.taskHistories.get(taskType);
+    const history = this.getTaskHistory(taskType);
     if (this.isTaskStale(history)) {
       return this.t.translate('settingsTasks.buttons.rerun');
     }
@@ -609,6 +609,18 @@ export class TaskManagementComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString();
+  }
+
+  private addExecutingTask(taskType: string): void {
+    this.executingTaskTypes.update(tasks => new Set(tasks).add(taskType));
+  }
+
+  private removeExecutingTask(taskType: string): void {
+    this.executingTaskTypes.update(tasks => {
+      const updatedTasks = new Set(tasks);
+      updatedTasks.delete(taskType);
+      return updatedTasks;
+    });
   }
 
   private showMessage(severity: 'success' | 'info' | 'warn' | 'error', summary: string, detail: string): void {

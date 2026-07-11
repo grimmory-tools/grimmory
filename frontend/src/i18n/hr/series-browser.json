@@ -7,7 +7,7 @@
     "noSeriesFound": "Nijedan serijal ne odgovara vašoj pretrazi ili filterima.",
     "noSeriesInCategory": "Nema pronađenih serijala u ovoj kategoriji.",
     "filters": {
-        "all": "Svi",
+        "all": "Sve",
         "notStarted": "Nezapočeto",
         "inProgress": "U tijeku",
         "completed": "Završeno",
@@ -18,7 +18,7 @@
         "nameDesc": "Naziv (Ž-A)",
         "bookCount": "Broj knjiga",
         "progress": "Napredak",
-        "recentlyRead": "Nedavno čitano",
+        "recentlyRead": "Nedavno pročitano",
         "recentlyAdded": "Nedavno dodano"
     }
 }

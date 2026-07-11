@@ -62,6 +62,7 @@ const normalizeItems = (items: readonly MenuItem[], showItemIcons: boolean): Men
   standalone: true,
   imports: [TieredMenu, ContextMenu],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {class: 'contents [&>p-contextmenu]:contents [&>p-tieredmenu]:contents'},
   template: `
     @if (contextTarget(); as target) {
       <p-contextMenu

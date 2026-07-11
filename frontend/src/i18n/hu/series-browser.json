@@ -1,24 +1,24 @@
 {
     "sort": {
-        "nameAsc": "",
+        "nameAsc": "Cím (A-Z)",
         "recentlyRead": "Nemrég olvasva",
-        "nameDesc": "",
-        "progress": "",
+        "nameDesc": "Cím (Z-A)",
+        "progress": "Haladás",
         "recentlyAdded": "Nemrég hozzáadva",
         "bookCount": "Könyvek száma"
     },
-    "readNext": "",
-    "searchPlaceholder": "",
-    "browseAllSeries": "",
-    "noSeriesFound": "",
-    "noSeriesInCategory": "",
+    "readNext": "Következő olvasása",
+    "searchPlaceholder": "Keresés sorozatcím vagy szerző alapján...",
+    "browseAllSeries": "Összes sorozat böngészése",
+    "noSeriesFound": "Nincs a keresésnek vagy szűrőknek megfelelő sorozat.",
+    "noSeriesInCategory": "Nem található sorozat ebben a kategóriában.",
     "filters": {
-        "completed": "",
-        "abandoned": "",
+        "completed": "Befejezett",
+        "abandoned": "Abbahagyva",
         "all": "Összes",
-        "notStarted": "",
+        "notStarted": "Nincs elkezdve",
         "inProgress": "Folyamatban"
     },
-    "booksRead": "",
-    "pageTitle": ""
+    "booksRead": "könyvek elolvasva",
+    "pageTitle": "Sorozatok"
 }

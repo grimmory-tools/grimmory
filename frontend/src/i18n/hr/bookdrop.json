@@ -162,7 +162,7 @@
             "subtitle": "Priča o pustolovini",
             "authors": "Ivan Horvat",
             "seriesNumber": "25",
-            "published": "{Published:yyyy-MM-dd}",
+            "published": "{Objavljeno:yyyy-MM-dd}",
             "publisher": "Epski tisak",
             "language": "hr",
             "seriesTotal": "50",

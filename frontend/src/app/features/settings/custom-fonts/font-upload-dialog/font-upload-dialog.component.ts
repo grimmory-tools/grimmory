@@ -30,9 +30,9 @@ export class FontUploadDialogComponent implements OnDestroy {
   isLoadingPreview = false;
   currentPreviewToken: number | null = null;
 
-  readonly maxFileSize = 5242880;
   readonly maxFonts = 10;
   readonly acceptedFormats = ['.ttf', '.otf', '.woff', '.woff2'];
+  readonly maxFileSize = 50 * 1024 * 1024;
 
   onUploadZoneClick(): void {
     if (this.isUploading) {

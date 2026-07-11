@@ -9,6 +9,7 @@ import {StartupService} from './startup.service';
 import {UserService} from '../../features/settings/user-management/user.service';
 import {AppThemeService} from './app-theme.service';
 import {AppLocaleService} from './app-locale.service';
+import {AppUiFontService} from './app-ui-font.service';
 
 describe('StartupService', () => {
   beforeEach(() => {
@@ -62,6 +63,7 @@ describe('StartupService', () => {
     const applySyncedTheme = vi.fn();
     const applyLocale = vi.fn().mockResolvedValue(undefined);
     const getDisplayLocale = vi.fn().mockReturnValue('de');
+    const applyUiFont = vi.fn();
 
     TestBed.configureTestingModule({
       providers: [
@@ -79,6 +81,7 @@ describe('StartupService', () => {
         {provide: QueryClient, useValue: {fetchQuery}},
         {provide: AppThemeService, useValue: {applySyncedTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
+        {provide: AppUiFontService, useValue: {applyUiFont}},
       ]
     });
 
@@ -86,16 +89,18 @@ describe('StartupService', () => {
 
     await expect(service.load()).resolves.toBeUndefined();
     expect(fetchQuery).not.toHaveBeenCalled();
+    expect(applyUiFont).not.toHaveBeenCalled();
     expect(getDisplayLocale).toHaveBeenCalledOnce();
     expect(applyLocale).toHaveBeenCalledWith('de');
   });
 
   it('uses the backend locale for authenticated users', async () => {
-    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true});
+    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true, uiFont: 'atkinson'});
     const updateUserProfile = vi.fn().mockReturnValue(of({id: 1, username: 'admin', locale: 'de', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true}));
     const applySyncedTheme = vi.fn();
     const applyLocale = vi.fn().mockResolvedValue(undefined);
     const getDisplayLocale = vi.fn().mockReturnValue('de');
+    const applyUiFont = vi.fn();
 
     TestBed.configureTestingModule({
       providers: [
@@ -106,7 +111,7 @@ describe('StartupService', () => {
           useValue: {
             getUserQueryOptions: () => queryOptions({
               queryKey: ['user'],
-              queryFn: async () => ({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true}),
+              queryFn: async () => ({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true, uiFont: 'atkinson'}),
             }),
             updateUserProfile,
           },
@@ -114,6 +119,7 @@ describe('StartupService', () => {
         {provide: QueryClient, useValue: {fetchQuery}},
         {provide: AppThemeService, useValue: {applySyncedTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
+        {provide: AppUiFontService, useValue: {applyUiFont}},
       ]
     });
 
@@ -123,6 +129,7 @@ describe('StartupService', () => {
 
     expect(updateUserProfile).not.toHaveBeenCalled();
     expect(applySyncedTheme).toHaveBeenCalledWith('custom', 'teal');
+    expect(applyUiFont).toHaveBeenCalledWith('atkinson');
     expect(applyLocale).toHaveBeenCalledWith('en');
   });
 

@@ -115,6 +115,23 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserProfile_updatesUiFont() {
+        BookLoreUserEntity user = userEntity(1L);
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+        request.setUiFont("atkinson");
+
+        when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(user));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(currentUser(1L, false));
+        when(userRepository.save(user)).thenReturn(user);
+        when(bookLoreUserTransformer.toDTO(user)).thenAnswer(invocation -> currentUser(1L, false));
+
+        userService.updateUserProfile(1L, request);
+
+        assertThat(user.getUiFont()).isEqualTo("atkinson");
+        verify(userRepository).save(user);
+    }
+
+    @Test
     void updateUserProfile_rejectsUnsupportedLocale() {
         BookLoreUserEntity user = userEntity(1L);
         UserProfileUpdateRequest request = new UserProfileUpdateRequest();
@@ -126,6 +143,22 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.updateUserProfile(1L, request))
                 .isInstanceOf(APIException.class)
                 .hasMessageContaining("Unsupported locale");
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateUserProfile_rejectsUnsupportedUiFont() {
+        BookLoreUserEntity user = userEntity(1L);
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+        request.setUiFont("papyrus");
+
+        when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(user));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(currentUser(1L, false));
+
+        assertThatThrownBy(() -> userService.updateUserProfile(1L, request))
+                .isInstanceOf(APIException.class)
+                .hasMessageContaining("Unsupported UI font");
 
         verify(userRepository, never()).save(any());
     }

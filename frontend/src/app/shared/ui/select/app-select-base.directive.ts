@@ -102,12 +102,31 @@ export abstract class AppSelectBaseDirective<T> {
     connectedOverlayPanelClass,
     'box-border flex w-full flex-col overflow-hidden p-0',
   );
+  private readonly triggerZoneWidthClass = computed(() =>
+    this.variant() !== 'bare' ? 'w-9 pointer-coarse:w-11' : 'w-7 pointer-coarse:w-10',
+  );
+  protected readonly filterRowClass =
+    'flex h-9 items-center border-b border-border pl-3 pr-2 text-text-muted pointer-coarse:h-11';
+  protected readonly filterInputClass =
+    'h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-2 text-sm text-text-strong outline-hidden ' +
+    'placeholder:text-text-muted focus:outline-hidden pointer-coarse:text-base';
+  protected readonly clearButtonClass = computed(() =>
+    cn(
+      'relative z-20 flex h-full shrink-0 items-center justify-center border-0 bg-transparent p-0 text-text-muted',
+      'touch-manipulation transition-colors hover:text-text-strong',
+      this.triggerZoneWidthClass(),
+    ),
+  );
+  protected readonly indicatorClass = computed(() =>
+    cn('flex h-full shrink-0 items-center justify-center text-text-muted', this.triggerZoneWidthClass()),
+  );
   protected readonly overlayPositions = connectedOverlayPositions;
   protected readonly overlayScrollStrategy = connectedOverlayScrollStrategy(this.overlayService);
   protected readonly listClass = computed(() =>
     cn(
       overlayListRootClass,
-      this.filter() ? 'max-h-[12.75rem] overflow-y-auto p-1' : 'max-h-60 overflow-y-auto p-1',
+      'overflow-y-auto overscroll-contain p-1',
+      this.filter() ? 'max-h-[12.75rem]' : 'max-h-60',
     ),
   );
   protected readonly sectionClass = cn(overlayListSectionLabelClass, 'text-text-muted');

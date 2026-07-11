@@ -1,5 +1,7 @@
 import { type MenuItem } from 'primeng/api';
 
+export type AppMenuItem = MenuItem;
+
 export interface AppMenuSectionItem extends MenuItem {
   appMenuSection: true;
 }

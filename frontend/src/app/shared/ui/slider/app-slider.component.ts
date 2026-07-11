@@ -22,7 +22,7 @@ import { invisibleControlInputClass, neutralControlBorderClass } from '../contro
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex h-5 w-full touch-none select-none items-center"
+      class="relative flex h-5 w-full touch-pan-y select-none items-center pointer-coarse:h-11"
       [class.opacity-50]="isUnavailable()"
       [style.--pct]="fraction()">
       <input
@@ -73,7 +73,7 @@ export class AppSliderComponent implements FormValueControl<number> {
   protected readonly inputClass = invisibleControlInputClass;
   protected readonly thumbPosition = 'calc(0.5rem + var(--pct) * (100% - 1rem))';
   protected readonly thumbClass =
-    `pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border ${neutralControlBorderClass} ` +
+    `pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-coarse:size-5 ${neutralControlBorderClass} ` +
     'bg-white shadow-control transition-shadow peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary';
 
   private readonly fieldContext = inject(APP_FIELD, { optional: true });

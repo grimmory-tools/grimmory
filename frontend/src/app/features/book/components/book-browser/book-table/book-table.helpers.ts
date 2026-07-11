@@ -44,7 +44,6 @@ export const LOCK_FIELDS = [
   'audibleIdLocked',
   'audibleRatingLocked',
   'audibleReviewCountLocked',
-  'coverUpdatedOnLocked',
   'authorsLocked',
   'categoriesLocked',
   'moodsLocked',

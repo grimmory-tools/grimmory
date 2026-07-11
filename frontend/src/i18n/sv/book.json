@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Hylla skapad: {{ name }}",
             "createFailedDetail": "Kunde inte skapa hylla"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Redigera hylla",

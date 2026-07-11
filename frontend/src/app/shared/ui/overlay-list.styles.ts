@@ -7,7 +7,8 @@ export const overlayListRootClass = 'm-0 flex list-none flex-col p-0 outline-non
 const overlayListItemStateClass = 'hover:bg-surface-hover hover:text-text-strong';
 export const overlayListActiveItemStateClass = 'bg-surface-hover text-text-strong';
 export const overlayListItemRowClass =
-  'flex h-7 w-full select-none items-center gap-2 px-2 py-0 text-sm leading-5 text-inherit no-underline outline-hidden';
+  'flex min-h-7 w-full select-none items-center gap-2 px-2 py-1 text-sm leading-5 text-inherit no-underline outline-hidden ' +
+  'pointer-coarse:min-h-11 pointer-coarse:px-3';
 export const overlayListItemContentClass = cn(
   'rounded-sm text-text',
   overlayListItemStateClass,
@@ -18,7 +19,8 @@ export const overlayListOptionClass = cn(
   overlayListItemStateClass,
   'aria-disabled:pointer-events-none aria-disabled:opacity-50',
 );
-export const overlayListEmptyItemClass = 'flex h-7 items-center px-2 text-sm leading-5 text-text-muted';
+export const overlayListEmptyItemClass =
+  'flex min-h-7 items-center px-2 py-1 text-sm leading-5 text-text-muted pointer-coarse:min-h-11 pointer-coarse:px-3';
 
 export const overlayListSectionLabelClass =
   'flex h-5 w-full cursor-default select-none items-center px-2 py-0 text-xs font-semibold leading-5 text-inherit no-underline outline-hidden';

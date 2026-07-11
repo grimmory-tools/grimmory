@@ -822,11 +822,25 @@ class MetadataRefreshServiceTest {
         }
 
         @Test
-        void audible_defaultCase_returnsTrue() {
+        void audible_enabled() {
             MetadataProviderSettings ps = new MetadataProviderSettings();
+            MetadataProviderSettings.Audible audible = new MetadataProviderSettings.Audible();
+            audible.setEnabled(true);
+            ps.setAudible(audible);
             AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
 
             assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isTrue();
+        }
+
+        @Test
+        void audible_disabled() {
+            MetadataProviderSettings ps = new MetadataProviderSettings();
+            MetadataProviderSettings.Audible audible = new MetadataProviderSettings.Audible();
+            audible.setEnabled(false);
+            ps.setAudible(audible);
+            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
+
+            assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isFalse();
         }
     }
 

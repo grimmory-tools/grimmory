@@ -122,9 +122,9 @@ export const DATE_PICKER_TEMPLATE = `
       <span
         class="pointer-events-none absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-text-muted">
         @if (pending()) {
-          <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
+          <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
         } @else {
-          <i class="pi pi-calendar text-sm" aria-hidden="true"></i>
+          <svg lucideCalendar class="size-4" aria-hidden="true"></svg>
         }
       </span>
     </div>
@@ -150,11 +150,11 @@ export const DATE_PICKER_TEMPLATE = `
         (focusout)="onPopupFocusOut($event)">
         <div class="mb-2 flex items-center justify-between gap-1">
           <button type="button" [class]="navButtonClass" [attr.aria-label]="'shared.ui.datePicker.previousMonth' | transloco" (click)="shiftMonth(-1)">
-            <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+            <svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>
           </button>
           <span aria-live="polite" class="text-sm font-semibold text-text-strong">{{ monthYearLabel() }}</span>
           <button type="button" [class]="navButtonClass" [attr.aria-label]="'shared.ui.datePicker.nextMonth' | transloco" (click)="shiftMonth(1)">
-            <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+            <svg lucideChevronRight class="size-4" aria-hidden="true"></svg>
           </button>
         </div>
 
@@ -172,7 +172,8 @@ export const DATE_PICKER_TEMPLATE = `
             <tr>
               @for (weekday of weekdays(); track weekday.key) {
                 <th scope="col" class="p-0">
-                  <span class="flex size-9 items-center justify-center text-xs font-medium text-text-muted">
+                  <span
+                    class="flex size-9 items-center justify-center text-xs font-medium text-text-muted pointer-coarse:size-11">
                     <span class="sr-only">{{ weekday.long }}</span>
                     <span aria-hidden="true">{{ weekday.narrow }}</span>
                   </span>
@@ -263,7 +264,7 @@ export abstract class AppDatePickerBaseDirective {
   protected readonly popupClass = cn(overlayListSurfaceClass, connectedOverlayPanelClass, 'w-auto p-3');
   protected readonly navButtonClass =
     'flex size-7 items-center justify-center rounded-md border-0 bg-transparent text-text-muted outline-hidden ' +
-    'transition-colors hover:bg-surface-hover hover:text-text-strong ' +
+    'pointer-coarse:size-11 touch-manipulation transition-colors hover:bg-surface-hover hover:text-text-strong ' +
     'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary';
 
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);

@@ -1,5 +1,11 @@
 import { cva } from 'class-variance-authority';
-import { neutralControlBorderClass, neutralSurfaceHoverClass } from '../control.styles';
+import {
+  controlHeightBySize,
+  controlIconOnlyWidthBySize,
+  neutralControlBorderClass,
+  neutralSurfaceHoverClass,
+  pressedOverlayClass,
+} from '../control.styles';
 
 export type ButtonTone = 'neutral' | 'primary' | 'danger';
 export type ButtonVariant = 'soft' | 'solid' | 'ghost';
@@ -7,8 +13,10 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export const buttonVariants = cva(
   'inline-flex shrink-0 cursor-pointer select-none items-center justify-center ' +
-    'rounded-md border leading-none whitespace-nowrap font-medium ' +
-    'transition-[background-color,border-color,color] duration-150 active:translate-y-px ' +
+    'rounded-md border leading-none whitespace-nowrap font-medium touch-manipulation ' +
+    'transition-[background-color,border-color,color] duration-150 ' +
+    'active:translate-y-px pointer-coarse:active:translate-y-0 ' +
+    pressedOverlayClass + ' ' +
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' +
     'disabled:pointer-events-none disabled:opacity-50',
   {
@@ -16,9 +24,9 @@ export const buttonVariants = cva(
       tone: { neutral: '', primary: '', danger: '' },
       variant: { soft: '', solid: '', ghost: '' },
       size: {
-        sm: 'h-8 px-3 gap-1.5 text-xs',
-        md: 'h-9 px-3 gap-2 text-sm',
-        lg: 'h-10 px-4 gap-2 text-sm',
+        sm: `${controlHeightBySize.sm} px-3 gap-1.5 text-xs`,
+        md: `${controlHeightBySize.md} px-3 gap-2 text-sm`,
+        lg: `${controlHeightBySize.lg} px-4 gap-2 text-sm`,
       },
       iconOnly: { true: '', false: '' },
       rounded: { true: 'rounded-full', false: '' },
@@ -59,9 +67,9 @@ export const buttonVariants = cva(
       },
       { tone: 'primary', variant: 'ghost', class: 'bg-transparent border-transparent text-primary hover:bg-primary/10' },
       { tone: 'danger', variant: 'ghost', class: 'bg-transparent border-transparent text-danger hover:bg-danger/10' },
-      { iconOnly: true, size: 'sm', class: 'w-8 px-0 gap-0' },
-      { iconOnly: true, size: 'md', class: 'w-9 px-0 gap-0' },
-      { iconOnly: true, size: 'lg', class: 'w-10 px-0 gap-0' },
+      { iconOnly: true, size: 'sm', class: `${controlIconOnlyWidthBySize.sm} px-0 gap-0` },
+      { iconOnly: true, size: 'md', class: `${controlIconOnlyWidthBySize.md} px-0 gap-0` },
+      { iconOnly: true, size: 'lg', class: `${controlIconOnlyWidthBySize.lg} px-0 gap-0` },
     ],
     defaultVariants: { tone: 'neutral', variant: 'soft', size: 'md', iconOnly: false, rounded: false, fluid: false },
   },

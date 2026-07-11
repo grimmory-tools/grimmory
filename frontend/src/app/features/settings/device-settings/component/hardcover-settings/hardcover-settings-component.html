@@ -58,6 +58,7 @@
                       (ngModelChange)="hardcoverApiKey.set($event)"
                       [type]="showHardcoverApiKey() ? 'text' : 'password'"
                       name="hardcoverApiKey"
+                      aria-label="{{ t('hardcover.apiKey') }}"
                       class="token-input"
                       [placeholder]="t('hardcover.apiKeyPlaceholder')"
                       (blur)="onHardcoverApiKeyChange()"

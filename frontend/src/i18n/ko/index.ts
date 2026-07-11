@@ -1,0 +1,42 @@
+import {Translation} from '@jsverse/transloco';
+import common from './common.json';
+import auth from './auth.json';
+import nav from './nav.json';
+import dashboard from './dashboard.json';
+import settings from './settings.json';
+import settingsEmail from './settings-email.json';
+import settingsReader from './settings-reader.json';
+import settingsView from './settings-view.json';
+import settingsMeta from './settings-metadata.json';
+import settingsLibMeta from './settings-library-metadata.json';
+import settingsApp from './settings-application.json';
+import settingsUsers from './settings-users.json';
+import settingsNaming from './settings-naming.json';
+import settingsOpds from './settings-opds.json';
+import settingsTasks from './settings-tasks.json';
+import settingsAuditLogs from './settings-audit-logs.json';
+import settingsAuth from './settings-auth.json';
+import settingsDevice from './settings-device.json';
+import settingsProfile from './settings-profile.json';
+import app from './app.json';
+import shared from './shared.json';
+import layout from './layout.json';
+import libraryCreator from './library-creator.json';
+import bookdrop from './bookdrop.json';
+import metadata from './metadata.json';
+import notebook from './notebook.json';
+import book from './book.json';
+import readerAudiobook from './reader-audiobook.json';
+import readerCbx from './reader-cbx.json';
+import readerEbook from './reader-ebook.json';
+import readerPdf from './reader-pdf.json';
+import statsLibrary from './stats-library.json';
+import statsUser from './stats-user.json';
+import magicShelf from './magic-shelf.json';
+import seriesBrowser from './series-browser.json';
+import authorBrowser from './author-browser.json';
+
+// To add a new domain: create the JSON file and add it here.
+// Settings tabs each get their own file: settings-email, settings-reader, settings-view, etc.
+const translations: Translation = {common, auth, nav, dashboard, settings, settingsEmail, settingsReader, settingsView, settingsMeta, settingsLibMeta, settingsApp, settingsUsers, settingsNaming, settingsOpds, settingsTasks, settingsAuditLogs, settingsAuth, settingsDevice, settingsProfile, app, shared, layout, libraryCreator, bookdrop, metadata, notebook, book, readerAudiobook, readerCbx, readerEbook, readerPdf, statsLibrary, statsUser, magicShelf, seriesBrowser, authorBrowser};
+export default translations;

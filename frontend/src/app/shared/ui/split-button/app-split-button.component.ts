@@ -1,5 +1,6 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { type MenuItem } from 'primeng/api';
+import { LucideChevronDown } from '@lucide/angular';
 import { cn } from '../cn';
 import { connectedGroupClass, connectedItemClass } from '../connected-group';
 import { AppButtonComponent } from '../button/app-button.component';
@@ -9,7 +10,7 @@ import { AppMenuComponent } from '../menu/app-menu.component';
 @Component({
   selector: 'app-split-button',
   standalone: true,
-  imports: [AppButtonComponent, AppMenuComponent],
+  imports: [AppButtonComponent, AppMenuComponent, LucideChevronDown],
   host: {
     class: 'inline-block align-middle',
     '[class.w-full]': 'fluid()',
@@ -36,7 +37,6 @@ import { AppMenuComponent } from '../menu/app-menu.component';
         [tabIndex]="tabIndex()"
         [label]="label()"
         [ariaLabel]="ariaLabel()"
-        [icon]="icon()"
         [iconPos]="iconPos()"
         (clicked)="clicked.emit($event)">
         <ng-content />
@@ -45,7 +45,6 @@ import { AppMenuComponent } from '../menu/app-menu.component';
         [buttonId]="menuButtonId()"
         type="button"
         iconOnly
-        icon="pi pi-chevron-down"
         [tone]="tone()"
         [variant]="variant()"
         [size]="size()"
@@ -54,7 +53,9 @@ import { AppMenuComponent } from '../menu/app-menu.component';
         [form]="form()"
         [ariaHasPopup]="'menu'"
         [ariaLabel]="menuAriaLabel() || ariaLabel() || label()"
-        (clicked)="menu.toggle($event)" />
+        (clicked)="menu.toggle($event)">
+        <svg lucideChevronDown aria-hidden="true"></svg>
+      </app-button>
       <app-menu #menu [model]="model()" [appendTo]="appendTo()" />
     </span>
   `,
@@ -77,7 +78,6 @@ export class AppSplitButtonComponent {
   readonly label = input('');
   readonly ariaLabel = input('');
   readonly menuAriaLabel = input('');
-  readonly icon = input('');
   readonly iconPos = input<'left' | 'right'>('left');
   readonly model = input<readonly MenuItem[]>([]);
   readonly appendTo = input<'body' | 'self' | HTMLElement>('body');

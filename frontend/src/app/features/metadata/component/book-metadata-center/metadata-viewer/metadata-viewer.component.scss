@@ -65,11 +65,7 @@
 }
 
 .cover-progress-bar-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
+  margin-top: 0.4375rem;
   border-radius: 9999px;
   overflow: hidden;
   display: flex;
@@ -78,6 +74,8 @@
 }
 
 .cover-progress-bar {
+  --p-progressbar-background: var(--color-surface-300);
+
   z-index: 2;
   pointer-events: none;
   height: 6px;
@@ -347,6 +345,7 @@
 .rating-value {
   font-weight: 600;
   font-size: var(--app-text-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
 
@@ -440,6 +439,7 @@
 
 .metadata-value {
   color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -773,6 +773,7 @@
 
 .navigation-position {
   font-size: var(--app-text-sm);
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
 }
 
@@ -830,6 +831,7 @@
   font-size: 0.8313rem;
   color: var(--color-text);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .comic-volume-number,

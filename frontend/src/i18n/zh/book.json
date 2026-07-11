@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "书架已创建：{{ name }}",
             "createFailedDetail": "创建书架失败"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "编辑书架",

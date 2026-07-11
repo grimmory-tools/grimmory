@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Scaffale creato: {{ name }}",
             "createFailedDetail": "Creazione scaffale fallita"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Modifica scaffale",

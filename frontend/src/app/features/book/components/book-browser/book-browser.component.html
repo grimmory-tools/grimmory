@@ -190,6 +190,7 @@
                 [placeholder]="t('placeholder.search')"
                 [ngModel]="bookTitle()"
                 (ngModelChange)="onSearchTermChange($event)"
+                aria-label="{{ t('placeholder.search') }}"
                 class="search-input-full"
               />
               <p-button
@@ -212,6 +213,7 @@
             [placeholder]="t('placeholder.search')"
             [ngModel]="bookTitle()"
             (ngModelChange)="onSearchTermChange($event)"
+            aria-label="{{ t('placeholder.search') }}"
             class="search-input"
           />
           @if (bookTitle()) {

@@ -31,7 +31,7 @@ FILE_BASE="frontend/src/i18n"
 SOURCE_LANG="en"
 
 # All languages the project supports
-LANGUAGES="en es de fr hr it ja nl pl pt ru sv zh hu sl sk uk id da"
+LANGUAGES="en es de fr hr it ja nl pl pt ru sv zh hu sl sk uk id da ko cs"
 
 # All translation domain files (without .json extension)
 COMPONENTS=(
@@ -77,7 +77,7 @@ COMPONENTS=(
 auth_header="Authorization: Token ${TOKEN}"
 content_type="Content-Type: application/json"
 
-LANG_REGEX="^(en|es|de|fr|hr|it|ja|nl|pl|pt|ru|sv|zh|hu|sl|sk|uk|id|da)$"
+LANG_REGEX="^(en|es|de|fr|hr|it|ja|nl|pl|pt|ru|sv|zh|hu|sl|sk|uk|id|da|ko|cs)$"
 
 api_post() {
   local endpoint="$1"

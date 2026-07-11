@@ -46,7 +46,7 @@ class UserDefaultsServiceTest {
         ShelfEntity saved = captor.getValue();
         assertEquals("Favorites", saved.getName());
         assertEquals("heart", saved.getIcon());
-        assertEquals(IconType.PRIME_NG, saved.getIconType());
+        assertEquals(IconType.LUCIDE, saved.getIconType());
         assertEquals(user, saved.getUser());
     }
 

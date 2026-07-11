@@ -903,6 +903,7 @@
         "title": "",
         "chooseIconSubtitle": "",
         "validationReady": "",
-        "validationRequired": ""
+        "validationRequired": "",
+        "customSvg": ""
     }
 }

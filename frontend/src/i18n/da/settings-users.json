@@ -141,7 +141,8 @@
         "fullName": "",
         "enterFullName": "",
         "allLibrariesAdmin": "",
-        "title": ""
+        "title": "",
+        "noLibrariesAssigned": ""
     },
     "permBadges": {
         "metadataEditing": "",

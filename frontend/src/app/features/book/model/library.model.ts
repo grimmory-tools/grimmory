@@ -1,5 +1,6 @@
 import {SortOption} from './sort.model';
 import {BookType} from './book.model';
+import {IconType} from '../../../shared/icons/icon-selection';
 
 export type MetadataSource = 'EMBEDDED' | 'SIDECAR' | 'PREFER_SIDECAR' | 'PREFER_EMBEDDED' | 'NONE';
 
@@ -9,7 +10,7 @@ export interface Library {
   id?: number;
   name: string;
   icon?: string | null;
-  iconType?: 'PRIME_NG' | 'CUSTOM_SVG' | null;
+  iconType?: IconType | null;
   watch: boolean;
   fileNamingPattern?: string;
   sort?: SortOption;

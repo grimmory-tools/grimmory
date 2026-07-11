@@ -14,7 +14,7 @@ import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MultiSelect} from 'primeng/multiselect';
 import {AutoComplete} from 'primeng/autocomplete';
 import {EMPTY_CHECK_OPERATORS, MULTI_VALUE_OPERATORS, RELATIVE_DATE_OPERATORS, parseValue, removeNulls, serializeDateRules} from '../service/magic-shelf-utils';
-import {IconPickerService, IconSelection} from '../../../shared/service/icon-picker.service';
+import {IconPickerService} from '../../../shared/service/icon-picker.service';
 import {CheckboxChangeEvent, Checkbox} from "primeng/checkbox";
 import {UserService} from "../../settings/user-management/user.service";
 import {IconDisplayComponent} from '../../../shared/components/icon-display/icon-display.component';
@@ -23,6 +23,7 @@ import {BookService} from '../../book/service/book.service';
 import {ShelfService} from '../../book/service/shelf.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Textarea} from 'primeng/textarea';
+import {IconSelection, toIconSelection} from '../../../shared/icons/icon-selection';
 
 export type RuleOperator =
   | 'equals'
@@ -543,9 +544,7 @@ export class MagicShelfComponent implements OnInit {
     });
 
     if (iconValue) {
-      this.selectedIcon = iconValue.startsWith('pi ')
-        ? {type: 'PRIME_NG', value: iconValue}
-        : {type: 'CUSTOM_SVG', value: iconValue};
+      this.selectedIcon = toIconSelection(iconValue, shelf?.iconType);
     } else {
       this.selectedIcon = null;
     }

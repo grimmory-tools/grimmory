@@ -6,7 +6,8 @@ import {Observable, of, throwError} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
-import {IconSelection, IconPickerService} from '../../../../shared/service/icon-picker.service';
+import {IconPickerService} from '../../../../shared/service/icon-picker.service';
+import {IconSelection} from '../../../../shared/icons/icon-selection';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Shelf} from '../../model/shelf.model';
 import {ShelfService} from '../../service/shelf.service';
@@ -71,12 +72,12 @@ describe('ShelfEditDialogComponent', () => {
     };
   }
 
-  it('hydrates the dialog from a matching PrimeNG shelf', () => {
+  it('hydrates the dialog from a matching Lucide shelf', () => {
     const shelf = createShelf({
       id: 42,
       name: 'Queue',
       icon: 'bookmark',
-      iconType: 'PRIME_NG',
+      iconType: 'LUCIDE',
       publicShelf: true,
     });
 
@@ -89,8 +90,8 @@ describe('ShelfEditDialogComponent', () => {
     expect(component.shelfName).toBe('Queue');
     expect(component.isPublic).toBe(true);
     expect(component.selectedIcon).toEqual({
-      type: 'PRIME_NG',
-      value: 'pi pi-bookmark',
+      type: 'LUCIDE',
+      value: 'bookmark',
     });
   });
 
@@ -125,7 +126,7 @@ describe('ShelfEditDialogComponent', () => {
         id: 11,
         name: 'Should Not Replace',
         icon: 'bookmark',
-        iconType: 'PRIME_NG',
+        iconType: 'LUCIDE',
         publicShelf: true,
       }),
     ]);
@@ -141,8 +142,8 @@ describe('ShelfEditDialogComponent', () => {
 
   it('picks and clears icons through the dialog-local icon selection methods', () => {
     const pickedIcon: IconSelection = {
-      type: 'PRIME_NG',
-      value: 'pi pi-star',
+      type: 'LUCIDE',
+      value: 'star',
     };
     const {component, iconPickerService} = createHarness({
       shelvesData: [createShelf()],
@@ -166,16 +167,16 @@ describe('ShelfEditDialogComponent', () => {
     component.shelfName = 'Renamed Shelf';
     component.isPublic = true;
     component.selectedIcon = {
-      type: 'PRIME_NG',
-      value: 'pi pi-heart',
+      type: 'LUCIDE',
+      value: 'heart',
     };
 
     component.save();
 
     expect(updateShelf).toHaveBeenCalledWith({
       name: 'Renamed Shelf',
-      icon: 'pi pi-heart',
-      iconType: 'PRIME_NG',
+      icon: 'heart',
+      iconType: 'LUCIDE',
       publicShelf: true,
     }, 7);
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({

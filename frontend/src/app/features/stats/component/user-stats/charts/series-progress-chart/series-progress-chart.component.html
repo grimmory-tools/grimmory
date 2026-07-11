@@ -73,18 +73,19 @@
             [placeholder]="t('searchSeries')"
             [value]="searchTerm"
             (input)="onSearchInput($event)"
+            aria-label="{{ t('searchSeries') }}"
           />
         </div>
 
         <div class="filter-controls">
-          <select class="filter-select" [value]="filterStatus" (change)="onFilterSelect($event)">
+          <select class="filter-select" [value]="filterStatus" (change)="onFilterSelect($event)" aria-label="{{ t('allStatus') }}">
             <option value="all">{{ t('allStatus') }}</option>
             <option value="in-progress">{{ t('inProgress') }}</option>
             <option value="completed">{{ t('completed') }}</option>
             <option value="not-started">{{ t('notStarted') }}</option>
           </select>
 
-          <select class="sort-select" [value]="sortBy" (change)="onSortSelect($event)">
+          <select class="sort-select" [value]="sortBy" (change)="onSortSelect($event)" aria-label="{{ t('sortByProgress') }}">
             <option value="progress">{{ t('sortByProgress') }}</option>
             <option value="rating">{{ t('sortByRating') }}</option>
             <option value="books">{{ t('sortByBooks') }}</option>

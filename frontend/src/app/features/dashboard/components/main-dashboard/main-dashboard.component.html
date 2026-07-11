@@ -38,18 +38,6 @@
               }
             </div>
           } @else {
-            <div class="dashboard-settings-button">
-              <p-button
-                icon="pi pi-cog"
-                severity="info"
-                rounded
-                text
-                [pTooltip]="t('customizeDashboard')"
-                tooltipPosition="left"
-                (click)="openDashboardSettings()">
-              </p-button>
-            </div>
-
             @if (dashboardConfig(); as config) {
               @for (scroller of enabledScrollers(); track scroller.id; let idx = $index) {
                 @if (idx < 2) {

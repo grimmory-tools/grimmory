@@ -2,9 +2,9 @@
   <header class="page-header flex flex-wrap items-center justify-between gap-3">
     <h1>Design System</h1>
     <div class="flex flex-wrap items-center gap-2">
-      <app-button variant="soft" size="sm" icon="pi pi-folder" label="Create library" (clicked)="openExample('library')" />
-      <app-button variant="soft" size="sm" icon="pi pi-mobile" label="Device settings" (clicked)="openExample('device')" />
-      <app-button variant="soft" size="sm" icon="pi pi-list" label="Everything" (clicked)="openExample('everything')" />
+      <app-button variant="soft" size="sm" label="Create library" (clicked)="openExample('library')"><svg lucideFolder></svg></app-button>
+      <app-button variant="soft" size="sm" label="Device settings" (clicked)="openExample('device')"><svg lucideSmartphone></svg></app-button>
+      <app-button variant="soft" size="sm" label="Everything" (clicked)="openExample('everything')"><svg lucideList></svg></app-button>
     </div>
   </header>
 
@@ -21,8 +21,7 @@
                 [tone]="example.tone"
                 [variant]="example.variant"
                 [size]="size"
-                icon="pi pi-bolt"
-                [label]="size" />
+                [label]="size"><svg lucideZap></svg></app-button>
             }
           </div>
         </div>
@@ -30,9 +29,9 @@
     </div>
 
     <div class="sample-row">
-      <app-button iconOnly icon="pi pi-chevron-left" ariaLabel="Previous" />
-      <app-button iconOnly rounded icon="pi pi-heart" ariaLabel="Favourite" />
-      <app-button label="Loading" icon="pi pi-save" loading />
+      <app-button iconOnly ariaLabel="Previous"><svg lucideChevronLeft></svg></app-button>
+      <app-button iconOnly rounded ariaLabel="Favourite"><svg lucideHeart></svg></app-button>
+      <app-button label="Loading" loading><svg lucideSave></svg></app-button>
       <app-button label="Disabled" disabled />
       <app-button fluid label="Full width" />
     </div>
@@ -45,18 +44,15 @@
       <app-split-button
         tone="primary"
         label="Open"
-        icon="pi pi-folder-open"
-        [model]="menuItems" />
+        [model]="menuItems"><svg lucideFolderOpen></svg></app-split-button>
       <app-split-button
         label="Download"
-        icon="pi pi-download"
-        [model]="menuItems" />
+        [model]="menuItems"><svg lucideDownload></svg></app-split-button>
       <app-split-button
         tone="danger"
         variant="soft"
         label="Delete"
-        icon="pi pi-trash"
-        [model]="menuItems" />
+        [model]="menuItems"><svg lucideTrash2></svg></app-split-button>
     </div>
   </section>
 
@@ -90,20 +86,20 @@
       </div>
       <div class="field">
         <span>Trailing Action</span>
-        <app-input value="Search text" trailingIcon="pi pi-times" trailingAriaLabel="Clear text" />
+        <app-input value="Search text"><svg lucideX appInputTrailing></svg></app-input>
       </div>
       <div class="field">
         <span>Leading Icon</span>
-        <app-input type="search" leadingIcon="pi pi-search" placeholder="Search..." />
+        <app-input type="search" placeholder="Search..."><svg lucideSearch appInputLeading></svg></app-input>
       </div>
       <div class="field">
         <span>Leading + Trailing</span>
         <app-input
           type="search"
-          value="Search text"
-          leadingIcon="pi pi-search"
-          trailingIcon="pi pi-times"
-          trailingAriaLabel="Clear search" />
+          value="Search text">
+          <svg lucideSearch appInputLeading></svg>
+          <svg lucideX appInputTrailing></svg>
+        </app-input>
       </div>
     </div>
   </section>
@@ -481,7 +477,7 @@
       <app-accordion [items]="accordionItems" [(value)]="accordionValue">
         <ng-template appAccordionHeader let-item>{{ item.title }}</ng-template>
         <ng-template appAccordionActions>
-          <app-button size="sm" variant="ghost" icon="pi pi-cog" iconOnly ariaLabel="Configure" />
+          <app-button size="sm" variant="ghost" iconOnly ariaLabel="Configure"><svg lucideSettings></svg></app-button>
         </ng-template>
         <ng-template appAccordionContent let-item>{{ item.body }}</ng-template>
       </app-accordion>
@@ -491,7 +487,7 @@
     <div class="max-w-md">
       <app-accordion multiple [items]="accordionItems" [(value)]="accordionMultiValue">
         <ng-template appAccordionHeader let-item>
-          <span class="inline-flex items-center gap-2"><i class="pi pi-folder text-text-muted" aria-hidden="true"></i>{{ item.title }}</span>
+          <span class="inline-flex items-center gap-2"><svg lucideFolder class="size-4 text-text-muted" aria-hidden="true"></svg>{{ item.title }}</span>
         </ng-template>
         <ng-template appAccordionContent let-item>{{ item.body }}</ng-template>
       </app-accordion>
@@ -515,7 +511,7 @@
   <section class="showcase-section">
     <h2>Menus</h2>
 
-    <app-button label="Open menu" icon="pi pi-ellipsis-v" (clicked)="debugMenu.toggle($event)" />
+    <app-button label="Open menu" (clicked)="debugMenu.toggle($event)"><svg lucideEllipsisVertical></svg></app-button>
     <app-menu #debugMenu [model]="menuItems" />
   </section>
 
@@ -550,7 +546,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <app-tag size="sm" color="green" label="Small" />
       <app-tag size="md" color="green" label="Medium" />
-      <app-tag color="amber" icon="pi pi-exclamation-triangle" label="With icon" />
+      <app-tag color="amber" label="With icon"><svg lucideTriangleAlert></svg></app-tag>
       <app-tag color="sky">Projected content</app-tag>
     </div>
 

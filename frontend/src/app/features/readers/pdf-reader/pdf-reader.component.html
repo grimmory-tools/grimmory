@@ -211,7 +211,8 @@
     <div class="page-controls">
       <div class="slider-wrapper">
         <input type="range" class="page-slider" [min]="1" [max]="totalPages()" [value]="page()"
-          (input)="onSliderChange($event)" list="pdf-page-ticks" [title]="'readerPdf.footer.pageSlider' | transloco" />
+          (input)="onSliderChange($event)" list="pdf-page-ticks" [title]="'readerPdf.footer.pageSlider' | transloco"
+          aria-label="{{ 'readerPdf.footer.pageSlider' | transloco }}" />
         <datalist id="pdf-page-ticks">
           @for (tick of sliderTicks(); track tick) {
           <option [value]="tick"></option>
@@ -223,6 +224,7 @@
         <input type="number" [ngModel]="goToPageInput()" (ngModelChange)="goToPageInput.set($event)"
           [min]="1" [max]="totalPages()"
           [placeholder]="'readerPdf.footer.pagePlaceholder' | transloco" class="page-input"
+          aria-label="{{ 'readerPdf.footer.pagePlaceholder' | transloco }}"
           (keyup.enter)="onGoToPage()" />
         <button class="go-btn" (click)="onGoToPage()"
           [disabled]="goToPageInput() === null || goToPageInput()! < 1 || goToPageInput()! > totalPages()">

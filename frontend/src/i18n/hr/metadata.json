@@ -397,9 +397,9 @@
         },
         "audiobookAbridged": "Skraćeno",
         "firstAuthorBadge": "GLAVNI",
-        "menuMarkPhysical": "",
-        "menuUnmarkPhysical": "",
-        "shelvesLabel": ""
+        "menuMarkPhysical": "Označi kao fizičko",
+        "menuUnmarkPhysical": "Poništi oznaku kao fizičko",
+        "shelvesLabel": "Police:"
     },
     "sidecar": {
         "title": "Prateći metapodaci",
@@ -462,7 +462,7 @@
         }
     },
     "manager": {
-        "title": "Upravitelj metapodacima",
+        "title": "Upravitelj metapodataka",
         "description": "Organizirajte, spajajte, razdvajajte, preimenujte i standardizirajte autore, žanrove, raspoloženja i oznake u cijeloj knjižnici.",
         "writeToFileWarning": "Važno: Ako je 'Zapiši u datoteku' omogućeno u postavkama, operacije će modificirati sve relevantne datoteke. Za zbirke s tisućama knjiga, onemogućite 'Zapiši u datoteku' prije korištenja ove značajke kako biste spriječili probleme s performansama i potencijalno oštećenje podataka.",
         "clearSelection": "Očisti odabir",
@@ -507,13 +507,13 @@
             "series": "Serijal",
             "publisher": "Izdavač",
             "language": "Jezik",
-            "publishers": "",
-            "genres": "",
-            "tags": "",
-            "authors": "",
-            "seriesPlural": "",
-            "moods": "",
-            "languages": ""
+            "publishers": "Izdavači",
+            "genres": "Žanrovi",
+            "tags": "Oznake",
+            "authors": "Autori",
+            "seriesPlural": "Niz",
+            "moods": "Raspoloženja",
+            "languages": "Jezici"
         },
         "placeholders": {
             "searchAuthors": "Pretraži autore...",

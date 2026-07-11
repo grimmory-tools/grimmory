@@ -1,4 +1,4 @@
-import {NO_ERRORS_SCHEMA} from '@angular/core';
+import {NO_ERRORS_SCHEMA, provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Observable, Subject, of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -34,6 +34,13 @@ describe('TaskManagementComponent', () => {
     add: ReturnType<typeof vi.fn>;
   };
   let translate: ReturnType<typeof vi.fn<(key: TranslateParams, params?: Record<string, unknown>, lang?: string) => unknown>>;
+
+  function loadTaskHistory(history: TaskHistory): void {
+    taskService.getLatestTasksForEachType.mockReturnValue(of({
+      taskHistories: [history],
+    }));
+    component.loadTasks();
+  }
 
   const clearPdfTask: TaskInfo = {
     taskType: TaskType.CLEAR_PDF_CACHE,
@@ -123,6 +130,7 @@ describe('TaskManagementComponent', () => {
       imports: [TaskManagementComponent, getTranslocoModule()],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
+        provideZonelessChangeDetection(),
         {provide: TaskService, useValue: taskService},
         {provide: MessageService, useValue: messageService},
       ],
@@ -192,8 +200,28 @@ describe('TaskManagementComponent', () => {
     expect(loadTasksSpy).toHaveBeenCalledTimes(2);
   });
 
+  it('refreshes task progress in the DOM after websocket updates', async () => {
+    vi.useRealTimers();
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    taskProgressSubject.next({
+      taskId: 'task-2',
+      taskType: TaskType.CLEAR_PDF_CACHE,
+      message: 'halfway there',
+      progress: 45,
+      taskStatus: TaskStatus.IN_PROGRESS,
+    });
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('halfway there');
+    expect(text).toContain('45%');
+  });
+
   it('distinguishes running, stale, and cancellable tasks', () => {
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, inProgressHistory);
+    loadTaskHistory(inProgressHistory);
 
     expect(component.isTaskRunning(TaskType.CLEAR_PDF_CACHE)).toBe(true);
     expect(component.canCancelTask(inProgressHistory)).toBe(true);
@@ -201,7 +229,7 @@ describe('TaskManagementComponent', () => {
     expect(component.isTaskStale(inProgressHistory)).toBe(true);
     expect(component.getTaskButtonLabel(TaskType.CLEAR_PDF_CACHE)).toBe('settingsTasks.buttons.rerun');
 
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, {
+    loadTaskHistory({
       ...inProgressHistory,
       updatedAt: '2026-03-27T03:05:45Z',
     });
@@ -212,7 +240,7 @@ describe('TaskManagementComponent', () => {
   });
 
   it('blocks duplicate task execution when the task is still fresh', () => {
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, {
+    loadTaskHistory({
       ...inProgressHistory,
       updatedAt: '2026-03-27T03:05:45Z',
     });
@@ -247,7 +275,7 @@ describe('TaskManagementComponent', () => {
   });
 
   it('reports sync task completion and failure outcomes', () => {
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, {
+    loadTaskHistory({
       ...pendingHistory,
       status: TaskStatus.COMPLETED,
       completedAt: '2026-03-27T03:05:50Z',
@@ -262,11 +290,11 @@ describe('TaskManagementComponent', () => {
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'success',
       summary: 'settingsTasks.toast.taskCompleted',
-      detail: 'settingsTasks.toast.taskCompletedDetail:{"name":"Clear Pdf Cache"}',
+      detail: 'settingsTasks.toast.taskCompletedDetail:{"name":"Clear PDF cache"}',
     });
 
     messageService.add.mockClear();
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, {
+    loadTaskHistory({
       ...pendingHistory,
       status: TaskStatus.COMPLETED,
       completedAt: '2026-03-27T03:05:55Z',
@@ -287,7 +315,7 @@ describe('TaskManagementComponent', () => {
   });
 
   it('cancels tasks and handles both success and failure paths', () => {
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, pendingHistory);
+    loadTaskHistory(pendingHistory);
     component.cancelTask(TaskType.CLEAR_PDF_CACHE);
 
     expect(taskService.cancelTask).toHaveBeenCalledWith('task-1');
@@ -343,7 +371,7 @@ describe('TaskManagementComponent', () => {
 
   it('updates cron state and exposes helper text and metadata helpers', () => {
     component.taskInfos = [clearPdfTask];
-    component.taskHistories.set(TaskType.CLEAR_PDF_CACHE, {
+    loadTaskHistory({
       ...pendingHistory,
       status: TaskStatus.COMPLETED,
       completedAt: '2026-03-27T03:05:50Z',

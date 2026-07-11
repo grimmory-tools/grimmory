@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { transformedValue, type FormValueControl, type ParseResult } from '@angular/forms/signals';
+import { LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus } from '@lucide/angular';
 
 import { cn } from '../cn';
 import { APP_FIELD } from '../field/app-field.context';
@@ -19,6 +20,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
 @Component({
   selector: 'app-number-input',
   standalone: true,
+  imports: [LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -51,24 +53,26 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
         }
         @if (!readonly()) {
           <span
-            class="pointer-events-auto my-px mr-px flex w-8 flex-col overflow-hidden rounded-r-[0.3rem] border-l border-border">
+            class="pointer-events-auto my-px mr-px flex w-8 flex-col overflow-hidden rounded-r-[0.3rem] border-l border-border pointer-coarse:w-20 pointer-coarse:flex-row-reverse">
             <button
               type="button"
               tabindex="-1"
               aria-hidden="true"
-              [class]="stepButtonClass"
+              [class]="stepButtonClass + ' pointer-coarse:border-l pointer-coarse:border-border'"
               [disabled]="disabled() || atMax()"
               (click)="nudge(1)">
-              <i class="pi pi-chevron-up text-xs leading-none" aria-hidden="true"></i>
+              <svg lucideChevronUp class="size-3 pointer-coarse:hidden" aria-hidden="true"></svg>
+              <svg lucidePlus class="hidden size-4 pointer-coarse:block" aria-hidden="true"></svg>
             </button>
             <button
               type="button"
               tabindex="-1"
               aria-hidden="true"
-              [class]="stepButtonClass + ' border-t border-border'"
+              [class]="stepButtonClass + ' border-t border-border pointer-coarse:border-t-0'"
               [disabled]="disabled() || atMin()"
               (click)="nudge(-1)">
-              <i class="pi pi-chevron-down text-xs leading-none" aria-hidden="true"></i>
+              <svg lucideChevronDown class="size-3 pointer-coarse:hidden" aria-hidden="true"></svg>
+              <svg lucideMinus class="hidden size-4 pointer-coarse:block" aria-hidden="true"></svg>
             </button>
           </span>
         }
@@ -125,14 +129,14 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
   });
 
   protected readonly stepButtonClass =
-    'flex flex-1 items-center justify-center text-text-muted transition-colors ' +
+    'flex flex-1 items-center justify-center text-text-muted touch-manipulation transition-colors ' +
     'hover:bg-surface-hover hover:text-text-strong ' +
     'active:bg-[color-mix(in_srgb,var(--color-text)_14%,transparent)] active:text-text-strong ' +
     'disabled:pointer-events-none disabled:opacity-40';
 
   protected readonly inputPaddingClass = computed(() => {
-    if (this.unit()) return 'pr-16';
-    return this.readonly() ? '' : 'pr-9';
+    if (this.unit()) return 'pr-16 pointer-coarse:pr-28';
+    return this.readonly() ? '' : 'pr-9 pointer-coarse:pr-22';
   });
   protected readonly inputClass = computed(() =>
     cn(

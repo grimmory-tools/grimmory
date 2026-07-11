@@ -1,11 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {EMPTY, from, Observable, switchMap} from 'rxjs';
 import {DialogLauncherService} from '../services/dialog-launcher.service';
-
-export interface IconSelection {
-  type: 'PRIME_NG' | 'CUSTOM_SVG';
-  value: string;
-}
+import {IconSelection} from '../icons/icon-selection';
 
 @Injectable({providedIn: 'root'})
 export class IconPickerService {

@@ -2,15 +2,13 @@
   <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
     <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <header class="sidebar-header">
-        @if (bookInfo().coverUrl) {
-          <img
-            [src]="bookInfo().coverUrl"
-            alt="Book cover"
-            class="book-cover"
-          />
-        } @else {
-          <app-cover-placeholder class="book-cover" [title]="bookInfo().title" [author]="bookInfo().authors" size="sm" />
-        }
+        <app-cover
+          class="book-cover"
+          aria-hidden="true"
+          [src]="bookInfo().coverUrl"
+          [title]="bookInfo().title"
+          [authors]="bookInfo().authors"
+          size="sm" />
         <div class="book-meta">
           <h2 class="book-title">{{ bookInfo().title }}</h2>
           @if (bookInfo().authors) {
@@ -106,6 +104,7 @@
                     [placeholder]="'readerCbx.sidebar.searchNotesPlaceholder' | transloco"
                     [ngModel]="notesSearchQuery()"
                     (ngModelChange)="onNotesSearchInput($event)"
+                    aria-label="{{ 'readerCbx.sidebar.searchNotesPlaceholder' | transloco }}"
                   />
                   @if (notesSearchQuery()) {
                     <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">

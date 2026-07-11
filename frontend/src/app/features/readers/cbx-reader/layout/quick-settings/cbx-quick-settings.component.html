@@ -154,7 +154,8 @@
         <span>{{ 'readerCbx.quickSettings.brightness' | transloco }}</span>
         <div class="control-right">
           <input type="range" min="10" max="100" step="5" [value]="state().brightness"
-            (input)="onBrightnessChange($event)" class="brightness-slider" />
+            (input)="onBrightnessChange($event)" class="brightness-slider"
+            aria-label="{{ 'readerCbx.quickSettings.brightness' | transloco }}" />
           <span class="brightness-value">{{ state().brightness }}%</span>
         </div>
       </div>

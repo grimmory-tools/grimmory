@@ -24,6 +24,7 @@
             [placeholder]="t('searchPlaceholder')"
             [ngModel]="searchValue"
             (ngModelChange)="onSearchChange($event)"
+            aria-label="{{ t('searchPlaceholder') }}"
             class="search-input"/>
         </div>
 

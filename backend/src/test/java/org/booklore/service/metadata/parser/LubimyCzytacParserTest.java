@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.net.ConnectException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -189,6 +190,99 @@ class LubimyCzytacParserTest {
         assertEquals(827, result.getDescription().length());
     }
 
+    @Test
+    void testFetchMetadata_stopsWithRegularException() throws Exception {
+        // Given
+        Book book = Book.builder()
+                .title("Sklepy cynamonowe")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("Sklepy cynamonowe")
+                .author("Bruno Schulz")
+                .build();
+
+        // Mock enabled provider
+        AppSettings appSettings = new AppSettings();
+        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
+        MetadataProviderSettings.Lubimyczytac lubimyCzytac = new MetadataProviderSettings.Lubimyczytac();
+        lubimyCzytac.setEnabled(true);
+        providerSettings.setLubimyczytac(lubimyCzytac);
+        appSettings.setMetadataProviderSettings(providerSettings);
+
+        mockResponseThrow("https://lubimyczytac.pl/szukaj/ksiazki", new IOException());
+
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+
+        // When
+        List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+        assertEquals(0, results.size());
+        mockJsoup.verify(() -> Jsoup.connect(anyString()), times(1));
+    }
+
+    @Test
+    void testFetchMetadata_retriesWithConnectionException() throws Exception {
+        // Given
+        Book book = Book.builder()
+                .title("Sklepy cynamonowe")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("Sklepy cynamonowe")
+                .author("Bruno Schulz")
+                .build();
+
+        // Mock enabled provider
+        AppSettings appSettings = new AppSettings();
+        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
+        MetadataProviderSettings.Lubimyczytac lubimyCzytac = new MetadataProviderSettings.Lubimyczytac();
+        lubimyCzytac.setEnabled(true);
+        providerSettings.setLubimyczytac(lubimyCzytac);
+        appSettings.setMetadataProviderSettings(providerSettings);
+
+        mockResponseThrow("https://lubimyczytac.pl/szukaj/ksiazki", new ConnectException());
+
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+
+        // When
+        List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+        assertEquals(0, results.size());
+        mockJsoup.verify(() -> Jsoup.connect(anyString()), times(3));
+    }
+
+    @Test
+    void testFetchMetadata_retriesWithWrappedConnectionException() throws Exception {
+        // Given
+        Book book = Book.builder()
+                .title("Sklepy cynamonowe")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("Sklepy cynamonowe")
+                .author("Bruno Schulz")
+                .build();
+
+        // Mock enabled provider
+        AppSettings appSettings = new AppSettings();
+        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
+        MetadataProviderSettings.Lubimyczytac lubimyCzytac = new MetadataProviderSettings.Lubimyczytac();
+        lubimyCzytac.setEnabled(true);
+        providerSettings.setLubimyczytac(lubimyCzytac);
+        appSettings.setMetadataProviderSettings(providerSettings);
+
+        mockResponseThrow("https://lubimyczytac.pl/szukaj/ksiazki", new IOException("Wrapped", new ConnectException()));
+
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+
+        // When
+        List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+        assertEquals(0, results.size());
+        mockJsoup.verify(() -> Jsoup.connect(anyString()), times(3));
+    }
+
     private String readFixture(String fixtureName) throws IOException {
         String filename = Paths.get("lubimyczytac", fixtureName + ".fixture").toString();
 
@@ -197,6 +291,17 @@ class LubimyCzytacParserTest {
 
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
+    }
+
+    private void mockResponseThrow(String urlPrefix, Throwable exception) throws Exception {
+        Connection mockConnection = mock(Connection.class);
+
+        when(mockConnection.userAgent(any())).thenReturn(mockConnection);
+        when(mockConnection.timeout(anyInt())).thenReturn(mockConnection);
+
+        when(mockConnection.get()).thenThrow(exception);
+
+        mockJsoup.when(() -> Jsoup.connect(startsWith(urlPrefix))).thenReturn(mockConnection);
     }
 
     private void mockResponse(String urlPrefix, String response) throws Exception {

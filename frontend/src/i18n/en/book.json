@@ -634,6 +634,7 @@
     "chooseIcon": "Choose an Icon",
     "chooseIconSubtitle": "Select from available icons",
     "selectedIcon": "Selected Icon",
+    "customSvg": "Custom SVG",
     "removeIconTooltip": "Remove icon",
     "visibilityLabel": "Visibility",
     "makePublicLabel": "Make this shelf public (read-only for others)",
