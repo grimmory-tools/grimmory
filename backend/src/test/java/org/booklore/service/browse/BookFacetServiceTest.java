@@ -3,6 +3,7 @@ package org.booklore.service.browse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
+import org.booklore.browse.Link;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -66,6 +68,8 @@ class BookFacetServiceTest {
 
     @Autowired
     private BookFacetService facetService;
+    @Autowired
+    private ObjectMapper springMapper;
     @MockitoBean
     private AuthenticationService authenticationService;
 
@@ -197,7 +201,7 @@ class BookFacetServiceTest {
     }
 
     @Test
-    void linksCarryToggleHrefAndCount() {
+    void linksCarryAddHrefAndCount() {
         book("A", "Horror", "Alice");
         em.flush();
 
@@ -205,7 +209,7 @@ class BookFacetServiceTest {
                 .stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
         assertThat(horror.properties().numberOfItems()).isEqualTo(1);
-        assertThat(horror.rel()).isEqualTo("facet");
+        assertThat(horror.rel()).containsExactly("facet");
     }
 
     @Test
@@ -224,6 +228,7 @@ class BookFacetServiceTest {
         FacetGroup sort = group(facetService.getFacets(null, null, null), "sort");
         assertThat(sort.metadata().rel()).isEqualTo("sort");
         assertThat(sort.links()).extracting(FacetLink::value).contains("title", "-title");
+        assertThat(sort.links()).allSatisfy(l -> assertThat(l.rel()).containsExactly("sort"));
     }
 
     @Test
@@ -285,5 +290,75 @@ class BookFacetServiceTest {
 
         assertThat(group(response, "genre").links()).hasSize(100);
         assertThat(group(response, "author").links()).hasSize(100);
+    }
+
+    @Test
+    void activeFacetIsMarkedSelfWithCurrentPageHref() {
+        book("A", "Horror", "Alice");
+        book("B", "Romance", "Bob");
+        em.flush();
+
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror"), null, null), "genre");
+        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+        FacetLink romance = genre.links().stream().filter(l -> "Romance".equals(l.value())).findFirst().orElseThrow();
+
+        assertThat(horror.rel()).containsExactly("self", "facet");
+        assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
+
+        assertThat(romance.rel()).containsExactly("facet");
+        assertThat(romance.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror&facet=genre%3ARomance");
+    }
+
+    @Test
+    void activeFacetSelfHrefKeepsAllSelections() {
+        book("A", "Horror", "Alice");
+        em.flush();
+
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null), "genre");
+        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+
+        assertThat(horror.rel()).containsExactly("self", "facet");
+        assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror&facet=author%3AAlice");
+    }
+
+    @Test
+    void activeFacetMatchIsCaseInsensitive() {
+        book("A", "Horror", "Alice");
+        em.flush();
+
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:horror"), null, null), "genre");
+        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+
+        assertThat(horror.rel()).contains("self");
+    }
+
+    @Test
+    void responseCarriesTopLevelSelfLink() {
+        book("A", "Horror", "Alice");
+        em.flush();
+
+        Link bare = facetService.getFacets(null, null, null).links().getFirst();
+        assertThat(bare.rel()).containsExactly("self");
+        assertThat(bare.href()).isEqualTo("/api/v1/books/facets");
+        assertThat(bare.type()).isEqualTo(Link.JSON_TYPE);
+
+        Link filtered = facetService.getFacets(List.of("genre:Horror"), null, "dune").links().getFirst();
+        assertThat(filtered.rel()).containsExactly("self");
+        assertThat(filtered.href()).isEqualTo("/api/v1/books/facets?facet=genre%3AHorror&query=dune");
+    }
+
+    // Serializes through the Spring-managed Jackson 3 mapper, the same one the HTTP
+    // layer uses, so a mapper/annotation mismatch can't slip through unit tests again.
+    @Test
+    void springMapperSerializesSingleRelAsString() {
+        book("A", "Horror", "Alice");
+        em.flush();
+
+        String json = springMapper.writeValueAsString(facetService.getFacets(List.of("genre:Horror"), null, null));
+
+        assertThat(json).contains("\"rel\":\"self\"");
+        assertThat(json).contains("\"rel\":[\"self\",\"facet\"]");
+        assertThat(json).doesNotContain("\"rel\":[\"self\"]");
+        assertThat(json).doesNotContain("\"rel\":[\"facet\"]");
     }
 }

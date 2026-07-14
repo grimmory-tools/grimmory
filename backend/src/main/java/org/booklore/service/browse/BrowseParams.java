@@ -28,6 +28,24 @@ final class BrowseParams {
         return String.join("&", parts);
     }
 
+    static boolean hasFacet(List<String> facet, String key, String value) {
+        if (facet == null) {
+            return false;
+        }
+        return facet.stream().anyMatch(entry -> matchesFacet(entry, key, value));
+    }
+
+    private static boolean matchesFacet(String entry, String key, String value) {
+        if (entry == null) {
+            return false;
+        }
+        int colon = entry.indexOf(':');
+        if (colon <= 0 || colon == entry.length() - 1) {
+            return false;
+        }
+        return entry.substring(0, colon).equals(key) && entry.substring(colon + 1).equalsIgnoreCase(value);
+    }
+
     static String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }

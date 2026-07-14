@@ -14,6 +14,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.FacetLogic;
+import org.booklore.browse.Link;
 import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 public class BookFacetService {
 
     private static final String PAGE_PATH = "/api/v1/books/page";
+    private static final String FACET_PATH = "/api/v1/books/facets";
     private static final int MAX_VALUES = 100;
 
     private static final List<FacetDef> FACETS = List.of(
@@ -81,9 +83,10 @@ public class BookFacetService {
             groups.add(sortGroup(preserved));
             for (FacetDef def : FACETS) {
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(toGroup(def, count(def, base), preserved));
+                groups.add(toGroup(def, count(def, base), facet, preserved));
             }
-            return new FacetGroupsResponse(groups);
+            List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
+            return new FacetGroupsResponse(links, groups);
         });
     }
 
@@ -116,15 +119,16 @@ public class BookFacetService {
                 .toList();
     }
 
-    private FacetGroup toGroup(FacetDef def, List<FacetCount> counts, String preserved) {
+    private FacetGroup toGroup(FacetDef def, List<FacetCount> counts, List<String> facet, String preserved) {
         List<FacetLink> links = counts.stream()
-                .map(c -> new FacetLink(
-                        "facet",
-                        pageLink(preserved, "facet=" + BrowseParams.encode(def.key() + ":" + c.value())),
-                        "application/json",
-                        c.value(),
-                        c.value(),
-                        new Properties(c.count())))
+                .map(c -> {
+                    boolean active = BrowseParams.hasFacet(facet, def.key(), c.value());
+                    List<String> rel = active ? List.of("self", "facet") : List.of("facet");
+                    String href = active
+                            ? href(PAGE_PATH, preserved)
+                            : pageLink(preserved, "facet=" + BrowseParams.encode(def.key() + ":" + c.value()));
+                    return new FacetLink(rel, href, Link.JSON_TYPE, c.value(), c.value(), new Properties(c.count()));
+                })
                 .toList();
         return new FacetGroup(new Metadata("facet", def.key(), def.title()), links);
     }
@@ -135,14 +139,18 @@ public class BookFacetService {
             if (key.equals("id")) {
                 continue;
             }
-            links.add(new FacetLink("sort", pageLink(preserved, "sort=" + BrowseParams.encode(key)), "application/json", key + " ascending", key, null));
-            links.add(new FacetLink("sort", pageLink(preserved, "sort=-" + BrowseParams.encode(key)), "application/json", key + " descending", "-" + key, null));
+            links.add(new FacetLink(List.of("sort"), pageLink(preserved, "sort=" + BrowseParams.encode(key)), Link.JSON_TYPE, key + " ascending", key, null));
+            links.add(new FacetLink(List.of("sort"), pageLink(preserved, "sort=-" + BrowseParams.encode(key)), Link.JSON_TYPE, key + " descending", "-" + key, null));
         }
         return new FacetGroup(new Metadata("sort", "sort", "Sort"), links);
     }
 
     private static String pageLink(String preserved, String param) {
         return preserved.isBlank() ? PAGE_PATH + "?" + param : PAGE_PATH + "?" + preserved + "&" + param;
+    }
+
+    private static String href(String path, String preserved) {
+        return preserved.isBlank() ? path : path + "?" + preserved;
     }
 
     private static Join<?, ?> metadata(Root<BookEntity> root) {
