@@ -158,6 +158,12 @@ class BookFacetServiceTest {
         return link.map(l -> l.properties().numberOfItems()).orElse(null);
     }
 
+    private FacetLink link(FacetGroup group, String value) {
+        return group.links().stream()
+                .filter(l -> value.equals(l.value()))
+                .findFirst().orElseThrow();
+    }
+
     @Test
     void countsDiscreteFacetsWithCounts() {
         book("A", "Horror", "Alice");
@@ -205,8 +211,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetLink horror = group(facetService.getFacets(null, null, null), "genre").links()
-                .stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+        FacetLink horror = link(group(facetService.getFacets(null, null, null), "genre"), "Horror");
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
         assertThat(horror.properties().numberOfItems()).isEqualTo(1);
         assertThat(horror.rel()).containsExactly("facet");
@@ -299,8 +304,8 @@ class BookFacetServiceTest {
         em.flush();
 
         FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror"), null, null), "genre");
-        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
-        FacetLink romance = genre.links().stream().filter(l -> "Romance".equals(l.value())).findFirst().orElseThrow();
+        FacetLink horror = link(genre, "Horror");
+        FacetLink romance = link(genre, "Romance");
 
         assertThat(horror.rel()).containsExactly("self", "facet");
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
@@ -315,7 +320,7 @@ class BookFacetServiceTest {
         em.flush();
 
         FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null), "genre");
-        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+        FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).containsExactly("self", "facet");
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror&facet=author%3AAlice");
@@ -327,7 +332,7 @@ class BookFacetServiceTest {
         em.flush();
 
         FacetGroup genre = group(facetService.getFacets(List.of("genre:horror"), null, null), "genre");
-        FacetLink horror = genre.links().stream().filter(l -> "Horror".equals(l.value())).findFirst().orElseThrow();
+        FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).contains("self");
     }
