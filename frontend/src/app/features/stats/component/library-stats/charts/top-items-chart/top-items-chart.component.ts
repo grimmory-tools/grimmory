@@ -217,9 +217,6 @@ export class TopItemsChartComponent implements OnInit {
             },
             label: this.formatTooltipLabel.bind(this)
           }
-        },
-        datalabels: {
-          display: false
         }
       },
       interaction: {

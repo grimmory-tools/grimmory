@@ -63,8 +63,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
             return this.t.translate('statsUser.readingClock.tooltipReading', {time: `${Math.round(minutes)}m`});
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       r: {

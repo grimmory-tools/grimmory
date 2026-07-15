@@ -90,8 +90,7 @@ export class CompletionRaceChartComponent implements OnInit, OnDestroy {
               return this.t.translate('statsUser.completionRace.tooltipDayProgress', {day, progress});
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

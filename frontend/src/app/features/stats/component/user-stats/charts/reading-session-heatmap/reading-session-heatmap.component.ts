@@ -100,8 +100,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
                 : this.translocoService.translate('statsUser.sessionHeatmap.readingSessions_plural', {count: point.v});
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

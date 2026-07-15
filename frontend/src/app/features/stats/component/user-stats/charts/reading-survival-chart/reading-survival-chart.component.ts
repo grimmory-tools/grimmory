@@ -64,8 +64,7 @@ export class ReadingSurvivalChartComponent {
           title: (context) => this.t.translate('statsUser.readingSurvival.tooltipProgress', {label: context[0].label}),
           label: (context) => this.t.translate('statsUser.readingSurvival.tooltipSurvival', {value: (context.parsed.y ?? 0).toFixed(1)})
         }
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

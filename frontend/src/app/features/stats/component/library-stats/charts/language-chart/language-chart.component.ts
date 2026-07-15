@@ -185,9 +185,6 @@ export class LanguageChartComponent {
             return this.t.translate('statsLibrary.language.tooltipLabel', {label: context.label, value, percentage});
           }
         }
-      },
-      datalabels: {
-        display: false
       }
     }
   };

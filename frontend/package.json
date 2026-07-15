@@ -44,7 +44,6 @@
     "@tanstack/angular-virtual": "^5.0.7",
     "chart.js": "^4.5.1",
     "chartjs-chart-matrix": "3.0.5",
-    "chartjs-plugin-datalabels": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "date-fns": "^4.4.0",
     "dompurify": "^3.4.11",

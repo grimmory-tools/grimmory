@@ -80,8 +80,7 @@ export class PeakHoursChartComponent implements OnInit {
               }
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

@@ -55,8 +55,7 @@ export class PublicationEraChartComponent {
             return `${ctx.dataset.label}: ${ctx.parsed.y} books`;
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

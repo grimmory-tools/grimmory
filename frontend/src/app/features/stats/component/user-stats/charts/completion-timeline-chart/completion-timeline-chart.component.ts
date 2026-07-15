@@ -72,8 +72,7 @@ export class CompletionTimelineChartComponent implements OnInit {
               return this.t.translate(key, {label, value});
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

@@ -56,8 +56,7 @@ export class PageTurnerChartComponent implements OnInit {
           callbacks: {
             label: () => ''
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

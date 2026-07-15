@@ -86,15 +86,6 @@ export class ReadingHeatmapChartComponent {
             return this.t.translate(key, {value: point.v});
           }
         }
-      },
-      datalabels: {
-        display: true,
-        font: {
-          family: "'Inter', sans-serif",
-          size: 10,
-          weight: 'bold'
-        },
-        formatter: (value: MatrixDataPoint) => value.v > 0 ? value.v.toString() : ''
       }
     },
     scales: {

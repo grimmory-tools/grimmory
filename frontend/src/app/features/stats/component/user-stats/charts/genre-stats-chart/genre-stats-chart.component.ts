@@ -70,8 +70,7 @@ export class GenreStatsChartComponent implements OnInit {
               return `${label}: ${timeStr}`;
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

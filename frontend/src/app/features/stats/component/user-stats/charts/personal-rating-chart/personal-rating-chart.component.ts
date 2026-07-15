@@ -90,7 +90,6 @@ export class PersonalRatingChartComponent {
           }
         }
       },
-      datalabels: {display: false}
     },
     scales: {
       x: {

@@ -118,8 +118,7 @@ export class ReadingProgressChartComponent {
             return this.t.translate('statsUser.readingProgress.tooltipLabel', {value, plural, description, percentage});
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     interaction: {
       intersect: false,
