@@ -34,4 +34,16 @@ fi
 mkdir -p /app/data /bookdrop /books
 chown "$USER_ID:$GROUP_ID" /app/data /bookdrop /books 2>/dev/null || true
 
+# Process _FILE environment variables for secrets
+for var in $(env | grep '_FILE=' | cut -d= -f1); do
+    file_path=$(eval echo \$$var)
+    if [ -n "$file_path" ] && [ -f "$file_path" ]; then
+        var_name=${var%_FILE}
+        export "$var_name"=$(cat "$file_path")
+        echo "✓ Loaded $var_name from $file_path"
+    elif [ -n "$file_path" ]; then
+        echo "⚠ Warning: File $file_path not found for $var"
+    fi
+done
+
 exec su-exec "$USER_ID:$GROUP_ID" "$@"
