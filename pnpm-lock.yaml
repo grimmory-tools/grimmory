@@ -79,9 +79,6 @@ importers:
       chartjs-chart-matrix:
         specifier: 3.0.5
         version: 3.0.5(chart.js@4.5.1)
-      chartjs-plugin-datalabels:
-        specifier: ^2.2.0
-        version: 2.2.0(chart.js@4.5.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2985,11 +2982,6 @@ packages:
 
   chartjs-chart-matrix@3.0.5:
     resolution: {integrity: sha512-hVqXBEtLoYJk+iA9NajA/ArG7HlPZl3XXNsRDY3c5sCuqSrM6uTythSJh1jVR7UNVApdY9PStb84xSEjEceKaw==}
-    peerDependencies:
-      chart.js: '>=3.0.0'
-
-  chartjs-plugin-datalabels@2.2.0:
-    resolution: {integrity: sha512-14ZU30lH7n89oq+A4bWaJPnAG8a7ZTk7dKf48YAzMvJjQtjrgg5Dpk9f+LbjCF6bpx3RAGTeL13IXpKQYyRvlw==}
     peerDependencies:
       chart.js: '>=3.0.0'
 
@@ -8528,10 +8520,6 @@ snapshots:
       '@kurkle/color': 0.3.4
 
   chartjs-chart-matrix@3.0.5(chart.js@4.5.1):
-    dependencies:
-      chart.js: 4.5.1
-
-  chartjs-plugin-datalabels@2.2.0(chart.js@4.5.1):
     dependencies:
       chart.js: 4.5.1
 
