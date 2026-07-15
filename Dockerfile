@@ -123,12 +123,10 @@ LABEL org.opencontainers.image.title="Grimmory" \
 ENV APP_VERSION=${APP_VERSION} \
     APP_REVISION=${APP_REVISION}
 
-ARG SERVER_PORT=6060
-ENV SERVER_PORT=${SERVER_PORT}
-EXPOSE ${SERVER_PORT}
+EXPOSE 6060
 
 HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=5 \
-  CMD wget -q --spider http://localhost:${SERVER_PORT}/api/v1/healthcheck
+  CMD wget -q --spider http://localhost:${SERVER_PORT:-${BOOKLORE_PORT:-6060}}/api/v1/healthcheck
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["java", "--enable-native-access=ALL-UNNAMED", "--enable-preview", "-jar", "/app/app.jar"]
