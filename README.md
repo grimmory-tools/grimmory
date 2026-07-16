@@ -182,7 +182,7 @@ services:
       - JDK_JAVA_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/data
 ```
 
-The JVM writes the dump to the mounted `/app/data` volume. Remove the option after collecting the diagnostic data because heap dumps can be large and contain sensitive application data.
+The JVM creates a PID-specific `.hprof` file in the mounted `/app/data` directory. Remove the option after collecting the diagnostic data because heap dumps can be large and contain sensitive application data.
 
 Additional deployment examples:
 
