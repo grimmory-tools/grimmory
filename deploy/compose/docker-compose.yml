@@ -21,9 +21,10 @@ services:
       - SWAGGER_ENABLED=false
       - FORCE_DISABLE_OIDC=false
       # ALLOWED_ORIGINS=
-      # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
-      # Uncomment and adjust if you want a tighter or looser cap:
-      # JAVA_TOOL_OPTIONS=-Xmx256m
+      # Add JVM options without replacing the image defaults. For example:
+      # - JDK_JAVA_OPTIONS=-Xmx256m
+      # Heap dumps are disabled by default. Enable them only when debugging an OOM:
+      # - JDK_JAVA_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/data
     depends_on:
       mariadb:
         condition: service_healthy

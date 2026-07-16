@@ -171,6 +171,19 @@ docker compose up -d
 
 Open http://localhost:6060, create your admin account, and start building your library. (All libraries must be created within directories mounted on the host, e.g. the `/books/` directory in the sample `docker-compose.yml` above.)
 
+#### Optional: Capture Heap Dumps for OOM Debugging
+
+Heap dumps are disabled by default. To enable them temporarily, add the following environment variable to the `grimmory` service:
+
+```yaml
+services:
+  grimmory:
+    environment:
+      - JDK_JAVA_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/data
+```
+
+The JVM writes the dump to the mounted `/app/data` volume. Remove the option after collecting the diagnostic data because heap dumps can be large and contain sensitive application data.
+
 Additional deployment examples:
 
 - Docker Compose: [`deploy/compose/docker-compose.yml`](deploy/compose/docker-compose.yml)
