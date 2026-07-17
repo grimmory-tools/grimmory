@@ -3,6 +3,7 @@ package org.booklore.config.security.service;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.AccessTokenDto;
+import org.booklore.model.dto.OpdsUser;
 import org.springframework.context.annotation.Lazy;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.JwtUtils;
@@ -85,13 +86,16 @@ public class AuthenticationService {
             return null;
         }
         Object principal = authentication.getPrincipal();
+        if (principal instanceof OpdsUserDetails opdsUser) {
+            principal = opdsUser.getUser();
+        }
         if (principal instanceof BookLoreUser user) {
             if (user.getId() != null && user.getId() != -1L) {
                 defaultSettingInitializer.ensureDefaultSettings(user);
             }
             return user;
         }
-        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser");
+        throw new IllegalStateException("Authenticated principal is not of expected type");
     }
 
     public BookLoreUser getSystemUser() {
