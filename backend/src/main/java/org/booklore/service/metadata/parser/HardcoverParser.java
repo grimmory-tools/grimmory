@@ -201,8 +201,6 @@ public class HardcoverParser implements BookParser {
                     .min(Double::compare)
                     .orElse(Integer.MAX_VALUE);
 
-            doc.setLevenshteinDistanceAuthor(minDistance);
-
             return new ScoredDocument(doc, minDistance);
         };
     }
