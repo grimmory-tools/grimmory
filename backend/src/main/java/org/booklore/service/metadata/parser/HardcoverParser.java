@@ -46,7 +46,7 @@ public class HardcoverParser implements BookParser {
         List<GraphQLResponse.BookWithEditions> results = searchById(docs, fetchMetadataRequest);
 
         // further filter editions of returned books
-        filterEditions(results, book);
+        results = filterEditions(results, book);
         return processBooks(results);
     }
 
@@ -244,7 +244,7 @@ public class HardcoverParser implements BookParser {
         return results.stream()
                 .map(result -> {
                     // filter by format
-                    List<GraphQLResponse.Edition> filteredByFormat = filterEditionsByFormat(result, book);
+                    List<GraphQLResponse.Edition> filteredByFormat = filterEditionsByFormat(result.getEditions(), book);
 
                     // filter by language
                     List<GraphQLResponse.Edition> filteredByLanguage = filterEditionsByLanguage(filteredByFormat);
@@ -258,17 +258,17 @@ public class HardcoverParser implements BookParser {
                 .toList();
     }
 
-    private List<GraphQLResponse.Edition> filterEditionsByFormat(GraphQLResponse.BookWithEditions result, Book book)
+    private List<GraphQLResponse.Edition> filterEditionsByFormat(List<GraphQLResponse.Edition> editions, Book book)
     {
         if (book.getPrimaryFile() == null){
-            return result.getEditions();
+            return editions;
         }
 
         boolean isAudiobook = book.getPrimaryFile().getBookType().equals(BookFileType.AUDIOBOOK);
         List<GraphQLResponse.Edition> audiobooks = new ArrayList<>();
         List<GraphQLResponse.Edition> hardcovers = new ArrayList<>();
 
-        for (GraphQLResponse.Edition edition : result.getEditions()) {
+        for (GraphQLResponse.Edition edition : editions) {
             if (edition.getReadingFormatId() == 2) {
                 audiobooks.add(edition);
             } else {
