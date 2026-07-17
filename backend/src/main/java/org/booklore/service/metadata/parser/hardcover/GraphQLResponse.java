@@ -241,9 +241,6 @@ public class GraphQLResponse {
 
         @JsonProperty("reading_format_id")
         private int readingFormatId;
-
-        @JsonProperty("score")
-        private int score;
     }
 
     @Getter
