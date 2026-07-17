@@ -45,7 +45,6 @@ import static org.mockito.Mockito.*;
  * - Edition filtering logic
  */
 class HardcoverParserTest {
-    private static final Logger log = LoggerFactory.getLogger(HardcoverParserTest.class);
     private Locale previousDefaultLocale;
 
     @Mock
