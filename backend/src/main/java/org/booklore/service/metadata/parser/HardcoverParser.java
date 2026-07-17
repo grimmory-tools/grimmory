@@ -335,7 +335,7 @@ public class HardcoverParser implements BookParser {
         mapBookId(builder, book);
         mapCachedContributors(builder, book);
         mapReleaseDate(builder, book);
-        mapSeiesData(builder, book);
+        mapSeriesData(builder, book);
         mapRating(builder, book);
 
         GraphQLResponse.CachedTags cachedTags = book.getCachedTags();
@@ -359,7 +359,7 @@ public class HardcoverParser implements BookParser {
         }
     }
 
-    private void mapSeiesData(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.BookWithEditions book) {
+    private void mapSeriesData(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.BookWithEditions book) {
         if (book.getFeaturedBookSeries() != null && book.getFeaturedBookSeries().getSeries() != null) {
             builder.seriesName(book.getFeaturedBookSeries().getSeries().getName());
             builder.seriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
