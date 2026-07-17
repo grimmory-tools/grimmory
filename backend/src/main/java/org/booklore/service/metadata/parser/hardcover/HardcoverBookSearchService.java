@@ -35,11 +35,11 @@ public class HardcoverBookSearchService {
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(List<String> isbn) {
-        return searchBookById(isbn, List.of(0));
+        return searchBookById(isbn, List.of());
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByHcid(List<Integer> hcid) {
-        return searchBookById(List.of("0"), hcid);
+        return searchBookById(List.of(), hcid);
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookById(List<String> isbn, List<Integer> hcid) {
