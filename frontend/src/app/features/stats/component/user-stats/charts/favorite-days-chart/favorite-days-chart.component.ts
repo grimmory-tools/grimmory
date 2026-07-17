@@ -83,8 +83,7 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
               }
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

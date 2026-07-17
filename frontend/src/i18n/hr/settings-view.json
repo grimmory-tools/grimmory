@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Uzlazno",
             "desc": "Silazno"
-        }
+        },
+        "saveSuccess": "Spremljene postavke",
+        "saveSuccessDetail": "Konfiguracija pomicanja nadzorne ploče je spremljena.",
+        "saveSettings": "Spremi postavke"
     },
     "librarySort": {
         "sectionTitle": "Postavke prikaza i sortiranja zbirki i polica",
@@ -170,39 +173,39 @@
     },
     "theme": {
         "customPrimaryColors": {
-            "violet": "",
-            "pink": "",
-            "lime": "",
-            "sky": "",
-            "amber": "",
-            "rose": "",
-            "cyan": "",
-            "purple": "",
-            "fuchsia": "",
-            "blue": "",
-            "orange": "",
-            "green": "",
-            "red": "",
-            "yellow": "",
-            "indigo": "",
-            "emerald": "",
-            "teal": ""
+            "violet": "Ljubičasta",
+            "pink": "Roza",
+            "lime": "Limeta",
+            "sky": "Nebeska",
+            "amber": "Jantar",
+            "rose": "Ružičasta",
+            "cyan": "Cijan",
+            "purple": "Purpurna",
+            "fuchsia": "Fuksija",
+            "blue": "Plava",
+            "orange": "Narančasta",
+            "green": "Zelena",
+            "red": "Crvena",
+            "yellow": "Žuta",
+            "indigo": "Indigo",
+            "emerald": "Smaragdna",
+            "teal": "Tirkizna"
         },
-        "syncSavedDetail": "",
-        "savedDetail": "",
-        "customPrimaryOptionLabel": "",
-        "oledDarkMode": "",
-        "sectionTitle": "",
-        "sectionDesc": ""
+        "syncSavedDetail": "Vaše postavke sinkronizacije teme su spremljene.",
+        "savedDetail": "Vaše postavke prikaza su spremljene.",
+        "customPrimaryOptionLabel": "{{color}} prilagođena boja",
+        "oledDarkMode": "Tamni OLED način rada",
+        "sectionTitle": "Prikazt",
+        "sectionDesc": "Konfigurirajte jezik, font sučelja, izgled i temu za svoj račun."
     },
-    "saveFailedDetail": "",
+    "saveFailedDetail": "Nije moguće spremiti vaše postavke prikaza. Pokušajte ponovno.",
     "language": {
-        "savedDetail": "",
-        "label": ""
+        "savedDetail": "Vaše jezične postavke su spremljene.",
+        "label": "Jezik"
     },
     "uiFont": {
-        "savedDetail": "",
-        "accessibleLabel": "",
-        "label": ""
+        "savedDetail": "Vaše postavke fonta sučelja su spremljene.",
+        "accessibleLabel": "Koristite pristupačan font",
+        "label": "Font sučelja"
     }
 }

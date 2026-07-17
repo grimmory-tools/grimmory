@@ -124,7 +124,7 @@
         "contentsTab": "Sadržaj",
         "bookmarksTab": "Knjižne oznake",
         "highlightsTab": "Označavanja",
-        "deleteBookmark": "Obriši knjižnu oznaku",
+        "deleteBookmark": "Izbriši knjižnu oznaku",
         "noBookmarksYet": "Još nema knjižnih oznaka",
         "noBookmarksHint": "Dodirnite ikonu knjižne oznake da sačuvate svoje mjesto",
         "deleteHighlight": "Obriši označavanje",
@@ -137,8 +137,8 @@
         "annotate": "Označi",
         "addNote": "Dodaj bilješku",
         "deleteAnnotation": "Obriši oznaku",
-        "goToLink": "",
-        "removeLink": ""
+        "goToLink": "Idi na poveznicu",
+        "removeLink": "Ukloni poveznicu"
     },
     "shortcutsHelp": {
         "title": "Tipkovnički prečaci",
@@ -159,7 +159,7 @@
         "showHelpDialog": "Prikaži ovaj dijalog pomoći",
         "swipeRight": "Povucite desno",
         "swipeLeft": "Povucite lijevo",
-        "toggleImmersive": ""
+        "toggleImmersive": "Uključi/isključi imerzivni način rada"
     },
     "headerFooterUtil": {
         "timeRemainingInSection": "Preostalo vrijeme u odjeljku: {{ time }}"

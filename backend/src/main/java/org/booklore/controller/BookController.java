@@ -25,6 +25,8 @@ import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
 import org.booklore.service.book.PhysicalBookService;
 import org.booklore.service.browse.BookBrowseService;
+import org.booklore.service.browse.BookFacetService;
+import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.service.recommender.BookRecommendationService;
@@ -61,6 +63,7 @@ public class BookController {
 
     private final BookService bookService;
     private final BookBrowseService bookBrowseService;
+    private final BookFacetService bookFacetService;
     private final BookUpdateService bookUpdateService;
     private final BookRecommendationService bookRecommendationService;
     private final BookFileAttachmentService bookFileAttachmentService;
@@ -100,6 +103,19 @@ public class BookController {
             return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
         }
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
+    }
+
+    @Operation(summary = "Get book facets", description = "Available facet values and counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts.")
+    @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
+    @GetMapping("/facets")
+    public ResponseEntity<FacetGroupsResponse> getBookFacets(
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")

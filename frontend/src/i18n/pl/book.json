@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Półka utworzona: {{ name }}",
             "createFailedDetail": "Nie udało się utworzyć półki"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Edytuj półkę",

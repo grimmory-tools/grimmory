@@ -68,10 +68,10 @@
         "pageFit": "Prilagodi stranicu",
         "pageWidth": "Širina stranice",
         "actualSize": "Stvarna veličina",
-        "scrollLayoutDesc": "",
-        "vertical": "",
-        "horizontal": "",
-        "scrollLayout": ""
+        "scrollLayoutDesc": "Odaberite između vertikalnog (kontinuiranog) ili horizontalnog (stranica po stranica) pomicanja.",
+        "vertical": "Vertikalno",
+        "horizontal": "Horizontalno",
+        "scrollLayout": "Raspored pomicanja"
     },
     "cbx": {
         "sectionTitle": "Čitač stripova: Zadane postavke",
@@ -100,9 +100,9 @@
         "gray": "Siva",
         "black": "Crna",
         "white": "Bijela",
-        "stripMaxWidthDesc": "",
-        "stripMaxWidth": "",
-        "longStrip": ""
+        "stripMaxWidthDesc": "Maksimalna širina za beskonačno pomicanje i dugi pojas (postotak čitatelja). Uži stupci mogu olakšati čitanje visokih stranica web crtanog filma.",
+        "stripMaxWidth": "Maksimalna širina trake",
+        "longStrip": "Duga traka"
     },
     "streamingPdf": {
         "sectionTitle": "Streaming PDF čitač: Zadane postavke",

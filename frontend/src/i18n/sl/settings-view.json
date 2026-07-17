@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Naraščajoče",
             "desc": "Padajoče"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Nastavitve pogleda in razvrščanja knjižnic ter polic",

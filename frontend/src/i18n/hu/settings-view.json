@@ -70,7 +70,10 @@
         "sortDirections": {
             "asc": "Emelkedő",
             "desc": "Csökkenő"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "viewTable": "",

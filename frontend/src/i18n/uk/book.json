@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Полицю створено: {{ name }}",
             "createFailedDetail": "Не вдалося створити полицю"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Редагувати полицю",

@@ -123,8 +123,7 @@ export class BookLengthChartComponent {
             ];
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     elements: {
       point: {

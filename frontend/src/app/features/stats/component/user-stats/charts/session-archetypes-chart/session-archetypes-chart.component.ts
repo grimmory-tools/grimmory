@@ -55,8 +55,7 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
             return `${ctx.dataset.label}: ${h}:${String(m).padStart(2, '0')} - ${duration} min`;
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

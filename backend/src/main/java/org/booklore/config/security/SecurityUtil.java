@@ -1,6 +1,7 @@
 package org.booklore.config.security;
 
 import lombok.AllArgsConstructor;
+import org.booklore.config.security.userdetails.OpdsUserDetails;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.repository.ShelfRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,8 +15,14 @@ public class SecurityUtil {
 
     private BookLoreUser getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof BookLoreUser user) {
-            return user;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof BookLoreUser user) {
+                return user;
+            }
+
+            if (authentication.getPrincipal() instanceof OpdsUserDetails opdsUser) {
+                return opdsUser.getUser();
+            }
         }
         return null;
     }

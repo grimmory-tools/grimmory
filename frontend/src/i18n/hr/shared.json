@@ -5,7 +5,7 @@
         "uploadDestination": "Odredište učitavanja",
         "librarySelection": "Odabir zbirke",
         "libraryLabel": "Zbirka",
-        "selectLibrary": "Odaberite knjižnicu",
+        "selectLibrary": "Odaberite zbirku",
         "subpathLabel": "Podputanja",
         "selectSubpath": "Odaberite podputanju",
         "selectFiles": "Odaberite datoteke",
@@ -26,7 +26,7 @@
         "uploadFailedTooltip": "Učitavanje nije uspjelo",
         "statusTooLarge": "Prevelika",
         "statusReady": "Spremno",
-        "statusUploading": "Učitavanje",
+        "statusUploading": "Slanje",
         "statusUploaded": "Učitano",
         "statusFailed": "Neuspjelo",
         "destinationLibrary": "Zbirka",
@@ -40,7 +40,7 @@
             "missingDataDetail": "Odaberite knjižnicu i putanju prije učitavanja.",
             "uploadFailedDefault": "Učitavanje nije uspjelo zbog nepoznate pogreške."
         },
-        "supportedFormats": ""
+        "supportedFormats": "Podržani formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>"
     },
     "changePassword": {
         "title": "Promjena lozinke",
@@ -72,7 +72,7 @@
         "goUpTooltip": "Idi razinu gore",
         "selectAllBtn": "Odaberi sve",
         "selectAllTooltip": "Odaberi sve vidljive mape",
-        "deselectAllBtn": "Poništi odabir",
+        "deselectAllBtn": "Odznači sve",
         "deselectAllTooltip": "Poništi sve odabire",
         "selectCurrentBtn": "Odaberi trenutnu",
         "selectCurrentTooltip": "Odaberi trenutni direktorij",
@@ -153,56 +153,57 @@
     },
     "ui": {
         "validation": {
-            "min": "",
-            "maxLength": "",
-            "parse": "",
-            "email": "",
-            "required": "",
-            "max": "",
-            "default": "",
-            "minLength": "",
-            "pattern": ""
+            "min": "Vrijednost je preniska",
+            "maxLength": "Koristite kraću vrijednost",
+            "parse": "Unesite valjanu vrijednost",
+            "email": "Unesite važeću e-adresu",
+            "required": "Ovo polje je obavezno",
+            "max": "Vrijednost je previsoka",
+            "default": "Nevažeća vrijednost",
+            "minLength": "Koristite dulju vrijednost",
+            "pattern": "Unesite valjanu vrijednost"
         },
         "tag": {
-            "removeTag": "",
-            "removeLabel": ""
+            "removeTag": "Ukloni oznaku",
+            "removeLabel": "Ukloni {{ label }}"
         },
         "input": {
-            "hidePassword": "",
-            "trailingAction": "",
-            "showPassword": ""
+            "hidePassword": "Sakrij lozinku",
+            "trailingAction": "Radnja unosa",
+            "showPassword": "Prikaži lozinku"
         },
         "select": {
-            "noResults": "",
-            "selectedCount": "",
-            "clearSelection": "",
-            "search": ""
+            "noResults": "Nema rezultata",
+            "selectedCount": "{{ count }} odabranih",
+            "clearSelection": "Poništi odabir",
+            "search": "Pretraživanje"
         },
         "rating": {
-            "valueText": "",
-            "setRatingTo": ""
+            "valueText": "{{ rating }} od {{ max }} zvjezdica",
+            "setRatingTo": "Postavi ocjenu na {{ rating }} od {{ max }} zvjezdica"
         },
         "message": {
-            "issueCount": "",
-            "issuePosition": "",
-            "previousIssue": "",
-            "nextIssue": ""
+            "issueCount": "{{ count }} brojeva",
+            "issuePosition": "{{ current }} od {{ count }} brojeva",
+            "previousIssue": "Prethodni broj",
+            "nextIssue": "Sljedeći broj"
         },
         "spinner": {
-            "loading": ""
+            "loading": "Učitavanje"
         },
         "autocomplete": {
-            "noResults": ""
+            "noResults": "Nema rezultata",
+            "removeTag": "Ukloni {{ tag }}"
         },
         "datePicker": {
-            "nextMonth": "",
-            "previousMonth": ""
+            "nextMonth": "Sljedeći mjesec",
+            "previousMonth": "Prethodni mjesec"
         }
     },
     "message": {
-        "previousIssue": "",
-        "nextIssue": "",
-        "issuePosition": "",
-        "issueCount": ""
+        "previousIssue": "Prethodni broj",
+        "nextIssue": "Sljedeći broj",
+        "issuePosition": "{{ current }} od {{ count }} brojeva",
+        "issueCount": "{{ count }} brojeva"
     }
 }

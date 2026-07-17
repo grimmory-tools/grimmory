@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Regal erstellt: {{ name }}",
             "createFailedDetail": "Regal konnte nicht erstellt werden"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Regal bearbeiten",

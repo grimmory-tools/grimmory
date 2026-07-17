@@ -1,7 +1,7 @@
 {
     "main": {
         "title": "Knjižnična statistika",
-        "selectLibrary": "Odaberite knjižnicu",
+        "selectLibrary": "Odaberite zbirku",
         "totalBooks": "Ukupno knjiga",
         "books": "Knjige",
         "totalAuthors": "Ukupno autora",

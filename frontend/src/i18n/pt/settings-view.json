@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Ascendente",
             "desc": "Descendente"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Preferências de Visualização e Ordenação de Biblioteca e Prateleira",

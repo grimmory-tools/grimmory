@@ -87,9 +87,6 @@ export class MetadataScoreChartComponent {
             return this.t.translate('statsLibrary.metadataScore.tooltipLabel', {value, percentage});
           }
         }
-      },
-      datalabels: {
-        display: false
       }
     }
   };

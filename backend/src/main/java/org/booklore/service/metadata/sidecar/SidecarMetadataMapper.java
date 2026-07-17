@@ -58,7 +58,7 @@ public class SidecarMetadataMapper {
         return SidecarMetadata.builder()
                 .version("1.0")
                 .generatedAt(Instant.now())
-                .generatedBy("booklore")
+                .generatedBy("grimmory")
                 .metadata(bookMetadata)
                 .cover(coverInfo)
                 .build();

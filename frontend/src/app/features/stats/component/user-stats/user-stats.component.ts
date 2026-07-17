@@ -31,7 +31,6 @@ import {UserChartConfig, UserChartConfigService} from './service/user-chart-conf
 import {StatsChartThemeService} from '../shared/stats-chart-theme.service';
 
 import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-user-stats',
@@ -65,7 +64,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
     SessionArchetypesChartComponent,
     TranslocoDirective
   ],
-  providers: [provideCharts(withDefaultRegisterables(ChartDataLabels))],
+  providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss']
 })

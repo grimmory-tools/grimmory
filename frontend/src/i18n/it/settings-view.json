@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "Crescente",
             "desc": "Decrescente"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "Preferenze di visualizzazione e ordinamento libreria e scaffale",

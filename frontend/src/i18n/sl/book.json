@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Polica ustvarjena: {{ name }}",
             "createFailedDetail": "Napaka pri ustvarjanju police"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Uredi polico",

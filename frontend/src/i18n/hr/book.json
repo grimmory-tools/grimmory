@@ -48,7 +48,7 @@
             "failedLibrary": "Učitavanje knjiga zbirke nije uspjelo!",
             "failedShelf": "Učitavanje knjiga police nije uspjelo!",
             "activeFilters": "{{ count }} aktivnih filtera",
-            "failedBooks": ""
+            "failedBooks": "Učitavanje knjiga nije uspjelo!"
         },
         "tooltip": {
             "clearFilters": "Očisti primijenjene filtere",
@@ -267,7 +267,7 @@
             "autoFetchMetadata": "Automatski dohvat metapodataka",
             "findDuplicates": "Pronađi duplikate",
             "deleteLibrary": "Obriši knjižnicu",
-            "bulkIsbnImport": ""
+            "bulkIsbnImport": "Uvoz ISBN-ova iz datoteke"
         },
         "shelf": {
             "publicShelfPrefix": "Javna polica - ",
@@ -301,7 +301,7 @@
             "magicShelfDeleteFailedDetail": "Brisanje police nije uspjelo",
             "failedSummary": "Neuspjelo",
             "magicShelfJsonCopiedDetail": "JSON datoteke čarobne police kopiran je u međuspremnik",
-            "dialogLoadFailedDetail": ""
+            "dialogLoadFailedDetail": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno."
         },
         "loading": {
             "deletingLibrary": "Brisanje zbirke '{{ name }}'..."
@@ -413,7 +413,7 @@
         "description": "Katalogizirajte fizičku knjigu bez digitalne datoteke",
         "closeTooltip": "Zatvori",
         "libraryLabel": "Zbirka",
-        "libraryPlaceholder": "Odaberite knjižnicu",
+        "libraryPlaceholder": "Odaberi zbirku",
         "titleLabel": "Naslov",
         "titlePlaceholder": "npr., Veliki Gatsby",
         "isbnLabel": "ISBN",
@@ -462,7 +462,7 @@
             "uploadFailedUnknown": "Učitavanje nije uspjelo zbog nepoznate pogreške."
         },
         "supplementaryAllFormats": "Za dodatne datoteke podržani su svi formati datoteka.",
-        "supportedFormats": ""
+        "supportedFormats": "Podržani formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>"
     },
     "filter": {
         "title": "Filteri",
@@ -579,7 +579,7 @@
             "updateSuccessDetail": "Police knjiga ažurirane",
             "updateFailedDetail": "Ažuriranje polica knjiga nije uspjelo"
         },
-        "searchPlaceholder": ""
+        "searchPlaceholder": "Pretraži police..."
     },
     "shelfCreator": {
         "title": "Kreiraj novu policu",
@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Polica kreirana: {{ name }}",
             "createFailedDetail": "Kreiranje police nije uspjelo"
-        }
+        },
+        "customSvg": "Prilagođeni SVG"
     },
     "shelfEditDialog": {
         "title": "Uredi policu",
@@ -637,10 +638,10 @@
             "unlockFailedDetail": "Došlo je do pogreške prilikom otključavanja metapodataka."
         },
         "noRating": "Nema ratinga",
-        "ratingOutOf": "",
+        "ratingOutOf": "{{ rating }} od {{ max }}",
         "selectBookFallback": "Odaberi knjigu",
-        "selectBook": "",
-        "label": ""
+        "selectBook": "Odaberite {{ title }}",
+        "label": "Stol za knjige"
     },
     "lockUnlockDialog": {
         "title": "Zaključaj ili otključaj metapodatke",
@@ -863,46 +864,46 @@
         }
     },
     "bulkIsbnImport": {
-        "fileFormatsHint": "",
+        "fileFormatsHint": "Podržani formati: .txt, .csv, .tsv (maks. 1 MB)",
         "startImportButton": "_Pokreni uvoz",
         "chooseFile": "Odaberi datoteku",
-        "skippedCount": "",
-        "failedIsbnsLabel": "",
-        "summaryCancelled": "",
-        "createdNoMetadata": "",
-        "previewLabel": "",
+        "skippedCount": "{{ count }} preskočeno",
+        "failedIsbnsLabel": "Neuspjeli ISBN-ovi",
+        "summaryCancelled": "Preskočeno (otkazano)",
+        "createdNoMetadata": "Izrađeno (metapodaci nisu pronađeni)",
+        "previewLabel": "ISBN-ovi za uvoz",
         "summaryTitle": "Uvoz završen",
-        "tabPaste": "",
+        "tabPaste": "Zalijepi ISBN-ove",
         "clearButton": "Očisti",
         "tabFile": "Učitaj datoteku",
-        "validCount": "",
-        "cancelImportButton": "",
+        "validCount": "{{ count }} valjanih ISBN-ova",
+        "cancelImportButton": "Zaustavi uvoz",
         "summaryFailed": "Neuspjelo",
-        "processingHint": "",
+        "processingHint": "Već stvorene knjige bit će sačuvane ako otkažete.",
         "closeTooltip": "Zatvori",
-        "errorFileTooLarge": "",
+        "errorFileTooLarge": "Datoteka premašuje ograničenje veličine od 1 MB.",
         "libraryPlaceholder": "Odaberite zbirku",
-        "processingLabel": "",
-        "title": "",
-        "summaryNoMetadata": "",
-        "lookingUp": "",
-        "pastePlaceholder": "",
+        "processingLabel": "Obrađuje se {{ current }} od {{ total }}",
+        "title": "Uvoz ISBN-ova",
+        "summaryNoMetadata": "Stvoreno (samo ISBN)",
+        "lookingUp": "Traženje metapodataka...",
+        "pastePlaceholder": "Ovdje zalijepite ISBN-ove, jedan po retku ili odvojene zarezom...",
         "libraryLabel": "Zbirka",
-        "summaryCreated": "",
+        "summaryCreated": "Izrađeno s metapodacima",
         "doneButton": "Gotovo",
         "parseButton": "Analiziraj",
         "validationLibraryRequired": "Odaberite zbirku",
         "unknownError": "Nepoznata greška",
-        "description": "",
-        "validationNoIsbns": "",
-        "validationReady": "",
+        "description": "Uvoz više fizičkih knjiga s popisa ISBN-ova",
+        "validationNoIsbns": "Prenesite datoteku ili zalijepite ISBN-ove za početak",
+        "validationReady": "Spremno za uvoz {{ count }} ISBN-ova",
         "reason": {
-            "invalid": "",
-            "alreadyExists": ""
+            "invalid": "Nevažeći ISBN format",
+            "alreadyExists": "Već u ovoj knjižnici"
         },
-        "errorTooMany": "",
-        "errorNoIsbns": "",
+        "errorTooMany": "Uvest će se samo prvih {{ max }} ISBN-ova. Podijelite datoteku za ostale.",
+        "errorNoIsbns": "U ulazu nisu pronađeni ISBN-ovi.",
         "cancelButton": "Odustani",
-        "duplicatesRemoved": ""
+        "duplicatesRemoved": "Uklonjeno duplikata: {{ count }}"
     }
 }

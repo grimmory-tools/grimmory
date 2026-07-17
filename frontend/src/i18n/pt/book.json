@@ -601,7 +601,8 @@
         "toast": {
             "createSuccessDetail": "Prateleira criada: {{ name }}",
             "createFailedDetail": "Falha ao criar prateleira"
-        }
+        },
+        "customSvg": ""
     },
     "shelfEditDialog": {
         "title": "Editar Prateleira",

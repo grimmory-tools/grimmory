@@ -45,7 +45,10 @@
         "sortDirections": {
             "asc": "昇順",
             "desc": "降順"
-        }
+        },
+        "saveSuccess": "",
+        "saveSuccessDetail": "",
+        "saveSettings": ""
     },
     "librarySort": {
         "sectionTitle": "ライブラリとシェルフの表示・ソート設定",

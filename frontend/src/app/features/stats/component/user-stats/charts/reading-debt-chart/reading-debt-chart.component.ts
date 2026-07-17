@@ -42,8 +42,7 @@ export class ReadingDebtChartComponent {
       },
       tooltip: {
         enabled: true, borderWidth: 1, cornerRadius: 6, padding: 10
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

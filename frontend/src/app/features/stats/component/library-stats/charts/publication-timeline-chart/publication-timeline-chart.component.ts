@@ -169,9 +169,6 @@ export class PublicationTimelineChartComponent {
                 : this.t.translate('statsLibrary.publicationTimeline.tooltipBooks', {value});
             }
           }
-        },
-        datalabels: {
-          display: false
         }
       }
     };
