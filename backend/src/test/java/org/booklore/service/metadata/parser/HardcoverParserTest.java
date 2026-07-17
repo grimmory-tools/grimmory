@@ -182,7 +182,7 @@ class HardcoverParserTest {
     }
 
     private String readFixture(String fixtureName) {
-        String filename = Paths.get("hardcover", fixtureName + ".fixture").toString();
+        String filename = "hardcover/" + fixtureName + ".fixture";
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
             assert is != null;
