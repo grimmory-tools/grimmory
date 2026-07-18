@@ -459,6 +459,14 @@ public class KepubConversionService {
         return true;
     }
 
+    private String getMediaType(Resource resource) {
+        if (resource == null || resource.getMediaType() == null) {
+            return null;
+        }
+
+        return resource.getMediaType().toString().toLowerCase();
+    }
+
     private Book convertBookToKepub(Book original, boolean forceEnableHyphenation) throws IOException {
         Book kepub = new Book();
 
@@ -467,9 +475,9 @@ public class KepubConversionService {
                 continue;
             }
 
-            String resourceMediaType = resource.getMediaType().toString().toLowerCase();
+            var resourceMediaType = getMediaType(resource);
 
-            if (HTML_MEDIA_TYPES.contains(resourceMediaType)) {
+            if (resourceMediaType != null && HTML_MEDIA_TYPES.contains(resourceMediaType)) {
                 kepub.addResource(getTransformedContentResource(resource, forceEnableHyphenation));
             } else {
                 kepub.addResource(resource);
