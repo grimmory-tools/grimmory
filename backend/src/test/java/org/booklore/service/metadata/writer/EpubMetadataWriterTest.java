@@ -117,6 +117,28 @@ class EpubMetadataWriterTest {
                 }
             }
         }
+
+        @Test
+        @DisplayName("Should remove extraneous refines in EPUB3")
+        void writeMetadata_removesMissingRefines() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <other id="example">Example</other>
+
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <meta refines="#example" property="identifier-type">wizard</meta>
+                            <meta refines="#example2" property="source-of">magic</meta>
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-role-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain("refines=\"#example2\"");
+            assertThat(content).contains("refines=\"#example\"");
+        }
     }
 
     @Nested

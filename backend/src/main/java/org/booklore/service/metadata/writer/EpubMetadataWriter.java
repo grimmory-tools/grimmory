@@ -222,6 +222,10 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             }
 
+            if (hasChanges[0] && removeInvalidMetaRefines(metadataElement, opfDoc)) {
+                hasChanges[0] = true;
+            }
+
             if (hasChanges[0]) {
                 addBookloreMetadata(metadataElement, opfDoc, metadata);
                 cleanupCalibreArtifacts(metadataElement, opfDoc);
@@ -595,6 +599,46 @@ public class EpubMetadataWriter implements MetadataWriter {
                 metadataElement.removeChild(meta);
             }
         }
+    }
+
+    private boolean removeInvalidMetaRefines(Element metadataElement, Document doc) {
+        boolean hasChanges = false;
+
+        // In an ideal world we could set the `validating` flag or
+        // otherwise set the `isId` attribute tag correctly for `id`
+        // but because we cannot, we can't use `getElementById()` on
+        // the document.  With that in mind, we area going to read all
+        // tags, check if they have an `id`, and store that in a `Set`
+        Set<String> ids = new HashSet<>();
+
+        NodeList nodes = doc.getElementsByTagName("*");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            var node = nodes.item(i);
+
+            if (node instanceof Element element) {
+                var idAttribute = element.getAttribute("id");
+                if (!idAttribute.isBlank()) {
+                    ids.add(idAttribute);
+                }
+            }
+        }
+
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        for (int i = metas.getLength() - 1; i >= 0; i--) {
+            Element meta = (Element) metas.item(i);
+            String refines = meta.getAttribute("refines");
+
+            if (refines.startsWith("#")) {
+                String refinesId = refines.substring(1);
+
+                if (!ids.contains(refinesId)) {
+                    metadataElement.removeChild(meta);
+                    hasChanges = true;
+                }
+            }
+        }
+
+        return hasChanges;
     }
 
     private void removeMetaByRefines(Element metadataElement, String refines) {
