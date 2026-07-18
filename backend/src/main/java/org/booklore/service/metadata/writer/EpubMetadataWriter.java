@@ -222,14 +222,11 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             }
 
-            if (hasChanges[0] && removeInvalidMetaRefines(metadataElement, opfDoc)) {
-                hasChanges[0] = true;
-            }
-
             if (hasChanges[0]) {
                 addBookloreMetadata(metadataElement, opfDoc, metadata);
                 cleanupCalibreArtifacts(metadataElement, opfDoc);
                 organizeMetadataElements(metadataElement);
+                removeInvalidMetaRefines(metadataElement, opfDoc);
                 removeEmptyTextNodes(opfDoc);
                 Transformer transformer = TransformerFactory.newInstance().newTransformer();
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -601,9 +598,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private boolean removeInvalidMetaRefines(Element metadataElement, Document doc) {
-        boolean hasChanges = false;
-
+    private void removeInvalidMetaRefines(Element metadataElement, Document doc) {
         // In an ideal world we could set the `validating` flag or
         // otherwise set the `isId` attribute tag correctly for `id`
         // but because we cannot, we can't use `getElementById()` on
@@ -633,12 +628,9 @@ public class EpubMetadataWriter implements MetadataWriter {
 
                 if (!ids.contains(refinesId)) {
                     metadataElement.removeChild(meta);
-                    hasChanges = true;
                 }
             }
         }
-
-        return hasChanges;
     }
 
     private void removeMetaByRefines(Element metadataElement, String refines) {
