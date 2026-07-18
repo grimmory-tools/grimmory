@@ -398,16 +398,6 @@ public class KepubConversionService {
 
     private Resource transformOPF(Resource opfResource, String coverImage) throws IOException {
         // TransformOPF transforms the OPF document for a KEPUB.
-
-        //  * [extra] remove unnecessary Calibre metadata.
-        //    Removes extraneous metadata elements commonly added by Calibre.
-        //
-        // 	for _, el := range doc.FindElements("//meta[@name='calibre:timestamp']") {
-        //		el.Parent().RemoveChild(el)
-        //	}
-        //	for _, el := range doc.FindElements("//contributor[@role='bkp']") {
-        //		el.Parent().RemoveChild(el)
-
         try {
             var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             var opfDoc = builder.parse(opfResource.asInputStream());
