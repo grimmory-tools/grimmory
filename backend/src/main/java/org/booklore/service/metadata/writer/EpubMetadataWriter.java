@@ -98,8 +98,6 @@ public class EpubMetadataWriter implements MetadataWriter {
                 replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges);
                 if (StringUtils.isNotBlank(metadata.getSubtitle())) {
                     addSubtitleToTitle(metadataElement, opfDoc, metadata.getSubtitle());
-                } else {
-                    removeSubtitleToTitle(metadataElement);
                 }
             });
             helper.copyDescription(clear != null && clear.isDescription(), val -> replaceAndTrackChange(opfDoc, metadataElement, "description", DC_NS, val, hasChanges));
@@ -1000,34 +998,8 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private void addSubtitleToTitle(Element metadataElement, Document doc, String subtitle) {
-        // Remove existing subtitle elements (both EPUB2 and EPUB3 forms)
-        removeSubtitleToTitle(metadataElement);
-
         final String DC_NS = "http://purl.org/dc/elements/1.1/";
         boolean epub3 = isEpub3(doc);
-
-        if (epub3) {
-            // EPUB3: add subtitle as separate dc:title with title-type refinement
-            String subtitleId = "subtitle-" + UUID.randomUUID().toString().substring(0, 8);
-            Element subtitleElement = doc.createElementNS(DC_NS, "title");
-            subtitleElement.setPrefix("dc");
-            subtitleElement.setAttribute("id", subtitleId);
-            subtitleElement.setTextContent(subtitle);
-            metadataElement.appendChild(subtitleElement);
-
-            Element typeMeta = doc.createElementNS(OPF_NS, "meta");
-            typeMeta.setPrefix("opf");
-            typeMeta.setAttribute("refines", "#" + subtitleId);
-            typeMeta.setAttribute("property", "title-type");
-            typeMeta.setTextContent("subtitle");
-            metadataElement.appendChild(typeMeta);
-        }
-        // EPUB2: subtitle is stored only via booklore:subtitle metadata (written in addBookloreMetadata).
-        // No modification to dc:title is needed — this preserves round-trip fidelity.
-    }
-
-    private void removeSubtitleToTitle(Element metadataElement) {
-        final String DC_NS = "http://purl.org/dc/elements/1.1/";
 
         // Remove existing subtitle elements (both EPUB2 and EPUB3 forms)
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
@@ -1049,6 +1021,25 @@ public class EpubMetadataWriter implements MetadataWriter {
                 metadataElement.removeChild(meta);
             }
         }
+
+        if (epub3) {
+            // EPUB3: add subtitle as separate dc:title with title-type refinement
+            String subtitleId = "subtitle-" + UUID.randomUUID().toString().substring(0, 8);
+            Element subtitleElement = doc.createElementNS(DC_NS, "title");
+            subtitleElement.setPrefix("dc");
+            subtitleElement.setAttribute("id", subtitleId);
+            subtitleElement.setTextContent(subtitle);
+            metadataElement.appendChild(subtitleElement);
+
+            Element typeMeta = doc.createElementNS(OPF_NS, "meta");
+            typeMeta.setPrefix("opf");
+            typeMeta.setAttribute("refines", "#" + subtitleId);
+            typeMeta.setAttribute("property", "title-type");
+            typeMeta.setTextContent("subtitle");
+            metadataElement.appendChild(typeMeta);
+        }
+        // EPUB2: subtitle is stored only via booklore:subtitle metadata (written in addBookloreMetadata).
+        // No modification to dc:title is needed — this preserves round-trip fidelity.
     }
 
     private void addBookloreMetadata(Element metadataElement, Document doc, BookMetadataEntity metadata) {
