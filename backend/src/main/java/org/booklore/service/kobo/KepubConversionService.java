@@ -281,9 +281,11 @@ public class KepubConversionService {
      * body > div#book-columns > div#book-inner > *
      */
     private void transformContentAddWrappers(Document document) {
+        var children = document.body().childNodes();
+
         var innerElement = document.createElement("div");
         innerElement.id("book-inner");
-        innerElement.appendChildren(document.body().children());
+        innerElement.appendChildren(children);
 
         var columnElement = document.createElement("div");
         columnElement.id("book-columns");
