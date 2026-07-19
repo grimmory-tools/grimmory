@@ -31,13 +31,13 @@ import java.util.stream.Stream;
 public class KepubConversionService {
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
 
-    private final Set<String> HTML_MEDIA_TYPES = Set.of(
+    private static final Set<String> HTML_MEDIA_TYPES = Set.of(
             "text/html",
             "application/xhtml",
             "application/xhtml+xml"
     );
 
-    private final Set<String> IGNORED_FILENAMES = Set.copyOf(
+    private static final Set<String> IGNORED_FILENAMES = Set.copyOf(
             Stream.of(
                 ".DS_STORE",
                 "iTunesMetadata.plist",
@@ -47,7 +47,7 @@ public class KepubConversionService {
             ).map(String::toLowerCase).toList()
     );
 
-    private final Set<String> IGNORED_DIRECTORIES = Set.copyOf(
+    private static final Set<String> IGNORED_DIRECTORIES = Set.copyOf(
             Stream.of(
                 "__MACOSX"
             ).map(String::toLowerCase).toList()
