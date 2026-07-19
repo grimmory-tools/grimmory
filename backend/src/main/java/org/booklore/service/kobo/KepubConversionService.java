@@ -396,12 +396,13 @@ public class KepubConversionService {
         }
     }
 
-    private Resource transformOPF(Resource opfResource, String coverImage) throws IOException {
+    private Resource transformOPF(Resource opfResource, Resource cover) throws IOException {
         // TransformOPF transforms the OPF document for a KEPUB.
         try {
             var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             var opfDoc = builder.parse(opfResource.asInputStream());
 
+            String coverImage = cover == null ? null : cover.getHref();
             transformOPFCoverImage(opfDoc, coverImage);
 
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -485,7 +486,7 @@ public class KepubConversionService {
         kepub.setOpfResource(
                 transformOPF(
                         original.getOpfResource(),
-                        original.getCoverImage().getHref()
+                        original.getCoverImage()
                 )
         );
 
