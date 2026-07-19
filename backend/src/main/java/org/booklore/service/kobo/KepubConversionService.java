@@ -24,6 +24,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Gatherer;
@@ -501,30 +502,32 @@ public class KepubConversionService {
         epubWriter.write(kepubBook, outputStream);
     }
 
-    public File convertEpubToKepub(File epubFile, boolean forceEnableHyphenation) throws IOException {
-        validateInputs(epubFile);
+    private void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
+        validateInputs(inputPath);
 
-        var outputPath = Files.createTempFile("grimmory-kepub-", ".kepub.epub");
-
-        try (var inputStream = Files.newInputStream(epubFile.toPath())) {
+        try (var inputStream = Files.newInputStream(inputPath)) {
             try (var outputStream = Files.newOutputStream(outputPath)) {
                 convertEpubToKepub(inputStream, outputStream, forceEnableHyphenation);
             }
         }
 
-        var outputFile = outputPath.toFile();
-
-        log.info("Successfully converted {} to {} (size: {} bytes)", epubFile.getName(), outputFile.getName(), outputFile.length());
-        return outputFile;
+        log.info(
+                "Successfully converted {} to {} (size: {} bytes)",
+                inputPath.getFileName(),
+                outputPath.getFileName(),
+                Files.size(outputPath)
+        );
     }
 
     public File convertEpubToKepub(File epubFile, File tempDir, boolean forceEnableHyphenation) throws IOException {
-        return convertEpubToKepub(epubFile, forceEnableHyphenation);
+        var outputPath = Files.createTempFile(tempDir.getPath(), ".kepub.epub");
+        convertEpubToKepub(epubFile.toPath(), outputPath, forceEnableHyphenation);
+        return outputPath.toFile();
     }
 
-    private void validateInputs(File epubFile) {
-        if (epubFile == null || !epubFile.isFile() || !epubFile.getName().endsWith(".epub")) {
-            throw new IllegalArgumentException("Invalid EPUB file: " + epubFile);
+    private void validateInputs(Path inputPath) {
+        if (inputPath == null || !Files.isRegularFile(inputPath) || !inputPath.endsWith(".epub")) {
+            throw new IllegalArgumentException("Invalid EPUB file: " + inputPath);
         }
     }
 }
