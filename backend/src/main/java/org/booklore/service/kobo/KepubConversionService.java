@@ -427,7 +427,7 @@ public class KepubConversionService {
         }
     }
 
-    public boolean isIncludedResource(Resource resource) {
+    private boolean isIncludedResource(Resource resource) {
         // Because this isn't an actual filesystem it's always "/"
         String[] parts = resource.getHref().split("/");
 
