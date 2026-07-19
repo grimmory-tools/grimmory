@@ -3,17 +3,14 @@ package org.booklore.service.kobo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.util.SecureXmlUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Entities;
-import org.jsoup.nodes.TextNode;
 import org.springframework.stereotype.Service;
 import org.grimmory.epub4j.domain.Book;
 import org.grimmory.epub4j.domain.MediaTypes;
 import org.grimmory.epub4j.domain.Resource;
 import org.grimmory.epub4j.epub.EpubReader;
 import org.grimmory.epub4j.epub.EpubWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -26,53 +23,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Gatherer;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class KepubConversionService {
-    private static final String CLASSNAME_KOBO_SPAN = "koboSpan";
-    private static final String CLASSNAME_KOBO_STYLES = "kobostylehacks";
-    private static final String CLASSNAME_KOBO_HYPHENATE = "kobostylehyphenate";
-    private static final String ID_FORMAT_KOBO_SPAN = "kobo.%d";
-
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
-
-    private static final String CSS_KOBO_STYLES = """
-            div#book-inner {
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-            """;
-
-    private static final String CSS_HYPHENATE = """
-            * {
-                -webkit-hyphens: auto;
-                -moz-hyphens: auto;
-                hyphens: auto;
-        
-                -webkit-hyphenate-limit-after: 3;
-                -webkit-hyphenate-limit-before: 3;
-                -webkit-hyphenate-limit-lines: 2;
-            }
-        
-            h1, h2, h3, h4, h5, h6, td {
-                -moz-hyphens: none !important;
-                -webkit-hyphens: none !important;
-                hyphens: none !important;
-            }
-            """;
-
-    private static final String CSS_NO_HYPHENATE = """
-            * {
-                -moz-hyphens: none !important;
-                -webkit-hyphens: none !important;
-                hyphens: none !important;
-            }
-            """;
 
     private final Set<String> HTML_MEDIA_TYPES = Set.of(
             "text/html",
@@ -96,220 +53,16 @@ public class KepubConversionService {
             ).map(String::toLowerCase).toList()
     );
 
-    private final Set<Integer> SENTENCE_PUNCTUATION = Set.of(
-            (int) '.',
-            (int) '?',
-            (int) '!',
-            (int) '…'
-        );
-
-    private final Set<Integer> SENTENCE_EXTRA_CHARS = Set.of(
-            (int) '\'',
-            (int) '"',
-            (int) '“',
-            (int) '”',
-            (int) '’'
-        );
-
     private final EpubReader epubReader;
     private final EpubWriter epubWriter;
+    private final KepubHtmlConversionService kepubHtmlConversionService;
 
     public KepubConversionService() {
         this(
                 new EpubReader(),
-                new EpubWriter()
+                new EpubWriter(),
+                new KepubHtmlConversionService()
         );
-    }
-
-    private class SentenceParsingState {
-        private final StringBuilder window = new StringBuilder();
-        private boolean hasSeenPunctuation = false;
-
-        public void append(int codePoint) {
-            window.appendCodePoint(codePoint);
-            if (SENTENCE_PUNCTUATION.contains(codePoint)) {
-                hasSeenPunctuation = true;
-            }
-        }
-
-        public boolean isEmpty() {
-            return window.isEmpty();
-        }
-
-        public boolean hasPunctuation() {
-            return hasSeenPunctuation;
-        }
-
-        public void reset() {
-            window.setLength(0);
-            hasSeenPunctuation = false;
-        }
-
-        public String flush() {
-            String value = window.toString();
-            this.reset();
-            return value;
-        }
-    }
-
-    private Stream<String> getSentences(String text) {
-        return text.codePoints()
-                .boxed()
-                .gather(
-                        Gatherer.ofSequential(
-                                SentenceParsingState::new,
-                                Gatherer.Integrator.ofGreedy((state, element, downstream) -> {
-                                    state.append(element);
-
-                                    if (!state.hasPunctuation()) {
-                                        return true;
-                                    }
-
-                                    // If we've seen punctuation, and this is more punctuation or other
-                                    // acceptable chars, keep going.
-                                    if (SENTENCE_EXTRA_CHARS.contains(element) || SENTENCE_PUNCTUATION.contains(element)) {
-                                        return true;
-                                    }
-
-                                    // If end of sentence:
-                                    return downstream.push(state.flush());
-                                }),
-                                (state, downstream) -> {
-                                    if (!state.isEmpty() && !downstream.isRejecting()) {
-                                        downstream.push(state.flush());
-                                    }
-                                }
-                        )
-                );
-    }
-
-    /**
-     * Find every image and text node, and add `kobospan` elements where
-     * appropriate - around each image, and around each sentence in the
-     * text node.
-     */
-    private void transformContentAddKoboSpans(Document document) {
-        // Iterate through all elements with text & split to sentences.
-
-        // Wrap sentences in <span class="koboSpan" id="kobo.1"></span>
-        // Also wrap each image
-        AtomicInteger koboSpanIndex = new AtomicInteger();
-
-        var nodeIterator = document.body().nodeStream().iterator();
-        while (nodeIterator.hasNext()) {
-            var node = nodeIterator.next();
-
-            var parent = node.parentElement();
-
-            if (parent == null) {
-                // Node is not in the DOM or does not have parent.
-                // Cannot operate on it.
-                continue;
-            }
-
-            if ("span".equals(parent.tagName()) && parent.hasClass(CLASSNAME_KOBO_SPAN)) {
-                // The iterator will pick up the koboSpan we're adding
-                continue;
-            }
-
-            if (node instanceof TextNode textNode) {
-                if (textNode.isBlank()) {
-                    continue;
-                }
-
-                var koboSpans = getSentences(textNode.text())
-                        .map(sentence -> {
-                            var koboSpan = document.createElement("span");
-                            koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
-                            koboSpan.addClass(CLASSNAME_KOBO_SPAN);
-                            koboSpan.text(sentence);
-                            return koboSpan;
-                        })
-                        .toList();
-
-                for (var span : koboSpans) {
-                    textNode.before(span);
-                }
-
-                textNode.remove();
-            }
-
-
-            if (node instanceof Element element) {
-                if ("img".equals(element.tagName()) || "svg".equals(element.tagName())) {
-                    var koboSpan = document.createElement("span");
-                    koboSpan.id("kobo." + koboSpanIndex.incrementAndGet());
-                    koboSpan.addClass(CLASSNAME_KOBO_SPAN);
-
-                    element.before(koboSpan);
-                    koboSpan.appendChild(element);
-                }
-            }
-        }
-    }
-
-    private void transformContentAddStyles(Document document, boolean forceEnableHyphenation) {
-        document.head().getElementsByClass(CLASSNAME_KOBO_STYLES).remove();
-        document.head().getElementsByClass(CLASSNAME_KOBO_HYPHENATE).remove();
-
-        document.head().appendChild(
-                document.createElement("style")
-                        .addClass(CLASSNAME_KOBO_STYLES)
-                        .attr("type", "text/css")
-                        .text(CSS_KOBO_STYLES)
-        );
-
-        if (forceEnableHyphenation) {
-            document.head().appendChild(
-                    document.createElement("style")
-                            .addClass(CLASSNAME_KOBO_HYPHENATE)
-                            .attr("type", "text/css")
-                            .text(CSS_HYPHENATE)
-            );
-        } else {
-            document.head().appendChild(
-                    document.createElement("style")
-                            .addClass(CLASSNAME_KOBO_HYPHENATE)
-                            .attr("type", "text/css")
-                            .text(CSS_NO_HYPHENATE)
-            );
-        }
-    }
-
-    /**
-     * Wraps the `body` of the document in two divs:
-     * body > div#book-columns > div#book-inner > *
-     */
-    private void transformContentAddWrappers(Document document) {
-        var children = document.body().childNodes();
-
-        var innerElement = document.createElement("div");
-        innerElement.id("book-inner");
-        innerElement.appendChildren(children);
-
-        var columnElement = document.createElement("div");
-        columnElement.id("book-columns");
-        columnElement.appendChild(innerElement);
-
-        document.body().appendChild(columnElement);
-    }
-
-    private void transformContentRemoveGarbage(Document document) {
-        // Adobe Adept elements
-        var adobeAdeptExpectedResources = document.getElementsByAttributeValue("name", "Adept.expected.resource");
-        for (var element : adobeAdeptExpectedResources) {
-            element.remove();
-        }
-
-        // More adobe Adept elements
-        var adobeAdeptResources = document.getElementsByAttributeValue("name", "Adept.resource");
-        for (var element : adobeAdeptResources) {
-            element.remove();
-        }
-
-        // TODO: Remove content:
-        // Invalid UTF-8 characters (�)
-        // Empty MSWord o:p // st1:* tags
     }
 
     private String getMediaType(Resource resource) {
@@ -328,24 +81,13 @@ public class KepubConversionService {
         }
 
         try (var inputStream = contentResource.asInputStream()) {
-            Document document = Jsoup.parse(inputStream, contentResource.getInputEncoding(), "/");
-
-            transformContentAddStyles(document, forceEnableHyphenation);
-            transformContentAddWrappers(document);
-            transformContentAddKoboSpans(document);
-            transformContentRemoveGarbage(document);
-
-            document.outputSettings(
-                    document.outputSettings()
-                        .clone()
-                        .charset(StandardCharsets.UTF_8)
-                        .escapeMode(Entities.EscapeMode.xhtml)
-                        .syntax(Document.OutputSettings.Syntax.xml)
-            );
-
             var newResource = new Resource(
                     contentResource.getId(),
-                    document.toString().getBytes(StandardCharsets.UTF_8),
+                    kepubHtmlConversionService.transform(
+                            inputStream,
+                            contentResource.getInputEncoding(),
+                            forceEnableHyphenation
+                    ).getBytes(StandardCharsets.UTF_8),
                     contentResource.getHref(),
                     MediaTypes.XHTML,
                     "UTF-8"
@@ -366,7 +108,7 @@ public class KepubConversionService {
      *     Read more on the EPUB3 spec.
      * </a>
      */
-    private void transformOPFCoverImage(org.w3c.dom.Document opfDoc, String coverImage) {
+    private void transformOPFCoverImage(Document opfDoc, String coverImage) {
         if (coverImage == null) {
             return;
         }
@@ -377,11 +119,11 @@ public class KepubConversionService {
             return;
         }
 
-        if (manifestList.item(0) instanceof org.w3c.dom.Element manifest) {
+        if (manifestList.item(0) instanceof Element manifest) {
             NodeList itemList = manifest.getElementsByTagNameNS(OPF_NS, "item");
 
             for (int i = 0; i < itemList.getLength(); i++) {
-                if (itemList.item(i) instanceof org.w3c.dom.Element item) {
+                if (itemList.item(i) instanceof Element item) {
                     if (coverImage.equals(item.getAttribute("href"))) {
                         String properties = item.getAttribute("properties");
 
@@ -399,6 +141,12 @@ public class KepubConversionService {
     }
 
     private Resource transformOPF(Resource opfResource, Resource cover) throws IOException {
+        if (opfResource == null) {
+            // Eventually we may want to create an OPF but for now just ignore it
+            // if it's missing.
+            return null;
+        }
+
         // TransformOPF transforms the OPF document for a KEPUB.
         try {
             var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
