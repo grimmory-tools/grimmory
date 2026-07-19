@@ -310,21 +310,20 @@ public class KepubConversionService {
         // Empty MSWord o:p // st1:* tags
     }
 
-    private Resource getTransformedContentResource(Resource contentResource, boolean forceEnableHyphenation) throws IOException {
-        // Input can be HTML or XHTML
-        // Output MUST be XHTML 1.1
+    private String getMediaType(Resource resource) {
+        if (resource == null || resource.getMediaType() == null) {
+            return null;
+        }
 
-        // TODO: Are we able to allow XML declarations?
-        // TODO: Need to verify:
-        //  NBSP must be escape with &#160;
-        //  XMLNS must be on the root
-        //  SVG needs XMLNS
-        //  All CSS / scripts MUST have a "type" attribute
-        //  All boolean attributes must have a value
-        //  Void elements must be rendered self-closing
-        //  Use numerical escapes instead of named escapes
-        //  Comments must be XHTML standard
-        //  Tables MUST have a TBODY
+        return resource.getMediaType().toString().toLowerCase();
+    }
+
+    private Resource getTransformedContentResource(Resource contentResource, boolean forceEnableHyphenation) throws IOException {
+        var resourceMediaType = getMediaType(contentResource);
+        if (resourceMediaType == null || !HTML_MEDIA_TYPES.contains(resourceMediaType)) {
+            // We only currently transform HTML.  Everything else, this is a no-op.
+            return contentResource;
+        }
 
         try (var inputStream = contentResource.asInputStream()) {
             Document document = Jsoup.parse(inputStream, contentResource.getInputEncoding(), "/");
@@ -451,14 +450,6 @@ public class KepubConversionService {
         return true;
     }
 
-    private String getMediaType(Resource resource) {
-        if (resource == null || resource.getMediaType() == null) {
-            return null;
-        }
-
-        return resource.getMediaType().toString().toLowerCase();
-    }
-
     private Book convertBookToKepub(Book original, boolean forceEnableHyphenation) throws IOException {
         Book kepub = new Book();
 
@@ -467,13 +458,7 @@ public class KepubConversionService {
                 continue;
             }
 
-            var resourceMediaType = getMediaType(resource);
-
-            if (resourceMediaType != null && HTML_MEDIA_TYPES.contains(resourceMediaType)) {
-                kepub.addResource(getTransformedContentResource(resource, forceEnableHyphenation));
-            } else {
-                kepub.addResource(resource);
-            }
+            kepub.addResource(getTransformedContentResource(resource, forceEnableHyphenation));
         }
 
         kepub.setNavResource(original.getNavResource());
