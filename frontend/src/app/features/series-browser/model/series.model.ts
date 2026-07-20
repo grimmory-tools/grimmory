@@ -1,16 +1,33 @@
-import {Book, ReadStatus} from '../../book/model/book.model';
+import {BookType, ReadStatus} from '../../book/model/book.model';
+
+export interface SeriesCoverBook {
+  bookId: number;
+  coverUpdatedOn: string | null;
+  seriesNumber: number | null;
+  primaryFileType: BookType | null;
+}
+
+export interface AppSeriesSummary {
+  seriesName: string;
+  bookCount: number;
+  seriesTotal: number | null;
+  authors: string[];
+  booksRead: number;
+  latestAddedOn: string | null;
+  lastReadTime: string | null;
+  seriesStatus: string | null;
+  coverBooks: SeriesCoverBook[];
+}
 
 export interface SeriesSummary {
   seriesName: string;
-  books: Book[];
   authors: string[];
   categories: string[];
   bookCount: number;
   readCount: number;
   progress: number;
   seriesStatus: ReadStatus;
-  nextUnread: Book | null;
   lastReadTime: string | null;
-  coverBooks: Book[];
+  coverBooks: SeriesCoverBook[];
   addedOn: string | null;
 }

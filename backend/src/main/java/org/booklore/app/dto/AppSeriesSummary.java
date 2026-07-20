@@ -18,5 +18,7 @@ public class AppSeriesSummary {
     private List<String> authors;
     private int booksRead;
     private Instant latestAddedOn;
+    private Instant lastReadTime;
+    private String seriesStatus;
     private List<SeriesCoverBook> coverBooks;
 }

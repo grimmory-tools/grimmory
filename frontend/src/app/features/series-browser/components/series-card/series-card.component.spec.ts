@@ -3,45 +3,31 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
-import {Book} from '../../../book/model/book.model';
-import {ReadStatus} from '../../../book/model/book.model';
-import {BookService} from '../../../book/service/book.service';
+import {BookType, ReadStatus} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {SeriesSummary} from '../../model/series.model';
+import {SeriesCoverBook, SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from './series-card.component';
 
-function makeBook(id: number, bookType: Book['primaryFile'] extends infer T ? T extends {bookType?: infer U} ? U : never : never = 'EPUB'): Book {
+function makeCoverBook(bookId: number, primaryFileType: BookType = 'EPUB'): SeriesCoverBook {
   return {
-    id,
-    libraryId: 1,
-    libraryName: 'Library',
-    primaryFile: {
-      id,
-      bookId: id,
-      bookType,
-    },
-    metadata: {
-      bookId: id,
-      title: `Book ${id}`,
-      coverUpdatedOn: '2026-03-01',
-      audiobookCoverUpdatedOn: '2026-03-02',
-    },
+    bookId,
+    primaryFileType,
+    seriesNumber: null,
+    coverUpdatedOn: primaryFileType === 'AUDIOBOOK' ? '2026-03-02' : '2026-03-01',
   };
 }
 
 function makeSeries(overrides: Partial<SeriesSummary> = {}): SeriesSummary {
   return {
     seriesName: 'Dune',
-    books: [],
     authors: ['Frank Herbert', 'Brian Herbert', 'Kevin J. Anderson'],
     categories: ['Sci-Fi'],
     bookCount: 4,
     readCount: 2,
     progress: 0.48,
     seriesStatus: ReadStatus.READING,
-    nextUnread: makeBook(11),
     lastReadTime: null,
-    coverBooks: [makeBook(1), makeBook(2, 'AUDIOBOOK')],
+    coverBooks: [makeCoverBook(1), makeCoverBook(2, 'AUDIOBOOK')],
     addedOn: null,
     ...overrides,
   };
@@ -50,16 +36,12 @@ function makeSeries(overrides: Partial<SeriesSummary> = {}): SeriesSummary {
 describe('SeriesCardComponent', () => {
   let fixture: ComponentFixture<SeriesCardComponent>;
   let component: SeriesCardComponent;
-  let bookService: {readBook: ReturnType<typeof vi.fn>};
   let urlHelper: {
     getThumbnailUrl: ReturnType<typeof vi.fn>;
     getAudiobookThumbnailUrl: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
-    bookService = {
-      readBook: vi.fn(),
-    };
     urlHelper = {
       getThumbnailUrl: vi.fn((bookId: number, updatedOn?: string) => `thumb:${bookId}:${updatedOn ?? 'none'}`),
       getAudiobookThumbnailUrl: vi.fn((bookId: number, updatedOn?: string) => `audio:${bookId}:${updatedOn ?? 'none'}`),
@@ -68,7 +50,6 @@ describe('SeriesCardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SeriesCardComponent, getTranslocoModule()],
       providers: [
-        {provide: BookService, useValue: bookService},
         {provide: UrlHelperService, useValue: urlHelper},
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -104,15 +85,6 @@ describe('SeriesCardComponent', () => {
 
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(emitSpy).toHaveBeenCalledWith(component.series);
-  });
-
-  it('reads the next unread book when present', () => {
-    const event = {stopPropagation: vi.fn()} as unknown as MouseEvent;
-
-    component.readNext(event);
-
-    expect(event.stopPropagation).toHaveBeenCalled();
-    expect(bookService.readBook).toHaveBeenCalledWith(11);
   });
 
   it('renders the series name and progress label', () => {

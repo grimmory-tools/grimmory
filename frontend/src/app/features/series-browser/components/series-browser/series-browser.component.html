@@ -1,8 +1,8 @@
 <ng-container *transloco="let t; prefix: 'seriesBrowser'">
 <div class="series-browser-page">
-  @if (catalogTooLarge()) {
-    <app-message color="amber">{{ t('catalogTooLarge') }}</app-message>
-  } @else if (isBooksLoading()) {
+  @if (isSeriesError()) {
+    <app-message color="red">{{ 'common.error' | transloco }}</app-message>
+  } @else if (isSeriesLoading()) {
     <div class="loading-state">
       <p-progressSpinner
         [style]="{'width': '60px', 'height': '60px'}"
@@ -13,7 +13,7 @@
     </div>
   }
 
-  @if (!isBooksLoading() && !catalogTooLarge()) {
+  @if (!isSeriesLoading() && !isSeriesError()) {
     <div class="browse-header">
       <h2 class="browse-title">{{ t('browseAllSeries') }}</h2>
 
@@ -77,7 +77,7 @@
           <p>{{ t('noSeriesFound') }}</p>
         </div>
       } @else {
-        <div #scrollElement class="virtual-scroller">
+        <div #scrollElement class="virtual-scroller" (scroll)="onSeriesScroll()">
           <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
             @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
               @if (seriesList[virtualItem.index]; as series) {
@@ -95,6 +95,16 @@
               }
             }
           </div>
+          @if (isFetchingNextPage()) {
+            <div class="loading-more">
+              <p-progressSpinner
+                [style]="{'width': '28px', 'height': '28px'}"
+                strokeWidth="3"
+                fill="transparent"
+                animationDuration="1.5s">
+              </p-progressSpinner>
+            </div>
+          }
         </div>
       }
     }

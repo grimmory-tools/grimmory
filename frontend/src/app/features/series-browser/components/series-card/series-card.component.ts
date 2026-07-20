@@ -1,11 +1,8 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {NgClass} from '@angular/common';
 import {ProgressBar} from 'primeng/progressbar';
-import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
-import {TranslocoPipe} from '@jsverse/transloco';
 import {SeriesSummary} from '../../model/series.model';
-import {BookService} from '../../../book/service/book.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 
@@ -15,15 +12,15 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './series-card.component.html',
   styleUrls: ['./series-card.component.scss'],
-  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverComponent]
+  imports: [NgClass, ProgressBar, Tooltip, CoverComponent]
 })
 export class SeriesCardComponent {
 
   @Input({required: true}) series!: SeriesSummary;
+  @Input() compact = false;
   @Output() cardClick = new EventEmitter<SeriesSummary>();
 
   protected urlHelper = inject(UrlHelperService);
-  private readonly bookService = inject(BookService);
 
   get progressPercent(): number {
     return Math.round(this.series.progress * 100);
@@ -38,10 +35,10 @@ export class SeriesCardComponent {
   getCoverUrl(index: number): string | null {
     const book = this.series.coverBooks[index];
     if (!book) return null;
-    const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
+    const isAudiobook = book.primaryFileType === 'AUDIOBOOK';
     return isAudiobook
-      ? this.urlHelper.getAudiobookThumbnailUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)
-      : this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn);
+      ? this.urlHelper.getAudiobookThumbnailUrl(book.bookId, book.coverUpdatedOn ?? undefined)
+      : this.urlHelper.getThumbnailUrl(book.bookId, book.coverUpdatedOn ?? undefined);
   }
 
   onCardClick(event: Event): void {
@@ -49,10 +46,4 @@ export class SeriesCardComponent {
     this.cardClick.emit(this.series);
   }
 
-  readNext(event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.series.nextUnread) {
-      this.bookService.readBook(this.series.nextUnread.id);
-    }
-  }
 }

@@ -27,7 +27,7 @@ class AppSeriesControllerTest {
     @Test
     void getSeries_defaultParams_delegatesCorrectly() {
         AppPageResponse<AppSeriesSummary> expected = buildSeriesPage();
-        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, false))
+        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, null))
                 .thenReturn(expected);
 
         ResponseEntity<AppPageResponse<AppSeriesSummary>> response =
@@ -35,59 +35,59 @@ class AppSeriesControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertSame(expected, response.getBody());
-        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, false);
+        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, null);
     }
 
     @Test
     void getSeries_withLibraryId_passesLibraryId() {
         AppPageResponse<AppSeriesSummary> expected = buildSeriesPage();
-        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", 5L, null, false))
+        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", 5L, null, null))
                 .thenReturn(expected);
 
         ResponseEntity<AppPageResponse<AppSeriesSummary>> response =
                 controller.getSeries(0, 20, "recentlyAdded", "desc", 5L, null, null);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", 5L, null, false);
+        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", 5L, null, null);
     }
 
     @Test
     void getSeries_withSearch_passesSearch() {
         AppPageResponse<AppSeriesSummary> expected = buildSeriesPage();
-        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, "harry", false))
+        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, "harry", null))
                 .thenReturn(expected);
 
         ResponseEntity<AppPageResponse<AppSeriesSummary>> response =
                 controller.getSeries(0, 20, "recentlyAdded", "desc", null, "harry", null);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, "harry", false);
+        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, "harry", null);
     }
 
     @Test
-    void getSeries_withInProgressStatus_setsInProgressTrue() {
+    void getSeries_withInProgressStatus_passesStatus() {
         AppPageResponse<AppSeriesSummary> expected = buildSeriesPage();
-        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, true))
+        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, "in-progress"))
                 .thenReturn(expected);
 
         ResponseEntity<AppPageResponse<AppSeriesSummary>> response =
                 controller.getSeries(0, 20, "recentlyAdded", "desc", null, null, "in-progress");
 
         assertEquals(200, response.getStatusCode().value());
-        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, true);
+        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, "in-progress");
     }
 
     @Test
-    void getSeries_withUnknownStatus_treatedAsNotInProgress() {
+    void getSeries_withCompletedStatus_passesStatus() {
         AppPageResponse<AppSeriesSummary> expected = buildSeriesPage();
-        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, false))
+        when(mobileSeriesService.getSeries(0, 20, "recentlyAdded", "desc", null, null, "completed"))
                 .thenReturn(expected);
 
         ResponseEntity<AppPageResponse<AppSeriesSummary>> response =
                 controller.getSeries(0, 20, "recentlyAdded", "desc", null, null, "completed");
 
         assertEquals(200, response.getStatusCode().value());
-        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, false);
+        verify(mobileSeriesService).getSeries(0, 20, "recentlyAdded", "desc", null, null, "completed");
     }
 
     @Test
@@ -140,6 +140,8 @@ class AppSeriesControllerTest {
                 .booksRead(2)
                 .authors(List.of("Author A"))
                 .latestAddedOn(Instant.now())
+                .lastReadTime(Instant.now())
+                .seriesStatus("PARTIALLY_READ")
                 .coverBooks(List.of())
                 .build();
         return AppPageResponse.of(List.of(summary), 0, 20, 1);

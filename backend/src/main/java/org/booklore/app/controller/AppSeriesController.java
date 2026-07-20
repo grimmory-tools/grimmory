@@ -33,10 +33,8 @@ public class AppSeriesController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status) {
 
-        boolean inProgressOnly = "in-progress".equalsIgnoreCase(status);
-
         AppPageResponse<AppSeriesSummary> response = mobileSeriesService.getSeries(
-                page, size, sort, dir, libraryId, search, inProgressOnly);
+                page, size, sort, dir, libraryId, search, status);
 
         return ResponseEntity.ok(response);
     }

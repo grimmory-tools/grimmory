@@ -122,6 +122,12 @@
   }
 }
 
+.loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 0.875rem 0 0.4375rem;
+}
+
 // Empty state
 .empty-state {
   display: flex;
