@@ -40,7 +40,7 @@ services:
       cd /workspace &&\
       npm install -g pnpm@11.3.0 &&\
       pnpm config set store-dir /workspace/node_modules/.pnpm-store &&\
-      pnpm install --frozen-lockfile &&\
+      pnpm install --frozen-lockfile --ignore-scripts &&\
       pnpm -C frontend exec ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development

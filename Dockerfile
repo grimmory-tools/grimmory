@@ -16,7 +16,7 @@ COPY package.json ./
 COPY frontend/package.json ./frontend/
 COPY tools/release/package.json ./tools/release/
 RUN --mount=type=cache,target=/pnpm/store \
-    pnpm install --offline --frozen-lockfile
+    pnpm install --offline --frozen-lockfile --ignore-scripts
 
 COPY frontend/ ./frontend/
 RUN --mount=type=cache,target=/workspace/frontend/.angular/cache \

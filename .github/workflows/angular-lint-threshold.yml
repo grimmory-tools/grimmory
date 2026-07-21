@@ -37,7 +37,7 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Install Frontend Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Typecheck Frontend
         working-directory: ./frontend
