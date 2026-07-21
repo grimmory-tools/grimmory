@@ -32,7 +32,7 @@ watch:
 
 # Run the frontend test suite.
 test:
-    {{ pnpm }} run test
+    TZ=UTC {{ pnpm }} run test
 
 # Run the frontend tests with a coverage report.
 coverage:
