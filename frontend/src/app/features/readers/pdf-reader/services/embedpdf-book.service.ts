@@ -146,18 +146,24 @@ export class EmbedPdfBookService {
         autoOpenLinks: false,
         tools: [
           {
-            id: 'highlight',
-            defaults: {
-              opacity: 0.4,
-            },
-          },
-          {
-            id: 'inkHighlighter',
-            defaults: {
-              opacity: 0.4,
-            },
-          },
-        ],
+			id: 'highlight',
+			defaults: {
+				opacity: 0.4,
+			},
+		  },
+		  {
+			id: 'inkHighlighter',
+			defaults: {
+				opacity: 0.4,
+			},
+		},
+	  {
+			id: 'ink',
+			defaults: {
+				strokeWidth: 2,
+			},
+		  },
+		],
       },
       zoom: {
         defaultZoomLevel: 'fit-page' as ZoomMode,
