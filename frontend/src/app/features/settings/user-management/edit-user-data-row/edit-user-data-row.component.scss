@@ -1,0 +1,329 @@
+@use '../../../../shared/styles/settings-shared' as settings;
+
+.user-card {
+  background: var(--color-card);
+  border: 1px solid var(--p-content-border-color);
+  border-left: 3px solid var(--p-content-border-color);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    background: var(--color-card);
+  }
+
+  &.is-admin {
+    border-left-color: var(--color-emerald-500);
+  }
+
+  &.is-expanded {
+    border-left-color: var(--p-primary-color);
+  }
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem;
+
+  @media (width <= 900px) {
+    flex-wrap: wrap;
+  }
+
+  @media (width <= 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6563rem;
+  }
+}
+
+.user-main-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6563rem;
+  flex: 1;
+  min-width: 0;
+}
+
+
+
+// Expanded card body
+.user-card-body {
+  padding: 0 0.875rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3125rem;
+  border-top: 1px dashed var(--p-content-border-color);
+  margin-top: 0;
+  padding-top: 0.875rem;
+}
+
+.user-details-section,
+.permissions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.content-restrictions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6563rem;
+  margin-top: 0.4375rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--p-content-border-color);
+
+  .section-description {
+    font-size: settings.$settings-description-size;
+    color: var(--p-text-muted-color);
+    margin: 0 0 0.4375rem;
+    padding-left: 1.3125rem;
+
+    @media (width <= 600px) {
+      padding-left: 0;
+    }
+  }
+
+  app-content-restrictions-editor {
+    padding-left: 1.3125rem;
+
+    @media (width <= 600px) {
+      padding-left: 0;
+    }
+  }
+}
+
+.details-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: settings.$settings-label-size;
+  font-weight: 600;
+  color: var(--p-text-color);
+  margin: 0;
+
+  .pi {
+    color: var(--p-primary-color);
+    font-size: var(--app-text-base);
+  }
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.875rem;
+  padding-left: 1.3125rem;
+
+  @media (width <= 600px) {
+    padding-left: 0;
+  }
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3281rem;
+
+  &.detail-field-wide {
+    grid-column: span 2;
+
+    @media (width <= 600px) {
+      grid-column: span 1;
+    }
+  }
+
+  label {
+    font-size: settings.$settings-description-size;
+    font-weight: 500;
+    color: var(--p-text-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  span {
+    font-size: settings.$settings-section-description-size;
+    color: var(--p-text-color);
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+// Permissions grid
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.0938rem;
+  padding-left: 1.3125rem;
+
+  @media (width <= 600px) {
+    padding-left: 0;
+    grid-template-columns: 1fr;
+  }
+}
+
+.permission-group {
+  h5 {
+    display: flex;
+    align-items: center;
+    gap: 0.4375rem;
+    font-size: settings.$settings-description-size;
+    font-weight: 600;
+    color: var(--p-text-color);
+    margin: 0 0 0.5469rem;
+    padding-bottom: 0.4375rem;
+    border-bottom: 1px solid var(--p-content-border-color);
+
+    .pi {
+      color: var(--p-primary-color);
+      font-size: var(--app-text-sm);
+    }
+  }
+}
+
+.permission-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5469rem;
+
+  label {
+    font-size: settings.$settings-description-size;
+    color: var(--p-text-color);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  p-checkbox {
+    flex-shrink: 0;
+  }
+}
+
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+
+  label {
+    font-size: settings.$settings-section-description-size;
+    font-weight: 600;
+    color: var(--p-text-color);
+    margin-bottom: 0.2188rem;
+  }
+
+  input,
+  ::ng-deep .p-password {
+    width: 100%;
+  }
+  
+  .field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.3281rem;
+    color: #ef4444;
+    font-size: var(--app-text-sm);
+    margin-top: -0.2188rem;
+
+    i {
+      font-size: var(--app-text-sm);
+    }
+  }
+
+  ::ng-deep .p-inputtext,
+  ::ng-deep .p-password-input {
+    padding: 0.6563rem;
+    font-size: settings.$settings-label-size;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 6px;
+    background: var(--p-content-background);
+    color: var(--p-text-color);
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--p-primary-color);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--p-primary-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-color) 20%, transparent);
+    }
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6563rem;
+  padding: 0.7656rem 0.875rem;
+  background: color-mix(in srgb, var(--color-red-500) 12%, var(--p-content-background));
+  border: 1px solid color-mix(in srgb, var(--color-red-500) 30%, transparent);
+  border-left: 3px solid var(--color-red-500);
+  border-radius: 6px;
+  color: var(--color-red-500);
+  font-size: settings.$settings-section-description-size;
+  font-weight: 500;
+
+  .pi {
+    font-size: var(--app-text-base);
+    flex-shrink: 0;
+    margin-top: 0.1094rem;
+  }
+
+  span {
+    line-height: 1.5;
+    flex: 1;
+  }
+}
+
+@media (width <= 480px) {
+  ::ng-deep .user-dialog {
+    .p-dialog {
+      width: 95vw !important;
+      max-width: 95vw !important;
+      margin: 0.4375rem;
+      border-radius: 8px;
+    }
+
+    .p-dialog-header {
+      padding: 0.875rem;
+
+      .p-dialog-title {
+        font-size: var(--app-text-base);
+
+        &::before {
+          width: 36px;
+          height: 36px;
+          font-size: var(--app-text-base);
+        }
+      }
+    }
+
+    .p-dialog-content {
+      padding: 0.875rem;
+    }
+
+    .p-dialog-footer {
+      padding: 0.7656rem 0.875rem;
+    }
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+    width: 100%;
+    gap: 0.4375rem;
+
+    ::ng-deep .p-button {
+      width: 100%;
+      min-width: unset;
+      justify-content: center;
+    }
+  }
+}
