@@ -23,6 +23,7 @@ import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.util.FileUtils;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.booklore.util.PathNormalizer;
 import org.booklore.util.PathPatternResolver;
 import org.springframework.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,12 @@ public class FileUploadService {
         final LibraryEntity libraryEntity = findLibraryById(libraryId);
         final LibraryPathEntity libraryPathEntity = findLibraryPathById(libraryEntity, pathId);
         final Path libraryRoot = FileUtils.normalizeAbsolutePath(Path.of(libraryPathEntity.getPath()));
-        final String originalFileName = getValidatedFileName(file);
+
+        // 2026 Fix: Normalize original filename to NFC Unicode before pattern resolution
+        // to prevent umlaut/encoding mismatches from macOS browser uploads (NFD).
+        final String rawFileName = getValidatedFileName(file);
+        final String originalFileName = PathNormalizer.normalizeFileName(rawFileName);
+
         final BookFileExtension fileExtension = getFileExtension(originalFileName);
         validateAllowedFormat(libraryEntity, fileExtension.getType());
 
@@ -85,7 +91,7 @@ public class FileUploadService {
             validateFinalPath(finalPath, libraryRoot);
             moveFileToFinalLocation(tempPath, finalPath, libraryRoot);
 
-            log.info("File uploaded to final location: {}", finalPath);
+            log.info("File uploaded to final location with NFC path: {}", finalPath);
             auditService.log(AuditAction.BOOK_UPLOADED, "Library", libraryId, "Uploaded file: " + originalFileName);
 
         } catch (IOException e) {
@@ -225,8 +231,12 @@ public class FileUploadService {
         final Path dropFolder = FileUtils.normalizeAbsolutePath(Path.of(appProperties.getBookdropFolder()));
         Files.createDirectories(dropFolder);
 
-        final String originalFilename = getValidatedFileName(file);
-        final String sanitizedFilename = PathPatternResolver.truncateFilenameWithExtension(originalFilename);
+        // 2026 Fix: Apply PathNormalizer to guarantee NFC form on web uploads,
+        // preventing lookup mismatches between macOS browser uploads (NFD) and
+        // subsequent Bookdrop filesystem scans (NFC).
+        final String rawFilename = getValidatedFileName(file);
+        final String normalizedFilename = PathNormalizer.normalizeFileName(rawFilename);
+        final String sanitizedFilename = PathPatternResolver.truncateFilenameWithExtension(normalizedFilename);
         Path tempPath = null;
 
         try {
@@ -237,7 +247,7 @@ public class FileUploadService {
             validateFinalPath(finalPath, dropFolder);
             moveFileToFinalLocation(tempPath, finalPath, dropFolder);
 
-            log.info("File moved to book-drop folder: {}", finalPath);
+            log.info("File moved to book-drop folder with NFC normalized name: {}", finalPath);
             return null;
 
         } finally {

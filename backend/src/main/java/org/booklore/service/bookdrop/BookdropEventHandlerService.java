@@ -13,6 +13,8 @@ import org.booklore.util.PathNormalizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,6 +81,13 @@ public class BookdropEventHandlerService implements SmartLifecycle {
     public void stop(Runnable callback) {
         log.info("Stopping BookdropEventHandlerService...");
         running = false;
+
+        // 2026 Fix: Shut down scheduled executor pool to prevent thread leakage
+        // on Spring context stop/restart or hot-reloading during development.
+        if (delayScheduler != null && !delayScheduler.isShutdown()) {
+            delayScheduler.shutdownNow();
+        }
+
         if (workerThread != null) {
             workerThread.interrupt();
             try {
@@ -220,13 +229,10 @@ public class BookdropEventHandlerService implements SmartLifecycle {
             } catch (Exception e) {
                 log.error("Error handling bookdrop file: {}", file, e);
 
-                // 2026 Standard: Persist error state for UI visibility
-                String errorFilePath = PathNormalizer.normalizePathString(file.toAbsolutePath().toString());
-                bookdropFileRepository.findByFilePath(errorFilePath).ifPresent(entity -> {
-                    entity.setStatus(BookdropFileEntity.Status.ERROR);
-                    entity.setErrorMessage(e.getMessage());
-                    bookdropFileRepository.save(entity);
-                });
+                // 2026 Fix: Use isolated transaction to persist error state.
+                // Direct save() inside a rollback-only transaction context would
+                // throw UnexpectedRollbackException and lose the error status.
+                markFileAsError(file.toAbsolutePath().toString(), e.getMessage());
 
                 notificationService.sendMessageToPermissions(
                         Topic.LOG,
@@ -272,6 +278,34 @@ public class BookdropEventHandlerService implements SmartLifecycle {
             log.warn("Could not check last modified time for file: {}", file, e);
             // Proceed if we cannot check — let the downstream logic handle issues
             return true;
+        }
+    }
+
+    /**
+     * 2026 Fix: Persist error status in an isolated transaction.
+     * <p>
+     * When called from the catch block of {@link #processFile(BookDropFileEvent)},
+     * the active JPA transaction (started by {@code attachInitialMetadata}) is
+     * already marked rollback-only due to the exception. Directly calling
+     * {@code bookdropFileRepository.save()} in that context would throw
+     * {@code UnexpectedRollbackException}. This method uses {@code REQUIRES_NEW}
+     * to start a fresh, independent transaction that commits regardless of the
+     * outer transaction's fate.
+     *
+     * @param filePath     the absolute path of the file that failed
+     * @param errorMessage the error message to persist
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markFileAsError(String filePath, String errorMessage) {
+        try {
+            String normalizedPath = PathNormalizer.normalizePathString(filePath);
+            bookdropFileRepository.findByFilePath(normalizedPath).ifPresent(entity -> {
+                entity.setStatus(BookdropFileEntity.Status.ERROR);
+                entity.setErrorMessage(errorMessage);
+                bookdropFileRepository.save(entity);
+            });
+        } catch (Exception ex) {
+            log.error("Failed to mark file as error in database: {}", filePath, ex);
         }
     }
 }
