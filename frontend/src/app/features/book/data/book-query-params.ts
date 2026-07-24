@@ -126,14 +126,17 @@ export function normalizeBookBatchParams(
 }
 
 export function toPageHttpParams(params: BookPageParams, cursor?: string): HttpParams {
-  const httpParams = toCollectionHttpParams(params)
-    .set('sort', serializeSort(params.sort))
+  const httpParams = appendSortParam(toCollectionHttpParams(params), params.sort)
     .set('size', params.size.toString());
   return cursor === undefined ? httpParams : httpParams.set('cursor', cursor);
 }
 
 export function toIdsHttpParams(params: BookQueryParams): HttpParams {
-  return toCollectionHttpParams(params).set('sort', serializeSort(params.sort));
+  return appendSortParam(toCollectionHttpParams(params), params.sort);
+}
+
+function appendSortParam(httpParams: HttpParams, sort: readonly BookSortTerm[]): HttpParams {
+  return sort.length === 0 ? httpParams : httpParams.set('sort', serializeSort(sort));
 }
 
 export function normalizeBookQueryParams(params: BookQueryParams): BookQueryParams {
@@ -166,14 +169,18 @@ export function toCollectionHttpParams(params: BookCollectionFilterParams): Http
   return appendFacetParams(httpParams, params.facets);
 }
 
+function compareCodeUnits(first: string, second: string): number {
+  return first < second ? -1 : first > second ? 1 : 0;
+}
+
 function normalizeFacetValueMap(facets: FacetValueMap): FacetValueMap {
   const normalized = new Map<string, readonly string[]>();
   const rawFacets = facets as Readonly<Record<string, readonly string[] | undefined>>;
 
-  for (const key of Object.keys(rawFacets).sort()) {
+  for (const key of Object.keys(rawFacets).sort(compareCodeUnits)) {
     const values = [...new Set((rawFacets[key] ?? [])
       .map(value => value.trim())
-      .filter(Boolean))].sort();
+      .filter(Boolean))].sort(compareCodeUnits);
 
     if (values.length > 0) {
       normalized.set(key, values);
