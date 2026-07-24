@@ -228,6 +228,44 @@ class BookBrowseServiceTest {
     }
 
     @Test
+    void findAllIdsMatchesPageOrderingForSameFilters() {
+        for (int i = 0; i < 5; i++) {
+            book(String.format("Book%02d", i), List.of());
+        }
+        em.flush();
+
+        List<Long> pageIds = browse("title", null, null, null, 0, 20).content().stream().map(Book::getId).toList();
+        List<Long> allIds = browseService.findAllIds("title", null, null, null);
+
+        assertThat(allIds).isEqualTo(pageIds);
+    }
+
+    @Test
+    void findAllIdsAppliesFacets() {
+        Long horror = book("H", List.of("Horror")).getId();
+        book("R", List.of("Romance"));
+        em.flush();
+        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null, null)).containsExactly(horror);
+    }
+
+    @Test
+    void findAllIdsRespectsLibraryScoping() {
+        Long inLibrary = book("InLibrary", List.of()).getId();
+        LibraryEntity otherLibrary = LibraryEntity.builder().name("Other").icon("book").watch(false)
+                .formatPriority(List.of(BookFileType.EPUB)).build();
+        em.persist(otherLibrary);
+        LibraryPathEntity otherPath = LibraryPathEntity.builder().library(otherLibrary).path("/o").build();
+        em.persist(otherPath);
+        BookEntity outside = BookEntity.builder()
+                .library(otherLibrary).libraryPath(otherPath).addedOn(Instant.now()).deleted(false).build();
+        em.persist(outside);
+        em.persist(BookMetadataEntity.builder().book(outside).title("Outside").build());
+        em.flush();
+
+        assertThat(browseService.findAllIds(null, null, null, null)).containsExactly(inLibrary);
+    }
+
+    @Test
     void wrapLegacyAddsCursorAndLinksToExistingPage() {
         Book book = Book.builder().id(1L).build();
         org.springframework.data.domain.Page<Book> page =
