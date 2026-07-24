@@ -169,7 +169,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.11.0")
+    implementation("org.flywaydb:flyway-mysql:13.0.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -197,7 +197,7 @@ dependencies {
     runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.25")
+    implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
     implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
@@ -219,7 +219,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.1")
+    implementation("org.apache.tika:tika-core:3.3.2")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
