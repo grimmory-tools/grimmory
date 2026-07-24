@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {of} from 'rxjs';
 import {AppSettingsService} from './app-settings.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {catchError, map} from 'rxjs/operators';
 

@@ -1,5 +1,5 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {TableColumnPreference, UserService} from '../../../settings/user-management/user.service';
 

@@ -3,7 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData, TooltipItem} from 'chart.js';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';

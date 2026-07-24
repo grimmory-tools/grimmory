@@ -1,11 +1,11 @@
 import {ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {Tooltip} from 'primeng/tooltip';
-import {CheckboxChangeEvent, Checkbox} from 'primeng/checkbox';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {CheckboxChangeEvent, Checkbox} from '@openng/optimus-ui/checkbox';
 import {FormsModule} from '@angular/forms';
-import {TieredMenu} from 'primeng/tieredmenu';
-import {Button} from 'primeng/button';
-import {MenuItem, MessageService} from 'primeng/api';
+import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
+import {Button} from '@openng/optimus-ui/button';
+import {MenuItem, MessageService} from '@openng/optimus-ui/api';
 import {AuthorSummary} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
 

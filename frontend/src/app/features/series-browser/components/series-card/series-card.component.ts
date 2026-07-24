@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {NgClass} from '@angular/common';
-import {ProgressBar} from 'primeng/progressbar';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
+import {Button} from '@openng/optimus-ui/button';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {SeriesSummary} from '../../model/series.model';
 import {BookService} from '../../../book/service/book.service';

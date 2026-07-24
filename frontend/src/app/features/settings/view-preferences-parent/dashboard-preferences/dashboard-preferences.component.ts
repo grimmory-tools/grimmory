@@ -1,11 +1,11 @@
 import {Component, computed, effect, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {Select} from 'primeng/select';
-import {InputNumber} from 'primeng/inputnumber';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {Select} from '@openng/optimus-ui/select';
+import {InputNumber} from '@openng/optimus-ui/inputnumber';
 import {DashboardConfig, DEFAULT_MAX_ITEMS, MAX_ITEMS, MAX_SCROLLERS, MIN_ITEMS, ScrollerConfig, ScrollerType} from '../../../dashboard/models/dashboard-config.model';
 import {DashboardConfigService} from '../../../dashboard/services/dashboard-config.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';

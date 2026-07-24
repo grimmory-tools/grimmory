@@ -1,20 +1,20 @@
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {MessageService} from 'primeng/api';
-import {RadioButton} from 'primeng/radiobutton';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {MessageService} from '@openng/optimus-ui/api';
+import {RadioButton} from '@openng/optimus-ui/radiobutton';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {TableModule} from '@openng/optimus-ui/table';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {EmailV2ProviderService} from './email-v2-provider.service';
 import {EmailProvider} from '../email-provider.model';
 import {UserService} from '../../user-management/user.service';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {ProgressSpinner} from 'primeng/progressspinner';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 
 @Component({
   selector: 'app-email-v2-provider',

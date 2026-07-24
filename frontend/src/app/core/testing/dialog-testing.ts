@@ -1,5 +1,5 @@
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MessageService, ConfirmationService} from 'primeng/api';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {MessageService, ConfirmationService} from '@openng/optimus-ui/api';
 import {vi} from 'vitest';
 import {MockProvider} from 'ng-mocks';
 

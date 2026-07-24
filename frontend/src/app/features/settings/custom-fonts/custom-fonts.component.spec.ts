@@ -11,6 +11,6 @@ describe.skip('CustomFontsComponent', () => {
 
   it('needs a dialog-confirm seam to verify quota checks, upload additions, and delete flows', () => {
     // TODO(seam): Cover upload dialog close handling and confirmed delete behavior after the
-    // dialog/confirmation interactions can be driven without full PrimeNG runtime wiring.
+    // dialog/confirmation interactions can be driven without full Optimus UI runtime wiring.
   });
 });

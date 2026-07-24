@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal, viewChild} from '@angular/core';
-import {Image} from 'primeng/image';
+import {Image} from '@openng/optimus-ui/image';
 
 const COVER_COLORS = [
   '#1a1a2e', '#2d3436', '#0c3547', '#1e3d59', '#2c2c54', '#1b262c',

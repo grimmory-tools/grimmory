@@ -1,14 +1,14 @@
 import { Component, computed, inject, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Signal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { AutoComplete, AutoCompleteSelectEvent } from 'primeng/autocomplete';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
+import { DynamicDialogRef, DynamicDialogConfig } from '@openng/optimus-ui/dynamicdialog';
+import { AutoComplete, AutoCompleteSelectEvent } from '@openng/optimus-ui/autocomplete';
+import { Button } from '@openng/optimus-ui/button';
+import { Checkbox } from '@openng/optimus-ui/checkbox';
 import { Subject, takeUntil } from 'rxjs';
 import { BookService } from '../../service/book.service';
 import { BookFileService } from '../../service/book-file.service';
 import { Book } from '../../model/book.model';
-import { MessageService, PrimeTemplate } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AppSettingsService } from '../../../../shared/service/app-settings.service';
 
@@ -22,7 +22,6 @@ import { AppSettingsService } from '../../../../shared/service/app-settings.serv
     Checkbox,
     TranslocoDirective,
     TranslocoPipe,
-    PrimeTemplate,
   ],
   templateUrl: './book-file-attacher.component.html',
   styleUrls: ['./book-file-attacher.component.scss']

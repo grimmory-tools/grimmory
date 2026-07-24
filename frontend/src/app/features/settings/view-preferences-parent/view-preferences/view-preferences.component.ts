@@ -1,22 +1,22 @@
 import {Component, DestroyRef, effect, ElementRef, inject, Injector, OnInit, viewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 
-import {MessageService} from 'primeng/api';
-import {Select} from 'primeng/select';
-import {TableModule} from 'primeng/table';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Select} from '@openng/optimus-ui/select';
+import {TableModule} from '@openng/optimus-ui/table';
 import {DEFAULT_VISIBLE_SORT_FIELDS, SortCriterion, User, UserService} from '../../user-management/user.service';
 import {LibraryService} from '../../../book/service/library.service';
 import {ShelfService} from '../../../book/service/shelf.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
 import {FormsModule} from '@angular/forms';
 
-import {Tooltip} from 'primeng/tooltip';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {SortDirection, SortOption} from '../../../book/model/sort.model';
 import {MultiSortPopoverComponent} from '../../../book/components/book-browser/sorting/multi-sort-popover/multi-sort-popover.component';
-import {Popover} from 'primeng/popover';
+import {Popover} from '@openng/optimus-ui/popover';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({

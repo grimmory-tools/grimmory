@@ -1,4 +1,4 @@
-import type { MenuItem } from 'primeng/api';
+import type { MenuItem } from '@openng/optimus-ui/api';
 import { IconType } from '../../icons/icon-selection';
 
 export type NavItemType =

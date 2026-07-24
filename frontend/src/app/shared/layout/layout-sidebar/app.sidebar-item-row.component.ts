@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Menu } from 'primeng/menu';
-import { Tooltip } from 'primeng/tooltip';
+import { Menu } from '@openng/optimus-ui/menu';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
 import { IconSelection, toIconSelection } from '../../icons/icon-selection';

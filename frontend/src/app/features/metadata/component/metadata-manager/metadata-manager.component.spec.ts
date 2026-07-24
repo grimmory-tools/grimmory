@@ -4,7 +4,7 @@ import {BehaviorSubject, of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
 import {ActivatedRoute, Router} from '@angular/router';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {Book} from '../../../book/model/book.model';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';

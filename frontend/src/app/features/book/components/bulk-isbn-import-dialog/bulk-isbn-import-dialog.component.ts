@@ -1,19 +1,19 @@
 import {Component, effect, inject} from '@angular/core';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {Textarea} from 'primeng/textarea';
-import {Tooltip} from 'primeng/tooltip';
-import {ProgressBar} from 'primeng/progressbar';
-import {FileUpload, FileSelectEvent} from 'primeng/fileupload';
+import {Button} from '@openng/optimus-ui/button';
+import {Select} from '@openng/optimus-ui/select';
+import {Textarea} from '@openng/optimus-ui/textarea';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
+import {FileUpload, FileSelectEvent} from '@openng/optimus-ui/fileupload';
 import {BookService} from '../../service/book.service';
 import {BookMetadataService} from '../../service/book-metadata.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {BookMetadata, CreatePhysicalBookRequest} from '../../model/book.model';
 import {TranslocoDirective} from '@jsverse/transloco';
-import {Tabs, TabList, Tab, TabPanels, TabPanel} from 'primeng/tabs';
+import {Tabs, TabList, Tab, TabPanels, TabPanel} from '@openng/optimus-ui/tabs';
 
 const MAX_ISBN_COUNT = 500;
 const MAX_FILE_SIZE_BYTES = 1_048_576; // 1 MB

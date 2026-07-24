@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {DashboardScrollerComponent} from '../dashboard-scroller/dashboard-scroller.component';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
-import {ProgressSpinner} from 'primeng/progressspinner';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {DashboardConfigService} from '../../services/dashboard-config.service';
 import {ScrollerConfig, ScrollerType} from '../../models/dashboard-config.model';

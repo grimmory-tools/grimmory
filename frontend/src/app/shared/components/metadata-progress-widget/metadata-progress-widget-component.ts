@@ -1,17 +1,17 @@
 import {Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {KeyValuePipe} from '@angular/common';
-import {ProgressBar} from 'primeng/progressbar';
-import {Button} from 'primeng/button';
-import {Divider} from 'primeng/divider';
-import {Tooltip} from 'primeng/tooltip';
-import {MessageService} from 'primeng/api';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
+import {Button} from '@openng/optimus-ui/button';
+import {Divider} from '@openng/optimus-ui/divider';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 import {MetadataBatchProgressNotification, MetadataBatchStatus} from '../../model/metadata-batch-progress.model';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
 import {MetadataTaskService} from '../../../features/book/service/metadata-task';
-import {Tag} from 'primeng/tag';
+import {Tag} from '@openng/optimus-ui/tag';
 import {TaskService} from '../../../features/settings/task-management/task.service';
 import {DialogLauncherService} from '../../services/dialog-launcher.service';
 

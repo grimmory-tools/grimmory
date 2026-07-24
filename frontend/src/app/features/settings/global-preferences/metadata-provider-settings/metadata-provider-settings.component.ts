@@ -1,15 +1,15 @@
 import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
+import {TableModule} from '@openng/optimus-ui/table';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Button} from '@openng/optimus-ui/button';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {AppSettingKey} from '../../../../shared/model/app-settings.model';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {ExternalDocLinkComponent} from '../../../../shared/components/external-doc-link/external-doc-link.component';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import { ToggleSwitch } from '@openng/optimus-ui/toggleswitch';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

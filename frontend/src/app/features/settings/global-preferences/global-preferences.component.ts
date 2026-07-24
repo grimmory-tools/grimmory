@@ -1,16 +1,16 @@
 import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {MenuItem, MessageService} from 'primeng/api';
-import {Button} from 'primeng/button';
-import {SplitButton} from 'primeng/splitbutton';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import {MenuItem, MessageService} from '@openng/optimus-ui/api';
+import {Button} from '@openng/optimus-ui/button';
+import {SplitButton} from '@openng/optimus-ui/splitbutton';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {BookMetadataManageService} from '../../book/service/book-metadata-manage.service';
 import {AppSettingKey, CoverCroppingSettings} from '../../../shared/model/app-settings.model';
-import {InputText} from 'primeng/inputtext';
-import {Slider} from 'primeng/slider';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Slider} from '@openng/optimus-ui/slider';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({

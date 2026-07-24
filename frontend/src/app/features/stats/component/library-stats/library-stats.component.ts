@@ -1,8 +1,8 @@
 import {Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
-import {Select} from 'primeng/select';
-import {Button} from 'primeng/button';
+import {Select} from '@openng/optimus-ui/select';
+import {Button} from '@openng/optimus-ui/button';
 import {LanguageChartComponent} from './charts/language-chart/language-chart.component';
 import {BookFormatsChartComponent} from './charts/book-formats-chart/book-formats-chart.component';
 import {MetadataScoreChartComponent} from './charts/metadata-score-chart/metadata-score-chart.component';

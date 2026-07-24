@@ -1,6 +1,6 @@
 import {Component, effect, inject} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {ToggleSwitch} from "primeng/toggleswitch";
+import {ToggleSwitch} from "@openng/optimus-ui/toggleswitch";
 import {AppSettingKey, AppSettings, PublicReviewSettings, ReviewProviderConfig} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../shared/service/settings-helper.service';

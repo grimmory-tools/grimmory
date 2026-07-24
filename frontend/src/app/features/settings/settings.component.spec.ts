@@ -9,6 +9,6 @@ describe.skip('SettingsComponent', () => {
   });
 
   it('needs shell seams to verify tab-switch navigation across the composed settings surface', () => {
-    // TODO(seam): Cover tab click behavior after the routed settings shell is extracted from PrimeNG tab and router outlet runtime concerns.
+    // TODO(seam): Cover tab click behavior after the routed settings shell is extracted from Optimus UI tab and router outlet runtime concerns.
   });
 });

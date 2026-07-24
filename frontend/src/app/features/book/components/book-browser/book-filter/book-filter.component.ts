@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, Signal} from '@angular/core';
-import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from '@openng/optimus-ui/accordion';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {NgClass} from '@angular/common';
-import {Badge} from 'primeng/badge';
+import {Badge} from '@openng/optimus-ui/badge';
 import {FormsModule} from '@angular/forms';
-import {SelectButton} from 'primeng/selectbutton';
+import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {BookFilterMode, DEFAULT_VISIBLE_FILTERS, UserService, VisibleFilterType} from '../../../../settings/user-management/user.service';
 import {Filter, FILTER_LABEL_KEYS, FilterType} from './book-filter.config';
 import {BookFilterService} from './book-filter.service';

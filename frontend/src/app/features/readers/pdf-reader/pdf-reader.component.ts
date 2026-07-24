@@ -19,8 +19,8 @@ import { PdfBookmarkService } from './services/pdf-bookmark.service';
 import { PdfSidebarComponent, PdfAnnotationListItem } from './components/pdf-sidebar.component';
 import { parseStoredAnnotations, serializeAnnotations } from './utils/annotation-converter';
 
-import { ProgressSpinner } from 'primeng/progressspinner';
-import { MessageService } from 'primeng/api';
+import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
+import { MessageService } from '@openng/optimus-ui/api';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { CacheStorageService } from '../../../shared/service/cache-storage.service'
 import { LocalSettingsService } from '../../../shared/service/local-settings.service';

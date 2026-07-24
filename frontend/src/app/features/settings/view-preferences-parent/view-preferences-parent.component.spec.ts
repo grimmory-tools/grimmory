@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {describe, expect, it, vi} from 'vitest';
 
 import {ViewPreferencesParentComponent} from './view-preferences-parent.component';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {LayoutService} from '../../../shared/layout/layout.service';
 

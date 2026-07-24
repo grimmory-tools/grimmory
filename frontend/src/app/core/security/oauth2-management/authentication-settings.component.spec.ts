@@ -9,7 +9,7 @@ import {OidcGroupMapping} from '../../../shared/model/oidc-group-mapping.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {OidcGroupMappingService} from '../../../shared/service/oidc-group-mapping.service';
 import {LibraryService} from '../../../features/book/service/library.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {AuthenticationSettingsComponent} from './authentication-settings.component';
 

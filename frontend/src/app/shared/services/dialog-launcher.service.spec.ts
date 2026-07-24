@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {DialogService} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
+import {DialogService} from '@openng/optimus-ui/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
 import {getTranslocoModule} from '../../core/testing/transloco-testing';
 
 import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';

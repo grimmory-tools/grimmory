@@ -1,12 +1,12 @@
 import {Component, inject, OnInit, ChangeDetectorRef} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {InputText} from 'primeng/inputtext';
-import {AutoComplete} from 'primeng/autocomplete';
-import {Divider} from 'primeng/divider';
-import {SelectButton} from 'primeng/selectbutton';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
+import {Divider} from '@openng/optimus-ui/divider';
+import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {BookMetadata} from '../../../book/model/book.model';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import ExtendedAura, {primeThemeTokenPalettes} from './theme-palette-extend';
+import ExtendedAura, {optimusThemeTokenPalettes} from './theme-palette-extend';
 
 interface AppThemePreset {
   semantic?: AppThemeSemantic;
@@ -57,7 +57,7 @@ describe('theme-palette-extend', () => {
     expect(preset.semantic?.colorScheme?.dark?.content?.background).toBe('var(--color-page)');
   });
 
-  it('bridges Prime input focus styles to app control tokens', () => {
+  it('bridges Optimus UI input focus styles to app control tokens', () => {
     const inputtext = (ExtendedAura as AppThemePresetComponents).components?.inputtext?.root;
 
     expect(inputtext?.focusBorderColor).toBe('var(--control-focus-border)');
@@ -80,8 +80,8 @@ describe('theme-palette-extend', () => {
     });
   });
 
-  it('defines Prime palettes from app CSS tokens', () => {
-    const palettes = primeThemeTokenPalettes();
+  it('defines Optimus UI palettes from app CSS tokens', () => {
+    const palettes = optimusThemeTokenPalettes();
 
     expect(palettes.primary['0']).toBeUndefined();
     expect(palettes.primary['500']).toBe('var(--color-primary-500)');

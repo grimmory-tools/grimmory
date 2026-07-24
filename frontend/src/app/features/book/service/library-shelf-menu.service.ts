@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
 import { Router } from '@angular/router';
 import { LibraryService } from './library.service';
 import { ShelfService } from './shelf.service';
@@ -14,7 +14,7 @@ import { finalize } from 'rxjs';
 import { DialogLauncherService } from '../../../shared/services/dialog-launcher.service';
 import { BookDialogHelperService } from '../components/book-browser/book-dialog-helper.service';
 import { TranslocoService } from '@jsverse/transloco';
-import type { MenuItem } from 'primeng/api';
+import type { MenuItem } from '@openng/optimus-ui/api';
 
 @Injectable({
   providedIn: 'root',

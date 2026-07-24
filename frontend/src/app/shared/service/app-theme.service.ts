@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { FaviconService } from '../layout/theme/favicon-service';
-import {applyPrimeTheme, primeThemeTokenPalettes} from '../layout/theme/theme-palette-extend';
+import {applyOptimusTheme, optimusThemeTokenPalettes} from '../layout/theme/theme-palette-extend';
 import {
   APP_THEME_OPTIONS,
   AppearancePreference,
@@ -211,7 +211,7 @@ export class AppThemeService {
       return;
     }
 
-    applyPrimeTheme(primeThemeTokenPalettes());
+    applyOptimusTheme(optimusThemeTokenPalettes());
     this.updateFavicon();
   }
 

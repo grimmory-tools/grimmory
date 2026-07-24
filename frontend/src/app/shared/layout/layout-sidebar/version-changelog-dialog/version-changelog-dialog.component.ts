@@ -4,8 +4,8 @@ import { ReleaseNote, VersionService } from '../../../service/version.service';
 import DOMPurify from 'dompurify';
 import MarkdownIt from 'markdown-it';
 import {DatePipe} from '@angular/common';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({

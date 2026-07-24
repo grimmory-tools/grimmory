@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
+import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/api';
 import {BookService} from './book.service';
 import {BookMetadataManageService} from './book-metadata-manage.service';
 import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, readStatusLabels} from '../components/book-browser/book-filter/book-filter.config';

@@ -2,7 +2,7 @@ import {Injectable, inject} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, map, tap} from 'rxjs/operators';
 import {BookMark, BookMarkService, CreateBookMarkRequest} from '../../../../shared/service/book-mark.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable()

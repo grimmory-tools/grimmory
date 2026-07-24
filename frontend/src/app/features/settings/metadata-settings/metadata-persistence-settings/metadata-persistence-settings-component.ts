@@ -1,10 +1,10 @@
 import {Component, effect, inject} from '@angular/core';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {AppSettingKey, AppSettings, MetadataPersistenceSettings, SaveToOriginalFileSettings, SidecarSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../shared/service/settings-helper.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 type PersistenceToggleKey = Exclude<keyof MetadataPersistenceSettings, 'saveToOriginalFile' | 'sidecarSettings'>;

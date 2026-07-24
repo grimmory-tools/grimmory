@@ -4,7 +4,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
 import {clampStripMaxWidthPercent} from '../../../readers/cbx-reader/core/cbx-reader-storage';
 import {CbxBackgroundColor, CbxFitMode, CbxPageSpread, CbxPageViewMode, CbxScrollMode, UserSettings} from '../../user-management/user.service';
 import {ReaderPreferencesService} from '../reader-preferences.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 
 @Component({
   selector: 'app-cbx-reader-preferences-component',

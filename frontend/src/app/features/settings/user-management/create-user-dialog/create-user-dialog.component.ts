@@ -1,15 +1,15 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {InputText} from 'primeng/inputtext';
+import {InputText} from '@openng/optimus-ui/inputtext';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Checkbox} from 'primeng/checkbox';
-import {MultiSelect} from 'primeng/multiselect';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {Library} from '../../../book/model/library.model';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {LibraryService} from '../../../book/service/library.service';
 import {UserService} from '../user.service';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {passwordMatchValidator} from '../../../../shared/validators/password-match.validator';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 

@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {Select} from 'primeng/select';
-import {ToggleSwitch} from 'primeng/toggleswitch';
-import {MessageService} from 'primeng/api';
+import {Select} from '@openng/optimus-ui/select';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 import {AVAILABLE_LANGS, LANG_LABELS} from '../../../../core/config/transloco-loader';

@@ -2,7 +2,7 @@ import {describe, it} from 'vitest';
 
 // NOTE(frontend-seam): Real coverage here needs seams around dialog payload bootstrapping,
 // autocomplete/search streams, and metadata copy/reset helpers so picker decisions can be
-// asserted without the full bookdrop dialog and PrimeNG form runtime.
+// asserted without the full bookdrop dialog and Optimus UI form runtime.
 describe.skip('BookdropFileMetadataPickerComponent', () => {
   it('needs dialog and form seams to verify metadata bootstrap, reset, and apply behavior', () => {
     // TODO(seam): Cover initialization and confirmation branches once DynamicDialog config and reactive-form setup are isolated behind test doubles.

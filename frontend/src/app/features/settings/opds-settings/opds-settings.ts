@@ -1,24 +1,24 @@
 import {Component, DestroyRef, WritableSignal, effect, inject, signal, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {Button} from 'primeng/button';
-import {InputText} from 'primeng/inputtext';
+import {Button} from '@openng/optimus-ui/button';
+import {InputText} from '@openng/optimus-ui/inputtext';
 import {API_CONFIG} from '../../../core/config/api-config';
-import {Tooltip} from 'primeng/tooltip';
-import {TableModule} from 'primeng/table';
-import {Dialog} from 'primeng/dialog';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {TableModule} from '@openng/optimus-ui/table';
+import {Dialog} from '@openng/optimus-ui/dialog';
 import {FormsModule} from '@angular/forms';
-import {ConfirmDialog} from 'primeng/confirmdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmDialog} from '@openng/optimus-ui/confirmdialog';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {OpdsService, OpdsSortOrder, OpdsUserV2, OpdsUserV2CreateRequest} from './opds.service';
 import {catchError} from 'rxjs/operators';
 import {UserService} from '../user-management/user.service';
 import {of} from 'rxjs';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({

@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
+import {TableModule} from '@openng/optimus-ui/table';
 
 import {ViewPreferencesComponent} from './view-preferences/view-preferences.component';
 import {SidebarSortingPreferencesComponent} from './sidebar-sorting-preferences/sidebar-sorting-preferences.component';
@@ -9,8 +9,8 @@ import {FilterPreferencesComponent} from './filter-preferences/filter-preference
 import {DisplayPreferencesComponent} from './display-preferences/display-preferences.component';
 import {DashboardPreferencesComponent} from './dashboard-preferences/dashboard-preferences.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {Slider} from 'primeng/slider';
-import {MessageService} from 'primeng/api';
+import {Slider} from '@openng/optimus-ui/slider';
+import {MessageService} from '@openng/optimus-ui/api';
 import {LayoutService, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH} from '../../../shared/layout/layout.service';
 
 @Component({

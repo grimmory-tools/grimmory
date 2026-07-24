@@ -1,5 +1,5 @@
 import {Component, effect, inject, Input} from '@angular/core';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {AppSettingKey, MetadataProviderSpecificFields} from '../../../../shared/model/app-settings.model';

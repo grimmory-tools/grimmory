@@ -1,8 +1,8 @@
 import {Component, computed, effect, inject, Input, OnChanges, OnDestroy, signal, SimpleChanges, WritableSignal} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {InputText} from 'primeng/inputtext';
-import {MultiSelect} from 'primeng/multiselect';
+import {Button} from '@openng/optimus-ui/button';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
 
 import {FetchMetadataRequest} from '../../../model/request/fetch-metadata-request.model';
 import {Book, BookMetadata} from '../../../../book/model/book.model';
@@ -12,7 +12,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {Subject, Subscription, takeUntil} from 'rxjs';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {BookMetadataService} from '../../../../book/service/book-metadata.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({

@@ -1,7 +1,7 @@
 import {Component, effect, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {UserService} from '../../user-management/user.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

@@ -1,19 +1,19 @@
 import {ChangeDetectorRef, Component, inject, ViewChild, effect, signal} from '@angular/core';
-import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
-import {Button} from 'primeng/button';
+import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from '@openng/optimus-ui/fileupload';
+import {Button} from '@openng/optimus-ui/button';
 import {FormsModule} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {Select} from 'primeng/select';
-import {Badge} from 'primeng/badge';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Select} from '@openng/optimus-ui/select';
+import {Badge} from '@openng/optimus-ui/badge';
 import {LibraryService} from '../../../features/book/service/library.service';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {AppSettingsService} from '../../service/app-settings.service';
-import {SelectButton} from 'primeng/selectbutton';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ProgressBar} from 'primeng/progressbar';
+import {SelectButton} from '@openng/optimus-ui/selectbutton';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface UploadingFile {

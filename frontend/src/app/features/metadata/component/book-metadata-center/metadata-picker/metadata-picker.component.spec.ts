@@ -2,10 +2,10 @@ import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {AutoCompleteSelectEvent} from 'primeng/autocomplete';
+import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
 
 import {Book, BookMetadata} from '../../../../book/model/book.model';
 import {BookService} from '../../../../book/service/book.service';

@@ -7,23 +7,23 @@ import {BookdropFile, BookdropFinalizePayload, BookdropFinalizeResult, BookdropS
 import {LibraryService} from '../../../book/service/library.service';
 import {Library} from '../../../book/model/library.model';
 
-import {ProgressSpinner} from 'primeng/progressspinner';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {FormControl, FormGroup, FormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {Tooltip} from 'primeng/tooltip';
-import {Divider} from 'primeng/divider';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {Button} from '@openng/optimus-ui/button';
+import {Select} from '@openng/optimus-ui/select';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {Divider} from '@openng/optimus-ui/divider';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 
-import {InputGroup} from 'primeng/inputgroup';
-import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {InputGroup} from '@openng/optimus-ui/inputgroup';
+import {InputGroupAddon} from '@openng/optimus-ui/inputgroupaddon';
 
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookMetadata} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {Checkbox} from 'primeng/checkbox';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {NgClass} from '@angular/common';
-import {Paginator} from 'primeng/paginator';
+import {Paginator} from '@openng/optimus-ui/paginator';
 import {ActivatedRoute} from '@angular/router';
 import {BookdropFileMetadataPickerComponent} from '../bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component';
 import {BookdropBulkEditDialogComponent, BulkEditResult} from '../bookdrop-bulk-edit-dialog/bookdrop-bulk-edit-dialog.component';

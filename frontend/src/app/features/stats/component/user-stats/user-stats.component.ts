@@ -1,7 +1,7 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {CdkDragDrop, DragDropModule} from '@angular/cdk/drag-drop';
-import {Dialog} from 'primeng/dialog';
-import {Button} from 'primeng/button';
+import {Dialog} from '@openng/optimus-ui/dialog';
+import {Button} from '@openng/optimus-ui/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {PeakHoursChartComponent} from './charts/peak-hours-chart/peak-hours-chart.component';

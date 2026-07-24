@@ -1,7 +1,7 @@
 import {Component, computed, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {Select} from 'primeng/select';
-import {MessageService} from 'primeng/api';
+import {Select} from '@openng/optimus-ui/select';
+import {MessageService} from '@openng/optimus-ui/api';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {LayoutService} from '../../../../shared/layout/layout.service';

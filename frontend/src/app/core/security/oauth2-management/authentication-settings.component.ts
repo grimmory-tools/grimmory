@@ -1,25 +1,25 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {Component, effect, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {ToggleSwitch} from 'primeng/toggleswitch';
-import {InputNumber} from 'primeng/inputnumber';
-import {MessageService} from 'primeng/api';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
+import {InputNumber} from '@openng/optimus-ui/inputnumber';
+import {MessageService} from '@openng/optimus-ui/api';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {AppSettingKey, AppSettings, OidcProviderDetails, OidcTestResult} from '../../../shared/model/app-settings.model';
-import {MultiSelect} from 'primeng/multiselect';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {LibraryService} from '../../../features/book/service/library.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {OidcGroupMapping} from '../../../shared/model/oidc-group-mapping.model';
 import {OidcGroupMappingService} from '../../../shared/service/oidc-group-mapping.service';
-import {Select} from 'primeng/select';
-import {TableModule} from 'primeng/table';
-import {Dialog} from 'primeng/dialog';
+import {Select} from '@openng/optimus-ui/select';
+import {TableModule} from '@openng/optimus-ui/table';
+import {Dialog} from '@openng/optimus-ui/dialog';
 import {TagComponent} from '../../../shared/components/tag/tag.component';
-import {Chip} from 'primeng/chip';
+import {Chip} from '@openng/optimus-ui/chip';
 
 @Component({
   selector: 'app-authentication-settings',

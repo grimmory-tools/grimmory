@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MetadataRefreshRequest} from '../../../model/request/metadata-refresh-request.model';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshOptions} from '../../../model/request/metadata-refresh-options.model';

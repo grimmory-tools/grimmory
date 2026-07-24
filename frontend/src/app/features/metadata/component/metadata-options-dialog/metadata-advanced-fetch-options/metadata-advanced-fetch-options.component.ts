@@ -1,16 +1,16 @@
 import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
 
-import {Checkbox} from 'primeng/checkbox';
-import {Button} from 'primeng/button';
-import {MessageService} from 'primeng/api';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {Button} from '@openng/optimus-ui/button';
+import {MessageService} from '@openng/optimus-ui/api';
 import {
   FieldOptions,
   MetadataRefreshOptions,
   MetadataReplaceMode
 } from '../../../model/request/metadata-refresh-options.model';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

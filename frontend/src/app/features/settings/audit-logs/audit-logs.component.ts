@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {Select} from 'primeng/select';
-import {DatePicker} from 'primeng/datepicker';
+import {TableLazyLoadEvent, TableModule} from '@openng/optimus-ui/table';
+import {Select} from '@openng/optimus-ui/select';
+import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {Subscription, interval} from 'rxjs';

@@ -1,8 +1,8 @@
 import {Component, inject, OnDestroy} from '@angular/core';
 import {DatePipe, NgClass} from '@angular/common';
 import {BookdropFinalizeResult} from '../../service/bookdrop.service';
-import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
-import {Button} from 'primeng/button';
+import {DynamicDialogConfig, DynamicDialogRef} from "@openng/optimus-ui/dynamicdialog";
+import {Button} from '@openng/optimus-ui/button';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({

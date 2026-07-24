@@ -2,8 +2,8 @@ import {TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import type {MenuItem, MenuItemCommandEvent} from 'primeng/api';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import type {MenuItem, MenuItemCommandEvent} from '@openng/optimus-ui/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {LibraryShelfMenuService} from './library-shelf-menu.service';

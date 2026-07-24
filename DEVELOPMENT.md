@@ -9,7 +9,7 @@ work.
 
 ```
 grimmory/
-├── frontend/                # Angular frontend (TypeScript, PrimeNG)
+├── frontend/                # Angular frontend (TypeScript, Optimus UI)
 ├── backend/                 # Spring Boot backend (Java 25, Gradle)
 ├── deploy/                  # Compose, Helm, and Podman deployment examples
 ├── packaging/docker/        # Container runtime assets used by the Docker build

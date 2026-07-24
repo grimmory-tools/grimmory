@@ -1,17 +1,17 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {UtilityService} from './utility.service';
-import {TableModule} from 'primeng/table';
-import {InputText} from 'primeng/inputtext';
+import {TableModule} from '@openng/optimus-ui/table';
+import {InputText} from '@openng/optimus-ui/inputtext';
 
 import {FormsModule} from '@angular/forms';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {MenuItem} from 'primeng/api';
-import {Checkbox} from 'primeng/checkbox';
-import {InputIcon} from 'primeng/inputicon';
-import {Button} from 'primeng/button';
-import {IconField} from 'primeng/iconfield';
-import {Tooltip} from 'primeng/tooltip';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {MenuItem} from '@openng/optimus-ui/api';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {InputIcon} from '@openng/optimus-ui/inputicon';
+import {Button} from '@openng/optimus-ui/button';
+import {IconField} from '@openng/optimus-ui/iconfield';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 
 @Component({

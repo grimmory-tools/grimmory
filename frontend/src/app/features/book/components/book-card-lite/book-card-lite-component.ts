@@ -2,12 +2,12 @@ import {ChangeDetectionStrategy, Component, computed, inject, Input} from '@angu
 import {Book} from '../../model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Router} from '@angular/router';
 import {NgClass} from '@angular/common';
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 
 @Component({
   selector: 'app-book-card-lite-component',

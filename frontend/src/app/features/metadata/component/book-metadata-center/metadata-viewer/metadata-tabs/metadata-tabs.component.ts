@@ -2,14 +2,14 @@ import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Book, BookRecommendation, BookType, FileInfo} from '../../../../../book/model/book.model';
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardLiteComponent} from '../../../../../book/components/book-card-lite/book-card-lite-component';
 import {BookReviewsComponent} from '../../../../../book/components/book-reviews/book-reviews.component';
 import {BookNotesComponent} from '../../../../../book/components/book-notes/book-notes-component';
 import {BookReadingSessionsComponent} from '../../book-reading-sessions/book-reading-sessions.component';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
+import {Button} from '@openng/optimus-ui/button';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../../../shared/components/cover/cover.component';
 import {BookMetadataManageService} from '../../../../../book/service/book-metadata-manage.service';

@@ -1,7 +1,7 @@
 import {CustomFont} from '../model/custom-font.model';
 
 /**
- * Font dropdown item for epub-reader component (PrimeNG Select format)
+ * Font dropdown item for epub-reader component (Optimus UI Select format)
  */
 export interface FontDropdownItem {
   label: string;

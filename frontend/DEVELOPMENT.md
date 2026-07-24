@@ -17,7 +17,7 @@ production image.
 
 - Angular 21
 - TypeScript
-- PrimeNG + PrimeIcons
+- Optimus UI + OpenNG Icons
 - Transloco for i18n
 - Vitest for unit tests
 - Angular ESLint
@@ -88,7 +88,7 @@ flow from a clean install.
 - Follow the Angular style guide.
 - All components are standalone. Do not add NgModules.
 - Use `inject()` for dependency injection instead of constructor injection.
-- Prefer PrimeNG components and existing project styling patterns over custom one-off UI primitives.
+- Prefer Optimus UI components and existing project styling patterns over custom one-off UI primitives.
 - Use SCSS for styling and keep the visual language consistent with the existing application.
 - Use Transloco for user-facing strings. New strings belong under `src/i18n/`.
 - Keep UI changes responsive for desktop and mobile layouts.

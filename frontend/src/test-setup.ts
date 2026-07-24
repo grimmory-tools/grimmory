@@ -29,7 +29,7 @@ class MockIntersectionObserver {
   }
 }
 
-// Standard mock for matchMedia to support PrimeNG and other UI libraries in JSDOM
+// Standard mock for matchMedia to support Optimus UI and other UI libraries in JSDOM
 const matchMediaMock = (query: string): MediaQueryList => ({
   matches: false,
   media: query,
