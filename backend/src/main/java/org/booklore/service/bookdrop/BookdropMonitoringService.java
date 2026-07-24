@@ -4,6 +4,7 @@ import org.booklore.config.AppProperties;
 import org.booklore.model.enums.BookFileExtension;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.util.FileUtils;
+import org.booklore.util.PathNormalizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 public class BookdropMonitoringService implements SmartLifecycle {
 
     private static final int LIFECYCLE_PHASE = 20;
+    private static final int DB_IN_CLAUSE_CHUNK_SIZE = 500;
 
     private final AppProperties appProperties;
     private final BookdropEventHandlerService eventHandler;
@@ -246,6 +248,10 @@ public class BookdropMonitoringService implements SmartLifecycle {
         scanExistingBookdropFiles();
     }
 
+    private String normalizePath(Path path) {
+        return PathNormalizer.normalizePathString(path.toAbsolutePath().toString());
+    }
+
     private void scanExistingBookdropFiles() {
         List<Path> supportedFiles;
         try (Stream<Path> files = Files.walk(bookdrop)) {
@@ -260,11 +266,21 @@ public class BookdropMonitoringService implements SmartLifecycle {
 
         if (!supportedFiles.isEmpty()) {
             List<String> supportedFilePaths = supportedFiles.stream()
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
+                    .map(this::normalizePath)
                     .toList();
-            List<String> knownFilePaths = bookdropFileRepository.findAllFilePathsIn(supportedFilePaths);
-            Set<String> knownPaths = knownFilePaths == null ? Set.of() : new HashSet<>(knownFilePaths);
+
+            // 2026 Standard: Partition large IN-clause requests into safe chunks (500 items per query)
+            // to avoid hitting database parameter limits on folders with >1,000 books.
+            Set<String> knownPaths = new HashSet<>();
+            for (int i = 0; i < supportedFilePaths.size(); i += DB_IN_CLAUSE_CHUNK_SIZE) {
+                List<String> chunk = supportedFilePaths.subList(
+                        i, Math.min(i + DB_IN_CLAUSE_CHUNK_SIZE, supportedFilePaths.size())
+                );
+                List<String> batchKnown = bookdropFileRepository.findAllFilePathsIn(chunk);
+                if (batchKnown != null) {
+                    knownPaths.addAll(batchKnown);
+                }
+            }
 
             supportedFilePaths.stream()
                     .filter(path -> !knownPaths.contains(path))

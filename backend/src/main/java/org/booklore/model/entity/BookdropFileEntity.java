@@ -55,8 +55,12 @@ public class BookdropFileEntity {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
+
     public enum Status {
         PENDING_REVIEW,
-        FINALIZED
+        FINALIZED,
+        ERROR
     }
 }

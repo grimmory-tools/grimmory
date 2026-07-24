@@ -24,6 +24,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +188,22 @@ public class BookdropMetadataService {
             } catch (IOException e) {
                 log.warn("Failed to save extracted cover for file: {}", entity.getFilePath(), e);
             }
+        }
+    }
+
+    /**
+     * Clean up temporary cover image for a bookdrop file.
+     * Prevents disk space leaks when processing fails or files are discarded.
+     *
+     * @param bookdropId the ID of the bookdrop file whose temp cover should be removed
+     */
+    public void cleanupTempCover(Long bookdropId) {
+        Path coverPath = Path.of(fileService.getTempBookdropCoverImagePath(bookdropId));
+        try {
+            Files.deleteIfExists(coverPath);
+            log.debug("Cleaned up temp cover image for bookdrop ID: {}", bookdropId);
+        } catch (IOException e) {
+            log.warn("Failed to delete temp cover image: {}", coverPath, e);
         }
     }
 }

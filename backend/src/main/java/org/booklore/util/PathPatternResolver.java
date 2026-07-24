@@ -8,9 +8,6 @@ import org.booklore.model.entity.BookMetadataEntity;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
@@ -352,6 +349,14 @@ public class PathPatternResolver {
         return result.toString();
     }
 
+    /**
+     * 2026 Standard: UTF-8 code-point aware truncation that never splits
+     * multi-byte characters (e.g. German umlauts 'ü', Cyrillic, CJK glyphs).
+     *
+     * @param component the string to truncate
+     * @param maxBytes  the maximum number of UTF-8 bytes allowed
+     * @return the truncated string, guaranteed to end on a code-point boundary
+     */
     public String truncatePathComponent(String component, int maxBytes) {
         if (component == null || component.isEmpty()) {
             return component;
@@ -362,17 +367,28 @@ public class PathPatternResolver {
             return component;
         }
 
-        CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder();
-        ByteBuffer buffer = ByteBuffer.allocate(maxBytes);
-        CharBuffer charBuffer = CharBuffer.wrap(component);
+        // Iterate over Unicode code points and accumulate bytes until hitting the limit
+        StringBuilder sb = new StringBuilder();
+        int currentBytes = 0;
 
-        encoder.encode(charBuffer, buffer, true);
+        for (int i = 0; i < component.length(); ) {
+            int codePoint = component.codePointAt(i);
+            int charCount = Character.charCount(codePoint);
+            String charStr = component.substring(i, i + charCount);
+            int charBytes = charStr.getBytes(StandardCharsets.UTF_8).length;
 
-        String truncated = component.substring(0, charBuffer.position());
-        if (!truncated.equals(component)) {
-            log.debug("Truncated path component from {} to {} bytes for filesystem safety",
-                bytes.length, truncated.getBytes(StandardCharsets.UTF_8).length);
+            if (currentBytes + charBytes > maxBytes) {
+                break; // Stop before overflowing max allowed bytes
+            }
+
+            sb.append(charStr);
+            currentBytes += charBytes;
+            i += charCount;
         }
+
+        String truncated = sb.toString().trim();
+        log.debug("Truncated path component from {} to {} bytes for filesystem safety",
+                bytes.length, truncated.getBytes(StandardCharsets.UTF_8).length);
         return truncated;
     }
 
