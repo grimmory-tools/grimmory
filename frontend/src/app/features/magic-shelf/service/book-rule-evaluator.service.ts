@@ -27,14 +27,18 @@ export class BookRuleEvaluatorService {
     }
 
     const rawValue = this.extractBookValue(book, rule.field);
+    const isDateField = rule.field === 'publishedDate' || rule.field === 'dateFinished' ||
+      rule.field === 'lastReadTime' || rule.field === 'addedOn';
+    const withoutTime = (date: Date): Date =>
+      new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
     const normalize = (val: unknown): unknown => {
       if (val === null || val === undefined) return val;
-      if (val instanceof Date) return val;
+      if (val instanceof Date) return isDateField ? withoutTime(val) : val;
       if (typeof val === 'boolean') return String(val);
       if (typeof val === 'string') {
         const date = parseValue(val, 'date');
-        if (date != null) return date;
+        if (date instanceof Date) return isDateField ? withoutTime(date) : date;
         return val.toLowerCase();
       }
       return val;
