@@ -534,7 +534,7 @@ public class BookRuleEvaluatorService {
         if (value instanceof Boolean) {
             return cb.equal(field, value);
         } else if (value instanceof LocalDate) {
-            return cb.equal(field, value);
+            return cb.equal(field.cast(LocalDate.class), value);
         } else if (value instanceof LocalDateTime) {
             return cb.equal(field, value);
         } else if (rule.getField() == RuleField.READ_STATUS) {
@@ -600,28 +600,28 @@ public class BookRuleEvaluatorService {
     private Predicate buildGreaterThan(Rule rule, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
         return buildComparisonPredicate(rule, cb, root, progressJoin,
                 (field, dateValue) -> cb.greaterThan(field.as(LocalDateTime.class), dateValue),
-                (field, localDateValue) -> cb.greaterThan(field.as(LocalDate.class), localDateValue),
+                (field, localDateValue) -> cb.greaterThan(field.cast(LocalDate.class), localDateValue),
                 (field, numValue) -> cb.gt(toNumericExpression(field), numValue));
     }
 
     private Predicate buildGreaterThanEqual(Rule rule, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
         return buildComparisonPredicate(rule, cb, root, progressJoin,
                 (field, dateValue) -> cb.greaterThanOrEqualTo(field.as(LocalDateTime.class), dateValue),
-                (field, localDateValue) -> cb.greaterThanOrEqualTo(field.as(LocalDate.class), localDateValue),
+                (field, localDateValue) -> cb.greaterThanOrEqualTo(field.cast(LocalDate.class), localDateValue),
                 (field, numValue) -> cb.ge(toNumericExpression(field), numValue));
     }
 
     private Predicate buildLessThan(Rule rule, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
         return buildComparisonPredicate(rule, cb, root, progressJoin,
                 (field, dateValue) -> cb.lessThan(field.as(LocalDateTime.class), dateValue),
-                (field, localDateValue) -> cb.lessThan(field.as(LocalDate.class), localDateValue),
+                (field, localDateValue) -> cb.lessThan(field.cast(LocalDate.class), localDateValue),
                 (field, numValue) -> cb.lt(toNumericExpression(field), numValue));
     }
 
     private Predicate buildLessThanEqual(Rule rule, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
         return buildComparisonPredicate(rule, cb, root, progressJoin,
                 (field, dateValue) -> cb.lessThanOrEqualTo(field.as(LocalDateTime.class), dateValue),
-                (field, localDateValue) -> cb.lessThanOrEqualTo(field.as(LocalDate.class), localDateValue),
+                (field, localDateValue) -> cb.lessThanOrEqualTo(field.cast(LocalDate.class), localDateValue),
                 (field, numValue) -> cb.le(toNumericExpression(field), numValue));
     }
 
@@ -655,7 +655,7 @@ public class BookRuleEvaluatorService {
         if (start == null || end == null) return cb.conjunction();
 
         if (start instanceof LocalDate && end instanceof LocalDate) {
-            return cb.between(field.as(LocalDate.class), (LocalDate) start, (LocalDate) end);
+            return cb.between(field.cast(LocalDate.class), (LocalDate) start, (LocalDate) end);
         }
 
         if (start instanceof LocalDateTime && end instanceof LocalDateTime) {
@@ -892,17 +892,10 @@ public class BookRuleEvaluatorService {
     private Object normalizeValue(Object value, RuleField field) {
         if (value == null) return null;
 
-        if (field == RuleField.PUBLISHED_DATE) {
+        if (field == RuleField.PUBLISHED_DATE || field == RuleField.DATE_FINISHED ||
+                field == RuleField.LAST_READ_TIME || field == RuleField.ADDED_ON) {
             LocalDateTime parsed = parseDate(value);
             return parsed != null ? parsed.toLocalDate() : null;
-        }
-
-        if (field == RuleField.DATE_FINISHED || field == RuleField.LAST_READ_TIME || field == RuleField.ADDED_ON) {
-            LocalDateTime parsed = parseDate(value);
-            if (parsed != null) {
-                return parsed.atZone(ZoneId.systemDefault()).toInstant();
-            }
-            return null;
         }
 
         if (field == RuleField.READ_STATUS) {
