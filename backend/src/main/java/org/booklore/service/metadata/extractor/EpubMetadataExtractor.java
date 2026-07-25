@@ -41,8 +41,6 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern YEAR_ONLY_PATTERN = Pattern.compile("^\\d{4}$");
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
 
-    // List of all media types that epub4j has so we can lazy load them.
-    // Note that we have to add in null to handle files without extentions like mimetype.
     private static final Pattern ISBN_SEPARATOR_PATTERN = Pattern.compile("[- ]");
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
@@ -89,14 +87,13 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     @Override
     public byte[] extractCover(File epubFile) {
-        // Primary: use epub4j's CoverDetector with native lazy loading
         try {
             var coverImage = CoverDetector.detectCoverImage(epubFile.toPath());
             if (coverImage != null && coverImage.length > 0) {
                 return coverImage;
             }
         } catch (Exception e) {
-            log.debug("epub4j cover detection failed for {}: {}", epubFile.getName(), e.getMessage());
+            log.debug("Cover detection failed for {}: {}", epubFile.getName(), e.getMessage());
         }
 
         return null;
