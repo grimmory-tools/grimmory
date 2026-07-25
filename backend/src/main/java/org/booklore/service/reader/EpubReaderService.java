@@ -13,8 +13,8 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.ArchiveService;
 import org.booklore.util.FileUtils;
+import org.booklore.util.epub.CoverDetector;
 import org.grimmory.epub4j.domain.*;
-import org.grimmory.epub4j.epub.CoverDetector;
 import org.grimmory.epub4j.epub.EpubReader;
 import org.springframework.stereotype.Service;
 

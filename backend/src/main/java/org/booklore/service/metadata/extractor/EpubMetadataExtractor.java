@@ -1,17 +1,11 @@
 package org.booklore.service.metadata.extractor;
 
+import org.booklore.util.epub.CoverDetector;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;
-import org.grimmory.epub4j.domain.Book;
-import org.grimmory.epub4j.domain.MediaType;
-import org.grimmory.epub4j.domain.MediaTypes;
-import org.grimmory.epub4j.domain.Resource;
-import org.grimmory.epub4j.epub.CoverDetector;
-import org.grimmory.epub4j.epub.CoverDetector.CoverDetectionResult;
-import org.grimmory.epub4j.epub.EpubReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,17 +43,11 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     // List of all media types that epub4j has so we can lazy load them.
     // Note that we have to add in null to handle files without extentions like mimetype.
-    private static final List<MediaType> MEDIA_TYPES = new ArrayList<>();
     private static final Pattern ISBN_SEPARATOR_PATTERN = Pattern.compile("[- ]");
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
 
     private final ObjectMapper objectMapper;
-
-    static {
-        MEDIA_TYPES.addAll(Arrays.asList(MediaTypes.mediaTypes));
-        MEDIA_TYPES.add(null);
-    }
 
     public EpubMetadataExtractor(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -103,14 +91,10 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     public byte[] extractCover(File epubFile) {
         // Primary: use epub4j's CoverDetector with native lazy loading
         try {
-            Book book = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8");
-            Optional<CoverDetectionResult> detection = CoverDetector.detectCoverImageWithMethod(book);
-            if (detection.isPresent()) {
-                CoverDetectionResult result = detection.get();
-                log.debug("Cover detected for {} via {}: {}",
-                        epubFile.getName(), result.method(), result.resource().getHref());
+            var coverImage = CoverDetector.detectCoverImage(epubFile.toPath());
+            if (coverImage != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                result.resource().writeTo(baos);
+                coverImage.writeTo(baos);
                 byte[] data = baos.toByteArray();
                 if (data.length > 0) {
                     return data;
@@ -118,63 +102,6 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             }
         } catch (Exception e) {
             log.debug("epub4j cover detection failed for {}: {}", epubFile.getName(), e.getMessage());
-        }
-
-        // Last resort: scan container for cover-like images
-        try (EpubContainer container = EpubContainers.open(epubFile.toPath())) {
-            // NOTE: this will moved to org.grimmory.epub4j in the near future
-            // most of the parsing done here, can be safely replaced with methods already existing in epub4j
-            String opfName = findOpfPath(container);
-            Document opf = parseXmlFromContainer(container, opfName);
-
-            // Try OPF manifest for cover-image property
-            NodeList items = opf.getElementsByTagName("item");
-            for (int i = 0; i < items.getLength(); i++) {
-                Element item = (Element) items.item(i);
-                String properties = item.getAttribute("properties");
-                if (properties != null && properties.contains("cover-image")) {
-                    String href = URLDecoder.decode(item.getAttribute("href"), StandardCharsets.UTF_8);
-                    String fullPath = resolvePath(opfName, href);
-                    if (container.exists(fullPath)) {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-                        container.streamTo(fullPath, baos);
-                        return baos.toByteArray();
-                    }
-                }
-            }
-
-            // Search manifest for cover-looking items by id/href
-            for (int i = 0; i < items.getLength(); i++) {
-                Element item = (Element) items.item(i);
-                String id = item.getAttribute("id");
-                String href = item.getAttribute("href");
-                String mediaType = item.getAttribute("media-type");
-                if (mediaType != null && mediaType.startsWith("image/")) {
-                    if ((id != null && id.toLowerCase().contains("cover")) ||
-                            (href != null && href.toLowerCase().contains("cover"))) {
-                        String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
-                        String fullPath = resolvePath(opfName, decodedHref);
-                        if (container.exists(fullPath)) {
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-                            container.streamTo(fullPath, baos);
-                            return baos.toByteArray();
-                        }
-                    }
-                }
-            }
-
-            // Scan all files for cover-named images
-            for (String name : container.listAllFiles()) {
-                String lower = name.toLowerCase();
-                if (lower.contains("cover") && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
-                        lower.endsWith(".png") || lower.endsWith(".webp"))) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-                    container.streamTo(name, baos);
-                    return baos.toByteArray();
-                }
-            }
-        } catch (Exception e) {
-            log.debug("Container cover search failed for {}: {}", epubFile.getName(), e.getMessage());
         }
 
         return null;
@@ -589,26 +516,6 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
         log.warn("Failed to parse date from string: {}", value);
         return null;
-    }
-
-    private byte[] getImageFromEpubResource(Resource res) {
-        if (res == null) {
-            return null;
-        }
-
-        MediaType mt = res.getMediaType();
-        if (mt == null || mt.name() == null || !mt.name().startsWith("image")) {
-            return null;
-        }
-
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            res.writeTo(baos);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.warn("Failed to read data for resource", e);
-            return null;
-        }
     }
 
     private String findOpfPath(EpubContainer container) throws IOException, ParserConfigurationException, SAXException {
