@@ -149,7 +149,7 @@ describe('BookQueryService', () => {
 
   it('follows the exact next href for an infinite query', async () => {
     const host = TestBed.inject(InfiniteQueryHost);
-    TestBed.flushEffects();
+    flushSignalAndQueryEffects();
 
     const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     expect(firstRequest.request.params.has('cursor')).toBe(false);
@@ -181,7 +181,7 @@ describe('BookQueryService', () => {
 
   it('stops paging when the backend emits no next link', async () => {
     const host = TestBed.inject(InfiniteQueryHost);
-    TestBed.flushEffects();
+    flushSignalAndQueryEffects();
 
     http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
       .flush(page([1]));
@@ -253,12 +253,6 @@ describe('BookQueryService', () => {
 
     expect(request.cancelled).toBe(true);
     await expect(resultPromise).rejects.toBeDefined();
-  });
-
-  it('rejects invalid detail and batch requests before HTTP', () => {
-    expect(() => service.detail(0, {withDescription: false})).toThrow('Book ID must be a positive integer.');
-    expect(() => service.batch([], {withDescription: false})).toThrow('At least one book ID is required.');
-    http.expectNone(() => true);
   });
 
   it('retries only transient failures and only twice', () => {

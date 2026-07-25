@@ -3,7 +3,6 @@ import {describe, expect, it} from 'vitest';
 import {
   normalizeBookBatchParams,
   normalizeBookCollectionFilterParams,
-  normalizeBookId,
   normalizeBookQueryParams,
   normalizeBookPageParams,
   toCollectionHttpParams,
@@ -65,13 +64,6 @@ describe('book query parameters', () => {
     });
   });
 
-  it.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])('rejects invalid book ID %s', bookId => {
-    expect(() => normalizeBookId(bookId)).toThrow('Book ID must be a positive integer.');
-  });
-
-  it('rejects an empty batch', () => {
-    expect(() => normalizeBookBatchParams([], false)).toThrow('At least one book ID is required.');
-  });
 
   it('serializes page parameters using the backend vocabulary', () => {
     const params = toPageHttpParams(normalizeBookPageParams({

@@ -12,8 +12,8 @@ interface RawLink {
   type: string;
 }
 
-interface RawBrowsePage {
-  content: unknown[];
+interface RawBrowsePage<T> {
+  content: T[];
   page: BrowsePageMetadata;
   links: RawLink[];
 }
@@ -33,17 +33,15 @@ interface RawFacetResponse {
   facets: RawFacetGroup[];
 }
 
-export function mapBrowsePage<T>(raw: unknown): BrowsePage<T> {
-  const response = raw as RawBrowsePage;
+export function mapBrowsePage<T>(response: RawBrowsePage<T>): BrowsePage<T> {
   return {
-    content: response.content as T[],
+    content: response.content,
     page: response.page,
     links: response.links.map(mapBrowseLink),
   };
 }
 
-export function mapBrowseFacetGroups(raw: unknown): BrowseFacetGroup[] {
-  const response = raw as RawFacetResponse;
+export function mapBrowseFacetGroups(response: RawFacetResponse): BrowseFacetGroup[] {
   return response.facets.map(group => ({
     rel: group.metadata.rel,
     key: group.metadata.key,
@@ -66,7 +64,7 @@ function mapBrowseFacetValue(raw: RawFacetLink): BrowseFacetValue {
     value: raw.value,
     title: raw.title,
     selected: normalizeRel(raw.rel).includes('self'),
-    ...(count == null ? {} : {count}),
+    ...(count === undefined ? {} : {count}),
   };
 }
 

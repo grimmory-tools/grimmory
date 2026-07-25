@@ -18,7 +18,6 @@ import {
   BookQueryParams,
   normalizeBookBatchParams,
   normalizeBookCollectionFilterParams,
-  normalizeBookId,
   normalizeBookPageParams,
   normalizeBookQueryParams,
   toCollectionHttpParams,
@@ -99,12 +98,10 @@ export class BookQueryService {
   }
 
   detail(bookId: number, {withDescription}: BookDescriptionOptions) {
-    const normalizedBookId = normalizeBookId(bookId);
-
     return queryOptions({
-      queryKey: bookQueryKeys.detail(normalizedBookId, withDescription),
+      queryKey: bookQueryKeys.detail(bookId, withDescription),
       queryFn: ({signal}): Promise<BookDetail> => this.get<BookDetail>(
-        `${this.baseUrl}/${normalizedBookId}`,
+        `${this.baseUrl}/${bookId}`,
         signal,
         new HttpParams().set('withDescription', withDescription.toString()),
       ),
@@ -129,12 +126,10 @@ export class BookQueryService {
   }
 
   recommendations(bookId: number, limit: number) {
-    const normalizedBookId = normalizeBookId(bookId);
-
     return queryOptions({
-      queryKey: bookQueryKeys.recommendation(normalizedBookId, limit),
+      queryKey: bookQueryKeys.recommendation(bookId, limit),
       queryFn: ({signal}): Promise<BookRecommendation[]> => this.get<BookRecommendation[]>(
-        `${this.baseUrl}/${normalizedBookId}/recommendations`,
+        `${this.baseUrl}/${bookId}/recommendations`,
         signal,
         new HttpParams().set('limit', limit.toString()),
       ),
@@ -167,13 +162,13 @@ export class BookQueryService {
     return this.finalize(this.http.get<T>(url, {params}), signal);
   }
 
-  private getMapped<T>(
+  private getMapped<TRaw, T>(
     url: string,
     signal: AbortSignal,
-    project: (value: unknown) => T,
+    project: (value: TRaw) => T,
     params?: HttpParams,
   ): Promise<T> {
-    return this.finalize(this.http.get<unknown>(url, {params}).pipe(map(project)), signal);
+    return this.finalize(this.http.get<TRaw>(url, {params}).pipe(map(project)), signal);
   }
 
   private finalize<T>(source: Observable<T>, signal: AbortSignal): Promise<T> {

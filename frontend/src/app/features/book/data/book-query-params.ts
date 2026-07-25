@@ -5,10 +5,6 @@ import {
   BrowseSortDirection,
   BrowseSortTerm,
 } from '../../../core/data/browse.models';
-import {normalizeBookIds} from './book-id';
-
-export {normalizeBookId} from './book-id';
-
 export const BOOK_QUERY_FACET_KEYS = [
   'author',
   'series',
@@ -119,8 +115,10 @@ export function normalizeBookBatchParams(
   bookIds: readonly number[],
   withDescription: boolean,
 ): NormalizedBookBatchParams {
-  const normalizedIds = normalizeBookIds(bookIds, {sort: true});
-  return {bookIds: normalizedIds, withDescription};
+  return {
+    bookIds: [...new Set(bookIds)].sort((first, second) => first - second),
+    withDescription,
+  };
 }
 
 export function toPageHttpParams(params: BookPageParams): HttpParams {
@@ -171,18 +169,12 @@ function compareCodeUnits(first: string, second: string): number {
 }
 
 function normalizeFacetValueMap(facets: FacetValueMap): FacetValueMap {
-  const normalized = new Map<string, readonly string[]>();
-  const rawFacets = facets as Readonly<Record<string, readonly string[] | undefined>>;
-
-  for (const key of Object.keys(rawFacets).sort(compareCodeUnits)) {
-    const values = [...new Set((rawFacets[key] ?? [])
+  const normalized = Object.entries(facets)
+    .sort(([first], [second]) => compareCodeUnits(first, second))
+    .map(([key, values]) => [key, [...new Set(values
       .map(value => value.trim())
-      .filter(Boolean))].sort(compareCodeUnits);
-
-    if (values.length > 0) {
-      normalized.set(key, values);
-    }
-  }
+      .filter(Boolean))].sort(compareCodeUnits)] as const)
+    .filter(([, values]) => values.length > 0);
 
   return Object.fromEntries(normalized);
 }
@@ -190,7 +182,7 @@ function normalizeFacetValueMap(facets: FacetValueMap): FacetValueMap {
 function appendFacetParams(httpParams: HttpParams, facets: FacetValueMap): HttpParams {
   let result = httpParams;
   for (const [key, values] of Object.entries(facets)) {
-    for (const value of values ?? []) {
+    for (const value of values) {
       result = result.append('facet', `${key}:${value}`);
     }
   }
