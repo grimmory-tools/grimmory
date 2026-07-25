@@ -52,7 +52,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/settings.gradle*', 'backend/gradle.properties', 'backend/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle.lockfile', 'backend/settings.gradle*', 'backend/gradle.properties', 'backend/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
