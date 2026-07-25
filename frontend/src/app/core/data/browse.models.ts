@@ -39,3 +39,10 @@ export interface BrowseSortTerm<Key extends string = string> {
   key: Key;
   direction: BrowseSortDirection;
 }
+
+export function findBrowsePageLink(
+  page: BrowsePage<unknown>,
+  rel: string,
+): BrowseLink | undefined {
+  return page.links.find(link => link.rel.includes(rel));
+}

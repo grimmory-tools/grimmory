@@ -85,7 +85,6 @@ export interface BookQueryParams extends BookCollectionFilterParams {
 
 export interface BookPageParams extends BookQueryParams {
   size: number;
-  page?: number;
 }
 
 export interface BookDescriptionOptions {
@@ -113,7 +112,6 @@ export function normalizeBookPageParams(params: BookPageParams): BookPageParams 
   return {
     ...normalizeBookQueryParams(params),
     size: params.size,
-    page: params.page ?? 0,
   };
 }
 
@@ -125,10 +123,9 @@ export function normalizeBookBatchParams(
   return {bookIds: normalizedIds, withDescription};
 }
 
-export function toPageHttpParams(params: BookPageParams, cursor?: string): HttpParams {
-  const httpParams = appendSortParam(toCollectionHttpParams(params), params.sort)
+export function toPageHttpParams(params: BookPageParams): HttpParams {
+  return appendSortParam(toCollectionHttpParams(params), params.sort)
     .set('size', params.size.toString());
-  return cursor === undefined ? httpParams : httpParams.set('cursor', cursor);
 }
 
 export function toIdsHttpParams(params: BookQueryParams): HttpParams {

@@ -94,20 +94,6 @@ describe('book query parameters', () => {
     expect(params.get('sort')).toBe('seriesName,-seriesNumber');
     expect(params.get('size')).toBe('50');
     expect(params.has('page')).toBe(false);
-    expect(params.has('cursor')).toBe(false);
-  });
-
-  it('never serializes the frontend page number and appends a cursor only when supplied', () => {
-    const base = {
-      facets: {},
-      facetLogic: 'or',
-      sort: [{key: 'title', direction: 'asc'}],
-      size: 50,
-    } as const;
-
-    expect(toPageHttpParams(normalizeBookPageParams({...base, page: 7})).has('page')).toBe(false);
-    expect(toPageHttpParams(normalizeBookPageParams({...base, page: 7})).has('cursor')).toBe(false);
-    expect(toPageHttpParams(normalizeBookPageParams(base), 'opaque-token').get('cursor')).toBe('opaque-token');
   });
 
   it('excludes sort and size from facet requests', () => {

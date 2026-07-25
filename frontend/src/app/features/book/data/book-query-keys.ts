@@ -11,6 +11,9 @@ export const bookQueryKeys = {
   boundedPages: () => [...bookQueryKeys.collections(), 'page', 'bounded'] as const,
   boundedPage: (params: BookPageParams) =>
     [...bookQueryKeys.boundedPages(), params] as const,
+  infinitePages: () => [...bookQueryKeys.collections(), 'page', 'infinite'] as const,
+  infinitePage: (params: BookPageParams) =>
+    [...bookQueryKeys.infinitePages(), params] as const,
   facetQueries: () => [...bookQueryKeys.collections(), 'facets'] as const,
   facets: (params: BookCollectionFilterParams) =>
     [...bookQueryKeys.facetQueries(), params] as const,

@@ -1,13 +1,14 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {effect, inject, Injectable} from '@angular/core';
 import {
+  infiniteQueryOptions,
   queryOptions,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {withBrowseCursorOffset} from '../../../core/data/browse-cursor';
+import {findBrowsePageLink} from '../../../core/data/browse.models';
 import {mapBrowseFacetGroups, mapBrowsePage} from '../../../core/data/browse-response';
 import {bookQueryKeys} from './book-query-keys';
 import {
@@ -49,7 +50,19 @@ export class BookQueryService {
 
     return queryOptions({
       queryKey: bookQueryKeys.boundedPage(normalized),
-      queryFn: ({signal}) => this.fetchPage(normalized, signal),
+      queryFn: ({signal}) => this.fetchPage(normalized, null, signal),
+      ...BOOK_QUERY_DEFAULTS,
+    });
+  }
+
+  infinitePage(params: BookPageParams) {
+    const normalized = normalizeBookPageParams(params);
+
+    return infiniteQueryOptions({
+      queryKey: bookQueryKeys.infinitePage(normalized),
+      queryFn: ({pageParam, signal}) => this.fetchPage(normalized, pageParam, signal),
+      initialPageParam: null as string | null,
+      getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
       ...BOOK_QUERY_DEFAULTS,
     });
   }
@@ -129,23 +142,24 @@ export class BookQueryService {
     });
   }
 
-  private async fetchPage(params: BookPageParams, signal: AbortSignal): Promise<BookPage> {
-    const page = params.page ?? 0;
-    if (page === 0) {
+  private fetchPage(
+    params: BookPageParams,
+    nextHref: string | null,
+    signal: AbortSignal,
+  ): Promise<BookPage> {
+    if (nextHref !== null) {
       return this.getMapped(
-        `${this.baseUrl}/page`,
+        `${API_CONFIG.BASE_URL}${nextHref}`,
         signal,
         mapBrowsePage<BookSummary>,
-        toPageHttpParams(params),
       );
     }
 
-    const first = await this.queryClient.ensureQueryData(this.page({...params, page: 0}));
     return this.getMapped(
       `${this.baseUrl}/page`,
       signal,
       mapBrowsePage<BookSummary>,
-      toPageHttpParams(params, withBrowseCursorOffset(first.page.cursor, page * first.page.size)),
+      toPageHttpParams(params),
     );
   }
 

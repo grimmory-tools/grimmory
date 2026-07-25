@@ -1,7 +1,8 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {HttpTestingController} from '@angular/common/http/testing';
+import {Injectable, inject} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, expectTypeOf, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -26,10 +27,7 @@ const PARAMS: BookPageParams = {
   size: 20,
 };
 
-function page(
-  ids: number[],
-  links: BookPage['links'] = [],
-): BookPage {
+function page(ids: number[]): BookPage {
   return {
     content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
     page: {
@@ -37,24 +35,16 @@ function page(
       size: 20,
       totalElements: ids.length,
       totalPages: ids.length === 0 ? 0 : 1,
-      cursor: 'opaque-current-cursor',
+      cursor: 'opaque-cursor',
     },
-    links,
+    links: [],
   };
 }
 
-function pageWithCursor(ids: number[], cursor: string): BookPage {
-  const base = page(ids);
-  return {...base, page: {...base.page, cursor}};
-}
-
-function encodeCursor(state: Record<string, unknown>): string {
-  return btoa(JSON.stringify(state)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function decodeCursor(cursor: string): Record<string, unknown> {
-  const padded = cursor.replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(atob(padded + '='.repeat((4 - padded.length % 4) % 4))) as Record<string, unknown>;
+@Injectable()
+class InfiniteQueryHost {
+  private readonly books = inject(BookQueryService);
+  readonly query = injectInfiniteQuery(() => this.books.infinitePage(PARAMS));
 }
 
 describe('BookQueryService', () => {
@@ -74,6 +64,7 @@ describe('BookQueryService', () => {
         ...harness.providers,
         {provide: AuthService, useValue: authService},
         BookQueryService,
+        InfiniteQueryHost,
       ],
     });
 
@@ -156,46 +147,51 @@ describe('BookQueryService', () => {
     await expect(resultPromise).resolves.toEqual([3, 1, 2]);
   });
 
-  it('addresses a page beyond the first by patching the offset into the first-page cursor', async () => {
-    const template = encodeCursor({o: 0, l: 20, s: 'title', f: 'abc123'});
-    const resultPromise = queryClient.fetchQuery(service.page({...PARAMS, page: 3}));
+  it('follows the exact next href for an infinite query', async () => {
+    const host = TestBed.inject(InfiniteQueryHost);
+    TestBed.flushEffects();
 
     const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     expect(firstRequest.request.params.has('cursor')).toBe(false);
-    firstRequest.flush(pageWithCursor([1, 2], template));
+    firstRequest.flush({
+      ...page([1]),
+      links: [
+        {
+          rel: 'self',
+          href: '/api/v1/books/page?cursor=origin',
+          type: 'application/json',
+        },
+        {
+          rel: 'next',
+          href: '/api/v1/books/page?facet=genre%3AScience%20Fiction&cursor=opaque',
+          type: 'application/json',
+        },
+      ],
+    });
+    await vi.waitFor(() => expect(host.query.isSuccess()).toBe(true));
 
-    const secondRequest = await vi.waitFor(() => http.expectOne(candidate =>
-      candidate.url === `${API_CONFIG.BASE_URL}/api/v1/books/page` && candidate.params.has('cursor'),
-    ));
-    expect(decodeCursor(secondRequest.request.params.get('cursor') ?? ''))
-      .toEqual({o: 60, l: 20, s: 'title', f: 'abc123'});
-    expect(secondRequest.request.params.has('page')).toBe(false);
-    expect(secondRequest.request.params.get('query')).toBe('dune');
-    expect(secondRequest.request.params.get('sort')).toBe('title');
-    secondRequest.flush(page([61]));
+    const nextPromise = host.query.fetchNextPage();
+    const nextRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet=genre%3AScience%20Fiction&cursor=opaque`);
+    nextRequest.flush(page([2]));
+    const nextResult = await nextPromise;
 
-    await expect(resultPromise).resolves.toMatchObject({content: [{id: 61}]});
+    expect(nextResult.data?.pages.flatMap(current => current.content.map(book => book.id)))
+      .toEqual([1, 2]);
   });
 
-  it('reuses the cached first page as the cursor template without refetching it', async () => {
-    const template = encodeCursor({o: 0, l: 20, s: 'title', f: 'abc123'});
-    const firstPromise = queryClient.fetchQuery(service.page(PARAMS));
+  it('stops paging when the backend emits no next link', async () => {
+    const host = TestBed.inject(InfiniteQueryHost);
+    TestBed.flushEffects();
+
     http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
-      .flush(pageWithCursor([1, 2], template));
-    await firstPromise;
+      .flush(page([1]));
+    await vi.waitFor(() => expect(host.query.isSuccess()).toBe(true));
 
-    const laterPromise = queryClient.fetchQuery(service.page({...PARAMS, page: 2}));
-    const request = await vi.waitFor(() => http.expectOne(candidate =>
-      candidate.url === `${API_CONFIG.BASE_URL}/api/v1/books/page` && candidate.params.has('cursor'),
-    ));
-    expect(decodeCursor(request.request.params.get('cursor') ?? '')).toEqual({o: 40, l: 20, s: 'title', f: 'abc123'});
-    request.flush(page([41]));
-
-    await expect(laterPromise).resolves.toMatchObject({content: [{id: 41}]});
+    expect(host.query.hasNextPage()).toBe(false);
   });
 
-  it('keys the first page identically whether the page number is omitted or zero', () => {
-    expect(service.page(PARAMS).queryKey).toEqual(service.page({...PARAMS, page: 0}).queryKey);
+  it('keys an infinite query by its normalized parameters alone so the cache is shared', () => {
+    expect(service.infinitePage(PARAMS).queryKey).toEqual(service.infinitePage(PARAMS).queryKey);
   });
 
   it('fetches full book detail with the description flag', async () => {

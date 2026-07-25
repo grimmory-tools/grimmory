@@ -20,6 +20,7 @@ describe('book query keys', () => {
   it('roots every read under the unified book-query prefix', () => {
     const keys = [
       bookQueryKeys.boundedPage(page),
+      bookQueryKeys.infinitePage(page),
       bookQueryKeys.facets(normalizeBookCollectionFilterParams(query)),
       bookQueryKeys.ids(normalizeBookQueryParams(query)),
       bookQueryKeys.detail(12, true),
@@ -33,10 +34,10 @@ describe('book query keys', () => {
     }
   });
 
-  it('keeps the page number inside page identity', () => {
+  it('keeps bounded and infinite data shapes on different leaves', () => {
+    expect(bookQueryKeys.boundedPage(page)).not.toEqual(bookQueryKeys.infinitePage(page));
     expect(bookQueryKeys.boundedPage(page).at(-1)).toBe(page);
-    expect(bookQueryKeys.boundedPage(normalizeBookPageParams({...query, size: 20, page: 3})))
-      .not.toEqual(bookQueryKeys.boundedPage(page));
+    expect(bookQueryKeys.infinitePage(page).at(-1)).toBe(page);
   });
 
   it('keeps facet selection as part of query identity', () => {
