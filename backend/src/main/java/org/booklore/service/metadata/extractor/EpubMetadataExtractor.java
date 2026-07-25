@@ -92,13 +92,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         // Primary: use epub4j's CoverDetector with native lazy loading
         try {
             var coverImage = CoverDetector.detectCoverImage(epubFile.toPath());
-            if (coverImage != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                coverImage.writeTo(baos);
-                byte[] data = baos.toByteArray();
-                if (data.length > 0) {
-                    return data;
-                }
+            if (coverImage != null && coverImage.length > 0) {
+                return coverImage;
             }
         } catch (Exception e) {
             log.debug("epub4j cover detection failed for {}: {}", epubFile.getName(), e.getMessage());

@@ -5,6 +5,7 @@
  */
 package org.booklore.util.epub;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -12,6 +13,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+import org.grimmory.epub4j.archive.EpubContainer;
+import org.grimmory.epub4j.archive.EpubContainers;
 import org.grimmory.epub4j.domain.Book;
 import org.grimmory.epub4j.domain.MediaType;
 import org.grimmory.epub4j.domain.MediaTypes;
@@ -20,17 +24,8 @@ import org.grimmory.epub4j.domain.Resources;
 import org.grimmory.epub4j.domain.Spine;
 import org.grimmory.epub4j.epub.EpubReader;
 
-
-/**
- * Multi-strategy cover image detection for EPUB files. Tries multiple approaches in order of
- * reliability: 1. Already-set cover image (from OPF metadata or properties) 2. Image resource with
- * "cover" in filename 3. First image referenced in first spine item's HTML 4. Largest image
- * resource (likely a full-page cover)
- */
+@Slf4j
 public class CoverDetector {
-
-    private static final System.Logger log = System.getLogger(CoverDetector.class.getName());
-
     /** Minimum image size in bytes to consider as a potential cover (10KB). */
     private static final int MIN_COVER_SIZE = 10 * 1024;
 
@@ -40,52 +35,100 @@ public class CoverDetector {
             Pattern.compile(
                     "<image[^>]+(?:href|xlink:href)\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
 
-    public static Resource detectCoverImage(Book book) {
+    private static Resource detectCoverImageFallback(Path path) {
+        // Last resort: scan container for cover-like images
+        try (EpubContainer container = EpubContainers.open(path)) {
+            // Scan all files for cover-named images
+            for (String name : container.listAllFiles()) {
+                String lower = name.toLowerCase();
+                if (lower.contains("cover") && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
+                        lower.endsWith(".png") || lower.endsWith(".webp"))) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
+                    container.streamTo(name, baos);
+
+                    return new Resource(baos.toByteArray(), name);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Container cover search failed for {}: {}", path.getFileName().toString(), e.getMessage());
+        }
+
+        return null;
+    }
+
+    private static Resource detectCoverImageResource(Book book) {
         if (book.getCoverImage() != null) {
             return book.getCoverImage();
         }
 
-        Resource byId = findCoverById(book.getResources().getAll());
+        var resources = book.getResources().getAll();
+
+        Resource byId = findCoverById(resources);
         if (byId != null) {
-            log.log(System.Logger.Level.DEBUG, "Cover detected by resource id: " + byId.getHref());
+            log.debug("Cover detected by resource id: {}", byId.getHref());
             return byId;
         }
 
-        Resource byName = findCoverByName(book.getResources().getAll());
+        Resource byName = findCoverByName(resources);
         if (byName != null) {
-            log.log(System.Logger.Level.DEBUG, "Cover detected by filename: " + byName.getHref());
+            log.debug("Cover detected by filename: {}", byName.getHref());
             return byName;
         }
 
         Resource fromSpine = findCoverFromFirstSpineItem(book);
         if (fromSpine != null) {
-            log.log(
-                    System.Logger.Level.DEBUG,
-                    "Cover detected from first spine item: " + fromSpine.getHref());
+            log.debug("Cover detected from first spine item: {}", fromSpine.getHref());
             return fromSpine;
         }
 
-        Resource largest = findLargestImage(book.getResources().getAll());
+        Resource largest = findLargestImage(resources);
         if (largest != null) {
-            log.log(System.Logger.Level.DEBUG, "Cover detected as largest image: " + largest.getHref());
+            log.debug("Cover detected as largest image: {}", largest.getHref());
             return largest;
         }
 
-        Resource firstImage = findFirstManifestImage(book.getResources().getAll());
+        Resource firstImage = findFirstManifestImage(resources);
         if (firstImage != null) {
-            log.log(
-                    System.Logger.Level.DEBUG,
-                    "Cover detected as first manifest image: " + firstImage.getHref());
+            log.debug("Cover detected as first manifest image: {}", firstImage.getHref());
             return firstImage;
         }
 
         return null;
     }
 
-    public static Resource detectCoverImage(Path path) {
+    public static String detectCoverImagePath(Path path) {
         try {
             Book book = new EpubReader().readEpubLazy(path, "UTF-8");
-            return detectCoverImage(book);
+
+            Resource opfResource = book.getOpfResource();
+            String opfPath = opfResource != null ? opfResource.getHref() : "";
+            String rootPath = opfPath.contains("/") ? opfPath.substring(0, opfPath.lastIndexOf('/') + 1) : "";
+
+            var resource = detectCoverImageResource(book);
+
+            if (resource == null) {
+                // fallback is absolute
+                rootPath = "";
+                resource = detectCoverImageFallback(path);
+            }
+
+            return resource == null ? null : rootPath + resource.getHref();
+        } catch (IOException exception) {
+            return null;
+        }
+    }
+
+    public static byte[] detectCoverImage(Path path) {
+        try {
+            Book book = new EpubReader().readEpubLazy(path, "UTF-8");
+
+            var resource = detectCoverImageResource(book);
+
+            if (resource == null) {
+                resource = detectCoverImageFallback(path);
+            }
+
+            return resource == null ? null : resource.getData();
         } catch (IOException exception) {
             return null;
         }
@@ -192,9 +235,7 @@ public class CoverDetector {
                 if (resolved != null) return resolved;
             }
         } catch (IOException e) {
-            log.log(
-                    System.Logger.Level.DEBUG,
-                    "Failed to read first spine item for cover detection: " + e.getMessage());
+            log.debug("Failed to read first spine item for cover detection: {}", e.getMessage());
         }
 
         return null;
