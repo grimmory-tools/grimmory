@@ -57,7 +57,7 @@ export interface BookShelfSort {
 }
 
 export interface BookShelf {
-  id?: number;
+  id: number;
   name: string;
   icon?: string;
   iconType?: BookShelfIconType;
