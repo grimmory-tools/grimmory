@@ -308,7 +308,7 @@ public class RanobeDbParser implements BookParser {
 
                 RanobedbBookResponse.Release release = book.getReleases().stream()
                         .filter(Objects::nonNull)
-                        .min(Comparator.comparingInt(r -> "en".equalsIgnoreCase(r.getLang()) ? 1 : -1))
+                        .max(Comparator.comparingInt(r -> "en".equalsIgnoreCase(r.getLang()) ? 1 : -1))
                         .orElse(null);
 
                 String bookLang = release != null ? release.getLang() : book.getLang();
