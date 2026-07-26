@@ -54,13 +54,11 @@ public class KepubConversionService {
     );
 
     private final EpubReader epubReader;
-    private final EpubWriter epubWriter;
     private final KepubHtmlConversionService kepubHtmlConversionService;
 
     public KepubConversionService() {
         this(
                 new EpubReader(),
-                new EpubWriter(),
                 new KepubHtmlConversionService()
         );
     }
@@ -229,7 +227,12 @@ public class KepubConversionService {
         return kepub;
     }
 
-    public void convertEpubToKepub(InputStream inputStream, OutputStream outputStream, boolean forceEnableHyphenation) throws IOException {
+    public void convertEpubToKepub(
+            InputStream inputStream,
+            OutputStream outputStream,
+            boolean forceEnableHyphenation,
+            EpubWriter epubWriter
+    ) throws IOException {
         Book originalBook = epubReader.readEpub(inputStream);
 
         Book kepubBook = convertBookToKepub(originalBook, forceEnableHyphenation);
@@ -237,12 +240,21 @@ public class KepubConversionService {
         epubWriter.write(kepubBook, outputStream);
     }
 
+    public void convertEpubToKepub(InputStream inputStream, OutputStream outputStream, boolean forceEnableHyphenation) throws IOException {
+        convertEpubToKepub(inputStream, outputStream, forceEnableHyphenation, new EpubWriter());
+    }
+
     private void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
         validateInputs(inputPath);
 
         try (var inputStream = Files.newInputStream(inputPath)) {
             try (var outputStream = Files.newOutputStream(outputPath)) {
-                convertEpubToKepub(inputStream, outputStream, forceEnableHyphenation);
+                convertEpubToKepub(
+                        inputStream,
+                        outputStream,
+                        forceEnableHyphenation,
+                        new EpubWriter()
+                );
             }
         }
 
