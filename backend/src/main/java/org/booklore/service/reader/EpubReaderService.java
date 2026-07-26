@@ -13,7 +13,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.ArchiveService;
 import org.booklore.util.FileUtils;
-import org.booklore.util.epub.CoverDetector;
+import org.booklore.util.epub.CoverDetectorService;
 import org.grimmory.epub4j.domain.*;
 import org.grimmory.epub4j.epub.EpubReader;
 import org.springframework.stereotype.Service;
@@ -69,6 +69,7 @@ public class EpubReaderService {
     );
 
     private final BookRepository bookRepository;
+    private final CoverDetectorService coverDetectorService;
     private final Cache<String, CachedEpubMetadata> metadataCache = Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
@@ -207,7 +208,7 @@ public class EpubReaderService {
 
     private CachedEpubMetadata parseEpubMetadata(Path epubPath, long lastModified) throws IOException {
         try {
-            String coverPath = CoverDetector.detectCoverImagePath(epubPath);
+            String coverPath = coverDetectorService.detectCoverImagePath(epubPath);
 
             Book book = new EpubReader().readEpubLazy(epubPath, "UTF-8");
 

@@ -5,7 +5,6 @@
  */
 package org.booklore.util.epub;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -13,9 +12,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.grimmory.epub4j.archive.EpubContainer;
-import org.grimmory.epub4j.archive.EpubContainers;
+import org.booklore.service.ArchiveService;
 import org.grimmory.epub4j.domain.Book;
 import org.grimmory.epub4j.domain.MediaType;
 import org.grimmory.epub4j.domain.MediaTypes;
@@ -23,9 +22,12 @@ import org.grimmory.epub4j.domain.Resource;
 import org.grimmory.epub4j.domain.Resources;
 import org.grimmory.epub4j.domain.Spine;
 import org.grimmory.epub4j.epub.EpubReader;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-public class CoverDetector {
+@Service
+@RequiredArgsConstructor
+public class CoverDetectorService {
     /** Minimum image size in bytes to consider as a potential cover (10KB). */
     private static final int MIN_COVER_SIZE = 10 * 1024;
 
@@ -35,18 +37,19 @@ public class CoverDetector {
             Pattern.compile(
                     "<image[^>]+(?:href|xlink:href)\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
 
-    private static Resource detectCoverImageFallback(Path path) {
+    private final ArchiveService archiveService;
+
+    private Resource detectCoverImageFallback(Path path) {
         // Last resort: scan container for cover-like images
-        try (EpubContainer container = EpubContainers.open(path)) {
-            // Scan all files for cover-named images
-            for (String name : container.listAllFiles()) {
-                String lower = name.toLowerCase();
+        try {
+            for (var entryName : archiveService.getEntryNames(path)) {
+                String lower = entryName.toLowerCase();
                 if (lower.contains("cover") && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
                         lower.endsWith(".png") || lower.endsWith(".webp"))) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream(4096);
-                    container.streamTo(name, baos);
-
-                    return new Resource(baos.toByteArray(), name);
+                    return new Resource(
+                            archiveService.getEntryBytes(path, entryName),
+                            collapsePath(entryName)
+                    );
                 }
             }
         } catch (Exception e) {
@@ -56,7 +59,7 @@ public class CoverDetector {
         return null;
     }
 
-    private static Resource detectCoverImageResource(Book book) {
+    private Resource detectCoverImageResource(Book book) {
         if (book.getCoverImage() != null) {
             return book.getCoverImage();
         }
@@ -96,7 +99,7 @@ public class CoverDetector {
         return null;
     }
 
-    public static String detectCoverImagePath(Path path) {
+    public String detectCoverImagePath(Path path) {
         try {
             Book book = new EpubReader().readEpubLazy(path, "UTF-8");
 
@@ -113,12 +116,14 @@ public class CoverDetector {
             }
 
             return resource == null ? null : rootPath + resource.getHref();
-        } catch (IOException exception) {
-            return null;
+        } catch (IOException e) {
+            log.debug("Failed to read epub for cover detection: {}", e.getMessage());
         }
+
+        return null;
     }
 
-    public static byte[] detectCoverImage(Path path) {
+    public byte[] detectCoverImage(Path path) {
         try {
             Book book = new EpubReader().readEpubLazy(path, "UTF-8");
 
@@ -129,16 +134,18 @@ public class CoverDetector {
             }
 
             return resource == null ? null : resource.getData();
-        } catch (IOException exception) {
-            return null;
+        } catch (IOException e) {
+            log.debug("Failed to read epub for cover detection: {}", e.getMessage());
         }
+
+        return null;
     }
 
     /**
      * Find an image resource whose id contains "cover" (case-insensitive). Matches id patterns like
      * "cover-image", "cover", "coverimg" that OPF generators commonly use.
      */
-    private static Resource findCoverById(Collection<Resource> resources) {
+    private Resource findCoverById(Collection<Resource> resources) {
         for (Resource resource : resources) {
             if (!isImageResource(resource)) continue;
             String id = resource.getId();
@@ -153,7 +160,7 @@ public class CoverDetector {
      * Returns the first image resource found in the manifest. Last-resort fallback when all other
      * strategies fail.
      */
-    private static Resource findFirstManifestImage(Collection<Resource> resources) {
+    private Resource findFirstManifestImage(Collection<Resource> resources) {
         for (Resource resource : resources) {
             if (isImageResource(resource) && resource.getSize() >= MIN_COVER_SIZE) {
                 return resource;
@@ -166,7 +173,7 @@ public class CoverDetector {
      * Find an image resource whose filename contains "cover" (case-insensitive). Prioritizes exact
      * matches like "cover.jpg" over partial matches like "discover.png".
      */
-    private static Resource findCoverByName(Collection<Resource> resources) {
+    private Resource findCoverByName(Collection<Resource> resources) {
         Resource exactMatch = null;
         Resource partialMatch = null;
 
@@ -200,7 +207,7 @@ public class CoverDetector {
      * Look at the first spine item's XHTML content and find the first referenced image. This works
      * for EPUBs where the first page is a cover page containing an img tag.
      */
-    private static Resource findCoverFromFirstSpineItem(Book book) {
+    private Resource findCoverFromFirstSpineItem(Book book) {
         Spine spine = book.getSpine();
         if (spine.isEmpty()) return null;
 
@@ -242,7 +249,7 @@ public class CoverDetector {
     }
 
     /** Resolve an image reference relative to a base path and look it up in resources. */
-    private static Resource resolveImageRef(Resources resources, String basePath, String imgSrc) {
+    private Resource resolveImageRef(Resources resources, String basePath, String imgSrc) {
         if (imgSrc == null || imgSrc.isBlank()) return null;
 
         int hashPos = imgSrc.indexOf('#');
@@ -258,7 +265,7 @@ public class CoverDetector {
         resource = resources.getByHref(resolved);
         if (resource != null) return resource;
 
-        if (resolved.contains("..") || resolved.contains("./")) {
+        if (resolved.contains("..") || resolved.contains("./") || resolved.startsWith("/")) {
             resolved = collapsePath(resolved);
             resource = resources.getByHref(resolved);
             return resource;
@@ -271,7 +278,7 @@ public class CoverDetector {
      * Find the largest image resource by data size. Only considers images above the minimum size
      * threshold.
      */
-    private static Resource findLargestImage(Collection<Resource> resources) {
+    private Resource findLargestImage(Collection<Resource> resources) {
         Resource largest = null;
         long largestSize = MIN_COVER_SIZE; // reject images below this as unlikely covers
 
@@ -288,16 +295,17 @@ public class CoverDetector {
         return largest;
     }
 
-    private static boolean isImageResource(Resource resource) {
+    private boolean isImageResource(Resource resource) {
         MediaType mt = resource.getMediaType();
         return mt == MediaTypes.JPG
                 || mt == MediaTypes.PNG
                 || mt == MediaTypes.GIF
-                || mt == MediaTypes.SVG;
+                || mt == MediaTypes.SVG
+                || mt == MediaTypes.WEBP;
     }
 
     /** Collapse ".." and "." segments in a path. */
-    private static String collapsePath(String path) {
+    private String collapsePath(String path) {
         String[] parts = path.split("/");
         Deque<String> stack = new ArrayDeque<>();
         for (String part : parts) {

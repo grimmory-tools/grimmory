@@ -1,6 +1,7 @@
 package org.booklore.service.metadata.extractor;
 
-import org.booklore.util.epub.CoverDetector;
+import lombok.RequiredArgsConstructor;
+import org.booklore.util.epub.CoverDetectorService;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -36,6 +37,7 @@ import java.util.function.IntConsumer;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     private static final Pattern YEAR_ONLY_PATTERN = Pattern.compile("^\\d{4}$");
@@ -46,10 +48,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
 
     private final ObjectMapper objectMapper;
-
-    public EpubMetadataExtractor(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    private final CoverDetectorService coverDetectorService;
 
     private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_IDENTIFIER_PREFIXES = Map.of(
             "amazon", BookMetadata.BookMetadataBuilder::asin,
@@ -88,7 +87,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     @Override
     public byte[] extractCover(File epubFile) {
         try {
-            var coverImage = CoverDetector.detectCoverImage(epubFile.toPath());
+            var coverImage = coverDetectorService.detectCoverImage(epubFile.toPath());
             if (coverImage != null && coverImage.length > 0) {
                 return coverImage;
             }

@@ -1,15 +1,20 @@
 package org.booklore.service.metadata.extractor;
 
 import org.booklore.model.dto.BookMetadata;
-import org.junit.jupiter.api.BeforeEach;
+import org.booklore.util.epub.CoverDetectorService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,17 +28,20 @@ import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EpubMetadataExtractorTest {
 
+@ExtendWith(MockitoExtension.class)
+class EpubMetadataExtractorTest {
+    @Mock
+    CoverDetectorService coverDetectorService;
+
+    @Spy
+    private ObjectMapper objectMapper = JsonMapper.shared();
+
+    @InjectMocks
     private EpubMetadataExtractor extractor;
 
     @TempDir
     Path tempDir;
-
-    @BeforeEach
-    void setUp() {
-        extractor = new EpubMetadataExtractor(new ObjectMapper());
-    }
 
     private File createEpub(String opfContent) throws IOException {
         return createEpub(opfContent, "OEBPS/content.opf", null);
@@ -996,246 +1004,6 @@ class EpubMetadataExtractorTest {
     }
 
     @Nested
-    class CoverExtraction {
-
-        @Test
-        void extractsCoverViaCoverImageProperty() throws IOException {
-            byte[] coverBytes = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x01, 0x02, 0x03};
-            String opf = wrapOpf("", """
-                    <item id="cover" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
-                    """);
-            File epub = createEpub(opf, "OEBPS/content.opf", coverBytes);
-            byte[] result = extractor.extractCover(epub);
-
-            assertThat(result).isEqualTo(coverBytes);
-        }
-
-        @Test
-        void extractsCoverByHeuristicManifestSearch() throws IOException {
-            byte[] coverBytes = new byte[]{0x01, 0x02, 0x03, 0x04};
-            String opf = wrapOpf("", """
-                    <item id="cover-img" href="images/cover.jpg" media-type="image/jpeg"/>
-                    """);
-            File epub = createEpub(opf, "OEBPS/content.opf", coverBytes);
-            byte[] result = extractor.extractCover(epub);
-
-            assertThat(result).isEqualTo(coverBytes);
-        }
-
-        @Test
-        void extractsCoverByZipHeuristic() throws IOException {
-            byte[] coverBytes = new byte[]{0x10, 0x20, 0x30};
-            File epub = tempDir.resolve("cover_zip.epub").toFile();
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
-                zos.putNextEntry(new ZipEntry("mimetype"));
-                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String containerXml = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-                          <rootfiles>
-                            <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
-                          </rootfiles>
-                        </container>""";
-                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
-                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String opf = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
-                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"/>
-                          <manifest>
-                            <item id="text" href="chapter1.html" media-type="application/xhtml+xml"/>
-                          </manifest>
-                        </package>""";
-                zos.putNextEntry(new ZipEntry("content.opf"));
-                zos.write(opf.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("images/cover.jpg"));
-                zos.write(coverBytes);
-                zos.closeEntry();
-            }
-
-            byte[] result = extractor.extractCover(epub);
-            assertThat(result).isEqualTo(coverBytes);
-        }
-
-        @Test
-        void returnsNullForEpubWithNoCover() throws IOException {
-            File epub = tempDir.resolve("nocover.epub").toFile();
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
-                zos.putNextEntry(new ZipEntry("mimetype"));
-                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String containerXml = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-                          <rootfiles>
-                            <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
-                          </rootfiles>
-                        </container>""";
-                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
-                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String opf = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
-                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-                            <dc:title>No Cover Book</dc:title>
-                          </metadata>
-                          <manifest>
-                            <item id="text" href="chapter1.html" media-type="application/xhtml+xml"/>
-                          </manifest>
-                        </package>""";
-                zos.putNextEntry(new ZipEntry("content.opf"));
-                zos.write(opf.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-            }
-
-            byte[] result = extractor.extractCover(epub);
-            assertThat(result).isNull();
-        }
-    }
-
-    @Nested
-    class PathResolution {
-
-        @Test
-        void resolvesCoverWithParentDirectorySegments() throws IOException {
-            byte[] coverBytes = new byte[]{0x01, 0x02};
-            File epub = tempDir.resolve("pathtest.epub").toFile();
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
-                zos.putNextEntry(new ZipEntry("mimetype"));
-                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String containerXml = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-                          <rootfiles>
-                            <rootfile full-path="OEBPS/subdir/content.opf" media-type="application/oebps-package+xml"/>
-                          </rootfiles>
-                        </container>""";
-                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
-                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String opf = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
-                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-                            <dc:title>Path Test</dc:title>
-                          </metadata>
-                          <manifest>
-                            <item id="cover" href="../images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
-                          </manifest>
-                        </package>""";
-                zos.putNextEntry(new ZipEntry("OEBPS/subdir/content.opf"));
-                zos.write(opf.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("OEBPS/images/cover.jpg"));
-                zos.write(coverBytes);
-                zos.closeEntry();
-            }
-
-            byte[] result = extractor.extractCover(epub);
-            assertThat(result).isEqualTo(coverBytes);
-        }
-
-        @Test
-        void resolvesAbsoluteHrefInZip() throws IOException {
-            byte[] coverBytes = new byte[]{0x0A, 0x0B};
-            File epub = tempDir.resolve("abstest.epub").toFile();
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
-                zos.putNextEntry(new ZipEntry("mimetype"));
-                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String containerXml = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-                          <rootfiles>
-                            <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
-                          </rootfiles>
-                        </container>""";
-                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
-                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String opf = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
-                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-                            <dc:title>Abs Test</dc:title>
-                          </metadata>
-                          <manifest>
-                            <item id="cover" href="/images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
-                          </manifest>
-                        </package>""";
-                zos.putNextEntry(new ZipEntry("OEBPS/content.opf"));
-                zos.write(opf.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("images/cover.jpg"));
-                zos.write(coverBytes);
-                zos.closeEntry();
-            }
-
-            byte[] result = extractor.extractCover(epub);
-            assertThat(result).isEqualTo(coverBytes);
-        }
-
-        @Test
-        void resolvesDotSegmentsInHref() throws IOException {
-            byte[] coverBytes = new byte[]{0x0C};
-            File epub = tempDir.resolve("dottest.epub").toFile();
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
-                zos.putNextEntry(new ZipEntry("mimetype"));
-                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String containerXml = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-                          <rootfiles>
-                            <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
-                          </rootfiles>
-                        </container>""";
-                zos.putNextEntry(new ZipEntry("META-INF/container.xml"));
-                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                String opf = """
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
-                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-                            <dc:title>Dot Test</dc:title>
-                          </metadata>
-                          <manifest>
-                            <item id="cover" href="./images/../images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
-                          </manifest>
-                        </package>""";
-                zos.putNextEntry(new ZipEntry("OEBPS/content.opf"));
-                zos.write(opf.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("OEBPS/images/cover.jpg"));
-                zos.write(coverBytes);
-                zos.closeEntry();
-            }
-
-            byte[] result = extractor.extractCover(epub);
-            assertThat(result).isEqualTo(coverBytes);
-        }
-    }
-
-    @Nested
     class OpfAtRootLevel {
 
         @Test
@@ -1363,7 +1131,6 @@ class EpubMetadataExtractorTest {
         void nonExistentFileReturnsNull() {
             File nonExistent = new File(tempDir.toFile(), "nonexistent.epub");
             assertThat(extractor.extractMetadata(nonExistent)).isNull();
-            assertThat(extractor.extractCover(nonExistent)).isNull();
         }
 
         @Test
@@ -1373,7 +1140,6 @@ class EpubMetadataExtractorTest {
                 fos.write(new byte[]{0x00, 0x01, 0x02, 0x03});
             }
             assertThat(extractor.extractMetadata(corrupt)).isNull();
-            assertThat(extractor.extractCover(corrupt)).isNull();
         }
 
         @Test
