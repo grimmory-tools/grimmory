@@ -44,7 +44,8 @@ class KepubConversionServiceTest {
         kepubConversionService.convertEpubToKepub(
                 InputStream.nullInputStream(),
                 OutputStream.nullOutputStream(),
-                true
+                true,
+                epubWriter
         );
     }
 
@@ -61,7 +62,8 @@ class KepubConversionServiceTest {
         kepubConversionService.convertEpubToKepub(
                 InputStream.nullInputStream(),
                 OutputStream.nullOutputStream(),
-                true
+                true,
+                epubWriter
         );
 
         ArgumentCaptor<Book> actualBook = ArgumentCaptor.forClass(Book.class);
@@ -98,7 +100,8 @@ class KepubConversionServiceTest {
         kepubConversionService.convertEpubToKepub(
                 InputStream.nullInputStream(),
                 OutputStream.nullOutputStream(),
-                true
+                true,
+                epubWriter
         );
 
         ArgumentCaptor<ByteArrayInputStream> actualHtml = ArgumentCaptor.forClass(ByteArrayInputStream.class);
