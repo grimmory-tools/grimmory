@@ -5,7 +5,6 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,7 +19,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -89,14 +88,13 @@ class RanobeDbParserTest {
         List<BookMetadata> results = parser.fetchMetadata(book, request);
 
         // Then
-        assertNotNull(results);
-        assertTrue(results.isEmpty(), "Should return empty list when query is empty");
+        assertThat(results).withFailMessage("Should return empty list when query is empty").isEmpty();
     }
 
     @Test
     void testFetchMetadata_Integration_RealBook() throws Exception {
         mockResponse("/books", 200, readFixture("books.json"));
-        mockResponse("/book/", 200, readFixture("book.json"));
+        mockResponse("/book/47136", 200, readFixture("book.json"));
         mockResponse("/staff", 200, readFixture("staff.json"));
 
         // Given
@@ -113,13 +111,37 @@ class RanobeDbParserTest {
         List<BookMetadata> results = parser.fetchMetadata(book, request);
 
         // Then
-        assertNotNull(results);
-        assertFalse(results.isEmpty(), "Should return results for real book");
+        assertThat(results).withFailMessage("Should return results for real book").isNotEmpty();
 
         BookMetadata firstResult = results.getFirst();
-        assertNotNull(firstResult.getTitle(), "Title should be present");
-        assertNotNull(firstResult.getRanobedbId(), "RanobeDB ID should be present");
-        assertTrue(firstResult.getAuthors() != null && !firstResult.getAuthors().isEmpty(),
-            "Authors should be present");
+        assertThat(firstResult.getTitle()).withFailMessage("Title should be present").isNotNull();
+        assertThat(firstResult.getRanobedbId()).withFailMessage("RanobeDB ID should be present").isNotNull();
+
+        var authors = firstResult.getAuthors();
+        assertThat(authors).withFailMessage("Authors should be present").isNotEmpty();
+    }
+
+    @Test
+    void testFetchMetadata_PrioritizesReleaseLanguage() throws Exception {
+        mockResponse("/books", 200, readFixture("books.json"));
+        mockResponse("/book/47136", 200, readFixture("book.json"));
+        mockResponse("/staff", 200, readFixture("staff.json"));
+
+        // Given
+        Book book = Book.builder()
+                .title("Example")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("Example")
+                .author("Example")
+                .build();
+
+        // When
+        BookMetadata metadata = parser.fetchTopMetadata(book, request);
+
+        // Then
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getTitle()).isEqualTo("Rascal Does Not Dream of a Beach Queen +");
     }
 }
