@@ -31,4 +31,10 @@ public class OpdsUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
+
+    @Override
+    public boolean isEnabled() {
+        BookLoreUser.UserPermissions permissions = user.getPermissions();
+        return permissions.isAdmin() || permissions.isCanAccessOpds();
+    }
 }

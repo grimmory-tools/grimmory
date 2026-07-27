@@ -75,11 +75,6 @@ public class OpdsBookService {
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
-        if (entity.getPermissions() == null ||
-                (!entity.getPermissions().isPermissionAccessOpds() && !entity.getPermissions().isPermissionAdmin())) {
-            throw ApiError.FORBIDDEN.createException("You are not allowed to access this resource");
-        }
-
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
         boolean isAdmin = user.getPermissions().isAdmin();
         Set<Long> userLibraryIds = getAccessibleLibraries(userId).stream().map(Library::getId).collect(Collectors.toSet());
