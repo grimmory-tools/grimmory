@@ -39,6 +39,18 @@ class KepubHtmlConversionServiceTest {
     }
 
     @Test
+    void transform_ShouldWrapMultipleImages() {
+        String actual = service.transform("<html><body><p>Hello World.<img><img /></p></body></html>", false);
+
+        assertThat(actual).contains(
+                "<span id=\"kobo.2\" class=\"koboSpan\"><img /></span>"
+        );
+        assertThat(actual).contains(
+                "<span id=\"kobo.3\" class=\"koboSpan\"><img /></span>"
+        );
+    }
+
+    @Test
     void transform_ShouldIncludeCSSHacks() {
         String actual = service.transform("<html><body><p>Hello World.</p></body></html>", false);
 
@@ -57,6 +69,18 @@ class KepubHtmlConversionServiceTest {
         String actual = service.transform("<html><body><svg></svg></body></html>", false);
 
         assertThat(actual).contains("<svg xmlns=\"http://www.w3.org/2000/svg\"");
+    }
+
+    @Test
+    void transform_ShouldNotWrapSVGChildren() {
+        String actual = service.transform("<html><body><svg><text>Example</text></svg></body></html>", false);
+
+        assertThat(actual).matches(
+                Pattern.compile(
+                        ".*<svg[^<>]+>\\s*<text>\\s*Example\\s*</text>.*",
+                        Pattern.MULTILINE | Pattern.DOTALL
+                )
+        );
     }
 
     @Test
@@ -79,6 +103,16 @@ class KepubHtmlConversionServiceTest {
         String actual = service.transform(
                 "<html><body><span name=\"Adept.expected.resource\">Remove</span>" +
                         "<span name=\"Adept.expected.resource\">Remove</span></body></html>",
+                false
+        );
+
+        assertThat(actual).doesNotContain("Remove");
+    }
+
+    @Test
+    void transform_ShouldHandleEmptyDocuments() {
+        String actual = service.transform(
+                "<html><body></body></html>",
                 false
         );
 
