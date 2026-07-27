@@ -3,6 +3,7 @@ package org.booklore.service.kobo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.util.SecureXmlUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.grimmory.epub4j.domain.Book;
 import org.grimmory.epub4j.domain.MediaTypes;
@@ -56,10 +57,11 @@ public class KepubConversionService {
     private final EpubReader epubReader;
     private final KepubHtmlConversionService kepubHtmlConversionService;
 
-    public KepubConversionService() {
+    @Autowired
+    public KepubConversionService(KepubHtmlConversionService kepubHtmlConversionService) {
         this(
                 new EpubReader(),
-                new KepubHtmlConversionService()
+                kepubHtmlConversionService
         );
     }
 
@@ -263,7 +265,7 @@ public class KepubConversionService {
     }
 
     public File convertEpubToKepub(File epubFile, File tempDir, boolean forceEnableHyphenation) throws IOException {
-        var outputPath = Files.createTempFile(tempDir.getPath(), ".kepub.epub");
+        var outputPath = Files.createTempFile(tempDir.toPath(), "grimmory", ".kepub.epub");
         convertEpubToKepub(epubFile.toPath(), outputPath, forceEnableHyphenation);
         return outputPath.toFile();
     }
