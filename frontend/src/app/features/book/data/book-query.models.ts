@@ -9,5 +9,13 @@ export type BookFacetGroup = BrowseFacetGroup;
 export function flattenBookPages(
   data: InfiniteData<BookPage> | undefined,
 ): BookSummary[] {
-  return data?.pages.flatMap(page => page.content) ?? [];
+  const books = data?.pages.flatMap(page => page.content) ?? [];
+  const seen = new Set<number>();
+  return books.filter(book => {
+    if (seen.has(book.id)) {
+      return false;
+    }
+    seen.add(book.id);
+    return true;
+  });
 }
