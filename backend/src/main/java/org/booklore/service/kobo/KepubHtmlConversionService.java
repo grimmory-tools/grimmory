@@ -3,10 +3,8 @@ package org.booklore.service.kobo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Entities;
-import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.*;
+import org.jsoup.select.NodeFilter;
 import org.springframework.stereotype.Service;
 import javax.xml.transform.*;
 import java.io.*;
@@ -149,57 +147,60 @@ public class KepubHtmlConversionService {
         // Also wrap each image
         AtomicInteger koboSpanIndex = new AtomicInteger();
 
-        var nodeIterator = document.body().nodeStream().iterator();
-        while (nodeIterator.hasNext()) {
-            var node = nodeIterator.next();
+        document.body()
+                .filter(
+                        (node, depth) -> {
+                            var parent = node.parentElement();
 
-            var parent = node.parentElement();
+                            if (parent == null) {
+                                // Node is not in the DOM or does not have parent.
+                                // Cannot operate on it.
+                                return NodeFilter.FilterResult.CONTINUE;
+                            }
 
-            if (parent == null) {
-                // Node is not in the DOM or does not have parent.
-                // Cannot operate on it.
-                continue;
-            }
+                            if ("span".equals(parent.tagName()) && parent.hasClass(CLASSNAME_KOBO_SPAN)) {
+                                // The iterator will pick up the koboSpan we're adding
+                                return NodeFilter.FilterResult.SKIP_ENTIRELY;
+                            }
 
-            if ("span".equals(parent.tagName()) && parent.hasClass(CLASSNAME_KOBO_SPAN)) {
-                // The iterator will pick up the koboSpan we're adding
-                continue;
-            }
+                            if (node instanceof TextNode textNode) {
+                                if (textNode.isBlank()) {
+                                    return NodeFilter.FilterResult.CONTINUE;
+                                }
 
-            if (node instanceof TextNode textNode) {
-                if (textNode.isBlank()) {
-                    continue;
-                }
+                                var koboSpans = getSentences(textNode.text())
+                                        .map(sentence -> {
+                                            var koboSpan = document.createElement("span");
+                                            koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
+                                            koboSpan.addClass(CLASSNAME_KOBO_SPAN);
+                                            koboSpan.text(sentence);
+                                            return koboSpan;
+                                        })
+                                        .toList();
 
-                var koboSpans = getSentences(textNode.text())
-                        .map(sentence -> {
-                            var koboSpan = document.createElement("span");
-                            koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
-                            koboSpan.addClass(CLASSNAME_KOBO_SPAN);
-                            koboSpan.text(sentence);
-                            return koboSpan;
-                        })
-                        .toList();
+                                for (var span : koboSpans) {
+                                    textNode.before(span);
+                                }
 
-                for (var span : koboSpans) {
-                    textNode.before(span);
-                }
+                                return NodeFilter.FilterResult.REMOVE;
+                            }
 
-                textNode.remove();
-            }
+                            if (node instanceof Element element) {
+                                if ("img".equals(element.tagName()) || "svg".equals(element.tagName())) {
+                                    var koboSpan = document.createElement("span");
+                                    koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
+                                    koboSpan.addClass(CLASSNAME_KOBO_SPAN);
 
+                                    element.before(koboSpan);
+                                    koboSpan.appendChild(element);
 
-            if (node instanceof Element element) {
-                if ("img".equals(element.tagName()) || "svg".equals(element.tagName())) {
-                    var koboSpan = document.createElement("span");
-                    koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
-                    koboSpan.addClass(CLASSNAME_KOBO_SPAN);
+                                    return NodeFilter.FilterResult.SKIP_ENTIRELY;
+                                }
+                            }
 
-                    element.before(koboSpan);
-                    koboSpan.appendChild(element);
-                }
-            }
-        }
+                            return NodeFilter.FilterResult.CONTINUE;
+                        }
+                );
     }
 
     private void transformContentAddStyles(Document document, boolean forceEnableHyphenation) {
