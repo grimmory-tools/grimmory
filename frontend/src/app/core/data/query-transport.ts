@@ -1,16 +1,16 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
-export function retryTransientBookQueryError(failureCount: number, error: unknown): boolean {
+export function retryTransientQueryError(failureCount: number, error: unknown): boolean {
   if (failureCount >= 2) {
     return false;
   }
   return error instanceof HttpErrorResponse && (error.status === 0 || error.status >= 500);
 }
 
-export const BOOK_QUERY_DEFAULTS = {
+export const QUERY_DEFAULTS = {
   staleTime: 30_000,
-  retry: retryTransientBookQueryError,
+  retry: retryTransientQueryError,
 } as const;
 
 export function abortSignal(signal: AbortSignal): Observable<void> {

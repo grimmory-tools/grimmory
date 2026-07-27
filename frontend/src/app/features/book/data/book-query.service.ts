@@ -25,7 +25,7 @@ import {
 } from './book-query-params';
 import {BookFacetGroup, BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
-import {abortSignal, BOOK_QUERY_DEFAULTS} from './book-query-transport';
+import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
 @Injectable({providedIn: 'root'})
@@ -49,7 +49,7 @@ export class BookQueryService {
     return queryOptions({
       queryKey: bookQueryKeys.boundedPage(normalized),
       queryFn: ({signal}) => this.fetchPage(normalized, null, signal),
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
     });
   }
 
@@ -61,7 +61,7 @@ export class BookQueryService {
       queryFn: ({pageParam, signal}) => this.fetchPage(normalized, pageParam, signal),
       initialPageParam: null as string | null,
       getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
     });
   }
 
@@ -76,7 +76,7 @@ export class BookQueryService {
         mapBrowseFacetGroups,
         toCollectionHttpParams(normalized),
       ),
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
     });
   }
 
@@ -90,7 +90,7 @@ export class BookQueryService {
         signal,
         toIdsHttpParams(normalized),
       ),
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
       staleTime: 0,
       gcTime: 0,
     });
@@ -104,7 +104,7 @@ export class BookQueryService {
         signal,
         new HttpParams().set('withDescription', withDescription.toString()),
       ),
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
     });
   }
 
@@ -116,7 +116,7 @@ export class BookQueryService {
         signal,
         new HttpParams().set('limit', limit.toString()),
       ),
-      ...BOOK_QUERY_DEFAULTS,
+      ...QUERY_DEFAULTS,
     });
   }
 

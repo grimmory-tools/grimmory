@@ -16,7 +16,7 @@ import {bookQueryKeys} from './book-query-keys';
 import {BookPageParams} from './book-query-params';
 import {BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation} from './book-response.models';
-import {retryTransientBookQueryError} from './book-query-transport';
+import {retryTransientQueryError} from '../../../core/data/query-transport';
 import {BookQueryService} from './book-query.service';
 
 const PARAMS: BookPageParams = {
@@ -244,10 +244,10 @@ describe('BookQueryService', () => {
     const badRequest = new HttpErrorResponse({status: 400});
     const serverError = new HttpErrorResponse({status: 503});
 
-    expect(retryTransientBookQueryError(0, networkError)).toBe(true);
-    expect(retryTransientBookQueryError(0, badRequest)).toBe(false);
-    expect(retryTransientBookQueryError(0, serverError)).toBe(true);
-    expect(retryTransientBookQueryError(0, new Error('Unexpected failure'))).toBe(false);
-    expect(retryTransientBookQueryError(2, serverError)).toBe(false);
+    expect(retryTransientQueryError(0, networkError)).toBe(true);
+    expect(retryTransientQueryError(0, badRequest)).toBe(false);
+    expect(retryTransientQueryError(0, serverError)).toBe(true);
+    expect(retryTransientQueryError(0, new Error('Unexpected failure'))).toBe(false);
+    expect(retryTransientQueryError(2, serverError)).toBe(false);
   });
 });
