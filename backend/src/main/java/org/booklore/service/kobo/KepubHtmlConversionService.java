@@ -58,14 +58,14 @@ public class KepubHtmlConversionService {
             }
             """;
 
-    private final Set<Integer> SENTENCE_PUNCTUATION = Set.of(
+    private static final Set<Integer> SENTENCE_PUNCTUATION = Set.of(
             (int) '.',
             (int) '?',
             (int) '!',
             (int) '…'
     );
 
-    private final Set<Integer> SENTENCE_EXTRA_CHARS = Set.of(
+    private static final Set<Integer> SENTENCE_EXTRA_CHARS = Set.of(
             (int) '\'',
             (int) '"',
             (int) '“',
@@ -192,7 +192,7 @@ public class KepubHtmlConversionService {
             if (node instanceof Element element) {
                 if ("img".equals(element.tagName()) || "svg".equals(element.tagName())) {
                     var koboSpan = document.createElement("span");
-                    koboSpan.id("kobo." + koboSpanIndex.incrementAndGet());
+                    koboSpan.id(String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet()));
                     koboSpan.addClass(CLASSNAME_KOBO_SPAN);
 
                     element.before(koboSpan);
