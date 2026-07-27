@@ -240,10 +240,6 @@ public class KepubConversionService {
         epubWriter.write(kepubBook, outputStream);
     }
 
-    public void convertEpubToKepub(InputStream inputStream, OutputStream outputStream, boolean forceEnableHyphenation) throws IOException {
-        convertEpubToKepub(inputStream, outputStream, forceEnableHyphenation, new EpubWriter());
-    }
-
     private void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
         validateInputs(inputPath);
 
@@ -273,7 +269,7 @@ public class KepubConversionService {
     }
 
     private void validateInputs(Path inputPath) {
-        if (inputPath == null || !Files.isRegularFile(inputPath) || !inputPath.endsWith(".epub")) {
+        if (inputPath == null || !Files.isRegularFile(inputPath)) {
             throw new IllegalArgumentException("Invalid EPUB file: " + inputPath);
         }
     }
