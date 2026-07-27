@@ -30,6 +30,15 @@ class KepubHtmlConversionServiceTest {
     }
 
     @Test
+    void transform_ShouldWrapImages() {
+        String actual = service.transform("<html><body><p>Hello World.<img /></p></body></html>", false);
+
+        assertThat(actual).contains(
+                "<span id=\"kobo.2\" class=\"koboSpan\"><img /></span>"
+        );
+    }
+
+    @Test
     void transform_ShouldIncludeCSSHacks() {
         String actual = service.transform("<html><body><p>Hello World.</p></body></html>", false);
 
