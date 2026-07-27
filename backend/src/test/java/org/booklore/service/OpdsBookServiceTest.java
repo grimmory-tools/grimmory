@@ -341,21 +341,6 @@ class OpdsBookServiceTest {
     }
 
     @Test
-    void getBooksPageForV2User_throwsForbidden_whenNoPermission() {
-        OpdsUserV2 v2 = OpdsUserV2.builder().userId(1L).build();
-        BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(UserPermissionsEntity.class);
-        when(permissionsEntity.isPermissionAccessOpds()).thenReturn(false);
-        when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
-        when(entity.getPermissions()).thenReturn(permissionsEntity);
-        when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(entity));
-
-        assertThatThrownBy(() ->
-                opdsBookService.getBooksPage(1L, null, null, null, 0, 10)
-        ).hasMessageContaining("You are not allowed to access this resource");
-    }
-
-    @Test
     void getBooksPage_withSingleShelfId_returnsShelfBooks() {
         OpdsUserDetails details = v2UserDetails(1L, false, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);

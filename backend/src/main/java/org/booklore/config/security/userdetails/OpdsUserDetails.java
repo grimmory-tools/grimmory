@@ -35,6 +35,6 @@ public class OpdsUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         BookLoreUser.UserPermissions permissions = user.getPermissions();
-        return permissions.isAdmin() || permissions.isCanAccessOpds();
+        return permissions != null && (permissions.isAdmin() || permissions.isCanAccessOpds());
     }
 }
