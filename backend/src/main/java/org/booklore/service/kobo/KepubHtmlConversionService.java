@@ -260,10 +260,6 @@ public class KepubHtmlConversionService {
         for (var element : adobeAdeptResources) {
             element.remove();
         }
-
-        // TODO: Remove content:
-        // Invalid UTF-8 characters (�)
-        // Empty MSWord o:p // st1:* tags
     }
 
     private void transformContentAddXmlns(Document document) {

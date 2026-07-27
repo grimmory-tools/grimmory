@@ -47,6 +47,8 @@ class KepubConversionServiceTest {
                 true,
                 epubWriter
         );
+
+        verify(epubWriter).write(any(), any());
     }
 
     @Test
