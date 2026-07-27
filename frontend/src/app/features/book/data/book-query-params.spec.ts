@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
 import {
-  normalizeBookBatchParams,
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
   normalizeBookPageParams,
@@ -56,14 +55,6 @@ describe('book query parameters', () => {
     expect(normalized.facetLogic).toBe(facetLogic);
     expect(toIdsHttpParams(normalized).get('facet_logic')).toBe(facetLogic);
   });
-
-  it('normalizes batch IDs without promising response order', () => {
-    expect(normalizeBookBatchParams([9, 3, 9, 5], true)).toEqual({
-      bookIds: [3, 5, 9],
-      withDescription: true,
-    });
-  });
-
 
   it('serializes page parameters using the backend vocabulary', () => {
     const params = toPageHttpParams(normalizeBookPageParams({

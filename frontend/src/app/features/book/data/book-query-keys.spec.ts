@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
 import {
-  normalizeBookBatchParams,
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
   normalizeBookPageParams,
@@ -24,7 +23,6 @@ describe('book query keys', () => {
       bookQueryKeys.facets(normalizeBookCollectionFilterParams(query)),
       bookQueryKeys.ids(normalizeBookQueryParams(query)),
       bookQueryKeys.detail(12, true),
-      bookQueryKeys.batch(normalizeBookBatchParams([12, 4], false)),
       bookQueryKeys.recommendation(12, 20),
     ];
 
@@ -54,8 +52,5 @@ describe('book query keys', () => {
     const recommendationPrefix = bookQueryKeys.recommendationQueries(12);
     expect(bookQueryKeys.recommendation(12, 20).slice(0, recommendationPrefix.length))
       .toEqual([...recommendationPrefix]);
-
-    expect(bookQueryKeys.batch(normalizeBookBatchParams([12, 4, 12], false)).at(-1))
-      .toEqual({bookIds: [4, 12], withDescription: false});
   });
 });

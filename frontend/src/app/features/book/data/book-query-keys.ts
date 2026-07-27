@@ -2,7 +2,6 @@ import {
   BookCollectionFilterParams,
   BookPageParams,
   BookQueryParams,
-  NormalizedBookBatchParams,
 } from './book-query-params';
 
 export const bookQueryKeys = {
@@ -25,9 +24,6 @@ export const bookQueryKeys = {
     [...bookQueryKeys.details(), bookId] as const,
   detail: (bookId: number, withDescription: boolean) =>
     [...bookQueryKeys.detailQueries(bookId), {withDescription}] as const,
-  batches: () => [...bookQueryKeys.all(), 'batch'] as const,
-  batch: (params: NormalizedBookBatchParams) =>
-    [...bookQueryKeys.batches(), params] as const,
   recommendations: () => [...bookQueryKeys.all(), 'recommendation'] as const,
   recommendationQueries: (bookId: number) =>
     [...bookQueryKeys.recommendations(), bookId] as const,

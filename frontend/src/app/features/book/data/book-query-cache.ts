@@ -50,7 +50,6 @@ export async function applyBookQueryChangeSet(
     ...(changedBookIds.size > 0 ? [queryClient.invalidateQueries({
       predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds),
     })] : []),
-    queryClient.invalidateQueries({queryKey: bookQueryKeys.batches()}),
     invalidateBookRecommendations(queryClient),
   ]);
 }

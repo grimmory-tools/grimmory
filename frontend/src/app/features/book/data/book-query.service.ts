@@ -16,7 +16,6 @@ import {
   BookDescriptionOptions,
   BookPageParams,
   BookQueryParams,
-  normalizeBookBatchParams,
   normalizeBookCollectionFilterParams,
   normalizeBookPageParams,
   normalizeBookQueryParams,
@@ -104,22 +103,6 @@ export class BookQueryService {
         `${this.baseUrl}/${bookId}`,
         signal,
         new HttpParams().set('withDescription', withDescription.toString()),
-      ),
-      ...BOOK_QUERY_DEFAULTS,
-    });
-  }
-
-  batch(bookIds: readonly number[], {withDescription}: BookDescriptionOptions) {
-    const normalized = normalizeBookBatchParams(bookIds, withDescription);
-
-    return queryOptions({
-      queryKey: bookQueryKeys.batch(normalized),
-      queryFn: ({signal}): Promise<BookDetail[]> => this.get<BookDetail[]>(
-        `${this.baseUrl}/batch`,
-        signal,
-        new HttpParams()
-          .set('ids', normalized.bookIds.join(','))
-          .set('withDescription', normalized.withDescription.toString()),
       ),
       ...BOOK_QUERY_DEFAULTS,
     });

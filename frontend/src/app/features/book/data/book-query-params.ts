@@ -87,11 +87,6 @@ export interface BookDescriptionOptions {
   withDescription: boolean;
 }
 
-export interface NormalizedBookBatchParams {
-  bookIds: readonly number[];
-  withDescription: boolean;
-}
-
 export const DEFAULT_BOOK_SORT_TERMS: readonly BookSortTerm[] = [{key: 'title', direction: 'asc'}];
 const BOOK_QUERY_FACET_KEY_SET = new Set<string>(BOOK_QUERY_FACET_KEYS);
 const BOOK_QUERY_SORT_KEY_SET = new Set<string>(BOOK_QUERY_SORT_KEYS);
@@ -108,16 +103,6 @@ export function normalizeBookPageParams(params: BookPageParams): BookPageParams 
   return {
     ...normalizeBookQueryParams(params),
     size: params.size,
-  };
-}
-
-export function normalizeBookBatchParams(
-  bookIds: readonly number[],
-  withDescription: boolean,
-): NormalizedBookBatchParams {
-  return {
-    bookIds: [...new Set(bookIds)].sort((first, second) => first - second),
-    withDescription,
   };
 }
 

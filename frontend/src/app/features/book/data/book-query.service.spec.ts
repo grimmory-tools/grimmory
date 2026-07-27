@@ -212,22 +212,6 @@ describe('BookQueryService', () => {
     });
   });
 
-  it('normalizes batch IDs while preserving the backend response order', async () => {
-    const resultPromise = queryClient.fetchQuery(service.batch(
-      [9, 3, 9],
-      {withDescription: false},
-    ));
-    expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookDetail[]>>();
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/batch?ids=3,9&withDescription=false`);
-    const response: BookDetail[] = [
-      {id: 9, libraryId: 1, libraryName: 'Library'},
-      {id: 3, libraryId: 1, libraryName: 'Library'},
-    ];
-    request.flush(response);
-
-    await expect(resultPromise).resolves.toMatchObject([{id: 9}, {id: 3}]);
-  });
-
   it('fetches recommendations and preserves similarity order', async () => {
     const resultPromise = queryClient.fetchQuery(service.recommendations(42, 2));
     expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookRecommendation[]>>();
