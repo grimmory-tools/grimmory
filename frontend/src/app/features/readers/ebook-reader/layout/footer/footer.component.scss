@@ -411,10 +411,11 @@
   }
 }
 
+ //this is only for mobile devices
 @media (width <= 600px) {
   .reader-navbar {
-    left: 6px;
-    right: 8px;
+    left: 12px;
+    right: 12px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
     height: 52px;
     padding: 0 18px;
@@ -475,10 +476,6 @@
       .location-btn {
         transform: translateX(-0.5rem);
       }
-
-      .progress-slider-wrapper {
-        
-      }
     }
   }
 
@@ -503,6 +500,7 @@
   }
 }
 
+//This applies only if the mobile's width is very small. (samsumg, xiaomi, google, etc...)
 @media (width <= 360px) {
   .reader-navbar {
     left: 16px;
