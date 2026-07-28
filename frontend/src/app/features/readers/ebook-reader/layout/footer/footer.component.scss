@@ -413,11 +413,77 @@
 
 @media (width <= 600px) {
   .reader-navbar {
-    padding: 0 8px;
-    height: 44px;
+    left: 12px;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+    height: 52px;
+    padding: 0 18px;
+    border: 1px solid var(--reader-chrome-border);
+    border-radius: 999px;
+    box-shadow: 0 10px 28px rgb(0 0 0 / 35%);
+    transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px) + 16px));
+
+    &.is-visible {
+      transform: translateY(0);
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      background: color-mix(in srgb, var(--color-white) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-white) 14%, transparent);
+      border-radius: 50%;
+      color: var(--reader-chrome-fg);
+      touch-action: manipulation;
+      transition: background var(--transition-fast), color 420ms ease;
+      -webkit-tap-highlight-color: transparent;
+
+      &:first-child {
+        transform: translateX(-0.8rem);
+      }
+
+      &:last-child {
+        transform: translateX(0.8rem);
+      }
+
+      app-reader-icon {
+        transition: color 420ms ease, filter 420ms ease;
+      }
+
+      &:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--color-white) 10%, transparent);
+        color: var(--reader-chrome-fg);
+      }
+
+      &:active:not(:disabled) {
+        background: color-mix(in srgb, var(--color-white) 12%, transparent);
+        color: var(--reader-chrome-accent);
+
+        app-reader-icon {
+          filter:
+            drop-shadow(0 0 4px color-mix(in srgb, var(--reader-chrome-accent) 95%, transparent))
+            drop-shadow(0 0 10px color-mix(in srgb, var(--reader-chrome-accent) 90%, transparent))
+            drop-shadow(0 0 18px color-mix(in srgb, var(--reader-chrome-accent) 80%, transparent));
+        }
+      }
+    }
+
+    .progress-section {
+      gap: 10px;
+
+      .location-btn {
+        transform: translateX(-0.5rem);
+      }
+
+      .progress-slider-wrapper {
+        
+      }
+    }
   }
 
   .location-popover {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
     min-width: 320px;
     left: 16px;
     right: 16px;
@@ -433,6 +499,37 @@
         opacity: 1;
         transform: translateY(0);
       }
+    }
+  }
+}
+
+@media (width <= 360px) {
+  .reader-navbar {
+    left: 16px;
+    right: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .reader-navbar .icon-btn {
+    &:first-child {
+      transform: translateX(-0.5rem);
+    }
+
+    &:last-child {
+      transform: translateX(0.5rem);
+    }
+  }
+}
+
+@media (width <= 262px) {
+  .reader-navbar .icon-btn {
+    &:first-child {
+      transform: translateX(0);
+    }
+
+    &:last-child {
+      transform: translateX(0);
     }
   }
 }
