@@ -413,8 +413,8 @@
 
 @media (width <= 600px) {
   .reader-navbar {
-    left: 12px;
-    right: 12px;
+    left: 6px;
+    right: 8px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
     height: 52px;
     padding: 0 18px;
