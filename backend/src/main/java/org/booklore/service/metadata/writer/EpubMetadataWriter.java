@@ -527,13 +527,19 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private void extractZipToDirectory(File zipSource, Path targetDir) throws IOException {
-        for (var name : archiveService.getEntryNames(zipSource.toPath())) {
+        Path zipPath = zipSource.toPath();
+
+        if (!Files.isRegularFile(zipPath) || !Files.isReadable(zipPath)) {
+            throw new IOException("Target is not a readable regular file.");
+        }
+
+        for (var name : archiveService.getEntryNames(zipPath)) {
             Path entryPath = targetDir.resolve(name).normalize();
             if (!entryPath.startsWith(targetDir)) {
                 throw new IOException("ZIP entry outside target directory: " + name);
             }
             Files.createDirectories(entryPath.getParent());
-            archiveService.extractEntryToPath(zipSource.toPath(), name, entryPath);
+            archiveService.extractEntryToPath(zipPath, name, entryPath);
         }
     }
 
