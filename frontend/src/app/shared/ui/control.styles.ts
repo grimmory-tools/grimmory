@@ -1,4 +1,4 @@
-import { afterNextRender, Directive, signal } from '@angular/core';
+import { afterNextRender, DestroyRef, Directive, inject, signal } from '@angular/core';
 
 @Directive({
   selector: '[appControlTransition]',
@@ -10,9 +10,16 @@ export class AppControlTransitionDirective {
   protected readonly ready = signal(false);
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    let animationFrameId = 0;
+    destroyRef.onDestroy(() => cancelAnimationFrame(animationFrameId));
+
     afterNextRender(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => this.ready.set(true));
+      animationFrameId = requestAnimationFrame(() => {
+        if (destroyRef.destroyed) return;
+        animationFrameId = requestAnimationFrame(() => {
+          if (!destroyRef.destroyed) this.ready.set(true);
+        });
       });
     });
   }
