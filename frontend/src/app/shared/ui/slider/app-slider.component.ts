@@ -13,11 +13,12 @@ import {
 import { type FormValueControl } from '@angular/forms/signals';
 
 import { APP_FIELD } from '../field/app-field.context';
-import { invisibleControlInputClass, neutralControlBorderClass } from '../control.styles';
+import { AppControlTransitionDirective, invisibleControlInputClass, neutralControlBorderClass } from '../control.styles';
 
 @Component({
   selector: 'app-slider',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -48,6 +49,7 @@ import { invisibleControlInputClass, neutralControlBorderClass } from '../contro
       <div class="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-border"></div>
       <div class="pointer-events-none absolute left-0 h-1.5 rounded-full bg-primary" [style.width]="thumbPosition"></div>
       <div
+        appControlTransition
         [class]="thumbClass"
         [style.left]="thumbPosition"></div>
     </div>

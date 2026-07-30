@@ -5,6 +5,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideCalendar, LucideChevronLeft, LucideChevronRight, LucideLoaderCircle } from '@lucide/angular';
 
+import { AppControlTransitionDirective } from '../control.styles';
 import {
   AppDatePickerBaseDirective,
   DATE_PICKER_TEMPLATE,
@@ -17,7 +18,7 @@ const NO_SELECTION: DaySelectionFlags = { point: false, spanStart: false, spanEn
 @Component({
   selector: 'app-date-picker',
   standalone: true,
-  imports: [OverlayModule, Grid, GridRow, GridCell, GridCellWidget, TranslocoPipe, LucideCalendar, LucideChevronLeft, LucideChevronRight, LucideLoaderCircle],
+  imports: [OverlayModule, Grid, GridRow, GridCell, GridCellWidget, TranslocoPipe, LucideCalendar, LucideChevronLeft, LucideChevronRight, LucideLoaderCircle, AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: DATE_PICKER_TEMPLATE,

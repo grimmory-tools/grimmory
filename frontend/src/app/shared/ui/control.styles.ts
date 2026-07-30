@@ -1,3 +1,23 @@
+import { afterNextRender, Directive, signal } from '@angular/core';
+
+@Directive({
+  selector: '[appControlTransition]',
+  host: {
+    '[class.control-transition-pending]': '!ready()',
+  },
+})
+export class AppControlTransitionDirective {
+  protected readonly ready = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => this.ready.set(true));
+      });
+    });
+  }
+}
+
 export const neutralControlBorderClass =
   'border-[color-mix(in_srgb,var(--color-text)_4%,var(--color-border))] dark:border-border';
 export const neutralSurfaceHoverClass =

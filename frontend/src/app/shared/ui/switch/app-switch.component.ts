@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { type FormCheckboxControl } from '@angular/forms/signals';
 import { cn } from '../cn';
-import { expandedTouchTargetInputClass } from '../control.styles';
+import { AppControlTransitionDirective, expandedTouchTargetInputClass } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appSwitchRootVariants,
@@ -23,6 +23,7 @@ import {
 @Component({
   selector: 'app-switch',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'inline-flex align-middle' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -45,8 +46,8 @@ import {
         [required]="required()"
         (change)="onInputChange(control.checked)"
         (blur)="touched.set(true)" />
-      <span [class]="trackClass()" aria-hidden="true"></span>
-      <span [class]="thumbClass()" aria-hidden="true"></span>
+      <span appControlTransition [class]="trackClass()" aria-hidden="true"></span>
+      <span appControlTransition [class]="thumbClass()" aria-hidden="true"></span>
     </span>
   `,
 })

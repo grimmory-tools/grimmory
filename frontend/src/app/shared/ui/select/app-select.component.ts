@@ -13,6 +13,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideCheck, LucideChevronDown, LucideLoaderCircle, LucideSearch, LucideX } from '@lucide/angular';
 
+import { AppControlTransitionDirective } from '../control.styles';
 import { AppSelectBaseDirective } from './app-select-base.directive';
 import { AppSelectSelectedTemplateDirective } from './app-select.templates';
 import { type SelectOption } from './app-select.options';
@@ -29,6 +30,7 @@ import { type SelectOption } from './app-select.options';
     Listbox,
     Option,
     TranslocoPipe,
+    AppControlTransitionDirective,
     LucideCheck,
     LucideChevronDown,
     LucideLoaderCircle,
@@ -40,6 +42,7 @@ import { type SelectOption } from './app-select.options';
   template: `
     <div ngCombobox #cb="ngCombobox" [readonly]="true" [disabled]="disabled()" class="relative block h-full w-full">
       <div
+        appControlTransition
         #origin
         [class]="triggerClass()"
         [attr.data-expanded]="cb.expanded() ? 'true' : null">

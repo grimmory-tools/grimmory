@@ -6,7 +6,6 @@ import { RxStompService } from './app/shared/websocket/rx-stomp.service';
 import { rxStompServiceFactory } from './app/shared/websocket/rx-stomp-service-factory';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './app/core/custom-reuse-strategy';
-import { NavigationTransitionGuard } from './app/core/navigation-transition-guard';
 import { provideOptimus } from '@openng/optimus-ui/config';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
@@ -43,9 +42,6 @@ bootstrapApplication(AppComponent, {
       const initializeAuth = initializeAuthFactory();
       const startup = inject(StartupService);
       return Promise.resolve(initializeAuth()).then(() => startup.load());
-    }),
-    provideAppInitializer(() => {
-      inject(NavigationTransitionGuard);
     }),
     provideHttpClient(withInterceptors([AuthInterceptorService])),
     provideRouter(routes),

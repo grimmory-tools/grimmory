@@ -13,17 +13,19 @@ import {
 import { type FormValueControl } from '@angular/forms/signals';
 import { LucideLoaderCircle } from '@lucide/angular';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import { appTextareaVariants } from './app-textarea.variants';
 
 @Component({
   selector: 'app-textarea',
   standalone: true,
-  imports: [LucideLoaderCircle],
+  imports: [AppControlTransitionDirective, LucideLoaderCircle],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <textarea
+      appControlTransition
       #textarea
       [class]="textareaClass()"
       [attr.id]="resolvedInputId()"

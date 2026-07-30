@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { type FormCheckboxControl } from '@angular/forms/signals';
 import { cn } from '../cn';
-import { expandedTouchTargetInputClass } from '../control.styles';
+import { AppControlTransitionDirective, expandedTouchTargetInputClass } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appCheckboxBoxVariants,
@@ -24,6 +24,7 @@ import {
 @Component({
   selector: 'app-checkbox',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'inline-block align-middle' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -45,8 +46,8 @@ import {
         [required]="required()"
         (change)="onInputChange(checkbox.checked)"
         (blur)="touched.set(true)" />
-      <span [class]="boxClass()" aria-hidden="true"></span>
-      <svg [class]="checkIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <span appControlTransition [class]="boxClass()" aria-hidden="true"></span>
+      <svg appControlTransition [class]="checkIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path
           d="M12.5 4.75L6.75 10.5L3.5 7.25"
           stroke="currentColor"
@@ -54,7 +55,7 @@ import {
           stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
-      <svg [class]="indeterminateIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg appControlTransition [class]="indeterminateIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M4 8H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
     </span>

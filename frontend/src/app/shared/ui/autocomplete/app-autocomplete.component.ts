@@ -3,6 +3,7 @@ import { type FormValueControl } from '@angular/forms/signals';
 import { Combobox, ComboboxInput } from '@angular/aria/combobox';
 import { LucideLoaderCircle } from '@lucide/angular';
 
+import { AppControlTransitionDirective } from '../control.styles';
 import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive';
 import { type AppAutocompleteOption } from './app-autocomplete-option';
 import { AppAutocompletePopupComponent } from './app-autocomplete-popup.component';
@@ -13,7 +14,7 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
 @Component({
   selector: 'app-autocomplete',
   standalone: true,
-  imports: [Combobox, ComboboxInput, LucideLoaderCircle, AppAutocompletePopupComponent, AppAutocompleteSelectedTagsComponent],
+  imports: [Combobox, ComboboxInput, LucideLoaderCircle, AppAutocompletePopupComponent, AppAutocompleteSelectedTagsComponent, AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -25,6 +26,7 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
       [disabled]="disabled()"
       class="relative block w-full">
       <div
+        appControlTransition
         #origin
         [class]="boxClass()"
         (pointerdown)="focusInputOnPointerdown($event, input)">

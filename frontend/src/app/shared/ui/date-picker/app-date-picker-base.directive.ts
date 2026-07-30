@@ -96,6 +96,7 @@ function currentYearMonth(): YearMonth {
 export const DATE_PICKER_TEMPLATE = `
     <div #origin class="relative block w-full">
       <input
+        appControlTransition
         #trigger
         readonly
         type="text"

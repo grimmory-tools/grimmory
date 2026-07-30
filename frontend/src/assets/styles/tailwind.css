@@ -34,6 +34,13 @@
 @utility animate-in-sheet {
   animation: enter 250ms cubic-bezier(0.32, 0.72, 0, 1);
 }
+@utility control-transition-pending {
+  &,
+  &::before,
+  &::after {
+    transition: none !important;
+  }
+}
 
 @font-face {
   font-family: "Inter";

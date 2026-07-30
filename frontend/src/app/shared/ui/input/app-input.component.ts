@@ -15,6 +15,7 @@ import { type FormValueControl } from '@angular/forms/signals';
 import { translateSignal } from '@jsverse/transloco';
 import { LucideEye, LucideEyeOff, LucideLoaderCircle } from '@lucide/angular';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import { appInputVariants, type AppInputSize, type AppInputVariant } from './app-input.variants';
 
@@ -30,11 +31,11 @@ const REVEAL_TOGGLE_CLASS =
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [LucideEye, LucideEyeOff, LucideLoaderCircle],
+  imports: [AppControlTransitionDirective, LucideEye, LucideEyeOff, LucideLoaderCircle],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div [class]="boxClass()" [attr.aria-invalid]="showInvalid() ? 'true' : null">
+    <div appControlTransition [class]="boxClass()" [attr.aria-invalid]="showInvalid() ? 'true' : null">
       <span [class]="adornmentClass"><ng-content select="[appInputLeading]" /></span>
       <input
         #input

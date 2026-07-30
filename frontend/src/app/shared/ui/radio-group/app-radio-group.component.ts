@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appRadioGroupDotVariants,
@@ -34,6 +35,7 @@ let nextGroupId = 0;
 @Component({
   selector: 'app-radio-group',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'block' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -48,7 +50,7 @@ let nextGroupId = 0;
       [attr.aria-readonly]="readonly() ? 'true' : null"
       [attr.aria-busy]="pending() ? 'true' : null">
       @for (option of options(); track option.value; let i = $index) {
-        <label [class]="variant() === 'segmented' ? segmentClass(i) : optionClass()">
+        <label appControlTransition [class]="variant() === 'segmented' ? segmentClass(i) : optionClass()">
           <input
             #radio
             type="radio"
@@ -62,7 +64,7 @@ let nextGroupId = 0;
           @if (variant() === 'segmented') {
             <span class="truncate leading-none">{{ option.label }}</span>
           } @else {
-            <span [class]="dotClass()" aria-hidden="true"></span>
+            <span appControlTransition [class]="dotClass()" aria-hidden="true"></span>
             <span [class]="textBlockClass()">
               <span class="font-medium leading-5">{{ option.label }}</span>
               @if (option.description) {

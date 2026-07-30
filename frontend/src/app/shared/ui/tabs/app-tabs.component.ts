@@ -18,6 +18,7 @@ import { LucideDynamicIcon, type LucideIconData } from '@lucide/angular';
 import { AppSelectComponent } from '../select/app-select.component';
 import { type SelectOption } from '../select/app-select.options';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import {
   appTabsListVariants,
   appTabsRootVariants,
@@ -45,7 +46,7 @@ const COLLAPSE_HYSTERESIS = 8;
 @Component({
   selector: 'app-tabs',
   standalone: true,
-  imports: [Tabs, TabList, NgTab, AppSelectComponent, LucideDynamicIcon],
+  imports: [Tabs, TabList, NgTab, AppSelectComponent, LucideDynamicIcon, AppControlTransitionDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative block min-w-0' },
   template: `
@@ -77,7 +78,7 @@ const COLLAPSE_HYSTERESIS = 8;
               [style.transform]="'translateX(' + indicatorLeft() + 'px)'"
               [style.width.px]="indicatorWidth()"></span>
             @for (tab of tabs(); track tab.id) {
-              <button ngTab type="button" [value]="tab.id" [class]="tabClass()">
+              <button appControlTransition ngTab type="button" [value]="tab.id" [class]="tabClass()">
                 @if (tab.icon; as tabIcon) {
                   <svg [lucideIcon]="tabIcon" [class]="tabIconClass()" aria-hidden="true"></svg>
                 }
