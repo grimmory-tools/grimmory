@@ -519,6 +519,59 @@ class Fb2MetadataExtractorTest {
     }
 
     @Test
+    void extractCover_fallsBackToFirstBodyImageForConverterGeneratedFb2() throws IOException {
+        byte[] imageData = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0};
+        String base64 = Base64.getEncoder().encodeToString(imageData);
+        String lineWrappedBase64 = base64.substring(0, 4) + "\n" + base64.substring(4);
+        File file = writeFb2("""
+                <description><title-info/></description>
+                <body>
+                  <section>
+                    <p><image l:href="#_0.jpg"/></p>
+                    <p>Opening text converted from a PDF.</p>
+                  </section>
+                </body>
+                <binary id="_0.jpg" content-type="image/jpeg">%s</binary>
+                """.formatted(lineWrappedBase64));
+
+        byte[] cover = extractor.extractCover(file);
+
+        assertThat(cover).isEqualTo(imageData);
+    }
+
+    @Test
+    void extractCover_standardCoverTakesPriorityOverFirstBodyImage() throws IOException {
+        byte[] standardCover = {0x01, 0x02, 0x03};
+        byte[] bodyImage = {0x04, 0x05, 0x06};
+        File file = writeFb2("""
+                <description>
+                  <title-info>
+                    <coverpage><image l:href="#front.jpg"/></coverpage>
+                  </title-info>
+                </description>
+                <body><section><image l:href="#_0.jpg"/></section></body>
+                <binary id="front.jpg" content-type="image/jpeg">%s</binary>
+                <binary id="_0.jpg" content-type="image/jpeg">%s</binary>
+                """.formatted(
+                        Base64.getEncoder().encodeToString(standardCover),
+                        Base64.getEncoder().encodeToString(bodyImage)));
+
+        byte[] cover = extractor.extractCover(file);
+
+        assertThat(cover).isEqualTo(standardCover);
+    }
+
+    @Test
+    void extractCover_missingFirstBodyImageBinaryReturnsNull() throws IOException {
+        File file = writeFb2("""
+                <description><title-info/></description>
+                <body><section><image l:href="#missing.jpg"/></section></body>
+                """);
+
+        assertThat(extractor.extractCover(file)).isNull();
+    }
+
+    @Test
     void extractCover_noBinaryReturnsNull() throws IOException {
         File file = writeFb2("""
                 <description><title-info/></description>

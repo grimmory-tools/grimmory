@@ -34,7 +34,6 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
     private static final Pattern KEYWORD_SEPARATOR_PATTERN = Pattern.compile("[,;]");
     private static final Pattern ISBN_CLEANER_PATTERN = Pattern.compile("[^0-9Xx]");
     private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
-
     @Override
     public byte[] extractCover(File file) {
         try (InputStream inputStream = getInputStream(file)) {
@@ -64,20 +63,21 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
                     Element coverPage = (Element) coverPages.item(0);
                     NodeList images = coverPage.getElementsByTagNameNS(FB2_NAMESPACE, "image");
                     if (images.getLength() > 0) {
-                        Element image = (Element) images.item(0);
-                        String href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-                        if (href != null && href.startsWith("#")) {
-                            String imageId = href.substring(1);
-                            // Find the binary with this ID
-                            for (int i = 0; i < binaries.getLength(); i++) {
-                                Element binary = (Element) binaries.item(i);
-                                if (imageId.equals(binary.getAttribute("id"))) {
-                                    String base64Data = binary.getTextContent().trim();
-                                    return Base64.getDecoder().decode(base64Data);
-                                }
-                            }
+                        byte[] cover = decodeReferencedImage(binaries, (Element) images.item(0));
+                        if (cover != null) {
+                            return cover;
                         }
                     }
+                }
+            }
+
+            // Converter-generated FB2 files sometimes omit coverpage and put page one in the body.
+            // Explicit cover metadata above remains authoritative; this is the last-resort candidate.
+            Element body = getFirstElementByTagNameNS(doc, FB2_NAMESPACE, "body");
+            if (body != null) {
+                NodeList images = body.getElementsByTagNameNS(FB2_NAMESPACE, "image");
+                if (images.getLength() > 0) {
+                    return decodeReferencedImage(binaries, (Element) images.item(0));
                 }
             }
 
@@ -86,6 +86,22 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
             log.warn("Failed to extract cover from FB2: {}", file.getName(), e);
             return null;
         }
+    }
+
+    private byte[] decodeReferencedImage(NodeList binaries, Element image) {
+        String href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+        if (href == null || !href.startsWith("#")) {
+            return null;
+        }
+        String imageId = href.substring(1);
+        for (int i = 0; i < binaries.getLength(); i++) {
+            Element binary = (Element) binaries.item(i);
+            if (imageId.equals(binary.getAttribute("id"))) {
+                String base64Data = binary.getTextContent().trim();
+                return Base64.getMimeDecoder().decode(base64Data);
+            }
+        }
+        return null;
     }
 
     @Override
