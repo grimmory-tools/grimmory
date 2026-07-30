@@ -1,7 +1,7 @@
 @layer theme, base, optimus, components, utilities;
 
 @import "tailwindcss";
-@import "tailwindcss-primeui";
+@import "@openng/optimus-ui-tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

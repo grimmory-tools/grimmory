@@ -146,6 +146,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.7.0(jiti@2.7.0))
+      '@openng/optimus-ui-tailwindcss':
+        specifier: 1.0.0-rc.2
+        version: 1.0.0-rc.2(tailwindcss@4.3.3)
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.61.1
@@ -188,9 +191,6 @@ importers:
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
-      tailwindcss-primeui:
-        specifier: 0.6.1
-        version: 0.6.1(tailwindcss@4.3.3)
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -1835,6 +1835,11 @@ packages:
 
   '@openng/optimus-ui-styles@1.0.0-rc.1':
     resolution: {integrity: sha512-Cb+vse4Qp0NVX7raEsh6oZSbD0GAD6qRxON2y7z3gx0lF4UnGjlffGe8BknqkK5wN8upik2U5KQDkNWcunIFPQ==}
+
+  '@openng/optimus-ui-tailwindcss@1.0.0-rc.2':
+    resolution: {integrity: sha512-6g3doYPxPcO89kDFv2sk89RET4mFAG/kGBchruXlo+AzDkytjwlrR1jHwhbT8u+XV5EchH7QUGpT6cWqd9xdyw==}
+    peerDependencies:
+      tailwindcss: '>=3.1.0'
 
   '@openng/optimus-ui-themes@1.0.0-rc.1':
     resolution: {integrity: sha512-1IFIffgpx9GwK0wyRZL/WNwGSGOwl7vuoECNYC8P+37ikT6WgPWCVdnr+uFJYNFCXmlvisyuJjMXpwb9cHw4uw==}
@@ -5334,11 +5339,6 @@ packages:
   tailwind-merge@3.6.0:
     resolution: {integrity: sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==}
 
-  tailwindcss-primeui@0.6.1:
-    resolution: {integrity: sha512-T69Rylcrmnt8zy9ik+qZvsLuRIrS9/k6rYJSIgZ1trnbEzGDDQSCIdmfyZknevqiHwpSJHSmQ9XT2C+S/hJY4A==}
-    peerDependencies:
-      tailwindcss: '>=3.1.0'
-
   tailwindcss@4.3.3:
     resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
 
@@ -7421,6 +7421,10 @@ snapshots:
   '@openng/optimus-ui-styles@1.0.0-rc.1':
     dependencies:
       '@openng/optimus-ui-styled': 1.0.0-rc.1
+
+  '@openng/optimus-ui-tailwindcss@1.0.0-rc.2(tailwindcss@4.3.3)':
+    dependencies:
+      tailwindcss: 4.3.3
 
   '@openng/optimus-ui-themes@1.0.0-rc.1':
     dependencies:
@@ -10990,10 +10994,6 @@ snapshots:
   tagged-tag@1.0.0: {}
 
   tailwind-merge@3.6.0: {}
-
-  tailwindcss-primeui@0.6.1(tailwindcss@4.3.3):
-    dependencies:
-      tailwindcss: 4.3.3
 
   tailwindcss@4.3.3: {}
 
