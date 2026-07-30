@@ -8,6 +8,7 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -46,8 +46,6 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.grimmory.epub4j.archive.EpubContainer;
-import org.grimmory.epub4j.archive.EpubContainers;
 import java.util.function.Predicate;
 import java.io.UncheckedIOException;
 
@@ -59,6 +57,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
     private static final Pattern CALIBRE_PREFIX_PATTERN = Pattern.compile("calibre:\\s*https?://[^\\s]+");
     private final AppSettingService appSettingService;
+    private final ArchiveService archiveService;
 
     @Override
     public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
@@ -528,17 +527,13 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private void extractZipToDirectory(File zipSource, Path targetDir) throws IOException {
-        try (EpubContainer container = EpubContainers.open(zipSource.toPath())) {
-            for (String name : container.listAllFiles()) {
-                Path entryPath = targetDir.resolve(name).normalize();
-                if (!entryPath.startsWith(targetDir)) {
-                    throw new IOException("ZIP entry outside target directory: " + name);
-                }
-                Files.createDirectories(entryPath.getParent());
-                try (OutputStream out = Files.newOutputStream(entryPath)) {
-                    container.streamTo(name, out);
-                }
+        for (var name : archiveService.getEntryNames(zipSource.toPath())) {
+            Path entryPath = targetDir.resolve(name).normalize();
+            if (!entryPath.startsWith(targetDir)) {
+                throw new IOException("ZIP entry outside target directory: " + name);
             }
+            Files.createDirectories(entryPath.getParent());
+            archiveService.extractEntryToPath(zipSource.toPath(), name, entryPath);
         }
     }
 

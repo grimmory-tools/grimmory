@@ -8,12 +8,17 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -40,12 +45,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.net.URLDecoder;
 
+@ExtendWith(MockitoExtension.class)
 class EpubMetadataWriterTest {
+    @Mock
+    private AppSettingService appSettingService;
+
+    @Spy
+    private ArchiveService archiveService = new ArchiveService();
 
     private EpubMetadataWriter writer;
     private BookMetadataEntity metadata;
     private BookEntity bookEntity;
-    private AppSettingService appSettingService;
 
     @TempDir
     Path tempDir;
@@ -67,7 +77,7 @@ class EpubMetadataWriterTest {
         when(appSettings.getMetadataPersistenceSettings()).thenReturn(metadataPersistenceSettings);
         when(appSettingService.getAppSettings()).thenReturn(appSettings);
 
-        writer = new EpubMetadataWriter(appSettingService);
+        writer = new EpubMetadataWriter(appSettingService, archiveService);
         metadata = new BookMetadataEntity();
         metadata.setTitle("Test Book");
         AuthorEntity author = new AuthorEntity();
