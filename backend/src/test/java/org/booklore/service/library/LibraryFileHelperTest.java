@@ -486,6 +486,232 @@ class LibraryFileHelperTest {
     }
 
     @Test
+    void detectDeletedBookIds_shouldPreserveIndividualAudiobooksWhenAutoDetectCollapsesTheirFolder() throws IOException {
+        Path authorFolder = Files.createDirectories(tempDir.resolve("Author"));
+        Files.write(authorFolder.resolve("Book One.mp3"), new byte[]{1});
+        Files.write(authorFolder.resolve("Book Two.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+
+        BookFileEntity firstFile = BookFileEntity.builder()
+                .fileSubPath("Author")
+                .fileName("Book One.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity firstBook = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(firstFile))
+                .build();
+        firstFile.setBook(firstBook);
+
+        BookFileEntity secondFile = BookFileEntity.builder()
+                .fileSubPath("Author")
+                .fileName("Book Two.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity secondBook = BookEntity.builder()
+                .id(2L)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(secondFile))
+                .build();
+        secondFile.setBook(secondBook);
+
+        List<LibraryFile> detectedFiles = libraryFileHelper.getAllLibraryFiles(library);
+
+        assertThat(detectedFiles).singleElement().satisfies(file -> {
+            assertThat(file.isFolderBased()).isTrue();
+            assertThat(file.getFullPath()).isEqualTo(authorFolder);
+        });
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                detectedFiles, List.of(firstBook, secondBook));
+
+        assertThat(reconciledFiles)
+                .extracting(LibraryFile::getFileName)
+                .containsExactly("Book One.mp3", "Book Two.mp3");
+        assertThat(reconciledFiles).noneMatch(LibraryFile::isFolderBased);
+        assertThat(libraryFileHelper.detectDeletedBookIds(reconciledFiles, List.of(firstBook, secondBook)))
+                .isEmpty();
+        assertThat(libraryFileHelper.detectNewBookPaths(
+                reconciledFiles, List.of(firstBook, secondBook), Collections.emptyList()))
+                .isEmpty();
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldKeepRealMultiTrackAudiobookFolder() throws IOException {
+        Path audiobookFolder = Files.createDirectories(tempDir.resolve("Author/Book"));
+        Files.write(audiobookFolder.resolve("01.mp3"), new byte[]{1});
+        Files.write(audiobookFolder.resolve("02.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+        BookFileEntity folderFile = BookFileEntity.builder()
+                .folderBased(true)
+                .fileSubPath("Author")
+                .fileName("Book")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity book = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(folderFile))
+                .build();
+        folderFile.setBook(book);
+
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                libraryFileHelper.getAllLibraryFiles(library), List.of(book));
+
+        assertThat(reconciledFiles).singleElement().satisfies(file -> {
+            assertThat(file.isFolderBased()).isTrue();
+            assertThat(file.getFullPath()).isEqualTo(audiobookFolder);
+        });
+        assertThat(libraryFileHelper.detectDeletedBookIds(reconciledFiles, List.of(book))).isEmpty();
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldPreserveMixedEbookAndAudiobookFiles() throws IOException {
+        Path bookFolder = Files.createDirectories(tempDir.resolve("Author/Book"));
+        Files.write(bookFolder.resolve("Book.epub"), new byte[]{1});
+        Files.write(bookFolder.resolve("Book.m4b"), new byte[]{1});
+        Files.write(bookFolder.resolve("Bonus.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        List<LibraryFile> detectedFiles = libraryFileHelper.getAllLibraryFiles(library);
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                detectedFiles, Collections.emptyList());
+
+        assertThat(reconciledFiles)
+                .extracting(LibraryFile::getFileName)
+                .containsExactlyInAnyOrder("Book.epub", "Book.m4b", "Bonus.mp3");
+        assertThat(reconciledFiles).noneMatch(LibraryFile::isFolderBased);
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldExposeNewFileInExistingIndividualAudiobookFolder() throws IOException {
+        Path authorFolder = Files.createDirectories(tempDir.resolve("Author"));
+        Files.write(authorFolder.resolve("Existing.mp3"), new byte[]{1});
+        Files.write(authorFolder.resolve("New.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+        BookFileEntity existingFile = BookFileEntity.builder()
+                .fileSubPath("Author")
+                .fileName("Existing.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity existingBook = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(existingFile))
+                .build();
+        existingFile.setBook(existingBook);
+
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                libraryFileHelper.getAllLibraryFiles(library), List.of(existingBook));
+        List<LibraryFile> newFiles = libraryFileHelper.detectNewBookPaths(
+                reconciledFiles, List.of(existingBook), Collections.emptyList());
+
+        assertThat(newFiles).singleElement().satisfies(file -> {
+            assertThat(file.getFileName()).isEqualTo("New.mp3");
+            assertThat(file.isFolderBased()).isFalse();
+        });
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldExpandFolderWhenDeletedIndividualAudiobookReturns() throws IOException {
+        Path authorFolder = Files.createDirectories(tempDir.resolve("Author"));
+        Files.write(authorFolder.resolve("Returned.mp3"), new byte[]{1});
+        Files.write(authorFolder.resolve("New.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+        BookFileEntity returnedFile = BookFileEntity.builder()
+                .fileSubPath("Author")
+                .fileName("Returned.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity deletedBook = BookEntity.builder()
+                .id(1L)
+                .deleted(true)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(returnedFile))
+                .build();
+        returnedFile.setBook(deletedBook);
+
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                libraryFileHelper.getAllLibraryFiles(library), List.of(deletedBook));
+
+        assertThat(reconciledFiles)
+                .extracting(LibraryFile::getFileName)
+                .containsExactly("New.mp3", "Returned.mp3");
+        assertThat(reconciledFiles).noneMatch(LibraryFile::isFolderBased);
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldNotLetMissingDeletedAudiobookPinFolder() throws IOException {
+        Path audiobookFolder = Files.createDirectories(tempDir.resolve("Author/Book"));
+        Files.write(audiobookFolder.resolve("01.mp3"), new byte[]{1});
+        Files.write(audiobookFolder.resolve("02.mp3"), new byte[]{1});
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+        BookFileEntity missingFile = BookFileEntity.builder()
+                .fileSubPath("Author/Book")
+                .fileName("Missing.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity deletedBook = BookEntity.builder()
+                .id(1L)
+                .deleted(true)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(missingFile))
+                .build();
+        missingFile.setBook(deletedBook);
+
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                libraryFileHelper.getAllLibraryFiles(library), List.of(deletedBook));
+
+        assertThat(reconciledFiles).singleElement().satisfies(file -> {
+            assertThat(file.isFolderBased()).isTrue();
+            assertThat(file.getFullPath()).isEqualTo(audiobookFolder);
+        });
+    }
+
+    @Test
+    void reconcileRescanCandidates_shouldIgnoreEmptyAudioFileWhenExpandingFolderCandidate() throws IOException {
+        Path authorFolder = Files.createDirectories(tempDir.resolve("Author"));
+        Files.write(authorFolder.resolve("Existing.mp3"), new byte[]{1});
+        Files.write(authorFolder.resolve("New.mp3"), new byte[]{1});
+        Files.createFile(authorFolder.resolve("Empty.mp3"));
+
+        LibraryEntity library = createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT);
+        LibraryPathEntity libraryPath = library.getLibraryPaths().getFirst();
+        BookFileEntity existingFile = BookFileEntity.builder()
+                .fileSubPath("Author")
+                .fileName("Existing.mp3")
+                .bookType(BookFileType.AUDIOBOOK)
+                .build();
+        BookEntity existingBook = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPath)
+                .bookFiles(List.of(existingFile))
+                .build();
+        existingFile.setBook(existingBook);
+
+        List<LibraryFile> detectedFiles = libraryFileHelper.getAllLibraryFiles(library);
+        assertThat(detectedFiles).singleElement().matches(LibraryFile::isFolderBased);
+
+        List<LibraryFile> reconciledFiles = libraryFileHelper.reconcileRescanCandidates(
+                detectedFiles, List.of(existingBook));
+
+        assertThat(reconciledFiles)
+                .extracting(LibraryFile::getFileName)
+                .containsExactly("Existing.mp3", "New.mp3");
+        assertThat(reconciledFiles).noneMatch(LibraryFile::isFolderBased);
+    }
+
+    @Test
     void detectDeletedBookIds_shouldOnlyDetectBooksMissingFiles() {
         LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
                 .path("/books")

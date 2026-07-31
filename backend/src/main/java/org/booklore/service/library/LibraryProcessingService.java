@@ -84,6 +84,7 @@ public class LibraryProcessingService {
         List<BookEntity> books = bookRepository.findAllByLibraryIdForRescan(libraryId);
 
         List<LibraryFile> allLibraryFiles = libraryFileHelper.getAllLibraryFiles(libraryEntity);
+        allLibraryFiles = libraryFileHelper.reconcileRescanCandidates(allLibraryFiles, books);
         List<LibraryFile> filteredFiles = libraryFileHelper.filterByAllowedFormats(
                 allLibraryFiles, libraryEntity.getAllowedFormats());
 
