@@ -1,6 +1,7 @@
 package org.booklore.service.fileprocessor;
 
 import org.booklore.mapper.BookMapper;
+import org.booklore.model.document.DocumentBlock;
 import org.booklore.model.document.DocumentContent;
 import org.booklore.model.document.DocumentParseResult;
 import org.booklore.model.dto.settings.LibraryFile;
@@ -16,6 +17,7 @@ import org.booklore.service.book.BookCreatorService;
 import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
+import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,7 +92,11 @@ class DocProcessorTest {
     @Test
     void appliesPropertiesAndReadableStatusFromSingleParseResult() {
         DocumentContent content = new DocumentContent(
-                List.of(), "Internal Report", "Ada Lovelace", LocalDate.of(2026, 7, 31));
+                List.of(
+                        new DocumentBlock(1, 0, "Opening paragraph"),
+                        new DocumentBlock(4, 0, "Distinctive café phrase"),
+                        new DocumentBlock(7, 0, "Closing paragraph")),
+                "Internal Report", "Ada Lovelace", LocalDate.of(2026, 7, 31));
         when(documentContentExtractor.parse(book.getFullFilePath().toFile()))
                 .thenReturn(DocumentParseResult.readable(content));
 
@@ -99,6 +105,8 @@ class DocProcessorTest {
         assertThat(result.getMetadata().getTitle()).isEqualTo("Internal Report");
         assertThat(result.getMetadata().getPublishedDate()).isEqualTo(LocalDate.of(2026, 7, 31));
         assertThat(result.getPrimaryBookFile().getDocumentParseStatus()).isEqualTo(DocumentParseStatus.READABLE);
+        assertThat(BookUtils.extractDocumentBodySearchText(result.getMetadata().getSearchText()))
+                .isEqualTo("opening paragraph distinctive cafe phrase closing paragraph");
         verify(bookCreatorService).addAuthorsToBook(Set.of("Ada Lovelace"), book);
         verify(documentContentExtractor).parse(book.getFullFilePath().toFile());
     }
@@ -113,6 +121,7 @@ class DocProcessorTest {
         assertThat(result).isSameAs(book);
         assertThat(result.getMetadata().getTitle()).isEqualTo("report");
         assertThat(result.getPrimaryBookFile().getDocumentParseStatus()).isEqualTo(DocumentParseStatus.UNREADABLE);
+        assertThat(BookUtils.extractDocumentBodySearchText(result.getMetadata().getSearchText())).isEmpty();
         verify(documentContentExtractor).parse(book.getFullFilePath().toFile());
     }
 
@@ -125,5 +134,21 @@ class DocProcessorTest {
 
         assertThat(result.getMetadata().getTitle()).isEqualTo("report");
         assertThat(result.getPrimaryBookFile().getDocumentParseStatus()).isNull();
+        assertThat(BookUtils.extractDocumentBodySearchText(result.getMetadata().getSearchText())).isEmpty();
+    }
+
+    @Test
+    void keepsReadableVerdictWhenBodyProjectionRequiresTruncation() {
+        DocumentContent content = new DocumentContent(
+                List.of(new DocumentBlock(0, 0, "📚".repeat(20_000))));
+        when(documentContentExtractor.parse(book.getFullFilePath().toFile()))
+                .thenReturn(DocumentParseResult.readable(content));
+
+        BookEntity result = processor.processNewFile(libraryFile);
+
+        assertThat(result.getPrimaryBookFile().getDocumentParseStatus()).isEqualTo(DocumentParseStatus.READABLE);
+        assertThat(result.getMetadata().getSearchText().getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                .hasSizeLessThanOrEqualTo(60 * 1024);
+        verify(documentContentExtractor).parse(book.getFullFilePath().toFile());
     }
 }

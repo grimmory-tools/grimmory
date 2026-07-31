@@ -15,6 +15,7 @@ import org.booklore.service.book.BookCreatorService;
 import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
+import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -72,12 +73,18 @@ public class DocProcessor extends AbstractFileProcessor implements BookFileProce
         String title = content == null ? null : truncate(content.title(), 1000);
         metadata.setTitle(StringUtils.isBlank(title) ? filenameTitle(bookEntity) : title);
 
+        String documentBody = "";
         if (content != null) {
             metadata.setPublishedDate(content.createdDate());
             if (StringUtils.isNotBlank(content.author())) {
                 bookCreatorService.addAuthorsToBook(Set.of(content.author()), bookEntity);
             }
+            if (result.isReadable()) {
+                documentBody = BookUtils.collectDocumentBodySearchText(
+                        content.blocks().stream().map(block -> block.text()));
+            }
         }
+        metadata.replaceDocumentBodySearchText(documentBody);
     }
 
     private String filenameTitle(BookEntity bookEntity) {

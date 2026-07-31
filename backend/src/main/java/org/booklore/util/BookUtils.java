@@ -6,9 +6,12 @@ import org.booklore.model.entity.BookMetadataEntity;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.regex.Pattern;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 
 @UtilityClass
@@ -25,6 +28,8 @@ public class BookUtils {
     private static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile("[!@$%^&*_=|~`<>?/\"]");
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
     private static final Pattern PARENTHESIS_PATTERN = Pattern.compile("\\s?\\([^()]*\\)");
+    private static final String DOCUMENT_BODY_SEARCH_BOUNDARY = "\u001F\n";
+    private static final int DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES = 60 * 1024;
 
     public static String buildSearchText(BookMetadataEntity e) {
         if (e == null) return null;
@@ -64,6 +69,80 @@ public class BookUtils {
         // Use cleanSearchTerm instead of cleanAndTruncateSearchTerm
         s = cleanSearchTerm(s);
         return s.toLowerCase();
+    }
+
+    public static String composeDocumentSearchText(String metadataSearchText, String documentBody) {
+        if (documentBody == null) {
+            return metadataSearchText;
+        }
+        String normalizedBody = normalizeForSearch(documentBody);
+        String metadata = metadataSearchText == null ? "" : metadataSearchText;
+        int boundaryBytes = DOCUMENT_BODY_SEARCH_BOUNDARY.getBytes(StandardCharsets.UTF_8).length;
+        String boundedMetadata = truncateUtf8(metadata, DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES - boundaryBytes);
+        String body = normalizedBody == null ? "" : normalizedBody;
+        return truncateUtf8(boundedMetadata + DOCUMENT_BODY_SEARCH_BOUNDARY + body,
+                DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES);
+    }
+
+    public static String collectDocumentBodySearchText(Stream<String> blocks) {
+        StringBuilder body = new StringBuilder(DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES);
+        int retainedBytes = 0;
+        try (blocks) {
+            Iterator<String> iterator = blocks.iterator();
+            while (iterator.hasNext() && retainedBytes < DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES) {
+                String block = iterator.next();
+                if (block == null || block.isBlank()) {
+                    continue;
+                }
+                if (!body.isEmpty()) {
+                    body.append(' ');
+                    retainedBytes++;
+                }
+                for (int offset = 0; offset < block.length();) {
+                    int codePoint = block.codePointAt(offset);
+                    int codePointBytes = utf8Length(codePoint);
+                    if (retainedBytes + codePointBytes > DOCUMENT_SEARCH_TEXT_MAX_UTF8_BYTES) {
+                        return body.toString();
+                    }
+                    body.appendCodePoint(codePoint);
+                    retainedBytes += codePointBytes;
+                    offset += Character.charCount(codePoint);
+                }
+            }
+        }
+        return body.toString();
+    }
+
+    public static String extractDocumentBodySearchText(String searchText) {
+        if (searchText == null) {
+            return null;
+        }
+        int boundary = searchText.indexOf(DOCUMENT_BODY_SEARCH_BOUNDARY);
+        return boundary < 0
+                ? null
+                : searchText.substring(boundary + DOCUMENT_BODY_SEARCH_BOUNDARY.length());
+    }
+
+    private static String truncateUtf8(String value, int maxBytes) {
+        int bytes = 0;
+        int end = 0;
+        while (end < value.length()) {
+            int codePoint = value.codePointAt(end);
+            int codePointBytes = utf8Length(codePoint);
+            if (bytes + codePointBytes > maxBytes) {
+                break;
+            }
+            bytes += codePointBytes;
+            end += Character.charCount(codePoint);
+        }
+        return end == value.length() ? value : value.substring(0, end);
+    }
+
+    private static int utf8Length(int codePoint) {
+        if (codePoint <= 0x7F) return 1;
+        if (codePoint <= 0x7FF) return 2;
+        if (codePoint <= 0xFFFF) return 3;
+        return 4;
     }
 
     public static String cleanFileName(String fileName) {

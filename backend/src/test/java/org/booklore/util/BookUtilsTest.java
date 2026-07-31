@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -459,5 +460,42 @@ class BookUtilsTest {
     void testNormalizeForSearch_handlesMixedCaseDiacritics() {
         assertEquals("francois", BookUtils.normalizeForSearch("François"));
         assertEquals("francois", BookUtils.normalizeForSearch("FRANÇOIS"));
+    }
+
+    @Test
+    void composeDocumentSearchText_normalizesBodyAndKeepsItExtractable() {
+        String searchText = BookUtils.composeDocumentSearchText(
+                "existing metadata",
+                "  Crème\tBrûlée\nappears HERE!  ");
+
+        assertEquals("creme brulee appears here", BookUtils.extractDocumentBodySearchText(searchText));
+        assertTrue(searchText.startsWith("existing metadata"));
+    }
+
+    @Test
+    void composeDocumentSearchText_keepsDocumentEnvelopeForBlankBody() {
+        String searchText = BookUtils.composeDocumentSearchText("existing metadata", " \n\t ");
+
+        assertTrue(searchText.startsWith("existing metadata"));
+        assertEquals("", BookUtils.extractDocumentBodySearchText(searchText));
+    }
+
+    @Test
+    void composeDocumentSearchText_truncatesUtf8WithoutSplittingCodePoint() {
+        String searchText = BookUtils.composeDocumentSearchText("metadata", "Ż".repeat(40_000));
+
+        assertTrue(searchText.getBytes(StandardCharsets.UTF_8).length <= 60 * 1024);
+        assertFalse(searchText.endsWith("\uFFFD"));
+        assertDoesNotThrow(() -> StandardCharsets.UTF_8.newEncoder().encode(java.nio.CharBuffer.wrap(searchText)));
+    }
+
+    @Test
+    void collectDocumentBodySearchText_stopsBeforeMaterializingTheExtractionEnvelope() {
+        String body = BookUtils.collectDocumentBodySearchText(
+                java.util.stream.Stream.of("opening", "📚".repeat(20_000), "unreachable tail"));
+
+        assertTrue(body.startsWith("opening "));
+        assertTrue(body.getBytes(StandardCharsets.UTF_8).length <= 60 * 1024);
+        assertFalse(body.contains("unreachable tail"));
     }
 }

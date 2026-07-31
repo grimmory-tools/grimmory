@@ -333,8 +333,13 @@ public class BookMetadataEntity {
     @PrePersist
     @PreUpdate
     public void updateSearchText() {
+        String documentBody = BookUtils.extractDocumentBodySearchText(this.searchText);
         trimStringFields();
-        this.searchText = BookUtils.buildSearchText(this);
+        this.searchText = BookUtils.composeDocumentSearchText(BookUtils.buildSearchText(this), documentBody);
+    }
+
+    public void replaceDocumentBodySearchText(String documentBody) {
+        this.searchText = BookUtils.composeDocumentSearchText(BookUtils.buildSearchText(this), documentBody);
     }
 
     private void trimStringFields() {

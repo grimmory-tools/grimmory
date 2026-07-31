@@ -2,6 +2,8 @@ package org.booklore.model.entity;
 
 import org.booklore.util.BookUtils;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -195,5 +197,59 @@ class BookMetadataEntityTest {
             "Search 'NESBO' should match stored text: " + storedSearchText);
         assertTrue(storedSearchText.contains(searchQuery4), 
             "Search 'Jo Nesbø' should match stored text: " + storedSearchText);
+    }
+
+    @Test
+    void updateSearchText_preservesDocumentBodyWhileReplacingMetadataTokens() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Old title");
+        metadata.replaceDocumentBodySearchText("Distinctive café phrase");
+
+        metadata.setTitle("New title");
+        metadata.updateSearchText();
+
+        assertThat(metadata.getSearchText())
+                .contains("new title")
+                .contains("distinctive cafe phrase")
+                .doesNotContain("old title");
+    }
+
+    @Test
+    void replaceDocumentBodySearchText_replacesRatherThanAccumulates() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Document");
+        metadata.replaceDocumentBodySearchText("first body phrase");
+
+        metadata.replaceDocumentBodySearchText("second body phrase");
+
+        assertThat(metadata.getSearchText())
+                .contains("second body phrase")
+                .doesNotContain("first body phrase");
+        assertThat(BookUtils.extractDocumentBodySearchText(metadata.getSearchText()))
+                .isEqualTo("second body phrase");
+    }
+
+    @Test
+    void replaceDocumentBodySearchText_keepsDocumentEnvelopeForBlankReplacement() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Document");
+        metadata.replaceDocumentBodySearchText("body phrase");
+
+        metadata.replaceDocumentBodySearchText(" \t\n ");
+
+        assertThat(metadata.getSearchText()).startsWith("document");
+        assertThat(BookUtils.extractDocumentBodySearchText(metadata.getSearchText())).isEmpty();
+    }
+
+    @Test
+    void updateSearchText_keepsDocumentSearchTextWithinUtf8Envelope() {
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setTitle("Ż".repeat(1_000));
+        metadata.replaceDocumentBodySearchText("📚".repeat(20_000));
+
+        metadata.updateSearchText();
+
+        assertThat(metadata.getSearchText().getBytes(StandardCharsets.UTF_8)).hasSizeLessThanOrEqualTo(60 * 1024);
+        assertThat(metadata.getSearchText()).doesNotEndWith("\uFFFD");
     }
 }
