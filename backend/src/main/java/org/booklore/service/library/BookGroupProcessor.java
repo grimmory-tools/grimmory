@@ -10,10 +10,12 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.event.BookAddedEvent;
+import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -43,6 +45,7 @@ public class BookGroupProcessor {
     private final BookFileProcessorRegistry processorRegistry;
     private final BookCoverGenerator bookCoverGenerator;
     private final ApplicationEventPublisher eventPublisher;
+    private final DocumentContentExtractor documentContentExtractor;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void process(List<LibraryFile> group, long libraryId) {
@@ -131,6 +134,7 @@ public class BookGroupProcessor {
                 .isBookFormat(true)
                 .folderBased(file.isFolderBased())
                 .bookType(file.getBookFileType())
+                .documentParseStatus(parseDocumentStatus(file))
                 .fileSizeKb(fileSizeKb)
                 .initialHash(hash)
                 .currentHash(hash)
@@ -146,5 +150,11 @@ public class BookGroupProcessor {
         } catch (Exception e) {
             log.error("Error creating additional file {}: {}", file.getFileName(), e.getMessage());
         }
+    }
+
+    private DocumentParseStatus parseDocumentStatus(LibraryFile file) {
+        return file.getBookFileType() == BookFileType.DOC
+                ? documentContentExtractor.parse(file.getFullPath().toFile()).status()
+                : null;
     }
 }

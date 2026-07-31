@@ -176,8 +176,14 @@ export class BookCardComponent {
   });
 
   readonly hasDigitalFile = computed(() => !!this.book().primaryFile);
+  readonly isUnreadableDocument = computed(() =>
+    this.book().primaryFile?.bookType === 'DOC'
+    && this.book().primaryFile?.documentParseStatus === 'UNREADABLE'
+  );
   // Download-only formats (OTHER) have no reader, so the card hides its Read affordance for them.
-  readonly isReadable = computed(() => isReadableBookType(this.book().primaryFile?.bookType));
+  readonly isReadable = computed(() =>
+    !this.isUnreadableDocument() && isReadableBookType(this.book().primaryFile?.bookType)
+  );
 
   readonly readingUrl = computed(() => this.urlHelper.getBookPrimaryReadingUrl(this.book()));
 

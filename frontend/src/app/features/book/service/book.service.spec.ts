@@ -306,6 +306,29 @@ describe('BookService', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/ebook-reader/book/43'], {queryParams: {streaming: false}});
   });
 
+  it('reports a known unreadable document without navigating to the reader', () => {
+    setup();
+    queryClientHarness.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [
+      buildBook(44, {
+        primaryFile: {
+          id: 1,
+          bookId: 44,
+          bookType: 'DOC',
+          documentParseStatus: 'UNREADABLE',
+        },
+      }),
+    ]);
+
+    service.readBook(44);
+
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(TestBed.inject(MessageService).add).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'book.bookService.toast.unreadableDocumentSummary',
+      detail: 'book.bookService.toast.unreadableDocumentDetail',
+    });
+  });
+
   it('invalidates book list caches when removing a shelf from books', async () => {
     setup();
 

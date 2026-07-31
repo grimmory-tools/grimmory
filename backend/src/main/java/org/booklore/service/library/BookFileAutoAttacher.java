@@ -8,6 +8,9 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
+import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
+import org.booklore.service.document.DocumentContentExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class BookFileAutoAttacher {
 
     private final BookRepository bookRepository;
     private final BookAdditionalFileRepository bookAdditionalFileRepository;
+    private final DocumentContentExtractor documentContentExtractor;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Optional<BookEntity> attach(Long bookId, LibraryFile file, String hash, Long fileSizeKb) {
@@ -49,6 +53,7 @@ public class BookFileAutoAttacher {
                 .fileSubPath(file.getFileSubPath())
                 .isBookFormat(true)
                 .bookType(file.getBookFileType())
+                .documentParseStatus(parseDocumentStatus(file))
                 .folderBased(file.isFolderBased())
                 .fileSizeKb(fileSizeKb)
                 .initialHash(hash)
@@ -61,5 +66,11 @@ public class BookFileAutoAttacher {
         String primaryFileName = book.hasFiles() ? book.getPrimaryBookFile().getFileName() : "book#" + book.getId();
         log.info("Auto-attached new format {} to existing book: {}", file.getFileName(), primaryFileName);
         return Optional.of(book);
+    }
+
+    private DocumentParseStatus parseDocumentStatus(LibraryFile file) {
+        return file.getBookFileType() == BookFileType.DOC
+                ? documentContentExtractor.parse(file.getFullPath().toFile()).status()
+                : null;
     }
 }

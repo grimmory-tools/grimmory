@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.booklore.convertor.AudioFileChapterListConverter;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.util.ArchiveUtils;
 
 import java.io.IOException;
@@ -52,6 +53,10 @@ public class BookFileEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "book_type", nullable = false)
     private BookFileType bookType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "document_parse_status")
+    private DocumentParseStatus documentParseStatus;
 
     @Column(name = "is_fixed_layout", nullable = false)
     @Builder.Default

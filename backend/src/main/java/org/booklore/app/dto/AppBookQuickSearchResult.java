@@ -15,6 +15,7 @@ public record AppBookQuickSearchResult(
         Float seriesNumber,
         LocalDate publishedDate,
         String primaryFileType,
+        String primaryFileDocumentParseStatus,
         String primaryFileName,
         Instant coverUpdatedOn,
         Instant audiobookCoverUpdatedOn) {

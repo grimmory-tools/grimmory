@@ -365,6 +365,7 @@ function bookToSummaryPatch(book: Book): Partial<AppBookSummary> {
   if (book.primaryFile !== undefined) {
     patch.primaryFileId = book.primaryFile?.id ?? null;
     patch.primaryFileType = book.primaryFile?.bookType ?? null;
+    patch.primaryFileDocumentParseStatus = book.primaryFile?.documentParseStatus ?? null;
     patch.primaryFileName = book.primaryFile?.fileName ?? null;
   }
   for (const key of PROGRESS_KEYS) {

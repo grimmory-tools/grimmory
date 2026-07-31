@@ -8,6 +8,7 @@ import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileExtension;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.model.websocket.LogNotification;
 import org.booklore.model.websocket.Topic;
@@ -16,6 +17,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.file.FileFingerprint;
+import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.service.library.LibraryProcessingService;
 import org.booklore.util.BookFileGroupingUtils;
 import org.booklore.util.FileUtils;
@@ -51,6 +53,7 @@ public class BookFileTransactionalHandler {
     private final BookRepository bookRepository;
     private final BookAdditionalFileRepository bookAdditionalFileRepository;
     private final PendingDeletionPool pendingDeletionPool;
+    private final DocumentContentExtractor documentContentExtractor;
 
     @Transactional()
     @SuppressWarnings("java:S1874") // AUTO_DETECT is a deprecated but still-supported compat default for pre-existing libraries; no replacement exists
@@ -444,6 +447,7 @@ public class BookFileTransactionalHandler {
                 .bookType(BookFileExtension.fromFileName(fileName)
                         .map(BookFileExtension::getType)
                         .orElse(null))
+                .documentParseStatus(parseDocumentStatus(fileName, fullPath))
                 .fileSizeKb(FileUtils.getFileSizeInKb(fullPath))
                 .initialHash(hash)
                 .currentHash(hash)
@@ -454,5 +458,13 @@ public class BookFileTransactionalHandler {
         book.setHasFiles(true);
         String primaryFileName = book.hasFiles() ? book.getPrimaryBookFile().getFileName() : BOOK_ID_PREFIX + book.getId();
         log.info("Auto-attached new format {} to existing book: {}", fileName, primaryFileName);
+    }
+
+    private DocumentParseStatus parseDocumentStatus(String fileName, Path fullPath) {
+        return BookFileExtension.fromFileName(fileName)
+                .map(BookFileExtension::getType)
+                .filter(type -> type == BookFileType.DOC)
+                .map(ignored -> documentContentExtractor.parse(fullPath.toFile()).status())
+                .orElse(null);
     }
 }

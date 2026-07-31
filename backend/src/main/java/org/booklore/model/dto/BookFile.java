@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.util.ArchiveUtils;
 
 import java.time.Instant;
@@ -21,6 +22,7 @@ public class BookFile {
     private boolean isBook;
     private boolean folderBased;
     private BookFileType bookType;
+    private DocumentParseStatus documentParseStatus;
     private ArchiveUtils.ArchiveType archiveType;
     private Long fileSizeKb;
     private String extension;

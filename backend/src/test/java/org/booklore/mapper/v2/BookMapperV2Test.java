@@ -6,6 +6,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
@@ -32,10 +33,11 @@ class BookMapperV2Test {
 
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(entity);
-        primaryFile.setFileName("test-book.epub");
+        primaryFile.setFileName("test-book.docx");
         primaryFile.setFileSubPath("fiction/science-fiction");
         primaryFile.setBookFormat(true);
-        primaryFile.setBookType(BookFileType.EPUB);
+        primaryFile.setBookType(BookFileType.DOC);
+        primaryFile.setDocumentParseStatus(DocumentParseStatus.UNREADABLE);
         primaryFile.setFileSizeKb(1024L);
 
         BookFileEntity supplementaryFile = new BookFileEntity();
@@ -60,8 +62,9 @@ class BookMapperV2Test {
         assertThat(dto.getLibraryPath().getId()).isEqualTo(1L);
 
         assertThat(dto.getPrimaryFile()).isNotNull();
-        assertThat(dto.getPrimaryFile().getBookType()).isEqualTo(BookFileType.EPUB);
-        assertThat(dto.getPrimaryFile().getFileName()).isEqualTo("test-book.epub");
+        assertThat(dto.getPrimaryFile().getBookType()).isEqualTo(BookFileType.DOC);
+        assertThat(dto.getPrimaryFile().getDocumentParseStatus()).isEqualTo(DocumentParseStatus.UNREADABLE);
+        assertThat(dto.getPrimaryFile().getFileName()).isEqualTo("test-book.docx");
         assertThat(dto.getPrimaryFile().getFileSubPath()).isEqualTo("fiction/science-fiction");
         assertThat(dto.getPrimaryFile().getFileSizeKb()).isEqualTo(1024L);
         assertThat(dto.getPrimaryFile().getFilePath()).isNotNull();

@@ -10,6 +10,7 @@ import org.booklore.model.dto.response.EpubTocItem;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.inpx.ArchivedBookContentService;
 import org.booklore.util.FileUtils;
@@ -192,6 +193,7 @@ public class EpubReaderService {
                     .filter(bf -> bf.getBookType() == requestedType)
                     .findFirst()
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
+            rejectKnownUnreadableDocument(bookFile);
             return bookFile.isArchivedSource()
                     ? archivedBookContentService.resolve(bookFile)
                     : bookFile.getFullFilePath();
@@ -199,9 +201,18 @@ public class EpubReaderService {
         // An entry inside an INPX archive has no path of its own: it is materialised into a cached
         // file first, the same way downloads and metadata extraction already reach archived content.
         BookFileEntity primaryFile = bookEntity.getPrimaryBookFile();
+        rejectKnownUnreadableDocument(primaryFile);
         return primaryFile != null && primaryFile.isArchivedSource()
                 ? archivedBookContentService.resolve(primaryFile)
                 : FileUtils.getBookFullPath(bookEntity);
+    }
+
+    private void rejectKnownUnreadableDocument(BookFileEntity bookFile) {
+        if (bookFile != null
+                && bookFile.getBookType() == BookFileType.DOC
+                && bookFile.getDocumentParseStatus() == DocumentParseStatus.UNREADABLE) {
+            throw ApiError.DOCUMENT_UNREADABLE.createException();
+        }
     }
 
     private CachedEpubMetadata getCachedMetadata(Path epubPath) throws IOException {

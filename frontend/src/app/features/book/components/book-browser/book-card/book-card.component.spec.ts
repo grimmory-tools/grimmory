@@ -369,6 +369,27 @@ describe('BookCardComponent', () => {
     expect(bookService.readBook).toHaveBeenCalledWith(13);
   });
 
+  it('shows a translated unreadable-document state and hides only the read affordance', () => {
+    ref.setInput('book', makeBook({
+      id: 14,
+      primaryFile: {
+        id: 141,
+        bookId: 14,
+        bookType: 'DOC',
+        extension: 'docx',
+        documentParseStatus: 'UNREADABLE',
+      },
+    }));
+    fixture.detectChanges();
+
+    const overlay = fixture.nativeElement.querySelector('.unreadable-document-overlay') as HTMLElement;
+    expect(component.isUnreadableDocument()).toBe(true);
+    expect(component.isReadable()).toBe(false);
+    expect(overlay.textContent).toContain('Unreadable');
+    expect(overlay.getAttribute('aria-label')).toContain('still available to download');
+    expect(fixture.nativeElement.querySelector('.read-btn')).toBeNull();
+  });
+
   it('derives display format from missing primary files, extensions, paths, and forced audiobook ebook types', () => {
     ref.setInput('book', makeBook({id: 20, primaryFile: undefined}));
     ref.setInput('forceEbookMode', false);

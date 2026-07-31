@@ -74,6 +74,8 @@
     }
   },
   "card": {
+    "unreadableDocument": "Unreadable",
+    "unreadableDocumentDetail": "This document cannot be read, but it is still available to download.",
     "menu": {
       "assignShelf": "Assign Shelf",
       "viewDetails": "View Details",
@@ -169,6 +171,8 @@
       "physicalBookCreatedDetail": "\"{{ title }}\" has been added to your library.",
       "creationFailedSummary": "Creation Failed",
       "creationFailedDetail": "An error occurred while creating the physical book.",
+      "unreadableDocumentSummary": "Unreadable document",
+      "unreadableDocumentDetail": "This document cannot be read, but it is still available to download.",
       "fileDeletedSummary": "File Deleted",
       "additionalFileDeletedDetail": "Additional file deleted successfully.",
       "bookFileDeletedDetail": "Book file deleted successfully.",

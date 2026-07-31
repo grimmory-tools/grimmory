@@ -30,6 +30,7 @@ public class AppBookSummary {
     private Float readProgress;
     private Long primaryFileId;
     private String primaryFileType;
+    private String primaryFileDocumentParseStatus;
     private String primaryFileName;
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;

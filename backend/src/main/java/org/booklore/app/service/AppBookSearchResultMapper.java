@@ -30,6 +30,9 @@ final class AppBookSearchResultMapper {
                 .seriesNumber(metadata == null ? null : metadata.getSeriesNumber())
                 .publishedDate(metadata == null ? null : metadata.getPublishedDate())
                 .primaryFileType(primaryFile == null ? null : primaryFile.getBookType().name())
+                .primaryFileDocumentParseStatus(primaryFile == null || primaryFile.getDocumentParseStatus() == null
+                        ? null
+                        : primaryFile.getDocumentParseStatus().name())
                 .primaryFileName(primaryFile == null ? null : primaryFile.getFileName())
                 .coverUpdatedOn(metadata == null ? null : metadata.getCoverUpdatedOn())
                 .audiobookCoverUpdatedOn(metadata == null ? null : metadata.getAudiobookCoverUpdatedOn())

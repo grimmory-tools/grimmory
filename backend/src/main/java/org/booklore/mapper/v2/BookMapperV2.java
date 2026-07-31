@@ -172,6 +172,7 @@ public interface BookMapperV2 {
                 .fileSubPath(entity.getFileSubPath())
                 .isBook(entity.isBook())
                 .bookType(entity.getBookType())
+                .documentParseStatus(entity.getDocumentParseStatus())
                 .archiveType(entity.getArchiveType())
                 .fileSizeKb(entity.getFileSizeKb())
                 .extension(extractExtension(entity))

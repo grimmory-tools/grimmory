@@ -33,6 +33,7 @@ function makeBook(
     seriesNumber: null,
     publishedDate: null,
     primaryFileType: null,
+    primaryFileDocumentParseStatus: null,
     primaryFileName: null,
     coverUpdatedOn: null,
     audiobookCoverUpdatedOn: null,

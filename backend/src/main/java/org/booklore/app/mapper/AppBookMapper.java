@@ -33,6 +33,7 @@ public interface AppBookMapper {
     @Mapping(target = "readProgress", source = "progress", qualifiedByName = "mapReadProgress")
     @Mapping(target = "primaryFileId", source = "book", qualifiedByName = "mapPrimaryFileId")
     @Mapping(target = "primaryFileType", source = "book", qualifiedByName = "mapPrimaryFileType")
+    @Mapping(target = "primaryFileDocumentParseStatus", source = "book", qualifiedByName = "mapPrimaryFileDocumentParseStatus")
     @Mapping(target = "primaryFileName", source = "book", qualifiedByName = "mapPrimaryFileName")
     @Mapping(target = "coverUpdatedOn", source = "book.metadata.coverUpdatedOn")
     @Mapping(target = "audiobookCoverUpdatedOn", source = "book.metadata.audiobookCoverUpdatedOn")
@@ -347,6 +348,17 @@ public interface AppBookMapper {
         return primaryFile != null ? primaryFile.getId() : null;
     }
 
+    @Named("mapPrimaryFileDocumentParseStatus")
+    default String mapPrimaryFileDocumentParseStatus(BookEntity book) {
+        if (book == null) {
+            return null;
+        }
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        return primaryFile != null && primaryFile.getDocumentParseStatus() != null
+                ? primaryFile.getDocumentParseStatus().name()
+                : null;
+    }
+
     @Named("mapPrimaryFileName")
     default String mapPrimaryFileName(BookEntity book) {
         if (book == null) {
@@ -397,6 +409,9 @@ public interface AppBookMapper {
                             .isBook(bf.isBook())
                             .folderBased(bf.isFolderBased())
                             .bookType(bf.getBookType().name())
+                            .documentParseStatus(bf.getDocumentParseStatus() != null
+                                    ? bf.getDocumentParseStatus().name()
+                                    : null)
                             .archiveType(bf.getArchiveType() != null ? bf.getArchiveType().name() : null)
                             .fileSizeKb(bf.getFileSizeKb())
                             .extension(extension)

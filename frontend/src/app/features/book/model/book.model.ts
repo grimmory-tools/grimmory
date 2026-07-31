@@ -4,6 +4,7 @@ import {BookReview} from '../components/book-reviews/book-review-service';
 
 export const BOOK_TYPES = ['PDF', 'EPUB', 'CBX', 'FB2', 'MOBI', 'AZW3', 'AUDIOBOOK', 'DOC', 'OTHER'] as const;
 export type BookType = typeof BOOK_TYPES[number];
+export type DocumentParseStatus = 'READABLE' | 'UNREADABLE';
 
 // Formats with a reader. DOC reads through the ebook reader via a rendition synthesised on the
 // server. OTHER (djvu, rtf, … ingested from INPX archives) stays a download-only catalog entry:
@@ -31,6 +32,7 @@ export interface BookFile extends FileInfo {
   id: number;
   bookId: number;
   bookType?: BookType;
+  documentParseStatus?: DocumentParseStatus;
   folderBased?: boolean;
   extension?: string;
   addedOn?: string;

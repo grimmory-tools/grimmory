@@ -1,4 +1,4 @@
-import {BookType} from './book.model';
+import {BookType, DocumentParseStatus} from './book.model';
 
 export interface AppPageResponse<T> {
   content: T[];
@@ -33,6 +33,7 @@ export interface AppBookSummary {
   readProgress: number | null;
   primaryFileId: number | null;
   primaryFileType: BookType | null;
+  primaryFileDocumentParseStatus?: DocumentParseStatus | null;
   primaryFileName: string | null;
   coverUpdatedOn: string | null;
   audiobookCoverUpdatedOn: string | null;
@@ -72,6 +73,7 @@ export interface AppBookQuickSearchResult {
   seriesNumber: number | null;
   publishedDate: string | null;
   primaryFileType: BookType | null;
+  primaryFileDocumentParseStatus: DocumentParseStatus | null;
   primaryFileName: string | null;
   coverUpdatedOn: string | null;
   audiobookCoverUpdatedOn: string | null;

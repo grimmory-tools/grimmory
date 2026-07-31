@@ -22,6 +22,15 @@
           {{ fmt }}
         </div>
       }
+      @if (isUnreadableDocument()) {
+        <div class="unreadable-document-overlay"
+             [pTooltip]="'book.card.unreadableDocumentDetail' | transloco"
+             tooltipPosition="bottom"
+             [attr.aria-label]="'book.card.unreadableDocumentDetail' | transloco">
+          <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+          {{ 'book.card.unreadableDocument' | transloco }}
+        </div>
+      }
       @if (!book().seriesCount && book().metadata?.seriesNumber !== null && book().metadata?.seriesNumber !== undefined) {
         <div class="series-number-overlay">
           #{{ book().metadata?.seriesNumber }}

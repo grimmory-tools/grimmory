@@ -520,6 +520,9 @@ function summaryToPrimaryFile(summary: AppBookSummary): BookFile | undefined {
   if (bookType) {
     primaryFile.bookType = bookType;
   }
+  if (summary.primaryFileDocumentParseStatus) {
+    primaryFile.documentParseStatus = summary.primaryFileDocumentParseStatus;
+  }
 
   return primaryFile;
 }

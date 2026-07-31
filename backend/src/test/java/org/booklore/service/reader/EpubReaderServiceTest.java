@@ -6,6 +6,9 @@ import org.booklore.model.dto.response.EpubManifestItem;
 import org.booklore.model.dto.response.EpubSpineItem;
 import org.booklore.model.dto.response.EpubTocItem;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.DocumentParseStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.util.FileUtils;
 import org.grimmory.epub4j.domain.*;
@@ -121,6 +124,25 @@ class EpubReaderServiceTest {
 
         assertThrows(ApiError.BOOK_NOT_FOUND.createException().getClass(),
                 () -> epubReaderService.getBookInfo(999L));
+    }
+
+    @Test
+    void knownUnreadableDocumentIsRejectedWithoutParsingAgain() {
+        BookFileEntity file = BookFileEntity.builder()
+                .book(bookEntity)
+                .bookType(BookFileType.DOC)
+                .isBookFormat(true)
+                .documentParseStatus(DocumentParseStatus.UNREADABLE)
+                .build();
+        bookEntity.setBookFiles(List.of(file));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
+
+        var exception = assertThrows(
+                ApiError.DOCUMENT_UNREADABLE.createException().getClass(),
+                () -> epubReaderService.getBookInfo(1L));
+
+        assertEquals("Document cannot be read", exception.getMessage());
+        verifyNoInteractions(documentRenditionService);
     }
 
     @Test

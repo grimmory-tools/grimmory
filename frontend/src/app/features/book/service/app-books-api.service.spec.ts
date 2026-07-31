@@ -6,7 +6,7 @@ import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {createAuthServiceStub, createQueryClientHarness, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import {AuthService} from '../../../shared/service/auth.service';
 import {AppBookSummary, AppPageResponse} from '../model/app-book.model';
-import {AppBooksApiService} from './app-books-api.service';
+import {AppBooksApiService, summaryToBook} from './app-books-api.service';
 
 function summary(id: number): AppBookSummary {
   return {
@@ -160,6 +160,20 @@ describe('AppBooksApiService', () => {
     request.flush([summary(1), summary(2)]);
 
     expect(result).toEqual([1, 2]);
+  });
+
+  it('preserves the document parse status when adapting paginated summaries', () => {
+    const unreadable = summary(7);
+    unreadable.primaryFileId = 70;
+    unreadable.primaryFileType = 'DOC';
+    unreadable.primaryFileName = 'report.docx';
+    unreadable.primaryFileDocumentParseStatus = 'UNREADABLE';
+
+    expect(summaryToBook(unreadable).primaryFile).toMatchObject({
+      id: 70,
+      bookType: 'DOC',
+      documentParseStatus: 'UNREADABLE',
+    });
   });
 
   it('windows the loaded range from the first retained page so callers can offset virtual indices', () => {

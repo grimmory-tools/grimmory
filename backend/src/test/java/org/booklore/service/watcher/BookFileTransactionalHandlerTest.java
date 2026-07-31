@@ -9,6 +9,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.library.LibraryProcessingService;
+import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.util.BookFileGroupingUtils;
 import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +42,7 @@ class BookFileTransactionalHandlerTest {
     @Mock private BookRepository bookRepository;
     @Mock private BookAdditionalFileRepository bookAdditionalFileRepository;
     @Mock private PendingDeletionPool pendingDeletionPool;
+    @Mock private DocumentContentExtractor documentContentExtractor;
 
     private BookFileTransactionalHandler handler;
 
@@ -58,7 +60,8 @@ class BookFileTransactionalHandlerTest {
         mocks = MockitoAnnotations.openMocks(this);
         handler = new BookFileTransactionalHandler(
                 bookFilePersistenceService, libraryProcessingService, notificationService,
-                libraryRepository, bookRepository, bookAdditionalFileRepository, pendingDeletionPool);
+                libraryRepository, bookRepository, bookAdditionalFileRepository, pendingDeletionPool,
+                documentContentExtractor);
 
         fingerprintMock = mockStatic(FileFingerprint.class);
         fileUtilsMock = mockStatic(FileUtils.class);

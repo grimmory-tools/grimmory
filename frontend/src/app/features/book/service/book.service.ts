@@ -339,6 +339,18 @@ export class BookService {
 
     const bookType: BookType | undefined = explicitBookType ?? book.primaryFile?.bookType;
     const isAlternativeFormat = explicitBookType && explicitBookType !== book.primaryFile?.bookType;
+    const selectedFile = isAlternativeFormat
+      ? book.alternativeFormats?.find(file => file.bookType === explicitBookType)
+      : book.primaryFile;
+
+    if (bookType === 'DOC' && selectedFile?.documentParseStatus === 'UNREADABLE') {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('book.bookService.toast.unreadableDocumentSummary'),
+        detail: this.t.translate('book.bookService.toast.unreadableDocumentDetail')
+      });
+      return;
+    }
 
     let baseUrl: string | null = null;
     const queryParams: Partial<{streaming: boolean; bookType: BookType}> = {};

@@ -20,6 +20,7 @@ public class AppBookFile {
     private boolean isBook;
     private boolean folderBased;
     private String bookType;
+    private String documentParseStatus;
     private String archiveType;
     private Long fileSizeKb;
     private String extension;

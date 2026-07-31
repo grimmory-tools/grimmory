@@ -2,7 +2,8 @@ package org.booklore.service.fileprocessor;
 
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.CoverExtraction;
-import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.document.DocumentContent;
+import org.booklore.model.document.DocumentParseResult;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
@@ -11,8 +12,8 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.book.BookCreatorService;
+import org.booklore.service.document.DocumentContentExtractor;
 import org.booklore.service.metadata.MetadataMatchService;
-import org.booklore.service.metadata.extractor.DocMetadataExtractor;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.util.FileService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ import static org.booklore.util.FileService.truncate;
 @Service
 public class DocProcessor extends AbstractFileProcessor implements BookFileProcessor {
 
-    private final DocMetadataExtractor docMetadataExtractor;
+    private final DocumentContentExtractor documentContentExtractor;
 
     public DocProcessor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -43,10 +44,10 @@ public class DocProcessor extends AbstractFileProcessor implements BookFileProce
                         FileService fileService,
                         MetadataMatchService metadataMatchService,
                         SidecarMetadataWriter sidecarMetadataWriter,
-                        DocMetadataExtractor docMetadataExtractor) {
+                        DocumentContentExtractor documentContentExtractor) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService,
                 metadataMatchService, sidecarMetadataWriter);
-        this.docMetadataExtractor = docMetadataExtractor;
+        this.documentContentExtractor = documentContentExtractor;
     }
 
     @Override
@@ -57,23 +58,24 @@ public class DocProcessor extends AbstractFileProcessor implements BookFileProce
     }
 
     /**
-     * Fills in what the document says about itself. A document that cannot be parsed - encrypted,
-     * password-protected or malformed - simply yields nothing here and keeps the filename baseline:
-     * the extractor reports the failure by returning null, and the book still reaches the catalog
-     * rather than failing the scan of its siblings.
+     * One bounded parse supplies both identifying properties and the body model used by search and
+     * the reader. Failures leave the filename baseline in place and are persisted on this file,
+     * while the shell book still reaches the catalog.
      */
     private void setBookMetadata(BookEntity bookEntity) {
         File file = bookEntity.getFullFilePath().toFile();
-        BookMetadata extracted = docMetadataExtractor.extractMetadata(file);
+        DocumentParseResult result = documentContentExtractor.parse(file);
+        bookEntity.getPrimaryBookFile().setDocumentParseStatus(result.status());
         BookMetadataEntity metadata = bookEntity.getMetadata();
 
-        String title = extracted == null ? null : truncate(extracted.getTitle(), 1000);
+        DocumentContent content = result.content();
+        String title = content == null ? null : truncate(content.title(), 1000);
         metadata.setTitle(StringUtils.isBlank(title) ? filenameTitle(bookEntity) : title);
 
-        if (extracted != null) {
-            metadata.setPublishedDate(extracted.getPublishedDate());
-            if (extracted.getAuthors() != null && !extracted.getAuthors().isEmpty()) {
-                bookCreatorService.addAuthorsToBook(Set.copyOf(extracted.getAuthors()), bookEntity);
+        if (content != null) {
+            metadata.setPublishedDate(content.createdDate());
+            if (StringUtils.isNotBlank(content.author())) {
+                bookCreatorService.addAuthorsToBook(Set.of(content.author()), bookEntity);
             }
         }
     }
