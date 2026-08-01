@@ -50,7 +50,7 @@ jobs:
           git checkout -B main "$(git rev-parse HEAD)"
 
       - name: Install just
-        uses: taiki-e/install-action@2ca9b94c269419b7b0c711c09d0b21c4e1d51145 # v2.83.1
+        uses: taiki-e/install-action@065d6a08a14e61e89fb0a4c10eecdbdef39c7d8e # v2.85.4
         with:
           tool: just
 
