@@ -1,8 +1,11 @@
 # No persistent volumes — all storage disabled.
 # Database: bundled MariaDB
 # Persistence: both PVCs disabled
+# Update strategy: RollingUpdate, safe with no ReadWriteOnce volumes to contend
 persistence:
   dataVolume:
     enabled: false
   booksVolume:
     enabled: false
+updateStrategy:
+  type: RollingUpdate

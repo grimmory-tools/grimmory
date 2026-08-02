@@ -153,6 +153,15 @@ persistence:
     enabled: true
     size: 10Gi
     existingClaim: ""
+# Deployment update strategy.
+# The PVCs above are ReadWriteOnce, and a surging replacement pod scheduled to
+# another node cannot attach a volume the outgoing pod still holds, so the
+# rollout deadlocks on a Multi-Attach error. Recreate avoids that by tearing
+# the old pod down first, at the cost of brief downtime during an upgrade.
+# Switch to RollingUpdate when persistence is disabled or the volumes are
+# ReadWriteMany.
+updateStrategy:
+  type: Recreate
 # Additional environment variables for the application container.
 # Example:
 # extraEnv:

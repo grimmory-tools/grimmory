@@ -6,6 +6,10 @@ metadata:
   labels:
     {{- include "grimmory.labels" . | nindent 4 }}
 spec:
+  {{- with .Values.updateStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "grimmory.selectorLabels" . | nindent 6 }}
