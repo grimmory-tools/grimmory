@@ -593,22 +593,22 @@
 }
 
 @media (width <= 767px) {
-  ::ng-deep .mobile-icon-only .p-button-label {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only .p-button-label {
     display: none !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only .p-button {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only .p-button {
     min-width: auto !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only.p-splitbutton .p-button-label {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only.p-splitbutton .p-button-label {
     display: none !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only.p-splitbutton .p-button {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only.p-splitbutton .p-button {
     min-width: auto !important;
     padding: 10px !important;
   }

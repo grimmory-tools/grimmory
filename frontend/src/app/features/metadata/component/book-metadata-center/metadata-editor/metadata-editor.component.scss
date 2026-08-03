@@ -45,11 +45,11 @@
   border-left: 0 !important;
 }
 
-::ng-deep p-fileupload .p-button-label {
+::ng-deep .cover-actions p-fileupload .p-button-label {
   display: none;
 }
 
-::ng-deep p-fileupload .p-button {
+::ng-deep .cover-actions p-fileupload .p-button {
   padding: 0.525rem 0.4375rem;
 }
 
