@@ -374,6 +374,17 @@ class KomgaServiceTest {
         verify(magicShelfService, never()).getUserShelves();
     }
 
+    @Test
+    void getCollectionsReturnsEmptyPageWhenOpdsUserHasNoShelves() {
+        when(magicShelfService.getUserShelvesForOpds(42L)).thenReturn(List.of());
+
+        KomgaPageableDto<KomgaCollectionDto> result = komgaService.getCollections(42L, 0, 20, false);
+
+        assertThat(result.getContent()).isEmpty();
+        verify(magicShelfService).getUserShelvesForOpds(42L);
+        verify(magicShelfService, never()).getUserShelves();
+    }
+
     BookLoreUser getBookloreUser(boolean isAdmin, List<LibraryEntity> libraries) {
         BookLoreUser.UserPermissions perms = new BookLoreUser.UserPermissions();
 
