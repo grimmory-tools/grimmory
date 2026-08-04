@@ -389,10 +389,10 @@ public class KomgaService {
         return seriesMap;
     }
     
-    public KomgaPageableDto<KomgaCollectionDto> getCollections(int page, int size, boolean unpaged) {
+    public KomgaPageableDto<KomgaCollectionDto> getCollections(Long userId, int page, int size, boolean unpaged) {
         log.debug("Getting collections, page: {}, size: {}, unpaged: {}", page, size, unpaged);
-        
-        List<MagicShelf> magicShelves = magicShelfService.getUserShelves();
+
+        List<MagicShelf> magicShelves = magicShelfService.getUserShelvesForOpds(userId);
         log.debug("Found {} magic shelves", magicShelves.size());
         
         // Convert to collection DTOs - for now, series count is 0 since we don't have 

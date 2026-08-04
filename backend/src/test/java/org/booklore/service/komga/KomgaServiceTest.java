@@ -3,7 +3,9 @@ package org.booklore.service.komga;
 import org.booklore.mapper.komga.KomgaMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
+import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.dto.komga.KomgaBookDto;
+import org.booklore.model.dto.komga.KomgaCollectionDto;
 import org.booklore.model.dto.komga.KomgaPageDto;
 import org.booklore.model.dto.komga.KomgaPageableDto;
 import org.booklore.model.dto.komga.KomgaSeriesDto;
@@ -353,6 +355,23 @@ class KomgaServiceTest {
                 .id(1L)
                 .library(library)
                 .build();
+    }
+
+    @Test
+    void getCollectionsUsesOpdsLinkedUserIdInsteadOfAuthenticatedPrincipal() {
+        MagicShelf shelf = new MagicShelf();
+        shelf.setId(7L);
+        shelf.setName("My Shelf");
+        when(magicShelfService.getUserShelvesForOpds(42L)).thenReturn(List.of(shelf));
+        when(komgaMapper.toKomgaCollectionDto(shelf, 0))
+                .thenReturn(KomgaCollectionDto.builder().id("7").name("My Shelf").build());
+
+        KomgaPageableDto<KomgaCollectionDto> result = komgaService.getCollections(42L, 0, 20, false);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().getName()).isEqualTo("My Shelf");
+        verify(magicShelfService).getUserShelvesForOpds(42L);
+        verify(magicShelfService, never()).getUserShelves();
     }
 
     BookLoreUser getBookloreUser(boolean isAdmin, List<LibraryEntity> libraries) {

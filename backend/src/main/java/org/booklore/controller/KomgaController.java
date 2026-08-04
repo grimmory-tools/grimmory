@@ -20,6 +20,7 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.service.book.BookService;
 import org.booklore.service.komga.KomgaService;
 import org.booklore.service.opds.OpdsUserV2Service;
+import org.booklore.service.user.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -45,6 +46,7 @@ public class KomgaController {
     private final BookService bookService;
     private final AuthenticationService authenticationService;
     private final OpdsUserV2Service opdsUserV2Service;
+    private final UserService userService;
     private final KomgaMapper komgaMapper;
 
     // Inject the dedicated komga mapper bean
@@ -61,12 +63,18 @@ public class KomgaController {
         }
     }
 
-    private void validateBookContentAccess(Long bookId) {
-        BookLoreUser user = authenticationService.getAuthenticatedUser();
-
-        if (user == null) {
+    // The Komga API authenticates against OPDS users (basic auth), so the security
+    // principal is an OpdsUserDetails, never a BookLoreUser.
+    private Long opdsLinkedUserId() {
+        OpdsUserDetails details = authenticationService.getOpdsUser();
+        if (details.getOpdsUserV2() == null || details.getOpdsUserV2().getUserId() == null) {
             throw ApiError.FORBIDDEN.createException("Authentication required");
         }
+        return details.getOpdsUserV2().getUserId();
+    }
+
+    private void validateBookContentAccess(Long bookId) {
+        BookLoreUser user = userService.getBookLoreUser(opdsLinkedUserId());
 
         if (!komgaService.validateBookContentAccess(user, bookId)) {
             throw ApiError.BOOK_NOT_FOUND.createException(bookId);
@@ -232,6 +240,6 @@ public class KomgaController {
             @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "Return all collections without paging") @RequestParam(defaultValue = "false") boolean unpaged) {
-        return writeJson(komgaService.getCollections(page, size, unpaged));
+        return writeJson(komgaService.getCollections(opdsLinkedUserId(), page, size, unpaged));
     }
 }
