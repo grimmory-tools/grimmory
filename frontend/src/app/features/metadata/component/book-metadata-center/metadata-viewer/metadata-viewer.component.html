@@ -410,7 +410,7 @@
               <span class="metadata-key">{{ t('languageLabel') }}</span>
               @if (book?.metadata!.language) {
                 <span class="metadata-value metadata-link" role="button" tabindex="0" (click)="goToLanguage(book?.metadata!.language!)" (keydown.enter)="goToLanguage(book?.metadata!.language!)">
-                  {{ book?.metadata!.language }}
+                  {{ languageResolver.displayName(book?.metadata!.language) }}
                 </span>
               } @else {
                 <span class="metadata-value">-</span>

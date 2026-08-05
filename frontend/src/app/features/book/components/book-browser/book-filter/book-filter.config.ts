@@ -199,6 +199,12 @@ const extractStringsAsFilters = (values: string[] | undefined): FilterValue[] =>
 const extractSingleString = (value: string | undefined | null): FilterValue[] =>
   value ? [{id: value, name: value}] : [];
 
+let languageDisplayName: (raw: string) => string = raw => raw;
+
+export function registerLanguageDisplayName(resolver: (raw: string) => string): void {
+  languageDisplayName = resolver;
+}
+
 export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, (book: Book) => FilterValue[]>> = {
   author: (book) => extractStringsAsFilters(book.metadata?.authors),
   category: (book) => extractStringsAsFilters(book.metadata?.categories),
@@ -231,7 +237,10 @@ export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, 
   lubimyczytacRating: (book) => findInRange(book.metadata?.lubimyczytacRating, RATING_RANGES_5),
   ranobedbRating: (book) => findInRange(book.metadata?.ranobedbRating, RATING_RANGES_5),
   audibleRating: (book) => findInRange(book.metadata?.audibleRating, RATING_RANGES_5),
-  language: (book) => extractSingleString(book.metadata?.language),
+  language: (book) => {
+    const language = book.metadata?.language;
+    return language ? [{id: language, name: languageDisplayName(language)}] : [];
+  },
   pageCount: (book) => findInRange(book.metadata?.pageCount, PAGE_COUNT_RANGES),
   mood: (book) => extractStringsAsFilters(book.metadata?.moods),
   ageRating: (book) => findInRange(book.metadata?.ageRating, AGE_RATING_OPTIONS),

@@ -55,7 +55,7 @@
             @if (metadata?.language) {
               <div class="metadata-item">
                 <span class="label">{{ t('language') }}</span>
-                <span class="value">{{ metadata?.language }}</span>
+                <span class="value">{{ languageResolver.displayName(metadata?.language) }}</span>
               </div>
             }
 

@@ -8,9 +8,10 @@ import {LibraryService} from '../../../service/library.service';
 import {BookRuleEvaluatorService} from '../../../../magic-shelf/service/book-rule-evaluator.service';
 import {GroupRule} from '../../../../magic-shelf/component/magic-shelf-component';
 import {EntityType} from '../book-browser.component';
-import {Filter, FILTER_CONFIGS, FILTER_EXTRACTORS, FilterType, FilterValue, NUMERIC_ID_FILTER_TYPES, SortMode} from './book-filter.config';
+import {Filter, FILTER_CONFIGS, FILTER_EXTRACTORS, FilterType, FilterValue, NUMERIC_ID_FILTER_TYPES, registerLanguageDisplayName, SortMode} from './book-filter.config';
 import {filterBooksByFilters} from '../filters/sidebar-filter';
 import {BookFilterMode} from '../../../../settings/user-management/user.service';
+import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 
 const MAX_FILTER_ITEMS = 100;
 
@@ -19,6 +20,11 @@ export class BookFilterService {
   private readonly bookService = inject(BookService);
   private readonly libraryService = inject(LibraryService);
   private readonly bookRuleEvaluatorService = inject(BookRuleEvaluatorService);
+  private readonly languageResolver = inject(LanguageResolverService);
+
+  constructor() {
+    registerLanguageDisplayName(raw => this.languageResolver.displayName(raw) || raw);
+  }
 
   createFilterSignals(
     entity: Signal<Library | Shelf | MagicShelf | null>,

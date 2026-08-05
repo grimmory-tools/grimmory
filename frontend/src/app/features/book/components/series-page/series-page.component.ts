@@ -28,6 +28,7 @@ import {TagComponent} from "../../../../shared/components/tag/tag.component";
 import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
@@ -101,6 +102,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly MOBILE_GRID_COLUMNS = 2;
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
+  private languageResolver = inject(LanguageResolverService);
   private bookMetadataManageService = inject(BookMetadataManageService);
   private metadataCenterViewMode: "route" | "dialog" = "route";
   private dialogRef?: DynamicDialogRef | null;
@@ -241,7 +243,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     const languages = new Set<string>();
     for (const book of this.filteredBooks()) {
       if (book.metadata?.language) {
-        languages.add(book.metadata.language);
+        languages.add(this.languageResolver.displayName(book.metadata.language));
       }
     }
     return Array.from(languages);

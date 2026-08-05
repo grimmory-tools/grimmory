@@ -33,6 +33,7 @@ import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, fileSizeRanges, matchScoreRan
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
+import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthorService} from '../../../../author-browser/service/author.service';
@@ -108,6 +109,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private authorService = inject(AuthorService);
   protected urlHelper = inject(UrlHelperService);
   protected userService = inject(UserService);
+  protected languageResolver = inject(LanguageResolverService);
   private appSettingsService = inject(AppSettingsService);
   private confirmationService = inject(ConfirmationService);
 

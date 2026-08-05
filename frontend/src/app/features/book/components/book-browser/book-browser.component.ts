@@ -43,6 +43,7 @@ import {TaskHelperService} from '../../../settings/task-management/task-helper.s
 import {FilterLabelHelper} from './filter-label.helper';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
+import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {BookNavigationService} from '../../service/book-navigation.service';
 import {BookCardOverlayPreferenceService} from './book-card-overlay-preference.service';
 import {BookSelectionService, CheckboxClickEvent} from './book-selection.service';
@@ -119,6 +120,7 @@ export class BookBrowserComponent implements AfterViewInit {
   private scrollService = inject(RouteScrollPositionService);
   private layoutService = inject(LayoutService);
   private readonly t = inject(TranslocoService);
+  private readonly languageResolver = inject(LanguageResolverService);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -359,7 +361,9 @@ export class BookBrowserComponent implements AfterViewInit {
       const filterName = FilterLabelHelper.getFilterTypeName(filterType);
 
       if (values.length === 1) {
-        const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
+        const displayValue = filterType === 'language'
+          ? this.languageResolver.displayName(String(values[0]))
+          : FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
         return `${filterName}: ${displayValue}`;
       }
 

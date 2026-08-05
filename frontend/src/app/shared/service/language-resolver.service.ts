@@ -83,6 +83,10 @@ export class LanguageResolverService {
     };
   }
 
+  displayName(raw: string | null | undefined): string {
+    return this.resolve(raw)?.displayName ?? '';
+  }
+
   private canonicalize(lower: string): {base: string; tag: string} {
     const aliased = LANGUAGE_ALIASES[lower];
     if (aliased) {

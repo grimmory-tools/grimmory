@@ -1,5 +1,6 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
+import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
@@ -56,7 +57,7 @@ describe('LanguageChartComponent', () => {
       providers: [
         {provide: BookService, useValue: {books, isBooksLoading}},
         {provide: LibraryFilterService, useValue: {selectedLibrary}},
-        {provide: TranslocoService, useValue: {translate}},
+        {provide: TranslocoService, useValue: {translate, getActiveLang: () => 'en', langChanges$: of('en')}},
       ],
     });
   });
@@ -103,7 +104,7 @@ describe('LanguageChartComponent', () => {
     expect(component.chartData()).toEqual({labels: [], datasets: []});
   });
 
-  it('aggregates exact normalized keys, shapes mapped and fallback labels, and filters books to the selected library', () => {
+  it('aggregates aliases under one canonical language, shapes mapped and fallback labels, and filters books to the selected library', () => {
     books.set([
       createBook(1, 1, ' EN '),
       createBook(2, 1, 'en'),
@@ -123,11 +124,8 @@ describe('LanguageChartComponent', () => {
     expect(component.totalBooks()).toBe(9);
     expect(component.booksWithLanguage()).toBe(7);
     expect(component.languageStats()).toEqual([
-      {language: 'en', displayName: 'English', count: 2, percentage: (2 / 7) * 100},
-      {language: 'eng', displayName: 'English', count: 1, percentage: (1 / 7) * 100},
-      {language: 'english', displayName: 'English', count: 1, percentage: (1 / 7) * 100},
-      {language: 'spa', displayName: 'Spanish', count: 1, percentage: (1 / 7) * 100},
-      {language: 'spanish', displayName: 'Spanish', count: 1, percentage: (1 / 7) * 100},
+      {language: 'en', displayName: 'English', count: 4, percentage: (4 / 7) * 100},
+      {language: 'es', displayName: 'Spanish', count: 2, percentage: (2 / 7) * 100},
       {language: 'klingon', displayName: 'Klingon', count: 1, percentage: (1 / 7) * 100},
     ]);
   });

@@ -202,7 +202,7 @@ describe('MetadataViewerComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: TranslocoService, useValue: {translate}},
+        {provide: TranslocoService, useValue: {translate, getActiveLang: () => 'en', langChanges$: of('en')}},
         {provide: LibraryService, useValue: {findLibraryById}},
         {
           provide: BookDialogHelperService,

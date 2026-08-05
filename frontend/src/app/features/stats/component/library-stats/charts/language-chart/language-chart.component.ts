@@ -5,6 +5,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {LanguageResolverService} from '../../../../../../shared/service/language-resolver.service';
 
 interface LanguageStats {
   language: string;
@@ -34,97 +35,6 @@ const LANGUAGE_COLORS = [
   '#A855F7'  // Purple-500
 ] as const;
 
-// Common language code to display name mapping
-const LANGUAGE_NAMES: Record<string, string> = {
-  'en': 'English',
-  'eng': 'English',
-  'english': 'English',
-  'es': 'Spanish',
-  'spa': 'Spanish',
-  'spanish': 'Spanish',
-  'fr': 'French',
-  'fra': 'French',
-  'french': 'French',
-  'de': 'German',
-  'deu': 'German',
-  'german': 'German',
-  'it': 'Italian',
-  'ita': 'Italian',
-  'italian': 'Italian',
-  'pt': 'Portuguese',
-  'por': 'Portuguese',
-  'portuguese': 'Portuguese',
-  'ru': 'Russian',
-  'rus': 'Russian',
-  'russian': 'Russian',
-  'zh': 'Chinese',
-  'zho': 'Chinese',
-  'chinese': 'Chinese',
-  'ja': 'Japanese',
-  'jpn': 'Japanese',
-  'japanese': 'Japanese',
-  'ko': 'Korean',
-  'kor': 'Korean',
-  'korean': 'Korean',
-  'pl': 'Polish',
-  'pol': 'Polish',
-  'polish': 'Polish',
-  'nl': 'Dutch',
-  'nld': 'Dutch',
-  'dutch': 'Dutch',
-  'sv': 'Swedish',
-  'swe': 'Swedish',
-  'swedish': 'Swedish',
-  'ar': 'Arabic',
-  'ara': 'Arabic',
-  'arabic': 'Arabic',
-  'hi': 'Hindi',
-  'hin': 'Hindi',
-  'hindi': 'Hindi',
-  'tr': 'Turkish',
-  'tur': 'Turkish',
-  'turkish': 'Turkish',
-  'cs': 'Czech',
-  'ces': 'Czech',
-  'czech': 'Czech',
-  'da': 'Danish',
-  'dan': 'Danish',
-  'danish': 'Danish',
-  'fi': 'Finnish',
-  'fin': 'Finnish',
-  'finnish': 'Finnish',
-  'no': 'Norwegian',
-  'nor': 'Norwegian',
-  'norwegian': 'Norwegian',
-  'uk': 'Ukrainian',
-  'ukr': 'Ukrainian',
-  'ukrainian': 'Ukrainian',
-  'he': 'Hebrew',
-  'heb': 'Hebrew',
-  'hebrew': 'Hebrew',
-  'el': 'Greek',
-  'ell': 'Greek',
-  'greek': 'Greek',
-  'hu': 'Hungarian',
-  'hun': 'Hungarian',
-  'hungarian': 'Hungarian',
-  'ro': 'Romanian',
-  'ron': 'Romanian',
-  'romanian': 'Romanian',
-  'th': 'Thai',
-  'tha': 'Thai',
-  'thai': 'Thai',
-  'vi': 'Vietnamese',
-  'vie': 'Vietnamese',
-  'vietnamese': 'Vietnamese',
-  'id': 'Indonesian',
-  'ind': 'Indonesian',
-  'indonesian': 'Indonesian',
-  'ms': 'Malay',
-  'msa': 'Malay',
-  'malay': 'Malay'
-};
-
 @Component({
   selector: 'app-language-chart',
   standalone: true,
@@ -136,6 +46,7 @@ export class LanguageChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
+  private readonly languageResolver = inject(LanguageResolverService);
   private readonly filteredBooks = computed(() => {
     if (this.bookService.isBooksLoading()) {
       return [];
@@ -218,10 +129,10 @@ export class LanguageChartComponent {
     const languageCounts = new Map<string, number>();
 
     books.forEach(book => {
-      const language = book.metadata?.language?.trim().toLowerCase();
+      const language = book.metadata?.language?.trim();
       if (language) {
-        // Normalize the language to a display name
-        const normalizedKey = this.normalizeLanguage(language);
+        const resolved = this.languageResolver.resolve(language);
+        const normalizedKey = resolved?.tag ?? language.toLowerCase();
         languageCounts.set(normalizedKey, (languageCounts.get(normalizedKey) || 0) + 1);
       }
     });
@@ -231,29 +142,11 @@ export class LanguageChartComponent {
     return Array.from(languageCounts.entries())
       .map(([language, count]) => ({
         language,
-        displayName: this.getDisplayName(language),
+        displayName: this.languageResolver.displayName(language),
         count,
         percentage: (count / total) * 100
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 15); // Show top 15 languages
-  }
-
-  private normalizeLanguage(language: string): string {
-    const lower = language.toLowerCase().trim();
-    // Check if it maps to a known language
-    if (LANGUAGE_NAMES[lower]) {
-      return lower;
-    }
-    return lower;
-  }
-
-  private getDisplayName(language: string): string {
-    const lower = language.toLowerCase();
-    if (LANGUAGE_NAMES[lower]) {
-      return LANGUAGE_NAMES[lower];
-    }
-    // Capitalize first letter if no mapping found
-    return language.charAt(0).toUpperCase() + language.slice(1);
   }
 }
