@@ -39,7 +39,9 @@ export class AppMobileTopbarComponent {
   goBack(): void {
     const backTarget = this.backTarget();
     if (backTarget) {
-      this.router.navigate([...backTarget.commands]);
+      this.router.navigate([...backTarget.commands], {
+        queryParamsHandling: backTarget.queryParamsHandling,
+      });
     }
   }
 }

@@ -1,9 +1,11 @@
 import {computed, Injectable, type Signal, signal} from '@angular/core';
+import {type QueryParamsHandling} from '@angular/router';
 import {type TabItem} from '../../ui/tabs/app-tabs.component';
 
 export interface PageHeaderBreadcrumb {
   label: string;
   commands?: readonly unknown[];
+  queryParamsHandling?: QueryParamsHandling;
 }
 
 export interface PageHeader {
@@ -17,6 +19,7 @@ export interface PageHeader {
 export interface PageHeaderTopbarBackTarget {
   label: string;
   commands: readonly unknown[];
+  queryParamsHandling?: QueryParamsHandling;
 }
 
 export interface PageHeaderMobileTopbar {
@@ -41,7 +44,13 @@ export class PageHeaderService {
 
     const parent = header.breadcrumbs?.at(-2);
     const title = header.breadcrumbs?.at(-1)?.label ?? header.title;
-    const backTarget = parent?.commands?.length ? {label: parent.label, commands: parent.commands} : undefined;
+    const backTarget = parent?.commands?.length
+      ? {
+          label: parent.label,
+          commands: parent.commands,
+          queryParamsHandling: parent.queryParamsHandling,
+        }
+      : undefined;
 
     return {title, backTarget};
   });
