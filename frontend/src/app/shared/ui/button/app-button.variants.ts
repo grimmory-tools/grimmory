@@ -63,7 +63,7 @@ export const buttonVariants = cva(
       {
         tone: 'neutral',
         variant: 'ghost',
-        class: `bg-transparent border-transparent text-text-secondary ${neutralSurfaceHoverClass} hover:text-text-strong`,
+        class: 'bg-transparent border-transparent text-text-secondary hover:bg-surface-hover hover:text-text-strong',
       },
       { tone: 'primary', variant: 'ghost', class: 'bg-transparent border-transparent text-primary hover:bg-primary/10' },
       { tone: 'danger', variant: 'ghost', class: 'bg-transparent border-transparent text-danger hover:bg-danger/10' },

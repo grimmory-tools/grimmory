@@ -19,7 +19,7 @@ export const appMenuSheetPanelClass =
   'rounded-t-xl rounded-b-none border-x-0 border-b-0 ' +
   'pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]';
 
-export const appMenuScrollRegionClass = 'flex min-h-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain';
+export const appMenuScrollRegionClass = 'flex min-h-0 flex-col overflow-y-auto overscroll-contain';
 
 export const appMenuSheetPaneClass = 'will-change-transform animate-in-sheet slide-in-from-bottom-full';
 
@@ -53,7 +53,7 @@ export function appMenuItemRowClass(variant: AppMenuItemVariant): string {
 
 export const appMenuLeadingSlotClass = 'flex size-4 shrink-0 items-center justify-center text-text-muted';
 export const appMenuBadgeSlotClass = cn(appMenuLeadingSlotClass, 'text-xs font-medium tabular-nums');
-export const appMenuIconClass = 'size-4 shrink-0';
+export const appMenuIconClass = 'size-3.5 shrink-0';
 export const appMenuSpinnerClass = 'size-4 shrink-0 border-2';
 export const appMenuLabelClass = 'min-w-0 flex-1 truncate leading-5';
 export const appMenuShortcutClass = overlayListShortcutClass;

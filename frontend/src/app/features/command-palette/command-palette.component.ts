@@ -12,6 +12,7 @@ import { LucideSearch, LucideX } from '@lucide/angular';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 import { MOBILE_SHELL_ACTIVE_PROPERTY } from '../../shared/layout/layout.service';
+import { scrollLockStrategy } from '../../shared/ui/scroll-lock';
 import { PaletteItem } from './command-palette.model';
 import { CommandPaletteService } from './command-palette.service';
 
@@ -164,7 +165,7 @@ export class CommandPaletteComponent {
     this.refreshAvailableHeight();
     this.overlayRef = this.overlay.create({
       positionStrategy: this.buildPositionStrategy(),
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+      scrollStrategy: scrollLockStrategy(),
       hasBackdrop: true,
       backdropClass: 'command-palette-backdrop',
       panelClass: 'command-palette-panel',

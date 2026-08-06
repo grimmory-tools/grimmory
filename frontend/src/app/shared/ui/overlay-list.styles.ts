@@ -8,7 +8,7 @@ const overlayListItemStateClass = 'hover:bg-surface-hover hover:text-text-strong
 export const overlayListActiveItemStateClass = 'bg-surface-hover text-text-strong';
 export const overlayListItemRowClass =
   'flex min-h-7 w-full select-none items-center gap-2 px-2 py-1 text-sm leading-5 text-inherit no-underline outline-hidden ' +
-  'pointer-coarse:min-h-11 pointer-coarse:px-3';
+  'touch-manipulation pointer-coarse:min-h-11 pointer-coarse:px-3';
 export const overlayListItemContentClass = cn(
   'rounded-sm text-text',
   overlayListItemStateClass,
