@@ -2,13 +2,16 @@ package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.JacksonConfig;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
 import org.booklore.exception.ApiError;
+import org.booklore.exception.ErrorResponse;
 import org.booklore.mapper.komga.KomgaMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.komga.KomgaBookDto;
@@ -22,11 +25,13 @@ import org.booklore.service.komga.KomgaService;
 import org.booklore.service.opds.OpdsUserV2Service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -239,5 +244,46 @@ public class KomgaController {
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "Return all collections without paging") @RequestParam(defaultValue = "false") boolean unpaged) {
         return writeJson(komgaService.getCollections(page, size, unpaged));
+    }
+
+    @Operation(summary = "Unimplemented Komga API Endpoints")
+    @ApiResponse(responseCode = "501", description = "Not Implemented")
+    @RequestMapping(
+            value={
+                    "/v1/readlists",
+                    "/v1/series/new",
+                    "/v1/series/updated",
+                    "/v1/series/list",
+                    "/v1/series/genres",
+                    "/v1/books/ondeck",
+                    "/v1/books/list",
+                    "/v1/books/*/readlists",
+                    "/v1/books/*/manifest",
+            },
+            method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH}
+    )
+    public ResponseEntity<ErrorResponse> notImplemented() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_IMPLEMENTED)
+                .body(
+                        new ErrorResponse(
+                            HttpStatus.NOT_IMPLEMENTED.value(),
+                            "Not Implemented"
+                        )
+                );
+    }
+
+    @Operation(summary = "Catch-all for Komga API", description = "Catch-all endpoint for unhandled Komga API requests.")
+    @ApiResponse(responseCode = "404", description = "Not Found")
+    @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
+    public ResponseEntity<?> catchAll() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        new ErrorResponse(
+                                HttpStatus.NOT_FOUND.value(),
+                                "Not Found"
+                        )
+                );
     }
 }
