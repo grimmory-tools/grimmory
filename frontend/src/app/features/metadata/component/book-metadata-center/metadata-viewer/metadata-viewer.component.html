@@ -616,7 +616,7 @@
               <div class="metadata-item">
                 <span class="metadata-key">{{ t('fileSizeLabel') }}</span>
                 @if (book?.primaryFile?.fileSizeKb) {
-                  <span class="metadata-value metadata-link" role="button" tabindex="0" (click)="goToFileSizeRange(book?.primaryFile?.fileSizeKb!)" (keydown.enter)="goToFileSizeRange(book?.primaryFile?.fileSizeKb!)">
+                  <span class="metadata-value">
                     {{ formatFileSize(book?.primaryFile) }}
                   </span>
                 } @else {

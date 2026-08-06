@@ -29,7 +29,7 @@ import {BookDialogHelperService} from '../../../../book/components/book-browser/
 import {LibraryService} from '../../../../book/service/library.service';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, fileSizeRanges, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
+import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
@@ -870,13 +870,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     const range = pageCountRanges.find(r => pageCount >= r.min && pageCount < r.max);
     if (range) {
       this.handleMetadataClick('pageCount', range.id.toString());
-    }
-  }
-
-  goToFileSizeRange(fileSizeKb: number): void {
-    const range = fileSizeRanges.find(r => fileSizeKb >= r.min && fileSizeKb < r.max);
-    if (range) {
-      this.handleMetadataClick('fileSize', range.id.toString());
     }
   }
 
