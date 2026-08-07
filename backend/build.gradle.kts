@@ -10,7 +10,7 @@ plugins {
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.hibernate.orm") version "7.4.5.Final"
-    id("com.github.ben-manes.versions") version "0.56.0"
+    id("com.github.ben-manes.versions") version "0.59.0"
     jacoco
 }
 
@@ -167,9 +167,9 @@ dependencies {
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:13.0.0")
+    implementation("org.flywaydb:flyway-mysql:13.1.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.46")
@@ -200,10 +200,10 @@ dependencies {
     implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.junrar:junrar:8.0.0")
+    implementation("com.github.junrar:junrar:8.1.0")
 
     // --- JSON & Web Scraping ---
-    implementation("org.jsoup:jsoup:1.22.2")
+    implementation("org.jsoup:jsoup:1.23.1")
 
     // --- i18n / Language Normalization ---
     implementation("com.neovisionaries:nv-i18n:1.29")
@@ -213,7 +213,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.0")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
