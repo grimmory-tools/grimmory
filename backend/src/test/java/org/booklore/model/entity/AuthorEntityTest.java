@@ -59,4 +59,21 @@ class AuthorEntityTest {
 
         assertThat(author.getSortName()).isEqualTo("Orwell, George");
     }
+
+    @Test
+    void authorSortNameTruncation() {
+        AuthorEntity author = AuthorEntity.builder()
+                .name(
+                        "George Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell" +
+                        "Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell" +
+                        "Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell" +
+                        "Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell Orwell"
+                )
+                .build();
+
+        author.computeSortName();
+
+        assertThat(author.getSortName()).isNotNull();
+        assertThat(author.getSortName()).hasSizeLessThan(256);
+    }
 }
