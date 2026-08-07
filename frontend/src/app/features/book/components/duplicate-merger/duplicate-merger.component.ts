@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {Button} from '@openng/optimus-ui/button';
@@ -79,6 +79,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   readonly urlHelper = inject(UrlHelperService);
   private readonly appSettingsService = inject(AppSettingsService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.libraryId = this.config.data.libraryId;
@@ -384,6 +385,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
             if (group.books.length <= 1) {
               group.dismissed = true;
             }
+            this.changeDetectorRef.markForCheck();
           }
         });
       }
