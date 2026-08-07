@@ -331,7 +331,7 @@ export class BookMenuService {
                const books = this.bookService.getBooksByIds(Array.from(selectedBooks));
                const allShelfIds = new Set<number>();
                books.forEach(b => b.shelves?.forEach(s => {
-                 if (s.id) allShelfIds.add(s.id);
+                 if (s.id && s.userId === user?.id) allShelfIds.add(s.id);
                }));
 
                if (allShelfIds.size === 0) {

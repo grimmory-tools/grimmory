@@ -109,8 +109,9 @@ export class ShelfAssignerComponent {
 
   private getIdsToUnAssign(book: Book, idsToAssign: Set<number | undefined>): Set<number> {
     const idsToUnassign = new Set<number>();
+    const currentUserId = this.currentUser()?.id;
     book.shelves?.forEach(shelf => {
-      if (!idsToAssign.has(shelf.id)) {
+      if (shelf.userId === currentUserId && !idsToAssign.has(shelf.id)) {
         idsToUnassign.add(shelf.id!);
       }
     });

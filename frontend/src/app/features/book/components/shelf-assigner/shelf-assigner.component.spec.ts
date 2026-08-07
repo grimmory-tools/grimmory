@@ -246,6 +246,29 @@ describe('ShelfAssignerComponent', () => {
     expect(dialogRef.close).toHaveBeenCalledWith({assigned: true});
   });
 
+  it('excludes other users\' shelves from the unassign payload', () => {
+    const ownShelf = createShelf({id: 1, name: 'Own Shelf'});
+    const ownKoboShelf = createShelf({id: 2, name: 'Kobo', systemKey: 'kobo'});
+    const foreignPublicShelf = createShelf({id: 3, name: 'Other User Public Shelf', userId: 8, publicShelf: true});
+    const {component, updateBookShelves} = createHarness({
+      book: createBook({
+        id: 11,
+        shelves: [ownShelf, foreignPublicShelf],
+      }),
+      shelves: [ownShelf, ownKoboShelf],
+    });
+
+    component.selectedShelves = [ownKoboShelf];
+
+    component.updateBooksShelves();
+
+    expect(updateBookShelves).toHaveBeenCalledWith(
+      new Set([11]),
+      new Set([2]),
+      new Set([1]),
+    );
+  });
+
   it('uses the injected multi-book ids, skips unassigns, and closes with failure on update errors', () => {
     const selected = createShelf({id: 5, name: 'Selected'});
     const targetBookIds = new Set([41, 42]);
