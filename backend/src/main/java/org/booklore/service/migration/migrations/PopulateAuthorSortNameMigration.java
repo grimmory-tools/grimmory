@@ -44,9 +44,7 @@ public class PopulateAuthorSortNameMigration implements Migration {
             }
 
             for (var author : authors) {
-                if (!author.isSortNameLocked()) {
-                    author.setSortName(AuthorSortName.compute(author.getName()));
-                }
+                author.computeSortName();
             }
 
             authorRepository.saveAll(authors);

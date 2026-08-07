@@ -26,7 +26,7 @@ public class AuthorEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "sort_name")
+    @Column(name = "sort_name", length = 255)
     private String sortName;
 
     @Column(name = "sort_name_locked", nullable = false)
@@ -60,6 +60,12 @@ public class AuthorEntity {
     public void computeSortName() {
         if (!sortNameLocked) {
             sortName = AuthorSortName.compute(name);
+
+            if (sortName != null && sortName.length() > 255) {
+                // The sort name MAY end up longer than 255 characters and hit
+                // limits.
+                sortName = sortName.substring(0, 255);
+            }
         }
     }
 
