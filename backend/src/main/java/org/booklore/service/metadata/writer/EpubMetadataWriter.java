@@ -550,6 +550,18 @@ public class EpubMetadataWriter implements MetadataWriter {
             throw new IOException("Failed to parse container.xml to locate OPF path", e);
         }
 
+        if (existingCoverItem != null) {
+            String existingMediaType = existingCoverItem.getAttribute("media-type");
+            if (!existingMediaType.equals(mediaType)) {
+                // If the existing cover item exists but has a different media type we can't
+                // use it.  However, because it's _possible_ that the cover MAY be used elsewhere
+                // in the epub (such as referenced in HTML) we cannot delete the manifest item
+                // or the file.  All we can do is discard it as the existing cover manifest item,
+                // and treat the epub as if it has no cover, and place a new cover manifest item.
+                existingCoverItem = null;
+            }
+        }
+
         Path opfDir = opfPath.getParent();
 
         if (existingCoverItem != null) {

@@ -786,8 +786,8 @@ class EpubMetadataWriterTest {
                             <dc:title>Test Book</dc:title>
                         </metadata>
                         <manifest>
-                            <item href="foo" properties="cover-image" />
-                            <item href="bar" properties="cover-image" />
+                            <item href="foo" properties="cover-image" media-type="application/octet-stream" />
+                            <item href="bar" properties="cover-image" media-type="application/octet-stream" />
                         </manifest>
                     </package>
                     """,
@@ -806,6 +806,38 @@ class EpubMetadataWriterTest {
             }
             assertThat(count).isEqualTo(1);
         }
+
+        @Test
+        void shouldMitigateMediaTypeMismatch() throws Exception {
+            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
+            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+
+            File epubFile = createEpubWithOpf(
+                    """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                        </metadata>
+                        <manifest>
+                            <item href="cover.bin" id="cover" properties="cover-image" media-type="image/png" />
+                        </manifest>
+                    </package>
+                    """,
+                    "no-cover-" + System.nanoTime() + ".epub"
+            );
+
+            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
+
+
+            String content = readOpfContent(epubFile);
+
+            // Removes properties from existing
+            assertThat(content).contains("<item href=\"cover.bin\" id=\"cover\" media-type=\"image/png\"/>");
+
+            // And creates a new item with the prop
+            assertThat(content).contains("properties=\"cover-image\"");
+        }
+
     }
 
     private Document parseOpf(File epubFile) throws Exception {
