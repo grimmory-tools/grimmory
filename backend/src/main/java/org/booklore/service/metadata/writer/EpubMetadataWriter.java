@@ -10,6 +10,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.util.MimeDetector;
 import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,10 +30,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -45,9 +48,7 @@ import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import java.util.function.Predicate;
-import java.io.UncheckedIOException;
 
 @Slf4j
 @Component
@@ -86,8 +87,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document opfDoc = builder.parse(opfFile);
 
-            NodeList metadataList = opfDoc.getElementsByTagNameNS(OPF_NS, "metadata");
-            Element metadataElement = (Element) metadataList.item(0);
+            Element metadataElement = getOrCreateMetadataElement(opfDoc);
             final String DC_NS = "http://purl.org/dc/elements/1.1/";
 
             boolean[] hasChanges = {false};
@@ -225,6 +225,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 organizeMetadataElements(metadataElement);
                 removeInvalidMetaRefines(metadataElement, opfDoc);
                 removeEmptyTextNodes(opfDoc);
+                organizePackageElements(opfDoc);
                 Transformer transformer = TransformerFactory.newInstance().newTransformer();
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -276,13 +277,61 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (replaceElementText(doc, parent, tag, ns, val, false)) flag[0] = true;
     }
 
-    private void replaceMetaElement(Element metadataElement, Document doc, String name, String newVal, boolean[] flag) {
-        String existing = getMetaContentByName(metadataElement, name);
-        if (!Objects.equals(existing, newVal)) {
-            removeMetaByName(metadataElement, name);
-            if (newVal != null) metadataElement.appendChild(createMetaElement(doc, name, newVal));
-            flag[0] = true;
+    private Optional<Element> getElement(Element parent, String namespace, String tagName) {
+        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+
+        for (int i = 0; i < metadataElements.getLength(); i++ ) {
+            if (metadataElements.item(i) instanceof Element element) {
+                return Optional.of(element);
+            }
         }
+
+        return Optional.empty();
+    }
+
+    private Element getOrCreateElement(Element parent, String namespace, String tagName) {
+        return getElement(parent, namespace, tagName)
+                .orElseGet(() -> {
+                    Element element = parent.getOwnerDocument().createElementNS(namespace, tagName);
+                    parent.appendChild(element);
+                    return element;
+                });
+    }
+
+    private Element getOrCreateMetadataElement(Document doc) {
+        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "metadata");
+    }
+
+    public Element getOrCreateManifestElement(Document doc) {
+        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "manifest");
+    }
+
+    public Element getOrCreateSpineElement(Document doc) {
+        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "spine");
+    }
+
+    private Element upsertMetaElement(Document doc, String name, String content) {
+        var metadata = getOrCreateMetadataElement(doc);
+
+        NodeList metaElements = metadata.getElementsByTagName("meta");
+        for (int i = 0; i < metaElements.getLength(); i++) {
+            if (metaElements.item(i) instanceof Element element) {
+                if (!name.equals(element.getAttribute("name"))) {
+                    continue;
+                }
+
+                // Found target.
+                element.setAttribute("content", content);
+                return element;
+            }
+        }
+
+        // We couldn't find any meta element so we can create it.
+        Element element = doc.createElement("meta");
+        element.setAttribute("name", name);
+        element.setAttribute("content", content);
+        metadata.appendChild(element);
+        return element;
     }
 
     private boolean replaceElementText(Document doc, Element parent, String tagName, String namespaceURI, String newValue, boolean restoreMode) {
@@ -379,6 +428,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             applyCoverImageToEpub(tempDir, opfDoc, coverData);
 
             removeEmptyTextNodes(opfDoc);
+            organizePackageElements(opfDoc);
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -406,37 +456,57 @@ public class EpubMetadataWriter implements MetadataWriter {
         return BookFileType.EPUB;
     }
 
-    private void applyCoverImageToEpub(Path tempDir, Document opfDoc, byte[] coverData) throws IOException {
-        NodeList manifestList = opfDoc.getElementsByTagNameNS(OPF_NS, "manifest");
-        if (manifestList.getLength() == 0) {
-            throw new IOException("No <manifest> element found in OPF document.");
+    private String generateCoverId(Document doc, Path dir, String extension) {
+        // Generate an ID / file combination that does not exist yet.
+        var ids = getDocumentIds(doc);
+        String coverId = "cover";
+        while(ids.contains(coverId) || Files.exists(dir.resolve(coverId + extension))) {
+            coverId = "cover-" + UUID.randomUUID().toString();
+        }
+        return coverId;
+    }
+
+    private Path getManifestItemPath(Path tempDir, Path opfDir, Element element) throws IOException {
+        String href = element.getAttribute("href");
+        String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
+        if (decodedHref == null || decodedHref.isBlank()) {
+            throw new IOException("Manifest item has no href attribute");
         }
 
-        Element manifest = (Element) manifestList.item(0);
+        Path filePath = opfDir.resolve(decodedHref).normalize();
+
+        if (!filePath.startsWith(tempDir)) {
+            throw new IOException("Manifest item file may not be outside the epub archive");
+        }
+
+        return filePath;
+    }
+
+    private void applyCoverImageToEpub(Path tempDir, Document opfDoc, byte[] coverData) throws IOException {
+        String mediaType = MimeDetector.detect(new ByteArrayInputStream(coverData));
+        String extension = MimeDetector.getExtension(mediaType);
+
+        Element metadataElement = getOrCreateMetadataElement(opfDoc);
+        Element manifestElement = getOrCreateManifestElement(opfDoc);
         Element existingCoverItem = null;
 
         // First, try to find cover via metadata reference (EPUB 3 style)
-        NodeList metadataList = opfDoc.getElementsByTagNameNS(OPF_NS, "metadata");
-        if (metadataList.getLength() > 0) {
-            Element metadataElement = (Element) metadataList.item(0);
-            String coverItemId = getMetaContentByName(metadataElement, "cover");
-
-            if (coverItemId != null && !coverItemId.isBlank()) {
-                // Find the item with this id
-                NodeList items = manifest.getElementsByTagNameNS(OPF_NS, "item");
-                for (int i = 0; i < items.getLength(); i++) {
-                    Element item = (Element) items.item(i);
-                    if (coverItemId.equals(item.getAttribute("id"))) {
-                        existingCoverItem = item;
-                        break;
-                    }
+        String coverItemId = getMetaContentByName(metadataElement, "cover");
+        if (coverItemId != null && !coverItemId.isBlank()) {
+            // Find the item with this id
+            NodeList items = manifestElement.getElementsByTagNameNS(OPF_NS, "item");
+            for (int i = 0; i < items.getLength(); i++) {
+                Element item = (Element) items.item(i);
+                if (coverItemId.equals(item.getAttribute("id"))) {
+                    existingCoverItem = item;
+                    break;
                 }
             }
         }
 
         // If not found, try looking for properties="cover-image" (EPUB 3)
         if (existingCoverItem == null) {
-            NodeList items = manifest.getElementsByTagNameNS(OPF_NS, "item");
+            NodeList items = manifestElement.getElementsByTagNameNS(OPF_NS, "item");
             for (int i = 0; i < items.getLength(); i++) {
                 Element item = (Element) items.item(i);
                 String properties = item.getAttribute("properties");
@@ -449,7 +519,7 @@ public class EpubMetadataWriter implements MetadataWriter {
 
         // If still not found, try common id values (EPUB 2 fallback)
         if (existingCoverItem == null) {
-            NodeList items = manifest.getElementsByTagNameNS(OPF_NS, "item");
+            NodeList items = manifestElement.getElementsByTagNameNS(OPF_NS, "item");
             for (int i = 0; i < items.getLength(); i++) {
                 Element item = (Element) items.item(i);
                 String itemId = item.getAttribute("id");
@@ -460,16 +530,6 @@ public class EpubMetadataWriter implements MetadataWriter {
             }
         }
 
-        if (existingCoverItem == null) {
-            throw new IOException("No cover item found in manifest");
-        }
-
-        String coverHref = existingCoverItem.getAttribute("href");
-        String decodedCoverHref = URLDecoder.decode(coverHref, StandardCharsets.UTF_8);
-        if (decodedCoverHref == null || decodedCoverHref.isBlank()) {
-            throw new IOException("Cover item has no href attribute");
-        }
-
         Path opfPath;
         try {
             opfPath = findOpfPath(tempDir);
@@ -478,7 +538,69 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
 
         Path opfDir = opfPath.getParent();
-        Path coverFilePath = opfDir.resolve(decodedCoverHref).normalize();
+
+        if (existingCoverItem != null) {
+            try {
+                getManifestItemPath(tempDir, opfDir, existingCoverItem);
+            } catch (IOException e) {
+                log.warn("Invalid cover for epub, ignoring", e);
+                existingCoverItem = null;
+            }
+        }
+
+        if (existingCoverItem == null) {
+            // If there is no existing cover item, we should create one.
+            String coverId = generateCoverId(opfDoc, opfDir, extension);
+
+            existingCoverItem = opfDoc.createElementNS(OPF_NS, "item");
+            existingCoverItem.setAttribute("id", coverId);
+            existingCoverItem.setAttribute("media-type", mediaType);
+            existingCoverItem.setAttribute("href", coverId + extension);
+
+            // Add the item and set the
+            manifestElement.appendChild(existingCoverItem);
+            upsertMetaElement(opfDoc, "cover", coverId);
+        }
+
+        // Remove all item's epub3 `properties` containing `cover-image`.
+        NodeList items = manifestElement.getElementsByTagNameNS(OPF_NS, "item");
+        for (int i = 0; i < items.getLength(); i++) {
+            if (items.item(i) instanceof Element item) {
+                // Remember: the `properties` attribute is a space delimited list,
+                // so we can't clear it entirely.
+                String properties = Arrays.stream(
+                            item.getAttribute("properties")
+                                    .trim()
+                                    .split("\\s+")
+                        )
+                        .filter(s -> !"cover-image".equals(s))
+                        .collect(Collectors.joining(" "));
+
+                if (properties.isBlank()) {
+                    item.removeAttribute("properties");
+                } else {
+                    item.setAttribute("properties", properties);
+                }
+            }
+        }
+
+        boolean isEpub3 = isEpub3(opfDoc);
+
+        if (isEpub3) {
+            // Add epub3 properties cover-image back to the target cover item.
+            String properties = existingCoverItem.getAttribute("properties")
+                    .trim();
+
+            if (properties.isBlank()) {
+                properties = "cover-image";
+            } else {
+                properties += " cover-image";
+            }
+
+            existingCoverItem.setAttribute("properties", properties);
+        }
+
+        Path coverFilePath = getManifestItemPath(tempDir, opfDir, existingCoverItem);
 
         Files.createDirectories(coverFilePath.getParent());
         Files.write(coverFilePath, coverData);
@@ -603,12 +725,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void removeInvalidMetaRefines(Element metadataElement, Document doc) {
-        // In an ideal world we could set the `validating` flag or
-        // otherwise set the `isId` attribute tag correctly for `id`
-        // but because we cannot, we can't use `getElementById()` on
-        // the document.  With that in mind, we area going to read all
-        // tags, check if they have an `id`, and store that in a `Set`
+    private Set<String> getDocumentIds(Document doc) {
         Set<String> ids = new HashSet<>();
 
         NodeList nodes = doc.getElementsByTagName("*");
@@ -622,6 +739,17 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
             }
         }
+
+        return ids;
+    }
+
+    private void removeInvalidMetaRefines(Element metadataElement, Document doc) {
+        // In an ideal world we could set the `validating` flag or
+        // otherwise set the `isId` attribute tag correctly for `id`
+        // but because we cannot, we can't use `getElementById()` on
+        // the document.  With that in mind, we area going to read all
+        // tags, check if they have an `id`, and store that in a `Set`
+        var ids = getDocumentIds(doc);
 
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
         for (int i = metas.getLength() - 1; i >= 0; i--) {
@@ -1205,6 +1333,26 @@ public class EpubMetadataWriter implements MetadataWriter {
                 metadataElement.removeChild(meta);
             }
         }
+    }
+
+    private void organizePackageElements(Document document) {
+        // Per the epubcheck dtd:
+        // <package> must have as children elements, in this order:
+        //     <metadata>, <manifest>, and <spine>, and optionally may
+        //     include <tours> and/or <guide>.
+        Element metadata = getOrCreateMetadataElement(document);
+        Element manifest = getOrCreateManifestElement(document);
+        Element spine = getOrCreateSpineElement(document);
+        Optional<Element> tours = getElement(document.getDocumentElement(), OPF_NS, "tours");
+        Optional<Element> guide = getElement(document.getDocumentElement(), OPF_NS, "guide");
+
+        Element packageElement = document.getDocumentElement();
+
+        packageElement.appendChild(metadata);
+        packageElement.appendChild(manifest);
+        packageElement.appendChild(spine);
+        tours.ifPresent(packageElement::appendChild);
+        guide.ifPresent(packageElement::appendChild);
     }
 
     private void organizeMetadataElements(Element metadataElement) {
