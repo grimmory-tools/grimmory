@@ -304,14 +304,14 @@ class LibraryFileEventProcessorTest {
                     .library(library)
                     .libraryPath(libraryPath)
                     .deleted(false)
-                    .bookFiles(new ArrayList<>(List.of(BookFileEntity.builder()
+                    .bookFiles(Set.of(BookFileEntity.builder()
                             .id(100L)
                             .fileName("test.epub")
                             .fileSubPath("books")
                             .currentHash("hash")
                             .isBookFormat(true)
                             .bookType(BookFileType.EPUB)
-                            .build())))
+                            .build()))
                     .build();
 
             when(bookRepository.findBooksWithFilesUnderPath(eq(1L), anyString()))
@@ -348,7 +348,7 @@ class LibraryFileEventProcessorTest {
         void bookFileFound_addsToPool() throws Exception {
             BookEntity book = BookEntity.builder()
                     .id(10L).library(library).libraryPath(libraryPath).deleted(false)
-                    .bookFiles(new ArrayList<>()).build();
+                    .bookFiles(Set.of()).build();
             BookFileEntity bookFile = BookFileEntity.builder()
                     .id(100L).book(book).fileName("test.epub").fileSubPath("sub")
                     .currentHash("hash").isBookFormat(true).bookType(BookFileType.EPUB).build();

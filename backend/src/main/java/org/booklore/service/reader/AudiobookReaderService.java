@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -114,13 +115,13 @@ public class AudiobookReaderService {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
             return bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
-                    .findFirst()
+                    .min(Comparator.comparingLong(BookFileEntity::getId))
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
         }
 
         return bookEntity.getBookFiles().stream()
                 .filter(bf -> bf.getBookType() == BookFileType.AUDIOBOOK && bf.isBookFormat())
-                .findFirst()
+                .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No audiobook file found for book " + bookId));
     }
 }

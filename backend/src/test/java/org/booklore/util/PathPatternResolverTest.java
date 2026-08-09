@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -248,7 +249,7 @@ class PathPatternResolverTest {
         primaryFile.setBook(book);
         primaryFile.setFileName("book.epub");
         primaryFile.setFileSubPath("");
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         book.setMetadata(metadata);
 
         String result = PathPatternResolver.resolvePattern(book, "{title}.{extension}");

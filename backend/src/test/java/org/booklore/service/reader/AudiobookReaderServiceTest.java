@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -85,9 +86,7 @@ class AudiobookReaderServiceTest {
         when(folderAudiobookFileEntity.isBookFormat()).thenReturn(true);
         when(folderAudiobookFileEntity.getFullFilePath()).thenReturn(folderPath);
 
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(audiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(audiobookFileEntity));
     }
 
     // ==================== getAudiobookInfo tests ====================
@@ -117,10 +116,7 @@ class AudiobookReaderServiceTest {
         when(epubFile.getId()).thenReturn(30L);
         when(epubFile.getBookType()).thenReturn(BookFileType.EPUB);
 
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(audiobookFileEntity);
-        bookFiles.add(epubFile);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(audiobookFileEntity, epubFile));
 
         AudiobookInfo expectedInfo = AudiobookInfo.builder().bookId(1L).build();
 
@@ -146,9 +142,7 @@ class AudiobookReaderServiceTest {
         BookFileEntity epubFile = mock(BookFileEntity.class);
         when(epubFile.getBookType()).thenReturn(BookFileType.EPUB);
 
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(epubFile);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(epubFile));
 
         when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
 
@@ -195,9 +189,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_folderBased_returnsTrackPath() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Path track2 = folderPath.resolve("track2.mp3");
@@ -214,9 +206,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_folderBased_defaultsToFirstTrack() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
@@ -231,9 +221,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_folderBased_throwsExceptionForInvalidIndex() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
@@ -247,9 +235,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_folderBased_throwsExceptionForNegativeIndex() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
@@ -308,9 +294,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getEmbeddedCoverArt_folderBased_usesFirstAudioFile() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
@@ -352,9 +336,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getCoverArtMimeType_folderBased_usesFirstAudioFile() throws IOException {
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(folderAudiobookFileEntity);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(folderAudiobookFileEntity));
 
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
@@ -389,10 +371,7 @@ class AudiobookReaderServiceTest {
         when(audiobookWithoutBookFormat.getBookType()).thenReturn(BookFileType.AUDIOBOOK);
         when(audiobookWithoutBookFormat.isBookFormat()).thenReturn(false);
 
-        List<BookFileEntity> bookFiles = new ArrayList<>();
-        bookFiles.add(audiobookFileEntity);
-        bookFiles.add(audiobookWithoutBookFormat);
-        when(bookEntity.getBookFiles()).thenReturn(bookFiles);
+        when(bookEntity.getBookFiles()).thenReturn(Set.of(audiobookFileEntity, audiobookWithoutBookFormat));
 
         AudiobookInfo expectedInfo = AudiobookInfo.builder().bookId(1L).build();
 

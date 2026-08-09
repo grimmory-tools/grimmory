@@ -123,7 +123,7 @@ class BookServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(entity);
         primaryFile.setBookType(BookFileType.EPUB);
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
         LibraryPathEntity libPath = new LibraryPathEntity();
         libPath.setPath("/tmp/library");
         LibraryEntity library = new LibraryEntity();
@@ -151,7 +151,7 @@ class BookServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(entity);
         primaryFile.setBookType(BookFileType.PDF);
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
         LibraryPathEntity libPath = new LibraryPathEntity();
         libPath.setPath("/tmp/library");
         LibraryEntity library = new LibraryEntity();
@@ -186,7 +186,7 @@ class BookServiceTest {
         primaryFile.setId(1L);
         primaryFile.setBook(entity);
         primaryFile.setBookType(BookFileType.EPUB);
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
         when(bookRepository.findByIdWithBookFiles(4L)).thenReturn(Optional.of(entity));
         EbookViewerPreferenceEntity epubPref = new EbookViewerPreferenceEntity();
         epubPref.setFontFamily("Arial");
@@ -227,7 +227,7 @@ class BookServiceTest {
         primaryFile.setId(1L);
         primaryFile.setBook(entity);
         primaryFile.setBookType(null);
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
         when(bookRepository.findByIdWithBookFiles(5L)).thenReturn(Optional.of(entity));
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
         assertThrows(APIException.class, () -> bookService.getBookViewerSetting(5L, 1L));
@@ -381,7 +381,7 @@ class BookServiceTest {
         primaryFile.setBook(entity);
         primaryFile.setFileSubPath("");
         primaryFile.setFileName("bookfile.txt");
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
 
         Path filePath = Paths.get("/tmp/bookfile.txt");
         Files.createDirectories(filePath.getParent());
@@ -419,7 +419,7 @@ class BookServiceTest {
         primaryFile.setBook(entity);
         primaryFile.setFileSubPath("");
         primaryFile.setFileName("bookfile.txt");
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
 
         Path filePath = Paths.get("/tmp/bookfile.txt");
         Files.createDirectories(filePath.getParent());
@@ -452,7 +452,7 @@ class BookServiceTest {
         primaryFile.setBook(entity);
         primaryFile.setFileSubPath("");
         primaryFile.setFileName("nonexistentfile.txt");
-        entity.setBookFiles(List.of(primaryFile));
+        entity.setBookFiles(Set.of(primaryFile));
 
         when(bookQueryService.findAllWithMetadataByIds(Set.of(13L))).thenReturn(List.of(entity));
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);

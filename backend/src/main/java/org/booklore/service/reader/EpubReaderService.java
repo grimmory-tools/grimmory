@@ -183,7 +183,7 @@ public class EpubReaderService {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
-                    .findFirst()
+                    .min(Comparator.comparingLong(BookFileEntity::getId))
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }

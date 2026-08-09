@@ -90,7 +90,7 @@ class LibraryProcessingServiceTest {
         existingBook.setLibraryPath(pathEntity);
         BookFileEntity existingBookFile = new BookFileEntity();
         existingBookFile.setBook(existingBook);
-        existingBook.setBookFiles(List.of(existingBookFile));
+        existingBook.setBookFiles(Set.of(existingBookFile));
         existingBook.getPrimaryBookFile().setFileSubPath("");
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
@@ -153,7 +153,7 @@ class LibraryProcessingServiceTest {
         existingBook.setLibraryPath(pathEntity);
         BookFileEntity existingBookFile = new BookFileEntity();
         existingBookFile.setBook(existingBook);
-        existingBook.setBookFiles(List.of(existingBookFile));
+        existingBook.setBookFiles(Set.of(existingBookFile));
         existingBook.getPrimaryBookFile().setFileSubPath("");
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
@@ -358,7 +358,7 @@ class LibraryProcessingServiceTest {
         image.setFileName("image.png");
         image.setBookFormat(false);
 
-        book.setBookFiles(List.of(epub, pdf, image));
+        book.setBookFiles(Set.of(epub, pdf, image));
         libraryEntity.setBookEntities(List.of(book));
 
         when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
@@ -434,7 +434,7 @@ class LibraryProcessingServiceTest {
         existingBook.setLibraryPath(pathEntity);
         BookFileEntity existingBookFile = new BookFileEntity();
         existingBookFile.setBook(existingBook);
-        existingBook.setBookFiles(List.of(existingBookFile));
+        existingBook.setBookFiles(Set.of(existingBookFile));
         existingBook.getPrimaryBookFile().setFileSubPath("");
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
@@ -473,7 +473,7 @@ class LibraryProcessingServiceTest {
         existingBook.setLibraryPath(pathEntity);
         BookFileEntity existingBookFile = new BookFileEntity();
         existingBookFile.setBook(existingBook);
-        existingBook.setBookFiles(List.of(existingBookFile));
+        existingBook.setBookFiles(Set.of(existingBookFile));
         existingBook.getPrimaryBookFile().setFileSubPath("");
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
@@ -547,7 +547,7 @@ class LibraryProcessingServiceTest {
         existingBook.setLibraryPath(pathEntity);
         BookFileEntity existingBookFile = new BookFileEntity();
         existingBookFile.setBook(existingBook);
-        existingBook.setBookFiles(new ArrayList<>(List.of(existingBookFile)));
+        existingBook.setBookFiles(Set.of(existingBookFile));
         existingBook.getPrimaryBookFile().setFileSubPath("");
         existingBook.getPrimaryBookFile().setFileName("book (with parens).epub");
 

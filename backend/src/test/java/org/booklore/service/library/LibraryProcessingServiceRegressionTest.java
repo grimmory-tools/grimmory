@@ -91,7 +91,7 @@ class LibraryProcessingServiceRegressionTest {
         BookEntity filelessBook = new BookEntity();
         filelessBook.setId(1L);
         filelessBook.setLibraryPath(pathEntity);
-        filelessBook.setBookFiles(Collections.emptyList());
+        filelessBook.setBookFiles(Collections.emptySet());
 
         libraryEntity.setBookEntities(List.of(filelessBook));
 

@@ -86,7 +86,7 @@ class KoboLibrarySnapshotServiceTest {
 
         BookFileEntity ownersPrimaryFile = new BookFileEntity();
         ownersPrimaryFile.setBook(ownersBook);
-        ownersBook.setBookFiles(List.of(ownersPrimaryFile));
+        ownersBook.setBookFiles(Set.of(ownersPrimaryFile));
 
         otherUsersBook = BookEntity.builder()
                 .id(202L)
@@ -95,7 +95,7 @@ class KoboLibrarySnapshotServiceTest {
 
         BookFileEntity otherPrimaryFile = new BookFileEntity();
         otherPrimaryFile.setBook(otherUsersBook);
-        otherUsersBook.setBookFiles(List.of(otherPrimaryFile));
+        otherUsersBook.setBookFiles(Set.of(otherPrimaryFile));
 
         UserPermissions userPermissions = new UserPermissions();
         userPermissions.setAdmin(false);

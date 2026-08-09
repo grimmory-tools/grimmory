@@ -129,7 +129,7 @@ class BookFileDetachmentServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(book.getBookFiles()).hasSize(1);
-        assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(10L);
+        assertThat(book.getBookFiles().stream().toList().getFirst().getId()).isEqualTo(10L);
         verify(auditService).log(eq(AuditAction.BOOK_FILE_DETACHED), anyString(), eq(1L), anyString());
         verify(bookRepository, times(2)).saveAndFlush(argThat(newBook -> {
             assertThat(newBook.getMetadata().getTitle()).isEqualTo("Test Book 1");
@@ -206,8 +206,8 @@ class BookFileDetachmentServiceTest {
         service.detachBookFile(1L, 10L, false);
 
         assertThat(book.getBookFiles()).hasSize(1);
-        assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(11L);
-        assertThat(book.getBookFiles().getFirst().isBookFormat()).isTrue();
+        assertThat(book.getBookFiles().stream().toList().getFirst().getId()).isEqualTo(11L);
+        assertThat(book.getBookFiles().stream().toList().getFirst().isBookFormat()).isTrue();
     }
 
     @Test

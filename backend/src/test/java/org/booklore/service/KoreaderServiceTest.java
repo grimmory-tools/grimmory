@@ -36,9 +36,9 @@ import org.springframework.security.core.context.*;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -478,7 +478,7 @@ class KoreaderServiceTest {
         primaryFile.setBookType(bookFileType);
         primaryFile.setFileSubPath("subdir");
         primaryFile.setFileName("book.epub");
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         return book;
     }
 }

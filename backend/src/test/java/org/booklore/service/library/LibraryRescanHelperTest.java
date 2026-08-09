@@ -35,6 +35,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -387,7 +388,7 @@ class LibraryRescanHelperTest {
         primaryFile.setFileName(fileName);
         primaryFile.setFileSubPath("");
         primaryFile.setBookType(bookType);
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         return book;
     }
 }

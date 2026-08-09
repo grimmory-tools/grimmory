@@ -460,7 +460,7 @@ class BookMetadataServiceTest {
 
         @Test
         void returnsNullWhenPrimaryFileIsNull() {
-            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(new ArrayList<>()).build();
+            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(new HashSet<>()).build();
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
             BookMetadata result = service.getComicInfoMetadata(1L);
@@ -471,7 +471,7 @@ class BookMetadataServiceTest {
         @Test
         void returnsNullWhenFileTypeIsNotCbx() {
             BookFileEntity file = BookFileEntity.builder().bookType(BookFileType.PDF).isBookFormat(true).build();
-            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(List.of(file)).build();
+            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(Set.of(file)).build();
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
             BookMetadata result = service.getComicInfoMetadata(1L);
@@ -493,7 +493,7 @@ class BookMetadataServiceTest {
 
         @Test
         void throwsWhenPrimaryFileIsNull() {
-            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(new ArrayList<>()).build();
+            BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(new HashSet<>()).build();
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
             assertThatThrownBy(() -> service.getFileMetadata(1L))

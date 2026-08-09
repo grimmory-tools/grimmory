@@ -22,8 +22,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -199,7 +201,7 @@ public class LibraryTestBuilder {
                 .libraryPath(getLibraryEntity().getLibraryPaths().getLast())
                 .addedOn(Instant.now())
                 .metadata(metadata)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
 
         BookFileEntity primaryFile = BookFileEntity.builder()
@@ -303,7 +305,7 @@ public class LibraryTestBuilder {
                 .libraryPath(libraryFile.getLibraryPathEntity())
                 .addedOn(Instant.now())
                 .metadata(metadata)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(Set.of())
                 .build();
 
         BookFileEntity primaryFile = BookFileEntity.builder()

@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -99,7 +100,7 @@ class KomgaServiceTest {
             pdf.setBookType(BookFileType.PDF);
             pdf.setBookFormat(true);
 
-            book.setBookFiles(List.of(pdf));
+            book.setBookFiles(Set.of(pdf));
 
             seriesBooks.add(book);
         }

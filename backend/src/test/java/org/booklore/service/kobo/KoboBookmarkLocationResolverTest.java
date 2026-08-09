@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -194,7 +195,7 @@ class KoboBookmarkLocationResolverTest {
         bookFile.setCurrentHash("hash-123");
         bookFile.setFileName("book.epub");
         bookFile.setFileSubPath("");
-        book.setBookFiles(List.of(bookFile));
+        book.setBookFiles(Set.of(bookFile));
 
         return bookFile;
     }

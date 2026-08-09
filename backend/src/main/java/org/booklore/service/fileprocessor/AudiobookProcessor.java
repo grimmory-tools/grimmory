@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,7 +81,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
     public boolean generateAudiobookCover(BookEntity bookEntity) {
         var audiobookFile = bookEntity.getBookFiles().stream()
                 .filter(f -> f.getBookType() == BookFileType.AUDIOBOOK)
-                .findFirst()
+                .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
         if (audiobookFile == null) {
             return false;
@@ -252,7 +253,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
 
         BookFileEntity audiobookFile = bookEntity.getBookFiles().stream()
                 .filter(bf -> bf.getBookType() == BookFileType.AUDIOBOOK && bf.isBook())
-                .findFirst()
+                .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
 
         if (audiobookFile == null) {

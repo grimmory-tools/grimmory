@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -154,7 +155,7 @@ public class PdfReaderService {
                     .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
-                    .findFirst()
+                    .min(Comparator.comparingLong(BookFileEntity::getId))
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }

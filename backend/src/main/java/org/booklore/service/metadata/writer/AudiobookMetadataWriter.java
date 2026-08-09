@@ -24,6 +24,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -296,7 +297,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
         return bookEntity.getBookFiles().stream()
                 .filter(bf -> bf.getBookType() == BookFileType.AUDIOBOOK)
-                .findFirst()
+                .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
     }
 

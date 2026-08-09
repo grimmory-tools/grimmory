@@ -31,9 +31,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -90,7 +90,7 @@ class EpubMetadataWriterTest {
         bookEntity.setLibraryPath(libraryPath);
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(bookEntity);
-        bookEntity.setBookFiles(Collections.singletonList(primaryFile));
+        bookEntity.setBookFiles(Set.of(primaryFile));
         bookEntity.getPrimaryBookFile().setFileSubPath("");
         bookEntity.getPrimaryBookFile().setFileName("test.epub");
     }

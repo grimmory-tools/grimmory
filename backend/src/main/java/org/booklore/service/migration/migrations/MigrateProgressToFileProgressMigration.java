@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,7 +97,11 @@ public class MigrateProgressToFileProgressMigration implements Migration {
             return Optional.empty();
         }
 
-        List<BookFileEntity> bookFiles = progress.getBook().getBookFiles();
+        List<BookFileEntity> bookFiles = progress.getBook().getBookFiles()
+                .stream()
+                .sorted(Comparator.comparingLong(BookFileEntity::getId))
+                .toList();
+
         if (bookFiles.isEmpty()) {
             return Optional.empty();
         }

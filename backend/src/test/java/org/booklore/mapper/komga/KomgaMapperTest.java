@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -74,7 +75,7 @@ class KomgaMapperTest {
         pdf.setBookType(BookFileType.PDF);
         pdf.setBookFormat(true);
 
-        book.setBookFiles(List.of(pdf));
+        book.setBookFiles(Set.of(pdf));
 
         // When: Converting to DTO
         KomgaBookDto dto = mapper.toKomgaBookDto(book);
@@ -105,7 +106,7 @@ class KomgaMapperTest {
         pdf.setBookType(BookFileType.PDF);
         pdf.setBookFormat(true);
 
-        book.setBookFiles(List.of(pdf));
+        book.setBookFiles(Set.of(pdf));
 
         // When: Converting to DTO
         KomgaBookDto dto = mapper.toKomgaBookDto(book);
@@ -142,7 +143,7 @@ class KomgaMapperTest {
         pdf.setBookType(BookFileType.PDF);
         pdf.setBookFormat(true);
 
-        book.setBookFiles(List.of(pdf));
+        book.setBookFiles(Set.of(pdf));
 
         // When: Converting to DTO
         KomgaBookDto dto = mapper.toKomgaBookDto(book);
@@ -175,7 +176,7 @@ class KomgaMapperTest {
         pdf.setBookType(BookFileType.PDF);
         pdf.setBookFormat(true);
 
-        book.setBookFiles(List.of(pdf));
+        book.setBookFiles(Set.of(pdf));
         
         // Book with metadata but empty fields
         BookMetadataEntity metadata = BookMetadataEntity.builder()
@@ -221,7 +222,7 @@ class KomgaMapperTest {
         pdf.setBookType(BookFileType.PDF);
         pdf.setBookFormat(true);
 
-        book.setBookFiles(List.of(pdf));
+        book.setBookFiles(Set.of(pdf));
         
         // Book with metadata but empty fields
         BookMetadataEntity metadata = BookMetadataEntity.builder()
