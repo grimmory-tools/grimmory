@@ -101,8 +101,13 @@ public class AudnexusAuthorParser implements AuthorParser {
 
             if (response.statusCode() == 200) {
                 AudnexusAuthorResponse[] authors = objectMapper.readValue(response.body(), AudnexusAuthorResponse[].class);
-                if (authors.length == 0) return null;
-                return getAuthorByAsin(authors[0].getAsin(), region);
+                for (AudnexusAuthorResponse candidate : authors) {
+                    if (namesMatch(name, candidate.getName())) {
+                        return getAuthorByAsin(candidate.getAsin(), region);
+                    }
+                }
+                log.warn("Audnexus author quick search found no name match for: {}", name);
+                return null;
             }
 
             log.warn("Audnexus author quick search returned status {}", response.statusCode());
@@ -114,6 +119,19 @@ public class AudnexusAuthorParser implements AuthorParser {
             log.error("Audnexus author quick search failed for name: {}", name, e);
             return null;
         }
+    }
+
+    private boolean namesMatch(String queryName, String candidateName) {
+        if (queryName == null || candidateName == null) return false;
+        return normalizeName(queryName).equals(normalizeName(candidateName));
+    }
+
+    private String normalizeName(String name) {
+        // Word-boundary placement varies across sources for compound surnames (e.g. "De Long"
+        // vs "Delong"), so whitespace is stripped entirely rather than just collapsed.
+        return name.toLowerCase(Locale.ROOT)
+                .replaceAll("[.,]", "")
+                .replaceAll("\\s+", "");
     }
 
     @Override
