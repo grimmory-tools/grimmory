@@ -346,15 +346,19 @@ class AudnexusAuthorParserTest {
     @Test
     @SuppressWarnings("unchecked")
     void quickSearch_matchIgnoresApostrophesAndHyphens() throws Exception {
-        // Sources disagree on whether names like "O'Connor" carry punctuation at all, so the
-        // match must tolerate an apostrophe (or hyphen) being present on only one side.
+        // Sources disagree on whether names like "O'Connor" or "Anne-Marie" carry punctuation
+        // at all, so the match must tolerate an apostrophe or hyphen being present on only one side.
         String searchJson = """
                 [
-                  {"asin": "B0131MUW2E", "name": "Flannery O'Connor"}
+                  {"asin": "B0131MUW2E", "name": "Flannery O'Connor"},
+                  {"asin": "B0131MUW2F", "name": "Anne-Marie Smith"}
                 ]
                 """;
         String detailJson = """
                 {"asin": "B0131MUW2E", "name": "Flannery O'Connor"}
+                """;
+        String hyphenDetailJson = """
+                {"asin": "B0131MUW2F", "name": "Anne-Marie Smith"}
                 """;
 
         HttpResponse<String> searchResponse = mock(HttpResponse.class);
@@ -362,16 +366,24 @@ class AudnexusAuthorParserTest {
         when(searchResponse.body()).thenReturn(searchJson);
 
         HttpResponse<String> detailResponse = mock(HttpResponse.class);
-        when(detailResponse.statusCode()).thenReturn(200);
-        when(detailResponse.body()).thenReturn(detailJson);
+        lenient().when(detailResponse.statusCode()).thenReturn(200);
+        lenient().when(detailResponse.body()).thenReturn(detailJson);
+
+        HttpResponse<String> hyphenDetailResponse = mock(HttpResponse.class);
+        lenient().when(hyphenDetailResponse.statusCode()).thenReturn(200);
+        lenient().when(hyphenDetailResponse.body()).thenReturn(hyphenDetailJson);
 
         doReturn(searchResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors?")), any());
-        doReturn(detailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B0131MUW2E")), any());
+        lenient().doReturn(detailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B0131MUW2E")), any());
+        lenient().doReturn(hyphenDetailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B0131MUW2F")), any());
 
         AuthorSearchResult result = parser.quickSearch("Flannery OConnor", "us");
-
         assertThat(result).isNotNull();
         assertThat(result.getAsin()).isEqualTo("B0131MUW2E");
+
+        AuthorSearchResult hyphenResult = parser.quickSearch("AnneMarie Smith", "us");
+        assertThat(hyphenResult).isNotNull();
+        assertThat(hyphenResult.getAsin()).isEqualTo("B0131MUW2F");
     }
 
     @Test
