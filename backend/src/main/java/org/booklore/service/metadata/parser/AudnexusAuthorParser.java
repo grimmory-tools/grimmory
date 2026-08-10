@@ -130,8 +130,7 @@ public class AudnexusAuthorParser implements AuthorParser {
         // Word-boundary placement varies across sources for compound surnames (e.g. "De Long"
         // vs "Delong"), so whitespace is stripped entirely rather than just collapsed.
         return name.toLowerCase(Locale.ROOT)
-                .replaceAll("[.,]", "")
-                .replaceAll("\\s+", "");
+                .replaceAll("(?U)[\\p{P}\\s]+", "");
     }
 
     @Override

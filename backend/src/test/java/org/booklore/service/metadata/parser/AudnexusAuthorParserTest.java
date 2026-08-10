@@ -345,6 +345,68 @@ class AudnexusAuthorParserTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void quickSearch_matchIgnoresApostrophesAndHyphens() throws Exception {
+        // Sources disagree on whether names like "O'Connor" carry punctuation at all, so the
+        // match must tolerate an apostrophe (or hyphen) being present on only one side.
+        String searchJson = """
+                [
+                  {"asin": "B0131MUW2E", "name": "Flannery O'Connor"}
+                ]
+                """;
+        String detailJson = """
+                {"asin": "B0131MUW2E", "name": "Flannery O'Connor"}
+                """;
+
+        HttpResponse<String> searchResponse = mock(HttpResponse.class);
+        when(searchResponse.statusCode()).thenReturn(200);
+        when(searchResponse.body()).thenReturn(searchJson);
+
+        HttpResponse<String> detailResponse = mock(HttpResponse.class);
+        when(detailResponse.statusCode()).thenReturn(200);
+        when(detailResponse.body()).thenReturn(detailJson);
+
+        doReturn(searchResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors?")), any());
+        doReturn(detailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B0131MUW2E")), any());
+
+        AuthorSearchResult result = parser.quickSearch("Flannery OConnor", "us");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getAsin()).isEqualTo("B0131MUW2E");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void quickSearch_skipsCandidateWithNullName() throws Exception {
+        String searchJson = """
+                [
+                  {"asin": "B000NULL00"},
+                  {"asin": "B001H6KOCK", "name": "Stephen King"}
+                ]
+                """;
+        String detailJson = """
+                {"asin": "B001H6KOCK", "name": "Stephen King"}
+                """;
+
+        HttpResponse<String> searchResponse = mock(HttpResponse.class);
+        when(searchResponse.statusCode()).thenReturn(200);
+        when(searchResponse.body()).thenReturn(searchJson);
+
+        HttpResponse<String> detailResponse = mock(HttpResponse.class);
+        when(detailResponse.statusCode()).thenReturn(200);
+        when(detailResponse.body()).thenReturn(detailJson);
+
+        doReturn(searchResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors?")), any());
+        doReturn(detailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B001H6KOCK")), any());
+
+        AuthorSearchResult result = parser.quickSearch("Stephen King", "us");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getAsin()).isEqualTo("B001H6KOCK");
+        verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B000NULL00")), any());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void quickSearch_returnsNullWhenNoResults() throws Exception {
         HttpResponse<String> mockResponse = mock(HttpResponse.class);
         when(mockResponse.statusCode()).thenReturn(200);
