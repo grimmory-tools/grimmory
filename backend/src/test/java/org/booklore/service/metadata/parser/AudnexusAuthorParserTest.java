@@ -225,7 +225,8 @@ class AudnexusAuthorParserTest {
                 [
                   {"asin": "B001I7AEI2", "name": "Hayao Kawai"},
                   {"asin": "B079XYL3FZ", "name": "Yoshifumi Miyazaki"},
-                  {"asin": "B00ABCDEF0", "name": "Hayao Miyazaki"}
+                  {"asin": "B00ABCDEF0", "name": "Hayao Miyazaki"},
+                  {"asin": "B00LATER99", "name": "Hayao Miyazaki"}
                 ]
                 """;
         String wrongDetailJson = """
@@ -233,6 +234,9 @@ class AudnexusAuthorParserTest {
                 """;
         String detailJson = """
                 {"asin": "B00ABCDEF0", "name": "Hayao Miyazaki", "description": "Animator and filmmaker", "image": "https://img.com/miyazaki.jpg"}
+                """;
+        String laterMatchDetailJson = """
+                {"asin": "B00LATER99", "name": "Hayao Miyazaki"}
                 """;
 
         HttpResponse<String> searchResponse = mock(HttpResponse.class);
@@ -247,9 +251,14 @@ class AudnexusAuthorParserTest {
         when(detailResponse.statusCode()).thenReturn(200);
         when(detailResponse.body()).thenReturn(detailJson);
 
+        HttpResponse<String> laterMatchDetailResponse = mock(HttpResponse.class);
+        lenient().when(laterMatchDetailResponse.statusCode()).thenReturn(200);
+        lenient().when(laterMatchDetailResponse.body()).thenReturn(laterMatchDetailJson);
+
         doReturn(searchResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors?")), any());
         lenient().doReturn(wrongDetailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B001I7AEI2")), any());
         doReturn(detailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B00ABCDEF0")), any());
+        lenient().doReturn(laterMatchDetailResponse).when(httpClient).send(argThat(req -> req.uri().toString().contains("/authors/B00LATER99")), any());
 
         AuthorSearchResult result = parser.quickSearch("Hayao Miyazaki", "us");
 
@@ -257,6 +266,7 @@ class AudnexusAuthorParserTest {
         assertThat(result.getAsin()).isEqualTo("B00ABCDEF0");
         assertThat(result.getName()).isEqualTo("Hayao Miyazaki");
         verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B079XYL3FZ")), any());
+        verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B00LATER99")), any());
     }
 
     @Test
@@ -392,6 +402,7 @@ class AudnexusAuthorParserTest {
         String searchJson = """
                 [
                   {"asin": "B000NULL00"},
+                  {"asin": "B000EMPT00", "name": ""},
                   {"asin": "B001H6KOCK", "name": "Stephen King"}
                 ]
                 """;
@@ -415,6 +426,7 @@ class AudnexusAuthorParserTest {
         assertThat(result).isNotNull();
         assertThat(result.getAsin()).isEqualTo("B001H6KOCK");
         verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B000NULL00")), any());
+        verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B000EMPT00")), any());
     }
 
     @Test
