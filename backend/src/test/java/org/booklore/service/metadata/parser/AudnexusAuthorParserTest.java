@@ -265,6 +265,7 @@ class AudnexusAuthorParserTest {
         assertThat(result).isNotNull();
         assertThat(result.getAsin()).isEqualTo("B00ABCDEF0");
         assertThat(result.getName()).isEqualTo("Hayao Miyazaki");
+        verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B001I7AEI2")), any());
         verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B079XYL3FZ")), any());
         verify(httpClient, never()).send(argThat(req -> req.uri().toString().contains("/authors/B00LATER99")), any());
     }
