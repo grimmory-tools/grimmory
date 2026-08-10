@@ -14,7 +14,6 @@ import org.booklore.repository.BookNoteV2Repository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.book.BookNoteV2Service;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -99,10 +98,10 @@ class BookNoteV2ServiceTest {
     }
 
     @Test
-    void getNoteById_throwsEntityNotFoundException_whenNotFound() {
+    void getNoteById_throwsAPIException_whenNotFound() {
         when(bookNoteV2Repository.findByIdAndUserId(noteId, userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.getNoteById(noteId));
+        APIException ex = assertThrows(APIException.class, () -> service.getNoteById(noteId));
 
         assertTrue(ex.getMessage().contains(String.valueOf(noteId)));
     }
@@ -213,7 +212,7 @@ class BookNoteV2ServiceTest {
     }
 
     @Test
-    void createNote_throwsEntityNotFoundException_whenBookNotFound() {
+    void createNote_throwssAPIException_whenBookNotFound() {
         CreateBookNoteV2Request request = CreateBookNoteV2Request.builder()
                 .bookId(bookId)
                 .cfi(cfi)
@@ -223,14 +222,14 @@ class BookNoteV2ServiceTest {
         when(bookNoteV2Repository.existsByCfiAndBookIdAndUserId(cfi, bookId, userId)).thenReturn(false);
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.createNote(request));
+        APIException ex = assertThrows(APIException.class, () -> service.createNote(request));
 
         assertTrue(ex.getMessage().contains(String.valueOf(bookId)));
         verify(bookNoteV2Repository, never()).save(any());
     }
 
     @Test
-    void createNote_throwsEntityNotFoundException_whenUserNotFound() {
+    void createNote_throwsAPIException_whenUserNotFound() {
         CreateBookNoteV2Request request = CreateBookNoteV2Request.builder()
                 .bookId(bookId)
                 .cfi(cfi)
@@ -243,7 +242,7 @@ class BookNoteV2ServiceTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.createNote(request));
+        APIException ex = assertThrows(APIException.class, () -> service.createNote(request));
 
         assertTrue(ex.getMessage().contains(String.valueOf(userId)));
         verify(bookNoteV2Repository, never()).save(any());
@@ -321,14 +320,14 @@ class BookNoteV2ServiceTest {
     }
 
     @Test
-    void updateNote_throwsEntityNotFoundException_whenNoteNotFound() {
+    void updateNote_throwsAPIException_whenNoteNotFound() {
         UpdateBookNoteV2Request request = UpdateBookNoteV2Request.builder()
                 .noteContent("Updated content")
                 .build();
 
         when(bookNoteV2Repository.findByIdAndUserId(noteId, userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.updateNote(noteId, request));
+        APIException ex = assertThrows(APIException.class, () -> service.updateNote(noteId, request));
 
         assertTrue(ex.getMessage().contains(String.valueOf(noteId)));
         verify(bookNoteV2Repository, never()).save(any());
@@ -345,10 +344,10 @@ class BookNoteV2ServiceTest {
     }
 
     @Test
-    void deleteNote_throwsEntityNotFoundException_whenNotFound() {
+    void deleteNote_throwsAPIException_whenNotFound() {
         when(bookNoteV2Repository.findByIdAndUserId(noteId, userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.deleteNote(noteId));
+        APIException ex = assertThrows(APIException.class, () -> service.deleteNote(noteId));
 
         assertTrue(ex.getMessage().contains(String.valueOf(noteId)));
         verify(bookNoteV2Repository, never()).delete(any());

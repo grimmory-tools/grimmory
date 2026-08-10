@@ -15,7 +15,6 @@ import org.booklore.repository.BookMarkRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.book.BookMarkService;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -130,7 +129,7 @@ class BookMarkServiceTest {
         when(bookMarkRepository.existsByCfiAndBookIdAndUserId("new-cfi", bookId, userId)).thenReturn(false); // No duplicate
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty()); // Book doesn't exist
 
-        assertThrows(EntityNotFoundException.class, () -> bookMarkService.createBookmark(request));
+        assertThrows(APIException.class, () -> bookMarkService.createBookmark(request));
         verify(bookMarkRepository, never()).save(any());
     }
 
@@ -149,7 +148,7 @@ class BookMarkServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(userDto);
         when(bookMarkRepository.findByIdAndUserId(bookmarkId, userId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> bookMarkService.deleteBookmark(bookmarkId));
+        assertThrows(APIException.class, () -> bookMarkService.deleteBookmark(bookmarkId));
         verify(bookMarkRepository, never()).delete(any());
     }
 
@@ -183,7 +182,7 @@ class BookMarkServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(userDto);
         when(bookMarkRepository.findByIdAndUserId(bookmarkId, userId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> bookMarkService.updateBookmark(bookmarkId, updateRequest));
+        assertThrows(APIException.class, () -> bookMarkService.updateBookmark(bookmarkId, updateRequest));
         verify(bookMarkRepository, never()).save(any());
     }
 
@@ -205,7 +204,7 @@ class BookMarkServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(userDto);
         when(bookMarkRepository.findByIdAndUserId(bookmarkId, userId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> bookMarkService.getBookmarkById(bookmarkId));
+        assertThrows(APIException.class, () -> bookMarkService.getBookmarkById(bookmarkId));
         verify(bookMarkRepository).findByIdAndUserId(bookmarkId, userId);
     }
 }

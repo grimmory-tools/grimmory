@@ -2,6 +2,7 @@ package org.booklore.service.book;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookNoteV2Mapper;
 import org.booklore.model.dto.BookNoteV2;
 import org.booklore.model.dto.CreateBookNoteV2Request;
@@ -12,7 +13,6 @@ import org.booklore.model.entity.BookNoteV2Entity;
 import org.booklore.repository.BookNoteV2Repository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -92,17 +92,17 @@ public class BookNoteV2Service {
     private BookNoteV2Entity findNoteByIdAndUser(Long noteId) {
         Long userId = getCurrentUserId();
         return bookNoteV2Repository.findByIdAndUserId(noteId, userId)
-                .orElseThrow(() -> new EntityNotFoundException("Note not found: " + noteId));
+                .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Note", noteId));
     }
 
     private BookEntity findBook(Long bookId) {
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
     }
 
     private BookLoreUserEntity findUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
     }
 
     private void validateNoDuplicateNote(String cfi, Long bookId, Long userId) {

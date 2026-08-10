@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.mapper.BookNoteMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.BookNote;
@@ -12,7 +13,6 @@ import org.booklore.repository.BookNoteRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.book.BookNoteService;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -149,7 +149,7 @@ class BookNoteServiceTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(BookEntity.builder().id(bookId).build()));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.createOrUpdateNote(req));
+        assertThrows(APIException.class, () -> service.createOrUpdateNote(req));
     }
 
     @Test
@@ -165,7 +165,7 @@ class BookNoteServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(BookLoreUserEntity.builder().id(userId).isDefaultPassword(false).build()));
         when(bookNoteRepository.findByIdAndUserId(noteId, userId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.createOrUpdateNote(req));
+        assertThrows(APIException.class, () -> service.createOrUpdateNote(req));
     }
 
     @Test
@@ -181,6 +181,6 @@ class BookNoteServiceTest {
     @Test
     void deleteNote_throwsIfNotFound() {
         when(bookNoteRepository.findByIdAndUserId(noteId, userId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> service.deleteNote(noteId));
+        assertThrows(APIException.class, () -> service.deleteNote(noteId));
     }
 }

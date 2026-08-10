@@ -11,6 +11,7 @@ public enum ApiError {
     GENERIC_BAD_REQUEST(HttpStatus.BAD_REQUEST, "%s"),
     GENERIC_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "%s"),
 
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found with ID: %d"),
     BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "Book not found with ID: %d"),
     EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email provider with ID %s not found"),
     DEFAULT_EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Default email provider not found"),
