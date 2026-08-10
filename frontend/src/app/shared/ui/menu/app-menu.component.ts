@@ -54,6 +54,23 @@ import { AppMenuContentDirective } from './app-menu-content.directive';
 
 const menuByElement = new WeakMap<Element, AppMenuComponent>();
 
+export interface ContextMenuRequest {
+  origin: HTMLElement;
+  cursor: {x: number; y: number} | null;
+  contextmenu: boolean;
+}
+
+export function contextMenuRequest(event: MouseEvent): ContextMenuRequest {
+  const contextmenu = event.type === 'contextmenu';
+  return {
+    origin: event.currentTarget as HTMLElement,
+    cursor: contextmenu && (event.clientX !== 0 || event.clientY !== 0)
+      ? {x: event.clientX, y: event.clientY}
+      : null,
+    contextmenu,
+  };
+}
+
 type MenuPresentation = 'popup' | 'sheet' | 'push';
 
 const SUBMENU_GAP = 4;
@@ -212,6 +229,14 @@ export class AppMenuComponent {
     this.anchor = origin;
     this.contextZone = null;
     this.show();
+  }
+
+  openFrom(request: ContextMenuRequest): void {
+    if (request.cursor) {
+      this.openAt(request.cursor.x, request.cursor.y, request.origin);
+    } else {
+      this.open(request.origin);
+    }
   }
 
   openAt(x: number, y: number, contextZone?: HTMLElement, fromPointer = true): void {

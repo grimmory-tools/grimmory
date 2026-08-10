@@ -24,6 +24,7 @@ import {
   appMenuLabelClass,
   appMenuLeadingSlotClass,
   appMenuShortcutClass,
+  appMenuTrailingTextClass,
   appMenuSpinnerClass,
   appMenuSubmenuIconClass,
   appMenuTrailingIconClass,
@@ -48,6 +49,8 @@ import {
         #anchor
         [routerLink]="link()"
         [queryParams]="queryParams()"
+        [target]="target() || undefined"
+        [attr.rel]="target() === '_blank' ? 'noopener' : null"
         tabindex="-1"
         class="flex min-h-full w-full items-center gap-2 no-underline text-inherit outline-none">
         <ng-container [ngTemplateOutlet]="body" />
@@ -76,6 +79,9 @@ import {
       @if (trailingIcon(); as iconData) {
         <svg [lucideIcon]="iconData" [class]="trailingIconClass" aria-hidden="true"></svg>
       }
+      @if (trailingText()) {
+        <span [class]="trailingTextClass" aria-hidden="true">{{ trailingText() }}</span>
+      }
       @if (shortcut()) {
         <span [class]="shortcutClass" aria-hidden="true">{{ shortcut() }}</span>
       }
@@ -92,9 +98,11 @@ export class AppMenuItemComponent {
   readonly loading = input(false, { transform: booleanAttribute });
   readonly inset = input(false, { transform: booleanAttribute });
   readonly shortcut = input('');
+  readonly trailingText = input('');
   readonly variant = input<AppMenuItemVariant>('default');
   readonly closeOnSelect = input(true, { transform: booleanAttribute });
   readonly link = input<string | readonly unknown[] | null>(null);
+  readonly target = input('');
   readonly queryParams = input<Record<string, unknown> | null>(null);
   readonly searchLabel = input('');
 
@@ -112,6 +120,7 @@ export class AppMenuItemComponent {
   protected readonly labelClass = appMenuLabelClass;
   protected readonly trailingIconClass = appMenuTrailingIconClass;
   protected readonly shortcutClass = appMenuShortcutClass;
+  protected readonly trailingTextClass = appMenuTrailingTextClass;
   protected readonly submenuIconClass = appMenuSubmenuIconClass;
   protected readonly rowClass = computed(() => appMenuItemRowClass(this.variant()));
   protected readonly inert = computed(() => this.loading() || this.menuItem.disabled());

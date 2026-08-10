@@ -19,7 +19,7 @@ export const appMenuSheetPanelClass =
   'rounded-t-xl rounded-b-none border-x-0 border-b-0 ' +
   'pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]';
 
-export const appMenuScrollRegionClass = 'flex min-h-0 flex-col overflow-y-auto overscroll-contain';
+export const appMenuScrollRegionClass = 'flex min-h-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain';
 
 export const appMenuSheetPaneClass = 'will-change-transform animate-in-sheet slide-in-from-bottom-full';
 
@@ -51,14 +51,16 @@ export function appMenuItemRowClass(variant: AppMenuItemVariant): string {
   );
 }
 
-export const appMenuLeadingSlotClass = 'flex size-4 shrink-0 items-center justify-center text-text-muted';
-export const appMenuBadgeSlotClass = cn(appMenuLeadingSlotClass, 'text-xs font-medium tabular-nums');
+const menuIconToneClass = 'text-surface-400 dark:text-text-muted';
+export const appMenuLeadingSlotClass = cn('flex size-4 shrink-0 items-center justify-center', menuIconToneClass);
+export const appMenuBadgeSlotClass = cn(appMenuLeadingSlotClass, 'text-xs font-medium tabular-nums text-text-muted');
 export const appMenuIconClass = 'size-3.5 shrink-0';
 export const appMenuSpinnerClass = 'size-4 shrink-0 border-2';
 export const appMenuLabelClass = 'min-w-0 flex-1 truncate leading-5';
 export const appMenuShortcutClass = overlayListShortcutClass;
-export const appMenuTrailingIconClass = 'size-4 shrink-0';
-export const appMenuSubmenuIconClass = 'ml-auto size-4 shrink-0 text-text-muted';
+export const appMenuTrailingTextClass = 'text-xs text-text-muted';
+export const appMenuTrailingIconClass = cn('ml-2 size-3.5 shrink-0', menuIconToneClass);
+export const appMenuSubmenuIconClass = cn(appMenuTrailingIconClass, 'ml-auto');
 export const appMenuCheckIconClass = 'size-4 shrink-0 text-primary';
 export const appMenuSectionClass = cn(overlayListSectionLabelClass, 'text-text-muted');
 export const appMenuSeparatorClass = overlayListSeparatorClass;
