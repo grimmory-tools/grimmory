@@ -1,4 +1,4 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, computed, effect, inject, signal, WritableSignal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
@@ -66,20 +66,20 @@ export class BulkIsbnImportDialogComponent {
 
   selectedLibraryId: number | null = null;
 
-  phase: ImportPhase = 'upload';
+  phase: WritableSignal<ImportPhase> = signal('upload');
   pasteText = '';
-  entries: IsbnEntry[] = [];
-  skipped: SkippedEntry[] = [];
-  duplicatesRemoved = 0;
+  entries: WritableSignal<IsbnEntry[]> = signal([]);
+  skipped: WritableSignal<SkippedEntry[]> = signal([]);
+  duplicatesRemoved = signal(0);
   showSkipped = false;
 
-  processedCount = 0;
-  createdCount = 0;
-  noMetadataCount = 0;
-  failedCount = 0;
+  processedCount = signal(0);
+  createdCount = signal(0);
+  noMetadataCount = signal(0);
+  failedCount = signal(0);
   cancelled = false;
 
-  parseError = '';
+  parseError = signal('');
   readonly maxIsbnCount = MAX_ISBN_COUNT;
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;
@@ -106,7 +106,7 @@ export class BulkIsbnImportDialogComponent {
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      this.parseError = 'fileTooLarge';
+      this.parseError.set('fileTooLarge');
       return;
     }
 
@@ -124,28 +124,28 @@ export class BulkIsbnImportDialogComponent {
   }
 
   clearParsed(): void {
-    this.entries = [];
-    this.skipped = [];
-    this.duplicatesRemoved = 0;
-    this.parseError = '';
+    this.entries.set([]);
+    this.skipped.set([]);
+    this.duplicatesRemoved.set(0);
+    this.parseError.set('');
     this.pasteText = '';
   }
 
   canStartImport(): boolean {
-    return this.phase === 'upload' && this.entries.length > 0 && !!this.selectedLibraryId;
+    return this.phase() === 'upload' && this.entries().length > 0 && !!this.selectedLibraryId;
   }
 
   async startImport(): Promise<void> {
     if (!this.canStartImport()) return;
 
-    this.phase = 'processing';
-    this.processedCount = 0;
-    this.createdCount = 0;
-    this.noMetadataCount = 0;
-    this.failedCount = 0;
+    this.phase.set('processing');
+    this.processedCount.set(0);
+    this.createdCount.set(0);
+    this.noMetadataCount.set(0);
+    this.failedCount.set(0);
     this.cancelled = false;
 
-    for (const entry of this.entries) {
+    for (const entry of this.entries()) {
       if (this.cancelled) break;
 
       entry.status = 'looking-up';
@@ -173,25 +173,25 @@ export class BulkIsbnImportDialogComponent {
         if (metadata?.title) {
           entry.status = 'created';
           entry.title = metadata.title;
-          this.createdCount++;
+          this.createdCount.update(v => v + 1);
         } else {
           entry.status = 'created-no-metadata';
-          this.noMetadataCount++;
+          this.noMetadataCount.update(v => v + 1);
         }
       } catch (err: unknown) {
         entry.status = 'failed';
         entry.error = err instanceof Error ? err.message : 'Unknown error';
-        this.failedCount++;
+        this.failedCount.update(v => v + 1);
       }
 
-      this.processedCount++;
+      this.processedCount.update(v => v + 1);
 
-      if (!this.cancelled && entry !== this.entries[this.entries.length - 1]) {
+      if (!this.cancelled && entry !== this.entries()[this.entries().length - 1]) {
         await this.delay(DELAY_BETWEEN_REQUESTS_MS);
       }
     }
 
-    this.phase = 'summary';
+    this.phase.set('summary');
   }
 
   cancelImport(): void {
@@ -202,18 +202,18 @@ export class BulkIsbnImportDialogComponent {
     this.dynamicDialogRef.close();
   }
 
-  get progressPercent(): number {
-    return this.entries.length > 0 ? Math.round((this.processedCount / this.entries.length) * 100) : 0;
-  }
+  progressPercent = computed(
+    () => this.entries().length > 0 ? Math.round((this.processedCount() / this.entries().length) * 100) : 0
+  );
 
   get selectedLibraryName(): string {
     return this.libraries.find(l => l.id === this.selectedLibraryId)?.name ?? '';
   }
 
   private parseContent(content: string, source: string): void {
-    this.parseError = '';
-    this.skipped = [];
-    this.duplicatesRemoved = 0;
+    this.parseError.set('');
+    this.skipped.set([]);
+    this.duplicatesRemoved.set(0);
 
     // Strip BOM
     const cleaned = content.replace(/^\uFEFF/, '');
@@ -241,17 +241,17 @@ export class BulkIsbnImportDialogComponent {
       const normalized = this.normalizeIsbn(raw);
 
       if (!this.isValidIsbn(normalized)) {
-        this.skipped.push({value: raw, reason: 'invalid'});
+        this.skipped.update(s => [...s, {value: raw, reason: 'invalid'}]);
         continue;
       }
 
       if (seen.has(normalized)) {
-        this.duplicatesRemoved++;
+        this.duplicatesRemoved.update(v => v + 1);
         continue;
       }
 
       if (existingIsbns.has(normalized)) {
-        this.skipped.push({value: normalized, reason: 'alreadyExists'});
+        this.skipped.update(s => [...s, {value: normalized, reason: 'alreadyExists'}]);
         continue;
       }
 
@@ -260,14 +260,14 @@ export class BulkIsbnImportDialogComponent {
     }
 
     if (validEntries.length > MAX_ISBN_COUNT) {
-      this.parseError = 'tooMany';
-      this.entries = validEntries.slice(0, MAX_ISBN_COUNT);
+      this.parseError.set('tooMany');
+      this.entries.set(validEntries.slice(0, MAX_ISBN_COUNT));
     } else {
-      this.entries = validEntries;
+      this.entries.set(validEntries);
     }
 
-    if (this.entries.length === 0 && this.skipped.length === 0) {
-      this.parseError = 'empty';
+    if (this.entries().length === 0 && this.skipped().length === 0) {
+      this.parseError.set('empty');
     }
   }
 
