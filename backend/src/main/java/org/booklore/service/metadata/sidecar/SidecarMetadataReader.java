@@ -6,6 +6,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -47,14 +48,14 @@ public class SidecarMetadataReader {
         }
     }
 
-    public byte[] readSidecarCover(Path bookPath) {
+    public byte[] readSidecarCover(Path bookPath, SidecarMetadata sidecar) {
         if (bookPath == null) {
             return null;
         }
 
-        Path coverPath = getCoverPath(bookPath);
-        if (!Files.exists(coverPath)) {
-            log.debug("No sidecar cover file found at: {}", coverPath);
+        Path coverPath = resolveCoverPath(bookPath, sidecar);
+        if (coverPath == null || !Files.exists(coverPath)) {
+            log.debug("No sidecar cover file found for book: {}", bookPath);
             return null;
         }
 
@@ -64,6 +65,18 @@ public class SidecarMetadataReader {
             log.warn("Failed to read sidecar cover from {}: {}", coverPath, e.getMessage());
             return null;
         }
+    }
+
+    private Path resolveCoverPath(Path bookPath, SidecarMetadata sidecar) {
+        if (sidecar != null && sidecar.getCover() != null && StringUtils.hasText(sidecar.getCover().getPath())) {
+            Path resolvedPath = bookPath.getParent().resolve(sidecar.getCover().getPath()).normalize();
+            if (resolvedPath.startsWith(bookPath.getParent())) {
+                return resolvedPath;
+            }
+            log.warn("Rejected sidecar cover path outside the book directory: {}", sidecar.getCover().getPath());
+            return null;
+        }
+        return getCoverPath(bookPath);
     }
 
     public SidecarSyncStatus getSyncStatus(BookEntity book) {

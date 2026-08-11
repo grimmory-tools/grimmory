@@ -139,6 +139,24 @@ public class BookCoverService {
         notifyBookCoverUpdate(bookEntity);
     }
 
+    /**
+     * Update cover image from raw image bytes for a single book.
+     */
+    @Transactional
+    public void updateCoverFromBytes(Long bookId, byte[] coverBytes) {
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        if (isCoverLocked(bookEntity)) {
+            throw ApiError.METADATA_LOCKED.createException();
+        }
+
+        fileService.createThumbnailFromBytes(bookId, coverBytes);
+        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromBytes(book, coverBytes));
+        updateBookCoverMetadata(bookEntity);
+        bookRepository.save(bookEntity);
+        notifyBookCoverUpdate(bookEntity);
+    }
+
     // =========================
     // SECTION: AUDIOBOOK COVER UPDATES
     // =========================

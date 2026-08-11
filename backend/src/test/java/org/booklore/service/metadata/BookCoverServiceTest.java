@@ -553,6 +553,43 @@ class BookCoverServiceTest {
     }
 
     @Nested
+    class UpdateCoverFromBytes {
+
+        @Test
+        void successfullyUpdatesCoverFromBytes() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            byte[] coverBytes = {1, 2, 3};
+
+            service.updateCoverFromBytes(1L, coverBytes);
+
+            verify(fileService).createThumbnailFromBytes(1L, coverBytes);
+            verify(bookRepository).save(book);
+            assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
+            assertThat(book.getBookCoverHash()).isNotNull();
+        }
+
+        @Test
+        void throwsWhenBookNotFound() {
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.updateCoverFromBytes(1L, new byte[]{1}))
+                    .isInstanceOf(APIException.class);
+        }
+
+        @Test
+        void throwsWhenCoverLocked() {
+            BookEntity book = buildBook(1L, true);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+
+            assertThatThrownBy(() -> service.updateCoverFromBytes(1L, new byte[]{1}))
+                    .isInstanceOf(APIException.class)
+                    .hasMessageContaining("locked");
+        }
+    }
+
+    @Nested
     class UpdateAudiobookCoverFromFile {
 
         @Test
