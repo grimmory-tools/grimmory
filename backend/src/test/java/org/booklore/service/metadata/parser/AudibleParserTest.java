@@ -150,6 +150,42 @@ public class AudibleParserTest {
     }
 
     @Test
+    public void fetchTopMetadata_includesExternalURLWithDomain() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.co.jp/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
+
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings( "co.jp"));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getExternalUrl()).isEqualTo("https://www.audible.co.jp/dp/1705047572");
+    }
+
+    @Test
+    public void fetchTopMetadata_includesExternalURL() throws Exception {
+        mockHttpClientResponse(
+                "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",
+                200,
+                readFixture("example-asin-lookup.json")
+        );
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        BookMetadata actual = audibleParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getExternalUrl()).isEqualTo("https://www.audible.com/dp/1705047572");
+    }
+
+    @Test
     public void fetchTopMetadata_removesExtraWhitespace() throws Exception {
         mockHttpClientResponse(
                 "https://api.audible.com/1.0/catalog/products/EXAMPLESKU",

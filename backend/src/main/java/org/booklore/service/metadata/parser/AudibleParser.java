@@ -36,6 +36,19 @@ import java.util.stream.Collectors;
 public class AudibleParser implements BookParser, DetailedMetadataProvider {
     private static final String DEFAULT_TLD = "com";
 
+    private static final Map<String, String> EXTERNAL_BASE_URIS = Map.of(
+            "com", "https://www.audible.com/",
+            "co.uk", "https://www.audible.co.uk/",
+            "de", "https://www.audible.de/",
+            "fr", "https://www.audible.fr/",
+            "it", "https://www.audible.it/",
+            "es", "https://www.audible.es/",
+            "ca", "https://www.audible.ca/",
+            "com.au", "https://www.audible.com.au/",
+            "co.jp", "https://www.audible.co.jp",
+            "in", "https://www.audible.in/"
+    );
+
     private static final Map<String, String> BASE_URIS = Map.of(
             "com", "https://api.audible.com/",
             "co.uk", "https://api.audible.co.uk/",
@@ -149,13 +162,32 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             List<AudibleProduct> products
     ) {}
 
-    private String getBaseURI() {
+    private String getTld() {
         var settings = appSettingService.getAppSettings().getMetadataProviderSettings();
         String tld = DEFAULT_TLD;
         if (settings != null && settings.getAudible() != null && settings.getAudible().getDomain() != null) {
             tld = settings.getAudible().getDomain();
         }
-        return BASE_URIS.getOrDefault(tld, BASE_URIS.get(DEFAULT_TLD));
+        return tld;
+    }
+
+    private String getBaseURI() {
+        return BASE_URIS.getOrDefault(getTld(), BASE_URIS.get(DEFAULT_TLD));
+    }
+
+    private String getExternalBaseURI() {
+        return EXTERNAL_BASE_URIS.getOrDefault(getTld(), EXTERNAL_BASE_URIS.get(DEFAULT_TLD));
+    }
+
+    private String buildExternalURI(String asin) {
+        if (asin == null) {
+            return null;
+        }
+
+        return UriComponentsBuilder.fromUriString(getExternalBaseURI())
+                .path("/dp/{asin}")
+                .build(asin)
+                .toString();
     }
 
     private URI getURI(
@@ -417,6 +449,7 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
 
         return BookMetadata.builder()
                 .provider(MetadataProvider.Audible)
+                .externalUrl(buildExternalURI(product.asin))
                 .asin(product.asin)
                 .audibleId(product.asin)
                 .title(product.title)
