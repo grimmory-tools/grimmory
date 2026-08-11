@@ -1,10 +1,6 @@
 package org.booklore.repository;
 
-import org.booklore.model.dto.BookCompletionHeatmapDto;
-import org.booklore.model.dto.CompletionTimelineDto;
-import org.booklore.model.dto.ProgressPercentDto;
-import org.booklore.model.dto.RatingDistributionDto;
-import org.booklore.model.dto.StatusDistributionDto;
+import org.booklore.model.dto.*;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.domain.Pageable;
@@ -112,6 +108,19 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
           AND ubp.book.id IN :bookIds
     """)
     Set<Long> findExistingProgressBookIds(@Param("userId") Long userId, @Param("bookIds") Set<Long> bookIds);
+
+    @Query("""
+        SELECT ubp.id AS progressId, ubp.book.id AS bookId, m.isbn10 AS isbn10, m.isbn13 AS isbn13, m.hardcoverBookId as hardcoverBookId FROM UserBookProgressEntity ubp, BookMetadataEntity m
+        WHERE ubp.user.id = :userId AND m.book.id = ubp.book.id AND
+            (m.hardcoverBookId IN :hardcoverIds OR m.isbn10 in :isbn10 OR m.isbn13 IN :isbn13)
+    """)
+    List<BookIdentifier> findExistingProgressBookIdsByIdentifiers(Long userId, Set<String> isbn10, Set<String> isbn13, Set<String> hardcoverIds);
+
+    @Query("""
+        SELECT 0 AS progressId, m.book.id AS bookId, m.isbn10 AS isbn10, m.isbn13 AS isbn13, m.hardcoverBookId as hardcoverBookId FROM BookMetadataEntity m
+         WHERE (m.hardcoverBookId IN :hardcoverIds OR m.isbn10 in :isbn10 OR m.isbn13 IN :isbn13) AND m.book.id NOT IN (SELECT ubp.book.id FROM UserBookProgressEntity ubp WHERE ubp.user.id = :userId)
+    """)
+    List<BookIdentifier> findMissingProgressBookIdsByHardcoverId(Long userId, Set<String> isbn10, Set<String> isbn13, Set<String> hardcoverIds);
 
     @Modifying
     @Transactional

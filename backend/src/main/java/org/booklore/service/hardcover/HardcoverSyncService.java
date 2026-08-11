@@ -1,14 +1,28 @@
 package org.booklore.service.hardcover;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityManager;
+import java.sql.Types;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
+import org.booklore.model.dto.BookIdentifier;
+import org.booklore.model.dto.HardcoverBookProgress;
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
+import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +31,6 @@ import org.springframework.web.client.RestClientException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Service to sync reading progress to Hardcover.
@@ -34,18 +44,27 @@ public class HardcoverSyncService {
     private static final String HARDCOVER_API_URL = "https://api.hardcover.app/v1/graphql";
     private static final int STATUS_CURRENTLY_READING = 2;
     private static final int STATUS_READ = 3;
+    private static final int HARDCOVER_LIMIT = 1000;
 
     private final RestClient restClient;
     private final HardcoverSyncSettingsService hardcoverSyncSettingsService;
     private final BookRepository bookRepository;
+    private final UserBookProgressRepository userBookProgressRepository;
+
+    private final EntityManager entityManager;
+    private final JdbcTemplate jdbcTemplate;
 
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
+    private AtomicBoolean hardcoverImportLock = new AtomicBoolean(false);
 
     @Autowired
-    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository) {
+    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository, UserBookProgressRepository userBookProgressRepository, EntityManager entityManager, JdbcTemplate jdbcTemplate) {
         this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
         this.bookRepository = bookRepository;
+        this.userBookProgressRepository = userBookProgressRepository;
+        this.entityManager = entityManager;
+        this.jdbcTemplate = jdbcTemplate;
         this.restClient = RestClient.builder()
                 .baseUrl(HARDCOVER_API_URL)
                 .build();
@@ -514,13 +533,80 @@ public class HardcoverSyncService {
         return UserBookWithReads.fromMap(userBook);
     }
 
+    private @Nullable List<Map> getUserBooksFromHardcover() throws InterruptedException {
+        ArrayList<Map> user_books = new ArrayList<>();
+        boolean fetchedAllBooks = false;
+        while (!fetchedAllBooks) {
+            log.debug("Quering Hardcover for the user's books with offset {}", user_books.size());
+            String query = String.format("""
+                query GetReadBooks {
+                    me {
+                        user_books_aggregate {
+                          aggregate {
+                            count
+                          }
+                        },
+                        user_books (offset: %s, limit: %s) {
+                            book {
+                                editions {
+                                    isbn_13,
+                                    isbn_10
+                                }
+                            }
+                            edition_id
+                            book_id,
+                            rating,
+                            last_read_date,
+                            status_id
+                        }
+                    }
+                }
+                """, String.valueOf(user_books.size()), String.valueOf(HARDCOVER_LIMIT));
+            GraphQLRequest request = new GraphQLRequest();
+            request.setQuery(query);
+            Map<String, Object> response = executeGraphQL(request);
+            if (response == null) {
+                return null;
+            }
+            // Navigate the response to get book info
+            Map<String, Object> data = (Map<String, Object>) response.get("data");
+            if (data == null) return null;
+
+            ArrayList<Map> me = (ArrayList<Map>) data.get("me");
+            if (me == null) return null;
+
+            Map<String, Object> first = (Map<String, Object>) me.getFirst();
+            if (first == null || first.size() == 0) return null;
+
+            ArrayList<Map> more_user_books = (ArrayList<Map>) first.get("user_books");
+            if (more_user_books == null || more_user_books.size() == 0) return null;
+
+            Map<String, Object> user_books_aggregate = (Map<String, Object>) first.get("user_books_aggregate");
+            if (user_books_aggregate == null) return null;
+
+            Map<String, Object> aggregate = (Map<String, Object>) user_books_aggregate.get("aggregate");
+            if (aggregate == null) return null;
+
+            user_books.addAll(more_user_books);
+
+            Integer aggregate_count = (Integer) aggregate.get("count");
+            if (aggregate_count == null) return null;
+
+            if (aggregate_count - user_books.size() > 0) {
+                // Respect the rate limit, which is 60 requests per minute (or 1 request per second)
+                Thread.sleep(1000);
+            } else {
+                fetchedAllBooks = true;
+            }
+        }
+        return user_books;
+    }
+
     /**
      * Insert a new user_book and a corresponding user_book_read entry. This is used when there is no existing user_book for the book.
      * Sets the user_book status to "currently reading". Hardcover automatically creates a user_book_read.
      * @param bookId the Hardcover book ID to add to the user's library
      * @param editionId the edition ID to use for the user_book and user_book_read entries
-     * @param progressPages the number of pages read to set in the user_book_read entry
-     * @param isFinished whether to set the user_book status to "read" and include a finished_at date in the user_book_read entry
      * @return the created UserBookWithReads object with the new user_book and user_book_read entries, or null if the insert failed
      */
     private UserBookWithReads insertUserBook(Integer bookId, Integer editionId) {
@@ -805,6 +891,177 @@ public class HardcoverSyncService {
             log.error("GraphQL request failed: {}", e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Import all the data related to the books from an account from Hardcover
+     * @param userId The ID of the Booklore user
+     */
+    @Async
+    @Transactional
+    public void importHardcoverData(Long userId, boolean overwriteData) {
+        log.info("Hardcover import triggered");
+        if (hardcoverImportLock.compareAndSet(false, true)) {        // Get user's Hardcover settings
+            try {
+                HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
+                if (!isHardcoverSyncEnabledForUser(userSettings)) {
+                    log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
+                    return;
+                }
+                // Set the user's API token for this sync operation
+                currentApiToken.set(userSettings.getHardcoverApiKey());
+
+                List<Map> user_books = getUserBooksFromHardcover();
+                if (user_books == null) {
+                    return;
+                }
+                Map<String, HardcoverBookProgress> allIsbns10 = new HashMap<>();
+                Map<String, HardcoverBookProgress> allIsbns13 = new HashMap<>();
+                Map<String, HardcoverBookProgress> hardcoverIds = new HashMap<>();
+                ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(user_books, allIsbns10, allIsbns13, hardcoverIds);
+                createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                if (overwriteData) {
+                    updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                }
+                log.info("Hardcover import done");
+            } catch (Exception e) {
+                log.warn("Failed to get user's hardcover books: {}", e.getMessage());
+            } finally {
+                hardcoverImportLock.set(false);
+            }
+        } else {
+            throw ApiError.TOO_MANY_HARDCOVER_IMPORTS.createException();
+        }
+    }
+
+    private void createNewProgressRecords(Long userId, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
+        List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10.keySet(), allIsbns13.keySet(), hardcoverIds.keySet());
+        if (noProgressBookIds.isEmpty()) {
+            return;
+        }
+        String sql = "INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES (?, ?, ?, ?, ?, ?)";
+        List<BookIdentifier> toBeInsertedBooks = new ArrayList<>();
+        for (BookIdentifier bookWithNoProgress : noProgressBookIds) {
+            if (getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookWithNoProgress) != null) {
+                toBeInsertedBooks.add(bookWithNoProgress);
+            }
+        }
+        jdbcTemplate.batchUpdate(sql, toBeInsertedBooks, 100, (preparedStatement, bookIdentifier) -> {
+            HardcoverBookProgress hardcoverBook = getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookIdentifier);
+
+            if (hardcoverBook == null) return;
+            preparedStatement.setInt(1, Math.toIntExact(userId));
+            preparedStatement.setInt(2, bookIdentifier.getBookId());
+            java.sql.Timestamp lastReadDate = hardcoverBook.getLastReadDate() == null ? null : new java.sql.Timestamp(hardcoverBook.getLastReadDate().getTime());
+            if (lastReadDate != null) {
+                preparedStatement.setTimestamp(3, lastReadDate);
+                preparedStatement.setTimestamp(5, lastReadDate);
+            } else {
+                preparedStatement.setNull(3, Types.TIMESTAMP);
+                preparedStatement.setNull(5, Types.TIMESTAMP);
+            }
+            preparedStatement.setString(4, hardcoverBook.getStatus().toString());
+            if (hardcoverBook.getRating() != null) {
+                preparedStatement.setInt(6, hardcoverBook.getRating());
+            } else {
+                preparedStatement.setNull(6, Types.INTEGER);
+            }
+        });
+    }
+
+    private void updateExistingProgress(Long userId, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
+        List<BookIdentifier> booksWithExistingProgress = userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(userId, allIsbns10.keySet(), allIsbns13.keySet(), hardcoverIds.keySet());
+        for (BookIdentifier existingBookProgress : booksWithExistingProgress) {
+            getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, existingBookProgress);
+            HardcoverBookProgress hardcoverBook =
+                    getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, existingBookProgress);
+
+            if (hardcoverBook == null)
+                continue;
+
+            java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null :
+                    hardcoverBook.getLastReadDate().toInstant();
+            UserBookProgressEntity userBookProgressEntity =
+                    entityManager.find(UserBookProgressEntity.class,
+                                       existingBookProgress.getProgressId());
+            userBookProgressEntity.setLastReadTime(lastReadDate);
+            userBookProgressEntity.setDateFinished(lastReadDate);
+            userBookProgressEntity.setReadStatus(hardcoverBook.getStatus());
+            userBookProgressEntity.setPersonalRating(hardcoverBook.getRating());
+
+            entityManager.merge(userBookProgressEntity);
+        }
+    }
+
+    private HardcoverBookProgress getHardcoverBook(Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, BookIdentifier existingBookProgress) {
+        if (hardcoverIds.containsKey(existingBookProgress.getHardcoverBookId())) {
+            return hardcoverIds.get(existingBookProgress.getHardcoverBookId());
+        } else if (allIsbns10.containsKey(existingBookProgress.getIsbn10())) {
+            return allIsbns10.get(existingBookProgress.getIsbn10());
+        } else if (allIsbns13.containsKey(existingBookProgress.getIsbn13())) {
+            return allIsbns13.get(existingBookProgress.getIsbn13());
+        }
+        return null;
+    }
+
+    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(List<Map> user_books, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws
+            ParseException {
+        ArrayList<HardcoverBookProgress> hardcoverBooks = new ArrayList<>();
+
+        for (Map user_book : user_books) {
+            HardcoverBookProgress hardcoverBook = new HardcoverBookProgress();
+            hardcoverBook.setHardcoverId(((Integer) user_book.get("book_id")).toString());
+            // Book status from Hardcover: https://docs.hardcover.app/api/graphql/schemas/books/#user-book-statuses
+            ReadStatus readStatus = switch ((Integer) user_book.get("status_id")) {
+                case 1 -> ReadStatus.UNREAD;
+                case 2 -> ReadStatus.READING;
+                case 3 -> ReadStatus.READ;
+                case 4 -> ReadStatus.PAUSED;
+                case 5 -> ReadStatus.ABANDONED;
+                case 6 -> ReadStatus.WONT_READ;
+                default -> ReadStatus.UNSET;
+            };
+            hardcoverBook.setStatus(readStatus);
+            if (user_book.get("edition_id") != null) {
+                hardcoverBook.setEditionId((Integer) user_book.get("edition_id"));
+            }
+            if (user_book.get("rating") != null) {
+                Double rating = (Double) user_book.get("rating");
+                // it's getting doubled, because ratings on Hardcover are out of 5, whereas the ratings on Booklore are out of 10.
+                // So multiplying the rating by 2 properly scaled the rating from Hardcover to Booklore.
+                Integer scaledRating = ((Double) (rating * 2)).intValue();
+                hardcoverBook.setRating(scaledRating);
+            }
+            if (user_book.get("last_read_date") != null) {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd", Locale.ENGLISH);
+                Date read_date = formatter.parse((String) user_book.get("last_read_date"));
+                hardcoverBook.setLastReadDate(read_date);
+            }
+            if (user_book.get("book") != null) {
+                Map<String, Object> book = (Map<String, Object>) user_book.get("book");
+                if (book.get("editions") != null) {
+                    List<Map> editions = (List<Map>) book.get("editions");
+
+                    List<String> bookIsbns10 = new ArrayList<>();
+                    List<String> bookIsbns13 = new ArrayList<>();
+                    for (Map<String, Object> edition : editions) {
+                        if (edition.get("isbn_10") != null) {
+                            bookIsbns10.add((String) edition.get("isbn_10"));
+                            allIsbns10.put((String) edition.get("isbn_10"), hardcoverBook);
+                        }
+                        if (edition.get("isbn_13") != null) {
+                            bookIsbns13.add((String) edition.get("isbn_13"));
+                            allIsbns13.put((String) edition.get("isbn_13"), hardcoverBook);
+                        }
+                    }
+                    hardcoverBook.setIsbn10(bookIsbns10);
+                    hardcoverBook.setIsbn13(bookIsbns13);
+                }
+            }
+            hardcoverBooks.add(hardcoverBook);
+            hardcoverIds.put(hardcoverBook.getHardcoverId(), hardcoverBook);
+        }
+        return hardcoverBooks;
     }
 
     /**
