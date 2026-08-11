@@ -145,18 +145,37 @@ export class BulkIsbnImportDialogComponent {
     this.failedCount.set(0);
     this.cancelled = false;
 
-    for (const entry of this.entries()) {
+    const updateEntry = (index: number, value: Partial<IsbnEntry>) => {
+      this.entries.update((e) => {
+        e[index] = {
+          ...e[index],
+          ...value
+        }
+
+        return [...e];
+      });
+    };
+
+    for (let i = 0; i < this.entries().length; i++) {
       if (this.cancelled) break;
 
-      entry.status = 'looking-up';
+      if (i > 0) {
+        await this.delay(DELAY_BETWEEN_REQUESTS_MS);
+      }
+
+      if (this.cancelled) break;
+
+      const { isbn } = this.entries()[i];
+
+      updateEntry(i, { status: 'looking-up' })
 
       try {
-        const metadata = await this.lookupIsbn(entry.isbn);
+        const metadata = await this.lookupIsbn(isbn);
         if (this.cancelled) break;
 
         const request: CreatePhysicalBookRequest = {
           libraryId: this.selectedLibraryId!,
-          isbn: entry.isbn,
+          isbn: isbn,
           title: metadata?.title || undefined,
           authors: metadata?.authors?.length ? [...metadata.authors] : undefined,
           description: metadata?.description || undefined,
@@ -171,24 +190,18 @@ export class BulkIsbnImportDialogComponent {
         await this.createBook(request);
 
         if (metadata?.title) {
-          entry.status = 'created';
-          entry.title = metadata.title;
+          updateEntry(i, { status: 'created', title: metadata.title })
           this.createdCount.update(v => v + 1);
         } else {
-          entry.status = 'created-no-metadata';
+          updateEntry(i, { status: 'created-no-metadata' })
           this.noMetadataCount.update(v => v + 1);
         }
       } catch (err: unknown) {
-        entry.status = 'failed';
-        entry.error = err instanceof Error ? err.message : 'Unknown error';
+        updateEntry(i, { status: 'failed', error: err instanceof Error ? err.message : 'Unknown error' })
         this.failedCount.update(v => v + 1);
       }
 
       this.processedCount.update(v => v + 1);
-
-      if (!this.cancelled && entry !== this.entries()[this.entries().length - 1]) {
-        await this.delay(DELAY_BETWEEN_REQUESTS_MS);
-      }
     }
 
     this.phase.set('summary');
