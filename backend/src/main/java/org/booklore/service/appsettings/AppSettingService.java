@@ -189,14 +189,23 @@ public class AppSettingService {
         Map<String, String> settingsMap = getSettingsMap();
         PublicAppSetting.PublicAppSettingBuilder builder = PublicAppSetting.builder();
 
-        builder.oidcEnabled(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_ENABLED, "false")));
         builder.remoteAuthEnabled(appProperties.getRemoteAuth().isEnabled());
         OidcProviderDetails details = settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null, false);
         if (details != null) {
             details.setClientSecret(null);
         }
+
+        boolean oidcEnabled = Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_ENABLED, "false"));
+        boolean oidcForceOnlyMode = Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false"));
+
+        if (appProperties.getForceDisableOidc() != null && appProperties.getForceDisableOidc()) {
+            oidcEnabled = false;
+            oidcForceOnlyMode = false;
+        }
+        builder.oidcEnabled(oidcEnabled);
+        builder.oidcForceOnlyMode(oidcForceOnlyMode);
+
         builder.oidcProviderDetails(details);
-        builder.oidcForceOnlyMode(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false")));
 
         return builder.build();
     }
@@ -247,15 +256,20 @@ public class AppSettingService {
             }
         }
 
-        boolean settingEnabled = Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_ENABLED, "false"));
-        Boolean forceDisable = appProperties.getForceDisableOidc();
-        boolean finalEnabled = settingEnabled && (forceDisable == null || !forceDisable);
-        builder.oidcEnabled(finalEnabled);
+        boolean oidcEnabled = Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_ENABLED, "false"));
+        boolean oidcForceOnlyMode = Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false"));
+
+        // Env var flag to force disable OIDC
+        if (appProperties.getForceDisableOidc() != null && appProperties.getForceDisableOidc()) {
+            oidcEnabled = false;
+            oidcForceOnlyMode = false;
+        }
+
+        builder.oidcEnabled(oidcEnabled);
+        builder.oidcForceOnlyMode(oidcForceOnlyMode);
 
         builder.oidcGroupSyncMode(settingPersistenceHelper.getOrCreateSetting(
                 AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
-
-        builder.oidcForceOnlyMode(Boolean.parseBoolean(settingPersistenceHelper.getOrCreateSetting(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false")));
 
         builder.diskType(appProperties.getDiskType());
 
