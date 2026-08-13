@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.browse.BrowsePage;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.AuthorDetails;
 import org.booklore.model.dto.AuthorSearchResult;
@@ -7,14 +8,18 @@ import org.booklore.model.dto.AuthorSummary;
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.AuthorMatchRequest;
 import org.booklore.model.dto.request.AuthorUpdateRequest;
+import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.service.AuthorMetadataService;
 import org.booklore.service.AuthorService;
+import org.booklore.service.browse.AuthorBrowseService;
+import org.booklore.service.browse.AuthorFacetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,12 +38,60 @@ public class AuthorController {
 
     private final AuthorService authorService;
     private final AuthorMetadataService authorMetadataService;
+    private final AuthorBrowseService authorBrowseService;
+    private final AuthorFacetService authorFacetService;
 
     @Operation(summary = "Get all authors", description = "Retrieve all authors with book counts.")
     @ApiResponse(responseCode = "200", description = "Authors returned successfully")
     @GetMapping
     public ResponseEntity<List<AuthorSummary>> getAllAuthors() {
         return ResponseEntity.ok(authorMetadataService.getAllAuthors());
+    }
+
+    @Operation(summary = "Get authors (paginated)", description = "Retrieve a page of authors with book counts. Supports cursor pagination plus sort, facet, facet_logic, and query parameters. Facets: matched, has_photo, has_description (true/false); read_status (same ReadStatus values as the books browse, matching authors with at least one such book); book_count (count or range, e.g. 4, 2-10, 5-, -3); library (library id); genre and language (values from the facets endpoint). Rating sort keys share the books browse names (e.g. amazonRating) and average across the author's visible books.")
+    @ApiResponse(responseCode = "200", description = "Page of authors returned successfully")
+    @GetMapping("/page")
+    public ResponseEntity<BrowsePage<AuthorSummary>> getAuthorsPaged(
+            @Parameter(hidden = true) Pageable pageable,
+            @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. sortName or -bookCount)")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Facet selection in key:value form; repeatable (e.g. facet=matched:false&facet=genre:Horror)")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search on author name and ASIN")
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Opaque pagination cursor from a prior response's links")
+            @RequestParam(required = false) String cursor) {
+        return ResponseEntity.ok(authorBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
+    }
+
+    @Operation(summary = "Get author facets", description = "Available facet values and author counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts. book_count, library, and read_status are filter-only and not enumerated here.")
+    @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
+    @GetMapping("/facets")
+    public ResponseEntity<FacetGroupsResponse> getAuthorFacets(
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(authorFacetService.getFacets(facet, facetLogic, query));
+    }
+
+    @Operation(summary = "Get matching author ids", description = "Returns every author id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @ApiResponse(responseCode = "200", description = "Matching author ids returned successfully")
+    @GetMapping("/ids")
+    public ResponseEntity<List<Long>> getAuthorIds(
+            @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(authorBrowseService.findAllIds(sort, facet, facetLogic, query));
     }
 
     @Operation(summary = "Find author by name", description = "Find an author by exact name (case-insensitive).")
