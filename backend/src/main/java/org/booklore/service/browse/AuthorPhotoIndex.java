@@ -3,6 +3,7 @@ package org.booklore.service.browse;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.util.FileService;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthorPhotoIndex {
@@ -54,6 +56,7 @@ public class AuthorPhotoIndex {
                 }
             });
         } catch (IOException e) {
+            log.warn("Failed to scan author images root {}", root, e);
             return Set.of();
         }
         return ids;

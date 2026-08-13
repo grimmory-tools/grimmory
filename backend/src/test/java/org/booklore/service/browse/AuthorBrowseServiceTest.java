@@ -177,12 +177,21 @@ class AuthorBrowseServiceTest {
     }
 
     private void progress(BookEntity book, ReadStatus status) {
+        progress(book, status, null);
+    }
+
+    private void progress(BookEntity book, ReadStatus status, Integer personalRating) {
         em.persist(UserBookProgressEntity.builder()
-                .user(userEntity).book(book).readStatus(status).lastReadTime(Instant.now()).build());
+                .user(userEntity).book(book).readStatus(status).lastReadTime(Instant.now())
+                .personalRating(personalRating).build());
     }
 
     private BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, null, query, cursor, PageRequest.of(page, size));
+        return browse(sort, facet, null, query, cursor, page, size);
+    }
+
+    private BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogic, String query, String cursor, int page, int size) {
+        return browseService.browse(sort, facet, facetLogic, query, cursor, PageRequest.of(page, size));
     }
 
     private List<Long> ids(BrowsePage<AuthorSummary> page) {
@@ -237,14 +246,20 @@ class AuthorBrowseServiceTest {
     void sortBySeriesCountAndAddedOn() {
         AuthorEntity serial = author("Serial");
         AuthorEntity standalone = author("Standalone");
-        book("S1", library, libraryPath, List.of(serial), "Saga", null, null);
-        book("S2", library, libraryPath, List.of(serial), "Other Saga", null, null);
-        book("Solo", library, libraryPath, List.of(standalone));
+        book("S1", library, libraryPath, List.of(serial), "Saga", null, null)
+                .setAddedOn(Instant.parse("2024-01-01T00:00:00Z"));
+        book("S2", library, libraryPath, List.of(serial), "Other Saga", null, null)
+                .setAddedOn(Instant.parse("2024-02-01T00:00:00Z"));
+        book("Solo", library, libraryPath, List.of(standalone))
+                .setAddedOn(Instant.parse("2024-03-01T00:00:00Z"));
         em.flush();
 
         assertThat(ids(browse("-seriesCount", null, null, null, 0, 20)))
                 .containsExactly(serial.getId(), standalone.getId());
-        assertThat(ids(browse("-addedOn", null, null, null, 0, 20))).hasSize(2);
+        assertThat(ids(browse("-addedOn", null, null, null, 0, 20)))
+                .containsExactly(standalone.getId(), serial.getId());
+        assertThat(ids(browse("addedOn", null, null, null, 0, 20)))
+                .containsExactly(serial.getId(), standalone.getId());
     }
 
     @Test
@@ -252,14 +267,41 @@ class AuthorBrowseServiceTest {
         AuthorEntity read = author("Read Author");
         AuthorEntity unread = author("Unread Author");
         BookEntity readBook = book("R", library, libraryPath, List.of(read));
-        book("U", library, libraryPath, List.of(unread));
-        progress(readBook, ReadStatus.READ);
+        BookEntity unreadBook = book("U", library, libraryPath, List.of(unread));
+        readBook.getMetadata().setGoodreadsRating(2.0);
+        unreadBook.getMetadata().setGoodreadsRating(4.5);
+        progress(readBook, ReadStatus.READ, 5);
         em.flush();
 
         assertThat(ids(browse("-lastReadTime", null, null, null, 0, 20)))
                 .containsExactly(read.getId(), unread.getId());
-        assertThat(ids(browse("-goodreadsRating", null, null, null, 0, 20))).hasSize(2);
-        assertThat(ids(browse("-personalRating", null, null, null, 0, 20))).hasSize(2);
+        assertThat(ids(browse("-goodreadsRating", null, null, null, 0, 20)))
+                .containsExactly(unread.getId(), read.getId());
+        assertThat(ids(browse("goodreadsRating", null, null, null, 0, 20)))
+                .containsExactly(read.getId(), unread.getId());
+        assertThat(ids(browse("-personalRating", null, null, null, 0, 20)))
+                .containsExactly(read.getId(), unread.getId());
+    }
+
+    @Test
+    void facetLogicCombinesSelectedValues() {
+        AuthorEntity horrorOnly = author("Horror Only");
+        AuthorEntity romanceOnly = author("Romance Only");
+        AuthorEntity both = author("Both");
+        AuthorEntity neither = author("Neither");
+        book("H", library, libraryPath, List.of(horrorOnly), null, List.of("Horror"), null);
+        book("R", library, libraryPath, List.of(romanceOnly), null, List.of("Romance"), null);
+        book("B", library, libraryPath, List.of(both), null, List.of("Horror", "Romance"), null);
+        book("N", library, libraryPath, List.of(neither), null, List.of("Fantasy"), null);
+        em.flush();
+
+        List<String> facets = List.of("genre:Horror", "genre:Romance");
+        assertThat(ids(browse("name", facets, "or", null, null, 0, 20)))
+                .containsExactly(both.getId(), horrorOnly.getId(), romanceOnly.getId());
+        assertThat(ids(browse("name", facets, "and", null, null, 0, 20)))
+                .containsExactly(both.getId());
+        assertThat(ids(browse("name", facets, "not", null, null, 0, 20)))
+                .containsExactly(neither.getId());
     }
 
     @Test

@@ -18,17 +18,15 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.AuthorSummary;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.AuthorEntity;
-import org.booklore.util.FileService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +42,7 @@ public class AuthorBrowseService {
     private final AuthorVisibleBooks visibleBooks;
     private final BrowseScopeFactory scopeFactory;
     private final BrowsePager pager;
-    private final FileService fileService;
+    private final AuthorPhotoIndex photoIndex;
     private final EntityManager entityManager;
 
     public BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
@@ -122,13 +120,14 @@ public class AuthorBrowseService {
 
     private List<AuthorSummary> toSummaries(List<AuthorEntity> authors, BrowseScope scope) {
         Map<Long, Long> counts = bookCounts(authors, scope);
+        Set<Long> withPhoto = photoIndex.authorIdsWithPhoto();
         return authors.stream()
                 .map(author -> AuthorSummary.builder()
                         .id(author.getId())
                         .name(author.getName())
                         .asin(author.getAsin())
                         .bookCount(counts.getOrDefault(author.getId(), 0L).intValue())
-                        .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId()))))
+                        .hasPhoto(withPhoto.contains(author.getId()))
                         .build())
                 .toList();
     }

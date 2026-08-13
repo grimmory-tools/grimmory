@@ -41,10 +41,6 @@ public class AuthorFilterSpecifications {
             }
             specs.add(facetRegistry.toSpecification(entry.getKey(), entry.getValue(), facetLogic, scope));
         }
-        Specification<AuthorEntity> result = (root, cq, cb) -> cb.conjunction();
-        for (Specification<AuthorEntity> spec : specs) {
-            result = result.and(spec);
-        }
-        return result;
+        return Specification.allOf(specs);
     }
 }

@@ -20,6 +20,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.service.task.TaskCronService;
 import org.booklore.util.FileService;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,24 @@ class AuthorFacetServiceTest {
     void seed() throws IOException {
         facetService.clearCache();
         photoIndex.clearCache();
+        deleteAuthorImages();
+
+        userEntity = BookLoreUserEntity.builder().username("reader").passwordHash("x").name("Reader").build();
+        em.persist(userEntity);
+        library = LibraryEntity.builder().name("Lib").icon("book").watch(false)
+                .formatPriority(List.of(BookFileType.EPUB)).build();
+        em.persist(library);
+        libraryPath = LibraryPathEntity.builder().library(library).path("/p").build();
+        em.persist(libraryPath);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(nonAdminUser());
+    }
+
+    @AfterEach
+    void cleanUpAuthorImages() throws IOException {
+        deleteAuthorImages();
+    }
+
+    private void deleteAuthorImages() throws IOException {
         Path imagesRoot = Paths.get(fileService.getAuthorImagesRoot());
         if (Files.isDirectory(imagesRoot)) {
             try (Stream<Path> paths = Files.walk(imagesRoot)) {
@@ -121,15 +140,6 @@ class AuthorFacetServiceTest {
                 });
             }
         }
-
-        userEntity = BookLoreUserEntity.builder().username("reader").passwordHash("x").name("Reader").build();
-        em.persist(userEntity);
-        library = LibraryEntity.builder().name("Lib").icon("book").watch(false)
-                .formatPriority(List.of(BookFileType.EPUB)).build();
-        em.persist(library);
-        libraryPath = LibraryPathEntity.builder().library(library).path("/p").build();
-        em.persist(libraryPath);
-        when(authenticationService.getAuthenticatedUser()).thenReturn(nonAdminUser());
     }
 
     private BookLoreUser nonAdminUser() {
@@ -248,7 +258,8 @@ class AuthorFacetServiceTest {
 
         assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
-        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(0);
+        assertThat(group(response, "genre").links().stream().map(FacetLink::value))
+                .doesNotContain("Romance");
     }
 
     @Test
