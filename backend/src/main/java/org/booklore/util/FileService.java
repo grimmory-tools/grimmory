@@ -8,12 +8,8 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -25,9 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +29,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
-import java.net.UnknownHostException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,12 +36,8 @@ import java.net.UnknownHostException;
 public class FileService {
 
     private final AppProperties appProperties;
-    private final RestTemplate restTemplate;
     private final AppSettingService appSettingService;
-    private final RestTemplate noRedirectRestTemplate;
-
-    private static final int MAX_REDIRECTS = 5;
-
+    private final RestClient restClient;
 
     private static final double TARGET_COVER_ASPECT_RATIO = 1.5;
     private static final int SMART_CROP_COLOR_TOLERANCE = 30;
@@ -293,7 +281,12 @@ public class FileService {
 
     public BufferedImage downloadImageFromUrl(String imageUrl) throws IOException {
         try {
-            return downloadImageFromUrlInternal(imageUrl);
+            return readImage(
+                    restClient.get()
+                            .uri(imageUrl)
+                            .retrieve()
+                            .body(byte[].class)
+            );
         } catch (Exception e) {
             log.warn("Failed to download image from {}: {}", imageUrl, e.getMessage());
             if (e instanceof IOException ioException) {
@@ -301,144 +294,6 @@ public class FileService {
             }
             throw new IOException("Failed to download image from " + imageUrl + ": " + e.getMessage(), e);
         }
-    }
-
-    private BufferedImage downloadImageFromUrlInternal(String imageUrl) throws IOException {
-        String currentUrl = imageUrl;
-        int redirectCount = 0;
-
-        while (redirectCount <= MAX_REDIRECTS) {
-            URI uri = URI.create(currentUrl);
-            if (!"http".equalsIgnoreCase(uri.getScheme()) && !"https".equalsIgnoreCase(uri.getScheme())) {
-                throw new IOException("Only HTTP and HTTPS protocols are allowed");
-            }
-
-            String host = uri.getHost();
-            if (host == null) {
-                throw new IOException("Invalid URL: no host found in " + currentUrl);
-            }
-
-            // Validate resolved IPs to block SSRF against internal networks
-            InetAddress[] inetAddresses = InetAddress.getAllByName(host);
-            if (inetAddresses.length == 0) {
-                throw new IOException("Could not resolve host: " + host);
-            }
-            for (InetAddress inetAddress : inetAddresses) {
-                if (isInternalAddress(inetAddress)) {
-                    throw new SecurityException("URL points to a local or private internal network address: " + host + " (" + inetAddress.getHostAddress() + ")");
-                }
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, "Grimmory/1.0 (Book and Comic Metadata Fetcher; +https://github.com/grimmory-tools/grimmory)");
-            headers.set(HttpHeaders.ACCEPT, "image/*");
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            log.debug("Downloading image from: {}", currentUrl);
-
-            ResponseEntity<byte[]> response = noRedirectRestTemplate.exchange(
-                    currentUrl,
-                    HttpMethod.GET,
-                    entity,
-                    byte[].class
-            );
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return readImage(response.getBody());
-            } else if (response.getStatusCode().is3xxRedirection()) {
-                String location = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-                if (location == null) {
-                    throw new IOException("Redirection response without Location header");
-                }
-                URI redirectUri = uri.resolve(location);
-
-                // When a CDN redirects to a raw IP (e.g. CloudFront -> 3.168.64.124),
-                // the Host header would become the bare IP, which the CDN rejects with
-                // 400. Rewrite the URL to keep the previous hostname so the JDK
-                // HttpClient sets the correct Host header automatically.
-                if (isRawIpAddress(redirectUri.getHost())) {
-                    try {
-                        redirectUri = new URI(
-                                redirectUri.getScheme(),
-                                redirectUri.getUserInfo(),
-                                host,
-                                redirectUri.getPort(),
-                                redirectUri.getPath(),
-                                redirectUri.getQuery(),
-                                redirectUri.getFragment()
-                        );
-                    } catch (URISyntaxException e) {
-                        throw new IOException("Invalid redirect URI: " + e.getMessage(), e);
-                    }
-                }
-
-                currentUrl = redirectUri.toString();
-                redirectCount++;
-            } else {
-                throw new IOException("Failed to download image. HTTP Status: " + response.getStatusCode());
-            }
-        }
-
-        throw new IOException("Too many redirects (max " + MAX_REDIRECTS + ")");
-    }
-
-    private boolean isRawIpAddress(String host) {
-        if (host == null) {
-            return false;
-        }
-        // IPv6 in URI brackets
-        if (host.startsWith("[")) {
-            return true;
-        }
-        // IPv4: all segments are digits
-        String[] parts = host.split("\\.");
-        if (parts.length == 4) {
-            for (String part : parts) {
-                if (!part.chars().allMatch(Character::isDigit)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isInternalAddress(InetAddress address) {
-        if (address.isLoopbackAddress() || address.isLinkLocalAddress() ||
-            address.isSiteLocalAddress() || address.isAnyLocalAddress()) {
-            return true;
-        }
-
-        byte[] addr = address.getAddress();
-        // Check for IPv6 Unique Local Address (fc00::/7)
-        if (addr.length == 16) {
-            if ((addr[0] & 0xFE) == (byte) 0xFC) {
-                return true;
-            }
-        }
-
-        // Handle IPv4-mapped IPv6 addresses (::ffff:127.0.0.1)
-        if (isIpv4MappedAddress(addr)) {
-            try {
-                byte[] ipv4Bytes = new byte[4];
-                System.arraycopy(addr, 12, ipv4Bytes, 0, 4);
-                InetAddress ipv4Addr = InetAddress.getByAddress(ipv4Bytes);
-                return isInternalAddress(ipv4Addr);
-            } catch (UnknownHostException e) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isIpv4MappedAddress(byte[] addr) {
-        if (addr.length != 16) return false;
-        for (int i = 0; i < 10; i++) {
-            if (addr[i] != 0) return false;
-        }
-        return (addr[10] == (byte) 0xFF) && (addr[11] == (byte) 0xFF);
     }
 
     // ========================================

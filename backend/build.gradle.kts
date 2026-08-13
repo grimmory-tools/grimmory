@@ -111,6 +111,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-http-client")
     implementation("com.nimbusds:nimbus-jose-jwt:10.9.1")
 
     // --- Reactive Streams ---

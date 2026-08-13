@@ -22,6 +22,40 @@ app:
   force-disable-oidc: ${FORCE_DISABLE_OIDC:false}
   disk-type: ${DISK_TYPE:LOCAL}
 
+  outbound:
+    connect-timeout: 15
+    read-timeout: 15
+    restricted-ranges:
+      - "0.0.0.0/8" # "This host on this network" - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "10.0.0.0/8" # Private Network Prefix - RFC 1918 - https://datatracker.ietf.org/doc/html/rfc1918
+      - "100::/64" # IPv6 Discard Prefix - RFC 6666 - https://datatracker.ietf.org/doc/html/rfc6666
+      - "100.64.0.0/10" # Shared Address Space - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "::1/128" # IPv6 Loopback - RFC 4291 - https://datatracker.ietf.org/doc/html/rfc4291
+      - "127.0.0.0/8" # Loopback - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "::/128" # "Unspecified" - RFC 4291 - https://datatracker.ietf.org/doc/html/rfc4291
+      - "169.254.0.0/16" # Link Local - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "172.16.0.0/12" # Private Use - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "192.0.0.0/24" # IETF Protocol Assignments - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "192.0.0.0/29" # DS-Lite - RFC 6333 - https://datatracker.ietf.org/doc/html/rfc6333
+      - "192.0.2.0/24" # TEST-NET-1 - RFC 5737 - https://datatracker.ietf.org/doc/html/rfc5737
+      - "192.168.0.0/16" # Private Use - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "192.88.99.0/24" # An Anycast Prefix for 6to4 Relay Routers - RFC 3068 - https://datatracker.ietf.org/doc/html/rfc3068
+      - "198.18.0.0/15" # Network Interconnect Device Benchmark Testing - RFC 2544 - https://datatracker.ietf.org/doc/html/rfc2544
+      - "198.51.100.0/24" # TEST-NET-2 - RFC 5737 - https://datatracker.ietf.org/doc/html/rfc5737
+      - "2001:10::/28" # IPv6 ORCHID Prefix - RFC 7343 - https://datatracker.ietf.org/doc/html/rfc7343
+      - "2001::/23" # Initial IPv6 Sub-TLA ID Assignments - RFC 2928 - https://datatracker.ietf.org/doc/html/rfc2928
+      - "2001:0200::/48" # IPv6 Benchmarking Prefix - RFC 5180 - https://datatracker.ietf.org/doc/html/rfc5180
+      - "2001::/32" # IPv6 Global Teredo Prefix - RFC 4380 - https://datatracker.ietf.org/doc/html/rfc4380
+      - "2001:db8::/32" # IPv6 Documentation Prefix - RFC 3849 - https://datatracker.ietf.org/doc/html/rfc3849
+      - "2002::/16" # Connection of IPv6 Domains via IPv4 Clouds - RFC 3056 - https://datatracker.ietf.org/doc/html/rfc3056
+      - "203.0.113.0/24" # TEST-NET-3 - RFC 5737 - https://datatracker.ietf.org/doc/html/rfc5737
+      - "240.0.0.0/4" # Reserved - RFC 6890 - https://datatracker.ietf.org/doc/html/rfc6890
+      - "255.255.255.255/32" # Limited Broadcast - RFC 0919 - https://datatracker.ietf.org/doc/html/rfc0919
+      - "64:ff9b:1::/48" # Local-Use IPv4/IPv6 Translation Prefix - RFC 8215 - https://datatracker.ietf.org/doc/html/rfc8215
+      - "64:ff9b::/96" # IPv6 Addressing of IPv4/IPv6 Translators - RFC 6052 - https://datatracker.ietf.org/doc/html/rfc6052
+      - "fc00::/7" # Unique Local IPv6 Unicast Addresses - RFC 4193 - https://datatracker.ietf.org/doc/html/rfc4193
+      - "fe80::/10" # Link-Local unicast - RFC 4291 - https://datatracker.ietf.org/doc/html/rfc4291
+
 server:
   forward-headers-strategy: native
   port: ${SERVER_PORT:${BOOKLORE_PORT:6060}}

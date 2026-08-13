@@ -328,14 +328,6 @@ public class SecurityConfig {
         return auth.build();
     }
 
-    @Bean("noRedirectRestTemplate")
-    public RestTemplate noRedirectRestTemplate() {
-        HttpClient httpClient = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .build();
-        return new RestTemplate(new JdkClientHttpRequestFactory(httpClient));
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 @ConfigurationProperties(prefix = "app")
 @Getter
 @Setter
@@ -12,6 +14,7 @@ public class AppProperties {
     private String bookdropFolder;
     private String version;
     private RemoteAuth remoteAuth;
+    private OutboundRequests outbound;
     private Boolean forceDisableOidc = false;
 
     /**
@@ -37,5 +40,13 @@ public class AppProperties {
         private String headerGroups;
         private String adminGroup;
         private String groupsDelimiter = "\\s+";  // Default to whitespace for backward compatibility
+    }
+
+    @Getter
+    @Setter
+    public static class OutboundRequests {
+        private int connectTimeout = 15;
+        private int readTimeout = 15;
+        private List<String> restrictedRanges = List.of();
     }
 }

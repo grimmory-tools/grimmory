@@ -1,36 +1,65 @@
 package org.booklore.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
+import org.springframework.boot.http.client.HttpClientSettings;
+import org.springframework.boot.http.client.InetAddressFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.http.HttpClient;
 import java.time.Duration;
 
 @Configuration
+@RequiredArgsConstructor
 public class RestClientConfig {
-    private ClientHttpRequestFactory getRequestFactory(HttpClient httpClient) {
-        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
-        factory.setReadTimeout(Duration.ofSeconds(15));
-        return factory;
+    private final AppProperties appProperties;
+
+    @Bean
+    public InetAddressFilter outboundInetAddressFilter() {
+        var filter = InetAddressFilter
+                .not(InetAddressFilter.multicast());
+
+        var restrictedRanges = appProperties.getOutbound().getRestrictedRanges();
+
+        if (!restrictedRanges.isEmpty()) {
+            filter = filter.andNot(restrictedRanges.toArray(new String[]{}));
+        }
+
+        return filter;
     }
 
     @Bean
-    public RestClient restClient(HttpClient httpClient) {
+    public ClientHttpRequestFactory clientHttpRequestFactory(InetAddressFilter outboundInetAddressFilter) {
+        var outbound = appProperties.getOutbound();
+        int connectTimeout = outbound.getConnectTimeout();
+        int readTimeout = outbound.getReadTimeout();
+
+        HttpClientSettings settings = HttpClientSettings.defaults()
+                .withConnectTimeout(Duration.ofSeconds(connectTimeout))
+                .withReadTimeout(Duration.ofSeconds(readTimeout))
+                .withInetAddressFilter(outboundInetAddressFilter);
+
+        return ClientHttpRequestFactoryBuilder
+                        .jdk()
+                        .build(settings);
+    }
+
+    @Bean
+    public RestClient restClient(ClientHttpRequestFactory clientHttpRequestFactory) {
         return RestClient.builder()
-                .requestFactory(getRequestFactory(httpClient))
+                .requestFactory(clientHttpRequestFactory)
                 .build();
     }
 
     @Bean
     @Primary
-    public RestTemplate restTemplate(HttpClient httpClient) {
-        return new RestTemplate(getRequestFactory(httpClient));
+    public RestTemplate restTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
+        return new RestTemplate(clientHttpRequestFactory);
     }
 
     @Bean
