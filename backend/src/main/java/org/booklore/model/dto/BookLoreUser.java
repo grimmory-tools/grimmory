@@ -10,6 +10,8 @@ import org.booklore.model.dto.settings.SidebarSortOption;
 import org.booklore.model.enums.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -30,6 +32,13 @@ public class BookLoreUser {
     private List<Library> assignedLibraries;
     private UserPermissions permissions;
     private UserSettings userSettings;
+
+    public Set<Long> assignedLibraryIds() {
+        if (assignedLibraries == null) {
+            return Set.of();
+        }
+        return assignedLibraries.stream().map(Library::getId).collect(Collectors.toSet());
+    }
 
     @Data
     public static class UserPermissions {
