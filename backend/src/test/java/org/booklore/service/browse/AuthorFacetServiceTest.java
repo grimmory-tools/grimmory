@@ -202,8 +202,8 @@ class AuthorFacetServiceTest {
                 .contains("name", "-name", "bookCount", "-bookCount", "amazonRating", "-personalRating");
         assertThat(sort.links().stream().map(FacetLink::value)).doesNotContain("id", "-id");
 
-        assertThat(count(group(response, "matched"), "true")).isEqualTo(1);
-        assertThat(count(group(response, "matched"), "false")).isEqualTo(1);
+        assertThat(count(group(response, "has_asin"), "true")).isEqualTo(1);
+        assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
         assertThat(count(group(response, "has_description"), "true")).isEqualTo(1);
 
         FacetGroup genre = group(response, "genre");
@@ -244,9 +244,9 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), List.of("Romance"), null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("matched:true"), null, null);
+        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
 
-        assertThat(count(group(response, "matched"), "false")).isEqualTo(1);
+        assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Romance")).isEqualTo(0);
     }
@@ -258,7 +258,7 @@ class AuthorFacetServiceTest {
         em.flush();
 
         FacetGroupsResponse response = facetService.getFacets(null, null, null);
-        assertThat(group(response, "matched").links().stream().map(FacetLink::value))
+        assertThat(group(response, "has_asin").links().stream().map(FacetLink::value))
                 .containsExactly("false");
     }
 
@@ -271,13 +271,13 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), null, null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("matched:true"), null, null);
-        FacetLink active = group(response, "matched").links().stream()
+        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
+        FacetLink active = group(response, "has_asin").links().stream()
                 .filter(l -> l.value().equals("true"))
                 .findFirst().orElseThrow();
         assertThat(active.rel()).contains("self", "facet");
 
-        Set<String> hrefs = group(response, "matched").links().stream()
+        Set<String> hrefs = group(response, "has_asin").links().stream()
                 .map(FacetLink::href).collect(Collectors.toSet());
         assertThat(hrefs).allSatisfy(href -> assertThat(href).startsWith("/api/v1/authors/page"));
     }

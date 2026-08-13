@@ -25,7 +25,7 @@ import java.util.Set;
 public class AuthorFacetRegistry {
 
     private static final Set<String> NAMES = Set.of(
-            "matched", "has_photo", "has_description", "read_status", "book_count", "library", "genre", "language");
+            "has_asin", "has_photo", "has_description", "read_status", "book_count", "library", "genre", "language");
 
     private final AuthorVisibleBooks visibleBooks;
     private final AuthorPhotoIndex photoIndex;
@@ -58,7 +58,7 @@ public class AuthorFacetRegistry {
     public Predicate valuePredicate(String facetName, String value, Root<AuthorEntity> root,
                                     CriteriaQuery<?> query, CriteriaBuilder cb, BrowseScope scope) {
         return switch (facetName) {
-            case "matched" -> booleanPredicate(cb, matched(root, cb), value, facetName);
+            case "has_asin" -> booleanPredicate(cb, hasAsin(root, cb), value, facetName);
             case "has_photo" -> booleanPredicate(cb, hasPhoto(root, cb), value, facetName);
             case "has_description" -> booleanPredicate(cb, hasDescription(root, cb), value, facetName);
             case "read_status" -> readStatus(root, query, cb, scope, value);
@@ -70,7 +70,7 @@ public class AuthorFacetRegistry {
         };
     }
 
-    private Predicate matched(Root<AuthorEntity> root, CriteriaBuilder cb) {
+    private Predicate hasAsin(Root<AuthorEntity> root, CriteriaBuilder cb) {
         return cb.and(cb.isNotNull(root.get("asin")), cb.notEqual(root.get("asin"), ""));
     }
 

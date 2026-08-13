@@ -40,7 +40,7 @@ public class AuthorFacetService {
     private static final int MAX_VALUES = 100;
 
     private static final List<ValueFacetDef> VALUE_FACETS = List.of(
-            new ValueFacetDef("matched", "Matched", List.of("true", "false")),
+            new ValueFacetDef("has_asin", "ASIN", List.of("true", "false")),
             new ValueFacetDef("has_photo", "Photo", List.of("true", "false")),
             new ValueFacetDef("has_description", "Description", List.of("true", "false")));
 

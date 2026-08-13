@@ -276,7 +276,7 @@ class AuthorBrowseServiceTest {
     }
 
     @Test
-    void matchedFacetIsApplied() {
+    void hasAsinFacetIsApplied() {
         AuthorEntity matched = author("Matched");
         matched.setAsin("B0FAKE");
         AuthorEntity unmatched = author("Unmatched");
@@ -284,8 +284,8 @@ class AuthorBrowseServiceTest {
         book("B", library, libraryPath, List.of(unmatched));
         em.flush();
 
-        assertThat(ids(browse(null, List.of("matched:true"), null, null, 0, 20))).containsExactly(matched.getId());
-        assertThat(ids(browse(null, List.of("matched:false"), null, null, 0, 20))).containsExactly(unmatched.getId());
+        assertThat(ids(browse(null, List.of("has_asin:true"), null, null, 0, 20))).containsExactly(matched.getId());
+        assertThat(ids(browse(null, List.of("has_asin:false"), null, null, 0, 20))).containsExactly(unmatched.getId());
     }
 
     @Test
@@ -481,7 +481,7 @@ class AuthorBrowseServiceTest {
         book("A", library, libraryPath, List.of(a));
         em.flush();
         String cursor = browse(null, null, null, null, 0, 20).page().cursor();
-        assertThatThrownBy(() -> browse(null, List.of("matched:true"), null, cursor, 0, 20))
+        assertThatThrownBy(() -> browse(null, List.of("has_asin:true"), null, cursor, 0, 20))
                 .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("does not match");
     }
@@ -517,7 +517,7 @@ class AuthorBrowseServiceTest {
         book("B", library, libraryPath, List.of(unmatched));
         em.flush();
 
-        assertThat(browseService.findAllIds(null, List.of("matched:true"), null, null))
+        assertThat(browseService.findAllIds(null, List.of("has_asin:true"), null, null))
                 .containsExactly(matched.getId());
     }
 }
