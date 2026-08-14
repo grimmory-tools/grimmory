@@ -68,8 +68,8 @@ importers:
         specifier: 5.101.4
         version: 5.101.4(@angular/common@21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))
       '@tanstack/angular-table':
-        specifier: ^9.1.2
-        version: 9.1.2(@angular/common@21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))
+        specifier: ^8.21.4
+        version: 8.21.4(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))
       '@tanstack/angular-virtual':
         specifier: ^6.0.2
         version: 6.0.2(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))
@@ -2518,17 +2518,11 @@ packages:
       '@angular/common': '>=16.0.0'
       '@angular/core': '>=16.0.0'
 
-  '@tanstack/angular-store@0.11.1':
-    resolution: {integrity: sha512-bQxr/YhTnF8BJi+uv+F4NNafrApmDk5n3ongglmZ0h+sOhwwyZLpLZF+Rt4852AEkkkPkRBvhb7zMSPPkHjqQg==}
+  '@tanstack/angular-table@8.21.4':
+    resolution: {integrity: sha512-djyuJFvIB/pBuBIqny8b7+5ozeXJSElaxYRZyyKLpYrXn4xQSysBT//X51eDT/mi3kS0spcjIHhoObjk3iCjcQ==}
+    engines: {node: '>=12'}
     peerDependencies:
-      '@angular/common': '>=19.0.0'
-      '@angular/core': '>=19.0.0'
-
-  '@tanstack/angular-table@9.1.2':
-    resolution: {integrity: sha512-n3/25JrQGEzrXdDkiTIDgHKfABgTiuqGzh6xDcPvZyrY3l3GibQKr03JOvPpOglrzjySCMpoMBwuu9ER8ITeww==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@angular/core': '>=19'
+      '@angular/core': '>=17'
 
   '@tanstack/angular-virtual@6.0.2':
     resolution: {integrity: sha512-y/u2ZKAN5ob+ljwUoSK+r2j2piXw/ol63ykFbzZ8Hahj0dRU9xCJ0cJIDxTQ9zRoGbk0ZIiy3BK5w8Mso1daKA==}
@@ -2541,12 +2535,9 @@ packages:
   '@tanstack/query-devtools@5.101.4':
     resolution: {integrity: sha512-z5IPHnDX3aUWeTWlRKLyooBQekaCAw4xRpZqPQ390RiWTDBcTynjpPT221BArw0u2+pnQMdGvPQI9YNNubBcmA==}
 
-  '@tanstack/store@0.11.1':
-    resolution: {integrity: sha512-mzTOBhypOuDJAy/D8n2MfUZ1HFkXnmSETviRyhqEC8LUE7/IZQExOTxMANj3KjTofYTkFNpBY67qaVrT41YccA==}
-
-  '@tanstack/table-core@9.1.2':
-    resolution: {integrity: sha512-ONpWQeass1sfg80CWF1NSwQ8r3GiqxA2lT/EdqIcrDEPZ0Z+0mM94eQoFYLPN0Kztzj8TQVb2+PrSZSItqA61g==}
-    engines: {node: '>=20'}
+  '@tanstack/table-core@8.21.3':
+    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
+    engines: {node: '>=12'}
 
   '@tanstack/virtual-core@3.17.7':
     resolution: {integrity: sha512-bp+v10y65sp2H7WpWfIMyxTNfl8ZVfxFTLRjPIFRryi6FV/J33z4IS53WO4pTk36KlvJ4iLiQz+oaydDC1xbcA==}
@@ -7948,20 +7939,11 @@ snapshots:
     optionalDependencies:
       '@tanstack/query-devtools': 5.101.4
 
-  '@tanstack/angular-store@0.11.1(@angular/common@21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))':
-    dependencies:
-      '@angular/common': 21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2)
-      '@angular/core': 21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2)
-      '@tanstack/store': 0.11.1
-
-  '@tanstack/angular-table@9.1.2(@angular/common@21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))':
+  '@tanstack/angular-table@8.21.4(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))':
     dependencies:
       '@angular/core': 21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2)
-      '@tanstack/angular-store': 0.11.1(@angular/common@21.2.19(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))
-      '@tanstack/table-core': 9.1.2
+      '@tanstack/table-core': 8.21.3
       tslib: 2.8.1
-    transitivePeerDependencies:
-      - '@angular/common'
 
   '@tanstack/angular-virtual@6.0.2(@angular/core@21.2.19(@angular/compiler@21.2.19)(rxjs@7.8.2))':
     dependencies:
@@ -7973,11 +7955,7 @@ snapshots:
   '@tanstack/query-devtools@5.101.4':
     optional: true
 
-  '@tanstack/store@0.11.1': {}
-
-  '@tanstack/table-core@9.1.2':
-    dependencies:
-      '@tanstack/store': 0.11.1
+  '@tanstack/table-core@8.21.3': {}
 
   '@tanstack/virtual-core@3.17.7': {}
 
