@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -385,16 +386,16 @@ public class AmazonBookParserTest {
     }
 
     @Test
-    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsUnsupported() throws Exception {
-        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+    public void fetchTopMetadata_failsWhenDomainIsUnsupported() {
         when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("com@evil.example"));
 
         Book book = getBook("EXAMPLESKU");
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
-        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+        assertThatThrownBy(() -> amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Unsupported Amazon domain: com@evil.example");
 
-        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
         mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com@evil.example/dp/EXAMPLESKU"), never());
     }
 

@@ -887,8 +887,21 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     }
 
     private String getTld() {
-        String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
-        return domain != null && BASE_URIS.containsKey(domain) ? domain : DEFAULT_TLD;
+        String domain = Optional.ofNullable(appSettingService.getAppSettings())
+                .map(appSettings -> appSettings.getMetadataProviderSettings())
+                .map(metadataProviderSettings -> metadataProviderSettings.getAmazon())
+                .map(amazonSettings -> amazonSettings.getDomain())
+                .orElse(DEFAULT_TLD);
+
+        if (domain.isBlank()) {
+            return DEFAULT_TLD;
+        }
+
+        if (!BASE_URIS.containsKey(domain)) {
+            throw new IllegalArgumentException("Unsupported Amazon domain: " + domain);
+        }
+
+        return domain;
     }
 
     private String getBaseURI() {
