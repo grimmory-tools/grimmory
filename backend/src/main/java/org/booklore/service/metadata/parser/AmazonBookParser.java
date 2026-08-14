@@ -1,5 +1,6 @@
 package org.booklore.service.metadata.parser;
 
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookReview;
@@ -898,7 +899,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         }
 
         if (!BASE_URIS.containsKey(domain)) {
-            throw new IllegalArgumentException("Unsupported Amazon domain: " + domain);
+            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
         }
 
         return domain;

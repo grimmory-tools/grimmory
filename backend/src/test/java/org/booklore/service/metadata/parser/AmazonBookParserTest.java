@@ -1,6 +1,8 @@
 package org.booklore.service.metadata.parser;
 
 
+import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
@@ -393,8 +395,10 @@ public class AmazonBookParserTest {
         FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
 
         assertThatThrownBy(() -> amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Unsupported Amazon domain: com@evil.example");
+                .isInstanceOfSatisfying(APIException.class, exception -> {
+                    assertThat(exception.getStatus()).isEqualTo(ApiError.INVALID_INPUT.getStatus());
+                    assertThat(exception.getMessage()).isEqualTo("Unsupported Amazon domain: com@evil.example");
+                });
 
         mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com@evil.example/dp/EXAMPLESKU"), never());
     }
