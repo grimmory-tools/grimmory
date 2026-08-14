@@ -385,6 +385,33 @@ public class AmazonBookParserTest {
     }
 
     @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsUnsupported() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("com@evil.example"));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com@evil.example/dp/EXAMPLESKU"), never());
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsNull() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings(null));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
     public void fetchTopMetadata_removesExtraWhitespace() throws Exception {
         mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
 
