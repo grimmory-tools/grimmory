@@ -5,6 +5,9 @@ import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookReview;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
+import org.booklore.model.dto.settings.MetadataPublicReviewsSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
@@ -306,9 +309,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             return null;
         }
 
-        List<BookReview> reviews = appSettingService.getAppSettings()
-                .getMetadataPublicReviewsSettings()
-                .getProviders()
+        List<BookReview> reviews = getReviewProviderConfigs()
                 .stream()
                 .filter(cfg -> cfg.getProvider() == MetadataProvider.Amazon && cfg.isEnabled())
                 .findFirst()
@@ -829,10 +830,10 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private Document fetchDocument(String url) {
         try {
-            String baseURI = getBaseURI();
-            String amazonCookie = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getCookie();
-
-            LocaleInfo localeInfo = getLocaleInfoForDomain(getTld());
+            String tld = getTld();
+            String baseURI = BASE_URIS.get(tld);
+            String amazonCookie = getAmazonCookie();
+            LocaleInfo localeInfo = getLocaleInfoForDomain(tld);
 
             Connection connection = Jsoup.connect(url)
                     .header("accept", "text/html, application/json")
@@ -887,11 +888,19 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         return DOMAIN_LOCALE_MAP.getOrDefault(domain, DEFAULT_LOCALE_INFO);
     }
 
+    private Optional<AppSettings> getAppSettings() {
+        return Optional.ofNullable(appSettingService.getAppSettings());
+    }
+
+    private Optional<MetadataProviderSettings.Amazon> getAmazonSettings() {
+        return getAppSettings()
+                .map(AppSettings::getMetadataProviderSettings)
+                .map(MetadataProviderSettings::getAmazon);
+    }
+
     private String getTld() {
-        String domain = Optional.ofNullable(appSettingService.getAppSettings())
-                .map(appSettings -> appSettings.getMetadataProviderSettings())
-                .map(metadataProviderSettings -> metadataProviderSettings.getAmazon())
-                .map(amazonSettings -> amazonSettings.getDomain())
+        String domain = getAmazonSettings()
+                .map(MetadataProviderSettings.Amazon::getDomain)
                 .orElse(DEFAULT_TLD);
 
         if (domain.isBlank()) {
@@ -903,6 +912,19 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         }
 
         return domain;
+    }
+
+    private String getAmazonCookie() {
+        return getAmazonSettings()
+                .map(MetadataProviderSettings.Amazon::getCookie)
+                .orElse(null);
+    }
+
+    private Set<MetadataPublicReviewsSettings.ReviewProviderConfig> getReviewProviderConfigs() {
+        return getAppSettings()
+                .map(AppSettings::getMetadataPublicReviewsSettings)
+                .map(MetadataPublicReviewsSettings::getProviders)
+                .orElse(Collections.emptySet());
     }
 
     private String getBaseURI() {
