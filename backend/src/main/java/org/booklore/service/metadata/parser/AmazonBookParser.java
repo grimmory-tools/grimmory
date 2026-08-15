@@ -72,7 +72,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             "yyyy/M/d", "yyyy/MM/dd", "yyyy年M月d日"
     };
 
-    private static final String DEFAULT_TLD = "com";
+    private static final String DEFAULT_DOMAIN = "com";
 
     private static final Map<String, String> BASE_URIS = Map.ofEntries(
             Map.entry("com", "https://www.amazon.com"),
@@ -123,8 +123,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             Map.entry("eg", new LocaleInfo("en-US,en;q=0.9,ar;q=0.8", new Locale.Builder().setLanguage("en").setRegion("EG").build())),
             Map.entry("com.be", new LocaleInfo("en-GB,en;q=0.9,fr;q=0.8,nl;q=0.8", new Locale.Builder().setLanguage("fr").setRegion("BE").build()))
     );
-
-    private static final LocaleInfo DEFAULT_LOCALE_INFO = DOMAIN_LOCALE_MAP.get(DEFAULT_TLD);
 
     private final AppSettingService appSettingService;
 
@@ -667,7 +665,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private List<BookReview> getReviews(Document doc, int maxReviews) {
         List<BookReview> reviews = new ArrayList<>();
-        LocaleInfo localeInfo = getLocaleInfoForDomain(getTld());
 
         try {
             Elements reviewElements = doc.select("li[data-hook=review]");
@@ -728,7 +725,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                             }
                         }
 
-                        LocalDate localDate = parseDate(datePart, localeInfo);
+                        LocalDate localDate = parseDate(datePart);
                         if (localDate != null) {
                             dateInstant = localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
                         }
@@ -830,10 +827,9 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private Document fetchDocument(String url) {
         try {
-            String tld = getTld();
-            String baseURI = BASE_URIS.get(tld);
+            String baseURI = getBaseURI();
             String amazonCookie = getAmazonCookie();
-            LocaleInfo localeInfo = getLocaleInfoForDomain(tld);
+            LocaleInfo localeInfo = getLocaleInfo();
 
             Connection connection = Jsoup.connect(url)
                     .header("accept", "text/html, application/json")
@@ -884,8 +880,14 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         }
     }
 
-    private static LocaleInfo getLocaleInfoForDomain(String domain) {
-        return DOMAIN_LOCALE_MAP.getOrDefault(domain, DEFAULT_LOCALE_INFO);
+    private LocaleInfo getLocaleInfo() {
+        String domain = getDomain();
+
+        if (!DOMAIN_LOCALE_MAP.containsKey(domain)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
+        }
+
+        return DOMAIN_LOCALE_MAP.get(domain);
     }
 
     private Optional<AppSettings> getAppSettings() {
@@ -898,17 +900,13 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 .map(MetadataProviderSettings::getAmazon);
     }
 
-    private String getTld() {
+    private String getDomain() {
         String domain = getAmazonSettings()
                 .map(MetadataProviderSettings.Amazon::getDomain)
-                .orElse(DEFAULT_TLD);
+                .orElse(DEFAULT_DOMAIN);
 
         if (domain.isBlank()) {
-            return DEFAULT_TLD;
-        }
-
-        if (!BASE_URIS.containsKey(domain)) {
-            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
+            return DEFAULT_DOMAIN;
         }
 
         return domain;
@@ -928,10 +926,18 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     }
 
     private String getBaseURI() {
-        return BASE_URIS.get(getTld());
+        String domain = getDomain();
+
+        if (!BASE_URIS.containsKey(domain)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
+        }
+
+        return BASE_URIS.get(domain);
     }
 
-    private static LocalDate parseDate(String dateString, LocaleInfo localeInfo) {
+    private LocalDate parseDate(String dateString) {
+        LocaleInfo localeInfo = getLocaleInfo();
+
         if (dateString == null || dateString.trim().isEmpty()) {
             return null;
         }
@@ -956,10 +962,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
         log.warn("Failed to parse date '{}' with any known format for locale {}", dateString, localeInfo.locale());
         return null;
-    }
-
-    private LocalDate parseDate(String dateString) {
-        return parseDate(dateString, getLocaleInfoForDomain(getTld()));
     }
 
     private boolean isWhitespaceNode(Node node) {
