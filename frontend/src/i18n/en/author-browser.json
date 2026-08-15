@@ -35,6 +35,7 @@
   "footer": {
     "selected": "selected",
     "autoMatch": "Auto-match selected",
+    "unmatchSelected": "Unmatch selected",
     "deleteSelected": "Delete selected",
     "selectAll": "Select all",
     "deselectAll": "Deselect all"
@@ -53,7 +54,11 @@
     "quickMatchFailedSummary": "Quick Match Failed",
     "quickMatchFailedDetail": "Failed to quick-match the author.",
     "deleteSelectedSuccessSummary": "Authors Deleted",
-    "deleteSelectedSuccessDetail": "Selected authors have been deleted successfully."
+    "deleteSelectedSuccessDetail": "Selected authors have been deleted successfully.",
+    "unmatchSuccessSummary": "Authors Unmatched",
+    "unmatchSuccessDetail": "Metadata has been cleared for the selected authors.",
+    "unmatchFailedSummary": "Unmatch Failed",
+    "unmatchFailedDetail": "Failed to unmatch the selected authors."
   },
   "card": {
     "matched": "Matched",
@@ -80,6 +85,8 @@
     "unlockAllBtn": "Unlock All",
     "searchPhotoTooltip": "Search photo",
     "searchPhotoTitle": "Search Author Photo",
+    "removePhotoTooltip": "Remove photo",
+    "unmatchBtn": "Unmatch",
     "toast": {
       "successSummary": "Author Updated",
       "successDetail": "Author details have been updated successfully.",
@@ -87,7 +94,13 @@
       "errorDetail": "Failed to update author details.",
       "photoUploadedSummary": "Photo Uploaded",
       "photoUploadedDetail": "Author photo has been uploaded successfully.",
-      "photoUploadErrorDetail": "Failed to upload author photo."
+      "photoUploadErrorDetail": "Failed to upload author photo.",
+      "photoRemovedSummary": "Photo Removed",
+      "photoRemovedDetail": "Author photo has been removed successfully.",
+      "photoRemoveErrorDetail": "Failed to remove author photo.",
+      "unmatchSuccessSummary": "Author Unmatched",
+      "unmatchSuccessDetail": "Author metadata has been cleared successfully.",
+      "unmatchFailedDetail": "Failed to unmatch the author."
     }
   },
   "detail": {

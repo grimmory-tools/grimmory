@@ -142,6 +142,24 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  onPhotoRemoved(): void {
+    const author = this.author();
+    if (!author) return;
+    this.hasPhoto = false;
+    this.photoTimestamp = Date.now();
+    this.authorService.patchAuthorInCache(author.id, {hasPhoto: false});
+  }
+
+  onAuthorUnmatched(clearedAuthor: AuthorDetails): void {
+    this.authorState.set(clearedAuthor);
+    this.hasPhoto = false;
+    this.photoTimestamp = Date.now();
+    this.authorService.patchAuthorInCache(clearedAuthor.id, {
+      asin: clearedAuthor.asin,
+      hasPhoto: false,
+    });
+  }
+
   quickMatch(): void {
     const author = this.author();
     if (!author || this.quickMatching) return;

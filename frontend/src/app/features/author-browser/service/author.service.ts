@@ -174,6 +174,10 @@ export class AuthorService {
     });
   }
 
+  deleteAuthorPhoto(authorId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${authorId}/photo`);
+  }
+
   getUploadAuthorPhotoUrl(authorId: number): string {
     return `${this.baseUrl}/${authorId}/photo/upload`;
   }

@@ -244,6 +244,14 @@
                   [pTooltip]="t('footer.autoMatch')"
                   tooltipPosition="top">
                 </p-button>
+                <p-button
+                  icon="pi pi-eraser"
+                  outlined="true"
+                  severity="warn"
+                  (onClick)="unmatchSelected()"
+                  [pTooltip]="t('footer.unmatchSelected')"
+                  tooltipPosition="top">
+                </p-button>
               }
               @if (canDeleteBook) {
                 <p-button

@@ -138,7 +138,9 @@
               <app-author-editor
                 [authorId]="author.id"
                 [author]="author"
-                (authorUpdated)="onAuthorUpdated($event)">
+                (authorUpdated)="onAuthorUpdated($event)"
+                (photoRemoved)="onPhotoRemoved()"
+                (unmatched)="onAuthorUnmatched($event)">
               </app-author-editor>
             </p-tabpanel>
             <p-tabpanel value="match">

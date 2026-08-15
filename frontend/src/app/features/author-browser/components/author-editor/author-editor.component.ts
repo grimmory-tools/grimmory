@@ -39,6 +39,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   @Input({required: true}) authorId!: number;
   @Input({required: true}) author!: AuthorDetails;
   @Output() authorUpdated = new EventEmitter<AuthorDetails>();
+  @Output() photoRemoved = new EventEmitter<void>();
+  @Output() unmatched = new EventEmitter<AuthorDetails>();
 
   private authorService = inject(AuthorService);
   private messageService = inject(MessageService);
@@ -149,6 +151,54 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   onPhotoError(): void {
     this.hasPhoto = false;
+  }
+
+  removePhoto(): void {
+    this.authorService.deleteAuthorPhoto(this.authorId).subscribe({
+      next: () => {
+        this.hasPhoto = false;
+        this.photoTimestamp = Date.now();
+        this.photoRemoved.emit();
+        this.messageService.add({
+          severity: 'success',
+          summary: this.t.translate('authorBrowser.editor.toast.photoRemovedSummary'),
+          detail: this.t.translate('authorBrowser.editor.toast.photoRemovedDetail')
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
+          detail: this.t.translate('authorBrowser.editor.toast.photoRemoveErrorDetail')
+        });
+      }
+    });
+  }
+
+  unmatch(): void {
+    this.authorService.unmatchAuthors([this.authorId]).subscribe({
+      next: () => {
+        this.form.get('description')?.setValue('');
+        this.form.get('asin')?.setValue('');
+        this.hasPhoto = false;
+        this.photoTimestamp = Date.now();
+        const cleared: AuthorDetails = {...this.author, description: undefined, asin: undefined};
+        this.author = cleared;
+        this.unmatched.emit(cleared);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.t.translate('authorBrowser.editor.toast.unmatchSuccessSummary'),
+          detail: this.t.translate('authorBrowser.editor.toast.unmatchSuccessDetail')
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
+          detail: this.t.translate('authorBrowser.editor.toast.unmatchFailedDetail')
+        });
+      }
+    });
   }
 
   onBeforeUpload(): void {

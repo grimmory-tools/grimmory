@@ -396,6 +396,35 @@ export class AuthorBrowserComponent implements OnInit {
     });
   }
 
+  unmatchSelected(): void {
+    const ids = this.selectionService.getSelectedIds();
+    this.authorService.unmatchAuthors(ids).subscribe({
+      next: () => {
+        this.selectionService.deselectAll();
+        const idSet = new Set(ids);
+        this.allAuthorsState.update(current => (current ?? []).map(author => idSet.has(author.id)
+          ? {...author, asin: undefined, hasPhoto: false}
+          : author
+        ));
+        for (const id of ids) {
+          this.thumbnailCacheBusters.set(id, Date.now());
+        }
+        this.messageService.add({
+          severity: 'success',
+          summary: this.t.translate('authorBrowser.toast.unmatchSuccessSummary'),
+          detail: this.t.translate('authorBrowser.toast.unmatchSuccessDetail')
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('authorBrowser.toast.unmatchFailedSummary'),
+          detail: this.t.translate('authorBrowser.toast.unmatchFailedDetail')
+        });
+      }
+    });
+  }
+
   deleteSelected(): void {
     const ids = this.selectionService.getSelectedIds();
     this.authorService.deleteAuthors(ids).subscribe({

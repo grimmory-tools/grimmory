@@ -162,6 +162,16 @@ public class AuthorController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Delete author photo", description = "Remove the stored photo for an author without clearing other metadata.")
+    @ApiResponse(responseCode = "200", description = "Author photo deleted successfully")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    @DeleteMapping("/{authorId}/photo")
+    public ResponseEntity<Void> deleteAuthorPhoto(
+            @Parameter(description = "ID of the author") @PathVariable long authorId) {
+        authorMetadataService.deleteAuthorPhoto(authorId);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Delete authors", description = "Delete multiple authors and their associated images.")
     @ApiResponse(responseCode = "200", description = "Authors deleted successfully")
     @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")

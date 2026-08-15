@@ -48,6 +48,19 @@
           severity="info">
         </p-button>
 
+        @if (hasPhoto) {
+          <p-button
+            [pTooltip]="t('removePhotoTooltip')"
+            tooltipPosition="top"
+            size="small"
+            icon="pi pi-trash"
+            [outlined]="true"
+            [disabled]="form.get('photoLocked')?.value"
+            (onClick)="removePhoto()"
+            severity="danger">
+          </p-button>
+        }
+
         @if (!form.get('photoLocked')?.value) {
           <p-button
             [pTooltip]="t('lockField')"
@@ -119,6 +132,8 @@
         <div class="footer-actions">
           <p-button [label]="t('unlockAllBtn')" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()"></p-button>
           <p-button [label]="t('lockAllBtn')" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()"></p-button>
+          <p-divider layout="vertical"/>
+          <p-button [label]="t('unmatchBtn')" icon="pi pi-eraser" [outlined]="true" severity="danger" (onClick)="unmatch()"></p-button>
           <p-divider layout="vertical"/>
           <p-button
             type="submit"
