@@ -1,7 +1,5 @@
 package org.booklore.service.browse;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
@@ -15,7 +13,6 @@ import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.FacetLogic;
 import org.booklore.browse.Link;
-import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
@@ -28,7 +25,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +58,6 @@ public class BookFacetService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final Cache<String, FacetGroupsResponse> cache = Caffeine.newBuilder()
-            .expireAfterWrite(Duration.ofSeconds(30))
-            .maximumSize(200)
-            .build();
-
     public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -76,23 +67,15 @@ public class BookFacetService {
         Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
         FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
 
-        String cacheKey = userId + ":" + ParamsHash.compute(query, facets, facetLogic);
-        return cache.get(cacheKey, key -> {
-            String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
-            List<FacetGroup> groups = new ArrayList<>();
-            groups.add(sortGroup(preserved));
-            for (FacetDef def : FACETS) {
-                Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(toGroup(def, count(def, base), facet, preserved));
-            }
-            List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
-            return new FacetGroupsResponse(links, groups);
-        });
-    }
-
-    // Package-private: lets tests reset the shared singleton cache between runs.
-    void clearCache() {
-        cache.invalidateAll();
+        String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+        List<FacetGroup> groups = new ArrayList<>();
+        groups.add(sortGroup(preserved));
+        for (FacetDef def : FACETS) {
+            Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
+            groups.add(toGroup(def, count(def, base), facet, preserved));
+        }
+        List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
+        return new FacetGroupsResponse(links, groups);
     }
 
     private List<FacetCount> count(FacetDef def, Specification<BookEntity> base) {

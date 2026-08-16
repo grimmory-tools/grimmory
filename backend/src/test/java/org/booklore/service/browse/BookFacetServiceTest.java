@@ -99,7 +99,6 @@ class BookFacetServiceTest {
 
     @BeforeEach
     void seed() {
-        facetService.clearCache();
         userEntity = BookLoreUserEntity.builder().username("reader").passwordHash("x").name("Reader").build();
         em.persist(userEntity);
         library = LibraryEntity.builder().name("Lib").icon("book").watch(false)
@@ -218,12 +217,19 @@ class BookFacetServiceTest {
     }
 
     @Test
-    void responseIsCachedPerParameters() {
+    void facetsReflectNewBooksImmediately() {
         book("A", "Horror", "Alice");
         em.flush();
         FacetGroupsResponse first = facetService.getFacets(null, null, null);
+        assertThat(count(group(first, "genre"), "Horror")).isEqualTo(1);
+
+        book("B", "Romance", "Bob");
+        em.flush();
         FacetGroupsResponse second = facetService.getFacets(null, null, null);
-        assertThat(first).isSameAs(second);
+
+        assertThat(count(group(second, "genre"), "Horror")).isEqualTo(1);
+        assertThat(count(group(second, "genre"), "Romance")).isEqualTo(1);
+        assertThat(group(second, "author").links()).extracting(FacetLink::value).contains("Alice", "Bob");
     }
 
     @Test
