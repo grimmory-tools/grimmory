@@ -187,6 +187,7 @@ public class AuthorMetadataService {
         for (Long authorId : authorIds) {
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
             if (author == null) continue;
+            verifyAuthorAccess(authorId);
 
             author.setDescription(null);
             author.setAsin(null);

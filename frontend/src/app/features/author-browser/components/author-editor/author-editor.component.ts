@@ -1,4 +1,5 @@
-import {Component, computed, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -47,6 +48,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   private messageService = inject(MessageService);
   private dialogService = inject(DialogService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   form!: FormGroup;
   isSaving = signal(false);
@@ -157,7 +159,9 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   removePhoto(): void {
-    this.authorService.deleteAuthorPhoto(this.authorId).subscribe({
+    this.authorService.deleteAuthorPhoto(this.authorId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.hasPhoto.set(false);
         this.photoTimestamp.set(Date.now());
@@ -182,6 +186,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     if (this.isMutating()) return;
     this.isUnmatching.set(true);
     this.authorService.unmatchAuthors([this.authorId]).pipe(
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => this.isUnmatching.set(false))
     ).subscribe({
       next: () => {
