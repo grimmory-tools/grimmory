@@ -21,6 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +55,78 @@ class AppSettingServiceTest {
                 .permissions(permissions)
                 .build();
 
-        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        lenient().when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+    }
+
+    private static AppSettingEntity settingEntity(AppSettingKey key, String value) {
+        AppSettingEntity entity = new AppSettingEntity();
+        entity.setName(key.toString());
+        entity.setVal(value);
+        return entity;
+    }
+
+    @Test
+    void publicSettings_forceDisableOidc_reportsOidcAndOidcOnlyModeDisabled() {
+        when(appSettingsRepository.findAll()).thenReturn(List.of());
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+        when(appProperties.getForceDisableOidc()).thenReturn(true);
+        when(appSettingsRepository.findByName(AppSettingKey.OIDC_ENABLED.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_ENABLED, "true"));
+        when(appSettingsRepository.findByName(AppSettingKey.OIDC_FORCE_ONLY_MODE.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_FORCE_ONLY_MODE, "true"));
+
+        var publicSettings = appSettingService.getPublicSettings();
+
+        assertThat(publicSettings.isOidcEnabled()).isFalse();
+        assertThat(publicSettings.isOidcForceOnlyMode()).isFalse();
+    }
+
+    @Test
+    void appSettings_forceDisableOidc_disablesOidcOnlyModeSoLocalLoginWorks() {
+        when(appSettingsRepository.findAll()).thenReturn(List.of());
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+        when(appProperties.getForceDisableOidc()).thenReturn(true);
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_ENABLED.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_ENABLED, "true"));
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_FORCE_ONLY_MODE.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_FORCE_ONLY_MODE, "true"));
+
+        var appSettings = appSettingService.getAppSettings();
+
+        assertThat(appSettings.isOidcEnabled()).isFalse();
+        assertThat(appSettings.isOidcForceOnlyMode()).isFalse();
+    }
+
+    @Test
+    void appSettings_oidcEnabledWithForceOnlyMode_keepsOidcOnlyModeActive() {
+        when(appSettingsRepository.findAll()).thenReturn(List.of());
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+        when(appProperties.getForceDisableOidc()).thenReturn(false);
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_ENABLED.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_ENABLED, "true"));
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_FORCE_ONLY_MODE.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_FORCE_ONLY_MODE, "true"));
+
+        var appSettings = appSettingService.getAppSettings();
+
+        assertThat(appSettings.isOidcEnabled()).isTrue();
+        assertThat(appSettings.isOidcForceOnlyMode()).isTrue();
+    }
+
+    @Test
+    void appSettings_oidcDisabledButForceOnlyModeLeftOn_reportsOidcOnlyModeInactive() {
+        when(appSettingsRepository.findAll()).thenReturn(List.of());
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+        when(appProperties.getForceDisableOidc()).thenReturn(false);
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_ENABLED.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_ENABLED, "false"));
+        lenient().when(appSettingsRepository.findByName(AppSettingKey.OIDC_FORCE_ONLY_MODE.toString()))
+                .thenReturn(settingEntity(AppSettingKey.OIDC_FORCE_ONLY_MODE, "true"));
+
+        var appSettings = appSettingService.getAppSettings();
+
+        assertThat(appSettings.isOidcEnabled()).isFalse();
+        assertThat(appSettings.isOidcForceOnlyMode()).isFalse();
     }
 
     @Test
