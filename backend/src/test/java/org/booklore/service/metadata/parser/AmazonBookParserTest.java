@@ -1,6 +1,8 @@
 package org.booklore.service.metadata.parser;
 
 
+import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
@@ -27,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -65,6 +68,45 @@ public class AmazonBookParserTest {
         return AppSettings
                 .builder()
                 .metadataPublicReviewsSettings(publicReviewsSettings)
+                .metadataProviderSettings(metadataProviderSettings)
+                .build();
+    }
+
+    private AppSettings getAppSettingsWithoutMetadataProviderSettings() {
+        MetadataPublicReviewsSettings publicReviewsSettings = MetadataPublicReviewsSettings.builder()
+                .providers(Collections.emptySet())
+                .build();
+
+        return AppSettings
+                .builder()
+                .metadataPublicReviewsSettings(publicReviewsSettings)
+                .build();
+    }
+
+    private AppSettings getAppSettingsWithoutAmazonSettings() {
+        MetadataProviderSettings metadataProviderSettings = new MetadataProviderSettings();
+
+        MetadataPublicReviewsSettings publicReviewsSettings = MetadataPublicReviewsSettings.builder()
+                .providers(Collections.emptySet())
+                .build();
+
+        return AppSettings
+                .builder()
+                .metadataPublicReviewsSettings(publicReviewsSettings)
+                .metadataProviderSettings(metadataProviderSettings)
+                .build();
+    }
+
+    private AppSettings getAppSettingsWithoutPublicReviewsSettings() {
+        MetadataProviderSettings.Amazon amazonSettings = new MetadataProviderSettings.Amazon();
+        amazonSettings.setEnabled(true);
+        amazonSettings.setDomain("com");
+
+        MetadataProviderSettings metadataProviderSettings = new MetadataProviderSettings();
+        metadataProviderSettings.setAmazon(amazonSettings);
+
+        return AppSettings
+                .builder()
                 .metadataProviderSettings(metadataProviderSettings)
                 .build();
     }
@@ -382,6 +424,113 @@ public class AmazonBookParserTest {
         amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
 
         mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.co.jp/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_failsWhenDomainIsUnsupported() {
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("com@evil.example"));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        assertThatThrownBy(() -> amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest))
+                .isInstanceOfSatisfying(APIException.class, exception -> {
+                    assertThat(exception.getStatus()).isEqualTo(ApiError.INVALID_INPUT.getStatus());
+                    assertThat(exception.getMessage()).isEqualTo("Unsupported Amazon domain: com@evil.example");
+                });
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com@evil.example/dp/EXAMPLESKU"), never());
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsNull() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings(null));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsEmpty() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings(""));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenDomainIsBlank() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettings("   "));
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenAppSettingsAreMissing() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(null);
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenMetadataProviderSettingsAreMissing() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettingsWithoutMetadataProviderSettings());
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fallsBackToDefaultDomainWhenAmazonSettingsAreMissing() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettingsWithoutAmazonSettings());
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
+    }
+
+    @Test
+    public void fetchTopMetadata_fetchesMetadataWhenPublicReviewsSettingsAreMissing() throws Exception {
+        mockJsoupConnect("https://www.amazon.com/dp/EXAMPLESKU", "<html />");
+        when(mockAppSettingService.getAppSettings()).thenReturn(getAppSettingsWithoutPublicReviewsSettings());
+
+        Book book = getBook("EXAMPLESKU");
+        FetchMetadataRequest fetchMetadataRequest = FetchMetadataRequest.builder().build();
+
+        amazonBookParser.fetchTopMetadata(book, fetchMetadataRequest);
+
+        mockJsoup.verify(() -> Jsoup.connect("https://www.amazon.com/dp/EXAMPLESKU"));
     }
 
     @Test
