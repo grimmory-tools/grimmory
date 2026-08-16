@@ -1,4 +1,5 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {finalize} from 'rxjs';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Button} from '@openng/optimus-ui/button';
@@ -49,12 +50,14 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   form!: FormGroup;
   isSaving = signal(false);
+  isUnmatching = signal(false);
+  isMutating = computed(() => this.isSaving() || this.isUnmatching());
   isUploading = signal(false);
-  hasPhoto = true;
-  photoTimestamp = Date.now();
+  hasPhoto = signal(true);
+  photoTimestamp = signal(Date.now());
 
   get photoUrl(): string {
-    return this.authorService.getAuthorPhotoUrl(this.authorId) + '&t=' + this.photoTimestamp;
+    return this.authorService.getAuthorPhotoUrl(this.authorId) + '&t=' + this.photoTimestamp();
   }
 
   get uploadUrl(): string {
@@ -63,8 +66,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['author'] && !changes['author'].firstChange) {
-      this.hasPhoto = true;
-      this.photoTimestamp = Date.now();
+      this.hasPhoto.set(true);
+      this.photoTimestamp.set(Date.now());
     }
   }
 
@@ -142,22 +145,22 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     });
     ref?.onClose.subscribe((result: boolean) => {
       if (result) {
-        this.photoTimestamp = Date.now();
-        this.hasPhoto = true;
+        this.photoTimestamp.set(Date.now());
+        this.hasPhoto.set(true);
         this.authorUpdated.emit(this.author);
       }
     });
   }
 
   onPhotoError(): void {
-    this.hasPhoto = false;
+    this.hasPhoto.set(false);
   }
 
   removePhoto(): void {
     this.authorService.deleteAuthorPhoto(this.authorId).subscribe({
       next: () => {
-        this.hasPhoto = false;
-        this.photoTimestamp = Date.now();
+        this.hasPhoto.set(false);
+        this.photoTimestamp.set(Date.now());
         this.photoRemoved.emit();
         this.messageService.add({
           severity: 'success',
@@ -176,12 +179,16 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   unmatch(): void {
-    this.authorService.unmatchAuthors([this.authorId]).subscribe({
+    if (this.isMutating()) return;
+    this.isUnmatching.set(true);
+    this.authorService.unmatchAuthors([this.authorId]).pipe(
+      finalize(() => this.isUnmatching.set(false))
+    ).subscribe({
       next: () => {
         this.form.get('description')?.setValue('');
         this.form.get('asin')?.setValue('');
-        this.hasPhoto = false;
-        this.photoTimestamp = Date.now();
+        this.hasPhoto.set(false);
+        this.photoTimestamp.set(Date.now());
         const cleared: AuthorDetails = {...this.author, description: undefined, asin: undefined};
         this.author = cleared;
         this.unmatched.emit(cleared);
@@ -207,8 +214,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   onUpload(): void {
     this.isUploading.set(false);
-    this.photoTimestamp = Date.now();
-    this.hasPhoto = true;
+    this.photoTimestamp.set(Date.now());
+    this.hasPhoto.set(true);
     this.authorUpdated.emit(this.author);
     this.messageService.add({
       severity: 'success',
@@ -227,7 +234,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   private saveMetadata(): void {
-    if (this.isSaving()) return;
+    if (this.isMutating()) return;
     this.isSaving.set(true);
 
     const formValue = this.form.getRawValue();

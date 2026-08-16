@@ -248,7 +248,9 @@
                   icon="pi pi-eraser"
                   outlined="true"
                   severity="warn"
+                  [disabled]="unmatchPending()"
                   (onClick)="unmatchSelected()"
+                  [ariaLabel]="t('footer.unmatchSelected')"
                   [pTooltip]="t('footer.unmatchSelected')"
                   tooltipPosition="top">
                 </p-button>

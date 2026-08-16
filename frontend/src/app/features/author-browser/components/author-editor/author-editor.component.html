@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.editor'">
   <div class="editor-container">
     <div class="cover-section">
-      @if (hasPhoto) {
+      @if (hasPhoto()) {
         <p-image
           [src]="photoUrl"
           alt="Author Photo"
@@ -48,7 +48,7 @@
           severity="info">
         </p-button>
 
-        @if (hasPhoto) {
+        @if (hasPhoto()) {
           <p-button
             [pTooltip]="t('removePhotoTooltip')"
             tooltipPosition="top"
@@ -133,13 +133,13 @@
           <p-button [label]="t('unlockAllBtn')" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()"></p-button>
           <p-button [label]="t('lockAllBtn')" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()"></p-button>
           <p-divider layout="vertical"/>
-          <p-button [label]="t('unmatchBtn')" icon="pi pi-eraser" [outlined]="true" severity="danger" (onClick)="unmatch()"></p-button>
+          <p-button [label]="t('unmatchBtn')" icon="pi pi-eraser" [outlined]="true" severity="danger" [disabled]="isMutating()" (onClick)="unmatch()"></p-button>
           <p-divider layout="vertical"/>
           <p-button
             type="submit"
             [label]="isSaving() ? t('saving') : t('saveBtn')"
             [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-            [disabled]="isSaving()">
+            [disabled]="isMutating()">
           </p-button>
         </div>
       </div>

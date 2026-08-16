@@ -202,6 +202,7 @@ public class AuthorMetadataService {
     public void deleteAuthorPhoto(Long authorId) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
+        verifyAuthorAccess(authorId);
 
         fileService.deleteAuthorImages(authorId);
 

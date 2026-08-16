@@ -106,14 +106,14 @@ describe('AuthorEditorComponent', () => {
     const component = createComponent();
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(777);
 
-    component.hasPhoto = false;
-    component.photoTimestamp = 10;
+    component.hasPhoto.set(false);
+    component.photoTimestamp.set(10);
     component.ngOnChanges({
       author: new SimpleChange(baseAuthor, {...baseAuthor, name: 'Updated Ada'}, false),
     });
 
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(777);
+    expect(component.hasPhoto()).toBe(true);
+    expect(component.photoTimestamp()).toBe(777);
     expect(nowSpy).toHaveBeenCalled();
   });
 
@@ -195,8 +195,8 @@ describe('AuthorEditorComponent', () => {
     const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(888);
 
-    component.hasPhoto = false;
-    component.photoTimestamp = 12;
+    component.hasPhoto.set(false);
+    component.photoTimestamp.set(12);
 
     component.openPhotoSearch();
 
@@ -213,8 +213,8 @@ describe('AuthorEditorComponent', () => {
 
     dialogClose$.next(true);
 
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(888);
+    expect(component.hasPhoto()).toBe(true);
+    expect(component.photoTimestamp()).toBe(888);
     expect(emitSpy).toHaveBeenCalledWith(component.author);
     expect(nowSpy).toHaveBeenCalled();
   });
@@ -225,13 +225,13 @@ describe('AuthorEditorComponent', () => {
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(999);
 
     component.isUploading.set(true);
-    component.hasPhoto = false;
+    component.hasPhoto.set(false);
 
     component.onUpload();
 
     expect(component.isUploading()).toBe(false);
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(999);
+    expect(component.hasPhoto()).toBe(true);
+    expect(component.photoTimestamp()).toBe(999);
     expect(emitSpy).toHaveBeenCalledWith(component.author);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'success',

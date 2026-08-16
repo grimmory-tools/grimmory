@@ -1,4 +1,6 @@
 import {Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnInit, signal, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -123,6 +125,7 @@ export class AuthorBrowserComponent implements OnInit {
 
   readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
   thumbnailCacheBusters = new Map<number, number>();
+  unmatchPending = signal(false);
   private selectedAuthors = this.selectionService.selectedAuthors;
   private allAuthorsState = signal<AuthorSummary[] | null>(null);
 
@@ -397,8 +400,15 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   unmatchSelected(): void {
+    if (this.unmatchPending()) {
+      return;
+    }
     const ids = this.selectionService.getSelectedIds();
-    this.authorService.unmatchAuthors(ids).subscribe({
+    this.unmatchPending.set(true);
+    this.authorService.unmatchAuthors(ids).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.unmatchPending.set(false))
+    ).subscribe({
       next: () => {
         this.selectionService.deselectAll();
         const idSet = new Set(ids);
