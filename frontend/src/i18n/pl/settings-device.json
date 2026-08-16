@@ -49,6 +49,8 @@
         "autoAddDesc": "Gdy włączone, nowo dodane książki będą automatycznie dodawane do półki Kobo do synchronizacji. Eliminuje to konieczność ręcznego dodawania każdej książki do półki.",
         "token": "Token synchronizacji Kobo",
         "tokenDesc": "Twój unikalny token synchronizacji do uwierzytelniania z urządzeniem Kobo. Przechowuj go bezpiecznie.",
+        "apiPath": "Ścieżka API Kobo",
+        "apiPathDesc": "Pełny adres URL synchronizacji Kobo dla Twojego urządzenia. Użyj go jako punktu końcowego API podczas konfigurowania Kobo.",
         "tokenManagement": "Zarządzanie tokenem",
         "regenerateToken": "Wygeneruj nowy token",
         "tokenManagementDesc": "Wygeneruj nowy token synchronizacji, jeśli to konieczne. Spowoduje to unieważnienie bieżącego tokena.",

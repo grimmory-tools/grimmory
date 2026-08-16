@@ -49,6 +49,8 @@
         "autoAddDesc": "Lorsque cette option est activée, les livres nouvellement ajoutés seront automatiquement ajoutés à votre étagère Kobo pour la synchronisation. Cela élimine le besoin d'ajouter manuellement chaque livre à l'étagère.",
         "token": "Jeton de synchronisation Kobo",
         "tokenDesc": "Votre jeton de synchronisation unique pour l'authentification avec votre appareil Kobo. Gardez-le en sécurité.",
+        "apiPath": "Chemin API Kobo",
+        "apiPathDesc": "L'URL complète de synchronisation Kobo pour votre appareil. Utilisez-la comme point d'accès API lors de la configuration de votre Kobo.",
         "tokenManagement": "Gestion du jeton",
         "regenerateToken": "Régénérer le jeton",
         "tokenManagementDesc": "Régénérez votre jeton de synchronisation si nécessaire. Cela invalidera le jeton actuel.",

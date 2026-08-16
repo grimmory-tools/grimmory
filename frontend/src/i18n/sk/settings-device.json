@@ -63,6 +63,8 @@
         "enableSyncDesc": "",
         "convertCbx": "",
         "tokenDesc": "",
+        "apiPath": "Cesta k API Kobo",
+        "apiPathDesc": "Úplná synchronizačná URL adresa Kobo pre vaše zariadenie. Použite ju ako koncový bod API pri nastavovaní vášho Kobo.",
         "convertKepub": "",
         "forwardToKoboStoreDesc": "",
         "settingsSaved": "",

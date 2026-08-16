@@ -243,6 +243,29 @@ describe('KoboSyncSettingsComponent', () => {
     });
     expect(fixture.nativeElement.querySelector('input#koboToken')).not.toBeNull();
 
+    const apiPathInput = fixture.nativeElement.querySelector('input#koboApiPath') as HTMLInputElement | null;
+    expect(apiPathInput).not.toBeNull();
+    expect(apiPathInput?.value).toBe(`${window.location.origin}/api/kobo/token-123`);
+
+    fixture.destroy();
+  });
+
+  it('builds the full Kobo API path from the token and is empty without one', () => {
+    const userState = signal<User | null>(buildUser({canSyncKobo: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+
+    setupKoboTest({userState, appSettingsState, getUser: () => of(DEFAULT_KOBO_SYNC_SETTINGS)});
+
+    const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
+    const component = fixture.componentInstance;
+
+    TestBed.flushEffects();
+
+    expect(component.koboApiPath).toBe('');
+
+    component.syncForm.controls.token.setValue('token-xyz');
+    expect(component.koboApiPath).toBe(`${window.location.origin}/api/kobo/token-xyz`);
+
     fixture.destroy();
   });
 });

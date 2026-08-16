@@ -49,6 +49,8 @@
         "autoAddDesc": "Wenn aktiviert, werden neu hinzugefügte Bücher automatisch Ihrem Kobo-Regal zur Synchronisierung hinzugefügt. Dadurch entfällt das manuelle Hinzufügen jedes Buches zum Regal.",
         "token": "Kobo-Synchronisierungstoken",
         "tokenDesc": "Ihr eindeutiger Synchronisierungstoken zur Authentifizierung mit Ihrem Kobo-Gerät. Bewahren Sie diesen sicher auf.",
+        "apiPath": "Kobo-API-Pfad",
+        "apiPathDesc": "Die vollständige Kobo-Synchronisierungs-URL für Ihr Gerät. Verwenden Sie diese als API-Endpunkt bei der Einrichtung Ihres Kobo.",
         "tokenManagement": "Token-Verwaltung",
         "regenerateToken": "Token neu generieren",
         "tokenManagementDesc": "Generieren Sie Ihren Synchronisierungstoken bei Bedarf neu. Dadurch wird der aktuelle Token ungültig.",

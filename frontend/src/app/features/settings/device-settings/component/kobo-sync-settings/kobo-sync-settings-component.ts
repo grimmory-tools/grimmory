@@ -47,6 +47,12 @@ export class KoboSyncSettingsComponent implements OnInit {
   isAdmin = false;
   credentialsSaved = false;
   showToken = false;
+  readonly koboApiBase = `${window.location.origin}/api/kobo`;
+
+  get koboApiPath(): string {
+    const token = this.syncForm.controls.token.value;
+    return token ? `${this.koboApiBase}/${token}` : '';
+  }
 
   readonly syncForm = this.fb.nonNullable.group({
     token: [''],

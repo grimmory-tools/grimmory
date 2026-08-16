@@ -49,6 +49,8 @@
     "autoAddDesc": "",
     "token": "",
     "tokenDesc": "",
+    "apiPath": "Cesta k Kobo API",
+    "apiPathDesc": "Úplná synchronizační URL adresa Kobo pro vaše zařízení. Použijte ji jako koncový bod API při nastavování vašeho Kobo.",
     "tokenManagement": "",
     "regenerateToken": "",
     "tokenManagementDesc": "",

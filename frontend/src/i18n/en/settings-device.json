@@ -49,6 +49,8 @@
         "autoAddDesc": "When enabled, newly added books will be automatically added to your Kobo shelf for syncing. This eliminates the need to manually add each book to the shelf.",
         "token": "Kobo Sync Token",
         "tokenDesc": "Your unique sync token for authenticating with your Kobo device. Keep this secure.",
+        "apiPath": "Kobo API Path",
+        "apiPathDesc": "The full Kobo sync URL for your device. Use this as the API endpoint when configuring your Kobo.",
         "tokenManagement": "Token Management",
         "regenerateToken": "Regenerate Token",
         "tokenManagementDesc": "Regenerate your sync token if needed. This will invalidate the current token.",

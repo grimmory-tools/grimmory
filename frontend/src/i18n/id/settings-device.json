@@ -65,6 +65,8 @@
         "enableSyncDesc": "",
         "convertCbx": "",
         "tokenDesc": "",
+        "apiPath": "Jalur API Kobo",
+        "apiPathDesc": "URL sinkronisasi Kobo lengkap untuk perangkat Anda. Gunakan ini sebagai endpoint API saat mengonfigurasi Kobo Anda.",
         "convertKepub": "",
         "forwardToKoboStoreDesc": "",
         "settingsSaved": "",

@@ -49,6 +49,8 @@
         "autoAddDesc": "Quando abilitato, i libri appena aggiunti verranno automaticamente aggiunti allo scaffale Kobo per la sincronizzazione. Questo elimina la necessità di aggiungere manualmente ogni libro allo scaffale.",
         "token": "Token sincronizzazione Kobo",
         "tokenDesc": "Il tuo token di sincronizzazione univoco per l'autenticazione con il dispositivo Kobo. Conservalo in modo sicuro.",
+        "apiPath": "Percorso API Kobo",
+        "apiPathDesc": "L'URL completo di sincronizzazione Kobo per il tuo dispositivo. Usalo come endpoint API durante la configurazione del tuo Kobo.",
         "tokenManagement": "Gestione token",
         "regenerateToken": "Rigenera token",
         "tokenManagementDesc": "Rigenera il tuo token di sincronizzazione se necessario. Questo invaliderà il token corrente.",
