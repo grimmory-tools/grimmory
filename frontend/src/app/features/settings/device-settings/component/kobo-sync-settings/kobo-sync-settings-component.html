@@ -140,6 +140,7 @@
                       outlined="true"
                       severity="info"
                       size="small"
+                      [ariaLabel]="t('kobo.apiPath')"
                       (onClick)="copyText(koboApiPath, t('kobo.apiPath'))"
                       [disabled]="!koboApiPath">
                     </p-button>

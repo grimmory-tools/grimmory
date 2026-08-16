@@ -279,6 +279,8 @@ describe('KoboSyncSettingsComponent', () => {
       ],
     });
     // Auto-accept the confirmation dialog and stub the toast so no template is needed.
+    // The rendered [value]="koboApiPath" binding is covered by the hydration test above;
+    // here we assert the recompute at the component-state level after regeneration.
     TestBed.overrideComponent(KoboSyncSettingsComponent, {
       set: {
         template: '',
