@@ -578,6 +578,10 @@ export class EmbedPdfBookService {
     const OrigBlob = window.Blob;
     w.__grimmoryOrigBlob = OrigBlob;
     class PatchedBlob extends OrigBlob {
+      static override [Symbol.hasInstance](value: unknown): boolean {
+        return value instanceof OrigBlob;
+      }
+
       constructor(parts?: BlobPart[], opts?: BlobPropertyBag) {
         let patchedParts = parts;
         if (parts?.length && typeof parts[0] === 'string') {
@@ -607,6 +611,10 @@ export class EmbedPdfBookService {
     const OrigWorker = window.Worker;
     w.__grimmoryOrigWorker = OrigWorker;
     class PatchedWorker extends OrigWorker {
+      static override [Symbol.hasInstance](value: unknown): boolean {
+        return value instanceof OrigWorker;
+      }
+
       constructor(url: string | URL, opts?: WorkerOptions) {
         super(url, opts);
         const urlStr = typeof url === 'string' ? url : url.toString();

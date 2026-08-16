@@ -75,7 +75,7 @@ export interface FoliateDrawAnnotationEventDetail {
   range: Range;
 }
 
-interface FoliateViewEventMap {
+interface FoliateViewEventMap extends HTMLElementEventMap {
   load: CustomEvent<FoliateLoadEventDetail>;
   relocate: CustomEvent<FoliateRelocateEventDetail>;
   error: CustomEvent<unknown>;

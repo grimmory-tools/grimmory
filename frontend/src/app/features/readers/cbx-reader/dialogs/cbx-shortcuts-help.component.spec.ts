@@ -49,13 +49,10 @@ describe('CbxShortcutsHelpComponent', () => {
   it('ignores clicks that do not land on the dialog overlay', () => {
     const closeSpy = vi.fn();
     component.closed.subscribe(closeSpy);
+    const dialogContent = document.createElement('div');
 
     component.onOverlayClick({
-      target: {
-        classList: {
-          contains: vi.fn(() => false),
-        },
-      },
+      target: dialogContent,
     } as unknown as Event);
 
     expect(closeSpy).not.toHaveBeenCalled();
