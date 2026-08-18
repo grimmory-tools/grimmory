@@ -21,7 +21,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
-import java.util.zip.ZipFile;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
