@@ -36,8 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 
 @Slf4j
 @Service
@@ -227,7 +227,7 @@ public class CbxReaderService {
      * Reads image dimensions for all pages using only image headers (a few KB
      * per page) instead of loading the full image.
      * <p>
-     * For ZIP/CBZ archives the fast path uses {@link java.util.zip.ZipFile}
+     * For ZIP/CBZ archives the fast path uses {@link org.apache.commons.compress.archivers.zip.ZipFile}
      * which supports random access, so each entry stream feeds directly into
      * {@link ImageIO}. For non-ZIP archives (RAR, 7z) the first
      * {@value #DIMENSION_PREFIX_BYTES} bytes of each entry are extracted via
@@ -255,20 +255,29 @@ public class CbxReaderService {
      */
     private List<CbxPageDimension> readDimensionsViaZipFile(Path cbxPath, List<String> imageEntries) throws IOException {
         List<CbxPageDimension> dimensions = new ArrayList<>(imageEntries.size());
-        try (ZipFile zip = new ZipFile(cbxPath.toFile())) {
+        try (ZipFile zip = ZipFile.builder()
+                .setPath(cbxPath)
+                .get()) {
+
             for (int i = 0; i < imageEntries.size(); i++) {
                 int pageNumber = i + 1;
                 String entryName = imageEntries.get(i);
-                ZipEntry entry = zip.getEntry(entryName);
+
+                ZipArchiveEntry entry = zip.getEntry(entryName);
+
                 if (entry != null) {
                     try (InputStream is = zip.getInputStream(entry);
                          ImageInputStream iis = ImageIO.createImageInputStream(is)) {
+
                         dimensions.add(readDimensionFromImageStream(iis, pageNumber));
                         continue;
+
                     } catch (Exception e) {
-                        log.warn("Failed to read dimensions for page {} via ZipFile (entry: {}): {}", pageNumber, entryName, e.getMessage());
+                        log.warn("Failed to read dimensions for page {} via ZipFile (entry: {}): {}",
+                                pageNumber, entryName, e.getMessage());
                     }
                 }
+
                 dimensions.add(fallbackDimension(pageNumber));
             }
         }
@@ -357,7 +366,7 @@ public class CbxReaderService {
             ZipFile zip = getZipFile(cbxPath, metadata.lastModified());
             if (zip != null) {
                 String entryName = metadata.imageEntries().get(page - 1);
-                ZipEntry entry = zip.getEntry(entryName);
+                ZipArchiveEntry entry = zip.getEntry(entryName);
                 if (entry != null) {
                     try (InputStream is = zip.getInputStream(entry)) {
                         is.transferTo(outputStream);
@@ -384,10 +393,13 @@ public class CbxReaderService {
 
     private ZipFile getZipFile(Path cbxPath, long lastModified) {
         String cacheKey = cbxPath.toString() + ":" + lastModified;
+
         return zipHandleCache.get(cacheKey, _ -> {
             try {
                 if (isZipPath(cbxPath)) {
-                    return new ZipFile(cbxPath.toFile());
+                    return ZipFile.builder()
+                            .setPath(cbxPath)
+                            .get();
                 }
             } catch (IOException e) {
                 log.warn("Failed to open ZipFile for {}: {}", cbxPath, e.getMessage());

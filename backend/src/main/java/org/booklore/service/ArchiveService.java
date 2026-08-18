@@ -2,6 +2,8 @@ package org.booklore.service;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import com.github.junrar.exception.RarException;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
@@ -21,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import java.util.zip.ZipFile;
+import java.util.Collections;
 
 @Slf4j
 @Service
@@ -43,10 +45,11 @@ public class ArchiveService {
     }
 
     private Stream<Entry> streamEntriesFromZip(Path path) throws IOException {
-        try (ZipFile file = new ZipFile(path.toFile())) {
-            // Stream to list so we enumerate all of them before the zipfile closes.
-            return file.stream()
-                    .toList()
+        try (ZipFile file = ZipFile.builder()
+                .setPath(path)
+                .get()) {
+
+            return Collections.list(file.getEntries())
                     .stream()
                     .filter(e -> !e.isDirectory())
                     .map(e -> new Entry(e.getName(), e.getSize()));
@@ -102,8 +105,11 @@ public class ArchiveService {
     }
 
     private long transferZipEntryTo(Path path, String entryName, OutputStream outputStream) throws IOException {
-        try (ZipFile zipFile = new ZipFile(path.toFile())) {
-            var entry = zipFile.getEntry(entryName);
+        try (ZipFile zipFile = ZipFile.builder()
+                .setPath(path)
+                .get()) {
+
+            ZipArchiveEntry entry = zipFile.getEntry(entryName);
 
             if (entry == null || entry.isDirectory()) {
                 throw new IOException("Entry not found in archive");
