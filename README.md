@@ -1,4 +1,5 @@
 > [!NOTE]
+> Fork to add bol.com for personal use
 > Grimmory is an independent community fork of Booklore.
 
 <div align="center">
