@@ -98,6 +98,7 @@ export class MetadataProviderSettingsComponent {
   ranobedbEnabled: boolean = false;
   ranobedbPreferRomaji: boolean = false;
   googleApiKey: string = '';
+  bolEnabled: boolean = false;
 
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
@@ -130,6 +131,7 @@ export class MetadataProviderSettingsComponent {
     this.ranobedbPreferRomaji = metadataProviderSettings?.ranobedb?.preferRomaji ?? false;
     this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
+    this.bolEnabled = metadataProviderSettings?.bol?.enabled ?? false;
   }
 
   onTokenChange(newToken: string): void {
@@ -180,7 +182,8 @@ export class MetadataProviderSettingsComponent {
           audible: {
             enabled: this.audibleEnabled,
             domain: this.selectedAudibleDomain
-          }
+          },
+          bol: {enabled: this.bolEnabled}
         }
       }
     ];

@@ -28,6 +28,7 @@ export const BOOK_METADATA_PROVIDERS = [
   'Lubimyczytac',
   'Ranobedb',
   'Audible',
+  'Bol',
 ] as const;
 export type BookMetadataProvider = typeof BOOK_METADATA_PROVIDERS[number] | (string & {});
 
