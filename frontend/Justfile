@@ -66,8 +66,24 @@ e2e-list spec:
 e2e-dev host='127.0.0.1' port='4301':
     {{ pnpm }} exec ng serve --host {{ host }} --port {{ port }} --configuration development --watch=false
 
-# Run the frontend linter.
+# Run Oxlint, ESLint, and Stylelint.
 lint:
+    {{ pnpm }} run lint
+
+# Run Oxlint, including type-aware TypeScript rules.
+oxlint:
+    {{ pnpm }} run lint:oxlint
+
+# Apply Oxlint's safe automatic fixes.
+oxlint-fix:
+    {{ pnpm }} run lint:oxlint:fix
+
+# Treat the current Oxlint adoption warnings as errors.
+oxlint-strict:
+    {{ pnpm }} run lint:oxlint:strict
+
+# Run only the Angular-specific and unsupported ESLint fallback.
+eslint:
     {{ pnpm }} run lint:eslint
 
 # Run the frontend stylesheet linter.
@@ -95,7 +111,7 @@ audit-ci:
     {{ pnpm }} audit --audit-level critical
 
 # Run the standard local frontend verification pass.
-check: deps typecheck lint stylelint build test
+check: deps typecheck lint build test
 
 # Run the frontend CI-style verification sequence from a clean install.
-ci-check: install-ci audit-ci deps typecheck lint stylelint build test
+ci-check: install-ci audit-ci deps typecheck lint build test

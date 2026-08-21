@@ -1,0 +1,2965 @@
+{
+  "src/app/app.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 8
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/core/config/transloco-loader.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    }
+  },
+  "src/app/core/security/auth-interceptor.service.ts": {
+    "typescript/no-unsafe-return": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/guards/bookdrop.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/guards/edit-metdata.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/guards/library-stats.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/guards/manage-library.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/guards/user-stats.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/oauth2-management/authentication-settings.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 17
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/core/security/oidc-callback/oidc-callback.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 7
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/core/security/oidc.service.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-return": {
+      "count": 1
+    }
+  },
+  "src/app/core/services/loading.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/core/services/pwa-update.service.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/core/testing/query-testing.ts": {
+    "typescript/no-deprecated": {
+      "count": 3
+    }
+  },
+  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    }
+  },
+  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 8
+    },
+    "typescript/no-unsafe-call": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 7
+    }
+  },
+  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/features/author-browser/service/author-selection.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/author-browser/service/author.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 6
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 6
+    }
+  },
+  "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/book-browser-entity.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/book-browser-query-params.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 4
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 6
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/book-browser.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-misused-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 12
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/book-card-overlay-preference.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 10
+    }
+  },
+  "src/app/features/book/components/book-browser/book-card/book-card.component.spec.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/book-card/book-card.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-floating-promises": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/book-dialog-helper.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-object-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/book-filter/book-filter.component.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 7
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 3
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-base-to-string": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/book-filter/book-filter.config.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 11
+    }
+  },
+  "src/app/features/book/components/book-browser/book-filter/book-filter.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 12
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 8
+    }
+  },
+  "src/app/features/book/components/book-browser/book-selection.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/book-table/book-table-row.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/book-table/book-table.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/filter-label.helper.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/filters/SeriesCollapseFilter.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 10
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/book-browser/filters/sidebar-filter.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 27
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 27
+    }
+  },
+  "src/app/features/book/components/book-browser/lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-browser/sorting/BookSorter.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-card-lite/book-card-lite-component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-file-attacher/book-file-attacher.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-notes/book-notes-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    }
+  },
+  "src/app/features/book/components/book-reviews/book-reviews.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-sender/book-sender.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/bulk-isbn-import-dialog/bulk-isbn-import-dialog.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
+    "typescript/no-deprecated": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/series-page/series-page.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-misused-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 6
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 8
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 2
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/components/shelf-creator/shelf-creator.component.spec.ts": {
+    "typescript/no-base-to-string": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/shelf-creator/shelf-creator.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/shelf-edit-dialog/shelf-edit-dialog.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/data/book-command-pending-state.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/data/book-command.service.ts": {
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/data/book-query-cache.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/data/book-query.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/model/book.model.ts": {
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 3
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/app-books-api.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/book/service/book-file.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 5
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 10
+    },
+    "typescript/no-unsafe-return": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/book-menu.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 8
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 8
+    }
+  },
+  "src/app/features/book/service/book-metadata-manage.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/book-metadata.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/book-patch.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    }
+  },
+  "src/app/features/book/service/book-socket.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/book.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 4
+    },
+    "typescript/no-unsafe-return": {
+      "count": 2
+    }
+  },
+  "src/app/features/book/service/library-health.service.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/library-shelf-menu.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/library.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/service/sort.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 2
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-bulk-edit-dialog/bookdrop-bulk-edit-dialog.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.ts": {
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 6
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 5
+    },
+    "typescript/no-unsafe-call": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.spec.ts": {
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 11
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 6
+    },
+    "typescript/no-unsafe-call": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-files-widget/bookdrop-files-widget.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-finalize-result-dialog/bookdrop-finalize-result-dialog.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 4
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/command-palette/command-palette.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/dashboard/services/dashboard-book.service.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    }
+  },
+  "src/app/features/dashboard/services/dashboard-config.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/design-system/forms/device-form.component.ts": {
+    "typescript/unbound-method": {
+      "count": 10
+    }
+  },
+  "src/app/features/design-system/forms/library-form.component.ts": {
+    "typescript/unbound-method": {
+      "count": 1
+    }
+  },
+  "src/app/features/library-creator/library-creator.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/magic-shelf/component/magic-shelf-component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 19
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 9
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 3
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 7
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 15
+    }
+  },
+  "src/app/features/magic-shelf/service/book-rule-evaluator.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 3
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-base-to-string": {
+      "count": 6
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 10
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/magic-shelf/service/magic-shelf-utils.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 3
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 3
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 4
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/magic-shelf/service/magic-shelf.service.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/book-metadata-center.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-floating-promises": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    },
+    "typescript/require-await": {
+      "count": 2
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 3
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 17
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 10
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 95
+    },
+    "typescript/no-unsafe-call": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 12
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.spec.ts": {
+    "typescript/no-base-to-string": {
+      "count": 1
+    },
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 2
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 3
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 47
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 27
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 18
+    },
+    "typescript/no-unsafe-call": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-return": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 31
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-searcher/metadata-searcher.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-base-to-string": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 10
+    },
+    "typescript/no-unsafe-call": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 6
+    },
+    "typescript/no-unsafe-return": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-tabs/metadata-tabs.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.spec.ts": {
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 27
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/sidecar-viewer/sidecar-viewer.component.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/bulk-metadata-update/bulk-metadata-update-component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 8
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 12
+    },
+    "typescript/no-unsafe-call": {
+      "count": 4
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 16
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 8
+    }
+  },
+  "src/app/features/metadata/component/cover-search/cover-search.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 5
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 6
+    }
+  },
+  "src/app/features/metadata/component/metadata-manager/metadata-manager.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 8
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 7
+    }
+  },
+  "src/app/features/metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    }
+  },
+  "src/app/features/metadata/component/metadata-provider-field-selector/metadata-provider-field-selector.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/metadata-review-dialog/metadata-review-dialog-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/multi-book-metadata-editor/multi-book-metadata-editor-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 6
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/audiobook-player/audiobook-player.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-floating-promises": {
+      "count": 9
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 75
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/audiobook-player/audiobook.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/cbx-reader.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 36
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-misused-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 20
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 9
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 19
+    }
+  },
+  "src/app/features/readers/cbx-reader/core/cbx-page-dimension.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/dialogs/cbx-note-dialog.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/dialogs/cbx-shortcuts-help.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/layout/footer/cbx-footer.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/layout/quick-settings/cbx-quick-settings.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/cbx-reader/renderers/canvas-renderer.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 8
+    }
+  },
+  "src/app/features/readers/ebook-reader/core/epub-streaming.service.ts": {
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/core/event.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 17
+    },
+    "typescript/no-deprecated": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 9
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 17
+    }
+  },
+  "src/app/features/readers/ebook-reader/core/style.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/core/view-manager.service.ts": {
+    "anti-slop/no-object-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 6
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unsafe-return": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/unbound-method": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/note-dialog.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/settings-dialog.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/shortcuts-help.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/ebook-reader.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-deprecated": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-misused-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 6
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/features/annotations/annotation-renderer.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-useless-default-assignment": {
+      "count": 4
+    }
+  },
+  "src/app/features/readers/ebook-reader/features/annotations/annotation.service.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/features/bookmarks/bookmark.service.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/features/fonts/custom-font.service.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/features/selection/selection.service.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/footer/footer.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/header/header.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/panel/panel.component.ts": {
+    "typescript/no-misused-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/panel/panel.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-misused-promises": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/sidebar/sidebar.service.ts": {
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/shared/header-footer.util.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    }
+  },
+  "src/app/features/readers/ebook-reader/shared/icon.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/state/progress.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    }
+  },
+  "src/app/features/readers/ebook-reader/state/reader-state.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 11
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/pdf-reader/pdf-reader.component.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/no-known-value-widening": {
+      "count": 6
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 14
+    },
+    "typescript/no-base-to-string": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 14
+    },
+    "typescript/no-misused-promises": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 15
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 10
+    },
+    "typescript/require-await": {
+      "count": 1
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/pdf-reader/services/embedpdf-book.service.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 2
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 3
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 25
+    },
+    "typescript/no-redundant-type-constituents": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 18
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 20
+    },
+    "typescript/prefer-promise-reject-errors": {
+      "count": 1
+    },
+    "typescript/unbound-method": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/pdf-reader/services/pdf-bookmark.service.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/pdf-reader/utils/annotation-converter.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 8
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 24
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 8
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 22
+    }
+  },
+  "src/app/features/series-browser/components/series-browser/series-browser.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/series-browser/components/series-card/series-card.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/audit-logs/audit-logs.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-misused-spread": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/custom-fonts/custom-fonts.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/custom-fonts/font-upload-dialog/font-upload-dialog.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/device-settings/component/hardcover-settings/hardcover-settings-component.ts": {
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/device-settings/component/kobo-sync-settings/kobo-sync-settings-component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 20
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/device-settings/component/koreader-settings/koreader-settings-component.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/device-settings/component/koreader-settings/koreader.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/file-naming-pattern/file-naming-pattern.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/global-preferences/global-preferences.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    }
+  },
+  "src/app/features/settings/global-preferences/metadata-match-weights/metadata-match-weights-component.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/global-preferences/metadata-provider-settings/metadata-provider-settings.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 51
+    }
+  },
+  "src/app/features/settings/library-metadata-settings/library-metadata-settings.component.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 8
+    }
+  },
+  "src/app/features/settings/metadata-settings/metadata-persistence-settings/metadata-persistence-settings-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 25
+    }
+  },
+  "src/app/features/settings/metadata-settings/metadata-settings-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/metadata-settings/public-reviews-settings/public-reviews-settings-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/opds-settings/opds-settings.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 9
+    },
+    "typescript/no-floating-promises": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "unicorn/no-new-array": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/cbx-reader-preferences/cbx-reader-preferences-component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/epub-reader-preferences/epub-reader-preferences-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/local-settings/local-settings.component.ts": {
+    "typescript/no-misused-promises": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/reader-preferences.service.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/settings.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-floating-promises": {
+      "count": 2
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/settings/task-management/task-helper.service.ts": {
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/task-management/task-management.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 5
+    }
+  },
+  "src/app/features/settings/task-management/task.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/user-management/content-restrictions-editor/content-restrictions-editor.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/user-management/create-user-dialog/create-user-dialog.component.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 4
+    },
+    "typescript/no-unsafe-call": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/user-management/user-management.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/user-management/user-stats.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    }
+  },
+  "src/app/features/settings/user-management/user.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 6
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 6
+    }
+  },
+  "src/app/features/settings/user-profile-dialog/user-profile-dialog.component.ts": {
+    "typescript/no-unsafe-argument": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/view-preferences-parent/filter-preferences/filter-preferences.component.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 6
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 5
+    }
+  },
+  "src/app/features/settings/view-preferences-parent/meta-center-view-mode/meta-center-view-mode-component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/view-preferences-parent/view-preferences/view-preferences.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/consistent-type-assertions": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 20
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/author-universe-chart/author-universe-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/book-formats-chart/book-formats-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/publication-timeline-chart/publication-timeline-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/reading-journey-chart/reading-journey-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 3
+    }
+  },
+  "src/app/features/stats/component/library-stats/service/libraries-summary.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/service/library-filter.service.spec.ts": {
+    "typescript/no-base-to-string": {
+      "count": 1
+    },
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/service/library-filter.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/shared/stats-chart-theme.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/book-flow-chart/book-flow-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/book-length-chart/book-length-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/genre-stats-chart/genre-stats-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/page-turner-chart/page-turner-chart.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/rating-taste-chart/rating-taste-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/read-status-chart/read-status-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 7
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 7
+    },
+    "unicorn/no-useless-spread": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-clock-chart/reading-clock-chart.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-return": {
+      "count": 2
+    },
+    "unicorn/no-new-array": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-debt-chart/reading-debt-chart.component.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-dna-chart/reading-dna-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-habits-chart/reading-habits-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-heatmap-chart/reading-heatmap-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 6
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 6
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-progress-chart/reading-progress-chart.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    },
+    "typescript/restrict-template-expressions": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-session-heatmap/reading-session-heatmap.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 5
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 5
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/series-progress-chart/series-progress-chart.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/service/user-chart-config.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/book-uploader/book-uploader.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/change-password/change-password.component.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/external-doc-link/external-doc-link.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/file-mover/file-mover-component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 7
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/shared/components/icon-display/icon-display.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/shared/components/icon-picker/icon-picker-component.ts": {
+    "anti-slop/no-chained-type-assertions": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 1
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/library-import-progress-widget/library-import-progress-widget-component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/login/login.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 3
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    }
+  },
+  "src/app/shared/components/metadata-progress-widget/metadata-progress-widget-component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 3
+    },
+    "typescript/no-unsafe-enum-comparison": {
+      "count": 2
+    }
+  },
+  "src/app/shared/components/setup/login.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 2
+    }
+  },
+  "src/app/shared/components/setup/setup-redirect.guard.ts": {
+    "typescript/no-floating-promises": {
+      "count": 2
+    }
+  },
+  "src/app/shared/components/setup/setup.component.ts": {
+    "typescript/no-misused-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/setup/setup.guard.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout-mobile-topbar/app.mobile-topbar.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout-sidebar/app.sidebar.component.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/navigation/nav-catalog.ts": {
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/page-header/app.page-header-breadcrumbs.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/theme/favicon-service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/theme/theme-palette-extend.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unsafe-call": {
+      "count": 3
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/shared/metadata/embeddable-fields.config.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/metadata/metadata-field.config.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/metadata/metadata-form.builder.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 4
+    },
+    "anti-slop/no-unknown-returns": {
+      "count": 1
+    }
+  },
+  "src/app/shared/metadata/metadata-utils.service.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 5
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 9
+    },
+    "typescript/no-base-to-string": {
+      "count": 2
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/require-array-sort-compare": {
+      "count": 2
+    }
+  },
+  "src/app/shared/model/metadata-batch-progress.model.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/model/ui-font.model.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/shared/service/app-theme.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/audiobook-session.service.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/auth.service.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-return": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/cache-storage.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 2
+    },
+    "typescript/no-deprecated": {
+      "count": 1
+    },
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/shared/service/custom-font.service.ts": {
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/icon-picker.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/language-resolver.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 5
+    }
+  },
+  "src/app/shared/service/local-storage.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 2
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/metadata-progress.service.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/shared/service/page-title.service.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/reading-session.service.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/settings-helper.service.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/shared/service/wake-lock.service.ts": {
+    "typescript/no-floating-promises": {
+      "count": 1
+    },
+    "typescript/no-misused-promises": {
+      "count": 2
+    }
+  },
+  "src/app/shared/services/book-cover.service.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/shared/services/dialog-launcher.service.spec.ts": {
+    "typescript/await-thenable": {
+      "count": 1
+    }
+  },
+  "src/app/shared/services/dialog-launcher.service.ts": {
+    "anti-slop/no-object-parameters": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    },
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/autocomplete/app-autocomplete-popup.component.ts": {
+    "typescript/no-unsafe-return": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/checkbox/app-checkbox.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/cn.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    },
+    "anti-slop/no-unknown-parameters": {
+      "count": 3
+    },
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 2
+    },
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 3
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/shared/ui/date-picker/app-date-picker-base.directive.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 2
+    }
+  },
+  "src/app/shared/ui/field/app-field.component.ts": {
+    "typescript/no-unsafe-return": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/input/app-input.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/menu/app-menu-item.component.ts": {
+    "anti-slop/no-unsafe-dictionary-type": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/menu/app-menu.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/shared/ui/menu/menu-item-setup.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/message/app-message.component.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unnecessary-condition": {
+      "count": 4
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/message/app-message.variants.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/radio-group/app-radio-group.component.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/rating/app-rating.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    }
+  },
+  "src/app/shared/ui/select/app-select-base.directive.ts": {
+    "typescript/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/tabs/app-tabs.component.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/tooltip/app-tooltip.directive.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/tooltip/app-tooltip.positions.ts": {
+    "anti-slop/no-known-value-widening": {
+      "count": 2
+    }
+  },
+  "src/app/shared/util/custom-font.util.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 4
+    },
+    "typescript/no-unnecessary-type-parameters": {
+      "count": 1
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/shared/util/grid-density.util.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 1
+    }
+  },
+  "src/app/shared/validators/password-match.validator.ts": {
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    }
+  },
+  "src/app/shared/websocket/model/log-notification.model.ts": {
+    "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "typescript/no-unsafe-argument": {
+      "count": 1
+    },
+    "typescript/no-unsafe-assignment": {
+      "count": 2
+    },
+    "typescript/no-unsafe-member-access": {
+      "count": 5
+    },
+    "typescript/no-unsafe-type-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/shared/websocket/rx-stomp.config.spec.ts": {
+    "typescript/no-floating-promises": {
+      "count": 2
+    }
+  },
+  "src/main.ts": {
+    "typescript/use-unknown-in-catch-callback-variable": {
+      "count": 1
+    }
+  },
+  "src/test-setup.ts": {
+    "typescript/no-unnecessary-type-assertion": {
+      "count": 2
+    }
+  },
+  "src/types/epubjs.d.ts": {
+    "anti-slop/no-unknown-parameters": {
+      "count": 2
+    }
+  }
+}

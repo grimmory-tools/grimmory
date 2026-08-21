@@ -20,7 +20,7 @@ production image.
 - Optimus UI + OpenNG Icons
 - Transloco for i18n
 - Vitest for unit tests
-- Angular ESLint
+- Oxlint + Angular ESLint
 - SCSS
 
 ## Preferred Command Surface
