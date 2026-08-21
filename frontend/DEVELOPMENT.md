@@ -15,7 +15,7 @@ production image.
 
 ## Stack
 
-- Angular 21
+- Angular 22
 - TypeScript
 - Optimus UI + OpenNG Icons
 - Transloco for i18n
