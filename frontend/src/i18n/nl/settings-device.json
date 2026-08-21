@@ -64,8 +64,6 @@
         "enableSyncDesc": "",
         "convertCbx": "",
         "tokenDesc": "",
-        "apiPath": "Kobo API-pad",
-        "apiPathDesc": "De volledige Kobo-synchronisatie-URL voor je apparaat. Gebruik deze als API-eindpunt bij het instellen van je Kobo.",
         "convertKepub": "",
         "forwardToKoboStoreDesc": "",
         "settingsSaved": "",

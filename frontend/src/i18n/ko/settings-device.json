@@ -49,8 +49,6 @@
     "autoAddDesc": "",
     "token": "",
     "tokenDesc": "",
-    "apiPath": "Kobo API 경로",
-    "apiPathDesc": "기기를 위한 전체 Kobo 동기화 URL입니다. Kobo를 설정할 때 API 엔드포인트로 사용하세요.",
     "tokenManagement": "",
     "regenerateToken": "",
     "tokenManagementDesc": "",

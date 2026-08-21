@@ -49,8 +49,6 @@
         "autoAddDesc": "启用后，新添加的图书将自动添加到 Kobo 书架进行同步。这样就无需手动将每本书添加到书架。",
         "token": "Kobo 同步令牌",
         "tokenDesc": "用于 Kobo 设备身份验证的唯一同步令牌。请妥善保管。",
-        "apiPath": "Kobo API 路径",
-        "apiPathDesc": "设备的完整 Kobo 同步 URL。在配置您的 Kobo 时将其用作 API 端点。",
         "tokenManagement": "令牌管理",
         "regenerateToken": "重新生成令牌",
         "tokenManagementDesc": "如需要可重新生成同步令牌。这将使当前令牌失效。",

@@ -49,8 +49,6 @@
         "autoAddDesc": "有効にすると、新しく追加された本が自動的にKoboシェルフに追加されます。各本を手動でシェルフに追加する必要がなくなります。",
         "token": "Kobo同期トークン",
         "tokenDesc": "Koboデバイスとの認証に使用する一意の同期トークン。安全に保管してください。",
-        "apiPath": "Kobo APIパス",
-        "apiPathDesc": "デバイス用の完全なKobo同期URLです。Koboを設定する際にAPIエンドポイントとして使用してください。",
         "tokenManagement": "トークン管理",
         "regenerateToken": "トークンを再生成",
         "tokenManagementDesc": "必要に応じて同期トークンを再生成します。現在のトークンは無効になります。",

@@ -49,8 +49,6 @@
         "autoAddDesc": "Ko je to omogočeno, bodo na novo dodane knjige samodejno dodane na tvojo polico Kobo za sinhronizacijo. Tako ti knjig ni treba dodajati ročno.",
         "token": "Žeton za sinhronizacijo Kobo",
         "tokenDesc": "Tvoj edinstven žeton za avtentikacijo z napravo Kobo. Skrbno ga varuj.",
-        "apiPath": "Pot do API-ja Kobo",
-        "apiPathDesc": "Celoten URL za sinhronizacijo Kobo za vašo napravo. Uporabite ga kot končno točko API pri nastavitvi naprave Kobo.",
         "tokenManagement": "Upravljanje žetonov",
         "regenerateToken": "Ponovno ustvari žeton",
         "tokenManagementDesc": "Po potrebi ponovno ustvari žeton za sinhronizacijo. To bo razveljavilo trenutni žeton.",

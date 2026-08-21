@@ -62,8 +62,6 @@
         "enableSyncDesc": "",
         "convertCbx": "",
         "tokenDesc": "",
-        "apiPath": "Kobo API-sti",
-        "apiPathDesc": "Den fulde Kobo-synkroniserings-URL til din enhed. Brug den som API-slutpunkt, når du konfigurerer din Kobo.",
         "convertKepub": "",
         "forwardToKoboStoreDesc": "",
         "settingsSaved": "",

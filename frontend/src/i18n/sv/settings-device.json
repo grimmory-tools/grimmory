@@ -49,8 +49,6 @@
         "autoAddDesc": "När aktiverat läggs nyligen tillagda böcker automatiskt till på din Kobo-hylla för synkning. Detta eliminerar behovet av att manuellt lägga till varje bok på hyllan.",
         "token": "Kobo-synktoken",
         "tokenDesc": "Din unika synktoken för autentisering med din Kobo-enhet. Håll den säker.",
-        "apiPath": "Kobo API-sökväg",
-        "apiPathDesc": "Den fullständiga Kobo-synkroniserings-URL:en för din enhet. Använd den som API-slutpunkt när du konfigurerar din Kobo.",
         "tokenManagement": "Tokenhantering",
         "regenerateToken": "Generera ny token",
         "tokenManagementDesc": "Generera en ny synktoken vid behov. Detta ogiltigförklarar den nuvarande token.",

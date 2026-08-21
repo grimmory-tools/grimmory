@@ -49,8 +49,6 @@
         "autoAddDesc": "Kada je omogućeno, novododane knjige će se automatski dodati na vašu Kobo policu za sinkronizaciju. Time se eliminira potreba za ručnim dodavanjem svake knjige na policu.",
         "token": "Kobo token za sinkronizaciju",
         "tokenDesc": "Vaš jedinstveni token za sinkronizaciju za autentifikaciju s Kobo uređajem. Čuvajte ga na sigurnom.",
-        "apiPath": "Kobo API putanja",
-        "apiPathDesc": "Potpuni Kobo URL za sinkronizaciju vašeg uređaja. Upotrijebite ga kao API krajnju točku pri postavljanju vašeg Kobo uređaja.",
         "tokenManagement": "Upravljanje tokenom",
         "regenerateToken": "Regeneriraj token",
         "tokenManagementDesc": "Regenerirajte token za sinkronizaciju ako je potrebno. Time će se poništiti trenutni token.",

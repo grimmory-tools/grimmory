@@ -62,8 +62,6 @@
         "enableSyncDesc": "",
         "convertCbx": "",
         "tokenDesc": "",
-        "apiPath": "Kobo API-útvonal",
-        "apiPathDesc": "Az eszköz teljes Kobo-szinkronizálási URL-címe. Használja ezt API-végpontként a Kobo beállításakor.",
         "convertKepub": "",
         "forwardToKoboStoreDesc": "",
         "settingsSaved": "",
