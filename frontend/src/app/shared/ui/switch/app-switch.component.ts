@@ -6,6 +6,7 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChild,
 } from '@angular/core';
@@ -45,7 +46,7 @@ import {
         [disabled]="isUnavailable()"
         [required]="required()"
         (change)="onInputChange(control.checked)"
-        (blur)="touched.set(true)" />
+        (blur)="touch.emit()" />
       <span appControlTransition [class]="trackClass()" aria-hidden="true"></span>
       <span appControlTransition [class]="thumbClass()" aria-hidden="true"></span>
     </span>
@@ -58,7 +59,8 @@ export class AppSwitchComponent implements FormCheckboxControl {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppSwitchSize>('md');

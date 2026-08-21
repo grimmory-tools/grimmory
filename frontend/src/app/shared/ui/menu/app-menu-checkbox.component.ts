@@ -28,7 +28,7 @@ import {
   selector: 'app-menu-checkbox',
   standalone: true,
   imports: [LucideCheck, LucideMinus],
-  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['value', 'disabled'] }],
   host: {
     '[class]': 'rowClass',
     '[attr.role]': "'menuitemcheckbox'",

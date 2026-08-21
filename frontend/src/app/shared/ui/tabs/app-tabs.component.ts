@@ -3,17 +3,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChildren,
   DestroyRef,
+  Directive,
   ElementRef,
   inject,
   input,
   model,
   signal,
+  TemplateRef,
   untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { Tab as NgTab, TabList, Tabs } from '@angular/aria/tabs';
+import { NgTemplateOutlet } from '@angular/common';
+import { Tab as NgTab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { LucideDynamicIcon, type LucideIconData } from '@lucide/angular';
 import { AppSelectComponent } from '../select/app-select.component';
 import { type SelectOption } from '../select/app-select.options';
@@ -43,10 +47,29 @@ const TAB_ICON_SIZE_CLASS: Record<TabsSize, string> = {
 
 const COLLAPSE_HYSTERESIS = 8;
 
+@Directive({
+  selector: 'ng-template[appTabPanel]',
+  standalone: true,
+})
+export class AppTabPanelDirective {
+  readonly value = input.required<string>({ alias: 'appTabPanel' });
+  readonly templateRef = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
 @Component({
   selector: 'app-tabs',
   standalone: true,
-  imports: [Tabs, TabList, NgTab, AppSelectComponent, LucideDynamicIcon, AppControlTransitionDirective],
+  imports: [
+    Tabs,
+    TabList,
+    NgTab,
+    TabPanel,
+    TabContent,
+    NgTemplateOutlet,
+    AppSelectComponent,
+    LucideDynamicIcon,
+    AppControlTransitionDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative block min-w-0' },
   template: `
@@ -59,34 +82,46 @@ const COLLAPSE_HYSTERESIS = 8;
           (valueChange)="selectTab($event)"
           [ariaLabel]="ariaLabel()" />
       }
-      <div
-        data-tabs-row
-        [class]="rowClass()"
-        [attr.aria-hidden]="collapsed() ? 'true' : null"
-        [attr.inert]="collapsed() ? '' : null">
-        <div ngTabs [class]="rootClass()">
-          <div
-            #tabList
-            ngTabList
-            [class]="listClass()"
-            [selectedTab]="activeTabId()"
-            (selectedTabChange)="selectTab($event)"
-            [attr.aria-label]="ariaLabel()">
-            <span
-              aria-hidden="true"
-              [class]="indicatorClass()"
-              [style.transform]="'translateX(' + indicatorLeft() + 'px)'"
-              [style.width.px]="indicatorWidth()"></span>
-            @for (tab of tabs(); track tab.id) {
-              <button appControlTransition ngTab type="button" [value]="tab.id" [class]="tabClass()">
-                @if (tab.icon; as tabIcon) {
-                  <svg [lucideIcon]="tabIcon" [class]="tabIconClass()" aria-hidden="true"></svg>
-                }
-                <span class="leading-5">{{ tab.label }}</span>
-              </button>
-            }
+      <div ngTabs>
+        <div
+          data-tabs-row
+          [class]="rowClass()"
+          [attr.aria-hidden]="collapsed() ? 'true' : null"
+          [attr.inert]="collapsed() ? '' : null">
+          <div [class]="rootClass()">
+            <div
+              #tabList
+              ngTabList
+              [class]="listClass()"
+              [selectedTab]="activeTabId()"
+              (selectedTabChange)="selectTab($event)"
+              [attr.aria-label]="ariaLabel()">
+              <span
+                aria-hidden="true"
+                [class]="indicatorClass()"
+                [style.transform]="'translateX(' + indicatorLeft() + 'px)'"
+                [style.width.px]="indicatorWidth()"></span>
+              @for (tab of tabs(); track tab.id) {
+                <button appControlTransition ngTab type="button" [value]="tab.id" [class]="tabClass()">
+                  @if (tab.icon; as tabIcon) {
+                    <svg [lucideIcon]="tabIcon" [class]="tabIconClass()" aria-hidden="true"></svg>
+                  }
+                  <span class="leading-5">{{ tab.label }}</span>
+                </button>
+              }
+            </div>
           </div>
         </div>
+
+        @for (tab of tabs(); track tab.id) {
+          <div ngTabPanel [value]="tab.id" class="inert:hidden">
+            <ng-template ngTabContent>
+              @if (tabPanelTemplate(tab.id); as template) {
+                <ng-container [ngTemplateOutlet]="template" />
+              }
+            </ng-template>
+          </div>
+        }
       </div>
     }
   `,
@@ -99,6 +134,8 @@ export class AppTabsComponent {
   readonly collapse = input<TabsCollapse>('auto');
   readonly ariaLabel = input.required<string>();
   readonly selectedTabId = model<string | undefined>(undefined);
+
+  protected readonly tabPanels = contentChildren(AppTabPanelDirective);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -162,6 +199,10 @@ export class AppTabsComponent {
 
   protected selectTab(value: string | null | undefined): void {
     this.selectedTabId.set(this.resolveTabId(value ?? undefined));
+  }
+
+  protected tabPanelTemplate(value: string): TemplateRef<unknown> | undefined {
+    return this.tabPanels().find((panel) => panel.value() === value)?.templateRef;
   }
 
   private measureLayout(): void {

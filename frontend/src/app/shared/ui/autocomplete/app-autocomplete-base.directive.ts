@@ -5,7 +5,6 @@ import {
   Directive,
   inject,
   input,
-  model,
   output,
   type ElementRef,
   viewChild,
@@ -33,7 +32,8 @@ export abstract class AppAutocompleteBaseDirective {
   readonly hasMore = input(false, { transform: booleanAttribute });
   readonly errored = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly allowCustom = input(true, { transform: booleanAttribute });
@@ -82,8 +82,16 @@ export abstract class AppAutocompleteBaseDirective {
     this.opened.emit();
   }
 
+  protected markTouchedWhenFocusLeavesControl(event: FocusEvent): void {
+    if (this.isUnavailable()) return;
+    const control = event.currentTarget;
+    const next = event.relatedTarget;
+    if (control instanceof HTMLElement && next instanceof Node && control.contains(next)) return;
+    this.touch.emit();
+  }
+
   protected closePopup(): void {
-    this.combobox()?.close();
+    this.combobox()?.expanded.set(false);
   }
 
   focus(options?: FocusOptions): void {

@@ -65,14 +65,14 @@
       [ariaLabel]="t('add')">
       @if (currentUser(); as user) {
         @if (user.permissions.admin || user.permissions.canManageLibrary) {
-          <app-menu-item (selected)="dialogLauncherService.openLibraryCreateDialog()">
+          <app-menu-item value="create-library" (selected)="dialogLauncherService.openLibraryCreateDialog()">
             {{ t('createLibrary') }}
           </app-menu-item>
         }
-        <app-menu-item (selected)="bookDialogHelperService.openShelfCreatorDialog()">
+        <app-menu-item value="create-shelf" (selected)="bookDialogHelperService.openShelfCreatorDialog()">
           {{ 'book.shelfCreator.title' | transloco }}
         </app-menu-item>
-        <app-menu-item (selected)="dialogLauncherService.openMagicShelfCreateDialog()">
+        <app-menu-item value="create-magic-shelf" (selected)="dialogLauncherService.openMagicShelfCreateDialog()">
           {{ t('createMagicShelf') }}
         </app-menu-item>
       }

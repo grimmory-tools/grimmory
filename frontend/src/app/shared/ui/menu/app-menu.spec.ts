@@ -30,30 +30,30 @@ import { AppContextMenuDirective, AppMenuTriggerDirective } from './app-menu-tri
     <div class="zone" [appContextMenuFor]="menu">right-click</div>
 
     <app-menu #menu ariaLabel="Actions">
-      <app-menu-item (selected)="onDownload()">Download</app-menu-item>
-      <app-menu-item [disabled]="true" (selected)="onDisabled()">Disabled</app-menu-item>
-      <app-menu-checkbox [(checked)]="fav" [(mixed)]="favMixed" (selected)="onFav($event)">Favourite</app-menu-checkbox>
+      <app-menu-item value="download" (selected)="onDownload()">Download</app-menu-item>
+      <app-menu-item value="disabled" [disabled]="true" (selected)="onDisabled()">Disabled</app-menu-item>
+      <app-menu-checkbox value="favourite" [(checked)]="fav" [(mixed)]="favMixed" (selected)="onFav($event)">Favourite</app-menu-checkbox>
       <app-menu-radio-group [(value)]="status">
         <app-menu-radio [value]="'read'">Read</app-menu-radio>
         <app-menu-radio [value]="'reading'">Reading</app-menu-radio>
       </app-menu-radio-group>
-      <app-menu-item [submenu]="sub" (selected)="onSend()">Send</app-menu-item>
-      <app-menu-item [loading]="busy()" (selected)="onBusy()">Working</app-menu-item>
-      <app-menu-item [closeOnSelect]="false" (selected)="onKeepOpen()">{{ keepOpenLabel() }}</app-menu-item>
-      <app-menu-item [link]="'/books'" (selected)="onLink()">Go to books</app-menu-item>
+      <app-menu-item value="send" [submenu]="sub" (selected)="onSend()">Send</app-menu-item>
+      <app-menu-item value="working" [loading]="busy()" (selected)="onBusy()">Working</app-menu-item>
+      <app-menu-item value="keep-open" [closeOnSelect]="false" (selected)="onKeepOpen()">{{ keepOpenLabel() }}</app-menu-item>
+      <app-menu-item value="books" [link]="'/books'" (selected)="onLink()">Go to books</app-menu-item>
     </app-menu>
 
     <app-menu #sub="ngMenu" ariaLabel="Send options">
       <ng-template appMenuContent>
-        <app-menu-item (selected)="onQuick()">Quick send</app-menu-item>
+        <app-menu-item value="quick-send" (selected)="onQuick()">Quick send</app-menu-item>
       </ng-template>
     </app-menu>
 
     <button class="lazy-trigger" [appMenuTriggerFor]="lazyMenu">Open lazy menu</button>
     <app-menu #lazyMenu ariaLabel="Lazy actions">
       <ng-template appMenuContent>
-        <app-menu-item>Lazy first</app-menu-item>
-        <app-menu-item>Lazy last</app-menu-item>
+        <app-menu-item value="lazy-first">Lazy first</app-menu-item>
+        <app-menu-item value="lazy-last">Lazy last</app-menu-item>
       </ng-template>
     </app-menu>
   `,

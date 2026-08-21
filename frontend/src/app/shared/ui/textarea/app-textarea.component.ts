@@ -7,6 +7,7 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChild,
 } from '@angular/core';
@@ -45,7 +46,7 @@ import { appTextareaVariants } from './app-textarea.variants';
       [readonly]="readonly()"
       [required]="required()"
       (input)="onInput(textarea)"
-      (blur)="touched.set(true)"></textarea>
+      (blur)="touch.emit()"></textarea>
     @if (pending()) {
       <span class="pointer-events-none absolute right-3 top-2.5 inline-flex text-text-muted">
         <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
@@ -59,7 +60,8 @@ export class AppTextareaComponent implements FormValueControl<string> {
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly inputId = input('');

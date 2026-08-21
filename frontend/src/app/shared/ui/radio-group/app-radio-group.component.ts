@@ -6,6 +6,7 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChildren,
 } from '@angular/core';
@@ -50,7 +51,8 @@ let nextGroupId = 0;
       [attr.aria-describedby]="resolvedDescribedBy()"
       [attr.aria-invalid]="showInvalid() ? 'true' : null"
       [attr.aria-readonly]="readonly() ? 'true' : null"
-      [attr.aria-busy]="pending() ? 'true' : null">
+      [attr.aria-busy]="pending() ? 'true' : null"
+      (focusout)="markTouchedWhenFocusLeavesGroup($event)">
       @for (option of options(); track option.value; let i = $index) {
         <label appControlTransition [class]="variant() === 'segmented' ? segmentClass(i) : optionClass()">
           <input
@@ -61,8 +63,7 @@ let nextGroupId = 0;
             [checked]="isSelected(option)"
             [disabled]="isUnavailable() || option.disabled === true"
             [required]="required()"
-            (change)="onSelect(option)"
-            (blur)="touched.set(true)" />
+            (change)="onSelect(option)" />
           @if (variant() === 'segmented') {
             @if (option.icon; as optionIcon) {
               <svg [lucideIcon]="optionIcon" [class]="segmentIconClass" aria-hidden="true"></svg>
@@ -89,7 +90,8 @@ export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
   readonly pending = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly options = input<readonly RadioOption<T>[]>([]);
@@ -153,6 +155,13 @@ export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
 
   protected onSelect(option: RadioOption<T>): void {
     this.value.set(option.value);
+  }
+
+  protected markTouchedWhenFocusLeavesGroup(event: FocusEvent): void {
+    const control = event.currentTarget;
+    const next = event.relatedTarget;
+    if (control instanceof HTMLElement && next instanceof Node && control.contains(next)) return;
+    this.touch.emit();
   }
 
   focus(options?: FocusOptions): void {

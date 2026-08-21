@@ -63,7 +63,7 @@
         </div>
       }
       <div class="app-page-header-controls flex min-w-0 grow basis-auto items-center justify-end gap-2 empty:hidden">
-        <ng-content></ng-content>
+        <ng-content select=":not(ng-template[appTabPanel])" />
       </div>
     </div>
 
@@ -75,8 +75,9 @@
         (selectedTabIdChange)="onSelectedTabChange($event)"
         size="md"
         placement="below"
-        collapse="scroll"
-      />
+        collapse="scroll">
+        <ng-content select="ng-template[appTabPanel]" />
+      </app-tabs>
     }
   </div>
 }

@@ -79,7 +79,7 @@ const COLLAPSE_AFTER_ITEMS = 4;
     @if (hiddenBreadcrumbs().length) {
       <app-menu #hiddenBreadcrumbMenu [ariaLabel]="'layout.pageHeader.moreBreadcrumbs' | transloco">
         @for (breadcrumb of hiddenBreadcrumbs(); track breadcrumbKey(breadcrumb)) {
-          <app-menu-item [disabled]="!breadcrumb.commands?.length" (selected)="navigate(breadcrumb)">
+          <app-menu-item [value]="breadcrumbKey(breadcrumb)" [disabled]="!breadcrumb.commands?.length" (selected)="navigate(breadcrumb)">
             {{ breadcrumb.label }}
           </app-menu-item>
         }

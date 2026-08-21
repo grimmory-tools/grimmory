@@ -57,7 +57,7 @@ const REVEAL_TOGGLE_CLASS =
         [readonly]="readonly()"
         [required]="required()"
         (input)="onInput(input)"
-        (blur)="touched.set(true)"
+        (blur)="touch.emit()"
         (keydown)="keyedDown.emit($event)"
         (keyup.enter)="onEnterKeyup($event)" />
       @if (pending()) {
@@ -88,7 +88,8 @@ export class AppInputComponent implements FormValueControl<string> {
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppInputSize>('md');

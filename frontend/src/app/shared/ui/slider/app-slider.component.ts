@@ -6,6 +6,7 @@ import {
   inject,
   input,
   model,
+  output,
   numberAttribute,
   type ElementRef,
   viewChild,
@@ -44,7 +45,7 @@ import { AppControlTransitionDirective, invisibleControlInputClass, neutralContr
         [required]="required()"
         [attr.aria-readonly]="readonly() ? 'true' : null"
         (input)="onInput(input.value)"
-        (change)="touched.set(true)" />
+        (blur)="touch.emit()" />
 
       <div class="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-border"></div>
       <div class="pointer-events-none absolute left-0 h-1.5 rounded-full bg-primary" [style.width]="thumbPosition"></div>
@@ -62,7 +63,8 @@ export class AppSliderComponent implements FormValueControl<number> {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly min = input<number | undefined>(undefined);
