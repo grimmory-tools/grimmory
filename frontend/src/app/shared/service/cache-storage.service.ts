@@ -54,7 +54,7 @@ export class CacheStorageService {
       this.http.get<ArrayBuffer>(uri, {
         responseType: "arraybuffer" as "json",
         observe: "response",
-        cache: "no-store",
+        headers: {"Cache-Control": "no-store"},
       }),
     );
   }

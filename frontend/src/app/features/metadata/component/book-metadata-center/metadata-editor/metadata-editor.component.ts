@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output,} from "@angular/core";
+import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
 import {InputText} from "@openng/optimus-ui/inputtext";
 import {Button} from "@openng/optimus-ui/button";
 import {Divider} from "@openng/optimus-ui/divider";

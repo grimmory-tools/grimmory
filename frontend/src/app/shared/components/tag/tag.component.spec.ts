@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it} from 'vitest';
 
@@ -9,26 +9,26 @@ import {TagColor, TagComponent, TagSize, TagVariant} from './tag.component';
   imports: [TagComponent],
   template: `
     <app-tag
-      [color]="color"
-      [size]="size"
-      [variant]="variant"
-      [rounded]="rounded"
-      [pill]="pill"
-      [customBgColor]="customBgColor"
-      [customTextColor]="customTextColor"
+      [color]="color()"
+      [size]="size()"
+      [variant]="variant()"
+      [rounded]="rounded()"
+      [pill]="pill()"
+      [customBgColor]="customBgColor()"
+      [customTextColor]="customTextColor()"
     >
       Test
     </app-tag>
   `,
 })
 class TestHostComponent {
-  color: TagColor = 'primary';
-  size: TagSize = 'm';
-  variant: TagVariant = 'label';
-  rounded = false;
-  pill = false;
-  customBgColor = '#112233';
-  customTextColor = '#fefefe';
+  readonly color = signal<TagColor>('primary');
+  readonly size = signal<TagSize>('m');
+  readonly variant = signal<TagVariant>('label');
+  readonly rounded = signal(false);
+  readonly pill = signal(false);
+  readonly customBgColor = signal('#112233');
+  readonly customTextColor = signal('#fefefe');
 }
 
 describe('TagComponent', () => {
@@ -42,7 +42,7 @@ describe('TagComponent', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('renders the default color and size classes', () => {
@@ -54,12 +54,11 @@ describe('TagComponent', () => {
     expect(tag.textContent?.trim()).toBe('Test');
   });
 
-  it('adds pill and rounded classes when those inputs are enabled', () => {
-    host.variant = 'pill';
-    host.rounded = true;
-    host.pill = true;
-    fixture.changeDetectorRef.markForCheck();
-    fixture.detectChanges();
+  it('adds pill and rounded classes when those inputs are enabled', async () => {
+    host.variant.set('pill');
+    host.rounded.set(true);
+    host.pill.set(true);
+    await fixture.whenStable();
 
     const tag = fixture.nativeElement.querySelector('span') as HTMLSpanElement;
     expect(tag.className).toContain('app-tag-variant-pill');

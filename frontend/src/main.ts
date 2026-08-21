@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { ErrorHandler, inject, isDevMode, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
@@ -43,7 +43,7 @@ bootstrapApplication(AppComponent, {
       const startup = inject(StartupService);
       return Promise.resolve(initializeAuth()).then(() => startup.load());
     }),
-    provideHttpClient(withInterceptors([AuthInterceptorService])),
+    provideHttpClient(withXhr(), withInterceptors([AuthInterceptorService])),
     provideRouter(routes),
     DialogService,
     MessageService,
