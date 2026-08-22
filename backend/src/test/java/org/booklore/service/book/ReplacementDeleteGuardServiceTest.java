@@ -8,6 +8,7 @@ import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
 import org.booklore.model.dto.response.BookDeletionResponse;
@@ -86,11 +87,53 @@ class ReplacementDeleteGuardServiceTest {
     }
 
     @Test
-    void shelfWitnessUsesCurrentSuccessorShelfIds() {
+    void shelfWitnessUsesOnlyShelvesVisibleToAuthenticatedUser() {
         BookEntity successor = book(2, ISBN13, ISBN10);
-        successor.setShelves(java.util.Set.of(ShelfEntity.builder().id(7L).build(), ShelfEntity.builder().id(9L).build()));
+        BookLoreUserEntity owner = BookLoreUserEntity.builder().id(42L).build();
+        BookLoreUserEntity otherUser = BookLoreUserEntity.builder().id(99L).build();
+        successor.setShelves(java.util.Set.of(
+                ShelfEntity.builder().id(7L).user(owner).build(),
+                ShelfEntity.builder().id(8L).user(otherUser).build(),
+                ShelfEntity.builder().id(9L).isPublic(true).user(otherUser).build()));
 
-        assertEquals(java.util.Set.of(7L, 9L), ReplacementDeleteGuardService.shelves(successor));
+        assertEquals(java.util.Set.of(7L, 9L), ReplacementDeleteGuardService.shelves(successor, 42L));
+    }
+
+    @Test
+    void privateOtherUserShelfDoesNotBlockCreateAndConsume() {
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
+        successor.setShelves(Set.of(ShelfEntity.builder().id(8L)
+                .user(BookLoreUserEntity.builder().id(99L).build()).build()));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user());
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+        when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
+        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
+        ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
+                fileProgressRepository, restrictionRepository, authenticationService, bookService);
+
+        String guardId = service.create(request()).guardId();
+        when(bookService.deleteBooks(Set.of(1L))).thenReturn(ResponseEntity.ok(new BookDeletionResponse(Set.of(1L), List.of())));
+
+        assertEquals("deleted", service.consume(guardId).get("status"));
+    }
+
+    @Test
+    void visibleShelfChangeAfterIssuanceRejectsConsume() {
+        Prepared prepared = prepared(false);
+        BookLoreUserEntity owner = BookLoreUserEntity.builder().id(42L).build();
+        prepared.successor().setShelves(Set.of(ShelfEntity.builder().id(7L).user(owner).build()));
+        ReplacementDeleteGuardRequest expected = new ReplacementDeleteGuardRequest(1L, 2L, ISBN13,
+                new ReplacementDeleteGuardRequest.ReaderState(ReadStatus.UNREAD, null, null, Set.of(7L), null, null, null));
+        // Re-issue with the visible shelf as the witnessed state, then mutate that visible shelf.
+        String guardId = prepared.service().create(expected).guardId();
+        prepared.successor().setShelves(Set.of(ShelfEntity.builder().id(8L).user(owner).build()));
+
+        APIException error = assertThrows(APIException.class, () -> prepared.service().consume(guardId));
+        assertEquals(HttpStatus.CONFLICT, error.getStatus());
+        verifyNoInteractions(bookService);
     }
 
     @Test
@@ -233,7 +276,7 @@ class ReplacementDeleteGuardServiceTest {
         when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
         when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
         ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository, fileProgressRepository, restrictionRepository, authenticationService, bookService);
-        return new Prepared(service, service.create(request()).guardId());
+        return new Prepared(service, service.create(request()).guardId(), successor);
     }
 
     private ReplacementDeleteGuardRequest request() {
@@ -249,7 +292,7 @@ class ReplacementDeleteGuardServiceTest {
         return UserBookProgressEntity.builder().readStatus(ReadStatus.UNREAD).build();
     }
 
-    private record Prepared(ReplacementDeleteGuardService service, String guardId) {}
+    private record Prepared(ReplacementDeleteGuardService service, String guardId, BookEntity successor) {}
 
     private static BookLoreUser.UserPermissions adminPermissions() {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();

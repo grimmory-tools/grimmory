@@ -58,7 +58,7 @@ public class ReplacementDeleteGuardService {
                 || !successor.hasFiles() || !consistentIsbn(predecessor, isbn13) || !consistentIsbn(successor, isbn13)) fail();
         if (!successorFileProgressEmpty(user.getId(), successor.getId())) fail();
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), successor.getId()).orElse(null);
-        if (!stateMatches(state, successor, request.expectedSuccessorState())) fail();
+        if (!stateMatches(state, successor, user.getId(), request.expectedSuccessorState())) fail();
         String id = UUID.randomUUID().toString();
         guards.put(id, new Guard(user.getId(), predecessor.getId(), successor.getId(), population.stream().map(BookEntity::getId).collect(Collectors.toUnmodifiableSet()), isbn13, request.expectedSuccessorState(), Instant.now().plus(TTL)));
         return new ReplacementDeleteGuardResponse(id);
@@ -82,7 +82,7 @@ public class ReplacementDeleteGuardService {
         if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
-                || !stateMatches(state, successor, guard.expectedState())
+                || !stateMatches(state, successor, user.getId(), guard.expectedState())
                 || !successorFileProgressEmpty(user.getId(), guard.successorId())) fail();
         // The guard is consumed first. If deletion reports an unexpected result, the
         // database transaction rolls back, but filesystem side effects may already exist;
@@ -134,14 +134,20 @@ public class ReplacementDeleteGuardService {
     private static String to13(String v) { if (v == null || !valid10(v)) return null; String p = "978" + v.substring(0, 9); int sum = 0; for (int i=0;i<12;i++) sum += (p.charAt(i)-'0') * (i%2==0?1:3); return p + ((10-sum%10)%10); }
     private static boolean valid13(String v) { if (v == null || !v.matches("[0-9]{13}")) return false; int s=0; for(int i=0;i<13;i++) s+=(v.charAt(i)-'0')*(i%2==0?1:3); return s%10==0; }
     private static boolean valid10(String v) { if (v == null || !v.matches("[0-9]{9}[0-9X]")) return false; int s=0; for(int i=0;i<10;i++) s+=(v.charAt(i)=='X'?10:v.charAt(i)-'0')*(10-i); return s%11==0; }
-    private static boolean stateMatches(UserBookProgressEntity p, BookEntity successor, ReplacementDeleteGuardRequest.ReaderState e) {
-        return p != null && Objects.equals(shelves(successor), e.shelfIds())
+    private static boolean stateMatches(UserBookProgressEntity p, BookEntity successor, Long authenticatedUserId,
+                                        ReplacementDeleteGuardRequest.ReaderState e) {
+        return p != null && Objects.equals(shelves(successor, authenticatedUserId), e.shelfIds())
                 && p.getReadStatus() == e.status() && Objects.equals(p.getDateFinished(), e.finishedAt())
                 && Objects.equals(p.getPersonalRating(), e.rating()) && Objects.equals(p.getEpubProgressPercent(), e.progressPercent())
                 && Objects.equals(p.getEpubProgress(), e.progress()) && Objects.equals(p.getEpubProgressHref(), e.progressHref())
                 && supportedProgress(p);
     }
-    static Set<Long> shelves(BookEntity book) { return book.getShelves() == null ? Set.of() : book.getShelves().stream().map(ShelfEntity::getId).collect(Collectors.toUnmodifiableSet()); }
+    static Set<Long> shelves(BookEntity book, Long authenticatedUserId) {
+        return book.getShelves() == null ? Set.of() : book.getShelves().stream()
+                .filter(shelf -> shelf.isPublic() || (shelf.getUser() != null && authenticatedUserId.equals(shelf.getUser().getId())))
+                .map(ShelfEntity::getId)
+                .collect(Collectors.toUnmodifiableSet());
+    }
     static boolean supportedProgress(UserBookProgressEntity p) {
         return p.getPdfProgress() == null && p.getPdfProgressPercent() == null && p.getCbxProgress() == null
                 && p.getCbxProgressPercent() == null && p.getKoreaderProgress() == null && p.getKoreaderProgressPercent() == null
