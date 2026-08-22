@@ -6,6 +6,7 @@ import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
+import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.ReplacementDeleteGuardResponse;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.ShelfEntity;
@@ -13,6 +14,7 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
@@ -46,7 +48,7 @@ public class ReplacementDeleteGuardService {
         BookEntity predecessor = find(population, request.predecessorId());
         BookEntity successor = find(population, request.successorId());
         if (population.size() != 2 || predecessor == null || successor == null
-                || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || Boolean.TRUE.equals(successor.getIsPhysical())
+                || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, isbn13) || !consistentIsbn(successor, isbn13)) fail();
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), successor.getId()).orElse(null);
         if (!stateMatches(state, successor, request.expectedSuccessorState())) fail();
@@ -71,11 +73,24 @@ public class ReplacementDeleteGuardService {
         BookEntity successor = find(population, guard.successorId());
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), guard.successorId()).orElse(null);
         if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
-                || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || Boolean.TRUE.equals(successor.getIsPhysical())
+                || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
                 || !stateMatches(state, successor, guard.expectedState())) fail();
-        // This is the existing transactional file/sidecar deletion implementation; the guard is consumed first.
-        bookService.deleteBooks(Set.of(predecessor.getId()));
+        // The guard is consumed first. If deletion reports an unexpected result, the
+        // database transaction rolls back, but filesystem side effects may already exist;
+        // report indeterminate rather than claiming that the predecessor survived.
+        ResponseEntity<BookDeletionResponse> deletionResult;
+        try {
+            deletionResult = bookService.deleteBooks(Set.of(predecessor.getId()));
+        } catch (RuntimeException e) {
+            throw indeterminateDelete();
+        }
+        BookDeletionResponse deletion = deletionResult == null ? null : deletionResult.getBody();
+        if (deletionResult == null || deletionResult.getStatusCode() != HttpStatus.OK || deletion == null
+                || !Set.of(predecessor.getId()).equals(deletion.getDeleted())
+                || deletion.getFailedFileDeletions() == null || !deletion.getFailedFileDeletions().isEmpty()) {
+            throw indeterminateDelete();
+        }
         return Map.of("deletedBookId", predecessor.getId(), "guardId", id, "status", "deleted");
     }
 
@@ -117,5 +132,8 @@ public class ReplacementDeleteGuardService {
     }
     private void purgeExpiredGuards() { Instant now = Instant.now(); guards.entrySet().removeIf(entry -> entry.getValue().expiresAt().isBefore(now)); }
     private static void fail() { throw new APIException("Replacement delete guard conflict", HttpStatus.CONFLICT); }
+    private static APIException indeterminateDelete() {
+        return new APIException("Replacement delete outcome is indeterminate; predecessor state must be re-read", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     private record Guard(Long userId, Long predecessorId, Long successorId, Set<Long> populationIds, String isbn13, ReplacementDeleteGuardRequest.ReaderState expectedState, Instant expiresAt) {}
 }

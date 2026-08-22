@@ -9,6 +9,7 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
+import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.config.security.service.AuthenticationService;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.booklore.exception.APIException;
 import java.util.Optional;
 import java.util.Set;
@@ -116,6 +118,89 @@ class ReplacementDeleteGuardServiceTest {
         assertEquals(HttpStatus.CONFLICT, error.getStatus());
         verifyNoInteractions(bookService);
     }
+
+    @Test
+    void filelessPhysicalPredecessorRequiresAndAcceptsExactOrdinaryDeleteResponse() {
+        Prepared prepared = prepared(false);
+        when(bookService.deleteBooks(Set.of(1L))).thenReturn(ResponseEntity.ok(
+                new BookDeletionResponse(Set.of(1L), List.of())));
+
+        assertEquals("deleted", prepared.service().consume(prepared.guardId()).get("status"));
+        verify(bookService).deleteBooks(Set.of(1L));
+    }
+
+    @Test
+    void physicalPredecessorWithFileIsRejectedAtCreate() {
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        predecessor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build())));
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user());
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+
+        assertThrows(APIException.class, () -> new ReplacementDeleteGuardService(bookRepository, progressRepository, authenticationService, bookService)
+                .create(request()));
+        verifyNoInteractions(bookService);
+    }
+
+    @Test
+    void unexpectedOrdinaryDeleteResultsAreIndeterminateAndGuardCannotReplay() {
+        List<ResponseEntity<BookDeletionResponse>> results = List.of(
+                ResponseEntity.status(HttpStatus.MULTI_STATUS).body(new BookDeletionResponse(Set.of(1L), List.of(1L))),
+                ResponseEntity.ok(null),
+                ResponseEntity.ok(new BookDeletionResponse(Set.of(2L), List.of())),
+                ResponseEntity.ok(new BookDeletionResponse(Set.of(1L), List.of(1L))));
+        for (ResponseEntity<BookDeletionResponse> result : results) {
+            Prepared prepared = prepared(false);
+            when(bookService.deleteBooks(Set.of(1L))).thenReturn(result);
+
+            APIException error = assertThrows(APIException.class, () -> prepared.service().consume(prepared.guardId()));
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, error.getStatus());
+            assertTrue(error.getMessage().contains("indeterminate"));
+            assertThrows(APIException.class, () -> prepared.service().consume(prepared.guardId()));
+            reset(bookService);
+        }
+    }
+
+    @Test
+    void deletionExceptionIsIndeterminateAndConsumedGuardCannotBeReplayed() {
+        Prepared prepared = prepared(false);
+        when(bookService.deleteBooks(Set.of(1L))).thenThrow(new RuntimeException("response lost"));
+
+        APIException error = assertThrows(APIException.class, () -> prepared.service().consume(prepared.guardId()));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, error.getStatus());
+        assertTrue(error.getMessage().contains("indeterminate"));
+        assertThrows(APIException.class, () -> prepared.service().consume(prepared.guardId()));
+    }
+
+    private Prepared prepared(boolean predecessorHasFiles) {
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        if (predecessorHasFiles) predecessor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build())));
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user());
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+        when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
+        ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository, authenticationService, bookService);
+        return new Prepared(service, service.create(request()).guardId());
+    }
+
+    private ReplacementDeleteGuardRequest request() {
+        return new ReplacementDeleteGuardRequest(1L, 2L, ISBN13,
+                new ReplacementDeleteGuardRequest.ReaderState(ReadStatus.UNREAD, null, null, Set.of(), null, null, null));
+    }
+
+    private BookLoreUser user() {
+        return BookLoreUser.builder().id(42L).assignedLibraries(List.of()).permissions(adminPermissions()).build();
+    }
+
+    private UserBookProgressEntity progress() {
+        return UserBookProgressEntity.builder().readStatus(ReadStatus.UNREAD).build();
+    }
+
+    private record Prepared(ReplacementDeleteGuardService service, String guardId) {}
 
     private static BookLoreUser.UserPermissions adminPermissions() {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
