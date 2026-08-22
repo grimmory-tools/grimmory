@@ -21,6 +21,10 @@ import java.util.Set;
 
 @Repository
 public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
+    @Override
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "library", "bookFiles"})
+    List<BookEntity> findAll(org.springframework.data.jpa.domain.Specification<BookEntity> spec);
+
     Optional<BookEntity> findBookByIdAndLibraryId(long id, long libraryId);
 
     @EntityGraph(attributePaths = { "metadata", "metadata.authors", "bookFiles", "libraryPath" })

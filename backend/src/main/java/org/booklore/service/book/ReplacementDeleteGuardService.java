@@ -13,6 +13,10 @@ import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.repository.UserBookFileProgressRepository;
+import org.booklore.repository.UserContentRestrictionRepository;
+import org.booklore.security.policy.ContentRestrictionSpecification;
+import org.booklore.app.specification.AppBookSpecification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,8 @@ public class ReplacementDeleteGuardService {
     private static final Pattern ISBN = Pattern.compile("[0-9]{9}[0-9X]|[0-9]{13}");
     private final BookRepository bookRepository;
     private final UserBookProgressRepository progressRepository;
+    private final UserBookFileProgressRepository fileProgressRepository;
+    private final UserContentRestrictionRepository restrictionRepository;
     private final AuthenticationService authenticationService;
     private final BookService bookService;
     // JVM-local by design: restart or another node invalidates outstanding guards fail-closed; use sticky routing until durable shared storage exists.
@@ -50,6 +56,7 @@ public class ReplacementDeleteGuardService {
         if (population.size() != 2 || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, isbn13) || !consistentIsbn(successor, isbn13)) fail();
+        if (!successorFileProgressEmpty(user.getId(), successor.getId())) fail();
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), successor.getId()).orElse(null);
         if (!stateMatches(state, successor, request.expectedSuccessorState())) fail();
         String id = UUID.randomUUID().toString();
@@ -75,7 +82,8 @@ public class ReplacementDeleteGuardService {
         if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
-                || !stateMatches(state, successor, guard.expectedState())) fail();
+                || !stateMatches(state, successor, guard.expectedState())
+                || !successorFileProgressEmpty(user.getId(), guard.successorId())) fail();
         // The guard is consumed first. If deletion reports an unexpected result, the
         // database transaction rolls back, but filesystem side effects may already exist;
         // report indeterminate rather than claiming that the predecessor survived.
@@ -96,7 +104,17 @@ public class ReplacementDeleteGuardService {
 
     private List<BookEntity> visibleBooks(BookLoreUser user) {
         Set<Long> libraries = user.getAssignedLibraries().stream().map(Library::getId).collect(Collectors.toSet());
-        return bookRepository.findAllFullBooksWithFiles().stream().filter(b -> user.getPermissions().isAdmin() || libraries.contains(b.getLibrary().getId())).toList();
+        if (user.getPermissions().isAdmin()) return bookRepository.findAllFullBooksWithFiles();
+        return bookRepository.findAll(AppBookSpecification.notDeleted()
+                .and(inLibraries(libraries))
+                .and(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(user.getId()))));
+    }
+    private static org.springframework.data.jpa.domain.Specification<BookEntity> inLibraries(Set<Long> libraryIds) {
+        return (root, query, cb) -> libraryIds.isEmpty()
+                ? cb.disjunction() : root.get("library").get("id").in(libraryIds);
+    }
+    private boolean successorFileProgressEmpty(Long userId, Long bookId) {
+        return fileProgressRepository.findByUserIdAndBookFileBookId(userId, bookId).isEmpty();
     }
     private static BookEntity find(List<BookEntity> books, long id) { return books.stream().filter(b -> b.getId() == id).findFirst().orElse(null); }
     private static Set<Long> populationIds(List<BookEntity> books) { return books.stream().map(BookEntity::getId).collect(Collectors.toSet()); }
