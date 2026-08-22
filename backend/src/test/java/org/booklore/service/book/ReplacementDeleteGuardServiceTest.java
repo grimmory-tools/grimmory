@@ -101,7 +101,7 @@ class ReplacementDeleteGuardServiceTest {
         predecessor.setIsPhysical(true);
         BookEntity successor = book(2, ISBN13, ISBN10);
         successor.setLibrary(LibraryEntity.builder().id(7L).build());
-        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        successor.setBookFiles(new java.util.HashSet<>(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
         predecessor.setLibrary(successor.getLibrary());
         BookLoreUser user = BookLoreUser.builder().id(42L).assignedLibraries(List.of()).permissions(adminPermissions()).build();
         UserBookProgressEntity progress = UserBookProgressEntity.builder().readStatus(ReadStatus.UNREAD).build();
@@ -133,9 +133,9 @@ class ReplacementDeleteGuardServiceTest {
     void physicalPredecessorWithFileIsRejectedAtCreate() {
         BookEntity predecessor = book(1, ISBN13, null);
         predecessor.setIsPhysical(true);
-        predecessor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build())));
+        predecessor.setBookFiles(Set.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build()));
         BookEntity successor = book(2, ISBN13, ISBN10);
-        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
         when(authenticationService.getAuthenticatedUser()).thenReturn(user());
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
 
@@ -177,9 +177,9 @@ class ReplacementDeleteGuardServiceTest {
     private Prepared prepared(boolean predecessorHasFiles) {
         BookEntity predecessor = book(1, ISBN13, null);
         predecessor.setIsPhysical(true);
-        if (predecessorHasFiles) predecessor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build())));
+        if (predecessorHasFiles) predecessor.setBookFiles(Set.of(BookFileEntity.builder().book(predecessor).bookType(BookFileType.EPUB).build()));
         BookEntity successor = book(2, ISBN13, ISBN10);
-        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
         when(authenticationService.getAuthenticatedUser()).thenReturn(user());
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
         when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
