@@ -4,16 +4,40 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.dto.Library;
+import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
+import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ReadStatus;
+import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.repository.BookRepository;
+import org.booklore.repository.UserBookProgressRepository;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.booklore.exception.APIException;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class ReplacementDeleteGuardServiceTest {
     private static final String ISBN13 = "9780306406157";
     private static final String ISBN10 = "0306406152";
     private static final String OTHER_ISBN10 = "0140328726";
+
+    @Mock private BookRepository bookRepository;
+    @Mock private UserBookProgressRepository progressRepository;
+    @Mock private AuthenticationService authenticationService;
+    @Mock private BookService bookService;
 
     @Test
     void unrelatedIsbnBookDoesNotJoinPopulation() {
@@ -67,6 +91,36 @@ class ReplacementDeleteGuardServiceTest {
         UserBookProgressEntity progress = UserBookProgressEntity.builder().koboProgressPercent(42f).build();
 
         assertFalse(ReplacementDeleteGuardService.supportedProgress(progress));
+    }
+
+    @Test
+    void consumeRejectsSuccessorThatLostItsLastFileWithoutDeletingPredecessor() {
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setLibrary(LibraryEntity.builder().id(7L).build());
+        successor.setBookFiles(new java.util.ArrayList<>(List.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build())));
+        predecessor.setLibrary(successor.getLibrary());
+        BookLoreUser user = BookLoreUser.builder().id(42L).assignedLibraries(List.of()).permissions(adminPermissions()).build();
+        UserBookProgressEntity progress = UserBookProgressEntity.builder().readStatus(ReadStatus.UNREAD).build();
+        ReplacementDeleteGuardRequest.ReaderState expected = new ReplacementDeleteGuardRequest.ReaderState(ReadStatus.UNREAD, null, null, Set.of(), null, null, null);
+        ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository, authenticationService, bookService);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+        when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress));
+
+        String guardId = service.create(new ReplacementDeleteGuardRequest(1L, 2L, ISBN13, expected)).guardId();
+        successor.getBookFiles().clear();
+
+        APIException error = assertThrows(APIException.class, () -> service.consume(guardId));
+        assertEquals(HttpStatus.CONFLICT, error.getStatus());
+        verifyNoInteractions(bookService);
+    }
+
+    private static BookLoreUser.UserPermissions adminPermissions() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(true);
+        return permissions;
     }
 
     private static BookEntity book(long id, String isbn13, String isbn10) {

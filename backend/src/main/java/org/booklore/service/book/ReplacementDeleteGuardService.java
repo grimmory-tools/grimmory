@@ -15,6 +15,7 @@ import org.booklore.repository.UserBookProgressRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -54,7 +55,11 @@ public class ReplacementDeleteGuardService {
         return new ReplacementDeleteGuardResponse(id);
     }
 
-    @Transactional
+    // MariaDB/InnoDB SERIALIZABLE turns the population read into a locking read and
+    // holds its row/gap locks until the joined BookService deletion commits. This is
+    // the database linearization boundary: ISBN population inserts/updates cannot
+    // pass the final validation and deletion as a read-committed race could.
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Map<String, Object> consume(String id) {
         purgeExpiredGuards();
         Guard guard = guards.remove(id);
@@ -67,7 +72,7 @@ public class ReplacementDeleteGuardService {
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), guard.successorId()).orElse(null);
         if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || Boolean.TRUE.equals(successor.getIsPhysical())
-                || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
+                || !successor.hasFiles() || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
                 || !stateMatches(state, successor, guard.expectedState())) fail();
         // This is the existing transactional file/sidecar deletion implementation; the guard is consumed first.
         bookService.deleteBooks(Set.of(predecessor.getId()));
