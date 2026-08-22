@@ -8,6 +8,7 @@ import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
 import org.booklore.model.dto.response.ReplacementDeleteGuardResponse;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
@@ -31,21 +32,23 @@ public class ReplacementDeleteGuardService {
     private final UserBookProgressRepository progressRepository;
     private final AuthenticationService authenticationService;
     private final BookService bookService;
+    // JVM-local by design: restart or another node invalidates outstanding guards fail-closed; use sticky routing until durable shared storage exists.
     private final Map<String, Guard> guards = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
     public ReplacementDeleteGuardResponse create(ReplacementDeleteGuardRequest request) {
+        purgeExpiredGuards();
         String isbn13 = canonical13(request.isbn());
         if (isbn13 == null || request.predecessorId() == request.successorId()) fail();
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        List<BookEntity> population = visibleBooks(user).stream().filter(ReplacementDeleteGuardService::hasAnyIsbn).toList();
+        List<BookEntity> population = matchingPopulation(visibleBooks(user), isbn13);
         BookEntity predecessor = find(population, request.predecessorId());
         BookEntity successor = find(population, request.successorId());
         if (population.size() != 2 || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, isbn13) || !consistentIsbn(successor, isbn13)) fail();
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), successor.getId()).orElse(null);
-        if (!stateMatches(state, request.expectedSuccessorState())) fail();
+        if (!stateMatches(state, successor, request.expectedSuccessorState())) fail();
         String id = UUID.randomUUID().toString();
         guards.put(id, new Guard(user.getId(), predecessor.getId(), successor.getId(), population.stream().map(BookEntity::getId).collect(Collectors.toUnmodifiableSet()), isbn13, request.expectedSuccessorState(), Instant.now().plus(TTL)));
         return new ReplacementDeleteGuardResponse(id);
@@ -53,18 +56,19 @@ public class ReplacementDeleteGuardService {
 
     @Transactional
     public Map<String, Object> consume(String id) {
+        purgeExpiredGuards();
         Guard guard = guards.remove(id);
         if (guard == null || guard.expiresAt().isBefore(Instant.now())) fail();
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         if (!Objects.equals(user.getId(), guard.userId())) fail();
-        List<BookEntity> population = visibleBooks(user).stream().filter(ReplacementDeleteGuardService::hasAnyIsbn).toList();
+        List<BookEntity> population = matchingPopulation(visibleBooks(user), guard.isbn13());
         BookEntity predecessor = find(population, guard.predecessorId());
         BookEntity successor = find(population, guard.successorId());
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), guard.successorId()).orElse(null);
         if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
-                || !stateMatches(state, guard.expectedState())) fail();
+                || !stateMatches(state, successor, guard.expectedState())) fail();
         // This is the existing transactional file/sidecar deletion implementation; the guard is consumed first.
         bookService.deleteBooks(Set.of(predecessor.getId()));
         return Map.of("deletedBookId", predecessor.getId(), "guardId", id, "status", "deleted");
@@ -76,14 +80,37 @@ public class ReplacementDeleteGuardService {
     }
     private static BookEntity find(List<BookEntity> books, long id) { return books.stream().filter(b -> b.getId() == id).findFirst().orElse(null); }
     private static Set<Long> populationIds(List<BookEntity> books) { return books.stream().map(BookEntity::getId).collect(Collectors.toSet()); }
-    private static boolean hasAnyIsbn(BookEntity b) { return b.getMetadata() != null && (b.getMetadata().getIsbn13() != null || b.getMetadata().getIsbn10() != null); }
-    private static boolean matchesIsbn(BookEntity b, String isbn13) { return b.getMetadata() != null && (isbn13.equals(b.getMetadata().getIsbn13()) || isbn13.equals(to13(b.getMetadata().getIsbn10()))); }
-    private static boolean consistentIsbn(BookEntity b, String isbn13) { return matchesIsbn(b, isbn13) && (b.getMetadata().getIsbn13() == null || valid13(b.getMetadata().getIsbn13())) && (b.getMetadata().getIsbn10() == null || valid10(b.getMetadata().getIsbn10())); }
-    private static String canonical13(String value) { if (value == null) return null; String v = value.replaceAll("[^0-9Xx]", "").toUpperCase(); if (!ISBN.matcher(v).matches()) return null; return v.length() == 13 && valid13(v) ? v : to13(v); }
+    static List<BookEntity> matchingPopulation(List<BookEntity> books, String isbn13) { return books.stream().filter(book -> mentionsIsbn(book, isbn13)).toList(); }
+    static boolean mentionsIsbn(BookEntity b, String isbn13) {
+        if (b.getMetadata() == null) return false;
+        return isbn13.equals(canonical13(b.getMetadata().getIsbn13())) || isbn13.equals(canonical13(b.getMetadata().getIsbn10()));
+    }
+    static boolean consistentIsbn(BookEntity b, String isbn13) {
+        if (!mentionsIsbn(b, isbn13)) return false;
+        String isbn13Value = b.getMetadata().getIsbn13();
+        String isbn10Value = b.getMetadata().getIsbn10();
+        return (isbn13Value == null || isbn13.equals(canonical13(isbn13Value)))
+                && (isbn10Value == null || isbn13.equals(canonical13(isbn10Value)));
+    }
+    private static String canonical13(String value) { if (value == null) return null; String v = value.trim().replaceAll("[\\s-]", "").toUpperCase(); if (!ISBN.matcher(v).matches()) return null; return v.length() == 13 && valid13(v) ? v : to13(v); }
     private static String to13(String v) { if (v == null || !valid10(v)) return null; String p = "978" + v.substring(0, 9); int sum = 0; for (int i=0;i<12;i++) sum += (p.charAt(i)-'0') * (i%2==0?1:3); return p + ((10-sum%10)%10); }
     private static boolean valid13(String v) { if (v == null || !v.matches("[0-9]{13}")) return false; int s=0; for(int i=0;i<13;i++) s+=(v.charAt(i)-'0')*(i%2==0?1:3); return s%10==0; }
     private static boolean valid10(String v) { if (v == null || !v.matches("[0-9]{9}[0-9X]")) return false; int s=0; for(int i=0;i<10;i++) s+=(v.charAt(i)=='X'?10:v.charAt(i)-'0')*(10-i); return s%11==0; }
-    private static boolean stateMatches(UserBookProgressEntity p, ReplacementDeleteGuardRequest.ReaderState e) { return p != null && p.getReadStatus()==e.status() && Objects.equals(p.getDateFinished(),e.finishedAt()) && Objects.equals(p.getPersonalRating(),e.rating()) && Objects.equals(p.getEpubProgressPercent(),e.progressPercent()) && Objects.equals(p.getEpubProgress(),e.progress()) && Objects.equals(p.getEpubProgressHref(),e.progressHref()); }
+    private static boolean stateMatches(UserBookProgressEntity p, BookEntity successor, ReplacementDeleteGuardRequest.ReaderState e) {
+        return p != null && Objects.equals(shelves(successor), e.shelfIds())
+                && p.getReadStatus() == e.status() && Objects.equals(p.getDateFinished(), e.finishedAt())
+                && Objects.equals(p.getPersonalRating(), e.rating()) && Objects.equals(p.getEpubProgressPercent(), e.progressPercent())
+                && Objects.equals(p.getEpubProgress(), e.progress()) && Objects.equals(p.getEpubProgressHref(), e.progressHref())
+                && supportedProgress(p);
+    }
+    static Set<Long> shelves(BookEntity book) { return book.getShelves() == null ? Set.of() : book.getShelves().stream().map(ShelfEntity::getId).collect(Collectors.toUnmodifiableSet()); }
+    static boolean supportedProgress(UserBookProgressEntity p) {
+        return p.getPdfProgress() == null && p.getPdfProgressPercent() == null && p.getCbxProgress() == null
+                && p.getCbxProgressPercent() == null && p.getKoreaderProgress() == null && p.getKoreaderProgressPercent() == null
+                && p.getKoboProgressPercent() == null && p.getKoboLocation() == null && p.getKoboLocationType() == null
+                && p.getKoboLocationSource() == null;
+    }
+    private void purgeExpiredGuards() { Instant now = Instant.now(); guards.entrySet().removeIf(entry -> entry.getValue().expiresAt().isBefore(now)); }
     private static void fail() { throw new APIException("Replacement delete guard conflict", HttpStatus.CONFLICT); }
     private record Guard(Long userId, Long predecessorId, Long successorId, Set<Long> populationIds, String isbn13, ReplacementDeleteGuardRequest.ReaderState expectedState, Instant expiresAt) {}
 }
