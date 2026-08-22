@@ -50,13 +50,15 @@ public class ReplacementDeleteGuardService {
         String isbn13 = canonical13(request.isbn());
         if (isbn13 == null || request.predecessorId() == request.successorId()) fail();
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        List<BookEntity> population = matchingPopulation(visibleBooks(user), isbn13);
+        List<BookEntity> population = matchingPopulation(allCatalogBooks(), isbn13);
+        List<BookEntity> visiblePopulation = matchingPopulation(visibleBooks(user), isbn13);
         BookEntity predecessor = find(population, request.predecessorId());
         BookEntity successor = find(population, request.successorId());
-        if (population.size() != 2 || predecessor == null || successor == null
+        if (population.size() != 2 || find(visiblePopulation, request.predecessorId()) == null
+                || find(visiblePopulation, request.successorId()) == null || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, isbn13) || !consistentIsbn(successor, isbn13)) fail();
-        if (!successorFileProgressEmpty(user.getId(), successor.getId())) fail();
+        if (!successorFileProgressEmpty(successor.getId())) fail();
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), successor.getId()).orElse(null);
         if (!stateMatches(state, successor, user.getId(), request.expectedSuccessorState())) fail();
         String id = UUID.randomUUID().toString();
@@ -76,15 +78,18 @@ public class ReplacementDeleteGuardService {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         if (!Objects.equals(user.getId(), guard.userId())) fail();
         if (!guards.remove(id, guard)) fail();
-        List<BookEntity> population = matchingPopulation(visibleBooks(user), guard.isbn13());
+        List<BookEntity> population = matchingPopulation(allCatalogBooks(), guard.isbn13());
+        List<BookEntity> visiblePopulation = matchingPopulation(visibleBooks(user), guard.isbn13());
         BookEntity predecessor = find(population, guard.predecessorId());
         BookEntity successor = find(population, guard.successorId());
         UserBookProgressEntity state = progressRepository.findByUserIdAndBookId(user.getId(), guard.successorId()).orElse(null);
-        if (population.size() != 2 || !populationIds(population).equals(guard.populationIds()) || predecessor == null || successor == null
+        if (population.size() != 2 || !populationIds(population).equals(guard.populationIds())
+                || find(visiblePopulation, guard.predecessorId()) == null || find(visiblePopulation, guard.successorId()) == null
+                || predecessor == null || successor == null
                 || !Boolean.TRUE.equals(predecessor.getIsPhysical()) || predecessor.hasFiles() || Boolean.TRUE.equals(successor.getIsPhysical())
                 || !successor.hasFiles() || !consistentIsbn(predecessor, guard.isbn13()) || !consistentIsbn(successor, guard.isbn13())
                 || !stateMatches(state, successor, user.getId(), guard.expectedState())
-                || !successorFileProgressEmpty(user.getId(), guard.successorId())) fail();
+                || !successorFileProgressEmpty(guard.successorId())) fail();
         // The guard is consumed first. If deletion reports an unexpected result, the
         // database transaction rolls back, but filesystem side effects may already exist;
         // report indeterminate rather than claiming that the predecessor survived.
@@ -110,12 +115,15 @@ public class ReplacementDeleteGuardService {
                 .and(inLibraries(libraries))
                 .and(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(user.getId()))));
     }
+    private List<BookEntity> allCatalogBooks() {
+        return bookRepository.findAllFullBooksWithFiles();
+    }
     private static org.springframework.data.jpa.domain.Specification<BookEntity> inLibraries(Set<Long> libraryIds) {
         return (root, query, cb) -> libraryIds.isEmpty()
                 ? cb.disjunction() : root.get("library").get("id").in(libraryIds);
     }
-    private boolean successorFileProgressEmpty(Long userId, Long bookId) {
-        return fileProgressRepository.findByUserIdAndBookFileBookId(userId, bookId).isEmpty();
+    private boolean successorFileProgressEmpty(Long bookId) {
+        return !fileProgressRepository.existsByBookFileBookId(bookId);
     }
     private static BookEntity find(List<BookEntity> books, long id) { return books.stream().filter(b -> b.getId() == id).findFirst().orElse(null); }
     private static Set<Long> populationIds(List<BookEntity> books) { return books.stream().map(BookEntity::getId).collect(Collectors.toSet()); }

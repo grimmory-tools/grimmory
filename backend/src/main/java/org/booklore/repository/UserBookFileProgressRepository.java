@@ -15,6 +15,13 @@ import java.util.Optional;
 @Repository
 public interface UserBookFileProgressRepository extends JpaRepository<UserBookFileProgressEntity, Long> {
 
+    @Query("""
+        SELECT CASE WHEN COUNT(ubfp) > 0 THEN true ELSE false END
+        FROM UserBookFileProgressEntity ubfp
+        WHERE ubfp.bookFile.book.id = :bookId
+    """)
+    boolean existsByBookFileBookId(@Param("bookId") Long bookId);
+
     @EntityGraph(attributePaths = {"bookFile", "bookFile.book"})
     Optional<UserBookFileProgressEntity> findByUserIdAndBookFileId(Long userId, Long bookFileId);
 

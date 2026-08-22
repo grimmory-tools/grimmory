@@ -110,7 +110,7 @@ class ReplacementDeleteGuardServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user());
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
         when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
-        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(false);
         ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
                 fileProgressRepository, restrictionRepository, authenticationService, bookService);
 
@@ -131,7 +131,7 @@ class ReplacementDeleteGuardServiceTest {
         successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
         when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
-        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(false);
         ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
                 fileProgressRepository, restrictionRepository, authenticationService, bookService);
         String guardId = service.create(request()).guardId();
@@ -264,9 +264,7 @@ class ReplacementDeleteGuardServiceTest {
     void successorFileProgressAddedAfterIssuanceRejectsConsume() {
         Prepared prepared = prepared(false);
         // create used the empty default result; this replacement represents a row added after issuance.
-        UserBookFileProgressEntity fileProgress = mock(UserBookFileProgressEntity.class);
-        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L))
-                .thenReturn(List.of(fileProgress));
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(true);
 
         APIException error = assertThrows(APIException.class, () -> prepared.service().consume(prepared.guardId()));
         assertEquals(HttpStatus.CONFLICT, error.getStatus());
@@ -281,11 +279,66 @@ class ReplacementDeleteGuardServiceTest {
         successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
         when(authenticationService.getAuthenticatedUser()).thenReturn(user());
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
-        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of(mock(UserBookFileProgressEntity.class)));
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(true);
 
         ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
                 fileProgressRepository, restrictionRepository, authenticationService, bookService);
         assertThrows(APIException.class, () -> service.create(request()));
+        verifyNoInteractions(bookService);
+    }
+
+    @Test
+    void hiddenCatalogCollisionRejectsCreateBeforeDeletion() {
+        BookEntity predecessor = physicalPredecessor();
+        BookEntity successor = digitalSuccessor();
+        BookEntity collision = book(3, ISBN13, OTHER_ISBN10);
+        BookLoreUser regular = BookLoreUser.builder().id(42L)
+                .assignedLibraries(List.of(Library.builder().id(7L).build()))
+                .permissions(new BookLoreUser.UserPermissions()).build();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(regular);
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor, collision));
+        when(restrictionRepository.findByUserId(42L)).thenReturn(List.of());
+        when(bookRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
+                .thenReturn(List.of(predecessor, successor));
+
+        assertThrows(APIException.class, () -> new ReplacementDeleteGuardService(bookRepository, progressRepository,
+                fileProgressRepository, restrictionRepository, authenticationService, bookService).create(request()));
+        verifyNoInteractions(bookService);
+    }
+
+    @Test
+    void collisionAddedAfterIssuanceRejectsConsumeBeforeDeletion() {
+        BookEntity predecessor = physicalPredecessor();
+        BookEntity successor = digitalSuccessor();
+        List<BookEntity> catalog = new java.util.ArrayList<>(List.of(predecessor, successor));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user());
+        when(bookRepository.findAllFullBooksWithFiles()).thenAnswer(invocation -> catalog);
+        when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(false);
+        ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
+                fileProgressRepository, restrictionRepository, authenticationService, bookService);
+
+        String guardId = service.create(request()).guardId();
+        catalog.add(book(3, ISBN13, OTHER_ISBN10));
+
+        assertThrows(APIException.class, () -> service.consume(guardId));
+        verifyNoInteractions(bookService);
+    }
+
+    @Test
+    void exactCatalogPairStillRejectsWhenPairIsHiddenFromViewer() {
+        BookEntity predecessor = physicalPredecessor();
+        BookEntity successor = digitalSuccessor();
+        BookLoreUser regular = BookLoreUser.builder().id(42L)
+                .assignedLibraries(List.of(Library.builder().id(7L).build()))
+                .permissions(new BookLoreUser.UserPermissions()).build();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(regular);
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+        when(restrictionRepository.findByUserId(42L)).thenReturn(List.of());
+        when(bookRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class))).thenReturn(List.of());
+
+        assertThrows(APIException.class, () -> new ReplacementDeleteGuardService(bookRepository, progressRepository,
+                fileProgressRepository, restrictionRepository, authenticationService, bookService).create(request()));
         verifyNoInteractions(bookService);
     }
 
@@ -298,9 +351,23 @@ class ReplacementDeleteGuardServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user());
         when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
         when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
-        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
+        when(fileProgressRepository.existsByBookFileBookId(2L)).thenReturn(false);
         ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository, fileProgressRepository, restrictionRepository, authenticationService, bookService);
         return new Prepared(service, service.create(request()).guardId(), successor);
+    }
+
+    private BookEntity physicalPredecessor() {
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        predecessor.setLibrary(LibraryEntity.builder().id(7L).build());
+        return predecessor;
+    }
+
+    private BookEntity digitalSuccessor() {
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
+        successor.setLibrary(LibraryEntity.builder().id(7L).build());
+        return successor;
     }
 
     private ReplacementDeleteGuardRequest request() {
