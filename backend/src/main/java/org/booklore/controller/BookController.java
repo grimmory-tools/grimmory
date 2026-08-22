@@ -12,18 +12,21 @@ import org.booklore.model.dto.request.DuplicateDetectionRequest;
 import org.booklore.model.dto.request.PersonalRatingUpdateRequest;
 import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.dto.request.ReadStatusUpdateRequest;
+import org.booklore.model.dto.request.ReplacementDeleteGuardRequest;
 import org.booklore.model.dto.request.ShelvesAssignmentRequest;
 import org.booklore.model.dto.response.AttachBookFileResponse;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.dto.response.DuplicateGroup;
 import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
+import org.booklore.model.dto.response.ReplacementDeleteGuardResponse;
 import org.booklore.model.enums.ResetProgressType;
 import org.booklore.service.book.BookFileAttachmentService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
 import org.booklore.service.book.PhysicalBookService;
+import org.booklore.service.book.ReplacementDeleteGuardService;
 import org.booklore.service.browse.BookBrowseService;
 import org.booklore.service.browse.BookFacetService;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
@@ -71,6 +74,7 @@ public class BookController {
     private final ReadingProgressService readingProgressService;
     private final PhysicalBookService physicalBookService;
     private final DuplicateDetectionService duplicateDetectionService;
+    private final ReplacementDeleteGuardService replacementDeleteGuardService;
 
     @Operation(summary = "Get all books", description = "Retrieve a list of all books. Optionally include descriptions.")
     @ApiResponse(responseCode = "200", description = "List of books returned successfully")
@@ -170,6 +174,21 @@ public class BookController {
     public ResponseEntity<BookDeletionResponse> deleteBooks(
             @Parameter(description = "Set of book IDs to delete") @RequestParam Set<Long> ids) {
         return bookService.deleteBooks(ids);
+    }
+
+    @Operation(summary = "Create a conditional replacement-delete guard")
+    @PostMapping("/replacement-delete-guards")
+    @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")
+    public ResponseEntity<ReplacementDeleteGuardResponse> createReplacementDeleteGuard(
+            @RequestBody @Valid ReplacementDeleteGuardRequest request) {
+        return ResponseEntity.ok(replacementDeleteGuardService.create(request));
+    }
+
+    @Operation(summary = "Consume a conditional replacement-delete guard")
+    @DeleteMapping("/replacement-delete-guards/{guardId}")
+    @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")
+    public ResponseEntity<?> consumeReplacementDeleteGuard(@PathVariable String guardId) {
+        return ResponseEntity.ok(replacementDeleteGuardService.consume(guardId));
     }
 
     @Operation(summary = "Get books by IDs", description = "Retrieve multiple books by their IDs. Optionally include descriptions.")
