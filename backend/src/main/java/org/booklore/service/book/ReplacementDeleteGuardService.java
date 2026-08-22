@@ -71,10 +71,11 @@ public class ReplacementDeleteGuardService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Map<String, Object> consume(String id) {
         purgeExpiredGuards();
-        Guard guard = guards.remove(id);
+        Guard guard = guards.get(id);
         if (guard == null || guard.expiresAt().isBefore(Instant.now())) fail();
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         if (!Objects.equals(user.getId(), guard.userId())) fail();
+        if (!guards.remove(id, guard)) fail();
         List<BookEntity> population = matchingPopulation(visibleBooks(user), guard.isbn13());
         BookEntity predecessor = find(population, guard.predecessorId());
         BookEntity successor = find(population, guard.successorId());

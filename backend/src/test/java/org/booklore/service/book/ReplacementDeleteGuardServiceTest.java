@@ -121,6 +121,30 @@ class ReplacementDeleteGuardServiceTest {
     }
 
     @Test
+    void nonOwnerCannotConsumeOrInvalidateGuard() {
+        BookLoreUser owner = user();
+        BookLoreUser otherUser = BookLoreUser.builder().id(99L).assignedLibraries(List.of()).permissions(adminPermissions()).build();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(owner, otherUser, owner);
+        BookEntity predecessor = book(1, ISBN13, null);
+        predecessor.setIsPhysical(true);
+        BookEntity successor = book(2, ISBN13, ISBN10);
+        successor.setBookFiles(Set.of(BookFileEntity.builder().book(successor).bookType(BookFileType.EPUB).build()));
+        when(bookRepository.findAllFullBooksWithFiles()).thenReturn(List.of(predecessor, successor));
+        when(progressRepository.findByUserIdAndBookId(42L, 2L)).thenReturn(Optional.of(progress()));
+        when(fileProgressRepository.findByUserIdAndBookFileBookId(42L, 2L)).thenReturn(List.of());
+        ReplacementDeleteGuardService service = new ReplacementDeleteGuardService(bookRepository, progressRepository,
+                fileProgressRepository, restrictionRepository, authenticationService, bookService);
+        String guardId = service.create(request()).guardId();
+        when(bookService.deleteBooks(Set.of(1L))).thenReturn(ResponseEntity.ok(new BookDeletionResponse(Set.of(1L), List.of())));
+
+        APIException error = assertThrows(APIException.class, () -> service.consume(guardId));
+        assertEquals(HttpStatus.CONFLICT, error.getStatus());
+        verifyNoInteractions(bookService);
+        assertEquals("deleted", service.consume(guardId).get("status"));
+        verify(bookService).deleteBooks(Set.of(1L));
+    }
+
+    @Test
     void visibleShelfChangeAfterIssuanceRejectsConsume() {
         Prepared prepared = prepared(false);
         BookLoreUserEntity owner = BookLoreUserEntity.builder().id(42L).build();
