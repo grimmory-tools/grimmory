@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.booklore.browse.BrowsePage;
 import org.booklore.browse.CursorCodec;
 import org.booklore.browse.CursorState;
-import org.booklore.browse.FacetLogic;
 import org.booklore.browse.Link;
 import org.booklore.browse.LinksBuilder;
 import org.booklore.browse.ParamsHash;
@@ -57,14 +56,13 @@ public class BookBrowseService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public BrowsePage<Book> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
+    public BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, Pageable pageable) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
         boolean isAdmin = user.getPermissions().isAdmin();
 
         Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        String paramsHash = ParamsHash.compute(query, facets, facetLogic);
+        String paramsHash = ParamsHash.compute(query, facets);
 
         long offset;
         int limit;
@@ -86,7 +84,7 @@ public class BookBrowseService {
         limit = Math.min(limit, MAX_PAGE_SIZE);
 
         List<SortTerm> sortTerms = SortParser.parse(sortString, sortRegistry.registry().keys());
-        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
+        Specification<BookEntity> filter = filterSpecifications.base(query, facets, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
         Specification<BookEntity> spec = withSort(filter, sortTerms, userId);
 
         Pageable pageRequest = PageRequest.of((int) (offset / limit), limit);
@@ -96,20 +94,19 @@ public class BookBrowseService {
         CursorState baseState = new CursorState(offset, limit, sortString, paramsHash);
         String currentCursor = cursorCodec.encode(baseState);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
+                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, query), offset, limit, page.getTotalElements(), baseState));
 
         return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), currentCursor, links);
     }
 
-    public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
+    public List<Long> findAllIds(String sort, List<String> facet, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
         boolean isAdmin = user.getPermissions().isAdmin();
 
         Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
         List<SortTerm> sortTerms = SortParser.parse(sort, sortRegistry.registry().keys());
-        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
+        Specification<BookEntity> filter = filterSpecifications.base(query, facets, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -127,7 +124,7 @@ public class BookBrowseService {
     public BrowsePage<Book> wrapLegacy(Page<Book> page, Pageable pageable) {
         long offset = pageable.getOffset();
         int limit = pageable.getPageSize();
-        String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.AND);
+        String paramsHash = ParamsHash.compute(null, Map.of());
         CursorState baseState = new CursorState(offset, limit, null, paramsHash);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
                 PAGE_PATH, FACET_PATH, "", offset, limit, page.getTotalElements(), baseState));

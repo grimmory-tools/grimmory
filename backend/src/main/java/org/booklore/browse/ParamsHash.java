@@ -8,7 +8,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
-// Fingerprint of the request params (query, facet logic, facet selections)
+// Fingerprint of the request params (query, facet selections with their "+"/"-" key prefixes)
 // Used within the cursor + compared on follow-up so cursors w/ conflicting facets are rejected
 public final class ParamsHash {
 
@@ -17,10 +17,9 @@ public final class ParamsHash {
     private ParamsHash() {
     }
 
-    public static String compute(String query, Map<String, List<String>> facets, FacetLogic logic) {
+    public static String compute(String query, Map<String, List<String>> facets) {
         StringBuilder canonical = new StringBuilder();
         appendField(canonical, query == null ? "" : query.trim());
-        appendField(canonical, (logic == null ? FacetLogic.AND : logic).name());
         if (facets != null) {
             List<String> keys = new ArrayList<>(facets.keySet());
             keys.sort(String::compareTo);

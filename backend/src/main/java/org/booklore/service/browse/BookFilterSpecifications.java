@@ -27,7 +27,7 @@ public class BookFilterSpecifications {
     private final BookFacetRegistry facetRegistry;
     private final UserContentRestrictionRepository restrictionRepository;
 
-    public Specification<BookEntity> base(String query, Map<String, List<String>> facets, FacetLogic facetLogic,
+    public Specification<BookEntity> base(String query, Map<String, List<String>> facets,
                                           Long userId, boolean isAdmin, Set<Long> libraryIds, String omitFacet) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
@@ -39,13 +39,19 @@ public class BookFilterSpecifications {
             specs.add(BookSearchSpecification.matching(query));
         }
         for (Map.Entry<String, List<String>> entry : facets.entrySet()) {
-            if (Objects.equals(entry.getKey(), omitFacet)) {
+            FacetLogic mode = switch (entry.getKey().charAt(0)) {
+                case '-' -> FacetLogic.NOT;
+                case '+' -> FacetLogic.AND;
+                default -> FacetLogic.OR;
+            };
+            String key = mode == FacetLogic.OR ? entry.getKey() : entry.getKey().substring(1);
+            if (Objects.equals(key, omitFacet) && mode != FacetLogic.AND) {
                 continue;
             }
-            if (!facetRegistry.has(entry.getKey())) {
+            if (!facetRegistry.has(key)) {
                 throw ApiError.INVALID_FACET.createException("Unknown facet: " + entry.getKey());
             }
-            specs.add(facetRegistry.toSpecification(entry.getKey(), entry.getValue(), facetLogic, userId));
+            specs.add(facetRegistry.toSpecification(key, entry.getValue(), mode, userId));
         }
         return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }

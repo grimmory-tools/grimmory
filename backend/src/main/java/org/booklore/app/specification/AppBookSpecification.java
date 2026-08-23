@@ -801,7 +801,24 @@ public class AppBookSpecification {
         return (root, query, cb) -> {
             List<String> cleaned = cleanLowerCase(values);
             if (cleaned.isEmpty()) return cb.conjunction();
-            
+
+            if ("and".equals(mode)) {
+                List<Predicate> predicates = new ArrayList<>();
+                for (String value : cleaned) {
+                    Subquery<Long> sub = query.subquery(Long.class);
+                    Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
+                    Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);
+                    Join<?, ?> collJoin = comicJoin.join(collectionAttr, JoinType.INNER);
+                    sub.select(cb.literal(1L))
+                            .where(
+                                    cb.equal(metaRoot.get("id"), root.get("id")),
+                                    cb.equal(cb.lower(collJoin.get("name")), value)
+                            );
+                    predicates.add(cb.exists(sub));
+                }
+                return cb.and(predicates.toArray(Predicate[]::new));
+            }
+
             Subquery<Long> sub = query.subquery(Long.class);
             Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
             Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);

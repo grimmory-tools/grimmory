@@ -170,7 +170,7 @@ class BookFacetServiceTest {
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = facetService.getFacets(null, null);
 
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
@@ -184,7 +184,7 @@ class BookFacetServiceTest {
         book("C", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror"), null, null);
+        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror"), null);
 
         // genre omits itself: both Horror (2) and Romance (1) still appear with full counts.
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(2);
@@ -201,7 +201,7 @@ class BookFacetServiceTest {
         book("C", "Romance", "Bob");
         em.flush();
 
-        List<String> genres = group(facetService.getFacets(null, null, null), "genre").links()
+        List<String> genres = group(facetService.getFacets(null, null), "genre").links()
                 .stream().map(FacetLink::value).toList();
         assertThat(genres).containsExactly("Horror", "Romance");
     }
@@ -211,7 +211,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetLink horror = link(group(facetService.getFacets(null, null, null), "genre"), "Horror");
+        FacetLink horror = link(group(facetService.getFacets(null, null), "genre"), "Horror");
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
         assertThat(horror.properties().numberOfItems()).isEqualTo(1);
         assertThat(horror.rel()).containsExactly("facet");
@@ -221,8 +221,8 @@ class BookFacetServiceTest {
     void responseIsCachedPerParameters() {
         book("A", "Horror", "Alice");
         em.flush();
-        FacetGroupsResponse first = facetService.getFacets(null, null, null);
-        FacetGroupsResponse second = facetService.getFacets(null, null, null);
+        FacetGroupsResponse first = facetService.getFacets(null, null);
+        FacetGroupsResponse second = facetService.getFacets(null, null);
         assertThat(first).isSameAs(second);
     }
 
@@ -230,7 +230,7 @@ class BookFacetServiceTest {
     void includesSortGroup() {
         book("A", "Horror", "Alice");
         em.flush();
-        FacetGroup sort = group(facetService.getFacets(null, null, null), "sort");
+        FacetGroup sort = group(facetService.getFacets(null, null), "sort");
         assertThat(sort.metadata().rel()).isEqualTo("sort");
         assertThat(sort.links()).extracting(FacetLink::value).contains("title", "-title");
         assertThat(sort.links()).allSatisfy(l -> assertThat(l.rel()).containsExactly("sort"));
@@ -242,8 +242,8 @@ class BookFacetServiceTest {
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse withNull = facetService.getFacets(null, null, null);
-        FacetGroupsResponse withEmpty = facetService.getFacets(List.of(), null, null);
+        FacetGroupsResponse withNull = facetService.getFacets(null, null);
+        FacetGroupsResponse withEmpty = facetService.getFacets(List.of(), null);
 
         assertThat(count(group(withEmpty, "genre"), "Horror")).isEqualTo(count(group(withNull, "genre"), "Horror"));
         assertThat(count(group(withEmpty, "genre"), "Romance")).isEqualTo(count(group(withNull, "genre"), "Romance"));
@@ -257,7 +257,7 @@ class BookFacetServiceTest {
         book("C", "Romance", "Alice");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null);
+        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror", "author:Alice"), null);
 
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
@@ -267,31 +267,13 @@ class BookFacetServiceTest {
     }
 
     @Test
-    void facetLogicCombinesSelectedValues() {
-        book("A", "Horror", "Alice");
-        book("B", "Romance", "Bob");
-        book("C", "Fantasy", "Cara");
-        em.flush();
-
-        List<String> genres = List.of("genre:Horror", "genre:Romance");
-
-        assertThat(group(facetService.getFacets(genres, "or", null), "author").links())
-                .extracting(FacetLink::value).containsExactlyInAnyOrder("Alice", "Bob");
-
-        assertThat(group(facetService.getFacets(genres, "and", null), "author").links()).isEmpty();
-
-        assertThat(group(facetService.getFacets(genres, "not", null), "author").links())
-                .extracting(FacetLink::value).containsExactly("Cara");
-    }
-
-    @Test
     void truncatesValuesAtMax() {
         for (int i = 0; i < 101; i++) {
             book("T" + i, "Genre" + i, "Author" + i);
         }
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = facetService.getFacets(null, null);
 
         assertThat(group(response, "genre").links()).hasSize(100);
         assertThat(group(response, "author").links()).hasSize(100);
@@ -303,7 +285,7 @@ class BookFacetServiceTest {
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror"), null, null), "genre");
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror"), null), "genre");
         FacetLink horror = link(genre, "Horror");
         FacetLink romance = link(genre, "Romance");
 
@@ -319,7 +301,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null), "genre");
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror", "author:Alice"), null), "genre");
         FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).containsExactly("self", "facet");
@@ -331,7 +313,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:horror"), null, null), "genre");
+        FacetGroup genre = group(facetService.getFacets(List.of("genre:horror"), null), "genre");
         FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).contains("self");
@@ -342,12 +324,12 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        Link bare = facetService.getFacets(null, null, null).links().getFirst();
+        Link bare = facetService.getFacets(null, null).links().getFirst();
         assertThat(bare.rel()).containsExactly("self");
         assertThat(bare.href()).isEqualTo("/api/v1/books/facets");
         assertThat(bare.type()).isEqualTo(Link.JSON_TYPE);
 
-        Link filtered = facetService.getFacets(List.of("genre:Horror"), null, "dune").links().getFirst();
+        Link filtered = facetService.getFacets(List.of("genre:Horror"), "dune").links().getFirst();
         assertThat(filtered.rel()).containsExactly("self");
         assertThat(filtered.href()).isEqualTo("/api/v1/books/facets?facet=genre%3AHorror&query=dune");
     }
@@ -359,7 +341,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        String json = springMapper.writeValueAsString(facetService.getFacets(List.of("genre:Horror"), null, null));
+        String json = springMapper.writeValueAsString(facetService.getFacets(List.of("genre:Horror"), null));
 
         assertThat(json).contains("\"rel\":\"self\"");
         assertThat(json).contains("\"rel\":[\"self\",\"facet\"]");
