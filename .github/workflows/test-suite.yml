@@ -30,7 +30,7 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@065d6a08a14e61e89fb0a4c10eecdbdef39c7d8e # v2.85.4
+        uses: taiki-e/install-action@a2a5f6e99e1a31540baa0468acfa302cff0f359f # v2.86.4
         with:
           tool: just
 
@@ -102,7 +102,7 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@065d6a08a14e61e89fb0a4c10eecdbdef39c7d8e # v2.85.4
+        uses: taiki-e/install-action@a2a5f6e99e1a31540baa0468acfa302cff0f359f # v2.86.4
         with:
           tool: just
 
