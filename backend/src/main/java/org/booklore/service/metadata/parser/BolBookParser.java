@@ -174,16 +174,48 @@ public class BolBookParser implements BookParser {
             } catch (Exception e) {
                 continue; // not JSON or not ours
             }
-            if (node == null || !containsType(node, "Book")) {
+            if (node == null) {
                 continue;
             }
-            BookMetadata metadata = buildMetadata(node);
+            JsonNode book = findBookNode(node);
+            if (book == null) {
+                continue;
+            }
+            BookMetadata metadata = buildMetadata(book);
             if (metadata != null && metadata.getTitle() != null && !metadata.getTitle().isBlank()) {
                 return metadata;
             }
         }
         log.warn("Bol.com: no Book JSON-LD found on page");
         return null;
+    }
+
+    /**
+     * Find the first Book node inside a JSON-LD document. JSON-LD permits a
+     * top-level array of nodes and a root {@code @graph} container, so flatten
+     * those before checking the @type.
+     */
+    private static JsonNode findBookNode(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return null;
+        }
+        if (node.isArray()) {
+            for (JsonNode item : node) {
+                JsonNode book = findBookNode(item);
+                if (book != null) {
+                    return book;
+                }
+            }
+            return null;
+        }
+        JsonNode graph = node.get("@graph");
+        if (graph != null && graph.isArray()) {
+            JsonNode book = findBookNode(graph);
+            if (book != null) {
+                return book;
+            }
+        }
+        return containsType(node, "Book") ? node : null;
     }
 
     private BookMetadata buildMetadata(JsonNode node) {
@@ -263,11 +295,16 @@ public class BolBookParser implements BookParser {
      * Prefer the work example that belongs to the product page we are looking at.
      * A bol.com product URL ends with a numeric id (e.g. .../1001004010633861/);
      * the matching edition in workExample carries that same id in its own URL.
-     * Falls back to the first Book entry, then to the first entry, if none match.
+     * schema.org also allows workExample to be a single CreativeWork object,
+     * in which case that object is the only candidate. Falls back to the first
+     * Book entry, then to the first entry, if none match.
      */
     private static JsonNode findMatchingEdition(JsonNode workExample, String rootUrl) {
-        if (workExample == null || !workExample.isArray()) {
+        if (workExample == null || workExample.isNull() || workExample.isMissingNode()) {
             return null;
+        }
+        if (!workExample.isArray()) {
+            return containsType(workExample, "Book") ? workExample : null;
         }
         String rootId = extractBolId(rootUrl);
         if (rootId != null) {

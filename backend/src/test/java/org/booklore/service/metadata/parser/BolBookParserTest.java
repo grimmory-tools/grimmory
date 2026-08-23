@@ -3,7 +3,7 @@ package org.booklore.service.metadata.parser;
 import org.booklore.model.dto.BookMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ class BolBookParserTest {
 
     @BeforeEach
     void setUp() {
-        parser = new BolBookParser(new ObjectMapper());
+        parser = new BolBookParser(JsonMapper.shared());
     }
 
     @Test
@@ -72,6 +72,54 @@ class BolBookParserTest {
         assertThat(metadata.getAuthors()).isEmpty();
         assertThat(metadata.getIsbn13()).isNull();
         assertThat(metadata.getRating()).isNull();
+    }
+
+    @Test
+    void handlesObjectValuedWorkExample() {
+        String html = """
+                <html><body>
+                <script type="application/ld+json">{"@type":"Book","name":"De verdenking","url":"https://www.bol.com/nl/nl/p/de-verdenking/1001004001998403/","workExample":{"@type":"Book","name":"De Verdenking","url":"https://www.bol.com/nl/nl/p/de-verdenking/1001004001998403/","isbn":"9789076682266","datePublished":"2004-07-24","numberOfPages":"425"}}</script>
+                </body></html>""";
+
+        BookMetadata metadata = parser.parseProductPage(html);
+
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getTitle()).isEqualTo("De verdenking");
+        assertThat(metadata.getIsbn13()).isEqualTo("9789076682266");
+        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2004, 7, 24));
+        assertThat(metadata.getPageCount()).isEqualTo(425);
+    }
+
+    @Test
+    void handlesTopLevelJsonLdArray() {
+        String html = """
+                <html><body>
+                <script type="application/ld+json">[{"@type":"BreadcrumbList","itemListElement":[]},{"@type":"Book","name":"De verdenking","gtin13":"9789076682266","datePublished":"2004-07-24","workExample":{"@type":"Book","isbn":"9789076682266","numberOfPages":"425"}}]</script>
+                </body></html>""";
+
+        BookMetadata metadata = parser.parseProductPage(html);
+
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getTitle()).isEqualTo("De verdenking");
+        assertThat(metadata.getIsbn13()).isEqualTo("9789076682266");
+        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2004, 7, 24));
+        assertThat(metadata.getPageCount()).isEqualTo(425);
+    }
+
+    @Test
+    void handlesGraphContainer() {
+        String html = """
+                <html><body>
+                <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[]},{"@type":"Book","name":"De verdenking","gtin13":"9789076682266","datePublished":"2004-07-24","workExample":{"@type":"Book","isbn":"9789076682266","numberOfPages":"425"}}]}</script>
+                </body></html>""";
+
+        BookMetadata metadata = parser.parseProductPage(html);
+
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getTitle()).isEqualTo("De verdenking");
+        assertThat(metadata.getIsbn13()).isEqualTo("9789076682266");
+        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2004, 7, 24));
+        assertThat(metadata.getPageCount()).isEqualTo(425);
     }
 
     private String readFixture(String fixtureName) throws IOException {
