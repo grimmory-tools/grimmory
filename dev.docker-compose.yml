@@ -38,7 +38,7 @@ services:
     command: |-
       sh -c "\
       cd /workspace &&\
-      npm install -g pnpm@11.18.0 &&\
+      npm install -g pnpm@11.19.0 &&\
       pnpm config set store-dir /workspace/node_modules/.pnpm-store &&\
       pnpm install --frozen-lockfile --ignore-scripts &&\
       pnpm -C frontend exec ng serve --host 0.0.0.0 --watch --configuration development"
