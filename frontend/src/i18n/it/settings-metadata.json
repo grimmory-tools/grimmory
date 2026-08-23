@@ -46,6 +46,7 @@
         "sectionDesc": "Configura quali fonti online utilizzare per recuperare i metadati dei libri. Abilita i provider e configura i loro token API o cookie per accedere a informazioni più ricche sui libri.",
         "configurableTitle": "Provider con configurazione",
         "readyToUseTitle": "Provider pronti all'uso",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Salva configurazioni",
         "saveSuccess": "Impostazioni provider metadati salvate.",
         "saveError": "Salvataggio impostazioni provider metadati fallito.",

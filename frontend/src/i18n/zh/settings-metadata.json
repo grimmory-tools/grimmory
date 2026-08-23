@@ -46,6 +46,7 @@
         "sectionDesc": "配置用于获取书籍元数据的在线来源。启用提供商并设置其 API 令牌或 Cookie 以访问更丰富的书籍信息。",
         "configurableTitle": "可配置的提供商",
         "readyToUseTitle": "即用型提供商",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "保存配置",
         "saveSuccess": "元数据提供商设置已保存。",
         "saveError": "保存元数据提供商设置失败。",

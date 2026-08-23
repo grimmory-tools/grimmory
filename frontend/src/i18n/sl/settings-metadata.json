@@ -46,6 +46,7 @@
         "sectionDesc": "Nastavi, kateri spletni viri naj se uporabljajo za pridobivanje metapodatkov o knjigah. Omogoči ponudnike in nastavi njihove API žetone ali piškotke za dostop do bogatejših informacij.",
         "configurableTitle": "Ponudniki s konfiguracijo",
         "readyToUseTitle": "Ponudniki, pripravljeni na uporabo",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Shrani konfiguracije",
         "saveSuccess": "Nastavitve ponudnikov metapodatkov so shranjene.",
         "saveError": "Shranjevanje nastavitev ponudnikov ni uspelo.",

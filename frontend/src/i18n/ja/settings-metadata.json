@@ -46,6 +46,7 @@
         "sectionDesc": "ブックメタデータの取得に使用するオンラインソースを設定します。プロバイダーを有効にし、APIトークンやCookieを設定してより豊富な本の情報にアクセスします。",
         "configurableTitle": "設定可能なプロバイダー",
         "readyToUseTitle": "すぐに使えるプロバイダー",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "設定を保存",
         "saveSuccess": "メタデータプロバイダー設定が保存されました。",
         "saveError": "メタデータプロバイダー設定の保存に失敗しました。",

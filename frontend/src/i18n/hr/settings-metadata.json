@@ -46,6 +46,7 @@
         "sectionDesc": "Konfigurirajte koje online izvore koristiti za dohvaćanje metapodataka knjiga. Omogućite pružatelje i postavite njihove API tokene ili kolačiće za pristup bogatijim informacijama o knjigama.",
         "configurableTitle": "Pružatelji s konfiguracijom",
         "readyToUseTitle": "Pružatelji spremni za korištenje",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Spremi konfiguracije",
         "saveSuccess": "Postavke pružatelja metapodataka spremljene.",
         "saveError": "Spremanje postavki pružatelja metapodataka nije uspjelo.",

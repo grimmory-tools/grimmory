@@ -46,6 +46,7 @@
         "sectionDesc": "Skonfiguruj źródła online do pobierania metadanych książek. Włącz dostawców i skonfiguruj ich tokeny API lub ciasteczka, aby uzyskać bogatsze informacje o książkach.",
         "configurableTitle": "Dostawcy z konfiguracją",
         "readyToUseTitle": "Gotowi do użycia dostawcy",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Zapisz konfiguracje",
         "saveSuccess": "Ustawienia dostawcy metadanych zapisane.",
         "saveError": "Nie udało się zapisać ustawień dostawcy metadanych.",

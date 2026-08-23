@@ -46,6 +46,7 @@
         "sectionDesc": "Configurez les sources en ligne à utiliser pour récupérer les métadonnées des livres. Activez les fournisseurs et configurez leurs jetons API ou cookies pour accéder à des informations plus riches.",
         "configurableTitle": "Fournisseurs avec configuration",
         "readyToUseTitle": "Fournisseurs prêts à l'emploi",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Enregistrer les configurations",
         "saveSuccess": "Paramètres des fournisseurs de métadonnées enregistrés.",
         "saveError": "Échec de l'enregistrement des paramètres des fournisseurs de métadonnées.",

@@ -46,6 +46,7 @@
         "sectionDesc": "Configure quais fontes online usar para buscar metadados de livros. Ative provedores e configure seus tokens de API ou cookies para acessar informações mais ricas sobre livros.",
         "configurableTitle": "Provedores com Configuração",
         "readyToUseTitle": "Provedores Prontos para Uso",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Salvar Configurações",
         "saveSuccess": "Configurações dos provedores de metadados salvas.",
         "saveError": "Falha ao salvar configurações dos provedores de metadados.",

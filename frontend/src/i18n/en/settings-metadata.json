@@ -46,6 +46,7 @@
     "sectionDesc": "Configure which online sources to use for fetching book metadata. Enable providers and set up their API tokens or cookies to access richer book information.",
     "configurableTitle": "Providers with Configuration",
     "readyToUseTitle": "Ready-to-Use Providers",
+    "bolLabel": "Bol.com",
     "saveConfigurations": "Save Configurations",
     "saveSuccess": "Metadata provider settings saved.",
     "saveError": "Failed to save metadata provider settings.",

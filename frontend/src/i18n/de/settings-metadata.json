@@ -46,6 +46,7 @@
         "sectionDesc": "Konfigurieren Sie, welche Online-Quellen zum Abrufen von Buchmetadaten verwendet werden. Aktivieren Sie Anbieter und richten Sie deren API-Tokens oder Cookies ein, um auf umfangreichere Buchinformationen zuzugreifen.",
         "configurableTitle": "Anbieter mit Konfiguration",
         "readyToUseTitle": "Sofort einsatzbereite Anbieter",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Konfigurationen speichern",
         "saveSuccess": "Metadaten-Anbietereinstellungen gespeichert.",
         "saveError": "Metadaten-Anbietereinstellungen konnten nicht gespeichert werden.",

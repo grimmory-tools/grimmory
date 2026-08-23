@@ -46,6 +46,7 @@
         "sectionDesc": "Configura qué fuentes en línea usar para obtener metadatos de libros. Habilita proveedores y configura sus tokens API o cookies para acceder a información más rica sobre libros.",
         "configurableTitle": "Proveedores con configuración",
         "readyToUseTitle": "Proveedores listos para usar",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Guardar configuraciones",
         "saveSuccess": "Ajustes de proveedores de metadatos guardados.",
         "saveError": "Error al guardar los ajustes de proveedores de metadatos.",

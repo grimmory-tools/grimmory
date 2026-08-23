@@ -46,6 +46,7 @@
         "sectionDesc": "Konfigurera vilka onlinekällor som ska användas för att hämta bokmetadata. Aktivera leverantörer och ställ in deras API-nycklar eller cookies för att få tillgång till rikare bokinformation.",
         "configurableTitle": "Leverantörer med konfiguration",
         "readyToUseTitle": "Färdiga leverantörer",
+        "bolLabel": "Bol.com",
         "saveConfigurations": "Spara konfigurationer",
         "saveSuccess": "Metadataleverantörsinställningar sparade.",
         "saveError": "Kunde inte spara metadataleverantörsinställningar.",
