@@ -17,9 +17,12 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -37,8 +40,11 @@ public class BolBookParser implements BookParser {
     private static final String SEARCH_URL = "https://www.bol.com/nl/nl/s/";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
     private static final int DETAIL_FETCH_COUNT = 3;
+    // jsoup default is 2 MB; keep a finite cap so an oversized Bol page cannot exhaust heap
+    private static final int MAX_BODY_SIZE_BYTES = 2 * 1024 * 1024;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern NON_ISBN_PATTERN = Pattern.compile("[^0-9Xx]");
+    private static final Pattern BOL_ID_PATTERN = Pattern.compile("/(\\d+)/?$");
 
     private final ObjectMapper objectMapper;
 
@@ -208,7 +214,7 @@ public class BolBookParser implements BookParser {
             isbn13 = gtin;
         }
 
-        JsonNode workExample = findFirstBook(node.get("workExample"));
+        JsonNode workExample = findMatchingEdition(node.get("workExample"), node.path("url").asText(null));
         if (workExample != null) {
             if (isbn13 == null) {
                 String isbn = workExample.path("isbn13").asText(null);
@@ -251,6 +257,35 @@ public class BolBookParser implements BookParser {
             }
         }
         return workExample.get(0);
+    }
+
+    /**
+     * Prefer the work example that belongs to the product page we are looking at.
+     * A bol.com product URL ends with a numeric id (e.g. .../1001004010633861/);
+     * the matching edition in workExample carries that same id in its own URL.
+     * Falls back to the first Book entry, then to the first entry, if none match.
+     */
+    private static JsonNode findMatchingEdition(JsonNode workExample, String rootUrl) {
+        if (workExample == null || !workExample.isArray()) {
+            return null;
+        }
+        String rootId = extractBolId(rootUrl);
+        if (rootId != null) {
+            for (JsonNode item : workExample) {
+                if (containsType(item, "Book") && rootId.equals(extractBolId(item.path("url").asText(null)))) {
+                    return item;
+                }
+            }
+        }
+        return findFirstBook(workExample);
+    }
+
+    private static String extractBolId(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+        Matcher matcher = BOL_ID_PATTERN.matcher(url);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     private static boolean containsType(JsonNode node, String type) {
@@ -379,7 +414,7 @@ public class BolBookParser implements BookParser {
     }
 
     private String encode(String value) {
-        return value.replace(" ", "+");
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private Document fetchDocument(String url) throws IOException {
@@ -390,7 +425,7 @@ public class BolBookParser implements BookParser {
                 .timeout(15000)
                 .method(Connection.Method.GET)
                 .ignoreContentType(true)
-                .maxBodySize(0)
+                .maxBodySize(MAX_BODY_SIZE_BYTES)
                 .followRedirects(true);
         return connection.get();
     }

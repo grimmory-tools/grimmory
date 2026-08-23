@@ -37,13 +37,13 @@ class BolBookParserTest {
         assertThat(metadata.getTitle()).isEqualTo("O'Loughlin 1 - De verdenking");
         assertThat(metadata.getAuthors()).containsExactly("Michael Robotham");
         assertThat(metadata.getPublisher()).isEqualTo("Cargo");
-        assertThat(metadata.getIsbn13()).isEqualTo("9789076682266");
+        assertThat(metadata.getIsbn13()).isEqualTo("9789023449249");
         assertThat(metadata.getIsbn10()).isNull();
         assertThat(metadata.getRating()).isEqualTo(4.3);
         assertThat(metadata.getLanguage()).isEqualTo("nl");
         assertThat(metadata.getCategories()).contains("Thrillers & Spanning", "Literaire thrillers");
-        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2004, 7, 24));
-        assertThat(metadata.getPageCount()).isEqualTo(425);
+        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2010, 9, 14));
+        assertThat(metadata.getPageCount()).isNull();
         assertThat(metadata.getThumbnailUrl()).startsWith("https://media.s-bol.com/");
         assertThat(metadata.getDescription()).isNotBlank();
     }
