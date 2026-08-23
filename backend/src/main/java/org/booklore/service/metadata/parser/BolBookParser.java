@@ -40,6 +40,7 @@ public class BolBookParser implements BookParser {
     private static final String SEARCH_URL = "https://www.bol.com/nl/nl/s/";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
     private static final int DETAIL_FETCH_COUNT = 3;
+    private static final long DETAIL_REQUEST_DELAY_MS = 400;
     // jsoup default is 2 MB; keep a finite cap so an oversized Bol page cannot exhaust heap
     private static final int MAX_BODY_SIZE_BYTES = 2 * 1024 * 1024;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
@@ -72,10 +73,15 @@ public class BolBookParser implements BookParser {
         }
 
         List<BookMetadata> metadataList = new ArrayList<>();
+        int attempts = 0;
         for (SearchResult result : results) {
-            if (metadataList.size() >= DETAIL_FETCH_COUNT) {
+            if (attempts >= DETAIL_FETCH_COUNT) {
                 break;
             }
+            if (attempts > 0) {
+                sleepBetweenRequests();
+            }
+            attempts++;
             try {
                 BookMetadata metadata = fetchProductMetadata(result.url());
                 if (metadata != null) {
@@ -91,10 +97,22 @@ public class BolBookParser implements BookParser {
         return metadataList;
     }
 
-    private String buildQuery(FetchMetadataRequest request, Book book) {
+    private void sleepBetweenRequests() {
+        try {
+            Thread.sleep(DETAIL_REQUEST_DELAY_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    String buildQuery(FetchMetadataRequest request, Book book) {
         String isbn = request.getIsbn();
         if (isbn != null && !isbn.isBlank()) {
-            return ParserUtils.cleanIsbn(isbn);
+            String cleaned = ParserUtils.cleanIsbn(isbn);
+            if (cleaned.length() == 10 || cleaned.length() == 13) {
+                return cleaned;
+            }
+            // unusable ISBN, fall through to title/author/filename
         }
 
         String title = request.getTitle();
@@ -164,6 +182,9 @@ public class BolBookParser implements BookParser {
 
     /** Parses the schema.org Book JSON-LD block out of a bol.com product page. */
     public BookMetadata parseProductPage(String html) {
+        if (html == null) {
+            return null;
+        }
         Document doc = Jsoup.parse(html);
 
         // The schema.org Book JSON-LD block carries all the metadata we need.
@@ -209,7 +230,7 @@ public class BolBookParser implements BookParser {
             return null;
         }
         JsonNode graph = node.get("@graph");
-        if (graph != null && graph.isArray()) {
+        if (graph != null) {
             JsonNode book = findBookNode(graph);
             if (book != null) {
                 return book;
@@ -288,7 +309,8 @@ public class BolBookParser implements BookParser {
                 return item;
             }
         }
-        return workExample.get(0);
+        // only Book-typed entries carry usable edition fields
+        return null;
     }
 
     /**

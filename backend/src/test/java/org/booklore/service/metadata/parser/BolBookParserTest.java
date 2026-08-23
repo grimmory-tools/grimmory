@@ -1,6 +1,8 @@
 package org.booklore.service.metadata.parser;
 
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
@@ -75,6 +77,36 @@ class BolBookParserTest {
     }
 
     @Test
+    void returnsNullForEmptyPage() {
+        assertThat(parser.parseProductPage("")).isNull();
+    }
+
+    @Test
+    void returnsNullForNullInput() {
+        assertThat(parser.parseProductPage(null)).isNull();
+    }
+
+    @Test
+    void usesCleanedIsbnAsQuery() {
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .isbn("978-90-243-4924-9")
+                .title("Ignored")
+                .build();
+
+        assertThat(parser.buildQuery(request, Book.builder().build())).isEqualTo("9789024349249");
+    }
+
+    @Test
+    void fallsBackToTitleWhenIsbnIsUnusable() {
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .isbn("not-an-isbn")
+                .title("De verdenking")
+                .build();
+
+        assertThat(parser.buildQuery(request, Book.builder().build())).isEqualTo("De verdenking");
+    }
+
+    @Test
     void handlesObjectValuedWorkExample() {
         String html = """
                 <html><body>
@@ -111,6 +143,22 @@ class BolBookParserTest {
         String html = """
                 <html><body>
                 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[]},{"@type":"Book","name":"De verdenking","gtin13":"9789076682266","datePublished":"2004-07-24","workExample":{"@type":"Book","isbn":"9789076682266","numberOfPages":"425"}}]}</script>
+                </body></html>""";
+
+        BookMetadata metadata = parser.parseProductPage(html);
+
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getTitle()).isEqualTo("De verdenking");
+        assertThat(metadata.getIsbn13()).isEqualTo("9789076682266");
+        assertThat(metadata.getPublishedDate()).isEqualTo(LocalDate.of(2004, 7, 24));
+        assertThat(metadata.getPageCount()).isEqualTo(425);
+    }
+
+    @Test
+    void handlesObjectValuedGraphContainer() {
+        String html = """
+                <html><body>
+                <script type="application/ld+json">{"@context":"https://schema.org","@graph":{"@type":"Book","name":"De verdenking","gtin13":"9789076682266","datePublished":"2004-07-24","workExample":{"@type":"Book","isbn":"9789076682266","numberOfPages":"425"}}}</script>
                 </body></html>""";
 
         BookMetadata metadata = parser.parseProductPage(html);
