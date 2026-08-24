@@ -47,6 +47,7 @@
   flex-shrink: 0;
   background-color: var(--color-card);
   border-bottom: 1px solid var(--p-content-border-color);
+  flex-wrap: wrap;
 
   @media (width >= 768px) {
     gap: 0.875rem;
