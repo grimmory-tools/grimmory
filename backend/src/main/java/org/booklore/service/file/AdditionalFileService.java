@@ -59,7 +59,7 @@ public class AdditionalFileService {
 
         BookFileEntity file = fileOpt.get();
         BookEntity book = file.getBook();
-        validateAdditionalFile(file, book);
+        validateNotLastBookFormat(file, book);
 
         try {
             monitoringRegistrationService.unregisterSpecificPath(file.getFullFilePath().getParent());
@@ -160,6 +160,17 @@ public class AdditionalFileService {
     private void validateAdditionalFile(BookFileEntity file, BookEntity book) {
         if (book != null && book.getPrimaryBookFile() != null && file.getId().equals(book.getPrimaryBookFile().getId())) {
             throw new IllegalArgumentException("Primary book file cannot be processed as an additional file: " + file.getId());
+        }
+    }
+
+    // Deleting the primary format is allowed as long as another book format remains: the
+    // primary is derived (library format priority, then lowest id), so the next format is
+    // promoted automatically. Only the last book format is protected, since removing it
+    // would leave the book without a readable file — delete the book itself instead.
+    private void validateNotLastBookFormat(BookFileEntity file, BookEntity book) {
+        if (file.isBook() && book != null && book.getBookFiles().stream()
+                .noneMatch(bf -> bf.isBook() && !bf.getId().equals(file.getId()))) {
+            throw new IllegalArgumentException("Cannot delete the last book format file: " + file.getId() + ". Delete the book instead.");
         }
     }
 }

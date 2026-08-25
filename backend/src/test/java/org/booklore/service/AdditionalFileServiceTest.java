@@ -309,7 +309,7 @@ class AdditionalFileServiceTest {
     }
 
     @Test
-    void deleteAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
+    void deleteAdditionalFile_WhenFileIsLastBookFormat_ShouldThrowException() {
         Long bookId = 100L;
         Long fileId = 1L;
         bookEntity.setBookFiles(Set.of(fileEntity));
@@ -320,9 +320,33 @@ class AdditionalFileServiceTest {
                 () -> additionalFileService.deleteAdditionalFile(bookId, fileId)
         );
 
-        assertEquals("Primary book file cannot be processed as an additional file: 1", exception.getMessage());
+        assertEquals("Cannot delete the last book format file: 1. Delete the book instead.", exception.getMessage());
         verify(additionalFileRepository, never()).delete(any());
         verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
+    }
+
+    @Test
+    void deleteAdditionalFile_WhenFileIsPrimaryButOtherFormatsExist_ShouldDeleteSuccessfully() {
+        Long bookId = 100L;
+        Long fileId = 1L;
+        BookFileEntity alternativeFormat = createBookFile(2L, "alternative.epub");
+        bookEntity.setBookFiles(new HashSet<>(Set.of(fileEntity, alternativeFormat)));
+        assertEquals(fileEntity, bookEntity.getPrimaryBookFile());
+        Path parentPath = fileEntity.getFullFilePath().getParent();
+
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
+
+            additionalFileService.deleteAdditionalFile(bookId, fileId);
+
+            verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
+            filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
+            verify(additionalFileRepository).delete(fileEntity);
+        }
+
+        assertEquals(alternativeFormat, bookEntity.getPrimaryBookFile());
     }
 
     @Test
