@@ -83,6 +83,8 @@
   border: 1px solid var(--p-content-border-color);
   background: var(--p-content-background);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
 
   @media (width <= 768px) {
     width: 320px;
@@ -91,6 +93,14 @@
 
   &:hover {
     border-color: var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 4%, var(--p-content-background));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--p-primary-color) 20%, transparent);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
   }
 }
 

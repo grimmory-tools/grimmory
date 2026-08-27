@@ -17,7 +17,7 @@
       <div class="bookmarks-scroll-container">
         <div class="bookmarks-horizontal-list">
           @for (bookmark of bookmarks; track bookmark.id) {
-            <div class="bookmark-card">
+            <div class="bookmark-card" (click)="navigateToBookmark(bookmark)">
               <div class="bookmark-header">
                 <div class="bookmark-header-inner">
                   <div class="bookmark-title-group">
@@ -37,7 +37,7 @@
                       size="small"
                       severity="danger"
                       text
-                      (onClick)="deleteBookmark(bookmark)"
+                      (onClick)="deleteBookmark($event, bookmark)"
                       pTooltip="Delete bookmark"
                       tooltipPosition="top"
                       class="action-btn-hover">
