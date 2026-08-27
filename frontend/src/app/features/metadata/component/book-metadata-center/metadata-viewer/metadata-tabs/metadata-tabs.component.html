@@ -85,6 +85,11 @@
         <app-book-notes-component [bookId]="currentBook.id"></app-book-notes-component>
       </ng-template>
     </p-tabpanel>
+    <p-tabpanel value="bookmarks">
+      <ng-template #content>
+        <app-book-bookmarks [bookId]="currentBook.id"></app-book-bookmarks>
+      </ng-template>
+    </p-tabpanel>
     <p-tabpanel value="sessions">
       <ng-template #content>
         <app-book-reading-sessions [bookId]="currentBook.id"></app-book-reading-sessions>

@@ -7,6 +7,7 @@ import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardLiteComponent} from '../../../../../book/components/book-card-lite/book-card-lite-component';
 import {BookReviewsComponent} from '../../../../../book/components/book-reviews/book-reviews.component';
 import {BookNotesComponent} from '../../../../../book/components/book-notes/book-notes-component';
+import {BookBookmarksComponent} from '../../../../../book/components/book-bookmarks/book-bookmarks.component';
 import {BookReadingSessionsComponent} from '../../book-reading-sessions/book-reading-sessions.component';
 import {Button} from '@openng/optimus-ui/button';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
@@ -57,7 +58,7 @@ export interface DetachBookFileEvent {
   fileName: string;
 }
 
-type MetadataTabValue = 'series' | 'similar' | 'covers' | 'chapters' | 'files' | 'notes' | 'sessions' | 'reviews';
+type MetadataTabValue = 'series' | 'similar' | 'covers' | 'chapters' | 'files' | 'notes' | 'bookmarks' | 'sessions' | 'reviews';
 interface MetadataTab {
   value: MetadataTabValue;
   icon: string;
@@ -80,6 +81,7 @@ const metadataTab = (value: MetadataTabValue, icon: string, labelKey: string): M
     BookCardLiteComponent,
     BookReviewsComponent,
     BookNotesComponent,
+    BookBookmarksComponent,
     BookReadingSessionsComponent,
     Button,
     Tooltip,
@@ -140,6 +142,7 @@ export class MetadataTabsComponent {
     ...(this.fileState().hasAudiobookFormat ? [metadataTab('chapters', 'pi pi-headphones', 'chapters')] : []),
     metadataTab('files', 'pi pi-folder-open', 'files'),
     metadataTab('notes', 'pi pi-pen-to-square', 'notes'),
+    metadataTab('bookmarks', 'pi pi-bookmark', 'bookmarks'),
     metadataTab('sessions', 'pi pi-clock', 'readingSessions'),
     metadataTab('reviews', 'pi pi-comments', 'reviews'),
   ]);

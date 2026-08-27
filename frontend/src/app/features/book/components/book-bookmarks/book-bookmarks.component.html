@@ -1,0 +1,60 @@
+<div class="book-bookmarks-container">
+  <div class="bookmarks-content">
+    @if (loading()) {
+      <div class="loading-state">
+        <p-progressSpinner/>
+        <span class="loading-text">Loading bookmarks...</span>
+      </div>
+    } @else if (bookmarks.length === 0) {
+      <div class="empty-state">
+        <p class="empty-state-title">No bookmarks yet for this book</p>
+        <p class="empty-state-subtitle">
+          Add bookmarks while reading to quick-jump back to your favorite spots.
+        </p>
+        <div class="empty-state-decoration"></div>
+      </div>
+    } @else {
+      <div class="bookmarks-scroll-container">
+        <div class="bookmarks-horizontal-list">
+          @for (bookmark of bookmarks; track bookmark.id) {
+            <div class="bookmark-card">
+              <div class="bookmark-header">
+                <div class="bookmark-header-inner">
+                  <div class="bookmark-title-group">
+                    <h4 class="bookmark-title">{{ bookmark.title || 'Bookmark' }}</h4>
+                    <div class="bookmark-meta">
+                      <i class="pi pi-bookmark bookmark-meta-icon"></i>
+                      <span class="bookmark-location">{{ getLocationLabel(bookmark) }}</span>
+                      <span class="meta-separator">•</span>
+                      <i class="pi pi-clock bookmark-meta-icon"></i>
+                      <span class="bookmark-meta-text">{{ bookmark.createdAt | date:'mediumDate' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="bookmark-actions">
+                    <p-button
+                      icon="pi pi-trash"
+                      size="small"
+                      severity="danger"
+                      text
+                      (onClick)="deleteBookmark(bookmark)"
+                      pTooltip="Delete bookmark"
+                      tooltipPosition="top"
+                      class="action-btn-hover">
+                    </p-button>
+                  </div>
+                </div>
+              </div>
+
+              @if (bookmark.notes) {
+                <div class="bookmark-content-area">
+                  <div class="bookmark-body">{{ bookmark.notes }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
