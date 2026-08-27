@@ -259,6 +259,19 @@
   &:hover {
     background: color-mix(in srgb, var(--color-card) 92%, var(--color-text) 8%);
   }
+
+  &.clickable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background: color-mix(in srgb, var(--p-primary-color) 8%, var(--color-card));
+    }
+
+    &:active {
+      background: color-mix(in srgb, var(--p-primary-color) 12%, var(--color-card));
+    }
+  }
 }
 
 .entry-top-row {

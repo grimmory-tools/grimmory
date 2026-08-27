@@ -9,6 +9,8 @@ export interface NotebookEntry {
   style?: string;
   chapterTitle?: string;
   primaryBookType?: string;
+  cfi?: string;
+  pageNumber?: number;
   createdAt: string;
   updatedAt?: string;
 }

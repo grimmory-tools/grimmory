@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
            a.chapter_title,
            (SELECT bf.book_type FROM book_file bf WHERE bf.book_id = a.book_id ORDER BY bf.id LIMIT 1) AS primary_book_type,
            bm.cover_updated_on,
+           a.cfi,
+           NULL AS page_number,
            a.created_at,
            a.updated_at
     FROM annotations a
@@ -44,6 +46,8 @@ import java.time.LocalDateTime;
            n.chapter_title,
            (SELECT bf.book_type FROM book_file bf WHERE bf.book_id = n.book_id ORDER BY bf.id LIMIT 1),
            bm.cover_updated_on,
+           n.cfi,
+           NULL AS page_number,
            n.created_at,
            n.updated_at
     FROM book_notes_v2 n
@@ -62,6 +66,8 @@ import java.time.LocalDateTime;
            NULL,
            (SELECT bf.book_type FROM book_file bf WHERE bf.book_id = b.book_id ORDER BY bf.id LIMIT 1),
            bm.cover_updated_on,
+           b.cfi,
+           b.page_number,
            b.created_at,
            b.updated_at
     FROM book_marks b
@@ -108,6 +114,12 @@ public class NotebookEntryView {
 
     @Column(name = "cover_updated_on")
     private Instant coverUpdatedOn;
+
+    @Column(name = "cfi")
+    private String cfi;
+
+    @Column(name = "page_number")
+    private Integer pageNumber;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

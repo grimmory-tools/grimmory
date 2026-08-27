@@ -80,6 +80,8 @@ public class NotebookService {
                 .style(p.getStyle())
                 .chapterTitle(p.getChapterTitle())
                 .primaryBookType(p.getPrimaryBookType())
+                .cfi(p.getCfi())
+                .pageNumber(p.getPageNumber())
                 .createdAt(p.getCreatedAt())
                 .updatedAt(p.getUpdatedAt())
                 .build();

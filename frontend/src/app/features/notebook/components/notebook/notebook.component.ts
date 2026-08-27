@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Router} from '@angular/router';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Select} from '@openng/optimus-ui/select';
 import {Button} from '@openng/optimus-ui/button';
@@ -57,6 +58,7 @@ export class NotebookComponent implements OnInit {
   private readonly bookFilterSubject = new Subject<string>();
   private readonly notebookService = inject(NotebookService);
   private readonly urlHelper = inject(UrlHelperService);
+  private readonly router = inject(Router);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
 
@@ -227,6 +229,44 @@ export class NotebookComponent implements OnInit {
       case 'BOOKMARK': return this.t.translate('notebook.bookmark');
       default: return type;
     }
+  }
+
+  navigateToBookmark(entry: NotebookEntry): void {
+    if (entry.type !== 'BOOKMARK') {
+      return;
+    }
+
+    const bookType = entry.primaryBookType;
+    let readerPath: string;
+
+    switch (bookType) {
+      case 'PDF':
+        readerPath = 'pdf-reader';
+        break;
+      case 'EPUB':
+      case 'FB2':
+      case 'MOBI':
+      case 'AZW3':
+        readerPath = 'ebook-reader';
+        break;
+      case 'AUDIOBOOK':
+        readerPath = 'audiobook-player';
+        break;
+      default:
+        return;
+    }
+
+    const queryParams: any = {};
+    if (entry.cfi) {
+      queryParams.cfi = entry.cfi;
+    } else if (entry.pageNumber !== undefined && entry.pageNumber !== null) {
+      queryParams.page = entry.pageNumber;
+    }
+
+    this.router.navigate(
+      [`/${readerPath}/book/${entry.bookId}`],
+      { queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined }
+    );
   }
 
   exportMarkdown(): void {

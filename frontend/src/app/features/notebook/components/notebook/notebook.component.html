@@ -160,6 +160,9 @@
                   <div
                     class="entry-item"
                     [style.border-left-color]="entry.color || 'var(--p-primary-color)'"
+                    [class.clickable]="entry.type === 'BOOKMARK'"
+                    [class.cursor-pointer]="entry.type === 'BOOKMARK'"
+                    (click)="entry.type === 'BOOKMARK' && navigateToBookmark(entry)"
                   >
                     <div class="entry-top-row">
                       <div class="entry-type-badge" [class]="'type-' + entry.type.toLowerCase()">

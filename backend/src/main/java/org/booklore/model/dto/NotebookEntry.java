@@ -22,6 +22,8 @@ public class NotebookEntry {
     private String style;
     private String chapterTitle;
     private String primaryBookType;
+    private String cfi;
+    private Integer pageNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
