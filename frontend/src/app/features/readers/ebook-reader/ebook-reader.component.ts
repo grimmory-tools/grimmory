@@ -395,6 +395,21 @@ export class EbookReaderComponent implements OnInit {
   private restoreSavedPosition(book: Book): Observable<void> {
     this.pendingInitialChapterRestore = null;
 
+    // Check for CFI or page query parameter first (for deep linking from bookmarks)
+    const cfiParam = this.route.snapshot.queryParamMap.get('cfi');
+    if (cfiParam) {
+      return this.viewManager.goTo(cfiParam);
+    }
+
+    const pageParam = this.route.snapshot.queryParamMap.get('page');
+    if (pageParam) {
+      const pageNumber = parseInt(pageParam, 10);
+      if (!isNaN(pageNumber)) {
+        return this.viewManager.goTo(pageNumber - 1); // Convert to 0-based index
+      }
+    }
+
+    // Fall back to saved progress
     const progress = book.epubProgress;
 
     if (progress?.cfi) {
