@@ -7,9 +7,9 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.5.Final"
+    id("org.hibernate.orm") version "7.4.6.Final"
     id("com.github.ben-manes.versions") version "0.61.0"
     jacoco
 }
@@ -163,7 +163,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.2")
+    implementation("org.apache.tika:tika-core:4.0.0")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
