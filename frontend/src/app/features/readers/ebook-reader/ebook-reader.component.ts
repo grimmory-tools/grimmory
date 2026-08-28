@@ -520,9 +520,26 @@ export class EbookReaderComponent implements OnInit {
   private updateBookmarkIndicator(): void {
     const currentCfi = this.progressService.currentCfi;
     const isBookmarked = currentCfi
-      ? this.sidebarService.bookmarks().some(bookmark => bookmark.cfi === currentCfi)
+      ? this.sidebarService.bookmarks().some(bookmark => this.cfiMatches(bookmark.cfi, currentCfi))
       : false;
     this.headerService.setCurrentCfiBookmarked(isBookmarked);
+  }
+
+  /**
+   * Compare bookmarks by the section part of the CFI (everything before the
+   * indirection step `!`). Bookmark CFIs vary in structure depending on how
+   * they were created: the reader emits point CFIs with idrefs (e.g.
+   * epubcfi(/6/122!/4/2[chapter-56],,/2/22/1:394)) while API-created
+   * bookmarks may store range CFIs without idrefs (e.g.
+   * epubcfi(/6/122!/4/2/2/22,/1:0,/1:10)). The section part is the only
+   * stable common denominator, and matching it makes the ribbon show for the
+   * bookmarked section regardless of creation path.
+   */
+  private cfiMatches(bookmarkCfi: string | undefined | null, currentCfi: string): boolean {
+    if (!bookmarkCfi) return false;
+    const section = (cfi: string): string =>
+      cfi.replace(/^epubcfi\(/, '').replace(/\)$/, '').split('!')[0];
+    return section(bookmarkCfi) === section(currentCfi);
   }
 
   private applyStyles(): void {
