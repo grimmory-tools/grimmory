@@ -78,6 +78,7 @@ interface ViewCallbacks {
   next: () => void;
   getCFI: (index: number, range: Range) => string | null;
   getContents: () => { index: number; doc: Document }[] | null;
+  isTapToTurnEnabled?: () => boolean;
 }
 
 @Injectable({
@@ -609,13 +610,13 @@ export class ReaderEventService {
     const leftThreshold = width * this.LEFT_ZONE_PERCENT;
     const rightThreshold = width * this.RIGHT_ZONE_PERCENT;
 
-    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const tapToTurnEnabled = this.viewCallbacks?.isTapToTurnEnabled?.() ?? true;
 
-    if (x < leftThreshold && !isMobile) {
+    if (x < leftThreshold && tapToTurnEnabled) {
       this.isNavigating = true;
       this.viewCallbacks?.prev();
       setTimeout(() => this.isNavigating = false, 300);
-    } else if (x > rightThreshold && !isMobile) {
+    } else if (x > rightThreshold && tapToTurnEnabled) {
       this.isNavigating = true;
       this.viewCallbacks?.next();
       setTimeout(() => this.isNavigating = false, 300);

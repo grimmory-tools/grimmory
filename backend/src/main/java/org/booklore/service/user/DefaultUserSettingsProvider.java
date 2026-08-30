@@ -91,6 +91,7 @@ public class DefaultUserSettingsProvider {
                 .maxInlineSize(720)
                 .theme("gray")
                 .flow("paginated")
+                .tapToTurnPage(true)
                 .build();
     }
 

@@ -64,6 +64,8 @@ describe('ReaderEventService', () => {
   const next = vi.fn();
   const getCFI = vi.fn();
   const getContents = vi.fn();
+  let tapToTurnEnabled = true;
+  const isTapToTurnEnabled = vi.fn(() => tapToTurnEnabled);
   const postMessageSpy = vi.spyOn(window, 'postMessage').mockImplementation(() => undefined);
 
   let service: ReaderEventService;
@@ -130,6 +132,8 @@ describe('ReaderEventService', () => {
     next.mockReset();
     getCFI.mockReset();
     getContents.mockReset();
+    tapToTurnEnabled = true;
+    isTapToTurnEnabled.mockClear();
     postMessageSpy.mockClear();
 
     doc = document.implementation.createHTMLDocument('reader-doc');
@@ -180,7 +184,7 @@ describe('ReaderEventService', () => {
     view = createView();
     emittedEvents = [];
     service.events$.subscribe(event => emittedEvents.push(event));
-    service.initialize(view, {prev, next, getCFI, getContents});
+    service.initialize(view, {prev, next, getCFI, getContents, isTapToTurnEnabled});
   });
 
   afterEach(() => {
@@ -281,6 +285,62 @@ describe('ReaderEventService', () => {
 
     expect(emittedEvents.filter(event => event.type === 'middle-single-tap')).toHaveLength(2);
     expect(emittedEvents.at(-1)?.type).toBe('middle-single-tap');
+  });
+
+  it('turns pages via side-zone taps on touch devices when tap-to-turn is enabled', () => {
+    Object.defineProperty(navigator, 'maxTouchPoints', {value: 5, configurable: true});
+    tapToTurnEnabled = true;
+
+    privateService.longHoldTimeout = setTimeout(() => undefined, 1_000);
+    privateService.processIframeClick({
+      type: 'iframe-click',
+      clientX: 40,
+      clientY: 100,
+      iframeLeft: 0,
+      iframeWidth: 600,
+      eventClientX: 20,
+    });
+    expect(prev).toHaveBeenCalledTimes(1);
+    expect(next).not.toHaveBeenCalled();
+
+    privateService.isNavigating = false;
+    privateService.longHoldTimeout = setTimeout(() => undefined, 1_000);
+    privateService.processIframeClick({
+      type: 'iframe-click',
+      clientX: 560,
+      clientY: 100,
+      iframeLeft: 0,
+      iframeWidth: 600,
+      eventClientX: 540,
+    });
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(emittedEvents.filter(event => event.type === 'middle-single-tap')).toHaveLength(0);
+  });
+
+  it('toggles bars instead of turning pages when tap-to-turn is disabled', () => {
+    tapToTurnEnabled = false;
+
+    privateService.longHoldTimeout = setTimeout(() => undefined, 1_000);
+    privateService.processIframeClick({
+      type: 'iframe-click',
+      clientX: 40,
+      clientY: 100,
+      iframeLeft: 0,
+      iframeWidth: 600,
+      eventClientX: 20,
+    });
+    privateService.processIframeClick({
+      type: 'iframe-click',
+      clientX: 560,
+      clientY: 100,
+      iframeLeft: 0,
+      iframeWidth: 600,
+      eventClientX: 540,
+    });
+
+    expect(prev).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+    expect(emittedEvents.filter(event => event.type === 'middle-single-tap')).toHaveLength(2);
   });
 
   it('processes touch gestures for swipe navigation, short taps, and selected text', () => {
