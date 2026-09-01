@@ -87,10 +87,10 @@ Do not hand-edit non-English translations in regular code pull requests unless e
 to do so by a maintainer. Do not pre-fill other languages' localizations with English. Empty target
 strings make it easier to surface those keys for translators than copied English.
 
-Developers should add and change source strings in `frontend/src/i18n/en/*.json`. Each JSON file is
-a Transloco domain and maps to a Weblate component. When adding a new source-string domain, add the
-English JSON file, add matching empty JSON files for each non-English locale, then import/export the
-domain from each locale `index.ts`.
+Developers should add and change source strings in `frontend/src/i18n/en.json`. Each top-level key
+is a Transloco domain. When adding a new source-string domain, add a top-level key block to the
+English file; other locales pick it up automatically through the English fallback until translations
+arrive.
 
 ### Something isn't working
 

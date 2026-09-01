@@ -1,8 +1,8 @@
 import {firstValueFrom} from 'rxjs';
 import {describe, expect, it} from 'vitest';
 
-import en from '../../../i18n/en';
-import de from '../../../i18n/de';
+import en from '../../../i18n/en.json';
+import de from '../../../i18n/de.json';
 import {AVAILABLE_LANGS, EN_TRANSLATIONS, LANG_LABELS, TranslocoInlineLoader} from './transloco-loader';
 
 describe('TranslocoInlineLoader', () => {
