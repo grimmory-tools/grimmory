@@ -196,7 +196,7 @@
                     <div class="book-info">
                       <div class="book-title">{{ book.metadata?.title || ('book.fileAttacher.unknownTitle' | transloco) }}</div>
                       @if (book.metadata?.authors?.length) {
-                        <div class="book-authors">{{ book.metadata.authors.join(', ') }}</div>
+                        <div class="book-authors">{{ book.metadata?.authors?.join(', ') }}</div>
                       }
                       <div class="book-formats">
                         @for (format of getBookFormats(book); track format) {
@@ -206,7 +206,7 @@
                           <span class="file-count">{{ t('fileCount', { count: getFileCount(book) }) }}</span>
                         }
                         @if (book.primaryFile?.fileSizeKb) {
-                          <span class="file-detail">{{ formatFileSize(book.primaryFile.fileSizeKb) }}</span>
+                          <span class="file-detail">{{ formatFileSize(book.primaryFile?.fileSizeKb) }}</span>
                         }
                       </div>
                       @if (book.primaryFile?.fileName) {

@@ -23,7 +23,7 @@
           <div class="book-info-card">
             <div class="book-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
             @if (book.metadata?.authors?.length) {
-            <div class="book-authors">{{ book.metadata.authors.join(', ') }}</div>
+            <div class="book-authors">{{ book.metadata?.authors?.join(', ') }}</div>
             }
             <div class="file-info">
               <i class="pi pi-file"></i>
