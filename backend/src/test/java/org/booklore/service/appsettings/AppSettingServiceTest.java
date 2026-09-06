@@ -1,9 +1,23 @@
 package org.booklore.service.appsettings;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.settings.AppSettingKey;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.KomgaSettings;
 import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.repository.AppSettingsRepository;
@@ -14,18 +28,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AppSettingServiceTest {
 
     @Mock
@@ -44,7 +53,7 @@ class AppSettingServiceTest {
     @BeforeEach
     void setUp() {
         settingPersistenceHelper = new SettingPersistenceHelper(appSettingsRepository, new ObjectMapper());
-        appSettingService = new AppSettingService(appProperties, settingPersistenceHelper, authenticationService, auditService);
+        appSettingService = new AppSettingService(appProperties, settingPersistenceHelper, authenticationService, auditService, new ObjectMapper());
 
         var permissions = new BookLoreUser.UserPermissions();
         permissions.setAdmin(true);
@@ -165,4 +174,197 @@ class AppSettingServiceTest {
 
         verify(appSettingsRepository, never()).save(any());
     }
+
+    @Test
+    void getAppSettings_buildsKomgaSettingsDefault_whenNoRowsExist() throws Exception{
+        when(appSettingsRepository.findAll()).thenReturn(List.of());
+        when(appSettingsRepository.findByName(anyString())).thenReturn(null);
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+
+        AppSettings result = appSettingService.getAppSettings();
+
+        assertThat(result.getKomgaSettings()).isNotNull();
+        assertThat(result.getKomgaSettings().getRememberMeKey()).isNotBlank();
+        assertThat(result.getKomgaSettings().getRememberMeDurationInSeconds()).isEqualTo(2592000);
+
+        ArgumentCaptor<AppSettingEntity> captor = ArgumentCaptor.forClass(AppSettingEntity.class);
+        verify(appSettingsRepository, atLeastOnce()).save(captor.capture());
+        assertThat(captor.getAllValues())
+                .anyMatch(e -> "komga_settings".equals(e.getName()));
+    }
+
+    @Test
+    void getAppSettings_readsPersistedKomgaSettings() throws Exception {
+        AppSettingEntity komgaRow = new AppSettingEntity();
+        komgaRow.setName("komga_settings");
+        komgaRow.setVal("{\"rememberMeKey\":\"persistedKey\",\"rememberMeDurationInSeconds\":86400}");
+
+        when(appSettingsRepository.findAll()).thenReturn(List.of(komgaRow));
+        when(appSettingsRepository.findByName(anyString())).thenReturn(null);
+        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+
+        AppSettings result = appSettingService.getAppSettings();
+
+        assertThat(result.getKomgaSettings()).isNotNull();
+        assertThat(result.getKomgaSettings().getRememberMeKey()).isEqualTo("persistedKey");
+        assertThat(result.getKomgaSettings().getRememberMeDurationInSeconds()).isEqualTo(86400);
+    }
+
+    @Test
+    void defaultKomgaSettings_generatesUniqueKeys() {
+        KomgaSettings first = settingPersistenceHelper.getDefaultKomgaSettings();
+        KomgaSettings second = settingPersistenceHelper.getDefaultKomgaSettings();
+
+        assertThat(first.getRememberMeKey()).isNotBlank();
+        assertThat(second.getRememberMeKey()).isNotBlank();
+        assertThat(first.getRememberMeKey()).isNotEqualTo(second.getRememberMeKey());
+        assertThat(first.getRememberMeDurationInSeconds()).isEqualTo(2592000);
+    }
+
+    @Test
+    void updateSetting_rejectsNullKomgaSettings() {
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                null
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("Komga settings cannot be null");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_rejectsKomgaSettingsWithNullKey() {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey(null);
+        settings.setRememberMeDurationInSeconds(86400);
+
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("rememberMeKey");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_rejectsKomgaSettingsWithBlankKey() {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey("   ");
+        settings.setRememberMeDurationInSeconds(86400);
+
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("rememberMeKey");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_rejectsKomgaSettingsWithNullDuration() {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey("validKey123");
+        settings.setRememberMeDurationInSeconds(null);
+
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("rememberMeDurationInSeconds");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_rejectsKomgaSettingsWithZeroDuration() {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey("validKey123");
+        settings.setRememberMeDurationInSeconds(0);
+
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("positive");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_rejectsKomgaSettingsWithNegativeDuration() {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey("validKey123");
+        settings.setRememberMeDurationInSeconds(-1);
+
+        assertThatThrownBy(() -> appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        ))
+        .isInstanceOf(Exception.class)
+        .hasMessageContaining("positive");
+
+        verify(appSettingsRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSetting_acceptsValidKomgaSettings() throws Exception {
+        KomgaSettings settings = new KomgaSettings();
+        settings.setRememberMeKey("validKey123");
+        settings.setRememberMeDurationInSeconds(86400);
+
+        appSettingService.updateSetting(AppSettingKey.KOMGA_SETTINGS, settings);
+
+        ArgumentCaptor<AppSettingEntity> settingCaptor = ArgumentCaptor.forClass(AppSettingEntity.class);
+        verify(appSettingsRepository).save(settingCaptor.capture());
+
+        AppSettingEntity savedSetting = settingCaptor.getValue();
+        assertThat(savedSetting.getName()).isEqualTo(AppSettingKey.KOMGA_SETTINGS.toString());
+        assertThat(savedSetting.getVal()).contains("validKey123");
+        assertThat(savedSetting.getVal()).contains("86400");
+    }
+
+    @Test
+    void updateSetting_acceptsKomgaSettingsAsMap() throws Exception {
+        Map<String, Object> settings = Map.of(
+                "rememberMeKey", "validKey123",
+                "rememberMeDurationInSeconds", 86400
+        );
+
+        appSettingService.updateSetting(
+                AppSettingKey.KOMGA_SETTINGS,
+                settings
+        );
+
+        ArgumentCaptor<AppSettingEntity> captor =
+                ArgumentCaptor.forClass(AppSettingEntity.class);
+
+        verify(appSettingsRepository).save(captor.capture());
+
+        assertThat(captor.getValue().getName())
+                .isEqualTo(AppSettingKey.KOMGA_SETTINGS.toString());
+        assertThat(captor.getValue().getVal()).contains("validKey123");
+        assertThat(captor.getValue().getVal()).contains("86400");
+    }
+
+	@Test
+	void updateSetting_rejectsIncompleteKomgaSettingsMap() {
+		Map<String, Object> settings = Map.of(
+				"rememberMeKey", "validKey123"
+		);
+
+		assertThatThrownBy(() -> appSettingService.updateSetting(
+				AppSettingKey.KOMGA_SETTINGS,
+				settings
+		))
+				.hasMessageContaining("rememberMeDurationInSeconds");
+
+		verify(appSettingsRepository, never()).save(any());
+	}
 }

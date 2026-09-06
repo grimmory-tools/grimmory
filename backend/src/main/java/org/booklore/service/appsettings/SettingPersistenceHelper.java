@@ -13,6 +13,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -318,6 +320,15 @@ public class SettingPersistenceHelper {
                 .conversionImageCompressionPercentage(85)
                 .forceEnableHyphenation(false)
                 .forwardToKoboStore(true)
+                .build();
+    }
+
+    public KomgaSettings getDefaultKomgaSettings() {
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+        return KomgaSettings.builder()
+                .rememberMeKey(Base64.getEncoder().encodeToString(bytes))
+                .rememberMeDurationInSeconds(2592000) // 30 days
                 .build();
     }
 

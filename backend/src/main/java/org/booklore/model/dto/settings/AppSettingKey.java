@@ -17,6 +17,7 @@ public enum AppSettingKey {
     OIDC_GROUP_SYNC_MODE                ("oidc_group_sync_mode",                 false, false, List.of(PermissionType.ADMIN)),
     OIDC_FORCE_ONLY_MODE                ("oidc_force_only_mode",                 false, true,  List.of(PermissionType.ADMIN)),
     KOBO_SETTINGS                       ("kobo_settings",                        true,  false, List.of(PermissionType.ADMIN)),
+    KOMGA_SETTINGS                     ("komga_settings",                        true,  false, List.of(PermissionType.ADMIN)),
     OPDS_SERVER_ENABLED                 ("opds_server_enabled",                  false, false, List.of(PermissionType.ADMIN)),
     KOMGA_API_ENABLED                     ("komga_api_enabled",                  false, false, List.of(PermissionType.ADMIN)),
     KOMGA_GROUP_UNKNOWN                 ("komga_group_unknown",                  false, false, List.of(PermissionType.ADMIN)),

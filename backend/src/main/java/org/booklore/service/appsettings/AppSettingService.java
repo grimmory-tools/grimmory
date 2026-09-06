@@ -21,6 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.LinkedHashSet;
@@ -39,12 +40,14 @@ public class AppSettingService {
     private final SettingPersistenceHelper settingPersistenceHelper;
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
+    private final ObjectMapper objectMapper;
 
-    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
+    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService, ObjectMapper objectMapper) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
         this.authenticationService = authenticationService;
         this.auditService = auditService;
+        this.objectMapper = objectMapper;
     }
 
     @Cacheable("appSettings")
@@ -68,6 +71,11 @@ public class AppSettingService {
 
         if (key == AppSettingKey.OIDC_FORCE_ONLY_MODE) {
             validateOidcForceOnlyMode(val);
+        }
+
+        if (key == AppSettingKey.KOMGA_SETTINGS) {
+            val = objectMapper.convertValue(val, KomgaSettings.class);
+            validateKomgaSettings(val);
         }
 
         var setting = settingPersistenceHelper.appSettingsRepository.findByName(key.toString());
@@ -98,6 +106,32 @@ public class AppSettingService {
         if (details == null || details.getIssuerUri() == null || details.getIssuerUri().isBlank()
                 || details.getClientId() == null || details.getClientId().isBlank()) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Cannot enable OIDC-only mode: OIDC must be configured with issuer URI and client ID");
+        }
+    }
+
+    private void validateKomgaSettings(Object val) {
+        if (val == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Komga settings cannot be null");
+        }
+
+        if (!(val instanceof KomgaSettings)) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Komga settings must be a valid KomgaSettings object");
+        }
+
+        KomgaSettings settings = (KomgaSettings) val;
+
+        // Validate rememberMeKey
+        if (settings.getRememberMeKey() == null || settings.getRememberMeKey().isBlank()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Komga rememberMeKey cannot be null or blank");
+        }
+
+        // Validate remmeberMeDurationInSeconds
+        if (settings.getRememberMeDurationInSeconds() == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Komga rememberMeDurationInSeconds cannot be null");
+        }
+
+        if (settings.getRememberMeDurationInSeconds() <= 0) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Komga rememberMeDurationInSeconds must be a positive integer");
         }
     }
 
@@ -236,6 +270,7 @@ public class AppSettingService {
         builder.metadataPersistenceSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.METADATA_PERSISTENCE_SETTINGS, MetadataPersistenceSettings.class, settingPersistenceHelper.getDefaultMetadataPersistenceSettings(), true));
         builder.metadataPublicReviewsSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, MetadataPublicReviewsSettings.class, settingPersistenceHelper.getDefaultMetadataPublicReviewsSettings(), true));
         builder.koboSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.KOBO_SETTINGS, KoboSettings.class, settingPersistenceHelper.getDefaultKoboSettings(), true));
+        builder.komgaSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.KOMGA_SETTINGS, KomgaSettings.class, settingPersistenceHelper.getDefaultKomgaSettings(), true));
         builder.coverCroppingSettings(settingPersistenceHelper.getJsonSetting(settingsMap, AppSettingKey.COVER_CROPPING_SETTINGS, CoverCroppingSettings.class, settingPersistenceHelper.getDefaultCoverCroppingSettings(), true));
         builder.metadataProviderSpecificFields(
             settingPersistenceHelper.getJsonSetting(

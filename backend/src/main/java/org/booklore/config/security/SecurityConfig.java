@@ -2,6 +2,9 @@ package org.booklore.config.security;
 
 import org.booklore.config.security.filter.*;
 import org.booklore.config.security.service.OpdsUserDetailsService;
+import org.booklore.model.dto.settings.KomgaSettings;
+import org.booklore.service.appsettings.AppSettingService;
+
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -21,7 +24,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.RememberMeTokenAlgorithm;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -102,11 +108,12 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain komgaBasicAuthSecurityChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain komgaBasicAuthSecurityChain(
+                HttpSecurity http, RememberMeServices komgaRememberMeServices) throws Exception {
         http
                 .securityMatcher("/komga/api/v1/**", "/komga/api/v2/**")
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated()
                 )
@@ -117,7 +124,9 @@ public class SecurityConfig {
                             response.setHeader("WWW-Authenticate", "Basic realm=\"Grimmory Komga API\"");
                             response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
                         })
-                );
+                )
+                .rememberMe(rememberMe -> rememberMe
+                        .rememberMeServices(komgaRememberMeServices));
 
         return http.build();
     }
@@ -357,5 +366,19 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public RememberMeServices komgaRememberMeServices(
+        OpdsUserDetailsService userDetailsService,
+        AppSettingService appSettingsService) {
+        KomgaSettings settings = appSettingsService.getAppSettings().getKomgaSettings();
+        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices(
+            settings.getRememberMeKey(),
+            userDetailsService, 
+            RememberMeTokenAlgorithm.SHA256);
+        services.setCookieName("komga-remember-me");
+        services.setTokenValiditySeconds(settings.getRememberMeDurationInSeconds());
+        return services;
     }
 }
