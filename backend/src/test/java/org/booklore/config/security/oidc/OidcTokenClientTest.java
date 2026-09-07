@@ -40,11 +40,10 @@ class OidcTokenClientTest {
     private static final String USERINFO_ENDPOINT = "https://issuer.example.com/userinfo";
     private static final String ISSUER_URI = "https://issuer.example.com";
 
-    private OidcProviderDetails createProviderDetails(String clientSecret) {
+    private OidcProviderDetails createProviderDetails() {
         var details = new OidcProviderDetails();
         details.setProviderName("test-provider");
         details.setClientId("test-client-id");
-        details.setClientSecret(clientSecret);
         details.setIssuerUri(ISSUER_URI);
         return details;
     }
@@ -67,7 +66,7 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_success_returnsTokenResponse() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("test-secret");
+        var providerDetails = createProviderDetails();
 
         Map<String, Object> responseMap = new LinkedHashMap<>();
         responseMap.put("access_token", "access-123");
@@ -80,7 +79,7 @@ class OidcTokenClientTest {
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseMap);
 
-        var result = oidcTokenClient.exchangeAuthorizationCode("auth-code", "verifier", "https://app/callback", providerDetails);
+        var result = oidcTokenClient.exchangeAuthorizationCode("auth-code", "verifier", "https://app/callback", providerDetails, "test-secret");
 
         assertThat(result.accessToken()).isEqualTo("access-123");
         assertThat(result.idToken()).isEqualTo("id-456");
@@ -92,7 +91,7 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_publicClient_omitsClientSecret() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails(null);
+        var providerDetails = createProviderDetails();
 
         Map<String, Object> responseMap = new LinkedHashMap<>();
         responseMap.put("access_token", "access-123");
@@ -103,7 +102,7 @@ class OidcTokenClientTest {
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseMap);
 
-        var result = oidcTokenClient.exchangeAuthorizationCode("auth-code", "verifier", "https://app/callback", providerDetails);
+        var result = oidcTokenClient.exchangeAuthorizationCode("auth-code", "verifier", "https://app/callback", providerDetails, null);
 
         assertThat(result.accessToken()).isEqualTo("access-123");
         assertThat(result.idToken()).isEqualTo("id-456");
@@ -114,13 +113,13 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_nullResponse_throwsTokenExchangeFailed() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("secret");
+        var providerDetails = createProviderDetails();
 
         when(discoveryService.discover(ISSUER_URI)).thenReturn(discovery);
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(null);
 
-        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails))
+        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails, "secret"))
                 .isInstanceOf(APIException.class)
                 .hasMessageContaining("Empty response from token endpoint");
     }
@@ -128,7 +127,7 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_errorInResponse_throwsTokenExchangeFailed() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("secret");
+        var providerDetails = createProviderDetails();
 
         Map<String, Object> responseMap = new LinkedHashMap<>();
         responseMap.put("error", "invalid_grant");
@@ -138,7 +137,7 @@ class OidcTokenClientTest {
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseMap);
 
-        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails))
+        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails, "secret"))
                 .isInstanceOf(APIException.class)
                 .hasMessageContaining("invalid_grant");
     }
@@ -146,13 +145,13 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_restClientException_throwsProviderUnreachable() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("secret");
+        var providerDetails = createProviderDetails();
 
         when(discoveryService.discover(ISSUER_URI)).thenReturn(discovery);
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenThrow(new RestClientException("Connection refused"));
 
-        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails))
+        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails, "secret"))
                 .isInstanceOf(APIException.class)
                 .hasMessageContaining("Connection refused");
     }
@@ -160,11 +159,11 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_blankTokenEndpoint_throwsProviderUnreachable() {
         var discovery = createDiscoveryDocument("  ", USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("secret");
+        var providerDetails = createProviderDetails();
 
         when(discoveryService.discover(ISSUER_URI)).thenReturn(discovery);
 
-        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails))
+        assertThatThrownBy(() -> oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails, "secret"))
                 .isInstanceOf(APIException.class)
                 .hasMessageContaining("Token endpoint not found");
     }
@@ -223,7 +222,7 @@ class OidcTokenClientTest {
     @Test
     void exchangeAuthorizationCode_expiresInAsNumber_parsedCorrectly() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
-        var providerDetails = createProviderDetails("secret");
+        var providerDetails = createProviderDetails();
 
         Map<String, Object> responseMap = new LinkedHashMap<>();
         responseMap.put("access_token", "access-123");
@@ -235,7 +234,7 @@ class OidcTokenClientTest {
         when(oidcRestTemplate.postForObject(eq(TOKEN_ENDPOINT), any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseMap);
 
-        var result = oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails);
+        var result = oidcTokenClient.exchangeAuthorizationCode("code", "verifier", "https://app/callback", providerDetails, "secret");
 
         assertThat(result.expiresIn()).isEqualTo(7200);
     }

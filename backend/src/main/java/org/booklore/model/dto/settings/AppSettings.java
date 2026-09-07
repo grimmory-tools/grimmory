@@ -27,6 +27,7 @@ public class AppSettings {
     private boolean metadataDownloadOnBookdrop;
     private boolean oidcEnabled;
     private OidcProviderDetails oidcProviderDetails;
+    private String oidcProviderClientSecret;
     private List<String> oidcRedirectUris;
     private OidcAutoProvisionDetails oidcAutoProvisionDetails;
     private MetadataProviderSettings metadataProviderSettings;

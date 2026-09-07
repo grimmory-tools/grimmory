@@ -252,9 +252,6 @@ public class AppSettingService {
 
         builder.remoteAuthEnabled(appProperties.getRemoteAuth().isEnabled());
         OidcProviderDetails details = getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null);
-        if (details != null) {
-            details.setClientSecret(null);
-        }
 
         boolean oidcEnabled = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_ENABLED, "false"));
         boolean oidcForceOnlyMode = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false"));
@@ -299,6 +296,7 @@ public class AppSettingService {
         builder.pdfCacheSizeInMb(Integer.parseInt(settingsMap.getOrDefault(AppSettingKey.PDF_CACHE_SIZE_IN_MB, "5120")));
         builder.maxFileUploadSizeInMb(Integer.parseInt(settingsMap.getOrDefault(AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, "100")));
         builder.metadataDownloadOnBookdrop(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, "true")));
+        builder.oidcProviderClientSecret(settingsMap.getOrDefault(AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET, ""));
 
         String sessionDurationStr = settingsMap.get(AppSettingKey.OIDC_SESSION_DURATION_HOURS);
         if (sessionDurationStr != null && !sessionDurationStr.isBlank()) {
