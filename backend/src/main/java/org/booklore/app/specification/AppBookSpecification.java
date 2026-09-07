@@ -65,7 +65,7 @@ public class AppBookSpecification {
     private record NumericRange<T>(T min, T max) {
     }
 
-    private static <T> List<NumericRange<T>> parseNumericRanges(List<String> values, Function<String, T> parser, String paramName) {
+    private static <T extends Comparable<? super T>> List<NumericRange<T>> parseNumericRanges(List<String> values, Function<String, T> parser, String paramName) {
         List<String> invalid = new ArrayList<>();
         List<NumericRange<T>> ranges = new ArrayList<>();
         for (String value : values) {
@@ -81,12 +81,12 @@ public class AppBookSpecification {
         }
         if (!invalid.isEmpty()) {
             throw new APIException("Invalid " + paramName + " values: " + invalid
-                    + ". Expected a number, min..max, min..*, or *..max.", HttpStatus.BAD_REQUEST);
+                    + ". Expected a number, min..max, min..*, or *..max. Minimum must not exceed maximum.", HttpStatus.BAD_REQUEST);
         }
         return ranges;
     }
 
-    private static <T> NumericRange<T> parseNumericRange(String value, Function<String, T> parser) {
+    private static <T extends Comparable<? super T>> NumericRange<T> parseNumericRange(String value, Function<String, T> parser) {
         try {
             int separator = value.indexOf("..");
             if (separator < 0) {
@@ -98,9 +98,12 @@ public class AppBookSpecification {
             if (minPart.equals("*") && maxPart.equals("*")) {
                 return null;
             }
-            return new NumericRange<>(
-                    minPart.equals("*") ? null : parser.apply(minPart),
-                    maxPart.equals("*") ? null : parser.apply(maxPart));
+            T min = minPart.equals("*") ? null : parser.apply(minPart);
+            T max = maxPart.equals("*") ? null : parser.apply(maxPart);
+            if (min != null && max != null && min.compareTo(max) > 0) {
+                return null;
+            }
+            return new NumericRange<>(min, max);
         } catch (NumberFormatException e) {
             return null;
         }
