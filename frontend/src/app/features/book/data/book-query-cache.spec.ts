@@ -1,17 +1,17 @@
 import {QueryClient, QueryObserver} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
 import {
   invalidateAllBookQueries,
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
 import {bookQueryKeys} from './book-query-keys';
-import {normalizeBookPageParams} from './book-query-params';
 
 const firstBook = {id: 1};
 const secondBook = {id: 2};
-const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const pageKey = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   facets: {},
   facetLogic: 'or',
   sort: [],

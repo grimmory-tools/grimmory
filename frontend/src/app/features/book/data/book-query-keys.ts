@@ -1,24 +1,18 @@
+import {createBrowseQueryKeys} from '../../../core/data/browse-query-keys';
 import {
   BookCollectionFilterParams,
   BookPageParams,
   BookQueryParams,
 } from './book-query-params';
 
+const browseBookQueryKeys = createBrowseQueryKeys<
+  BookCollectionFilterParams,
+  BookQueryParams,
+  BookPageParams
+>('books');
+
 export const bookQueryKeys = {
-  all: () => ['books', 'query'] as const,
-  collections: () => [...bookQueryKeys.all(), 'collection'] as const,
-  boundedPages: () => [...bookQueryKeys.collections(), 'page', 'bounded'] as const,
-  boundedPage: (params: BookPageParams) =>
-    [...bookQueryKeys.boundedPages(), params] as const,
-  infinitePages: () => [...bookQueryKeys.collections(), 'page', 'infinite'] as const,
-  infinitePage: (params: BookPageParams) =>
-    [...bookQueryKeys.infinitePages(), params] as const,
-  facetQueries: () => [...bookQueryKeys.collections(), 'facets'] as const,
-  facets: (params: BookCollectionFilterParams) =>
-    [...bookQueryKeys.facetQueries(), params] as const,
-  idQueries: () => [...bookQueryKeys.collections(), 'ids'] as const,
-  ids: (params: BookQueryParams) =>
-    [...bookQueryKeys.idQueries(), params] as const,
+  ...browseBookQueryKeys,
   details: () => [...bookQueryKeys.all(), 'detail'] as const,
   detailQueries: (bookId: number) =>
     [...bookQueryKeys.details(), bookId] as const,
