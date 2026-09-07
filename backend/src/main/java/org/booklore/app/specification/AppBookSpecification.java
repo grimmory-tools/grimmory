@@ -81,26 +81,26 @@ public class AppBookSpecification {
         }
         if (!invalid.isEmpty()) {
             throw new APIException("Invalid " + paramName + " values: " + invalid
-                    + ". Expected a number, min-max, min-, or -max.", HttpStatus.BAD_REQUEST);
+                    + ". Expected a number, min..max, min..*, or *..max.", HttpStatus.BAD_REQUEST);
         }
         return ranges;
     }
 
     private static <T> NumericRange<T> parseNumericRange(String value, Function<String, T> parser) {
         try {
-            int dash = value.indexOf('-');
-            if (dash < 0) {
+            int separator = value.indexOf("..");
+            if (separator < 0) {
                 T exact = parser.apply(value);
                 return new NumericRange<>(exact, exact);
             }
-            String minPart = value.substring(0, dash).trim();
-            String maxPart = value.substring(dash + 1).trim();
-            if (minPart.isEmpty() && maxPart.isEmpty()) {
+            String minPart = value.substring(0, separator).trim();
+            String maxPart = value.substring(separator + 2).trim();
+            if (minPart.equals("*") && maxPart.equals("*")) {
                 return null;
             }
             return new NumericRange<>(
-                    minPart.isEmpty() ? null : parser.apply(minPart),
-                    maxPart.isEmpty() ? null : parser.apply(maxPart));
+                    minPart.equals("*") ? null : parser.apply(minPart),
+                    maxPart.equals("*") ? null : parser.apply(maxPart));
         } catch (NumberFormatException e) {
             return null;
         }
