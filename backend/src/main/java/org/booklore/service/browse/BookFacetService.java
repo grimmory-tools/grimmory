@@ -3,7 +3,6 @@ package org.booklore.service.browse;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -14,15 +13,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.FacetLogic;
-import org.booklore.browse.Link;
 import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
-import org.booklore.model.dto.browse.FacetGroupsResponse.FacetLink;
-import org.booklore.model.dto.browse.FacetGroupsResponse.Metadata;
-import org.booklore.model.dto.browse.FacetGroupsResponse.Properties;
 import org.booklore.model.entity.BookEntity;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -32,7 +27,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 @Service
@@ -58,9 +52,8 @@ public class BookFacetService {
     private final AuthenticationService authenticationService;
     private final BookFilterSpecifications filterSpecifications;
     private final BookSortRegistry sortRegistry;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final BrowseScopeFactory scopeFactory;
+    private final EntityManager entityManager;
 
     private final Cache<String, FacetGroupsResponse> cache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofSeconds(30))
@@ -69,24 +62,22 @@ public class BookFacetService {
 
     public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Long userId = user.getId();
-        boolean isAdmin = user.getPermissions().isAdmin();
-        Set<Long> libraryIds = BookFilterSpecifications.libraryIds(user);
+        BrowseScope scope = scopeFactory.from(user);
 
-        Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
+        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
         FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
 
-        String cacheKey = userId + ":" + ParamsHash.compute(query, facets, facetLogic);
+        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets, facetLogic);
         return cache.get(cacheKey, key -> {
             String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+            FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, FACET_PATH, preserved, facet);
             List<FacetGroup> groups = new ArrayList<>();
-            groups.add(sortGroup(preserved));
+            groups.add(builder.sortGroup(sortRegistry.registry().keys()));
             for (FacetDef def : FACETS) {
-                Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(toGroup(def, count(def, base), facet, preserved));
+                Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+                groups.add(builder.group(def.key(), def.title(), count(def, base)));
             }
-            List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
-            return new FacetGroupsResponse(links, groups);
+            return new FacetGroupsResponse(builder.selfLinks(), groups);
         });
     }
 
@@ -95,7 +86,7 @@ public class BookFacetService {
         cache.invalidateAll();
     }
 
-    private List<FacetCount> count(FacetDef def, Specification<BookEntity> base) {
+    private List<FacetResponseBuilder.FacetCount> count(FacetDef def, Specification<BookEntity> base) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<BookEntity> root = cq.from(BookEntity.class);
@@ -115,42 +106,8 @@ public class BookFacetService {
         cq.orderBy(cb.desc(count), cb.asc(value));
 
         return entityManager.createQuery(cq).setMaxResults(MAX_VALUES).getResultList().stream()
-                .map(tuple -> new FacetCount(String.valueOf(tuple.get("value")), ((Number) tuple.get("count")).longValue()))
+                .map(tuple -> new FacetResponseBuilder.FacetCount(String.valueOf(tuple.get("value")), ((Number) tuple.get("count")).longValue()))
                 .toList();
-    }
-
-    private FacetGroup toGroup(FacetDef def, List<FacetCount> counts, List<String> facet, String preserved) {
-        List<FacetLink> links = counts.stream()
-                .map(c -> {
-                    boolean active = BrowseParams.hasFacet(facet, def.key(), c.value());
-                    List<String> rel = active ? List.of("self", "facet") : List.of("facet");
-                    String href = active
-                            ? href(PAGE_PATH, preserved)
-                            : pageLink(preserved, "facet=" + BrowseParams.encode(def.key() + ":" + c.value()));
-                    return new FacetLink(rel, href, Link.JSON_TYPE, c.value(), c.value(), new Properties(c.count()));
-                })
-                .toList();
-        return new FacetGroup(new Metadata("facet", def.key(), def.title()), links);
-    }
-
-    private FacetGroup sortGroup(String preserved) {
-        List<FacetLink> links = new ArrayList<>();
-        for (String key : sortRegistry.registry().keys()) {
-            if (key.equals("id")) {
-                continue;
-            }
-            links.add(new FacetLink(List.of("sort"), pageLink(preserved, "sort=" + BrowseParams.encode(key)), Link.JSON_TYPE, key + " ascending", key, null));
-            links.add(new FacetLink(List.of("sort"), pageLink(preserved, "sort=-" + BrowseParams.encode(key)), Link.JSON_TYPE, key + " descending", "-" + key, null));
-        }
-        return new FacetGroup(new Metadata("sort", "sort", "Sort"), links);
-    }
-
-    private static String pageLink(String preserved, String param) {
-        return preserved.isBlank() ? PAGE_PATH + "?" + param : PAGE_PATH + "?" + preserved + "&" + param;
-    }
-
-    private static String href(String path, String preserved) {
-        return preserved.isBlank() ? path : path + "?" + preserved;
     }
 
     private static Join<?, ?> metadata(Root<BookEntity> root) {
@@ -158,8 +115,5 @@ public class BookFacetService {
     }
 
     private record FacetDef(String key, String title, Function<Root<BookEntity>, Expression<?>> value) {
-    }
-
-    private record FacetCount(String value, long count) {
     }
 }

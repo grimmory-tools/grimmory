@@ -1,23 +1,18 @@
 package org.booklore.service.browse;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.BrowsePage;
-import org.booklore.browse.CursorCodec;
-import org.booklore.browse.CursorState;
+import org.booklore.browse.BrowsePager;
 import org.booklore.browse.FacetLogic;
-import org.booklore.browse.Link;
-import org.booklore.browse.LinksBuilder;
 import org.booklore.browse.ParamsHash;
 import org.booklore.browse.SortParser;
 import org.booklore.browse.SortTerm;
 import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.BookEntity;
@@ -44,76 +39,48 @@ public class BookBrowseService {
 
     private static final String PAGE_PATH = "/api/v1/books/page";
     private static final String FACET_PATH = "/api/v1/books/facets";
-    private static final int MAX_PAGE_SIZE = 100;
-    private static final int MAX_RANDOM_SORT_SEED = 999;
 
     private final AuthenticationService authenticationService;
     private final BookQueryService bookQueryService;
     private final ReadingProgressService readingProgressService;
     private final BookFilterSpecifications filterSpecifications;
     private final BookSortRegistry sortRegistry;
-    private final CursorCodec cursorCodec;
-    private final LinksBuilder linksBuilder;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final BrowseScopeFactory scopeFactory;
+    private final BrowsePager pager;
+    private final EntityManager entityManager;
 
     public BrowsePage<Book> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Long userId = user.getId();
-        boolean isAdmin = user.getPermissions().isAdmin();
+        BrowseScope scope = scopeFactory.from(user);
+        Long userId = scope.userId();
 
-        Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
+        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
         FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
         String paramsHash = ParamsHash.compute(query, facets, facetLogic);
 
-        long offset;
-        int limit;
-        String sortString;
-        Integer randomSeed;
-        if (cursor != null) {
-            CursorState state = cursorCodec.decode(cursor);
-            cursorCodec.verifyParamsMatch(state, paramsHash);
-            offset = state.offset();
-            limit = state.limit();
-            sortString = state.sort();
-            randomSeed = state.randomSeed();
-        } else {
-            offset = pageable.getOffset();
-            limit = pageable.getPageSize();
-            sortString = sort;
-            randomSeed = (int) (Math.random() * MAX_RANDOM_SORT_SEED);
-        }
-        if (limit <= 0) {
-            throw ApiError.INVALID_INPUT.createException("Page size must be positive.");
-        }
-        limit = Math.min(limit, MAX_PAGE_SIZE);
+        BrowsePager.Window window = pager.resolve(sort, cursor, pageable, paramsHash);
 
-        List<SortTerm> sortTerms = SortParser.parse(sortString, sortRegistry.registry().keys());
-        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
-        Specification<BookEntity> spec = withSort(filter, sortTerms, userId, randomSeed);
+        List<SortTerm> sortTerms = SortParser.parse(window.sort(), sortRegistry.registry().keys());
+        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, scope, null);
+        Specification<BookEntity> spec = withSort(filter, sortTerms, userId, window.randomSeed());
 
-        Pageable pageRequest = PageRequest.of((int) (offset / limit), limit);
+        Pageable pageRequest = PageRequest.of((int) (window.offset() / window.limit()), window.limit());
         Page<Book> page = bookQueryService.findBooksPaged(spec, pageRequest, userId);
         enrich(page.getContent(), userId);
 
-        CursorState baseState = new CursorState(offset, limit, sortString, paramsHash, randomSeed);
-        String currentCursor = cursorCodec.encode(baseState);
-        List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
-
-        return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), currentCursor, links);
+        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query),
+                window, page.getTotalElements(), page.getContent());
     }
 
     public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Long userId = user.getId();
-        boolean isAdmin = user.getPermissions().isAdmin();
+        BrowseScope scope = scopeFactory.from(user);
+        Long userId = scope.userId();
 
-        Map<String, List<String>> facets = BookFilterSpecifications.parseFacets(facet);
+        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
         FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
         List<SortTerm> sortTerms = SortParser.parse(sort, sortRegistry.registry().keys());
-        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
+        Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, scope, null);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -125,7 +92,7 @@ public class BookBrowseService {
         }
 
         // The `findAllIds` doesn't pass a cursor so it's a random seed every time.
-        int randomSeed = (int) (Math.random() * MAX_RANDOM_SORT_SEED);
+        int randomSeed = BrowsePager.newRandomSeed();
 
         cq.orderBy(sortRegistry.registry().toOrders(sortTerms, root, cq, cb, userId, randomSeed));
 
@@ -133,18 +100,12 @@ public class BookBrowseService {
     }
 
     public BrowsePage<Book> wrapLegacy(Page<Book> page, Pageable pageable) {
-        long offset = pageable.getOffset();
-        int limit = pageable.getPageSize();
-
         String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.AND);
 
         // Pass a null random seed for the legacy case - we don't actually store a seed value and
         // this is good enough for most use cases.
-        CursorState baseState = new CursorState(offset, limit, null, paramsHash, null);
-
-        List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, FACET_PATH, "", offset, limit, page.getTotalElements(), baseState));
-        return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), cursorCodec.encode(baseState), links);
+        BrowsePager.Window window = new BrowsePager.Window(pageable.getOffset(), pageable.getPageSize(), null, paramsHash, null);
+        return pager.assemble(PAGE_PATH, FACET_PATH, "", window, page.getTotalElements(), page.getContent());
     }
 
     private Specification<BookEntity> withSort(Specification<BookEntity> filter, List<SortTerm> sortTerms, Long userId, Integer randomSeed) {

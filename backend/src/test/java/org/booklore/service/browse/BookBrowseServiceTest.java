@@ -17,7 +17,10 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ContentRestrictionMode;
+import org.booklore.model.enums.ContentRestrictionType;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
@@ -324,5 +327,44 @@ class BookBrowseServiceTest {
         BrowsePage<Book> result = browse(null, null, null, null, 0, 20);
         assertThat(result.content()).hasSize(1);
         assertThat(result.content().get(0).getId()).isNotEqualTo(outside.getId());
+    }
+
+    @Test
+    void nonAdminWithNoLibrariesSeesNothing() {
+        book("Alpha", List.of());
+        em.flush();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(noLibrariesUser());
+
+        BrowsePage<Book> result = browse(null, null, null, null, 0, 20);
+        assertThat(result.content()).isEmpty();
+        assertThat(result.page().totalElements()).isZero();
+        assertThat(browseService.findAllIds(null, null, null, null)).isEmpty();
+    }
+
+    @Test
+    void contentRestrictionsExcludeBooks() {
+        em.persist(UserContentRestrictionEntity.builder()
+                .user(userEntity)
+                .restrictionType(ContentRestrictionType.CATEGORY)
+                .mode(ContentRestrictionMode.EXCLUDE)
+                .value("Horror")
+                .build());
+        Long romance = book("R", List.of("Romance")).getId();
+        book("H", List.of("Horror"));
+        em.flush();
+
+        assertThat(browse(null, null, null, null, 0, 20).content().stream().map(Book::getId))
+                .containsExactly(romance);
+        assertThat(browseService.findAllIds(null, null, null, null)).containsExactly(romance);
+    }
+
+    private BookLoreUser noLibrariesUser() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        return BookLoreUser.builder()
+                .id(userEntity.getId())
+                .assignedLibraries(List.of())
+                .permissions(permissions)
+                .build();
     }
 }

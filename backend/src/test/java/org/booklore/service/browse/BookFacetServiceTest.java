@@ -17,7 +17,10 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ContentRestrictionMode;
+import org.booklore.model.enums.ContentRestrictionType;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -365,5 +368,42 @@ class BookFacetServiceTest {
         assertThat(json).contains("\"rel\":[\"self\",\"facet\"]");
         assertThat(json).doesNotContain("\"rel\":[\"self\"]");
         assertThat(json).doesNotContain("\"rel\":[\"facet\"]");
+    }
+
+    @Test
+    void nonAdminWithNoLibrariesGetsNoFacetValues() {
+        book("A", "Horror", "Alice");
+        em.flush();
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(BookLoreUser.builder()
+                .id(userEntity.getId())
+                .assignedLibraries(List.of())
+                .permissions(permissions)
+                .build());
+
+        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+
+        assertThat(group(response, "genre").links()).isEmpty();
+        assertThat(group(response, "author").links()).isEmpty();
+    }
+
+    @Test
+    void contentRestrictionsExcludeBooksFromCounts() {
+        em.persist(UserContentRestrictionEntity.builder()
+                .user(userEntity)
+                .restrictionType(ContentRestrictionType.CATEGORY)
+                .mode(ContentRestrictionMode.EXCLUDE)
+                .value("Horror")
+                .build());
+        book("H", "Horror", "Alice");
+        book("R", "Romance", "Bob");
+        em.flush();
+
+        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+
+        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
+        assertThat(count(group(response, "genre"), "Horror")).isNull();
+        assertThat(count(group(response, "author"), "Alice")).isNull();
     }
 }
