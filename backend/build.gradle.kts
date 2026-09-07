@@ -170,7 +170,7 @@ dependencies {
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.9")
 
     // --- Template Engine ---
-    implementation("org.freemarker:freemarker:2.3.34")
+    implementation("org.freemarker:freemarker:2.3.35")
 
     // --- Jackson 3 ---
     implementation(platform("tools.jackson:jackson-bom:3.2.2"))
