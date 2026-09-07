@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -31,9 +32,20 @@ public final class BookSearchSpecification {
                     cb.like(cb.lower(metadata.get("asin")), pattern),
                     collectionMatches(root, criteriaQuery, cb, "authors", pattern),
                     collectionMatches(root, criteriaQuery, cb, "categories", pattern),
-                    collectionMatches(root, criteriaQuery, cb, "tags", pattern)
+                    collectionMatches(root, criteriaQuery, cb, "tags", pattern),
+                    fileNameMatches(root, criteriaQuery, cb, pattern)
             );
         };
+    }
+
+    private static Predicate fileNameMatches(Root<BookEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                             String pattern) {
+        Subquery<Long> sub = query.subquery(Long.class);
+        Root<BookFileEntity> file = sub.from(BookFileEntity.class);
+        sub.select(cb.literal(1L)).where(
+                cb.equal(file.get("book").get("id"), root.get("id")),
+                cb.like(cb.lower(file.get("fileName")), pattern));
+        return cb.exists(sub);
     }
 
     private static Predicate collectionMatches(Root<BookEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
