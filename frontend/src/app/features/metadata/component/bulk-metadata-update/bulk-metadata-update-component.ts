@@ -14,6 +14,7 @@ import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {AuthorAutocompleteService} from '../../../author-browser/data/author-autocomplete.service';
 
 @Component({
   selector: 'app-bulk-metadata-update-component',
@@ -29,7 +30,7 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
     ProgressSpinner,
     AutoComplete
 ],
-  providers: [MessageService],
+  providers: [MessageService, AuthorAutocompleteService],
   templateUrl: './bulk-metadata-update-component.html',
   styleUrl: './bulk-metadata-update-component.scss'
 })
@@ -63,16 +64,15 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
   private readonly injector = inject(Injector);
+  readonly authorAutocomplete = inject(AuthorAutocompleteService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
-  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
   get allGenres(): string[] { return this.uniqueMetadata().categories; }
   get allMoods(): string[] { return this.uniqueMetadata().moods; }
   get allTags(): string[] { return this.uniqueMetadata().tags; }
   get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
   get allSeries(): string[] { return this.uniqueMetadata().series; }
   filteredGenres: string[] = [];
-  filteredAuthors: string[] = [];
   filteredMoods: string[] = [];
   filteredTags: string[] = [];
   filteredPublishers: string[] = [];
@@ -82,13 +82,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
     const query = event.query.toLowerCase();
     this.filteredGenres = this.allGenres.filter((cat) =>
       cat.toLowerCase().includes(query)
-    );
-  }
-
-  filterAuthors(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
     );
   }
 
@@ -159,6 +152,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
       this.metadataForm.get(fieldName)?.setValue([...values, event.value as string]);
     }
     (event.originalEvent.target as HTMLInputElement).value = "";
+    if (fieldName === 'authors') this.authorAutocomplete.reset();
   }
 
   onAutoCompleteKeyUp(fieldName: string, event: KeyboardEvent) {
@@ -171,6 +165,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
           this.metadataForm.get(fieldName)?.setValue([...values, value]);
         }
         input.value = "";
+        if (fieldName === 'authors') this.authorAutocomplete.reset();
       }
     }
   }

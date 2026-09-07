@@ -10,6 +10,7 @@ import {Library} from '../../model/library.model';
 import {BookMetadataService} from '../../service/book-metadata.service';
 import {BookService} from '../../service/book.service';
 import {LibraryService} from '../../service/library.service';
+import {AuthorAutocompleteService} from '../../../author-browser/data/author-autocomplete.service';
 import {AddPhysicalBookDialogComponent} from './add-physical-book-dialog.component';
 
 describe('AddPhysicalBookDialogComponent', () => {
@@ -83,6 +84,7 @@ describe('AddPhysicalBookDialogComponent', () => {
         {provide: BookService, useValue: {uniqueMetadata, createPhysicalBook}},
         {provide: BookMetadataService, useValue: {lookupByIsbn}},
         {provide: LibraryService, useValue: {libraries}},
+        {provide: AuthorAutocompleteService, useValue: {reset: vi.fn()}},
       ],
     });
 
@@ -141,13 +143,11 @@ describe('AddPhysicalBookDialogComponent', () => {
     expect(component.selectedLibraryId).toBe(1);
   });
 
-  it('filters authors and categories with case-insensitive substring matches', () => {
+  it('filters categories with case-insensitive substring matches', () => {
     const {component} = createHarness();
 
-    component.filterAuthors({query: 'taV', originalEvent: new Event('input')} as AutoCompleteCompleteEvent);
     component.filterCategories({query: 'fic', originalEvent: new Event('input')} as AutoCompleteCompleteEvent);
 
-    expect(component.filteredAuthors).toEqual(['Octavia Butler']);
     expect(component.filteredCategories).toEqual(['Science Fiction']);
   });
 

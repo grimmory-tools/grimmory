@@ -14,6 +14,7 @@ import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
 import {TranslocoDirective} from '@jsverse/transloco';
+import {AuthorAutocompleteService} from '../../../author-browser/data/author-autocomplete.service';
 
 @Component({
   selector: 'app-add-physical-book-dialog',
@@ -31,6 +32,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
     TranslocoDirective
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
+  providers: [AuthorAutocompleteService],
 })
 export class AddPhysicalBookDialogComponent {
   private dynamicDialogRef = inject(DynamicDialogRef);
@@ -38,6 +40,7 @@ export class AddPhysicalBookDialogComponent {
   private bookService = inject(BookService);
   private bookMetadataService = inject(BookMetadataService);
   private libraryService = inject(LibraryService);
+  readonly authorAutocomplete = inject(AuthorAutocompleteService);
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -51,9 +54,7 @@ export class AddPhysicalBookDialogComponent {
   categories: string[] = [];
 
   private readonly metadata = computed(() => this.bookService.uniqueMetadata());
-  get allAuthors(): string[] { return this.metadata().authors; }
   get allCategories(): string[] { return this.metadata().categories; }
-  filteredAuthors: string[] = [];
   filteredCategories: string[] = [];
 
   coverUrl: string | null = null;
@@ -79,13 +80,6 @@ export class AddPhysicalBookDialogComponent {
     return this.libraryService.libraries();
   }
 
-  filterAuthors(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
-    );
-  }
-
   filterCategories(event: AutoCompleteCompleteEvent): void {
     const query = event.query.toLowerCase();
     this.filteredCategories = this.allCategories.filter((category) =>
@@ -103,6 +97,7 @@ export class AddPhysicalBookDialogComponent {
           this[fieldName] = [...values, value];
         }
         input.value = '';
+        if (fieldName === 'authors') this.authorAutocomplete.reset();
       }
     }
   }
@@ -113,6 +108,7 @@ export class AddPhysicalBookDialogComponent {
       this[fieldName] = [...values, event.value];
     }
     (event.originalEvent.target as HTMLInputElement).value = '';
+    if (fieldName === 'authors') this.authorAutocomplete.reset();
   }
 
   fetchMetadataByIsbn(): void {

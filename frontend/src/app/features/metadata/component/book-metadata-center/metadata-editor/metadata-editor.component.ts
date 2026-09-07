@@ -32,6 +32,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
+import {AuthorAutocompleteService} from '../../../../author-browser/data/author-autocomplete.service';
 
 @Component({
   selector: "app-metadata-editor",
@@ -56,6 +57,7 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
     CdkDrag,
     CoverComponent,
   ],
+  providers: [AuthorAutocompleteService],
 })
 export class MetadataEditorComponent implements OnInit {
   private currentBook: Book | null = null;
@@ -102,6 +104,7 @@ export class MetadataEditorComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  readonly authorAutocomplete = inject(AuthorAutocompleteService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;
@@ -119,14 +122,12 @@ export class MetadataEditorComponent implements OnInit {
 
   originalMetadata!: BookMetadata;
 
-  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
   get allCategories(): string[] { return this.uniqueMetadata().categories; }
   get allMoods(): string[] { return this.uniqueMetadata().moods; }
   get allTags(): string[] { return this.uniqueMetadata().tags; }
   get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
   get allSeries(): string[] { return this.uniqueMetadata().series; }
   filteredCategories: string[] = [];
-  filteredAuthors: string[] = [];
   authorInputValue = '';
   filteredMoods: string[] = [];
   filteredTags: string[] = [];
@@ -187,13 +188,6 @@ export class MetadataEditorComponent implements OnInit {
     );
   }
 
-  filterAuthors(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
-
   dropAuthor(event: CdkDragDrop<string[]>) {
     const authors = [...(this.metadataForm.get('authors')?.value ?? [])];
     moveItemInArray(authors, event.previousIndex, event.currentIndex);
@@ -217,7 +211,7 @@ export class MetadataEditorComponent implements OnInit {
           this.metadataForm.get('authors')?.setValue([...authors, value]);
           this.metadataForm.get('authors')?.markAsDirty();
         }
-        this.authorInputValue = '';
+        this.resetAuthorAutocomplete();
       }
     }
   }
@@ -229,7 +223,12 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataForm.get('authors')?.setValue([...authors, value]);
       this.metadataForm.get('authors')?.markAsDirty();
     }
-    setTimeout(() => this.authorInputValue = '');
+    setTimeout(() => this.resetAuthorAutocomplete());
+  }
+
+  resetAuthorAutocomplete() {
+    this.authorInputValue = '';
+    this.authorAutocomplete.reset();
   }
 
   filterMoods(event: { query: string }) {

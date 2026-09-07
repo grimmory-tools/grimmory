@@ -15,6 +15,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {MetadataFormBuilder} from '../../../../../shared/metadata';
 import {MetadataUtilsService} from '../../../../../shared/metadata/metadata-utils.service';
+import {AuthorAutocompleteService} from '../../../../author-browser/data/author-autocomplete.service';
 import {MetadataPickerComponent} from './metadata-picker.component';
 
 describe('MetadataPickerComponent', () => {
@@ -103,6 +104,7 @@ describe('MetadataPickerComponent', () => {
         },
         {provide: MessageService, useValue: {add: messageAdd}},
         {provide: TranslocoService, useValue: {translate}},
+        {provide: AuthorAutocompleteService, useValue: {reset: vi.fn()}},
       ]
     });
   });

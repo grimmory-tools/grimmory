@@ -79,8 +79,11 @@
             [multiple]="true"
             [dropdown]="false"
             [forceSelection]="false"
-            [suggestions]="filteredAuthors"
-            (completeMethod)="filterAuthors($event)"
+            [suggestions]="authorAutocomplete.suggestions()"
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="40"
+            [virtualScrollOptions]="authorAutocomplete.virtualScrollOptions"
+            (completeMethod)="authorAutocomplete.search($event.query)"
             (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
             (onSelect)="onAutoCompleteSelect('authors', $event)">
           </p-autoComplete>

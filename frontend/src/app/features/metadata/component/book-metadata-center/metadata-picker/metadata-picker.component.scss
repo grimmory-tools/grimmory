@@ -640,10 +640,12 @@
 }
 
 .author-add-input {
-  flex: 1 1 5.25rem;
-  min-width: 5.25rem;
+  flex: 1 1 12rem;
+  min-width: min(12rem, 100%);
 
   ::ng-deep input {
+    width: 100%;
+    min-width: 0;
     border: none !important;
     background: transparent !important;
     padding: 0.2188rem;

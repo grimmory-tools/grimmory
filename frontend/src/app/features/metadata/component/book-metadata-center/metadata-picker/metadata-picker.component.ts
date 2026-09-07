@@ -20,6 +20,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
 import {ALL_COMIC_METADATA_FIELDS, ALL_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, getArrayFields, getBookDetailsFields, getBottomFields, getProviderFields, getSeriesFields, getTextareaFields, getTopFields, MetadataFieldConfig, MetadataFormBuilder, MetadataUtilsService} from '../../../../../shared/metadata';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {AuthorAutocompleteService} from '../../../../author-browser/data/author-autocomplete.service';
 
 @Component({
   selector: 'app-metadata-picker',
@@ -40,7 +41,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     TranslocoDirective,
     CdkDropList,
     CdkDrag,
-  ]
+  ],
+  providers: [AuthorAutocompleteService],
 })
 export class MetadataPickerComponent {
 
@@ -110,8 +112,8 @@ export class MetadataPickerComponent {
   private formBuilder = inject(MetadataFormBuilder);
   private metadataUtils = inject(MetadataUtilsService);
   private readonly t = inject(TranslocoService);
+  readonly authorAutocomplete = inject(AuthorAutocompleteService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
-
 
   private enabledProviderFields: MetadataProviderSpecificFields | null = null;
 
@@ -283,7 +285,7 @@ export class MetadataPickerComponent {
           this.metadataForm.get('authors')?.setValue([...authors, value]);
           this.metadataForm.get('authors')?.markAsDirty();
         }
-        this.authorInputValue = '';
+        this.resetAuthorAutocomplete();
       }
     }
   }
@@ -295,7 +297,12 @@ export class MetadataPickerComponent {
       this.metadataForm.get('authors')?.setValue([...authors, value]);
       this.metadataForm.get('authors')?.markAsDirty();
     }
-    setTimeout(() => this.authorInputValue = '');
+    setTimeout(() => this.resetAuthorAutocomplete());
+  }
+
+  resetAuthorAutocomplete(): void {
+    this.authorInputValue = '';
+    this.authorAutocomplete.reset();
   }
 
   onSave(): void {
