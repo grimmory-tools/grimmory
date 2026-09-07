@@ -147,7 +147,7 @@ dependencies {
     implementation("com.github.junrar:junrar:8.1.0")
 
     // --- JSON & Web Scraping ---
-    implementation("org.jsoup:jsoup:1.23.1")
+    implementation("org.jsoup:jsoup:1.23.2")
 
     // --- i18n / Language Normalization ---
     implementation("com.neovisionaries:nv-i18n:1.29")
