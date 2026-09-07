@@ -72,7 +72,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.13.2",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.0",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.8.1",
     "jsdom": "^30.0.1",
