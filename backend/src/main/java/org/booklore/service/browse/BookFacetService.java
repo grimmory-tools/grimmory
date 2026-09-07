@@ -139,7 +139,7 @@ public class BookFacetService {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<BookEntity> root = cq.from(BookEntity.class);
-        Expression<?> value = def.value().value(cb, root, userId);
+        Expression<?> value = def.value().apply(cb, root, userId);
         Expression<Long> count = cb.countDistinct(root.get("id"));
 
         List<Predicate> predicates = new ArrayList<>();
@@ -198,7 +198,7 @@ public class BookFacetService {
     }
 
     private interface FacetValueSource {
-        Expression<?> value(CriteriaBuilder cb, Root<BookEntity> root, Long userId);
+        Expression<?> apply(CriteriaBuilder cb, Root<BookEntity> root, Long userId);
     }
 
     private record FacetDef(String key, String title, FacetValueSource value) {
