@@ -171,7 +171,8 @@ export class AuthenticationSettingsComponent {
       clientId: settings.oidcProviderDetails?.clientId || '',
       issuerUri: settings.oidcProviderDetails?.issuerUri || '',
       scopes: settings.oidcProviderDetails?.scopes || '',
-      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping
+      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping,
+      clientSecret: settings.oidcProviderDetails?.clientSecret || '',
     };
 
     this.availablePermissions.forEach(perm => {
