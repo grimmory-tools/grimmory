@@ -65,8 +65,8 @@ importers:
         specifier: ^7.3.0
         version: 7.3.0
       '@tanstack/angular-query-experimental':
-        specifier: 5.101.4
-        version: 5.101.4(@angular/common@22.1.3(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))
+        specifier: 5.102.8
+        version: 5.102.8(@angular/common@22.1.3(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))
       '@tanstack/angular-table':
         specifier: ^8.21.4
         version: 8.21.4(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))
@@ -2714,8 +2714,8 @@ packages:
   '@tailwindcss/postcss@4.3.3':
     resolution: {integrity: sha512-JTSZZGQi1AyKirbLN3azmjVzef92tcX7h+iSqPdaeStyFpGpDlKvvpxeOE8njhbUanbRwr3z8DyzhICWnMtQeg==}
 
-  '@tanstack/angular-query-experimental@5.101.4':
-    resolution: {integrity: sha512-6JznduBS7eTKRLGl2RoI+Y0nBLayJrbGQPyn8DLsJrNimYPLlUyIZV9GZLsq3aYoyjuaxwbDRWz2eZEWhtSk3Q==}
+  '@tanstack/angular-query-experimental@5.102.8':
+    resolution: {integrity: sha512-ApGklLPiBI5CU1Ard+c1tIU1uglIyQ0Jki6E+JOYtUU0zfRY2l4GTyTuPW+BBr1B3+Ov5GZa0XaQXqKJjOy0nw==}
     peerDependencies:
       '@angular/common': '>=16.0.0'
       '@angular/core': '>=16.0.0'
@@ -2731,11 +2731,11 @@ packages:
     peerDependencies:
       '@angular/core': '>=20.0.0'
 
-  '@tanstack/query-core@5.101.4':
-    resolution: {integrity: sha512-gNwcvOJcRbLWPOLG/2OBm+zM+Yv+MKsXKEOWC57USuZDEsI71hEErQsiEGx5wX9rzWWkfwM0fVSPoiIFSsxfiw==}
+  '@tanstack/query-core@5.102.8':
+    resolution: {integrity: sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg==}
 
-  '@tanstack/query-devtools@5.101.4':
-    resolution: {integrity: sha512-z5IPHnDX3aUWeTWlRKLyooBQekaCAw4xRpZqPQ390RiWTDBcTynjpPT221BArw0u2+pnQMdGvPQI9YNNubBcmA==}
+  '@tanstack/query-devtools@5.102.8':
+    resolution: {integrity: sha512-ZgeMKuF5d/zOE+tgWm3cSbD6Zcbr6IugVsnbHzUcSismqLZDSUPBKM6ILUxExgwe6rPAOox2x5bA5T+PSOQG0Q==}
 
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
@@ -7968,13 +7968,13 @@ snapshots:
       postcss: 8.5.26
       tailwindcss: 4.3.3
 
-  '@tanstack/angular-query-experimental@5.101.4(@angular/common@22.1.3(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))':
+  '@tanstack/angular-query-experimental@5.102.8(@angular/common@22.1.3(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))':
     dependencies:
       '@angular/common': 22.1.3(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2)
-      '@tanstack/query-core': 5.101.4
+      '@tanstack/query-core': 5.102.8
     optionalDependencies:
-      '@tanstack/query-devtools': 5.101.4
+      '@tanstack/query-devtools': 5.102.8
 
   '@tanstack/angular-table@8.21.4(@angular/core@22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2))':
     dependencies:
@@ -7987,9 +7987,9 @@ snapshots:
       '@angular/core': 22.1.3(@angular/compiler@22.1.3)(rxjs@7.8.2)
       '@tanstack/virtual-core': 3.17.7
 
-  '@tanstack/query-core@5.101.4': {}
+  '@tanstack/query-core@5.102.8': {}
 
-  '@tanstack/query-devtools@5.101.4':
+  '@tanstack/query-devtools@5.102.8':
     optional: true
 
   '@tanstack/table-core@8.21.3': {}
