@@ -89,8 +89,8 @@ importers:
         specifier: ^3.4.13
         version: 3.4.13
       lucide-static:
-        specifier: 1.31.0
-        version: 1.31.0
+        specifier: 1.40.0
+        version: 1.40.0
       markdown-it:
         specifier: ^15.0.0
         version: 15.0.0
@@ -4293,8 +4293,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-static@1.31.0:
-    resolution: {integrity: sha512-XFX9NO+gcLsOkXISmeQZYGJa2siGWZc/lgT/BK1b83h9RdOiz3cj1eQP5nWhELiB1KhW5ryk0nmMopOgm/CuSA==}
+  lucide-static@1.40.0:
+    resolution: {integrity: sha512-ln37Ng6A709exLQH4pBxrbl6FAUk/ZBLTJnLrj02HN/Bb84eUGzlA2JjMglScI0TEab6vH2UVs0hm4vGgLzTrQ==}
 
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -9657,7 +9657,7 @@ snapshots:
       yallist: 3.1.1
     optional: true
 
-  lucide-static@1.31.0: {}
+  lucide-static@1.40.0: {}
 
   lz-string@1.5.0: {}
 
