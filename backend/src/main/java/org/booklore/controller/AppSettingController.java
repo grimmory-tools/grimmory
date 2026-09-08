@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.settings.AppSettingKey;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.OidcProviderDetails;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequestMapping("/api/v1/settings")
 public class AppSettingController {
 
+    private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
     private final OidcDiagnosticService oidcDiagnosticService;
     private final AuditService auditService;
@@ -34,7 +36,8 @@ public class AppSettingController {
     @ApiResponse(responseCode = "200", description = "Application settings returned successfully")
     @GetMapping
     public AppSettings getAppSettings() {
-        return appSettingService.getAppSettings();
+        var user = authenticationService.getAuthenticatedUser();
+        return appSettingService.getAppSettings(user);
     }
 
     @Operation(summary = "Update application settings", description = "Update one or more application settings.")
