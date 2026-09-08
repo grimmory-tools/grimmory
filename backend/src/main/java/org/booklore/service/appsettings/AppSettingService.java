@@ -228,25 +228,48 @@ public class AppSettingService {
         );
     }
 
-    private <T> List<T> getJsonListSetting(Map<AppSettingKey, String> settingsMap, AppSettingKey key, Class<T> classType, List<T> defaultValue) {
+    private boolean hasAccess(BookLoreUser.UserPermissions permissions, AppSettingKey key) {
+        if (key.isPublic()) {
+            return true;
+        }
+
+        if (permissions == null) {
+            return false;
+        }
+
+        return key.getRequiredPermissions().stream()
+                .anyMatch((p) -> UserPermissionUtils.hasPermission(permissions, p));
+    }
+
+    private <T> List<T> getJsonListSetting(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, Class<T> classType, List<T> defaultValue) {
         var javaType = TypeFactory.createDefaultInstance().constructParametricType(List.class, classType);
-        return getJsonSetting(settingsMap, key, javaType, defaultValue);
+        return getJsonSetting(permissions, settingsMap, key, javaType, defaultValue);
     }
 
-    private <T> T getJsonSetting(Map<AppSettingKey, String> settingsMap, AppSettingKey key, Class<T> classType, T defaultValue) {
+    private <T> T getJsonSetting(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, Class<T> classType, T defaultValue) {
         var javaType = TypeFactory.createDefaultInstance().constructType(classType);
-        return getJsonSetting(settingsMap, key, javaType, defaultValue);
+        return getJsonSetting(permissions, settingsMap, key, javaType, defaultValue);
     }
 
-    private <T> T getJsonSetting(Map<AppSettingKey, String> settingsMap, AppSettingKey key, JavaType javaType, T defaultValue) {
-        return getValue(settingsMap, key, defaultValue, (json) -> objectMapper.readValue(json, javaType));
+    private <T> T getJsonSetting(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, JavaType javaType, T defaultValue) {
+        return getValue(permissions, settingsMap, key, defaultValue, (json) -> objectMapper.readValue(json, javaType));
     }
 
-    private String getValue(Map<AppSettingKey, String> settingsMap, AppSettingKey key, String defaultValue) {
-        return getValue(settingsMap, key, defaultValue, String::valueOf);
+    private String getValue(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, String defaultValue) {
+        return getValue(permissions, settingsMap, key, defaultValue, String::valueOf);
     }
 
-    private <T> T getValue(Map<AppSettingKey, String> settingsMap, AppSettingKey key, T defaultValue, Function<String, T> mapper) {
+    private boolean getBooleanValue(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, Boolean defaultValue) {
+        var value = getValue(permissions, settingsMap, key, defaultValue, Boolean::parseBoolean);
+
+        return value == null ? defaultValue : value;
+    }
+
+    private <T> T getValue(BookLoreUser.UserPermissions permissions, Map<AppSettingKey, String> settingsMap, AppSettingKey key, T defaultValue, Function<String, T> mapper) {
+        if (!hasAccess(permissions, key)) {
+            return null;
+        }
+
         String value = settingsMap.getOrDefault(key, null);
 
         if (value == null) {
@@ -266,10 +289,10 @@ public class AppSettingService {
         PublicAppSetting.PublicAppSettingBuilder builder = PublicAppSetting.builder();
 
         builder.remoteAuthEnabled(appProperties.getRemoteAuth().isEnabled());
-        OidcProviderDetails details = getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null);
+        OidcProviderDetails details = getJsonSetting(null, settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null);
 
-        boolean oidcEnabled = getValue(settingsMap, AppSettingKey.OIDC_ENABLED, false, Boolean::parseBoolean);
-        boolean oidcForceOnlyMode = getValue(settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false, Boolean::parseBoolean);
+        boolean oidcEnabled = getBooleanValue(null, settingsMap, AppSettingKey.OIDC_ENABLED, false);
+        boolean oidcForceOnlyMode = getBooleanValue(null, settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false);
 
         if (isOIDCForceDisabled()) {
             oidcEnabled = false;
@@ -284,34 +307,44 @@ public class AppSettingService {
     }
 
     public AppSettings getAppSettings() {
+        var permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(true);
+        return getAppSettings(permissions);
+    }
+
+    public AppSettings getAppSettings(BookLoreUser user) {
+        return getAppSettings(user.getPermissions());
+    }
+
+    public AppSettings getAppSettings(BookLoreUser.UserPermissions permissions) {
         Map<AppSettingKey, String> settingsMap = getSettingsMap();
 
         AppSettings.AppSettingsBuilder builder = AppSettings.builder();
         builder.remoteAuthEnabled(appProperties.getRemoteAuth().isEnabled());
 
-        builder.defaultMetadataRefreshOptions(getJsonSetting(settingsMap, AppSettingKey.QUICK_BOOK_MATCH, MetadataRefreshOptions.class, getDefaultMetadataRefreshOptions()));
-        builder.libraryMetadataRefreshOptions(getJsonListSetting(settingsMap, AppSettingKey.LIBRARY_METADATA_REFRESH_OPTIONS, MetadataRefreshOptions.class, List.of()));
-        builder.oidcProviderDetails(getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null));
-        builder.oidcRedirectUris(getJsonListSetting(settingsMap, AppSettingKey.OIDC_REDIRECT_URIS, String.class, List.of(DEFAULT_MOBILE_REDIRECT_URI)));
-        builder.oidcAutoProvisionDetails(getJsonSetting(settingsMap, AppSettingKey.OIDC_AUTO_PROVISION_DETAILS, OidcAutoProvisionDetails.class, new OidcAutoProvisionDetails()));
-        builder.metadataProviderSettings(getJsonSetting(settingsMap, AppSettingKey.METADATA_PROVIDER_SETTINGS, MetadataProviderSettings.class, getDefaultMetadataProviderSettings()));
-        builder.metadataMatchWeights(getJsonSetting(settingsMap, AppSettingKey.METADATA_MATCH_WEIGHTS, MetadataMatchWeights.class, getDefaultMetadataMatchWeights()));
-        builder.metadataPersistenceSettings(getJsonSetting(settingsMap, AppSettingKey.METADATA_PERSISTENCE_SETTINGS, MetadataPersistenceSettings.class, getDefaultMetadataPersistenceSettings()));
-        builder.metadataPublicReviewsSettings(getJsonSetting(settingsMap, AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, MetadataPublicReviewsSettings.class, getDefaultMetadataPublicReviewsSettings()));
-        builder.koboSettings(getJsonSetting(settingsMap, AppSettingKey.KOBO_SETTINGS, KoboSettings.class, getDefaultKoboSettings()));
-        builder.coverCroppingSettings(getJsonSetting(settingsMap, AppSettingKey.COVER_CROPPING_SETTINGS, CoverCroppingSettings.class, getDefaultCoverCroppingSettings()));
-        builder.metadataProviderSpecificFields(getJsonSetting(settingsMap, AppSettingKey.METADATA_PROVIDER_SPECIFIC_FIELDS, MetadataProviderSpecificFields.class, getDefaultMetadataProviderSpecificFields()));
+        builder.defaultMetadataRefreshOptions(getJsonSetting(permissions, settingsMap, AppSettingKey.QUICK_BOOK_MATCH, MetadataRefreshOptions.class, getDefaultMetadataRefreshOptions()));
+        builder.libraryMetadataRefreshOptions(getJsonListSetting(permissions, settingsMap, AppSettingKey.LIBRARY_METADATA_REFRESH_OPTIONS, MetadataRefreshOptions.class, List.of()));
+        builder.oidcProviderDetails(getJsonSetting(permissions, settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null));
+        builder.oidcRedirectUris(getJsonListSetting(permissions, settingsMap, AppSettingKey.OIDC_REDIRECT_URIS, String.class, List.of(DEFAULT_MOBILE_REDIRECT_URI)));
+        builder.oidcAutoProvisionDetails(getJsonSetting(permissions, settingsMap, AppSettingKey.OIDC_AUTO_PROVISION_DETAILS, OidcAutoProvisionDetails.class, new OidcAutoProvisionDetails()));
+        builder.metadataProviderSettings(getJsonSetting(permissions, settingsMap, AppSettingKey.METADATA_PROVIDER_SETTINGS, MetadataProviderSettings.class, getDefaultMetadataProviderSettings()));
+        builder.metadataMatchWeights(getJsonSetting(permissions, settingsMap, AppSettingKey.METADATA_MATCH_WEIGHTS, MetadataMatchWeights.class, getDefaultMetadataMatchWeights()));
+        builder.metadataPersistenceSettings(getJsonSetting(permissions, settingsMap, AppSettingKey.METADATA_PERSISTENCE_SETTINGS, MetadataPersistenceSettings.class, getDefaultMetadataPersistenceSettings()));
+        builder.metadataPublicReviewsSettings(getJsonSetting(permissions, settingsMap, AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, MetadataPublicReviewsSettings.class, getDefaultMetadataPublicReviewsSettings()));
+        builder.koboSettings(getJsonSetting(permissions, settingsMap, AppSettingKey.KOBO_SETTINGS, KoboSettings.class, getDefaultKoboSettings()));
+        builder.coverCroppingSettings(getJsonSetting(permissions, settingsMap, AppSettingKey.COVER_CROPPING_SETTINGS, CoverCroppingSettings.class, getDefaultCoverCroppingSettings()));
+        builder.metadataProviderSpecificFields(getJsonSetting(permissions, settingsMap, AppSettingKey.METADATA_PROVIDER_SPECIFIC_FIELDS, MetadataProviderSpecificFields.class, getDefaultMetadataProviderSpecificFields()));
 
-        builder.autoBookSearch(getValue(settingsMap, AppSettingKey.AUTO_BOOK_SEARCH, false, Boolean::parseBoolean));
-        builder.uploadPattern(getValue(settingsMap, AppSettingKey.UPLOAD_FILE_PATTERN, "{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>"));
-        builder.similarBookRecommendation(getValue(settingsMap, AppSettingKey.SIMILAR_BOOK_RECOMMENDATION, true, Boolean::parseBoolean));
-        builder.opdsServerEnabled(getValue(settingsMap, AppSettingKey.OPDS_SERVER_ENABLED, false, Boolean::parseBoolean));
-        builder.komgaApiEnabled(getValue(settingsMap, AppSettingKey.KOMGA_API_ENABLED, false, Boolean::parseBoolean));
-        builder.komgaGroupUnknown(getValue(settingsMap, AppSettingKey.KOMGA_GROUP_UNKNOWN, true, Boolean::parseBoolean));
-        builder.pdfCacheSizeInMb(getValue(settingsMap, AppSettingKey.PDF_CACHE_SIZE_IN_MB, 5120, Integer::parseInt));
-        builder.maxFileUploadSizeInMb(getValue(settingsMap, AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, 100, Integer::parseInt));
-        builder.metadataDownloadOnBookdrop(getValue(settingsMap, AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, true, Boolean::parseBoolean));
-        builder.oidcProviderClientSecret(getValue(settingsMap, AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET, ""));
+        builder.autoBookSearch(getBooleanValue(permissions, settingsMap, AppSettingKey.AUTO_BOOK_SEARCH, false));
+        builder.uploadPattern(getValue(permissions, settingsMap, AppSettingKey.UPLOAD_FILE_PATTERN, "{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>"));
+        builder.similarBookRecommendation(getBooleanValue(permissions, settingsMap, AppSettingKey.SIMILAR_BOOK_RECOMMENDATION, true));
+        builder.opdsServerEnabled(getBooleanValue(permissions, settingsMap, AppSettingKey.OPDS_SERVER_ENABLED, false));
+        builder.komgaApiEnabled(getBooleanValue(permissions, settingsMap, AppSettingKey.KOMGA_API_ENABLED, false));
+        builder.komgaGroupUnknown(getBooleanValue(permissions, settingsMap, AppSettingKey.KOMGA_GROUP_UNKNOWN, true));
+        builder.pdfCacheSizeInMb(getValue(permissions, settingsMap, AppSettingKey.PDF_CACHE_SIZE_IN_MB, 5120, Integer::parseInt));
+        builder.maxFileUploadSizeInMb(getValue(permissions, settingsMap, AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, 100, Integer::parseInt));
+        builder.metadataDownloadOnBookdrop(getBooleanValue(permissions, settingsMap, AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, true));
+        builder.oidcProviderClientSecret(getValue(permissions, settingsMap, AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET, ""));
 
         String sessionDurationStr = settingsMap.get(AppSettingKey.OIDC_SESSION_DURATION_HOURS);
         if (sessionDurationStr != null && !sessionDurationStr.isBlank()) {
@@ -321,8 +354,8 @@ public class AppSettingService {
             }
         }
 
-        boolean oidcEnabled = getValue(settingsMap, AppSettingKey.OIDC_ENABLED, false, Boolean::parseBoolean);
-        boolean oidcForceOnlyMode = getValue(settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false, Boolean::parseBoolean);
+        boolean oidcEnabled = getBooleanValue(permissions, settingsMap, AppSettingKey.OIDC_ENABLED, false);
+        boolean oidcForceOnlyMode = getBooleanValue(permissions, settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false);
 
         if (isOIDCForceDisabled()) {
             oidcEnabled = false;
@@ -332,7 +365,7 @@ public class AppSettingService {
         builder.oidcEnabled(oidcEnabled);
         builder.oidcForceOnlyMode(oidcForceOnlyMode);
 
-        builder.oidcGroupSyncMode(getValue(settingsMap, AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
+        builder.oidcGroupSyncMode(getValue(permissions, settingsMap, AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
 
         builder.diskType(appProperties.getDiskType());
 
