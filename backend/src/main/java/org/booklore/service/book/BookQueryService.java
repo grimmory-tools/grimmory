@@ -70,10 +70,15 @@ public class BookQueryService {
                 join.getAttribute().isCollection() || hasCollectionJoin(join));
     }
 
+    private interface BookIdProjection {
+        Long getId();
+    }
+
     public Page<Book> findBooksPaged(Specification<BookEntity> spec, Pageable pageable, Long userId) {
-        Page<BookEntity> page = bookRepository.findAll(distinct(spec), pageable);
+        Page<BookIdProjection> page = bookRepository.findBy(distinct(spec),
+                query -> query.as(BookIdProjection.class).page(pageable));
         Map<Long, BookEntity> booksById = bookRepository
-                .findAllWithMetadataByIds(page.getContent().stream().map(BookEntity::getId).collect(Collectors.toSet()))
+                .findAllWithMetadataByIds(page.getContent().stream().map(BookIdProjection::getId).collect(Collectors.toSet()))
                 .stream()
                 .collect(Collectors.toMap(BookEntity::getId, book -> book));
         List<Book> dtos = page.getContent().stream()
