@@ -334,15 +334,14 @@ public class BookQueryService {
                 m.getSeriesNumberLocked(), m.getSeriesTotalLocked(), m.getIsbn13Locked(),
                 m.getIsbn10Locked(), m.getAsinLocked(), m.getGoodreadsIdLocked(),
                 m.getComicvineIdLocked(), m.getHardcoverIdLocked(), m.getHardcoverBookIdLocked(),
-                m.getDoubanIdLocked(), m.getGoogleIdLocked(), m.getPageCountLocked(),
+                m.getGoogleIdLocked(), m.getPageCountLocked(),
                 m.getLanguageLocked(), m.getAmazonRatingLocked(), m.getAmazonReviewCountLocked(),
                 m.getGoodreadsRatingLocked(), m.getGoodreadsReviewCountLocked(),
                 m.getHardcoverRatingLocked(), m.getHardcoverReviewCountLocked(),
-                m.getDoubanRatingLocked(), m.getDoubanReviewCountLocked(),
                 m.getLubimyczytacIdLocked(), m.getLubimyczytacRatingLocked(),
                 m.getRanobedbIdLocked(), m.getRanobedbRatingLocked(),
                 m.getAudibleIdLocked(), m.getAudibleRatingLocked(), m.getAudibleReviewCountLocked(),
-                m.getExternalUrlLocked(), m.getCoverLocked(), m.getAudiobookCoverLocked(),
+                m.getCoverLocked(), m.getAudiobookCoverLocked(),
                 m.getAuthorsLocked(), m.getCategoriesLocked(), m.getMoodsLocked(),
                 m.getTagsLocked(), m.getReviewsLocked(), m.getNarratorLocked(),
                 m.getAbridgedLocked(), m.getAgeRatingLocked(), m.getContentRatingLocked()
@@ -356,6 +355,29 @@ public class BookQueryService {
                 return false;
             }
         }
+
+        ComicMetadata cm = m.getComicMetadata();
+        if (cm != null && !isComicFullyLocked(cm)) {
+            return false;
+        }
+
         return hasAnyLock;
+    }
+
+    private boolean isComicFullyLocked(ComicMetadata cm) {
+        Boolean[] comicLocks = {
+                cm.getIssueNumberLocked(), cm.getVolumeNameLocked(), cm.getVolumeNumberLocked(),
+                cm.getStoryArcLocked(), cm.getStoryArcNumberLocked(), cm.getAlternateSeriesLocked(),
+                cm.getAlternateIssueLocked(), cm.getImprintLocked(), cm.getFormatLocked(),
+                cm.getBlackAndWhiteLocked(), cm.getMangaLocked(), cm.getReadingDirectionLocked(),
+                cm.getWebLinkLocked(), cm.getNotesLocked(), cm.getCreatorsLocked(),
+                cm.getPencillersLocked(), cm.getInkersLocked(), cm.getColoristsLocked(),
+                cm.getLetterersLocked(), cm.getCoverArtistsLocked(), cm.getEditorsLocked(),
+                cm.getCharactersLocked(), cm.getTeamsLocked(), cm.getLocationsLocked()
+        };
+        for (Boolean lock : comicLocks) {
+            if (!Boolean.TRUE.equals(lock)) return false;
+        }
+        return true;
     }
 }
