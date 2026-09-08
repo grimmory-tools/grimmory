@@ -1,10 +1,14 @@
 package org.booklore.service.appsettings;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.AppSettingsRepository;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.service.AuthenticationService;
@@ -29,6 +33,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.type.TypeFactory;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +54,11 @@ public class AppSettingService {
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
 
+    private final Cache<AppSettingKey, String> cachedSettings = Caffeine.newBuilder()
+            .maximumSize(100)
+            .expireAfterWrite(Duration.ofHours(24))
+            .build();
+
     public AppSettingService(AppProperties appProperties, AppSettingsRepository appSettingsRepository, ObjectMapper objectMapper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
         this.appProperties = appProperties;
         this.appSettingsRepository = appSettingsRepository;
@@ -57,15 +67,6 @@ public class AppSettingService {
         this.auditService = auditService;
     }
 
-    @Cacheable("appSettings")
-    public AppSettings getAppSettings() {
-        return buildAppSettings();
-    }
-
-    @Caching(evict = {
-            @CacheEvict(value = "appSettings", allEntries = true),
-            @CacheEvict(value = "publicSettings", allEntries = true)
-    })
     @Transactional
     public void updateSetting(AppSettingKey key, Object val) throws JacksonException {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -96,6 +97,8 @@ public class AppSettingService {
         }
 
         appSettingsRepository.save(setting);
+
+        cachedSettings.invalidateAll();
 
         AuditAction action = switch (key) {
             case AppSettingKey k when k == AppSettingKey.OIDC_FORCE_ONLY_MODE -> AuditAction.OIDC_FORCE_ONLY_MODE_CHANGED;
@@ -193,25 +196,27 @@ public class AppSettingService {
         }
     }
 
-    @Cacheable("publicSettings")
-    public PublicAppSetting getPublicSettings() {
-        return buildPublicSetting();
-    }
-
     private Map<AppSettingKey, String> getSettingsMap() {
         var keys = Arrays.stream(AppSettingKey.values())
+                .filter(key -> cachedSettings.getIfPresent(key) == null)
                 .map(AppSettingKey::getDbKey)
                 .collect(Collectors.toSet());
 
-        return appSettingsRepository.findAll().stream()
-                .filter(entity -> keys.contains(entity.getName()))
-                .filter(entity -> entity.getVal() != null)
-                .collect(
-                    Collectors.toMap(
-                        entity -> AppSettingKey.fromDbKey(entity.getName()),
-                        AppSettingEntity::getVal
-                    )
-                );
+        if (!keys.isEmpty()) {
+            cachedSettings.putAll(
+                    appSettingsRepository.findAll().stream()
+                            .filter(entity -> keys.contains(entity.getName()))
+                            .filter(entity -> entity.getVal() != null)
+                            .collect(
+                                    Collectors.toMap(
+                                            entity -> AppSettingKey.fromDbKey(entity.getName()),
+                                            AppSettingEntity::getVal
+                                    )
+                            )
+            );
+        }
+
+        return cachedSettings.asMap();
     }
 
     private boolean isOIDCForceDisabled() {
@@ -246,7 +251,7 @@ public class AppSettingService {
         }
     }
 
-    private PublicAppSetting buildPublicSetting() {
+    public PublicAppSetting getPublicSettings() {
         Map<AppSettingKey, String> settingsMap = getSettingsMap();
         PublicAppSetting.PublicAppSettingBuilder builder = PublicAppSetting.builder();
 
@@ -268,7 +273,7 @@ public class AppSettingService {
         return builder.build();
     }
 
-    private AppSettings buildAppSettings() {
+    public AppSettings getAppSettings() {
         Map<AppSettingKey, String> settingsMap = getSettingsMap();
 
         AppSettings.AppSettingsBuilder builder = AppSettings.builder();
@@ -329,10 +334,6 @@ public class AppSettingService {
         return setting != null ? setting.getVal() : null;
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "appSettings", allEntries = true),
-            @CacheEvict(value = "publicSettings", allEntries = true)
-    })
     @Transactional
     public void saveSetting(String key, String value) {
         var setting = appSettingsRepository.findByName(key);
@@ -342,6 +343,8 @@ public class AppSettingService {
         }
         setting.setVal(value);
         appSettingsRepository.save(setting);
+
+        cachedSettings.invalidateAll();
     }
 
     private MetadataProviderSettings getDefaultMetadataProviderSettings() {
