@@ -33,7 +33,6 @@ export interface MetadataMatchWeights {
 export interface OidcProviderDetails {
   providerName: string;
   clientId: string;
-  clientSecret?: string;
   issuerUri: string;
   scopes?: string;
   claimMapping: {
@@ -185,6 +184,7 @@ export interface AppSettings {
   remoteAuthEnabled: boolean;
   oidcEnabled: boolean;
   oidcProviderDetails: OidcProviderDetails;
+  oidcProviderClientSecret: string | null;
   oidcRedirectUris: string[];
   oidcAutoProvisionDetails: OidcAutoProvisionDetails;
   maxFileUploadSizeInMb: number;
@@ -235,6 +235,7 @@ export enum AppSettingKey {
   KOMGA_GROUP_UNKNOWN = 'KOMGA_GROUP_UNKNOWN',
   OIDC_ENABLED = 'OIDC_ENABLED',
   OIDC_PROVIDER_DETAILS = 'OIDC_PROVIDER_DETAILS',
+  OIDC_PROVIDER_CLIENT_SECRET = 'OIDC_PROVIDER_CLIENT_SECRET',
   OIDC_REDIRECT_URIS = 'OIDC_REDIRECT_URIS',
   OIDC_AUTO_PROVISION_DETAILS = 'OIDC_AUTO_PROVISION_DETAILS',
   MAX_FILE_UPLOAD_SIZE_IN_MB = 'MAX_FILE_UPLOAD_SIZE_IN_MB',
