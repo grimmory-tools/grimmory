@@ -39,6 +39,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -238,15 +239,24 @@ public class AppSettingService {
     }
 
     private <T> T getJsonSetting(Map<AppSettingKey, String> settingsMap, AppSettingKey key, JavaType javaType, T defaultValue) {
-        String json = settingsMap.get(key);
-        if (json == null || json.isBlank()) {
+        return getValue(settingsMap, key, defaultValue, (json) -> objectMapper.readValue(json, javaType));
+    }
+
+    private String getValue(Map<AppSettingKey, String> settingsMap, AppSettingKey key, String defaultValue) {
+        return getValue(settingsMap, key, defaultValue, String::valueOf);
+    }
+
+    private <T> T getValue(Map<AppSettingKey, String> settingsMap, AppSettingKey key, T defaultValue, Function<String, T> mapper) {
+        String value = settingsMap.getOrDefault(key, null);
+
+        if (value == null) {
             return defaultValue;
         }
 
         try {
-            return objectMapper.readValue(json, javaType);
+            return mapper.apply(value);
         } catch (JacksonException e) {
-            log.error("Failed to parse JSON for setting key '{}'. Using default value. Error: {}", key, e.getMessage());
+            log.error("Failed to parse value for setting key '{}'. Using default value. Error: {}", key, e.getMessage());
             return defaultValue;
         }
     }
@@ -258,8 +268,8 @@ public class AppSettingService {
         builder.remoteAuthEnabled(appProperties.getRemoteAuth().isEnabled());
         OidcProviderDetails details = getJsonSetting(settingsMap, AppSettingKey.OIDC_PROVIDER_DETAILS, OidcProviderDetails.class, null);
 
-        boolean oidcEnabled = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_ENABLED, "false"));
-        boolean oidcForceOnlyMode = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false"));
+        boolean oidcEnabled = getValue(settingsMap, AppSettingKey.OIDC_ENABLED, false, Boolean::parseBoolean);
+        boolean oidcForceOnlyMode = getValue(settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false, Boolean::parseBoolean);
 
         if (isOIDCForceDisabled()) {
             oidcEnabled = false;
@@ -292,16 +302,16 @@ public class AppSettingService {
         builder.coverCroppingSettings(getJsonSetting(settingsMap, AppSettingKey.COVER_CROPPING_SETTINGS, CoverCroppingSettings.class, getDefaultCoverCroppingSettings()));
         builder.metadataProviderSpecificFields(getJsonSetting(settingsMap, AppSettingKey.METADATA_PROVIDER_SPECIFIC_FIELDS, MetadataProviderSpecificFields.class, getDefaultMetadataProviderSpecificFields()));
 
-        builder.autoBookSearch(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.AUTO_BOOK_SEARCH, "false")));
-        builder.uploadPattern(settingsMap.getOrDefault(AppSettingKey.UPLOAD_FILE_PATTERN, "{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>"));
-        builder.similarBookRecommendation(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.SIMILAR_BOOK_RECOMMENDATION, "true")));
-        builder.opdsServerEnabled(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OPDS_SERVER_ENABLED, "false")));
-        builder.komgaApiEnabled(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.KOMGA_API_ENABLED, "false")));
-        builder.komgaGroupUnknown(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.KOMGA_GROUP_UNKNOWN, "true")));
-        builder.pdfCacheSizeInMb(Integer.parseInt(settingsMap.getOrDefault(AppSettingKey.PDF_CACHE_SIZE_IN_MB, "5120")));
-        builder.maxFileUploadSizeInMb(Integer.parseInt(settingsMap.getOrDefault(AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, "100")));
-        builder.metadataDownloadOnBookdrop(Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, "true")));
-        builder.oidcProviderClientSecret(settingsMap.getOrDefault(AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET, ""));
+        builder.autoBookSearch(getValue(settingsMap, AppSettingKey.AUTO_BOOK_SEARCH, false, Boolean::parseBoolean));
+        builder.uploadPattern(getValue(settingsMap, AppSettingKey.UPLOAD_FILE_PATTERN, "{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>"));
+        builder.similarBookRecommendation(getValue(settingsMap, AppSettingKey.SIMILAR_BOOK_RECOMMENDATION, true, Boolean::parseBoolean));
+        builder.opdsServerEnabled(getValue(settingsMap, AppSettingKey.OPDS_SERVER_ENABLED, false, Boolean::parseBoolean));
+        builder.komgaApiEnabled(getValue(settingsMap, AppSettingKey.KOMGA_API_ENABLED, false, Boolean::parseBoolean));
+        builder.komgaGroupUnknown(getValue(settingsMap, AppSettingKey.KOMGA_GROUP_UNKNOWN, true, Boolean::parseBoolean));
+        builder.pdfCacheSizeInMb(getValue(settingsMap, AppSettingKey.PDF_CACHE_SIZE_IN_MB, 5120, Integer::parseInt));
+        builder.maxFileUploadSizeInMb(getValue(settingsMap, AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, 100, Integer::parseInt));
+        builder.metadataDownloadOnBookdrop(getValue(settingsMap, AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, true, Boolean::parseBoolean));
+        builder.oidcProviderClientSecret(getValue(settingsMap, AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET, ""));
 
         String sessionDurationStr = settingsMap.get(AppSettingKey.OIDC_SESSION_DURATION_HOURS);
         if (sessionDurationStr != null && !sessionDurationStr.isBlank()) {
@@ -311,8 +321,8 @@ public class AppSettingService {
             }
         }
 
-        boolean oidcEnabled = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_ENABLED, "false"));
-        boolean oidcForceOnlyMode = Boolean.parseBoolean(settingsMap.getOrDefault(AppSettingKey.OIDC_FORCE_ONLY_MODE, "false"));
+        boolean oidcEnabled = getValue(settingsMap, AppSettingKey.OIDC_ENABLED, false, Boolean::parseBoolean);
+        boolean oidcForceOnlyMode = getValue(settingsMap, AppSettingKey.OIDC_FORCE_ONLY_MODE, false, Boolean::parseBoolean);
 
         if (isOIDCForceDisabled()) {
             oidcEnabled = false;
@@ -322,7 +332,7 @@ public class AppSettingService {
         builder.oidcEnabled(oidcEnabled);
         builder.oidcForceOnlyMode(oidcForceOnlyMode);
 
-        builder.oidcGroupSyncMode(settingsMap.getOrDefault(AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
+        builder.oidcGroupSyncMode(getValue(settingsMap, AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
 
         builder.diskType(appProperties.getDiskType());
 
