@@ -536,6 +536,141 @@ class EpubMetadataWriterTest {
     }
 
     @Nested
+    @DisplayName("EPUB3 Title Tests")
+    class Epub3TitleTests {
+        @Test
+        @DisplayName("Should add title dc:title with title-type refinement in EPUB3")
+        void epub3_shouldAddTitleWithRefinement() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            metadata.setTitle("Main Title");
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains("Main Title");
+            assertThat(content).contains("property=\"title-type\"");
+            assertThat(content).contains(">main</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should edit title dc:title when subtitle exists in EPUB3")
+        void epub3_shouldEditTitleWhenTitleAndSubtitleExist() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Test Book</dc:title>
+                            <dc:title id="subtitle-12b45ebf">My Subtitle</dc:title>
+                            <opf:meta xmlns:opf="http://www.idpf.org/2007/opf" property="title-type" refines="#subtitle-12b45ebf">subtitle</opf:meta>
+                        </metadata>
+                    </package>""";
+
+            metadata.setTitle("Main Title");
+            metadata.setSubtitle("My Subtitle");
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains("Main Title");
+            assertThat(content).contains("property=\"title-type\"");
+            assertThat(content).contains(">main</opf:meta>");
+            assertThat(content).contains(">subtitle</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should add title dc:title when no title-type refinement in EPUB3")
+        void epub3_shouldAddTitleWhenNoRefinement() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Main Title</dc:title>
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains(">Test Book<");
+            assertThat(content).doesNotContain(">Main Title<");
+            assertThat(content).contains("property=\"title-type\"");
+            assertThat(content).contains(">main</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should update title dc:title with title-type refinement in EPUB3")
+        void epub3_shouldUpdateTitleWithRefinement() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title id="title-12b45ebf">Main Title</dc:title>
+                            <opf:meta xmlns:opf="http://www.idpf.org/2007/opf" property="title-type" refines="#title-12b45ebf">main</opf:meta>
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains(">Test Book<");
+            assertThat(content).doesNotContain(">Main Title<");
+            assertThat(content).contains("property=\"title-type\"");
+            assertThat(content).contains(">main</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should remove refinement when title is removed")
+        void epub3_shouldRemoveRefinementWhenRemovingTitle() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title id="title-12b45ebf">Main Title</dc:title>
+                            <opf:meta xmlns:opf="http://www.idpf.org/2007/opf" property="title-type" refines="#title-12b45ebf">main</opf:meta>
+                        </metadata>
+                    </package>""";
+
+            var clearFlags = new MetadataClearFlags();
+            clearFlags.setTitle(true);
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, clearFlags);
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain(">main</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should do nothing when no title and title is removed")
+        void epub3_shouldSaveNoTitleWhenAlreadyNoTitle() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            metadata.setTitle(null);
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain(">main</opf:meta>");
+        }
+    }
+
+    @Nested
     @DisplayName("EPUB3 Subtitle Tests")
     class Epub3SubtitleTests {
 
@@ -569,15 +704,16 @@ class EpubMetadataWriterTest {
                     <?xml version="1.0" encoding="UTF-8"?>
                     <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
                         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-                            <dc:title id="#subtitle-12b45ebf">Subtitle</dc:title>
+                            <dc:title id="subtitle-12b45ebf">Subtitle</dc:title>
                             <opf:meta xmlns:opf="http://www.idpf.org/2007/opf" property="title-type" refines="#subtitle-12b45ebf">subtitle</opf:meta>
                         </metadata>
                     </package>""";
 
-            metadata.setSubtitle(null);
+            var clearFlags = new MetadataClearFlags();
+            clearFlags.setSubtitle(true);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, null, clearFlags);
 
             String content = readOpfContent(epubFile);
             assertThat(content).doesNotContain(">subtitle</opf:meta>");

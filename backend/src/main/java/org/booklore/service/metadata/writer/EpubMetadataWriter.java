@@ -42,6 +42,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -94,11 +96,26 @@ public class EpubMetadataWriter implements MetadataWriter {
             MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
 
             helper.copyTitle(clear != null && clear.isTitle(), val -> {
-                replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges);
-                if (StringUtils.isNotBlank(metadata.getSubtitle())) {
-                    addSubtitleToTitle(metadataElement, opfDoc, metadata.getSubtitle());
+                if (isEpub3(opfDoc)) {
+                    if (replaceEpub3Title(metadataElement, opfDoc, "main", val)) {
+                        hasChanges[0] = true;
+                    }
+                } else {
+                    replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges);
                 }
             });
+
+            helper.copySubtitle(clear != null && clear.isSubtitle(), val -> {
+                if (isEpub3(opfDoc)) {
+                    if (replaceEpub3Title(metadataElement, opfDoc, "subtitle", val)) {
+                        hasChanges[0] = true;
+                    }
+                }
+
+                // EPUB2: subtitle is stored only via booklore:subtitle metadata (written in addBookloreMetadata).
+                // No modification to dc:title is needed — this preserves round-trip fidelity.
+            });
+
             helper.copyDescription(clear != null && clear.isDescription(), val -> replaceAndTrackChange(opfDoc, metadataElement, "description", DC_NS, val, hasChanges));
             helper.copyPublisher(clear != null && clear.isPublisher(), val -> replaceAndTrackChange(opfDoc, metadataElement, "publisher", DC_NS, val, hasChanges));
             helper.copyPublishedDate(clear != null && clear.isPublishedDate(), val -> replaceAndTrackChange(opfDoc, metadataElement, "date", DC_NS, val != null ? val.toString() : null, hasChanges));
@@ -628,23 +645,53 @@ public class EpubMetadataWriter implements MetadataWriter {
             Element meta = (Element) metas.item(i);
             String refines = meta.getAttribute("refines");
 
-            if (refines.startsWith("#")) {
-                String refinesId = refines.substring(1);
-
-                if (!ids.contains(refinesId)) {
-                    metadataElement.removeChild(meta);
-                }
+            if (refines.isBlank()) {
+                // If this meta doesn't have `refines` or it's empty then
+                // we skip processing as that means they do not have a
+                // relationship with another specific element.
+                continue;
             }
+
+            if (!refines.startsWith("#")) {
+                // If the `refines` is a path-relative URL string it's possibly valid - but
+                // we cannot easily confirm it as valid here.  We only know about the contents
+                // of the current OPF and are not parsing the various pages.
+                //
+                // For now, we can skip it.
+                continue;
+            }
+
+            String refinesId = refines.substring(1);
+
+            if (ids.contains(refinesId)) {
+                continue;
+            }
+
+            metadataElement.removeChild(meta);
         }
     }
 
-    private void removeMetaByRefines(Element metadataElement, String refines) {
+    private List<Element> getMetaByRefines(Element metadataElement, String property, String id) {
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
-        for (int i = metas.getLength() - 1; i >= 0; i--) {
-            Element meta = (Element) metas.item(i);
-            if (refines.equals(meta.getAttribute("refines"))) {
-                metadataElement.removeChild(meta);
-            }
+
+        var refinesIndicator = "#".concat(id);
+
+        return IntStream.range(0, metas.getLength())
+                .mapToObj(metas::item)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
+                .filter(meta -> property == null || meta.getAttribute("property").equals(property))
+                .filter(meta -> refinesIndicator.equals(meta.getAttribute("refines")))
+                .toList();
+    }
+
+    private void removeMetaByRefines(Element metadataElement, String refines) {
+        removeMetaByRefines(metadataElement, null, refines);
+    }
+
+    private void removeMetaByRefines(Element metadataElement, String property, String refines) {
+        for (var child : getMetaByRefines(metadataElement, property, refines)) {
+            metadataElement.removeChild(child);
         }
     }
 
@@ -707,7 +754,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             if (role.equalsIgnoreCase(creatorRole)) {
                 metadataElement.removeChild(creatorElement);
                 if (StringUtils.isNotBlank(id)) {
-                    removeMetaByRefines(metadataElement, "#".concat(id));
+                    removeMetaByRefines(metadataElement, id);
                 }
             }
         }
@@ -941,7 +988,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 String id = meta.getAttribute("id");
                 metadataElement.removeChild(meta);
                 if (StringUtils.isNotBlank(id)) {
-                    removeMetaByRefines(metadataElement, "#" + id);
+                    removeMetaByRefines(metadataElement, id);
                 }
             }
             // Also remove EPUB2-style series metas
@@ -1004,49 +1051,111 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void addSubtitleToTitle(Element metadataElement, Document doc, String subtitle) {
-        final String DC_NS = "http://purl.org/dc/elements/1.1/";
-        boolean epub3 = isEpub3(doc);
-
-        // Remove existing subtitle elements (both EPUB2 and EPUB3 forms)
+    private Element getRefinesElement(Element metadataElement, String property, String content) {
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
         for (int i = metas.getLength() - 1; i >= 0; i--) {
-            Element meta = (Element) metas.item(i);
-            String property = meta.getAttribute("property");
-            String refines = meta.getAttribute("refines");
-            if ("title-type".equals(property) && "subtitle".equals(meta.getTextContent())) {
-                if (StringUtils.isNotBlank(refines)) {
-                    NodeList titles = metadataElement.getElementsByTagNameNS(DC_NS, "title");
-                    for (int j = titles.getLength() - 1; j >= 0; j--) {
-                        Element title = (Element) titles.item(j);
-                        if (("#" + title.getAttribute("id")).equals(refines)) {
-                            metadataElement.removeChild(title);
-                            break;
-                        }
+            if (metas.item(i) instanceof Element meta) {
+                if (meta.getAttribute("property").equals(property) && meta.getTextContent().equals(content)) {
+                    return meta;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Element createRefinesElement(Document doc, String property, String content, String target) {
+        Element element = doc.createElementNS(OPF_NS, "meta");
+        element.setPrefix("opf");
+        element.setAttribute("refines", "#" + target);
+        element.setAttribute("property", property);
+        element.setTextContent(content);
+        return element;
+    }
+
+    private boolean replaceEpub3Title(Element metadataElement, Document doc, String titleType, String value) {
+        final String DC_NS = "http://purl.org/dc/elements/1.1/";
+
+        Element refineElement = getRefinesElement(metadataElement, "title-type", titleType);
+        String refines = refineElement == null ? "" : refineElement.getAttribute("refines");
+
+        Element titleElement = null;
+
+        if (!refines.isBlank()) {
+            NodeList titles = metadataElement.getElementsByTagNameNS(DC_NS, "title");
+            for (int i = titles.getLength() - 1; i >= 0; i--) {
+                if (titles.item(i) instanceof Element title) {
+                    if (("#" + title.getAttribute("id")).equals(refines)) {
+                        titleElement = title;
+                        break;
                     }
                 }
-                metadataElement.removeChild(meta);
             }
         }
 
-        if (epub3) {
-            // EPUB3: add subtitle as separate dc:title with title-type refinement
-            String subtitleId = "subtitle-" + UUID.randomUUID().toString().substring(0, 8);
-            Element subtitleElement = doc.createElementNS(DC_NS, "title");
-            subtitleElement.setPrefix("dc");
-            subtitleElement.setAttribute("id", subtitleId);
-            subtitleElement.setTextContent(subtitle);
-            metadataElement.appendChild(subtitleElement);
+        // If no exact match exists, we choose the first title (per epub3 spec) as the main title
+        if (titleElement == null && "main".equals(titleType)) {
+            NodeList titles = metadataElement.getElementsByTagNameNS(DC_NS, "title");
+            if (titles.getLength() > 0 && titles.item(0) instanceof Element title) {
+                var id = title.getAttribute("id");
 
-            Element typeMeta = doc.createElementNS(OPF_NS, "meta");
-            typeMeta.setPrefix("opf");
-            typeMeta.setAttribute("refines", "#" + subtitleId);
-            typeMeta.setAttribute("property", "title-type");
-            typeMeta.setTextContent("subtitle");
-            metadataElement.appendChild(typeMeta);
+                // Except we can't select an existing subtitle
+                if (id.isBlank() || getMetaByRefines(metadataElement, "title-type", id).isEmpty()) {
+                    titleElement = title;
+                }
+            }
         }
-        // EPUB2: subtitle is stored only via booklore:subtitle metadata (written in addBookloreMetadata).
-        // No modification to dc:title is needed — this preserves round-trip fidelity.
+
+        boolean hasChanges = false;
+
+        if (value == null) {
+            // If we are removing the title but have found a relevant
+            // title value we should remove it.
+            if (titleElement != null) {
+                metadataElement.removeChild(titleElement);
+                hasChanges = true;
+            }
+
+            if (refineElement != null) {
+                metadataElement.removeChild(refineElement);
+                hasChanges = true;
+            }
+
+            return hasChanges;
+        }
+
+        String titleId = titleType + "-" + UUID.randomUUID().toString().substring(0, 8);
+
+        if (titleElement == null) {
+            hasChanges = true;
+            titleElement = doc.createElementNS(DC_NS, "title");
+            titleElement.setPrefix("dc");
+            titleElement.setAttribute("id", titleId);
+            titleElement.setTextContent(value);
+            metadataElement.appendChild(titleElement);
+        } else {
+            if (titleElement.getAttribute("id").isBlank()) {
+                hasChanges = true;
+                titleElement.setAttribute("id", titleId);
+            } else {
+                titleId = titleElement.getAttribute("id");
+            }
+
+            if (!value.equals(titleElement.getTextContent())) {
+                hasChanges = true;
+                titleElement.setTextContent(value);
+            }
+        }
+
+        if (refineElement == null) {
+            hasChanges = true;
+            refineElement = createRefinesElement(doc, "title-type", titleType, titleId);
+            metadataElement.appendChild(refineElement);
+        } else if (!refineElement.getAttribute("refines").equals("#" + titleId)) {
+            hasChanges = true;
+            refineElement.setAttribute("refines", "#" + titleId);
+        }
+
+        return hasChanges;
     }
 
     private void addBookloreMetadata(Element metadataElement, Document doc, BookMetadataEntity metadata) {
@@ -1189,7 +1298,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 String id = contributor.getAttribute("id");
                 metadataElement.removeChild(contributor);
                 if (StringUtils.isNotBlank(id)) {
-                    removeMetaByRefines(metadataElement, "#" + id);
+                    removeMetaByRefines(metadataElement, id);
                 }
             }
         }
