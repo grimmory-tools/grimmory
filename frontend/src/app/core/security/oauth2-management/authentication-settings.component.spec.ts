@@ -30,7 +30,6 @@ function completeProvider(overrides: Partial<OidcProviderDetails> = {}): OidcPro
   return {
     providerName: 'Example IdP',
     clientId: 'client-id',
-    clientSecret: 'secret',
     issuerUri: 'https://issuer.example',
     scopes: 'openid profile email',
     claimMapping: {
@@ -280,7 +279,11 @@ describe('AuthenticationSettingsComponent', () => {
       {
         key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
-      }
+      },
+      {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: "",
+      },
     ]);
 
     component.oidcEnabled = true;
@@ -296,9 +299,13 @@ describe('AuthenticationSettingsComponent', () => {
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
       },
       {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: "",
+      },
+      {
         key: AppSettingKey.OIDC_SESSION_DURATION_HOURS,
         newValue: 24,
-      }
+      },
     ]);
   });
 
