@@ -121,7 +121,7 @@ public class BookCoverService {
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
-        writeSidecarAfterCoverChange(bookEntity);
+        writeSidecarMetadata(bookEntity);
     }
 
     /**
@@ -140,7 +140,7 @@ public class BookCoverService {
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
-        writeSidecarAfterCoverChange(bookEntity);
+        writeSidecarMetadata(bookEntity);
     }
 
     // =========================
@@ -163,7 +163,7 @@ public class BookCoverService {
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
-        writeSidecarAfterCoverChange(bookEntity);
+        writeSidecarMetadata(bookEntity);
     }
 
     /**
@@ -182,7 +182,7 @@ public class BookCoverService {
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
-        writeSidecarAfterCoverChange(bookEntity);
+        writeSidecarMetadata(bookEntity);
     }
 
     /**
@@ -647,18 +647,14 @@ public class BookCoverService {
         bookEntity.setAudiobookCoverHash(BookCoverUtils.generateCoverHash());
     }
 
-    // A cover-only change never went through the metadata updater, so nothing refreshed the
-    // sidecar files external tools watch to notice edits made here. Written after the cover
-    // caches so the sidecar's cover copy picks up the new image.
-    private void writeSidecarAfterCoverChange(BookEntity bookEntity) {
+    private void writeSidecarMetadata(BookEntity bookEntity) {
         if (!sidecarMetadataWriter.isWriteOnUpdateEnabled()) {
             return;
         }
-
         try {
             sidecarMetadataWriter.writeSidecarMetadata(bookEntity);
         } catch (Exception e) {
-            log.warn("Failed to write sidecar after cover change for book ID {}: {}", bookEntity.getId(), e.getMessage());
+            log.warn("Failed to write sidecar metadata for book ID {}: {}", bookEntity.getId(), e.getMessage());
         }
     }
 
