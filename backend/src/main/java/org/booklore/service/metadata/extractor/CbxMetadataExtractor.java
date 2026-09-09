@@ -651,33 +651,100 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         return n.startsWith("cover") || "folder".equals(n) || n.startsWith("front");
     }
 
+    /**
+     * Check if the character is an ISO-LATIN-1 digit.  This is
+     * different from the `Character.isDigit` which checks multiple
+     * types of digits.
+     *
+     * @param c char to check
+     * @return boolean Whether this is a ISO-LATIN-1 digit
+     */
+    private boolean isLatinDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private int getNextMeaningfulDigit(String target, int start) {
+      for (int i = start; i < target.length(); i++) {
+          char c = target.charAt(i);
+          // If we don't have any more digits we need to bail out.
+          if (!isLatinDigit(c)) {
+              return i;
+          }
+
+          // If it's a meaningful number we can stop. (eg, not '0')
+          if (Character.digit(c, 10) > 0) {
+            return i;
+          }
+      }
+
+      return target.length() - 1;
+    }
+
+    private int getEndOfDigits(String target, int start) {
+        int end = start;
+        while (end < target.length() && isLatinDigit(target.charAt(end))) {
+            end++;
+        }
+        return end;
+    }
+
     private int naturalCompare(String a, String b) {
-        if (a == null) return b == null ? 0 : -1;
-        if (b == null) return 1;
-        String s1 = a.toLowerCase();
-        String s2 = b.toLowerCase();
-        int i = 0, j = 0, n1 = s1.length(), n2 = s2.length();
-        while (i < n1 && j < n2) {
-            char c1 = s1.charAt(i);
-            char c2 = s2.charAt(j);
-            if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                int i1 = i;
-                while (i1 < n1 && Character.isDigit(s1.charAt(i1))) i1++;
-                int j1 = j;
-                while (j1 < n2 && Character.isDigit(s2.charAt(j1))) j1++;
-                String num1 = LEADING_ZEROS_PATTERN.matcher(s1.substring(i, i1)).replaceFirst("");
-                String num2 = LEADING_ZEROS_PATTERN.matcher(s2.substring(j, j1)).replaceFirst("");
-                int cmp = Integer.compare(num1.isEmpty() ? 0 : Integer.parseInt(num1), num2.isEmpty() ? 0 : Integer.parseInt(num2));
-                if (cmp != 0) return cmp;
-                i = i1;
-                j = j1;
+        if (a == null && b == null ) {
+            return 0;
+        } else if (a == null) {
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
+
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+
+        int aPointer = 0, bPointer = 0, aLength = a.length(), bLength = b.length();
+        while (aPointer < aLength && bPointer < bLength) {
+            char aChar = a.charAt(aPointer);
+            char bChar = b.charAt(bPointer);
+            if (isLatinDigit(aChar) && isLatinDigit(bChar)) {
+                aPointer = getNextMeaningfulDigit(a, aPointer);
+                int aPointerEnd = getEndOfDigits(a, aPointer);
+
+                bPointer = getNextMeaningfulDigit(b, bPointer);
+                int bPointerEnd = getEndOfDigits(b, bPointer);
+
+                // If they aren't the same length, we can know which number is bigger without
+                // comparing them directly.
+                int lengthCmp = Integer.compare(aPointerEnd - aPointer, bPointerEnd - bPointer);
+                if (lengthCmp != 0) {
+                    return lengthCmp;
+                }
+
+                int length = aPointerEnd - aPointer;
+
+                // Since we know they're the same length, and they're comprised of digits
+                // we can operate on both at the same time.
+                for (int i = 0; i < length; i++) {
+                    int cmp = Integer.compare(
+                            Character.digit(a.charAt(aPointer + i), 10),
+                            Character.digit(b.charAt(bPointer + i), 10)
+                    );
+
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                }
+
+                // If no comparison was made, we push the pointer to the end.
+                aPointer = aPointerEnd;
+                bPointer = bPointerEnd;
+            } else if (aChar != bChar) {
+                return Character.compare(aChar, bChar);
             } else {
-                if (c1 != c2) return Character.compare(c1, c2);
-                i++;
-                j++;
+                aPointer++;
+                bPointer++;
             }
         }
-        return Integer.compare(n1 - i, n2 - j);
+
+        return Integer.compare(aLength - aPointer, bLength - bPointer);
     }
 
     private static boolean isComicInfoName(String name) {
