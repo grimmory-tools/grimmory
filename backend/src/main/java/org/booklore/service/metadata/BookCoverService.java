@@ -19,6 +19,7 @@ import org.booklore.service.book.BookQueryService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
+import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
@@ -58,6 +59,7 @@ public class BookCoverService {
     private final BookQueryService bookQueryService;
     private final CoverImageGenerator coverImageGenerator;
     private final MetadataWriterFactory metadataWriterFactory;
+    private final SidecarMetadataWriter sidecarMetadataWriter;
     private final Executor taskExecutor;
     private final TransactionTemplate transactionTemplate;
     private final AuthenticationService authenticationService;
@@ -119,6 +121,7 @@ public class BookCoverService {
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+        writeSidecarAfterCoverChange(bookEntity);
     }
 
     /**
@@ -137,6 +140,7 @@ public class BookCoverService {
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+        writeSidecarAfterCoverChange(bookEntity);
     }
 
     // =========================
@@ -159,6 +163,7 @@ public class BookCoverService {
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+        writeSidecarAfterCoverChange(bookEntity);
     }
 
     /**
@@ -177,6 +182,7 @@ public class BookCoverService {
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+        writeSidecarAfterCoverChange(bookEntity);
     }
 
     /**
@@ -639,6 +645,21 @@ public class BookCoverService {
         bookEntity.setMetadataUpdatedAt(now);
         bookEntity.getMetadata().setAudiobookCoverUpdatedOn(now);
         bookEntity.setAudiobookCoverHash(BookCoverUtils.generateCoverHash());
+    }
+
+    // A cover-only change never went through the metadata updater, so nothing refreshed the
+    // sidecar files external tools watch to notice edits made here. Written after the cover
+    // caches so the sidecar's cover copy picks up the new image.
+    private void writeSidecarAfterCoverChange(BookEntity bookEntity) {
+        if (!sidecarMetadataWriter.isWriteOnUpdateEnabled()) {
+            return;
+        }
+
+        try {
+            sidecarMetadataWriter.writeSidecarMetadata(bookEntity);
+        } catch (Exception e) {
+            log.warn("Failed to write sidecar after cover change for book ID {}: {}", bookEntity.getId(), e.getMessage());
+        }
     }
 
     private void notifyBookCoverUpdate(BookEntity bookEntity) {
