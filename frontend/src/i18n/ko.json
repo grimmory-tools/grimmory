@@ -698,12 +698,14 @@
       "cookiePlaceholder": "",
       "languageRestriction": "",
       "selectLanguage": "",
-      "apiKeyOptional": "",
+      "googleApiLabel": "",
       "googleApiDesc": "",
       "googleApiPlaceholder": "",
       "apiToken": "",
       "hardcoverPlaceholder": "",
-      "comicvinePlaceholder": ""
+      "comicvinePlaceholder": "",
+      "ranobedbPreferRomajiLabel": "",
+      "ranobedbPreferRomajiDesc": ""
     },
     "publicReviews": {
       "sectionTitle": "",
@@ -1488,6 +1490,8 @@
       "autoAddDesc": "",
       "token": "",
       "tokenDesc": "",
+      "apiPath": "",
+      "apiPathDesc": "",
       "tokenManagement": "",
       "regenerateToken": "",
       "tokenManagementDesc": "",
@@ -1770,7 +1774,8 @@
     },
     "ui": {
       "autocomplete": {
-        "noResults": ""
+        "noResults": "",
+        "loadFailed": ""
       },
       "datePicker": {
         "previousMonth": "",
@@ -1796,6 +1801,10 @@
         "noResults": "",
         "search": "",
         "selectedCount": ""
+      },
+      "shelfMenu": {
+        "addToShelf": "",
+        "newShelf": ""
       },
       "spinner": {
         "loading": ""
@@ -1878,6 +1887,12 @@
       "toggleNavigation": ""
     },
     "closeNavigation": "",
+    "pageHeader": {
+      "backTo": "",
+      "breadcrumbAriaLabel": "",
+      "moreBreadcrumbs": "",
+      "tabsAriaLabel": ""
+    },
     "changelog": {
       "title": "",
       "description": "",
@@ -2373,6 +2388,7 @@
       "readyToSearchHint": "",
       "noResultsFound": "",
       "noResultsHint": "",
+      "unknownProvider": "",
       "selectOverlay": ""
     },
     "tabs": {
@@ -3099,6 +3115,7 @@
         "magicShelfDeletedDetail": "",
         "magicShelfDeleteFailedDetail": "",
         "magicShelfJsonCopiedDetail": "",
+        "magicShelfJsonCopyFailedDetail": "",
         "failedSummary": "",
         "dialogLoadFailedDetail": ""
       },
