@@ -26,10 +26,14 @@ export interface BrowseFacetValue {
 }
 
 export interface BrowseFacetGroup {
-  rel: string;
   key: string;
   title: string;
   values: BrowseFacetValue[];
+}
+
+export interface BrowseFacetResult {
+  facets: BrowseFacetGroup[];
+  sortTokens: string[];
 }
 
 export type BrowseFacetLogic = 'and' | 'or' | 'not';

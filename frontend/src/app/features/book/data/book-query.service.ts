@@ -1,15 +1,17 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {effect, inject, Injectable} from '@angular/core';
 import {
+  type InfiniteData,
   infiniteQueryOptions,
+  type QueryKey,
   queryOptions,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {findBrowsePageLink} from '../../../core/data/browse.models';
-import {mapBrowseFacetGroups, mapBrowsePage} from '../../../core/data/browse-response';
+import {BrowseFacetResult, findBrowsePageLink} from '../../../core/data/browse.models';
+import {mapBrowseFacetResult, mapBrowsePage} from '../../../core/data/browse-response';
 import {bookQueryKeys} from './book-query-keys';
 import {
   BookCollectionFilterParams,
@@ -23,7 +25,7 @@ import {
   toIdsHttpParams,
   toPageHttpParams,
 } from './book-query-params';
-import {BookFacetGroup, BookPage} from './book-query.models';
+import {BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
@@ -58,10 +60,27 @@ export class BookQueryService {
 
     return infiniteQueryOptions({
       queryKey: bookQueryKeys.infinitePage(normalized),
-      queryFn: ({pageParam, signal}) => this.fetchPage(normalized, pageParam, signal),
+      queryFn: ({pageParam, queryKey, signal}) => this.fetchPage(
+        normalized,
+        pageParam ?? this.seededFirstPageHref(queryKey),
+        signal,
+      ),
       initialPageParam: null as string | null,
       getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
       ...QUERY_DEFAULTS,
+    });
+  }
+
+  private seededFirstPageHref(queryKey: QueryKey): string | null {
+    const firstPage = this.queryClient.getQueryData<InfiniteData<BookPage>>(queryKey)?.pages[0];
+    return firstPage ? findBrowsePageLink(firstPage, 'self')?.href ?? null : null;
+  }
+
+  restartInfinitePage(params: BookPageParams): Promise<void> {
+    const normalized = normalizeBookPageParams(params);
+    return this.queryClient.resetQueries({
+      queryKey: bookQueryKeys.infinitePage(normalized),
+      exact: true,
     });
   }
 
@@ -70,10 +89,10 @@ export class BookQueryService {
 
     return queryOptions({
       queryKey: bookQueryKeys.facets(normalized),
-      queryFn: ({signal}): Promise<BookFacetGroup[]> => this.getMapped(
+      queryFn: ({signal}): Promise<BrowseFacetResult> => this.getMapped(
         `${this.baseUrl}/facets`,
         signal,
-        mapBrowseFacetGroups,
+        mapBrowseFacetResult,
         toCollectionHttpParams(normalized),
       ),
       ...QUERY_DEFAULTS,
