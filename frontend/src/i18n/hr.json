@@ -3071,7 +3071,8 @@
         "customFetchMetadata": "Prilagođeni dohvat metapodataka",
         "autoFetchMetadata": "Automatski dohvat metapodataka",
         "findDuplicates": "Pronađi duplikate",
-        "deleteLibrary": "Obriši knjižnicu"
+        "deleteLibrary": "Obriši knjižnicu",
+        "manageLibrary": "Upravljanje zbirkom"
       },
       "shelf": {
         "publicShelfPrefix": "Javna polica - ",
@@ -3710,6 +3711,57 @@
         "mergeFailedDetail": "Spajanje ove grupe nije uspjelo.",
         "mergePartialDetail": "{{ success }} spojeno, {{ failed }} neuspjelo."
       }
+    },
+    "fields": {
+      "random": "Nasumično",
+      "title": "Naslov",
+      "author": "Autor",
+      "authorSurname": "Autor (prezime)",
+      "genre": "Žanr",
+      "series": "Serijal",
+      "seriesNumber": "Broj u serijalu",
+      "publisher": "Izdavač",
+      "tag": "Oznaka",
+      "mood": "Raspoloženje",
+      "language": "Jezik",
+      "narrator": "Narator",
+      "fileType": "Vrsta knjige",
+      "readStatus": "Status čitanja",
+      "personalRating": "Osobna ocjena",
+      "amazonRating": "Amazon ocjena",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Goodreads ocjena",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Hardcover ocjena",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "RanobeDB ocjena",
+      "lubimyczytacRating": "Lubimyczytac ocjena",
+      "audibleRating": "Audible ocjena",
+      "pageCount": "Stranice",
+      "publishedDate": "Datum izdavanja",
+      "publishedYear": "Godina izdavanja",
+      "addedOn": "Dodano",
+      "lastReadTime": "Zadnje čitano",
+      "dateFinished": "Datum završetka",
+      "readingProgress": "Napredak čitanja",
+      "fileName": "Naziv datoteke",
+      "fileSize": "Veličina datoteke",
+      "isbn": "ISBN",
+      "library": "Zbirka",
+      "shelf": "Polica",
+      "ageRating": "Dobna ocjena",
+      "contentRating": "Ocjena sadržaja",
+      "matchScore": "Rezultat usklađenosti metapodataka",
+      "shelfStatus": "Status police",
+      "comicCharacter": "Lik iz stripa",
+      "comicTeam": "Tim iz stripa",
+      "comicLocation": "Lokacija iz stripa",
+      "comicCreator": "Autor stripa",
+      "audibleReviewCount": "Audible broj recenzija"
+    },
+    "viewMode": {
+      "grid": "Mreža",
+      "table": "Tablica"
     }
   },
   "readerAudiobook": {
@@ -5382,6 +5434,23 @@
     "moreActions": "Više radnji",
     "rail": {
       "noMatches": "Nema podudaranja"
+    },
+    "sort": {
+      "apply": "Primijeni"
+    },
+    "bulk": {
+      "organizeFiles": "Organiziraj datoteke",
+      "updateReadStatus": "Ažuriraj status čitanja",
+      "lockUnlockMetadata": "Zaključaj/Otključaj metapodatke"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "file": "Datoteka",
+        "ratings": "Ocjene"
+      },
+      "viewMode": "Prikaz",
+      "density": "Veličina",
+      "resetColumns": "Vrati na zadano"
     }
   }
 }

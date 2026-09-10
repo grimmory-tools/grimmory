@@ -13,7 +13,7 @@ import {DEFAULT_UI_FONT, normalizeUiFont, type UiFontPreference} from '../../../
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
-  overrides: EntityViewPreferenceOverride[];
+  overrides: EntityViewPreferenceOverride[] | null;
 }
 
 export interface SortCriterion {
