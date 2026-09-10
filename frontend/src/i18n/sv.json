@@ -11,14 +11,14 @@
     "success": "Klart",
     "yes": "Ja",
     "no": "Nej",
-    "ok": "OK",
+    "ok": "",
     "retry": "Försök igen",
     "back": "Tillbaka",
     "next": "Nästa",
     "submit": "Skicka",
     "remove": "Ta bort",
     "edit": "Redigera",
-    "info": "Info",
+    "info": "",
     "select": "Välj",
     "dismiss": "Stäng",
     "discard": "Förkasta",
@@ -26,13 +26,13 @@
     "libraryPathInaccessible": "Bibliotekssökvägen är otillgänglig",
     "displaySettings": "Visningsinställningar",
     "cardSize": "Kortstorlek",
+    "decreaseCardSize": "",
+    "increaseCardSize": "",
+    "cardSizeControls": "",
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "dialogLoadError": ""
   },
   "auth": {
     "oidc": {
@@ -60,6 +60,10 @@
       "useLocalLogin": "Använd lokal inloggning",
       "oidcAutoDisabled": "{{provider}}-autentisering har automatiskt inaktiverats efter {{count}} på varandra följande misslyckanden (inklusive tidsgränser). Du kan försöka igen eller fortsätta med lokal inloggning.",
       "oidcManuallyDisabled": "{{provider}}-autentisering har inaktiverats manuellt. Du kan återaktivera den eller fortsätta med lokal inloggning.",
+      "oidcErrorsSummary": "{{provider}}-autentiseringen påträffade {{count}} fel, möjligen på grund av timeout eller serverproblem.",
+      "rateLimited": "För många misslyckade inloggningsförsök. Försök igen senare.",
+      "sessionRevoked": "Din session har återkallats. Vänligen logga in igen.",
+      "oidcOnlyRedirectFailed": "Det gick inte att nå identitetsleverantören. Kontakta administratören.",
       "oidcErrors": {
         "stateMismatch": "OIDC-autentisering misslyckades: säkerhetstillståndet stämmer inte överens. Försök igen.",
         "exchangeFailed": "Misslyckades med att slutföra OIDC-inloggningen. Försök igen eller kontakta administratören.",
@@ -67,11 +71,7 @@
         "providerUnreachable": "Det gick inte att nå OIDC-leverantören. Försök igen senare.",
         "invalidToken": "Ogiltig autentiseringstoken mottagen. Försök igen.",
         "unknown": "Ett oväntat OIDC-fel uppstod. Försök igen."
-      },
-      "rateLimited": "För många misslyckade inloggningsförsök. Försök igen senare.",
-      "oidcErrorsSummary": "{{provider}}-autentiseringen påträffade {{count}} fel, möjligen på grund av timeout eller serverproblem.",
-      "sessionRevoked": "Din session har återkallats. Vänligen logga in igen.",
-      "oidcOnlyRedirectFailed": "Det gick inte att nå identitetsleverantören. Kontakta administratören."
+      }
     }
   },
   "nav": {
@@ -95,23 +95,23 @@
       "recentlyAdded": "Nyligen tillagda",
       "discoverNew": "Upptäck något nytt",
       "magicShelf": "Magisk hylla",
-      "default": "Scroller"
+      "default": ""
     }
   },
   "settings": {
     "tabs": {
       "reader": "Läsare",
       "view": "Vy",
-      "metadata1": "Metadata 1",
-      "metadata2": "Metadata 2",
+      "metadata1": "",
+      "metadata2": "",
       "application": "Applikation",
       "users": "Användare",
       "email": "E-post",
       "patterns": "Mönster",
-      "authentication": "OIDC",
+      "authentication": "",
       "tasks": "Uppgifter",
       "auditLogs": "Granskningsloggar",
-      "opds": "OPDS",
+      "opds": "",
       "devices": "Enheter"
     }
   },
@@ -135,18 +135,18 @@
       "cannotDeleteShared": "Kan inte radera delad leverantör",
       "saveChanges": "Spara ändringar",
       "host": "Värd",
-      "port": "Port",
+      "port": "",
       "username": "Användarnamn",
       "password": "Lösenord",
       "fromAddress": "Avsändaradress",
-      "hostPlaceholder": "smtp.example.com",
-      "portPlaceholder": "587",
-      "usernamePlaceholder": "user@example.com",
+      "hostPlaceholder": "",
+      "portPlaceholder": "",
+      "usernamePlaceholder": "",
       "passwordPlaceholder": "Ange lösenord",
-      "fromAddressPlaceholder": "noreply@example.com",
+      "fromAddressPlaceholder": "",
       "providerNamePlaceholder": "Leverantörsnamn",
       "authentication": "Autentisering",
-      "startTls": "StartTLS",
+      "startTls": "",
       "shared": "Delad",
       "shareTooltip": "Dela denna leverantör med alla användare",
       "loadError": "Kunde inte ladda e-postleverantörer",
@@ -171,7 +171,7 @@
         "host": "Värd",
         "hostPlaceholder": "t.ex. smtp.gmail.com",
         "hostRequired": "Värd krävs.",
-        "port": "Port",
+        "port": "",
         "portPlaceholder": "t.ex. 587, 465",
         "portRequired": "Port krävs och måste vara ett nummer.",
         "username": "Användarnamn",
@@ -284,7 +284,7 @@
       "off": "Av",
       "on": "På",
       "hyphenationDesc": "Aktivera för att bryta långa ord vid radslut för smidigare textflöde.",
-      "layout": "Layout",
+      "layout": "",
       "flow": "Flöde",
       "paginated": "Sidindelad",
       "scrolled": "Rullande",
@@ -305,17 +305,17 @@
       "pageSpreadDesc": "Välj hur PDF-sidor visas: enkel sida eller dubbelt siduppslag.",
       "pageZoom": "Sidzoom",
       "pageZoomDesc": "Ange standardzoomnivån för PDF-dokument för att förbättra läsbarheten.",
+      "scrollLayout": "",
+      "scrollLayoutDesc": "",
+      "vertical": "",
+      "horizontal": "",
       "even": "Jämn",
       "odd": "Udda",
       "none": "Ingen",
       "autoZoom": "Auto-zoom",
       "pageFit": "Anpassa sida",
       "pageWidth": "Sidbredd",
-      "actualSize": "Verklig storlek",
-      "scrollLayoutDesc": "",
-      "vertical": "",
-      "horizontal": "",
-      "scrollLayout": ""
+      "actualSize": "Verklig storlek"
     },
     "cbx": {
       "sectionTitle": "Serietidningsläsare: Standardinställningar",
@@ -328,6 +328,8 @@
       "fitModeDesc": "Välj hur bilder ska skalas för att passa läsarfönstret.",
       "scrollMode": "Scrollläge",
       "scrollModeDesc": "Välj mellan sidindelad eller oändlig scroll-läsupplevelse.",
+      "stripMaxWidth": "",
+      "stripMaxWidthDesc": "",
       "backgroundColor": "Bakgrundsfärg",
       "backgroundColorDesc": "Ange bakgrundsfärg för serietidningsläsaren.",
       "even": "Jämn",
@@ -341,12 +343,10 @@
       "automatic": "Automatisk",
       "paginated": "Sidindelad",
       "infinite": "Oändlig",
+      "longStrip": "",
       "gray": "Grå",
       "black": "Svart",
-      "white": "Vit",
-      "stripMaxWidthDesc": "",
-      "stripMaxWidth": "",
-      "longStrip": ""
+      "white": "Vit"
     },
     "streamingPdf": {
       "sectionTitle": "Strömmande PDF-läsare: Standardinställningar",
@@ -432,6 +432,43 @@
   "settingsView": {
     "title": "Vyinställningar",
     "description": "Anpassa hur böcker visas i ditt bibliotek, inklusive rutnätslayout, sorteringsalternativ och sidopanelens beteende.",
+    "saveFailedDetail": "",
+    "language": {
+      "label": "",
+      "savedDetail": ""
+    },
+    "uiFont": {
+      "label": "",
+      "accessibleLabel": "",
+      "savedDetail": ""
+    },
+    "theme": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "oledDarkMode": "",
+      "savedDetail": "",
+      "syncSavedDetail": "",
+      "customPrimaryOptionLabel": "",
+      "customPrimaryColors": {
+        "red": "",
+        "orange": "",
+        "amber": "",
+        "yellow": "",
+        "lime": "",
+        "green": "",
+        "emerald": "",
+        "teal": "",
+        "cyan": "",
+        "sky": "",
+        "blue": "",
+        "indigo": "",
+        "violet": "",
+        "purple": "",
+        "fuchsia": "",
+        "pink": "",
+        "rose": ""
+      }
+    },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguration av översikt",
       "sectionDesc": "Lägg till upp till 5 scrollers från olika boksamlingar och anpassa deras beteende",
@@ -446,13 +483,16 @@
       "maxItems": "Max antal",
       "addScroller": "Lägg till scroller",
       "resetToDefault": "Återställ till standard",
+      "saveSettings": "",
+      "saveSuccess": "",
+      "saveSuccessDetail": "",
       "scrollerTypes": {
         "lastRead": "Fortsätt läsa",
         "lastListened": "Fortsätt lyssna",
         "latestAdded": "Nyligen tillagda",
         "random": "Upptäck något nytt",
         "magicShelf": "Magisk hylla",
-        "default": "Scroller"
+        "default": ""
       },
       "sortFields": {
         "title": "Titel",
@@ -476,10 +516,7 @@
       "sortDirections": {
         "asc": "Stigande",
         "desc": "Fallande"
-      },
-      "saveSuccess": "",
-      "saveSuccessDetail": "",
-      "saveSettings": ""
+      }
     },
     "librarySort": {
       "sectionTitle": "Biblioteks- och hyllvy- och sorteringsinställningar",
@@ -521,11 +558,11 @@
       "sortPublisher": "Förlag",
       "sortPublishedDate": "Utgivningsdatum",
       "sortAmazonRating": "Amazon-betyg",
-      "sortAmazonCount": "Amazon #",
+      "sortAmazonCount": "",
       "sortGoodreadsRating": "Goodreads-betyg",
-      "sortGoodreadsCount": "Goodreads #",
+      "sortGoodreadsCount": "",
       "sortHardcoverRating": "Hardcover-betyg",
-      "sortHardcoverCount": "Hardcover #",
+      "sortHardcoverCount": "",
       "sortRanobedbRating": "Ranobedb-betyg",
       "sortReadStatus": "Lässtatus",
       "sortDateFinished": "Avslutad datum",
@@ -596,48 +633,11 @@
       "seriesViewSaved": "Din inställning för serievisningsläge har sparats."
     },
     "layout": {
-      "sectionTitle": "Layout",
+      "sectionTitle": "",
       "sidebarWidth": "Sidopanelens bredd: {{value}}px",
       "sidebarWidthDesc": "Styr bredden på navigeringssidopanelen och bokfilterpanelen.",
       "saved": "Inställningar uppdaterade",
       "savedDetail": "Din inställning för sidopanelens bredd har sparats."
-    },
-    "theme": {
-      "customPrimaryColors": {
-        "violet": "",
-        "pink": "",
-        "lime": "",
-        "sky": "",
-        "amber": "",
-        "rose": "",
-        "cyan": "",
-        "purple": "",
-        "fuchsia": "",
-        "blue": "",
-        "orange": "",
-        "green": "",
-        "red": "",
-        "yellow": "",
-        "indigo": "",
-        "emerald": "",
-        "teal": ""
-      },
-      "syncSavedDetail": "",
-      "savedDetail": "",
-      "customPrimaryOptionLabel": "",
-      "oledDarkMode": "",
-      "sectionTitle": "",
-      "sectionDesc": ""
-    },
-    "saveFailedDetail": "",
-    "language": {
-      "savedDetail": "",
-      "label": ""
-    },
-    "uiFont": {
-      "savedDetail": "",
-      "accessibleLabel": "",
-      "label": ""
     }
   },
   "settingsMeta": {
@@ -654,6 +654,8 @@
       "sectionDesc": "Konfigurera hur metadata skrivs till originalfiler och hur filer flyttas eller byter namn när metadata ändras.",
       "networkWarningTitle": "Varning för nätverkslagring:",
       "networkWarning": "Dessa funktioner modifierar och flyttar bokfiler direkt på disk (inklusive omskrivning av metadata och namnbyte). De är designade enbart för lokala filsystem. Användning på NAS eller molnlagring är otestad och kan leda till filkorruption, ofullständiga skrivningar eller permanent dataförlust. Github-ärenden relaterade till nätverkslagring stöds inte.",
+      "networkModeTitle": "Nätverkslagringsläge:",
+      "networkModeDesc": "Den här instansen är konfigurerad för nätverkslagring (DISK_TYPE=NETWORK). Alla funktioner för filskrivning och omorganisering är inaktiverade. Metadata lagras endast i databasen och dina bokfiler ändras aldrig.",
       "unsupportedNote": "Att skriva metadata stöds <b>inte</b> för FB2-, AZW3- och MOBI-format.",
       "writeEpub": "Skriv metadata till EPUB",
       "writeEpubDesc": "Skriv metadata direkt i EPUB-filer vid redigering av bokinformation.",
@@ -679,9 +681,7 @@
       "writeOnScanDesc": "Skapa sidecar JSON-filer när böcker först läggs till i biblioteket under skanning.",
       "includeCover": "Inkludera omslagsbildsfil",
       "includeCoverDesc": "Spara även omslagsbilden som <code>Boknamn.cover.jpg</code> bredvid sidecar JSON-filen.",
-      "loadError": "Kunde inte ladda inställningar.",
-      "networkModeTitle": "Nätverkslagringsläge:",
-      "networkModeDesc": "Den här instansen är konfigurerad för nätverkslagring (DISK_TYPE=NETWORK). Alla funktioner för filskrivning och omorganisering är inaktiverade. Metadata lagras endast i databasen och dina bokfiler ändras aldrig."
+      "loadError": "Kunde inte ladda inställningar."
     },
     "providers": {
       "sectionTitle": "Metadataleverantörer",
@@ -691,35 +691,91 @@
       "saveConfigurations": "Spara konfigurationer",
       "saveSuccess": "Metadataleverantörsinställningar sparade.",
       "saveError": "Kunde inte spara metadataleverantörsinställningar.",
-      "region": "Region",
+      "region": "",
       "selectDomain": "Välj domän",
       "cookieLabel": "Cookie (Valfri, men starkt rekommenderad)",
       "cookieDesc": "Genom att ange din Amazon-sessionscookie kan appen komma åt rikare bokmetadata och kringgå hastighetsbegränsningar.",
       "cookiePlaceholder": "Klistra in din Amazon-cookie",
       "languageRestriction": "Språkbegränsning",
       "selectLanguage": "Välj språk",
-      "apiKeyOptional": "API-nyckel (Valfri)",
+      "googleApiLabel": "",
       "googleApiDesc": "Genom att ange en Google Books API-nyckel ökas hastighetsbegränsningarna och tillförlitligheten förbättras.",
       "googleApiPlaceholder": "Ange Google Books API-nyckel",
       "apiToken": "API-token",
       "hardcoverPlaceholder": "Ange Hardcover API-token",
-      "comicvinePlaceholder": "Ange Comic Vine API-token"
+      "comicvinePlaceholder": "Ange Comic Vine API-token",
+      "ranobedbPreferRomajiLabel": "",
+      "ranobedbPreferRomajiDesc": ""
+    },
+    "publicReviews": {
+      "sectionTitle": "Publika recensioner",
+      "sectionDesc": "Konfigurera automatisk nedladdning av användarrecensioner från externa plattformar. Recensioner kan hämtas från Amazon, Goodreads och Hardcover för offlineåtkomst.",
+      "downloadLabel": "Ladda ner publika recensioner",
+      "autoDownloadLabel": "Ladda ner automatiskt vid bokvisning",
+      "autoDownloadDesc": "Hämta recensioner automatiskt när du öppnar en boks detaljsida. När inaktiverat laddas recensioner bara ner manuellt eller vid metadatauppdatering.",
+      "reviewSources": "Recensionskällor",
+      "reviewSourcesDesc": "Konfigurera vilka plattformar att ladda ner recensioner från och ange gränser för varje källa.",
+      "maxLabel": "",
+      "maxTooltip": "Antal recensioner att ladda ner (1-10)",
+      "noProviders": "Inga recensionskällor tillgängliga. Se till att metadataleverantörer är konfigurerade i avsnittet Leverantörsinställningar ovan.",
+      "loadError": "Kunde inte ladda inställningar."
+    },
+    "matchWeights": {
+      "sectionTitle": "Vikter för metadatamatchning",
+      "sectionDesc": "Konfigurera hur viktigt varje metadatafält är vid beräkning av matchningspoäng. Högre vikter gör fält mer inflytelserika vid bestämning av den övergripande matchkvaliteten.",
+      "recalculateLabel": "Räkna om metadatapoäng",
+      "recalculateDesc": "Räknar om matchningspoäng för alla böcker baserat på de senaste vikterna.",
+      "recalculateBtn": "Räkna om",
+      "fieldWeights": "Fältvikter",
+      "saveWeights": "Spara vikter",
+      "saveSuccess": "Vikterna sparades",
+      "saveError": "Kunde inte spara vikter",
+      "recalcSuccess": "Alla bokors matchningspoäng omräknades.",
+      "recalcError": "Kunde inte räkna om matchningspoäng.",
+      "fields": {
+        "title": "Titel",
+        "subtitle": "Undertitel",
+        "authors": "Författare",
+        "description": "Beskrivning",
+        "publisher": "Utgivare",
+        "publishedDate": "Utgivningsdatum",
+        "categories": "Kategorier",
+        "coverImage": "Omslagsbild",
+        "seriesName": "Namn på serie",
+        "seriesNumber": "Serienummer",
+        "seriesTotal": "Totalt antal i serie",
+        "language": "Språk",
+        "isbn13": "",
+        "isbn10": "",
+        "pageCount": "Sidantal",
+        "amazonRating": "Amazon-betyg",
+        "amazonReviewCount": "Amazon-betyg #",
+        "goodreadsRating": "Goodreads-betyg",
+        "goodreadsReviewCount": "Goodreads-betyg #",
+        "hardcoverRating": "Hardcover-betyg",
+        "hardcoverReviewCount": "Hardcover-betyg #",
+        "audibleRating": "Audible-betyg",
+        "audibleReviewCount": "Audible-betyg #",
+        "doubanRating": "Douban-betyg",
+        "doubanReviewCount": "Douban-betyg #",
+        "ranobedbRating": "Ranobedb-betyg"
+      }
     },
     "fieldSelector": {
       "sectionTitle": "Aktiverade fält i metadataredigeraren och -väljaren",
       "sectionDesc": "Välj vilka metadatafält som ska visas vid redigering av bokinformation eller val av metadata från leverantörer. Inaktiverade fält döljs från gränssnittet.",
       "providers": {
-        "amazon": "Amazon",
-        "googleBooks": "Google Books",
-        "goodreads": "Goodreads",
-        "hardcover": "Hardcover",
-        "audible": "Audible",
-        "comicvine": "Comicvine",
-        "lubimyczytac": "Lubimyczytac",
-        "ranobedb": "Ranobedb"
+        "amazon": "",
+        "googleBooks": "",
+        "goodreads": "",
+        "hardcover": "",
+        "audible": "",
+        "comicvine": "",
+        "lubimyczytac": "",
+        "ranobedb": ""
       },
       "fields": {
-        "asin": "Amazon ASIN",
+        "asin": "",
         "amazonRating": "Amazon-betyg",
         "amazonReviewCount": "Antal Amazon-betyg",
         "googleId": "Google Books-ID",
@@ -738,60 +794,6 @@
         "audibleId": "Audible-ID",
         "audibleRating": "Audible-betyg",
         "audibleReviewCount": "Antal Audible-betyg"
-      }
-    },
-    "publicReviews": {
-      "sectionTitle": "Publika recensioner",
-      "sectionDesc": "Konfigurera automatisk nedladdning av användarrecensioner från externa plattformar. Recensioner kan hämtas från Amazon, Goodreads och Hardcover för offlineåtkomst.",
-      "downloadLabel": "Ladda ner publika recensioner",
-      "autoDownloadLabel": "Ladda ner automatiskt vid bokvisning",
-      "autoDownloadDesc": "Hämta recensioner automatiskt när du öppnar en boks detaljsida. När inaktiverat laddas recensioner bara ner manuellt eller vid metadatauppdatering.",
-      "reviewSources": "Recensionskällor",
-      "reviewSourcesDesc": "Konfigurera vilka plattformar att ladda ner recensioner från och ange gränser för varje källa.",
-      "maxLabel": "Max:",
-      "maxTooltip": "Antal recensioner att ladda ner (1-10)",
-      "noProviders": "Inga recensionskällor tillgängliga. Se till att metadataleverantörer är konfigurerade i avsnittet Leverantörsinställningar ovan.",
-      "loadError": "Kunde inte ladda inställningar."
-    },
-    "matchWeights": {
-      "sectionTitle": "Vikter för metadatamatchning",
-      "sectionDesc": "Konfigurera hur viktigt varje metadatafält är vid beräkning av matchningspoäng. Högre vikter gör fält mer inflytelserika vid bestämning av den övergripande matchkvaliteten.",
-      "recalculateLabel": "Räkna om metadatapoäng",
-      "recalculateDesc": "Räknar om matchningspoäng för alla böcker baserat på de senaste vikterna.",
-      "recalculateBtn": "Räkna om",
-      "fieldWeights": "Fältvikter",
-      "saveWeights": "Spara vikter",
-      "saveSuccess": "Vikterna sparades",
-      "saveError": "Kunde inte spara vikter",
-      "recalcSuccess": "Alla bokors matchningspoäng omräknades.",
-      "recalcError": "Kunde inte räkna om matchningspoäng.",
-      "fields": {
-        "categories": "Kategorier",
-        "coverImage": "Omslagsbild",
-        "seriesName": "Namn på serie",
-        "seriesNumber": "Serienummer",
-        "seriesTotal": "Totalt antal i serie",
-        "language": "Språk",
-        "isbn13": "ISBN-13",
-        "isbn10": "ISBN-10",
-        "pageCount": "Sidantal",
-        "amazonRating": "Amazon-betyg",
-        "amazonReviewCount": "Amazon-betyg #",
-        "goodreadsRating": "Goodreads-betyg",
-        "goodreadsReviewCount": "Goodreads-betyg #",
-        "hardcoverRating": "Hardcover-betyg",
-        "hardcoverReviewCount": "Hardcover-betyg #",
-        "audibleRating": "Audible-betyg",
-        "audibleReviewCount": "Audible-betyg #",
-        "doubanRating": "Douban-betyg",
-        "doubanReviewCount": "Douban-betyg #",
-        "ranobedbRating": "Ranobedb-betyg",
-        "title": "Titel",
-        "subtitle": "Undertitel",
-        "authors": "Författare",
-        "description": "Beskrivning",
-        "publisher": "Utgivare",
-        "publishedDate": "Utgivningsdatum"
       }
     }
   },
@@ -835,6 +837,8 @@
     "covers": {
       "sectionTitle": "Bokomslag",
       "regenerate": "Återskapa omslag",
+      "regenerateAllBtn": "Regenerera alla",
+      "regenerateMissingBtn": "Regenerera saknade",
       "regenerateDesc": "Återskapar omslagsbilder för alla böcker från de inbäddade omslagen i filen. Använd \"Regenerera saknade\" för att bara generera omslag för böcker som ännu inte har ett.",
       "regenerateStarted": "Omslagsåterskapning startad",
       "regenerateStartedDetail": "Bokomslag håller på att återskapas.",
@@ -846,9 +850,7 @@
       "aspectRatio": "Bildförhållandeströskel: {{value}}",
       "aspectRatioDesc": "Bilder med bildförhållanden som överstiger detta tröskelvärde beskärs. Värdet 2.5 innebär att bilder som är mer än 2,5x högre (eller bredare) än normalt beskärs.",
       "smartCropping": "Smart beskärning",
-      "smartCroppingDesc": "Hoppa över enhetliga färgområden vid bestämning av var beskärning ska ske. Fokuserar omslagsbilden på det mest relevanta innehållet.",
-      "regenerateAllBtn": "Regenerera alla",
-      "regenerateMissingBtn": "Regenerera saknade"
+      "smartCroppingDesc": "Hoppa över enhetliga färgområden vid bestämning av var beskärning ska ske. Fokuserar omslagsbilden på det mest relevanta innehållet."
     },
     "search": {
       "sectionTitle": "Sök och rekommendationer",
@@ -882,7 +884,7 @@
       "title": "Inga användare hittades",
       "subtitle": "Skapa din första användare för att komma igång"
     },
-    "admin": "Admin",
+    "admin": "",
     "permBadges": {
       "bookMgmt": "Bokhantering: {{count}}/5",
       "systemAccess": "Systemåtkomst: {{count}}/3",
@@ -904,13 +906,13 @@
       "libraries": "Bibliotek",
       "notSet": "Ej angivet",
       "allLibrariesAdmin": "Alla bibliotek (Admin)",
+      "noLibrariesAssigned": "",
       "selectLibraries": "Välj bibliotek",
       "enterFullName": "Ange fullständigt namn",
-      "enterEmail": "Ange e-post",
-      "noLibrariesAssigned": ""
+      "enterEmail": "Ange e-post"
     },
     "permGroups": {
-      "administration": "Administration",
+      "administration": "",
       "bookManagement": "Bokhantering",
       "systemAccess": "Systemåtkomst",
       "systemConfig": "Systemkonfiguration",
@@ -1137,7 +1139,7 @@
       "sectionDesc": "Aktivera eller inaktivera API-tjänster för att styra åtkomst till din boksamling.",
       "opdsLabel": "OPDS-server",
       "opdsDesc": "Aktivera OPDS-servern för att komma åt din boksamling via OPDS-kompatibla läsappar som KOReader, Moon+ Reader osv.",
-      "komgaLabel": "Komga API",
+      "komgaLabel": "",
       "komgaDesc": "Aktivera det Komga-kompatibla API:t för att använda Komga-klienter (Tachiyomi, Komelia osv.) med Grimmory. Använder samma OPDS-användarkonton för autentisering.",
       "groupUnknownLabel": "Gruppera okända serier",
       "groupUnknownDesc": "När aktiverat grupperas böcker utan serie under \"Okänd serie\". När inaktiverat visas varje bok som sin egen individuella serie.",
@@ -1247,7 +1249,7 @@
     },
     "progress": {
       "staleWarning": "Denna uppgift verkar ha fastnat. Inga uppdateringar mottagna på över 5 minuter.",
-      "statusLabel": "Status:",
+      "statusLabel": "",
       "progressLabel": "Framsteg:",
       "startedLabel": "Startad:",
       "processing": "Bearbetar...",
@@ -1328,7 +1330,7 @@
       "clientSecretHint": "Krävs för konfidentiella klienter. Lämna tomt för offentliga klienter som endast använder PKCE.",
       "issuerUri": "Utfärdar-URI",
       "issuerPlaceholder": "t.ex. https://auth.example.com/realms/grimmory",
-      "scope": "Scopes",
+      "scope": "",
       "scopeHint": "Scopes skickade i OIDC-auktoriseringsbegäran. Lämna tomt om du vill använda standardvärdet.",
       "claimMappings": "Claim-mappningar",
       "claimDesc": "Mappa OIDC-token-claims till Grimmory-användarfält. Dessa måste matcha din leverantörs token-claims.",
@@ -1346,6 +1348,15 @@
       "backchannelLogoutUri": "URI för utloggning från bakkanalen",
       "backchannelLogoutHint": "Konfigurera denna URI i din OIDC-leverantör för att aktivera serverinitierad sessionsåterkallning."
     },
+    "mobileRedirectUris": {
+      "title": "",
+      "description": "",
+      "label": "",
+      "placeholder": "",
+      "hintPrefix": "",
+      "hintSuffix": "",
+      "removeLabel": ""
+    },
     "provisioning": {
       "sectionTitle": "Användarprovisionering",
       "sectionDesc": "Konfigurera hur nya OIDC-användare skapas och vilka behörigheter de får.",
@@ -1353,30 +1364,13 @@
       "autoEnabled": "Aktiverad",
       "autoDisabled": "Inaktiverad",
       "autoDesc": "När aktiverad skapas nya användare automatiskt vid första OIDC-inloggningen med behörigheterna nedan. När inaktiverad måste användare skapas manuellt i Grimmory innan de kan logga in via OIDC.",
+      "linkLocalLabel": "Länka befintliga lokala konton",
+      "linkLocalDesc": "När det är aktiverat kommer befintliga lokalt skapade användare automatiskt att länkas till sin OIDC-identitet vid första OIDC-inloggningen om användarnamnen matchar. När det är inaktiverat kan endast användare som ursprungligen skapades via OIDC matchas med användarnamn.",
+      "linkLocalWarning": "Överväg att inaktivera detta efter att alla befintliga användare har loggat in via OIDC minst en gång. Om du lämnar det påslaget kan alla med ett matchande användarnamn hos din OIDC-leverantör ta över ett lokalt konto.",
       "defaultPerms": "Standardbehörigheter",
       "readBooks": "Läsa böcker",
       "defaultLibraryAccess": "Standard biblioteksåtkomst",
-      "selectLibraries": "Välj bibliotek som nya användare kan komma åt",
-      "linkLocalLabel": "Länka befintliga lokala konton",
-      "linkLocalDesc": "När det är aktiverat kommer befintliga lokalt skapade användare automatiskt att länkas till sin OIDC-identitet vid första OIDC-inloggningen om användarnamnen matchar. När det är inaktiverat kan endast användare som ursprungligen skapades via OIDC matchas med användarnamn.",
-      "linkLocalWarning": "Överväg att inaktivera detta efter att alla befintliga användare har loggat in via OIDC minst en gång. Om du lämnar det påslaget kan alla med ett matchande användarnamn hos din OIDC-leverantör ta över ett lokalt konto."
-    },
-    "toast": {
-      "saved": "Sparat",
-      "oidcUpdated": "OIDC-inställning uppdaterad.",
-      "oidcError": "Kunde inte uppdatera OIDC-inställning.",
-      "providerSaved": "OIDC-leverantörsinställningar sparade.",
-      "providerError": "Kunde inte spara OIDC-leverantörsinställningar.",
-      "provisionSaved": "OIDC-autoprovisioneringsinställningar sparade.",
-      "provisionError": "Kunde inte spara OIDC-autoprovisioneringsinställningar.",
-      "sessionDurationSaved": "Lästillfällets längd sparades.",
-      "sessionDurationError": "Det gick inte att spara lästillfällets längd.",
-      "copiedToClipboard": "Kopierad till urklipp.",
-      "syncModeSaved": "Gruppsynkroniseringsläget sparat.",
-      "syncModeError": "Kunde inte spara gruppsynkroniseringsläget.",
-      "groupMappingSaved": "Gruppmappning sparad.",
-      "groupMappingDeleted": "Gruppmappning raderad.",
-      "groupMappingError": "Det gick inte att spara gruppmappningen."
+      "selectLibraries": "Välj bibliotek som nya användare kan komma åt"
     },
     "groupMapping": {
       "sectionTitle": "Gruppmappning",
@@ -1385,7 +1379,7 @@
       "syncModeHint": "Styr hur OIDC-grupper synkroniseras med användarbehörigheter vid inloggning.",
       "addMapping": "Lägg till mappning",
       "colGroupClaim": "Gruppanspråk",
-      "colAdmin": "Admin",
+      "colAdmin": "",
       "colPermissions": "Behörigheter",
       "colLibraries": "Bibliotek",
       "colDescription": "Beskrivning",
@@ -1400,14 +1394,14 @@
       "librariesLabel": "Biblioteksåtkomst"
     },
     "infoPanel": {
-      "pkceMethod": "PKCE-metod",
-      "grantType": "Beviljandetyp",
       "sectionTitle": "Referens för leverantörskonfiguration",
       "sectionDesc": "Använd dessa värden när du konfigurerar din OIDC-leverantörs klientinställningar.",
       "redirectUri": "Omdirigerings-URI",
       "postLogoutRedirectUri": "Omdirigerings-URI efter utloggning",
       "backChannelLogoutUri": "URI för utloggning från bakkanalen",
-      "requiredScopes": "Obligatoriska omfattningar"
+      "requiredScopes": "Obligatoriska omfattningar",
+      "pkceMethod": "PKCE-metod",
+      "grantType": "Beviljandetyp"
     },
     "testConnection": {
       "button": "Testa anslutning",
@@ -1427,14 +1421,22 @@
       "saved": "Endast OIDC-läge uppdaterat.",
       "error": "Misslyckades med att uppdatera endast OIDC-läge."
     },
-    "mobileRedirectUris": {
-      "placeholder": "",
-      "removeLabel": "",
-      "title": "",
-      "label": "",
-      "hintSuffix": "",
-      "description": "",
-      "hintPrefix": ""
+    "toast": {
+      "saved": "Sparat",
+      "oidcUpdated": "OIDC-inställning uppdaterad.",
+      "oidcError": "Kunde inte uppdatera OIDC-inställning.",
+      "providerSaved": "OIDC-leverantörsinställningar sparade.",
+      "providerError": "Kunde inte spara OIDC-leverantörsinställningar.",
+      "provisionSaved": "OIDC-autoprovisioneringsinställningar sparade.",
+      "provisionError": "Kunde inte spara OIDC-autoprovisioneringsinställningar.",
+      "sessionDurationSaved": "Lästillfällets längd sparades.",
+      "sessionDurationError": "Det gick inte att spara lästillfällets längd.",
+      "copiedToClipboard": "Kopierad till urklipp.",
+      "syncModeSaved": "Gruppsynkroniseringsläget sparat.",
+      "syncModeError": "Kunde inte spara gruppsynkroniseringsläget.",
+      "groupMappingSaved": "Gruppmappning sparad.",
+      "groupMappingDeleted": "Gruppmappning raderad.",
+      "groupMappingError": "Det gick inte att spara gruppmappningen."
     }
   },
   "settingsDevice": {
@@ -1488,6 +1490,8 @@
       "autoAddDesc": "När aktiverat läggs nyligen tillagda böcker automatiskt till på din Kobo-hylla för synkning. Detta eliminerar behovet av att manuellt lägga till varje bok på hyllan.",
       "token": "Kobo-synktoken",
       "tokenDesc": "Din unika synktoken för autentisering med din Kobo-enhet. Håll den säker.",
+      "apiPath": "",
+      "apiPathDesc": "",
       "tokenManagement": "Tokenhantering",
       "regenerateToken": "Generera ny token",
       "tokenManagementDesc": "Generera en ny synktoken vid behov. Detta ogiltigförklarar den nuvarande token.",
@@ -1536,8 +1540,8 @@
       "twoWaySyncLabel": "Dubbelriktad läsframstegssynk",
       "twoWaySyncDesc": "Aktivera dubbelriktad synk mellan Grimmorys webbläsare och din Kobo-enhet. Läsframsteg gjorda på endera plattformen reflekteras på den andra.",
       "twoWaySyncNote": "Obs: På grund av olika positionsformat är synknoggrannheten bäst-ansträngning. I de flesta fall är framstegen korrekta på kapitelnivå.",
-      "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
-      "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
+      "twoWaySyncKepubWarning": "",
+      "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Dubbelriktad framstegssynk aktiverad",
       "twoWaySyncDisabled": "Dubbelriktad framstegssynk inaktiverad",
       "autoAddEnabled": "Nya böcker läggs automatiskt till på Kobo-hyllan",
@@ -1632,6 +1636,7 @@
       "filesCount": "{{ uploaded }}/{{ total }} filer",
       "failedCount": "({{ count }} misslyckades)",
       "dragDropTitle": "Dra och släpp filer",
+      "supportedFormats": "",
       "maxFileSize": "Maximal filstorlek: {{ size }} per fil",
       "fileTooLargeTooltip": "Filen är för stor",
       "uploadFailedTooltip": "Uppladdning misslyckades",
@@ -1641,7 +1646,7 @@
       "statusUploaded": "Uppladdad",
       "statusFailed": "Misslyckades",
       "destinationLibrary": "Bibliotek",
-      "destinationBookdrop": "Bookdrop",
+      "destinationBookdrop": "",
       "toast": {
         "noDestinationSummary": "Inget mål valt",
         "noDestinationDetail": "Välj ett bibliotek och undersökväg innan du lägger till filer.",
@@ -1650,8 +1655,7 @@
         "missingDataSummary": "Data saknas",
         "missingDataDetail": "Välj ett bibliotek och sökväg innan du laddar upp.",
         "uploadFailedDefault": "Uppladdning misslyckades på grund av okänt fel."
-      },
-      "supportedFormats": ""
+      }
     },
     "changePassword": {
       "title": "Byt lösenord",
@@ -1712,7 +1716,7 @@
       "cancelFailedDetail": "Kunde inte avbryta uppgiften. Försök igen.",
       "taskTitle": "Metadatahämtningsuppgift",
       "tagReview": "Granska",
-      "tagAuto": "Auto",
+      "tagAuto": "",
       "bookProgress": "Bok <strong>{{ current }}</strong> av {{ total }}",
       "reviewBtn": "Granska",
       "discardBtn": "Förkasta",
@@ -1762,36 +1766,25 @@
         "createFailedDefault": "Kunde inte skapa administratörsanvändare. Försök igen."
       }
     },
+    "message": {
+      "issueCount": "",
+      "issuePosition": "",
+      "previousIssue": "",
+      "nextIssue": ""
+    },
     "ui": {
-      "validation": {
-        "min": "",
-        "maxLength": "",
-        "parse": "",
-        "email": "",
-        "required": "",
-        "max": "",
-        "default": "",
-        "minLength": "",
-        "pattern": ""
+      "autocomplete": {
+        "noResults": "",
+        "loadFailed": ""
       },
-      "tag": {
-        "removeTag": "",
-        "removeLabel": ""
+      "datePicker": {
+        "previousMonth": "",
+        "nextMonth": ""
       },
       "input": {
+        "showPassword": "",
         "hidePassword": "",
-        "trailingAction": "",
-        "showPassword": ""
-      },
-      "select": {
-        "noResults": "",
-        "selectedCount": "",
-        "clearSelection": "",
-        "search": ""
-      },
-      "rating": {
-        "valueText": "",
-        "setRatingTo": ""
+        "trailingAction": ""
       },
       "message": {
         "issueCount": "",
@@ -1799,25 +1792,58 @@
         "previousIssue": "",
         "nextIssue": ""
       },
+      "rating": {
+        "valueText": "",
+        "setRatingTo": ""
+      },
+      "select": {
+        "clearSelection": "",
+        "noResults": "",
+        "search": "",
+        "selectedCount": ""
+      },
+      "shelfMenu": {
+        "addToShelf": "",
+        "newShelf": ""
+      },
       "spinner": {
         "loading": ""
       },
-      "autocomplete": {
-        "noResults": ""
+      "tag": {
+        "removeTag": "",
+        "removeLabel": ""
       },
-      "datePicker": {
-        "nextMonth": "",
-        "previousMonth": ""
+      "validation": {
+        "default": "",
+        "email": "",
+        "max": "",
+        "maxLength": "",
+        "min": "",
+        "minLength": "",
+        "parse": "",
+        "pattern": "",
+        "required": ""
       }
-    },
-    "message": {
-      "previousIssue": "",
-      "nextIssue": "",
-      "issuePosition": "",
-      "issueCount": ""
     }
   },
   "layout": {
+    "commandPalette": {
+      "placeholder": "",
+      "empty": "",
+      "hintNavigate": "",
+      "hintSelect": "",
+      "ariaLabel": "",
+      "groups": {
+        "action": "",
+        "page": "",
+        "book": "",
+        "author": "",
+        "series": "",
+        "shelf": "",
+        "magicShelf": "",
+        "library": ""
+      }
+    },
     "menu": {
       "adjustSidebarWidth": "Justera sidofältets bredd",
       "home": "Hem",
@@ -1828,39 +1854,45 @@
       "magicShelves": "Magiska hyllor",
       "unshelved": "Osorterade",
       "series": "Serier",
+      "authors": "Författare",
       "notebook": "Anteckningsbok",
       "update": "(Uppdatering)",
-      "authors": "Författare",
-      "documentation": "",
-      "account": "",
-      "search": "",
-      "more": "",
       "updateAvailable": "",
-      "settings": "",
-      "tools": "",
-      "editSidebar": "",
-      "toggleNavigation": "",
-      "add": "",
-      "expandSidebar": "",
-      "resizeSidebar": "",
-      "goToDashboard": "",
-      "doneEditing": "",
-      "notifications": "",
-      "createMagicShelf": "",
-      "collapseSidebar": "",
-      "uploadBook": "",
-      "primaryNav": "",
-      "libraryStats": "",
+      "versionCopied": "",
       "versionCopyFailed": "",
-      "profile": "",
+      "tools": "",
+      "collapseSidebar": "",
+      "expandSidebar": "",
+      "goToDashboard": "",
+      "notifications": "",
+      "primaryNav": "",
+      "resizeSidebar": "",
+      "search": "",
+      "add": "",
+      "createMagicShelf": "",
+      "editSidebar": "",
+      "doneEditing": "",
+      "more": "",
+      "account": "",
+      "settings": "",
+      "libraryStats": "",
       "readingStats": "",
+      "metadataManager": "",
       "bookdrop": "",
       "createLibrary": "",
-      "metadataManager": "",
-      "versionCopied": "",
-      "logout": ""
+      "uploadBook": "",
+      "documentation": "",
+      "profile": "",
+      "logout": "",
+      "toggleNavigation": ""
     },
     "closeNavigation": "Stäng navigering",
+    "pageHeader": {
+      "backTo": "",
+      "breadcrumbAriaLabel": "",
+      "moreBreadcrumbs": "",
+      "tabsAriaLabel": ""
+    },
     "changelog": {
       "title": "Nyheter",
       "description": "Senaste uppdateringar och förbättringar",
@@ -1868,48 +1900,31 @@
       "empty": "Inga uppdateringar tillgängliga."
     },
     "theme": {
+      "theme": "",
       "primary": "Primär",
       "surface": "Yta",
-      "options": {
-        "violet": "",
-        "crimson": "",
-        "cobalt": "",
-        "teal": "",
-        "forest": "",
-        "slate": "",
-        "grimmory": "",
-        "custom": "",
-        "meadow": "",
-        "ember": "",
-        "fuchsia": "",
-        "rose": "",
-        "lagoon": ""
-      },
-      "light": "",
-      "dark": "",
-      "theme": "",
       "mode": "",
       "appearance": "",
-      "syncAcrossDevices": "",
+      "light": "",
+      "dark": "",
       "system": "",
-      "customPrimary": ""
-    },
-    "commandPalette": {
-      "groups": {
-        "shelf": "",
-        "series": "",
-        "page": "",
-        "author": "",
-        "magicShelf": "",
-        "library": "",
-        "action": "",
-        "book": ""
-      },
-      "hintSelect": "",
-      "ariaLabel": "",
-      "empty": "",
-      "placeholder": "",
-      "hintNavigate": ""
+      "customPrimary": "",
+      "syncAcrossDevices": "",
+      "options": {
+        "grimmory": "",
+        "cobalt": "",
+        "ember": "",
+        "crimson": "",
+        "rose": "",
+        "forest": "",
+        "meadow": "",
+        "teal": "",
+        "lagoon": "",
+        "violet": "",
+        "fuchsia": "",
+        "slate": "",
+        "custom": ""
+      }
     }
   },
   "libraryCreator": {
@@ -1926,6 +1941,7 @@
       "bookFolders": "Bokmappar",
       "addFolder": "Lägg till mapp",
       "emptyFoldersHint": "Lägg till mappar som innehåller dina bokfiler",
+      "folderStructureHint": "Hur filer grupperas till böcker baseras på ditt <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>organisationsläge</a>.",
       "options": "Alternativ",
       "watchFolders": "Bevaka mappar",
       "watchFoldersTooltip": "Upptäck automatiskt nya böcker som läggs till i mappar",
@@ -1937,6 +1953,12 @@
       "metadataSourcePreferSidecar": "Föredra sidecar",
       "metadataSourcePreferEmbedded": "Föredra inbäddad",
       "metadataSourceNone": "Ingen",
+      "organizationMode": "Organisationsläge",
+      "organizationModeTooltip": "Hur filer grupperas till böcker under skanning",
+      "organizationModeLockedTooltip": "Organisationsläget kan inte ändras efter att biblioteket har skapats. För att använda ett annat läge, skapa ett nytt bibliotek.",
+      "organizationModeBookPerFile": "En bok per fil",
+      "organizationModeBookPerFolder": "En bok per mapp",
+      "organizationModeAutoDetect": "Automatisk identifiering (gammal)",
       "formatPriority": "Formatprioritet",
       "formatPriorityTooltip": "Dra för att ändra prioritetsordning för format när en bok har flera filer",
       "allowedFormats": "Tillåtna format",
@@ -1965,14 +1987,7 @@
         "createdLargeDetail": "Bibliotek skapat med {{count}} filer. Laddning pågår...",
         "createFailedSummary": "Skapande misslyckades",
         "createFailedDetail": "Ett fel uppstod vid skapande av biblioteket. Försök igen."
-      },
-      "folderStructureHint": "Hur filer grupperas till böcker baseras på ditt <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>organisationsläge</a>.",
-      "organizationMode": "Organisationsläge",
-      "organizationModeTooltip": "Hur filer grupperas till böcker under skanning",
-      "organizationModeBookPerFile": "En bok per fil",
-      "organizationModeBookPerFolder": "En bok per mapp",
-      "organizationModeAutoDetect": "Automatisk identifiering (gammal)",
-      "organizationModeLockedTooltip": "Organisationsläget kan inte ändras efter att biblioteket har skapats. För att använda ett annat läge, skapa ett nytt bibliotek."
+      }
     },
     "loading": {
       "title": "Laddar bibliotek",
@@ -2136,7 +2151,7 @@
         "seriesTotal": "Totalt antal böcker i serien",
         "isbn10": "ISBN-10-identifierare",
         "isbn13": "ISBN-13-identifierare",
-        "asin": "Amazon ASIN"
+        "asin": ""
       },
       "placeholderExamples": {
         "wildcard": "vad som helst",
@@ -2144,14 +2159,14 @@
         "title": "Den försvunna staden",
         "subtitle": "En äventyrsberättelse",
         "authors": "Johan Svensson",
-        "seriesNumber": "25",
-        "published": "{Published:yyyy-MM-dd}",
+        "seriesNumber": "",
+        "published": "",
         "publisher": "Episkt Förlag",
         "language": "sv",
-        "seriesTotal": "50",
-        "isbn10": "1234567890",
-        "isbn13": "1234567890123",
-        "asin": "B012345678"
+        "seriesTotal": "",
+        "isbn10": "",
+        "isbn13": "",
+        "asin": ""
       },
       "commonPatternLabels": {
         "authorTitle": "Författare - Titel",
@@ -2180,7 +2195,7 @@
       "tabView": "Bokdetaljer",
       "tabEdit": "Redigera metadata",
       "tabSearch": "Sök metadata",
-      "tabSidecar": "Sidecar"
+      "tabSidecar": ""
     },
     "readingSessions": {
       "loading": "Laddar lästillfällen...",
@@ -2222,8 +2237,8 @@
       "seriesTotal": "Serie totalt",
       "publicReviews": "Publika recensioner",
       "noValue": "Inget värde",
-      "isbn10": "ISBN 10",
-      "isbn13": "ISBN 13",
+      "isbn10": "",
+      "isbn13": "",
       "ageRating": "Åldersbetyg",
       "contentRating": "Innehållsbetyg",
       "pages": "Sidor",
@@ -2231,25 +2246,25 @@
       "audiobookDetails": "Ljudboksdetaljer",
       "comicBookDetails": "Serietidningsdetaljer",
       "providerMetadata": "Leverantörsmetadata",
-      "amazonAsin": "Amazon ASIN",
-      "amazonRating": "Amazon ★",
-      "amazonReviewCount": "Amazon #",
-      "googleBooksId": "Google Books ID",
-      "goodreadsId": "Goodreads ID",
-      "goodreadsRating": "Goodreads ★",
-      "goodreadsReviewCount": "Goodreads #",
-      "hardcoverId": "Hardcover ID",
+      "amazonAsin": "",
+      "amazonRating": "",
+      "amazonReviewCount": "",
+      "googleBooksId": "",
+      "goodreadsId": "",
+      "goodreadsRating": "",
+      "goodreadsReviewCount": "",
+      "hardcoverId": "",
       "hardcoverBookId": "Hardcover bok-ID",
-      "hardcoverRating": "Hardcover ★",
-      "hardcoverReviewCount": "Hardcover #",
-      "lubimyczytacId": "Lubimyczytac ID",
-      "lubimyczytacRating": "Lubimyczytac ★",
-      "comicvineId": "Comicvine ID",
-      "ranobedbId": "Ranobedb ID",
-      "ranobedbRating": "Ranobedb ★",
-      "audibleId": "Audible ID",
-      "audibleRating": "Audible ★",
-      "audibleReviewCount": "Audible #",
+      "hardcoverRating": "",
+      "hardcoverReviewCount": "",
+      "lubimyczytacId": "",
+      "lubimyczytacRating": "",
+      "comicvineId": "",
+      "ranobedbId": "",
+      "ranobedbRating": "",
+      "audibleId": "",
+      "audibleRating": "",
+      "audibleReviewCount": "",
       "closeBtn": "Stäng",
       "previousBookBtn": "Föregående bok",
       "nextBookBtn": "Nästa bok",
@@ -2260,6 +2275,7 @@
       "saveBtn": "Spara",
       "fetchFromFileBtn": "Från fil",
       "fetchFromFileTooltip": "Ladda metadata inbäddad i bokfilen",
+      "writtenToFileTooltip": "Det här fältet skrivs till den fysiska filen",
       "previousBookTooltip": "Gå till föregående bok",
       "nextBookTooltip": "Gå till nästa bok",
       "autoFetchTooltip": "Hämta metadata automatiskt med standardkällor",
@@ -2273,7 +2289,7 @@
       "contentRatingTeen": "Tonåring",
       "contentRatingMature": "Mogen",
       "contentRatingAdult": "Vuxen",
-      "contentRatingExplicit": "Explicit",
+      "contentRatingExplicit": "",
       "ageRatingAllAges": "Alla åldrar",
       "selectPlaceholder": "Välj",
       "toast": {
@@ -2306,8 +2322,7 @@
         "audiobookUploadFailed": "Ett fel uppstod vid uppladdning av ljudboksomslaget",
         "fileMetadataLoaded": "Metadata laddad från bokfil. Granska och spara.",
         "fileMetadataFailed": "Kunde inte extrahera metadata från bokfilen"
-      },
-      "writtenToFileTooltip": "Det här fältet skrivs till den fysiska filen"
+      }
     },
     "picker": {
       "loadingMetadata": "Laddar komplett metadata...",
@@ -2340,7 +2355,7 @@
       "lockAllTooltip": "Lås alla fält",
       "backToListBtn": "Tillbaka till listan",
       "saveChangesBtn": "Spara ändringar",
-      "na": "N/A",
+      "na": "",
       "toast": {
         "successSummary": "Klart",
         "metadataUpdated": "Bokmetadata uppdaterad",
@@ -2357,7 +2372,7 @@
     },
     "searcher": {
       "providersLabel": "Leverantörer",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "titleLabel": "Titel",
       "authorLabel": "Författare",
       "isbnTooltip": "ISBN har prioritet. Utan ISBN söks det med titel och författare.",
@@ -2373,6 +2388,7 @@
       "readyToSearchHint": "Ange dina sökkriterier ovan och klicka Sök för att hitta metadata",
       "noResultsFound": "Inga resultat hittades",
       "noResultsHint": "Prova att justera dina sökkriterier eller välja andra leverantörer",
+      "unknownProvider": "",
       "selectOverlay": "Välj"
     },
     "tabs": {
@@ -2396,9 +2412,9 @@
       "playTooltip": "Spela",
       "downloadTooltip": "Ladda ner",
       "deleteTooltip": "Radera",
+      "detachTooltip": "Koppla bort",
       "downloadAllTooltip": "Ladda ner alla filer som ett ZIP-arkiv",
       "physicalBookHint": "Du kan ladda upp en digital kopia eller lägga till metadata manuellt.",
-      "detachTooltip": "Koppla bort",
       "chapters": "Kapitel",
       "chapterTitle": "Titel",
       "startTime": "Början",
@@ -2415,15 +2431,17 @@
       "moodsLabel": "Stämningar:",
       "tagsLabel": "Taggar:",
       "libraryLabel": "Bibliotek:",
+      "shelvesLabel": "",
       "publisherLabel": "Förlag:",
       "publishedLabel": "Utgiven:",
       "languageLabel": "Språk:",
       "formatsLabel": "Format:",
       "primaryBadge": "PRIMÄR",
+      "firstAuthorBadge": "",
       "physicalBadge": "FYSISK",
       "grimmoryProgressLabel": "Grimmory-framsteg:",
       "metadataMatchLabel": "Metadatamatchning:",
-      "isbnLabel": "ISBN:",
+      "isbnLabel": "",
       "readStatusLabel": "Lässtatus:",
       "koreaderProgressLabel": "KOReader-framsteg:",
       "koboProgressLabel": "Kobo-framsteg:",
@@ -2445,10 +2463,10 @@
       "universeTitle": "Universum",
       "comicIssue": "Nummer",
       "comicVolume": "Volym",
-      "comicVol": "Vol.",
+      "comicVol": "",
       "comicStoryArc": "Berättelseark",
       "comicAltSeries": "Alt. serie",
-      "comicFormat": "Format",
+      "comicFormat": "",
       "comicImprint": "Impressum",
       "pencillers": "Tecknare",
       "inkers": "Tuschare",
@@ -2459,7 +2477,7 @@
       "characters": "Karaktärer",
       "teams": "Team",
       "locations": "Platser",
-      "manga": "Manga",
+      "manga": "",
       "blackAndWhite": "S/V",
       "rightToLeft": "HTL",
       "notesLabel": "Anteckningar",
@@ -2469,7 +2487,8 @@
       "audiobookBitrate": "Överföringskapacitet",
       "audiobookSampleRate": "Samplingsfrekvens",
       "audiobookChannels": "Kanaler",
-      "audiobookCodec": "Codec",
+      "audiobookCodec": "",
+      "audiobookAbridged": "Förkortad",
       "abridged": "Förkortad",
       "unabridged": "Oförkortad",
       "readBtn": "Läs",
@@ -2500,14 +2519,16 @@
       "menuSendBook": "Skicka bok",
       "menuQuickSend": "Snabbskicka",
       "menuCustomSend": "Anpassat skickande",
+      "menuMarkPhysical": "Markera som fysisk",
+      "menuUnmarkPhysical": "Avmarkera som fysisk",
       "menuAttachToAnotherBook": "Bifoga till annan bok",
       "menuDeleteFileFormats": "Radera filformat",
       "menuDeleteSupplementaryFiles": "Radera kompletterande filer",
       "menuDeleteBookAllFiles": "Radera bok och alla filer",
       "menuDeleteBook": "Radera bok",
       "navigationPosition": "{{ current }} av {{ total }}",
-      "channelMono": "Mono",
-      "channelStereo": "Stereo",
+      "channelMono": "",
+      "channelStereo": "",
       "channelMultiple": "{{ count }} kanaler",
       "toast": {
         "readStatusUpdatedSummary": "Lässtatus uppdaterad",
@@ -2538,14 +2559,14 @@
         "deleteFormatSuccessDetail": "Bokformatet \"{{ fileName }}\" raderades",
         "deleteFormatErrorSummary": "Fel",
         "deleteFormatErrorDetail": "Kunde inte radera bokformat: {{ error }}",
-        "dateUpdatedSummary": "Datum uppdaterat",
-        "dateUpdatedDetail": "Bokens avslutningsdatum har uppdaterats.",
-        "dateUpdateFailedSummary": "Uppdatering misslyckades",
-        "dateUpdateFailedDetail": "Kunde inte uppdatera bokens avslutningsdatum.",
         "detachFileSuccessSummary": "Fil bortkopplad",
         "detachFileSuccessDetail": "Filen har kopplats bort och en ny bok har skapats.",
         "detachFileErrorSummary": "Bortkoppling misslyckades",
-        "detachFileErrorDetail": "Misslyckades med att koppla bort filen."
+        "detachFileErrorDetail": "Misslyckades med att koppla bort filen.",
+        "dateUpdatedSummary": "Datum uppdaterat",
+        "dateUpdatedDetail": "Bokens avslutningsdatum har uppdaterats.",
+        "dateUpdateFailedSummary": "Uppdatering misslyckades",
+        "dateUpdateFailedDetail": "Kunde inte uppdatera bokens avslutningsdatum."
       },
       "confirm": {
         "resetProgressMessage": "Återställ läsframsteg för \"{{ title }}\"?",
@@ -2559,22 +2580,17 @@
         "deleteAltFormatMessage": "Är du säker på att du vill radera \"{{ fileName }}\"?\n\nDenna fil raderas permanent från ditt filsystem.",
         "deleteAltFormatHeader": "Radera bokformat",
         "deleteFileBtn": "Radera fil",
-        "deleteBookMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokregistret från ditt bibliotek.\n\nDenna åtgärd kan inte ångras.",
-        "deleteBookAllFilesMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokregistret OCH alla associerade filer från ditt filsystem.\n\nDenna åtgärd kan inte ångras.",
-        "deleteEverythingBtn": "Radera allt",
         "detachFileHeader": "Koppla bort fil",
         "detachFileMessage": "Detta kommer att koppla bort \"{{ fileName }}\" från den här boken och skapa en ny fristående bok för den. Filen kommer inte att raderas.",
         "detachFileCopyMetadata": "Kopiera metadata till ny bok",
         "detachFileBtn": "Koppla bort",
+        "deleteBookMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokregistret från ditt bibliotek.\n\nDenna åtgärd kan inte ångras.",
+        "deleteBookAllFilesMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokregistret OCH alla associerade filer från ditt filsystem.\n\nDenna åtgärd kan inte ångras.",
+        "deleteEverythingBtn": "Radera allt",
         "largeFileMessage": "Den här filen överstiger 25 MB. Vissa e-postleverantörer kan avvisa stora bilagor.\n\nVill du skicka den ändå?",
         "largeFileHeader": "Varning för stor fil",
         "sendAnyway": "Skicka ändå"
-      },
-      "audiobookAbridged": "Förkortad",
-      "firstAuthorBadge": "MAIN",
-      "menuMarkPhysical": "Markera som fysisk",
-      "menuUnmarkPhysical": "Avmarkera som fysisk",
-      "shelvesLabel": ""
+      }
     },
     "sidecar": {
       "title": "Sidecar-metadata",
@@ -2586,7 +2602,7 @@
       "noSidecarTitle": "Ingen sidecar-fil hittad",
       "noSidecarDescription": "Ingen sidecar-metadatafil finns för denna bok. Använd knappen Exportera för att skapa en.",
       "generatedLabel": "Genererad:",
-      "versionLabel": "Version:",
+      "versionLabel": "",
       "byLabel": "Av:",
       "coverFileLabel": "Omslagsfil:",
       "loading": "Laddar sidecar-data...",
@@ -2594,7 +2610,7 @@
       "syncStatusOutdated": "Föråldrad",
       "syncStatusConflict": "Konflikt",
       "syncStatusMissing": "Saknas",
-      "syncStatusNA": "N/A",
+      "syncStatusNA": "",
       "syncStatusUnknown": "Okänd",
       "toast": {
         "exportSuccessSummary": "Export lyckades",
@@ -2676,18 +2692,18 @@
       "deleting": "Raderar...",
       "tabs": {
         "author": "Författare",
-        "genre": "Genre",
-        "mood": "Stämning",
-        "tag": "Tagg",
-        "series": "Serie",
-        "publisher": "Förlag",
-        "language": "Språk",
         "authors": "Författare",
+        "genre": "",
         "genres": "Genrer",
+        "mood": "Stämning",
         "moods": "Stämningar",
+        "tag": "Tagg",
         "tags": "Taggar",
+        "series": "Serie",
         "seriesPlural": "Serier",
+        "publisher": "Förlag",
         "publishers": "Utgivare",
+        "language": "Språk",
         "languages": "Språk"
       },
       "placeholders": {
@@ -2846,8 +2862,8 @@
         "noBooks": "Denna samling har inga böcker!",
         "failedLibrary": "Kunde inte ladda bibliotekets böcker!",
         "failedShelf": "Kunde inte ladda hyllans böcker!",
-        "activeFilters": "{{ count }} aktiva filter",
-        "failedBooks": ""
+        "failedBooks": "",
+        "activeFilters": "{{ count }} aktiva filter"
       },
       "tooltip": {
         "clearFilters": "Rensa tillämpade filter",
@@ -2881,7 +2897,7 @@
         "emailBook": "Skicka bok via e-post",
         "quickSend": "Snabbskicka",
         "customSend": "Anpassat skickande",
-        "metadata": "Metadata",
+        "metadata": "",
         "searchMetadata": "Sök metadata",
         "autoFetch": "Auto-hämta",
         "customFetch": "Anpassad hämtning",
@@ -3060,13 +3076,13 @@
       "library": {
         "optionsLabel": "Alternativ",
         "addPhysicalBook": "Lägg till fysisk bok",
+        "bulkIsbnImport": "Importera ISBN-nummer från fil",
         "editLibrary": "Redigera bibliotek",
         "rescanLibrary": "Skanna om bibliotek",
         "customFetchMetadata": "Anpassad metadatahämtning",
         "autoFetchMetadata": "Auto-hämta metadata",
         "findDuplicates": "Hitta dubbletter",
-        "deleteLibrary": "Radera bibliotek",
-        "bulkIsbnImport": "Importera ISBN-nummer från fil"
+        "deleteLibrary": "Radera bibliotek"
       },
       "shelf": {
         "publicShelfPrefix": "Publik hylla - ",
@@ -3078,8 +3094,8 @@
       "magicShelf": {
         "optionsLabel": "Alternativ",
         "editMagicShelf": "Redigera magisk hylla",
-        "deleteMagicShelf": "Radera magisk hylla",
-        "exportJson": "Kopiera JSON"
+        "exportJson": "Kopiera JSON",
+        "deleteMagicShelf": "Radera magisk hylla"
       },
       "confirm": {
         "rescanLibraryMessage": "Är du säker på att du vill uppdatera biblioteket: {{ name }}?",
@@ -3098,8 +3114,9 @@
         "shelfDeleteFailedDetail": "Kunde inte radera hylla",
         "magicShelfDeletedDetail": "Magiska hyllan raderades",
         "magicShelfDeleteFailedDetail": "Kunde inte radera hylla",
-        "failedSummary": "Misslyckades",
         "magicShelfJsonCopiedDetail": "Magisk hylla-JSON kopierad till urklipp",
+        "magicShelfJsonCopyFailedDetail": "",
+        "failedSummary": "Misslyckades",
         "dialogLoadFailedDetail": ""
       },
       "loading": {
@@ -3121,15 +3138,15 @@
         "fileName": "Filnamn",
         "fileSizeKb": "Filstorlek",
         "language": "Språk",
-        "isbn": "ISBN",
+        "isbn": "",
         "pageCount": "Sidor",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
+        "amazonRating": "",
+        "amazonReviewCount": "",
+        "goodreadsRating": "",
+        "goodreadsReviewCount": "",
+        "hardcoverRating": "",
+        "hardcoverReviewCount": "",
+        "ranobedbRating": ""
       },
       "toast": {
         "savedSummary": "Inställningar sparade",
@@ -3183,7 +3200,7 @@
         "loadingReviews": "Hämtar senaste recensioner...",
         "showSpoiler": "Visa spoiler",
         "anonymous": "Anonym",
-        "spoiler": "Spoiler"
+        "spoiler": ""
       },
       "empty": {
         "noReviews": "Inga recensioner tillgängliga för denna bok",
@@ -3215,7 +3232,7 @@
       "libraryPlaceholder": "Välj ett bibliotek",
       "titleLabel": "Titel",
       "titlePlaceholder": "t.ex. Den store Gatsby",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "isbnPlaceholder": "t.ex. 9780134685991",
       "authorsLabel": "Författare",
       "authorsPlaceholder": "Skriv författarnamn och tryck Enter",
@@ -3238,6 +3255,49 @@
       "addButton": "Lägg till fysisk bok",
       "fetchMetadataTooltip": "Hämta metadata via ISBN"
     },
+    "bulkIsbnImport": {
+      "title": "Importera ISBN-nummer",
+      "description": "Importera flera fysiska böcker från en lista med ISBN-nummer",
+      "closeTooltip": "Stäng",
+      "libraryLabel": "Bibliotek",
+      "libraryPlaceholder": "Välj ett bibliotek",
+      "tabFile": "Ladda upp fil",
+      "tabPaste": "Klistra in ISBN-nummer",
+      "chooseFile": "Välj fil",
+      "fileFormatsHint": "Format som stöds: .txt, .csv, .tsv (max 1 MB)",
+      "pastePlaceholder": "Klistra in ISBN-nummer här, ett per rad eller separerade med komma...",
+      "parseButton": "Bearbeta",
+      "errorFileTooLarge": "Filen överskrider storleksgränsen på 1 MB.",
+      "errorNoIsbns": "Inga ISBN-nummer hittades i indata.",
+      "errorTooMany": "Endast de första {{ max }} ISBN-numren kommer att importeras. Dela upp din fil för resten.",
+      "validCount": "{{ count }} giltiga ISBN-nummer",
+      "skippedCount": "{{ count }} hoppades över",
+      "duplicatesRemoved": "{{ count }} dublett(er) borttagna",
+      "reason": {
+        "invalid": "Ogiltigt ISBN-format",
+        "alreadyExists": "Existerar redan i detta bibliotek"
+      },
+      "previewLabel": "ISBN-nummer att importera",
+      "clearButton": "Rensa",
+      "validationLibraryRequired": "Välj ett bibliotek",
+      "validationNoIsbns": "Ladda upp en fil eller klistra in ISBN-nummer för att börja",
+      "validationReady": "Redo att importera {{ count }} ISBN-nummer",
+      "cancelButton": "Avbryt",
+      "startImportButton": "Påbörja import",
+      "processingLabel": "Bearbetar {{ current }} av {{ total }}",
+      "lookingUp": "Söker efter metadata...",
+      "createdNoMetadata": "Skapad (inga metadata hittades)",
+      "unknownError": "Okänt fel",
+      "processingHint": "Redan skapade böcker kommer att behållas om du avbryter.",
+      "cancelImportButton": "Stoppa import",
+      "summaryTitle": "Importen är klar",
+      "summaryCreated": "Skapad med metadata",
+      "summaryNoMetadata": "Skapad (endast ISBN)",
+      "summaryFailed": "Misslyckades",
+      "summaryCancelled": "Hoppades över (avbruten)",
+      "failedIsbnsLabel": "Misslyckade ISBN-nummer",
+      "doneButton": "Färdig"
+    },
     "fileUploader": {
       "title": "Ladda upp extra fil",
       "unknownTitle": "Okänd titel",
@@ -3251,6 +3311,8 @@
       "statusReady": "Redo",
       "statusFailed": "Misslyckades",
       "dragDropText": "Dra och släpp en fil här för att ladda upp.",
+      "supportedFormats": "",
+      "supplementaryAllFormats": "Alla filformat stöds för kompletterande filer.",
       "maxFileSize": "Maximal filstorlek: {{ size }} per fil",
       "uploadForBook": "Ladda upp en extra fil för <strong>{{ title }}</strong>.",
       "thisBook": "denna bok",
@@ -3259,9 +3321,7 @@
         "fileTooLargeDetail": "{{ fileName }} överskrider maximal filstorlek på {{ maxSize }}",
         "fileTooLargeError": "Filen överskrider maximal storlek på {{ maxSize }}",
         "uploadFailedUnknown": "Uppladdning misslyckades på grund av okänt fel."
-      },
-      "supplementaryAllFormats": "Alla filformat stöds för kompletterande filer.",
-      "supportedFormats": ""
+      }
     },
     "filter": {
       "title": "Filter",
@@ -3269,7 +3329,7 @@
       "footerNote": "Obs: De 100 främsta objekten visas per filterkategori",
       "labels": {
         "author": "Författare",
-        "category": "Genre",
+        "category": "",
         "series": "Serie",
         "bookType": "Filformat",
         "readStatus": "Lässtatus",
@@ -3285,6 +3345,9 @@
         "amazonRating": "Amazon-betyg",
         "goodreadsRating": "Goodreads-betyg",
         "hardcoverRating": "Hardcover-betyg",
+        "lubimyczytacRating": "",
+        "ranobedbRating": "",
+        "audibleRating": "",
         "language": "Språk",
         "pageCount": "Sidantal",
         "mood": "Stämning",
@@ -3294,10 +3357,7 @@
         "comicCharacter": "Serietidningskaraktär",
         "comicTeam": "Serietidningsteam",
         "comicLocation": "Serietidningsplats",
-        "comicCreator": "Serietidningsskapare",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
+        "comicCreator": "Serietidningsskapare"
       },
       "readStatus": {
         "unread": "Oläst",
@@ -3320,14 +3380,14 @@
         "poor": "Dålig (0–29%)"
       },
       "fileSize": {
-        "lt1mb": "< 1 MB",
-        "1to10mb": "1–10 MB",
-        "10to50mb": "10–50 MB",
-        "50to100mb": "50–100 MB",
-        "250to500mb": "250–500 MB",
+        "lt1mb": "",
+        "1to10mb": "",
+        "10to50mb": "",
+        "50to100mb": "",
+        "250to500mb": "",
         "05to1gb": "0,5–1 GB",
-        "1to2gb": "1–2 GB",
-        "5plusGb": "5+ GB"
+        "1to2gb": "",
+        "5plusGb": ""
       },
       "pageCount": {
         "lt50": "< 50 sidor",
@@ -3346,7 +3406,7 @@
         "teen": "Tonåring",
         "mature": "Mogen",
         "adult": "Vuxen",
-        "explicit": "Explicit"
+        "explicit": ""
       },
       "shelfStatus": {
         "shelved": "Hyllad",
@@ -3366,6 +3426,7 @@
       "descriptionMulti": "Välj hyllor för {{ count }} bok/böcker",
       "descriptionSingle": "Organisera \"{{ title }}\" i dina hyllor",
       "shelvesAvailable": "{{ count }} hyllor tillgängliga",
+      "searchPlaceholder": "",
       "emptyTitle": "Inga hyllor tillgängliga",
       "emptyDescription": "Skapa din första hylla för att börja organisera dina böcker.<br/>Klicka på knappen nedan för att komma igång.",
       "createShelf": "Skapa hylla",
@@ -3377,8 +3438,7 @@
       "toast": {
         "updateSuccessDetail": "Bokhyllor uppdaterade",
         "updateFailedDetail": "Kunde inte uppdatera bokhyllor"
-      },
-      "searchPlaceholder": ""
+      }
     },
     "shelfCreator": {
       "title": "Skapa ny hylla",
@@ -3390,6 +3450,7 @@
       "chooseIcon": "Välj en ikon",
       "chooseIconSubtitle": "Välj bland tillgängliga ikoner",
       "selectedIcon": "Vald ikon",
+      "customSvg": "",
       "removeIconTooltip": "Ta bort ikon",
       "visibilityLabel": "Synlighet",
       "makePublicLabel": "Gör denna hylla publik (skrivskyddad för andra)",
@@ -3400,8 +3461,7 @@
       "toast": {
         "createSuccessDetail": "Hylla skapad: {{ name }}",
         "createFailedDetail": "Kunde inte skapa hylla"
-      },
-      "customSvg": ""
+      }
     },
     "shelfEditDialog": {
       "title": "Redigera hylla",
@@ -3422,8 +3482,13 @@
       }
     },
     "table": {
+      "label": "",
       "bookCoverAlt": "Bokomslag",
-      "statusWithPrefix": "Status: {{ status }}",
+      "selectBook": "",
+      "selectBookFallback": "",
+      "noRating": "",
+      "ratingOutOf": "",
+      "statusWithPrefix": "",
       "locked": "Låst",
       "unlocked": "Upplåst",
       "toast": {
@@ -3435,12 +3500,7 @@
         "lockFailedDetail": "Ett fel uppstod vid låsning av metadata.",
         "unlockFailedSummary": "Upplåsning misslyckades",
         "unlockFailedDetail": "Ett fel uppstod vid upplåsning av metadata."
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
+      }
     },
     "lockUnlockDialog": {
       "title": "Lås eller lås upp metadata",
@@ -3488,11 +3548,11 @@
         "readingProgress": "Läsframsteg",
         "bookType": "Filformat",
         "amazonRating": "Amazon-betyg",
-        "amazonReviewCount": "Amazon #",
+        "amazonReviewCount": "",
         "goodreadsRating": "Goodreads-betyg",
-        "goodreadsReviewCount": "Goodreads #",
+        "goodreadsReviewCount": "",
         "hardcoverRating": "Hardcover-betyg",
-        "hardcoverReviewCount": "Hardcover #",
+        "hardcoverReviewCount": "",
         "ranobedbRating": "Ranobedb-betyg",
         "narrator": "Uppläsare",
         "pageCount": "Sidor",
@@ -3509,18 +3569,18 @@
       "unknownTitle": "Okänd titel",
       "selectTargetBook": "Välj målbok",
       "searchPlaceholder": "Sök efter en bok i samma bibliotek...",
+      "moveFilesLabel": "Flytta filer till målbokens katalog",
       "warningMove": "Källfilen kommer att flyttas till målbokens katalog och döpas om.",
       "warningMoveBulk": "Källfilerna kommer att flyttas till målbokens katalog och döpas om.",
+      "warningNoMove": "Källfilen kommer att finnas kvar på sin ursprungliga plats på disken.",
+      "warningNoMoveBulk": "Källfilerna kommer att finnas kvar på sina ursprungliga platser på disken.",
       "warningDelete": "Källbokens post kommer att tas bort (filerna bevaras i målboken).",
       "warningDeleteBulk": "Källböckernas poster kommer att tas bort (filerna bevaras i målboken).",
       "attachFile": "Bifoga fil",
       "attachFilesBulk": "Bifoga filer",
       "unknownFile": "Okänd fil",
       "unknownFormat": "Okänt",
-      "unknownFilename": "Okänt filnamn",
-      "moveFilesLabel": "Flytta filer till målbokens katalog",
-      "warningNoMove": "Källfilen kommer att finnas kvar på sin ursprungliga plats på disken.",
-      "warningNoMoveBulk": "Källfilerna kommer att finnas kvar på sina ursprungliga platser på disken."
+      "unknownFilename": "Okänt filnamn"
     },
     "searcher": {
       "placeholder": "Titel, författare, serie, genre eller ISBN...",
@@ -3557,17 +3617,41 @@
     },
     "seriesPage": {
       "seriesDetailsTab": "Seriedetaljer",
+      "bookListTab": "Boklista",
       "publisher": "Förlag:",
       "years": "År:",
       "numberOfBooks": "Antal böcker:",
+      "book": "Bok",
+      "books": "Böcker",
+      "synopsis": "",
       "language": "Språk:",
       "readStatus": "Lässtatus:",
       "noDescription": "Ingen beskrivning tillgänglig.",
       "showLess": "Visa mindre",
       "showMore": "Visa mer",
       "noBooksFound": "Inga böcker hittades för denna serie.",
+      "booksInSeries": "Böcker i serie",
       "selected": "valda",
       "loadingSeriesDetails": "Laddar seriedetaljer...",
+      "completionOwned": "Du äger {{ owned }} av {{ total }} böcker",
+      "missingBooks": "Saknas: #{{ numbers }}",
+      "nextUp": "Nästa",
+      "continueReading": "Fortsätt läsa",
+      "readButton": "Läs",
+      "viewDetails": "Visa detaljer",
+      "continueButton": "Fortsätt",
+      "readPercent": "{{ progress }} läst",
+      "listPages": "sidor",
+      "stats": {
+        "totalPages": "Totalt antal sidor",
+        "avgPersonalRating": "Personligt genomsnittsbetyg",
+        "avgGoodreads": "Genomsnitt Goodreads",
+        "avgAmazon": "Genomsnitt Amazon",
+        "avgHardcover": "Genomsnitt Hardcover",
+        "formats": "Format",
+        "totalAudioDuration": "Ljudbokslängd",
+        "owned": "Ägda"
+      },
       "status": {
         "unread": "OLÄST",
         "reading": "LÄSER",
@@ -3588,30 +3672,6 @@
         "selectAll": "Välj alla böcker",
         "deselectAll": "Avmarkera alla böcker",
         "deleteSelected": "Radera valda böcker"
-      },
-      "bookListTab": "Boklista",
-      "book": "Bok",
-      "books": "Böcker",
-      "synopsis": "Synopsis",
-      "booksInSeries": "Böcker i serie",
-      "completionOwned": "Du äger {{ owned }} av {{ total }} böcker",
-      "missingBooks": "Saknas: #{{ numbers }}",
-      "nextUp": "Nästa",
-      "continueReading": "Fortsätt läsa",
-      "readButton": "Läs",
-      "viewDetails": "Visa detaljer",
-      "continueButton": "Fortsätt",
-      "readPercent": "{{ progress }} läst",
-      "listPages": "sidor",
-      "stats": {
-        "totalPages": "Totalt antal sidor",
-        "avgPersonalRating": "Personligt genomsnittsbetyg",
-        "avgGoodreads": "Genomsnitt Goodreads",
-        "avgAmazon": "Genomsnitt Amazon",
-        "avgHardcover": "Genomsnitt Hardcover",
-        "formats": "Format",
-        "totalAudioDuration": "Ljudbokslängd",
-        "owned": "Ägda"
       }
     },
     "duplicateMerger": {
@@ -3622,7 +3682,7 @@
       "presetAggressive": "Aggressiv",
       "presetCustom": "Anpassad",
       "advanced": "Avancerat",
-      "signalIsbn": "ISBN",
+      "signalIsbn": "",
       "signalExternalId": "Externt ID",
       "signalTitleAuthor": "Titel + Författare",
       "signalDirectory": "Samma mapp",
@@ -3634,8 +3694,10 @@
       "allMerged": "Alla dubblettgrupper har bearbetats.",
       "mergeAll": "Sammanfoga alla ({{ count }})",
       "merge": "Sammanfoga",
+      "deleteSelected": "Ta bort ({{ count }})",
       "dismiss": "Stäng",
       "target": "Mål",
+      "sameFormatWarning": "Samma format",
       "helpText": "Varje grupp innehåller böcker som verkar vara dubbletter. Välj målboken (den du vill behålla) och klicka sedan på Slå samman för att kombinera filerna. För att ta bort specifika dubbletter, markera de du vill ta bort och klicka på Ta bort.",
       "groupLabel": "Grupp {{ index }}",
       "fileCount": "{{ count }} filer",
@@ -3646,6 +3708,10 @@
         "DIRECTORY": "Samma mapp",
         "FILENAME": "Filnamnsmatchning"
       },
+      "confirm": {
+        "deleteHeader": "Bekräfta borttagning",
+        "deleteMessage": "Detta tar permanent bort {{ count }} bok/böcker och deras filer från disken. Detta kan inte ångras."
+      },
       "toast": {
         "scanFailedSummary": "Skanning misslyckades",
         "scanFailedDetail": "Kunde inte skanna efter dubbletter.",
@@ -3654,56 +3720,7 @@
         "mergeFailedSummary": "Sammanfogning misslyckades",
         "mergeFailedDetail": "Kunde inte sammanfoga denna grupp.",
         "mergePartialDetail": "{{ success }} sammanfogade, {{ failed }} misslyckades."
-      },
-      "deleteSelected": "Ta bort ({{ count }})",
-      "sameFormatWarning": "Samma format",
-      "confirm": {
-        "deleteHeader": "Bekräfta borttagning",
-        "deleteMessage": "Detta tar permanent bort {{ count }} bok/böcker och deras filer från disken. Detta kan inte ångras."
       }
-    },
-    "bulkIsbnImport": {
-      "title": "Importera ISBN-nummer",
-      "description": "Importera flera fysiska böcker från en lista med ISBN-nummer",
-      "closeTooltip": "Stäng",
-      "libraryLabel": "Bibliotek",
-      "libraryPlaceholder": "Välj ett bibliotek",
-      "tabFile": "Ladda upp fil",
-      "tabPaste": "Klistra in ISBN-nummer",
-      "chooseFile": "Välj fil",
-      "fileFormatsHint": "Format som stöds: .txt, .csv, .tsv (max 1 MB)",
-      "pastePlaceholder": "Klistra in ISBN-nummer här, ett per rad eller separerade med komma...",
-      "parseButton": "Bearbeta",
-      "errorFileTooLarge": "Filen överskrider storleksgränsen på 1 MB.",
-      "errorNoIsbns": "Inga ISBN-nummer hittades i indata.",
-      "errorTooMany": "Endast de första {{ max }} ISBN-numren kommer att importeras. Dela upp din fil för resten.",
-      "validCount": "{{ count }} giltiga ISBN-nummer",
-      "skippedCount": "{{ count }} hoppades över",
-      "duplicatesRemoved": "{{ count }} dublett(er) borttagna",
-      "reason": {
-        "invalid": "Ogiltigt ISBN-format",
-        "alreadyExists": "Existerar redan i detta bibliotek"
-      },
-      "previewLabel": "ISBN-nummer att importera",
-      "clearButton": "Rensa",
-      "validationLibraryRequired": "Välj ett bibliotek",
-      "validationNoIsbns": "Ladda upp en fil eller klistra in ISBN-nummer för att börja",
-      "validationReady": "Redo att importera {{ count }} ISBN-nummer",
-      "cancelButton": "Avbryt",
-      "startImportButton": "Påbörja import",
-      "processingLabel": "Bearbetar {{ current }} av {{ total }}",
-      "lookingUp": "Söker efter metadata...",
-      "createdNoMetadata": "Skapad (inga metadata hittades)",
-      "unknownError": "Okänt fel",
-      "processingHint": "Redan skapade böcker kommer att behållas om du avbryter.",
-      "cancelImportButton": "Stoppa import",
-      "summaryTitle": "Importen är klar",
-      "summaryCreated": "Skapad med metadata",
-      "summaryNoMetadata": "Skapad (endast ISBN)",
-      "summaryFailed": "Misslyckades",
-      "summaryCancelled": "Hoppades över (avbruten)",
-      "failedIsbnsLabel": "Misslyckade ISBN-nummer",
-      "doneButton": "Färdig"
     }
   },
   "readerAudiobook": {
@@ -3723,8 +3740,8 @@
     "controls": {
       "previousTrackTooltip": "Föregående spår",
       "previousChapterTooltip": "Föregående kapitel",
-      "rewindTooltip": "-30s",
-      "forwardTooltip": "+30s",
+      "rewindTooltip": "",
+      "forwardTooltip": "",
       "nextTrackTooltip": "Nästa spår",
       "nextChapterTooltip": "Nästa kapitel"
     },
@@ -3735,7 +3752,7 @@
     },
     "details": {
       "narratedBy": "Uppläst av {{ narrator }}",
-      "kbps": "{{ bitrate }} kbps",
+      "kbps": "",
       "totalDuration": "{{ duration }} totalt"
     },
     "sidebar": {
@@ -3813,10 +3830,10 @@
       "toggleZoom": "Växla zoom (anpassa sida / verklig storlek)",
       "doubleTap": "Dubbeltryck",
       "toggleSlideshow": "Växla bildspel / automatisk uppspelning",
-      "showHelpDialog": "Visa denna hjälpdialog",
       "toggleMagnifier": "Växla förstoringsglas",
       "magnifierZoom": "Förstoringszoom (när aktiv)",
-      "magnifierLensSize": "Förstoringsstorlek (när aktiv)"
+      "magnifierLensSize": "Förstoringsstorlek (när aktiv)",
+      "showHelpDialog": "Visa denna hjälpdialog"
     },
     "footer": {
       "prevBook": "Föreg. bok",
@@ -3851,10 +3868,10 @@
       "exitFullscreenLabel": "Avsluta helskärm",
       "fullscreenLabel": "Helskärm",
       "keyboardShortcutsLabel": "Tangentbordsgenvägar",
-      "settings": "Inställningar",
-      "closeReader": "Stäng läsaren",
       "enableMagnifier": "Förstoringsglas (M)",
-      "disableMagnifier": "Avaktivera förstoringsglas (M)"
+      "disableMagnifier": "Avaktivera förstoringsglas (M)",
+      "settings": "Inställningar",
+      "closeReader": "Stäng läsaren"
     },
     "quickSettings": {
       "fitMode": "Anpassningsläge",
@@ -3883,11 +3900,21 @@
       "white": "Vit",
       "magnifierLensSize": "Linsstorlek",
       "magnifierZoom": "Förstoring",
-      "clickToPaginate": "",
-      "stripMaxWidth": "",
-      "autoCloseMenu": "",
       "brightness": "",
-      "emulateBook": ""
+      "emulateBook": "",
+      "clickToPaginate": "",
+      "autoCloseMenu": "",
+      "stripMaxWidth": ""
+    },
+    "webtoonHint": {
+      "regionLabel": "",
+      "message": "",
+      "switch": "",
+      "dismiss": "",
+      "never": ""
+    },
+    "continuation": {
+      "scrollForNext": ""
     },
     "sidebar": {
       "contentTab": "Innehåll",
@@ -3907,16 +3934,6 @@
       "clearSearch": "Rensa sökning",
       "page": "Sida",
       "untitled": "Utan titel"
-    },
-    "webtoonHint": {
-      "never": "",
-      "dismiss": "",
-      "switch": "",
-      "regionLabel": "",
-      "message": ""
-    },
-    "continuation": {
-      "scrollForNext": ""
     }
   },
   "readerEbook": {
@@ -3934,7 +3951,7 @@
       "language": "Språk",
       "pages": "Sidor",
       "unknown": "Okänd",
-      "na": "N/A",
+      "na": "",
       "series": "Serie",
       "seriesName": "Serienamn",
       "bookNumber": "Boknummer",
@@ -3961,7 +3978,7 @@
     "settingsDialog": {
       "themeTab": "Tema",
       "typographyTab": "Typografi",
-      "layoutTab": "Layout",
+      "layoutTab": "",
       "darkMode": "Mörkt läge",
       "themeColors": "Temafärger",
       "annotationHighlighter": "Annoteringsmarkör",
@@ -3969,7 +3986,7 @@
       "fontSize": "Textstorlek",
       "lineHeight": "Radhöjd",
       "fontFamily": "Typsnittsfamilj",
-      "layout": "Layout",
+      "layout": "",
       "readingFlow": "Läsflöde",
       "paginated": "Sidindelad",
       "scrolled": "Rullande",
@@ -4057,9 +4074,9 @@
       "searchInBook": "Sök i boken",
       "annotate": "Annotera",
       "addNote": "Lägg till anteckning",
-      "deleteAnnotation": "Radera annotering",
       "goToLink": "",
-      "removeLink": ""
+      "removeLink": "",
+      "deleteAnnotation": "Radera annotering"
     },
     "shortcutsHelp": {
       "title": "Tangentbordsgenvägar",
@@ -4075,12 +4092,12 @@
       "notesShortcut": "Anteckningar",
       "display": "Visning",
       "toggleFullscreen": "Växla helskärm",
+      "toggleImmersive": "",
       "exitFullscreenCloseDialogs": "Avsluta helskärm / Stäng dialoger",
       "other": "Övrigt",
       "showHelpDialog": "Visa denna hjälpdialog",
       "swipeRight": "Svep höger",
-      "swipeLeft": "Svep vänster",
-      "toggleImmersive": ""
+      "swipeLeft": "Svep vänster"
     },
     "headerFooterUtil": {
       "timeRemainingInSection": "Tid kvar i avsnitt: {{ time }}"
@@ -4121,77 +4138,77 @@
       "switchToLightMode": "Växla till ljust läge",
       "switchToDarkMode": "Växla till mörkt läge",
       "closePdfReader": "Stäng PDF-läsaren",
-      "textNote": "",
-      "annotationColor": "",
-      "ink": "",
-      "zoomPreset": "",
-      "zoomIn": "",
-      "closeSearch": "",
+      "fullscreen": "",
       "exitFullscreen": "",
-      "deselectTool": "",
-      "spreadMode": "",
-      "addBookmark": "",
-      "scrollLayout": "",
-      "searchNext": "",
-      "zoomOut": "",
-      "moreOptions": "",
-      "searchPlaceholder": "",
-      "searchPrevious": "",
-      "bookmarkAdd": "",
-      "highlight": "",
-      "bookmarkRemove": "",
       "sidebar": "",
+      "search": "",
+      "searchPlaceholder": "",
+      "searchNext": "",
+      "searchPrevious": "",
+      "zoomIn": "",
+      "zoomOut": "",
+      "zoomPreset": "",
+      "spreadMode": "",
+      "scrollLayout": "",
+      "scrollLayoutVertical": "",
       "scrollLayoutHorizontal": "",
+      "rotatePage": "",
+      "bookmarkAdd": "",
+      "bookmarkRemove": "",
+      "addBookmark": "",
       "removeBookmark": "",
       "freeText": "",
+      "highlight": "",
+      "textNote": "",
+      "ink": "",
       "draw": "",
-      "scrollLayoutVertical": "",
-      "fullscreen": "",
-      "rotatePage": "",
-      "search": "",
-      "pan": ""
+      "annotationColor": "",
+      "deselectTool": "",
+      "pan": "",
+      "moreOptions": "",
+      "closeSearch": ""
+    },
+    "footer": {
+      "firstPage": "",
+      "previousPage": "",
+      "nextPage": "",
+      "lastPage": "",
+      "of": "",
+      "pageSlider": "",
+      "pagePlaceholder": "",
+      "go": "",
+      "bookViewer": "",
+      "docViewer": ""
+    },
+    "sidebar": {
+      "title": "",
+      "close": "",
+      "contentsTab": "",
+      "bookmarksTab": "",
+      "annotationsTab": "",
+      "noContents": "",
+      "noBookmarks": "",
+      "bookmarkHint": "",
+      "noAnnotations": "",
+      "annotationHint": "",
+      "deleteBookmark": "",
+      "deleteAnnotation": "",
+      "page": ""
     },
     "toast": {
       "failedToLoadBook": "Kunde inte ladda boken",
-      "annotationFailed": "",
-      "annotationSaved": "",
       "bookmarkAdded": "",
       "bookmarkRemoved": "",
-      "bookmarkExists": ""
-    },
-    "sidebar": {
-      "deleteAnnotation": "",
-      "close": "",
-      "contentsTab": "",
-      "annotationsTab": "",
-      "page": "",
-      "bookmarkHint": "",
-      "noContents": "",
-      "deleteBookmark": "",
-      "title": "",
-      "bookmarksTab": "",
-      "annotationHint": "",
-      "noBookmarks": "",
-      "noAnnotations": ""
+      "bookmarkExists": "",
+      "annotationSaved": "",
+      "annotationFailed": ""
     },
     "docViewer": {
-      "dismiss": "",
-      "saveFailed": "",
-      "saveDocument": "",
       "changesSavedInfo": "",
-      "changesSaved": ""
-    },
-    "footer": {
-      "nextPage": "",
-      "lastPage": "",
-      "bookViewer": "",
-      "of": "",
-      "go": "",
-      "previousPage": "",
-      "pageSlider": "",
-      "firstPage": "",
-      "docViewer": "",
-      "pagePlaceholder": ""
+      "dismiss": "",
+      "saveDocument": "",
+      "changesSaved": "",
+      "saveFailed": ""
     }
   },
   "statsLibrary": {
@@ -4277,7 +4294,7 @@
       "axisNumberOfBooks": "Antal bocker",
       "insightOldest": "Aldst",
       "insightAverageYear": "Snittargang",
-      "insightMedian": "Median: {{ year }}",
+      "insightMedian": "",
       "insightNewest": "Nyast",
       "insightTimeSpan": "Tidsspann",
       "insightYearsOfLiterature": "ar av litteratur",
@@ -4350,7 +4367,7 @@
       "noDataPrefix": "Ingen",
       "noDataSuffix": "data tillganglig.",
       "noDataHintPrefix": "Se till att dina bocker har",
-      "noDataHintSuffix": "metadata.",
+      "noDataHintSuffix": "",
       "axisNumberOfBooks": "Antal bocker",
       "dataTypes": {
         "authors": "Forfattare",
@@ -4450,9 +4467,9 @@
       "readingDna": "Las-DNA-profil",
       "readingHabits": "Lasvanoranalys",
       "bookFlow": "Bokflöde",
+      "readingDebt": "Lässkuld",
       "publicationEra": "Publikationsera vs. betyg",
-      "sessionArchetypes": "Sessionsarketyper",
-      "readingDebt": "Lässkuld"
+      "sessionArchetypes": "Sessionsarketyper"
     },
     "sessionHeatmap": {
       "title": "Lassessionsaktivitet",
@@ -4485,7 +4502,7 @@
       "readingSession": "Lassession",
       "tooltipTime": "Tid:",
       "tooltipDuration": "Varaktighet:",
-      "tooltipFormat": "Format:",
+      "tooltipFormat": "",
       "unknown": "Okand"
     },
     "genreStats": {
@@ -4499,7 +4516,7 @@
       "days": "dagar",
       "hr": "tim",
       "hrs": "tim",
-      "min": "min",
+      "min": "",
       "sec": "sek"
     },
     "completionTimeline": {
@@ -4527,15 +4544,15 @@
       "january": "Januari",
       "february": "Februari",
       "march": "Mars",
-      "april": "April",
+      "april": "",
       "may": "Maj",
       "june": "Juni",
       "july": "Juli",
       "august": "Augusti",
-      "september": "September",
+      "september": "",
       "october": "Oktober",
-      "november": "November",
-      "december": "December",
+      "november": "",
+      "december": "",
       "axisDayOfWeek": "Veckodag",
       "axisNumberOfSessions": "Antal lästillfällen",
       "axisDurationHours": "Varaktighet (timmar)",
@@ -4555,15 +4572,15 @@
       "january": "Januari",
       "february": "Februari",
       "march": "Mars",
-      "april": "April",
+      "april": "",
       "may": "Maj",
       "june": "Juni",
       "july": "Juli",
       "august": "Augusti",
-      "september": "September",
+      "september": "",
       "october": "Oktober",
-      "november": "November",
-      "december": "December",
+      "november": "",
+      "december": "",
       "axisHourOfDay": "Timme pa dygnet",
       "axisNumberOfSessions": "Antal sessioner",
       "axisAvgDuration": "Snittvaraktighet (min)",
@@ -4571,7 +4588,7 @@
       "avgDurationMin": "Snittvaraktighet (min)",
       "tooltipSessions": "{{ label }}: {{ value }} lästillfälle",
       "tooltipSessionsPlural": "{{ label }}: {{ value }} sessioner",
-      "tooltipMin": "{{ label }}: {{ value }} min"
+      "tooltipMin": ""
     },
     "personalRating": {
       "title": "Personlig betygsfordelning",
@@ -4614,7 +4631,7 @@
         "intellectual": "Intellektuell",
         "emotional": "Kanslosam",
         "patient": "Talmodig",
-        "social": "Social",
+        "social": "",
         "nostalgic": "Nostalgisk",
         "ambitious": "Ambitiös"
       },
@@ -4678,7 +4695,7 @@
         "organization": "Organisation",
         "intensity": "Intensitet",
         "methodology": "Metodik",
-        "momentum": "Momentum"
+        "momentum": ""
       },
       "descriptions": {
         "consistency": {
@@ -4767,7 +4784,7 @@
       "tasteProfile": "Din smakprofil",
       "avgDeviation": "Snittavvikelse:",
       "uniqueTaste": "Unik smak",
-      "mainstream": "Mainstream",
+      "mainstream": "",
       "balanced": "Balanserad"
     },
     "seriesProgress": {
@@ -4889,12 +4906,12 @@
       "tooltipUnknownBook": "Okand bok",
       "tooltipPages": "Sidor: {{ count }}",
       "tooltipRating": "Betyg: {{ rating }}/10",
-      "tooltipStatus": "Status: {{ status }}",
+      "tooltipStatus": "",
       "statusRead": "Last",
       "statusReading": "Laser",
       "statusAbandoned": "Overgiven",
       "statusOther": "Ovrig",
-      "trend": "Trend"
+      "trend": ""
     },
     "bookFlow": {
       "title": "Bokflöde",
@@ -4906,24 +4923,24 @@
       "avgRating": "Genomsnittsbetyg",
       "completionRate": "Färdigställning",
       "colAdded": "Tillagd",
-      "colStatus": "Status",
+      "colStatus": "",
       "colRating": "Betyg",
       "noData": "Inga böcker hittades i ditt bibliotek.",
       "noDataHint": "Lägg till några böcker för att se flödesschemat."
     },
     "readingDebt": {
+      "title": "Lässkuld",
       "tooltip": "Varje månad visar tillagda böcker (röd) och färdiga böcker (grön) under de senaste 12 månaderna. Den gula linjen räknar din läslista, vilket är den kumulativa skillnaden mellan tillagda och färdiga. En stigande linje betyder att din läshög växer.",
       "description": "Tillagda böcker per månad kontra lästa i din läslista",
       "booksAdded": "Tillagda böcker",
       "booksFinished": "Lästa böcker",
       "backlog": "Läslista",
       "currentBacklog": "Nuvarande läslista",
-      "trendLabel": "Trend",
+      "trendLabel": "",
       "growing": "Växande",
       "shrinking": "Krympande",
       "noData": "Ingen data om bokaktivitet hittades.",
-      "noDataHint": "Lägg till och läs färdigt böcker för att se din lässkuldtrend.",
-      "title": "Lässkuld"
+      "noDataHint": "Lägg till och läs färdigt böcker för att se din lässkuldtrend."
     },
     "publicationEra": {
       "title": "Publikationsera kontra betyg",
@@ -4975,7 +4992,7 @@
     },
     "placeholders": {
       "field": "Falt",
-      "operator": "Operator",
+      "operator": "",
       "startYear": "Startar",
       "endYear": "Slutar",
       "startDate": "Startdatum",
@@ -5026,8 +5043,8 @@
       "personalRating": "Personligt betyg",
       "pageCount": "Sidantal",
       "language": "Sprak",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
+      "isbn13": "",
+      "isbn10": "",
       "seriesName": "Serienamn",
       "seriesNumber": "Serienummer",
       "seriesTotal": "Bocker i serien",
@@ -5041,7 +5058,7 @@
       "hardcoverRating": "Hardcover-betyg",
       "hardcoverReviewCount": "Hardcover-recensioner",
       "ranobedbRating": "Ranobedb-betyg",
-      "genre": "Genre",
+      "genre": "",
       "addedOn": "Datum tillagd",
       "lubimyczytacRating": "Lubimyczytac-betyg",
       "description": "Beskrivning",
@@ -5052,15 +5069,15 @@
       "audibleReviewCount": "Audible-recensioner",
       "abridged": "Forkortad",
       "audiobookDuration": "Ljudbokslangd (s)",
+      "audiobookCodec": "Kodek",
+      "audiobookChapterCount": "Antal kapitel",
+      "audiobookBitrate": "Överföringskapacitet (kbps)",
       "isPhysical": "Fysisk bok",
       "seriesStatus": "Seriestatus",
       "seriesGaps": "Serieluckor",
       "seriesPosition": "Serieposition",
       "readingProgress": "Lasframsteg (%)",
-      "metadataPresence": "Metadatanarvar",
-      "audiobookCodec": "Kodek",
-      "audiobookChapterCount": "Antal kapitel",
-      "audiobookBitrate": "Överföringskapacitet (kbps)"
+      "metadataPresence": "Metadatanarvar"
     },
     "fieldGroups": {
       "organization": "Organisation",
@@ -5107,7 +5124,7 @@
       "teen": "Tonaring",
       "mature": "Vuxet innehall",
       "adult": "Vuxen",
-      "explicit": "Explicit"
+      "explicit": ""
     },
     "readStatuses": {
       "unread": "Olast",
@@ -5171,15 +5188,15 @@
       "language": "Sprak",
       "pageCount": "Sidantal",
       "authors": "Forfattare",
-      "categories": "Genre",
+      "categories": "",
       "moods": "Stamningar",
       "tags": "Taggar",
       "seriesName": "Serienamn",
       "seriesNumber": "Serienummer",
       "seriesTotal": "Totalt i serien",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
-      "asin": "ASIN",
+      "isbn13": "",
+      "isbn10": "",
+      "asin": "",
       "ageRating": "Aldersbetyg",
       "contentRating": "Innehallsbetyg",
       "personalRating": "Personligt betyg",
@@ -5203,6 +5220,9 @@
       "narrator": "Berattare",
       "abridged": "Forkortad",
       "audiobookDuration": "Varaktighet",
+      "audiobookCodec": "Kodek",
+      "audiobookChapterCount": "Kapitel",
+      "audiobookBitrate": "Överföringskapacitet",
       "comicCharacters": "Karaktarer",
       "comicTeams": "Team",
       "comicLocations": "Platser",
@@ -5211,10 +5231,16 @@
       "comicColorists": "Koloristar",
       "comicLetterers": "Bokstavstecknare",
       "comicCoverArtists": "Omslagskonstnarer",
-      "comicEditors": "Redaktorer",
-      "audiobookCodec": "Kodek",
-      "audiobookChapterCount": "Kapitel",
-      "audiobookBitrate": "Överföringskapacitet"
+      "comicEditors": "Redaktorer"
+    },
+    "importJson": {
+      "buttonLabel": "Importera",
+      "placeholder": "",
+      "apply": "Tillämpa",
+      "emptyError": "Klistra först in en JSON-konfiguration.",
+      "parseError": "Ogiltig JSON. Kontrollera syntaxen och försök igen.",
+      "structureError": "Ogiltig struktur. JSON:et måste ha \"type\": \"group\" och en \"rules\"-array.",
+      "successDetail": "Reglerna har importerats. Granska och spara när du är klar."
     },
     "toast": {
       "validationErrorSummary": "Valideringsfel",
@@ -5223,15 +5249,6 @@
       "successDetail": "Magisk hylla sparad.",
       "errorSummary": "Fel",
       "errorDetailDefault": "Kunde inte spara magisk hylla."
-    },
-    "importJson": {
-      "buttonLabel": "Importera",
-      "placeholder": "{\n  \"type\": \"group\",\n  \"join\": \"and\",\n  \"rules\": [\n    { \"field\": \"readStatus\", \"operator\": \"equals\", \"value\": \"READING\" }\n  ]\n}",
-      "apply": "Tillämpa",
-      "emptyError": "Klistra först in en JSON-konfiguration.",
-      "parseError": "Ogiltig JSON. Kontrollera syntaxen och försök igen.",
-      "structureError": "Ogiltig struktur. JSON:et måste ha \"type\": \"group\" och en \"rules\"-array.",
-      "successDetail": "Reglerna har importerats. Granska och spara när du är klar."
     }
   },
   "seriesBrowser": {
@@ -5259,144 +5276,144 @@
     }
   },
   "authorBrowser": {
-    "filters": {
-      "allRead": "",
-      "hasPhoto": "",
-      "genre": "",
-      "unread": "",
-      "unmatched": "",
-      "readStatus": "",
-      "matchStatus": "",
-      "photoStatus": "",
-      "matched": "",
-      "all": "",
-      "reset": "",
-      "library": "",
-      "someRead": "",
-      "inProgress": "",
-      "bookCount": "",
-      "noPhoto": ""
-    },
-    "sort": {
-      "seriesCount": "",
-      "recentlyRead": "",
-      "name": "",
-      "avgRating": "",
-      "matched": "",
-      "photo": "",
-      "recentlyAdded": "",
-      "readingProgress": "",
-      "bookCount": ""
-    },
-    "editor": {
-      "lockAllBtn": "",
-      "uploadPhotoTooltip": "",
-      "lockField": "",
-      "saving": "",
-      "nameLabel": "",
-      "toast": {
-        "photoUploadErrorDetail": "",
-        "successDetail": "",
-        "errorDetail": "",
-        "photoUploadedDetail": "",
-        "errorSummary": "",
-        "successSummary": "",
-        "photoUploadedSummary": ""
-      },
-      "saveBtn": "",
-      "searchPhotoTooltip": "",
-      "unlockField": "",
-      "unlockAllBtn": "",
-      "searchPhotoTitle": "",
-      "asinLabel": "",
-      "descriptionLabel": ""
-    },
-    "toast": {
-      "deleteFailedSummary": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": "",
-      "deleteSuccessDetail": "",
-      "quickMatchSuccessDetail": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchFailedDetail": "",
-      "quickMatchFailedSummary": "",
-      "autoMatchSuccessSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchFailedSummary": "",
-      "deleteSuccessSummary": ""
-    },
-    "footer": {
-      "autoMatch": "",
-      "selected": "",
-      "selectAll": "",
-      "deleteSelected": "",
-      "deselectAll": ""
-    },
-    "photoSearch": {
-      "selectBtn": "",
-      "queryLabel": "",
-      "noResults": "",
-      "readyHint": "",
-      "resetTooltip": "",
-      "resultsFound": "",
-      "readyTitle": "",
-      "searchBtn": "",
-      "photoAlt": "",
-      "queryPlaceholder": "",
-      "noResultsHint": "",
-      "searching": ""
-    },
-    "match": {
-      "matchBtn": "",
-      "asinLabel": "",
-      "searchBtn": "",
-      "toast": {
-        "matchSuccessSummary": "",
-        "matchFailedSummary": "",
-        "searchFailedDetail": "",
-        "searchFailedSummary": "",
-        "matchFailedDetail": "",
-        "matchSuccessDetail": ""
-      },
-      "resultsFound": "",
-      "authorNameLabel": "",
-      "regionLabel": "",
-      "noResultsHint": "",
-      "readyToSearch": "",
-      "authorNamePlaceholder": "",
-      "searching": "",
-      "asinPlaceholder": "",
-      "readyToSearchHint": "",
-      "noResults": ""
-    },
-    "detail": {
-      "booksTab": "",
-      "quickMatchTooltip": "",
-      "showMore": "",
-      "noBooksFound": "",
-      "showLess": "",
-      "editTab": "",
-      "booksBy": "",
-      "loading": "",
-      "matchTab": ""
-    },
-    "card": {
-      "menu": {
-        "viewAuthor": "",
-        "quickMatch": "",
-        "editAuthor": "",
-        "deleteAuthor": ""
-      },
-      "book": "",
-      "books": "",
-      "matched": "",
-      "quickMatch": ""
-    },
+    "pageTitle": "",
     "browseAllAuthors": "",
     "searchPlaceholder": "",
     "noAuthorsFound": "",
-    "pageTitle": ""
+    "sort": {
+      "name": "",
+      "bookCount": "",
+      "matched": "",
+      "recentlyAdded": "",
+      "recentlyRead": "",
+      "readingProgress": "",
+      "avgRating": "",
+      "photo": "",
+      "seriesCount": ""
+    },
+    "filters": {
+      "all": "",
+      "matchStatus": "",
+      "matched": "",
+      "unmatched": "",
+      "photoStatus": "",
+      "hasPhoto": "",
+      "noPhoto": "",
+      "readStatus": "",
+      "allRead": "",
+      "someRead": "",
+      "inProgress": "",
+      "unread": "",
+      "bookCount": "",
+      "library": "",
+      "genre": "",
+      "reset": ""
+    },
+    "footer": {
+      "selected": "",
+      "autoMatch": "",
+      "deleteSelected": "",
+      "selectAll": "",
+      "deselectAll": ""
+    },
+    "toast": {
+      "deleteSuccessSummary": "",
+      "deleteSuccessDetail": "",
+      "deleteFailedSummary": "",
+      "deleteFailedDetail": "",
+      "autoMatchSuccessSummary": "",
+      "autoMatchSuccessDetail": "",
+      "autoMatchFailedSummary": "",
+      "autoMatchFailedDetail": "",
+      "quickMatchSuccessSummary": "",
+      "quickMatchSuccessDetail": "",
+      "quickMatchFailedSummary": "",
+      "quickMatchFailedDetail": "",
+      "deleteSelectedSuccessSummary": "",
+      "deleteSelectedSuccessDetail": ""
+    },
+    "card": {
+      "matched": "",
+      "quickMatch": "",
+      "book": "",
+      "books": "",
+      "menu": {
+        "viewAuthor": "",
+        "editAuthor": "",
+        "quickMatch": "",
+        "deleteAuthor": ""
+      }
+    },
+    "editor": {
+      "nameLabel": "",
+      "asinLabel": "",
+      "descriptionLabel": "",
+      "saveBtn": "",
+      "saving": "",
+      "uploadPhotoTooltip": "",
+      "lockField": "",
+      "unlockField": "",
+      "lockAllBtn": "",
+      "unlockAllBtn": "",
+      "searchPhotoTooltip": "",
+      "searchPhotoTitle": "",
+      "toast": {
+        "successSummary": "",
+        "successDetail": "",
+        "errorSummary": "",
+        "errorDetail": "",
+        "photoUploadedSummary": "",
+        "photoUploadedDetail": "",
+        "photoUploadErrorDetail": ""
+      }
+    },
+    "detail": {
+      "quickMatchTooltip": "",
+      "loading": "",
+      "booksTab": "",
+      "editTab": "",
+      "matchTab": "",
+      "showMore": "",
+      "showLess": "",
+      "booksBy": "",
+      "noBooksFound": ""
+    },
+    "photoSearch": {
+      "queryLabel": "",
+      "queryPlaceholder": "",
+      "searchBtn": "",
+      "resetTooltip": "",
+      "readyTitle": "",
+      "readyHint": "",
+      "searching": "",
+      "noResults": "",
+      "noResultsHint": "",
+      "resultsFound": "",
+      "selectBtn": "",
+      "photoAlt": ""
+    },
+    "match": {
+      "authorNameLabel": "",
+      "authorNamePlaceholder": "",
+      "asinLabel": "",
+      "asinPlaceholder": "",
+      "regionLabel": "",
+      "searchBtn": "",
+      "searching": "",
+      "noResults": "",
+      "noResultsHint": "",
+      "readyToSearch": "",
+      "readyToSearchHint": "",
+      "resultsFound": "",
+      "matchBtn": "",
+      "toast": {
+        "searchFailedSummary": "",
+        "searchFailedDetail": "",
+        "matchSuccessSummary": "",
+        "matchSuccessDetail": "",
+        "matchFailedSummary": "",
+        "matchFailedDetail": ""
+      }
+    }
   }
 }
