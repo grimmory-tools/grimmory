@@ -647,6 +647,9 @@ public class BookCoverService {
         bookEntity.setAudiobookCoverHash(BookCoverUtils.generateCoverHash());
     }
 
+    /**
+     * Refresh the sidecar files for a book when sidecar write-on-update is enabled.
+     */
     private void writeSidecarMetadata(BookEntity bookEntity) {
         if (!sidecarMetadataWriter.isWriteOnUpdateEnabled()) {
             return;
