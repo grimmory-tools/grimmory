@@ -243,6 +243,9 @@ tasks.named<BootRun>("bootRun") {
 
 tasks.named<BootJar>("bootJar") {
     mainClass.set("org.booklore.BookloreApplication")
+    into("/META-INF") {
+        from("../NOTICE", "../LICENSE")
+    }
 }
 
 tasks.register("exportOpenApi") {
