@@ -26,13 +26,13 @@
     "libraryPathInaccessible": "Шлях до бібліотеки недоступний",
     "displaySettings": "Налаштування відображення",
     "cardSize": "Розмір картки",
+    "decreaseCardSize": "",
+    "increaseCardSize": "",
+    "cardSizeControls": "",
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "cardSizeControls": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "dialogLoadError": ""
   },
   "auth": {
     "oidc": {
@@ -60,6 +60,10 @@
       "useLocalLogin": "Використати локальний вхід",
       "oidcAutoDisabled": "Автентифікацію {{provider}} вимкнено після {{count}} невдач. Повторіть спробу або увійдіть локально.",
       "oidcManuallyDisabled": "Автентифікацію {{provider}} вимкнено. Ви можете активувати її знову або використати локальний вхід.",
+      "oidcErrorsSummary": "Під час автентифікації {{provider}} сталося {{count}} помилок, імовірно через тайм-аути або проблеми із сервером.",
+      "rateLimited": "Забагато невдалих спроб входу. Спробуйте пізніше.",
+      "sessionRevoked": "Вашу сесію відкликано. Будь ласка, увійдіть знову.",
+      "oidcOnlyRedirectFailed": "Не вдалося зв’язатися з провайдером ідентифікації. Зверніться до адміністратора.",
       "oidcErrors": {
         "stateMismatch": "Автентифікація OIDC не вдалася: невідповідність стану безпеки. Спробуйте ще раз.",
         "exchangeFailed": "Не вдалося завершити вхід через OIDC. Спробуйте ще раз або зверніться до адміністратора.",
@@ -67,11 +71,7 @@
         "providerUnreachable": "Не вдалося зв’язатися з провайдером OIDC. Спробуйте пізніше.",
         "invalidToken": "Отримано недійсний токен автентифікації. Спробуйте ще раз.",
         "unknown": "Сталася неочікувана помилка OIDC. Спробуйте ще раз."
-      },
-      "rateLimited": "Забагато невдалих спроб входу. Спробуйте пізніше.",
-      "oidcErrorsSummary": "Під час автентифікації {{provider}} сталося {{count}} помилок, імовірно через тайм-аути або проблеми із сервером.",
-      "sessionRevoked": "Вашу сесію відкликано. Будь ласка, увійдіть знову.",
-      "oidcOnlyRedirectFailed": "Не вдалося зв’язатися з провайдером ідентифікації. Зверніться до адміністратора."
+      }
     }
   },
   "nav": {
@@ -106,12 +106,12 @@
       "metadata2": "Метадані 2",
       "application": "Програма",
       "users": "Користувачі",
-      "email": "Email",
+      "email": "",
       "patterns": "Шаблони",
-      "authentication": "OIDC",
+      "authentication": "",
       "tasks": "Завдання",
       "auditLogs": "Журнали аудиту",
-      "opds": "OPDS",
+      "opds": "",
       "devices": "Пристрої"
     }
   },
@@ -139,14 +139,14 @@
       "username": "Ім'я користувача",
       "password": "Пароль",
       "fromAddress": "Адреса відправника",
-      "hostPlaceholder": "smtp.example.com",
-      "portPlaceholder": "587",
-      "usernamePlaceholder": "user@example.com",
+      "hostPlaceholder": "",
+      "portPlaceholder": "",
+      "usernamePlaceholder": "",
       "passwordPlaceholder": "Введіть пароль",
-      "fromAddressPlaceholder": "noreply@example.com",
+      "fromAddressPlaceholder": "",
       "providerNamePlaceholder": "Назва провайдера",
       "authentication": "Автентифікація",
-      "startTls": "StartTLS",
+      "startTls": "",
       "shared": "Спільний",
       "shareTooltip": "Поділитися цим провайдером з усіма користувачами",
       "loadError": "Не вдалося завантажити поштових провайдерів",
@@ -205,7 +205,7 @@
       "default": "За замовчуванням",
       "email": "Електронна пошта",
       "name": "Ім'я",
-      "emailPlaceholder": "recipient@example.com",
+      "emailPlaceholder": "",
       "namePlaceholder": "Ім'я одержувача",
       "editRecipient": "Редагувати одержувача",
       "deleteRecipient": "Видалити одержувача",
@@ -305,17 +305,17 @@
       "pageSpreadDesc": "Оберіть режим відображення сторінок PDF: одна сторінка або книжковий розворот.",
       "pageZoom": "Масштаб сторінки",
       "pageZoomDesc": "Встановіть масштаб за замовчуванням для PDF-документів, щоб покращити зручність читання.",
+      "scrollLayout": "",
+      "scrollLayoutDesc": "",
+      "vertical": "",
+      "horizontal": "",
       "even": "Парні",
       "odd": "Непарні",
       "none": "Немає",
       "autoZoom": "Автомасштабування",
       "pageFit": "Заповнення сторінки",
       "pageWidth": "За шириною",
-      "actualSize": "Оригінальний розмір",
-      "scrollLayoutDesc": "",
-      "vertical": "",
-      "horizontal": "",
-      "scrollLayout": ""
+      "actualSize": "Оригінальний розмір"
     },
     "cbx": {
       "sectionTitle": "Рідер коміксів: Стандартні налаштування",
@@ -328,6 +328,8 @@
       "fitModeDesc": "Оберіть спосіб масштабування зображень відповідно до розмірів вікна перегляду.",
       "scrollMode": "Режим прокручування",
       "scrollModeDesc": "Виберіть між посторінковим та нескінченним режимами прокручування.",
+      "stripMaxWidth": "",
+      "stripMaxWidthDesc": "",
       "backgroundColor": "Колір фону",
       "backgroundColorDesc": "Встановіть колір фону для рідера коміксів.",
       "even": "Парні",
@@ -341,12 +343,10 @@
       "automatic": "Автоматично",
       "paginated": "Посторінковий",
       "infinite": "Нескінченний",
+      "longStrip": "",
       "gray": "Сірий",
       "black": "Чорний",
-      "white": "Білий",
-      "stripMaxWidthDesc": "",
-      "stripMaxWidth": "",
-      "longStrip": ""
+      "white": "Білий"
     },
     "streamingPdf": {
       "sectionTitle": "Потоковий PDF-рідер: Стандартні налаштування",
@@ -432,6 +432,43 @@
   "settingsView": {
     "title": "Налаштування вигляду",
     "description": "Налаштуйте, як книги відображаються у вашій бібліотеці, включно з сіткою, параметрами сортування та поведінкою бічної панелі.",
+    "saveFailedDetail": "",
+    "language": {
+      "label": "",
+      "savedDetail": ""
+    },
+    "uiFont": {
+      "label": "",
+      "accessibleLabel": "",
+      "savedDetail": ""
+    },
+    "theme": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "oledDarkMode": "",
+      "savedDetail": "",
+      "syncSavedDetail": "",
+      "customPrimaryOptionLabel": "",
+      "customPrimaryColors": {
+        "red": "",
+        "orange": "",
+        "amber": "",
+        "yellow": "",
+        "lime": "",
+        "green": "",
+        "emerald": "",
+        "teal": "",
+        "cyan": "",
+        "sky": "",
+        "blue": "",
+        "indigo": "",
+        "violet": "",
+        "purple": "",
+        "fuchsia": "",
+        "pink": "",
+        "rose": ""
+      }
+    },
     "dashboardScrollers": {
       "sectionTitle": "Налаштування панелі",
       "sectionDesc": "Додайте до 5 панелей із різних книжних колекцій та налаштуйте їх",
@@ -446,6 +483,9 @@
       "maxItems": "Макс. кількість",
       "addScroller": "Додати панель",
       "resetToDefault": "Відновити стандартні",
+      "saveSettings": "",
+      "saveSuccess": "",
+      "saveSuccessDetail": "",
       "scrollerTypes": {
         "lastRead": "Продовжити читання",
         "lastListened": "Продовжити прослуховування",
@@ -476,10 +516,7 @@
       "sortDirections": {
         "asc": "За зростанням",
         "desc": "За спаданням"
-      },
-      "saveSuccess": "",
-      "saveSuccessDetail": "",
-      "saveSettings": ""
+      }
     },
     "librarySort": {
       "sectionTitle": "Налаштування вигляду та сортування бібліотеки й полиць",
@@ -601,43 +638,6 @@
       "sidebarWidthDesc": "Керує шириною навігаційної бічної панелі та панелі фільтрів книг.",
       "saved": "Налаштування оновлено",
       "savedDetail": "Ваше налаштування ширини бічної панелі збережено."
-    },
-    "theme": {
-      "customPrimaryColors": {
-        "violet": "",
-        "pink": "",
-        "lime": "",
-        "sky": "",
-        "amber": "",
-        "rose": "",
-        "cyan": "",
-        "purple": "",
-        "fuchsia": "",
-        "blue": "",
-        "orange": "",
-        "green": "",
-        "red": "",
-        "yellow": "",
-        "indigo": "",
-        "emerald": "",
-        "teal": ""
-      },
-      "syncSavedDetail": "",
-      "savedDetail": "",
-      "customPrimaryOptionLabel": "",
-      "oledDarkMode": "",
-      "sectionTitle": "",
-      "sectionDesc": ""
-    },
-    "saveFailedDetail": "",
-    "language": {
-      "savedDetail": "",
-      "label": ""
-    },
-    "uiFont": {
-      "savedDetail": "",
-      "accessibleLabel": "",
-      "label": ""
     }
   },
   "settingsMeta": {
@@ -654,6 +654,8 @@
       "sectionDesc": "Налаштуйте, як метадані записуються в оригінальні файли та як файли переміщуються або перейменовуються, коли метадані змінюються.",
       "networkWarningTitle": "Попередження щодо мережевого сховища:",
       "networkWarning": "Ці функції безпосередньо змінюють і переміщують файли книг на диску (включно з перезаписом метаданих і перейменуванням файлів). Вони призначені лише для локальних файлових систем. Використання їх на NAS або у сховищі з хмарною синхронізацією не протестовано і може призвести до пошкодження файлів, неповного запису або безповоротної втрати даних. Проблеми GitHub, пов'язані з мережевими сховищами, не підтримуватимуться.",
+      "networkModeTitle": "Активний режим мережевого сховища:",
+      "networkModeDesc": "Цей екземпляр налаштовано для мережевого сховища (DISK_TYPE=NETWORK). Усі функції запису у файли та їхньої реорганізації вимкнено. Метадані зберігаються лише в базі даних, а файли книг ніколи не змінюються.",
       "unsupportedNote": "Запис метаданих <b>не підтримується</b> для форматів FB2, AZW3 і MOBI.",
       "writeEpub": "Записувати метадані в EPUB",
       "writeEpubDesc": "Записувати метадані безпосередньо у файли EPUB під час редагування інформації про книгу.",
@@ -679,9 +681,7 @@
       "writeOnScanDesc": "Створювати sidecar JSON-файли, коли книги вперше додаються до бібліотеки під час сканування.",
       "includeCover": "Додавати файл обкладинки",
       "includeCoverDesc": "Також зберігати зображення обкладинки як <code>BookName.cover.jpg</code> поруч із sidecar JSON-файлом.",
-      "loadError": "Не вдалося завантажити налаштування.",
-      "networkModeTitle": "Активний режим мережевого сховища:",
-      "networkModeDesc": "Цей екземпляр налаштовано для мережевого сховища (DISK_TYPE=NETWORK). Усі функції запису у файли та їхньої реорганізації вимкнено. Метадані зберігаються лише в базі даних, а файли книг ніколи не змінюються."
+      "loadError": "Не вдалося завантажити налаштування."
     },
     "providers": {
       "sectionTitle": "Провайдери метаданих",
@@ -698,47 +698,14 @@
       "cookiePlaceholder": "Вставте ваш cookie Amazon",
       "languageRestriction": "Обмеження мови",
       "selectLanguage": "Виберіть мову",
-      "apiKeyOptional": "API-ключ (необов'язково)",
+      "googleApiLabel": "",
       "googleApiDesc": "Надання API-ключа Google Books збільшує ліміти запитів і покращує надійність.",
       "googleApiPlaceholder": "Введіть API-ключ Google Books",
       "apiToken": "API-токен",
       "hardcoverPlaceholder": "Введіть API-токен Hardcover",
-      "comicvinePlaceholder": "Введіть API-токен Comic Vine"
-    },
-    "fieldSelector": {
-      "sectionTitle": "Увімкнені поля в редакторі та виборі метаданих",
-      "sectionDesc": "Виберіть, які поля метаданих відображати під час редагування інформації про книгу або вибору метаданих від провайдерів. Вимкнені поля будуть приховані з інтерфейсу.",
-      "providers": {
-        "amazon": "Amazon",
-        "googleBooks": "Google Books",
-        "goodreads": "Goodreads",
-        "hardcover": "Hardcover",
-        "audible": "Audible",
-        "comicvine": "Comicvine",
-        "lubimyczytac": "Lubimyczytac",
-        "ranobedb": "Ranobedb"
-      },
-      "fields": {
-        "asin": "Amazon ASIN",
-        "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "Кількість відгуків Amazon",
-        "googleId": "ID Google Books",
-        "goodreadsId": "ID Goodreads",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "Кількість відгуків Goodreads",
-        "hardcoverId": "ID Hardcover",
-        "hardcoverBookId": "ID книги Hardcover",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "Кількість відгуків Hardcover",
-        "comicvineId": "ID Comicvine",
-        "lubimyczytacId": "ID Lubimyczytac",
-        "lubimyczytacRating": "Рейтинг Lubimyczytac",
-        "ranobedbId": "ID Ranobedb",
-        "ranobedbRating": "Рейтинг Ranobedb",
-        "audibleId": "ID Audible",
-        "audibleRating": "Рейтинг Audible",
-        "audibleReviewCount": "Кількість відгуків Audible"
-      }
+      "comicvinePlaceholder": "Введіть API-токен Comic Vine",
+      "ranobedbPreferRomajiLabel": "",
+      "ranobedbPreferRomajiDesc": ""
     },
     "publicReviews": {
       "sectionTitle": "Публічні відгуки",
@@ -778,8 +745,8 @@
         "seriesNumber": "Номер у серії",
         "seriesTotal": "Загальна кількість у серії",
         "language": "Мова",
-        "isbn13": "ISBN-13",
-        "isbn10": "ISBN-10",
+        "isbn13": "",
+        "isbn10": "",
         "pageCount": "Кількість сторінок",
         "amazonRating": "Рейтинг Amazon",
         "amazonReviewCount": "К-сть оцінок Amazon",
@@ -792,6 +759,41 @@
         "doubanRating": "Рейтинг Douban",
         "doubanReviewCount": "К-сть оцінок Douban",
         "ranobedbRating": "Рейтинг Ranobedb"
+      }
+    },
+    "fieldSelector": {
+      "sectionTitle": "Увімкнені поля в редакторі та виборі метаданих",
+      "sectionDesc": "Виберіть, які поля метаданих відображати під час редагування інформації про книгу або вибору метаданих від провайдерів. Вимкнені поля будуть приховані з інтерфейсу.",
+      "providers": {
+        "amazon": "",
+        "googleBooks": "",
+        "goodreads": "",
+        "hardcover": "",
+        "audible": "",
+        "comicvine": "",
+        "lubimyczytac": "",
+        "ranobedb": ""
+      },
+      "fields": {
+        "asin": "",
+        "amazonRating": "Рейтинг Amazon",
+        "amazonReviewCount": "Кількість відгуків Amazon",
+        "googleId": "ID Google Books",
+        "goodreadsId": "ID Goodreads",
+        "goodreadsRating": "Рейтинг Goodreads",
+        "goodreadsReviewCount": "Кількість відгуків Goodreads",
+        "hardcoverId": "ID Hardcover",
+        "hardcoverBookId": "ID книги Hardcover",
+        "hardcoverRating": "Рейтинг Hardcover",
+        "hardcoverReviewCount": "Кількість відгуків Hardcover",
+        "comicvineId": "ID Comicvine",
+        "lubimyczytacId": "ID Lubimyczytac",
+        "lubimyczytacRating": "Рейтинг Lubimyczytac",
+        "ranobedbId": "ID Ranobedb",
+        "ranobedbRating": "Рейтинг Ranobedb",
+        "audibleId": "ID Audible",
+        "audibleRating": "Рейтинг Audible",
+        "audibleReviewCount": "Кількість відгуків Audible"
       }
     }
   },
@@ -835,6 +837,8 @@
     "covers": {
       "sectionTitle": "Обкладинка книги",
       "regenerate": "Перегенерувати обкладинки",
+      "regenerateAllBtn": "Перегенерувати всі",
+      "regenerateMissingBtn": "Перегенерувати відсутні",
       "regenerateDesc": "Перегенеровує обкладинки для всіх книг із вбудованих у файл обкладинок. Використовуйте \"Перегенерувати відсутні\", щоб створити обкладинки лише для книг, у яких їх ще немає.",
       "regenerateStarted": "Перегенерацію обкладинок розпочато",
       "regenerateStartedDetail": "Обкладинки книг перегенеровуються.",
@@ -846,9 +850,7 @@
       "aspectRatio": "Поріг співвідношення сторін: {{value}}",
       "aspectRatioDesc": "Зображення зі співвідношенням сторін, що перевищує цей поріг, буде обрізано. Значення 2.5 означає, що зображення, вищі (або ширші) за нормальні більш ніж у 2.5 раза, буде обрізано.",
       "smartCropping": "Розумне обрізання",
-      "smartCroppingDesc": "Пропускає області однорідного кольору під час визначення місця обрізання. Фокусує обкладинку на найрелевантнішому вмісті.",
-      "regenerateAllBtn": "Перегенерувати всі",
-      "regenerateMissingBtn": "Перегенерувати відсутні"
+      "smartCroppingDesc": "Пропускає області однорідного кольору під час визначення місця обрізання. Фокусує обкладинку на найрелевантнішому вмісті."
     },
     "search": {
       "sectionTitle": "Пошук і рекомендації",
@@ -904,10 +906,10 @@
       "libraries": "Бібліотеки",
       "notSet": "Не задано",
       "allLibrariesAdmin": "Усі бібліотеки (адміністратор)",
+      "noLibrariesAssigned": "",
       "selectLibraries": "Виберіть бібліотеки",
       "enterFullName": "Введіть повне ім'я",
-      "enterEmail": "Введіть email",
-      "noLibrariesAssigned": ""
+      "enterEmail": "Введіть email"
     },
     "permGroups": {
       "administration": "Адміністрування",
@@ -1137,7 +1139,7 @@
       "sectionDesc": "Увімкніть або вимкніть сервіси API, щоб керувати доступом до вашої колекції книг.",
       "opdsLabel": "Сервер OPDS",
       "opdsDesc": "Увімкніть сервер OPDS, щоб отримати доступ до вашої колекції книг через застосунки для читання, сумісні з OPDS, як-от KOReader, Moon+ Reader тощо.",
-      "komgaLabel": "Komga API",
+      "komgaLabel": "",
       "komgaDesc": "Увімкніть API, сумісний із Komga, щоб використовувати клієнти Komga (Tachiyomi, Komelia тощо) з Grimmory. Для автентифікації використовуються ті самі облікові записи користувачів OPDS.",
       "groupUnknownLabel": "Групувати невідомі серії",
       "groupUnknownDesc": "Коли параметр увімкнено, книги без серії будуть згруповані під \"Невідомою серією\". Коли вимкнено, кожна книга відображатиметься як окрема серія.",
@@ -1321,9 +1323,9 @@
       "sectionDesc": "Налаштуйте параметри вашого OIDC-провайдера. Для ввімкнення OIDC усі поля є обов'язковими.",
       "providerName": "Назва провайдера",
       "providerPlaceholder": "напр. Authentik, Keycloak",
-      "clientId": "Client ID",
+      "clientId": "",
       "clientIdPlaceholder": "Ваш OIDC Client ID",
-      "clientSecret": "Client Secret",
+      "clientSecret": "",
       "clientSecretPlaceholder": "Ваш OIDC Client Secret",
       "clientSecretHint": "Обов'язково для конфіденційних клієнтів. Залиште порожнім для публічних клієнтів, які використовують лише PKCE.",
       "issuerUri": "URI емітента",
@@ -1346,6 +1348,15 @@
       "backchannelLogoutUri": "URI Back-Channel Logout",
       "backchannelLogoutHint": "Налаштуйте цей URI у вашому OIDC-провайдері, щоб увімкнути відкликання сесії, ініційоване сервером."
     },
+    "mobileRedirectUris": {
+      "title": "",
+      "description": "",
+      "label": "",
+      "placeholder": "",
+      "hintPrefix": "",
+      "hintSuffix": "",
+      "removeLabel": ""
+    },
     "provisioning": {
       "sectionTitle": "Підготовка користувачів",
       "sectionDesc": "Налаштуйте, як створюються нові OIDC-користувачі та які дозволи вони отримують.",
@@ -1353,30 +1364,13 @@
       "autoEnabled": "Увімкнено",
       "autoDisabled": "Вимкнено",
       "autoDesc": "Якщо ввімкнено, нові користувачі автоматично створюються під час першого входу через OIDC з наведеними нижче дозволами. Якщо вимкнено, користувачів потрібно створити вручну в Grimmory перед входом через OIDC.",
+      "linkLocalLabel": "Прив'язувати наявні локальні акаунти",
+      "linkLocalDesc": "Якщо ввімкнено, уже створені локально користувачі автоматично прив'язуватимуться до свого OIDC-ідентифікатора під час першого входу через OIDC, якщо імена користувачів збігаються. Якщо вимкнено, за ім'ям користувача можна зіставляти лише користувачів, спочатку створених через OIDC.",
+      "linkLocalWarning": "Розгляньте вимкнення цього параметра після того, як усі наявні користувачі хоча б раз увійдуть через OIDC. Якщо залишити його ввімкненим, будь-хто з відповідним іменем користувача у вашому OIDC-провайдері зможе перехопити локальний акаунт.",
       "defaultPerms": "Дозволи за замовчуванням",
       "readBooks": "Читати книги",
       "defaultLibraryAccess": "Доступ до бібліотеки за замовчуванням",
-      "selectLibraries": "Виберіть бібліотеки, до яких нові користувачі матимуть доступ",
-      "linkLocalLabel": "Прив'язувати наявні локальні акаунти",
-      "linkLocalDesc": "Якщо ввімкнено, уже створені локально користувачі автоматично прив'язуватимуться до свого OIDC-ідентифікатора під час першого входу через OIDC, якщо імена користувачів збігаються. Якщо вимкнено, за ім'ям користувача можна зіставляти лише користувачів, спочатку створених через OIDC.",
-      "linkLocalWarning": "Розгляньте вимкнення цього параметра після того, як усі наявні користувачі хоча б раз увійдуть через OIDC. Якщо залишити його ввімкненим, будь-хто з відповідним іменем користувача у вашому OIDC-провайдері зможе перехопити локальний акаунт."
-    },
-    "toast": {
-      "saved": "Збережено",
-      "oidcUpdated": "Налаштування OIDC оновлено.",
-      "oidcError": "Не вдалося оновити налаштування OIDC.",
-      "providerSaved": "Налаштування OIDC-провайдера збережено.",
-      "providerError": "Не вдалося зберегти налаштування OIDC-провайдера.",
-      "provisionSaved": "Налаштування автопідготовки OIDC збережено.",
-      "provisionError": "Не вдалося зберегти налаштування автопідготовки OIDC.",
-      "sessionDurationSaved": "Тривалість сесії збережено.",
-      "sessionDurationError": "Не вдалося зберегти тривалість сесії.",
-      "copiedToClipboard": "Скопійовано в буфер обміну.",
-      "syncModeSaved": "Режим синхронізації груп збережено.",
-      "syncModeError": "Не вдалося зберегти режим синхронізації груп.",
-      "groupMappingSaved": "Зіставлення груп збережено.",
-      "groupMappingDeleted": "Зіставлення груп видалено.",
-      "groupMappingError": "Не вдалося зберегти зіставлення груп."
+      "selectLibraries": "Виберіть бібліотеки, до яких нові користувачі матимуть доступ"
     },
     "groupMapping": {
       "sectionTitle": "Зіставлення груп",
@@ -1384,7 +1378,7 @@
       "syncModeLabel": "Режим синхронізації груп",
       "syncModeHint": "Керує тим, як групи OIDC синхронізуються з дозволами користувача під час входу.",
       "addMapping": "Додати зіставлення",
-      "colGroupClaim": "Group Claim",
+      "colGroupClaim": "",
       "colAdmin": "Адміністратор",
       "colPermissions": "Дозволи",
       "colLibraries": "Бібліотеки",
@@ -1402,9 +1396,9 @@
     "infoPanel": {
       "sectionTitle": "Довідка з налаштування провайдера",
       "sectionDesc": "Використовуйте ці значення під час налаштування параметрів клієнта у вашому OIDC-провайдері.",
-      "redirectUri": "Redirect URI",
-      "postLogoutRedirectUri": "Post-Logout Redirect URI",
-      "backChannelLogoutUri": "Back-Channel Logout URI",
+      "redirectUri": "",
+      "postLogoutRedirectUri": "",
+      "backChannelLogoutUri": "",
       "requiredScopes": "Обов'язкові scopes",
       "pkceMethod": "Метод PKCE",
       "grantType": "Тип grant"
@@ -1427,14 +1421,22 @@
       "saved": "Режим лише OIDC оновлено.",
       "error": "Не вдалося оновити режим лише OIDC."
     },
-    "mobileRedirectUris": {
-      "placeholder": "",
-      "removeLabel": "",
-      "title": "",
-      "label": "",
-      "hintSuffix": "",
-      "description": "",
-      "hintPrefix": ""
+    "toast": {
+      "saved": "Збережено",
+      "oidcUpdated": "Налаштування OIDC оновлено.",
+      "oidcError": "Не вдалося оновити налаштування OIDC.",
+      "providerSaved": "Налаштування OIDC-провайдера збережено.",
+      "providerError": "Не вдалося зберегти налаштування OIDC-провайдера.",
+      "provisionSaved": "Налаштування автопідготовки OIDC збережено.",
+      "provisionError": "Не вдалося зберегти налаштування автопідготовки OIDC.",
+      "sessionDurationSaved": "Тривалість сесії збережено.",
+      "sessionDurationError": "Не вдалося зберегти тривалість сесії.",
+      "copiedToClipboard": "Скопійовано в буфер обміну.",
+      "syncModeSaved": "Режим синхронізації груп збережено.",
+      "syncModeError": "Не вдалося зберегти режим синхронізації груп.",
+      "groupMappingSaved": "Зіставлення груп збережено.",
+      "groupMappingDeleted": "Зіставлення груп видалено.",
+      "groupMappingError": "Не вдалося зберегти зіставлення груп."
     }
   },
   "settingsDevice": {
@@ -1488,6 +1490,8 @@
       "autoAddDesc": "Якщо увімкнено, щойно додані книги автоматично додаватимуться на вашу полицю Kobo для синхронізації. Це усуває потребу вручну додавати кожну книгу на полицю.",
       "token": "Токен синхронізації Kobo",
       "tokenDesc": "Ваш унікальний токен синхронізації для автентифікації з пристроєм Kobo. Зберігайте його в безпеці.",
+      "apiPath": "",
+      "apiPathDesc": "",
       "tokenManagement": "Керування токеном",
       "regenerateToken": "Перегенерувати токен",
       "tokenManagementDesc": "За потреби перегенеруйте токен синхронізації. Це зробить поточний токен недійсним.",
@@ -1536,8 +1540,8 @@
       "twoWaySyncLabel": "Двостороння синхронізація прогресу читання",
       "twoWaySyncDesc": "Увімкніть двосторонню синхронізацію між веб-рідером Grimmory та вашим пристроєм Kobo. Прогрес читання, зроблений на будь-якій платформі, буде відображений на іншій.",
       "twoWaySyncNote": "Примітка: через різні формати позицій точність синхронізації є найкращим можливим наближенням. У більшості випадків прогрес буде точним до рівня розділу.",
-      "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
-      "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
+      "twoWaySyncKepubWarning": "",
+      "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Двосторонню синхронізацію прогресу увімкнено",
       "twoWaySyncDisabled": "Двосторонню синхронізацію прогресу вимкнено",
       "autoAddEnabled": "Нові книги автоматично додаватимуться на полицю Kobo",
@@ -1642,7 +1646,7 @@
       "statusUploaded": "Завантажено",
       "statusFailed": "Помилка",
       "destinationLibrary": "Бібліотека",
-      "destinationBookdrop": "Bookdrop",
+      "destinationBookdrop": "",
       "toast": {
         "noDestinationSummary": "Не вибрано місце призначення",
         "noDestinationDetail": "Будь ласка, виберіть бібліотеку та підшлях перед додаванням файлів.",
@@ -1762,36 +1766,25 @@
         "createFailedDefault": "Не вдалося створити користувача-адміністратора. Спробуйте ще раз."
       }
     },
+    "message": {
+      "issueCount": "",
+      "issuePosition": "",
+      "previousIssue": "",
+      "nextIssue": ""
+    },
     "ui": {
-      "validation": {
-        "min": "",
-        "maxLength": "",
-        "parse": "",
-        "email": "",
-        "required": "",
-        "max": "",
-        "default": "",
-        "minLength": "",
-        "pattern": ""
+      "autocomplete": {
+        "noResults": "",
+        "loadFailed": ""
       },
-      "tag": {
-        "removeTag": "",
-        "removeLabel": ""
+      "datePicker": {
+        "previousMonth": "",
+        "nextMonth": ""
       },
       "input": {
+        "showPassword": "",
         "hidePassword": "",
-        "trailingAction": "",
-        "showPassword": ""
-      },
-      "select": {
-        "noResults": "",
-        "selectedCount": "",
-        "clearSelection": "",
-        "search": ""
-      },
-      "rating": {
-        "valueText": "",
-        "setRatingTo": ""
+        "trailingAction": ""
       },
       "message": {
         "issueCount": "",
@@ -1799,25 +1792,58 @@
         "previousIssue": "",
         "nextIssue": ""
       },
+      "rating": {
+        "valueText": "",
+        "setRatingTo": ""
+      },
+      "select": {
+        "clearSelection": "",
+        "noResults": "",
+        "search": "",
+        "selectedCount": ""
+      },
+      "shelfMenu": {
+        "addToShelf": "",
+        "newShelf": ""
+      },
       "spinner": {
         "loading": ""
       },
-      "autocomplete": {
-        "noResults": ""
+      "tag": {
+        "removeTag": "",
+        "removeLabel": ""
       },
-      "datePicker": {
-        "nextMonth": "",
-        "previousMonth": ""
+      "validation": {
+        "default": "",
+        "email": "",
+        "max": "",
+        "maxLength": "",
+        "min": "",
+        "minLength": "",
+        "parse": "",
+        "pattern": "",
+        "required": ""
       }
-    },
-    "message": {
-      "previousIssue": "",
-      "nextIssue": "",
-      "issuePosition": "",
-      "issueCount": ""
     }
   },
   "layout": {
+    "commandPalette": {
+      "placeholder": "",
+      "empty": "",
+      "hintNavigate": "",
+      "hintSelect": "",
+      "ariaLabel": "",
+      "groups": {
+        "action": "",
+        "page": "",
+        "book": "",
+        "author": "",
+        "series": "",
+        "shelf": "",
+        "magicShelf": "",
+        "library": ""
+      }
+    },
     "menu": {
       "adjustSidebarWidth": "Налаштувати ширину бічної панелі",
       "home": "Головна",
@@ -1831,36 +1857,42 @@
       "authors": "Автори",
       "notebook": "Нотатник",
       "update": "(Оновлення)",
-      "documentation": "",
-      "account": "",
-      "search": "",
-      "more": "",
       "updateAvailable": "",
-      "settings": "",
-      "tools": "",
-      "editSidebar": "",
-      "toggleNavigation": "",
-      "add": "",
-      "expandSidebar": "",
-      "resizeSidebar": "",
-      "goToDashboard": "",
-      "doneEditing": "",
-      "notifications": "",
-      "createMagicShelf": "",
-      "collapseSidebar": "",
-      "uploadBook": "",
-      "primaryNav": "",
-      "libraryStats": "",
+      "versionCopied": "",
       "versionCopyFailed": "",
-      "profile": "",
+      "tools": "",
+      "collapseSidebar": "",
+      "expandSidebar": "",
+      "goToDashboard": "",
+      "notifications": "",
+      "primaryNav": "",
+      "resizeSidebar": "",
+      "search": "",
+      "add": "",
+      "createMagicShelf": "",
+      "editSidebar": "",
+      "doneEditing": "",
+      "more": "",
+      "account": "",
+      "settings": "",
+      "libraryStats": "",
       "readingStats": "",
+      "metadataManager": "",
       "bookdrop": "",
       "createLibrary": "",
-      "metadataManager": "",
-      "versionCopied": "",
-      "logout": ""
+      "uploadBook": "",
+      "documentation": "",
+      "profile": "",
+      "logout": "",
+      "toggleNavigation": ""
     },
     "closeNavigation": "Закрити навігацію",
+    "pageHeader": {
+      "backTo": "",
+      "breadcrumbAriaLabel": "",
+      "moreBreadcrumbs": "",
+      "tabsAriaLabel": ""
+    },
     "changelog": {
       "title": "Що нового",
       "description": "Останні оновлення та покращення",
@@ -1868,48 +1900,31 @@
       "empty": "Оновлень немає."
     },
     "theme": {
+      "theme": "",
       "primary": "Основна",
       "surface": "Другорядна",
-      "options": {
-        "violet": "",
-        "crimson": "",
-        "cobalt": "",
-        "teal": "",
-        "forest": "",
-        "slate": "",
-        "grimmory": "",
-        "custom": "",
-        "meadow": "",
-        "ember": "",
-        "fuchsia": "",
-        "rose": "",
-        "lagoon": ""
-      },
-      "light": "",
-      "dark": "",
-      "theme": "",
       "mode": "",
       "appearance": "",
-      "syncAcrossDevices": "",
+      "light": "",
+      "dark": "",
       "system": "",
-      "customPrimary": ""
-    },
-    "commandPalette": {
-      "groups": {
-        "shelf": "",
-        "series": "",
-        "page": "",
-        "author": "",
-        "magicShelf": "",
-        "library": "",
-        "action": "",
-        "book": ""
-      },
-      "hintSelect": "",
-      "ariaLabel": "",
-      "empty": "",
-      "placeholder": "",
-      "hintNavigate": ""
+      "customPrimary": "",
+      "syncAcrossDevices": "",
+      "options": {
+        "grimmory": "",
+        "cobalt": "",
+        "ember": "",
+        "crimson": "",
+        "rose": "",
+        "forest": "",
+        "meadow": "",
+        "teal": "",
+        "lagoon": "",
+        "violet": "",
+        "fuchsia": "",
+        "slate": "",
+        "custom": ""
+      }
     }
   },
   "libraryCreator": {
@@ -1926,6 +1941,7 @@
       "bookFolders": "Директорія з книгами",
       "addFolder": "Додати директорію",
       "emptyFoldersHint": "Додати директорію з файлами книг",
+      "folderStructureHint": "Спосіб групування файлів у книги залежить від вашого <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>режиму організації</a>.",
       "options": "Опції",
       "watchFolders": "Моніторинг директорій",
       "watchFoldersTooltip": "Автоматично виявляти нові книги, додані до директорій",
@@ -1937,6 +1953,12 @@
       "metadataSourcePreferSidecar": "Пріоритет зовнішніх",
       "metadataSourcePreferEmbedded": "Пріоритет вбудованих",
       "metadataSourceNone": "Жодного",
+      "organizationMode": "Режим організації",
+      "organizationModeTooltip": "Як файли групуються в книги під час сканування",
+      "organizationModeLockedTooltip": "Режим організації не можна змінити після створення бібліотеки. Щоб використати інший режим, створіть нову бібліотеку.",
+      "organizationModeBookPerFile": "Одна книга на файл",
+      "organizationModeBookPerFolder": "Одна книга на папку",
+      "organizationModeAutoDetect": "Автовизначення (застарілий режим)",
       "formatPriority": "Пріоритет форматів",
       "formatPriorityTooltip": "Перетягніть, щоб змінити пріоритет форматів, якщо книга має кілька файлів",
       "allowedFormats": "Дозволені формати",
@@ -1965,14 +1987,7 @@
         "createdLargeDetail": "Бібліотеку створено з {{count}} файлами. Завантажується...",
         "createFailedSummary": "Помилка створення",
         "createFailedDetail": "Під час створення бібліотеки виникла помилка. Будь ласка, спробуйте ще раз."
-      },
-      "folderStructureHint": "Спосіб групування файлів у книги залежить від вашого <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>режиму організації</a>.",
-      "organizationMode": "Режим організації",
-      "organizationModeTooltip": "Як файли групуються в книги під час сканування",
-      "organizationModeLockedTooltip": "Режим організації не можна змінити після створення бібліотеки. Щоб використати інший режим, створіть нову бібліотеку.",
-      "organizationModeBookPerFile": "Одна книга на файл",
-      "organizationModeBookPerFolder": "Одна книга на папку",
-      "organizationModeAutoDetect": "Автовизначення (застарілий режим)"
+      }
     },
     "loading": {
       "title": "Завантаження бібліотеки",
@@ -2136,7 +2151,7 @@
         "seriesTotal": "Загальна кількість книг у серії",
         "isbn10": "Ідентифікатор ISBN-10",
         "isbn13": "Ідентифікатор ISBN-13",
-        "asin": "Amazon ASIN"
+        "asin": ""
       },
       "placeholderExamples": {
         "wildcard": "будь-що",
@@ -2144,14 +2159,14 @@
         "title": "Загублене місто",
         "subtitle": "Оповідь про пригоди",
         "authors": "Іван Петренко",
-        "seriesNumber": "25",
-        "published": "{Published:yyyy-MM-dd}",
-        "publisher": "Epic Press",
+        "seriesNumber": "",
+        "published": "",
+        "publisher": "",
         "language": "uk",
-        "seriesTotal": "50",
-        "isbn10": "1234567890",
-        "isbn13": "1234567890123",
-        "asin": "B012345678"
+        "seriesTotal": "",
+        "isbn10": "",
+        "isbn13": "",
+        "asin": ""
       },
       "commonPatternLabels": {
         "authorTitle": "Автор - Назва",
@@ -2180,7 +2195,7 @@
       "tabView": "Деталі книги",
       "tabEdit": "Редагувати метадані",
       "tabSearch": "Пошук метаданих",
-      "tabSidecar": "Sidecar"
+      "tabSidecar": ""
     },
     "readingSessions": {
       "loading": "Завантаження сесій читання...",
@@ -2222,8 +2237,8 @@
       "seriesTotal": "Всього в серії",
       "publicReviews": "Публічні відгуки",
       "noValue": "Немає значення",
-      "isbn10": "ISBN 10",
-      "isbn13": "ISBN 13",
+      "isbn10": "",
+      "isbn13": "",
       "ageRating": "Віковий рейтинг",
       "contentRating": "Рейтинг контенту",
       "pages": "Сторінки",
@@ -2231,25 +2246,25 @@
       "audiobookDetails": "Деталі аудіокниги",
       "comicBookDetails": "Деталі коміксу",
       "providerMetadata": "Метадані провайдера",
-      "amazonAsin": "Amazon ASIN",
-      "amazonRating": "Amazon ★",
-      "amazonReviewCount": "Amazon #",
+      "amazonAsin": "",
+      "amazonRating": "",
+      "amazonReviewCount": "",
       "googleBooksId": "ID Google Books",
       "goodreadsId": "ID Goodreads",
-      "goodreadsRating": "Goodreads ★",
-      "goodreadsReviewCount": "Goodreads #",
+      "goodreadsRating": "",
+      "goodreadsReviewCount": "",
       "hardcoverId": "ID Hardcover",
       "hardcoverBookId": "ID книги Hardcover",
-      "hardcoverRating": "Hardcover ★",
-      "hardcoverReviewCount": "Hardcover #",
+      "hardcoverRating": "",
+      "hardcoverReviewCount": "",
       "lubimyczytacId": "ID Lubimyczytac",
-      "lubimyczytacRating": "Lubimyczytac ★",
+      "lubimyczytacRating": "",
       "comicvineId": "ID Comicvine",
       "ranobedbId": "ID Ranobedb",
-      "ranobedbRating": "Ranobedb ★",
+      "ranobedbRating": "",
       "audibleId": "ID Audible",
-      "audibleRating": "Audible ★",
-      "audibleReviewCount": "Audible #",
+      "audibleRating": "",
+      "audibleReviewCount": "",
       "closeBtn": "Закрити",
       "previousBookBtn": "Попередня книга",
       "nextBookBtn": "Наступна книга",
@@ -2260,6 +2275,7 @@
       "saveBtn": "Зберегти",
       "fetchFromFileBtn": "З файлу",
       "fetchFromFileTooltip": "Завантажити метадані, вбудовані у файл книги",
+      "writtenToFileTooltip": "Це поле записується у фізичний файл",
       "previousBookTooltip": "Перейти до попередньої книги",
       "nextBookTooltip": "Перейти до наступної книги",
       "autoFetchTooltip": "Автоматично отримати метадані з джерел за замовчуванням",
@@ -2306,8 +2322,7 @@
         "audiobookUploadFailed": "Під час завантаження обкладинки аудіокниги сталася помилка",
         "fileMetadataLoaded": "Метадані завантажено з файлу книги. Перевірте та збережіть.",
         "fileMetadataFailed": "Не вдалося витягти метадані з файлу книги"
-      },
-      "writtenToFileTooltip": "Це поле записується у фізичний файл"
+      }
     },
     "picker": {
       "loadingMetadata": "Завантаження повних метаданих...",
@@ -2324,7 +2339,7 @@
       "sectionComicDetails": "Деталі коміксу",
       "sectionAudiobookDetails": "Деталі аудіокниги",
       "sectionProviderMetadata": "Метадані провайдера",
-      "coverLabelEbook": "Ebook",
+      "coverLabelEbook": "",
       "coverLabel": "Обкладинка",
       "coverLabelAudiobook": "Аудіокнига",
       "mobileCurrentLabel": "Поточні",
@@ -2357,7 +2372,7 @@
     },
     "searcher": {
       "providersLabel": "Провайдери",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "titleLabel": "Назва",
       "authorLabel": "Автор",
       "isbnTooltip": "ISBN має пріоритет. Без ISBN пошук використовує Назву та Автора.",
@@ -2373,6 +2388,7 @@
       "readyToSearchHint": "Введіть критерії пошуку вище й натисніть Пошук, щоб знайти метадані",
       "noResultsFound": "Результатів не знайдено",
       "noResultsHint": "Спробуйте змінити критерії пошуку або вибрати інших провайдерів",
+      "unknownProvider": "",
       "selectOverlay": "Вибрати"
     },
     "tabs": {
@@ -2415,15 +2431,17 @@
       "moodsLabel": "Настрої:",
       "tagsLabel": "Теги:",
       "libraryLabel": "Бібліотека:",
+      "shelvesLabel": "",
       "publisherLabel": "Видавець:",
       "publishedLabel": "Опубліковано:",
       "languageLabel": "Мова:",
       "formatsLabel": "Формати:",
       "primaryBadge": "ПРІОРИТЕТНИЙ",
+      "firstAuthorBadge": "ОСНОВНИЙ",
       "physicalBadge": "ПАПЕРОВА",
       "grimmoryProgressLabel": "Прогрес Grimmory:",
       "metadataMatchLabel": "Збіг метаданих:",
-      "isbnLabel": "ISBN:",
+      "isbnLabel": "",
       "readStatusLabel": "Статус читання:",
       "koreaderProgressLabel": "Прогрес KOReader:",
       "koboProgressLabel": "Прогрес Kobo:",
@@ -2461,7 +2479,7 @@
       "locations": "Локації",
       "manga": "Манга",
       "blackAndWhite": "Ч/Б",
-      "rightToLeft": "RTL",
+      "rightToLeft": "",
       "notesLabel": "Нотатки",
       "audiobookDuration": "Тривалість",
       "audiobookNarrator": "Оповідач",
@@ -2470,6 +2488,7 @@
       "audiobookSampleRate": "Частота дискретизації",
       "audiobookChannels": "Канали",
       "audiobookCodec": "Кодек",
+      "audiobookAbridged": "Скорочено",
       "abridged": "Скорочена",
       "unabridged": "Повна",
       "readBtn": "Читати",
@@ -2500,6 +2519,8 @@
       "menuSendBook": "Надіслати книгу",
       "menuQuickSend": "Швидка відправка",
       "menuCustomSend": "Налаштована відправка",
+      "menuMarkPhysical": "Позначити як паперову",
+      "menuUnmarkPhysical": "Зняти позначку \"паперова\"",
       "menuAttachToAnotherBook": "Приєднати до іншої книги",
       "menuDeleteFileFormats": "Видалити формати файлів",
       "menuDeleteSupplementaryFiles": "Видалити додаткові файли",
@@ -2569,12 +2590,7 @@
         "largeFileMessage": "Розмір цього файлу перевищує 25 МБ. Деякі поштові сервіси можуть відхиляти великі вкладення.\n\nВсе одно надіслати?",
         "largeFileHeader": "Попередження про великий файл",
         "sendAnyway": "Все одно надіслати"
-      },
-      "firstAuthorBadge": "ОСНОВНИЙ",
-      "audiobookAbridged": "Скорочено",
-      "menuMarkPhysical": "Позначити як паперову",
-      "menuUnmarkPhysical": "Зняти позначку \"паперова\"",
-      "shelvesLabel": ""
+      }
     },
     "sidecar": {
       "title": "Метадані sidecar",
@@ -2676,18 +2692,18 @@
       "deleting": "Видалення...",
       "tabs": {
         "author": "Автор",
-        "genre": "Жанр",
-        "mood": "Настрій",
-        "tag": "Тег",
-        "series": "Серія",
-        "publisher": "Видавець",
-        "language": "Мова",
         "authors": "Автори",
+        "genre": "Жанр",
         "genres": "Жанри",
+        "mood": "Настрій",
         "moods": "Настрої",
+        "tag": "Тег",
         "tags": "Теги",
+        "series": "Серія",
         "seriesPlural": "Серії",
+        "publisher": "Видавець",
         "publishers": "Видавці",
+        "language": "Мова",
         "languages": "Мови"
       },
       "placeholders": {
@@ -2846,8 +2862,8 @@
         "noBooks": "У цій колекції немає книг!",
         "failedLibrary": "Не вдалося завантажити книги з бібліотеки!",
         "failedShelf": "Не вдалося завантажити книги з полиці!",
-        "activeFilters": "{{ count }} активних фільтрів",
-        "failedBooks": ""
+        "failedBooks": "",
+        "activeFilters": "{{ count }} активних фільтрів"
       },
       "tooltip": {
         "clearFilters": "Очистити застосовані фільтри",
@@ -3060,13 +3076,13 @@
       "library": {
         "optionsLabel": "Опції",
         "addPhysicalBook": "Додати паперову книгу",
+        "bulkIsbnImport": "Імпортувати ISBN із файлу",
         "editLibrary": "Редагувати бібліотеку",
         "rescanLibrary": "Повторно сканувати бібліотеку",
         "customFetchMetadata": "Налаштовуване отримання метаданих",
         "autoFetchMetadata": "Автозавантаження метаданих",
         "findDuplicates": "Знайти дублікати",
-        "deleteLibrary": "Видалити бібліотеку",
-        "bulkIsbnImport": "Імпортувати ISBN із файлу"
+        "deleteLibrary": "Видалити бібліотеку"
       },
       "shelf": {
         "publicShelfPrefix": "Публічна полиця - ",
@@ -3078,8 +3094,8 @@
       "magicShelf": {
         "optionsLabel": "Опції",
         "editMagicShelf": "Редагувати магічну полицю",
-        "deleteMagicShelf": "Видалити магічну полицю",
-        "exportJson": "Скопіювати JSON"
+        "exportJson": "Скопіювати JSON",
+        "deleteMagicShelf": "Видалити магічну полицю"
       },
       "confirm": {
         "rescanLibraryMessage": "Ви впевнені, що хочете оновити бібліотеку: {{ name }}?",
@@ -3098,8 +3114,9 @@
         "shelfDeleteFailedDetail": "Не вдалося видалити полицю",
         "magicShelfDeletedDetail": "Магічну полицю видалено",
         "magicShelfDeleteFailedDetail": "Не вдалося видалити полицю",
-        "failedSummary": "Не вдалося",
         "magicShelfJsonCopiedDetail": "JSON магічної полиці скопійовано в буфер обміну",
+        "magicShelfJsonCopyFailedDetail": "",
+        "failedSummary": "Не вдалося",
         "dialogLoadFailedDetail": ""
       },
       "loading": {
@@ -3121,15 +3138,15 @@
         "fileName": "Назва файлу",
         "fileSizeKb": "Розмір файлу",
         "language": "Мова",
-        "isbn": "ISBN",
+        "isbn": "",
         "pageCount": "Сторінки",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
+        "amazonRating": "",
+        "amazonReviewCount": "",
+        "goodreadsRating": "",
+        "goodreadsReviewCount": "",
+        "hardcoverRating": "",
+        "hardcoverReviewCount": "",
+        "ranobedbRating": ""
       },
       "toast": {
         "savedSummary": "Налаштування збережено",
@@ -3215,7 +3232,7 @@
       "libraryPlaceholder": "Виберіть бібліотеку",
       "titleLabel": "Назва",
       "titlePlaceholder": "напр., Великий Гетсбі",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "isbnPlaceholder": "напр., 9780134685991",
       "authorsLabel": "Автори",
       "authorsPlaceholder": "Введіть ім'я автора і натисніть Enter",
@@ -3237,6 +3254,49 @@
       "cancelButton": "Скасувати",
       "addButton": "Додати паперову книгу",
       "fetchMetadataTooltip": "Отримати метадані за ISBN"
+    },
+    "bulkIsbnImport": {
+      "title": "Імпорт ISBN",
+      "description": "Імпортуйте кілька паперових книг зі списку ISBN",
+      "closeTooltip": "Закрити",
+      "libraryLabel": "Бібліотека",
+      "libraryPlaceholder": "Виберіть бібліотеку",
+      "tabFile": "Завантажити файл",
+      "tabPaste": "Вставити ISBN",
+      "chooseFile": "Вибрати файл",
+      "fileFormatsHint": "Підтримувані формати: .txt, .csv, .tsv (макс. 1 МБ)",
+      "pastePlaceholder": "Вставте ISBN сюди, по одному в рядку або розділені комами...",
+      "parseButton": "Розібрати",
+      "errorFileTooLarge": "Файл перевищує ліміт розміру 1 МБ.",
+      "errorNoIsbns": "У вхідних даних не знайдено ISBN.",
+      "errorTooMany": "Буде імпортовано лише перші {{ max }} ISBN. Для решти розбийте файл.",
+      "validCount": "{{ count }} коректних ISBN",
+      "skippedCount": "Пропущено: {{ count }}",
+      "duplicatesRemoved": "Видалено дублікатів: {{ count }}",
+      "reason": {
+        "invalid": "Некоректний формат ISBN",
+        "alreadyExists": "Вже є в цій бібліотеці"
+      },
+      "previewLabel": "ISBN для імпорту",
+      "clearButton": "Очистити",
+      "validationLibraryRequired": "Виберіть бібліотеку",
+      "validationNoIsbns": "Щоб почати, завантажте файл або вставте ISBN",
+      "validationReady": "Готово до імпорту {{ count }} ISBN",
+      "cancelButton": "Скасувати",
+      "startImportButton": "Почати імпорт",
+      "processingLabel": "Обробка {{ current }} з {{ total }}",
+      "lookingUp": "Пошук метаданих...",
+      "createdNoMetadata": "Створено (метадані не знайдено)",
+      "unknownError": "Невідома помилка",
+      "processingHint": "Уже створені книги буде збережено, якщо ви скасуєте імпорт.",
+      "cancelImportButton": "Зупинити імпорт",
+      "summaryTitle": "Імпорт завершено",
+      "summaryCreated": "Створено з метаданими",
+      "summaryNoMetadata": "Створено (лише ISBN)",
+      "summaryFailed": "Помилка",
+      "summaryCancelled": "Пропущено (скасовано)",
+      "failedIsbnsLabel": "ISBN, які не вдалося імпортувати",
+      "doneButton": "Готово"
     },
     "fileUploader": {
       "title": "Завантажити додатковий файл",
@@ -3285,6 +3345,9 @@
         "amazonRating": "Рейтинг Amazon",
         "goodreadsRating": "Рейтинг Goodreads",
         "hardcoverRating": "Рейтинг Hardcover",
+        "lubimyczytacRating": "",
+        "ranobedbRating": "",
+        "audibleRating": "",
         "language": "Мова",
         "pageCount": "Кількість сторінок",
         "mood": "Настрій",
@@ -3294,10 +3357,7 @@
         "comicCharacter": "Персонаж коміксу",
         "comicTeam": "Команда коміксу",
         "comicLocation": "Локація коміксу",
-        "comicCreator": "Творець коміксу",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
+        "comicCreator": "Творець коміксу"
       },
       "readStatus": {
         "unread": "Не прочитано",
@@ -3366,6 +3426,7 @@
       "descriptionMulti": "Виберіть полиці для {{ count }} кн.",
       "descriptionSingle": "Впорядкуйте \"{{ title }}\" по своїх полицях",
       "shelvesAvailable": "Доступно полиць: {{ count }}",
+      "searchPlaceholder": "",
       "emptyTitle": "Полиці відсутні",
       "emptyDescription": "Створіть першу полицю, щоб почати впорядковувати книги.<br/>Натисніть кнопку нижче, щоб почати.",
       "createShelf": "Створити полицю",
@@ -3377,8 +3438,7 @@
       "toast": {
         "updateSuccessDetail": "Книжкові полиці оновлено",
         "updateFailedDetail": "Не вдалося оновити книжкові полиці"
-      },
-      "searchPlaceholder": ""
+      }
     },
     "shelfCreator": {
       "title": "Створити нову полицю",
@@ -3390,6 +3450,7 @@
       "chooseIcon": "Вибрати іконку",
       "chooseIconSubtitle": "Оберіть із доступних іконок",
       "selectedIcon": "Вибрана іконка",
+      "customSvg": "",
       "removeIconTooltip": "Прибрати іконку",
       "visibilityLabel": "Видимість",
       "makePublicLabel": "Зробити цю полицю публічною (для інших лише читання)",
@@ -3400,8 +3461,7 @@
       "toast": {
         "createSuccessDetail": "Полицю створено: {{ name }}",
         "createFailedDetail": "Не вдалося створити полицю"
-      },
-      "customSvg": ""
+      }
     },
     "shelfEditDialog": {
       "title": "Редагувати полицю",
@@ -3422,7 +3482,12 @@
       }
     },
     "table": {
+      "label": "",
       "bookCoverAlt": "Обкладинка книги",
+      "selectBook": "",
+      "selectBookFallback": "",
+      "noRating": "",
+      "ratingOutOf": "",
       "statusWithPrefix": "Статус: {{ status }}",
       "locked": "Заблоковано",
       "unlocked": "Розблоковано",
@@ -3435,12 +3500,7 @@
         "lockFailedDetail": "Під час блокування метаданих сталася помилка.",
         "unlockFailedSummary": "Не вдалося розблокувати",
         "unlockFailedDetail": "Під час розблокування метаданих сталася помилка."
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
+      }
     },
     "lockUnlockDialog": {
       "title": "Блокування або розблокування метаданих",
@@ -3488,11 +3548,11 @@
         "readingProgress": "Прогрес читання",
         "bookType": "Тип книги",
         "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "Amazon #",
+        "amazonReviewCount": "",
         "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "Goodreads #",
+        "goodreadsReviewCount": "",
         "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "Hardcover #",
+        "hardcoverReviewCount": "",
         "ranobedbRating": "Рейтинг Ranobedb",
         "narrator": "Оповідач",
         "pageCount": "Сторінки",
@@ -3622,7 +3682,7 @@
       "presetAggressive": "Агресивний",
       "presetCustom": "Власний",
       "advanced": "Розширено",
-      "signalIsbn": "ISBN",
+      "signalIsbn": "",
       "signalExternalId": "Зовнішній ID",
       "signalTitleAuthor": "Назва + Автор",
       "signalDirectory": "Один каталог",
@@ -3661,49 +3721,6 @@
         "mergeFailedDetail": "Не вдалося об'єднати цю групу.",
         "mergePartialDetail": "{{ success }} об'єднано, {{ failed }} не вдалося."
       }
-    },
-    "bulkIsbnImport": {
-      "title": "Імпорт ISBN",
-      "description": "Імпортуйте кілька паперових книг зі списку ISBN",
-      "closeTooltip": "Закрити",
-      "libraryLabel": "Бібліотека",
-      "libraryPlaceholder": "Виберіть бібліотеку",
-      "tabFile": "Завантажити файл",
-      "tabPaste": "Вставити ISBN",
-      "chooseFile": "Вибрати файл",
-      "fileFormatsHint": "Підтримувані формати: .txt, .csv, .tsv (макс. 1 МБ)",
-      "pastePlaceholder": "Вставте ISBN сюди, по одному в рядку або розділені комами...",
-      "parseButton": "Розібрати",
-      "errorFileTooLarge": "Файл перевищує ліміт розміру 1 МБ.",
-      "errorNoIsbns": "У вхідних даних не знайдено ISBN.",
-      "errorTooMany": "Буде імпортовано лише перші {{ max }} ISBN. Для решти розбийте файл.",
-      "validCount": "{{ count }} коректних ISBN",
-      "skippedCount": "Пропущено: {{ count }}",
-      "duplicatesRemoved": "Видалено дублікатів: {{ count }}",
-      "reason": {
-        "invalid": "Некоректний формат ISBN",
-        "alreadyExists": "Вже є в цій бібліотеці"
-      },
-      "previewLabel": "ISBN для імпорту",
-      "clearButton": "Очистити",
-      "validationLibraryRequired": "Виберіть бібліотеку",
-      "validationNoIsbns": "Щоб почати, завантажте файл або вставте ISBN",
-      "validationReady": "Готово до імпорту {{ count }} ISBN",
-      "cancelButton": "Скасувати",
-      "startImportButton": "Почати імпорт",
-      "processingLabel": "Обробка {{ current }} з {{ total }}",
-      "lookingUp": "Пошук метаданих...",
-      "createdNoMetadata": "Створено (метадані не знайдено)",
-      "unknownError": "Невідома помилка",
-      "processingHint": "Уже створені книги буде збережено, якщо ви скасуєте імпорт.",
-      "cancelImportButton": "Зупинити імпорт",
-      "summaryTitle": "Імпорт завершено",
-      "summaryCreated": "Створено з метаданими",
-      "summaryNoMetadata": "Створено (лише ISBN)",
-      "summaryFailed": "Помилка",
-      "summaryCancelled": "Пропущено (скасовано)",
-      "failedIsbnsLabel": "ISBN, які не вдалося імпортувати",
-      "doneButton": "Готово"
     }
   },
   "readerAudiobook": {
@@ -3723,8 +3740,8 @@
     "controls": {
       "previousTrackTooltip": "Попередній трек",
       "previousChapterTooltip": "Попередній розділ",
-      "rewindTooltip": "-30s",
-      "forwardTooltip": "+30s",
+      "rewindTooltip": "",
+      "forwardTooltip": "",
       "nextTrackTooltip": "Наступний трек",
       "nextChapterTooltip": "Наступний розділ"
     },
@@ -3813,10 +3830,10 @@
       "toggleZoom": "Перемкнути масштаб (підганяти сторінку / фактичний розмір)",
       "doubleTap": "Подвійний дотик",
       "toggleSlideshow": "Увімкнути/вимкнути слайдшоу / автопрогравання",
-      "showHelpDialog": "Показати це вікно довідки",
       "toggleMagnifier": "Увімкнути/вимкнути лупу",
       "magnifierZoom": "Збільшення лупи (коли активна)",
-      "magnifierLensSize": "Розмір лінзи лупи (коли активна)"
+      "magnifierLensSize": "Розмір лінзи лупи (коли активна)",
+      "showHelpDialog": "Показати це вікно довідки"
     },
     "footer": {
       "prevBook": "Попер. книга",
@@ -3851,10 +3868,10 @@
       "exitFullscreenLabel": "Вийти з повноекранного режиму",
       "fullscreenLabel": "Повноекранний режим",
       "keyboardShortcutsLabel": "Гарячі клавіші",
-      "settings": "Налаштування",
-      "closeReader": "Закрити рідер",
       "enableMagnifier": "Лупа (M)",
-      "disableMagnifier": "Вимкнути лупу (M)"
+      "disableMagnifier": "Вимкнути лупу (M)",
+      "settings": "Налаштування",
+      "closeReader": "Закрити рідер"
     },
     "quickSettings": {
       "fitMode": "Режим підгонки",
@@ -3883,11 +3900,21 @@
       "white": "Біле",
       "magnifierLensSize": "Розмір лінзи",
       "magnifierZoom": "Збільшення",
-      "clickToPaginate": "",
-      "stripMaxWidth": "",
-      "autoCloseMenu": "",
       "brightness": "",
-      "emulateBook": ""
+      "emulateBook": "",
+      "clickToPaginate": "",
+      "autoCloseMenu": "",
+      "stripMaxWidth": ""
+    },
+    "webtoonHint": {
+      "regionLabel": "",
+      "message": "",
+      "switch": "",
+      "dismiss": "",
+      "never": ""
+    },
+    "continuation": {
+      "scrollForNext": ""
     },
     "sidebar": {
       "contentTab": "Вміст",
@@ -3907,16 +3934,6 @@
       "clearSearch": "Очистити пошук",
       "page": "Сторінка",
       "untitled": "Без назви"
-    },
-    "webtoonHint": {
-      "never": "",
-      "dismiss": "",
-      "switch": "",
-      "regionLabel": "",
-      "message": ""
-    },
-    "continuation": {
-      "scrollForNext": ""
     }
   },
   "readerEbook": {
@@ -4057,9 +4074,9 @@
       "searchInBook": "Пошук у книзі",
       "annotate": "Анотувати",
       "addNote": "Додати нотатку",
-      "deleteAnnotation": "Видалити анотацію",
       "goToLink": "",
-      "removeLink": ""
+      "removeLink": "",
+      "deleteAnnotation": "Видалити анотацію"
     },
     "shortcutsHelp": {
       "title": "Гарячі клавіші",
@@ -4075,12 +4092,12 @@
       "notesShortcut": "Нотатки",
       "display": "Відображення",
       "toggleFullscreen": "Перемкнути повноекранний режим",
+      "toggleImmersive": "",
       "exitFullscreenCloseDialogs": "Вийти з повноекранного режиму / Закрити діалоги",
       "other": "Інше",
       "showHelpDialog": "Показати це вікно довідки",
       "swipeRight": "Гортання вправо",
-      "swipeLeft": "Гортання вліво",
-      "toggleImmersive": ""
+      "swipeLeft": "Гортання вліво"
     },
     "headerFooterUtil": {
       "timeRemainingInSection": "Залишилось часу в розділі: {{ time }}"
@@ -4121,77 +4138,77 @@
       "switchToLightMode": "Перейти на світлу тему",
       "switchToDarkMode": "Перейти на темний тему",
       "closePdfReader": "Закрити PDF Reader",
-      "textNote": "",
-      "annotationColor": "",
-      "ink": "",
-      "zoomPreset": "",
-      "zoomIn": "",
-      "closeSearch": "",
+      "fullscreen": "",
       "exitFullscreen": "",
-      "deselectTool": "",
-      "spreadMode": "",
-      "addBookmark": "",
-      "scrollLayout": "",
-      "searchNext": "",
-      "zoomOut": "",
-      "moreOptions": "",
-      "searchPlaceholder": "",
-      "searchPrevious": "",
-      "bookmarkAdd": "",
-      "highlight": "",
-      "bookmarkRemove": "",
       "sidebar": "",
+      "search": "",
+      "searchPlaceholder": "",
+      "searchNext": "",
+      "searchPrevious": "",
+      "zoomIn": "",
+      "zoomOut": "",
+      "zoomPreset": "",
+      "spreadMode": "",
+      "scrollLayout": "",
+      "scrollLayoutVertical": "",
       "scrollLayoutHorizontal": "",
+      "rotatePage": "",
+      "bookmarkAdd": "",
+      "bookmarkRemove": "",
+      "addBookmark": "",
       "removeBookmark": "",
       "freeText": "",
+      "highlight": "",
+      "textNote": "",
+      "ink": "",
       "draw": "",
-      "scrollLayoutVertical": "",
-      "fullscreen": "",
-      "rotatePage": "",
-      "search": "",
-      "pan": ""
+      "annotationColor": "",
+      "deselectTool": "",
+      "pan": "",
+      "moreOptions": "",
+      "closeSearch": ""
+    },
+    "footer": {
+      "firstPage": "",
+      "previousPage": "",
+      "nextPage": "",
+      "lastPage": "",
+      "of": "",
+      "pageSlider": "",
+      "pagePlaceholder": "",
+      "go": "",
+      "bookViewer": "",
+      "docViewer": ""
+    },
+    "sidebar": {
+      "title": "",
+      "close": "",
+      "contentsTab": "",
+      "bookmarksTab": "",
+      "annotationsTab": "",
+      "noContents": "",
+      "noBookmarks": "",
+      "bookmarkHint": "",
+      "noAnnotations": "",
+      "annotationHint": "",
+      "deleteBookmark": "",
+      "deleteAnnotation": "",
+      "page": ""
     },
     "toast": {
       "failedToLoadBook": "Не вдалося завантажити книгу",
-      "annotationFailed": "",
-      "annotationSaved": "",
       "bookmarkAdded": "",
       "bookmarkRemoved": "",
-      "bookmarkExists": ""
-    },
-    "sidebar": {
-      "deleteAnnotation": "",
-      "close": "",
-      "contentsTab": "",
-      "annotationsTab": "",
-      "page": "",
-      "bookmarkHint": "",
-      "noContents": "",
-      "deleteBookmark": "",
-      "title": "",
-      "bookmarksTab": "",
-      "annotationHint": "",
-      "noBookmarks": "",
-      "noAnnotations": ""
+      "bookmarkExists": "",
+      "annotationSaved": "",
+      "annotationFailed": ""
     },
     "docViewer": {
-      "dismiss": "",
-      "saveFailed": "",
-      "saveDocument": "",
       "changesSavedInfo": "",
-      "changesSaved": ""
-    },
-    "footer": {
-      "nextPage": "",
-      "lastPage": "",
-      "bookViewer": "",
-      "of": "",
-      "go": "",
-      "previousPage": "",
-      "pageSlider": "",
-      "firstPage": "",
-      "docViewer": "",
-      "pagePlaceholder": ""
+      "dismiss": "",
+      "saveDocument": "",
+      "changesSaved": "",
+      "saveFailed": ""
     }
   },
   "statsLibrary": {
@@ -5026,8 +5043,8 @@
       "personalRating": "Особистий рейтинг",
       "pageCount": "Кількість сторінок",
       "language": "Мова",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
+      "isbn13": "",
+      "isbn10": "",
       "seriesName": "Назва серії",
       "seriesNumber": "Номер у серії",
       "seriesTotal": "Книг у серії",
@@ -5177,9 +5194,9 @@
       "seriesName": "Назва серії",
       "seriesNumber": "Номер у серії",
       "seriesTotal": "Всього в серії",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
-      "asin": "ASIN",
+      "isbn13": "",
+      "isbn10": "",
+      "asin": "",
       "ageRating": "Віковий рейтинг",
       "contentRating": "Рейтинг контенту",
       "personalRating": "Особистий рейтинг",
@@ -5216,6 +5233,15 @@
       "comicCoverArtists": "Художники обкладинок",
       "comicEditors": "Редактори"
     },
+    "importJson": {
+      "buttonLabel": "Імпорт",
+      "placeholder": "",
+      "apply": "Застосувати",
+      "emptyError": "Спочатку вставте конфігурацію JSON.",
+      "parseError": "Некоректний JSON. Перевірте синтаксис і спробуйте ще раз.",
+      "structureError": "Некоректна структура. JSON повинен мати \"type\": \"group\" та масив \"rules\".",
+      "successDetail": "Правила успішно імпортовано. Перевірте та збережіть, коли будете готові."
+    },
     "toast": {
       "validationErrorSummary": "Помилка валідації",
       "validationErrorDetail": "Перед збереженням потрібно додати принаймні одне коректне правило.",
@@ -5223,15 +5249,6 @@
       "successDetail": "Магічну полицю успішно збережено.",
       "errorSummary": "Помилка",
       "errorDetailDefault": "Не вдалося зберегти магічну полицю."
-    },
-    "importJson": {
-      "buttonLabel": "Імпорт",
-      "placeholder": "{\n  \"type\": \"group\",\n  \"join\": \"and\",\n  \"rules\": [\n    { \"field\": \"readStatus\", \"operator\": \"equals\", \"value\": \"READING\" }\n  ]\n}",
-      "apply": "Застосувати",
-      "emptyError": "Спочатку вставте конфігурацію JSON.",
-      "parseError": "Некоректний JSON. Перевірте синтаксис і спробуйте ще раз.",
-      "structureError": "Некоректна структура. JSON повинен мати \"type\": \"group\" та масив \"rules\".",
-      "successDetail": "Правила успішно імпортовано. Перевірте та збережіть, коли будете готові."
     }
   },
   "seriesBrowser": {
@@ -5329,7 +5346,7 @@
     },
     "editor": {
       "nameLabel": "Ім'я",
-      "asinLabel": "ASIN",
+      "asinLabel": "",
       "descriptionLabel": "Опис",
       "saveBtn": "Зберегти",
       "saving": "Збереження...",
@@ -5378,6 +5395,8 @@
     "match": {
       "authorNameLabel": "Ім'я автора",
       "authorNamePlaceholder": "Введіть ім'я автора для пошуку",
+      "asinLabel": "",
+      "asinPlaceholder": "Введіть ASIN для прямого пошуку",
       "regionLabel": "Регіон",
       "searchBtn": "Пошук",
       "searching": "Пошук...",
@@ -5394,9 +5413,7 @@
         "matchSuccessDetail": "Метадані автора успішно оновлено.",
         "matchFailedSummary": "Не вдалося зіставити",
         "matchFailedDetail": "Не вдалося зіставити автора із зовнішніми метаданими."
-      },
-      "asinLabel": "ASIN",
-      "asinPlaceholder": "Введіть ASIN для прямого пошуку"
+      }
     }
   }
 }
