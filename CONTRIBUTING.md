@@ -74,9 +74,9 @@ friendly to newcomers are tagged [`good first issue`][good-first-issue].
 
 ### I'd like to contribute translations
 
-Please use the [Grimmory Weblate project](https://hosted.weblate.org/engage/grimmory/) for
-non-English localization work. Weblate tracks `develop`, shows missing and outdated strings, and
-sends translation updates back to the repository as reviewed pull requests.
+Please use the [Grimmory Crowdin project](https://crowdin.com/project/grimmory) for
+non-English localization work. Crowdin's hosted GitHub integration tracks `develop`, shows missing
+and outdated strings, and sends translation updates back as reviewed pull requests.
 
 When translating, preserve placeholders exactly, such as `{{ name }}`, `{{ count }}`, and
 `{{ provider }}`. Do not translate placeholder names. Keep HTML tags intact when they appear in a
