@@ -10,6 +10,7 @@ import {
   UpdateBookShelfMembershipResult,
   UpdateBookShelfMembershipVariables,
 } from './book-shelf-command.models';
+import {BookShelf} from './book-response.models';
 import {applyBookQueryChangeSet} from './book-query-cache';
 import {invalidateShelfDefinitions} from './shelf-definition-query-cache';
 
@@ -54,12 +55,18 @@ export class BookShelfCommandService {
         shelvesToUnassign: unassignShelfIds,
       },
     ));
+    const updatedBookShelves = response.map(book => ({
+      bookId: book.id,
+      shelves: book.shelves,
+    }));
     return {
       confirmedBookIds: response.map(book => book.id),
+      updatedBookShelves,
     };
   }
 }
 
 interface MembershipBookResponse {
   readonly id: number;
+  readonly shelves: readonly BookShelf[];
 }
