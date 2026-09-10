@@ -21,8 +21,6 @@ export interface VirtualGridOptions<T> {
   estimateItemHeight: (itemWidth: number) => number;
   gap: number | Signal<number>;
   rowGap?: Signal<number>;
-  overscan?: number;
-  count?: Signal<number>;
   trailingRows?: Signal<number>;
   minimumCount?: (metrics: VirtualGridMetrics) => number;
   columns?: Signal<number | undefined>;
@@ -173,7 +171,7 @@ export function createVirtualGrid<T>(options: VirtualGridOptions<T>) {
 
   const sharedVirtualizerOptions = () => ({
     count: Math.max(
-      options.count?.() ?? (options.items().length + (gridColumns() * (options.trailingRows?.() ?? 0))),
+      options.items().length + (gridColumns() * (options.trailingRows?.() ?? 0)),
       minimumCount(),
     ),
     getItemKey: (index: number): VirtualItem['key'] => {
@@ -183,7 +181,7 @@ export function createVirtualGrid<T>(options: VirtualGridOptions<T>) {
         : (options.itemKey?.(item, index) ?? index);
     },
     estimateSize: () => toSafeSize(itemHeight(), DEFAULT_ITEM_SIZE),
-    overscan: toSafeInteger(options.overscan ?? gridColumns() * overscanRows(), DEFAULT_OVERSCAN_ROWS),
+    overscan: toSafeInteger(gridColumns() * overscanRows(), DEFAULT_OVERSCAN_ROWS),
     gap: toSafeSize(rowGap(), DEFAULT_ITEM_SIZE),
     lanes: toSafeInteger(gridColumns(), 1),
     initialOffset: () => options.initialOffset?.() ?? 0,

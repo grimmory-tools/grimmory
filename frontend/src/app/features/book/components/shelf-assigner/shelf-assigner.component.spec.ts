@@ -12,7 +12,7 @@ import {Book} from '../../model/book.model';
 import {Shelf} from '../../model/shelf.model';
 import {BookService} from '../../service/book.service';
 import {ShelfService} from '../../service/shelf.service';
-import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
 import {ShelfAssignerComponent} from './shelf-assigner.component';
 
 interface CurrentUserLike {

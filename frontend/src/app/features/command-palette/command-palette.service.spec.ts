@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MessageService } from '@openng/optimus-ui/api';
 import { createQueryClientHarness } from '../../core/testing/query-testing';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
-import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
+import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
 import { BookPage } from '../book/data/book-query.models';
 import { BookQueryService } from '../book/data/book-query.service';
 import { BookSummary } from '../book/data/book-response.models';

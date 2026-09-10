@@ -24,7 +24,7 @@ import {LayoutService} from '../../../shared/layout/layout.service';
 import {LocalStorageService} from '../../../shared/service/local-storage.service';
 import {PageTitleService} from '../../../shared/service/page-title.service';
 import {createGridDensity, type GridDensityDirection} from '../../../shared/util/grid-density.util';
-import {CoverScalePreferenceService} from '../components/book-browser/cover-scale-preference.service';
+import {CoverScalePreferenceService} from '../../../shared/service/cover-scale-preference.service';
 import {LibraryService} from '../service/library.service';
 import {BookNavigationService} from '../service/book-navigation.service';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';

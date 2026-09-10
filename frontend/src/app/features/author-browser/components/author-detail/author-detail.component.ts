@@ -11,9 +11,9 @@ import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { AuthorService } from '../../service/author.service';
 import { AuthorDetails } from '../../model/author.model';
 import { BookService } from '../../../book/service/book.service';
-import { BookCardComponent } from '../../../book/components/book-browser/book-card/book-card.component';
-import { CoverScalePreferenceService } from '../../../book/components/book-browser/cover-scale-preference.service';
-import { BookCardOverlayPreferenceService } from '../../../book/components/book-browser/book-card-overlay-preference.service';
+import { LegacyBookCardComponent } from '../../../book/components/legacy-book-card/legacy-book-card.component';
+import { CoverScalePreferenceService } from '../../../../shared/service/cover-scale-preference.service';
+import { BookCardOverlayPreferenceService } from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import { UserService } from '../../../settings/user-management/user.service';
 import { AuthorMatchComponent } from '../author-match/author-match.component';
 import { AuthorEditorComponent } from '../author-editor/author-editor.component';
@@ -37,7 +37,7 @@ import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
     Tag,
     TranslocoDirective,
     Tooltip,
-    BookCardComponent,
+    LegacyBookCardComponent,
     AuthorMatchComponent,
     AuthorEditorComponent
   ]

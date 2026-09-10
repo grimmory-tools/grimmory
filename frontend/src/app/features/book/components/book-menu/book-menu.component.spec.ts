@@ -13,7 +13,7 @@ import {BookCommandService} from '../../data/book-command.service';
 import {BookShelfCommandService} from '../../data/book-shelf-command.service';
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
 import {BookSummary} from '../../data/book-response.models';
-import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {FileDownloadService} from '../../../../shared/service/file-download.service';
 import {BookNavigationService} from '../../service/book-navigation.service';

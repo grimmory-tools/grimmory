@@ -5,7 +5,6 @@ import {TableModule} from '@openng/optimus-ui/table';
 import {ViewPreferencesComponent} from './view-preferences/view-preferences.component';
 import {SidebarSortingPreferencesComponent} from './sidebar-sorting-preferences/sidebar-sorting-preferences.component';
 import {MetaCenterViewModeComponent} from './meta-center-view-mode/meta-center-view-mode-component';
-import {FilterPreferencesComponent} from './filter-preferences/filter-preferences.component';
 import {DisplayPreferencesComponent} from './display-preferences/display-preferences.component';
 import {DashboardPreferencesComponent} from './dashboard-preferences/dashboard-preferences.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -22,7 +21,6 @@ import {LayoutService, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH} from '../../../shar
     ViewPreferencesComponent,
     SidebarSortingPreferencesComponent,
     MetaCenterViewModeComponent,
-    FilterPreferencesComponent,
     DisplayPreferencesComponent,
     DashboardPreferencesComponent,
     TranslocoDirective,
