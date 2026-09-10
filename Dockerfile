@@ -37,6 +37,7 @@ RUN chmod +x ./gradlew
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
+COPY LICENSE NOTICE ./
 COPY backend/ ./
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
