@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {vi, describe, beforeEach, afterEach, expect, it} from 'vitest';
 
 import {CoverScalePreferenceService} from './cover-scale-preference.service';
-import {LocalStorageService} from '../../../../shared/service/local-storage.service';
+import {LocalStorageService} from './local-storage.service';
 
 describe('CoverScalePreferenceService', () => {
   let service: CoverScalePreferenceService;

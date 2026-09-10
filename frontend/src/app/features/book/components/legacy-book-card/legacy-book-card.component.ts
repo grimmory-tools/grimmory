@@ -1,41 +1,41 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {AdditionalFile, Book, BookType, ReadStatus} from '../../../model/book.model';
+import {AdditionalFile, Book, BookType, ReadStatus} from '../../model/book.model';
 import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/api';
-import {BookService} from '../../../service/book.service';
-import {BookFileService} from '../../../service/book-file.service';
-import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
+import {BookService} from '../../service/book.service';
+import {BookFileService} from '../../service/book-file.service';
+import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {CheckboxChangeEvent, Checkbox} from '@openng/optimus-ui/checkbox';
 import {FormsModule} from '@angular/forms';
-import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-refresh-type.enum';
-import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
+import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {NgClass} from '@angular/common';
-import {UserService} from '../../../../settings/user-management/user.service';
-import {EmailService} from '../../../../settings/email-v2/email.service';
+import {UserService} from '../../../settings/user-management/user.service';
+import {EmailService} from '../../../settings/email-v2/email.service';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
 import {Router, RouterLink} from '@angular/router';
-import {readStatusLabels} from '../book-filter/book-filter.config';
-import {ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
-import {ReadStatusHelper} from '../../../helpers/read-status.helper';
-import {BookDialogHelperService} from '../book-dialog-helper.service';
-import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {BookNavigationService} from '../../../service/book-navigation.service';
-import {BookCardOverlayPreferenceService} from '../book-card-overlay-preference.service';
-import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
+import {READ_STATUS_LABELS} from '../../model/book-value-labels';
+import {ResetProgressTypes} from '../../../../shared/constants/reset-progress-type';
+import {ReadStatusHelper} from '../../helpers/read-status.helper';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
+import {TaskHelperService} from '../../../settings/task-management/task-helper.service';
+import {BookNavigationService} from '../../service/book-navigation.service';
+import {BookCardOverlayPreferenceService} from './book-card-overlay-preference.service';
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {ButtonDirective} from '@openng/optimus-ui/button';
 
 @Component({
-  selector: 'app-book-card',
-  templateUrl: './book-card.component.html',
-  styleUrls: ['./book-card.component.scss'],
+  selector: 'app-legacy-book-card',
+  templateUrl: './legacy-book-card.component.html',
+  styleUrls: ['./legacy-book-card.component.scss'],
   imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookCardComponent {
+export class LegacyBookCardComponent {
 
   // --- Inputs ---
   readonly book = input.required<Book>();
@@ -180,7 +180,7 @@ export class BookCardComponent {
   readonly readingUrl = computed(() => this.urlHelper.getBookPrimaryReadingUrl(this.book()));
 
   private buildReadStatusMenuItems(): void {
-    this.readStatusMenuItems.set(Object.entries(readStatusLabels).map(([status, label]) => ({
+    this.readStatusMenuItems.set(Object.entries(READ_STATUS_LABELS).map(([status, label]) => ({
       label,
       command: () => {
         this.bookService.updateBookReadStatus(this.book().id, status as ReadStatus).subscribe({
@@ -513,7 +513,7 @@ export class BookCardComponent {
       {
         label: this.t.translate('book.card.menu.readStatus'),
         icon: 'pi pi-book',
-        items: Object.entries(readStatusLabels).map(([status, label]) => ({
+        items: Object.entries(READ_STATUS_LABELS).map(([status, label]) => ({
           label,
           command: () => {
             this.bookService.updateBookReadStatus(this.book().id, status as ReadStatus).subscribe({

@@ -7,7 +7,7 @@ import {finalize, map, take} from "rxjs/operators";
 import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/book.model";
 import {BookService} from "../../service/book.service";
 import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
-import {BookCardComponent} from "../book-browser/book-card/book-card.component";
+import {LegacyBookCardComponent} from "../legacy-book-card/legacy-book-card.component";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@openng/optimus-ui/tabs";
 import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
 import {ProgressBar} from "@openng/optimus-ui/progressbar";
@@ -16,7 +16,7 @@ import {ConfirmationService, MenuItem, MessageService} from "@openng/optimus-ui/
 import {UserService} from "../../../settings/user-management/user.service";
 import {BookMenuService} from "../../service/book-menu.service";
 import {LoadingService} from "../../../../core/services/loading.service";
-import {BookDialogHelperService} from "../book-browser/book-dialog-helper.service";
+import {BookDialogHelperService} from "../../service/book-dialog-helper.service";
 import {TaskHelperService} from "../../../settings/task-management/task-helper.service";
 import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
 import {TieredMenu} from "@openng/optimus-ui/tieredmenu";
@@ -26,7 +26,7 @@ import {Tooltip} from "@openng/optimus-ui/tooltip";
 import {Divider} from "@openng/optimus-ui/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
 import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
-import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
+import {BookCardOverlayPreferenceService} from '../legacy-book-card/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
@@ -77,7 +77,7 @@ interface SeriesStats {
     FormsModule,
     NgStyle,
     NgClass,
-    BookCardComponent,
+    LegacyBookCardComponent,
     ProgressSpinner,
     ProgressBar,
     Tabs,

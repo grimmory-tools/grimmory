@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MessageService } from '@openng/optimus-ui/api';
 
 import { getTranslocoModule } from '../../../core/testing/transloco-testing';
-import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
+import { BookDialogHelperService } from '../../../features/book/service/book-dialog-helper.service';
 import { BookService } from '../../../features/book/service/book.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { LibraryService } from '../../../features/book/service/library.service';

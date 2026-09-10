@@ -285,7 +285,7 @@
                   [style.--series-grid-card-height.px]="seriesGridCardHeight()"
                   [style.--series-grid-gap.px]="seriesGridGap()">
                   @for (book of books; track book.id; let index = $index) {
-                    <app-book-card
+                    <app-legacy-book-card
                       [index]="index"
                       [book]="book"
                       [isCheckboxEnabled]="true"
@@ -296,7 +296,7 @@
                       [isSelected]="isBookSelected(book)"
                       [useSquareCovers]="seriesCardsUseSquareCovers"
                       [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                    </app-book-card>
+                    </app-legacy-book-card>
                   }
                 </div>
 

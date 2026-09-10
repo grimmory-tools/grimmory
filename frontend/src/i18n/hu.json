@@ -556,20 +556,6 @@
       "tableSortConfig": "",
       "formatOverlay": "Fájlformátum overlay"
     },
-    "filter": {
-      "sectionTitle": "",
-      "sectionDesc": "",
-      "filterMode": "",
-      "filterModeDesc": "",
-      "visibleFilters": "",
-      "visibleFiltersDesc": "",
-      "selectionCount": "",
-      "addFilter": "",
-      "resetToDefaults": "",
-      "modeAnd": "",
-      "modeOr": "",
-      "modeSingle": ""
-    },
     "sidebarSort": {
       "sectionTitle": "",
       "sectionDesc": "",
@@ -2736,68 +2722,20 @@
         "customCoverHeader": "Egyedi borító generálás megerősítése"
       },
       "toast": {
-        "sortSavedSummary": "Rendezés elmentve",
-        "sortSavedGlobalDetail": "Alapértelmezett rendezési sorrend elmentve.",
-        "sortSavedEntityDetail": "Rendezési sorrend elmentve a következőhöz: {{ entityType }}",
         "regenCoverStartedSummary": "Borító újragenerálás elindítva",
         "regenCoverStartedDetail": "Borítók újragenerálása {{ count }} könyv számára. Frissítsd az oldalt miután végeztünk.",
         "customCoverStartedSummary": "Egyedi borító generálás elindítva",
         "customCoverStartedDetail": "Egyedi borító generálása {{ count }} könyv számára.",
         "failedSummary": "Sikertelen",
         "regenCoverFailedDetail": "Nem tudtuk elindítani a borítók újragenerálását.",
-        "customCoverFailedDetail": "Nem tudtuk elindítani az egyedi borító generálást.",
-        "unshelveSuccessDetail": "Könyvespolcok frissítve",
-        "unshelveFailedDetail": "Könyvespolcok frissítése sikertelen",
-        "noEligibleBooksSummary": "Nincsenek alkalmas könyvek",
-        "noEligibleBooksDetail": "A kiválasztott könyvek egy fájlból kell álljanak (alternatív formátumok nem elérhetőek).",
-        "multipleLibrariesSummary": "Külöböző könyvtárak",
-        "multipleLibrariesDetail": "Minden kiválasztott könyvnek azonos könyvtárból kell származnia."
+        "customCoverFailedDetail": "Nem tudtuk elindítani az egyedi borító generálást."
       },
       "loading": {
-        "deleting": "{{ count }} könyv törlése...",
-        "unshelving": "{{ count }} könyv levétele a polcokról..."
+        "deleting": "{{ count }} könyv törlése..."
       },
       "labels": {
         "allBooks": "Minden könyv",
-        "unshelvedBooks": "Polc nélküli könyvek",
-        "unshelvedBooksFiltered": "Polc nélküli könyvek (szűrt)",
-        "filteredSuffix": "(Szűrt)",
-        "seriesCollapsedInfo": "{{ count }} {{ itemWord }} mutatása (sorozatok összevonva)",
-        "item": "elem",
-        "items": "elemek",
-        "selected": "kiválasztott",
-        "setAsDefault": "Beállítod alapértelmezésként?",
-        "save": "Mentés",
-        "collapseSeries": "Sorozatok összevonása",
-        "gridColumns": "Rácsnézet oszlopai",
-        "bookTypeOverlay": "Fájlformátum overlay",
-        "noBooks": "Ebben a gyűjteményben nem találhatóak könyvek!",
-        "failedLibrary": "Nem sikerült betölteni a könyvtárban lévő könyveket!",
-        "failedShelf": "Nem sikerült betölteni a polcon lévő könyveket!",
-        "failedBooks": "",
-        "activeFilters": "{{ count }} aktív szűrő"
-      },
-      "tooltip": {
-        "clearFilters": "Szűrők eltávolítása",
-        "visibleColumns": "Látható oszlopok",
-        "selectSorting": "Rendezés kiválasztása",
-        "toggleView": "Válts Rácsos és Táblázatos megjelenítés között",
-        "search": "Keresés",
-        "toggleSidebar": "Oldalhasáb megjelenítése / elrejtése",
-        "metadataActions": "Metaadat tevékenységek",
-        "assignToShelf": "Polcra tesz",
-        "removeFromShelf": "Polcról levesz",
-        "lockUnlockMetadata": "Metaadatok zárolása / feloldása",
-        "organizeFiles": "Fájlok rendszerezése",
-        "attachToBook": "Hozzáadás egy másik könyvhöz",
-        "moreActions": "További lehetőségek",
-        "selectAll": "Összes könyv kiválasztása",
-        "deselectAll": "Kiválasztások megszüntetése",
-        "deleteSelected": "Kiválasztott könyvek törlése"
-      },
-      "placeholder": {
-        "selectColumns": "Oszlopok kiválasztása",
-        "search": "Cím, Szerző, Sorozat, Műfaj, vagy ISBN..."
+        "unshelvedBooks": "Polc nélküli könyvek"
       }
     },
     "card": {
@@ -3035,46 +2973,10 @@
         "deletingLibrary": ""
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "",
-        "title": "",
-        "authors": "",
-        "publisher": "",
-        "seriesName": "",
-        "seriesNumber": "",
-        "categories": "",
-        "publishedDate": "",
-        "lastReadTime": "",
-        "addedOn": "",
-        "fileName": "",
-        "fileSizeKb": "",
-        "language": "",
-        "isbn": "",
-        "pageCount": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": ""
-      },
-      "toast": {
-        "savedSummary": "",
-        "savedDetail": ""
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "",
         "savedDetail": "",
-        "saveFailedSummary": "",
-        "saveFailedDetail": ""
-      }
-    },
-    "filterPref": {
-      "toast": {
         "saveFailedSummary": "",
         "saveFailedDetail": ""
       }
@@ -3236,41 +3138,7 @@
       }
     },
     "filter": {
-      "title": "",
       "showingFirst100": "",
-      "footerNote": "",
-      "labels": {
-        "author": "",
-        "category": "",
-        "series": "",
-        "bookType": "",
-        "readStatus": "",
-        "personalRating": "",
-        "publisher": "",
-        "matchScore": "",
-        "library": "",
-        "shelf": "",
-        "shelfStatus": "",
-        "tag": "",
-        "publishedDate": "",
-        "fileSize": "",
-        "amazonRating": "",
-        "goodreadsRating": "",
-        "hardcoverRating": "",
-        "lubimyczytacRating": "",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "language": "",
-        "pageCount": "",
-        "mood": "",
-        "ageRating": "",
-        "contentRating": "",
-        "narrator": "",
-        "comicCharacter": "",
-        "comicTeam": "",
-        "comicLocation": "",
-        "comicCreator": ""
-      },
       "readStatus": {
         "unread": "",
         "reading": "",
@@ -3323,14 +3191,6 @@
       "shelfStatus": {
         "shelved": "",
         "unshelved": ""
-      },
-      "comicRoles": {
-        "penciller": "",
-        "inker": "",
-        "colorist": "",
-        "letterer": "",
-        "coverArtist": "",
-        "editor": ""
       }
     },
     "shelfAssigner": {
@@ -3393,27 +3253,6 @@
         "updateFailedDetail": ""
       }
     },
-    "table": {
-      "label": "",
-      "bookCoverAlt": "",
-      "selectBook": "",
-      "selectBookFallback": "",
-      "noRating": "",
-      "ratingOutOf": "",
-      "statusWithPrefix": "{{ status }}",
-      "locked": "",
-      "unlocked": "",
-      "toast": {
-        "metadataLockedSummary": "",
-        "metadataLockedDetail": "",
-        "metadataUnlockedSummary": "",
-        "metadataUnlockedDetail": "",
-        "lockFailedSummary": "",
-        "lockFailedDetail": "",
-        "unlockFailedSummary": "",
-        "unlockFailedDetail": ""
-      }
-    },
     "lockUnlockDialog": {
       "title": "",
       "selectedCount": "",
@@ -3434,42 +3273,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "",
-      "removeTooltip": "",
-      "addSortFieldPlaceholder": "",
-      "saveAsDefault": "",
-      "ascendingTooltip": "",
-      "descendingTooltip": "",
-      "options": {
-        "title": "",
-        "fileName": "",
-        "filePath": "",
-        "author": "",
-        "authorSurnameVorname": "",
-        "seriesName": "",
-        "seriesNumber": "",
-        "lastReadTime": "",
-        "personalRating": "",
-        "addedOn": "",
-        "fileSizeKb": "",
-        "locked": "",
-        "publisher": "",
-        "publishedDate": "",
-        "readStatus": "",
-        "dateFinished": "",
-        "readingProgress": "",
-        "bookType": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": "",
-        "narrator": "",
-        "pageCount": "",
-        "random": ""
-      }
+      "saveAsDefault": ""
     },
     "fileAttacher": {
       "title": "",

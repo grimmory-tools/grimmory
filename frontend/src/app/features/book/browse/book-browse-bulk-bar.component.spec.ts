@@ -10,7 +10,7 @@ import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {type BookSummary} from '../data/book-response.models';
 import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {BookBrowseBulkBarComponent} from './book-browse-bulk-bar.component';
 
 function selectionOf(ids: readonly number[]): BrowseSelection {
