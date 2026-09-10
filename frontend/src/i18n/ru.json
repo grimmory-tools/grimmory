@@ -11,7 +11,7 @@
     "success": "Успешно",
     "yes": "Да",
     "no": "Нет",
-    "ok": "OK",
+    "ok": "",
     "retry": "Повторить",
     "back": "Назад",
     "next": "Далее",
@@ -23,16 +23,16 @@
     "dismiss": "Отклонить",
     "discard": "Отменить изменения",
     "review": "Просмотреть",
+    "libraryPathInaccessible": "",
     "displaySettings": "Настройки отображения",
     "cardSize": "Размер карточки",
+    "decreaseCardSize": "",
+    "increaseCardSize": "",
+    "cardSizeControls": "",
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "cardSizeControls": "",
-    "libraryPathInaccessible": "",
-    "decreaseCardSize": "",
-    "dialogLoadError": "",
-    "increaseCardSize": ""
+    "dialogLoadError": ""
   },
   "auth": {
     "oidc": {
@@ -60,18 +60,18 @@
       "useLocalLogin": "Использовать локальный вход",
       "oidcAutoDisabled": "Аутентификация {{provider}} была автоматически отключена после {{count}} последовательных ошибок (включая тайм-ауты). Вы можете повторить попытку или продолжить с локальным входом.",
       "oidcManuallyDisabled": "Аутентификация {{provider}} была отключена вручную. Вы можете включить её снова или продолжить с локальным входом.",
+      "oidcErrorsSummary": "",
       "rateLimited": "Слишком много неудачных попыток входа. Пожалуйста, попробуйте позже.",
-      "oidcErrors": {
-        "providerUnreachable": "",
-        "stateMismatch": "",
-        "invalidToken": "",
-        "userNotProvisioned": "",
-        "unknown": "",
-        "exchangeFailed": ""
-      },
-      "oidcOnlyRedirectFailed": "",
       "sessionRevoked": "",
-      "oidcErrorsSummary": ""
+      "oidcOnlyRedirectFailed": "",
+      "oidcErrors": {
+        "stateMismatch": "",
+        "exchangeFailed": "",
+        "userNotProvisioned": "",
+        "providerUnreachable": "",
+        "invalidToken": "",
+        "unknown": ""
+      }
     }
   },
   "nav": {
@@ -106,12 +106,12 @@
       "metadata2": "Метаданные 2",
       "application": "Приложение",
       "users": "Пользователи",
-      "email": "Email",
+      "email": "",
       "patterns": "Шаблоны",
       "authentication": "Аутентификация",
       "tasks": "Задачи",
       "auditLogs": "Журнал аудита",
-      "opds": "OPDS",
+      "opds": "",
       "devices": "Устройства"
     }
   },
@@ -139,14 +139,14 @@
       "username": "Имя пользователя",
       "password": "Пароль",
       "fromAddress": "Адрес отправителя",
-      "hostPlaceholder": "smtp.example.com",
-      "portPlaceholder": "587",
-      "usernamePlaceholder": "user@example.com",
+      "hostPlaceholder": "",
+      "portPlaceholder": "",
+      "usernamePlaceholder": "",
       "passwordPlaceholder": "Введите пароль",
-      "fromAddressPlaceholder": "noreply@example.com",
+      "fromAddressPlaceholder": "",
       "providerNamePlaceholder": "Название провайдера",
       "authentication": "Аутентификация",
-      "startTls": "StartTLS",
+      "startTls": "",
       "shared": "Общий",
       "shareTooltip": "Сделать этого провайдера общим для всех пользователей",
       "loadError": "Не удалось загрузить провайдеров email",
@@ -203,9 +203,9 @@
       "emptyTitle": "Получатели не настроены",
       "emptySubtitle": "Добавьте первого получателя, чтобы начать отправку книг",
       "default": "По умолчанию",
-      "email": "Email",
+      "email": "",
       "name": "Имя",
-      "emailPlaceholder": "recipient@example.com",
+      "emailPlaceholder": "",
       "namePlaceholder": "Имя получателя",
       "editRecipient": "Редактировать получателя",
       "deleteRecipient": "Удалить получателя",
@@ -305,17 +305,17 @@
       "pageSpreadDesc": "Выберите, как отображаются страницы PDF: одна страница или двухстраничный разворот.",
       "pageZoom": "Масштаб страницы",
       "pageZoomDesc": "Установите масштаб по умолчанию для PDF-документов для улучшения читаемости.",
+      "scrollLayout": "",
+      "scrollLayoutDesc": "",
+      "vertical": "",
+      "horizontal": "",
       "even": "Чётные",
       "odd": "Нечётные",
       "none": "Нет",
       "autoZoom": "Авто",
       "pageFit": "По странице",
       "pageWidth": "По ширине",
-      "actualSize": "Реальный размер",
-      "scrollLayoutDesc": "",
-      "vertical": "",
-      "horizontal": "",
-      "scrollLayout": ""
+      "actualSize": "Реальный размер"
     },
     "cbx": {
       "sectionTitle": "Читалка комиксов: настройки по умолчанию",
@@ -328,6 +328,8 @@
       "fitModeDesc": "Выберите, как изображения масштабируются для окна читалки.",
       "scrollMode": "Режим прокрутки",
       "scrollModeDesc": "Выберите между постраничным чтением или бесконечной прокруткой.",
+      "stripMaxWidth": "",
+      "stripMaxWidthDesc": "",
       "backgroundColor": "Цвет фона",
       "backgroundColorDesc": "Установите цвет фона для читалки комиксов.",
       "even": "Чётные",
@@ -341,12 +343,10 @@
       "automatic": "Автоматически",
       "paginated": "Постраничный",
       "infinite": "Бесконечный",
+      "longStrip": "",
       "gray": "Серый",
       "black": "Чёрный",
-      "white": "Белый",
-      "stripMaxWidthDesc": "",
-      "stripMaxWidth": "",
-      "longStrip": ""
+      "white": "Белый"
     },
     "streamingPdf": {
       "sectionTitle": "Потоковая PDF-читалка: настройки по умолчанию",
@@ -432,6 +432,43 @@
   "settingsView": {
     "title": "Настройки отображения",
     "description": "Настройте, как книги отображаются в Вашей библиотеке, включая макет сетки, параметры сортировки и поведение боковой панели.",
+    "saveFailedDetail": "",
+    "language": {
+      "label": "",
+      "savedDetail": ""
+    },
+    "uiFont": {
+      "label": "",
+      "accessibleLabel": "",
+      "savedDetail": ""
+    },
+    "theme": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "oledDarkMode": "",
+      "savedDetail": "",
+      "syncSavedDetail": "",
+      "customPrimaryOptionLabel": "",
+      "customPrimaryColors": {
+        "red": "",
+        "orange": "",
+        "amber": "",
+        "yellow": "",
+        "lime": "",
+        "green": "",
+        "emerald": "",
+        "teal": "",
+        "cyan": "",
+        "sky": "",
+        "blue": "",
+        "indigo": "",
+        "violet": "",
+        "purple": "",
+        "fuchsia": "",
+        "pink": "",
+        "rose": ""
+      }
+    },
     "dashboardScrollers": {
       "sectionTitle": "Настройка панели управления",
       "sectionDesc": "Добавьте до 5 лент из различных коллекций книг и настройте их поведение",
@@ -446,6 +483,9 @@
       "maxItems": "Макс. элементов",
       "addScroller": "Добавить ленту",
       "resetToDefault": "Сбросить по умолчанию",
+      "saveSettings": "",
+      "saveSuccess": "",
+      "saveSuccessDetail": "",
       "scrollerTypes": {
         "lastRead": "Продолжить чтение",
         "lastListened": "Продолжить прослушивание",
@@ -476,10 +516,7 @@
       "sortDirections": {
         "asc": "По возрастанию",
         "desc": "По убыванию"
-      },
-      "saveSuccess": "",
-      "saveSuccessDetail": "",
-      "saveSettings": ""
+      }
     },
     "librarySort": {
       "sectionTitle": "Настройки вида и сортировки библиотеки и полок",
@@ -521,11 +558,11 @@
       "sortPublisher": "Издательство",
       "sortPublishedDate": "Дата публикации",
       "sortAmazonRating": "Рейтинг Amazon",
-      "sortAmazonCount": "Amazon #",
+      "sortAmazonCount": "",
       "sortGoodreadsRating": "Рейтинг Goodreads",
-      "sortGoodreadsCount": "Goodreads #",
+      "sortGoodreadsCount": "",
       "sortHardcoverRating": "Рейтинг Hardcover",
-      "sortHardcoverCount": "Hardcover #",
+      "sortHardcoverCount": "",
       "sortRanobedbRating": "Рейтинг Ranobedb",
       "sortReadStatus": "Статус чтения",
       "sortDateFinished": "Дата завершения",
@@ -601,43 +638,6 @@
       "sidebarWidthDesc": "Управляет шириной навигационной боковой панели и панели фильтров книг.",
       "saved": "Настройки обновлены",
       "savedDetail": "Настройка ширины боковой панели сохранена."
-    },
-    "theme": {
-      "customPrimaryColors": {
-        "violet": "",
-        "pink": "",
-        "lime": "",
-        "sky": "",
-        "amber": "",
-        "rose": "",
-        "cyan": "",
-        "purple": "",
-        "fuchsia": "",
-        "blue": "",
-        "orange": "",
-        "green": "",
-        "red": "",
-        "yellow": "",
-        "indigo": "",
-        "emerald": "",
-        "teal": ""
-      },
-      "syncSavedDetail": "",
-      "savedDetail": "",
-      "customPrimaryOptionLabel": "",
-      "oledDarkMode": "",
-      "sectionTitle": "",
-      "sectionDesc": ""
-    },
-    "saveFailedDetail": "",
-    "language": {
-      "savedDetail": "",
-      "label": ""
-    },
-    "uiFont": {
-      "savedDetail": "",
-      "accessibleLabel": "",
-      "label": ""
     }
   },
   "settingsMeta": {
@@ -654,6 +654,8 @@
       "sectionDesc": "Настройте, как метаданные записываются в исходные файлы и как файлы перемещаются или переименовываются при изменении метаданных.",
       "networkWarningTitle": "Предупреждение о сетевом хранилище:",
       "networkWarning": "Эти функции напрямую изменяют и перемещают файлы книг на диске (включая перезапись метаданных и переименование файлов). Они предназначены только для локальных файловых систем. Использование на NAS или облачном хранилище не тестировалось и может привести к повреждению файлов, неполным записям или необратимой потере данных. Запросы на GitHub, связанные с сетевым хранилищем, не поддерживаются.",
+      "networkModeTitle": "",
+      "networkModeDesc": "",
       "unsupportedNote": "Запись метаданных <b>не поддерживается</b> для форматов FB2, AZW3 и MOBI.",
       "writeEpub": "Записывать метаданные в EPUB",
       "writeEpubDesc": "Записывать метаданные непосредственно в файлы EPUB при редактировании информации о книге.",
@@ -679,9 +681,7 @@
       "writeOnScanDesc": "Создавать сопроводительные JSON-файлы при первом добавлении книг в библиотеку во время сканирования.",
       "includeCover": "Включить файл обложки",
       "includeCoverDesc": "Также сохранять изображение обложки как <code>BookName.cover.jpg</code> рядом с сопроводительным JSON-файлом.",
-      "loadError": "Не удалось загрузить настройки.",
-      "networkModeTitle": "",
-      "networkModeDesc": ""
+      "loadError": "Не удалось загрузить настройки."
     },
     "providers": {
       "sectionTitle": "Провайдеры метаданных",
@@ -698,47 +698,14 @@
       "cookiePlaceholder": "Вставьте Ваш cookie Amazon",
       "languageRestriction": "Языковое ограничение",
       "selectLanguage": "Выберите язык",
-      "apiKeyOptional": "API-ключ (необязательно)",
+      "googleApiLabel": "",
       "googleApiDesc": "Предоставление API-ключа Google Books увеличивает лимиты запросов и повышает надёжность.",
       "googleApiPlaceholder": "Введите API-ключ Google Books",
       "apiToken": "API-токен",
       "hardcoverPlaceholder": "Введите API-токен Hardcover",
-      "comicvinePlaceholder": "Введите API-токен Comic Vine"
-    },
-    "fieldSelector": {
-      "sectionTitle": "Включённые поля в редакторе и средстве выбора метаданных",
-      "sectionDesc": "Выберите, какие поля метаданных отображать при редактировании информации о книге или выборе метаданных от провайдеров. Отключённые поля будут скрыты из интерфейса.",
-      "fields": {
-        "amazonRating": "",
-        "asin": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverId": "",
-        "audibleRating": "",
-        "googleId": "",
-        "ranobedbId": "",
-        "amazonReviewCount": "",
-        "lubimyczytacId": "",
-        "ranobedbRating": "",
-        "lubimyczytacRating": "",
-        "comicvineId": "",
-        "hardcoverBookId": "",
-        "audibleReviewCount": "",
-        "hardcoverReviewCount": "",
-        "audibleId": "",
-        "goodreadsId": ""
-      },
-      "providers": {
-        "goodreads": "",
-        "amazon": "",
-        "googleBooks": "",
-        "lubimyczytac": "",
-        "hardcover": "",
-        "ranobedb": "",
-        "audible": "",
-        "comicvine": ""
-      }
+      "comicvinePlaceholder": "Введите API-токен Comic Vine",
+      "ranobedbPreferRomajiLabel": "",
+      "ranobedbPreferRomajiDesc": ""
     },
     "publicReviews": {
       "sectionTitle": "Публичные рецензии",
@@ -766,32 +733,67 @@
       "recalcSuccess": "Оценки совпадения всех книг были успешно пересчитаны.",
       "recalcError": "Не удалось пересчитать оценки совпадения.",
       "fields": {
-        "amazonReviewCount": "",
-        "hardcoverRating": "",
-        "doubanReviewCount": "",
+        "title": "",
+        "subtitle": "",
         "authors": "",
-        "seriesName": "",
-        "amazonRating": "",
-        "doubanRating": "",
+        "description": "",
         "publisher": "",
+        "publishedDate": "",
+        "categories": "",
+        "coverImage": "",
+        "seriesName": "",
+        "seriesNumber": "",
         "seriesTotal": "",
         "language": "",
-        "coverImage": "",
-        "categories": "",
-        "subtitle": "",
-        "ranobedbRating": "",
-        "title": "",
-        "isbn10": "",
-        "publishedDate": "",
-        "goodreadsRating": "",
-        "seriesNumber": "",
-        "audibleReviewCount": "",
         "isbn13": "",
-        "description": "",
+        "isbn10": "",
         "pageCount": "",
-        "hardcoverReviewCount": "",
+        "amazonRating": "",
+        "amazonReviewCount": "",
+        "goodreadsRating": "",
         "goodreadsReviewCount": "",
-        "audibleRating": ""
+        "hardcoverRating": "",
+        "hardcoverReviewCount": "",
+        "audibleRating": "",
+        "audibleReviewCount": "",
+        "doubanRating": "",
+        "doubanReviewCount": "",
+        "ranobedbRating": ""
+      }
+    },
+    "fieldSelector": {
+      "sectionTitle": "Включённые поля в редакторе и средстве выбора метаданных",
+      "sectionDesc": "Выберите, какие поля метаданных отображать при редактировании информации о книге или выборе метаданных от провайдеров. Отключённые поля будут скрыты из интерфейса.",
+      "providers": {
+        "amazon": "",
+        "googleBooks": "",
+        "goodreads": "",
+        "hardcover": "",
+        "audible": "",
+        "comicvine": "",
+        "lubimyczytac": "",
+        "ranobedb": ""
+      },
+      "fields": {
+        "asin": "",
+        "amazonRating": "",
+        "amazonReviewCount": "",
+        "googleId": "",
+        "goodreadsId": "",
+        "goodreadsRating": "",
+        "goodreadsReviewCount": "",
+        "hardcoverId": "",
+        "hardcoverBookId": "",
+        "hardcoverRating": "",
+        "hardcoverReviewCount": "",
+        "comicvineId": "",
+        "lubimyczytacId": "",
+        "lubimyczytacRating": "",
+        "ranobedbId": "",
+        "ranobedbRating": "",
+        "audibleId": "",
+        "audibleRating": "",
+        "audibleReviewCount": ""
       }
     }
   },
@@ -835,6 +837,8 @@
     "covers": {
       "sectionTitle": "Обложки книг",
       "regenerate": "Перегенерация обложек",
+      "regenerateAllBtn": "",
+      "regenerateMissingBtn": "",
       "regenerateDesc": "Перегенерирует обложки для всех книг из встроенных обложек в файлах.",
       "regenerateStarted": "Перегенерация обложек запущена",
       "regenerateStartedDetail": "Обложки книг перегенерируются.",
@@ -846,9 +850,7 @@
       "aspectRatio": "Порог соотношения сторон: {{value}}",
       "aspectRatioDesc": "Изображения, соотношение сторон которых превышает этот порог, будут обрезаны. Значение 2.5 означает, что изображения более чем в 2.5 раза выше (или шире) нормы будут обрезаны.",
       "smartCropping": "Умная обрезка",
-      "smartCroppingDesc": "Пропускать однотонные области при определении места обрезки. Фокусирует обложку на наиболее значимом содержании.",
-      "regenerateAllBtn": "",
-      "regenerateMissingBtn": ""
+      "smartCroppingDesc": "Пропускать однотонные области при определении места обрезки. Фокусирует обложку на наиболее значимом содержании."
     },
     "search": {
       "sectionTitle": "Поиск и рекомендации",
@@ -904,10 +906,10 @@
       "libraries": "Библиотеки",
       "notSet": "Не задано",
       "allLibrariesAdmin": "Все библиотеки (Админ)",
+      "noLibrariesAssigned": "",
       "selectLibraries": "Выберите библиотеки",
       "enterFullName": "Введите полное имя",
-      "enterEmail": "Введите email",
-      "noLibrariesAssigned": ""
+      "enterEmail": "Введите email"
     },
     "permGroups": {
       "administration": "Администрирование",
@@ -1137,7 +1139,7 @@
       "sectionDesc": "Включите или отключите сервисы API для управления доступом к Вашей коллекции книг.",
       "opdsLabel": "Сервер OPDS",
       "opdsDesc": "Включите сервер OPDS для доступа к Вашей коллекции книг через OPDS-совместимые приложения для чтения, такие как KOReader, Moon+ Reader и т.д.",
-      "komgaLabel": "Komga API",
+      "komgaLabel": "",
       "komgaDesc": "Включите Komga-совместимый API для использования клиентов Komga (Tachiyomi, Komelia и т.д.) с Grimmory. Использует те же учётные записи OPDS для аутентификации.",
       "groupUnknownLabel": "Группировать книги без серии",
       "groupUnknownDesc": "Когда включено, книги без серии будут объединены в группу «Неизвестная серия». Когда отключено, каждая книга будет отображаться как отдельная серия.",
@@ -1321,8 +1323,11 @@
       "sectionDesc": "Настройте параметры провайдера OIDC. Все поля обязательны для включения аутентификации OIDC.",
       "providerName": "Имя провайдера",
       "providerPlaceholder": "например, Authentik, Keycloak",
-      "clientId": "Client ID",
+      "clientId": "",
       "clientIdPlaceholder": "Ваш OIDC Client ID",
+      "clientSecret": "",
+      "clientSecretPlaceholder": "",
+      "clientSecretHint": "",
       "issuerUri": "URI издателя",
       "issuerPlaceholder": "например, https://auth.example.com/realms/grimmory",
       "scope": "Область видимости",
@@ -1335,16 +1340,22 @@
       "emailPlaceholder": "например, email",
       "nameClaim": "Утверждение отображаемого имени",
       "namePlaceholder": "например, name",
-      "clientSecretHint": "",
-      "sessionDuration": "",
-      "clientSecretPlaceholder": "",
-      "clientSecret": "",
-      "groupsPlaceholder": "",
       "groupsClaim": "",
+      "groupsPlaceholder": "",
+      "sessionDuration": "",
       "sessionDurationPlaceholder": "",
       "sessionDurationHint": "",
-      "backchannelLogoutHint": "",
-      "backchannelLogoutUri": ""
+      "backchannelLogoutUri": "",
+      "backchannelLogoutHint": ""
+    },
+    "mobileRedirectUris": {
+      "title": "",
+      "description": "",
+      "label": "",
+      "placeholder": "",
+      "hintPrefix": "",
+      "hintSuffix": "",
+      "removeLabel": ""
     },
     "provisioning": {
       "sectionTitle": "Создание пользователей",
@@ -1353,13 +1364,62 @@
       "autoEnabled": "Включено",
       "autoDisabled": "Отключено",
       "autoDesc": "Когда включено, новые пользователи автоматически создаются при первом входе через OIDC с разрешениями, указанными ниже. Когда отключено, пользователи должны быть созданы вручную в Grimmory перед входом через OIDC.",
+      "linkLocalLabel": "",
+      "linkLocalDesc": "",
+      "linkLocalWarning": "",
       "defaultPerms": "Разрешения по умолчанию",
       "readBooks": "Чтение книг",
       "defaultLibraryAccess": "Доступ к библиотекам по умолчанию",
-      "selectLibraries": "Выберите библиотеки, доступные новым пользователям",
-      "linkLocalLabel": "",
-      "linkLocalDesc": "",
-      "linkLocalWarning": ""
+      "selectLibraries": "Выберите библиотеки, доступные новым пользователям"
+    },
+    "groupMapping": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "syncModeLabel": "",
+      "syncModeHint": "",
+      "addMapping": "",
+      "colGroupClaim": "",
+      "colAdmin": "",
+      "colPermissions": "",
+      "colLibraries": "",
+      "colDescription": "",
+      "addTitle": "",
+      "editTitle": "",
+      "groupClaimLabel": "",
+      "groupClaimPlaceholder": "",
+      "descriptionLabel": "",
+      "descriptionPlaceholder": "",
+      "adminLabel": "",
+      "permissionsLabel": "",
+      "librariesLabel": ""
+    },
+    "infoPanel": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "redirectUri": "",
+      "postLogoutRedirectUri": "",
+      "backChannelLogoutUri": "",
+      "requiredScopes": "",
+      "pkceMethod": "",
+      "grantType": ""
+    },
+    "testConnection": {
+      "button": "",
+      "passed": "",
+      "failed": "",
+      "checks": "",
+      "error": ""
+    },
+    "oidcOnly": {
+      "sectionTitle": "",
+      "sectionDesc": "",
+      "label": "",
+      "enabled": "",
+      "disabled": "",
+      "description": "",
+      "backdoorHint": "",
+      "saved": "",
+      "error": ""
     },
     "toast": {
       "saved": "Сохранено",
@@ -1369,72 +1429,14 @@
       "providerError": "Не удалось сохранить настройки провайдера OIDC.",
       "provisionSaved": "Настройки автоматического создания пользователей OIDC сохранены.",
       "provisionError": "Не удалось сохранить настройки автоматического создания пользователей OIDC.",
-      "syncModeSaved": "",
-      "sessionDurationError": "",
-      "groupMappingDeleted": "",
       "sessionDurationSaved": "",
-      "groupMappingError": "",
-      "syncModeError": "",
+      "sessionDurationError": "",
       "copiedToClipboard": "",
-      "groupMappingSaved": ""
-    },
-    "infoPanel": {
-      "sectionTitle": "",
-      "pkceMethod": "",
-      "redirectUri": "",
-      "backChannelLogoutUri": "",
-      "postLogoutRedirectUri": "",
-      "sectionDesc": "",
-      "grantType": "",
-      "requiredScopes": ""
-    },
-    "groupMapping": {
-      "syncModeHint": "",
-      "sectionTitle": "",
-      "librariesLabel": "",
-      "descriptionPlaceholder": "",
-      "colPermissions": "",
-      "syncModeLabel": "",
-      "addTitle": "",
-      "colGroupClaim": "",
-      "colLibraries": "",
-      "colDescription": "",
-      "colAdmin": "",
-      "permissionsLabel": "",
-      "groupClaimLabel": "",
-      "sectionDesc": "",
-      "editTitle": "",
-      "addMapping": "",
-      "adminLabel": "",
-      "descriptionLabel": "",
-      "groupClaimPlaceholder": ""
-    },
-    "mobileRedirectUris": {
-      "placeholder": "",
-      "removeLabel": "",
-      "title": "",
-      "label": "",
-      "hintSuffix": "",
-      "description": "",
-      "hintPrefix": ""
-    },
-    "oidcOnly": {
-      "enabled": "",
-      "saved": "",
-      "sectionTitle": "",
-      "description": "",
-      "label": "",
-      "backdoorHint": "",
-      "error": "",
-      "disabled": "",
-      "sectionDesc": ""
-    },
-    "testConnection": {
-      "error": "",
-      "button": "",
-      "failed": "",
-      "passed": "",
-      "checks": ""
+      "syncModeSaved": "",
+      "syncModeError": "",
+      "groupMappingSaved": "",
+      "groupMappingDeleted": "",
+      "groupMappingError": ""
     }
   },
   "settingsDevice": {
@@ -1488,6 +1490,8 @@
       "autoAddDesc": "Когда включено, новые книги будут автоматически добавляться на полку Kobo для синхронизации. Это избавляет от необходимости вручную добавлять каждую книгу.",
       "token": "Токен синхронизации Kobo",
       "tokenDesc": "Ваш уникальный токен синхронизации для аутентификации с устройством Kobo. Храните его в безопасности.",
+      "apiPath": "",
+      "apiPathDesc": "",
       "tokenManagement": "Управление токеном",
       "regenerateToken": "Перегенерировать токен",
       "tokenManagementDesc": "Перегенерируйте токен синхронизации при необходимости. Текущий токен будет аннулирован.",
@@ -1536,8 +1540,8 @@
       "twoWaySyncLabel": "Двунаправленная синхронизация прогресса чтения",
       "twoWaySyncDesc": "Включить двунаправленную синхронизацию между веб-читалкой Grimmory и Вашим устройством Kobo. Прогресс чтения на любой из платформ будет отражаться на другой.",
       "twoWaySyncNote": "Примечание: из-за различий форматов позиции точность синхронизации обеспечивается на уровне «лучших усилий». В большинстве случаев прогресс будет точен на уровне главы.",
-      "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
-      "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
+      "twoWaySyncKepubWarning": "",
+      "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Двунаправленная синхронизация прогресса включена",
       "twoWaySyncDisabled": "Двунаправленная синхронизация прогресса отключена",
       "autoAddEnabled": "Новые книги будут автоматически добавляться на полку Kobo",
@@ -1632,6 +1636,7 @@
       "filesCount": "{{ uploaded }}/{{ total }} файлов",
       "failedCount": "({{ count }} с ошибками)",
       "dragDropTitle": "Перетащите файлы сюда",
+      "supportedFormats": "",
       "maxFileSize": "Максимальный размер файла: {{ size }} на файл",
       "fileTooLargeTooltip": "Файл слишком большой",
       "uploadFailedTooltip": "Ошибка загрузки",
@@ -1641,7 +1646,7 @@
       "statusUploaded": "Загружен",
       "statusFailed": "Ошибка",
       "destinationLibrary": "Библиотека",
-      "destinationBookdrop": "Bookdrop",
+      "destinationBookdrop": "",
       "toast": {
         "noDestinationSummary": "Место загрузки не выбрано",
         "noDestinationDetail": "Пожалуйста, выберите библиотеку и подпапку перед добавлением файлов.",
@@ -1650,8 +1655,7 @@
         "missingDataSummary": "Отсутствуют данные",
         "missingDataDetail": "Пожалуйста, выберите библиотеку и путь перед загрузкой.",
         "uploadFailedDefault": "Загрузка не удалась из-за неизвестной ошибки."
-      },
-      "supportedFormats": ""
+      }
     },
     "changePassword": {
       "title": "Изменить пароль",
@@ -1762,36 +1766,25 @@
         "createFailedDefault": "Не удалось создать администратора. Попробуйте снова."
       }
     },
+    "message": {
+      "issueCount": "",
+      "issuePosition": "",
+      "previousIssue": "",
+      "nextIssue": ""
+    },
     "ui": {
-      "validation": {
-        "min": "",
-        "maxLength": "",
-        "parse": "",
-        "email": "",
-        "required": "",
-        "max": "",
-        "default": "",
-        "minLength": "",
-        "pattern": ""
+      "autocomplete": {
+        "noResults": "",
+        "loadFailed": ""
       },
-      "tag": {
-        "removeTag": "",
-        "removeLabel": ""
+      "datePicker": {
+        "previousMonth": "",
+        "nextMonth": ""
       },
       "input": {
+        "showPassword": "",
         "hidePassword": "",
-        "trailingAction": "",
-        "showPassword": ""
-      },
-      "select": {
-        "noResults": "",
-        "selectedCount": "",
-        "clearSelection": "",
-        "search": ""
-      },
-      "rating": {
-        "valueText": "",
-        "setRatingTo": ""
+        "trailingAction": ""
       },
       "message": {
         "issueCount": "",
@@ -1799,25 +1792,58 @@
         "previousIssue": "",
         "nextIssue": ""
       },
+      "rating": {
+        "valueText": "",
+        "setRatingTo": ""
+      },
+      "select": {
+        "clearSelection": "",
+        "noResults": "",
+        "search": "",
+        "selectedCount": ""
+      },
+      "shelfMenu": {
+        "addToShelf": "",
+        "newShelf": ""
+      },
       "spinner": {
         "loading": ""
       },
-      "autocomplete": {
-        "noResults": ""
+      "tag": {
+        "removeTag": "",
+        "removeLabel": ""
       },
-      "datePicker": {
-        "nextMonth": "",
-        "previousMonth": ""
+      "validation": {
+        "default": "",
+        "email": "",
+        "max": "",
+        "maxLength": "",
+        "min": "",
+        "minLength": "",
+        "parse": "",
+        "pattern": "",
+        "required": ""
       }
-    },
-    "message": {
-      "previousIssue": "",
-      "nextIssue": "",
-      "issuePosition": "",
-      "issueCount": ""
     }
   },
   "layout": {
+    "commandPalette": {
+      "placeholder": "",
+      "empty": "",
+      "hintNavigate": "",
+      "hintSelect": "",
+      "ariaLabel": "",
+      "groups": {
+        "action": "",
+        "page": "",
+        "book": "",
+        "author": "",
+        "series": "",
+        "shelf": "",
+        "magicShelf": "",
+        "library": ""
+      }
+    },
     "menu": {
       "adjustSidebarWidth": "Изменить ширину боковой панели",
       "home": "Главная",
@@ -1828,39 +1854,45 @@
       "magicShelves": "Умные полки",
       "unshelved": "Без полки",
       "series": "Серии",
+      "authors": "Авторы",
       "notebook": "Блокнот",
       "update": "(Обновление)",
-      "authors": "Авторы",
-      "documentation": "",
-      "account": "",
-      "search": "",
-      "more": "",
       "updateAvailable": "",
-      "settings": "",
-      "tools": "",
-      "editSidebar": "",
-      "toggleNavigation": "",
-      "add": "",
-      "expandSidebar": "",
-      "resizeSidebar": "",
-      "goToDashboard": "",
-      "doneEditing": "",
-      "notifications": "",
-      "createMagicShelf": "",
-      "collapseSidebar": "",
-      "uploadBook": "",
-      "primaryNav": "",
-      "libraryStats": "",
+      "versionCopied": "",
       "versionCopyFailed": "",
-      "profile": "",
+      "tools": "",
+      "collapseSidebar": "",
+      "expandSidebar": "",
+      "goToDashboard": "",
+      "notifications": "",
+      "primaryNav": "",
+      "resizeSidebar": "",
+      "search": "",
+      "add": "",
+      "createMagicShelf": "",
+      "editSidebar": "",
+      "doneEditing": "",
+      "more": "",
+      "account": "",
+      "settings": "",
+      "libraryStats": "",
       "readingStats": "",
+      "metadataManager": "",
       "bookdrop": "",
       "createLibrary": "",
-      "metadataManager": "",
-      "versionCopied": "",
-      "logout": ""
+      "uploadBook": "",
+      "documentation": "",
+      "profile": "",
+      "logout": "",
+      "toggleNavigation": ""
     },
     "closeNavigation": "Закрыть навигацию",
+    "pageHeader": {
+      "backTo": "",
+      "breadcrumbAriaLabel": "",
+      "moreBreadcrumbs": "",
+      "tabsAriaLabel": ""
+    },
     "changelog": {
       "title": "Что нового",
       "description": "Последние обновления и улучшения",
@@ -1868,48 +1900,31 @@
       "empty": "Нет доступных обновлений."
     },
     "theme": {
+      "theme": "",
       "primary": "Основной",
       "surface": "Поверхность",
-      "options": {
-        "violet": "",
-        "crimson": "",
-        "cobalt": "",
-        "teal": "",
-        "forest": "",
-        "slate": "",
-        "grimmory": "",
-        "custom": "",
-        "meadow": "",
-        "ember": "",
-        "fuchsia": "",
-        "rose": "",
-        "lagoon": ""
-      },
-      "light": "",
-      "dark": "",
-      "theme": "",
       "mode": "",
       "appearance": "",
-      "syncAcrossDevices": "",
+      "light": "",
+      "dark": "",
       "system": "",
-      "customPrimary": ""
-    },
-    "commandPalette": {
-      "groups": {
-        "shelf": "",
-        "series": "",
-        "page": "",
-        "author": "",
-        "magicShelf": "",
-        "library": "",
-        "action": "",
-        "book": ""
-      },
-      "hintSelect": "",
-      "ariaLabel": "",
-      "empty": "",
-      "placeholder": "",
-      "hintNavigate": ""
+      "customPrimary": "",
+      "syncAcrossDevices": "",
+      "options": {
+        "grimmory": "",
+        "cobalt": "",
+        "ember": "",
+        "crimson": "",
+        "rose": "",
+        "forest": "",
+        "meadow": "",
+        "teal": "",
+        "lagoon": "",
+        "violet": "",
+        "fuchsia": "",
+        "slate": "",
+        "custom": ""
+      }
     }
   },
   "libraryCreator": {
@@ -1926,6 +1941,7 @@
       "bookFolders": "Папки с книгами",
       "addFolder": "Добавить папку",
       "emptyFoldersHint": "Добавьте папки, содержащие файлы Ваших книг",
+      "folderStructureHint": "",
       "options": "Параметры",
       "watchFolders": "Отслеживать папки",
       "watchFoldersTooltip": "Автоматически обнаруживать новые книги, добавленные в папки",
@@ -1937,6 +1953,12 @@
       "metadataSourcePreferSidecar": "Предпочитать сопроводительные",
       "metadataSourcePreferEmbedded": "Предпочитать встроенные",
       "metadataSourceNone": "Нет",
+      "organizationMode": "",
+      "organizationModeTooltip": "",
+      "organizationModeLockedTooltip": "",
+      "organizationModeBookPerFile": "",
+      "organizationModeBookPerFolder": "",
+      "organizationModeAutoDetect": "",
       "formatPriority": "Приоритет форматов",
       "formatPriorityTooltip": "Перетащите для изменения приоритета форматов, когда книга имеет несколько файлов",
       "allowedFormats": "Разрешённые форматы",
@@ -1965,14 +1987,7 @@
         "createdLargeDetail": "Библиотека создана с {{count}} файлами. Загрузка выполняется...",
         "createFailedSummary": "Ошибка создания",
         "createFailedDetail": "Произошла ошибка при создании библиотеки. Попробуйте снова."
-      },
-      "organizationMode": "",
-      "organizationModeBookPerFile": "",
-      "organizationModeBookPerFolder": "",
-      "organizationModeAutoDetect": "",
-      "folderStructureHint": "",
-      "organizationModeLockedTooltip": "",
-      "organizationModeTooltip": ""
+      }
     },
     "loading": {
       "title": "Загрузка библиотеки",
@@ -2136,7 +2151,7 @@
         "seriesTotal": "Всего книг в серии",
         "isbn10": "Идентификатор ISBN-10",
         "isbn13": "Идентификатор ISBN-13",
-        "asin": "Amazon ASIN"
+        "asin": ""
       },
       "placeholderExamples": {
         "wildcard": "что угодно",
@@ -2144,14 +2159,14 @@
         "title": "Затерянный город",
         "subtitle": "Повесть о приключениях",
         "authors": "Иван Иванов",
-        "seriesNumber": "25",
-        "published": "{Published:yyyy-MM-dd}",
+        "seriesNumber": "",
+        "published": "",
         "publisher": "Издательство «Мир»",
         "language": "ru",
-        "seriesTotal": "50",
-        "isbn10": "1234567890",
-        "isbn13": "1234567890123",
-        "asin": "B012345678"
+        "seriesTotal": "",
+        "isbn10": "",
+        "isbn13": "",
+        "asin": ""
       },
       "commonPatternLabels": {
         "authorTitle": "Автор - Название",
@@ -2222,8 +2237,8 @@
       "seriesTotal": "Всего в серии",
       "publicReviews": "Публичные рецензии",
       "noValue": "Нет значения",
-      "isbn10": "ISBN 10",
-      "isbn13": "ISBN 13",
+      "isbn10": "",
+      "isbn13": "",
       "ageRating": "Возрастной рейтинг",
       "contentRating": "Рейтинг контента",
       "pages": "Страницы",
@@ -2231,25 +2246,25 @@
       "audiobookDetails": "Детали аудиокниги",
       "comicBookDetails": "Детали комикса",
       "providerMetadata": "Метаданные провайдера",
-      "amazonAsin": "Amazon ASIN",
-      "amazonRating": "Amazon ★",
-      "amazonReviewCount": "Amazon #",
-      "googleBooksId": "Google Books ID",
-      "goodreadsId": "Goodreads ID",
-      "goodreadsRating": "Goodreads ★",
-      "goodreadsReviewCount": "Goodreads #",
-      "hardcoverId": "Hardcover ID",
-      "hardcoverBookId": "Hardcover Book ID",
-      "hardcoverRating": "Hardcover ★",
-      "hardcoverReviewCount": "Hardcover #",
-      "lubimyczytacId": "Lubimyczytac ID",
-      "lubimyczytacRating": "Lubimyczytac ★",
-      "comicvineId": "Comicvine ID",
-      "ranobedbId": "Ranobedb ID",
-      "ranobedbRating": "Ranobedb ★",
-      "audibleId": "Audible ID",
-      "audibleRating": "Audible ★",
-      "audibleReviewCount": "Audible #",
+      "amazonAsin": "",
+      "amazonRating": "",
+      "amazonReviewCount": "",
+      "googleBooksId": "",
+      "goodreadsId": "",
+      "goodreadsRating": "",
+      "goodreadsReviewCount": "",
+      "hardcoverId": "",
+      "hardcoverBookId": "",
+      "hardcoverRating": "",
+      "hardcoverReviewCount": "",
+      "lubimyczytacId": "",
+      "lubimyczytacRating": "",
+      "comicvineId": "",
+      "ranobedbId": "",
+      "ranobedbRating": "",
+      "audibleId": "",
+      "audibleRating": "",
+      "audibleReviewCount": "",
       "closeBtn": "Закрыть",
       "previousBookBtn": "Предыдущая книга",
       "nextBookBtn": "Следующая книга",
@@ -2260,6 +2275,7 @@
       "saveBtn": "Сохранить",
       "fetchFromFileBtn": "Из файла",
       "fetchFromFileTooltip": "Загрузить метаданные, встроенные в файл книги",
+      "writtenToFileTooltip": "",
       "previousBookTooltip": "Перейти к предыдущей книге",
       "nextBookTooltip": "Перейти к следующей книге",
       "autoFetchTooltip": "Автоматически получить метаданные из источников по умолчанию",
@@ -2306,8 +2322,7 @@
         "audiobookUploadFailed": "Произошла ошибка при загрузке обложки аудиокниги",
         "fileMetadataLoaded": "Метаданные загружены из файла книги. Проверьте и сохраните.",
         "fileMetadataFailed": "Не удалось извлечь метаданные из файла книги"
-      },
-      "writtenToFileTooltip": ""
+      }
     },
     "picker": {
       "loadingMetadata": "Загрузка полных метаданных...",
@@ -2357,7 +2372,7 @@
     },
     "searcher": {
       "providersLabel": "Провайдеры",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "titleLabel": "Название",
       "authorLabel": "Автор",
       "isbnTooltip": "ISBN имеет приоритет. Без ISBN поиск использует название и автора.",
@@ -2373,6 +2388,7 @@
       "readyToSearchHint": "Введите критерии поиска выше и нажмите «Поиск» для получения метаданных",
       "noResultsFound": "Результатов не найдено",
       "noResultsHint": "Попробуйте изменить критерии поиска или выбрать других провайдеров",
+      "unknownProvider": "",
       "selectOverlay": "Выбрать"
     },
     "tabs": {
@@ -2396,17 +2412,17 @@
       "playTooltip": "Воспроизвести",
       "downloadTooltip": "Скачать",
       "deleteTooltip": "Удалить",
+      "detachTooltip": "",
       "downloadAllTooltip": "Скачать все файлы в виде ZIP-архива",
       "physicalBookHint": "Вы можете загрузить цифровую копию или добавить метаданные вручную.",
+      "chapters": "",
+      "chapterTitle": "",
+      "startTime": "",
+      "endTime": "",
+      "duration": "",
       "totalDuration": "",
       "noChapters": "",
-      "chapters": "",
-      "endTime": "",
-      "chapterTitle": "",
-      "duration": "",
-      "detachTooltip": "",
-      "fileName": "",
-      "startTime": ""
+      "fileName": ""
     },
     "viewer": {
       "metadataLocked": "Метаданные этой книги заблокированы.",
@@ -2415,15 +2431,17 @@
       "moodsLabel": "Настроения:",
       "tagsLabel": "Теги:",
       "libraryLabel": "Библиотека:",
+      "shelvesLabel": "",
       "publisherLabel": "Издательство:",
       "publishedLabel": "Опубликовано:",
       "languageLabel": "Язык:",
       "formatsLabel": "Форматы:",
       "primaryBadge": "ОСНОВНОЙ",
+      "firstAuthorBadge": "",
       "physicalBadge": "ФИЗИЧЕСКИЙ",
       "grimmoryProgressLabel": "Прогресс Grimmory:",
       "metadataMatchLabel": "Совпадение метаданных:",
-      "isbnLabel": "ISBN:",
+      "isbnLabel": "",
       "readStatusLabel": "Статус чтения:",
       "koreaderProgressLabel": "Прогресс KOReader:",
       "koboProgressLabel": "Прогресс Kobo:",
@@ -2470,6 +2488,7 @@
       "audiobookSampleRate": "Частота дискретизации",
       "audiobookChannels": "Каналы",
       "audiobookCodec": "Кодек",
+      "audiobookAbridged": "",
       "abridged": "Сокращённая",
       "unabridged": "Полная",
       "readBtn": "Читать",
@@ -2500,6 +2519,8 @@
       "menuSendBook": "Отправить книгу",
       "menuQuickSend": "Быстрая отправка",
       "menuCustomSend": "Настраиваемая отправка",
+      "menuMarkPhysical": "",
+      "menuUnmarkPhysical": "",
       "menuAttachToAnotherBook": "Прикрепить к другой книге",
       "menuDeleteFileFormats": "Удалить форматы файлов",
       "menuDeleteSupplementaryFiles": "Удалить дополнительные файлы",
@@ -2538,14 +2559,14 @@
         "deleteFormatSuccessDetail": "Формат книги «{{ fileName }}» успешно удалён",
         "deleteFormatErrorSummary": "Ошибка",
         "deleteFormatErrorDetail": "Не удалось удалить формат книги: {{ error }}",
+        "detachFileSuccessSummary": "",
+        "detachFileSuccessDetail": "",
+        "detachFileErrorSummary": "",
+        "detachFileErrorDetail": "",
         "dateUpdatedSummary": "Дата обновлена",
         "dateUpdatedDetail": "Дата завершения книги обновлена.",
         "dateUpdateFailedSummary": "Ошибка обновления",
-        "dateUpdateFailedDetail": "Не удалось обновить дату завершения книги.",
-        "detachFileErrorSummary": "",
-        "detachFileErrorDetail": "",
-        "detachFileSuccessDetail": "",
-        "detachFileSuccessSummary": ""
+        "dateUpdateFailedDetail": "Не удалось обновить дату завершения книги."
       },
       "confirm": {
         "resetProgressMessage": "Сбросить прогресс чтения для «{{ title }}»?",
@@ -2559,22 +2580,17 @@
         "deleteAltFormatMessage": "Вы уверены, что хотите удалить «{{ fileName }}»?\n\nЭтот файл будет безвозвратно удалён из Вашей файловой системы.",
         "deleteAltFormatHeader": "Удалить формат книги",
         "deleteFileBtn": "Удалить файл",
-        "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге из Вашей библиотеки.\n\nЭто действие нельзя отменить.",
-        "deleteBookAllFilesMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге И все связанные файлы из Вашей файловой системы.\n\nЭто действие нельзя отменить.",
-        "deleteEverythingBtn": "Удалить всё",
         "detachFileHeader": "",
-        "largeFileHeader": "",
-        "largeFileMessage": "",
         "detachFileMessage": "",
         "detachFileCopyMetadata": "",
         "detachFileBtn": "",
+        "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге из Вашей библиотеки.\n\nЭто действие нельзя отменить.",
+        "deleteBookAllFilesMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто безвозвратно удалит запись о книге И все связанные файлы из Вашей файловой системы.\n\nЭто действие нельзя отменить.",
+        "deleteEverythingBtn": "Удалить всё",
+        "largeFileMessage": "",
+        "largeFileHeader": "",
         "sendAnyway": ""
-      },
-      "menuMarkPhysical": "",
-      "menuUnmarkPhysical": "",
-      "firstAuthorBadge": "",
-      "shelvesLabel": "",
-      "audiobookAbridged": ""
+      }
     },
     "sidecar": {
       "title": "Сопроводительные метаданные",
@@ -2676,18 +2692,18 @@
       "deleting": "Удаление...",
       "tabs": {
         "author": "Автор",
-        "genre": "Жанр",
-        "mood": "Настроение",
-        "tag": "Тег",
-        "series": "Серия",
-        "publisher": "Издательство",
-        "language": "Язык",
-        "publishers": "",
-        "genres": "",
-        "tags": "",
         "authors": "",
-        "seriesPlural": "",
+        "genre": "Жанр",
+        "genres": "",
+        "mood": "Настроение",
         "moods": "",
+        "tag": "Тег",
+        "tags": "",
+        "series": "Серия",
+        "seriesPlural": "",
+        "publisher": "Издательство",
+        "publishers": "",
+        "language": "Язык",
         "languages": ""
       },
       "placeholders": {
@@ -2846,8 +2862,8 @@
         "noBooks": "В этой коллекции нет книг!",
         "failedLibrary": "Не удалось загрузить книги библиотеки!",
         "failedShelf": "Не удалось загрузить книги полки!",
-        "activeFilters": "{{ count }} активных фильтров",
-        "failedBooks": ""
+        "failedBooks": "",
+        "activeFilters": "{{ count }} активных фильтров"
       },
       "tooltip": {
         "clearFilters": "Очистить применённые фильтры",
@@ -2901,8 +2917,8 @@
         "deleteFileMessage": "Вы уверены, что хотите удалить дополнительный файл «{{ fileName }}»?",
         "deleteFileHeader": "Подтверждение удаления файла",
         "largeFileMessage": "",
-        "sendAnyway": "",
-        "largeFileHeader": ""
+        "largeFileHeader": "",
+        "sendAnyway": ""
       },
       "toast": {
         "quickSendSuccessDetail": "Отправка книги запланирована.",
@@ -3060,13 +3076,13 @@
       "library": {
         "optionsLabel": "Опции",
         "addPhysicalBook": "Добавить физическую книгу",
+        "bulkIsbnImport": "",
         "editLibrary": "Редактировать библиотеку",
         "rescanLibrary": "Пересканировать библиотеку",
         "customFetchMetadata": "Настраиваемое получение метаданных",
         "autoFetchMetadata": "Автоматическое получение метаданных",
         "findDuplicates": "Найти дубликаты",
-        "deleteLibrary": "Удалить библиотеку",
-        "bulkIsbnImport": ""
+        "deleteLibrary": "Удалить библиотеку"
       },
       "shelf": {
         "publicShelfPrefix": "Публичная полка - ",
@@ -3078,8 +3094,8 @@
       "magicShelf": {
         "optionsLabel": "Опции",
         "editMagicShelf": "Редактировать умную полку",
-        "deleteMagicShelf": "Удалить умную полку",
-        "exportJson": ""
+        "exportJson": "",
+        "deleteMagicShelf": "Удалить умную полку"
       },
       "confirm": {
         "rescanLibraryMessage": "Вы уверены, что хотите обновить библиотеку: {{ name }}?",
@@ -3098,8 +3114,9 @@
         "shelfDeleteFailedDetail": "Не удалось удалить полку",
         "magicShelfDeletedDetail": "Умная полка удалена",
         "magicShelfDeleteFailedDetail": "Не удалось удалить полку",
-        "failedSummary": "Ошибка",
         "magicShelfJsonCopiedDetail": "",
+        "magicShelfJsonCopyFailedDetail": "",
+        "failedSummary": "Ошибка",
         "dialogLoadFailedDetail": ""
       },
       "loading": {
@@ -3121,15 +3138,15 @@
         "fileName": "Имя файла",
         "fileSizeKb": "Размер файла",
         "language": "Язык",
-        "isbn": "ISBN",
+        "isbn": "",
         "pageCount": "Страницы",
-        "amazonRating": "Amazon",
+        "amazonRating": "",
         "amazonReviewCount": "AZ №",
-        "goodreadsRating": "Goodreads",
+        "goodreadsRating": "",
         "goodreadsReviewCount": "GR №",
-        "hardcoverRating": "Hardcover",
+        "hardcoverRating": "",
         "hardcoverReviewCount": "HC №",
-        "ranobedbRating": "Ranobedb"
+        "ranobedbRating": ""
       },
       "toast": {
         "savedSummary": "Настройки сохранены",
@@ -3215,7 +3232,7 @@
       "libraryPlaceholder": "Выберите библиотеку",
       "titleLabel": "Название",
       "titlePlaceholder": "Например, Война и мир",
-      "isbnLabel": "ISBN",
+      "isbnLabel": "",
       "isbnPlaceholder": "Например, 9780134685991",
       "authorsLabel": "Авторы",
       "authorsPlaceholder": "Введите имя автора и нажмите Enter",
@@ -3238,6 +3255,49 @@
       "addButton": "Добавить физическую книгу",
       "fetchMetadataTooltip": ""
     },
+    "bulkIsbnImport": {
+      "title": "",
+      "description": "",
+      "closeTooltip": "",
+      "libraryLabel": "",
+      "libraryPlaceholder": "",
+      "tabFile": "",
+      "tabPaste": "",
+      "chooseFile": "",
+      "fileFormatsHint": "",
+      "pastePlaceholder": "",
+      "parseButton": "",
+      "errorFileTooLarge": "",
+      "errorNoIsbns": "",
+      "errorTooMany": "",
+      "validCount": "",
+      "skippedCount": "",
+      "duplicatesRemoved": "",
+      "reason": {
+        "invalid": "",
+        "alreadyExists": ""
+      },
+      "previewLabel": "",
+      "clearButton": "",
+      "validationLibraryRequired": "",
+      "validationNoIsbns": "",
+      "validationReady": "",
+      "cancelButton": "",
+      "startImportButton": "",
+      "processingLabel": "",
+      "lookingUp": "",
+      "createdNoMetadata": "",
+      "unknownError": "",
+      "processingHint": "",
+      "cancelImportButton": "",
+      "summaryTitle": "",
+      "summaryCreated": "",
+      "summaryNoMetadata": "",
+      "summaryFailed": "",
+      "summaryCancelled": "",
+      "failedIsbnsLabel": "",
+      "doneButton": ""
+    },
     "fileUploader": {
       "title": "Загрузить дополнительный файл",
       "unknownTitle": "Неизвестное название",
@@ -3251,6 +3311,8 @@
       "statusReady": "Готов",
       "statusFailed": "Ошибка",
       "dragDropText": "Перетащите файл сюда для загрузки.",
+      "supportedFormats": "",
+      "supplementaryAllFormats": "",
       "maxFileSize": "Максимальный размер файла: {{ size }}",
       "uploadForBook": "Загрузить дополнительный файл для <strong>{{ title }}</strong>.",
       "thisBook": "эту книгу",
@@ -3259,9 +3321,7 @@
         "fileTooLargeDetail": "{{ fileName }} превышает максимальный размер файла {{ maxSize }}",
         "fileTooLargeError": "Файл превышает максимальный размер {{ maxSize }}",
         "uploadFailedUnknown": "Загрузка не удалась из-за неизвестной ошибки."
-      },
-      "supplementaryAllFormats": "",
-      "supportedFormats": ""
+      }
     },
     "filter": {
       "title": "Фильтры",
@@ -3285,6 +3345,9 @@
         "amazonRating": "Рейтинг Amazon",
         "goodreadsRating": "Рейтинг Goodreads",
         "hardcoverRating": "Рейтинг Hardcover",
+        "lubimyczytacRating": "",
+        "ranobedbRating": "",
+        "audibleRating": "",
         "language": "Язык",
         "pageCount": "Количество страниц",
         "mood": "Настроение",
@@ -3294,10 +3357,7 @@
         "comicCharacter": "Персонаж комикса",
         "comicTeam": "Команда комикса",
         "comicLocation": "Место действия комикса",
-        "comicCreator": "Создатель комикса",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
+        "comicCreator": "Создатель комикса"
       },
       "readStatus": {
         "unread": "Не прочитано",
@@ -3366,6 +3426,7 @@
       "descriptionMulti": "Выберите полки для {{ count }} книг(и)",
       "descriptionSingle": "Организуйте «{{ title }}» на ваших полках",
       "shelvesAvailable": "{{ count }} полок доступно",
+      "searchPlaceholder": "",
       "emptyTitle": "Нет доступных полок",
       "emptyDescription": "Создайте первую полку, чтобы начать организовывать свои книги.<br/>Нажмите кнопку ниже, чтобы начать.",
       "createShelf": "Создать полку",
@@ -3377,8 +3438,7 @@
       "toast": {
         "updateSuccessDetail": "Полки книг обновлены",
         "updateFailedDetail": "Не удалось обновить полки книг"
-      },
-      "searchPlaceholder": ""
+      }
     },
     "shelfCreator": {
       "title": "Создать новую полку",
@@ -3390,6 +3450,7 @@
       "chooseIcon": "Выберите иконку",
       "chooseIconSubtitle": "Выберите из доступных иконок",
       "selectedIcon": "Выбранная иконка",
+      "customSvg": "",
       "removeIconTooltip": "Удалить иконку",
       "visibilityLabel": "Видимость",
       "makePublicLabel": "Сделать эту полку публичной (только для чтения для других)",
@@ -3400,8 +3461,7 @@
       "toast": {
         "createSuccessDetail": "Полка создана: {{ name }}",
         "createFailedDetail": "Не удалось создать полку"
-      },
-      "customSvg": ""
+      }
     },
     "shelfEditDialog": {
       "title": "Редактировать полку",
@@ -3422,7 +3482,12 @@
       }
     },
     "table": {
+      "label": "",
       "bookCoverAlt": "Обложка книги",
+      "selectBook": "",
+      "selectBookFallback": "",
+      "noRating": "",
+      "ratingOutOf": "",
       "statusWithPrefix": "Статус: {{ status }}",
       "locked": "Заблокировано",
       "unlocked": "Разблокировано",
@@ -3435,12 +3500,7 @@
         "lockFailedDetail": "Произошла ошибка при блокировке метаданных.",
         "unlockFailedSummary": "Ошибка разблокировки",
         "unlockFailedDetail": "Произошла ошибка при разблокировке метаданных."
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
+      }
     },
     "lockUnlockDialog": {
       "title": "Заблокировать или разблокировать метаданные",
@@ -3509,18 +3569,18 @@
       "unknownTitle": "Неизвестное название",
       "selectTargetBook": "Выберите целевую книгу",
       "searchPlaceholder": "Поиск книги в той же библиотеке...",
+      "moveFilesLabel": "Переместить файлы в каталог целевой книги",
       "warningMove": "Исходный файл будет перемещён в каталог целевой книги и переименован.",
       "warningMoveBulk": "Исходные файлы будут перемещены в каталог целевой книги и переименованы.",
+      "warningNoMove": "Исходный файл останется в своём первоначальном расположении на диске.",
+      "warningNoMoveBulk": "Исходные файлы останутся в своих первоначальных расположениях на диске.",
       "warningDelete": "Запись исходной книги будет удалена (файлы сохранены в целевой книге).",
       "warningDeleteBulk": "Записи исходных книг будут удалены (файлы сохранены в целевой книге).",
       "attachFile": "Прикрепить файл",
       "attachFilesBulk": "Прикрепить файлы",
       "unknownFile": "Неизвестный файл",
       "unknownFormat": "Неизвестно",
-      "unknownFilename": "Неизвестное имя файла",
-      "moveFilesLabel": "Переместить файлы в каталог целевой книги",
-      "warningNoMove": "Исходный файл останется в своём первоначальном расположении на диске.",
-      "warningNoMoveBulk": "Исходные файлы останутся в своих первоначальных расположениях на диске."
+      "unknownFilename": "Неизвестное имя файла"
     },
     "searcher": {
       "placeholder": "Название, автор, серия, жанр или ISBN...",
@@ -3557,17 +3617,41 @@
     },
     "seriesPage": {
       "seriesDetailsTab": "Детали серии",
+      "bookListTab": "",
       "publisher": "Издательство:",
       "years": "Годы:",
       "numberOfBooks": "Количество книг:",
+      "book": "",
+      "books": "",
+      "synopsis": "",
       "language": "Язык:",
       "readStatus": "Статус чтения:",
       "noDescription": "Описание недоступно.",
       "showLess": "Показать меньше",
       "showMore": "Показать больше",
       "noBooksFound": "Книги для этой серии не найдены.",
+      "booksInSeries": "",
       "selected": "выбрано",
       "loadingSeriesDetails": "Загрузка деталей серии...",
+      "completionOwned": "",
+      "missingBooks": "",
+      "nextUp": "",
+      "continueReading": "",
+      "readButton": "",
+      "viewDetails": "",
+      "continueButton": "",
+      "readPercent": "",
+      "listPages": "",
+      "stats": {
+        "totalPages": "",
+        "avgPersonalRating": "",
+        "avgGoodreads": "",
+        "avgAmazon": "",
+        "avgHardcover": "",
+        "formats": "",
+        "totalAudioDuration": "",
+        "owned": ""
+      },
       "status": {
         "unread": "НЕ ПРОЧИТАНО",
         "reading": "ЧИТАЮ",
@@ -3588,31 +3672,7 @@
         "selectAll": "Выбрать все книги",
         "deselectAll": "Снять выделение со всех книг",
         "deleteSelected": "Удалить выбранные книги"
-      },
-      "readButton": "",
-      "booksInSeries": "",
-      "continueButton": "",
-      "missingBooks": "",
-      "book": "",
-      "continueReading": "",
-      "stats": {
-        "avgGoodreads": "",
-        "avgHardcover": "",
-        "totalAudioDuration": "",
-        "owned": "",
-        "formats": "",
-        "avgPersonalRating": "",
-        "totalPages": "",
-        "avgAmazon": ""
-      },
-      "readPercent": "",
-      "completionOwned": "",
-      "viewDetails": "",
-      "listPages": "",
-      "synopsis": "",
-      "books": "",
-      "bookListTab": "",
-      "nextUp": ""
+      }
     },
     "duplicateMerger": {
       "title": "Найти дубликаты",
@@ -3622,7 +3682,7 @@
       "presetAggressive": "Агрессивный",
       "presetCustom": "Пользовательский",
       "advanced": "Расширенный",
-      "signalIsbn": "ISBN",
+      "signalIsbn": "",
       "signalExternalId": "Внешний ID",
       "signalTitleAuthor": "Название + Автор",
       "signalDirectory": "Одна папка",
@@ -3634,8 +3694,10 @@
       "allMerged": "Все группы дубликатов обработаны.",
       "mergeAll": "Объединить все ({{ count }})",
       "merge": "Объединить",
+      "deleteSelected": "Удалить ({{ count }})",
       "dismiss": "Пропустить",
       "target": "Целевая",
+      "sameFormatWarning": "Одинаковый формат",
       "helpText": "Каждая группа содержит книги, которые предположительно являются дубликатами. Выберите целевую книгу (ту, которую хотите оставить), затем нажмите «Объединить» для объединения файлов. Чтобы удалить определённые дубликаты, отметьте те, которые хотите удалить, и нажмите «Удалить».",
       "groupLabel": "Группа {{ index }}",
       "fileCount": "{{ count }} файлов",
@@ -3646,6 +3708,10 @@
         "DIRECTORY": "Одна папка",
         "FILENAME": "Совпадение имени файла"
       },
+      "confirm": {
+        "deleteHeader": "Подтвердите удаление",
+        "deleteMessage": "Это навсегда удалит {{ count }} книг(у/и) и их файлы с диска. Это действие нельзя отменить."
+      },
       "toast": {
         "scanFailedSummary": "Ошибка сканирования",
         "scanFailedDetail": "Не удалось выполнить сканирование на дубликаты.",
@@ -3654,56 +3720,7 @@
         "mergeFailedSummary": "Ошибка объединения",
         "mergeFailedDetail": "Не удалось объединить эту группу.",
         "mergePartialDetail": "{{ success }} объединено, {{ failed }} с ошибкой."
-      },
-      "deleteSelected": "Удалить ({{ count }})",
-      "sameFormatWarning": "Одинаковый формат",
-      "confirm": {
-        "deleteHeader": "Подтвердите удаление",
-        "deleteMessage": "Это навсегда удалит {{ count }} книг(у/и) и их файлы с диска. Это действие нельзя отменить."
       }
-    },
-    "bulkIsbnImport": {
-      "fileFormatsHint": "",
-      "startImportButton": "",
-      "chooseFile": "",
-      "skippedCount": "",
-      "failedIsbnsLabel": "",
-      "summaryCancelled": "",
-      "createdNoMetadata": "",
-      "previewLabel": "",
-      "summaryTitle": "",
-      "tabPaste": "",
-      "clearButton": "",
-      "tabFile": "",
-      "validCount": "",
-      "cancelImportButton": "",
-      "summaryFailed": "",
-      "processingHint": "",
-      "closeTooltip": "",
-      "errorFileTooLarge": "",
-      "libraryPlaceholder": "",
-      "processingLabel": "",
-      "title": "",
-      "summaryNoMetadata": "",
-      "lookingUp": "",
-      "pastePlaceholder": "",
-      "libraryLabel": "",
-      "summaryCreated": "",
-      "doneButton": "",
-      "parseButton": "",
-      "validationLibraryRequired": "",
-      "unknownError": "",
-      "description": "",
-      "validationNoIsbns": "",
-      "validationReady": "",
-      "reason": {
-        "invalid": "",
-        "alreadyExists": ""
-      },
-      "errorTooMany": "",
-      "errorNoIsbns": "",
-      "cancelButton": "",
-      "duplicatesRemoved": ""
     }
   },
   "readerAudiobook": {
@@ -3813,10 +3830,10 @@
       "toggleZoom": "Переключить масштаб (по странице / реальный размер)",
       "doubleTap": "Двойное нажатие",
       "toggleSlideshow": "Переключить слайд-шоу / автовоспроизведение",
-      "showHelpDialog": "Показать это окно справки",
-      "magnifierLensSize": "",
+      "toggleMagnifier": "",
       "magnifierZoom": "",
-      "toggleMagnifier": ""
+      "magnifierLensSize": "",
+      "showHelpDialog": "Показать это окно справки"
     },
     "footer": {
       "prevBook": "Пред. книга",
@@ -3851,10 +3868,10 @@
       "exitFullscreenLabel": "Выйти из полноэкранного режима",
       "fullscreenLabel": "Полноэкранный режим",
       "keyboardShortcutsLabel": "Горячие клавиши",
-      "settings": "Настройки",
-      "closeReader": "Закрыть читалку",
       "enableMagnifier": "",
-      "disableMagnifier": ""
+      "disableMagnifier": "",
+      "settings": "Настройки",
+      "closeReader": "Закрыть читалку"
     },
     "quickSettings": {
       "fitMode": "Режим подгонки",
@@ -3881,13 +3898,23 @@
       "black": "Чёрный",
       "gray": "Серый",
       "white": "Белый",
-      "clickToPaginate": "",
       "magnifierLensSize": "",
-      "stripMaxWidth": "",
-      "autoCloseMenu": "",
       "magnifierZoom": "",
       "brightness": "",
-      "emulateBook": ""
+      "emulateBook": "",
+      "clickToPaginate": "",
+      "autoCloseMenu": "",
+      "stripMaxWidth": ""
+    },
+    "webtoonHint": {
+      "regionLabel": "",
+      "message": "",
+      "switch": "",
+      "dismiss": "",
+      "never": ""
+    },
+    "continuation": {
+      "scrollForNext": ""
     },
     "sidebar": {
       "contentTab": "Содержание",
@@ -3907,16 +3934,6 @@
       "clearSearch": "Очистить поиск",
       "page": "Страница",
       "untitled": "Без названия"
-    },
-    "webtoonHint": {
-      "never": "",
-      "dismiss": "",
-      "switch": "",
-      "regionLabel": "",
-      "message": ""
-    },
-    "continuation": {
-      "scrollForNext": ""
     }
   },
   "readerEbook": {
@@ -4057,9 +4074,9 @@
       "searchInBook": "Искать в книге",
       "annotate": "Аннотировать",
       "addNote": "Добавить заметку",
-      "deleteAnnotation": "Удалить аннотацию",
       "goToLink": "",
-      "removeLink": ""
+      "removeLink": "",
+      "deleteAnnotation": "Удалить аннотацию"
     },
     "shortcutsHelp": {
       "title": "Горячие клавиши",
@@ -4075,12 +4092,12 @@
       "notesShortcut": "Заметки",
       "display": "Отображение",
       "toggleFullscreen": "Переключить полноэкранный режим",
+      "toggleImmersive": "",
       "exitFullscreenCloseDialogs": "Выйти из полноэкранного режима / Закрыть диалоги",
       "other": "Прочее",
       "showHelpDialog": "Показать это окно справки",
       "swipeRight": "Свайп вправо",
-      "swipeLeft": "Свайп влево",
-      "toggleImmersive": ""
+      "swipeLeft": "Свайп влево"
     },
     "headerFooterUtil": {
       "timeRemainingInSection": "Осталось в разделе: {{ time }}"
@@ -4121,77 +4138,77 @@
       "switchToLightMode": "Переключить на светлый режим",
       "switchToDarkMode": "Переключить на тёмный режим",
       "closePdfReader": "Закрыть PDF-читалку",
-      "textNote": "",
-      "annotationColor": "",
-      "ink": "",
-      "zoomPreset": "",
-      "zoomIn": "",
-      "closeSearch": "",
+      "fullscreen": "",
       "exitFullscreen": "",
-      "deselectTool": "",
-      "spreadMode": "",
-      "addBookmark": "",
-      "scrollLayout": "",
-      "searchNext": "",
-      "zoomOut": "",
-      "moreOptions": "",
-      "searchPlaceholder": "",
-      "searchPrevious": "",
-      "bookmarkAdd": "",
-      "highlight": "",
-      "bookmarkRemove": "",
       "sidebar": "",
+      "search": "",
+      "searchPlaceholder": "",
+      "searchNext": "",
+      "searchPrevious": "",
+      "zoomIn": "",
+      "zoomOut": "",
+      "zoomPreset": "",
+      "spreadMode": "",
+      "scrollLayout": "",
+      "scrollLayoutVertical": "",
       "scrollLayoutHorizontal": "",
+      "rotatePage": "",
+      "bookmarkAdd": "",
+      "bookmarkRemove": "",
+      "addBookmark": "",
       "removeBookmark": "",
       "freeText": "",
+      "highlight": "",
+      "textNote": "",
+      "ink": "",
       "draw": "",
-      "scrollLayoutVertical": "",
-      "fullscreen": "",
-      "rotatePage": "",
-      "search": "",
-      "pan": ""
+      "annotationColor": "",
+      "deselectTool": "",
+      "pan": "",
+      "moreOptions": "",
+      "closeSearch": ""
+    },
+    "footer": {
+      "firstPage": "",
+      "previousPage": "",
+      "nextPage": "",
+      "lastPage": "",
+      "of": "",
+      "pageSlider": "",
+      "pagePlaceholder": "",
+      "go": "",
+      "bookViewer": "",
+      "docViewer": ""
+    },
+    "sidebar": {
+      "title": "",
+      "close": "",
+      "contentsTab": "",
+      "bookmarksTab": "",
+      "annotationsTab": "",
+      "noContents": "",
+      "noBookmarks": "",
+      "bookmarkHint": "",
+      "noAnnotations": "",
+      "annotationHint": "",
+      "deleteBookmark": "",
+      "deleteAnnotation": "",
+      "page": ""
     },
     "toast": {
       "failedToLoadBook": "Не удалось загрузить книгу",
-      "annotationFailed": "",
-      "annotationSaved": "",
       "bookmarkAdded": "",
       "bookmarkRemoved": "",
-      "bookmarkExists": ""
-    },
-    "sidebar": {
-      "deleteAnnotation": "",
-      "close": "",
-      "contentsTab": "",
-      "annotationsTab": "",
-      "page": "",
-      "bookmarkHint": "",
-      "noContents": "",
-      "deleteBookmark": "",
-      "title": "",
-      "bookmarksTab": "",
-      "annotationHint": "",
-      "noBookmarks": "",
-      "noAnnotations": ""
+      "bookmarkExists": "",
+      "annotationSaved": "",
+      "annotationFailed": ""
     },
     "docViewer": {
-      "dismiss": "",
-      "saveFailed": "",
-      "saveDocument": "",
       "changesSavedInfo": "",
-      "changesSaved": ""
-    },
-    "footer": {
-      "nextPage": "",
-      "lastPage": "",
-      "bookViewer": "",
-      "of": "",
-      "go": "",
-      "previousPage": "",
-      "pageSlider": "",
-      "firstPage": "",
-      "docViewer": "",
-      "pagePlaceholder": ""
+      "dismiss": "",
+      "saveDocument": "",
+      "changesSaved": "",
+      "saveFailed": ""
     }
   },
   "statsLibrary": {
@@ -4283,12 +4300,12 @@
       "insightYearsOfLiterature": "лет литературы",
       "insightPeakDecade": "Пиковое десятилетие",
       "insightPeakDecadeBooks": "{{ count }} книг",
-      "insightGoldenEraRange": "",
       "insightGoldenEra": "",
+      "insightGoldenEraRange": "",
       "insightMostCommonYear": "",
-      "insightRarePicks": "",
       "insightMostCommonYearBooks": "",
-      "insightRarityScore": ""
+      "insightRarityScore": "",
+      "insightRarePicks": ""
     },
     "publicationTrend": {
       "title": "Тенденция публикаций",
@@ -4450,8 +4467,8 @@
       "readingDna": "Профиль читательского ДНК",
       "readingHabits": "Анализ читательских привычек",
       "bookFlow": "",
-      "publicationEra": "",
       "readingDebt": "",
+      "publicationEra": "",
       "sessionArchetypes": ""
     },
     "sessionHeatmap": {
@@ -4897,56 +4914,56 @@
       "trend": "Тренд"
     },
     "bookFlow": {
-      "noData": "",
-      "totalBooks": "",
-      "noDataHint": "",
-      "description": "",
-      "avgRating": "",
-      "completionRate": "",
-      "busiestQuarter": "",
-      "colRating": "",
-      "colAdded": "",
-      "colStatus": "",
-      "topStatus": "",
-      "title": "",
-      "tooltip": ""
-    },
-    "publicationEra": {
-      "noDataHint": "",
       "title": "",
       "tooltip": "",
+      "description": "",
+      "totalBooks": "",
+      "busiestQuarter": "",
+      "topStatus": "",
+      "avgRating": "",
+      "completionRate": "",
+      "colAdded": "",
+      "colStatus": "",
+      "colRating": "",
       "noData": "",
+      "noDataHint": ""
+    },
+    "readingDebt": {
+      "title": "",
+      "tooltip": "",
+      "description": "",
+      "booksAdded": "",
+      "booksFinished": "",
+      "backlog": "",
+      "currentBacklog": "",
+      "trendLabel": "",
+      "growing": "",
+      "shrinking": "",
+      "noData": "",
+      "noDataHint": ""
+    },
+    "publicationEra": {
+      "title": "",
+      "tooltip": "",
       "description": "",
       "bestDecade": "",
       "avgRating": "",
-      "booksRated": ""
-    },
-    "readingDebt": {
-      "booksFinished": "",
-      "description": "",
-      "shrinking": "",
-      "backlog": "",
-      "booksAdded": "",
-      "growing": "",
+      "booksRated": "",
       "noData": "",
-      "trendLabel": "",
-      "noDataHint": "",
-      "title": "",
-      "currentBacklog": "",
-      "tooltip": ""
+      "noDataHint": ""
     },
     "sessionArchetypes": {
-      "archetype_afternoon": "",
-      "noData": "",
       "title": "",
       "tooltip": "",
+      "description": "",
+      "sessions": "",
       "dominantType": "",
       "archetype_morning": "",
+      "archetype_afternoon": "",
       "archetype_evening": "",
-      "description": "",
-      "noDataHint": "",
       "archetype_night": "",
-      "sessions": ""
+      "noData": "",
+      "noDataHint": ""
     }
   },
   "magicShelf": {
@@ -5026,8 +5043,8 @@
       "personalRating": "Личная оценка",
       "pageCount": "Количество страниц",
       "language": "Язык",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
+      "isbn13": "",
+      "isbn10": "",
       "seriesName": "Название серии",
       "seriesNumber": "Номер в серии",
       "seriesTotal": "Книг в серии",
@@ -5052,15 +5069,15 @@
       "audibleReviewCount": "Количество отзывов Audible",
       "abridged": "Сокращённая версия",
       "audiobookDuration": "Длительность аудиокниги (с)",
+      "audiobookCodec": "",
+      "audiobookChapterCount": "",
+      "audiobookBitrate": "",
       "isPhysical": "Физическая книга",
       "seriesStatus": "Статус серии",
       "seriesGaps": "Пропуски в серии",
       "seriesPosition": "Позиция в серии",
       "readingProgress": "Прогресс чтения (%)",
-      "metadataPresence": "Наличие метаданных",
-      "audiobookBitrate": "",
-      "audiobookCodec": "",
-      "audiobookChapterCount": ""
+      "metadataPresence": "Наличие метаданных"
     },
     "fieldGroups": {
       "organization": "Организация",
@@ -5177,9 +5194,9 @@
       "seriesName": "Название серии",
       "seriesNumber": "Номер в серии",
       "seriesTotal": "Всего в серии",
-      "isbn13": "ISBN-13",
-      "isbn10": "ISBN-10",
-      "asin": "ASIN",
+      "isbn13": "",
+      "isbn10": "",
+      "asin": "",
       "ageRating": "Возрастной рейтинг",
       "contentRating": "Рейтинг контента",
       "personalRating": "Личная оценка",
@@ -5203,6 +5220,9 @@
       "narrator": "Чтец",
       "abridged": "Сокращённая версия",
       "audiobookDuration": "Длительность",
+      "audiobookCodec": "",
+      "audiobookChapterCount": "",
+      "audiobookBitrate": "",
       "comicCharacters": "Персонажи",
       "comicTeams": "Команды",
       "comicLocations": "Места",
@@ -5211,10 +5231,16 @@
       "comicColorists": "Колористы",
       "comicLetterers": "Леттереры",
       "comicCoverArtists": "Художники обложки",
-      "comicEditors": "Редакторы",
-      "audiobookCodec": "",
-      "audiobookBitrate": "",
-      "audiobookChapterCount": ""
+      "comicEditors": "Редакторы"
+    },
+    "importJson": {
+      "buttonLabel": "",
+      "placeholder": "",
+      "apply": "",
+      "emptyError": "",
+      "parseError": "",
+      "structureError": "",
+      "successDetail": ""
     },
     "toast": {
       "validationErrorSummary": "Ошибка валидации",
@@ -5223,15 +5249,6 @@
       "successDetail": "Умная полка успешно сохранена.",
       "errorSummary": "Ошибка",
       "errorDetailDefault": "Не удалось сохранить умную полку."
-    },
-    "importJson": {
-      "buttonLabel": "",
-      "successDetail": "",
-      "structureError": "",
-      "emptyError": "",
-      "apply": "",
-      "placeholder": "",
-      "parseError": ""
     }
   },
   "seriesBrowser": {
@@ -5259,144 +5276,144 @@
     }
   },
   "authorBrowser": {
-    "filters": {
-      "allRead": "",
-      "hasPhoto": "",
-      "genre": "",
-      "unread": "",
-      "unmatched": "",
-      "readStatus": "",
-      "matchStatus": "",
-      "photoStatus": "",
-      "matched": "",
-      "all": "",
-      "reset": "",
-      "library": "",
-      "someRead": "",
-      "inProgress": "",
-      "bookCount": "",
-      "noPhoto": ""
-    },
-    "sort": {
-      "seriesCount": "",
-      "recentlyRead": "",
-      "name": "",
-      "avgRating": "",
-      "matched": "",
-      "photo": "",
-      "recentlyAdded": "",
-      "readingProgress": "",
-      "bookCount": ""
-    },
-    "editor": {
-      "lockAllBtn": "",
-      "uploadPhotoTooltip": "",
-      "lockField": "",
-      "saving": "",
-      "nameLabel": "",
-      "toast": {
-        "photoUploadErrorDetail": "",
-        "successDetail": "",
-        "errorDetail": "",
-        "photoUploadedDetail": "",
-        "errorSummary": "",
-        "successSummary": "",
-        "photoUploadedSummary": ""
-      },
-      "saveBtn": "",
-      "searchPhotoTooltip": "",
-      "unlockField": "",
-      "unlockAllBtn": "",
-      "searchPhotoTitle": "",
-      "asinLabel": "",
-      "descriptionLabel": ""
-    },
-    "toast": {
-      "deleteFailedSummary": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": "",
-      "deleteSuccessDetail": "",
-      "quickMatchSuccessDetail": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchFailedDetail": "",
-      "quickMatchFailedSummary": "",
-      "autoMatchSuccessSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchFailedSummary": "",
-      "deleteSuccessSummary": ""
-    },
-    "footer": {
-      "autoMatch": "",
-      "selected": "",
-      "selectAll": "",
-      "deleteSelected": "",
-      "deselectAll": ""
-    },
-    "photoSearch": {
-      "selectBtn": "",
-      "queryLabel": "",
-      "noResults": "",
-      "readyHint": "",
-      "resetTooltip": "",
-      "resultsFound": "",
-      "readyTitle": "",
-      "searchBtn": "",
-      "photoAlt": "",
-      "queryPlaceholder": "",
-      "noResultsHint": "",
-      "searching": ""
-    },
-    "match": {
-      "matchBtn": "",
-      "asinLabel": "",
-      "searchBtn": "",
-      "toast": {
-        "matchSuccessSummary": "",
-        "matchFailedSummary": "",
-        "searchFailedDetail": "",
-        "searchFailedSummary": "",
-        "matchFailedDetail": "",
-        "matchSuccessDetail": ""
-      },
-      "resultsFound": "",
-      "authorNameLabel": "",
-      "regionLabel": "",
-      "noResultsHint": "",
-      "readyToSearch": "",
-      "authorNamePlaceholder": "",
-      "searching": "",
-      "asinPlaceholder": "",
-      "readyToSearchHint": "",
-      "noResults": ""
-    },
-    "detail": {
-      "booksTab": "",
-      "quickMatchTooltip": "",
-      "showMore": "",
-      "noBooksFound": "",
-      "showLess": "",
-      "editTab": "",
-      "booksBy": "",
-      "loading": "",
-      "matchTab": ""
-    },
-    "card": {
-      "menu": {
-        "viewAuthor": "",
-        "quickMatch": "",
-        "editAuthor": "",
-        "deleteAuthor": ""
-      },
-      "book": "",
-      "books": "",
-      "matched": "",
-      "quickMatch": ""
-    },
+    "pageTitle": "",
     "browseAllAuthors": "",
     "searchPlaceholder": "",
     "noAuthorsFound": "",
-    "pageTitle": ""
+    "sort": {
+      "name": "",
+      "bookCount": "",
+      "matched": "",
+      "recentlyAdded": "",
+      "recentlyRead": "",
+      "readingProgress": "",
+      "avgRating": "",
+      "photo": "",
+      "seriesCount": ""
+    },
+    "filters": {
+      "all": "",
+      "matchStatus": "",
+      "matched": "",
+      "unmatched": "",
+      "photoStatus": "",
+      "hasPhoto": "",
+      "noPhoto": "",
+      "readStatus": "",
+      "allRead": "",
+      "someRead": "",
+      "inProgress": "",
+      "unread": "",
+      "bookCount": "",
+      "library": "",
+      "genre": "",
+      "reset": ""
+    },
+    "footer": {
+      "selected": "",
+      "autoMatch": "",
+      "deleteSelected": "",
+      "selectAll": "",
+      "deselectAll": ""
+    },
+    "toast": {
+      "deleteSuccessSummary": "",
+      "deleteSuccessDetail": "",
+      "deleteFailedSummary": "",
+      "deleteFailedDetail": "",
+      "autoMatchSuccessSummary": "",
+      "autoMatchSuccessDetail": "",
+      "autoMatchFailedSummary": "",
+      "autoMatchFailedDetail": "",
+      "quickMatchSuccessSummary": "",
+      "quickMatchSuccessDetail": "",
+      "quickMatchFailedSummary": "",
+      "quickMatchFailedDetail": "",
+      "deleteSelectedSuccessSummary": "",
+      "deleteSelectedSuccessDetail": ""
+    },
+    "card": {
+      "matched": "",
+      "quickMatch": "",
+      "book": "",
+      "books": "",
+      "menu": {
+        "viewAuthor": "",
+        "editAuthor": "",
+        "quickMatch": "",
+        "deleteAuthor": ""
+      }
+    },
+    "editor": {
+      "nameLabel": "",
+      "asinLabel": "",
+      "descriptionLabel": "",
+      "saveBtn": "",
+      "saving": "",
+      "uploadPhotoTooltip": "",
+      "lockField": "",
+      "unlockField": "",
+      "lockAllBtn": "",
+      "unlockAllBtn": "",
+      "searchPhotoTooltip": "",
+      "searchPhotoTitle": "",
+      "toast": {
+        "successSummary": "",
+        "successDetail": "",
+        "errorSummary": "",
+        "errorDetail": "",
+        "photoUploadedSummary": "",
+        "photoUploadedDetail": "",
+        "photoUploadErrorDetail": ""
+      }
+    },
+    "detail": {
+      "quickMatchTooltip": "",
+      "loading": "",
+      "booksTab": "",
+      "editTab": "",
+      "matchTab": "",
+      "showMore": "",
+      "showLess": "",
+      "booksBy": "",
+      "noBooksFound": ""
+    },
+    "photoSearch": {
+      "queryLabel": "",
+      "queryPlaceholder": "",
+      "searchBtn": "",
+      "resetTooltip": "",
+      "readyTitle": "",
+      "readyHint": "",
+      "searching": "",
+      "noResults": "",
+      "noResultsHint": "",
+      "resultsFound": "",
+      "selectBtn": "",
+      "photoAlt": ""
+    },
+    "match": {
+      "authorNameLabel": "",
+      "authorNamePlaceholder": "",
+      "asinLabel": "",
+      "asinPlaceholder": "",
+      "regionLabel": "",
+      "searchBtn": "",
+      "searching": "",
+      "noResults": "",
+      "noResultsHint": "",
+      "readyToSearch": "",
+      "readyToSearchHint": "",
+      "resultsFound": "",
+      "matchBtn": "",
+      "toast": {
+        "searchFailedSummary": "",
+        "searchFailedDetail": "",
+        "matchSuccessSummary": "",
+        "matchSuccessDetail": "",
+        "matchFailedSummary": "",
+        "matchFailedDetail": ""
+      }
+    }
   }
 }
