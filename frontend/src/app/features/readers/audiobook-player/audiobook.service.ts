@@ -7,7 +7,7 @@ import { AudiobookInfo, AudiobookProgress } from './audiobook.model';
 import { AuthService } from '../../../shared/service/auth.service';
 import { BookFileProgress } from '../../book/model/book.model';
 import { QueryClient } from '@tanstack/angular-query-experimental';
-import { patchBookFieldsInCache } from '../../book/service/book-query-cache';
+import { patchBookFieldsInCache } from '../../book/service/legacy-book-cache';
 
 @Injectable({
   providedIn: 'root'
