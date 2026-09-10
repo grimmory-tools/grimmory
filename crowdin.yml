@@ -1,0 +1,10 @@
+preserve_hierarchy: false
+
+pull_request_title: 'chore(i18n): update translations from Crowdin'
+commit_message: 'chore(i18n): update translations from Crowdin'
+append_commit_message: false
+
+files:
+  - source: /frontend/src/i18n/en.json
+    translation: /frontend/src/i18n/%two_letters_code%.json
+    type: json
