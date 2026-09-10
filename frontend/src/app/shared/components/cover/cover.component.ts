@@ -1,5 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal, viewChild} from '@angular/core';
+import {afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal, viewChild} from '@angular/core';
 import {Image} from '@openng/optimus-ui/image';
+
+import {ArtworkRevealGroupDirective} from './artwork-reveal-group.directive';
 
 const COVER_HUES = [20, 155, 185, 205, 235, 265, 290, 320, 350];
 
@@ -27,7 +29,8 @@ type CoverAuthors = string | string[];
   imports: [Image],
   templateUrl: './cover.component.html',
   host: {
-    class: '@container block w-full',
+    class: '@container block w-full transition-opacity duration-200 ease-out motion-reduce:transition-none',
+    '[class.opacity-0]': 'revealGroup?.ready() === false',
     '[class.h-full]': '!natural()',
     '[class.h-auto]': 'natural()',
     '(window:popstate)': 'closePreview()',
@@ -44,6 +47,8 @@ export class CoverComponent {
   readonly natural = input(false);
   readonly preview = input(false);
 
+  protected readonly revealGroup = inject(ArtworkRevealGroupDirective, {optional: true});
+  protected readonly markReady = this.revealGroup?.register() ?? (() => undefined);
   private readonly previewImage = viewChild(Image);
   private readonly failedSrc = signal<string | null | undefined>(null);
 
@@ -64,7 +69,15 @@ export class CoverComponent {
   protected readonly showImage = computed(() => !!this.src() && this.failedSrc() !== this.src());
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.closePreview());
+    inject(DestroyRef).onDestroy(() => {
+      this.markReady();
+      this.closePreview();
+    });
+    afterNextRender(() => {
+      if (!this.showImage() || this.preview()) {
+        this.markReady();
+      }
+    });
   }
 
   protected closePreview(): void {
@@ -77,5 +90,6 @@ export class CoverComponent {
 
   protected onError(): void {
     this.failedSrc.set(this.src());
+    this.markReady();
   }
 }
