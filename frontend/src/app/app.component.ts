@@ -20,6 +20,7 @@ import {CommandPaletteComponent} from './features/command-palette/command-palett
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
 import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
 import {AuthorService} from './features/author-browser/service/author.service';
+import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
 
 @Component({
   selector: 'app-root',
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private metadataProgressService = inject(MetadataProgressService);
   private bookdropFileService = inject(BookdropFileService);
   private taskService = inject(TaskService);
+  private metadataRefreshSubmissionService = inject(MetadataRefreshSubmissionService);
   private libraryHealthService = inject(LibraryHealthService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
@@ -140,9 +142,11 @@ export class AppComponent implements OnInit, OnDestroy {
       )
     );
     this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg =>
-        this.metadataProgressService.handleIncomingProgress(JSON.parse(msg.body) as MetadataBatchProgressNotification)
-      )
+      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg => {
+        const progress = JSON.parse(msg.body) as MetadataBatchProgressNotification;
+        this.metadataProgressService.handleIncomingProgress(progress);
+        this.metadataRefreshSubmissionService.handleBatchProgress(progress);
+      })
     );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/log').subscribe(msg => {
