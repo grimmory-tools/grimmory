@@ -1786,6 +1786,9 @@
         "parse": "Unesite valjanu vrijednost",
         "pattern": "Unesite valjanu vrijednost",
         "required": "Ovo polje je obavezno"
+      },
+      "bulkActions": {
+        "selectAll": "Odaberi sve"
       }
     }
   },
@@ -5372,6 +5375,13 @@
         "matchFailedSummary": "Podudaranje nije uspjelo",
         "matchFailedDetail": "Nije uspjelo podudaranje autora s vanjskim metapodacima."
       }
+    }
+  },
+  "browse": {
+    "showAll": "Prikaži sve",
+    "moreActions": "Više radnji",
+    "rail": {
+      "noMatches": "Nema podudaranja"
     }
   }
 }

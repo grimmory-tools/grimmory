@@ -1786,6 +1786,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Alle auswählen"
       }
     }
   },
@@ -5372,5 +5375,9 @@
         "matchFailedDetail": ""
       }
     }
+  },
+  "browse": {
+    "showAll": "Alle einblenden",
+    "moreActions": "Weitere Aktionen"
   }
 }

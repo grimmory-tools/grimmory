@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { transformedValue, type FormValueControl, type ParseResult } from '@angular/forms/signals';
-import { LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus } from '@lucide/angular';
+import { LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus, LucideX } from '@lucide/angular';
 
 import { cn } from '../cn';
 import { AppControlTransitionDirective } from '../control.styles';
@@ -22,7 +22,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
 @Component({
   selector: 'app-number-input',
   standalone: true,
-  imports: [AppControlTransitionDirective, LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus],
+  imports: [AppControlTransitionDirective, LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus, LucideX],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -47,14 +47,26 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
       [readonly]="readonly()"
       [required]="required()"
       (input)="onInput(input)"
-      (blur)="touch.emit()" />
+      (blur)="onBlur()" />
 
-    @if (unit() || !readonly()) {
-      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-stretch">
+    @if (unit() || showSteppers() || showClear()) {
+      <div class="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-stretch">
+        @if (showClear()) {
+          <button
+            type="button"
+            tabindex="-1"
+            aria-hidden="true"
+            data-clear
+            [class]="clearButtonClass + (value() === null ? ' invisible' : '')"
+            [disabled]="disabled()"
+            (click)="clear()">
+            <svg lucideX class="size-3.5 pointer-coarse:size-4" aria-hidden="true"></svg>
+          </button>
+        }
         @if (unit()) {
           <span class="flex select-none items-center pr-3 text-xs text-text-muted">{{ unit() }}</span>
         }
-        @if (!readonly()) {
+        @if (showSteppers()) {
           <span
             class="pointer-events-auto my-px mr-px flex w-8 flex-col overflow-hidden rounded-r-[0.3rem] border-l border-border pointer-coarse:w-20 pointer-coarse:flex-row-reverse">
             <button
@@ -98,6 +110,8 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
   readonly max = input<number | undefined>(undefined);
   readonly step = input(1, { transform: numberAttribute });
   readonly unit = input('');
+  readonly clearable = input(false, { transform: booleanAttribute });
+  readonly steppers = input(true, { transform: booleanAttribute });
   readonly inputId = input('');
   readonly placeholder = input('');
   readonly ariaLabel = input('');
@@ -138,9 +152,23 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
     'active:bg-[color-mix(in_srgb,var(--color-text)_14%,transparent)] active:text-text-strong ' +
     'disabled:pointer-events-none disabled:opacity-40';
 
+  protected readonly clearButtonClass =
+    'pointer-events-auto mr-1 flex w-6 cursor-pointer items-center justify-center text-text-muted ' +
+    'touch-manipulation transition-colors hover:text-text-strong ' +
+    'disabled:pointer-events-none disabled:opacity-40 pointer-coarse:w-10';
+
+  protected readonly showClear = computed(() => this.clearable() && !this.readonly());
+  protected readonly showSteppers = computed(() => this.steppers() && !this.readonly());
+
   protected readonly inputPaddingClass = computed(() => {
-    if (this.unit()) return 'pr-16 pointer-coarse:pr-28';
-    return this.readonly() ? '' : 'pr-9 pointer-coarse:pr-22';
+    const clear = this.showClear();
+    if (this.unit()) {
+      return clear ? 'pr-23 pointer-coarse:pr-39' : 'pr-16 pointer-coarse:pr-28';
+    }
+    if (this.showSteppers()) {
+      return clear ? 'pr-16 pointer-coarse:pr-33' : 'pr-9 pointer-coarse:pr-22';
+    }
+    return clear ? 'pr-8 pointer-coarse:pr-11' : '';
   });
   protected readonly inputClass = computed(() =>
     cn(
@@ -164,6 +192,19 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
   protected nudge(direction: 1 | -1): void {
     const base = this.value() ?? this.min() ?? 0;
     this.value.set(this.roundToStep(this.clamp(base + direction * this.normalizedStep())));
+  }
+
+  protected clear(): void {
+    if (this.disabled() || this.readonly()) return;
+    this.touch.emit();
+    this.value.set(null);
+  }
+
+  protected onBlur(): void {
+    this.touch.emit();
+    if (this.rawValue.parseErrors().length > 0) {
+      this.rawValue.set(this.value()?.toString() ?? '');
+    }
   }
 
   private clamp(n: number): number {

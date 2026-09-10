@@ -1,0 +1,117 @@
+@let group = this.group();
+<div class="group/ghead relative mb-1 flex items-center rounded-md px-2 hover:bg-surface-hover">
+  <button
+    type="button"
+    class="flex min-h-9 flex-1 cursor-pointer items-center gap-1.5 pr-8 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary pointer-coarse:min-h-12 pointer-coarse:pr-12"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggleOpen()">
+    <h3 class="m-0 text-[13px] font-semibold text-text-secondary group-hover/ghead:text-text pointer-coarse:text-base">{{ group.labelKey | transloco }}</h3>
+    @if (!isOpen() && selectedCount() > 0) {
+      <app-tag color="primary" size="sm" styleClass="min-w-4 justify-center px-1! py-px! text-[10px]! tabular-nums">
+        {{ selectedCount() }}
+      </app-tag>
+    }
+    <svg
+      lucideChevronDown
+      class="size-3.5 text-text-muted transition-transform duration-200 motion-reduce:transition-none"
+      [class.-rotate-90]="!isOpen()"
+      aria-hidden="true"></svg>
+  </button>
+  @if (headerSearchable()) {
+    <app-button
+      variant="ghost"
+      size="sm"
+      iconOnly
+      styleClass="absolute inset-y-0 right-1 my-auto size-7 pointer-coarse:size-10 pointer-coarse:text-base"
+      [ariaLabel]="'browse.rail.searchValues' | transloco"
+      [ariaExpanded]="searching()"
+      (clicked)="toggleSearch(searchInput)">
+      @if (searching()) {
+        <svg lucideX aria-hidden="true"></svg>
+      } @else {
+        <svg lucideSearch aria-hidden="true"></svg>
+      }
+    </app-button>
+  }
+</div>
+
+<div [class]="revealClass(isOpen())" [attr.inert]="isOpen() ? null : ''">
+  <div class="min-h-0 overflow-hidden">
+    <div [class]="revealClass(searching())" [attr.inert]="searching() ? null : ''" data-search-wrap>
+      <div class="min-h-0 overflow-hidden pt-px">
+        <div class="mb-1.5">
+          <app-input
+            #searchInput
+            size="sm"
+            [placeholder]="'browse.rail.searchValues' | transloco"
+            [ariaLabel]="'browse.rail.searchValues' | transloco"
+            [value]="search()"
+            (valueChange)="search.set($event)">
+            <svg lucideSearch appInputLeading class="size-3.5" aria-hidden="true"></svg>
+          </app-input>
+        </div>
+      </div>
+    </div>
+
+    @if (disclosure() !== 'unopened') {
+      @if (activeQuery(); as query) {
+        <ul class="m-0 flex min-h-56 list-none flex-col p-0 pointer-coarse:min-h-[22rem]">
+          @for (item of matches(query); track item.value) {
+            <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
+          } @empty {
+            <li class="px-1.5 py-1.5 text-xs text-text-muted pointer-coarse:px-2 pointer-coarse:text-[13px]">
+              {{ 'browse.rail.noMatches' | transloco }}
+            </li>
+          }
+        </ul>
+      } @else {
+        <ul class="m-0 flex list-none flex-col p-0">
+          @for (item of visibleValues(); track item.value) {
+            <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
+          }
+        </ul>
+        @if (group.values.length > foldLimit()) {
+          <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
+            {{ (expanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
+          </button>
+        }
+      }
+      @if (group.range; as range) {
+        <app-browse-facet-range-inputs
+          [class]="rangeRowClass(group)"
+          [facetKey]="group.key"
+          [range]="range"
+          (commit)="commitRange.emit($event)" />
+      }
+    }
+    <div class="h-4" aria-hidden="true"></div>
+  </div>
+</div>
+
+<ng-template #row let-item="item">
+  <button
+    type="button"
+    [class]="rowClass(item)"
+    [disabled]="isZero(item)"
+    [attr.title]="item.label"
+    [attr.aria-label]="item.stars ? item.label : null"
+    [attr.aria-pressed]="item.selected"
+    (click)="onRowToggle(item)">
+    <span [class]="boxClass(item)" aria-hidden="true">
+      @if (item.selected) {
+        <svg lucideCheck [class]="checkIconClass" aria-hidden="true"></svg>
+      }
+    </span>
+    @if (item.icon) {
+      <app-icon-display class="shrink-0 text-text-muted" [icon]="item.icon" size="14px" />
+    }
+    <span [class]="labelClass(item)">
+      @if (item.stars; as stars) {
+        <app-rating readonly size="sm" [value]="stars.value" [stars]="stars.max" />
+      } @else {
+        {{ item.label }}
+      }
+    </span>
+    <span class="min-w-6 shrink-0 text-right text-[11.5px] tabular-nums text-text-muted pointer-coarse:text-xs">{{ item.count }}</span>
+  </button>
+</ng-template>

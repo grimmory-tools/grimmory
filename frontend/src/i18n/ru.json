@@ -1786,6 +1786,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Выбрать все"
       }
     }
   },
@@ -5369,5 +5372,9 @@
         "matchFailedDetail": ""
       }
     }
+  },
+  "browse": {
+    "showAll": "Показать все",
+    "moreActions": "Дополнительные действия"
   }
 }

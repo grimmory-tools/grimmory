@@ -1786,6 +1786,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Összes Kiválasztása"
       }
     }
   },
@@ -5355,5 +5358,8 @@
         "matchFailedDetail": "Nem sikerült szerzőt egyeztetni külső metaadatokkal."
       }
     }
+  },
+  "browse": {
+    "moreActions": "További lehetőségek"
   }
 }
