@@ -3138,7 +3138,8 @@
         "customFetchMetadata": "自定义获取元数据",
         "autoFetchMetadata": "自动获取元数据",
         "findDuplicates": "查找重复",
-        "deleteLibrary": "删除书库"
+        "deleteLibrary": "删除书库",
+        "manageLibrary": "管理书库"
       },
       "shelf": {
         "publicShelfPrefix": "公开书架 - ",
@@ -3777,6 +3778,57 @@
         "mergeFailedDetail": "无法合并此组。",
         "mergePartialDetail": "{{ success }} 个已合并，{{ failed }} 个失败。"
       }
+    },
+    "fields": {
+      "random": "随机",
+      "title": "标题",
+      "author": "作者",
+      "authorSurname": "作者（姓氏）",
+      "genre": "类型",
+      "series": "系列",
+      "seriesNumber": "系列编号",
+      "publisher": "出版社",
+      "tag": "标签",
+      "mood": "情绪",
+      "language": "语言",
+      "narrator": "讲述者",
+      "fileType": "图书类型",
+      "readStatus": "阅读状态",
+      "personalRating": "个人评分",
+      "amazonRating": "亚马逊评分",
+      "amazonReviewCount": "亚马逊 #",
+      "goodreadsRating": "Goodreads 评分",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Hardcover 评分",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Ranobedb 评分",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "页数",
+      "publishedDate": "出版日期",
+      "publishedYear": "出版年份",
+      "addedOn": "添加时间",
+      "lastReadTime": "最后阅读",
+      "dateFinished": "完成日期",
+      "readingProgress": "阅读进度",
+      "fileName": "文件名",
+      "fileSize": "文件大小",
+      "isbn": "ISBN",
+      "library": "书库",
+      "shelf": "书架",
+      "ageRating": "年龄分级",
+      "contentRating": "内容分级",
+      "matchScore": "元数据匹配分数",
+      "shelfStatus": "书架状态",
+      "comicCharacter": "漫画角色",
+      "comicTeam": "漫画团队",
+      "comicLocation": "漫画地点",
+      "comicCreator": "漫画创作者",
+      "audibleReviewCount": "Audible 评论数"
+    },
+    "viewMode": {
+      "grid": "网格",
+      "table": "表格"
     }
   },
   "readerAudiobook": {
@@ -5478,6 +5530,20 @@
   },
   "browse": {
     "showAll": "全部显示",
-    "moreActions": "更多操作"
+    "moreActions": "更多操作",
+    "bulk": {
+      "organizeFiles": "整理文件",
+      "updateReadStatus": "更新阅读状态",
+      "lockUnlockMetadata": "锁定/解锁元数据"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "file": "文件",
+        "ratings": "评分"
+      },
+      "viewMode": "视图",
+      "density": "大小",
+      "resetColumns": "重置为默认"
+    }
   }
 }
