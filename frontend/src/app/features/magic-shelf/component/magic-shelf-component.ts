@@ -208,7 +208,7 @@ const FIELD_GROUPS: FieldGroup[] = [
   { translationKey: 'bookInfo', fields: ['title', 'subtitle', 'description', 'authors', 'categories', 'publisher', 'language', 'pageCount', 'ageRating', 'contentRating'] },
   { translationKey: 'series', fields: ['seriesName', 'seriesNumber', 'seriesTotal', 'seriesStatus', 'seriesGaps', 'seriesPosition'] },
   { translationKey: 'dates', fields: ['publishedDate', 'dateFinished', 'lastReadTime', 'addedOn'] },
-  { translationKey: 'ratingsReviews', fields: ['personalRating', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount'] },
+  { translationKey: 'ratingsReviews', fields: ['personalRating', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount', 'applebooksRating', 'applebooksReviewCount'] },
   { translationKey: 'qualityMetadata', fields: ['metadataScore', 'metadataPresence'] },
   { translationKey: 'tagsMoods', fields: ['moods', 'tags'] },
   { translationKey: 'audiobook', fields: ['narrator', 'abridged', 'audiobookDuration', 'audiobookCodec', 'audiobookChapterCount', 'audiobookBitrate'] },
