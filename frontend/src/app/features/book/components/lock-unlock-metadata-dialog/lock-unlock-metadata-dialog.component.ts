@@ -9,7 +9,7 @@ import {Divider} from '@openng/optimus-ui/divider';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {finalize} from 'rxjs';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {MetadataProviderFieldsService} from '../../../../../shared/metadata';
+import {MetadataProviderFieldsService} from '../../../../shared/metadata';
 
 @Component({
   selector: 'app-lock-unlock-metadata-dialog',

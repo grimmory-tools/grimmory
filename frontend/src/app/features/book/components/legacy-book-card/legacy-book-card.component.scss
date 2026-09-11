@@ -132,9 +132,19 @@
 }
 
 .cover-container:hover .info-btn,
-.cover-container:hover .read-btn {
+.cover-container:hover .read-btn,
+.book-card:focus-within .info-btn,
+.book-card:focus-within .read-btn {
   opacity: 1;
   visibility: visible;
+}
+
+@media (hover: none) {
+  .info-btn,
+  .read-btn {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .cover-container.center-info-btn .info-btn {
