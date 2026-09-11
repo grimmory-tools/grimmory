@@ -103,7 +103,7 @@ export class BrowseGridViewportComponent<T> implements OnInit {
       this.scrollRestored = true;
       const offset = this.initialScrollOffset();
       if (offset > 0) {
-        runOnNextTwoFrames(() => g.virtualizer.scrollToOffset(offset));
+        runOnNextTwoFrames(() => g.virtualizer.scrollToOffset(offset), this.destroyRef);
       }
     });
 

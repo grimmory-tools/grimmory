@@ -123,6 +123,7 @@ export class BrowseFacetRangeInputsComponent<K extends string = string> {
   }
 
   protected onUnitChange(side: RangeSide, label: string): void {
+    this.commitNow();
     const unit = FILE_SIZE_UNITS.find(candidate => candidate.label === label) ?? DEFAULT_FILE_SIZE_UNIT;
     this.pickedUnits.update(current => ({...current, [side]: unit}));
   }

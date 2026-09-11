@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { transformedValue, type FormValueControl, type ParseResult } from '@angular/forms/signals';
 import { LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus, LucideX } from '@lucide/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { cn } from '../cn';
 import { AppControlTransitionDirective } from '../control.styles';
@@ -22,7 +23,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
 @Component({
   selector: 'app-number-input',
   standalone: true,
-  imports: [AppControlTransitionDirective, LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus, LucideX],
+  imports: [AppControlTransitionDirective, TranslocoPipe, LucideChevronDown, LucideChevronUp, LucideMinus, LucidePlus, LucideX],
   host: { class: 'relative block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -54,8 +55,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
         @if (showClear()) {
           <button
             type="button"
-            tabindex="-1"
-            aria-hidden="true"
+            [attr.aria-label]="'common.clear' | transloco"
             data-clear
             [class]="clearButtonClass + (value() === null ? ' invisible' : '')"
             [disabled]="disabled()"
@@ -154,6 +154,7 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
 
   protected readonly clearButtonClass =
     'pointer-events-auto mr-1 flex w-6 cursor-pointer items-center justify-center text-text-muted ' +
+    'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ' +
     'touch-manipulation transition-colors hover:text-text-strong ' +
     'disabled:pointer-events-none disabled:opacity-40 pointer-coarse:w-10';
 
