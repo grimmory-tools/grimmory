@@ -14,7 +14,7 @@ import {BookdropGuard} from './core/security/guards/bookdrop.guard';
 import {LibraryStatsGuard} from './core/security/guards/library-stats.guard';
 import {UserStatsGuard} from './core/security/guards/user-stats.guard';
 import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
-import {type BookBrowseRouteData} from './features/book/browse/book-browse-scope';
+import {validBookBrowseScope, type BookBrowseRouteData} from './features/book/browse/book-browse-scope';
 
 const loadBookBrowsePage = () =>
   import('./features/book/browse/book-browse-page.component').then(m => m.BookBrowsePageComponent);
@@ -47,14 +47,14 @@ export const routes: Routes = [
       {path: 'dashboard', component: MainDashboardComponent},
       {path: 'all-books', children: bookBrowseRoutes()},
       {path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)},
-      {path: 'library/:libraryId/books', children: bookBrowseRoutes()},
-      {path: 'shelf/:shelfId/books', children: bookBrowseRoutes()},
+      {path: 'library/:libraryId/books', canActivateChild: [validBookBrowseScope], children: bookBrowseRoutes()},
+      {path: 'shelf/:shelfId/books', canActivateChild: [validBookBrowseScope], children: bookBrowseRoutes()},
       {path: 'unshelved-books', children: bookBrowseRoutes({browseScope: 'unshelved'})},
       {path: 'series', loadComponent: () => import('./features/series-browser/components/series-browser/series-browser.component').then(m => m.SeriesBrowserComponent)},
       {path: 'series/:seriesName', loadComponent: () => import('./features/book/components/series-page/series-page.component').then(m => m.SeriesPageComponent)},
       {path: 'authors', loadComponent: () => import('./features/author-browser/components/author-browser/author-browser.component').then(m => m.AuthorBrowserComponent)},
       {path: 'author/:authorId', loadComponent: () => import('./features/author-browser/components/author-detail/author-detail.component').then(m => m.AuthorDetailComponent)},
-      {path: 'magic-shelf/:magicShelfId/books', children: bookBrowseRoutes()},
+      {path: 'magic-shelf/:magicShelfId/books', canActivateChild: [validBookBrowseScope], children: bookBrowseRoutes()},
       {path: 'book/:bookId', loadComponent: () => import('./features/metadata/component/book-metadata-center/book-metadata-center.component').then(m => m.BookMetadataCenterComponent)},
       {path: 'bookdrop', loadComponent: () => import('./features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component').then(m => m.BookdropFileReviewComponent), canActivate: [BookdropGuard]},
       {path: 'metadata-manager', loadComponent: () => import('./features/metadata/component/metadata-manager/metadata-manager.component').then(m => m.MetadataManagerComponent), canActivate: [EditMetadataGuard]},

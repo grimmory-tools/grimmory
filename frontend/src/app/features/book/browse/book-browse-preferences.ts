@@ -1,4 +1,6 @@
 import {computed, inject, linkedSignal, type Signal} from '@angular/core';
+import {TranslocoService} from '@jsverse/transloco';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {
   type EntityViewPreference,
@@ -37,11 +39,13 @@ export interface BookBrowsePreferencesOptions {
 
 export function createBookBrowsePreferences({context, availableSortKeys, urlState}: BookBrowsePreferencesOptions) {
   const userService = inject(UserService);
+  const messages = inject(MessageService);
+  const transloco = inject(TranslocoService);
   const entityViewPreferences = computed(() => userService.currentUser()?.userSettings.entityViewPreferences);
 
   const viewMode = computed<BookBrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
-  const formatPill = computed(() => entityViewPreferences()?.global.overlayBookType ?? true);
+  const formatPill = computed(() => entityViewPreferences()?.global?.overlayBookType ?? true);
 
   const defaultSortTerms = computed<readonly BookSortTerm[]>(() => {
     const preferences = entityViewPreferences();
@@ -78,10 +82,18 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
   const columnOptions = computed(() => bookColumnOptions(columnPreferences()));
   const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences()));
 
+  function onSaveError(): void {
+    messages.add({
+      severity: 'error',
+      summary: transloco.translate('common.error'),
+      detail: transloco.translate('settingsView.saveFailedDetail'),
+    });
+  }
+
   function persistColumnPreferences(): void {
     const user = userService.currentUser();
     if (user) {
-      userService.updateUserSetting(user.id, 'tableColumnPreference', columnPreferences());
+      userService.updateUserSetting(user.id, 'tableColumnPreference', columnPreferences(), onSaveError);
     }
   }
 
@@ -95,7 +107,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       context(),
       patch,
     );
-    userService.updateUserSetting(user.id, 'entityViewPreferences', preferences);
+    userService.updateUserSetting(user.id, 'entityViewPreferences', preferences, onSaveError);
   }
 
   return {

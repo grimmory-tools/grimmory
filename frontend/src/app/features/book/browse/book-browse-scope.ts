@@ -1,4 +1,5 @@
-import {type ParamMap} from '@angular/router';
+import {inject} from '@angular/core';
+import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
 
 import {pinBrowseFacetValue} from '../../../shared/browse/facets';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
@@ -14,6 +15,12 @@ export type BookBrowseScope =
 export interface BookBrowseRouteData {
   browseScope?: 'unshelved';
 }
+
+export const validBookBrowseScope: CanActivateChildFn = route => {
+  const invalid = ['libraryId', 'shelfId', 'magicShelfId'].some(key =>
+    route.paramMap.has(key) && positiveId(route.paramMap.get(key)) === null);
+  return invalid ? inject(Router).createUrlTree(['/dashboard']) : true;
+};
 
 export function bookBrowseScope(
   paramMap: ParamMap,

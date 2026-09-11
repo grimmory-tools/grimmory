@@ -7,11 +7,15 @@ import {
 
 export type EntityViewPreferenceContext = Pick<EntityViewPreferenceOverride, 'entityType' | 'entityId'>;
 
-export function entityViewSortCriteria(preference: EntityViewPreference): SortCriterion[] {
-  if (preference.sortCriteria?.length) {
+const DEFAULT_GLOBAL_PREFERENCE: EntityViewPreference = {
+  sortKey: 'title', sortDir: 'ASC', view: 'GRID', coverSize: 1, seriesCollapsed: false, overlayBookType: true,
+};
+
+export function entityViewSortCriteria(preference: EntityViewPreference | null | undefined): SortCriterion[] {
+  if (preference?.sortCriteria?.length) {
     return preference.sortCriteria;
   }
-  return preference.sortKey && preference.sortDir
+  return preference?.sortKey && preference.sortDir
     ? [{field: preference.sortKey, direction: preference.sortDir}]
     : [];
 }
@@ -30,7 +34,7 @@ export function entityViewMode(
   context: EntityViewPreferenceContext | null,
 ): 'GRID' | 'TABLE' {
   const override = context ? findEntityViewPreferenceOverride(preferences, context) : undefined;
-  return override?.view ?? preferences?.global.view ?? 'GRID';
+  return override?.view ?? preferences?.global?.view ?? 'GRID';
 }
 
 export function entityViewSortPatch(sortCriteria: readonly SortCriterion[]): Partial<EntityViewPreference> {
@@ -39,16 +43,18 @@ export function entityViewSortPatch(sortCriteria: readonly SortCriterion[]): Par
 }
 
 export function upsertEntityViewPreference(
-  preferences: EntityViewPreferences,
+  preferences: EntityViewPreferences | null | undefined,
   context: EntityViewPreferenceContext | null,
   patch: Partial<EntityViewPreference>,
 ): EntityViewPreferences {
-  const next = structuredClone(preferences);
+  const next = structuredClone({
+    global: {...DEFAULT_GLOBAL_PREFERENCE, ...preferences?.global},
+    overrides: preferences?.overrides ?? [],
+  });
   if (context === null) {
     next.global = {...next.global, ...patch};
     return next;
   }
-  next.overrides ??= [];
   const override = next.overrides.find(candidate =>
     candidate.entityType === context.entityType && candidate.entityId === context.entityId);
   if (override) {

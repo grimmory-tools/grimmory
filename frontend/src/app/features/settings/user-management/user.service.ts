@@ -511,7 +511,7 @@ export class UserService {
     );
   }
 
-  updateUserSetting(userId: number, key: string, value: unknown): void {
+  updateUserSetting(userId: number, key: string, value: unknown, onError?: () => void): void {
     const payload = {
       key,
       value
@@ -519,13 +519,16 @@ export class UserService {
     this.http.put<void>(`${this.userUrl}/${userId}/settings`, payload, {
       headers: { 'Content-Type': 'application/json' },
       responseType: 'text' as 'json'
-    }).subscribe(() => {
-      const currentUser = this.currentUser();
-      if (currentUser) {
-        const updatedSettings = { ...currentUser.userSettings, [key]: value };
-        const updatedUser = { ...currentUser, userSettings: updatedSettings };
-        this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
-      }
+    }).subscribe({
+      next: () => {
+        const currentUser = this.currentUser();
+        if (currentUser) {
+          const updatedSettings = { ...currentUser.userSettings, [key]: value };
+          const updatedUser = { ...currentUser, userSettings: updatedSettings };
+          this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
+        }
+      },
+      error: onError,
     });
   }
 
