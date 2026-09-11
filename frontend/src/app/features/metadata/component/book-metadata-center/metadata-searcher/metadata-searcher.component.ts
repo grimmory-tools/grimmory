@@ -516,6 +516,10 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       return metadata.provider;
     }
 
+    if (metadata.openlibraryId) {
+      return 'OpenLibrary';
+    }
+
     if (metadata.audibleId) {
       // Audible has to come before Amazon because they both have an ASIN.
       return 'Audible';
