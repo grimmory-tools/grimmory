@@ -120,7 +120,6 @@ describe('BookBrowsePageComponent', () => {
   }
 
   async function routeTo(url: string): Promise<RouterTestingHarness> {
-    fixture.destroy();
     const routerHarness = await RouterTestingHarness.create();
     await routerHarness.navigateByUrl(url);
     routerHarness.detectChanges();
@@ -180,7 +179,6 @@ describe('BookBrowsePageComponent', () => {
       ],
     });
 
-    fixture = TestBed.createComponent(BookBrowsePageComponent);
     http = TestBed.inject(HttpTestingController);
   });
 
@@ -220,6 +218,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('serves a remount from the shared cache and ignores view-only URL changes', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     fixture.detectChanges();
     expectInitialPageRequest().flush(bookPage([1, 2, 3], 100_000));
     await flushQueryAsync();
@@ -240,6 +239,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('follows the opaque next link and retries a continuation failure', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     fixture.detectChanges();
     expectInitialPageRequest().flush(bookPage([1], 600, [{
       rel: ['next'],
@@ -268,6 +268,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('passes sort, search and facets to the endpoint exactly while the URL keeps the raw query', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     await TestBed.inject(Router).navigate([], {
       queryParams: {sort: '-title,pageCount', query: 'dune!', facet: ['genre:Fantasy', 'language:en']},
     });
@@ -286,6 +287,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('applies the saved default sort when the URL has none, mapping old author keys, then drops sorts the server does not offer', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     currentUser.set(userFixture({}, undefined, {
       sortKey: 'author',
       sortCriteria: [{field: 'author', direction: 'ASC'}, {field: 'title', direction: 'DESC'}],
@@ -306,6 +308,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('ignores reselecting the active sort and flips only the primary term on a direction toggle', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     await TestBed.inject(Router).navigate([], {queryParams: {sort: 'pageCount'}});
     fixture.detectChanges();
     flushFacetRegistry();
@@ -336,6 +339,7 @@ describe('BookBrowsePageComponent', () => {
   });
 
   it('debounces typed text into one replaceUrl navigation and clears immediately', () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
     vi.useFakeTimers();
     try {
       fixture.detectChanges();
