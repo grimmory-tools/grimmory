@@ -117,6 +117,10 @@ public class LibraryProcessingService {
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         books = bookRepository.findAllByLibraryIdForRescan(libraryId);
 
+        // Refresh stored size/hash for files modified in place (same path, changed content),
+        // which detectNewBookPaths would otherwise skip because the path already exists.
+        syncModifiedBookFiles(books);
+
         List<LibraryFile> newFiles = libraryFileHelper.detectNewBookPaths(filteredFiles, books, allAdditionalFiles);
 
         // Use BookGroupingService to determine what to attach vs create new
@@ -137,6 +141,58 @@ public class LibraryProcessingService {
 
     public void processLibraryFiles(List<LibraryFile> libraryFiles, LibraryEntity libraryEntity) {
         fileAsBookProcessor.processLibraryFiles(libraryFiles, libraryEntity);
+    }
+
+    private void syncModifiedBookFiles(List<BookEntity> books) {
+        for (BookEntity book : books) {
+            if (book.getBookFiles() == null) {
+                continue;
+            }
+            for (BookFileEntity bookFile : book.getBookFiles()) {
+                syncBookFileIfModified(bookFile);
+            }
+        }
+    }
+
+    /**
+     * Detect a file that was modified in place (same path, different content) by comparing the
+     * stored size against the current on-disk size, and refresh the stored size and content hash
+     * when they differ. Files that are missing or unreadable are left untouched here; removals are
+     * handled separately by the deletion detection above.
+     */
+    private void syncBookFileIfModified(BookFileEntity bookFile) {
+        Path fullPath;
+        try {
+            fullPath = bookFile.getFullFilePath();
+        } catch (IllegalStateException e) {
+            // Fileless or incomplete record: nothing on disk to sync.
+            return;
+        }
+
+        Long actualSizeKb = bookFile.isFolderBased()
+                ? FileUtils.getFolderSizeInKb(fullPath)
+                : FileUtils.getFileSizeInKb(fullPath);
+        if (actualSizeKb == null) {
+            return;
+        }
+
+        Long storedSizeKb = bookFile.getFileSizeKb();
+        if (storedSizeKb != null && storedSizeKb.equals(actualSizeKb)) {
+            return;
+        }
+
+        try {
+            String newHash = bookFile.isFolderBased()
+                    ? FileFingerprint.generateFolderHash(fullPath)
+                    : FileFingerprint.generateHash(fullPath);
+            bookFile.setFileSizeKb(actualSizeKb);
+            bookFile.setCurrentHash(newHash);
+            bookAdditionalFileRepository.save(bookFile);
+            log.info("Refreshed metadata for modified file '{}' (size {} KB -> {} KB)",
+                    bookFile.getFileName(), storedSizeKb, actualSizeKb);
+        } catch (Exception e) {
+            log.error("Failed to refresh metadata for modified file '{}': {}", bookFile.getFileName(), e.getMessage());
+        }
     }
 
     private void validateLibraryPathsAccessible(LibraryEntity libraryEntity) {
