@@ -70,6 +70,10 @@ describe('LockUnlockMetadataDialogComponent', () => {
   it('toggles every lockable field between locked and unlocked states', () => {
     const component = createComponent();
 
+    expect(component.lockableFields).toEqual(expect.arrayContaining([
+      'lubimyczytacIdLocked', 'lubimyczytacRatingLocked'
+    ]));
+
     component.toggleLockAll('LOCK');
     expect(component.lockableFields.every(field => component.fieldLocks[field] === true)).toBe(true);
 
