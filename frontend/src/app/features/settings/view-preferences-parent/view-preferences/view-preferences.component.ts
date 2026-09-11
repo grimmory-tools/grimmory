@@ -117,13 +117,13 @@ export class ViewPreferencesComponent implements OnInit {
       const prefs = user.userSettings?.entityViewPreferences;
       const global = prefs?.global;
       this.selectedView = global?.view ?? 'GRID';
-      this.overlayBookType = global.overlayBookType ?? true;
+      this.overlayBookType = global?.overlayBookType ?? true;
       this.autoSaveMetadata = user.userSettings?.autoSaveMetadata ?? false;
 
       const storedTerms = bookSortTermsFromCriteria(entityViewSortCriteria(global));
       this.globalSortTerms = storedTerms.length > 0 ? storedTerms : DEFAULT_BOOK_SORT_TERMS;
 
-      this.overrides = (prefs.overrides ?? []).map(override => ({
+      this.overrides = (prefs?.overrides ?? []).map(override => ({
         entityType: override.entityType,
         library: override.entityId,
         sortTerms: bookSortTermsFromCriteria(entityViewSortCriteria(override.preferences)),
