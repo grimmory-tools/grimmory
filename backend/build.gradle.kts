@@ -132,10 +132,10 @@ dependencies {
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
     // --- TwelveMonkeys ImageIO ---
-    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.15.0")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
     implementation("org.grimmory:epub4j-core:1.5.0")
