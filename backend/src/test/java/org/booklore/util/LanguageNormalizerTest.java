@@ -25,9 +25,32 @@ class LanguageNormalizerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"fr-FR,fr", "en-US,en", "pt-BR,pt", "fr_FR,fr"})
-    void bcp47Tags_extractsPrimarySubtag(String input, String expected) {
+    @CsvSource({"fr-FR,fr-FR", "en-US,en-US", "pt-BR,pt-BR", "fr_FR,fr-FR", "en-us,en-US", "PT-br,pt-BR"})
+    void bcp47Tags_preservesRegionWithCanonicalCasing(String input, String expected) {
         assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"fre-FR,fr-FR", "eng_US,en-US", "por-BR,pt-BR"})
+    void alpha3PrimarySubtag_normalizedToAlpha2KeepingRegion(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"zh-hant,zh-Hant", "zh-hans-cn,zh-Hans-CN", "sr-latn,sr-Latn"})
+    void scriptSubtags_canonicalCasing(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"en,en", "fr,fr", "eng,en", "fre,fr", "English,en", "French,fr"})
+    void bareCodesAndNames_resolveToAlpha2WithoutRegion(String input, String expected) {
+        assertEquals(expected, LanguageNormalizer.normalize(input));
+    }
+
+    @Test
+    void illFormedSubtags_fallBackToPrimaryLanguage() {
+        assertEquals("en", LanguageNormalizer.normalize("en-notarealsubtag"));
     }
 
     @ParameterizedTest
