@@ -24,6 +24,7 @@ describe('AuthorEditorComponent', () => {
     description: 'Analytical engine pioneer',
     asin: 'B00ADA',
     nameLocked: false,
+    sortNameLocked: false,
     descriptionLocked: false,
     asinLocked: false,
     photoLocked: false,

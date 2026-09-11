@@ -10,9 +10,11 @@ import lombok.Data;
 public class AuthorDetails {
     private Long id;
     private String name;
+    private String sortName;
     private String description;
     private String asin;
     private boolean nameLocked;
+    private boolean sortNameLocked;
     private boolean descriptionLocked;
     private boolean asinLocked;
     private boolean photoLocked;

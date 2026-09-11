@@ -63,13 +63,8 @@ export class SortService {
   private readonly fieldExtractors: Record<string, (book: Book) => unknown> = {
     title: (book) => book.metadata?.title?.toLowerCase() || null,
     author: (book) => book.metadata?.authors?.map(a => a.toLowerCase()).join(", ") || null,
-    authorSurnameVorname: (book) => book.metadata?.authors?.map(a => {
-      const parts = a.trim().split(/\s+/);
-      if (parts.length < 2) return a.toLowerCase();
-      const surname = parts.pop();
-      const firstname = parts.join(" ");
-      return `${surname}, ${firstname}`.toLowerCase();
-    }).join(", ") || null,
+    authorSurnameVorname: (book) =>
+      (book.metadata?.authorSortNames ?? book.metadata?.authors)?.map(a => a.toLowerCase()).join(", ") || null,
     publishedDate: (book) => {
       const date = book.metadata?.publishedDate;
       return date === null || date === undefined ? null : new Date(date).getTime();
