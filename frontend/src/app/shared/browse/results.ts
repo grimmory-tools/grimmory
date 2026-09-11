@@ -59,7 +59,7 @@ export function createBrowseResults<T extends {id: number}>(
   const coverWaitMs = deps.coverWaitMs ?? DEFAULT_COVER_WAIT_MS;
   const staleResultsMs = deps.staleResultsMs ?? DEFAULT_STALE_RESULTS_MS;
 
-  const lastVisibleEnd = signal(0);
+  const renderedCount = signal(1);
   const shown = signal<BrowsePageData<T> | undefined>(undefined);
   let shownListKey: string | null = null;
 
@@ -88,7 +88,7 @@ export function createBrowseResults<T extends {id: number}>(
   }
 
   function showAfterCovers(listKey: string, data: BrowsePageData<T>, onCleanup: EffectCleanupRegisterFn): void {
-    const urls = deps.artworkUrls(flattenBrowsePages(data), lastVisibleEnd());
+    const urls = deps.artworkUrls(flattenBrowsePages(data), renderedCount() - 1);
     if (urls.length === 0) {
       show(listKey, data);
       return;
@@ -128,7 +128,7 @@ export function createBrowseResults<T extends {id: number}>(
   });
 
   function onRenderedRange(range: BrowseRenderedRange): void {
-    lastVisibleEnd.set(range.end);
+    renderedCount.set(range.end - range.start + 1);
     if (
       range.end >= items().length - PREFETCH_THRESHOLD &&
       deps.query.hasNextPage() &&

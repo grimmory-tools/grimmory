@@ -1,8 +1,20 @@
-export function runOnNextTwoFrames(callback: () => void): void {
+import {type DestroyRef} from '@angular/core';
+
+export function runOnNextTwoFrames(callback: () => void, destroyRef: DestroyRef): void {
+  if (destroyRef.destroyed) return;
+  let frame: number | undefined;
+  const unregister = destroyRef.onDestroy(() => {
+    if (frame !== undefined) cancelAnimationFrame(frame);
+  });
   queueMicrotask(() => {
-    requestAnimationFrame(() => {
+    if (destroyRef.destroyed) return;
+    frame = requestAnimationFrame(() => {
       callback();
-      requestAnimationFrame(callback);
+      if (destroyRef.destroyed) return;
+      frame = requestAnimationFrame(() => {
+        unregister();
+        callback();
+      });
     });
   });
 }

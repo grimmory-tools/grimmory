@@ -39,8 +39,8 @@ const CLEAR_BUTTON_CLASS =
 export class BrowseSearchInputComponent {
   readonly value = input.required<string>();
   readonly placeholder = input('');
-  readonly ariaLabel = input('');
-  readonly clearLabel = input('');
+  readonly ariaLabel = input.required<string>();
+  readonly clearLabel = input.required<string>();
   readonly size = input<AppInputSize>('md');
 
   readonly valueChange = output<string>();

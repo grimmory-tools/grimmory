@@ -1,4 +1,4 @@
-import {ElementRef, Signal, computed, effect, signal} from '@angular/core';
+import {DestroyRef, ElementRef, Signal, computed, effect, inject, signal} from '@angular/core';
 import {runOnNextTwoFrames} from './frames';
 import {
   injectVirtualizer,
@@ -89,6 +89,7 @@ export function scaleForGridColumns(
  * ngOnInit will throw NG0203 unless wrapped in runInInjectionContext().
  */
 export function createVirtualGrid<T>(options: VirtualGridOptions<T>) {
+  const destroyRef = inject(DestroyRef);
   const viewportWidth = signal(0);
   const viewportHeight = signal(0);
   const gap = computed(() => typeof options.gap === 'number' ? options.gap : options.gap());
@@ -293,7 +294,7 @@ export function createVirtualGrid<T>(options: VirtualGridOptions<T>) {
       virtualizer.scrollToOffset(nextMaxScrollTop * scrollRatio);
     };
 
-    runOnNextTwoFrames(restoreScrollPosition);
+    runOnNextTwoFrames(restoreScrollPosition, destroyRef);
   };
 
   return {
