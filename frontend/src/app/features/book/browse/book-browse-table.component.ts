@@ -352,7 +352,7 @@ export class BookBrowseTableComponent {
         if (this.savedScrollLeft > 0) {
           element.scrollLeft = this.savedScrollLeft;
         }
-      });
+      }, this.destroyRef);
     });
 
     effect(() => {
