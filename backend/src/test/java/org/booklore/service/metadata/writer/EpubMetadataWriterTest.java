@@ -387,7 +387,7 @@ class EpubMetadataWriterTest {
                             <meta name="cover" content="cover-image"/>
                         </metadata>
                         <manifest>
-                            <item id="cover-image" href="cover.png" media-type="image/png" properties="cover-image"/>
+                            <item id="cover-image" href="cover.png" media-type="text/plain" properties="cover-image"/>
                         </manifest>
                     </package>""";
 
