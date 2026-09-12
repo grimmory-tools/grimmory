@@ -500,6 +500,9 @@ public class CbxConversionService {
             if (metadata.getAsin() != null && !metadata.getAsin().trim().isEmpty()) {
                 model.put("asin", metadata.getAsin());
             }
+            if (metadata.getOpenlibraryId() != null && !metadata.getOpenlibraryId().trim().isEmpty()) {
+                model.put("openlibraryId", metadata.getOpenlibraryId());
+            }
             if (metadata.getGoodreadsId() != null && !metadata.getGoodreadsId().trim().isEmpty()) {
                 model.put("goodreadsId", metadata.getGoodreadsId());
             }
