@@ -8,10 +8,40 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Slf4j
 @UtilityClass
 public class MimeDetector {
+    private static final Map<String, String> MEDIA_TYPE_EXTENSIONS = Map.ofEntries(
+            Map.entry("text/html", ".html"),
+            Map.entry("application/xhtml+xml", ".html"),
+            Map.entry("application/javascript", ".js"),
+            Map.entry("text/css", ".css"),
+            Map.entry("image/jpeg", ".jpg"),
+            Map.entry("image/png", ".png"),
+            Map.entry("image/gif", ".gif"),
+            Map.entry("image/svg+xml", ".svg"),
+            Map.entry("font/ttf", ".ttf"),
+            Map.entry("font/otf", ".otf"),
+            Map.entry("application/vnd.ms-fontobject", ".eot"),
+            Map.entry("application/xml", ".xml"),
+            Map.entry("application/x-dtbncx+xml", ".ncx"),
+            Map.entry("audio/mpeg", ".mp3"),
+            Map.entry("video/mp4", ".mp4"),
+            Map.entry("audio/mp4", ".m4a"),
+            Map.entry("audio/aac", ".aac"),
+            Map.entry("audio/wav", ".wav"),
+            Map.entry("audio/ogg", ".ogg"),
+            Map.entry("application/oebps-package+xml", ".opf"),
+            Map.entry("image/webp", ".webp"),
+            Map.entry("font/woff", ".woff"),
+            Map.entry("font/woff2", ".woff2"),
+            Map.entry("application/smil+xml", ".smil"),
+            Map.entry("audio/flac", ".flac"),
+            Map.entry("video/webm", ".webm"),
+            Map.entry("image/avif", ".avif")
+    );
 
     // Tika is thread-safe one instance for the whole app.
     private static final Tika TIKA = new Tika();
@@ -46,6 +76,10 @@ public class MimeDetector {
             log.warn("MIME detection failed for {}: {}", path, e.getMessage());
             return "application/octet-stream";
         }
+    }
+
+    public String getExtension(String mediaType) {
+        return MEDIA_TYPE_EXTENSIONS.getOrDefault(mediaType, ".bin");
     }
 
     public boolean isAudio(Path path) throws IOException {
