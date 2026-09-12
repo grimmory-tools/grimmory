@@ -7,7 +7,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {invalidateBookQueries, invalidateBooksQuery, patchBookInCacheWith, patchBookMetadataInCache} from './book-query-cache';
+import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 
 @Injectable({
   providedIn: 'root',
@@ -35,29 +35,25 @@ export class BookMetadataManageService {
   updateBooksMetadata(request: BulkMetadataUpdateRequest): Observable<void> {
     return this.http.put(`${this.url}/bulk-edit-metadata`, request).pipe(
       tap(() => {
-        invalidateBooksQuery(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       }),
       map(() => void 0)
     );
   }
 
-  toggleAllLock(bookIds: Set<number>, lock: string): Observable<void> {
+  toggleAllLock(bookIds: Set<number>, lock: 'LOCK' | 'UNLOCK'): Observable<void> {
     const requestBody = {
       bookIds: Array.from(bookIds),
       lock
     };
     return this.http.put<BookMetadata[]>(`${this.url}/metadata/toggle-all-lock`, requestBody).pipe(
       tap(updatedMetadataList => {
-        updatedMetadataList.forEach(metadata => {
-          if (metadata.bookId != null) {
-            patchBookMetadataInCache(this.queryClient, metadata.bookId, metadata);
-          }
-        });
+        patchBooksInCacheWith(this.queryClient, updatedMetadataList.map(metadata => ({
+          bookId: metadata.bookId,
+          updater: (book: Book) => ({...book, metadata}),
+        })));
       }),
-      map(() => void 0),
-      catchError((error) => {
-        throw error;
-      })
+      map(() => void 0)
     );
   }
 
@@ -69,19 +65,14 @@ export class BookMetadataManageService {
       fieldActions
     }).pipe(
       tap(() => {
-        for (const bookId of bookIdSet) {
-          patchBookInCacheWith(this.queryClient, bookId, book => {
-            if (!book.metadata) return book;
-            const updatedMetadata = {...book.metadata} as Record<string, unknown>;
-            for (const [field, action] of Object.entries(fieldActions)) {
-              const lockField = field.endsWith('Locked') ? field : `${field}Locked`;
-              if (lockField in updatedMetadata) {
-                updatedMetadata[lockField] = action === 'LOCK';
-              }
-            }
-            return {...book, metadata: updatedMetadata as BookMetadata};
-          });
+        const lockPatch: Record<string, boolean> = {};
+        for (const [field, action] of Object.entries(fieldActions)) {
+          lockPatch[field === 'thumbnailLocked' ? 'coverLocked' : field] = action === 'LOCK';
         }
+        patchBooksInCacheWith(this.queryClient, Array.from(bookIdSet, bookId => ({
+          bookId,
+          updater: (book: Book) => ({...book, metadata: {...book.metadata!, ...lockPatch}}),
+        })));
       }),
       catchError(error => {
         this.messageService.add({
@@ -97,7 +88,7 @@ export class BookMetadataManageService {
   consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], valuesToMerge: string[]): Observable<unknown> {
     return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, valuesToMerge}).pipe(
       tap(() => {
-        invalidateBooksQuery(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -105,7 +96,7 @@ export class BookMetadataManageService {
   deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[]): Observable<unknown> {
     return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, valuesToDelete}).pipe(
       tap(() => {
-        invalidateBooksQuery(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -125,7 +116,7 @@ export class BookMetadataManageService {
   regenerateCovers(missingOnly = false): Observable<void> {
     return this.http.post<void>(`${this.url}/regenerate-covers?missingOnly=${missingOnly}`, {}).pipe(
       tap(() => {
-        invalidateBooksQuery(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -133,7 +124,7 @@ export class BookMetadataManageService {
   regenerateCover(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${bookId}/regenerate-cover`, {}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, [bookId]);
+        invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
@@ -145,7 +136,7 @@ export class BookMetadataManageService {
   generateCustomCover(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${bookId}/generate-custom-cover`, {}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, [bookId]);
+        invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
@@ -153,7 +144,7 @@ export class BookMetadataManageService {
   generateCustomCoversForBooks(bookIds: number[]): Observable<void> {
     return this.http.post<void>(`${this.url}/bulk-generate-custom-covers`, {bookIds}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, bookIds);
+        invalidateBooksById(this.queryClient, bookIds);
       })
     );
   }
@@ -161,7 +152,7 @@ export class BookMetadataManageService {
   regenerateCoversForBooks(bookIds: number[]): Observable<void> {
     return this.http.post<void>(`${this.url}/bulk-regenerate-covers`, {bookIds}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, bookIds);
+        invalidateBooksById(this.queryClient, bookIds);
       })
     );
   }
@@ -179,7 +170,7 @@ export class BookMetadataManageService {
     formData.append('file', file);
     return this.http.post<void>(`${this.url}/${bookId}/metadata/audiobook-cover/upload`, formData).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, [bookId]);
+        invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
@@ -191,7 +182,7 @@ export class BookMetadataManageService {
   regenerateAudiobookCover(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${bookId}/regenerate-audiobook-cover`, {}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, [bookId]);
+        invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
@@ -199,7 +190,7 @@ export class BookMetadataManageService {
   generateCustomAudiobookCover(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${bookId}/generate-custom-audiobook-cover`, {}).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, [bookId]);
+        invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
@@ -217,7 +208,7 @@ export class BookMetadataManageService {
     formData.append('bookIds', bookIds.join(','));
     return this.http.post<void>(`${this.url}/bulk-upload-cover`, formData).pipe(
       tap(() => {
-        invalidateBookQueries(this.queryClient, bookIds);
+        invalidateBooksById(this.queryClient, bookIds);
       })
     );
   }

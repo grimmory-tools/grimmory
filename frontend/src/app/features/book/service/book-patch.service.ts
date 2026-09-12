@@ -7,12 +7,12 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
 import {QueryClient} from '@tanstack/angular-query-experimental';
+import {applyBookQueryChangeSet} from '../data/book-query-cache';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
-  invalidateAppBooksQueries,
   patchBooksInCache,
   patchBookFieldsInCache,
-} from './book-query-cache';
+} from './legacy-book-cache';
 
 function getResetProgressFields(type: ResetProgressType): Partial<Book> {
   if (type === ResetProgressTypes.KOREADER) {
@@ -213,9 +213,14 @@ export class BookPatchService {
           bookId: r.bookId,
           fields: {
             ...getResetProgressFields(type),
-            readStatus: r.readStatus,
-            readStatusModifiedTime: r.readStatusModifiedTime,
-            dateFinished: r.dateFinished
+            ...(type === ResetProgressTypes.GRIMMORY
+              ? {
+                  readStatus: r.readStatus,
+                  readStatusModifiedTime: r.readStatusModifiedTime,
+                  dateFinished: r.dateFinished,
+                  lastReadTime: undefined,
+                }
+              : {}),
           }
         })));
       })
@@ -267,10 +272,10 @@ export class BookPatchService {
   updateLastReadTime(bookId: number): void {
     const timestamp = new Date().toISOString();
     this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      (current ?? []).map(book =>
+      current?.map(book =>
         book.id === bookId ? {...book, lastReadTime: timestamp} : book
       )
     );
-    invalidateAppBooksQueries(this.queryClient);
+    void applyBookQueryChangeSet(this.queryClient, {changedBookIds: [bookId]});
   }
 }

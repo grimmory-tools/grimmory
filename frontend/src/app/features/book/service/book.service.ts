@@ -19,12 +19,12 @@ import {
   bookDetailQueryKey,
   bookRecommendationsQueryKey,
 } from './book-query-keys';
+import {invalidateAllBookQueries} from '../data/book-query-cache';
 import {
-  invalidateAppBooksQueries,
-  invalidateBooksQuery,
+  invalidateAllBookCaches,
+  invalidateDeletedBookQueries,
   patchBooksInCache,
-  removeBookQueries,
-} from './book-query-cache';
+} from './legacy-book-cache';
 
 @Injectable({
   providedIn: 'root',
@@ -154,7 +154,7 @@ export class BookService {
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))
     );
-    invalidateAppBooksQueries(this.queryClient);
+    void invalidateAllBookQueries(this.queryClient);
   }
 
   /*------------------ Book Retrieval ------------------*/
@@ -197,8 +197,7 @@ export class BookService {
     return this.http.delete<BookDeletionResponse>(this.url, {params}).pipe(
       tap(response => {
         const deletedIds = response.deleted.length > 0 ? response.deleted : idList;
-        invalidateBooksQuery(this.queryClient);
-        removeBookQueries(this.queryClient, deletedIds);
+        invalidateDeletedBookQueries(this.queryClient, deletedIds);
 
         if (response.failedFileDeletions?.length > 0) {
           this.messageService.add({
@@ -232,7 +231,7 @@ export class BookService {
   createPhysicalBook(request: CreatePhysicalBookRequest): Observable<Book> {
     return this.http.post<Book>(`${this.url}/physical`, request).pipe(
       tap(newBook => {
-        invalidateBooksQuery(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.physicalBookCreatedSummary'),
