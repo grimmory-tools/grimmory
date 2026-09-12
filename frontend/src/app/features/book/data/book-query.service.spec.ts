@@ -113,7 +113,7 @@ describe('BookQueryService', () => {
     await expect(resultPromise).resolves.toMatchObject({content: [{id: 1}]});
   });
 
-  it('fetches facets without sort or size', async () => {
+  it('fetches facets without sort or size, splitting the sort tokens out', async () => {
     const resultPromise = queryClient.fetchQuery(service.facets(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?facet_logic=or&query=dune&facet=genre:Science%20Fiction`);
     request.flush({
@@ -128,15 +128,23 @@ describe('BookQueryService', () => {
           value: 'Fantasy',
           properties: {numberOfItems: 4},
         }],
+      }, {
+        metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
+        links: [
+          {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
+          {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
+        ],
       }],
     });
 
-    await expect(resultPromise).resolves.toEqual([{
-      rel: 'facet',
-      key: 'genre',
-      title: 'Genre',
-      values: [{value: 'Fantasy', title: 'Fantasy', count: 4, selected: true}],
-    }]);
+    await expect(resultPromise).resolves.toEqual({
+      facets: [{
+        key: 'genre',
+        title: 'Genre',
+        values: [{value: 'Fantasy', title: 'Fantasy', count: 4, selected: true}],
+      }],
+      sortTokens: ['title', '-title'],
+    });
   });
 
   it('fetches matching IDs with sort but no size', async () => {

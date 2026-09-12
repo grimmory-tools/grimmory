@@ -1,5 +1,6 @@
 import {
   BrowseFacetGroup,
+  BrowseFacetResult,
   BrowseFacetValue,
   BrowseLink,
   BrowsePage,
@@ -41,13 +42,21 @@ export function mapBrowsePage<T>(response: RawBrowsePage<T>): BrowsePage<T> {
   };
 }
 
-export function mapBrowseFacetGroups(response: RawFacetResponse): BrowseFacetGroup[] {
-  return response.facets.map(group => ({
-    rel: group.metadata.rel,
-    key: group.metadata.key,
-    title: group.metadata.title,
-    values: group.links.map(mapBrowseFacetValue),
-  }));
+export function mapBrowseFacetResult(response: RawFacetResponse): BrowseFacetResult {
+  const facets: BrowseFacetGroup[] = [];
+  const sortTokens: string[] = [];
+  for (const group of response.facets) {
+    if (group.metadata.rel === 'facet') {
+      facets.push({
+        key: group.metadata.key,
+        title: group.metadata.title,
+        values: group.links.map(mapBrowseFacetValue),
+      });
+    } else if (group.metadata.rel === 'sort') {
+      sortTokens.push(...group.links.map(link => link.value));
+    }
+  }
+  return {facets, sortTokens};
 }
 
 function mapBrowseLink(raw: RawLink): BrowseLink {
