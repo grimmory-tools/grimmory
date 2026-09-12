@@ -1830,6 +1830,7 @@
     "commandPalette": {
       "placeholder": "Search books, pages, libraries, shelves, and actions...",
       "empty": "No matches",
+      "bookSearchError": "Book search failed",
       "hintNavigate": "navigate",
       "hintSelect": "select",
       "ariaLabel": "Command palette",

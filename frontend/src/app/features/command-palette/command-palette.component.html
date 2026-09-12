@@ -38,7 +38,9 @@
 
         @if (hasQuery) {
           <div class="command-palette-results" role="listbox">
-            @if (!isSearching && groups.length === 0) {
+            @if (svc.bookSearchFailed()) {
+              <div class="command-palette-empty">{{ t('bookSearchError') }}</div>
+            } @else if (!isSearching && groups.length === 0) {
               <div class="command-palette-empty">{{ t('empty') }}</div>
             }
 

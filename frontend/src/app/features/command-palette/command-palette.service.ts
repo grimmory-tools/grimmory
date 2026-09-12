@@ -1,14 +1,14 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MessageService } from '@openng/optimus-ui/api';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 
 import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
-import { filterBooksBySearchTerm, normalizeSearchTerm } from '../book/components/book-browser/filters/HeaderFilter';
-import { Book } from '../book/model/book.model';
-import { BookService } from '../book/service/book.service';
+import { BookPageParams, EMPTY_FACET_SELECTION } from '../book/data/book-query-params';
+import { BookSummary } from '../book/data/book-response.models';
+import { BookQueryService } from '../book/data/book-query.service';
 import { LibraryService } from '../book/service/library.service';
 import { ShelfService } from '../book/service/shelf.service';
 import { MagicShelfService } from '../magic-shelf/service/magic-shelf.service';
@@ -21,6 +21,8 @@ import { CustomSvgService } from '../../shared/services/custom-svg.service';
 import { toIconSelection } from '../../shared/icons/icon-selection';
 
 import { PaletteGroup, PaletteItem, PaletteItemKind } from './command-palette.model';
+import {normalizeLocalSearchTerm, normalizeRemoteSearchTerm, SEARCH_DEBOUNCE_MS} from '../../shared/util/search-terms';
+import {debouncedSignal} from '../../shared/util/debounced-signal';
 
 interface GroupDef {
   kind: PaletteItemKind;
@@ -36,14 +38,14 @@ interface CommandPaletteOverlayController {
 
 const BOOK_RESULT_LIMIT = 50;
 const MIN_BOOK_SEARCH_LENGTH = 2;
-const BOOK_SEARCH_DEBOUNCE_MS = 200;
 
 @Injectable({ providedIn: 'root' })
 export class CommandPaletteService {
   private readonly router = inject(Router);
   private readonly t = inject(TranslocoService);
   private readonly userService = inject(UserService);
-  private readonly bookService = inject(BookService);
+  private readonly bookQueryService = inject(BookQueryService);
+  private readonly queryClient = inject(QueryClient);
   private readonly shelfService = inject(ShelfService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly libraryService = inject(LibraryService);
@@ -61,23 +63,31 @@ export class CommandPaletteService {
   private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   private readonly translate = (key: string): string => this.t.translate(key);
   private readonly trimmedQuery = computed(() => this.query().trim());
-  private readonly debouncedBookQuery = toSignal(
-    toObservable(this.trimmedQuery).pipe(
-      debounceTime(BOOK_SEARCH_DEBOUNCE_MS),
-      distinctUntilChanged(),
-    ),
-    { initialValue: this.trimmedQuery() },
+  private readonly normalizedBookQuery = computed(() => normalizeRemoteSearchTerm(this.query()));
+  private readonly debouncedBookQuery = debouncedSignal(this.normalizedBookQuery, SEARCH_DEBOUNCE_MS);
+  private readonly bookSearchParams = computed<BookPageParams>(() => ({
+    query: this.debouncedBookQuery(),
+    facets: EMPTY_FACET_SELECTION,
+    facetLogic: 'or',
+    sort: [{key: 'title', direction: 'asc'}],
+    size: BOOK_RESULT_LIMIT,
+  }));
+  private readonly bookSearchQuery = injectQuery(() => ({
+    ...this.bookQueryService.page(this.bookSearchParams()),
+    enabled: this._isOpen()
+      && this.normalizedBookQuery().length >= MIN_BOOK_SEARCH_LENGTH
+      && this.debouncedBookQuery().length >= MIN_BOOK_SEARCH_LENGTH,
+  }));
+  private readonly remoteBookItems = computed<PaletteItem[]>(() =>
+    (this.bookSearchQuery.data()?.content ?? []).map(book => this.toPaletteBookItem(book))
   );
-  private readonly localBookItems = computed<PaletteItem[]>(() => {
-    const query = this.debouncedBookQuery();
-    if (query.length < MIN_BOOK_SEARCH_LENGTH) {
-      return [];
-    }
 
-    return filterBooksBySearchTerm(this.bookService.books(), query)
-      .slice(0, BOOK_RESULT_LIMIT)
-      .map((book) => this.toPaletteBookItem(book));
-  });
+  readonly bookSearchFailed = computed(() =>
+    this._isOpen()
+    && this.normalizedBookQuery().length >= MIN_BOOK_SEARCH_LENGTH
+    && this.normalizedBookQuery() === this.debouncedBookQuery()
+    && this.bookSearchQuery.isError()
+  );
 
   registerOverlayController(controller: CommandPaletteOverlayController): () => void {
     this.overlayController = controller;
@@ -116,6 +126,9 @@ export class CommandPaletteService {
   }
 
   hide(): void {
+    void this.queryClient.cancelQueries({
+      queryKey: this.bookQueryService.page(this.bookSearchParams()).queryKey,
+    });
     this.overlayController?.close();
     this._isOpen.set(false);
     this.query.set('');
@@ -144,7 +157,7 @@ export class CommandPaletteService {
 
   readonly groups = computed<PaletteGroup[]>(() => {
     const raw = this.trimmedQuery();
-    const normalized = normalizeSearchTerm(raw);
+    const normalized = normalizeLocalSearchTerm(raw);
     const tokens = normalized ? normalized.split(/\s+/).filter(Boolean) : [];
     if (tokens.length === 0) {
       return [];
@@ -182,12 +195,12 @@ export class CommandPaletteService {
   );
 
   readonly isSearching = computed(() => {
-    const raw = this.trimmedQuery();
-    if (raw.length < MIN_BOOK_SEARCH_LENGTH) {
+    const normalized = this.normalizedBookQuery();
+    if (normalized.length < MIN_BOOK_SEARCH_LENGTH) {
       return false;
     }
 
-    return raw !== this.debouncedBookQuery();
+    return normalized !== this.debouncedBookQuery() || this.bookSearchQuery.isFetching();
   });
 
   private filterItems(source: PaletteItem[], tokens: string[], cap: number): PaletteItem[] {
@@ -236,7 +249,7 @@ export class CommandPaletteService {
         kind: 'shelf' as const,
         title: shelf.name,
         icon: shelf.icon ? toIconSelection(shelf.icon, shelf.iconType) : undefined,
-        searchText: normalizeSearchTerm(shelf.name),
+        searchText: normalizeLocalSearchTerm(shelf.name),
         route: [`/shelf/${shelf.id}/books`],
       }))
   );
@@ -249,7 +262,7 @@ export class CommandPaletteService {
         kind: 'magicShelf' as const,
         title: shelf.name,
         icon: shelf.icon ? toIconSelection(shelf.icon, shelf.iconType) : undefined,
-        searchText: normalizeSearchTerm(shelf.name),
+        searchText: normalizeLocalSearchTerm(shelf.name),
         route: [`/magic-shelf/${shelf.id}/books`],
       }))
   );
@@ -262,18 +275,21 @@ export class CommandPaletteService {
         kind: 'library' as const,
         title: library.name,
         icon: library.icon ? toIconSelection(library.icon, library.iconType) : undefined,
-        searchText: normalizeSearchTerm(library.name),
+        searchText: normalizeLocalSearchTerm(library.name),
         route: [`/library/${library.id}/books`],
       }))
   );
 
   private readonly visibleBookItems = computed<PaletteItem[]>(() =>
-    this.trimmedQuery().length >= MIN_BOOK_SEARCH_LENGTH ? this.localBookItems() : []
+    this.normalizedBookQuery().length >= MIN_BOOK_SEARCH_LENGTH
+    && this.normalizedBookQuery() === this.debouncedBookQuery()
+      ? this.remoteBookItems()
+      : []
   );
 
-  private toPaletteBookItem(book: Book): PaletteItem {
+  private toPaletteBookItem(book: BookSummary): PaletteItem {
     const metadata = book.metadata;
-    const title = metadata?.title ?? book.primaryFile?.fileName ?? book.fileName ?? '';
+    const title = metadata?.title || book.primaryFile?.fileName || '';
     const authors = metadata?.authors ?? [];
     const publishedDate = metadata?.publishedDate ?? '';
     const year = publishedDate && /^\d{4}/.test(publishedDate) ? publishedDate.slice(0, 4) : null;
@@ -285,7 +301,7 @@ export class CommandPaletteService {
       kind: 'book',
       title,
       icon: { type: 'LUCIDE', value: 'book-open' },
-      searchText: normalizeSearchTerm(haystack),
+      searchText: normalizeLocalSearchTerm(haystack),
       route: ['/book', book.id],
       queryParams: { tab: 'view' },
       bookMeta: {
@@ -307,7 +323,7 @@ export class CommandPaletteService {
       kind,
       title: item.label,
       icon: item.icon ? toIconSelection(item.icon, item.iconType) : undefined,
-      searchText: normalizeSearchTerm(item.label),
+      searchText: normalizeLocalSearchTerm(item.label),
       route: item.routerLink,
       command: item.action,
     };
