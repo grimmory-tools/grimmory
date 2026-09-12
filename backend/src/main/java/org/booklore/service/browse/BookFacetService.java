@@ -63,6 +63,7 @@ public class BookFacetService {
             new FacetDef("ranobedb_rating", "RanobeDB Rating", (cb, root, userId) -> metadata(root).get("ranobedbRating")),
             new FacetDef("lubimyczytac_rating", "Lubimyczytac Rating", (cb, root, userId) -> metadata(root).get("lubimyczytacRating")),
             new FacetDef("audible_rating", "Audible Rating", (cb, root, userId) -> metadata(root).get("audibleRating")),
+            new FacetDef("applebooks_rating", "Apple Books Rating", (cb, root, userId) -> metadata(root).get("applebooksRating")),
             new FacetDef("age_rating", "Age Rating", (cb, root, userId) -> metadata(root).get("ageRating")),
             new FacetDef("page_count", "Page Count", (cb, root, userId) -> metadata(root).get("pageCount")),
             new FacetDef("match_score", "Match Score", (cb, root, userId) -> root.get("metadataMatchScore")),

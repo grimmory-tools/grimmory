@@ -520,6 +520,8 @@ public class AppSettingService {
                 .lubimyczytacRating(2)
                 .audibleRating(0)
                 .audibleReviewCount(0)
+                .applebooksRating(0)
+                .applebooksReviewCount(0)
                 .coverImage(5)
                 .build();
     }

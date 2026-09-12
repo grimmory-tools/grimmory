@@ -20,7 +20,7 @@ public class BookFacetRegistry {
     private static final Set<String> NAMES = Set.of(
             "author", "series", "genre", "tag", "mood", "language", "publisher", "narrator", "library", "shelf",
             "file_type", "read_status", "personal_rating", "amazon_rating", "goodreads_rating",
-            "hardcover_rating", "ranobedb_rating", "lubimyczytac_rating", "audible_rating",
+            "hardcover_rating", "ranobedb_rating", "lubimyczytac_rating", "audible_rating", "applebooks_rating",
             "age_rating", "content_rating", "match_score",
             "published_year", "file_size", "page_count", "shelf_status",
             "comic_character", "comic_team", "comic_location", "comic_creator");
@@ -61,6 +61,7 @@ public class BookFacetRegistry {
             case "ranobedb_rating" -> AppBookSpecification.withRanobedbRatings(values, mode);
             case "lubimyczytac_rating" -> AppBookSpecification.withLubimyczytacRatings(values, mode);
             case "audible_rating" -> AppBookSpecification.withAudibleRatings(values, mode);
+            case "applebooks_rating" -> AppBookSpecification.withApplebooksRatings(values, mode);
             case "age_rating" -> AppBookSpecification.withAgeRatings(values, mode);
             case "content_rating" -> AppBookSpecification.withContentRatings(values, mode);
             case "match_score" -> AppBookSpecification.withMatchScores(values, mode);

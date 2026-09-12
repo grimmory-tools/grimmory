@@ -134,6 +134,10 @@ public class SidecarMetadataMapper {
                 builder.audibleRating(r.getAudible().getAverage())
                         .audibleReviewCount(r.getAudible().getCount());
             }
+            if (r.getApplebooks() != null) {
+                builder.applebooksRating(r.getApplebooks().getAverage())
+                        .applebooksReviewCount(r.getApplebooks().getCount());
+            }
         }
 
         return builder.build();
@@ -207,6 +211,7 @@ public class SidecarMetadataMapper {
                 .lubimyczytac(buildRating(entity.getLubimyczytacRating(), null))
                 .ranobedb(buildRating(entity.getRanobedbRating(), null))
                 .audible(buildRating(entity.getAudibleRating(), entity.getAudibleReviewCount()))
+                .applebooks(buildRating(entity.getApplebooksRating(), entity.getApplebooksReviewCount()))
                 .build();
     }
 

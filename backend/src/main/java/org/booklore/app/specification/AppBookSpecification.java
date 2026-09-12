@@ -735,6 +735,10 @@ public class AppBookSpecification {
         return buildRatingRangeSpec(rangeIds, mode, "audibleRating");
     }
 
+    public static Specification<BookEntity> withApplebooksRatings(List<String> rangeIds, String mode) {
+        return buildRatingRangeSpec(rangeIds, mode, "applebooksRating");
+    }
+
     private static Specification<BookEntity> buildRatingRangeSpec(
             List<String> values, String mode, String fieldName) {
         return (root, query, cb) -> {

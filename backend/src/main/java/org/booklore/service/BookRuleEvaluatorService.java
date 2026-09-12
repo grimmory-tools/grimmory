@@ -277,6 +277,7 @@ public class BookRuleEvaluatorService {
             case "pageCount", "seriesNumber", "seriesTotal", "ageRating", "publishedDate", "abridged",
                  "amazonRating", "goodreadsRating", "hardcoverRating", "ranobedbRating",
                  "lubimyczytacRating", "audibleRating",
+                 "applebooksRating", "applebooksReviewCount",
                  "amazonReviewCount", "goodreadsReviewCount", "hardcoverReviewCount", "audibleReviewCount" ->
                     cb.isNotNull(root.get("metadata").get(metadataField));
 
@@ -799,6 +800,8 @@ public class BookRuleEvaluatorService {
             case NARRATOR -> root.get("metadata").get("narrator");
             case AUDIBLE_RATING -> root.get("metadata").get("audibleRating");
             case AUDIBLE_REVIEW_COUNT -> root.get("metadata").get("audibleReviewCount");
+            case APPLEBOOKS_RATING -> root.get("metadata").get("applebooksRating");
+            case APPLEBOOKS_REVIEW_COUNT -> root.get("metadata").get("applebooksReviewCount");
             case ABRIDGED -> root.get("metadata").get("abridged");
             case AUDIOBOOK_DURATION -> root.join("bookFiles", JoinType.LEFT).get("durationSeconds");
             case AUDIOBOOK_CODEC -> root.join("bookFiles", JoinType.LEFT).get("codec");
@@ -955,6 +958,7 @@ public class BookRuleEvaluatorService {
             RuleField.HARDCOVER_RATING, RuleField.HARDCOVER_REVIEW_COUNT,
             RuleField.LUBIMYCZYTAC_RATING, RuleField.RANOBEDB_RATING,
             RuleField.AUDIBLE_RATING, RuleField.AUDIBLE_REVIEW_COUNT,
+            RuleField.APPLEBOOKS_RATING, RuleField.APPLEBOOKS_REVIEW_COUNT,
             RuleField.AUDIOBOOK_CHAPTER_COUNT, RuleField.AUDIOBOOK_BITRATE
     );
 
