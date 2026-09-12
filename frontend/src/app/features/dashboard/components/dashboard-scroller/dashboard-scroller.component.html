@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'dashboard.scroller'">
-  <div class="dashboard-scroller-container">
+  <div appArtworkRevealGroup class="dashboard-scroller-container">
     <h2 class="dashboard-scroller-title">
       {{ title() | transloco }}
       @if (isMagicShelf()) {
@@ -7,38 +7,54 @@
       }
     </h2>
 
-    @if (books() !== null && books()?.length === 0) {
-      <div class="dashboard-scroller-no-books">
-        <div class="empty-state-icon">
-          <i class="pi pi-book"></i>
+    @switch (viewState()) {
+      @case ('idle') {
+        <div [class]="stripClass">
+          <div [style.height.px]="cardHeight()"></div>
         </div>
-        <p>{{ t('noBooksFound') }}</p>
-      </div>
-    }
-
-    @if (books() && books()!.length > 0) {
-      <div class="dashboard-scroller-strip">
-        @for (book of books(); track book.id; let i = $index) {
-          <div class="dashboard-scroller-card" [ngClass]="{'square-card': useSquareCovers()}">
-            <app-legacy-book-card
-              [book]="book"
-              [index]="i"
-              [forceEbookMode]="forceEbookMode()"
-              [useSquareCovers]="useSquareCovers()"
-              [overlayPreferenceService]="overlayPreferenceService()">
-            </app-legacy-book-card>
-          </div>
-        }
-      </div>
-    }
-
-    @if (books() === null) {
-      <div class="dashboard-scroller-error">
-        <div class="error-icon">
-          <i class="pi pi-exclamation-triangle"></i>
+      }
+      @case ('skeleton') {
+        <div [class]="stripClass" [style.--card-width.px]="cardWidth()">
+          @for (skeleton of skeletons; track $index) {
+            <div class="w-[var(--card-width)] shrink-0">
+              <app-book-card-skeleton [squareCovers]="squareCovers()" />
+            </div>
+          }
         </div>
-        <p>{{ t('loadError') }}</p>
-      </div>
+      }
+      @case ('error') {
+        <div [class]="noticeClass">
+          <i class="pi pi-exclamation-triangle text-[1.75rem] text-text"></i>
+          <p class="m-0 max-w-[400px] leading-relaxed text-text-secondary">{{ t('loadError') }}</p>
+          <app-button variant="soft" size="sm" [label]="'common.retry' | transloco" (clicked)="retry()" />
+        </div>
+      }
+      @case ('empty') {
+        <div [class]="noticeClass">
+          <i class="pi pi-book text-[1.75rem] text-text"></i>
+          <p class="m-0 max-w-[400px] leading-relaxed text-text-secondary">{{ t('noBooksFound') }}</p>
+        </div>
+      }
+      @case ('books') {
+        <div [class]="stripClass" [style.--card-width.px]="cardWidth()">
+          @for (rowBook of rowBooks(); track rowBook.book.id) {
+            <div class="w-[var(--card-width)] shrink-0">
+              <app-book-card
+                [book]="rowBook.book"
+                [file]="rowBook.file ?? null"
+                [squareCovers]="squareCovers()"
+                [showFormatPill]="showFormatPill()"
+                [detailMode]="'request'"
+                [menuOpen]="menuOpenBookId() === rowBook.book.id"
+                (action)="bookNavigation.readBook(rowBook.book, rowBook.file)"
+                (detailRequested)="openBook(rowBook.book)"
+                (menuRequested)="bookMenu()?.openFor(rowBook.book, $event, rowBook.file)" />
+            </div>
+          }
+        </div>
+
+        <app-book-menu openInNewTab [books]="books()" />
+      }
     }
   </div>
 </ng-container>

@@ -483,8 +483,6 @@
       },
       "sortFields": {
         "title": "Titel",
-        "fileName": "Bestandsnaam",
-        "filePath": "Bestandspad",
         "addedOn": "Datum toegevoegd",
         "author": "Auteur",
         "authorSurnameVorname": "Auteur (Achternaam)",
@@ -497,7 +495,6 @@
         "readStatus": "Leesstatus",
         "dateFinished": "Datum voltooid",
         "readingProgress": "Leesvoortgang",
-        "bookType": "Boektype",
         "pageCount": "Pagina's"
       },
       "sortDirections": {

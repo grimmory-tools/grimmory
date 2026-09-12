@@ -456,8 +456,6 @@
       },
       "sortFields": {
         "title": "Título",
-        "fileName": "Nome do Arquivo",
-        "filePath": "Caminho do Arquivo",
         "addedOn": "Data de Adição",
         "author": "Autor",
         "authorSurnameVorname": "Autor (Sobrenome)",
@@ -470,7 +468,6 @@
         "readStatus": "Status de Leitura",
         "dateFinished": "Data de Conclusão",
         "readingProgress": "Progresso de Leitura",
-        "bookType": "Tipo de Livro",
         "pageCount": "Páginas"
       },
       "sortDirections": {

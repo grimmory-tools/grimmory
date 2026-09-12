@@ -456,8 +456,6 @@
       },
       "sortFields": {
         "title": "标题",
-        "fileName": "文件名",
-        "filePath": "文件路径",
         "addedOn": "添加日期",
         "author": "作者",
         "authorSurnameVorname": "作者（姓氏）",
@@ -470,7 +468,6 @@
         "readStatus": "阅读状态",
         "dateFinished": "完成日期",
         "readingProgress": "阅读进度",
-        "bookType": "书籍类型",
         "pageCount": "页数"
       },
       "sortDirections": {

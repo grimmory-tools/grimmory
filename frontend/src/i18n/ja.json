@@ -456,8 +456,6 @@
       },
       "sortFields": {
         "title": "タイトル",
-        "fileName": "ファイル名",
-        "filePath": "ファイルパス",
         "addedOn": "追加日",
         "author": "著者",
         "authorSurnameVorname": "著者（姓）",
@@ -470,7 +468,6 @@
         "readStatus": "読書状態",
         "dateFinished": "完了日",
         "readingProgress": "読書進捗",
-        "bookType": "本の種類",
         "pageCount": "ページ数"
       },
       "sortDirections": {
