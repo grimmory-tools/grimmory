@@ -50,6 +50,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             Map.entry("amazon", BookMetadata.BookMetadataBuilder::asin),
             Map.entry("asin", BookMetadata.BookMetadataBuilder::asin),
             Map.entry("mobi-asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("openlibrary", BookMetadata.BookMetadataBuilder::openlibraryId),
             Map.entry("goodreads", BookMetadata.BookMetadataBuilder::goodreadsId),
             Map.entry("google", BookMetadata.BookMetadataBuilder::googleId),
             Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
