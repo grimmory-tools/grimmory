@@ -2939,6 +2939,32 @@
         "continueReading": ""
       }
     },
+    "menu": {
+      "quickSend": "Gyors küldés",
+      "customSend": "Egyedi küldés",
+      "download": "Letöltés",
+      "metadata": "Metaadat",
+      "organizeFile": "Fájl rendszerezése",
+      "resetGrimmoryProgress": "Grimmory előrehaladás nullázása",
+      "resetKoreaderProgress": "KOReader előrehaladás nullázása",
+      "confirm": {
+        "deleteBookMessage": "Biztosan ki szeretnéd törölni a következőt: \"{{ title }}\"?\n\nEzzel eltávolítod a könyv fájlt a fájlrendszeredből.\n\nEz a művelet nem vonható vissza.",
+        "deleteBookHeader": "Törlés megerősítése",
+        "deleteFileMessage": "Biztosan törölni akarod ezt a további fájlt is: \"{{ fileName }}\"?",
+        "deleteFileHeader": "Fájl törlésének megerősítése",
+        "largeFileMessage": "Ez a fájl nagyobb mint 25MB. Egyes email szolgáltatók elutasítják a nagy csatolmányokat.\n\nMindenképpen el szeretnéd küldeni?",
+        "largeFileHeader": "Figyelmeztetés: nagyméretű fájl",
+        "sendAnyway": "Elküldés mindenképp"
+      }
+    },
+    "readAction": {
+      "continueReading": {
+        "long": "Olvasás folytatása"
+      },
+      "continueListening": {
+        "long": "Lejátszás folytatása"
+      }
+    },
     "table": {
       "statusWithPrefix": "{{ status }}",
       "noRating": "",

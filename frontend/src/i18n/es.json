@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Título desconocido"
+      },
+      "aria": {
+        "coverAlt": "Portada de {{ title }}"
+      },
       "menu": {
         "assignShelf": "Asignar estante",
         "viewDetails": "Ver detalles",
@@ -2939,6 +2945,44 @@
         "readStatusMenu": "Cambiar estado de lectura"
       }
     },
+    "menu": {
+      "quickSend": "Envío rápido",
+      "customSend": "Envío personalizado",
+      "download": "Descargar",
+      "metadata": "Metadatos",
+      "editMetadata": "Editar metadatos",
+      "more": "Más",
+      "organizeFile": "Organizar archivo",
+      "resetGrimmoryProgress": "Restablecer progreso de Grimmory",
+      "resetKoreaderProgress": "Restablecer progreso de KOReader",
+      "confirm": {
+        "deleteBookMessage": "¿Estás seguro de que deseas eliminar \"{{ title }}\"?\n\nEsto eliminará permanentemente el archivo del libro de tu sistema de archivos.\n\nEsta acción no se puede deshacer.",
+        "deleteBookHeader": "Confirmar eliminación",
+        "deleteFileMessage": "¿Estás seguro de que deseas eliminar el archivo adicional \"{{ fileName }}\"?",
+        "deleteFileHeader": "Confirmar eliminación de archivo",
+        "largeFileMessage": "Este archivo supera los 25 MB. Algunos proveedores de correo pueden rechazar archivos adjuntos grandes.\n\n¿Deseas enviarlo de todos modos?",
+        "largeFileHeader": "Advertencia de archivo grande",
+        "sendAnyway": "Enviar de todos modos"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Leer libro"
+      },
+      "continueReading": {
+        "short": "Continuar",
+        "long": "Seguir leyendo"
+      },
+      "play": {
+        "short": "Reproducir",
+        "long": "Reproducir audiolibro"
+      },
+      "continueListening": {
+        "short": "Continuar",
+        "long": "Seguir escuchando"
+      }
+    },
+    "selectBook": "Seleccionar {{ title }}",
     "notes": {
       "confirm": {
         "deleteMessage": "¿Estás seguro de que deseas eliminar la nota \"{{ title }}\"?",

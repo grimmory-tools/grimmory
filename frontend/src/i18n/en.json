@@ -2891,6 +2891,14 @@
       }
     },
     "card": {
+      "book": {
+        "physical": "PHY",
+        "unknownTitle": "Unknown Title"
+      },
+      "aria": {
+        "bookMenu": "Options for {{ title }}",
+        "coverAlt": "Cover of {{ title }}"
+      },
       "menu": {
         "assignShelf": "Assign Shelf",
         "viewDetails": "View Details",
@@ -2957,6 +2965,57 @@
         "readStatusMenu": "Change read status"
       }
     },
+    "menu": {
+      "label": "Book actions",
+      "openInNewTab": "Open Details in New Tab",
+      "addToShelf": "Add to Shelf",
+      "markAs": "Mark as",
+      "send": "Send",
+      "quickSend": "Quick Send",
+      "customSend": "Custom Send",
+      "download": "Download",
+      "metadata": "Metadata",
+      "editMetadata": "Edit Metadata",
+      "fetchMetadata": "Refresh Metadata",
+      "fetchMetadataWithOptions": "Refresh with Options",
+      "searchProviders": "Search Providers",
+      "restoreCover": "Restore Cover from File",
+      "generateCover": "Generate Cover from Title",
+      "lockMetadata": "Lock Metadata",
+      "more": "More",
+      "organizeFile": "Organize File",
+      "resetGrimmoryProgress": "Reset Grimmory Progress",
+      "resetKoreaderProgress": "Reset KOReader Progress",
+      "deleteEntireBook": "Book & all files",
+      "confirm": {
+        "deleteBookMessage": "Are you sure you want to delete \"{{ title }}\"?\n\nThis will permanently remove the book file from your filesystem.\n\nThis action cannot be undone.",
+        "deleteBookHeader": "Confirm Deletion",
+        "deleteFileMessage": "Are you sure you want to delete the additional file \"{{ fileName }}\"?",
+        "deleteFileHeader": "Confirm File Deletion",
+        "largeFileMessage": "This file exceeds 25MB. Some email providers may reject large attachments.\n\nDo you want to send it anyway?",
+        "largeFileHeader": "Large File Warning",
+        "sendAnyway": "Send Anyway"
+      }
+    },
+    "readAction": {
+      "read": {
+        "short": "Read",
+        "long": "Read Book"
+      },
+      "continueReading": {
+        "short": "Continue",
+        "long": "Continue Reading"
+      },
+      "play": {
+        "short": "Play",
+        "long": "Play Audiobook"
+      },
+      "continueListening": {
+        "short": "Continue",
+        "long": "Continue Listening"
+      }
+    },
+    "selectBook": "Select {{ title }}",
     "notes": {
       "confirm": {
         "deleteMessage": "Are you sure you want to delete the note \"{{ title }}\"?",

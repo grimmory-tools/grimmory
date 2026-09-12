@@ -1,0 +1,115 @@
+<div
+  [class]="rootClass()"
+  [attr.data-active]="menuPinned() ? 'true' : null"
+  (contextmenu)="requestContextMenu($event)"
+  (pointerdown)="startLongPress($event)"
+  (pointerup)="endLongPress()"
+  (pointercancel)="endLongPress()"
+>
+  <div [class]="slotClass()" data-testid="slot">
+    <div [class]="coverClass()" data-testid="cover">
+      <app-cover
+        class="absolute inset-0 h-full w-full"
+        [src]="coverSrc()"
+        [title]="title()"
+        [authors]="authors()"
+        [fit]="coverFit()"
+        [alt]="'book.card.aria.coverAlt' | transloco: {title: title()}"
+      />
+
+      @if (badgeVisible()) {
+        <span [class]="badgeClass()" data-testid="badge">#{{ seriesNumber() }}</span>
+      }
+
+      @if (showFormatPill() && formatLabel(); as format) {
+        <span
+          class="absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold text-white"
+          data-testid="format-pill"
+        >{{ format }}</span>
+      }
+
+      @if (selectable()) {
+        <app-card-selection
+          [selected]="selected()"
+          [selectionMode]="selectionActive()"
+          [ariaLabel]="'book.selectBook' | transloco: {title: title()}"
+          (selectionToggled)="toggleSelect.emit($event)"
+        />
+      }
+
+      @if (showProgress() && progressPercentage() !== null) {
+        <span
+          class="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/45"
+          [appTooltip]="progressTooltip()"
+          data-testid="progress"
+        >
+          <progress
+            class="sr-only"
+            [value]="progressPercentage()!"
+            max="100"
+            [attr.aria-label]="progressTooltip()"
+          ></progress>
+          <i
+            class="block h-full rounded-r-sm bg-primary"
+            [style.width.%]="progressPercentage()"
+            aria-hidden="true"
+          ></i>
+        </span>
+      }
+
+      @if (overlays() && !selectionActive()) {
+        <div [class]="overlayClass" data-testid="overlay">
+          @if (hasPrimaryFile()) {
+            <button
+              type="button"
+              [class]="actionClass + ' relative h-7 min-w-0 flex-1 flex-wrap content-start overflow-hidden px-1.5'"
+              [attr.aria-label]="actionText()"
+              (click)="onAction($event)"
+            >
+              <span class="flex h-7 shrink-0 items-center"><svg [lucideIcon]="actionIcon()" class="size-3.5"></svg></span>
+              <span class="flex h-7 shrink-0 items-center whitespace-nowrap" aria-hidden="true">{{ actionText() }}</span>
+            </button>
+          }
+          <button
+            type="button"
+            [class]="actionClass + ' size-7 flex-none'"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuOpen()"
+            [attr.aria-label]="'book.card.aria.bookMenu' | transloco: {title: title()}"
+            (click)="onMenu($event)"
+          >
+            <svg lucideEllipsisVertical class="size-3.5"></svg>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (showMeta()) {
+    <div class="px-0.5 pt-2" data-testid="meta">
+      <div [class]="metaTitleClass" [attr.title]="title()">{{ title() }}</div>
+      <div [class]="metaSecondaryClass + ' mt-px'">{{ authorsLabel() }}</div>
+      @if (detailLine() !== null) {
+        <div [class]="metaSecondaryClass">{{ detailLine() }}</div>
+      }
+    </div>
+  }
+
+  @if (!selectionActive()) {
+    <a
+      [class]="linkClass"
+      [attr.href]="detailHref()"
+      [attr.aria-label]="title()"
+      (click)="openDetails($event)"
+    ></a>
+  } @else {
+    <button
+      type="button"
+      [class]="linkClass"
+      [attr.aria-pressed]="selected()"
+      [attr.aria-label]="'book.selectBook' | transloco: {title: title()}"
+      data-testid="select-overlay"
+      (click)="onSelectOverlay($event)"
+    ></button>
+  }
+</div>

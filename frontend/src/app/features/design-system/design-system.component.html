@@ -664,4 +664,25 @@
     </div>
   </section>
 
+  <section class="showcase-section">
+    <h2>Book Cards</h2>
+    <app-book-menu #bookCardMenu openInNewTab [books]="bookCards()" />
+    <div class="flex flex-wrap items-start gap-6">
+      @for (book of bookCards(); track book.id) {
+        <app-book-card
+          class="w-40"
+          [book]="book"
+          showFormatPill
+          [menuOpen]="bookCardMenu.openBookId() === book.id"
+          (action)="readBook(book)"
+          (menuRequested)="bookCardMenu.openFor(book, $event)" />
+      } @empty {
+        @if (!bookCardsPending()) {
+          <p class="text-sm text-text-muted dark:text-text-secondary">No books in the library.</p>
+        }
+      }
+      <app-book-card-skeleton class="w-40" />
+    </div>
+  </section>
+
 </main>

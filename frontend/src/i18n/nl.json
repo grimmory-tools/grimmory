@@ -2939,6 +2939,32 @@
         "continueReading": ""
       }
     },
+    "menu": {
+      "quickSend": "Snel verzenden",
+      "customSend": "Aangepast verzenden",
+      "download": "Downloaden",
+      "editMetadata": "Metadata bewerken",
+      "organizeFile": "Bestand ordenen",
+      "resetGrimmoryProgress": "Voortgang Grimmory herstellen",
+      "resetKoreaderProgress": "Voortgang KOreader resetten",
+      "confirm": {
+        "deleteBookMessage": "Weet u zeker dat u “{{ title }}” wilt verwijderen?\n\nHierdoor wordt het boekbestand permanent uit uw bestandssysteem verwijderd.\n\nDeze actie kan niet ongedaan worden gemaakt.",
+        "deleteBookHeader": "Verwijdering bevestigen",
+        "deleteFileMessage": "Weet u zeker dat u het extra bestand “{{ fileName }}” wilt verwijderen?",
+        "deleteFileHeader": "Bestandsverwijdering bevestigen",
+        "largeFileMessage": "Dit bestand is groter dan 25 MB. Sommige e-mailproviders kunnen grote bijlagen weigeren.\n\nWilt u het toch verzenden?",
+        "largeFileHeader": "Waarschuwing voor grote bestanden",
+        "sendAnyway": "Toch verzenden"
+      }
+    },
+    "readAction": {
+      "continueReading": {
+        "long": "Lees Verder"
+      },
+      "continueListening": {
+        "long": "Luister Verder"
+      }
+    },
     "menuService": {
       "toast": {
         "noBooksOnShelvesDetail": "De geselecteerde boeken staan niet op de planken.",

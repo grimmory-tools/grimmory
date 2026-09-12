@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Titre inconnu"
+      },
+      "aria": {
+        "coverAlt": "Couverture de {{ title }}"
+      },
       "menu": {
         "assignShelf": "Assigner une étagère",
         "viewDetails": "Voir les détails",
@@ -2939,6 +2945,44 @@
         "readStatusMenu": ""
       }
     },
+    "menu": {
+      "quickSend": "Envoi rapide",
+      "customSend": "Envoi personnalisé",
+      "download": "Télécharger",
+      "metadata": "Métadonnées",
+      "editMetadata": "Modifier les métadonnées",
+      "more": "Plus",
+      "organizeFile": "Organiser le fichier",
+      "resetGrimmoryProgress": "Réinitialiser la progression Grimmory",
+      "resetKoreaderProgress": "Réinitialiser la progression KOReader",
+      "confirm": {
+        "deleteBookMessage": "Êtes-vous sûr de vouloir supprimer « {{ title }} » ?\n\nCela supprimera définitivement le fichier de votre système de fichiers.\n\nCette action est irréversible.",
+        "deleteBookHeader": "Confirmer la suppression",
+        "deleteFileMessage": "Êtes-vous sûr de vouloir supprimer le fichier supplémentaire « {{ fileName }} » ?",
+        "deleteFileHeader": "Confirmer la suppression du fichier",
+        "largeFileMessage": "Ce fichier dépasse 25MB. Certains fournisseurs de courriel peuvent rejeter les grosses pièces jointes.\n\nVoulez vous l'envoyer quand même?",
+        "largeFileHeader": "Alerte de fichier volumineux",
+        "sendAnyway": "Envoyer quand même"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Lire le livre"
+      },
+      "continueReading": {
+        "short": "Continuer",
+        "long": "Continuer la lecture"
+      },
+      "play": {
+        "short": "Écouter",
+        "long": "Écouter le livre audio"
+      },
+      "continueListening": {
+        "short": "Continuer",
+        "long": "Continuer l'écoute"
+      }
+    },
+    "selectBook": "Sélectionner {{ title }}",
     "notes": {
       "confirm": {
         "deleteMessage": "Êtes-vous sûr de vouloir supprimer la note « {{ title }} » ?",

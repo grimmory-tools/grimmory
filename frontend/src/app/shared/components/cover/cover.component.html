@@ -20,15 +20,25 @@
   />
 } @else {
   <div
-    class="placeholder group flex aspect-[5/7] h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[inherit] p-1 text-center data-[size=md]:p-2 data-[size=lg]:gap-2 data-[size=lg]:p-4"
+    class="placeholder group flex aspect-[5/7] h-full w-full flex-col justify-end overflow-hidden rounded-[inherit] p-2 text-left data-[size=md]:p-3 data-[size=lg]:p-3 bg-[linear-gradient(135deg,oklch(0.58_0.075_var(--cover-h))_25%,oklch(0.46_0.09_var(--cover-h))_95%)] dark:bg-[linear-gradient(135deg,oklch(0.40_0.065_var(--cover-h))_25%,oklch(0.30_0.06_var(--cover-h))_95%)]"
     [attr.data-size]="size()"
-    [style.background]="color()"
+    [style.--cover-h]="hue()"
   >
-    <div class="placeholder-title line-clamp-3 max-w-full overflow-hidden break-words text-xs font-semibold leading-snug text-white/90 group-data-[size=md]:text-sm group-data-[size=lg]:text-base">
-      {{ title() }}
-    </div>
-    <div class="placeholder-author line-clamp-1 max-w-full overflow-hidden break-words text-xs text-white/55 group-data-[size=lg]:text-sm">
-      {{ authorsLabel() }}
+    <div
+      class="@max-[80px]:hidden transition-transform duration-300 ease-glide group-hover/lift:-translate-y-7 group-has-[:focus-visible]/lift:-translate-y-7 group-[.cover-lifted]/lift:-translate-y-7 motion-reduce:transition-none text-[oklch(0.95_0.025_var(--cover-h))] dark:text-[oklch(0.94_0.03_var(--cover-h))]"
+    >
+      @if (titleOnly()) {
+        <div class="placeholder-title line-clamp-3 max-w-full overflow-hidden break-words font-normal leading-[1.25] font-cover-serif text-[14px] group-data-[size=md]:text-[17px] group-data-[size=lg]:text-[19px]">
+          {{ title() }}
+        </div>
+      } @else {
+        <div class="placeholder-title line-clamp-3 max-w-full overflow-hidden break-words font-normal leading-[1.25] font-cover-serif text-[12px] group-data-[size=md]:text-[15px] group-data-[size=lg]:text-[17px]">
+          {{ title() }}
+        </div>
+        <div class="placeholder-author mt-1 line-clamp-1 max-w-full overflow-hidden break-words uppercase tracking-[0.08em] opacity-70 font-cover-serif text-[8.5px] group-data-[size=md]:mt-1.5 group-data-[size=md]:text-[9.5px] group-data-[size=lg]:text-[11px]">
+          {{ authorsLabel() }}
+        </div>
+      }
     </div>
   </div>
 }

@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "未知标题"
+      },
+      "aria": {
+        "coverAlt": "{{ title }} 的封面"
+      },
       "menu": {
         "assignShelf": "分配书架",
         "viewDetails": "查看详情",
@@ -2937,6 +2943,40 @@
         "bookMenu": "图书操作菜单",
         "continueReading": "继续阅读",
         "readStatusMenu": "改变阅读状态"
+      }
+    },
+    "menu": {
+      "quickSend": "快速发送",
+      "customSend": "自定义发送",
+      "download": "下载",
+      "metadata": "元数据",
+      "editMetadata": "编辑元数据",
+      "more": "更多",
+      "organizeFile": "整理文件",
+      "resetGrimmoryProgress": "重置 Grimmory 进度",
+      "resetKoreaderProgress": "重置 KOReader 进度",
+      "confirm": {
+        "deleteBookMessage": "确定要删除「{{ title }}」吗？\n\n这将永久删除文件系统中的图书文件。\n\n此操作无法撤销。",
+        "deleteBookHeader": "确认删除",
+        "deleteFileMessage": "确定要删除附加文件「{{ fileName }}」吗？",
+        "deleteFileHeader": "确认删除文件"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "阅读图书"
+      },
+      "continueReading": {
+        "short": "继续",
+        "long": "继续阅读"
+      },
+      "play": {
+        "short": "播放",
+        "long": "播放有声书"
+      },
+      "continueListening": {
+        "short": "继续",
+        "long": "继续收听"
       }
     },
     "notes": {

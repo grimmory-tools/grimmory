@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Unbekannter Titel"
+      },
+      "aria": {
+        "coverAlt": "Cover von {{ title }}"
+      },
       "menu": {
         "assignShelf": "Regal zuweisen",
         "viewDetails": "Details anzeigen",
@@ -2937,6 +2943,43 @@
         "bookMenu": "Buchaktionen-Menü",
         "continueReading": "Weiterlesen",
         "readStatusMenu": "Lesestatus ändern"
+      }
+    },
+    "menu": {
+      "quickSend": "Schnellversand",
+      "customSend": "Benutzerdefinierter Versand",
+      "download": "Herunterladen",
+      "metadata": "Metadaten",
+      "editMetadata": "Metadaten bearbeiten",
+      "more": "Mehr",
+      "organizeFile": "Datei organisieren",
+      "resetGrimmoryProgress": "Grimmory-Fortschritt zurücksetzen",
+      "resetKoreaderProgress": "KOReader-Fortschritt zurücksetzen",
+      "confirm": {
+        "deleteBookMessage": "Sind Sie sicher, dass Sie \"{{ title }}\" löschen möchten?\n\nDies entfernt die Buchdatei dauerhaft aus Ihrem Dateisystem.\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteBookHeader": "Löschen bestätigen",
+        "deleteFileMessage": "Sind Sie sicher, dass Sie die zusätzliche Datei \"{{ fileName }}\" löschen möchten?",
+        "deleteFileHeader": "Dateilöschung bestätigen",
+        "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab..\n\nMöchten Sie es dennoch versenden?",
+        "largeFileHeader": "Warnung vor großen Dateien",
+        "sendAnyway": "Trotzdem senden"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Buch lesen"
+      },
+      "continueReading": {
+        "short": "Fortsetzen",
+        "long": "Weiterlesen"
+      },
+      "play": {
+        "short": "Abspielen",
+        "long": "Hörbuch abspielen"
+      },
+      "continueListening": {
+        "short": "Fortsetzen",
+        "long": "Weiter hören"
       }
     },
     "notes": {

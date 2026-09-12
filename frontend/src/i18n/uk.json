@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Невідома назва"
+      },
+      "aria": {
+        "coverAlt": "Обкладинка {{ title }}"
+      },
       "menu": {
         "assignShelf": "Додати до полиці",
         "viewDetails": "Переглянути деталі",
@@ -2937,6 +2943,43 @@
         "bookMenu": "Меню дій із книгою",
         "continueReading": "Продовжити читання",
         "readStatusMenu": "Змінити статус читання"
+      }
+    },
+    "menu": {
+      "quickSend": "Швидка відправка",
+      "customSend": "Налаштована відправка",
+      "download": "Завантажити",
+      "metadata": "Метадані",
+      "editMetadata": "Редагувати метадані",
+      "more": "Більше",
+      "organizeFile": "Організувати файл",
+      "resetGrimmoryProgress": "Скинути прогрес у Grimmory",
+      "resetKoreaderProgress": "Скинути прогрес у KOReader",
+      "confirm": {
+        "deleteBookMessage": "Ви впевнені, що хочете видалити \"{{ title }}\"?\n\nЦе назавжди видалить файл книги з вашої файлової системи.\n\nЦю дію неможливо скасувати.",
+        "deleteBookHeader": "Підтвердження видалення",
+        "deleteFileMessage": "Ви впевнені, що хочете видалити додатковий файл \"{{ fileName }}\"?",
+        "deleteFileHeader": "Підтвердження видалення файлу",
+        "largeFileMessage": "Розмір цього файлу перевищує 25 МБ. Деякі поштові сервіси можуть відхиляти великі вкладення.\n\nВсе одно надіслати?",
+        "largeFileHeader": "Попередження про великий файл",
+        "sendAnyway": "Все одно надіслати"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Читати книгу"
+      },
+      "continueReading": {
+        "short": "Продовжити",
+        "long": "Продовжити читання"
+      },
+      "play": {
+        "short": "Відтворити",
+        "long": "Слухати аудіокнигу"
+      },
+      "continueListening": {
+        "short": "Продовжити",
+        "long": "Продовжити прослуховування"
       }
     },
     "notes": {

@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Okänd titel"
+      },
+      "aria": {
+        "coverAlt": "Omslag för {{ title }}"
+      },
       "menu": {
         "assignShelf": "Tilldela hylla",
         "viewDetails": "Visa detaljer",
@@ -2937,6 +2943,42 @@
         "bookMenu": "Bokåtgärdsmeny",
         "continueReading": "Fortsätt läsa",
         "readStatusMenu": "Ändra lässtatus"
+      }
+    },
+    "menu": {
+      "quickSend": "Snabbskicka",
+      "customSend": "Anpassat skickande",
+      "download": "Ladda ner",
+      "editMetadata": "Redigera metadata",
+      "more": "Mer",
+      "organizeFile": "Organisera fil",
+      "resetGrimmoryProgress": "Återställ Grimmory-framsteg",
+      "resetKoreaderProgress": "Återställ KOReader-framsteg",
+      "confirm": {
+        "deleteBookMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokfilen från ditt filsystem.\n\nDenna åtgärd kan inte ångras.",
+        "deleteBookHeader": "Bekräfta radering",
+        "deleteFileMessage": "Är du säker på att du vill radera den extra filen \"{{ fileName }}\"?",
+        "deleteFileHeader": "Bekräfta filradering",
+        "largeFileMessage": "Den här filen överstiger 25 MB. Vissa e-postleverantörer kan avvisa stora bilagor.\n\nVill du skicka den ändå?",
+        "largeFileHeader": "Varning för stor fil",
+        "sendAnyway": "Skicka ändå"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Läs bok"
+      },
+      "continueReading": {
+        "short": "Fortsätt",
+        "long": "Fortsätt läsa"
+      },
+      "play": {
+        "short": "Spela",
+        "long": "Spela ljudbok"
+      },
+      "continueListening": {
+        "short": "Fortsätt",
+        "long": "Fortsätt lyssna"
       }
     },
     "notes": {
