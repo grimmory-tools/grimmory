@@ -1,7 +1,11 @@
+import {hashKey} from '@tanstack/angular-query-experimental';
+
 import {
   BookCollectionFilterParams,
   BookPageParams,
   BookQueryParams,
+  normalizeBookCollectionFilterParams,
+  normalizeBookQueryParams,
 } from './book-query-params';
 
 export const bookQueryKeys = {
@@ -30,3 +34,10 @@ export const bookQueryKeys = {
   recommendation: (bookId: number, limit: number) =>
     [...bookQueryKeys.recommendationQueries(bookId), {limit}] as const,
 };
+
+export function bookCollectionKeys(params: BookQueryParams) {
+  return {
+    filtersKey: hashKey([normalizeBookCollectionFilterParams(params)]),
+    listKey: hashKey([normalizeBookQueryParams(params)]),
+  };
+}

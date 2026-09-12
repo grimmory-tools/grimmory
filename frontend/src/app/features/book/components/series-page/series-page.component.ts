@@ -454,7 +454,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   goToCategory(category: string): void {
-    this.handleMetadataClick("category", category);
+    this.handleMetadataClick("genre", category);
   }
 
   goToPublisher(publisher: string): void {
@@ -467,11 +467,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   ): void {
     this.router.navigate(["/all-books"], {
       queryParams: {
-        view: "grid",
-        sort: "title",
-        direction: "asc",
-        sidebar: true,
-        filter: `${filterKey}:${encodeURIComponent(filterValue)}`,
+        facet: `${filterKey}:${filterValue}`,
       },
     });
   }

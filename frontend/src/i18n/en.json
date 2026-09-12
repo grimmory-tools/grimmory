@@ -3020,6 +3020,10 @@
       }
     },
     "selectBook": "Select {{ title }}",
+    "viewMode": {
+      "grid": "Grid",
+      "table": "Table"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Are you sure you want to delete the note \"{{ title }}\"?",
@@ -3147,7 +3151,8 @@
         "customFetchMetadata": "Custom Fetch Metadata",
         "autoFetchMetadata": "Auto Fetch Metadata",
         "findDuplicates": "Find Duplicates",
-        "deleteLibrary": "Delete Library"
+        "deleteLibrary": "Delete Library",
+        "manageLibrary": "Manage Library"
       },
       "shelf": {
         "publicShelfPrefix": "Public Shelf - ",
@@ -3590,7 +3595,7 @@
       "sortOrder": "Sort Order",
       "removeTooltip": "Remove",
       "addSortFieldPlaceholder": "Add sort field...",
-      "saveAsDefault": "Save as Default",
+      "saveAsDefault": "Save as Default for {{scope}}",
       "ascendingTooltip": "Ascending - click to change",
       "descendingTooltip": "Descending - click to change",
       "options": {
@@ -3649,7 +3654,7 @@
     },
     "searcher": {
       "placeholder": "Title, Author, Series, Genre, or ISBN...",
-      "clearSearch": "Clear Search",
+      "clearSearch": "Clear search",
       "bookCoverAlt": "Book Cover",
       "byPrefix": "by",
       "noResults": "No results found",
@@ -5532,7 +5537,16 @@
     "showAll": "Show All",
     "showFewer": "Show Fewer",
     "clearFilters": "Clear Filters",
+    "filter": "Filter",
     "moreActions": "More Actions",
+    "sort": {
+      "multiSort": "Multi-Sort",
+      "addField": "Add Field",
+      "apply": "Apply",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "flipDirection": "Flip Direction"
+    },
     "chips": {
       "removeSearch": "Remove Search Filter {{query}}"
     },
@@ -5553,6 +5567,39 @@
     },
     "table": {
       "moreValues": "Show {{count}} more {{column}}"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "reading": "Reading",
+        "publishing": "Publishing",
+        "file": "File",
+        "categorization": "Categorization",
+        "ratings": "Ratings"
+      },
+      "sort": "Sort",
+      "sortAria": "Sort by {{field}}",
+      "sortAscending": "Sort Ascending",
+      "sortDescending": "Sort Descending",
+      "shuffleAgain": "Shuffle Again",
+      "viewMode": "View",
+      "density": "Size",
+      "smallerCards": "Smaller Cards",
+      "largerCards": "Larger Cards",
+      "columns": "Columns",
+      "resetColumns": "Reset to Default"
+    },
+    "bulk": {
+      "markAsMessage": "Mark {{count}} books as {{status}}?",
+      "editAll": "Edit All",
+      "editOneByOne": "Edit One by One",
+      "selectionEmpty": "That selection no longer matches any books.",
+      "selectionLoadError": "Couldn't load the selection. Please try again.",
+      "organizeFiles": "Organize Files",
+      "updateReadStatus": "Update Read Status",
+      "lockUnlockMetadata": "Lock/Unlock Metadata"
+    },
+    "filterPage": {
+      "show": "Show {{count}} Books"
     }
   }
 }

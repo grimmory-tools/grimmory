@@ -29,7 +29,13 @@ import {BookDialogHelperService} from '../../../../book/components/book-browser/
 import {LibraryService} from '../../../../book/service/library.service';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
+import {formatRangeToken} from '../../../../../shared/browse/facet-ranges';
+import {
+  AGE_RATING_OPTIONS,
+  bookMatchScoreRangeToken,
+  CONTENT_RATING_LABELS,
+  PAGE_COUNT_RANGES,
+} from '../../../../book/model/book-value-labels';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
@@ -806,7 +812,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToCategory(category: string): void {
-    this.handleMetadataClick('category', category);
+    this.handleMetadataClick('genre', category);
   }
 
   goToMood(mood: string): void {
@@ -840,7 +846,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   goToPublishedYear(publishedDate: string): void {
     const year = this.extractYear(publishedDate);
     if (year) {
-      this.handleMetadataClick('publishedDate', year);
+      this.handleMetadataClick('published_year', year);
     }
   }
 
@@ -858,35 +864,35 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       if (["MP3", "M4A", "M4B", "OPUS"].includes(filterValue)) {
         filterValue = 'AUDIOBOOK';
       }
-      this.handleMetadataClick('bookType', filterValue);
+      this.handleMetadataClick('file_type', filterValue);
     }
   }
 
   goToReadStatus(status: ReadStatus): void {
-    this.handleMetadataClick('readStatus', status);
+    this.handleMetadataClick('read_status', status);
   }
 
   goToPageCountRange(pageCount: number): void {
-    const range = pageCountRanges.find(r => pageCount >= r.min && pageCount < r.max);
-    if (range) {
-      this.handleMetadataClick('pageCount', range.id.toString());
+    const range = PAGE_COUNT_RANGES.find(r => pageCount >= r.min && pageCount < r.max);
+    const token = range && formatRangeToken({min: range.min, max: Number.isFinite(range.max) ? range.max : null});
+    if (token) {
+      this.handleMetadataClick('page_count', token);
     }
   }
 
   goToMatchScoreRange(score: number): void {
-    const normalizedScore = score > 1 ? score / 100 : score;
-    const range = matchScoreRanges.find(r => normalizedScore >= r.min && normalizedScore < r.max);
-    if (range) {
-      this.handleMetadataClick('matchScore', range.id.toString());
+    const token = bookMatchScoreRangeToken(score);
+    if (token) {
+      this.handleMetadataClick('match_score', token);
     }
   }
 
   goToAgeRating(ageRating: number): void {
-    this.handleMetadataClick('ageRating', ageRating.toString());
+    this.handleMetadataClick('age_rating', ageRating.toString());
   }
 
   goToContentRating(contentRating: string): void {
-    this.handleMetadataClick('contentRating', contentRating);
+    this.handleMetadataClick('content_rating', contentRating);
   }
 
   getAgeRatingLabel(ageRating: number | null | undefined): string {
@@ -909,11 +915,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private navigateToFilteredBooks(filterKey: string, filterValue: string): void {
     this.router.navigate(['/all-books'], {
       queryParams: {
-        view: 'grid',
-        sort: 'title',
-        direction: 'asc',
-        sidebar: true,
-        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
+        facet: `${filterKey}:${filterValue}`,
       }
     });
   }
@@ -1350,19 +1352,19 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToCharacter(character: string): void {
-    this.handleMetadataClick('comicCharacter', character);
+    this.handleMetadataClick('comic_character', character);
   }
 
   goToTeam(team: string): void {
-    this.handleMetadataClick('comicTeam', team);
+    this.handleMetadataClick('comic_team', team);
   }
 
   goToLocation(location: string): void {
-    this.handleMetadataClick('comicLocation', location);
+    this.handleMetadataClick('comic_location', location);
   }
 
   goToCreator(name: string, role: string): void {
-    this.handleMetadataClick('comicCreator', `${name}:${role}`);
+    this.handleMetadataClick('comic_creator', `${name}:${role}`);
   }
 
   // Audiobook metadata helpers

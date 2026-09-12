@@ -2985,6 +2985,10 @@
         "long": "Weiter hören"
       }
     },
+    "viewMode": {
+      "grid": "Raster",
+      "table": "Tabelle"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Sind Sie sicher, dass Sie die Notiz \"{{ title }}\" löschen möchten?",
@@ -3112,7 +3116,8 @@
         "autoFetchMetadata": "Metadaten automatisch abrufen",
         "findDuplicates": "Duplikate finden",
         "deleteLibrary": "Bibliothek löschen",
-        "bulkIsbnImport": "ISBNs aus Datei importieren"
+        "bulkIsbnImport": "ISBNs aus Datei importieren",
+        "manageLibrary": "Bibliothek verwalten"
       },
       "shelf": {
         "publicShelfPrefix": "Öffentliches Regal - ",
@@ -3750,6 +3755,53 @@
       "summaryCreated": "",
       "doneButton": "",
       "parseButton": ""
+    },
+    "fields": {
+      "random": "Zufällig",
+      "title": "Titel",
+      "author": "Autor",
+      "authorSurname": "Autor (Nachname)",
+      "genre": "Genre",
+      "series": "Serie",
+      "seriesNumber": "Seriennummer",
+      "publisher": "Verlag",
+      "tag": "Schlagwort",
+      "mood": "Stimmung",
+      "language": "Sprache",
+      "narrator": "Sprecher",
+      "fileType": "Buchtyp",
+      "readStatus": "Lesestatus",
+      "personalRating": "Persönliche Bewertung",
+      "amazonRating": "Amazon-Bewertung",
+      "amazonReviewCount": "Amazon Nr.",
+      "goodreadsRating": "Goodreads-Bewertung",
+      "goodreadsReviewCount": "Goodreads Nr.",
+      "hardcoverRating": "Hardcover-Bewertung",
+      "hardcoverReviewCount": "Hardcover Nr.",
+      "ranobedbRating": "Ranobedb-Bewertung",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Seiten",
+      "publishedDate": "Veröffentlichungsdatum",
+      "publishedYear": "Erscheinungsjahr",
+      "addedOn": "Hinzugefügt am",
+      "lastReadTime": "Zuletzt gelesen",
+      "dateFinished": "Beendet am",
+      "readingProgress": "Lesefortschritt",
+      "fileName": "Dateiname",
+      "fileSize": "Dateigröße",
+      "isbn": "ISBN",
+      "library": "Bibliothek",
+      "shelf": "Regal",
+      "ageRating": "Altersfreigabe",
+      "contentRating": "Inhaltsbewertung",
+      "matchScore": "Metadaten-Übereinstimmung",
+      "shelfStatus": "Regalstatus",
+      "comicCharacter": "Comic-Charakter",
+      "comicTeam": "Comic-Team",
+      "comicLocation": "Comic-Ort",
+      "comicCreator": "Comic-Zeichner",
+      "audibleReviewCount": "Audible-Rezensionen"
     }
   },
   "readerAudiobook": {
@@ -5447,6 +5499,23 @@
   },
   "browse": {
     "showAll": "Alle einblenden",
-    "moreActions": "Weitere Aktionen"
+    "moreActions": "Weitere Aktionen",
+    "sort": {
+      "apply": "Anwenden"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "file": "Datei",
+        "ratings": "Bewertungen"
+      },
+      "viewMode": "Ansicht",
+      "density": "Größe",
+      "resetColumns": "Auf Standard zurücksetzen"
+    },
+    "bulk": {
+      "organizeFiles": "Dateien organisieren",
+      "updateReadStatus": "Lesestatus aktualisieren",
+      "lockUnlockMetadata": "Metadaten sperren/entsperren"
+    }
   }
 }

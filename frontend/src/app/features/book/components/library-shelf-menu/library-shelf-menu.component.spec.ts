@@ -34,8 +34,9 @@ describe('LibraryShelfMenuComponent', () => {
       name: 'library manager',
       user: {id: 3, permissions: {admin: false, canManageLibrary: true}},
       target: {type: 'library', entity: {id: 7, name: 'Library', watch: true, paths: []}},
-      labels: ['Add Physical Book', 'Import ISBNs from File', 'Edit Library', 'Re-scan Library',
-        'Custom Fetch Metadata', 'Auto Fetch Metadata', 'Find Duplicates', 'Delete Library'],
+      labels: ['Add Physical Book', 'Import ISBNs from File', 'Re-scan Library', 'Manage Library',
+        'Edit Library', 'Custom Fetch Metadata', 'Auto Fetch Metadata', 'Find Duplicates',
+        'Delete Library'],
       disabled: 0,
       available: true,
     },
@@ -74,7 +75,7 @@ describe('LibraryShelfMenuComponent', () => {
 
     const menu = document.querySelector('app-menu[aria-label="Actions"]') as HTMLElement;
     const renderedLabels = Array.from(menu.querySelectorAll('app-menu-item'))
-      .map(item => item.textContent?.trim());
+      .map(item => item.textContent!.trim());
     expect(fixture.componentInstance.available()).toBe(available);
     expect(renderedLabels).toEqual(labels);
     expect(menu.querySelectorAll('app-menu-item[aria-disabled="true"]')).toHaveLength(disabled);

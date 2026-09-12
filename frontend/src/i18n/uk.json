@@ -2985,6 +2985,10 @@
         "long": "Продовжити прослуховування"
       }
     },
+    "viewMode": {
+      "grid": "Сітка",
+      "table": "Таблиця"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Ви впевнені, що хочете видалити нотатку \"{{ title }}\"?",
@@ -3112,7 +3116,8 @@
         "autoFetchMetadata": "Автозавантаження метаданих",
         "findDuplicates": "Знайти дублікати",
         "deleteLibrary": "Видалити бібліотеку",
-        "bulkIsbnImport": "Імпортувати ISBN із файлу"
+        "bulkIsbnImport": "Імпортувати ISBN із файлу",
+        "manageLibrary": "Керувати бібліотекою"
       },
       "shelf": {
         "publicShelfPrefix": "Публічна полиця - ",
@@ -3750,6 +3755,53 @@
       "summaryCancelled": "Пропущено (скасовано)",
       "failedIsbnsLabel": "ISBN, які не вдалося імпортувати",
       "doneButton": "Готово"
+    },
+    "fields": {
+      "random": "Випадково",
+      "title": "Назва",
+      "author": "Автор",
+      "authorSurname": "Автор (Прізвище)",
+      "genre": "Жанр",
+      "series": "Серія",
+      "seriesNumber": "Номер у серії",
+      "publisher": "Видавець",
+      "tag": "Тег",
+      "mood": "Настрій",
+      "language": "Мова",
+      "narrator": "Оповідач",
+      "fileType": "Тип книги",
+      "readStatus": "Статус читання",
+      "personalRating": "Особистий рейтинг",
+      "amazonRating": "Рейтинг Amazon",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Рейтинг Goodreads",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Рейтинг Hardcover",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Рейтинг Ranobedb",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Сторінки",
+      "publishedDate": "Дата публікації",
+      "publishedYear": "Рік видання",
+      "addedOn": "Додано",
+      "lastReadTime": "Останнє читання",
+      "dateFinished": "Дата завершення",
+      "readingProgress": "Прогрес читання",
+      "fileName": "Назва файлу",
+      "fileSize": "Розмір файлу",
+      "isbn": "ISBN",
+      "library": "Бібліотека",
+      "shelf": "Полиця",
+      "ageRating": "Віковий рейтинг",
+      "contentRating": "Рейтинг контенту",
+      "matchScore": "Оцінка збігу метаданих",
+      "shelfStatus": "Статус полиці",
+      "comicCharacter": "Персонаж коміксу",
+      "comicTeam": "Команда коміксу",
+      "comicLocation": "Локація коміксу",
+      "comicCreator": "Творець коміксу",
+      "audibleReviewCount": "Кількість відгуків Audible"
     }
   },
   "readerAudiobook": {
@@ -5447,6 +5499,23 @@
   },
   "browse": {
     "showAll": "Показати все",
-    "moreActions": "Додаткові дії"
+    "moreActions": "Додаткові дії",
+    "sort": {
+      "apply": "Застосувати"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "file": "Файл",
+        "ratings": "Рейтинги"
+      },
+      "viewMode": "Вигляд",
+      "density": "Розмір",
+      "resetColumns": "Відновити стандартні"
+    },
+    "bulk": {
+      "organizeFiles": "Організувати файли",
+      "updateReadStatus": "Оновити статус читання",
+      "lockUnlockMetadata": "Заблокувати/Розблокувати метадані"
+    }
   }
 }

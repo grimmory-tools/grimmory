@@ -2,13 +2,19 @@ import {TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {UserService} from '../../settings/user-management/user.service';
+import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
 import {BookNavigationService} from './book-navigation.service';
 
 const navigate = vi.fn(() => Promise.resolve(true));
 
 function createService(): BookNavigationService {
   TestBed.configureTestingModule({
-    providers: [{provide: Router, useValue: {navigate}}],
+    providers: [
+      {provide: Router, useValue: {navigate}},
+      {provide: UserService, useValue: {currentUser: () => null}},
+      {provide: BookDialogHelperService, useValue: {openBookDetailsDialog: () => Promise.resolve()}},
+    ],
   });
   return TestBed.inject(BookNavigationService);
 }
@@ -83,5 +89,4 @@ describe('BookNavigationService', () => {
 
     expect(navigate).toHaveBeenCalledWith([route]);
   });
-
 });

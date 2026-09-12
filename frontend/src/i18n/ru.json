@@ -2982,6 +2982,10 @@
         "long": "Продолжить прослушивание"
       }
     },
+    "viewMode": {
+      "grid": "Сетка",
+      "table": "Таблица"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Вы уверены, что хотите удалить заметку «{{ title }}»?",
@@ -3109,7 +3113,8 @@
         "autoFetchMetadata": "Автоматическое получение метаданных",
         "findDuplicates": "Найти дубликаты",
         "deleteLibrary": "Удалить библиотеку",
-        "bulkIsbnImport": ""
+        "bulkIsbnImport": "",
+        "manageLibrary": "Управление библиотекой"
       },
       "shelf": {
         "publicShelfPrefix": "Публичная полка - ",
@@ -3747,6 +3752,53 @@
       "errorNoIsbns": "",
       "cancelButton": "",
       "duplicatesRemoved": ""
+    },
+    "fields": {
+      "random": "Случайно",
+      "title": "Название",
+      "author": "Автор",
+      "authorSurname": "Автор (фамилия)",
+      "genre": "Жанр",
+      "series": "Серия",
+      "seriesNumber": "Номер в серии",
+      "publisher": "Издательство",
+      "tag": "Тег",
+      "mood": "Настроение",
+      "language": "Язык",
+      "narrator": "Чтец",
+      "fileType": "Тип книги",
+      "readStatus": "Статус чтения",
+      "personalRating": "Личная оценка",
+      "amazonRating": "Рейтинг Amazon",
+      "amazonReviewCount": "Amazon №",
+      "goodreadsRating": "Рейтинг Goodreads",
+      "goodreadsReviewCount": "Goodreads №",
+      "hardcoverRating": "Рейтинг Hardcover",
+      "hardcoverReviewCount": "Hardcover №",
+      "ranobedbRating": "Рейтинг Ranobedb",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Страницы",
+      "publishedDate": "Дата публикации",
+      "publishedYear": "Год публикации",
+      "addedOn": "Дата добавления",
+      "lastReadTime": "Последнее чтение",
+      "dateFinished": "Дата завершения",
+      "readingProgress": "Прогресс чтения",
+      "fileName": "Имя файла",
+      "fileSize": "Размер файла",
+      "isbn": "ISBN",
+      "library": "Библиотека",
+      "shelf": "Полка",
+      "ageRating": "Возрастной рейтинг",
+      "contentRating": "Рейтинг контента",
+      "matchScore": "Оценка соответствия метаданных",
+      "shelfStatus": "Статус полки",
+      "comicCharacter": "Персонаж комикса",
+      "comicTeam": "Команда комикса",
+      "comicLocation": "Место действия комикса",
+      "comicCreator": "Создатель комикса",
+      "audibleReviewCount": "Количество отзывов Audible"
     }
   },
   "readerAudiobook": {
@@ -5444,6 +5496,20 @@
   },
   "browse": {
     "showAll": "Показать все",
-    "moreActions": "Дополнительные действия"
+    "moreActions": "Дополнительные действия",
+    "toolbar": {
+      "columnGroups": {
+        "file": "Файл",
+        "ratings": "Рейтинги"
+      },
+      "viewMode": "Вид",
+      "density": "Размер",
+      "resetColumns": "Сбросить по умолчанию"
+    },
+    "bulk": {
+      "organizeFiles": "Организовать файлы",
+      "updateReadStatus": "Обновить статус чтения",
+      "lockUnlockMetadata": "Заблокировать/Разблокировать метаданные"
+    }
   }
 }

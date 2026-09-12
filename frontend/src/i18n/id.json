@@ -3436,6 +3436,9 @@
         "short": "Lanjutkan"
       }
     },
+    "viewMode": {
+      "table": "Tabel"
+    },
     "fileAttacher": {
       "warningNoMoveBulk": "",
       "unknownFile": "",
@@ -3720,6 +3723,50 @@
         "savedSummary": "",
         "saveFailedSummary": ""
       }
+    },
+    "fields": {
+      "title": "Title",
+      "author": "Author",
+      "genre": "Genre",
+      "series": "Series",
+      "seriesNumber": "Series number",
+      "publisher": "Publisher",
+      "tag": "Tag",
+      "mood": "Mood",
+      "language": "Language",
+      "narrator": "Narrator",
+      "fileType": "File format",
+      "readStatus": "Read status",
+      "personalRating": "Personal rating",
+      "amazonRating": "Amazon rating",
+      "amazonReviewCount": "Amazon reviews",
+      "goodreadsRating": "Goodreads rating",
+      "goodreadsReviewCount": "Goodreads reviews",
+      "hardcoverRating": "Hardcover rating",
+      "hardcoverReviewCount": "Hardcover reviews",
+      "ranobedbRating": "RanobeDB rating",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Pages",
+      "publishedDate": "Published date",
+      "publishedYear": "Published year",
+      "addedOn": "Date added",
+      "lastReadTime": "Last read",
+      "dateFinished": "Date finished",
+      "readingProgress": "Reading progress",
+      "fileName": "File name",
+      "fileSize": "File size",
+      "isbn": "ISBN",
+      "library": "Library",
+      "shelf": "Shelf",
+      "ageRating": "Age rating",
+      "contentRating": "Content rating",
+      "matchScore": "Metadata match score",
+      "shelfStatus": "Shelf status",
+      "comicCharacter": "Comic character",
+      "comicTeam": "Comic team",
+      "comicLocation": "Comic location",
+      "comicCreator": "Comic creator"
     }
   },
   "readerAudiobook": {
@@ -5414,5 +5461,20 @@
     "searchPlaceholder": "",
     "noAuthorsFound": "",
     "pageTitle": ""
+  },
+  "browse": {
+    "moreActions": "Tindakan lain",
+    "toolbar": {
+      "columnGroups": {
+        "file": "Berkas",
+        "ratings": "Rating"
+      },
+      "viewMode": "Tampilan",
+      "density": "Ukuran"
+    },
+    "bulk": {
+      "organizeFiles": "Atur Berkas",
+      "lockUnlockMetadata": "Kunci/Buka kunci metadata"
+    }
   }
 }

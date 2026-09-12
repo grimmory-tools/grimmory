@@ -12,6 +12,13 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AppSettingsService } from '../../../../shared/service/app-settings.service';
 
+export interface BookFileAttacherSourceBook {
+  id: number;
+  libraryId: number;
+  metadata?: {title?: string; authors?: string[]};
+  primaryFile?: {extension?: string; bookType?: string; fileName?: string};
+}
+
 @Component({
   selector: 'app-book-file-attacher',
   standalone: true,
@@ -29,7 +36,7 @@ import { AppSettingsService } from '../../../../shared/service/app-settings.serv
 export class BookFileAttacherComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('autocompleteWrapper') autocompleteWrapper!: ElementRef;
 
-  sourceBooks: Book[] = [];
+  sourceBooks: readonly BookFileAttacherSourceBook[] = [];
   targetBook: Book | null = null;
   moveFiles = false;
   isAttaching = false;
@@ -128,7 +135,7 @@ export class BookFileAttacherComponent implements OnInit, AfterViewInit, OnDestr
     return authors ? `${title} - ${authors}` : title;
   }
 
-  getSourceFileInfo(book: Book): string {
+  getSourceFileInfo(book: BookFileAttacherSourceBook): string {
     const file = book.primaryFile;
     if (!file) return this.t.translate('book.fileAttacher.unknownFile');
     const format = file.extension?.toUpperCase() || file.bookType || this.t.translate('book.fileAttacher.unknownFormat');

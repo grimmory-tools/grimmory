@@ -26,18 +26,25 @@ describe('app routes', () => {
   it('defines the authenticated shell routes behind the auth guard', () => {
     const shellRoute = routes.find(route => route.path === '' && Array.isArray(route.children));
     const children = shellRoute?.children ?? [];
+    const browsePage = (path: string) => children.find(route => route.path === path)
+      ?.children?.find(route => route.path === '');
+    const browseFilterPage = (path: string) => children.find(route => route.path === path)
+      ?.children?.find(route => route.path === 'filter');
 
     expect(children).toHaveLength(21);
+    expect(children.find(route => route.path === 'browse/filter')).toBeUndefined();
     expect(shellRoute?.canActivateChild).toEqual([AuthChildGuard]);
     expect(children.find(route => route.path === 'dashboard')?.canActivate).toBeUndefined();
     expect(children.find(route => route.path === 'all-books')?.canActivate).toBeUndefined();
     expect(children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.canActivate).toBeUndefined();
     expect(children.find(route => route.path === 'notebook')?.canActivate).toBeUndefined();
-    expect(typeof children.find(route => route.path === 'all-books')?.loadComponent).toBe('function');
-    expect(typeof children.find(route => route.path === 'library/:libraryId/books')?.loadComponent).toBe('function');
-    expect(typeof children.find(route => route.path === 'shelf/:shelfId/books')?.loadComponent).toBe('function');
-    expect(typeof children.find(route => route.path === 'unshelved-books')?.loadComponent).toBe('function');
-    expect(typeof children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.loadComponent).toBe('function');
+    expect(typeof browsePage('all-books')?.loadComponent).toBe('function');
+    expect(typeof browseFilterPage('all-books')?.loadComponent).toBe('function');
+    expect(children.find(route => route.path === 'browse')).toBeUndefined();
+    expect(typeof browsePage('library/:libraryId/books')?.loadComponent).toBe('function');
+    expect(typeof browsePage('shelf/:shelfId/books')?.loadComponent).toBe('function');
+    expect(typeof browsePage('unshelved-books')?.loadComponent).toBe('function');
+    expect(typeof browsePage('magic-shelf/:magicShelfId/books')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'design-system')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'design-system/form/library')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'design-system/form/device')?.loadComponent).toBe('function');

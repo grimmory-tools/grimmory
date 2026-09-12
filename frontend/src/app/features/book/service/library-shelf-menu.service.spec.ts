@@ -114,6 +114,15 @@ describe('LibraryShelfMenuService', () => {
     expect(router.navigate).toHaveBeenNthCalledWith(2, ['/']);
   });
 
+  it('returns home after deleting a shelf whose filter child route is open', () => {
+    router.url = '/shelf/11/books/filter?facet=genre:Fantasy';
+
+    service.deleteShelf({id: 11, name: 'Favorites'});
+    confirmationService.confirm.mock.calls[0][0].accept();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/']);
+  });
+
   it('copies magic-shelf JSON', async () => {
     const writeText = vi.fn(() => Promise.resolve());
     vi.stubGlobal('navigator', {clipboard: {writeText}});

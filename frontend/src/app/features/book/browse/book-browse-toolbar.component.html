@@ -1,0 +1,173 @@
+<app-radio-group
+  class="hidden sm:block"
+  variant="segmented"
+  size="md"
+  [ariaLabel]="'browse.toolbar.viewMode' | transloco"
+  [options]="[
+    {value: 'grid', label: ('book.viewMode.grid' | transloco), icon: gridIcon},
+    {value: 'table', label: ('book.viewMode.table' | transloco), icon: tableIcon}
+  ]"
+  [value]="viewMode()"
+  (valueChange)="onViewModeValue($event)" />
+
+<span
+  role="group"
+  [class]="sortGroupClass"
+  [attr.aria-label]="'browse.toolbar.sort' | transloco">
+  <app-button
+    variant="soft"
+    [styleClass]="sortFieldButtonClass()"
+    [label]="(activeField().labelKey | transloco) + (multiSortActive() ? ' ' + multiSortShortcut() : '')"
+    [ariaLabel]="'browse.toolbar.sortAria' | transloco: {
+      field: activeField().labelKey | transloco
+    }"
+    [appMenuTriggerFor]="sortMenu" />
+  @if (activeSortHasSecondaryAction()) {
+  <app-button
+    variant="soft"
+    iconOnly
+    [styleClass]="sortDirectionButtonClass"
+    [ariaLabel]="secondarySortActionLabelKey() | transloco"
+    [title]="secondarySortActionLabelKey() | transloco"
+    (clicked)="activateSecondarySortAction()">
+    <svg [lucideIcon]="activeSortIcon()" aria-hidden="true"></svg>
+  </app-button>
+  }
+</span>
+<app-menu #sortMenu menuClass="w-60" [ariaLabel]="'browse.toolbar.sort' | transloco" (opened)="onSortMenuOpened()">
+  @for (option of commonOptions(); track option.id) {
+    <app-menu-item
+      [value]="option.id"
+      [icon]="directionIconFor(option)"
+      [badge]="sortRankFor(option)"
+      inset
+      (selected)="onSelect(option)">
+      {{ option.labelKey | transloco }}
+    </app-menu-item>
+  }
+  @if (moreOptions().length > 0) {
+    @if (moreSortsExpanded()) {
+      <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-200 ease-out starting:grid-rows-[0fr] motion-reduce:transition-none">
+        <div class="min-h-0 overflow-hidden">
+          @for (option of moreOptions(); track option.id) {
+            <app-menu-item
+              [value]="option.id"
+              [icon]="directionIconFor(option)"
+              [badge]="sortRankFor(option)"
+              inset
+              (selected)="onSelect(option)">
+              {{ option.labelKey | transloco }}
+            </app-menu-item>
+          }
+        </div>
+      </div>
+    }
+    <app-menu-item value="toggle-more-sorts" [icon]="moreSortsToggleIcon()" [closeOnSelect]="false" (selected)="moreSortsExpanded.set(!moreSortsExpanded())">
+      <span class="text-text-muted">
+        {{ (moreSortsExpanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
+      </span>
+    </app-menu-item>
+  }
+  @if (sortOptions().length > 0) {
+    <app-menu-separator />
+    <app-menu-item
+      value="multi-sort"
+      [class]="multiSortActive() ? 'bg-active-surface text-primary! [&_svg]:text-primary!' : ''"
+      [icon]="multiSortIcon"
+      [shortcut]="multiSortShortcut()"
+      (selected)="multiSortRequested.emit()">
+      {{ 'browse.sort.multiSort' | transloco }}
+    </app-menu-item>
+  }
+</app-menu>
+
+<app-button
+  variant="soft"
+  [label]="'browse.filter' | transloco"
+  [ariaExpanded]="filtersOpen()"
+  (clicked)="filtersToggle.emit()">
+  <svg
+    lucideFunnel
+    [attr.fill]="filtersOpen() ? 'currentColor' : 'none'"
+    aria-hidden="true"></svg>
+</app-button>
+
+<app-button
+  class="sm:hidden"
+  variant="soft"
+  [label]="'common.select' | transloco"
+  (clicked)="mobileSelectToggle.emit()" />
+
+<app-button
+  class="ml-auto sm:ml-0"
+  variant="ghost"
+  iconOnly
+  [ariaLabel]="'browse.moreActions' | transloco"
+  [appMenuTriggerFor]="moreMenu">
+  <svg lucideEllipsis aria-hidden="true"></svg>
+</app-button>
+<app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
+  @if (viewMode() === 'grid') {
+    <div class="flex min-h-8 w-full select-none items-center gap-2 pl-2 pr-0 text-sm leading-5 text-text pointer-coarse:min-h-11 pointer-coarse:pl-3">
+      <span class="min-w-0 flex-1 truncate">{{ 'browse.toolbar.density' | transloco }}</span>
+      <app-menu-item
+        value="smaller-cards"
+        [class]="stepperItemClass"
+        [icon]="smallerIcon"
+        [disabled]="densitySmallerDisabled()"
+        [closeOnSelect]="false"
+        [attr.aria-label]="'browse.toolbar.smallerCards' | transloco"
+        (selected)="densityChange.emit('smaller')" />
+      <app-menu-item
+        value="larger-cards"
+        [class]="stepperItemClass"
+        [icon]="largerIcon"
+        [disabled]="densityLargerDisabled()"
+        [closeOnSelect]="false"
+        [attr.aria-label]="'browse.toolbar.largerCards' | transloco"
+        (selected)="densityChange.emit('larger')" />
+    </div>
+    <app-menu-separator class="sm:hidden" />
+  }
+  <div class="contents sm:hidden">
+    <app-menu-radio-group [value]="viewMode()" (valueSelected)="selectView($event)">
+      <app-menu-radio value="grid">{{ 'book.viewMode.grid' | transloco }}</app-menu-radio>
+      <app-menu-radio value="table">{{ 'book.viewMode.table' | transloco }}</app-menu-radio>
+    </app-menu-radio-group>
+  </div>
+  @if (viewMode() !== 'grid') {
+    <app-menu-separator class="sm:hidden" />
+    <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
+  }
+  @if (actionTarget(); as target) {
+    <app-menu-separator />
+    <app-library-shelf-menu-items [target]="target" />
+  }
+</app-menu>
+
+<app-menu
+  #columnsMenu="ngMenu"
+  menuClass="w-[34rem] max-w-[calc(100vw-1rem)]"
+  [ariaLabel]="'browse.toolbar.columns' | transloco">
+  <div class="columns-1 gap-3 sm:max-h-[min(32rem,calc(100vh-2rem))] sm:overflow-y-auto sm:columns-2">
+    @for (section of columnSections(); track section.id) {
+      <div class="min-w-0 break-inside-avoid">
+        <app-menu-section>{{ 'browse.toolbar.columnGroups.' + section.id | transloco }}</app-menu-section>
+        @for (column of section.columns; track column.field) {
+          <app-menu-checkbox
+            [value]="column.field"
+            [checked]="!column.hideable || column.visible"
+            [disabled]="!column.hideable"
+            [closeOnSelect]="false"
+            (selected)="columnVisibilityChange.emit({field: column.field, visible: $event})">
+            {{ column.labelKey | transloco }}
+          </app-menu-checkbox>
+        }
+      </div>
+    }
+  </div>
+  <app-menu-separator />
+  <app-menu-item value="reset-columns" (selected)="columnsReset.emit()">
+    {{ 'browse.toolbar.resetColumns' | transloco }}
+  </app-menu-item>
+</app-menu>
