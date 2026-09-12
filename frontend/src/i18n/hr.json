@@ -456,8 +456,6 @@
       },
       "sortFields": {
         "title": "Naslov",
-        "fileName": "Naziv datoteke",
-        "filePath": "Putanja datoteke",
         "addedOn": "Datum dodavanja",
         "author": "Autor",
         "authorSurnameVorname": "Autor (prezime)",
@@ -470,7 +468,6 @@
         "readStatus": "Status čitanja",
         "dateFinished": "Datum završetka",
         "readingProgress": "Napredak čitanja",
-        "bookType": "Format datoteke",
         "pageCount": "Stranice"
       },
       "sortDirections": {

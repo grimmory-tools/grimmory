@@ -481,8 +481,6 @@
       },
       "sortFields": {
         "title": "Cím",
-        "fileName": "Fájlnév",
-        "filePath": "Elérési Útvonal",
         "addedOn": "Hozzáadás Dátuma",
         "author": "Szerző",
         "authorSurnameVorname": "Szerző (családnév)",
@@ -495,7 +493,6 @@
         "readStatus": "Olvasás Állapota",
         "dateFinished": "Befejezés Dátuma",
         "readingProgress": "Olvasás Előrehaladottsága",
-        "bookType": "Fájlformátum",
         "pageCount": "Oldalak"
       },
       "sortDirections": {

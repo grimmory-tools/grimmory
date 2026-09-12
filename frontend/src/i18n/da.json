@@ -481,8 +481,6 @@
       },
       "sortFields": {
         "title": "",
-        "fileName": "",
-        "filePath": "",
         "addedOn": "",
         "author": "",
         "authorSurnameVorname": "",
@@ -495,7 +493,6 @@
         "readStatus": "",
         "dateFinished": "",
         "readingProgress": "",
-        "bookType": "",
         "pageCount": ""
       },
       "sortDirections": {

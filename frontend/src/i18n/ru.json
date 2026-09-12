@@ -456,8 +456,6 @@
       },
       "sortFields": {
         "title": "Название",
-        "fileName": "Имя файла",
-        "filePath": "Путь к файлу",
         "addedOn": "Дата добавления",
         "author": "Автор",
         "authorSurnameVorname": "Автор (фамилия)",
@@ -470,7 +468,6 @@
         "readStatus": "Статус чтения",
         "dateFinished": "Дата завершения",
         "readingProgress": "Прогресс чтения",
-        "bookType": "Тип книги",
         "pageCount": "Страницы"
       },
       "sortDirections": {

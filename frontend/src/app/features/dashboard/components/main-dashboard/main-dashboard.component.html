@@ -1,73 +1,45 @@
 <ng-container *transloco="let t; prefix: 'dashboard.main'">
   <div class="dashboard-container">
-    @if (isBooksLoading()) {
-      <div class="loading-state">
-        <p-progressSpinner
-          class="spinner center-spinner"
-          [style]="{'width': '60px', 'height': '60px'}"
-          strokeWidth="3"
-          fill="transparent"
-          animationDuration="1.5s">
-        </p-progressSpinner>
-      </div>
-    } @else {
-      <div class="dashboard">
-        <div class="dashboard-inner">
-          @if (isLibrariesEmpty()) {
-            <div class="dashboard-no-library">
-              @if (userService.currentUser()?.permissions; as permissions) {
-                <div>
-                  @if (permissions.admin || permissions.canManageLibrary) {
-                    <div>
-                      <h1 class="no-library-header">
-                        {{ t('welcomeTitle') }}<br>
-                        {{ t('welcomeSubtitle') }}
-                      </h1>
-                      <p class="welcome-description">
-                        {{ t('welcomeDescription') }}
-                      </p>
-                      <p-button
-                        [label]="t('createLibrary')"
-                        icon="pi pi-plus"
-                        class="p-button-rounded p-button-outlined"
-                        (click)="createNewLibrary()">
-                      </p-button>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          } @else {
-            @if (dashboardConfig(); as config) {
-              @for (scroller of enabledScrollers(); track scroller.id; let idx = $index) {
-                @if (idx < 2) {
-                  <app-dashboard-scroller
-                    [bookListType]="scroller.type"
-                    [title]="scroller.title"
-                    [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
-                    [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
-                    [books]="getBooksForScroller(scroller)"
-                    [overlayPreferenceService]="overlayPreferenceService">
-                  </app-dashboard-scroller>
-                } @else {
-                  @defer (on viewport) {
-                    <app-dashboard-scroller
-                      [bookListType]="scroller.type"
-                      [title]="scroller.title"
-                      [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
-                      [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
-                      [books]="getBooksForScroller(scroller)"
-                      [overlayPreferenceService]="overlayPreferenceService">
-                    </app-dashboard-scroller>
-                  } @placeholder {
-                    <div class="scroller-placeholder"></div>
-                  }
+    <div class="dashboard">
+      <div class="dashboard-inner">
+        @if (isLibrariesEmpty()) {
+          <div class="dashboard-no-library">
+            @if (userService.currentUser()?.permissions; as permissions) {
+              <div>
+                @if (permissions.admin || permissions.canManageLibrary) {
+                  <div>
+                    <h1 class="no-library-header">
+                      {{ t('welcomeTitle') }}<br>
+                      {{ t('welcomeSubtitle') }}
+                    </h1>
+                    <p class="welcome-description">
+                      {{ t('welcomeDescription') }}
+                    </p>
+                    <p-button
+                      [label]="t('createLibrary')"
+                      icon="pi pi-plus"
+                      class="p-button-rounded p-button-outlined"
+                      (click)="createNewLibrary()">
+                    </p-button>
+                  </div>
                 }
+              </div>
+            }
+          </div>
+        } @else {
+          @for (scroller of enabledScrollers(); track scroller.id; let idx = $index) {
+            @if (idx < 2) {
+              <app-dashboard-scroller [config]="scroller" />
+            } @else {
+              @defer (on viewport) {
+                <app-dashboard-scroller [config]="scroller" />
+              } @placeholder {
+                <div class="scroller-placeholder"></div>
               }
             }
           }
-        </div>
+        }
       </div>
-    }
+    </div>
   </div>
 </ng-container>

@@ -12,7 +12,6 @@
   justify-content: center;
   min-height: 100%;
   padding: 0.9625rem 0.9625rem 0;
-  text-align: center;
   position: relative;
   z-index: 1;
 }
@@ -21,13 +20,6 @@
   .dashboard {
     padding: 0.4375rem 0.4375rem 0;
   }
-}
-
-.loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
 }
 
 .dashboard-inner {
@@ -60,6 +52,7 @@
   border: 1px solid var(--color-border);
   position: relative;
   overflow: hidden;
+  text-align: center;
 }
 
 .dashboard .p-dialog {
@@ -71,6 +64,6 @@
 }
 
 .scroller-placeholder {
-  height: 260px;
+  height: 330px;
   margin-bottom: 1.75rem;
 }
