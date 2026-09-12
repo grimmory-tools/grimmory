@@ -5,7 +5,6 @@ import {tap} from 'rxjs/operators';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Library} from '../model/library.model';
-import {BookService} from './book.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
 import {LIBRARIES_QUERY_KEY, libraryFormatCountsQueryKey} from './library-query-keys';
@@ -18,7 +17,6 @@ import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 export class LibraryService {
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries`;
   private http = inject(HttpClient);
-  private bookService = inject(BookService);
   private authService = inject(AuthService);
   private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
@@ -126,20 +124,6 @@ export class LibraryService {
   findLibraryById(id: number): Library | undefined {
     return this.libraries().find(library => library.id === id);
   }
-
-  getBookCountValue(libraryId: number): number {
-    return this.bookService.books().filter(book => book.libraryId === libraryId).length;
-  }
-
-  readonly bookCountByLibraryId = computed(() => {
-    const counts = new Map<number, number>();
-    for (const book of this.bookService.books()) {
-      if (book.libraryId != null) {
-        counts.set(book.libraryId, (counts.get(book.libraryId) ?? 0) + 1);
-      }
-    }
-    return counts;
-  });
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
     return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));
