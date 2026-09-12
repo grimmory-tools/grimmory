@@ -46,17 +46,19 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
     private final ObjectMapper objectMapper;
     private final CoverDetectorService coverDetectorService;
 
-    private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_IDENTIFIER_PREFIXES = Map.of(
-            "amazon", BookMetadata.BookMetadataBuilder::asin,
-            "asin", BookMetadata.BookMetadataBuilder::asin,
-            "mobi-asin", BookMetadata.BookMetadataBuilder::asin,
-            "goodreads", BookMetadata.BookMetadataBuilder::goodreadsId,
-            "google", BookMetadata.BookMetadataBuilder::googleId,
-            "hardcover", BookMetadata.BookMetadataBuilder::hardcoverId,
-            "hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId,
-            "comicvine", BookMetadata.BookMetadataBuilder::comicvineId,
-            "lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId,
-            "ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId);
+    private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_IDENTIFIER_PREFIXES = Map.ofEntries(
+            Map.entry("amazon", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("mobi-asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("goodreads", BookMetadata.BookMetadataBuilder::goodreadsId),
+            Map.entry("google", BookMetadata.BookMetadataBuilder::googleId),
+            Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
+            Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId),
+            Map.entry("comicvine", BookMetadata.BookMetadataBuilder::comicvineId),
+            Map.entry("lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId),
+            Map.entry("ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId),
+            Map.entry("applebooks", BookMetadata.BookMetadataBuilder::applebooksId)
+    );
 
     private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> CALIBRE_FIELD_MAPPINGS = Map.ofEntries(
             Map.entry("#subtitle", BookMetadata.BookMetadataBuilder::subtitle),
@@ -68,6 +70,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             Map.entry("#goodreads_review_count", (builder, value) -> safeParseInt(value, builder::goodreadsReviewCount)),
             Map.entry("#hardcover_rating", (builder, value) -> safeParseDouble(value, builder::hardcoverRating)),
             Map.entry("#hardcover_review_count", (builder, value) -> safeParseInt(value, builder::hardcoverReviewCount)),
+            Map.entry("#applebooks_rating", (builder, value) -> safeParseDouble(value, builder::applebooksRating)),
+            Map.entry("#applebooks_review_count", (builder, value) -> safeParseInt(value, builder::applebooksReviewCount)),
             Map.entry("#lubimyczytac_rating", (builder, value) -> safeParseDouble(value, builder::lubimyczytacRating)),
             Map.entry("#ranobedb_rating", (builder, value) -> safeParseDouble(value, builder::ranobedbRating)),
             Map.entry("#age_rating", (builder, value) -> safeParseInt(value, v -> {
@@ -220,6 +224,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             case BookLoreMetadata.NS_PREFIX + ":hardcover_id" -> builderMeta.hardcoverId(content);
                             case BookLoreMetadata.NS_PREFIX + ":google_books_id" -> builderMeta.googleId(content);
                             case BookLoreMetadata.NS_PREFIX + ":lubimyczytac_id" -> builderMeta.lubimyczytacId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":applebooks_id" -> builderMeta.applebooksId(content);
                             case BookLoreMetadata.NS_PREFIX + ":page_count" ->
                                     safeParseInt(content, builderMeta::pageCount);
                             case BookLoreMetadata.NS_PREFIX + ":subtitle" -> builderMeta.subtitle(content);
@@ -239,6 +244,10 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                                     safeParseDouble(content, builderMeta::hardcoverRating);
                             case BookLoreMetadata.NS_PREFIX + ":hardcover_review_count" ->
                                     safeParseInt(content, builderMeta::hardcoverReviewCount);
+                            case BookLoreMetadata.NS_PREFIX + ":applebooks_rating" ->
+                                    safeParseDouble(content, builderMeta::applebooksRating);
+                            case BookLoreMetadata.NS_PREFIX + ":applebooks_review_count" ->
+                                    safeParseInt(content, builderMeta::applebooksReviewCount);
                             case BookLoreMetadata.NS_PREFIX + ":lubimyczytac_rating" ->
                                     safeParseDouble(content, builderMeta::lubimyczytacRating);
                             case BookLoreMetadata.NS_PREFIX + ":ranobedb_rating" ->
@@ -314,6 +323,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                                 case "HARDCOVER" -> builderMeta.hardcoverId(value);
                                 case "HARDCOVERBOOK", "HARDCOVER_BOOK_ID" -> builderMeta.hardcoverBookId(value);
                                 case "LUBIMYCZYTAC" -> builderMeta.lubimyczytacId(value);
+                                case "APPLEBOOKS" -> builderMeta.applebooksId(value);
                             }
                         } else {
                             // Handle Calibre's prefix:value format (e.g., amazon:B09XXX, goodreads:123)

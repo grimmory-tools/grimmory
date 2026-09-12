@@ -216,6 +216,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
         findCustomField(xmp, rawXmp, "lubimyczytacId").ifPresent(metadataBuilder::lubimyczytacId);
         findCustomField(xmp, rawXmp, "hardcoverId").ifPresent(metadataBuilder::hardcoverId);
         findCustomField(xmp, rawXmp, "hardcoverBookId").ifPresent(metadataBuilder::hardcoverBookId);
+        findCustomField(xmp, rawXmp, "applebooksId").ifPresent(metadataBuilder::applebooksId);
 
         // XMP Qualified Identifiers
         for (QualifiedIdentifier qi : xmp.xmpIdentifiers()) {
@@ -238,6 +239,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 case "lubimyczytac" -> metadataBuilder.lubimyczytacId(value);
                 case "hardcover" -> metadataBuilder.hardcoverId(value);
                 case "hardcover_book_id" -> metadataBuilder.hardcoverBookId(value);
+                case "applebooks" -> metadataBuilder.applebooksId(value);
             }
         }
 
@@ -248,6 +250,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
         mapRating(xmp, rawXmp, "hardcoverRating", "HardcoverRating", metadataBuilder::hardcoverRating);
         mapRating(xmp, rawXmp, "lubimyczytacRating", "LubimyczytacRating", metadataBuilder::lubimyczytacRating);
         mapRating(xmp, rawXmp, "ranobedbRating", "RanobedbRating", metadataBuilder::ranobedbRating);
+        mapRating(xmp, rawXmp, "applebooksRating", "ApplebooksRating", metadataBuilder::applebooksRating);
 
     } catch (Exception e) {
         log.error("Failed to load PDF file: {}", file.getPath(), e);
