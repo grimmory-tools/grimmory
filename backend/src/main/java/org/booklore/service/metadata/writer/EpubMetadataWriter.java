@@ -206,6 +206,13 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
+            helper.copyApplebooksId(clear != null && clear.isApplebooksId(), val -> {
+                removeIdentifierByUrn(metadataElement, "applebooks");
+                if (val != null && !val.isBlank()) {
+                    metadataElement.appendChild(createIdentifierElement(opfDoc, "applebooks", val));
+                }
+                hasChanges[0] = true;
+            });
 
             if (StringUtils.isNotBlank(thumbnailUrl)) {
                 byte[] coverData = loadImage(thumbnailUrl);
