@@ -28,6 +28,9 @@ public class EpubMetadata {
     private String asin;
     private Double amazonRating;
     private Integer amazonReviewCount;
+    private String applebooksId;
+    private Double applebooksRating;
+    private Integer applebooksReviewCount;
     private String goodreadsId;
     private String comicvineId;
     private Double goodreadsRating;
