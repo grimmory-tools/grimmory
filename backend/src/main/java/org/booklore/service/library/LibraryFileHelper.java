@@ -83,6 +83,84 @@ public class LibraryFileHelper {
                 .toList();
     }
 
+    /**
+     * Keeps an existing library's file representation stable when the scanner encounters an ambiguous
+     * audiobook directory. If that directory already contains individually tracked audiobook files,
+     * expand the folder candidate back to file candidates instead of replacing those books with one
+     * folder-based audiobook during a rescan.
+     */
+    public List<LibraryFile> reconcileRescanCandidates(List<LibraryFile> libraryFiles, List<BookEntity> books) throws IOException {
+        Set<Path> directoriesWithIndividualAudiobooks = books.stream()
+                .filter(book -> book.getBookFiles() != null)
+                .flatMap(book -> book.getBookFiles().stream()
+                        .filter(file -> !file.isFolderBased())
+                        .filter(file -> file.getBookType() == BookFileType.AUDIOBOOK)
+                        .filter(file -> !Boolean.TRUE.equals(book.getDeleted()) || isRestorableDeletedFile(file)))
+                .map(BookFileEntity::getFullFilePath)
+                .map(Path::normalize)
+                .map(Path::getParent)
+                .collect(Collectors.toSet());
+
+        if (directoriesWithIndividualAudiobooks.isEmpty()) {
+            return libraryFiles;
+        }
+
+        List<LibraryFile> reconciledFiles = new ArrayList<>();
+        for (LibraryFile file : libraryFiles) {
+            boolean shouldPreserveIndividualFiles = file.isFolderBased()
+                    && file.getBookFileType() == BookFileType.AUDIOBOOK
+                    && directoriesWithIndividualAudiobooks.contains(file.getFullPath().normalize());
+
+            if (shouldPreserveIndividualFiles) {
+                reconciledFiles.addAll(findIndividualAudioFiles(file));
+            } else {
+                reconciledFiles.add(file);
+            }
+        }
+        return reconciledFiles;
+    }
+
+    private boolean isRestorableDeletedFile(BookFileEntity file) {
+        Path path = file.getFullFilePath();
+        if (FileUtils.shouldIgnore(path) || !Files.isReadable(path)) {
+            return false;
+        }
+        return isNonEmptyRegularFile(path);
+    }
+
+    private List<LibraryFile> findIndividualAudioFiles(LibraryFile folderCandidate) throws IOException {
+        try (var files = Files.list(folderCandidate.getFullPath())) {
+            return files
+                    .filter(file -> !FileUtils.shouldIgnore(file))
+                    .filter(Files::isReadable)
+                    .filter(this::isNonEmptyRegularFile)
+                    .filter(file -> BookFileExtension.fromFileName(file.getFileName().toString())
+                            .map(BookFileExtension::getType)
+                            .filter(type -> type == BookFileType.AUDIOBOOK)
+                            .isPresent())
+                    .sorted()
+                    .map(file -> LibraryFile.builder()
+                            .libraryEntity(folderCandidate.getLibraryEntity())
+                            .libraryPathEntity(folderCandidate.getLibraryPathEntity())
+                            .fileSubPath(FileUtils.getRelativeSubPath(
+                                    folderCandidate.getLibraryPathEntity().getPath(), file))
+                            .fileName(file.getFileName().toString())
+                            .bookFileType(BookFileType.AUDIOBOOK)
+                            .build())
+                    .toList();
+        }
+    }
+
+    private boolean isNonEmptyRegularFile(Path file) {
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
+            return attrs.isRegularFile() && attrs.size() > 0;
+        } catch (IOException e) {
+            log.warn("Failed to read file attributes for [{}]: {}", file, e.getMessage());
+            return false;
+        }
+    }
+
     private String generateUniqueKey(BookEntity book) {
         BookFileEntity primaryFile = book.getPrimaryBookFile();
         if (primaryFile == null) {
