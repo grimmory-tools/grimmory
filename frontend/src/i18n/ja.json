@@ -1808,6 +1808,9 @@
       "datePicker": {
         "nextMonth": "",
         "previousMonth": ""
+      },
+      "bulkActions": {
+        "selectAll": "すべて選択"
       }
     },
     "message": {
@@ -5439,5 +5442,9 @@
     "searchPlaceholder": "",
     "noAuthorsFound": "",
     "pageTitle": ""
+  },
+  "browse": {
+    "showAll": "すべて表示",
+    "moreActions": "その他の操作"
   }
 }

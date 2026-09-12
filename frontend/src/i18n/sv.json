@@ -1808,6 +1808,9 @@
       "datePicker": {
         "nextMonth": "",
         "previousMonth": ""
+      },
+      "bulkActions": {
+        "selectAll": "Välj alla"
       }
     },
     "message": {
@@ -5440,5 +5443,9 @@
     "searchPlaceholder": "",
     "noAuthorsFound": "",
     "pageTitle": ""
+  },
+  "browse": {
+    "showAll": "Visa alla",
+    "moreActions": "Fler åtgärder"
   }
 }

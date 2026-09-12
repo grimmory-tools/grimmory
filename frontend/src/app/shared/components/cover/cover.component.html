@@ -11,12 +11,13 @@
   />
 } @else if (showImage()) {
   <img
+    (load)="markReady()"
+    (error)="onError()"
     [class]="imageClass()"
     [src]="src() ?? ''"
     [alt]="alt()"
     [attr.loading]="loading()"
     decoding="async"
-    (error)="onError()"
   />
 } @else {
   <div

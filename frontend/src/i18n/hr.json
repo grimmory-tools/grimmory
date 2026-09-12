@@ -1809,6 +1809,9 @@
       "datePicker": {
         "nextMonth": "Sljedeći mjesec",
         "previousMonth": "Prethodni mjesec"
+      },
+      "bulkActions": {
+        "selectAll": "Odaberi sve"
       }
     },
     "message": {
@@ -5443,5 +5446,12 @@
     "searchPlaceholder": "Pretraživanje po imenu autora...",
     "noAuthorsFound": "Nijedan autor ne odgovara vašoj pretrazi.",
     "pageTitle": "Autori"
+  },
+  "browse": {
+    "showAll": "Prikaži sve",
+    "moreActions": "Više radnji",
+    "rail": {
+      "noMatches": "Nema podudaranja"
+    }
   }
 }

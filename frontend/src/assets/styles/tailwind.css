@@ -160,6 +160,7 @@
 
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 6%), 0 2px 4px 0 rgb(0 0 0 / 4%);
   --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 12%), 0 2px 6px -2px rgb(0 0 0 / 8%);
+  --shadow-float: 0 18px 50px -8px rgb(0 0 0 / 25%), 0 4px 16px rgb(0 0 0 / 10%);
   --shadow-card: inset 0 0 0 1px rgb(255 255 255 / 6%), 0 1px 3px rgb(0 0 0 / 25%);
   --shadow-card-hover: inset 0 0 0 1px rgb(255 255 255 / 8%), 0 6px 12px rgb(0 0 0 / 30%);
   --ease-glide: cubic-bezier(0.32, 0.72, 0, 1);
@@ -207,7 +208,7 @@
   --color-card: var(--color-surface-800);
   --color-border: var(--color-surface-700);
   --color-text: var(--color-surface-50);
-  --color-text-secondary: var(--color-surface-400);
+  --color-text-secondary: var(--color-surface-300);
   --color-text-muted: var(--color-surface-500);
   --color-text-strong: var(--color-surface-0);
   --color-primary: var(--color-primary-400);
@@ -224,6 +225,7 @@
   --color-info: var(--color-sky-400);
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 50%), 0 2px 4px 0 rgb(0 0 0 / 40%);
   --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 55%), 0 2px 6px -2px rgb(0 0 0 / 45%);
+  --shadow-float: 0 18px 50px -8px rgb(0 0 0 / 60%), 0 4px 16px rgb(0 0 0 / 35%);
 }
 
 [data-app-theme="grimmory"] {
@@ -628,6 +630,7 @@
   --color-active-surface: color-mix(in srgb, var(--color-primary) 14%, transparent);
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 60%), 0 2px 4px 0 rgb(0 0 0 / 50%);
   --shadow-pop: 0 4px 14px -2px rgb(0 0 0 / 70%), 0 2px 8px -2px rgb(0 0 0 / 55%);
+  --shadow-float: 0 18px 54px -8px rgb(0 0 0 / 75%), 0 4px 16px rgb(0 0 0 / 50%);
 }
 
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");

@@ -17,6 +17,7 @@
     "next": "Next",
     "submit": "Submit",
     "remove": "Remove",
+    "clear": "Clear",
     "edit": "Edit",
     "info": "Info",
     "select": "Select",
@@ -1824,6 +1825,9 @@
         "parse": "Enter a valid value",
         "pattern": "Enter a valid value",
         "required": "This field is required"
+      },
+      "bulkActions": {
+        "selectAll": "Select All"
       }
     }
   },
@@ -5475,6 +5479,29 @@
         "matchFailedSummary": "Match Failed",
         "matchFailedDetail": "Failed to match author with external metadata."
       }
+    }
+  },
+  "browse": {
+    "showAll": "Show All",
+    "showFewer": "Show Fewer",
+    "clearFilters": "Clear Filters",
+    "moreActions": "More Actions",
+    "chips": {
+      "removeSearch": "Remove Search Filter {{query}}"
+    },
+    "rail": {
+      "searchValues": "Search…",
+      "search": "Search {{scope}}",
+      "noMatches": "No matches",
+      "minUnit": "Min unit",
+      "maxUnit": "Max unit",
+      "min": "Min",
+      "max": "Max"
+    },
+    "book": {
+      "empty": "No books here yet.",
+      "filteredEmpty": "No books match these filters.",
+      "loadError": "We couldn't load these books."
     }
   }
 }

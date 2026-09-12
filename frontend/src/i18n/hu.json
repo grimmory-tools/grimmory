@@ -1808,6 +1808,9 @@
       "datePicker": {
         "nextMonth": "",
         "previousMonth": ""
+      },
+      "bulkActions": {
+        "selectAll": "Összes Kiválasztása"
       }
     },
     "message": {
@@ -5424,5 +5427,8 @@
     "searchPlaceholder": "Keresés szerző neve alapján...",
     "noAuthorsFound": "Nincs a kereséssel egyező szerző.",
     "pageTitle": "Szerzők"
+  },
+  "browse": {
+    "moreActions": "További lehetőségek"
   }
 }
