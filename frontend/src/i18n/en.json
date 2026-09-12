@@ -1803,8 +1803,9 @@
         "selectedCount": "{{ count }} selected"
       },
       "shelfMenu": {
-        "addToShelf": "Add to shelf",
-        "newShelf": "New shelf…"
+        "addToShelf": "Add to Shelf",
+        "newShelf": "New Shelf",
+        "removeFromAllShelves": "Remove from Your Shelves"
       },
       "spinner": {
         "loading": "Loading"
