@@ -107,6 +107,7 @@ public class SidecarMetadataMapper {
                     .comicvineId(ids.getComicvineId())
                     .lubimyczytacId(ids.getLubimyczytacId())
                     .ranobedbId(ids.getRanobedbId())
+                    .applebooksId(ids.getApplebooksId())
                     .audibleId(ids.getAudibleId());
         }
 
@@ -200,6 +201,7 @@ public class SidecarMetadataMapper {
                 .lubimyczytacId(entity.getLubimyczytacId())
                 .ranobedbId(entity.getRanobedbId())
                 .audibleId(entity.getAudibleId())
+                .applebooksId(entity.getApplebooksId())
                 .build();
     }
 
