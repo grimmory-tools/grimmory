@@ -3,6 +3,7 @@ import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {DialogLauncherService, DialogSize, DialogStyle} from '../../../../shared/services/dialog-launcher.service';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {Book} from '../../model/book.model';
+import {type BookSenderSource} from '../book-sender/book-sender.component';
 
 interface MetadataRefreshDialogContext {
   metadataRefreshType: MetadataRefreshType;
@@ -139,7 +140,7 @@ export class BookDialogHelperService {
     });
   }
 
-  async openCustomSendDialog(book: Book): Promise<DynamicDialogRef | null> {
+  async openCustomSendDialog(book: BookSenderSource): Promise<DynamicDialogRef | null> {
     return this.dialogLauncherService.launchLazyDialog(async () => {
       const {BookSenderComponent} = await import('../book-sender/book-sender.component');
       return this.openDialog(BookSenderComponent, {

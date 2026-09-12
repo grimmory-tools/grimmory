@@ -16,6 +16,8 @@ import {
   ResetBookProgressPartialError,
   ResetBookProgressResult,
   DeleteBooksVariables,
+  DeleteAdditionalFileVariables,
+  DeleteAdditionalFileResult,
   ResetBookProgressVariables,
   SetAllBookMetadataLocksVariables,
   SetBookReadStatusVariables,
@@ -71,6 +73,21 @@ export class BookCommandService {
     });
   }
 
+  deleteAdditionalFile() {
+    return reconcilingMutationOptions({
+      mutationKey: bookCommandKeys.deleteAdditionalFile(),
+      scope: bookCommandScopes.deletion,
+      mutationFn: (variables: DeleteAdditionalFileVariables) =>
+        this.deleteAdditionalFileRecord(variables),
+      reconcile: (outcome, variables, client) => applyBookQueryChangeSet(
+        client,
+        bookCommandChangeSet(outcome, [variables.bookId], result => ({
+          changedBookIds: [result.bookId],
+        })),
+      ),
+    });
+  }
+
   resetProgress() {
     return reconcilingMutationOptions({
       mutationKey: bookCommandKeys.resetProgress(),
@@ -109,6 +126,13 @@ export class BookCommandService {
       `${this.baseUrl}/status`,
       {bookIds, status},
     ));
+  }
+
+  private async deleteAdditionalFileRecord(
+    {bookId, fileId}: DeleteAdditionalFileVariables,
+  ): Promise<DeleteAdditionalFileResult> {
+    await lastValueFrom(this.http.delete<void>(`${this.baseUrl}/${bookId}/files/${fileId}`));
+    return {bookId, fileId};
   }
 
   private async deleteBookRecords(

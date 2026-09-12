@@ -6,6 +6,7 @@ import {
 } from '@tanstack/angular-query-experimental';
 
 import {
+  DeleteAdditionalFileResult,
   DeleteBooksResult,
   ResetBookProgressResult,
   SetAllBookMetadataLocksResult,
@@ -76,6 +77,17 @@ export const legacyBookCachePatches = {
     client: QueryClient,
     result: DeleteBooksResult,
   ): Promise<void> => removeListOnlyBooks(client, result.removedBookIds),
+  deleteAdditionalFile: (
+    client: QueryClient,
+    result: DeleteAdditionalFileResult,
+  ): Promise<void> => patchListOnlyBooksWith(client, [{
+    bookId: result.bookId,
+    updater: book => ({
+      ...book,
+      alternativeFormats: book.alternativeFormats?.filter(file => file.id !== result.fileId),
+      supplementaryFiles: book.supplementaryFiles?.filter(file => file.id !== result.fileId),
+    }),
+  }]),
   resetProgress: (
     client: QueryClient,
     results: readonly ResetBookProgressResult[],
