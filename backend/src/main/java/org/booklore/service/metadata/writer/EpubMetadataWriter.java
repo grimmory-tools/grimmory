@@ -1339,12 +1339,13 @@ public class EpubMetadataWriter implements MetadataWriter {
         // Per the epubcheck dtd:
         // <package> must have as children elements, in this order:
         //     <metadata>, <manifest>, and <spine>, and optionally may
-        //     include <tours> and/or <guide>.
+        //     include <tours> and/or <guide>, then `<collection>` items.
         Element metadata = getOrCreateMetadataElement(document);
         Element manifest = getOrCreateManifestElement(document);
         Element spine = getOrCreateSpineElement(document);
         Optional<Element> tours = getElement(document.getDocumentElement(), OPF_NS, "tours");
         Optional<Element> guide = getElement(document.getDocumentElement(), OPF_NS, "guide");
+        NodeList collections = document.getDocumentElement().getElementsByTagNameNS(OPF_NS, "collection");
 
         Element packageElement = document.getDocumentElement();
 
@@ -1353,6 +1354,9 @@ public class EpubMetadataWriter implements MetadataWriter {
         packageElement.appendChild(spine);
         tours.ifPresent(packageElement::appendChild);
         guide.ifPresent(packageElement::appendChild);
+        for (int i = 0; i < collections.getLength(); i++) {
+            packageElement.appendChild(collections.item(i));
+        }
     }
 
     private void organizeMetadataElements(Element metadataElement) {

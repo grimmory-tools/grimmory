@@ -160,6 +160,7 @@ class EpubMetadataWriterTest {
                     <?xml version="1.0" encoding="UTF-8"?>
                     <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
                         <manifest></manifest>
+                        <collection></collection>
                         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
                         </metadata>
                     </package>""";
@@ -172,9 +173,11 @@ class EpubMetadataWriterTest {
             int manifestIndex = content.indexOf("<manifest");
             int metadataIndex = content.indexOf("<metadata");
             int spineIndex = content.indexOf("<spine");
+            int collectionIndex = content.indexOf("<collection");
 
             assertThat(metadataIndex).isLessThan(manifestIndex);
             assertThat(manifestIndex).isLessThan(spineIndex);
+            assertThat(spineIndex).isLessThan(collectionIndex);
         }
     }
 
