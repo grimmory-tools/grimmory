@@ -59,6 +59,10 @@
     <dc:identifier id="goodreads">${goodreadsId}</dc:identifier>
     <meta refines="#goodreads" property="identifier-type">GOODREADS</meta>
     </#if>
+    <#if openlibraryId?has_content>
+      <dc:identifier id="openlibrary">${openlibraryId}</dc:identifier>
+      <meta refines="#openlibrary" property="identifier-type">OPENLIBRARY</meta>
+    </#if>
     
     <#-- Categories/Subjects -->
     <#if categories?has_content>
