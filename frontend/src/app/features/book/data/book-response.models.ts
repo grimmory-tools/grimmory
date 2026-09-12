@@ -260,6 +260,9 @@ export interface BookDetailMetadata extends BookMetadataFields {
   lubimyczytacRating?: number;
   audibleRating?: number;
   audibleReviewCount?: number;
+  applebooksId?: string;
+  applebooksRating?: number;
+  applebooksReviewCount?: number;
   abridged?: boolean;
   audiobookMetadata?: BookDetailAudiobookMetadata;
   comicMetadata?: BookDetailComicMetadata;
@@ -300,6 +303,9 @@ export interface BookDetailMetadata extends BookMetadataFields {
   audibleIdLocked?: boolean;
   audibleRatingLocked?: boolean;
   audibleReviewCountLocked?: boolean;
+  applebooksIdLocked?: boolean;
+  applebooksRatingLocked?: boolean;
+  applebooksReviewCountLocked?: boolean;
   externalUrlLocked?: boolean;
   coverLocked?: boolean;
   audiobookCoverLocked?: boolean;
