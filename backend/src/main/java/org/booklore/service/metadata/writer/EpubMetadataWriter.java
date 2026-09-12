@@ -284,33 +284,33 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (replaceElementText(doc, parent, tag, ns, val, false)) flag[0] = true;
     }
 
-    private Optional<Element> getElement(Element parent, String namespace, String tagName) {
-        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+    private Optional<Element> getChild(Element parent, String namespaceUri, String tagName) {
+        var children = getChildren(parent, namespaceUri, tagName);
 
-        for (int i = 0; i < metadataElements.getLength(); i++ ) {
-            if (metadataElements.item(i) instanceof Element element) {
-                return Optional.of(element);
-            }
+        if (children.isEmpty()) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        return Optional.of(children.getFirst());
     }
 
-    private List<Element> getElements(Element parent, String namespace, String tagName) {
-        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+    private List<Element> getChildren(Element parent, String namespaceUri, String tagName) {
+        NodeList metadataElements = parent.getChildNodes();
 
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < metadataElements.getLength(); i++ ) {
             if (metadataElements.item(i) instanceof Element element) {
-                elements.add(element);
+                if (element.getNamespaceURI().equals(namespaceUri) && element.getTagName().equals(tagName)) {
+                    elements.add(element);
+                }
             }
         }
 
         return elements;
     }
 
-    private Element getOrCreateElement(Element parent, String namespace, String tagName) {
-        return getElement(parent, namespace, tagName)
+    private Element getOrCreateChild(Element parent, String namespace, String tagName) {
+        return getChild(parent, namespace, tagName)
                 .orElseGet(() -> {
                     Element element = parent.getOwnerDocument().createElementNS(namespace, tagName);
                     parent.appendChild(element);
@@ -319,15 +319,15 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private Element getOrCreateMetadataElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "metadata");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "metadata");
     }
 
     public Element getOrCreateManifestElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "manifest");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "manifest");
     }
 
     public Element getOrCreateSpineElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "spine");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "spine");
     }
 
     private Element upsertMetaElement(Document doc, String name, String content) {
@@ -1389,9 +1389,9 @@ public class EpubMetadataWriter implements MetadataWriter {
         Element metadata = getOrCreateMetadataElement(document);
         Element manifest = getOrCreateManifestElement(document);
         Element spine = getOrCreateSpineElement(document);
-        Optional<Element> tours = getElement(document.getDocumentElement(), OPF_NS, "tours");
-        Optional<Element> guide = getElement(document.getDocumentElement(), OPF_NS, "guide");
-        List<Element> collections = getElements(document.getDocumentElement(), OPF_NS, "collection");
+        Optional<Element> tours = getChild(document.getDocumentElement(), OPF_NS, "tours");
+        Optional<Element> guide = getChild(document.getDocumentElement(), OPF_NS, "guide");
+        List<Element> collections = getChildren(document.getDocumentElement(), OPF_NS, "collection");
 
         Element packageElement = document.getDocumentElement();
 

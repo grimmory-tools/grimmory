@@ -179,6 +179,27 @@ class EpubMetadataWriterTest {
             assertThat(manifestIndex).isLessThan(spineIndex);
             assertThat(spineIndex).isLessThan(collectionIndex);
         }
+
+        @Test
+        @DisplayName("Should not flatten collections in EPUB3")
+        void writeMetadata_shouldNotFlattenCollections() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <manifest></manifest>
+                        <collection><collection></collection></collection>
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+
+            assertThat(content.replaceAll("([\\s\n])+", " "))
+                    .contains("<collection> <collection/> </collection>");
+        }
     }
 
     @Nested
