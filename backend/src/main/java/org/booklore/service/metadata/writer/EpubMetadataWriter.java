@@ -300,9 +300,15 @@ public class EpubMetadataWriter implements MetadataWriter {
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < metadataElements.getLength(); i++ ) {
             if (metadataElements.item(i) instanceof Element element) {
-                if (element.getNamespaceURI().equals(namespaceUri) && element.getTagName().equals(tagName)) {
-                    elements.add(element);
+                if (element.getNamespaceURI() == null || !element.getNamespaceURI().equals(namespaceUri)) {
+                    continue;
                 }
+
+                if (!element.getLocalName().equals(tagName)) {
+                    continue;
+                }
+
+                elements.add(element);
             }
         }
 
