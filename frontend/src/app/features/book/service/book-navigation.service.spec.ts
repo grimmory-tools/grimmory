@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {UserService} from '../../settings/user-management/user.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from './book-dialog-helper.service';
 import {BookNavigationService} from './book-navigation.service';
 
 const navigate = vi.fn(() => Promise.resolve(true));

@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
-import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
+import { BookDialogHelperService } from '../../../features/book/service/book-dialog-helper.service';
 import { UnifiedNotificationBoxComponent } from '../../components/unified-notification-popover/unified-notification-popover-component';
 import { AppButtonDirective } from '../../components/button/app-button.directive';
 import {

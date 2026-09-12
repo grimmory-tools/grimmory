@@ -25,7 +25,7 @@ import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/const
 import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
-import {BookDialogHelperService} from '../../../../book/components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../../../book/service/book-dialog-helper.service';
 import {LibraryService} from '../../../../book/service/library.service';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';

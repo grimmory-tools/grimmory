@@ -3,13 +3,13 @@ import {of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
-import {LoadingService} from '../../../../../core/services/loading.service';
+import {LoadingService} from '../../../../core/services/loading.service';
 import {
   createDynamicDialogHarness,
   createMessageServiceProvider,
   createMessageServiceSpy,
-} from '../../../../../core/testing/dialog-testing';
-import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
+} from '../../../../core/testing/dialog-testing';
+import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {LockUnlockMetadataDialogComponent} from './lock-unlock-metadata-dialog.component';
 
 describe('LockUnlockMetadataDialogComponent', () => {

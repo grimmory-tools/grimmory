@@ -45,7 +45,6 @@ function buildUserSettings(overrides: Partial<UserSettings> = {}): UserSettings 
     sidebarLibrarySorting: {field: 'name', order: 'ASC'},
     sidebarShelfSorting: {field: 'name', order: 'ASC'},
     sidebarMagicShelfSorting: {field: 'name', order: 'ASC'},
-    filterMode: 'and',
     metadataCenterViewMode: 'route',
     enableSeriesView: true,
     entityViewPreferences: {
@@ -216,24 +215,24 @@ describe('UserService', () => {
     await flushCurrentUserQuery();
     service.setInitialUser(buildUser({
       id: 21,
-      userSettings: buildUserSettings({filterMode: 'and'}),
+      userSettings: buildUserSettings({metadataCenterViewMode: 'route'}),
     }));
     await flushCurrentUserQuery();
 
-    service.updateUserSetting(21, 'filterMode', 'or');
+    service.updateUserSetting(21, 'metadataCenterViewMode', 'dialog');
 
     const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/users/21/settings'));
     expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual({key: 'filterMode', value: 'or'});
+    expect(request.request.body).toEqual({key: 'metadataCenterViewMode', value: 'dialog'});
     expect(request.request.headers.get('Content-Type')).toBe('application/json');
     request.flush('');
     await flushCurrentUserQuery();
 
-    expect(service.currentUser()?.userSettings.filterMode).toBe('or');
+    expect(service.currentUser()?.userSettings.metadataCenterViewMode).toBe('dialog');
     expect(queryClientHarness.queryClient.getQueryData<User>(CURRENT_USER_QUERY_KEY)).toEqual(
       expect.objectContaining({
         id: 21,
-        userSettings: expect.objectContaining({filterMode: 'or'}),
+        userSettings: expect.objectContaining({metadataCenterViewMode: 'dialog'}),
       }),
     );
   });

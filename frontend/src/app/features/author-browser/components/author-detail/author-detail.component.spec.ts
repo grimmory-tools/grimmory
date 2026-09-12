@@ -7,8 +7,8 @@ import {Subject, of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {BookService} from '../../../book/service/book.service';
-import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
-import {CoverScalePreferenceService} from '../../../book/components/book-browser/cover-scale-preference.service';
+import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
+import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import type {AuthorDetails} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';

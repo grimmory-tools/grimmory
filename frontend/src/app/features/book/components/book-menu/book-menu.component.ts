@@ -65,7 +65,7 @@ import {
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {legacyBookCachePatches, withLegacyBookCache} from '../../service/book-command-legacy-adapter';
-import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
 import {FileDownloadService} from '../../../../shared/service/file-download.service';
 import {BookNavigationService} from '../../service/book-navigation.service';
 import {

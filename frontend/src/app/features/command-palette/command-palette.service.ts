@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 
-import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
+import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
 import { BookPageParams, EMPTY_FACET_SELECTION } from '../book/data/book-query-params';
 import { BookSummary } from '../book/data/book-response.models';
 import { BookQueryService } from '../book/data/book-query.service';

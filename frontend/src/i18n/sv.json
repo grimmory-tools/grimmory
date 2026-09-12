@@ -516,20 +516,6 @@
       "editSort": "Redigera sortering",
       "tableSortConfig": "Sorteringskonfiguration"
     },
-    "filter": {
-      "sectionTitle": "Filterinställningar",
-      "sectionDesc": "Konfigurera standardalternativ för filterkontroller som visas i sidopanelen.",
-      "filterMode": "Filterläge",
-      "filterModeDesc": "Välj standardläge för att kombinera filter valda från höger filterpanel.",
-      "visibleFilters": "Synliga filter",
-      "visibleFiltersDesc": "Välj vilka filter som visas i sidopanelen och dra för att ändra ordning. Mellan {{min}} och {{max}} filter.",
-      "selectionCount": "{{count}} av {{total}} valda",
-      "addFilter": "Lägg till filter...",
-      "resetToDefaults": "Återställ till standard",
-      "modeAnd": "Och",
-      "modeOr": "Eller",
-      "modeSingle": "Enskild"
-    },
     "sidebarSort": {
       "sectionTitle": "Sidopanelens biblioteks- och hyllsortering",
       "sectionDesc": "Konfigurera sorteringsalternativ för dina biblioteks- och hyllnamn som visas i vänstra menysidopanelen.",
@@ -2778,68 +2764,20 @@
         "customCoverHeader": "Bekräfta anpassad omslagsgenerering"
       },
       "toast": {
-        "sortSavedSummary": "Sortering sparad",
-        "sortSavedGlobalDetail": "Standardsorteringskonfiguration sparad.",
-        "sortSavedEntityDetail": "Sorteringskonfiguration sparad för denna {{ entityType }}.",
         "regenCoverStartedSummary": "Omslagsåterskapning startad",
         "regenCoverStartedDetail": "Återskapar omslag för {{ count }} bok/böcker. Uppdatera sidan när det är klart.",
         "customCoverStartedSummary": "Anpassad omslagsgenerering startad",
         "customCoverStartedDetail": "Genererar anpassade omslag för {{ count }} bok/böcker.",
         "failedSummary": "Misslyckades",
         "regenCoverFailedDetail": "Kunde inte starta omslagsåterskapning.",
-        "customCoverFailedDetail": "Kunde inte starta anpassad omslagsgenerering.",
-        "unshelveSuccessDetail": "Böckers hyllor uppdaterade",
-        "unshelveFailedDetail": "Kunde inte uppdatera böckers hyllor",
-        "noEligibleBooksSummary": "Inga kvalificerade böcker",
-        "noEligibleBooksDetail": "Valda böcker måste vara enfilsböcker (inga alternativa format).",
-        "multipleLibrariesSummary": "Flera bibliotek",
-        "multipleLibrariesDetail": "Alla valda böcker måste vara från samma bibliotek."
+        "customCoverFailedDetail": "Kunde inte starta anpassad omslagsgenerering."
       },
       "loading": {
-        "deleting": "Raderar {{ count }} bok/böcker...",
-        "unshelving": "Tar bort {{ count }} bok/böcker från hyllor..."
+        "deleting": "Raderar {{ count }} bok/böcker..."
       },
       "labels": {
         "allBooks": "Alla böcker",
-        "unshelvedBooks": "Osorterade böcker",
-        "unshelvedBooksFiltered": "Osorterade böcker (filtrerade)",
-        "filteredSuffix": "(Filtrerade)",
-        "seriesCollapsedInfo": "Visar {{ count }} {{ itemWord }} (serier kollapsade)",
-        "item": "objekt",
-        "items": "objekt",
-        "selected": "valda",
-        "setAsDefault": "Ange som standard?",
-        "save": "Spara",
-        "collapseSeries": "Kollapsa serier",
-        "gridColumns": "Rutnätskolumner",
-        "bookTypeOverlay": "Filformats-overlay",
-        "noBooks": "Denna samling har inga böcker!",
-        "failedLibrary": "Kunde inte ladda bibliotekets böcker!",
-        "failedShelf": "Kunde inte ladda hyllans böcker!",
-        "activeFilters": "{{ count }} aktiva filter",
-        "failedBooks": ""
-      },
-      "tooltip": {
-        "clearFilters": "Rensa tillämpade filter",
-        "visibleColumns": "Synliga kolumner",
-        "selectSorting": "Välj sortering",
-        "toggleView": "Växla mellan rutnäts- och tabellvy",
-        "search": "Sök",
-        "toggleSidebar": "Växla sidopanelfilter",
-        "metadataActions": "Metadataåtgärder",
-        "assignToShelf": "Tilldela till hylla",
-        "removeFromShelf": "Ta bort från denna hylla",
-        "lockUnlockMetadata": "Lås/lås upp metadata",
-        "organizeFiles": "Organisera filer",
-        "attachToBook": "Bifoga till annan bok",
-        "moreActions": "Fler åtgärder",
-        "selectAll": "Välj alla böcker",
-        "deselectAll": "Avmarkera alla böcker",
-        "deleteSelected": "Radera valda böcker"
-      },
-      "placeholder": {
-        "selectColumns": "Välj kolumner",
-        "search": "Titel, författare, serie, genre eller ISBN..."
+        "unshelvedBooks": "Osorterade böcker"
       }
     },
     "card": {
@@ -3123,48 +3061,12 @@
         "deletingLibrary": "Raderar biblioteket '{{ name }}'..."
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "Läst",
-        "title": "Titel",
-        "authors": "Författare",
-        "publisher": "Förlag",
-        "seriesName": "Serie",
-        "seriesNumber": "Serie #",
-        "categories": "Genrer",
-        "publishedDate": "Utgiven",
-        "lastReadTime": "Senast läst",
-        "addedOn": "Tillagd",
-        "fileName": "Filnamn",
-        "fileSizeKb": "Filstorlek",
-        "language": "Språk",
-        "isbn": "ISBN",
-        "pageCount": "Sidor",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
-      },
-      "toast": {
-        "savedSummary": "Inställningar sparade",
-        "savedDetail": "Din kolumnlayout har sparats."
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "Omslagsstorlek sparad",
         "savedDetail": "Omslagsstorlek inställd på {{ scale }}x.",
         "saveFailedSummary": "Sparning misslyckades",
         "saveFailedDetail": "Kunde inte spara omslagsstorleksinställning lokalt."
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "Sparning misslyckades",
-        "saveFailedDetail": "Kunde inte spara sidopanelfilterinställning lokalt."
       }
     },
     "reviews": {
@@ -3281,41 +3183,7 @@
       "supportedFormats": ""
     },
     "filter": {
-      "title": "Filter",
       "showingFirst100": "Visar de första 100 objekten",
-      "footerNote": "Obs: De 100 främsta objekten visas per filterkategori",
-      "labels": {
-        "author": "Författare",
-        "category": "Genre",
-        "series": "Serie",
-        "bookType": "Filformat",
-        "readStatus": "Lässtatus",
-        "personalRating": "Personligt betyg",
-        "publisher": "Förlag",
-        "matchScore": "Metadatamatchningspoäng",
-        "library": "Bibliotek",
-        "shelf": "Hylla",
-        "shelfStatus": "Hyllstatus",
-        "tag": "Tagg",
-        "publishedDate": "Utgivningsår",
-        "fileSize": "Filstorlek",
-        "amazonRating": "Amazon-betyg",
-        "goodreadsRating": "Goodreads-betyg",
-        "hardcoverRating": "Hardcover-betyg",
-        "language": "Språk",
-        "pageCount": "Sidantal",
-        "mood": "Stämning",
-        "ageRating": "Åldersbetyg",
-        "contentRating": "Innehållsbetyg",
-        "narrator": "Uppläsare",
-        "comicCharacter": "Serietidningskaraktär",
-        "comicTeam": "Serietidningsteam",
-        "comicLocation": "Serietidningsplats",
-        "comicCreator": "Serietidningsskapare",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
-      },
       "readStatus": {
         "unread": "Oläst",
         "reading": "Läser",
@@ -3368,14 +3236,6 @@
       "shelfStatus": {
         "shelved": "Hyllad",
         "unshelved": "Osorterad"
-      },
-      "comicRoles": {
-        "penciller": "Tecknare",
-        "inker": "Tuschare",
-        "colorist": "Kolorist",
-        "letterer": "Textsättare",
-        "coverArtist": "Omslagskonstnär",
-        "editor": "Redaktör"
       }
     },
     "shelfAssigner": {
@@ -3438,27 +3298,6 @@
         "updateFailedDetail": "Ett fel uppstod vid uppdatering av hyllan. Försök igen."
       }
     },
-    "table": {
-      "bookCoverAlt": "Bokomslag",
-      "statusWithPrefix": "Status: {{ status }}",
-      "locked": "Låst",
-      "unlocked": "Upplåst",
-      "toast": {
-        "metadataLockedSummary": "Metadata låst",
-        "metadataLockedDetail": "Bokmetadata har låsts.",
-        "metadataUnlockedSummary": "Metadata upplåst",
-        "metadataUnlockedDetail": "Bokmetadata har låsts upp.",
-        "lockFailedSummary": "Låsning misslyckades",
-        "lockFailedDetail": "Ett fel uppstod vid låsning av metadata.",
-        "unlockFailedSummary": "Upplåsning misslyckades",
-        "unlockFailedDetail": "Ett fel uppstod vid upplåsning av metadata."
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
-    },
     "lockUnlockDialog": {
       "title": "Lås eller lås upp metadata",
       "selectedCount": "{{ count }} bok/böcker valda",
@@ -3479,42 +3318,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "Sorteringsordning",
-      "removeTooltip": "Ta bort",
-      "addSortFieldPlaceholder": "Lägg till sorteringsfält...",
-      "saveAsDefault": "Spara som standard",
-      "ascendingTooltip": "Stigande - klicka för att ändra",
-      "descendingTooltip": "Fallande - klicka för att ändra",
-      "options": {
-        "title": "Titel",
-        "fileName": "Filnamn",
-        "filePath": "Filsökväg",
-        "author": "Författare",
-        "authorSurnameVorname": "Författare (efternamn)",
-        "seriesName": "Serienamn",
-        "seriesNumber": "Serienummer",
-        "lastReadTime": "Senast läst",
-        "personalRating": "Personligt betyg",
-        "addedOn": "Tillagd",
-        "fileSizeKb": "Filstorlek",
-        "locked": "Låst",
-        "publisher": "Förlag",
-        "publishedDate": "Utgivningsdatum",
-        "readStatus": "Lässtatus",
-        "dateFinished": "Avslutad datum",
-        "readingProgress": "Läsframsteg",
-        "bookType": "Filformat",
-        "amazonRating": "Amazon-betyg",
-        "amazonReviewCount": "Amazon #",
-        "goodreadsRating": "Goodreads-betyg",
-        "goodreadsReviewCount": "Goodreads #",
-        "hardcoverRating": "Hardcover-betyg",
-        "hardcoverReviewCount": "Hardcover #",
-        "ranobedbRating": "Ranobedb-betyg",
-        "narrator": "Uppläsare",
-        "pageCount": "Sidor",
-        "random": "Slumpmässig"
-      }
+      "saveAsDefault": "Spara som standard"
     },
     "fileAttacher": {
       "title": "Bifoga fil till annan bok",

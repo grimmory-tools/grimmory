@@ -516,20 +516,6 @@
       "editSort": "编辑排序",
       "tableSortConfig": "排序配置"
     },
-    "filter": {
-      "sectionTitle": "筛选偏好",
-      "sectionDesc": "配置侧边栏中显示的筛选控件的默认选项。",
-      "filterMode": "筛选模式",
-      "filterModeDesc": "选择从右侧筛选侧边栏中选择的筛选器的默认组合模式。",
-      "visibleFilters": "可见筛选器",
-      "visibleFiltersDesc": "选择哪些筛选器出现在侧边栏中，并拖动以重新排序。{{min}} 到 {{max}} 个筛选器。",
-      "selectionCount": "已选择 {{count}}/{{total}}",
-      "addFilter": "添加筛选器...",
-      "resetToDefaults": "重置为默认值",
-      "modeAnd": "且",
-      "modeOr": "或",
-      "modeSingle": "单选"
-    },
     "sidebarSort": {
       "sectionTitle": "侧边栏书库和书架排序偏好",
       "sectionDesc": "配置左侧菜单侧边栏中显示的书库和书架名称的排序选项。",
@@ -2778,68 +2764,20 @@
         "customCoverHeader": "确认生成自定义封面"
       },
       "toast": {
-        "sortSavedSummary": "排序已保存",
-        "sortSavedGlobalDetail": "默认排序配置已保存。",
-        "sortSavedEntityDetail": "此 {{ entityType }} 的排序配置已保存。",
         "regenCoverStartedSummary": "封面重新生成已开始",
         "regenCoverStartedDetail": "正在为 {{ count }} 本书重新生成封面。完成后请刷新页面。",
         "customCoverStartedSummary": "自定义封面生成已开始",
         "customCoverStartedDetail": "正在为 {{ count }} 本书生成自定义封面。",
         "failedSummary": "失败",
         "regenCoverFailedDetail": "无法开始封面重新生成。",
-        "customCoverFailedDetail": "无法开始自定义封面生成。",
-        "unshelveSuccessDetail": "图书书架已更新",
-        "unshelveFailedDetail": "更新图书书架失败",
-        "noEligibleBooksSummary": "没有符合条件的图书",
-        "noEligibleBooksDetail": "所选图书必须是单文件图书（没有替代格式）。",
-        "multipleLibrariesSummary": "多个书库",
-        "multipleLibrariesDetail": "所有选中的图书必须来自同一个书库。"
+        "customCoverFailedDetail": "无法开始自定义封面生成。"
       },
       "loading": {
-        "deleting": "正在删除 {{ count }} 本书...",
-        "unshelving": "正在移出 {{ count }} 本书..."
+        "deleting": "正在删除 {{ count }} 本书..."
       },
       "labels": {
         "allBooks": "所有图书",
-        "unshelvedBooks": "未上架的图书",
-        "unshelvedBooksFiltered": "未上架的图书（已筛选）",
-        "filteredSuffix": "（已筛选）",
-        "seriesCollapsedInfo": "显示 {{ count }} 个{{ itemWord }}（系列已折叠）",
-        "item": "项目",
-        "items": "项目",
-        "selected": "已选择",
-        "setAsDefault": "设为默认？",
-        "save": "保存",
-        "collapseSeries": "折叠系列",
-        "gridColumns": "网格列数",
-        "bookTypeOverlay": "图书类型标识",
-        "noBooks": "此集合没有图书！",
-        "failedLibrary": "加载书库图书失败！",
-        "failedShelf": "加载书架图书失败！",
-        "activeFilters": "{{ count }} 个活跃筛选条件",
-        "failedBooks": ""
-      },
-      "tooltip": {
-        "clearFilters": "清除已应用的筛选条件",
-        "visibleColumns": "可见列",
-        "selectSorting": "选择排序",
-        "toggleView": "在网格视图和表格视图之间切换",
-        "search": "搜索",
-        "toggleSidebar": "切换侧边栏筛选",
-        "metadataActions": "元数据操作",
-        "assignToShelf": "分配到书架",
-        "removeFromShelf": "从此书架移除",
-        "lockUnlockMetadata": "锁定/解锁元数据",
-        "organizeFiles": "整理文件",
-        "attachToBook": "附加到其他图书",
-        "moreActions": "更多操作",
-        "selectAll": "选择所有图书",
-        "deselectAll": "取消选择所有图书",
-        "deleteSelected": "删除选中的图书"
-      },
-      "placeholder": {
-        "selectColumns": "选择列",
-        "search": "标题、作者、系列、类型或 ISBN..."
+        "unshelvedBooks": "未上架的图书"
       }
     },
     "card": {
@@ -3121,48 +3059,12 @@
         "deletingLibrary": "正在删除书库「{{ name }}」..."
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "阅读",
-        "title": "标题",
-        "authors": "作者",
-        "publisher": "出版社",
-        "seriesName": "系列",
-        "seriesNumber": "系列编号",
-        "categories": "类型",
-        "publishedDate": "出版日期",
-        "lastReadTime": "最后阅读",
-        "addedOn": "添加时间",
-        "fileName": "文件名",
-        "fileSizeKb": "文件大小",
-        "language": "语言",
-        "isbn": "ISBN",
-        "pageCount": "页数",
-        "amazonRating": "亚马逊",
-        "amazonReviewCount": "亚马逊 #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
-      },
-      "toast": {
-        "savedSummary": "偏好已保存",
-        "savedDetail": "您的列布局已保存。"
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "封面大小已保存",
         "savedDetail": "封面大小设为 {{ scale }}x。",
         "saveFailedSummary": "保存失败",
         "saveFailedDetail": "无法在本地保存封面大小偏好。"
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "保存失败",
-        "saveFailedDetail": "无法在本地保存侧边栏筛选偏好。"
       }
     },
     "reviews": {
@@ -3279,41 +3181,7 @@
       "supportedFormats": ""
     },
     "filter": {
-      "title": "筛选条件",
       "showingFirst100": "显示前 100 项",
-      "footerNote": "注意：每个筛选类别最多显示 100 项",
-      "labels": {
-        "author": "作者",
-        "category": "类型",
-        "series": "系列",
-        "bookType": "图书类型",
-        "readStatus": "阅读状态",
-        "personalRating": "个人评分",
-        "publisher": "出版社",
-        "matchScore": "元数据匹配分数",
-        "library": "书库",
-        "shelf": "书架",
-        "shelfStatus": "书架状态",
-        "tag": "标签",
-        "publishedDate": "出版年份",
-        "fileSize": "文件大小",
-        "amazonRating": "亚马逊评分",
-        "goodreadsRating": "Goodreads 评分",
-        "hardcoverRating": "Hardcover 评分",
-        "language": "语言",
-        "pageCount": "页数",
-        "mood": "情绪",
-        "ageRating": "年龄分级",
-        "contentRating": "内容分级",
-        "narrator": "讲述者",
-        "comicCharacter": "漫画角色",
-        "comicTeam": "漫画团队",
-        "comicLocation": "漫画地点",
-        "comicCreator": "漫画创作者",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
-      },
       "readStatus": {
         "unread": "未读",
         "reading": "阅读中",
@@ -3366,14 +3234,6 @@
       "shelfStatus": {
         "shelved": "已上架",
         "unshelved": "未上架"
-      },
-      "comicRoles": {
-        "penciller": "铅笔画师",
-        "inker": "墨线画师",
-        "colorist": "上色师",
-        "letterer": "文字师",
-        "coverArtist": "封面画师",
-        "editor": "编辑"
       }
     },
     "shelfAssigner": {
@@ -3436,27 +3296,6 @@
         "updateFailedDetail": "更新书架时发生错误。请重试。"
       }
     },
-    "table": {
-      "bookCoverAlt": "图书封面",
-      "statusWithPrefix": "状态：{{ status }}",
-      "locked": "已锁定",
-      "unlocked": "已解锁",
-      "toast": {
-        "metadataLockedSummary": "元数据已锁定",
-        "metadataLockedDetail": "图书元数据已成功锁定。",
-        "metadataUnlockedSummary": "元数据已解锁",
-        "metadataUnlockedDetail": "图书元数据已成功解锁。",
-        "lockFailedSummary": "锁定失败",
-        "lockFailedDetail": "锁定元数据时发生错误。",
-        "unlockFailedSummary": "解锁失败",
-        "unlockFailedDetail": "解锁元数据时发生错误。"
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
-    },
     "lockUnlockDialog": {
       "title": "锁定或解锁元数据",
       "selectedCount": "已选择 {{ count }} 本书",
@@ -3477,42 +3316,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "排序顺序",
-      "removeTooltip": "移除",
-      "addSortFieldPlaceholder": "添加排序字段...",
-      "saveAsDefault": "保存为默认",
-      "ascendingTooltip": "升序 - 点击更改",
-      "descendingTooltip": "降序 - 点击更改",
-      "options": {
-        "title": "标题",
-        "fileName": "文件名",
-        "filePath": "文件路径",
-        "author": "作者",
-        "authorSurnameVorname": "作者（姓氏）",
-        "seriesName": "系列名称",
-        "seriesNumber": "系列编号",
-        "lastReadTime": "最后阅读",
-        "personalRating": "个人评分",
-        "addedOn": "添加时间",
-        "fileSizeKb": "文件大小",
-        "locked": "已锁定",
-        "publisher": "出版社",
-        "publishedDate": "出版日期",
-        "readStatus": "阅读状态",
-        "dateFinished": "完成日期",
-        "readingProgress": "阅读进度",
-        "bookType": "图书类型",
-        "amazonRating": "亚马逊评分",
-        "amazonReviewCount": "亚马逊 #",
-        "goodreadsRating": "Goodreads 评分",
-        "goodreadsReviewCount": "Goodreads #",
-        "hardcoverRating": "Hardcover 评分",
-        "hardcoverReviewCount": "Hardcover #",
-        "ranobedbRating": "Ranobedb 评分",
-        "narrator": "讲述者",
-        "pageCount": "页数",
-        "random": "随机"
-      }
+      "saveAsDefault": "保存为默认"
     },
     "fileAttacher": {
       "title": "将文件附加到其他图书",

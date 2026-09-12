@@ -10,7 +10,7 @@ import {ScrollerConfig, ScrollerType} from '../../models/dashboard-config.model'
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {LibraryService} from '../../../book/service/library.service';
-import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
+import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import {DashboardBookService} from '../../services/dashboard-book.service';
 import {Book} from '../../../book/model/book.model';
 

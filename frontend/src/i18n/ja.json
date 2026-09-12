@@ -516,20 +516,6 @@
       "editSort": "ソートを編集",
       "tableSortConfig": "ソート設定"
     },
-    "filter": {
-      "sectionTitle": "フィルター設定",
-      "sectionDesc": "サイドバーに表示されるフィルターコントロールのデフォルトオプションを設定します。",
-      "filterMode": "フィルターモード",
-      "filterModeDesc": "右側のフィルターサイドバーから選択したフィルターを組み合わせるデフォルトモードを選択します。",
-      "visibleFilters": "表示フィルター",
-      "visibleFiltersDesc": "サイドバーに表示するフィルターを選択し、ドラッグで並べ替えます。{{min}}～{{max}}個のフィルター。",
-      "selectionCount": "{{count}} / {{total}} 選択中",
-      "addFilter": "フィルターを追加...",
-      "resetToDefaults": "デフォルトに戻す",
-      "modeAnd": "AND",
-      "modeOr": "OR",
-      "modeSingle": "単一"
-    },
     "sidebarSort": {
       "sectionTitle": "サイドバーのライブラリとシェルフのソート設定",
       "sectionDesc": "左メニューサイドバーに表示されるライブラリとシェルフ名のソートオプションを設定します。",
@@ -2778,68 +2764,20 @@
         "customCoverHeader": "カスタムカバー生成の確認"
       },
       "toast": {
-        "sortSavedSummary": "ソートを保存しました",
-        "sortSavedGlobalDetail": "デフォルトのソート設定が保存されました。",
-        "sortSavedEntityDetail": "この{{ entityType }}のソート設定が保存されました。",
         "regenCoverStartedSummary": "カバー再生成を開始しました",
         "regenCoverStartedDetail": "{{ count }}冊の本のカバーを再生成中です。完了後にページを更新してください。",
         "customCoverStartedSummary": "カスタムカバー生成を開始しました",
         "customCoverStartedDetail": "{{ count }}冊の本のカスタムカバーを生成中です。",
         "failedSummary": "失敗",
         "regenCoverFailedDetail": "カバー再生成を開始できませんでした。",
-        "customCoverFailedDetail": "カスタムカバー生成を開始できませんでした。",
-        "unshelveSuccessDetail": "本のシェルフが更新されました",
-        "unshelveFailedDetail": "本のシェルフの更新に失敗しました",
-        "noEligibleBooksSummary": "対象の本がありません",
-        "noEligibleBooksDetail": "選択した本は単一ファイルの本（代替フォーマットなし）である必要があります。",
-        "multipleLibrariesSummary": "複数のライブラリ",
-        "multipleLibrariesDetail": "選択した本はすべて同じライブラリのものである必要があります。"
+        "customCoverFailedDetail": "カスタムカバー生成を開始できませんでした。"
       },
       "loading": {
-        "deleting": "{{ count }}冊の本を削除中...",
-        "unshelving": "{{ count }}冊の本をシェルフから削除中..."
+        "deleting": "{{ count }}冊の本を削除中..."
       },
       "labels": {
         "allBooks": "すべての本",
-        "unshelvedBooks": "未分類の本",
-        "unshelvedBooksFiltered": "未分類の本（フィルター適用中）",
-        "filteredSuffix": "（フィルター適用中）",
-        "seriesCollapsedInfo": "{{ count }}{{ itemWord }}を表示中（シリーズを折りたたみ）",
-        "item": "件",
-        "items": "件",
-        "selected": "選択中",
-        "setAsDefault": "デフォルトに設定しますか？",
-        "save": "保存",
-        "collapseSeries": "シリーズを折りたたむ",
-        "gridColumns": "グリッド列数",
-        "bookTypeOverlay": "本の種類オーバーレイ",
-        "noBooks": "このコレクションには本がありません！",
-        "failedLibrary": "ライブラリの本の読み込みに失敗しました！",
-        "failedShelf": "シェルフの本の読み込みに失敗しました！",
-        "activeFilters": "{{ count }}件のアクティブフィルター",
-        "failedBooks": ""
-      },
-      "tooltip": {
-        "clearFilters": "適用されたフィルターをクリア",
-        "visibleColumns": "表示列",
-        "selectSorting": "ソートを選択",
-        "toggleView": "グリッドとテーブル表示を切替",
-        "search": "検索",
-        "toggleSidebar": "サイドバーフィルターの切替",
-        "metadataActions": "メタデータ操作",
-        "assignToShelf": "シェルフに割り当て",
-        "removeFromShelf": "このシェルフから削除",
-        "lockUnlockMetadata": "メタデータのロック/解除",
-        "organizeFiles": "ファイルを整理",
-        "attachToBook": "別の本に添付",
-        "moreActions": "その他の操作",
-        "selectAll": "すべての本を選択",
-        "deselectAll": "すべての本の選択を解除",
-        "deleteSelected": "選択した本を削除"
-      },
-      "placeholder": {
-        "selectColumns": "列を選択",
-        "search": "タイトル、著者、シリーズ、ジャンル、またはISBN..."
+        "unshelvedBooks": "未分類の本"
       }
     },
     "card": {
@@ -3122,48 +3060,12 @@
         "deletingLibrary": "ライブラリ「{{ name }}」を削除中..."
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "読了",
-        "title": "タイトル",
-        "authors": "著者",
-        "publisher": "出版社",
-        "seriesName": "シリーズ",
-        "seriesNumber": "シリーズ #",
-        "categories": "ジャンル",
-        "publishedDate": "出版日",
-        "lastReadTime": "最終閲覧",
-        "addedOn": "追加日",
-        "fileName": "ファイル名",
-        "fileSizeKb": "ファイルサイズ",
-        "language": "言語",
-        "isbn": "ISBN",
-        "pageCount": "ページ数",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
-      },
-      "toast": {
-        "savedSummary": "設定を保存しました",
-        "savedDetail": "列レイアウトが保存されました。"
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "カバーサイズを保存しました",
         "savedDetail": "カバーサイズが{{ scale }}xに設定されました。",
         "saveFailedSummary": "保存に失敗しました",
         "saveFailedDetail": "カバーサイズの設定をローカルに保存できませんでした。"
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "保存に失敗しました",
-        "saveFailedDetail": "サイドバーフィルターの設定をローカルに保存できませんでした。"
       }
     },
     "reviews": {
@@ -3280,41 +3182,7 @@
       "supportedFormats": ""
     },
     "filter": {
-      "title": "フィルター",
       "showingFirst100": "最初の100件を表示",
-      "footerNote": "注意: フィルターカテゴリごとに上位100件が表示されます",
-      "labels": {
-        "author": "著者",
-        "category": "ジャンル",
-        "series": "シリーズ",
-        "bookType": "本の種類",
-        "readStatus": "読書状態",
-        "personalRating": "個人評価",
-        "publisher": "出版社",
-        "matchScore": "メタデータマッチスコア",
-        "library": "ライブラリ",
-        "shelf": "シェルフ",
-        "shelfStatus": "シェルフ状態",
-        "tag": "タグ",
-        "publishedDate": "出版年",
-        "fileSize": "ファイルサイズ",
-        "amazonRating": "Amazon評価",
-        "goodreadsRating": "Goodreads評価",
-        "hardcoverRating": "Hardcover評価",
-        "language": "言語",
-        "pageCount": "ページ数",
-        "mood": "ムード",
-        "ageRating": "年齢制限",
-        "contentRating": "コンテンツレーティング",
-        "narrator": "ナレーター",
-        "comicCharacter": "コミックキャラクター",
-        "comicTeam": "コミックチーム",
-        "comicLocation": "コミックロケーション",
-        "comicCreator": "コミッククリエイター",
-        "lubimyczytacRating": "Lubimyczytac評価",
-        "ranobedbRating": "Ranobedb評価",
-        "audibleRating": "Audible評価"
-      },
       "readStatus": {
         "unread": "未読",
         "reading": "読書中",
@@ -3367,14 +3235,6 @@
       "shelfStatus": {
         "shelved": "シェルフに登録済み",
         "unshelved": "未分類"
-      },
-      "comicRoles": {
-        "penciller": "ペンシラー",
-        "inker": "インカー",
-        "colorist": "カラリスト",
-        "letterer": "レタラー",
-        "coverArtist": "カバーアーティスト",
-        "editor": "エディター"
       }
     },
     "shelfAssigner": {
@@ -3437,27 +3297,6 @@
         "updateFailedDetail": "シェルフの更新中にエラーが発生しました。もう一度お試しください。"
       }
     },
-    "table": {
-      "bookCoverAlt": "ブックカバー",
-      "statusWithPrefix": "状態: {{ status }}",
-      "locked": "ロック済み",
-      "unlocked": "ロック解除",
-      "toast": {
-        "metadataLockedSummary": "メタデータをロックしました",
-        "metadataLockedDetail": "ブックメタデータが正常にロックされました。",
-        "metadataUnlockedSummary": "メタデータのロックを解除しました",
-        "metadataUnlockedDetail": "ブックメタデータのロックが正常に解除されました。",
-        "lockFailedSummary": "ロックに失敗しました",
-        "lockFailedDetail": "メタデータのロック中にエラーが発生しました。",
-        "unlockFailedSummary": "ロック解除に失敗しました",
-        "unlockFailedDetail": "メタデータのロック解除中にエラーが発生しました。"
-      },
-      "selectBookFallback": "書籍を選択",
-      "noRating": "評価なし",
-      "ratingOutOf": "",
-      "selectBook": "",
-      "label": ""
-    },
     "lockUnlockDialog": {
       "title": "メタデータのロック/解除",
       "selectedCount": "{{ count }}冊選択中",
@@ -3478,42 +3317,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "ソート順",
-      "removeTooltip": "削除",
-      "addSortFieldPlaceholder": "ソートフィールドを追加...",
-      "saveAsDefault": "デフォルトとして保存",
-      "ascendingTooltip": "昇順 - クリックで変更",
-      "descendingTooltip": "降順 - クリックで変更",
-      "options": {
-        "title": "タイトル",
-        "fileName": "ファイル名",
-        "filePath": "ファイルパス",
-        "author": "著者",
-        "authorSurnameVorname": "著者（姓）",
-        "seriesName": "シリーズ名",
-        "seriesNumber": "シリーズ番号",
-        "lastReadTime": "最終閲覧",
-        "personalRating": "個人評価",
-        "addedOn": "追加日",
-        "fileSizeKb": "ファイルサイズ",
-        "locked": "ロック",
-        "publisher": "出版社",
-        "publishedDate": "出版日",
-        "readStatus": "読書状態",
-        "dateFinished": "完了日",
-        "readingProgress": "読書進捗",
-        "bookType": "本の種類",
-        "amazonRating": "Amazon評価",
-        "amazonReviewCount": "Amazon #",
-        "goodreadsRating": "Goodreads評価",
-        "goodreadsReviewCount": "Goodreads #",
-        "hardcoverRating": "Hardcover評価",
-        "hardcoverReviewCount": "Hardcover #",
-        "ranobedbRating": "Ranobedb評価",
-        "narrator": "ナレーター",
-        "pageCount": "ページ数",
-        "random": "ランダム"
-      }
+      "saveAsDefault": "デフォルトとして保存"
     },
     "fileAttacher": {
       "title": "ファイルを別の本に添付",

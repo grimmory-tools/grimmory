@@ -516,20 +516,6 @@
       "editSort": "Изменить сортировку",
       "tableSortConfig": "Конфигурация сортировки"
     },
-    "filter": {
-      "sectionTitle": "Настройки фильтров",
-      "sectionDesc": "Настройте параметры по умолчанию для фильтров, отображаемых в боковой панели.",
-      "filterMode": "Режим фильтрации",
-      "filterModeDesc": "Выберите режим по умолчанию для объединения фильтров, выбранных в правой боковой панели фильтров.",
-      "visibleFilters": "Видимые фильтры",
-      "visibleFiltersDesc": "Выберите, какие фильтры отображаются в боковой панели, и перетащите для изменения порядка. От {{min}} до {{max}} фильтров.",
-      "selectionCount": "{{count}} из {{total}} выбрано",
-      "addFilter": "Добавить фильтр...",
-      "resetToDefaults": "Сбросить по умолчанию",
-      "modeAnd": "И",
-      "modeOr": "Или",
-      "modeSingle": "Одиночный"
-    },
     "sidebarSort": {
       "sectionTitle": "Сортировка библиотек и полок в боковой панели",
       "sectionDesc": "Настройте параметры сортировки названий библиотек и полок, отображаемых в левом меню боковой панели.",
@@ -2778,68 +2764,20 @@
         "customCoverHeader": "Подтверждение генерации пользовательских обложек"
       },
       "toast": {
-        "sortSavedSummary": "Сортировка сохранена",
-        "sortSavedGlobalDetail": "Конфигурация сортировки по умолчанию сохранена.",
-        "sortSavedEntityDetail": "Конфигурация сортировки сохранена для этого {{ entityType }}.",
         "regenCoverStartedSummary": "Пересоздание обложек начато",
         "regenCoverStartedDetail": "Пересоздание обложек для {{ count }} книг(и). Обновите страницу по завершении.",
         "customCoverStartedSummary": "Генерация пользовательских обложек начата",
         "customCoverStartedDetail": "Генерация пользовательских обложек для {{ count }} книг(и).",
         "failedSummary": "Ошибка",
         "regenCoverFailedDetail": "Не удалось запустить пересоздание обложек.",
-        "customCoverFailedDetail": "Не удалось запустить генерацию пользовательских обложек.",
-        "unshelveSuccessDetail": "Полки книг обновлены",
-        "unshelveFailedDetail": "Не удалось обновить полки книг",
-        "noEligibleBooksSummary": "Нет подходящих книг",
-        "noEligibleBooksDetail": "Выбранные книги должны быть однофайловыми (без альтернативных форматов).",
-        "multipleLibrariesSummary": "Несколько библиотек",
-        "multipleLibrariesDetail": "Все выбранные книги должны быть из одной библиотеки."
+        "customCoverFailedDetail": "Не удалось запустить генерацию пользовательских обложек."
       },
       "loading": {
-        "deleting": "Удаление {{ count }} книг(и)...",
-        "unshelving": "Снятие с полки {{ count }} книг(и)..."
+        "deleting": "Удаление {{ count }} книг(и)..."
       },
       "labels": {
         "allBooks": "Все книги",
-        "unshelvedBooks": "Книги без полки",
-        "unshelvedBooksFiltered": "Книги без полки (отфильтровано)",
-        "filteredSuffix": "(Отфильтровано)",
-        "seriesCollapsedInfo": "Показано {{ count }} {{ itemWord }} (серии свёрнуты)",
-        "item": "элемент",
-        "items": "элементов",
-        "selected": "выбрано",
-        "setAsDefault": "Установить по умолчанию?",
-        "save": "Сохранить",
-        "collapseSeries": "Свернуть серии",
-        "gridColumns": "Столбцы сетки",
-        "bookTypeOverlay": "Наложение типа книги",
-        "noBooks": "В этой коллекции нет книг!",
-        "failedLibrary": "Не удалось загрузить книги библиотеки!",
-        "failedShelf": "Не удалось загрузить книги полки!",
-        "activeFilters": "{{ count }} активных фильтров",
-        "failedBooks": ""
-      },
-      "tooltip": {
-        "clearFilters": "Очистить применённые фильтры",
-        "visibleColumns": "Видимые столбцы",
-        "selectSorting": "Выбрать сортировку",
-        "toggleView": "Переключить между видом сетки и таблицы",
-        "search": "Поиск",
-        "toggleSidebar": "Переключить боковые фильтры",
-        "metadataActions": "Действия с метаданными",
-        "assignToShelf": "Добавить на полку",
-        "removeFromShelf": "Убрать с этой полки",
-        "lockUnlockMetadata": "Заблокировать/Разблокировать метаданные",
-        "organizeFiles": "Организовать файлы",
-        "attachToBook": "Прикрепить к другой книге",
-        "moreActions": "Дополнительные действия",
-        "selectAll": "Выбрать все книги",
-        "deselectAll": "Снять выделение со всех книг",
-        "deleteSelected": "Удалить выбранные книги"
-      },
-      "placeholder": {
-        "selectColumns": "Выберите столбцы",
-        "search": "Название, автор, серия, жанр или ISBN..."
+        "unshelvedBooks": "Книги без полки"
       }
     },
     "card": {
@@ -3121,48 +3059,12 @@
         "deletingLibrary": "Удаление библиотеки '{{ name }}'..."
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "Прочитано",
-        "title": "Название",
-        "authors": "Авторы",
-        "publisher": "Издательство",
-        "seriesName": "Серия",
-        "seriesNumber": "Серия №",
-        "categories": "Жанры",
-        "publishedDate": "Опубликовано",
-        "lastReadTime": "Последнее чтение",
-        "addedOn": "Добавлено",
-        "fileName": "Имя файла",
-        "fileSizeKb": "Размер файла",
-        "language": "Язык",
-        "isbn": "ISBN",
-        "pageCount": "Страницы",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ №",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR №",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC №",
-        "ranobedbRating": "Ranobedb"
-      },
-      "toast": {
-        "savedSummary": "Настройки сохранены",
-        "savedDetail": "Ваш макет столбцов сохранён."
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "Размер обложки сохранён",
         "savedDetail": "Размер обложки установлен на {{ scale }}x.",
         "saveFailedSummary": "Ошибка сохранения",
         "saveFailedDetail": "Не удалось сохранить настройку размера обложки локально."
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "Ошибка сохранения",
-        "saveFailedDetail": "Не удалось сохранить настройку бокового фильтра локально."
       }
     },
     "reviews": {
@@ -3279,41 +3181,7 @@
       "supportedFormats": ""
     },
     "filter": {
-      "title": "Фильтры",
       "showingFirst100": "Показаны первые 100 элементов",
-      "footerNote": "Примечание: отображаются 100 лучших элементов для каждой категории фильтра",
-      "labels": {
-        "author": "Автор",
-        "category": "Жанр",
-        "series": "Серия",
-        "bookType": "Тип книги",
-        "readStatus": "Статус чтения",
-        "personalRating": "Личная оценка",
-        "publisher": "Издательство",
-        "matchScore": "Оценка соответствия метаданных",
-        "library": "Библиотека",
-        "shelf": "Полка",
-        "shelfStatus": "Статус полки",
-        "tag": "Тег",
-        "publishedDate": "Год публикации",
-        "fileSize": "Размер файла",
-        "amazonRating": "Рейтинг Amazon",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "language": "Язык",
-        "pageCount": "Количество страниц",
-        "mood": "Настроение",
-        "ageRating": "Возрастной рейтинг",
-        "contentRating": "Рейтинг контента",
-        "narrator": "Чтец",
-        "comicCharacter": "Персонаж комикса",
-        "comicTeam": "Команда комикса",
-        "comicLocation": "Место действия комикса",
-        "comicCreator": "Создатель комикса",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "lubimyczytacRating": ""
-      },
       "readStatus": {
         "unread": "Не прочитано",
         "reading": "Читаю",
@@ -3366,14 +3234,6 @@
       "shelfStatus": {
         "shelved": "На полке",
         "unshelved": "Без полки"
-      },
-      "comicRoles": {
-        "penciller": "Карандашист",
-        "inker": "Контурист",
-        "colorist": "Колорист",
-        "letterer": "Леттерер",
-        "coverArtist": "Художник обложки",
-        "editor": "Редактор"
       }
     },
     "shelfAssigner": {
@@ -3436,27 +3296,6 @@
         "updateFailedDetail": "Произошла ошибка при обновлении полки. Пожалуйста, попробуйте снова."
       }
     },
-    "table": {
-      "bookCoverAlt": "Обложка книги",
-      "statusWithPrefix": "Статус: {{ status }}",
-      "locked": "Заблокировано",
-      "unlocked": "Разблокировано",
-      "toast": {
-        "metadataLockedSummary": "Метаданные заблокированы",
-        "metadataLockedDetail": "Метаданные книги успешно заблокированы.",
-        "metadataUnlockedSummary": "Метаданные разблокированы",
-        "metadataUnlockedDetail": "Метаданные книги успешно разблокированы.",
-        "lockFailedSummary": "Ошибка блокировки",
-        "lockFailedDetail": "Произошла ошибка при блокировке метаданных.",
-        "unlockFailedSummary": "Ошибка разблокировки",
-        "unlockFailedDetail": "Произошла ошибка при разблокировке метаданных."
-      },
-      "noRating": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "label": ""
-    },
     "lockUnlockDialog": {
       "title": "Заблокировать или разблокировать метаданные",
       "selectedCount": "{{ count }} книг(а/и) выбрано",
@@ -3477,42 +3316,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "Порядок сортировки",
-      "removeTooltip": "Удалить",
-      "addSortFieldPlaceholder": "Добавить поле сортировки...",
-      "saveAsDefault": "Сохранить по умолчанию",
-      "ascendingTooltip": "По возрастанию, нажмите для изменения",
-      "descendingTooltip": "По убыванию, нажмите для изменения",
-      "options": {
-        "title": "Название",
-        "fileName": "Имя файла",
-        "filePath": "Путь к файлу",
-        "author": "Автор",
-        "authorSurnameVorname": "Автор (фамилия)",
-        "seriesName": "Название серии",
-        "seriesNumber": "Номер в серии",
-        "lastReadTime": "Последнее чтение",
-        "personalRating": "Личная оценка",
-        "addedOn": "Дата добавления",
-        "fileSizeKb": "Размер файла",
-        "locked": "Заблокировано",
-        "publisher": "Издательство",
-        "publishedDate": "Дата публикации",
-        "readStatus": "Статус чтения",
-        "dateFinished": "Дата завершения",
-        "readingProgress": "Прогресс чтения",
-        "bookType": "Тип книги",
-        "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "Amazon №",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "Goodreads №",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "Hardcover №",
-        "ranobedbRating": "Рейтинг Ranobedb",
-        "narrator": "Чтец",
-        "pageCount": "Страницы",
-        "random": "Случайно"
-      }
+      "saveAsDefault": "Сохранить по умолчанию"
     },
     "fileAttacher": {
       "title": "Прикрепить файл к другой книге",

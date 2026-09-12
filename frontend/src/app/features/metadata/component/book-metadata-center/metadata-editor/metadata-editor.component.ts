@@ -23,7 +23,7 @@ import {DatePicker} from "@openng/optimus-ui/datepicker";
 import {Textarea} from "@openng/optimus-ui/textarea";
 import {Select} from "@openng/optimus-ui/select";
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {BookDialogHelperService} from "../../../../book/components/book-browser/book-dialog-helper.service";
+import {BookDialogHelperService} from "../../../../book/service/book-dialog-helper.service";
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {Router} from '@angular/router';

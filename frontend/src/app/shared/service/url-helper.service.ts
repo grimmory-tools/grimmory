@@ -108,20 +108,4 @@ export class UrlHelperService {
 
     return this.router.createUrlTree([`/${baseUrl}/book/${book.id}`], undefined);
   }
-
-  filterBooksBy(filterKey: string, filterValue: string) {
-    if (filterKey === 'series') {
-      return this.router.createUrlTree(['/series', filterValue])
-    }
-
-    return this.router.createUrlTree(['/all-books'], {
-      queryParams: {
-        view: 'grid',
-        sort: 'title',
-        direction: 'asc',
-        sidebar: true,
-        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
-      }
-    });
-  }
 }

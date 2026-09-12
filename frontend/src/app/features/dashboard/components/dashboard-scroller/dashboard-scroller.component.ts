@@ -2,8 +2,8 @@ import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core
 import {NgClass} from '@angular/common';
 import {Book} from '../../../book/model/book.model';
 import {ScrollerType} from '../../models/dashboard-config.model';
-import {BookCardComponent} from '../../../book/components/book-browser/book-card/book-card.component';
-import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
+import {LegacyBookCardComponent} from '../../../book/components/legacy-book-card/legacy-book-card.component';
+import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
@@ -12,7 +12,7 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
   templateUrl: './dashboard-scroller.component.html',
   styleUrls: ['./dashboard-scroller.component.scss'],
   imports: [
-    BookCardComponent,
+    LegacyBookCardComponent,
     NgClass,
     TranslocoDirective,
     TranslocoPipe

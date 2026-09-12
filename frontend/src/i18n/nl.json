@@ -550,20 +550,6 @@
       "savedDetail": ""
     },
     "saveFailedDetail": "",
-    "filter": {
-      "selectionCount": "",
-      "modeAnd": "",
-      "filterMode": "",
-      "sectionDesc": "",
-      "addFilter": "",
-      "filterModeDesc": "",
-      "modeOr": "",
-      "modeSingle": "",
-      "resetToDefaults": "",
-      "visibleFiltersDesc": "",
-      "sectionTitle": "",
-      "visibleFilters": ""
-    },
     "sidebarSort": {
       "library": "",
       "selectSorting": "",
@@ -2777,68 +2763,20 @@
         "customCoverHeader": "Bevestig aangepaste omslag genereren"
       },
       "toast": {
-        "sortSavedSummary": "Sorteren op opgeslagen",
-        "sortSavedGlobalDetail": "Standaard sorteerconfiguratie opgeslagen.",
-        "sortSavedEntityDetail": "Sorteerconfiguratie opgeslagen voor deze {{ entityType }}.",
         "regenCoverStartedSummary": "Omslag regeneratie gestart",
         "regenCoverStartedDetail": "Omslagen voor {{ count }} boek(en) opnieuw genereren. Vernieuw de pagina wanneer u klaar bent.",
         "customCoverStartedSummary": "Aangepaste omslaggeneratie gestart",
         "customCoverStartedDetail": "Aangepaste omslagen genereren voor {{ count }} boek(en).",
         "failedSummary": "Mislukt",
         "regenCoverFailedDetail": "Het opnieuw genereren van de omslag kon niet worden gestart.",
-        "customCoverFailedDetail": "Het genereren van een aangepaste omslag kon niet worden gestart.",
-        "unshelveSuccessDetail": "Boekenplanken bijgewerkt",
-        "unshelveFailedDetail": "Kan boekenplanken niet bijwerken",
-        "noEligibleBooksSummary": "Geen in aanmerking komende boeken",
-        "noEligibleBooksDetail": "Geselecteerde boeken moeten boeken in één bestand zijn (geen alternatieve formaten).",
-        "multipleLibrariesSummary": "Meerdere bibliotheken",
-        "multipleLibrariesDetail": "Alle geselecteerde boeken moeten uit dezelfde bibliotheek komen."
+        "customCoverFailedDetail": "Het genereren van een aangepaste omslag kon niet worden gestart."
       },
       "loading": {
-        "deleting": "{{ count }} boek(en) verwijderen...",
-        "unshelving": ""
+        "deleting": "{{ count }} boek(en) verwijderen..."
       },
       "labels": {
-        "activeFilters": "{{ count }} Actieve filters",
-        "gridColumns": "",
-        "collapseSeries": "",
-        "save": "",
-        "filteredSuffix": "",
-        "item": "",
-        "unshelvedBooksFiltered": "",
-        "failedBooks": "",
         "allBooks": "",
-        "failedShelf": "",
-        "failedLibrary": "",
-        "setAsDefault": "",
-        "items": "",
-        "seriesCollapsedInfo": "",
-        "bookTypeOverlay": "",
-        "noBooks": "",
-        "unshelvedBooks": "",
-        "selected": ""
-      },
-      "tooltip": {
-        "clearFilters": "Toegepaste filters wissen",
-        "visibleColumns": "Zichtbare kolommen",
-        "selectSorting": "Selecteer sortering",
-        "toggleView": "Schakel tussen raster- en tabelweergave",
-        "search": "Zoeken",
-        "toggleSidebar": "Filters in zijbalk in-/uitschakelen",
-        "metadataActions": "Metadata-acties",
-        "assignToShelf": "Toewijzen aan plank",
-        "removeFromShelf": "Verwijder van deze plank",
-        "lockUnlockMetadata": "Metadata vergrendelen/ontgrendelen",
-        "organizeFiles": "Bestanden ordenen",
-        "attachToBook": "Toevoegen aan een ander boek",
-        "moreActions": "Meer acties",
-        "selectAll": "Selecteer alle boeken",
-        "deselectAll": "Alle boeken deselecteren",
-        "deleteSelected": "Geselecteerde boeken verwijderen"
-      },
-      "placeholder": {
-        "selectColumns": "Kolommen selecteren",
-        "search": "Titel, Auteur, Serie, Genre of ISBN..."
+        "unshelvedBooks": ""
       }
     },
     "card": {
@@ -3056,48 +2994,12 @@
         "manageLibrary": "Bibliotheek beheren"
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "Lezen",
-        "title": "Titel",
-        "authors": "Auteurs",
-        "publisher": "Uitgever",
-        "seriesName": "Series",
-        "seriesNumber": "Series #",
-        "categories": "Genres",
-        "publishedDate": "Gepubliceerd",
-        "lastReadTime": "Laatst gelezen",
-        "addedOn": "Toegevoegd",
-        "fileName": "Bestandsnaam",
-        "fileSizeKb": "Bestandsgrootte",
-        "language": "Taal",
-        "isbn": "ISBN",
-        "pageCount": "Pagina's",
-        "amazonRating": "Amazon",
-        "amazonReviewCount": "AZ #",
-        "goodreadsRating": "Goodreads",
-        "goodreadsReviewCount": "GR #",
-        "hardcoverRating": "Hardcover",
-        "hardcoverReviewCount": "HC #",
-        "ranobedbRating": "Ranobedb"
-      },
-      "toast": {
-        "savedSummary": "Voorkeuren opgeslagen",
-        "savedDetail": "De indeling van uw kolom is opgeslagen."
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "Afmetingen omslag opgeslagen",
         "savedDetail": "Omslagformaat ingesteld op {{ scale }}x.",
         "saveFailedSummary": "Opslaan mislukt",
         "saveFailedDetail": "De voorkeur voor de omslaggrootte kon niet lokaal worden opgeslagen."
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "Opslaan mislukt",
-        "saveFailedDetail": "De voorkeuren voor de zijbalkfilter konden niet lokaal worden opgeslagen."
       }
     },
     "reviews": {
@@ -3157,60 +3059,7 @@
         "sortNewest": ""
       }
     },
-    "table": {
-      "statusWithPrefix": "{{ status }}",
-      "noRating": "",
-      "toast": {
-        "unlockFailedSummary": "",
-        "lockFailedDetail": "",
-        "metadataLockedDetail": "",
-        "metadataUnlockedSummary": "",
-        "unlockFailedDetail": "",
-        "lockFailedSummary": "",
-        "metadataLockedSummary": "",
-        "metadataUnlockedDetail": ""
-      },
-      "locked": "",
-      "ratingOutOf": "",
-      "selectBookFallback": "",
-      "selectBook": "",
-      "bookCoverAlt": "",
-      "unlocked": "",
-      "label": ""
-    },
     "filter": {
-      "labels": {
-        "goodreadsRating": "",
-        "narrator": "",
-        "tag": "",
-        "hardcoverRating": "",
-        "matchScore": "",
-        "readStatus": "",
-        "comicCreator": "",
-        "publishedDate": "",
-        "category": "",
-        "pageCount": "",
-        "ageRating": "",
-        "library": "",
-        "ranobedbRating": "",
-        "author": "",
-        "comicTeam": "",
-        "comicCharacter": "",
-        "fileSize": "",
-        "shelfStatus": "",
-        "series": "",
-        "shelf": "",
-        "personalRating": "",
-        "amazonRating": "",
-        "bookType": "",
-        "audibleRating": "",
-        "publisher": "",
-        "comicLocation": "",
-        "contentRating": "",
-        "language": "",
-        "lubimyczytacRating": "",
-        "mood": ""
-      },
       "contentRating": {
         "teen": "",
         "explicit": "",
@@ -3228,14 +3077,6 @@
         "abandoned": "",
         "reReading": "",
         "unread": ""
-      },
-      "comicRoles": {
-        "letterer": "",
-        "colorist": "",
-        "editor": "",
-        "penciller": "",
-        "coverArtist": "",
-        "inker": ""
       },
       "matchScore": {
         "good": "",
@@ -3265,7 +3106,6 @@
         "1to10mb": "",
         "50to100mb": ""
       },
-      "title": "",
       "ageRating": {
         "allAges": ""
       },
@@ -3273,8 +3113,7 @@
         "unshelved": "",
         "shelved": ""
       },
-      "showingFirst100": "",
-      "footerNote": ""
+      "showingFirst100": ""
     },
     "bulkIsbnImport": {
       "fileFormatsHint": "",
@@ -3641,42 +3480,7 @@
       "scan": ""
     },
     "sorting": {
-      "options": {
-        "narrator": "",
-        "filePath": "",
-        "locked": "",
-        "pageCount": "",
-        "amazonReviewCount": "",
-        "author": "",
-        "hardcoverReviewCount": "",
-        "title": "",
-        "addedOn": "",
-        "goodreadsRating": "",
-        "lastReadTime": "",
-        "publishedDate": "",
-        "ranobedbRating": "",
-        "hardcoverRating": "",
-        "goodreadsReviewCount": "",
-        "amazonRating": "",
-        "seriesName": "",
-        "personalRating": "",
-        "publisher": "",
-        "authorSurnameVorname": "",
-        "dateFinished": "",
-        "seriesNumber": "",
-        "random": "",
-        "readingProgress": "",
-        "readStatus": "",
-        "fileSizeKb": "",
-        "fileName": "",
-        "bookType": ""
-      },
-      "addSortFieldPlaceholder": "",
-      "descendingTooltip": "",
-      "saveAsDefault": "",
-      "sortOrder": "",
-      "ascendingTooltip": "",
-      "removeTooltip": ""
+      "saveAsDefault": ""
     },
     "shelfCreator": {
       "makePublicLabel": "",

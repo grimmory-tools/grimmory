@@ -5,19 +5,19 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {EmailService} from '../../../../settings/email-v2/email.service';
-import {User, UserService} from '../../../../settings/user-management/user.service';
-import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
-import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {AdditionalFile, Book, ReadStatus} from '../../../model/book.model';
-import {BookDialogHelperService} from '../book-dialog-helper.service';
-import {BookCardComponent} from './book-card.component';
-import {BookFileService} from '../../../service/book-file.service';
-import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
-import {BookNavigationService} from '../../../service/book-navigation.service';
-import {BookService} from '../../../service/book.service';
-import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
+import {TaskHelperService} from '../../../settings/task-management/task-helper.service';
+import {EmailService} from '../../../settings/email-v2/email.service';
+import {User, UserService} from '../../../settings/user-management/user.service';
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {AdditionalFile, Book, ReadStatus} from '../../model/book.model';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
+import {LegacyBookCardComponent} from './legacy-book-card.component';
+import {BookFileService} from '../../service/book-file.service';
+import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
+import {BookNavigationService} from '../../service/book-navigation.service';
+import {BookService} from '../../service/book.service';
+import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 
 function makeBook(overrides: Partial<Book> = {}): Book {
   return {
@@ -85,7 +85,6 @@ function makeUser(metadataCenterViewMode: 'route' | 'dialog'): User {
       sidebarLibrarySorting: {} as never,
       sidebarShelfSorting: {} as never,
       sidebarMagicShelfSorting: {} as never,
-      filterMode: 'and',
       enableSeriesView: false,
       entityViewPreferences: {global: {} as never, overrides: []},
       koReaderEnabled: false,
@@ -94,10 +93,10 @@ function makeUser(metadataCenterViewMode: 'route' | 'dialog'): User {
   };
 }
 
-describe('BookCardComponent', () => {
-  let component: BookCardComponent;
-  let fixture: ComponentFixture<BookCardComponent>;
-  let ref: ComponentRef<BookCardComponent>;
+describe('LegacyBookCardComponent', () => {
+  let component: LegacyBookCardComponent;
+  let fixture: ComponentFixture<LegacyBookCardComponent>;
+  let ref: ComponentRef<LegacyBookCardComponent>;
   let bookService: {
     readBook: ReturnType<typeof vi.fn>;
   };
@@ -209,7 +208,7 @@ describe('BookCardComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [BookCardComponent, getTranslocoModule()],
+      imports: [LegacyBookCardComponent, getTranslocoModule()],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {provide: ActivatedRoute, useValue: {}},
@@ -246,7 +245,7 @@ describe('BookCardComponent', () => {
       })),
     });
 
-    fixture = TestBed.createComponent(BookCardComponent);
+    fixture = TestBed.createComponent(LegacyBookCardComponent);
     ref = fixture.componentRef;
     component = fixture.componentInstance;
 

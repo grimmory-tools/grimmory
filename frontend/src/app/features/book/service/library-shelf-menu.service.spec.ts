@@ -9,7 +9,7 @@ import {LoadingService} from '../../../core/services/loading.service';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
 import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
 import {TaskHelperService} from '../../settings/task-management/task-helper.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from './book-dialog-helper.service';
 import {LibraryService} from './library.service';
 import {LibraryShelfMenuService} from './library-shelf-menu.service';
 import {ShelfService} from './shelf.service';

@@ -9,7 +9,7 @@ import {Shelf} from '../../model/shelf.model';
 import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {FormsModule} from '@angular/forms';
-import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';

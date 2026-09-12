@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
+import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
 import {BookDialogHelperService} from './book-dialog-helper.service';
 
 describe('BookDialogHelperService', () => {

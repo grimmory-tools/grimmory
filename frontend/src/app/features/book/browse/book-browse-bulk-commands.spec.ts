@@ -8,7 +8,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createQueryClientHarness, flushQueryAsync} from '../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {API_CONFIG} from '../../../core/config/api-config';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {type BrowseSelection, type BrowseSelectionState} from '../../../shared/browse/selection';
 import {createBookBrowseBulkCommands} from './book-browse-bulk-commands';
 
