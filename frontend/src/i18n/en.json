@@ -5225,6 +5225,7 @@
       "hardcoverReviewCount": "Hardcover Reviews",
       "audibleReviewCount": "Audible Reviews",
       "applebooksReviewCount": "Apple Books Review Count",
+      "openlibraryId": "OpenLibrary ID",
       "goodreadsId": "Goodreads ID",
       "hardcoverId": "Hardcover ID",
       "googleId": "Google ID",
