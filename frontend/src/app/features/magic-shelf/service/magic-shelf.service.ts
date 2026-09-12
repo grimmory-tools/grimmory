@@ -10,6 +10,7 @@ import {BookRuleEvaluatorService} from './book-rule-evaluator.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {GroupRule} from '../component/magic-shelf-component';
 import {IconType} from '../../../shared/icons/icon-selection';
+import {invalidateBookCollections} from '../../book/data/book-query-cache';
 
 export interface MagicShelf {
   id?: number | null;
@@ -89,6 +90,9 @@ export class MagicShelfService {
     return this.http.post<MagicShelf>(this.url, payload).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
+        if (data.id != null) {
+          void invalidateBookCollections(this.queryClient);
+        }
       })
     );
   }
@@ -131,6 +135,7 @@ export class MagicShelfService {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
+        void invalidateBookCollections(this.queryClient);
       })
     );
   }

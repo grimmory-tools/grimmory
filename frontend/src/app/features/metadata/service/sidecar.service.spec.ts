@@ -1,21 +1,27 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
+import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {SidecarService} from './sidecar.service';
 
 describe('SidecarService', () => {
   let service: SidecarService;
   let httpTestingController: HttpTestingController;
+  let queryClient: QueryClient;
 
   beforeEach(() => {
+    queryClient = new QueryClient();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         SidecarService,
+        {provide: QueryClient, useValue: queryClient},
       ]
     });
 
@@ -25,6 +31,7 @@ describe('SidecarService', () => {
 
   afterEach(() => {
     httpTestingController.verify();
+    queryClient.clear();
     TestBed.resetTestingModule();
   });
 
@@ -65,6 +72,8 @@ describe('SidecarService', () => {
   });
 
   it('imports a sidecar for a book', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
     service.importFromSidecar(42).subscribe(response => {
       expect(response).toEqual({message: 'done'});
     });
@@ -73,6 +82,10 @@ describe('SidecarService', () => {
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({});
     request.flush({message: 'done'});
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['books', 'detail', 42]});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
   });
 
   it('bulk exports sidecars for a library', () => {
@@ -87,6 +100,8 @@ describe('SidecarService', () => {
   });
 
   it('bulk imports sidecars for a library', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
     service.bulkImport(7).subscribe(response => {
       expect(response).toEqual({message: 'imported', imported: 2});
     });
@@ -95,5 +110,8 @@ describe('SidecarService', () => {
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({});
     request.flush({message: 'imported', imported: 2});
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
   });
 });

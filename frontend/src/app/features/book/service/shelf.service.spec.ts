@@ -6,6 +6,8 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createAuthServiceStub, createQueryClientHarness, flushQueryAsync, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import type {Book} from '../model/book.model';
 import type {Shelf} from '../model/shelf.model';
+import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
+import {bookQueryKeys} from '../data/book-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {BookService} from './book.service';
@@ -127,30 +129,59 @@ describe('ShelfService', () => {
     expect(removeQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves']});
   });
 
-  it('invalidates shelf queries for reload/create/update/delete flows and removes books on delete', () => {
+  it('reloads the shelves list on demand', () => {
     const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
 
     service.reloadShelves();
 
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
+  });
+
+  it('invalidates shelf and shelf-definition caches when creating a shelf, without touching book caches', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
+    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
+
     service.createShelf(buildShelf({name: 'New Shelf'})).subscribe();
     const createRequest = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves'));
     expect(createRequest.request.method).toBe('POST');
     createRequest.flush(buildShelf({id: 11, name: 'New Shelf'}));
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+  });
+
+  it('invalidates shelf-definition and book caches when renaming a shelf', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
+    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
 
     service.updateShelf(buildShelf({name: 'Updated Shelf'}), 11).subscribe();
     const updateRequest = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves/11'));
     expect(updateRequest.request.method).toBe('PUT');
     updateRequest.flush(buildShelf({id: 11, name: 'Updated Shelf'}));
 
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
+  });
+
+  it('invalidates shelf caches and delegates book removal when deleting a shelf', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
+    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
+
     service.deleteShelf(11).subscribe();
     const deleteRequest = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves/11'));
     expect(deleteRequest.request.method).toBe('DELETE');
     deleteRequest.flush(null);
 
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(4);
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
     expect(bookService.removeBooksFromShelf).toHaveBeenCalledWith(11);
   });
 
