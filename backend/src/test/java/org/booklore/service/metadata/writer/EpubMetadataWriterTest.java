@@ -835,7 +835,7 @@ class EpubMetadataWriterTest {
             assertThat(content).contains("<item href=\"cover.bin\" id=\"cover\" media-type=\"image/png\"/>");
 
             // And creates a new item with the prop
-            assertThat(content).contains("properties=\"cover-image\"");
+            assertThat(content).containsPattern("<item href=\"cover-[^\"]+\\.bin\" id=\"cover-[^\"]+\" media-type=\"application/octet-stream\" properties=\"cover-image\"/>.*");
         }
 
     }
