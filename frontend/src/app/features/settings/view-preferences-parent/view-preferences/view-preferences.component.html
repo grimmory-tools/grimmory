@@ -26,71 +26,15 @@
 
         <div class="multi-sort-editor">
           <span class="multi-sort-label">{{ t('sortOrderLabel') }}</span>
-          <app-multi-sort-popover
-            [sortCriteria]="globalSortAsOptions"
-            [availableSortOptions]="allSortAsOptions"
-            (criteriaChange)="onGlobalSortCriteriaChange($event)">
-          </app-multi-sort-popover>
+          <app-book-browse-multi-sort-editor
+            class="block max-w-96"
+            [terms]="globalSortTerms"
+            [options]="editorSortOptions()"
+            (termsChange)="onGlobalSortTermsChange($event)" />
         </div>
-      </div>
-
-      <div class="setting-item">
-        <div class="setting-header-standalone">
-          <span class="setting-label">{{ t('visibleSortFields') }}</span>
-        </div>
-        <p class="setting-description">
-          {{ t('visibleSortFieldsDesc') }}
-          <span class="sort-field-count">({{ sortFieldSelectionCountText }})</span>
-        </p>
-        <div class="sort-field-order-editor">
-          <div
-            #sortFieldList
-            class="sort-field-order-list"
-            cdkDropList
-            [cdkDropListData]="visibleSortFields"
-            (cdkDropListDropped)="onSortFieldDrop($event)">
-            @for (f of visibleSortFields; track f; let i = $index) {
-              <div class="sort-field-order-row" cdkDrag>
-                <div class="sort-field-drag-handle" cdkDragHandle>
-                  <i class="pi pi-bars"></i>
-                </div>
-                <span class="sort-field-rank">{{ i + 1 }}.</span>
-                <span class="sort-field-label">{{ getSortFieldLabel(f) }}</span>
-                <button
-                  type="button"
-                  class="remove-sort-field-btn"
-                  (click)="removeSortField(i)"
-                  [disabled]="visibleSortFields.length <= minSortFields"
-                  [pTooltip]="t('remove')"
-                  tooltipPosition="top">
-                  <i class="pi pi-times"></i>
-                </button>
-              </div>
-            }
-          </div>
-          <div class="sort-field-actions-row">
-            @if (availableSortFieldsToAdd.length > 0 && visibleSortFields.length < maxSortFields) {
-              <p-select
-                size="small"
-                [options]="availableSortFieldsToAdd"
-                [(ngModel)]="selectedAddSortField"
-                optionLabel="label"
-                optionValue="value"
-                [placeholder]="t('addSortField')"
-                [style]="{ width: '200px' }"
-                appendTo="body"
-                (onChange)="addSortField()">
-              </p-select>
-            }
-            <button
-              type="button"
-              class="reset-sort-fields-btn"
-              (click)="resetSortFieldsToDefaults()"
-              [pTooltip]="t('resetToDefaults')"
-              tooltipPosition="top">
-              <i class="pi pi-refresh"></i>
-            </button>
-          </div>
+        <div class="format-overlay-editor">
+          <p-toggleswitch [(ngModel)]="overlayBookType"></p-toggleswitch>
+          <span class="setting-label">{{ t('formatOverlay') }}</span>
         </div>
       </div>
 
@@ -146,15 +90,8 @@
                     icon="pi pi-sort"
                     size="small"
                     [outlined]="true"
-                    (onClick)="overrideSortPop.toggle($event)">
+                    (onClick)="editOverrideSort(rowIndex)">
                   </p-button>
-                  <p-popover #overrideSortPop [dismissable]="true" appendTo="body">
-                    <app-multi-sort-popover
-                      [sortCriteria]="override.sortCriteriaAsOptions"
-                      [availableSortOptions]="allSortAsOptions"
-                      (criteriaChange)="onOverrideSortCriteriaChange(rowIndex, $event)">
-                    </app-multi-sort-popover>
-                  </p-popover>
                 </td>
                 <td>
                   <p-select size="small" [options]="viewModeOptions" [(ngModel)]="override.view"
