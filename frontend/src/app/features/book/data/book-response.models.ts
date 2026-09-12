@@ -255,6 +255,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   lubimyczytacId?: string;
   ranobedbId?: string;
   audibleId?: string;
+  openlibraryId?: string;
   doubanRating?: number;
   doubanReviewCount?: number;
   lubimyczytacRating?: number;
@@ -297,6 +298,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   lubimyczytacRatingLocked?: boolean;
   ranobedbIdLocked?: boolean;
   ranobedbRatingLocked?: boolean;
+  openlibraryIdLocked?: boolean;
   audibleIdLocked?: boolean;
   audibleRatingLocked?: boolean;
   audibleReviewCountLocked?: boolean;

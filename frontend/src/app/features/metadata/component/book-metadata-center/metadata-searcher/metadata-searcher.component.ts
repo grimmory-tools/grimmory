@@ -443,6 +443,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       case 'GoodReads': return metadata.goodreadsId;
       case 'Amazon': return metadata.asin;
       case 'Audible': return metadata.audibleId;
+      case 'OpenLibrary': return metadata.openlibraryId;
       default: return undefined;
     }
   }
