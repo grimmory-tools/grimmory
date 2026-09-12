@@ -9,6 +9,13 @@ import {
   SetBookReadStatusVariables,
 } from './book-command.models';
 import {BookReadStatus, BookSummary} from './book-response.models';
+import {bookShelfCommandKeys} from './book-shelf-command-keys';
+import {UpdateBookShelfMembershipVariables} from './book-shelf-command.models';
+
+export interface PendingShelfMembership {
+  readonly assignShelfIds: ReadonlySet<number>;
+  readonly unassignShelfIds: ReadonlySet<number>;
+}
 
 export interface PendingBookOverlay {
   readonly readStatuses: ReadonlyMap<number, BookReadStatus>;
@@ -46,6 +53,27 @@ export function injectPendingBookReadStatuses(): Signal<ReadonlyMap<number, Book
   return injectPendingBookValues<SetBookReadStatusVariables, BookReadStatus>(
     bookCommandKeys.readStatus(),
     (_, variables) => variables.status,
+  );
+}
+
+export function injectPendingBookShelfMembership(): Signal<ReadonlyMap<number, PendingShelfMembership>> {
+  return injectPendingBookValues<UpdateBookShelfMembershipVariables, PendingShelfMembership>(
+    bookShelfCommandKeys.updateMembership(),
+    (current, variables) => {
+      const assignShelfIds = new Set(current?.assignShelfIds);
+      const unassignShelfIds = new Set(current?.unassignShelfIds);
+
+      for (const shelfId of variables.unassignShelfIds) {
+        assignShelfIds.delete(shelfId);
+        unassignShelfIds.add(shelfId);
+      }
+      for (const shelfId of variables.assignShelfIds) {
+        unassignShelfIds.delete(shelfId);
+        assignShelfIds.add(shelfId);
+      }
+
+      return {assignShelfIds, unassignShelfIds};
+    },
   );
 }
 
@@ -94,4 +122,21 @@ function clearedProgress(source: BookProgressSource): Partial<BookSummary> {
     cbxProgress: undefined,
     audiobookProgress: undefined,
   };
+}
+
+export function overlayShelfIds(
+  book: BookSummary,
+  membership: PendingShelfMembership | undefined,
+): ReadonlySet<number> {
+  const shelfIds = new Set((book.shelves ?? []).map(shelf => shelf.id));
+  if (!membership) {
+    return shelfIds;
+  }
+  for (const shelfId of membership.unassignShelfIds) {
+    shelfIds.delete(shelfId);
+  }
+  for (const shelfId of membership.assignShelfIds) {
+    shelfIds.add(shelfId);
+  }
+  return shelfIds;
 }

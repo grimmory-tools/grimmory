@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {overlayPendingBookState} from './book-command-pending-state';
+import {overlayPendingBookState, overlayShelfIds} from './book-command-pending-state';
 import {type BookSummary} from './book-response.models';
 
 describe('overlayPendingBookState', () => {
@@ -9,6 +9,10 @@ describe('overlayPendingBookState', () => {
     libraryId: 2,
     libraryName: 'Library',
     readStatus: 'UNREAD',
+    shelves: [
+      {id: 20, name: 'Remove', publicShelf: false, bookCount: 1},
+      {id: 30, name: 'Keep', publicShelf: false, bookCount: 1},
+    ],
     epubProgress: {
       cfi: 'epubcfi(/6/2)',
       href: 'chapter-1.xhtml',
@@ -55,5 +59,23 @@ describe('overlayPendingBookState', () => {
 
     expect(result.koreaderProgress).toBeUndefined();
     expect(result.epubProgress).toEqual(book.epubProgress);
+  });
+
+  it('leaves shelf membership off the overlaid book', () => {
+    expect(overlayPendingBookState(book, {
+      ...emptyOverlay,
+      readStatuses: new Map([[1, 'READ']]),
+    }).shelves).toBe(book.shelves);
+  });
+
+  it('reports confirmed shelf IDs when nothing is in flight', () => {
+    expect(overlayShelfIds(book, undefined)).toEqual(new Set([20, 30]));
+  });
+
+  it('applies in-flight assignments and removals to the shelf IDs', () => {
+    expect(overlayShelfIds(book, {
+      assignShelfIds: new Set([40]),
+      unassignShelfIds: new Set([20]),
+    })).toEqual(new Set([30, 40]));
   });
 });
