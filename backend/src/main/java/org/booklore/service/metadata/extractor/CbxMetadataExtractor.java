@@ -37,7 +37,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern WEB_SPLIT_PATTERN = Pattern.compile("[,;\\s]+");
 
     // URL Patterns
-    private static final Pattern OPENLIBRARY_URL_PATTERN = Pattern.compile("openlibrary.org(/[^/]+/[^/]+)");
+    private static final Pattern OPENLIBRARY_URL_PATTERN = Pattern.compile("openlibrary\\.org(/[^/]+/[^/]+)");
     private static final Pattern GOODREADS_URL_PATTERN = Pattern.compile("goodreads\\.com/book/show/(\\d+)(?:-[\\w-]+)?");
     private static final Pattern AMAZON_URL_PATTERN = Pattern.compile("amazon\\.com/dp/([A-Z0-9]{10})");
     private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:issue|volume)/(?:[^/]+/)?(\\d+-\\d+)");
