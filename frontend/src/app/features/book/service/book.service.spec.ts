@@ -77,9 +77,10 @@ describe('BookService', () => {
             handleNewlyCreatedBook: vi.fn(),
             handleRemovedBookIds: vi.fn(),
             handleBookUpdate: vi.fn(),
-            handleMultipleBookUpdates: vi.fn(),
             handleBookMetadataUpdate: vi.fn(),
             handleMultipleBookCoverPatches: vi.fn(),
+            handleTaskProgress: vi.fn(),
+            handleReconnect: vi.fn(),
           },
         },
         {

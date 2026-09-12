@@ -1,56 +1,119 @@
-import {inject, Injectable} from '@angular/core';
-import {Book} from '../model/book.model';
+import {DestroyRef, inject, Injectable} from '@angular/core';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {BOOKS_QUERY_KEY} from './book-query-keys';
-import {
-  addBookToCache,
-  invalidateBookDetailQueries,
-  invalidateBooksQuery,
-  patchAppBooksCoverInCache,
-  patchBooksInCache,
-  removeBookQueries,
-} from './book-query-cache';
 
-@Injectable({
-  providedIn: 'root',
-})
+import {invalidateBookRecommendations} from '../data/book-query-cache';
+import {TaskProgressPayload} from '../../settings/task-management/task.service';
+import {Book} from '../model/book.model';
+import {
+  BookCoverPatch,
+  invalidateAllBookCaches,
+  invalidateLegacyBookRecommendations,
+  patchBooksInCache,
+  patchBookCoversInCache,
+  reconcileBookCacheChangeSet,
+  upsertBooksInCache,
+} from './legacy-book-cache';
+
+function isBookIdArray(payload: Book | readonly number[]): payload is readonly number[] {
+  return Array.isArray(payload);
+}
+@Injectable({providedIn: 'root'})
 export class BookSocketService {
-  private queryClient = inject(QueryClient);
+  private readonly queryClient = inject(QueryClient);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly reconciliationDelayMs = 50;
+  private readonly pendingChangedBookIds = new Set<number>();
+  private readonly pendingDeletedBookIds = new Set<number>();
+  private reconciliationTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.clearPendingReconciliation());
+  }
 
   handleNewlyCreatedBook(book: Book): void {
-    addBookToCache(this.queryClient, book);
+    upsertBooksInCache(this.queryClient, [book]);
   }
 
-  handleRemovedBookIds(removedBookIds: number[]): void {
-    invalidateBooksQuery(this.queryClient);
-    removeBookQueries(this.queryClient, removedBookIds);
+  handleRemovedBookIds(bookIds: readonly number[]): void {
+    this.queueDeletedBooks(bookIds);
   }
 
-  handleBookUpdate(updatedBook: Book): void {
-    patchBooksInCache(this.queryClient, [updatedBook]);
-  }
-
-  handleMultipleBookUpdates(updatedBooks: Book[]): void {
-    patchBooksInCache(this.queryClient, updatedBooks);
+  handleBookUpdate(payload: Book | readonly number[]): void {
+    if (isBookIdArray(payload)) {
+      this.queueKnownChanges(payload);
+      return;
+    }
+    patchBooksInCache(this.queryClient, [payload]);
   }
 
   handleBookMetadataUpdate(bookId: number): void {
-    invalidateBooksQuery(this.queryClient);
-    invalidateBookDetailQueries(this.queryClient, [bookId]);
+    this.queueKnownChanges([bookId]);
   }
 
-  handleMultipleBookCoverPatches(patches: { id: number; coverUpdatedOn: string }[]): void {
-    if (!patches || patches.length === 0) return;
-    const patchMap = new Map(patches.map(p => [p.id, p.coverUpdatedOn]));
-    this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      (current ?? []).map(book => {
-        const coverUpdatedOn = patchMap.get(book.id);
-        return coverUpdatedOn && book.metadata
-          ? {...book, metadata: {...book.metadata, coverUpdatedOn}}
-          : book;
-      })
+  handleMultipleBookCoverPatches(patches: readonly BookCoverPatch[]): void {
+    patchBookCoversInCache(this.queryClient, patches);
+  }
+
+  handleTaskProgress(payload: TaskProgressPayload): void {
+    if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== 'COMPLETED') {
+      return;
+    }
+    void Promise.all([
+      invalidateBookRecommendations(this.queryClient),
+      invalidateLegacyBookRecommendations(this.queryClient),
+    ]);
+  }
+
+  handleReconnect(): void {
+    this.clearPendingReconciliation();
+    invalidateAllBookCaches(this.queryClient);
+  }
+
+  private queueKnownChanges(bookIds: readonly number[]): void {
+    for (const bookId of bookIds) {
+      if (!this.pendingDeletedBookIds.has(bookId)) {
+        this.pendingChangedBookIds.add(bookId);
+      }
+    }
+    this.scheduleReconciliation();
+  }
+
+  private queueDeletedBooks(bookIds: readonly number[]): void {
+    for (const bookId of bookIds) {
+      this.pendingChangedBookIds.delete(bookId);
+      this.pendingDeletedBookIds.add(bookId);
+    }
+    this.scheduleReconciliation();
+  }
+
+  private scheduleReconciliation(): void {
+    if (this.reconciliationTimer !== null) {
+      return;
+    }
+
+    this.reconciliationTimer = setTimeout(() => this.flushPendingReconciliation(), this.reconciliationDelayMs);
+  }
+
+  private flushPendingReconciliation(): void {
+    this.reconciliationTimer = null;
+    const changedBookIds = [...this.pendingChangedBookIds];
+    const deletedBookIds = [...this.pendingDeletedBookIds];
+    this.pendingChangedBookIds.clear();
+    this.pendingDeletedBookIds.clear();
+
+    void reconcileBookCacheChangeSet(
+      this.queryClient,
+      {changedBookIds, deletedBookIds},
+      {legacyList: 'needs-refetch'},
     );
-    patchAppBooksCoverInCache(this.queryClient, patches);
-    invalidateBookDetailQueries(this.queryClient, patches.map(p => p.id));
+  }
+
+  private clearPendingReconciliation(): void {
+    if (this.reconciliationTimer !== null) {
+      clearTimeout(this.reconciliationTimer);
+      this.reconciliationTimer = null;
+    }
+    this.pendingChangedBookIds.clear();
+    this.pendingDeletedBookIds.clear();
   }
 }
