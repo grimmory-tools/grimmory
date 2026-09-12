@@ -164,6 +164,7 @@ public class BookdropMetadataService {
                 .lubimyczytacId(truncate(extracted.getLubimyczytacId(), 100))
                 .ranobedbId(truncate(extracted.getRanobedbId(), 100))
                 .doubanId(truncate(extracted.getDoubanId(), 100))
+                .applebooksId(truncate(extracted.getApplebooksId(), 100))
 
                 .build();
     }
