@@ -18,13 +18,11 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -46,7 +44,7 @@ public class DoubanBookParser implements BookParser {
     private static final Pattern NON_ALPHANUMERIC_CJK_PATTERN = Pattern.compile("[^a-zA-Z0-9\\u4e00-\\u9fff]");
     private static final Pattern SLASH_SEPARATOR_PATTERN = Pattern.compile(" / ");
     // Regex to extract JSON assigned to window.__DATA__ in Douban pages (DOTALL to capture across lines)
-    private static final Pattern WINDOW_DATA_JSON_PATTERN = Pattern.compile("window\\.__DATA__\\s*=\\s*(\\{.*\\});", Pattern.DOTALL);
+    private static final Pattern WINDOW_DATA_JSON_PATTERN = Pattern.compile("window\\.__DATA__\\s*=\\s*(.*)", Pattern.DOTALL);
     // Pattern to extract numeric Douban subject id from URLs like /subject/123456/
     private static final Pattern SUBJECT_ID_PATTERN = Pattern.compile("/subject/(\\d+)/");
     // Pattern to extract rating number from class names like 'rating40' -> 40
@@ -135,13 +133,10 @@ public class DoubanBookParser implements BookParser {
 
                 // Parse just the first object we find, so we can ignore the rest
                 // of the data in the script tag.
-                try (
-                      var is = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
-                      var parser = objectMapper.createParser(is)
-                ) {
-                    if (JsonToken.START_OBJECT.equals(parser.nextToken())) {
-                        return objectMapper.readTree(parser);
-                    }
+                try {
+                    return objectMapper.reader()
+                            .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                            .readTree(jsonData);
                 } catch (Exception e) {
                     log.warn("Failed to parse JSON: {}", e.getMessage());
                 }
