@@ -176,32 +176,25 @@ public class OpdsBookService {
         return books.stream().map(bookMapper::toBook).toList();
     }
 
-    public List<String> getDistinctAuthors(Long userId) {
+    public Page<String> getDistinctAuthors(Long userId, int page, int size) {
         if (userId == null) {
-            return List.of();
+            return Page.empty();
         }
+
+        Pageable pageable = PageRequest.of(Math.max(page, 0), size);
 
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
 
-        List<AuthorEntity> authors;
-
         if (user.getPermissions().isAdmin()) {
-            authors = bookOpdsRepository.findDistinctAuthors();
+            return bookOpdsRepository.findDistinctAuthorNames(pageable);
         } else {
             Set<Long> libraryIds = user.getAssignedLibraries().stream()
                     .map(Library::getId)
                     .collect(Collectors.toSet());
-            authors = bookOpdsRepository.findDistinctAuthorsByLibraryIds(libraryIds);
+            return bookOpdsRepository.findDistinctAuthorNamesByLibraryIds(libraryIds, pageable);
         }
-
-        return authors.stream()
-                .map(AuthorEntity::getName)
-                .filter(Objects::nonNull)
-                .distinct()
-                .sorted()
-                .toList();
     }
 
     public Page<Book> getBooksByAuthorName(Long userId, String authorName, int page, int size) {
@@ -238,24 +231,26 @@ public class OpdsBookService {
         return applyBookFilters(booksPage, userId);
     }
 
-    public List<String> getDistinctSeries(Long userId) {
+    public Page<String> getDistinctSeries(Long userId, int page, int size) {
         if (userId == null) {
-            return List.of();
+            return Page.empty();
         }
+
+        Pageable pageable = PageRequest.of(Math.max(page, 0), size);
 
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
 
         if (user.getPermissions().isAdmin()) {
-            return bookOpdsRepository.findDistinctSeries();
+            return bookOpdsRepository.findDistinctSeries(pageable);
         }
 
         Set<Long> libraryIds = user.getAssignedLibraries().stream()
                 .map(Library::getId)
                 .collect(Collectors.toSet());
 
-        return bookOpdsRepository.findDistinctSeriesByLibraryIds(libraryIds);
+        return bookOpdsRepository.findDistinctSeriesByLibraryIds(libraryIds, pageable);
     }
 
     public Page<Book> getBooksBySeriesName(Long userId, String seriesName, int page, int size) {
