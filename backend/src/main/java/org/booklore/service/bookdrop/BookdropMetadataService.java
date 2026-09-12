@@ -121,6 +121,7 @@ public class BookdropMetadataService {
                 m.getIsbn13(), m.getIsbn10(), m.getAsin(),
                 m.getGoodreadsId(), m.getGoogleId(),
                 m.getHardcoverId(), m.getHardcoverBookId(),
+                m.getOpenlibraryId(),
                 m.getComicvineId(), m.getDoubanId(), m.getApplebooksId(),
                 m.getLubimyczytacId(), m.getRanobedbId(), m.getAudibleId()
         ).anyMatch(id -> id != null && !id.isBlank());
