@@ -890,6 +890,12 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (metadata.getRanobedbRating() != null && metadata.getRanobedbRating() > 0) {
             expected.put("booklore:ranobedb_rating", String.valueOf(metadata.getRanobedbRating()));
         }
+        if (metadata.getApplebooksRating() != null && metadata.getApplebooksRating() > 0) {
+            expected.put("booklore:applebooks_rating", String.valueOf(metadata.getApplebooksRating()));
+        }
+        if (metadata.getApplebooksReviewCount() != null && metadata.getApplebooksReviewCount() > 0) {
+            expected.put("booklore:applebooks_review_count", String.valueOf(metadata.getApplebooksReviewCount()));
+        }
         if (metadata.getMoods() != null && !metadata.getMoods().isEmpty()) {
             String moodsJson = "[" + metadata.getMoods().stream()
                 .map(mood -> "\"" + mood.getName().replace("\"", "\\\"") + "\"")
@@ -1118,7 +1124,15 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (metadata.getRanobedbRating() != null && metadata.getRanobedbRating() > 0) {
             metadataElement.appendChild(createBookloreMetaElement(doc, "ranobedb_rating", String.valueOf(metadata.getRanobedbRating()), epub3));
         }
-        
+
+        if (metadata.getApplebooksReviewCount() != null && metadata.getApplebooksReviewCount() > 0) {
+            metadataElement.appendChild(createBookloreMetaElement(doc, "applebooks_review_count", String.valueOf(metadata.getApplebooksReviewCount()), epub3));
+        }
+
+        if (metadata.getApplebooksRating() != null && metadata.getApplebooksRating() > 0) {
+            metadataElement.appendChild(createBookloreMetaElement(doc, "applebooks_rating", String.valueOf(metadata.getApplebooksRating()), epub3));
+        }
+
         if (metadata.getMoods() != null && !metadata.getMoods().isEmpty()) {
             String moodsJson = "[" + metadata.getMoods().stream()
                 .map(mood -> "\"" + mood.getName().replace("\"", "\\\"") + "\"")
