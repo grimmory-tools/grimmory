@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.SleepService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -186,6 +187,10 @@ public class OpenLibraryParser implements BookParser {
 
     private long rateLimitResetTime = 0;
     private long rateLimitCounter = 0;
+
+    private URI getURI(String path) {
+        return getURI(path, Map.of(), Map.of());
+    }
 
     private URI getURI(String path, Map<String, String> pathParameters, Map<String, String> queryParameters) {
         return UriComponentsBuilder.fromUriString(BASE_URI)
@@ -403,6 +408,7 @@ public class OpenLibraryParser implements BookParser {
             List<OpenLibraryAuthor> authors
     ) {
         var builder = BookMetadata.builder()
+                .provider(MetadataProvider.OpenLibrary)
                 .title(work.title)
                 .subtitle(work.subtitle.orElse(null))
                 .description(work.description.map(OpenLibraryTypedValue::value).orElse(null))
@@ -431,6 +437,7 @@ public class OpenLibraryParser implements BookParser {
 
         if (edition != null) {
             builder
+                    .externalUrl(getURI(edition.key).toString())
                     .openlibraryId(edition.key)
                     .publisher(edition.publishers.flatMap(p -> p.stream().findFirst()).orElse(null))
                     .isbn10(edition.isbn10.flatMap(i -> i.stream().findFirst()).orElse(null))
@@ -439,7 +446,9 @@ public class OpenLibraryParser implements BookParser {
                     .goodreadsId(edition.getIdentifier("goodreads"))
                     .asin(edition.getIdentifier("amazon"));
         } else {
-            builder.openlibraryId(work.key);
+            builder
+                    .externalUrl(getURI(work.key).toString())
+                    .openlibraryId(work.key);
         }
 
         return builder.build();
