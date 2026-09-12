@@ -6,14 +6,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MessageService } from '@openng/optimus-ui/api';
 
 import { getTranslocoModule } from '../../../core/testing/transloco-testing';
+import {createQueryClientHarness} from '../../../core/testing/query-testing';
 import { BookDialogHelperService } from '../../../features/book/service/book-dialog-helper.service';
-import { BookService } from '../../../features/book/service/book.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { LibraryService } from '../../../features/book/service/library.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
-import { AuthorService } from '../../../features/author-browser/service/author.service';
 import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
-import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
 import { BookdropFileService } from '../../../features/bookdrop/service/bookdrop-file.service';
@@ -59,6 +57,7 @@ describe('AppSidebarComponent', () => {
     shelfSort: signal({ field: 'name', order: 'asc' }),
     magicShelfSort: signal({ field: 'name', order: 'asc' }),
     closeMobileSidebar: vi.fn(),
+    areSidebarCountsVisible: () => false,
   };
 
   beforeEach(() => {
@@ -84,10 +83,10 @@ describe('AppSidebarComponent', () => {
     TestBed.configureTestingModule({
       imports: [AppSidebarComponent, getTranslocoModule()],
       providers: [
-        { provide: LibraryService, useValue: { libraries: signal([]), bookCountByLibraryId: signal(new Map()) } },
+        ...createQueryClientHarness().providers,
+        { provide: LibraryService, useValue: { libraries: signal([]) } },
         { provide: LibraryHealthService, useValue: { isUnhealthy: vi.fn(() => false) } },
-        { provide: ShelfService, useValue: { shelves: signal([]), bookCountByShelfId: signal(new Map()), unshelvedBookCount: signal(0) } },
-        { provide: BookService, useValue: { books: signal([]) } },
+        { provide: ShelfService, useValue: { shelves: signal([]) } },
         {
           provide: DialogLauncherService,
           useValue: {
@@ -98,16 +97,14 @@ describe('AppSidebarComponent', () => {
         },
         { provide: CommandPaletteService, useValue: commandPaletteService },
         { provide: BookDialogHelperService, useValue: { openShelfCreatorDialog: vi.fn(() => Promise.resolve(null)) } },
-        { provide: AuthService, useValue: { logout: vi.fn() } },
+        { provide: AuthService, useValue: { logout: vi.fn(), isAuthenticated: () => false } },
         { provide: MetadataProgressService, useValue: { activeTasks$, progressUpdates$ } },
         { provide: BookdropFileService, useValue: { hasPendingFiles } },
         { provide: LibraryImportProgressService, useValue: { hasActiveImport } },
         { provide: VersionService, useValue: { getVersion: vi.fn(() => versionInfo) } },
         { provide: LayoutService, useValue: layoutService },
         { provide: UserService, useValue: { currentUser } },
-        { provide: MagicShelfService, useValue: { shelves: signal([]), bookCountByMagicShelfId: signal(new Map()) } },
-        { provide: SeriesDataService, useValue: { allSeries: signal([]) } },
-        { provide: AuthorService, useValue: { allAuthors: signal([]) } },
+        { provide: MagicShelfService, useValue: { shelves: signal([]) } },
         { provide: MessageService, useValue: { add: vi.fn() } },
         {
           provide: AppThemeService,

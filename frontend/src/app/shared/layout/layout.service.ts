@@ -125,6 +125,12 @@ export class LayoutService {
     return value === undefined ? defaultExpanded : value;
   }
 
+  areSidebarCountsVisible(sectionKey: string): boolean {
+    return (this.isDesktop()
+      ? this.sidebarVisible() && !this.sidebarCollapsed()
+      : this.mobileDrawerOpen()) && this.isSidebarExpanded(sectionKey, true);
+  }
+
   setSidebarExpanded(key: string, expanded: boolean): void {
     const next = { ...this.sidebarExpandedState(), [key]: expanded };
     this.sidebarExpandedState.set(next);

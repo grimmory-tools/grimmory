@@ -22,32 +22,42 @@ export const validBookBrowseScope: CanActivateChildFn = route => {
   return invalid ? inject(Router).createUrlTree(['/dashboard']) : true;
 };
 
+export const UNSHELVED_BROWSE_SCOPE: BookBrowseScope =
+  {kind: 'unshelved', facetKey: 'shelf_status', facetValue: 'unshelved'};
+
+export function libraryBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'library', entityId, facetKey: 'library', facetValue: `${entityId}`};
+}
+
+export function shelfBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'shelf', entityId, facetKey: 'shelf', facetValue: `${entityId}`};
+}
+
+export function magicShelfBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'magicShelf', entityId, facetKey: 'shelf', facetValue: `magic:${entityId}`};
+}
+
 export function bookBrowseScope(
   paramMap: ParamMap,
   routeData: BookBrowseRouteData,
 ): BookBrowseScope | null {
   const libraryId = positiveId(paramMap.get('libraryId'));
   if (libraryId !== null) {
-    return {kind: 'library', entityId: libraryId, facetKey: 'library', facetValue: `${libraryId}`};
+    return libraryBrowseScope(libraryId);
   }
 
   const shelfId = positiveId(paramMap.get('shelfId'));
   if (shelfId !== null) {
-    return {kind: 'shelf', entityId: shelfId, facetKey: 'shelf', facetValue: `${shelfId}`};
+    return shelfBrowseScope(shelfId);
   }
 
   const magicShelfId = positiveId(paramMap.get('magicShelfId'));
   if (magicShelfId !== null) {
-    return {
-      kind: 'magicShelf',
-      entityId: magicShelfId,
-      facetKey: 'shelf',
-      facetValue: `magic:${magicShelfId}`,
-    };
+    return magicShelfBrowseScope(magicShelfId);
   }
 
   if (routeData.browseScope === 'unshelved') {
-    return {kind: 'unshelved', facetKey: 'shelf_status', facetValue: 'unshelved'};
+    return UNSHELVED_BROWSE_SCOPE;
   }
 
   return null;

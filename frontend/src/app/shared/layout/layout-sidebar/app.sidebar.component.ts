@@ -28,11 +28,8 @@ import {
 import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
-import { BookService } from '../../../features/book/service/book.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
-import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
-import { AuthorService } from '../../../features/author-browser/service/author.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { CommandPaletteService } from '../../../features/command-palette/command-palette.service';
 import { AuthService } from '../../service/auth.service';
@@ -163,7 +160,6 @@ export class AppSidebarComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly libraryHealthService = inject(LibraryHealthService);
   private readonly shelfService = inject(ShelfService);
-  private readonly bookService = inject(BookService);
   protected readonly dialogLauncherService = inject(DialogLauncherService);
   private readonly commandPaletteService = inject(CommandPaletteService);
   protected readonly bookDialogHelperService = inject(BookDialogHelperService);
@@ -173,8 +169,6 @@ export class AppSidebarComponent {
   private readonly userService = inject(UserService);
   private readonly versionService = inject(VersionService);
   private readonly magicShelfService = inject(MagicShelfService);
-  private readonly seriesDataService = inject(SeriesDataService);
-  private readonly authorService = inject(AuthorService);
   private readonly t = inject(TranslocoService);
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
@@ -182,7 +176,6 @@ export class AppSidebarComponent {
   private readonly themeService = inject(AppThemeService);
 
   readonly currentUser = this.userService.currentUser;
-  private readonly allAuthors = this.authorService.allAuthors;
   protected readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly versionInfo = toSignal(this.versionService.getVersion(), { initialValue: null });
   protected readonly appVersionLabel = computed(() => formatVersionLabel(this.versionInfo()?.current ?? '...'));
@@ -220,28 +213,20 @@ export class AppSidebarComponent {
   readonly sections = computed<SidebarSection[]>(() => {
     this.activeLang();
     return [
-      ...buildHomeSection(this.translate, {
-        allBooks: this.bookService.books().length,
-        series: this.seriesDataService.allSeries().length,
-        authors: this.allAuthors()?.length ?? 0,
-      }),
+      ...buildHomeSection(this.translate),
       ...buildLibrarySection(
         this.libraryService.libraries(),
-        this.libraryService.bookCountByLibraryId(),
         this.layoutService.librarySort(),
         this.translate,
         { health: this.libraryHealthService },
       ),
       ...buildShelfSection(
         this.shelfService.shelves(),
-        this.shelfService.bookCountByShelfId(),
-        this.shelfService.unshelvedBookCount(),
         this.layoutService.shelfSort(),
         this.translate,
       ),
       ...buildMagicShelfSection(
         this.magicShelfService.shelves(),
-        this.magicShelfService.bookCountByMagicShelfId(),
         this.layoutService.magicShelfSort(),
         this.translate,
       ),

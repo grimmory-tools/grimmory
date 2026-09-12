@@ -4,6 +4,7 @@
   [class.menu-open]="menuOpen()"
 >
   @let currentItem = item();
+  @let count = displayCount();
 
   @if (currentItem.action) {
     <button
@@ -25,8 +26,8 @@
         </span>
         <span class="layout-sidebar-item-text sidebar-item-text">
           <span class="sidebar-item-label">{{ currentItem.label }}</span>
-          @if (currentItem.bookCount) {
-            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          @if (count) {
+            <span class="book-count book-count-inline">{{ formatCount(count) }}</span>
           }
         </span>
       </span>
@@ -62,8 +63,8 @@
         </span>
         <span class="layout-sidebar-item-text sidebar-item-text">
           <span class="sidebar-item-label">{{ currentItem.label }}</span>
-          @if (currentItem.bookCount) {
-            <span class="book-count book-count-inline">{{ formatCount(currentItem.bookCount) }}</span>
+          @if (count) {
+            <span class="book-count book-count-inline">{{ formatCount(count) }}</span>
           }
         </span>
       </span>
@@ -88,14 +89,14 @@
         >
           <span class="entity-menu-button-content">
             <svg lucideEllipsisVertical class="entity-menu-icon" aria-hidden="true"></svg>
-            <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
+            <span class="entity-menu-count">{{ formatCount(count) }}</span>
           </span>
         </button>
-      } @else if (currentItem.bookCount) {
-        <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
+      } @else if (count) {
+        <p class="book-count book-count-end">{{ formatCount(count) }}</p>
       }
-    } @else if (currentItem.bookCount) {
-      <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
+    } @else if (count) {
+      <p class="book-count book-count-end">{{ formatCount(count) }}</p>
     }
   </span>
 </div>
