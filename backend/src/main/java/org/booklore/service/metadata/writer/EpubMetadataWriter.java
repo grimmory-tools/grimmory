@@ -157,7 +157,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
-            helper.copyOpenlibraryId(clear != null && clear.isGoodreadsId(), val -> {
+            helper.copyOpenlibraryId(clear != null && clear.isOpenlibraryId(), val -> {
                 removeIdentifierByUrn(metadataElement, "openlibrary");
                 if (val != null && !val.isBlank()) {
                     metadataElement.appendChild(createIdentifierElement(opfDoc, "openlibrary", val));
