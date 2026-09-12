@@ -503,6 +503,9 @@ public class CbxConversionService {
             if (metadata.getGoodreadsId() != null && !metadata.getGoodreadsId().trim().isEmpty()) {
                 model.put("goodreadsId", metadata.getGoodreadsId());
             }
+            if (metadata.getApplebooksId() != null && !metadata.getApplebooksId().trim().isEmpty()) {
+                model.put("applebooksId", metadata.getApplebooksId());
+            }
 
             if (metadata.getAuthors() != null && !metadata.getAuthors().isEmpty()) {
                 model.put("authors", metadata.getAuthors().stream()
