@@ -2,7 +2,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {of, Subject} from 'rxjs';
-import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {MessageService} from '@openng/optimus-ui/api';
 
@@ -43,10 +42,8 @@ describe('BookTableComponent', () => {
   let component: BookTableComponent;
   let bookSelectionService: BookSelectionService;
   let bookMetadataManageService: { toggleAllLock: ReturnType<typeof vi.fn> };
-  let queryClient: { setQueryData: ReturnType<typeof vi.fn>; setQueriesData: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    queryClient = {setQueryData: vi.fn(), setQueriesData: vi.fn()};
     bookMetadataManageService = {
       toggleAllLock: vi.fn(() => of(null)),
     };
@@ -55,7 +52,6 @@ describe('BookTableComponent', () => {
       imports: [BookTableComponent, getTranslocoModule()],
       providers: [
         provideRouter([]),
-        {provide: QueryClient, useValue: queryClient},
         {provide: MessageService, useValue: {add: vi.fn()}},
         {
           provide: UrlHelperService,
@@ -263,7 +259,6 @@ describe('BookTableComponent', () => {
 
     expect(book.metadata?.allMetadataLocked).toBe(false);
     expect(bookMetadataManageService.toggleAllLock).toHaveBeenCalledWith(new Set([1]), 'LOCK');
-    expect(queryClient.setQueriesData).toHaveBeenCalledWith({queryKey: ['app-books']}, expect.any(Function));
   });
 
   it('disables a row lock button while that book lock request is in flight', () => {

@@ -6,14 +6,12 @@ import {ActivatedRoute} from '@angular/router';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {finalize} from 'rxjs';
 import {ColumnDef, ColumnSizingState, Header, createAngularTable, functionalUpdate, getCoreRowModel} from '@tanstack/angular-table';
-import {QueryClient} from '@tanstack/angular-query-experimental';
 import {injectVirtualizer} from '@tanstack/angular-virtual';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {RouteScrollPositionService} from '../../../../../shared/service/route-scroll-position.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
-import {patchAppBooksMetadataLockInCache} from '../../../service/book-query-cache';
 import {MessageService} from '@openng/optimus-ui/api';
 import {BookSelectionService} from '../book-selection.service';
 import {BookTableRowComponent, type BookTableRowCoverPreview, type BookTableSelectionChange} from './book-table-row.component';
@@ -92,7 +90,6 @@ export class BookTableComponent {
   protected readonly bookSelectionService = inject(BookSelectionService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
-  private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
@@ -295,7 +292,6 @@ export class BookTableComponent {
       )
       .subscribe({
         next: () => {
-          patchAppBooksMetadataLockInCache(this.queryClient, metadata.bookId, lockAction === 'LOCK');
           this.messageService.add({
             severity: 'success',
             summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedSummary') : this.t.translate('book.table.toast.metadataUnlockedSummary'),
