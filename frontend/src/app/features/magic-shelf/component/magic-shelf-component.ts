@@ -211,6 +211,14 @@ const FIELD_GROUPS: FieldGroup[] = [
   { translationKey: 'fileIdentifiers', fields: ['fileType', 'fileSize', 'isbn13', 'isbn10', 'isPhysical'] }
 ];
 
+const DATE_UNITS = ['days', 'weeks', 'months', 'years'];
+const DATE_PERIODS = ['week', 'month', 'year'];
+
+function isRelativeAmount(value: unknown): boolean {
+  if (typeof value !== 'number' && typeof value !== 'string') return false;
+  return String(value).trim() !== '' && Number.isFinite(Number(value));
+}
+
 const READ_STATUS_KEYS: Record<string, string> = {
   UNREAD: 'unread',
   READING: 'reading',
@@ -424,20 +432,11 @@ export class MagicShelfComponent implements OnInit {
   }
 
   get dateUnitOptions() {
-    return [
-      {label: this.t.translate('magicShelf.dateUnits.days'), value: 'days'},
-      {label: this.t.translate('magicShelf.dateUnits.weeks'), value: 'weeks'},
-      {label: this.t.translate('magicShelf.dateUnits.months'), value: 'months'},
-      {label: this.t.translate('magicShelf.dateUnits.years'), value: 'years'},
-    ];
+    return DATE_UNITS.map(unit => ({label: this.t.translate(`magicShelf.dateUnits.${unit}`), value: unit}));
   }
 
   get datePeriodOptions() {
-    return [
-      {label: this.t.translate('magicShelf.datePeriods.week'), value: 'week'},
-      {label: this.t.translate('magicShelf.datePeriods.month'), value: 'month'},
-      {label: this.t.translate('magicShelf.datePeriods.year'), value: 'year'},
-    ];
+    return DATE_PERIODS.map(period => ({label: this.t.translate(`magicShelf.datePeriods.${period}`), value: period}));
   }
 
   libraryOptions = computed(() =>
@@ -727,17 +726,18 @@ export class MagicShelfComponent implements OnInit {
     const valueCtrl = ruleCtrl.get('value');
     const valueStartCtrl = ruleCtrl.get('valueStart');
     const valueEndCtrl = ruleCtrl.get('valueEnd');
+    const value = valueCtrl?.value;
 
     if (operator === 'within_last' || operator === 'older_than') {
-      valueCtrl?.setValue(null);
+      if (!isRelativeAmount(value)) valueCtrl?.setValue(null);
       valueStartCtrl?.setValue(null);
-      valueEndCtrl?.setValue('days');
+      if (!DATE_UNITS.includes(valueEndCtrl?.value)) valueEndCtrl?.setValue('days');
     } else if (operator === 'this_period') {
-      valueCtrl?.setValue(null);
+      if (!DATE_PERIODS.includes(value)) valueCtrl?.setValue(null);
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else if (MULTI_VALUE_OPERATORS.includes(operator)) {
-      valueCtrl?.setValue([]);
+      if (!Array.isArray(value)) valueCtrl?.setValue([]);
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else if (EMPTY_CHECK_OPERATORS.includes(operator)) {
@@ -745,10 +745,18 @@ export class MagicShelfComponent implements OnInit {
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else {
-      valueCtrl?.setValue('');
+      // in_between edits valueStart/valueEnd, so it never keeps the single value
+      if (operator === 'in_between' || !this.isSingleValue(ruleCtrl, value)) valueCtrl?.setValue('');
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     }
+  }
+
+  /** A value survives an operator change only when the input the new operator renders can still edit it. */
+  private isSingleValue(ruleCtrl: FormGroup, value: unknown): boolean {
+    if (value == null || value === '' || Array.isArray(value)) return false;
+    const type = FIELD_CONFIGS[ruleCtrl.get('field')?.value as RuleField]?.type;
+    return type !== 'date' || value instanceof Date;
   }
 
   onFieldChange(ruleCtrl: RuleFormGroup) {
