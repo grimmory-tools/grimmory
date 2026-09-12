@@ -1,0 +1,237 @@
+@if (viewState() === 'empty') {
+  <ng-container [ngTemplateOutlet]="emptyDef().templateRef" />
+} @else if (viewState() === 'initial-error') {
+  <div class="flex min-h-64 flex-col items-center justify-center gap-3">
+    <p class="m-0 text-sm text-text-muted">{{ initialErrorMessage() }}</p>
+    <app-button
+      variant="soft"
+      size="sm"
+      [label]="'common.retry' | transloco"
+      (clicked)="retryInitial.emit()" />
+  </div>
+} @else {
+<div
+  #scrollElement
+  [class]="paneClass()">
+  <table
+    role="table"
+    class="grid min-w-full border-separate border-spacing-0 text-sm text-text"
+    [style]="columnSizeVars()"
+    [style.width.px]="tableWidth()"
+    [attr.aria-rowcount]="ariaRowCount()"
+    [attr.aria-colcount]="ariaColumnCount()">
+    <thead role="rowgroup" class="sticky top-0 z-30 grid bg-page shadow-[0_1px_0_color-mix(in_srgb,currentColor_12%,transparent)]">
+      <tr role="row" class="flex min-w-full" [style.width.px]="tableWidth()">
+        @for (header of headers(); track header.id) {
+          <th
+            role="columnheader"
+            scope="col"
+            [class]="cellClasses()[header.column.id].header"
+            [style.width]="columnWidth(header.column.id)"
+            [attr.aria-sort]="primaryAriaSort(header)">
+            @if (header.column.id === 'select') {
+              <span class="grid h-full w-full place-items-center" (pointerdown)="stopPropagation($event)">
+                <app-checkbox
+                  size="sm"
+                  [ariaLabel]="'shared.ui.bulkActions.selectAll' | transloco"
+                  [checked]="allSelected()"
+                  [indeterminate]="someSelected()"
+                  (checkedChange)="changeHeaderSelection($event)" />
+              </span>
+            } @else if (header.column.getCanSort()) {
+              <button
+                type="button"
+                [class]="cellClasses()[header.column.id].sortButton"
+                (click)="header.column.getToggleSortingHandler()?.($event)">
+                <span>{{ headerLabelKeys()[header.column.id] | transloco }}</span>
+                @if (header.column.getIsSorted(); as direction) {
+                  @if (direction === 'asc') {
+                    <svg lucideArrowUp class="size-3.5 shrink-0 text-primary" aria-hidden="true"></svg>
+                  } @else {
+                    <svg lucideArrowDown class="size-3.5 shrink-0 text-primary" aria-hidden="true"></svg>
+                  }
+                  @if (sortTerms().length > 1) {
+                    <app-tag
+                      color="primary"
+                      size="sm"
+                      styleClass="size-4 justify-center p-0! text-[10px]!"
+                      aria-hidden="true">
+                      {{ header.column.getSortIndex() + 1 }}
+                    </app-tag>
+                  }
+                }
+              </button>
+            } @else {
+              <span>{{ headerLabelKeys()[header.column.id] | transloco }}</span>
+            }
+
+            @if (header.column.getCanResize()) {
+              <span
+                class="absolute -right-1.5 top-0 z-10 h-full w-3 cursor-col-resize touch-none after:absolute after:inset-y-1/4 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-current/20 after:content-['']"
+                aria-hidden="true"
+                (mousedown)="startResize(header, $event)"
+                (touchstart)="startResize(header, $event)"
+                (dblclick)="resetWidth(header, $event)"></span>
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody role="rowgroup" class="relative grid" [style.height.px]="rowVirtualizer.getTotalSize()">
+      @for (virtualRow of rowVirtualizer.getVirtualItems(); track virtualRow.key) {
+        @let row = rows()[virtualRow.index];
+        <tr
+          role="row"
+          class="group/row absolute left-0 top-0 flex min-w-full cursor-default"
+          [class.opacity-50]="row ? pendingDeletionIds().has(row.original.id) : false"
+          [attr.data-selected]="row && isSelected(row.original) ? 'true' : null"
+          [attr.data-menu-open]="row && row.original.id === openMenuBookId() ? 'true' : null"
+          (contextmenu)="onRowContextMenu(row?.original, $event)"
+          [style.width.px]="tableWidth()"
+          [style.height.px]="virtualRow.size"
+          [style.transform]="'translateY(' + virtualRow.start + 'px)'"
+          [attr.aria-rowindex]="virtualRow.index + 2">
+          @if (row) {
+            @let book = row.original;
+            @for (cell of row.getAllCells(); track cell.id) {
+              @let field = cell.column.id;
+              <td
+                role="cell"
+                [class]="cellClasses()[field].body"
+                [style.width]="columnWidth(field)">
+                @switch (field) {
+                  @case ('select') {
+                    <span
+                      class="grid h-full w-full place-items-center opacity-0 group-hover/row:opacity-100 group-has-[:focus-visible]/row:opacity-100 group-data-[selected=true]/row:opacity-100"
+                      [class.opacity-100]="selectionActive()"
+                      (pointerdown)="rememberSelectionPointer($event)">
+                      <app-checkbox
+                        size="sm"
+                        [ariaLabel]="'book.selectBook' | transloco: {title: bookTitle(book)}"
+                        [checked]="isSelected(book)"
+                        (checkedChange)="toggleRowSelection(book, virtualRow.index)" />
+                    </span>
+                  }
+                  @case ('title') {
+                    <div class="flex min-w-0 items-center gap-2.5">
+                      <span
+                        class="block w-[26px] flex-none overflow-hidden rounded-[0.2rem] outline -outline-offset-1 outline-black/10 dark:outline-white/10 [&_app-cover]:h-full"
+                        [style.height.px]="squareCover(book) ? 26 : 38"
+                        aria-hidden="true">
+                        <app-cover
+                          [src]="coverUrl(book)"
+                          [title]="bookTitle(book)"
+                          [authors]="authors(book)"
+                          size="sm"
+                          loading="lazy" />
+                      </span>
+                      <a
+                        class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-medium text-text no-underline hover:text-primary-text hover:underline hover:underline-offset-[0.15em] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        [attr.href]="detailHref(book)"
+                        (click)="onDetailClick(book, $event)">
+                        {{ bookTitle(book) }}
+                      </a>
+                      @if (!selectionActive()) {
+                        <span class="ml-auto hidden flex-none group-hover/row:block group-has-[:focus-visible]/row:block group-data-[menu-open=true]/row:block pointer-coarse:block">
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            iconOnly
+                            ariaHasPopup="menu"
+                            [ariaExpanded]="book.id === openMenuBookId()"
+                            [ariaLabel]="'book.card.aria.bookMenu' | transloco: {title: bookTitle(book)}"
+                            (clicked)="onRowMenu(book, $event)">
+                            <svg lucideEllipsisVertical aria-hidden="true"></svg>
+                          </app-button>
+                        </span>
+                      }
+                    </div>
+                  }
+                  @default {
+                    @let value = cellText(cell);
+                    @let links = cellLinks(book, field);
+                    @if (links.length > 0) {
+                      <span class="flex min-w-0 max-w-full items-center gap-2" [title]="value">
+                        <button
+                          type="button"
+                          class="min-h-10 min-w-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap border-0 bg-transparent p-0 font-[inherit] text-primary-text hover:underline hover:underline-offset-[0.15em] focus-visible:rounded-[0.2rem] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+                          (click)="facetRequested.emit(links[0])">
+                          {{ links[0].value }}
+                        </button>
+                        @if (links.length > 1) {
+                          <button
+                            type="button"
+                            class="relative h-6 flex-none cursor-pointer rounded-[0.2rem] border-0 bg-transparent px-0.5 font-[inherit] tabular-nums text-primary-text hover:underline hover:underline-offset-[0.15em] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary after:absolute after:inset-x-0 after:top-1/2 after:h-10 after:-translate-y-1/2 after:content-['']"
+                            [attr.aria-label]="moreLinksLabel(field, links.length - 1)"
+                            [appMenuTriggerFor]="overflowMenu"
+                            (click)="prepareOverflowMenu(links, field)"
+                            (keydown)="prepareOverflowMenuOnKey($event, links, field)">
+                            +{{ links.length - 1 }}
+                          </button>
+                        }
+                      </span>
+                    } @else {
+                      <span
+                        class="overflow-hidden text-ellipsis whitespace-nowrap"
+                        [class.text-text-muted]="value === emptyValue"
+                        [title]="value">
+                        {{ value }}
+                      </span>
+                    }
+                  }
+                }
+              </td>
+            }
+          } @else {
+            @for (header of headers(); track header.id) {
+              <td
+                role="cell"
+                [class]="cellClasses()[header.column.id].body"
+                [style.width]="columnWidth(header.column.id)">
+                <span
+                  class="h-3 w-[min(80%,11rem)] rounded-full bg-skeleton-base animate-skeleton motion-reduce:animate-none"
+                  aria-hidden="true"></span>
+              </td>
+            }
+          }
+          @if (row && mobile() && selectionActive()) {
+            <td aria-hidden="true" class="absolute inset-0 z-20 block p-0">
+              <button
+                type="button"
+                tabindex="-1"
+                class="block h-full w-full cursor-default border-0 bg-transparent p-0"
+                (click)="toggleRowSelection(row.original, virtualRow.index)"></button>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (nextPageError()) {
+  <div class="z-10 -mt-12 flex justify-center">
+    <div class="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2 shadow-pop">
+      <span class="text-sm text-text-muted">{{ nextPageErrorMessage() }}</span>
+      <app-button
+        variant="ghost"
+        size="sm"
+        [label]="'common.retry' | transloco"
+        (clicked)="retryNextPage.emit()" />
+    </div>
+  </div>
+}
+}
+
+<app-menu
+  #overflowMenu
+  menuClass="w-max max-w-[min(24rem,calc(100vw-1rem))]"
+  [ariaLabel]="overflowMenuLabel()">
+  <div class="max-h-80 overflow-y-auto overscroll-contain">
+    @for (link of overflowLinks(); track link.key + ':' + link.value) {
+      <app-menu-item [value]="link.key + ':' + link.value" [searchLabel]="link.value" (selected)="facetRequested.emit(link)">
+        {{ link.value }}
+      </app-menu-item>
+    }
+  </div>
+</app-menu>

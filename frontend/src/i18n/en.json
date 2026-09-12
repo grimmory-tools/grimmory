@@ -5548,7 +5548,11 @@
     "book": {
       "empty": "No books here yet.",
       "filteredEmpty": "No books match these filters.",
-      "loadError": "We couldn't load these books."
+      "loadError": "We couldn't load these books.",
+      "pageError": "Couldn't load more books."
+    },
+    "table": {
+      "moreValues": "Show {{count}} more {{column}}"
     }
   }
 }
