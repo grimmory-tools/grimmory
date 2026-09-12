@@ -202,6 +202,7 @@ public class SidecarMetadataMapper {
                 .ranobedbId(entity.getRanobedbId())
                 .audibleId(entity.getAudibleId())
                 .applebooksId(entity.getApplebooksId())
+                .openlibraryId(entity.getOpenlibraryId())
                 .build();
     }
 
