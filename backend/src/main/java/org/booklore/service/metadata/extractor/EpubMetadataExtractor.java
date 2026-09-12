@@ -218,6 +218,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
                         switch (key) {
                             case BookLoreMetadata.NS_PREFIX + ":asin" -> builderMeta.asin(content);
+                            case BookLoreMetadata.NS_PREFIX + ":openlibrary_id" -> builderMeta.openlibraryId(content);
                             case BookLoreMetadata.NS_PREFIX + ":goodreads_id" -> builderMeta.goodreadsId(content);
                             case BookLoreMetadata.NS_PREFIX + ":comicvine_id" -> builderMeta.comicvineId(content);
                             case BookLoreMetadata.NS_PREFIX + ":ranobedb_id" -> builderMeta.ranobedbId(content);
@@ -315,6 +316,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                                     if (cleanValue.length() == 13) builderMeta.isbn13(value);
                                     else if (cleanValue.length() == 10) builderMeta.isbn10(value);
                                 }
+                                case "OPENLIBRARY" -> builderMeta.openlibraryId(value);
                                 case "GOODREADS" -> builderMeta.goodreadsId(value);
                                 case "COMICVINE" -> builderMeta.comicvineId(value);
                                 case "RANOBEDB" -> builderMeta.ranobedbId(value);

@@ -37,6 +37,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern WEB_SPLIT_PATTERN = Pattern.compile("[,;\\s]+");
 
     // URL Patterns
+    private static final Pattern OPENLIBRARY_URL_PATTERN = Pattern.compile("openlibrary.org(/[^/]+/[^/]+)");
     private static final Pattern GOODREADS_URL_PATTERN = Pattern.compile("goodreads\\.com/book/show/(\\d+)(?:-[\\w-]+)?");
     private static final Pattern AMAZON_URL_PATTERN = Pattern.compile("amazon\\.com/dp/([A-Z0-9]{10})");
     private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/(?:issue|volume)/(?:[^/]+/)?(\\d+-\\d+)");
@@ -308,6 +309,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             if (url.isBlank()) continue;
             url = url.trim();
 
+            Matcher olMatcher = OPENLIBRARY_URL_PATTERN.matcher(url);
+            if (olMatcher.find()) {
+                builder.openlibraryId(olMatcher.group(1));
+                continue;
+            }
+
             Matcher grMatcher = GOODREADS_URL_PATTERN.matcher(url);
             if (grMatcher.find()) {
                 builder.goodreadsId(grMatcher.group(1));
@@ -379,6 +386,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
                 case "RanobedbId" -> builder.ranobedbId(value);
                 case "GoogleId" -> builder.googleId(value);
                 case "GoodreadsId" -> builder.goodreadsId(value);
+                case "OpenlibraryId" -> builder.openlibraryId(value);
                 case "ASIN" -> builder.asin(value);
                 case "ComicvineId" -> builder.comicvineId(value);
                 case "ApplebooksId" -> builder.applebooksId(value);
