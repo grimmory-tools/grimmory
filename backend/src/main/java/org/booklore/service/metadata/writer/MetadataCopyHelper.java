@@ -117,6 +117,13 @@ public class MetadataCopyHelper {
         }
     }
 
+    public void copyOpenlibraryId(boolean clear, Consumer<String> consumer) {
+        if (!isLocked(metadata.getOpenlibraryIdLocked())) {
+            if (clear) consumer.accept(null);
+            else if (metadata.getOpenlibraryId() != null) consumer.accept(metadata.getOpenlibraryId());
+        }
+    }
+
     public void copyComicvineId(boolean clear, Consumer<String> consumer) {
         if (!isLocked(metadata.getComicvineIdLocked())) {
             if (clear) consumer.accept(null);

@@ -245,6 +245,8 @@ public class CbxMetadataWriter implements MetadataWriter {
             primaryUrl = "https://www.amazon.com/dp/" + metadata.getAsin();
         } else if (metadata.getApplebooksId() != null && !metadata.getApplebooksId().isBlank()) {
             primaryUrl = "https://books.apple.com/us/book/id" + metadata.getApplebooksId();
+        } else if (metadata.getOpenlibraryId() != null && !metadata.getOpenlibraryId().isBlank()) {
+            primaryUrl = "https://openlibrary.org/" + metadata.getOpenlibraryId().replaceAll("^/+", "");
         }
         info.setWeb(primaryUrl);
 
@@ -288,6 +290,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         appendBookLoreTag(notesBuilder, "LubimyczytacId", metadata.getLubimyczytacId());
         appendBookLoreTag(notesBuilder, "RanobedbId", metadata.getRanobedbId());
         appendBookLoreTag(notesBuilder, "GoogleId", metadata.getGoogleId());
+        appendBookLoreTag(notesBuilder, "OpenlibraryId", metadata.getOpenlibraryId());
         appendBookLoreTag(notesBuilder, "GoodreadsId", metadata.getGoodreadsId());
         appendBookLoreTag(notesBuilder, "ASIN", metadata.getAsin());
         appendBookLoreTag(notesBuilder, "ComicvineId", metadata.getComicvineId());

@@ -266,6 +266,9 @@ public class PdfMetadataWriter implements MetadataWriter {
         helper.copyGoogleId(clear != null && clear.isGoogleId(), id -> {
             if (id != null && !id.isBlank()) customFields.put(prefix + "googleId", id);
         });
+        helper.copyOpenlibraryId(clear != null && clear.isOpenlibraryId(), id -> {
+            if (id != null && !id.isBlank()) customFields.put(prefix + "openlibraryId", id);
+        });
         helper.copyGoodreadsId(clear != null && clear.isGoodreadsId(), id -> {
             String normalized = normalizeGoodreadsId(id);
             if (normalized != null && !normalized.isBlank()) customFields.put(prefix + "goodreadsId", normalized);
