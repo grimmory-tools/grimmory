@@ -156,6 +156,7 @@ public class BookdropMetadataService {
                 // External IDs
                 .asin(truncate(extracted.getAsin(), 10))
                 .audibleId(truncate(extracted.getAudibleId(), 10))
+                .openlibraryId(truncate(extracted.getOpenlibraryId(), 100))
                 .goodreadsId(truncate(extracted.getGoodreadsId(), 100))
                 .hardcoverId(truncate(extracted.getHardcoverId(), 100))
                 .hardcoverBookId(truncate(extracted.getHardcoverBookId(), 100))

@@ -19,6 +19,7 @@ export class MetadataProviderFieldSelectorComponent {
   private t = inject(TranslocoService);
 
   providerGroups: { labelKey: string, fields: string[] }[] = [
+    {labelKey: 'openlibrary', fields: ['openlibraryId']},
     {labelKey: 'amazon', fields: ['asin', 'amazonRating', 'amazonReviewCount']},
     {labelKey: 'googleBooks', fields: ['googleId']},
     {labelKey: 'goodreads', fields: ['goodreadsId', 'goodreadsRating', 'goodreadsReviewCount']},
@@ -38,6 +39,7 @@ export class MetadataProviderFieldSelectorComponent {
   }
 
   private readonly allFieldNames: (keyof MetadataProviderSpecificFields)[] = [
+    'openlibraryId',
     'asin', 'amazonRating', 'amazonReviewCount',
     'googleId',
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',

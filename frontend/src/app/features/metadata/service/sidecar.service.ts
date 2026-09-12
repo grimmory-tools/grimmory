@@ -23,6 +23,7 @@ export interface SidecarIdentifiers {
   lubimyczytacId?: string;
   ranobedbId?: string;
   audibleId?: string;
+  openlibraryId?: string;
 }
 
 export interface SidecarRating {

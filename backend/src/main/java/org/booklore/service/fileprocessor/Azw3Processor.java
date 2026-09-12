@@ -119,6 +119,7 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
         String lang = azw3Metadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(azw3Metadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(azw3Metadata.getAsin(), 10));
         metadata.setAmazonRating(azw3Metadata.getAmazonRating());
         metadata.setAmazonReviewCount(azw3Metadata.getAmazonReviewCount());

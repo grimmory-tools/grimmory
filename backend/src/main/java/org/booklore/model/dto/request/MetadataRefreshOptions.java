@@ -53,6 +53,7 @@ public class MetadataRefreshOptions {
         private FieldProvider categories;
         private FieldProvider cover;
         private FieldProvider pageCount;
+        private FieldProvider openlibraryId;
         private FieldProvider asin;
         private FieldProvider goodreadsId;
         private FieldProvider comicvineId;
@@ -128,6 +129,8 @@ public class MetadataRefreshOptions {
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean pageCount = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean openlibraryId = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean asin = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean goodreadsId = true;
@@ -190,6 +193,7 @@ public class MetadataRefreshOptions {
             this.categories = true;
             this.cover = true;
             this.pageCount = true;
+            this.openlibraryId = true;
             this.asin = true;
             this.goodreadsId = true;
             this.comicvineId = true;

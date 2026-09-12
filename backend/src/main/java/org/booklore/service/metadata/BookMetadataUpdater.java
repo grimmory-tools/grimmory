@@ -188,6 +188,7 @@ public class BookMetadataUpdater {
         handleFieldUpdate(e.getSeriesTotalLocked(), clear.isSeriesTotal(), m.getSeriesTotal(), e::setSeriesTotal, e::getSeriesTotal, replaceMode);
         handleFieldUpdate(e.getIsbn13Locked(), clear.isIsbn13(), m.getIsbn13(), v -> e.setIsbn13(nullIfBlank(v)), e::getIsbn13, replaceMode);
         handleFieldUpdate(e.getIsbn10Locked(), clear.isIsbn10(), m.getIsbn10(), v -> e.setIsbn10(nullIfBlank(v)), e::getIsbn10, replaceMode);
+        handleFieldUpdate(e.getOpenlibraryIdLocked(), clear.isOpenlibraryId(), m.getOpenlibraryId(), v -> e.setOpenlibraryId(nullIfBlank(v)), e::getOpenlibraryId, replaceMode);
         handleFieldUpdate(e.getAsinLocked(), clear.isAsin(), m.getAsin(), v -> e.setAsin(nullIfBlank(v)), e::getAsin, replaceMode);
         handleFieldUpdate(e.getGoodreadsIdLocked(), clear.isGoodreadsId(), m.getGoodreadsId(), v -> e.setGoodreadsId(nullIfBlank(v)), e::getGoodreadsId, replaceMode);
         handleFieldUpdate(e.getComicvineIdLocked(), clear.isComicvineId(), m.getComicvineId(), v -> e.setComicvineId(nullIfBlank(v)), e::getComicvineId, replaceMode);
@@ -693,6 +694,7 @@ public class BookMetadataUpdater {
                 Pair.of(m.getSeriesTotalLocked(), e::setSeriesTotalLocked),
                 Pair.of(m.getIsbn13Locked(), e::setIsbn13Locked),
                 Pair.of(m.getIsbn10Locked(), e::setIsbn10Locked),
+                Pair.of(m.getOpenlibraryIdLocked(), e::setOpenlibraryIdLocked),
                 Pair.of(m.getAsinLocked(), e::setAsinLocked),
                 Pair.of(m.getGoodreadsIdLocked(), e::setGoodreadsIdLocked),
                 Pair.of(m.getComicvineIdLocked(), e::setComicvineIdLocked),

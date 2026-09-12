@@ -51,6 +51,7 @@ export interface OidcAutoProvisionDetails {
 }
 
 export interface MetadataProviderSettings {
+  openLibrary: OpenLibrary;
   amazon: Amazon;
   google: Google;
   goodReads: Goodreads;
@@ -60,6 +61,10 @@ export interface MetadataProviderSettings {
   douban: Douban;
   lubimyczytac: Lubimyczytac;
   audible: Audible;
+}
+
+export interface OpenLibrary {
+  enabled: boolean;
 }
 
 export interface Amazon {
@@ -203,6 +208,7 @@ export interface AppSettings {
 }
 
 export interface MetadataProviderSpecificFields {
+  openlibraryId: boolean;
   asin: boolean;
   amazonRating: boolean;
   amazonReviewCount: boolean;

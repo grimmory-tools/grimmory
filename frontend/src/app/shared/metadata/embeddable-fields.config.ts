@@ -5,7 +5,7 @@ const EBOOK_EMBEDDABLE: ReadonlySet<string> = new Set([
   'title', 'subtitle', 'authors', 'publisher', 'publishedDate', 'language',
   'categories', 'description', 'seriesName', 'seriesNumber', 'seriesTotal',
   'isbn10', 'isbn13', 'moods', 'tags', 'ageRating', 'contentRating', 'pageCount',
-  'asin', 'amazonRating', 'amazonReviewCount', 'googleId',
+  'openlibraryId', 'asin', 'amazonRating', 'amazonReviewCount', 'googleId',
   'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
   'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount',
   'lubimyczytacId', 'lubimyczytacRating',
