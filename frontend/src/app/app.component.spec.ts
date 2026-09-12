@@ -8,6 +8,7 @@ import { AppComponent } from "./app.component";
 import { AuthInitializationService } from "./core/security/auth-initialization-service";
 import { RxStompService } from "./shared/websocket/rx-stomp.service";
 import { BookService } from "./features/book/service/book.service";
+import { MetadataRefreshSubmissionService } from "./features/metadata/data/metadata-refresh-submission.service";
 import { NotificationEventService } from "./shared/websocket/notification-event.service";
 import { AppThemeService } from "./shared/service/app-theme.service";
 import { MetadataProgressService } from "./shared/service/metadata-progress.service";
@@ -48,6 +49,7 @@ describe("AppComponent", () => {
   };
   let bookdropFileService: { handleIncomingFile: ReturnType<typeof vi.fn> };
   let taskService: { handleTaskProgress: ReturnType<typeof vi.fn> };
+  let metadataRefreshSubmissionService: { handleBatchProgress: ReturnType<typeof vi.fn> };
   let libraryHealthService: { initWebsocket: ReturnType<typeof vi.fn>, fetchHealth: ReturnType<typeof vi.fn> };
   let authService: { forceLogout: ReturnType<typeof vi.fn>, isAuthenticated: ReturnType<typeof signal> };
   let libraryImportProgressService: { recordBookAdded: ReturnType<typeof vi.fn> };
@@ -89,6 +91,7 @@ describe("AppComponent", () => {
     metadataProgressService = { handleIncomingProgress: vi.fn() };
     bookdropFileService = { handleIncomingFile: vi.fn() };
     taskService = { handleTaskProgress: vi.fn() };
+    metadataRefreshSubmissionService = { handleBatchProgress: vi.fn() };
     libraryHealthService = { initWebsocket: vi.fn(), fetchHealth: vi.fn() };
     authService = { forceLogout: vi.fn(), isAuthenticated: signal(auth.authenticated) };
     libraryImportProgressService = { recordBookAdded: vi.fn() };
@@ -121,6 +124,7 @@ describe("AppComponent", () => {
         { provide: MetadataProgressService, useValue: metadataProgressService },
         { provide: BookdropFileService, useValue: bookdropFileService },
         { provide: TaskService, useValue: taskService },
+        { provide: MetadataRefreshSubmissionService, useValue: metadataRefreshSubmissionService },
         { provide: LibraryHealthService, useValue: libraryHealthService },
         { provide: AuthService, useValue: authService },
         { provide: LibraryImportProgressService, useValue: libraryImportProgressService },
@@ -214,6 +218,9 @@ describe("AppComponent", () => {
     expect(bookService.handleMultipleBookUpdates).toHaveBeenCalledWith([
       { id: 3 }]);
     expect(metadataProgressService.handleIncomingProgress).toHaveBeenCalledWith(
+      { taskId: "task-1" },
+    );
+    expect(metadataRefreshSubmissionService.handleBatchProgress).toHaveBeenCalledWith(
       { taskId: "task-1" },
     );
     expect(notificationEventService.handleNewNotification).toHaveBeenCalledWith(
