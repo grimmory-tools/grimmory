@@ -499,8 +499,6 @@
       },
       "sortFields": {
         "title": "Titel",
-        "fileName": "Filnamn",
-        "filePath": "Filsökväg",
         "addedOn": "Tillagd datum",
         "author": "Författare",
         "authorSurnameVorname": "Författare (efternamn)",
@@ -513,7 +511,6 @@
         "readStatus": "Lässtatus",
         "dateFinished": "Avslutad datum",
         "readingProgress": "Läsframsteg",
-        "bookType": "Filformat",
         "pageCount": "Sidor"
       },
       "sortDirections": {
