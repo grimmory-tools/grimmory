@@ -289,6 +289,19 @@ public class EpubMetadataWriter implements MetadataWriter {
         return Optional.empty();
     }
 
+    private List<Element> getElements(Element parent, String namespace, String tagName) {
+        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+
+        List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < metadataElements.getLength(); i++ ) {
+            if (metadataElements.item(i) instanceof Element element) {
+                elements.add(element);
+            }
+        }
+
+        return elements;
+    }
+
     private Element getOrCreateElement(Element parent, String namespace, String tagName) {
         return getElement(parent, namespace, tagName)
                 .orElseGet(() -> {
@@ -1345,7 +1358,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         Element spine = getOrCreateSpineElement(document);
         Optional<Element> tours = getElement(document.getDocumentElement(), OPF_NS, "tours");
         Optional<Element> guide = getElement(document.getDocumentElement(), OPF_NS, "guide");
-        NodeList collections = document.getDocumentElement().getElementsByTagNameNS(OPF_NS, "collection");
+        List<Element> collections = getElements(document.getDocumentElement(), OPF_NS, "collection");
 
         Element packageElement = document.getDocumentElement();
 
@@ -1354,8 +1367,8 @@ public class EpubMetadataWriter implements MetadataWriter {
         packageElement.appendChild(spine);
         tours.ifPresent(packageElement::appendChild);
         guide.ifPresent(packageElement::appendChild);
-        for (int i = 0; i < collections.getLength(); i++) {
-            packageElement.appendChild(collections.item(i));
+        for (var collection : collections) {
+            packageElement.appendChild(collection);
         }
     }
 
