@@ -41,6 +41,11 @@ public class OpenLibraryParser implements BookParser {
     private static final int REQUEST_RATE_LIMIT = 160;
     private static final int RATE_LIMIT_PER = 60000;
 
+    // https://github.com/internetarchive/openlibrary/blob/master/openlibrary/plugins/openlibrary/config/edition/identifiers.yml
+    private static final String IDENTIFIER_GOODREADS = "goodreads";
+    private static final String IDENTIFIER_GOOGLE = "google";
+    private static final String IDENTIFIER_AMAZON = "amazon";
+
     private static final String COVERS_BASE_URI = "https://covers.openlibrary.org/";
     private static final String COVER_PATH = "/b/id/{cover_id}-{size}.jpg";
 
@@ -446,8 +451,9 @@ public class OpenLibraryParser implements BookParser {
                     .isbn10(edition.isbn10.flatMap(i -> i.stream().findFirst()).orElse(null))
                     .isbn13(edition.isbn13.flatMap(i -> i.stream().findFirst()).orElse(null))
                     .pageCount(edition.pageCount.orElse(null))
-                    .goodreadsId(edition.getIdentifier("goodreads"))
-                    .asin(edition.getIdentifier("amazon"));
+                    .goodreadsId(edition.getIdentifier(IDENTIFIER_GOODREADS))
+                    .googleId(edition.getIdentifier(IDENTIFIER_GOOGLE))
+                    .asin(edition.getIdentifier(IDENTIFIER_AMAZON));
         } else {
             builder
                     .externalUrl(getURI(work.key).toString())
