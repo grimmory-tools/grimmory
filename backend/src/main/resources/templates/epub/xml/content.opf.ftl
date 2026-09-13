@@ -59,7 +59,11 @@
     <dc:identifier id="goodreads">${goodreadsId}</dc:identifier>
     <meta refines="#goodreads" property="identifier-type">GOODREADS</meta>
     </#if>
-    
+    <#if applebooksId?has_content>
+      <dc:identifier id="applebooks">${applebooksId}</dc:identifier>
+      <meta refines="#applebooks" property="identifier-type">APPLEBOOKS</meta>
+    </#if>
+
     <#-- Categories/Subjects -->
     <#if categories?has_content>
       <#list categories as category>
