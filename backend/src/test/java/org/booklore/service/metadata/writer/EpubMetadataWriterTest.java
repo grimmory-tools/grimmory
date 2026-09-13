@@ -179,6 +179,27 @@ class EpubMetadataWriterTest {
             assertThat(manifestIndex).isLessThan(spineIndex);
             assertThat(spineIndex).isLessThan(collectionIndex);
         }
+
+        @Test
+        @DisplayName("Should not flatten collections in EPUB3")
+        void writeMetadata_shouldNotFlattenCollections() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <manifest></manifest>
+                        <collection><collection></collection></collection>
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+
+            assertThat(content.replaceAll("([\\s\n])+", " "))
+                    .contains("<collection> <collection/> </collection>");
+        }
     }
 
     @Nested
@@ -497,6 +518,68 @@ class EpubMetadataWriterTest {
                 assertThat(mimetypeCount).isEqualTo(1);
             }
         }
+
+        @Test
+        @DisplayName("Should handle file names with a literal plus sign")
+        void saveMetadata_handlesPlus() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Original Title</dc:title>
+                            <meta name="cover" content="cover-image"/>
+                        </metadata>
+                        <manifest>
+                            <item id="cover-image" href="cover+example.bin" media-type="application/octet-stream" properties="cover-image"/>
+                        </manifest>
+                    </package>""";
+
+            byte[] coverImageA = new byte[]{0x0A};
+            byte[] coverImageB = new byte[]{0x0B};
+
+            File coverImageFile = tempDir.resolve("new-cover-" + System.nanoTime() + ".bin").toFile();
+            Files.write(coverImageFile.toPath(), coverImageB);
+
+            File epubFile = tempDir.resolve("test-duplicate-" + System.nanoTime() + ".epub").toFile();
+
+            try (var zos = new ZipArchiveOutputStream(new FileOutputStream(epubFile))) {
+                String containerXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                    <rootfiles>
+                        <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+                    </rootfiles>
+                </container>
+                """;
+
+                zos.putArchiveEntry(new ZipArchiveEntry("mimetype"));
+                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("META-INF/container.xml"));
+                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("content.opf"));
+                zos.write(opfContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("cover+example.bin"));
+                zos.write(coverImageA);
+                zos.closeArchiveEntry();
+            }
+
+            writer.saveMetadataToFile(epubFile, metadata, coverImageFile.toString(), new MetadataClearFlags());
+
+            try (ZipFile zf = new ZipFile(epubFile)) {
+                var entry = zf.getEntry("cover+example.bin");
+
+                try (InputStream is = zf.getInputStream(entry)) {
+                    assertThat(is.readAllBytes()).isEqualTo(coverImageB);
+                }
+            }
+        }
+
     }
 
     @Nested

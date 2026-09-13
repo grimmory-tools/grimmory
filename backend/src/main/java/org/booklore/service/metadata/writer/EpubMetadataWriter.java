@@ -291,24 +291,30 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (replaceElementText(doc, parent, tag, ns, val, false)) flag[0] = true;
     }
 
-    private Optional<Element> getElement(Element parent, String namespace, String tagName) {
-        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+    private Optional<Element> getChild(Element parent, String namespaceUri, String tagName) {
+        var children = getChildren(parent, namespaceUri, tagName);
 
-        for (int i = 0; i < metadataElements.getLength(); i++ ) {
-            if (metadataElements.item(i) instanceof Element element) {
-                return Optional.of(element);
-            }
+        if (children.isEmpty()) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        return Optional.of(children.getFirst());
     }
 
-    private List<Element> getElements(Element parent, String namespace, String tagName) {
-        NodeList metadataElements = parent.getElementsByTagNameNS(namespace, tagName);
+    private List<Element> getChildren(Element parent, String namespaceUri, String tagName) {
+        NodeList metadataElements = parent.getChildNodes();
 
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < metadataElements.getLength(); i++ ) {
             if (metadataElements.item(i) instanceof Element element) {
+                if (element.getNamespaceURI() == null || !element.getNamespaceURI().equals(namespaceUri)) {
+                    continue;
+                }
+
+                if (!element.getLocalName().equals(tagName)) {
+                    continue;
+                }
+
                 elements.add(element);
             }
         }
@@ -316,8 +322,8 @@ public class EpubMetadataWriter implements MetadataWriter {
         return elements;
     }
 
-    private Element getOrCreateElement(Element parent, String namespace, String tagName) {
-        return getElement(parent, namespace, tagName)
+    private Element getOrCreateChild(Element parent, String namespace, String tagName) {
+        return getChild(parent, namespace, tagName)
                 .orElseGet(() -> {
                     Element element = parent.getOwnerDocument().createElementNS(namespace, tagName);
                     parent.appendChild(element);
@@ -326,15 +332,15 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private Element getOrCreateMetadataElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "metadata");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "metadata");
     }
 
     public Element getOrCreateManifestElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "manifest");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "manifest");
     }
 
     public Element getOrCreateSpineElement(Document doc) {
-        return getOrCreateElement(doc.getDocumentElement(), OPF_NS, "spine");
+        return getOrCreateChild(doc.getDocumentElement(), OPF_NS, "spine");
     }
 
     private Element upsertMetaElement(Document doc, String name, String content) {
@@ -495,6 +501,12 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private Path getManifestItemPath(Path tempDir, Path opfDir, Element element) throws IOException {
         String href = element.getAttribute("href");
+
+        // Technically, epub specification only refers to `href` as supporting percent-encoding.
+        // Unfortunately, the Java URLDecoder.decode method will also do `+` -> space decoding.
+        // To work around this, we can replace `+` with the percent-encoded version of a plus.
+        href = href.replaceAll("\\+", "%2b");
+
         String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
         if (decodedHref == null || decodedHref.isBlank()) {
             throw new IOException("Manifest item has no href attribute");
@@ -1396,9 +1408,9 @@ public class EpubMetadataWriter implements MetadataWriter {
         Element metadata = getOrCreateMetadataElement(document);
         Element manifest = getOrCreateManifestElement(document);
         Element spine = getOrCreateSpineElement(document);
-        Optional<Element> tours = getElement(document.getDocumentElement(), OPF_NS, "tours");
-        Optional<Element> guide = getElement(document.getDocumentElement(), OPF_NS, "guide");
-        List<Element> collections = getElements(document.getDocumentElement(), OPF_NS, "collection");
+        Optional<Element> tours = getChild(document.getDocumentElement(), OPF_NS, "tours");
+        Optional<Element> guide = getChild(document.getDocumentElement(), OPF_NS, "guide");
+        List<Element> collections = getChildren(document.getDocumentElement(), OPF_NS, "collection");
 
         Element packageElement = document.getDocumentElement();
 
