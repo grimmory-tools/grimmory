@@ -196,11 +196,10 @@ public class OpenLibraryParserTest {
         mockHttpClientResponse("https://openlibrary.org/books/OL51711484M.json", 200, readFixture("lotr-edition.json"));
         mockHttpClientResponse("https://openlibrary.org/authors/OL26320A.json", 200, readFixture("lotr-author.json"));
 
-        // When
-        parser.fetchMetadata(book, request);
-        parser.fetchMetadata(book, request);
-        parser.fetchMetadata(book, request);
+        for (int i = 0; i < 160; i++) {
+            parser.fetchMetadata(book, request);
+        }
 
-        verify(sleepService, times(2)).sleep(anyLong());
+        verify(sleepService, times(4)).sleep(anyLong());
     }
 }

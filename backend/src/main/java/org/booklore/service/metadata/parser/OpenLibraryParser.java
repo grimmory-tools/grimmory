@@ -35,8 +35,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 @RequiredArgsConstructor
 public class OpenLibraryParser implements BookParser {
-    private static final int REQUEST_RATE_LIMIT = 5;
-    private static final int RATE_LIMIT_PER = 1000;
+    // The OpenLibrary rate limit for their API is 180/minute.
+    // We set ours to 160/m to reduce the chance of hitting 429s
+    // https://github.com/internetarchive/openlibrary/blob/master/docker/nginx.conf#L99
+    private static final int REQUEST_RATE_LIMIT = 160;
+    private static final int RATE_LIMIT_PER = 60000;
 
     private static final String COVERS_BASE_URI = "https://covers.openlibrary.org/";
     private static final String COVER_PATH = "/b/id/{cover_id}-{size}.jpg";
