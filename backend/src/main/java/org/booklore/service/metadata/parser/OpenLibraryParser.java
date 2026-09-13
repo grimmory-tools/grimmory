@@ -263,12 +263,18 @@ public class OpenLibraryParser implements BookParser {
         return value.replaceAll("[-+&|!(){}\\[\\]^\"~*?:\\\\/]", "\\\\$0");
     }
 
-    private String getSolrQuery(FetchMetadataRequest fetchMetadataRequest) {
-        List<String> predicates = new ArrayList<>();
+    private String getSolrQuery(List<String> predicates, boolean isConjunction) {
+        predicates = predicates.stream().filter(p -> !p.isBlank()).toList();
 
-        if (fetchMetadataRequest.getIsbn() != null && !fetchMetadataRequest.getIsbn().isBlank()) {
-            predicates.add("isbn:" + escapeSolrValue(fetchMetadataRequest.getIsbn()));
+        if (predicates.isEmpty()) {
+            return "";
         }
+
+        return "(" + String.join(isConjunction ? " AND " : " OR ", predicates) + ")";
+    }
+
+    private String getSolrAuthorTitleQuery(FetchMetadataRequest fetchMetadataRequest) {
+        List<String> predicates = new ArrayList<>();
 
         if (fetchMetadataRequest.getTitle() != null && !fetchMetadataRequest.getTitle().isBlank()) {
             predicates.add("title:" + escapeSolrValue(fetchMetadataRequest.getTitle()));
@@ -278,7 +284,19 @@ public class OpenLibraryParser implements BookParser {
             predicates.add("author_name:" + escapeSolrValue(fetchMetadataRequest.getAuthor()));
         }
 
-        return String.join(" AND ", predicates);
+        return getSolrQuery(predicates, true);
+    }
+
+    private String getSolrQuery(FetchMetadataRequest fetchMetadataRequest) {
+        List<String> predicates = new ArrayList<>();
+
+        predicates.add(getSolrAuthorTitleQuery(fetchMetadataRequest));
+
+        if (fetchMetadataRequest.getIsbn() != null && !fetchMetadataRequest.getIsbn().isBlank()) {
+            predicates.add("isbn:" + escapeSolrValue(fetchMetadataRequest.getIsbn()));
+        }
+
+        return getSolrQuery(predicates, false);
     }
 
     private OpenLibrarySearchResult search(FetchMetadataRequest fetchMetadataRequest, int limit) throws InterruptedException {
