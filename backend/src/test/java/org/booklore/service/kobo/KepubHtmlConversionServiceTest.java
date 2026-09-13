@@ -40,7 +40,7 @@ class KepubHtmlConversionServiceTest {
 
     @Test
     void transform_ShouldWrapMultipleImages() {
-        String actual = service.transform("<html><body><p>Hello World.<img><img /></p></body></html>", false);
+        String actual = service.transform("<html><body><p>Hello World.<img /><img /></p></body></html>", false);
 
         assertThat(actual).contains(
                 "<span id=\"kobo.2\" class=\"koboSpan\"><img /></span>"
@@ -117,5 +117,69 @@ class KepubHtmlConversionServiceTest {
         );
 
         assertThat(actual).doesNotContain("Remove");
+    }
+
+    @Test
+    void transform_ShouldMarkEveryTextNodeInAnIllustratedDocument() {
+        StringBuilder body = new StringBuilder();
+        for (int i = 0; i < 20; i++) {
+            body.append("<div><img src=\"picture.jpg\" /><span>Entry ").append(i).append(".</span></div>");
+        }
+
+        String actual = service.transform("<html><body>" + body + "</body></html>", false);
+
+        System.out.println(actual);
+        assertThat(countKoboSpans(actual)).isEqualTo(40);
+    }
+
+    @Test
+    void transform_ShouldNotMarkInsideMathML() {
+        String actual = service.transform(
+                "<html><body><p>See <math xmlns=\"http://www.w3.org/1998/Math/MathML\">" +
+                        "<mi>x</mi><mo>+</mo><mn>1</mn></math> here.</p></body></html>",
+                false
+        );
+
+        assertThat(actual).doesNotMatch(Pattern.compile(".*<m[iong][^>]*>\\s*<span[^>]*koboSpan.*", Pattern.DOTALL));
+    }
+
+    @Test
+    void transform_ShouldNotReuseAnExistingMarkerId() {
+        String actual = service.transform(
+                "<html><body><p><span class=\"koboSpan\" id=\"kobo.1\">Already marked.</span>" +
+                        " Newly added text.</p></body></html>",
+                false
+        );
+
+        System.out.println(actual);
+        assertThat(actual).doesNotMatch(Pattern.compile(".+id=\"kobo\\.1\".+id=\"kobo\\.1\".+", Pattern.DOTALL));
+    }
+
+    @Test
+    void transform_ShouldPreserveWhitespaceInPreformattedText() {
+        String actual = service.transform(
+                "<html><body><pre>alpha  beta\n  gamma</pre></body></html>",
+                false
+        );
+
+        assertThat(actual).contains("alpha  beta\n  gamma");
+    }
+
+    @Test
+    void transform_ShouldNotLetEmptyAnchorsSwallowFollowingText() {
+        String actual = service.transform(
+                "<html><body><p><a id=\"pagebreak\"/>Body text.</p></body></html>",
+                false
+        );
+
+        assertThat(actual).containsPattern("<a id=\"pagebreak\"\\s*/>");
+    }
+
+    private int countKoboSpans(String html) {
+        return countOccurrences(html, "class=\"koboSpan\"");
+    }
+
+    private int countOccurrences(String haystack, String needle) {
+        return haystack.split(Pattern.quote(needle), -1).length - 1;
     }
 }
