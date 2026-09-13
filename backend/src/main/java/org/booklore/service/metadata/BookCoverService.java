@@ -99,6 +99,7 @@ public class BookCoverService {
         applyCustomBookCover(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
+        writeSidecarMetadata(bookEntity);
     }
 
     /**
