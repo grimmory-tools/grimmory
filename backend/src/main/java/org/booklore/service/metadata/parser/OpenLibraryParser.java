@@ -417,8 +417,6 @@ public class OpenLibraryParser implements BookParser {
     ) {
         var builder = BookMetadata.builder()
                 .provider(MetadataProvider.OpenLibrary)
-                .title(work.title)
-                .subtitle(work.subtitle.orElse(null))
                 .description(work.description.map(OpenLibraryTypedValue::value).orElse(null))
                 .authors(authors.stream().map(a -> a.name).toList())
                 .thumbnailUrl(getCoverUri(work, edition, "M").map(URI::toString).orElse(null));
@@ -446,6 +444,8 @@ public class OpenLibraryParser implements BookParser {
         if (edition != null) {
             builder
                     .externalUrl(getURI(edition.key).toString())
+                    .title(edition.title)
+                    .subtitle(edition.subtitle.orElse(null))
                     .openlibraryId(edition.key)
                     .publisher(edition.publishers.flatMap(p -> p.stream().findFirst()).orElse(null))
                     .isbn10(edition.isbn10.flatMap(i -> i.stream().findFirst()).orElse(null))
@@ -457,7 +457,9 @@ public class OpenLibraryParser implements BookParser {
         } else {
             builder
                     .externalUrl(getURI(work.key).toString())
-                    .openlibraryId(work.key);
+                    .openlibraryId(work.key)
+                    .title(work.title)
+                    .subtitle(work.subtitle.orElse(null));
         }
 
         return builder.build();
