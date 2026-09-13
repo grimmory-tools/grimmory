@@ -488,6 +488,12 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private Path getManifestItemPath(Path tempDir, Path opfDir, Element element) throws IOException {
         String href = element.getAttribute("href");
+
+        // Technically, epub specification only refers to `href` as supporting percent-encoding.
+        // Unfortunately, the Java URLDecoder.decode method will also do `+` -> space decoding.
+        // To work around this, we can replace `+` with the percent-encoded version of a plus.
+        href = href.replaceAll("\\+", "%2b");
+
         String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
         if (decodedHref == null || decodedHref.isBlank()) {
             throw new IOException("Manifest item has no href attribute");
