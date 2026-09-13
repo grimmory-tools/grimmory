@@ -100,15 +100,15 @@ public class OpenLibraryParser implements BookParser {
     ) {}
 
     record OpenLibrarySearchDocumentEditions(
-            int numFound,
-            List<OpenLibraryReference> docs
+            Optional<Integer> numFound,
+            Optional<List<OpenLibraryReference>> docs
     ) {}
 
     record OpenLibrarySearchDocument(
         String key,
         @JsonProperty("author_key")
-        List<String> authorKey,
-        OpenLibrarySearchDocumentEditions editions
+        Optional<List<String>> authorKey,
+        Optional<OpenLibrarySearchDocumentEditions> editions
     ) {}
 
     record OpenLibrarySearchResult(
@@ -493,12 +493,16 @@ public class OpenLibraryParser implements BookParser {
 
                         OpenLibraryEdition edition = null;
 
-                        if (!document.editions.docs.isEmpty()) {
-                            edition = this.getEdition(document.editions.docs.getFirst().key);
+                        var editionDocs = document.editions
+                                .flatMap(e -> e.docs)
+                                .orElseGet(List::of);
+
+                        if (!editionDocs.isEmpty()) {
+                            edition = this.getEdition(editionDocs.getFirst().key);
                         }
 
                         List<OpenLibraryAuthor> authors = new ArrayList<>();
-                        for (String authorKey : document.authorKey) {
+                        for (String authorKey : document.authorKey.orElse(List.of())) {
                             if (seenAuthors.containsKey(authorKey)) {
                                 authors.add(seenAuthors.get(authorKey));
                             } else {
