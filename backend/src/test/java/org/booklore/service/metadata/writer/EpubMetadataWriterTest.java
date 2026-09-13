@@ -771,10 +771,12 @@ class EpubMetadataWriterTest {
                         </metadata>
                     </package>""";
 
+            var flags = new MetadataClearFlags();
+            flags.setTitle(true);
             metadata.setTitle(null);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-title-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, null, flags);
 
             String content = readOpfContent(epubFile);
             assertThat(content).doesNotContain(">main</opf:meta>");
