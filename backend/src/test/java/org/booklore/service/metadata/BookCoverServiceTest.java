@@ -32,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -1244,6 +1246,30 @@ class BookCoverServiceTest {
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+        }
+
+        @Test
+        void sendsNotificationAfterCommitNotBefore() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
+            when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
+
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+                // Deferred: nothing dispatched before the transaction commits (so nothing on rollback either).
+                verify(notificationService, never()).sendMessage(any(), anyList());
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(syncs).hasSize(1);
+
+                syncs.forEach(TransactionSynchronization::afterCommit);
+                verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
 
         @Test

@@ -30,6 +30,8 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.enums.PermissionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -346,7 +348,6 @@ public class BookCoverService {
                                         boolean changed = action.apply(book);
                                         if (changed) {
                                             bookRepository.save(book);
-                                            notifyBulkCoverUpdate(List.of(book.getId()), username);
                                         }
                                         return changed;
                                     })
@@ -354,6 +355,7 @@ public class BookCoverService {
                     );
 
                     if (Boolean.TRUE.equals(updated)) {
+                        notifyBulkCoverUpdate(List.of(bookInfo.id()), username);
                         log.info("{}{} book ID {} ({})", progress, messages.itemVerb(), bookInfo.id(), bookInfo.title());
                     } else {
                         log.warn("{}No cover updated for book ID {} ({})", progress, bookInfo.id(), bookInfo.title());
@@ -666,9 +668,26 @@ public class BookCoverService {
     }
 
     private void notifyBookCoverUpdate(BookEntity bookEntity) {
-        List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(List.of(bookEntity.getId()));
-        if (!updates.isEmpty()) {
-            notificationService.sendMessage(Topic.BOOKS_COVER_UPDATE, updates);
+        Long bookId = bookEntity.getId();
+        Runnable notify = () -> {
+            try {
+                List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(List.of(bookId));
+                if (!updates.isEmpty()) {
+                    notificationService.sendMessage(Topic.BOOKS_COVER_UPDATE, updates);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to send cover update notification for book ID {}: {}", bookId, e.getMessage());
+            }
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    notify.run();
+                }
+            });
+        } else {
+            notify.run();
         }
     }
 
@@ -676,9 +695,13 @@ public class BookCoverService {
         if (refreshedIds.isEmpty()) {
             return;
         }
-        List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(refreshedIds);
-        if (!updates.isEmpty()) {
-            sendNotification(username, Topic.BOOKS_COVER_UPDATE, updates);
+        try {
+            List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(refreshedIds);
+            if (!updates.isEmpty()) {
+                sendNotification(username, Topic.BOOKS_COVER_UPDATE, updates);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to send cover update notification for book IDs {}: {}", refreshedIds, e.getMessage());
         }
     }
 }
