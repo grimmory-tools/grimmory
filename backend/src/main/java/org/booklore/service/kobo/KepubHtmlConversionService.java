@@ -349,10 +349,4 @@ public class KepubHtmlConversionService {
         transformDocument(document, forceEnableHyphenation);
         return document.toString();
     }
-
-    public String transform(InputStream stream, String inputEncoding, boolean forceEnableHyphenation) throws IOException {
-        Document document = Jsoup.parse(stream, inputEncoding, "/", getParser());
-        transformDocument(document, forceEnableHyphenation);
-        return document.toString();
-    }
 }
