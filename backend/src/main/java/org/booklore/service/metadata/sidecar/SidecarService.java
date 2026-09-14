@@ -13,6 +13,7 @@ import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
+import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class SidecarService {
     private final SidecarMetadataWriter sidecarWriter;
     private final SidecarMetadataMapper sidecarMapper;
     private final BookMetadataUpdater bookMetadataUpdater;
+    private final BookCoverService bookCoverService;
 
     public Optional<SidecarMetadata> getSidecarContent(Long bookId) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
@@ -93,9 +95,19 @@ public class SidecarService {
             bookMetadataUpdater.setBookMetadata(context);
         }
 
-        byte[] coverBytes = sidecarReader.readSidecarCover(bookPath);
-        if (coverBytes != null) {
-            log.info("Sidecar cover found for book ID {} - cover import is a separate operation", bookId);
+        importSidecarCover(book, sidecar);
+    }
+
+    private void importSidecarCover(BookEntity book, SidecarMetadata sidecar) {
+        byte[] coverBytes = sidecarReader.readSidecarCover(book.getFullFilePath(), sidecar);
+        if (coverBytes == null) {
+            return;
+        }
+        try {
+            bookCoverService.updateCoverFromBytes(book.getId(), coverBytes);
+            log.info("Imported sidecar cover for book ID {}", book.getId());
+        } catch (Exception e) {
+            log.warn("Failed to import sidecar cover for book ID {}: {}", book.getId(), e.getMessage());
         }
     }
 
@@ -158,6 +170,8 @@ public class SidecarService {
                     bookMetadataUpdater.setBookMetadata(context);
                     imported++;
                 }
+
+                importSidecarCover(book, sidecar);
             } catch (Exception e) {
                 log.warn("Failed to import sidecar for book ID {}: {}", book.getId(), e.getMessage());
             }
