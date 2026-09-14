@@ -15,9 +15,11 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ import java.util.List;
 
 @Slf4j
 public class EpubContentReader {
+    private static final String CONTAINER_NS = "urn:oasis:names:tc:opendocument:xmlns:container";
 
     private static final List<MediaType> MEDIA_TYPES = new ArrayList<>();
     static {
@@ -116,16 +119,36 @@ public class EpubContentReader {
         return hrefs;
     }
 
-
-    public static Path findOPFInExtractedEpub(Path path) throws IOException, ParserConfigurationException, SAXException {
+    public static Path findOPFInExtractedEpub(Path path) throws IOException {
         Path containerXml = path.resolve("META-INF/container.xml");
         if (!Files.exists(containerXml)) {
             throw new IOException("container.xml not found at expected location: " + containerXml);
         }
 
-        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(false);
-        Document containerDoc = builder.parse(containerXml.toFile());
-        Node rootfile = containerDoc.getElementsByTagName("rootfile").item(0);
+        String opfHref;
+        try (var is = Files.newInputStream(containerXml)) {
+            opfHref = getOPFHref(is);
+        }
+
+        Path opfPath = path.resolve(opfHref).normalize();
+
+        if (!opfPath.startsWith(path)) {
+            throw new IOException("OPF Path is outside of extracted root");
+        }
+
+        return opfPath;
+    }
+
+    public static String getOPFHref(InputStream xmlInputStream) throws IOException {
+        Document containerDoc;
+        try {
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+            containerDoc = builder.parse(xmlInputStream);
+        } catch (SAXException | ParserConfigurationException e) {
+            throw new IOException("Unable to parse container.xml", e);
+        }
+
+        Node rootfile = containerDoc.getElementsByTagNameNS(CONTAINER_NS, "rootfile").item(0);
         if (rootfile == null) {
             throw new IOException("No <rootfile> found in container.xml");
         }
@@ -139,13 +162,7 @@ public class EpubContentReader {
         opfPathAttribute = opfPathAttribute.replaceAll("\\+", "%2b");
         opfPathAttribute = URLDecoder.decode(opfPathAttribute, StandardCharsets.UTF_8);
 
-        Path opfPath = path.resolve(opfPathAttribute).normalize();
-
-        if (!opfPath.startsWith(path)) {
-            throw new IOException("OPF Path is outside of extracted root");
-        }
-
-        return opfPath;
+        return opfPathAttribute;
     }
 
     public static class EpubReadException extends RuntimeException {
