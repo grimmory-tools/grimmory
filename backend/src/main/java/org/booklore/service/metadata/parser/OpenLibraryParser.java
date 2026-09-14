@@ -220,7 +220,7 @@ public class OpenLibraryParser implements BookParser {
             try {
                 sleepService.sleep(Math.max(0, rateLimitResetTime - now));
             } finally {
-                rateLimitResetTime = System.currentTimeMillis() + 1000;
+                rateLimitResetTime = System.currentTimeMillis() + RATE_LIMIT_PER;
                 rateLimitCounter = 0;
             }
         } else {
