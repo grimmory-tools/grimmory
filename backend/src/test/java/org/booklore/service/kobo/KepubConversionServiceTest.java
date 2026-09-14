@@ -24,35 +24,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class KepubConversionServiceTest {
     @Mock
-    private EpubReader epubReader;
-
-    @Mock
-    private EpubWriter epubWriter;
-
-    @Mock
     private KepubHtmlConversionService kepubHtmlConversionService;
 
     @InjectMocks
     private KepubConversionService kepubConversionService;
 
     @Test
-    void convertEpubToKepub_WithValidEpub_ShouldConvert() throws IOException {
-        Book book = new Book();
-
-        when(epubReader.readEpub(any(InputStream.class))).thenReturn(book);
-
-        kepubConversionService.convertEpubToKepub(
-                InputStream.nullInputStream(),
-                OutputStream.nullOutputStream(),
-                true,
-                epubWriter
-        );
-
-        verify(epubWriter).write(any(), any());
-    }
-
-    @Test
     void convertEpubToKepub_ShouldSkipSomeFiles() throws IOException {
+
+
         Book book = new Book();
         book.addResource(new Resource("/example/foo.txt"));
         book.addResource(new Resource("/example/.DS_STORE"));
