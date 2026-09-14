@@ -1,8 +1,8 @@
-@if (selectedFetchedMetadata(); as selectedFetchedMetadata) {
+@if (selected(); as selectedMetadata) {
   <div class="metadata-container">
     <app-metadata-picker
-      [fetchedMetadata]="selectedFetchedMetadata"
-      [book]="book"
+      [fetchedMetadata]="selectedMetadata"
+      [book]="book()"
       [detailLoading]="detailLoading()"
       (goBack)="onGoBack()">
     </app-metadata-picker>
@@ -20,7 +20,7 @@
             inputId="metadata-search-providers"
             [filter]="false"
             showToggleAll="false"
-            [options]="providers"
+            [options]="providers()"
             formControlName="provider"
             [placeholder]="t('selectProviders')"
             class="'custom-multiselect'">
@@ -92,7 +92,7 @@
               <i class="pi pi-list"></i>
               {{ t('searchResults') }}
             </h3>
-            <span class="results-count">{{ t('booksFound', { count: filteredMetadata().length }) }}</span>
+            <span class="results-count">{{ t('booksFound', { count: filteredResults().length }) }}</span>
           </div>
           @if (loading()) {
             <span class="fetching-badge">
@@ -102,7 +102,7 @@
           }
         </div>
         <div class="provider-pills">
-          @for (tab of getProviderTabs(); track tab.provider) {
+          @for (tab of providerTabs(); track tab.provider) {
             <div class="provider-pill"
                  [class.has-results]="tab.count > 0"
                  [class.active]="isProviderPillActive(tab.provider)"
@@ -117,7 +117,7 @@
               </div>
               <div class="pill-content">
                 <span class="pill-name">{{ tab.provider }}</span>
-                @if (isProviderLoading(tab.provider)) {
+                @if (loading() && tab.count === 0) {
                   <i class="pi pi-spin pi-spinner pill-spinner"></i>
                 } @else {
                   <span class="pill-count">{{ tab.count }}</span>
@@ -129,7 +129,7 @@
       </div>
     }
 
-    @if (!searchTriggered() && allFetchedMetadata().length === 0) {
+    @if (!searchTriggered() && results().length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <i class="pi pi-search"></i>
@@ -139,7 +139,7 @@
       </div>
     }
 
-    @if (searchTriggered() && allFetchedMetadata().length === 0 && !loading()) {
+    @if (searchTriggered() && results().length === 0 && !loading()) {
       <div class="empty-state">
         <div class="empty-icon no-results">
           <i class="pi pi-inbox"></i>
@@ -149,10 +149,10 @@
       </div>
     }
 
-    @if (allFetchedMetadata().length > 0) {
+    @if (results().length > 0) {
       <div class="results-section">
         <div class="results-grid">
-          @for (metadata of filteredMetadata(); track trackByMetadata($index, metadata)) {
+          @for (metadata of filteredResults(); track metadata) {
             <div
               class="metadata-card"
               role="button"
@@ -177,22 +177,22 @@
                   <h4 class="card-title">{{ truncateText(metadata.title!, 60) }}</h4>
                   <div
                     class="card-provider"
-                    [class]="'card-provider provider-' + getProviderClass(metadata)"
+                    [class]="'card-provider provider-' + providerClass(metadata)"
                     role="button"
                     tabindex="0"
                     (click)="onProviderClick($event)"
                     (keydown.enter)="onProviderClick($event)"
                   >
-                    @if (getProviderHref(metadata); as providerHref) {
-                      <a [href]="providerHref" target="_blank" rel="noopener">
-                        @if (getProviderName(metadata); as providerName) {
-                          {{ providerName }}
+                    @if (providerHref(metadata); as href) {
+                      <a [href]="href" target="_blank" rel="noopener">
+                        @if (providerName(metadata); as name) {
+                          {{ name }}
                         } @else {
                           {{ t('unknownProvider') }}
                         }
                       </a>
-                    } @else if(getProviderName(metadata); as providerName) {
-                      {{ providerName }}
+                    } @else if (providerName(metadata); as name) {
+                      {{ name }}
                     } @else {
                       {{ t('unknownProvider') }}
                     }
