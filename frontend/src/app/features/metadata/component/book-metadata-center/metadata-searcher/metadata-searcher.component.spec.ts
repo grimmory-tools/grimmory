@@ -53,6 +53,7 @@ describe('MetadataSearcherComponent', () => {
   } as Book);
 
   const openLibraryResult = (): BookMetadata => ({
+    bookId: 1,
     provider: 'OpenLibrary',
     title: 'Dune',
     openlibraryId: '/books/OL30014174M',
