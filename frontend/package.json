@@ -59,7 +59,6 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@analogjs/vite-plugin-angular": "^2.6.4",
     "@angular-devkit/architect": "^0.2201.4",
     "@angular-devkit/schematics": "^22.1.4",
     "@angular/build": "22.1.4",
@@ -69,10 +68,9 @@
     "@openng/optimus-ui-tailwindcss": "^2.0.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
-    "@testing-library/jest-dom": "^7.0.1",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.13.2",
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.9.1",
     "jsdom": "^30.0.1",
@@ -83,7 +81,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.11",
-    "vitest-canvas-mock": "^1.1.4"
+    "vitest": "^4.1.11"
   }
 }
