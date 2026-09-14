@@ -38,4 +38,6 @@ public interface BookMetadataRepository extends JpaRepository<BookMetadataEntity
     List<BookMetadataEntity> findAllByPublisherIgnoreCase(String publisher);
 
     List<BookMetadataEntity> findAllByLanguageIgnoreCase(String language);
+
+    List<BookMetadataEntity> findByTitle(String title);
 }
