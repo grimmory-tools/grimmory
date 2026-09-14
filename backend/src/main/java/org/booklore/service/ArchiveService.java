@@ -16,9 +16,11 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -71,6 +73,7 @@ public class ArchiveService {
     private Stream<Entry> streamEntriesFrom7z(Path path) throws IOException {
         try (var sevenZFile = new SevenZFile.Builder().setPath(path).get()) {
             return StreamSupport.stream(sevenZFile.getEntries().spliterator(), false)
+                    .filter(e -> !e.isDirectory())
                     .map(entry -> new Entry(entry.getName(), entry.getSize()))
                     .toList()
                     .stream();
@@ -247,7 +250,7 @@ public class ArchiveService {
         }
     }
 
-    public long extractEntryToPath(Path path, String entryName, Path outputPath) throws IOException {
+    public void extractEntryToPath(Path path, String entryName, Path outputPath) throws IOException {
         ReentrantLock lock = getFileLock(path);
         lock.lock();
 
@@ -255,7 +258,7 @@ public class ArchiveService {
         try (OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
             hasCreatedFile = true;
 
-            return transferEntryTo(path, entryName, outputStream);
+            transferEntryTo(path, entryName, outputStream);
         } catch (Exception e) {
             if (hasCreatedFile) {
                 try {
@@ -269,5 +272,37 @@ public class ArchiveService {
         } finally {
             lock.unlock();
         }
+    }
+
+    public List<Path> extractToDirectory(Path path, Path outputPath) throws IOException {
+        return extractToDirectory(path, outputPath, null);
+    }
+
+    public List<Path> extractToDirectory(Path path, Path outputPath, Predicate<Entry> predicate) throws IOException {
+        List<Path> extractedPaths = new ArrayList<>();
+
+        for (var entry : getEntries(path)) {
+            if (predicate != null && !predicate.test(entry)) {
+                continue;
+            }
+
+            Path entryPath = outputPath.resolve(entry.name).normalize();
+            if (!entryPath.startsWith(outputPath)) {
+                log.warn("Archive entry outside target directory: {}", entry.name);
+                throw new IOException("Archive entry outside target directory");
+            }
+
+            if (Files.exists(entryPath)) {
+                log.warn("Entry already exists, skipping: {}", entry.name);
+                continue;
+            }
+
+            Files.createDirectories(entryPath.getParent());
+            extractEntryToPath(path, entry.name, entryPath);
+
+            extractedPaths.add(entryPath);
+        }
+
+        return extractedPaths;
     }
 }

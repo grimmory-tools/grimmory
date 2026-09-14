@@ -12,6 +12,8 @@ import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.MimeDetector;
 import org.booklore.util.SecureXmlUtils;
+import org.booklore.util.epub.EpubContentReader;
+import org.booklore.util.epub.EpubContentWriter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -35,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -45,9 +46,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -76,16 +74,12 @@ public class EpubMetadataWriter implements MetadataWriter {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("epub_edit_" + UUID.randomUUID());
-            extractZipToDirectory(epubFile, tempDir);
+            archiveService.extractToDirectory(epubFile.toPath(), tempDir);
 
-            File opfFile = findOpfFile(tempDir.toFile());
-            if (opfFile == null) {
-                log.warn("Could not locate OPF file in EPUB");
-                return;
-            }
+            Path opfPath = findOpfPath(tempDir);
 
             DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-            Document opfDoc = builder.parse(opfFile);
+            Document opfDoc = builder.parse(opfPath.toFile());
 
             Element metadataElement = getOrCreateMetadataElement(opfDoc);
             final String DC_NS = "http://purl.org/dc/elements/1.1/";
@@ -236,10 +230,10 @@ public class EpubMetadataWriter implements MetadataWriter {
                 Transformer transformer = TransformerFactory.newInstance().newTransformer();
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                transformer.transform(new DOMSource(opfDoc), new StreamResult(opfFile));
+                transformer.transform(new DOMSource(opfDoc), new StreamResult(opfPath.toFile()));
 
                 File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-                createEpubZipFromDirectory(tempDir, tempEpub.toPath());
+                EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub.toPath());
 
                 if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
                 if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
@@ -440,16 +434,12 @@ public class EpubMetadataWriter implements MetadataWriter {
             File epubFile = new File(bookEntity.getFullFilePath().toUri());
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
 
-            extractZipToDirectory(epubFile, tempDir);
+            archiveService.extractToDirectory(epubFile.toPath(), tempDir);
 
-            File opfFile = findOpfFile(tempDir.toFile());
-            if (opfFile == null) {
-                log.warn("OPF file not found in EPUB: {}", epubFile.getName());
-                return;
-            }
+            Path opfPath = findOpfPath(tempDir);
 
             DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-            Document opfDoc = builder.parse(opfFile);
+            Document opfDoc = builder.parse(opfPath.toFile());
 
             applyCoverImageToEpub(tempDir, opfDoc, coverData);
 
@@ -458,10 +448,10 @@ public class EpubMetadataWriter implements MetadataWriter {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.transform(new DOMSource(opfDoc), new StreamResult(opfFile));
+            transformer.transform(new DOMSource(opfDoc), new StreamResult(opfPath.toFile()));
 
             File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-            createEpubZipFromDirectory(tempDir, tempEpub.toPath());
+            EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub.toPath());
 
             if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
             if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
@@ -651,36 +641,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private Path findOpfPath(Path tempDir) throws IOException, ParserConfigurationException, SAXException {
-        Path containerXml = tempDir.resolve("META-INF/container.xml");
-        if (!Files.exists(containerXml)) {
-            throw new IOException("container.xml not found at expected location: " + containerXml);
-        }
-
-        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(false);
-        Document containerDoc = builder.parse(containerXml.toFile());
-        Node rootfile = containerDoc.getElementsByTagName("rootfile").item(0);
-        if (rootfile == null) {
-            throw new IOException("No <rootfile> found in container.xml");
-        }
-
-        String opfPath = ((Element) rootfile).getAttribute("full-path");
-        if (opfPath.isBlank()) {
-            throw new IOException("Missing or empty 'full-path' attribute in <rootfile>");
-        }
-
-        return tempDir.resolve(opfPath).normalize();
-    }
-
-    private File findOpfFile(File rootDir) {
-        File[] matches = rootDir.listFiles(path -> path.isFile() && path.getName().endsWith(".opf"));
-        if (matches != null && matches.length > 0) return matches[0];
-        for (File file : Objects.requireNonNull(rootDir.listFiles())) {
-            if (file.isDirectory()) {
-                File child = findOpfFile(file);
-                if (child != null) return child;
-            }
-        }
-        return null;
+        return EpubContentReader.findOPFInExtractedEpub(tempDir);
     }
 
     private byte[] loadImage(String pathOrUrl) {
@@ -689,73 +650,6 @@ public class EpubMetadataWriter implements MetadataWriter {
         } catch (IOException e) {
             log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
             return null;
-        }
-    }
-
-    private void extractZipToDirectory(File zipSource, Path targetDir) throws IOException {
-        Path zipPath = zipSource.toPath();
-
-        if (!Files.isRegularFile(zipPath) || !Files.isReadable(zipPath)) {
-            throw new IOException("Target is not a readable regular file.");
-        }
-
-        for (var name : archiveService.getEntryNames(zipPath)) {
-            Path entryPath = targetDir.resolve(name).normalize();
-            if (!entryPath.startsWith(targetDir)) {
-                throw new IOException("ZIP entry outside target directory: " + name);
-            }
-
-            if (Files.exists(entryPath)) {
-                log.warn("EPUB Entry already exists, skipping: {}", entryPath);
-                continue;
-            }
-
-            Files.createDirectories(entryPath.getParent());
-            archiveService.extractEntryToPath(zipPath, name, entryPath);
-        }
-    }
-
-    private void createEpubZipFromDirectory(Path sourceDir, Path targetZip) throws IOException {
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(targetZip))) {
-            // EPUB spec requires mimetype to be the first entry in the ZIP, uncompressed (STORED)
-            Path mimetypeFile = sourceDir.resolve("mimetype");
-            if (Files.exists(mimetypeFile)) {
-                byte[] mimetypeData = Files.readAllBytes(mimetypeFile);
-                ZipEntry mimetypeEntry = new ZipEntry("mimetype");
-                mimetypeEntry.setMethod(ZipEntry.STORED);
-                mimetypeEntry.setSize(mimetypeData.length);
-                mimetypeEntry.setCompressedSize(mimetypeData.length);
-                CRC32 crc = new CRC32();
-                crc.update(mimetypeData);
-                mimetypeEntry.setCrc(crc.getValue());
-                zos.putNextEntry(mimetypeEntry);
-                zos.write(mimetypeData);
-                zos.closeEntry();
-            } else {
-                log.warn("EPUB mimetype file not found in extracted directory — output may be spec-invalid");
-            }
-
-            try (var pathStream = Files.walk(sourceDir)) {
-                pathStream
-                    .filter(path -> !path.equals(sourceDir))
-                    .filter(path -> !path.equals(mimetypeFile))
-                    .sorted()
-                    .forEach(path -> {
-                        try {
-                            String relativePath = sourceDir.relativize(path).toString().replace(File.separatorChar, '/');
-                            if (Files.isDirectory(path)) {
-                                zos.putNextEntry(new ZipEntry(relativePath + "/"));
-                                zos.closeEntry();
-                            } else {
-                                zos.putNextEntry(new ZipEntry(relativePath));
-                                Files.copy(path, zos);
-                                zos.closeEntry();
-                            }
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-                    });
-            }
         }
     }
 
