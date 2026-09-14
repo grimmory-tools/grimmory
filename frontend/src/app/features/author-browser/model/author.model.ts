@@ -1,6 +1,7 @@
 export interface AuthorSummary {
   id: number;
   name: string;
+  sortName?: string;
   asin?: string;
   bookCount: number;
   hasPhoto: boolean;
@@ -40,9 +41,11 @@ export const DEFAULT_AUTHOR_FILTERS: AuthorFilters = {
 export interface AuthorDetails {
   id: number;
   name: string;
+  sortName?: string;
   description?: string;
   asin?: string;
   nameLocked: boolean;
+  sortNameLocked: boolean;
   descriptionLocked: boolean;
   asinLocked: boolean;
   photoLocked: boolean;
@@ -71,9 +74,11 @@ export interface AuthorPhotoResult {
 
 export interface AuthorUpdateRequest {
   name?: string;
+  sortName?: string;
   description?: string;
   asin?: string;
   nameLocked?: boolean;
+  sortNameLocked?: boolean;
   descriptionLocked?: boolean;
   asinLocked?: boolean;
   photoLocked?: boolean;
