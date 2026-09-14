@@ -9,6 +9,7 @@ import org.booklore.util.epub.CoverDetectorService;
 import org.booklore.util.epub.EpubContentReader;
 import org.booklore.util.epub.EpubContentWriter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,6 +40,7 @@ public class KepubConversionService {
 
     private static final Set<String> IGNORED_FILENAMES = Set.copyOf(
             Stream.of(
+                "",
                 ".DS_STORE",
                 "iTunesMetadata.plist",
                 "iTunesArtwork.plist",
@@ -107,24 +109,24 @@ public class KepubConversionService {
     }
 
     private void transformOPF(Path path, String coverHref) throws IOException {
-        try {
-            var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-            var opfDoc = builder.parse(Files.readString(path));
+        try (var outputStream = new ByteArrayOutputStream()) {
+            try (var inputStream = Files.newInputStream(path)){
+                var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+                var opfDoc = builder.parse(inputStream);
 
-            transformOPFCoverImage(opfDoc, coverHref);
+                transformOPFCoverImage(opfDoc, coverHref);
 
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-
-            try (var outputStream = new ByteArrayOutputStream()) {
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
                 transformer.transform(new DOMSource(opfDoc), new StreamResult(outputStream));
-
-                Files.writeString(path, outputStream.toString(StandardCharsets.UTF_8));
+            } catch (TransformerException | SAXException | ParserConfigurationException exception) {
+                log.error("unable to parse OPF");
+                throw new IOException("unable to parse OPF", exception);
             }
-        } catch (TransformerException | SAXException | ParserConfigurationException exception) {
-            log.error("unable to parse OPF");
-            throw new IOException("unable to parse OPF", exception);
+
+            // After we close the InputStream we can write the file.
+            Files.writeString(path, outputStream.toString(StandardCharsets.UTF_8));
         }
     }
 
@@ -141,7 +143,7 @@ public class KepubConversionService {
                 String mediaType = MimeDetector.detect(file);
 
                 if (HTML_MEDIA_TYPES.contains(mediaType)) {
-                    transformHTML(path, forceEnableHyphenation);
+                    transformHTML(file, forceEnableHyphenation);
                 }
             }
         }
@@ -155,7 +157,8 @@ public class KepubConversionService {
             return false;
         }
 
-        if (IGNORED_FILENAMES.contains(parts[parts.length - 1].toLowerCase())) {
+        String filename = parts[parts.length - 1];
+        if (IGNORED_FILENAMES.contains(filename.toLowerCase())) {
             return false;
         }
 
@@ -175,18 +178,29 @@ public class KepubConversionService {
         String coverHref = coverDetectorService.detectCoverImagePath(inputPath);
 
         var tempDir = Files.createTempDirectory("grimmory-kepubify");
-        archiveService.extractToDirectory(inputPath, tempDir, this::isAcceptedEntry);
-
-        transformExtractedEpubHtml(tempDir, forceEnableHyphenation);
-
         try {
-            Path opfPath = EpubContentReader.findOPFInExtractedEpub(tempDir);
-            transformOPF(opfPath, coverHref);
-        } catch (Exception e) {
-            log.warn("Unable to transform OPF", e);
-        }
+            archiveService.extractToDirectory(inputPath, tempDir, this::isAcceptedEntry);
 
-        EpubContentWriter.createEpubFromDirectory(tempDir, outputPath);
+            transformExtractedEpubHtml(tempDir, forceEnableHyphenation);
+
+            try {
+                Path opfPath = EpubContentReader.findOPFInExtractedEpub(tempDir);
+                transformOPF(opfPath, coverHref);
+            } catch (Exception e) {
+                log.warn("Unable to transform OPF", e);
+            }
+
+            EpubContentWriter.createEpubFromDirectory(tempDir, outputPath);
+        } finally {
+            if (tempDir != null) {
+                try {
+                    FileSystemUtils.deleteRecursively(tempDir);
+                    log.debug("Deleted temporary directory {}", tempDir);
+                } catch (Exception e) {
+                    log.warn("Failed to delete temporary directory {}: {}", tempDir, e.getMessage());
+                }
+            }
+        }
 
         log.info(
                 "Successfully converted {} to {} (size: {} bytes)",

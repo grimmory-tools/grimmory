@@ -1,20 +1,23 @@
 package org.booklore.service.kobo;
 
-import org.grimmory.epub4j.domain.Book;
-import org.grimmory.epub4j.domain.MediaTypes;
-import org.grimmory.epub4j.domain.Resource;
-import org.grimmory.epub4j.epub.EpubReader;
-import org.grimmory.epub4j.epub.EpubWriter;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.booklore.service.ArchiveService;
+import org.booklore.util.epub.CoverDetectorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.awt.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,90 +29,146 @@ class KepubConversionServiceTest {
     @Mock
     private KepubHtmlConversionService kepubHtmlConversionService;
 
+    @Mock
+    private CoverDetectorService coverDetectorService;
+
+    @Mock
+    private ArchiveService archiveService;
+
     @InjectMocks
     private KepubConversionService kepubConversionService;
 
+    @TempDir
+    Path tempDir;
+
+    @Captor
+    ArgumentCaptor<Predicate<ArchiveService.Entry>> predicateCaptor;
+
     @Test
     void convertEpubToKepub_ShouldSkipSomeFiles() throws IOException {
-
-
-        Book book = new Book();
-        book.addResource(new Resource("/example/foo.txt"));
-        book.addResource(new Resource("/example/.DS_STORE"));
-        book.addResource(new Resource("/__MACOSX/bar.txt"));
-        book.addResource(new Resource("/other.txt"));
-
-        when(epubReader.readEpub(any(InputStream.class))).thenReturn(book);
-
-        kepubConversionService.convertEpubToKepub(
-                InputStream.nullInputStream(),
-                OutputStream.nullOutputStream(),
-                true,
-                epubWriter
+        var ignoredFiles = Set.of(
+                "",
+                "/example/.DS_STORE",
+                "/__MACOSX/bar.txt"
         );
 
-        ArgumentCaptor<Book> actualBook = ArgumentCaptor.forClass(Book.class);
-        verify(epubWriter).write(actualBook.capture(), any());
+        var acceptedFiles = Set.of(
+                "/example/foo.txt",
+                "/other.txt"
+        );
 
-        var hrefs = actualBook.getValue()
-                .getResources()
-                .getAll()
-                .stream()
-                .map(Resource::getHref)
-                .toList();
+        Path epubPath = writeFakeEpub("example.epub");
+        Path kepubPath = tempDir.resolve("example.epub.kepub");
 
-        assertThat(hrefs).hasSize(2);
-        assertThat(hrefs).contains("/example/foo.txt");
-        assertThat(hrefs).contains("/other.txt");
+        when(archiveService.extractToDirectory(any(), any(), any())).then(
+                (a) -> {
+                    writeExtractedEpub(a.getArgument(1));
+                    return List.of();
+                }
+        );
+
+        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
+                args -> "transformed " + args.getArgument(0)
+        );
+
+        kepubConversionService.convertEpubToKepub(
+                epubPath,
+                kepubPath,
+                true
+        );
+
+        verify(archiveService).extractToDirectory(any(), any(), predicateCaptor.capture());
+
+        var predicate = predicateCaptor.getValue();
+
+        for (var f : ignoredFiles) {
+            assertThat(predicate.test(new ArchiveService.Entry(f, 0)))
+                    .withFailMessage("Should ignore file `" + f + "`")
+                    .isFalse();
+        }
+
+        for (var f : acceptedFiles) {
+            assertThat(predicate.test(new ArchiveService.Entry(f, 0)))
+                    .withFailMessage("Should include file `" + f + "`")
+                    .isTrue();
+        }
     }
 
     @Test
     void convertEpubToKepub_ShouldOnlyTransformHTML() throws IOException {
-        Book book = new Book();
-        book.addResource(new Resource("html", "html".getBytes(StandardCharsets.UTF_8), "/example.html", MediaTypes.XHTML));
-        book.addResource(new Resource("jpg", "jpg".getBytes(StandardCharsets.UTF_8), "/example.jpg", MediaTypes.JPG));
-        book.addResource(new Resource("xhtml", "xhtml".getBytes(StandardCharsets.UTF_8), "/example.xhtml", MediaTypes.XHTML));
-        book.addResource(new Resource("txt", "txt".getBytes(StandardCharsets.UTF_8), "/example.txt", MediaTypes.getMediaTypeByName("text/plain")));
+        Path epubPath = writeFakeEpub("example.epub");
+        Path kepubPath = tempDir.resolve("example.epub.kepub");
 
-        when(epubReader.readEpub(any(InputStream.class))).thenReturn(book);
-        when(kepubHtmlConversionService.transform(any(), eq("UTF-8"), eq(true))).then(
-                args -> {
-                    byte[] bytes = ((ByteArrayInputStream) args.getArguments()[0]).readAllBytes();
-                    return "transformed " + new String(bytes, StandardCharsets.UTF_8);
+        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
+                args -> "transformed " + args.getArgument(0)
+        );
+
+        when(archiveService.extractToDirectory(any(), any(), any())).then(
+                (a) -> {
+                    writeExtractedEpub(a.getArgument(1));
+                    return List.of();
                 }
         );
 
         kepubConversionService.convertEpubToKepub(
-                InputStream.nullInputStream(),
-                OutputStream.nullOutputStream(),
-                true,
-                epubWriter
+                epubPath,
+                kepubPath,
+                true
         );
 
-        ArgumentCaptor<ByteArrayInputStream> actualHtml = ArgumentCaptor.forClass(ByteArrayInputStream.class);
-        verify(kepubHtmlConversionService, times(2)).transform(actualHtml.capture(), eq("UTF-8"), eq(true));
+        verify(kepubHtmlConversionService).transform("<html><body></body></html>", true);
 
-        ArgumentCaptor<Book> actualBook = ArgumentCaptor.forClass(Book.class);
-        verify(epubWriter).write(actualBook.capture(), any());
+        assertThat(kepubPath).exists();
+    }
 
-        var hrefs = actualBook.getValue()
-                .getResources()
-                .getAll()
-                .stream()
-                .map(r -> {
-                    try {
-                        return r.getData();
-                    } catch(Exception e) {
-                        return null;
-                    }
-                })
-                .map(d -> new String(d, StandardCharsets.UTF_8))
-                .toList();
+    private Path writeFakeEpub(String epubName) throws IOException {
+        var path = tempDir.resolve(epubName);
+        try (
+                var os = Files.newOutputStream(path);
+                var zos = new ZipArchiveOutputStream(os)
+        ) {
+            // Do nothing to create an empty zip
+        }
 
-        assertThat(hrefs).hasSize(4);
-        assertThat(hrefs).contains("jpg");
-        assertThat(hrefs).contains("txt");
-        assertThat(hrefs).contains("transformed html");
-        assertThat(hrefs).contains("transformed xhtml");
+        return path;
+    }
+
+    private static final String CONTAINER_XML = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+          <rootfiles>
+            <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+            </rootfiles>
+        </container>
+        """;
+
+    private static final String MINIMAL_OPF = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+              </metadata>
+              <manifest>
+                <item href="ch1.html" />
+              </manifest>
+              <spine></spine>
+            </package>
+            """;
+
+
+    private void writeString(Path path, String content) {
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void writeExtractedEpub(Path path) {
+        writeString(path.resolve("mimetype"), "application/epub+zip");
+        writeString(path.resolve("META-INF/container.xml"), CONTAINER_XML);
+        writeString(path.resolve("OEBPS/content.opf"), MINIMAL_OPF);
+        writeString(path.resolve("OEBPS/example.txt"), "example");
+        writeString(path.resolve("OEBPS/ch1.html"), "<html><body></body></html>");
     }
 }
