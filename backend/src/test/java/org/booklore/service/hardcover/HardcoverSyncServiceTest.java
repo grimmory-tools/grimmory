@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +69,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, entityManager, jdbcTemplate, restClient);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, entityManager, jdbcTemplate, restClient);
 
         testBook = new BookEntity();
         testBook.setId(TEST_BOOK_ID);

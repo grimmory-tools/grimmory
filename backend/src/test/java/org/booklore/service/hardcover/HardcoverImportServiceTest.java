@@ -72,8 +72,7 @@ class HardcoverImportServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository,
-                                           userBookProgressRepository, entityManager, jdbcTemplate);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, entityManager, jdbcTemplate, restClient);
 
         Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");
         restClientField.setAccessible(true);
