@@ -2,14 +2,13 @@ package org.booklore.service.kobo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.service.ArchiveService;
+import org.booklore.util.MimeDetector;
 import org.booklore.util.SecureXmlUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.booklore.util.epub.CoverDetectorService;
+import org.booklore.util.epub.EpubContentReader;
+import org.booklore.util.epub.EpubContentWriter;
 import org.springframework.stereotype.Service;
-import org.grimmory.epub4j.domain.Book;
-import org.grimmory.epub4j.domain.MediaTypes;
-import org.grimmory.epub4j.domain.Resource;
-import org.grimmory.epub4j.epub.EpubReader;
-import org.grimmory.epub4j.epub.EpubWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -54,50 +53,17 @@ public class KepubConversionService {
             ).map(String::toLowerCase).toList()
     );
 
-    private final EpubReader epubReader;
+    private final ArchiveService archiveService;
     private final KepubHtmlConversionService kepubHtmlConversionService;
+    private final CoverDetectorService coverDetectorService;
 
-    @Autowired
-    public KepubConversionService(KepubHtmlConversionService kepubHtmlConversionService) {
-        this(
-                new EpubReader(),
-                kepubHtmlConversionService
+    private void transformHTML(Path path, boolean forceEnableHyphenation) throws IOException {
+        var transformedHtml = kepubHtmlConversionService.transform(
+                Files.readString(path),
+                forceEnableHyphenation
         );
-    }
 
-    private String getMediaType(Resource resource) {
-        if (resource == null || resource.getMediaType() == null) {
-            return null;
-        }
-
-        return resource.getMediaType().toString().toLowerCase();
-    }
-
-    private Resource getTransformedContentResource(Resource contentResource, boolean forceEnableHyphenation) throws IOException {
-        var resourceMediaType = getMediaType(contentResource);
-        if (resourceMediaType == null || !HTML_MEDIA_TYPES.contains(resourceMediaType)) {
-            // We only currently transform HTML.  Everything else, this is a no-op.
-            return contentResource;
-        }
-
-        try (var inputStream = contentResource.asInputStream()) {
-            var newResource = new Resource(
-                    contentResource.getId(),
-                    kepubHtmlConversionService.transform(
-                            inputStream,
-                            contentResource.getInputEncoding(),
-                            forceEnableHyphenation
-                    ).getBytes(StandardCharsets.UTF_8),
-                    contentResource.getHref(),
-                    MediaTypes.XHTML,
-                    "UTF-8"
-            );
-
-            newResource.setProperties(contentResource.getProperties());
-            newResource.setMediaOverlayId(contentResource.getMediaOverlayId());
-
-            return newResource;
-        }
+        Files.writeString(path, transformedHtml, StandardCharsets.UTF_8);
     }
 
     /**
@@ -140,20 +106,12 @@ public class KepubConversionService {
         }
     }
 
-    private Resource transformOPF(Resource opfResource, Resource cover) throws IOException {
-        if (opfResource == null) {
-            // Eventually we may want to create an OPF but for now just ignore it
-            // if it's missing.
-            return null;
-        }
-
-        // TransformOPF transforms the OPF document for a KEPUB.
+    private void transformOPF(Path path, String coverHref) throws IOException {
         try {
             var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-            var opfDoc = builder.parse(opfResource.asInputStream());
+            var opfDoc = builder.parse(Files.readString(path));
 
-            String coverImage = cover == null ? null : cover.getHref();
-            transformOPFCoverImage(opfDoc, coverImage);
+            transformOPFCoverImage(opfDoc, coverHref);
 
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -162,27 +120,38 @@ public class KepubConversionService {
             try (var outputStream = new ByteArrayOutputStream()) {
                 transformer.transform(new DOMSource(opfDoc), new StreamResult(outputStream));
 
-                return new Resource(
-                        opfResource.getId(),
-                        outputStream.toByteArray(),
-                        opfResource.getHref(),
-                        opfResource.getMediaType(),
-                        "UTF-8"
-                );
+                Files.writeString(path, outputStream.toString(StandardCharsets.UTF_8));
             }
-
         } catch (TransformerException | SAXException | ParserConfigurationException exception) {
             log.error("unable to parse OPF");
             throw new IOException("unable to parse OPF", exception);
         }
     }
 
-    private boolean isIncludedResource(Resource resource) {
-        // Because this isn't an actual filesystem it's always "/"
-        String[] parts = resource.getHref().split("/");
+    private void transformExtractedEpubHtml(
+            Path path,
+            boolean forceEnableHyphenation
+    ) throws IOException {
+        try (var files = Files.walk(path)) {
+            var allFiles = files
+                    .filter(Files::isRegularFile)
+                    .toList();
+
+            for (var file : allFiles) {
+                String mediaType = MimeDetector.detect(file);
+
+                if (HTML_MEDIA_TYPES.contains(mediaType)) {
+                    transformHTML(path, forceEnableHyphenation);
+                }
+            }
+        }
+    }
+
+    private boolean isAcceptedEntry(ArchiveService.Entry entry) {
+        String[] parts = entry.name().split("/");
 
         if (parts.length == 0) {
-            // No empty HREF items allowed.
+            // No empty path items allowed.
             return false;
         }
 
@@ -194,67 +163,30 @@ public class KepubConversionService {
         for (int i = 0; i < parts.length - 1; i++) {
             if (IGNORED_DIRECTORIES.contains(parts[i].toLowerCase())) {
                 return false;
-            }
+           }
         }
 
         return true;
     }
 
-    private Book convertBookToKepub(Book original, boolean forceEnableHyphenation) throws IOException {
-        Book kepub = new Book();
-
-        for (var resource : original.getResources().getAll()) {
-            if (!isIncludedResource(resource)) {
-                continue;
-            }
-
-            kepub.addResource(getTransformedContentResource(resource, forceEnableHyphenation));
-        }
-
-        kepub.setNavResource(original.getNavResource());
-        kepub.setNcxResource(original.getNcxResource());
-        kepub.setCoverImage(original.getCoverImage());
-        kepub.setCoverPage(original.getCoverPage());
-        kepub.setMetadata(original.getMetadata());
-        kepub.setTableOfContents(original.getTableOfContents());
-        kepub.setSpine(original.getSpine());
-
-        kepub.setOpfResource(
-                transformOPF(
-                        original.getOpfResource(),
-                        original.getCoverImage()
-                )
-        );
-
-        return kepub;
-    }
-
-    public void convertEpubToKepub(
-            InputStream inputStream,
-            OutputStream outputStream,
-            boolean forceEnableHyphenation,
-            EpubWriter epubWriter
-    ) throws IOException {
-        Book originalBook = epubReader.readEpub(inputStream);
-
-        Book kepubBook = convertBookToKepub(originalBook, forceEnableHyphenation);
-
-        epubWriter.write(kepubBook, outputStream);
-    }
-
-    private void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
+    public void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
         validateInputs(inputPath);
 
-        try (var inputStream = Files.newInputStream(inputPath)) {
-            try (var outputStream = Files.newOutputStream(outputPath)) {
-                convertEpubToKepub(
-                        inputStream,
-                        outputStream,
-                        forceEnableHyphenation,
-                        new EpubWriter()
-                );
-            }
+        String coverHref = coverDetectorService.detectCoverImagePath(inputPath);
+
+        var tempDir = Files.createTempDirectory("grimmory-kepubify");
+        archiveService.extractToDirectory(inputPath, tempDir, this::isAcceptedEntry);
+
+        transformExtractedEpubHtml(tempDir, forceEnableHyphenation);
+
+        try {
+            Path opfPath = EpubContentReader.findOPFInExtractedEpub(tempDir);
+            transformOPF(opfPath, coverHref);
+        } catch (Exception e) {
+            log.warn("Unable to transform OPF", e);
         }
+
+        EpubContentWriter.createEpubFromDirectory(tempDir, outputPath);
 
         log.info(
                 "Successfully converted {} to {} (size: {} bytes)",
