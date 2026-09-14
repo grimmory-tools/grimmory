@@ -99,7 +99,7 @@ export class MetadataSearcherComponent implements OnDestroy {
 
   readonly resultsByProvider = computed(() => {
     const groups = new Map<string, BookMetadata[]>();
-    this.searchedProviders().forEach(provider => groups.set(provider, []));
+    this.searchedProviders().forEach(provider => groups.set(provider.toLowerCase(), []));
     for (const result of this.results()) {
       const key = providerKey(result);
       groups.set(key, [...(groups.get(key) ?? []), result]);
@@ -109,8 +109,8 @@ export class MetadataSearcherComponent implements OnDestroy {
 
   readonly providerTabs = computed(() =>
     this.searchedProviders().map(provider => ({
-      provider: capitalize(provider),
-      count: this.resultsByProvider().get(provider)?.length ?? 0
+      provider,
+      count: this.resultsByProvider().get(provider.toLowerCase())?.length ?? 0
     }))
   );
 
@@ -158,16 +158,17 @@ export class MetadataSearcherComponent implements OnDestroy {
 
     effect(() => {
       const book = this.book();
-      const settings = this.appSettingsService.appSettings();
-      if (!book || !settings) return;
-
-      if (book.id !== this.bookId) {
-        this.bookId = book.id;
-        this.resetForBook(book);
-        this.autoSearchPending.set(!!settings.autoBookSearch);
-      } else {
-        this.patchFormFromBook(book);
+      if (!book) {
+        this.clearForNoBook();
+        return;
       }
+
+      const settings = this.appSettingsService.appSettings();
+      if (!settings || book.id === this.bookId) return;
+
+      this.bookId = book.id;
+      this.resetForBook(book);
+      this.autoSearchPending.set(!!settings.autoBookSearch);
     });
 
     effect(() => {
@@ -205,7 +206,7 @@ export class MetadataSearcherComponent implements OnDestroy {
 
     this.cancel$.next();
     this.results.set([]);
-    this.searchedProviders.set(selectedProviders.map(provider => provider.toLowerCase()));
+    this.searchedProviders.set(selectedProviders);
     this.selectedFilters.set(new Set(['all']));
     this.loading.set(true);
 
@@ -347,7 +348,7 @@ export class MetadataSearcherComponent implements OnDestroy {
     return !!value && typeof value === 'object' && 'enabled' in value;
   }
 
-  private resetForBook(book: Book): void {
+  private resetSearchState(): void {
     this.cancel$.next();
     this.loading.set(false);
     this.detailLoading.set(false);
@@ -356,6 +357,17 @@ export class MetadataSearcherComponent implements OnDestroy {
     this.results.set([]);
     this.searchedProviders.set([]);
     this.selectedFilters.set(new Set(['all']));
+  }
+
+  private clearForNoBook(): void {
+    this.bookId = null;
+    this.autoSearchPending.set(false);
+    this.resetSearchState();
+    this.form.patchValue({title: '', author: '', isbn: ''});
+  }
+
+  private resetForBook(book: Book): void {
+    this.resetSearchState();
     this.patchFormFromBook(book);
   }
 
