@@ -32,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -1158,6 +1160,7 @@ class BookCoverServiceTest {
             book.setBookFiles(Set.of(primaryFile));
             book.setLibrary(LibraryEntity.builder().build());
             book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
+            primaryFile.setBook(book);
 
             MetadataPersistenceSettings persistSettings = mock(MetadataPersistenceSettings.class);
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
@@ -1176,6 +1179,43 @@ class BookCoverServiceTest {
 
                 verify(metadataWriterFactory).getWriter(BookFileType.EPUB);
                 assertThat(primaryFile.getCurrentHash()).isEqualTo("abc123");
+            }
+        }
+
+        @Test
+        void ebookCoverWriteTargetsEbookFileNotPrimaryAudiobook() {
+            BookEntity book = buildBook(1L, false);
+            BookFileEntity audiobookFile = BookFileEntity.builder()
+                    .id(1L).book(book).bookType(BookFileType.AUDIOBOOK).isBookFormat(true)
+                    .fileName("audio.m4b").fileSubPath("sub")
+                    .build();
+            BookFileEntity epubFile = BookFileEntity.builder()
+                    .id(2L).book(book).bookType(BookFileType.EPUB).isBookFormat(true)
+                    .fileName("book.epub").fileSubPath("sub")
+                    .build();
+            book.setBookFiles(Set.of(audiobookFile, epubFile));
+            book.setLibrary(LibraryEntity.builder().build());
+            book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
+
+            MetadataPersistenceSettings persistSettings = mock(MetadataPersistenceSettings.class);
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMetadataPersistenceSettings()).thenReturn(persistSettings);
+            when(persistSettings.isConvertCbrCb7ToCbz()).thenReturn(false);
+
+            MetadataWriter epubWriter = mock(MetadataWriter.class);
+            when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(epubWriter));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
+                fpMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash");
+
+                service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+                verify(metadataWriterFactory).getWriter(BookFileType.EPUB);
+                verify(metadataWriterFactory, never()).getWriter(BookFileType.AUDIOBOOK);
+                assertThat(epubFile.getCurrentHash()).isEqualTo("hash");
+                assertThat(audiobookFile.getCurrentHash()).isNull();
             }
         }
 
@@ -1206,6 +1246,30 @@ class BookCoverServiceTest {
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+        }
+
+        @Test
+        void sendsNotificationAfterCommitNotBefore() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
+            when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
+
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+                // Deferred: nothing dispatched before the transaction commits (so nothing on rollback either).
+                verify(notificationService, never()).sendMessage(any(), anyList());
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(syncs).hasSize(1);
+
+                syncs.forEach(TransactionSynchronization::afterCommit);
+                verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
 
         @Test

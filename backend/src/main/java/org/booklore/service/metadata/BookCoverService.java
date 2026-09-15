@@ -30,6 +30,8 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.enums.PermissionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -111,7 +113,7 @@ public class BookCoverService {
         }
 
         fileService.createThumbnailFromFile(bookId, file);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUpload(book, file));
+        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUpload(targetFile, file));
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -130,7 +132,7 @@ public class BookCoverService {
         }
 
         fileService.createThumbnailFromUrl(bookId, url);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUrl(book, url));
+        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUrl(targetFile, url));
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -153,7 +155,7 @@ public class BookCoverService {
         }
 
         fileService.createAudiobookThumbnailFromFile(bookId, file);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUpload(book, file));
+        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUpload(targetFile, file));
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -172,7 +174,7 @@ public class BookCoverService {
         }
 
         fileService.createAudiobookThumbnailFromUrl(bookId, url);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUrl(book, url));
+        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUrl(targetFile, url));
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -346,7 +348,6 @@ public class BookCoverService {
                                         boolean changed = action.apply(book);
                                         if (changed) {
                                             bookRepository.save(book);
-                                            notifyBulkCoverUpdate(List.of(book.getId()), username);
                                         }
                                         return changed;
                                     })
@@ -354,6 +355,7 @@ public class BookCoverService {
                     );
 
                     if (Boolean.TRUE.equals(updated)) {
+                        notifyBulkCoverUpdate(List.of(bookInfo.id()), username);
                         log.info("{}{} book ID {} ({})", progress, messages.itemVerb(), bookInfo.id(), bookInfo.title());
                     } else {
                         log.warn("{}No cover updated for book ID {} ({})", progress, bookInfo.id(), bookInfo.title());
@@ -374,16 +376,24 @@ public class BookCoverService {
     private boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes) {
         boolean updated = false;
         if (hasUnlockedEbookSlot(book)) {
-            fileService.createThumbnailFromBytes(book.getId(), coverBytes);
-            writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverBytes));
-            updateBookCoverMetadata(book);
-            updated = true;
+            try {
+                fileService.createThumbnailFromBytes(book.getId(), coverBytes);
+                writeCoverToBookFile(book, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+                updateBookCoverMetadata(book);
+                updated = true;
+            } catch (Exception e) {
+                log.error("Failed to update ebook cover slot for book ID {}: {}", book.getId(), e.getMessage(), e);
+            }
         }
         if (hasUnlockedAudiobookSlot(book)) {
-            fileService.createAudiobookThumbnailFromBytes(book.getId(), coverBytes);
-            writeAudiobookCoverToFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverBytes));
-            updateAudiobookCoverMetadata(book);
-            updated = true;
+            try {
+                fileService.createAudiobookThumbnailFromBytes(book.getId(), coverBytes);
+                writeAudiobookCoverToFile(book, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+                updateAudiobookCoverMetadata(book);
+                updated = true;
+            } catch (Exception e) {
+                log.error("Failed to update audiobook cover slot for book ID {}: {}", book.getId(), e.getMessage(), e);
+            }
         }
         return updated;
     }
@@ -419,12 +429,20 @@ public class BookCoverService {
     private boolean generateCustomCoverSlots(BookEntity book) {
         boolean updated = false;
         if (hasUnlockedEbookSlot(book)) {
-            applyCustomBookCover(book);
-            updated = true;
+            try {
+                applyCustomBookCover(book);
+                updated = true;
+            } catch (Exception e) {
+                log.error("Failed to generate custom ebook cover for book ID {}: {}", book.getId(), e.getMessage(), e);
+            }
         }
         if (hasUnlockedAudiobookSlot(book)) {
-            applyCustomAudiobookCover(book);
-            updated = true;
+            try {
+                applyCustomAudiobookCover(book);
+                updated = true;
+            } catch (Exception e) {
+                log.error("Failed to generate custom audiobook cover for book ID {}: {}", book.getId(), e.getMessage(), e);
+            }
         }
         return updated;
     }
@@ -556,14 +574,14 @@ public class BookCoverService {
     private void applyCustomBookCover(BookEntity bookEntity) {
         byte[] coverBytes = coverImageGenerator.generateCover(bookEntity.getMetadata().getTitle(), getAuthorNames(bookEntity));
         fileService.createThumbnailFromBytes(bookEntity.getId(), coverBytes);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromBytes(book, coverBytes));
+        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
         updateBookCoverMetadata(bookEntity);
     }
 
     private void applyCustomAudiobookCover(BookEntity bookEntity) {
         byte[] coverBytes = coverImageGenerator.generateSquareCover(bookEntity.getMetadata().getTitle(), getAuthorNames(bookEntity));
         fileService.createAudiobookThumbnailFromBytes(bookEntity.getId(), coverBytes);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromBytes(book, coverBytes));
+        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
         updateAudiobookCoverMetadata(bookEntity);
     }
 
@@ -576,29 +594,29 @@ public class BookCoverService {
         return null;
     }
 
-    private void writeCoverToBookFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookEntity> writerAction) {
+    private void writeCoverToBookFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookFileEntity> writerAction) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
-        var primaryFile = bookEntity.getPrimaryBookFile();
-        if (primaryFile == null) {
+        BookFileEntity ebookFile = findEbookFile(bookEntity);
+        if (ebookFile == null) {
             return;
         }
 
         MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
         boolean convertCbrCb7ToCbz = settings.isConvertCbrCb7ToCbz();
 
-        if ((primaryFile.getBookType() != BookFileType.CBX || convertCbrCb7ToCbz)) {
-            metadataWriterFactory.getWriter(primaryFile.getBookType())
+        if ((ebookFile.getBookType() != BookFileType.CBX || convertCbrCb7ToCbz)) {
+            metadataWriterFactory.getWriter(ebookFile.getBookType())
                     .ifPresent(writer -> {
-                        writerAction.accept(writer, bookEntity);
-                        String newHash = FileFingerprint.generateHash(bookEntity.getFullFilePath());
-                        primaryFile.setCurrentHash(newHash);
+                        writerAction.accept(writer, ebookFile);
+                        String newHash = FileFingerprint.generateHash(ebookFile.getFullFilePath());
+                        ebookFile.setCurrentHash(newHash);
                     });
         }
     }
 
-    private void writeAudiobookCoverToFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookEntity> writerAction) {
+    private void writeAudiobookCoverToFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookFileEntity> writerAction) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
@@ -613,7 +631,7 @@ public class BookCoverService {
 
         metadataWriterFactory.getWriter(BookFileType.AUDIOBOOK)
                 .ifPresent(writer -> {
-                    writerAction.accept(writer, bookEntity);
+                    writerAction.accept(writer, audiobookFile);
                     if (!audiobookFile.isFolderBased()) {
                         String newHash = FileFingerprint.generateHash(audiobookFile.getFullFilePath());
                         audiobookFile.setCurrentHash(newHash);
@@ -650,9 +668,26 @@ public class BookCoverService {
     }
 
     private void notifyBookCoverUpdate(BookEntity bookEntity) {
-        List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(List.of(bookEntity.getId()));
-        if (!updates.isEmpty()) {
-            notificationService.sendMessage(Topic.BOOKS_COVER_UPDATE, updates);
+        Long bookId = bookEntity.getId();
+        Runnable notify = () -> {
+            try {
+                List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(List.of(bookId));
+                if (!updates.isEmpty()) {
+                    notificationService.sendMessage(Topic.BOOKS_COVER_UPDATE, updates);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to send cover update notification for book ID {}: {}", bookId, e.getMessage());
+            }
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    notify.run();
+                }
+            });
+        } else {
+            notify.run();
         }
     }
 
@@ -660,9 +695,13 @@ public class BookCoverService {
         if (refreshedIds.isEmpty()) {
             return;
         }
-        List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(refreshedIds);
-        if (!updates.isEmpty()) {
-            sendNotification(username, Topic.BOOKS_COVER_UPDATE, updates);
+        try {
+            List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(refreshedIds);
+            if (!updates.isEmpty()) {
+                sendNotification(username, Topic.BOOKS_COVER_UPDATE, updates);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to send cover update notification for book IDs {}: {}", refreshedIds, e.getMessage());
         }
     }
 }
