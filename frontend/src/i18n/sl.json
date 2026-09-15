@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Neznan naslov"
+      },
+      "aria": {
+        "coverAlt": "Naslovnica za {{ title }}"
+      },
       "menu": {
         "assignShelf": "Dodaj na polico",
         "viewDetails": "Ogled podrobnosti",
@@ -2937,6 +2943,43 @@
         "bookMenu": "Meni z dejanji za knjigo",
         "continueReading": "Nadaljuj z branjem",
         "readStatusMenu": "Spremeni status branja"
+      }
+    },
+    "menu": {
+      "quickSend": "Hitro pošiljanje",
+      "customSend": "Pošiljanje po meri",
+      "download": "Prenesi",
+      "metadata": "Metapodatki",
+      "editMetadata": "Urejanje metapodatkov",
+      "more": "Več",
+      "organizeFile": "Organiziraj datoteko",
+      "resetGrimmoryProgress": "Ponastavi Grimmory napredek",
+      "resetKoreaderProgress": "Ponastavi KOReader napredek",
+      "confirm": {
+        "deleteBookMessage": "Ali si prepričan, da želiš izbrisati \"{{ title }}\"?\n\nTo bo trajno odstranilo datoteko s tvojega diska.\n\nTe akcije ni mogoče preklicati.",
+        "deleteBookHeader": "Potrdi brisanje",
+        "deleteFileMessage": "Ali si prepričan, da želiš izbrisati dodatno datoteko \"{{ fileName }}\"?",
+        "deleteFileHeader": "Potrdi brisanje datoteke",
+        "largeFileMessage": "Ta datoteka presega 25 MB. Nekateri ponudniki e-pošte lahko zavrnejo velike priloge.\n\nAli jo želiš vseeno poslati?",
+        "largeFileHeader": "Opozorilo o veliki datoteki",
+        "sendAnyway": "Pošlji vseeno"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Beri knjigo"
+      },
+      "continueReading": {
+        "short": "Nadaljuj",
+        "long": "Nadaljuj z branjem"
+      },
+      "play": {
+        "short": "Predvajaj",
+        "long": "Predvajaj zvočno knjigo"
+      },
+      "continueListening": {
+        "short": "Nadaljuj",
+        "long": "Nadaljuj s poslušanjem"
       }
     },
     "notes": {

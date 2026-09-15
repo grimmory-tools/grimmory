@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "不明なタイトル"
+      },
+      "aria": {
+        "coverAlt": "{{ title }}のカバー"
+      },
       "menu": {
         "assignShelf": "シェルフに割り当て",
         "viewDetails": "詳細を表示",
@@ -2937,6 +2943,41 @@
         "bookMenu": "本の操作メニュー",
         "continueReading": "読書を続ける",
         "readStatusMenu": ""
+      }
+    },
+    "menu": {
+      "quickSend": "クイック送信",
+      "customSend": "カスタム送信",
+      "download": "ダウンロード",
+      "metadata": "メタデータ",
+      "editMetadata": "メタデータを編集",
+      "more": "その他",
+      "organizeFile": "ファイルを整理",
+      "resetGrimmoryProgress": "Grimmory進捗をリセット",
+      "resetKoreaderProgress": "KOReader進捗をリセット",
+      "confirm": {
+        "deleteBookMessage": "「{{ title }}」を削除してもよろしいですか？\n\nファイルシステムからブックファイルが完全に削除されます。\n\nこの操作は元に戻せません。",
+        "deleteBookHeader": "削除の確認",
+        "deleteFileMessage": "追加ファイル「{{ fileName }}」を削除してもよろしいですか？",
+        "deleteFileHeader": "ファイル削除の確認",
+        "sendAnyway": "無視して送信"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "本を読む"
+      },
+      "continueReading": {
+        "short": "続ける",
+        "long": "読み続ける"
+      },
+      "play": {
+        "short": "再生",
+        "long": "オーディオブックを再生"
+      },
+      "continueListening": {
+        "short": "続ける",
+        "long": "聴き続ける"
       }
     },
     "notes": {

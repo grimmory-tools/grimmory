@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Título Desconhecido"
+      },
+      "aria": {
+        "coverAlt": "Capa de {{ title }}"
+      },
       "menu": {
         "assignShelf": "Atribuir Prateleira",
         "viewDetails": "Ver Detalhes",
@@ -2937,6 +2943,40 @@
         "bookMenu": "Menu de ações do livro",
         "continueReading": "Continuar lendo",
         "readStatusMenu": ""
+      }
+    },
+    "menu": {
+      "quickSend": "Envio Rápido",
+      "customSend": "Envio Personalizado",
+      "download": "Baixar",
+      "metadata": "Metadados",
+      "editMetadata": "Editar Metadados",
+      "more": "Mais",
+      "organizeFile": "Organizar Arquivo",
+      "resetGrimmoryProgress": "Redefinir Progresso do Grimmory",
+      "resetKoreaderProgress": "Redefinir Progresso do KOReader",
+      "confirm": {
+        "deleteBookMessage": "Tem certeza de que deseja excluir \"{{ title }}\"?\n\nIsso removerá permanentemente o arquivo do livro do seu sistema de arquivos.\n\nEssa ação não pode ser desfeita.",
+        "deleteBookHeader": "Confirmar Exclusão",
+        "deleteFileMessage": "Tem certeza de que deseja excluir o arquivo adicional \"{{ fileName }}\"?",
+        "deleteFileHeader": "Confirmar Exclusão de Arquivo"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Ler livro"
+      },
+      "continueReading": {
+        "short": "Continuar",
+        "long": "Continuar Lendo"
+      },
+      "play": {
+        "short": "Reproduzir",
+        "long": "Reproduzir audiolivro"
+      },
+      "continueListening": {
+        "short": "Continuar",
+        "long": "Continuar Ouvindo"
       }
     },
     "notes": {

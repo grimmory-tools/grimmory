@@ -2874,6 +2874,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Nepoznati naslov"
+      },
+      "aria": {
+        "coverAlt": "Naslovnica {{ title }}"
+      },
       "menu": {
         "assignShelf": "Dodijeli policu",
         "viewDetails": "Prikaži detalje",
@@ -2940,6 +2946,44 @@
         "readStatusMenu": "Promijeni status čitanja"
       }
     },
+    "menu": {
+      "quickSend": "Brzo slanje",
+      "customSend": "Prilagođeno slanje",
+      "download": "Preuzmi",
+      "metadata": "Metapodaci",
+      "editMetadata": "Uređivanje metapodataka",
+      "more": "Više",
+      "organizeFile": "Organiziraj datoteku",
+      "resetGrimmoryProgress": "Vrati Grimmory napredak",
+      "resetKoreaderProgress": "Vrati KOReader napredak",
+      "confirm": {
+        "deleteBookMessage": "Jeste li sigurni da želite obrisati \"{{ title }}\"?\n\nOvo će trajno ukloniti datoteku knjige iz vašeg datotečnog sustava.\n\nOva radnja se ne može poništiti.",
+        "deleteBookHeader": "Potvrdi brisanje",
+        "deleteFileMessage": "Jeste li sigurni da želite obrisati dodatnu datoteku \"{{ fileName }}\"?",
+        "deleteFileHeader": "Potvrdi brisanje datoteke",
+        "largeFileMessage": "Ova datoteka prelazi 25 MB. Neki pružatelji usluga e-pošte mogu odbiti velike priloge.\n\nŽelite li je ipak poslati?",
+        "largeFileHeader": "Upozorenje o velikoj datoteci",
+        "sendAnyway": "Svejedno pošalji"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Čitaj knjigu"
+      },
+      "continueReading": {
+        "short": "Nastavi",
+        "long": "Nastavi čitanje"
+      },
+      "play": {
+        "short": "Reproduciraj",
+        "long": "Reproduciraj audioknjgu"
+      },
+      "continueListening": {
+        "short": "Nastavi",
+        "long": "Nastavi slušanje"
+      }
+    },
+    "selectBook": "Odaberite {{ title }}",
     "notes": {
       "confirm": {
         "deleteMessage": "Jeste li sigurni da želite obrisati bilješku \"{{ title }}\"?",

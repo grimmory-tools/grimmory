@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Nieznany tytuł"
+      },
+      "aria": {
+        "coverAlt": "Okładka {{ title }}"
+      },
       "menu": {
         "assignShelf": "Przypisz półkę",
         "viewDetails": "Pokaż szczegóły",
@@ -2937,6 +2943,40 @@
         "bookMenu": "Menu akcji książki",
         "continueReading": "Kontynuuj czytanie",
         "readStatusMenu": ""
+      }
+    },
+    "menu": {
+      "quickSend": "Szybkie wysyłanie",
+      "customSend": "Wysyłanie niestandardowe",
+      "download": "Pobierz",
+      "metadata": "Metadane",
+      "editMetadata": "Edytuj metadane",
+      "more": "Więcej",
+      "organizeFile": "Organizuj plik",
+      "resetGrimmoryProgress": "Resetuj postęp Grimmory",
+      "resetKoreaderProgress": "Resetuj postęp KOReader",
+      "confirm": {
+        "deleteBookMessage": "Czy na pewno chcesz usunąć \"{{ title }}\"?\n\nSpowoduje to trwałe usunięcie pliku książki z systemu plików.\n\nTej operacji nie można cofnąć.",
+        "deleteBookHeader": "Potwierdź usunięcie",
+        "deleteFileMessage": "Czy na pewno chcesz usunąć dodatkowy plik \"{{ fileName }}\"?",
+        "deleteFileHeader": "Potwierdź usunięcie pliku"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Czytaj książkę"
+      },
+      "continueReading": {
+        "short": "Kontynuuj",
+        "long": "Kontynuuj czytanie"
+      },
+      "play": {
+        "short": "Odtwórz",
+        "long": "Odtwórz audiobook"
+      },
+      "continueListening": {
+        "short": "Kontynuuj",
+        "long": "Kontynuuj słuchanie"
       }
     },
     "notes": {

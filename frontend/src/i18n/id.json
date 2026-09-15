@@ -3420,6 +3420,22 @@
         "continueReading": ""
       }
     },
+    "menu": {
+      "confirm": {
+        "deleteBookHeader": "Konfirmasi Penghapusan"
+      }
+    },
+    "readAction": {
+      "continueReading": {
+        "short": "Lanjutkan"
+      },
+      "play": {
+        "short": "Putar"
+      },
+      "continueListening": {
+        "short": "Lanjutkan"
+      }
+    },
     "fileAttacher": {
       "warningNoMoveBulk": "",
       "unknownFile": "",

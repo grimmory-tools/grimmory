@@ -2873,6 +2873,12 @@
       }
     },
     "card": {
+      "book": {
+        "unknownTitle": "Неизвестное название"
+      },
+      "aria": {
+        "coverAlt": "Обложка {{ title }}"
+      },
       "menu": {
         "assignShelf": "Назначить полку",
         "viewDetails": "Просмотреть детали",
@@ -2937,6 +2943,40 @@
         "bookMenu": "Меню действий с книгой",
         "continueReading": "Продолжить чтение",
         "readStatusMenu": ""
+      }
+    },
+    "menu": {
+      "quickSend": "Быстрая отправка",
+      "customSend": "Настраиваемая отправка",
+      "download": "Скачать",
+      "metadata": "Метаданные",
+      "editMetadata": "Редактирование метаданных",
+      "more": "Ещё",
+      "organizeFile": "Организовать файл",
+      "resetGrimmoryProgress": "Сбросить прогресс Grimmory",
+      "resetKoreaderProgress": "Сбросить прогресс KOReader",
+      "confirm": {
+        "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто навсегда удалит файл книги из вашей файловой системы.\n\nЭто действие нельзя отменить.",
+        "deleteBookHeader": "Подтверждение удаления",
+        "deleteFileMessage": "Вы уверены, что хотите удалить дополнительный файл «{{ fileName }}»?",
+        "deleteFileHeader": "Подтверждение удаления файла"
+      }
+    },
+    "readAction": {
+      "read": {
+        "long": "Читать книгу"
+      },
+      "continueReading": {
+        "short": "Продолжить",
+        "long": "Продолжить чтение"
+      },
+      "play": {
+        "short": "Воспроизвести",
+        "long": "Воспроизвести аудиокнигу"
+      },
+      "continueListening": {
+        "short": "Продолжить",
+        "long": "Продолжить прослушивание"
       }
     },
     "notes": {
