@@ -1,10 +1,23 @@
-import {describe, expect, it} from 'vitest';
+import {TestBed} from '@angular/core/testing';
+import {Router} from '@angular/router';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {BookNavigationService} from './book-navigation.service';
 
+const navigate = vi.fn(() => Promise.resolve(true));
+
+function createService(): BookNavigationService {
+  TestBed.configureTestingModule({
+    providers: [{provide: Router, useValue: {navigate}}],
+  });
+  return TestBed.inject(BookNavigationService);
+}
+
 describe('BookNavigationService', () => {
+  beforeEach(() => navigate.mockClear());
+
   it('tracks navigation context and derived positions', () => {
-    const service = new BookNavigationService();
+    const service = createService();
 
     expect(service.navigationState()).toBeNull();
     expect(service.canNavigatePrevious()).toBe(false);
@@ -36,7 +49,7 @@ describe('BookNavigationService', () => {
   });
 
   it('clears invalid navigation context and ignores unknown book ids', () => {
-    const service = new BookNavigationService();
+    const service = createService();
 
     service.setNavigationContext([1, 2, 3], 99);
     expect(service.navigationState()).toBeNull();
@@ -49,4 +62,26 @@ describe('BookNavigationService', () => {
 
     expect(service.navigationState()).toEqual({bookIds: [1, 2, 3], currentIndex: 0});
   });
+
+  it.each([
+    ['PDF', '/pdf-reader/book/7'],
+    ['EPUB', '/ebook-reader/book/7'],
+    ['FB2', '/ebook-reader/book/7'],
+    ['MOBI', '/ebook-reader/book/7'],
+    ['AZW3', '/ebook-reader/book/7'],
+    ['CBX', '/cbx-reader/book/7'],
+    ['AUDIOBOOK', '/audiobook-player/book/7'],
+  ] as const)('opens %s books in the matching reader', (bookType, route) => {
+    const service = createService();
+
+    service.readBook({
+      id: 7,
+      libraryId: 1,
+      libraryName: 'Library',
+      primaryFile: {id: 70, bookId: 7, book: true, folderBased: false, bookType},
+    });
+
+    expect(navigate).toHaveBeenCalledWith([route]);
+  });
+
 });
