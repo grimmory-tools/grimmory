@@ -1,15 +1,16 @@
 import {Component, DestroyRef, computed, effect, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {InputText} from '@openng/optimus-ui/inputtext';
-import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
-import {Button} from '@openng/optimus-ui/button';
-import {Toast} from '@openng/optimus-ui/toast';
-import {MessageService} from '@openng/optimus-ui/api';
+import {InputText} from 'primeng/inputtext';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {Button} from 'primeng/button';
+import {Toast} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {UserService} from '../../../user-management/user.service';
 import {HardcoverSyncSettingsService} from './hardcover-sync-settings.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Checkbox} from 'primeng/checkbox';
 
 @Component({
   standalone: true,
@@ -21,7 +22,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Button,
     Toast,
     ExternalDocLinkComponent,
-    TranslocoDirective
+    TranslocoDirective,
+    Checkbox
   ],
   providers: [MessageService],
   templateUrl: './hardcover-settings-component.html',
@@ -44,6 +46,7 @@ export class HardcoverSettingsComponent {
   private prevHasPermission = false;
   private savedHardcoverSyncEnabled = false;
   private savedHardcoverApiKey = '';
+  overwriteExistingData = false;
 
   constructor() {
     effect(() => {
@@ -78,6 +81,10 @@ export class HardcoverSettingsComponent {
     this.showHardcoverApiKey.update(showHardcoverApiKey => !showHardcoverApiKey);
   }
 
+  triggerHardcoverImport() {
+    this.hardcoverImport();
+  }
+
   onHardcoverSyncToggle(enabled: boolean) {
     this.hardcoverSyncEnabled.set(enabled);
     const message = enabled
@@ -88,6 +95,21 @@ export class HardcoverSettingsComponent {
 
   onHardcoverApiKeyChange() {
     this.updateHardcoverSettings(this.t.translate('settingsDevice.hardcover.apiKeyUpdated'));
+  }
+
+  private hardcoverImport() {
+    this.hardcoverSyncSettingsService.startImport(this.overwriteExistingData).subscribe({
+      next: () => {
+        this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.importStarted')});
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('settingsDevice.hardcover.importFailed'),
+          detail: this.t.translate('settingsDevice.hardcover.importError')
+        });
+      }
+    })
   }
 
   private updateHardcoverSettings(successMessage: string) {
