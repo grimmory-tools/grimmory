@@ -62,12 +62,15 @@ public class BookFilePersistenceService {
             matchedFile.setFileName(newFileName);
             book.setDeleted(Boolean.FALSE);
             book.setDeletedAt(null);
-            bookRepository.save(book);
+            BookEntity savedBook = bookRepository.save(book);
             log.info("[FILE_CREATE] Updated path / undeleted existing book with hash '{}': '{}'", currentHash, path);
+            notificationService.sendMessageToPermissions(
+                    Topic.BOOK_ADD,
+                    bookMapper.toBookWithDescription(savedBook, false),
+                    Set.of(ADMIN, MANAGE_LIBRARY));
         } else {
             log.info("[FILE_CREATE] Book with hash '{}' already exists at same path. Skipping update.", currentHash);
         }
-        notificationService.sendMessageToPermissions(Topic.BOOK_ADD, bookMapper.toBookWithDescription(book, false), Set.of(ADMIN, MANAGE_LIBRARY));
     }
 
     String findMatchingLibraryPath(LibraryEntity libraryEntity, Path filePath) {
