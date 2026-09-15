@@ -37,7 +37,7 @@ describe('ShelfMembershipMenuComponent', () => {
   }
 
   function menuElement(): HTMLElement {
-    return document.querySelector('app-menu[aria-label="Add to shelf"]') as HTMLElement;
+    return document.querySelector('app-menu[aria-label="Add to Shelf"]') as HTMLElement;
   }
 
   function rowLabels(): string[] {
@@ -58,8 +58,9 @@ describe('ShelfMembershipMenuComponent', () => {
 
   it('renders translated menu labels', async () => {
     await render(shelves(3));
-    expect(menuElement().getAttribute('aria-label')).toBe('Add to shelf');
-    expect(menuElement().querySelector('app-menu-item')?.textContent?.trim()).toBe('New shelf…');
+    expect(menuElement().getAttribute('aria-label')).toBe('Add to Shelf');
+    expect(Array.from(menuElement().querySelectorAll('app-menu-item'))
+      .map(item => item.textContent?.trim())).toEqual(['New Shelf', 'Remove from Your Shelves']);
   });
 
   it('hides the filter input for a short, scannable list', async () => {
@@ -105,7 +106,7 @@ describe('ShelfMembershipMenuComponent', () => {
     await render(shelves(12));
     const input = menuElement().querySelector('input') as HTMLInputElement;
     const rows = menuElement().querySelectorAll('app-menu-checkbox');
-    const newShelf = menuElement().querySelector('app-menu-item') as HTMLElement;
+    const removeAll = menuElement().querySelectorAll('app-menu-item')[1] as HTMLElement;
 
     input.focus();
     input.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true, cancelable: true}));
@@ -113,7 +114,7 @@ describe('ShelfMembershipMenuComponent', () => {
 
     input.focus();
     input.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true, cancelable: true}));
-    expect(document.activeElement).toBe(newShelf);
+    expect(document.activeElement).toBe(removeAll);
   });
 
   it('emits toggleShelf with the shelf id and next state', async () => {
@@ -157,22 +158,28 @@ describe('ShelfMembershipMenuComponent', () => {
     expect(menuElement().querySelector('input')).toBeNull();
   });
 
-  it('emits createShelf when the New shelf item is chosen', async () => {
+  it('emits both trailing shelf commands', async () => {
     await render(shelves(3));
-    const spy = vi.fn();
-    fixture.componentInstance.createShelf.subscribe(spy);
-    const newShelf = menuElement().querySelector('app-menu-item') as HTMLElement;
-    newShelf.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
-    expect(spy).toHaveBeenCalledTimes(1);
+    const create = vi.fn();
+    const removeAll = vi.fn();
+    fixture.componentInstance.createShelf.subscribe(create);
+    fixture.componentInstance.removeFromAllShelves.subscribe(removeAll);
+    const items = menuElement().querySelectorAll('app-menu-item');
+    items[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+    items[1].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+    expect(create).toHaveBeenCalledOnce();
+    expect(removeAll).toHaveBeenCalledOnce();
   });
 
-  it('renders the filter, rows and New shelf in logical order', async () => {
+  it('renders the filter, rows and commands in logical order', async () => {
     await render(shelves(12));
-    const order = Array.from(menuElement().querySelectorAll('input, app-menu-checkbox, app-menu-item')).map(el => {
-      const tag = el.tagName.toLowerCase();
-      return tag === 'input' ? 'filter' : tag === 'app-menu-item' ? 'newShelf' : 'row';
-    });
+    const order = Array.from(menuElement().querySelectorAll('input, app-menu-checkbox, app-menu-item'))
+      .map(el => el.tagName.toLowerCase() === 'input'
+        ? 'filter'
+        : el.tagName.toLowerCase() === 'app-menu-checkbox'
+          ? 'row'
+          : el.textContent?.trim());
     expect(order[0]).toBe('filter');
-    expect(order.at(-1)).toBe('newShelf');
+    expect(order.slice(-2)).toEqual(['New Shelf', 'Remove from Your Shelves']);
   });
 });
