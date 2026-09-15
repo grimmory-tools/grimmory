@@ -1748,6 +1748,7 @@ class BookMetadataUpdaterTest {
         @Test
         void movesFile_whenSettingEnabled() {
             BookFileEntity primaryFile = BookFileEntity.builder()
+                    .isBookFormat(true)
                     .fileName("book.epub").bookType(BookFileType.EPUB).build();
             bookEntity.setBookFiles(Set.of(primaryFile));
 
@@ -1781,6 +1782,7 @@ class BookMetadataUpdaterTest {
         @Test
         void moveFileException_doesNotFailUpdate() {
             BookFileEntity primaryFile = BookFileEntity.builder()
+                    .isBookFormat(true)
                     .fileName("book.epub").bookType(BookFileType.EPUB).build();
             bookEntity.setBookFiles(Set.of(primaryFile));
 

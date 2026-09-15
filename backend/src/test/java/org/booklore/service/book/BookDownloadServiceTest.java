@@ -93,6 +93,7 @@ public class BookDownloadServiceTest {
                 .build();
 
         BookFileEntity bookFileEntity = BookFileEntity.builder()
+                .isBookFormat(true)
                 .fileName(filename)
                 .fileSubPath("/subpath")
                 .build();

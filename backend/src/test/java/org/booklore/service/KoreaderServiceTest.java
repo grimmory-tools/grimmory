@@ -473,6 +473,7 @@ class KoreaderServiceTest {
         book.setLibraryPath(libraryPath);
 
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(bookFileType);
