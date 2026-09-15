@@ -14,6 +14,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: i18n
+  cancel-in-progress: false
+
 jobs:
   crowdin:
     name: Synchronize with Crowdin
