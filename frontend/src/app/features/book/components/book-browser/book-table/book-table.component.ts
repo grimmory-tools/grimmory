@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {finalize} from 'rxjs';
-import {ColumnDef, ColumnSizingState, Header, createAngularTable, functionalUpdate, getCoreRowModel} from '@tanstack/angular-table';
+import {ColumnDef, ColumnSizingState, Header, columnResizingFeature, columnSizingFeature, functionalUpdate, injectTable, tableFeatures} from '@tanstack/angular-table';
 import {injectVirtualizer} from '@tanstack/angular-virtual';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {Book, BookMetadata} from '../../../model/book.model';
@@ -51,6 +51,7 @@ const MAX_COLUMN_SIZES: Record<string, number> = {
   categories: 360,
 };
 const DEFAULT_MAX_COLUMN_SIZE = 280;
+const features = tableFeatures({columnSizingFeature, columnResizingFeature});
 const COVER_OVERLAY_POSITIONS: ConnectedPosition[] = [
   {originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: 8},
   {originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -8},
@@ -101,7 +102,7 @@ export class BookTableComponent {
 
   protected readonly coverOverlayPositions = COVER_OVERLAY_POSITIONS;
 
-  private readonly columnDefs = computed<ColumnDef<Book>[]>(() => [
+  private readonly columnDefs = computed<ColumnDef<typeof features, Book>[]>(() => [
     {id: 'select', header: '', size: 42, minSize: 42, maxSize: 42, enableResizing: false},
     {id: 'lock', header: '', size: 42, minSize: 42, maxSize: 42, enableResizing: false},
     {id: 'cover', header: '', size: 56, minSize: 56, maxSize: 56, enableResizing: false},
@@ -114,10 +115,10 @@ export class BookTableComponent {
     })),
   ]);
 
-  readonly table = createAngularTable(() => ({
+  readonly table = injectTable(() => ({
+    features,
     data: this.books(),
     columns: this.columnDefs(),
-    getCoreRowModel: getCoreRowModel(),
     getRowId: book => String(book.id),
     columnResizeMode: 'onChange',
     state: {
@@ -131,7 +132,7 @@ export class BookTableComponent {
   readonly visibleCellIds = computed(() => ['select', 'lock', 'cover', ...this.visibleColumns().map(column => column.field)]);
   readonly ariaRowCount = computed(() => this.rowCount() + 1);
   readonly ariaColumnCount = computed(() => this.visibleCellIds().length);
-  readonly isColumnResizing = computed(() => Boolean(this.table.getState().columnSizingInfo.isResizingColumn));
+  readonly isColumnResizing = computed(() => Boolean(this.table.atoms.columnResizing.get().isResizingColumn));
   readonly rowCount = computed(() => Math.max(this.virtualRowCount(), this.books().length));
   readonly columnSizeVars = computed<Record<string, number | string>>(() => {
     this.columnSizing();
@@ -143,7 +144,7 @@ export class BookTableComponent {
       return columnStyles;
     }, {});
 
-    styles['--book-table-grid-template'] = this.table.getVisibleFlatColumns()
+    styles['--book-table-grid-template'] = this.table.getAllFlatColumns()
       .map(column => `calc(var(--book-table-col-${column.id}-size) * 1px)`)
       .join(' ');
 
@@ -152,7 +153,7 @@ export class BookTableComponent {
   readonly tableWidth = computed(() => {
     this.columnSizing();
     this.visibleColumns();
-    return this.table.getVisibleFlatColumns().reduce((width, column) => width + column.getSize(), 0);
+    return this.table.getAllFlatColumns().reduce((width, column) => width + column.getSize(), 0);
   });
   readonly allLoadedBooksSelected = computed(() => {
     const books = this.books();
@@ -232,7 +233,7 @@ export class BookTableComponent {
     return this.bookSelectionService.isBookSelected(book);
   }
 
-  startColumnResize(header: Header<Book, unknown>, event: MouseEvent | TouchEvent): void {
+  startColumnResize(header: Header<typeof features, Book, unknown>, event: MouseEvent | TouchEvent): void {
     event.stopPropagation();
     if (event.cancelable) {
       event.preventDefault();
