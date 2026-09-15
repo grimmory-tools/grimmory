@@ -9,6 +9,7 @@ import type {GroupRule} from '../component/magic-shelf-component';
 import {BookService} from '../../book/service/book.service';
 import {BookRuleEvaluatorService} from './book-rule-evaluator.service';
 import {MagicShelfService, type MagicShelf} from './magic-shelf.service';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
 
 function buildMagicShelf(overrides: Partial<MagicShelf> = {}): MagicShelf {
   return {
@@ -170,6 +171,26 @@ describe('MagicShelfService', () => {
     request.flush(buildMagicShelf({id: 11, name: 'Magic', filterJson: JSON.stringify(group), isPublic: true}));
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['magicShelves'], exact: true});
+    expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
+  });
+
+  it('invalidates browser collections after changing an existing shelf rule', () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
+
+    httpTestingController.expectOne(req => req.url.endsWith('/api/magic-shelves')).flush([]);
+
+    service.saveShelf({
+      id: 11,
+      name: 'Changed',
+      icon: 'zap',
+      group: buildGroupRule({name: 'Changed'}),
+    }).subscribe();
+
+    httpTestingController.expectOne(req => req.url.endsWith('/api/magic-shelves')).flush(
+      buildMagicShelf({id: 11, name: 'Changed'}),
+    );
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
   });
 
   it('invalidates shelf queries after delete', () => {
@@ -184,6 +205,7 @@ describe('MagicShelfService', () => {
     request.flush(null);
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['magicShelves'], exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
   });
 
   it('finds shelves by id from the hydrated query state', async () => {
