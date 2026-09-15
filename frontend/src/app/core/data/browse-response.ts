@@ -59,12 +59,11 @@ function mapBrowseLink(raw: RawLink): BrowseLink {
 }
 
 function mapBrowseFacetValue(raw: RawFacetLink): BrowseFacetValue {
-  const count = raw.properties?.numberOfItems;
   return {
     value: raw.value,
     title: raw.title,
+    count: raw.properties?.numberOfItems ?? 0,
     selected: normalizeRel(raw.rel).includes('self'),
-    ...(count === undefined ? {} : {count}),
   };
 }
 

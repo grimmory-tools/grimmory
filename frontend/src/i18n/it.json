@@ -1808,6 +1808,9 @@
       "datePicker": {
         "nextMonth": "",
         "previousMonth": ""
+      },
+      "bulkActions": {
+        "selectAll": "Seleziona tutto"
       }
     },
     "message": {
@@ -5438,5 +5441,9 @@
     "searchPlaceholder": "",
     "noAuthorsFound": "",
     "pageTitle": ""
+  },
+  "browse": {
+    "showAll": "Mostra tutti",
+    "moreActions": "Altre azioni"
   }
 }

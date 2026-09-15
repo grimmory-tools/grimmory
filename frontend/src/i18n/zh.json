@@ -1808,6 +1808,9 @@
       "datePicker": {
         "nextMonth": "",
         "previousMonth": ""
+      },
+      "bulkActions": {
+        "selectAll": "全 选"
       }
     },
     "message": {
@@ -5438,5 +5441,9 @@
     "searchPlaceholder": "",
     "noAuthorsFound": "",
     "pageTitle": ""
+  },
+  "browse": {
+    "showAll": "全部显示",
+    "moreActions": "更多操作"
   }
 }

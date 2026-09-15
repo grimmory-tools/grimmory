@@ -1,7 +1,9 @@
 import {Component, input, output} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 
-export type GridDensityDirection = 'smaller' | 'larger';
+import {type GridDensityDirection} from '../../util/grid-density.util';
+
+export type {GridDensityDirection};
 
 @Component({
   selector: 'app-grid-density-buttons',
