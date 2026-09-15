@@ -698,12 +698,14 @@
       "cookiePlaceholder": "",
       "languageRestriction": "",
       "selectLanguage": "",
-      "apiKeyOptional": "",
+      "googleApiLabel": "",
       "googleApiDesc": "",
       "googleApiPlaceholder": "",
       "apiToken": "",
       "hardcoverPlaceholder": "",
-      "comicvinePlaceholder": ""
+      "comicvinePlaceholder": "",
+      "ranobedbPreferRomajiLabel": "",
+      "ranobedbPreferRomajiDesc": ""
     },
     "publicReviews": {
       "sectionTitle": "",
@@ -754,6 +756,9 @@
         "hardcoverReviewCount": "",
         "audibleRating": "",
         "audibleReviewCount": "",
+        "applebooksId": "",
+        "applebooksRating": "",
+        "applebooksReviewCount": "",
         "doubanRating": "",
         "doubanReviewCount": "",
         "ranobedbRating": ""
@@ -763,16 +768,19 @@
       "sectionTitle": "",
       "sectionDesc": "",
       "providers": {
+        "openlibrary": "",
         "amazon": "",
         "googleBooks": "",
         "goodreads": "",
         "hardcover": "",
         "audible": "",
+        "applebooks": "",
         "comicvine": "",
         "lubimyczytac": "",
         "ranobedb": ""
       },
       "fields": {
+        "openlibraryId": "",
         "asin": "",
         "amazonRating": "",
         "amazonReviewCount": "",
@@ -791,7 +799,10 @@
         "ranobedbRating": "",
         "audibleId": "",
         "audibleRating": "",
-        "audibleReviewCount": ""
+        "audibleReviewCount": "",
+        "applebooksId": "",
+        "applebooksRating": "",
+        "applebooksReviewCount": ""
       }
     }
   },
@@ -1488,6 +1499,8 @@
       "autoAddDesc": "",
       "token": "",
       "tokenDesc": "",
+      "apiPath": "",
+      "apiPathDesc": "",
       "tokenManagement": "",
       "regenerateToken": "",
       "tokenManagementDesc": "",
@@ -1770,7 +1783,8 @@
     },
     "ui": {
       "autocomplete": {
-        "noResults": ""
+        "noResults": "",
+        "loadFailed": ""
       },
       "datePicker": {
         "previousMonth": "",
@@ -1796,6 +1810,10 @@
         "noResults": "",
         "search": "",
         "selectedCount": ""
+      },
+      "shelfMenu": {
+        "addToShelf": "",
+        "newShelf": ""
       },
       "spinner": {
         "loading": ""
@@ -1878,6 +1896,12 @@
       "toggleNavigation": ""
     },
     "closeNavigation": "",
+    "pageHeader": {
+      "backTo": "",
+      "breadcrumbAriaLabel": "",
+      "moreBreadcrumbs": "",
+      "tabsAriaLabel": ""
+    },
     "changelog": {
       "title": "",
       "description": "",
@@ -2231,6 +2255,7 @@
       "audiobookDetails": "",
       "comicBookDetails": "",
       "providerMetadata": "",
+      "openlibraryId": "",
       "amazonAsin": "",
       "amazonRating": "",
       "amazonReviewCount": "",
@@ -2250,6 +2275,9 @@
       "audibleId": "",
       "audibleRating": "",
       "audibleReviewCount": "",
+      "applebooksId": "",
+      "applebooksRating": "",
+      "applebooksReviewCount": "",
       "closeBtn": "",
       "previousBookBtn": "",
       "nextBookBtn": "",
@@ -2373,6 +2401,7 @@
       "readyToSearchHint": "",
       "noResultsFound": "",
       "noResultsHint": "",
+      "unknownProvider": "",
       "selectOverlay": ""
     },
     "tabs": {
@@ -3099,6 +3128,7 @@
         "magicShelfDeletedDetail": "",
         "magicShelfDeleteFailedDetail": "",
         "magicShelfJsonCopiedDetail": "",
+        "magicShelfJsonCopyFailedDetail": "",
         "failedSummary": "",
         "dialogLoadFailedDetail": ""
       },
@@ -5189,14 +5219,18 @@
       "ranobedbRating": "",
       "lubimyczytacRating": "",
       "audibleRating": "",
+      "applebooksRating": "",
       "amazonReviewCount": "",
       "goodreadsReviewCount": "",
       "hardcoverReviewCount": "",
       "audibleReviewCount": "",
+      "applebooksReviewCount": "",
+      "openlibraryId": "",
       "goodreadsId": "",
       "hardcoverId": "",
       "googleId": "",
       "audibleId": "",
+      "applebooksId": "",
       "lubimyczytacId": "",
       "ranobedbId": "",
       "comicvineId": "",
