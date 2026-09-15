@@ -345,7 +345,7 @@ export class MetadataSearcherComponent implements OnDestroy {
   }
 
   private isEnabledProviderSetting(value: unknown): value is { enabled: boolean } {
-    return !!value && typeof value === 'object' && 'enabled' in value;
+    return !!value && typeof value === 'object' && 'enabled' in value && typeof value.enabled == 'boolean';
   }
 
   private resetSearchState(): void {
