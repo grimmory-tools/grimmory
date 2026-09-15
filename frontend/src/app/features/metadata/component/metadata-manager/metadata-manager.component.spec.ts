@@ -183,11 +183,7 @@ describe('MetadataManagerComponent', () => {
     component.onMetadataClick('authors', 'A&B');
     expect(navigate).toHaveBeenCalledWith(['/all-books'], {
       queryParams: {
-        view: 'grid',
-        sort: 'title',
-        direction: 'asc',
-        sidebar: true,
-        filter: 'author:A%26B',
+        facet: 'author:A&B',
       }
     });
   });

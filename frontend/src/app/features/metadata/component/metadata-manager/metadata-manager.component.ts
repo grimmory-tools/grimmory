@@ -580,7 +580,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   onMetadataClick(type: MetadataType, value: string): void {
     const filterKeyMap: Record<MetadataType, string> = {
       authors: 'author',
-      categories: 'category',
+      categories: 'genre',
       moods: 'mood',
       tags: 'tag',
       series: 'series',
@@ -594,11 +594,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   navigateToFilteredBooks(filterKey: string, filterValue: string): void {
     this.router.navigate(['/all-books'], {
       queryParams: {
-        view: 'grid',
-        sort: 'title',
-        direction: 'asc',
-        sidebar: true,
-        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
+        facet: `${filterKey}:${filterValue}`,
       }
     });
   }

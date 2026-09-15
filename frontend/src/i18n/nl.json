@@ -3086,7 +3086,8 @@
         "optionsLabel": "",
         "customFetchMetadata": "",
         "bulkIsbnImport": "",
-        "editLibrary": ""
+        "editLibrary": "",
+        "manageLibrary": "Bibliotheek beheren"
       }
     },
     "columnPref": {
@@ -3733,6 +3734,50 @@
       "validationReady": "",
       "validationRequired": "",
       "customSvg": ""
+    },
+    "fields": {
+      "title": "Titel",
+      "author": "Author",
+      "genre": "Genre",
+      "series": "Series",
+      "seriesNumber": "Series number",
+      "publisher": "Uitgever",
+      "tag": "Tag",
+      "mood": "Mood",
+      "language": "Taal",
+      "narrator": "Narrator",
+      "fileType": "File format",
+      "readStatus": "Read status",
+      "personalRating": "Personal rating",
+      "amazonRating": "Amazon rating",
+      "amazonReviewCount": "Amazon reviews",
+      "goodreadsRating": "Goodreads rating",
+      "goodreadsReviewCount": "Goodreads reviews",
+      "hardcoverRating": "Hardcover rating",
+      "hardcoverReviewCount": "Hardcover reviews",
+      "ranobedbRating": "RanobeDB rating",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Pagina's",
+      "publishedDate": "Published date",
+      "publishedYear": "Published year",
+      "addedOn": "Datum toegevoegd",
+      "lastReadTime": "Laatst gelezen",
+      "dateFinished": "Date finished",
+      "readingProgress": "Reading progress",
+      "fileName": "Bestandsnaam",
+      "fileSize": "Bestandsgrootte",
+      "isbn": "ISBN",
+      "library": "Library",
+      "shelf": "Shelf",
+      "ageRating": "Age rating",
+      "contentRating": "Content rating",
+      "matchScore": "Metadata match score",
+      "shelfStatus": "Shelf status",
+      "comicCharacter": "Comic character",
+      "comicTeam": "Comic team",
+      "comicLocation": "Comic location",
+      "comicCreator": "Comic creator"
     }
   },
   "readerAudiobook": {
@@ -5430,6 +5475,14 @@
   },
   "browse": {
     "showAll": "Alles weergeven",
-    "moreActions": "Meer acties"
+    "moreActions": "Meer acties",
+    "toolbar": {
+      "viewMode": "Weergave",
+      "resetColumns": "Naar standaard resetten"
+    },
+    "bulk": {
+      "organizeFiles": "Bestanden ordenen",
+      "lockUnlockMetadata": "Metadata vergrendelen/ontgrendelen"
+    }
   }
 }

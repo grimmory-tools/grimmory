@@ -2983,6 +2983,10 @@
         "long": "聴き続ける"
       }
     },
+    "viewMode": {
+      "grid": "グリッド",
+      "table": "テーブル"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "メモ「{{ title }}」を削除してもよろしいですか？",
@@ -3110,7 +3114,8 @@
         "autoFetchMetadata": "メタデータを自動取得",
         "findDuplicates": "重複を検索",
         "deleteLibrary": "ライブラリを削除",
-        "bulkIsbnImport": ""
+        "bulkIsbnImport": "",
+        "manageLibrary": "ライブラリを管理"
       },
       "shelf": {
         "publicShelfPrefix": "公開シェルフ - ",
@@ -3748,6 +3753,53 @@
       "errorTooMany": "",
       "errorNoIsbns": "",
       "duplicatesRemoved": ""
+    },
+    "fields": {
+      "random": "ランダム",
+      "title": "タイトル",
+      "author": "著者",
+      "authorSurname": "著者（姓）",
+      "genre": "ジャンル",
+      "series": "シリーズ",
+      "seriesNumber": "シリーズ番号",
+      "publisher": "出版社",
+      "tag": "タグ",
+      "mood": "ムード",
+      "language": "言語",
+      "narrator": "ナレーター",
+      "fileType": "本の種類",
+      "readStatus": "読書状態",
+      "personalRating": "個人評価",
+      "amazonRating": "Amazon評価",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Goodreads評価",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Hardcover評価",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Ranobedb評価",
+      "lubimyczytacRating": "Lubimyczytac評価",
+      "audibleRating": "Audible評価",
+      "pageCount": "ページ数",
+      "publishedDate": "出版日",
+      "publishedYear": "出版年",
+      "addedOn": "追加日",
+      "lastReadTime": "最終閲覧",
+      "dateFinished": "完了日",
+      "readingProgress": "読書進捗",
+      "fileName": "ファイル名",
+      "fileSize": "ファイルサイズ",
+      "isbn": "ISBN",
+      "library": "ライブラリ",
+      "shelf": "シェルフ",
+      "ageRating": "年齢制限",
+      "contentRating": "コンテンツレーティング",
+      "matchScore": "メタデータマッチスコア",
+      "shelfStatus": "シェルフ状態",
+      "comicCharacter": "コミックキャラクター",
+      "comicTeam": "コミックチーム",
+      "comicLocation": "コミックロケーション",
+      "comicCreator": "コミッククリエイター",
+      "audibleReviewCount": "Audibleレビュー数"
     }
   },
   "readerAudiobook": {
@@ -5445,6 +5497,20 @@
   },
   "browse": {
     "showAll": "すべて表示",
-    "moreActions": "その他の操作"
+    "moreActions": "その他の操作",
+    "toolbar": {
+      "columnGroups": {
+        "file": "ファイル",
+        "ratings": "評価"
+      },
+      "viewMode": "表示",
+      "density": "サイズ",
+      "resetColumns": "デフォルトに戻す"
+    },
+    "bulk": {
+      "organizeFiles": "ファイルを整理",
+      "updateReadStatus": "読書状態を更新",
+      "lockUnlockMetadata": "メタデータのロック/解除"
+    }
   }
 }

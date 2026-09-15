@@ -7,6 +7,10 @@
  * shared overlay classes that are not Optimus UI-specific live here.
  */
 
+.cdk-overlay-container {
+  z-index: 1300;
+}
+
 .command-palette-backdrop {
   background: rgb(0 0 0 / 56%);
 }

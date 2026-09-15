@@ -223,7 +223,7 @@ export class LibraryShelfMenuService {
 
   private navigateHomeIfViewing(deletedTargetUrl: string): void {
     const currentPath = this.router.url.replace(/[?#].*$/, '');
-    if (currentPath === deletedTargetUrl) {
+    if (currentPath === deletedTargetUrl || currentPath.startsWith(`${deletedTargetUrl}/`)) {
       void this.router.navigate(['/']);
     }
   }

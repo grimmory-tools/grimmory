@@ -4,6 +4,7 @@ import {DialogLauncherService, DialogSize, DialogStyle} from '../../../../shared
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {Book} from '../../model/book.model';
 import {type BookSenderSource} from '../book-sender/book-sender.component';
+import {type BookFileAttacherSourceBook} from '../book-file-attacher/book-file-attacher.component';
 
 interface MetadataRefreshDialogContext {
   metadataRefreshType: MetadataRefreshType;
@@ -193,7 +194,9 @@ export class BookDialogHelperService {
     });
   }
 
-  async openBulkBookFileAttacherDialog(sourceBooks: Book[]): Promise<DynamicDialogRef | null> {
+  async openBulkBookFileAttacherDialog(
+    sourceBooks: readonly BookFileAttacherSourceBook[],
+  ): Promise<DynamicDialogRef | null> {
     return this.dialogLauncherService.launchLazyDialog(async () => {
       const {BookFileAttacherComponent} = await import('../book-file-attacher/book-file-attacher.component');
       return this.openDialog(BookFileAttacherComponent, {

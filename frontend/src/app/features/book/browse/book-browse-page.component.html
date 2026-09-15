@@ -1,0 +1,170 @@
+<div appArtworkRevealGroup [class]="layoutClasses().page">
+  <app-page-header [pageHeader]="pageHeader()" [stuckHairline]="false">
+    @if (mobileSelectMode()) {
+      <app-browse-select-mode-controls
+        [count]="selection.count()"
+        [total]="presentation.total()"
+        (selectAll)="selection.selectAll()"
+        (cancelled)="onMobileSelectToggle()" />
+    } @else {
+      <app-book-browse-toolbar
+        [sortOptions]="sortOptions()"
+        [sortTerms]="sortTerms()"
+        [viewMode]="preferences.viewMode()"
+        [columnOptions]="preferences.columnOptions()"
+        [densitySmallerDisabled]="densitySmallerDisabled()"
+        [densityLargerDisabled]="densityLargerDisabled()"
+        [filtersOpen]="railVisible()"
+        [actionTarget]="queries.actionTarget()"
+        (sortChange)="preferences.setSortTerms([$event])"
+        (sortDirectionChange)="onSortDirectionChange($event)"
+        (randomSortRequested)="onRandomSortRequested()"
+        (multiSortRequested)="onMultiSortRequested()"
+        (viewModeChange)="urlState.setView($event)"
+        (columnVisibilityChange)="preferences.setColumnVisibility($event)"
+        (columnsReset)="preferences.resetColumns()"
+        (densityChange)="onDensityChange($event)"
+        (filtersToggle)="onFiltersToggle()"
+        (mobileSelectToggle)="onMobileSelectToggle()" />
+    }
+  </app-page-header>
+
+  <app-book-menu
+    openInNewTab
+    [books]="books()"
+    (deleted)="selection.pruneDeleted($event)" />
+
+  <app-book-browse-bulk-bar
+    [selection]="selection"
+    [books]="books()"
+    [total]="presentation.total()"
+    [fetchIds]="fetchMatchingBookIds" />
+
+  <div [class]="layoutClasses().row">
+    <div [class]="layoutClasses().column">
+      @if (chipsBand().count > 0) {
+        <div [class]="chipsBandClass()">
+          <app-browse-filter-chips
+            [chips]="chipsBand().chips"
+            [query]="chipsBand().query"
+            [mobile]="isMobile()"
+            (removeChip)="onToggleFacet({key: $event.key, value: $event.value, selected: false})"
+            (removeSearch)="onClearQuery()"
+            (clearAll)="onClearAllFilters()" />
+        </div>
+      } @else {
+        <div [class]="hairlineStripClass()"></div>
+      }
+      @if (preferences.viewMode() === 'table') {
+        <app-book-browse-table
+          [books]="books()"
+          [status]="presentation.status()"
+          [hasNextPage]="hasNextPage()"
+          [nextPageError]="presentation.nextPageError()"
+          [initialErrorMessage]="'browse.book.loadError' | transloco"
+          [nextPageErrorMessage]="'browse.book.pageError' | transloco"
+          [useSquareCovers]="squareCovers()"
+          [pendingDeletionIds]="pendingDeletions()"
+          [visibleColumns]="preferences.visibleColumns()"
+          [sortTerms]="sortTerms()"
+          [sortOptions]="sortOptions()"
+          [mobile]="mobileTableLayout()"
+          [selection]="selectionEnabled() ? selection : null"
+          [selectMode]="mobileSelectMode()"
+          [openMenuBookId]="menuOpenBookId()"
+          (sortTermsChange)="preferences.setSortTerms($event)"
+          (facetRequested)="onToggleFacet({key: $event.key, value: $event.value, selected: true})"
+          (menuRequested)="bookMenu()?.openFor($event.book, $event.request)"
+          (detailRequested)="onBookDetailRequested($event)"
+          (retryInitial)="presentation.retryInitial()"
+          (retryNextPage)="presentation.retryNextPage()">
+          <ng-template appBrowseEmpty>
+            <ng-container *ngTemplateOutlet="emptyState" />
+          </ng-template>
+        </app-book-browse-table>
+      } @else {
+      <app-browse-grid
+        [class]="gridBoxClass()"
+        [items]="books()"
+        [itemKey]="bookItemKey"
+        [hasNextPage]="hasNextPage()"
+        [status]="presentation.status()"
+        [nextPageError]="presentation.nextPageError()"
+        [fixedColumns]="gridColumns()"
+        [minItemWidth]="minCardWidth()"
+        [gap]="gridGap()"
+        [rowGap]="gridRowGap"
+        [estimateItemHeight]="estimateItemHeight"
+        [initialErrorMessage]="'browse.book.loadError' | transloco"
+        [nextPageErrorMessage]="'browse.book.pageError' | transloco"
+        (retryInitial)="presentation.retryInitial()"
+        (retryNextPage)="presentation.retryNextPage()">
+        <ng-template [appBrowseGridItemOf]="books()" let-book let-index="index">
+          <app-book-card
+            [class.opacity-50]="pendingDeletions().has(book.id)"
+            [book]="book"
+            [showFormatPill]="preferences.formatPill()"
+            [squareCovers]="squareCovers()"
+            [detailLine]="detailLineFor(book)"
+            [selectable]="selectionEnabled()"
+            [selected]="selectionEnabled() && selection.isSelected(book.id)"
+            [selectionActive]="selectionEnabled() && (selection.active() || mobileSelectMode())"
+            [detailMode]="'request'"
+            [menuOpen]="menuOpenBookId() === book.id"
+            (toggleSelect)="selection.toggle(book, index, $event.shiftKey)"
+            (action)="bookNavigation.readBook(book)"
+            (detailRequested)="onBookDetailRequested(book)"
+            (menuRequested)="bookMenu()?.openFor(book, $event)" />
+        </ng-template>
+        <ng-template appBrowseGridSkeleton>
+          <app-book-card-skeleton [squareCovers]="squareCovers()" [metaLines]="metaLines()" />
+        </ng-template>
+        <ng-template appBrowseEmpty>
+          <ng-container *ngTemplateOutlet="emptyState" />
+        </ng-template>
+      </app-browse-grid>
+      }
+    </div>
+
+    @if (railVisible()) {
+      <aside
+        class="flex max-h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col">
+        <div class="-mx-1.5 flex min-h-0 flex-1 flex-col">
+        <div class="mb-4">
+          <app-browse-search-input
+            size="sm"
+            [value]="searchDraft.value()"
+            [placeholder]="queries.searchHint()"
+            [ariaLabel]="queries.searchHint()"
+            [clearLabel]="'book.searcher.clearSearch' | transloco"
+            (valueChange)="searchDraft.set($event)"
+            (cleared)="onClearQuery()" />
+        </div>
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6 [--page-stuck-offset:0px]">
+          @if (railReady()) {
+            <app-browse-filter-rail
+              [groups]="queries.railGroups()"
+              (toggleValue)="onToggleFacet($event)"
+              (commitRange)="onCommitFacetRange($event)" />
+          }
+        </div>
+        </div>
+      </aside>
+    }
+  </div>
+</div>
+
+<ng-template #emptyState>
+  @if (chipsBand().count > 0) {
+    <div class="flex flex-col items-center gap-2 py-16">
+      <p class="m-0 text-sm text-text-muted">{{ 'browse.book.filteredEmpty' | transloco }}</p>
+      <app-button
+        variant="ghost"
+        size="sm"
+        [label]="'browse.clearFilters' | transloco"
+        (clicked)="onClearAllFilters()" />
+    </div>
+  } @else {
+    <p class="py-16 text-center text-sm text-text-muted">{{ 'browse.book.empty' | transloco }}</p>
+  }
+</ng-template>

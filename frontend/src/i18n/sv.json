@@ -2984,6 +2984,10 @@
         "long": "Fortsätt lyssna"
       }
     },
+    "viewMode": {
+      "grid": "Rutnät",
+      "table": "Tabell"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Är du säker på att du vill radera anteckningen \"{{ title }}\"?",
@@ -3111,7 +3115,8 @@
         "autoFetchMetadata": "Auto-hämta metadata",
         "findDuplicates": "Hitta dubbletter",
         "deleteLibrary": "Radera bibliotek",
-        "bulkIsbnImport": "Importera ISBN-nummer från fil"
+        "bulkIsbnImport": "Importera ISBN-nummer från fil",
+        "manageLibrary": "Hantera bibliotek"
       },
       "shelf": {
         "publicShelfPrefix": "Publik hylla - ",
@@ -3749,6 +3754,53 @@
       "summaryCancelled": "Hoppades över (avbruten)",
       "failedIsbnsLabel": "Misslyckade ISBN-nummer",
       "doneButton": "Färdig"
+    },
+    "fields": {
+      "random": "Slumpmässig",
+      "title": "Titel",
+      "author": "Författare",
+      "authorSurname": "Författare (efternamn)",
+      "genre": "Genre",
+      "series": "Serie",
+      "seriesNumber": "Serienummer",
+      "publisher": "Förlag",
+      "tag": "Tagg",
+      "mood": "Stämning",
+      "language": "Språk",
+      "narrator": "Uppläsare",
+      "fileType": "Filformat",
+      "readStatus": "Lässtatus",
+      "personalRating": "Personligt betyg",
+      "amazonRating": "Amazon-betyg",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Goodreads-betyg",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Hardcover-betyg",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Ranobedb-betyg",
+      "lubimyczytacRating": "Lubimyczytac rating",
+      "audibleRating": "Audible rating",
+      "pageCount": "Sidor",
+      "publishedDate": "Utgivningsdatum",
+      "publishedYear": "Utgivningsår",
+      "addedOn": "Tillagd",
+      "lastReadTime": "Senast läst",
+      "dateFinished": "Avslutad datum",
+      "readingProgress": "Läsframsteg",
+      "fileName": "Filnamn",
+      "fileSize": "Filstorlek",
+      "isbn": "ISBN",
+      "library": "Bibliotek",
+      "shelf": "Hylla",
+      "ageRating": "Åldersbetyg",
+      "contentRating": "Innehållsbetyg",
+      "matchScore": "Metadatamatchningspoäng",
+      "shelfStatus": "Hyllstatus",
+      "comicCharacter": "Serietidningskaraktär",
+      "comicTeam": "Serietidningsteam",
+      "comicLocation": "Serietidningsplats",
+      "comicCreator": "Serietidningsskapare",
+      "audibleReviewCount": "Audible-recensioner"
     }
   },
   "readerAudiobook": {
@@ -5446,6 +5498,23 @@
   },
   "browse": {
     "showAll": "Visa alla",
-    "moreActions": "Fler åtgärder"
+    "moreActions": "Fler åtgärder",
+    "sort": {
+      "apply": "Tillämpa"
+    },
+    "toolbar": {
+      "columnGroups": {
+        "file": "Fil",
+        "ratings": "Betyg"
+      },
+      "viewMode": "Vy",
+      "density": "Storlek",
+      "resetColumns": "Återställ till standard"
+    },
+    "bulk": {
+      "organizeFiles": "Organisera filer",
+      "updateReadStatus": "Uppdatera lässtatus",
+      "lockUnlockMetadata": "Lås/lås upp metadata"
+    }
   }
 }
