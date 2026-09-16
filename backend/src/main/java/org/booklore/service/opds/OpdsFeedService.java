@@ -47,7 +47,7 @@ public class OpdsFeedService {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
                   <id>urn:booklore:root</id>
-                  <title>Booklore Catalog</title>
+                  <title>Grimmory Catalog</title>
                   <updated>%s</updated>
                   <link rel="self" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
                   <link rel="start" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
@@ -457,8 +457,8 @@ public class OpdsFeedService {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-                  <ShortName>Booklore</ShortName>
-                  <Description>Search Booklore catalog</Description>
+                  <ShortName>Grimmory</ShortName>
+                  <Description>Search Grimmory catalog</Description>
                   <Url type="application/atom+xml;profile=opds-catalog;kind=acquisition"
                        template="/api/v1/opds/catalog?q={searchTerms}"/>
                 </OpenSearchDescription>
@@ -667,7 +667,7 @@ public class OpdsFeedService {
         if (series != null && !series.isBlank()) {
             return series + " series";
         }
-        return "Booklore Catalog";
+        return "Grimmory Catalog";
     }
 
     private String determineFeedId(Long libraryId, Set<Long> shelfIds, Long magicShelfId, String author, String series) {
