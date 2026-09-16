@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.config.security.annotation.CheckLibraryAccess;
 import org.booklore.model.dto.Book;
 import org.booklore.service.upload.FileUploadService;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class FileUploadController {
     @Operation(summary = "Upload a file", description = "Upload a file to a specific library and path. Requires upload permission or admin.")
     @ApiResponse(responseCode = "204", description = "File uploaded successfully")
     @PreAuthorize("@securityUtil.isAdmin() or @securityUtil.canUpload()")
+    @CheckLibraryAccess(libraryIdParam = "libraryId")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadFile(
             @Parameter(description = "File to upload") @RequestParam("file") MultipartFile file,
