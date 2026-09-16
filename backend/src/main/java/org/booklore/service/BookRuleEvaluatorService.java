@@ -270,7 +270,7 @@ public class BookRuleEvaluatorService {
             case "title", "subtitle", "description", "publisher", "language", "seriesName",
                  "isbn13", "isbn10", "asin", "contentRating", "narrator",
                  "goodreadsId", "hardcoverId", "googleId", "audibleId", "applebooksId",
-                 "lubimyczytacId", "ranobedbId", "comicvineId", "openlibraryId" ->
+                 "lubimyczytacId", "ranobedbId", "comicvineId", "openlibraryId", "perrypediaId" ->
                     stringPresence(cb, root.get("metadata").get(metadataField));
 
             // Numeric/date/boolean fields on BookMetadataEntity

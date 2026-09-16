@@ -419,6 +419,7 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.metadataFields.ranobedbId'), value: 'ranobedbId'},
         {label: this.t.translate('magicShelf.metadataFields.comicvineId'), value: 'comicvineId'},
         {label: this.t.translate('magicShelf.metadataFields.applebooksId'), value: 'applebooksId'},
+        {label: this.t.translate('magicShelf.metadataFields.perrypediaId'), value: 'perrypediaId'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.audiobook'), items: [
         {label: this.t.translate('magicShelf.metadataFields.narrator'), value: 'narrator'},

@@ -161,6 +161,7 @@ public class BookFileDetachmentService {
         copy.setHardcoverBookId(source.getHardcoverBookId());
         copy.setGoogleId(source.getGoogleId());
         copy.setComicvineId(source.getComicvineId());
+        copy.setPerrypediaId(source.getPerrypediaId());
         copy.setLubimyczytacId(source.getLubimyczytacId());
         copy.setRanobedbId(source.getRanobedbId());
         copy.setAudibleId(source.getAudibleId());

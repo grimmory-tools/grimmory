@@ -142,6 +142,7 @@ public class DuplicateDetectionService {
         addIfPresent(ids, "comicvine:", meta.getComicvineId());
         addIfPresent(ids, "applebooks:", meta.getApplebooksId());
         addIfPresent(ids, "openlibrary:", meta.getOpenlibraryId());
+        addIfPresent(ids, "perrypedia:", meta.getPerrypediaId());
         return ids;
     }
 

@@ -555,6 +555,7 @@ export class BookRuleEvaluatorService {
       case 'lubimyczytacId': return book.metadata?.lubimyczytacId;
       case 'ranobedbId': return book.metadata?.ranobedbId;
       case 'comicvineId': return book.metadata?.comicvineId;
+      case 'perrypediaId': return book.metadata?.perrypediaId;
       case 'abridged': return book.metadata?.abridged;
       case 'audiobookDuration': return book.metadata?.audiobookMetadata?.durationSeconds;
       case 'audiobookCodec': return book.metadata?.audiobookMetadata?.codec;

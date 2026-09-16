@@ -41,6 +41,7 @@ export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
   { label: 'Hardcover #', controlName: 'hardcoverReviewCount', lockedKey: 'hardcoverReviewCountLocked', fetchedKey: 'hardcoverReviewCount', type: 'number', providerKey: 'hardcoverReviewCount' },
   { label: 'Hardcover ★', controlName: 'hardcoverRating', lockedKey: 'hardcoverRatingLocked', fetchedKey: 'hardcoverRating', type: 'number', providerKey: 'hardcoverRating' },
   { label: 'Comicvine ID', controlName: 'comicvineId', lockedKey: 'comicvineIdLocked', fetchedKey: 'comicvineId', type: 'string', providerKey: 'comicvineId' },
+  { label: 'Perrypedia ID', controlName: 'perrypediaId', lockedKey: 'perrypediaIdLocked', fetchedKey: 'perrypediaId', type: 'string', providerKey: 'perrypediaId' },
   { label: 'LB ID', controlName: 'lubimyczytacId', lockedKey: 'lubimyczytacIdLocked', fetchedKey: 'lubimyczytacId', type: 'string', providerKey: 'lubimyczytacId' },
   { label: 'LB ★', controlName: 'lubimyczytacRating', lockedKey: 'lubimyczytacRatingLocked', fetchedKey: 'lubimyczytacRating', type: 'number', providerKey: 'lubimyczytacRating' },
   { label: 'Ranobedb ID', controlName: 'ranobedbId', lockedKey: 'ranobedbIdLocked', fetchedKey: 'ranobedbId', type: 'string', providerKey: 'ranobedbId' },

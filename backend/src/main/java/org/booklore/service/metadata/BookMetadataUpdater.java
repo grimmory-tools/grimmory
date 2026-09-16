@@ -192,6 +192,7 @@ public class BookMetadataUpdater {
         handleFieldUpdate(e.getAsinLocked(), clear.isAsin(), m.getAsin(), v -> e.setAsin(nullIfBlank(v)), e::getAsin, replaceMode);
         handleFieldUpdate(e.getGoodreadsIdLocked(), clear.isGoodreadsId(), m.getGoodreadsId(), v -> e.setGoodreadsId(nullIfBlank(v)), e::getGoodreadsId, replaceMode);
         handleFieldUpdate(e.getComicvineIdLocked(), clear.isComicvineId(), m.getComicvineId(), v -> e.setComicvineId(nullIfBlank(v)), e::getComicvineId, replaceMode);
+        handleFieldUpdate(e.getPerrypediaIdLocked(), clear.isPerrypediaId(), m.getPerrypediaId(), v -> e.setPerrypediaId(nullIfBlank(v)), e::getPerrypediaId, replaceMode);
         handleFieldUpdate(e.getHardcoverIdLocked(), clear.isHardcoverId(), m.getHardcoverId(), v -> e.setHardcoverId(nullIfBlank(v)), e::getHardcoverId, replaceMode);
         handleFieldUpdate(e.getHardcoverBookIdLocked(), clear.isHardcoverBookId(), m.getHardcoverBookId(), e::setHardcoverBookId, e::getHardcoverBookId, replaceMode);
         handleFieldUpdate(e.getGoogleIdLocked(), clear.isGoogleId(), m.getGoogleId(), v -> e.setGoogleId(nullIfBlank(v)), e::getGoogleId, replaceMode);
@@ -701,6 +702,7 @@ public class BookMetadataUpdater {
                 Pair.of(m.getAsinLocked(), e::setAsinLocked),
                 Pair.of(m.getGoodreadsIdLocked(), e::setGoodreadsIdLocked),
                 Pair.of(m.getComicvineIdLocked(), e::setComicvineIdLocked),
+                Pair.of(m.getPerrypediaIdLocked(), e::setPerrypediaIdLocked),
                 Pair.of(m.getHardcoverIdLocked(), e::setHardcoverIdLocked),
                 Pair.of(m.getHardcoverBookIdLocked(), e::setHardcoverBookIdLocked),
                 Pair.of(m.getLubimyczytacIdLocked(), e::setLubimyczytacIdLocked),

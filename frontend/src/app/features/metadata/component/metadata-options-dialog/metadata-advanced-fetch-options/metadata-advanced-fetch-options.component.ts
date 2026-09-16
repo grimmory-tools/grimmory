@@ -36,6 +36,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
     'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
     'comicvineId',
+    'perrypediaId',
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
     'audibleId', 'audibleRating', 'audibleReviewCount',
@@ -49,6 +50,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
     'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
     'comicvineId',
+    'perrypediaId',
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
     'audibleId', 'audibleRating', 'audibleReviewCount',
@@ -68,6 +70,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'GoodReads',
     'Hardcover',
     'Comicvine',
+    'Perrypedia',
     'Douban',
     'Lubimyczytac',
     'Ranobedb',
@@ -82,6 +85,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'GoodReads',
     'Hardcover',
     'Comicvine',
+    'Perrypedia',
     'Douban',
     'Lubimyczytac',
     'Ranobedb',
@@ -133,6 +137,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
     // Comicvine
     'comicvineId',
+
+    // Perrypedia
+    'perrypediaId',
 
     // Lubimyczytac
     'lubimyczytacId', 'lubimyczytacRating',
@@ -307,6 +314,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'asin': 'Amazon ASIN',
       'goodreadsId': 'Goodreads ID',
       'comicvineId': 'Comicvine ID',
+      'perrypediaId': 'Perrypedia ID',
       'hardcoverId': 'Hardcover ID',
       'hardcoverBookId': 'Hardcover Book ID',
       'googleId': 'Google Books ID',

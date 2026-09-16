@@ -19,6 +19,7 @@ const DETAIL_ID_FIELD: Record<string, keyof BookMetadata> = {
   Amazon: 'asin',
   Audible: 'audibleId',
   Comicvine: 'comicvineId',
+  Perrypedia: 'perrypediaId',
 };
 
 function providerKey(result: BookMetadata): string {
@@ -312,6 +313,8 @@ export class MetadataSearcherComponent implements OnDestroy {
         return result.comicvineId ? `https://comicvine.gamespot.com/4050-${result.comicvineId}/` : null;
       case 'Ranobedb':
         return result.ranobedbId ? `https://ranobedb.org/book/${result.ranobedbId}` : null;
+      case 'Perrypedia':
+        return result.perrypediaId ? `https://www.perrypedia.de/wiki/Quelle:${result.perrypediaId}` : null;
       default:
         return null;
     }

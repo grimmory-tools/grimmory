@@ -18,6 +18,7 @@ public class SidecarIdentifiers {
     private String hardcoverId;
     private String hardcoverBookId;
     private String comicvineId;
+    private String perrypediaId;
     private String lubimyczytacId;
     private String ranobedbId;
     private String audibleId;

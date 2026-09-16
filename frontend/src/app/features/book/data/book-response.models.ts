@@ -28,6 +28,7 @@ export const BOOK_METADATA_PROVIDERS = [
   'Lubimyczytac',
   'Ranobedb',
   'Audible',
+  'Perrypedia',
 ] as const;
 export type BookMetadataProvider = typeof BOOK_METADATA_PROVIDERS[number] | (string & {});
 
@@ -248,6 +249,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   asin?: string;
   goodreadsId?: string;
   comicvineId?: string;
+  perrypediaId?: string;
   hardcoverId?: string;
   hardcoverBookId?: string;
   doubanId?: string;
@@ -283,6 +285,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   asinLocked?: boolean;
   goodreadsIdLocked?: boolean;
   comicvineIdLocked?: boolean;
+  perrypediaIdLocked?: boolean;
   hardcoverIdLocked?: boolean;
   hardcoverBookIdLocked?: boolean;
   doubanIdLocked?: boolean;

@@ -22,7 +22,8 @@ public class BookParserConfig {
             LubimyCzytacParser lubimyczytacParser,
             AudibleParser audibleParser,
             AppleBooksParser appleBooksParser,
-            OpenLibraryParser openLibraryParser
+            OpenLibraryParser openLibraryParser,
+            PerrypediaParser perrypediaParser
     ) {
         return Map.ofEntries(
                 Map.entry(MetadataProvider.OpenLibrary, openLibraryParser),
@@ -35,7 +36,8 @@ public class BookParserConfig {
                 Map.entry(MetadataProvider.Lubimyczytac, lubimyczytacParser),
                 Map.entry(MetadataProvider.Ranobedb, ranobedbParser),
                 Map.entry(MetadataProvider.Audible, audibleParser),
-                Map.entry(MetadataProvider.AppleBooks, appleBooksParser)
+                Map.entry(MetadataProvider.AppleBooks, appleBooksParser),
+                Map.entry(MetadataProvider.Perrypedia, perrypediaParser)
         );
     }
 }

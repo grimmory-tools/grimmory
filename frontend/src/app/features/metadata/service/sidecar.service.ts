@@ -20,6 +20,7 @@ export interface SidecarIdentifiers {
   googleId?: string;
   hardcoverId?: string;
   comicvineId?: string;
+  perrypediaId?: string;
   lubimyczytacId?: string;
   ranobedbId?: string;
   audibleId?: string;

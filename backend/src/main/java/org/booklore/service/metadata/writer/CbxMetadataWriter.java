@@ -295,6 +295,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         appendBookLoreTag(notesBuilder, "ASIN", metadata.getAsin());
         appendBookLoreTag(notesBuilder, "ComicvineId", metadata.getComicvineId());
         appendBookLoreTag(notesBuilder, "ApplebooksId", metadata.getApplebooksId());
+        appendBookLoreTag(notesBuilder, "PerrypediaId", metadata.getPerrypediaId());
         
         // Comic-specific metadata from ComicMetadataEntity
         ComicMetadataEntity comic = metadata.getComicMetadata();

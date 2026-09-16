@@ -369,6 +369,9 @@ public class AppSettingService {
         defaultComicvine.setEnabled(false);
         defaultComicvine.setApiKey(null);
 
+        MetadataProviderSettings.Perrypedia defaultPerrypedia = new MetadataProviderSettings.Perrypedia();
+        defaultPerrypedia.setEnabled(false);
+
         MetadataProviderSettings.Douban defaultDouban = new MetadataProviderSettings.Douban();
         defaultDouban.setEnabled(false);
 
@@ -385,6 +388,7 @@ public class AppSettingService {
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
         defaultMetadataProviderSettings.setHardcover(defaultHardcover);
         defaultMetadataProviderSettings.setComicvine(defaultComicvine);
+        defaultMetadataProviderSettings.setPerrypedia(defaultPerrypedia);
         defaultMetadataProviderSettings.setRanobedb(defaultRanobedb);
         defaultMetadataProviderSettings.setDouban(defaultDouban);
         defaultMetadataProviderSettings.setAppleBooks(defaultAppleBooks);
@@ -421,6 +425,7 @@ public class AppSettingService {
                 .asin(nullProvider)
                 .goodreadsId(nullProvider)
                 .comicvineId(nullProvider)
+                .perrypediaId(nullProvider)
                 .hardcoverId(nullProvider)
                 .hardcoverBookId(nullProvider)
                 .googleId(nullProvider)
@@ -464,6 +469,7 @@ public class AppSettingService {
                 .asin(true)
                 .goodreadsId(true)
                 .comicvineId(true)
+                .perrypediaId(true)
                 .hardcoverId(true)
                 .hardcoverBookId(true)
                 .googleId(true)
@@ -627,6 +633,7 @@ public class AppSettingService {
         fields.setHardcoverRating(true);
         fields.setHardcoverReviewCount(true);
         fields.setComicvineId(true);
+        fields.setPerrypediaId(true);
         fields.setLubimyczytacId(true);
         fields.setLubimyczytacRating(true);
         fields.setRanobedbRating(true);

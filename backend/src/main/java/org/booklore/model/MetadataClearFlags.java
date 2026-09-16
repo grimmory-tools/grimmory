@@ -19,6 +19,7 @@ public class MetadataClearFlags {
     private boolean asin;
     private boolean goodreadsId;
     private boolean comicvineId;
+    private boolean perrypediaId;
     private boolean hardcoverId;
     private boolean hardcoverBookId;
     private boolean googleId;

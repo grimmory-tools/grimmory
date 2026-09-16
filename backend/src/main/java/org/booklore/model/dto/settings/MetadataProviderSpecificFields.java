@@ -19,6 +19,7 @@ public class MetadataProviderSpecificFields {
     private Boolean hardcoverRating;
     private Boolean hardcoverReviewCount;
     private Boolean comicvineId;
+    private Boolean perrypediaId;
     private Boolean lubimyczytacId;
     private Boolean lubimyczytacRating;
     private Boolean ranobedbId;

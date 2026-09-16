@@ -179,6 +179,13 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
+            helper.copyPerrypediaId(clear != null && clear.isPerrypediaId(), val -> {
+                removeIdentifierByUrn(metadataElement, "perrypedia");
+                if (val != null && !val.isBlank()) {
+                    metadataElement.appendChild(createIdentifierElement(opfDoc, "perrypedia", val));
+                }
+                hasChanges[0] = true;
+            });
             helper.copyHardcoverId(clear != null && clear.isHardcoverId(), val -> {
                 removeIdentifierByUrn(metadataElement, "hardcover");
                 if (val != null && !val.isBlank()) {

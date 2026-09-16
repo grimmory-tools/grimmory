@@ -26,6 +26,7 @@ export const LOCK_FIELDS = [
   'openlibraryIdLocked',
   'asinLocked',
   'comicvineIdLocked',
+  'perrypediaIdLocked',
   'goodreadsIdLocked',
   'hardcoverIdLocked',
   'hardcoverBookIdLocked',

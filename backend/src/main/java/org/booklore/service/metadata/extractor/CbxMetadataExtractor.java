@@ -390,6 +390,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
                 case "ASIN" -> builder.asin(value);
                 case "ComicvineId" -> builder.comicvineId(value);
                 case "ApplebooksId" -> builder.applebooksId(value);
+                case "PerrypediaId" -> builder.perrypediaId(value);
             }
         }
     }

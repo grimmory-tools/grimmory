@@ -159,6 +159,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
             metadata.setHardcoverBookId(truncate(extracted.getHardcoverBookId(), 100));
             metadata.setGoogleId(truncate(extracted.getGoogleId(), 100));
             metadata.setComicvineId(truncate(extracted.getComicvineId(), 100));
+            metadata.setPerrypediaId(truncate(extracted.getPerrypediaId(), 100));
             metadata.setLubimyczytacId(truncate(extracted.getLubimyczytacId(), 100));
             metadata.setRanobedbId(truncate(extracted.getRanobedbId(), 100));
             metadata.setApplebooksId(truncate(extracted.getApplebooksId(), 100));

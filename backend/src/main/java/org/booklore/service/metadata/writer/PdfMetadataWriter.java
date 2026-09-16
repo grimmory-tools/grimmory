@@ -285,6 +285,9 @@ public class PdfMetadataWriter implements MetadataWriter {
         helper.copyComicvineId(clear != null && clear.isComicvineId(), id -> {
             if (id != null && !id.isBlank()) customFields.put(prefix + "comicvineId", id);
         });
+        helper.copyPerrypediaId(clear != null && clear.isPerrypediaId(), id -> {
+            if (id != null && !id.isBlank()) customFields.put(prefix + "perrypediaId", id);
+        });
         helper.copyLubimyczytacId(clear != null && clear.isLubimyczytacId(), id -> {
             if (id != null && !id.isBlank()) customFields.put(prefix + "lubimyczytacId", id);
         });

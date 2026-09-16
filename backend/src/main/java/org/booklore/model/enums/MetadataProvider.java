@@ -11,5 +11,6 @@ public enum MetadataProvider {
     Lubimyczytac,
     Ranobedb,
     Audible,
-    AppleBooks
+    AppleBooks,
+    Perrypedia
 }

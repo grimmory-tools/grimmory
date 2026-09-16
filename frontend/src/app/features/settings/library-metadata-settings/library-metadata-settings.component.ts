@@ -225,6 +225,7 @@ export class LibraryMetadataSettingsComponent {
         asin: {p1: null, p2: null, p3: null, p4: null},
         goodreadsId: {p1: null, p2: null, p3: null, p4: null},
         comicvineId: {p1: null, p2: null, p3: null, p4: null},
+        perrypediaId: {p1: null, p2: null, p3: null, p4: null},
         hardcoverId: {p1: null, p2: null, p3: null, p4: null},
         hardcoverBookId: {p1: null, p2: null, p3: null, p4: null},
         googleId: {p1: null, p2: null, p3: null, p4: null},

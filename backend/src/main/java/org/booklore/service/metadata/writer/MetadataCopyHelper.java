@@ -131,6 +131,13 @@ public class MetadataCopyHelper {
         }
     }
 
+    public void copyPerrypediaId(boolean clear, Consumer<String> consumer) {
+        if (!isLocked(metadata.getPerrypediaIdLocked())) {
+            if (clear) consumer.accept(null);
+            else if (metadata.getPerrypediaId() != null) consumer.accept(metadata.getPerrypediaId());
+        }
+    }
+
     public void copyHardcoverId(boolean clear, Consumer<String> consumer) {
         if (!isLocked(metadata.getHardcoverIdLocked())) {
             if (clear) consumer.accept(null);

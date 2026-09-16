@@ -56,6 +56,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
             Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId),
             Map.entry("comicvine", BookMetadata.BookMetadataBuilder::comicvineId),
+            Map.entry("perrypedia", BookMetadata.BookMetadataBuilder::perrypediaId),
             Map.entry("lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId),
             Map.entry("ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId),
             Map.entry("applebooks", BookMetadata.BookMetadataBuilder::applebooksId)
@@ -222,6 +223,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             case BookLoreMetadata.NS_PREFIX + ":openlibrary_id" -> builderMeta.openlibraryId(content);
                             case BookLoreMetadata.NS_PREFIX + ":goodreads_id" -> builderMeta.goodreadsId(content);
                             case BookLoreMetadata.NS_PREFIX + ":comicvine_id" -> builderMeta.comicvineId(content);
+                            case BookLoreMetadata.NS_PREFIX + ":perrypedia_id" -> builderMeta.perrypediaId(content);
                             case BookLoreMetadata.NS_PREFIX + ":ranobedb_id" -> builderMeta.ranobedbId(content);
                             case BookLoreMetadata.NS_PREFIX + ":hardcover_id" -> builderMeta.hardcoverId(content);
                             case BookLoreMetadata.NS_PREFIX + ":google_books_id" -> builderMeta.googleId(content);
@@ -320,6 +322,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                                 case "OPENLIBRARY" -> builderMeta.openlibraryId(value);
                                 case "GOODREADS" -> builderMeta.goodreadsId(value);
                                 case "COMICVINE" -> builderMeta.comicvineId(value);
+                                case "PERRYPEDIA" -> builderMeta.perrypediaId(value);
                                 case "RANOBEDB" -> builderMeta.ranobedbId(value);
                                 case "GOOGLE" -> builderMeta.googleId(value);
                                 case "AMAZON" -> builderMeta.asin(value);

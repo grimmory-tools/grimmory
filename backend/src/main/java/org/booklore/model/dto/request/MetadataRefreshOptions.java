@@ -57,6 +57,7 @@ public class MetadataRefreshOptions {
         private FieldProvider asin;
         private FieldProvider goodreadsId;
         private FieldProvider comicvineId;
+        private FieldProvider perrypediaId;
         private FieldProvider hardcoverId;
         private FieldProvider hardcoverBookId;
         private FieldProvider googleId;
@@ -140,6 +141,8 @@ public class MetadataRefreshOptions {
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean comicvineId = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean perrypediaId = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean hardcoverId = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean hardcoverBookId = true;
@@ -206,6 +209,7 @@ public class MetadataRefreshOptions {
             this.asin = true;
             this.goodreadsId = true;
             this.comicvineId = true;
+            this.perrypediaId = true;
             this.hardcoverId = true;
             this.hardcoverBookId = true;
             this.googleId = true;

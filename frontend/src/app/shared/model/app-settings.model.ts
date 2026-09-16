@@ -58,6 +58,7 @@ export interface MetadataProviderSettings {
   ranobedb: Ranobedb;
   hardcover: Hardcover;
   comicvine: Comicvine;
+  perrypedia: Perrypedia;
   douban: Douban;
   lubimyczytac: Lubimyczytac;
   audible: Audible;
@@ -97,6 +98,10 @@ export interface Hardcover {
 export interface Comicvine {
   enabled: boolean;
   apiKey: string;
+}
+
+export interface Perrypedia {
+  enabled: boolean;
 }
 
 export interface Douban {
@@ -227,6 +232,7 @@ export interface MetadataProviderSpecificFields {
   hardcoverRating: boolean;
   hardcoverReviewCount: boolean;
   comicvineId: boolean;
+  perrypediaId: boolean;
   lubimyczytacId: boolean;
   lubimyczytacRating: boolean;
   ranobedbId: boolean;

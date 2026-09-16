@@ -40,7 +40,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     'amazonRatingLocked', 'amazonReviewCountLocked', 'goodreadsRatingLocked', 'goodreadsReviewCountLocked',
     'hardcoverRatingLocked', 'hardcoverReviewCountLocked', 'goodreadsIdLocked', 'hardcoverIdLocked', 'hardcoverBookIdLocked', 'googleIdLocked', 'comicvineIdLocked',
     'applebooksIdLocked', 'applebooksRatingLocked', 'applebooksReviewCountLocked',
-    'ranobedbIdLocked', 'ranobedbRatingLocked'
+    'perrypediaIdLocked', 'ranobedbIdLocked', 'ranobedbRatingLocked'
   ];
 
   fieldLabels: Record<string, string> = {
@@ -75,6 +75,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     hardcoverBookIdLocked: 'Hardcover Book ID',
     googleIdLocked: 'Google ID',
     comicvineIdLocked: 'Comicvine ID',
+    perrypediaIdLocked: 'Perrypedia ID',
     ranobedbIdLocked: 'Ranobedb ID',
     ranobedbRatingLocked: 'Ranobedb ★',
     applebooksIdLocked: 'Apple Books ID',

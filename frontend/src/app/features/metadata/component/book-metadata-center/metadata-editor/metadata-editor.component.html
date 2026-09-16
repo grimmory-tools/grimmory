@@ -874,6 +874,20 @@
                   </div>
                 </div>
               }
+              @if (isFieldVisible('perrypediaId')) {
+                <div class="field-group metadata-id-field">
+                  <label for="perrypediaId">{{ t('perrypediaId') }} @if (isEmbeddable('perrypediaId', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                  <div class="field-with-lock">
+                    <input pSize="small" pInputText id="perrypediaId" formControlName="perrypediaId"/>
+                    @if (!book.metadata!['perrypediaIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('perrypediaId')" severity="success"></p-button>
+                    }
+                    @if (book.metadata!['perrypediaIdLocked']) {
+                      <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('perrypediaId')" severity="warn"></p-button>
+                    }
+                  </div>
+                </div>
+              }
               @if (isFieldVisible('ranobedbId')) {
                 <div class="field-group metadata-id-field">
                   <label for="ranobedbId">{{ t('ranobedbId') }} @if (isEmbeddable('ranobedbId', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>

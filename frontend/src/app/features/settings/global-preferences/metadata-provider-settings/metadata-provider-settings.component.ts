@@ -108,6 +108,7 @@ export class MetadataProviderSettingsComponent {
   googleEnabled: boolean = false;
   comicvineEnabled: boolean = false;
   comicvineToken: string = '';
+  perrypediaEnabled: boolean = false;
   doubanEnabled: boolean = false;
   lubimyCzytacEnabled: boolean = false;
   ranobedbEnabled: boolean = false;
@@ -141,6 +142,7 @@ export class MetadataProviderSettingsComponent {
     this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
     this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
     this.comicvineToken = metadataProviderSettings?.comicvine?.apiKey ?? '';
+    this.perrypediaEnabled = metadataProviderSettings?.perrypedia?.enabled ?? false;
     this.doubanEnabled = metadataProviderSettings?.douban?.enabled ?? false;
     this.lubimyCzytacEnabled = metadataProviderSettings?.lubimyczytac?.enabled ?? false;
     this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
@@ -183,6 +185,7 @@ export class MetadataProviderSettingsComponent {
             enabled: this.comicvineEnabled,
             apiKey: this.comicvineToken.trim()
           },
+          perrypedia: {enabled: this.perrypediaEnabled},
           goodReads: {enabled: this.goodreadsEnabled},
           google: {
             enabled: this.googleEnabled && this.googleApiKeyConfigured,
