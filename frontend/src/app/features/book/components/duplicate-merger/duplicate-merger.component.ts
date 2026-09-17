@@ -18,6 +18,7 @@ import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {Tag} from '@openng/optimus-ui/tag';
 import {injectMutation, QueryClient} from '@tanstack/angular-query';
 
+import {commandErrorDetail} from '../../../../core/data/command-errors';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
@@ -168,6 +169,7 @@ export class DuplicateMergerComponent {
   }
 
   getBookFilePath(book: BookDetail): string {
+    if (book.primaryFile?.filePath) return book.primaryFile.filePath;
     const subPath = book.primaryFile?.fileSubPath;
     const fileName = book.primaryFile?.fileName || '';
     if (subPath) return `${subPath}/${fileName}`;
@@ -200,6 +202,7 @@ export class DuplicateMergerComponent {
     let success = 0;
     let failed = 0;
     let firstError: unknown;
+    const errorDetails = new Set<string>();
     for (const group of groups) {
       if (this.isClosed()) break;
       try {
@@ -212,6 +215,8 @@ export class DuplicateMergerComponent {
         success++;
       } catch (error) {
         firstError ??= error;
+        const detail = commandErrorDetail(error);
+        if (detail) errorDetails.add(detail);
         failed++;
       }
       this.mergeProgress.set(((success + failed) / groups.length) * 100);
@@ -219,8 +224,10 @@ export class DuplicateMergerComponent {
     this.mergeProgress.set(null);
     if (this.isClosed() || !failed) return;
     if (bulk) {
+      const summary = this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success, failed});
+      const details = [...errorDetails].join(' ');
       this.feedback.show('error', 'book.duplicateMerger.toast.mergeFailed', undefined,
-        this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success, failed}));
+        details ? `${summary} ${details}` : summary);
     } else {
       this.feedback.error('book.duplicateMerger.toast.mergeFailed', firstError);
     }
