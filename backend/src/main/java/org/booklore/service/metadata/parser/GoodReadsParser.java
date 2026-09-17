@@ -1,6 +1,7 @@
 package org.booklore.service.metadata.parser;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -42,6 +43,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final TypeReference<List<GoodreadsAutocompleteEntry>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
 
     // Located in Goodreads _app JS chunk, visible in DevTools → Network → GraphQL requests
+    private static final String EXTERNAL_URL_TEMPLATE = "https://www.goodreads.com/book/show/{id}";
     private static final String GRAPHQL_ENDPOINT = "https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql";
     private static final String API_KEY = "da2-d2fyuybwsbf3poyquvbp2mbiwu";
     private static final String GRAPHQL_QUERY = """
@@ -262,8 +264,13 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
             return null;
         }
 
+        String externalUrl = UriComponentsBuilder.fromUriString(EXTERNAL_URL_TEMPLATE)
+                .build(goodreadsId)
+                .toString();
+
         BookMetadata.BookMetadataBuilder builder = BookMetadata.builder()
                 .goodreadsId(goodreadsId)
+                .externalUrl(externalUrl)
                 .provider(MetadataProvider.GoodReads);
 
         try {
