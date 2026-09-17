@@ -18,14 +18,11 @@
       />
 
       @if (badgeVisible()) {
-        <span [class]="badgeClass()" data-testid="badge">#{{ seriesNumber() }}</span>
+        <span [class]="badgeClass" data-testid="badge">#{{ seriesNumber() }}</span>
       }
 
-      @if (showFormatPill() && formatLabel(); as format) {
-        <span
-          class="absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold text-white"
-          data-testid="format-pill"
-        >{{ format }}</span>
+      @if (formatPillVisible() && formatLabel(); as format) {
+        <span [class]="formatPillClass()" data-testid="format-pill">{{ format }}</span>
       }
 
       @if (selectable()) {

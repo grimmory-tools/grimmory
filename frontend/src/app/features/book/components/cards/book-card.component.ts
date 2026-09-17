@@ -182,7 +182,7 @@ export class BookCardComponent {
   );
   protected readonly menuPinned = computed(() => this.menuOpen() && !this.selectionActive());
   protected readonly badgeVisible = computed(
-    () => this.showBadge() && this.seriesNumber() !== null && !this.checkboxTakesOver(),
+    () => this.showBadge() && this.seriesNumber() !== null,
   );
 
   private pressTimer: number | null = null;
@@ -216,9 +216,14 @@ export class BookCardComponent {
       this.selected() && 'scale-[0.93] outline-2 outline-offset-2 outline-primary',
     ),
   );
-  protected readonly badgeClass = computed(() =>
+  protected readonly badgeClass =
+    'absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white';
+  protected readonly formatPillVisible = computed(
+    () => this.showFormatPill() && !this.checkboxTakesOver(),
+  );
+  protected readonly formatPillClass = computed(() =>
     cn(
-      'absolute left-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white',
+      'absolute left-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold text-white',
       this.selectable() &&
         'transition-opacity group-hover/card:opacity-0 group-has-[:focus-visible]/card:opacity-0 group-data-[active=true]/card:opacity-0 motion-reduce:transition-none',
     ),
