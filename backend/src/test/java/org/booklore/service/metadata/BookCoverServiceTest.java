@@ -364,6 +364,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
                     .build();
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -682,6 +683,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
                     .build();
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
