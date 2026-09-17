@@ -419,7 +419,7 @@ export class BookBrowseTableComponent {
     return this.useSquareCovers() || book.primaryFile?.bookType === 'AUDIOBOOK';
   }
 
-  protected cellText(cell: BookBrowseCell): string {
+  protected cellText(cell: BookBrowseCell): string | null {
     return formatBookValue(
       bookColumnKind(cell.column.id), cell.getValue<BookColumnValue>(), key => this.transloco.translate(key),
     );

@@ -173,9 +173,9 @@
                     } @else {
                       <span
                         class="overflow-hidden text-ellipsis whitespace-nowrap"
-                        [class.text-text-muted]="value === emptyValue"
-                        [title]="value">
-                        {{ value }}
+                        [class.text-text-muted]="value === null"
+                        [title]="value ?? emptyValue">
+                        {{ value ?? emptyValue }}
                       </span>
                     }
                   }
