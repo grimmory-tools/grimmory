@@ -63,7 +63,7 @@ export class BookBrowseDetailLineService {
   }
 
   private format(kind: BookColumnKind, value: BookColumnValue): string {
-    return formatBookValue(kind, value, key => this.transloco.translate(key));
+    return formatBookValue(kind, value, key => this.transloco.translate(key)) ?? BOOK_EMPTY_VALUE;
   }
 }
 
