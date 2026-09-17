@@ -39,6 +39,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class RanobeDbParser implements BookParser {
+    private static final String USER_AGENT = "Grimmory/1.0 (Book and Comic Metadata Fetcher; +https://github.com/grimmory-tools/grimmory)";
     private static final String RANOBEDB_URL = "https://ranobedb.org/api/v0/";
     private static final String RANOBEDB_IMAGE_URL = "https://images.ranobedb.org/";
 
@@ -152,7 +153,7 @@ public class RanobeDbParser implements BookParser {
 
           HttpRequest request = HttpRequest.newBuilder()
                   .uri(uri)
-                  .header("User-Agent", "Grimmory/1.0 (Book and Comic Metadata Fetcher; +https://github.com/grimmory-tools/grimmory)")
+                  .header("User-Agent", USER_AGENT)
                   .GET()
                   .build();
 
@@ -208,7 +209,7 @@ public class RanobeDbParser implements BookParser {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header("User-Agent", "BookLore/1.0 (Book and Comic Metadata Fetcher; +https://github.com/booklore-app/booklore)")
+                    .header("User-Agent", USER_AGENT)
                     .GET()
                     .build();
 
@@ -293,7 +294,7 @@ public class RanobeDbParser implements BookParser {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header("User-Agent", "Grimmory/1.0 (Book and Comic Metadata Fetcher; +https://github.com/grimmory-tools/grimmory)")
+                    .header("User-Agent", USER_AGENT)
                     .GET()
                     .build();
 
