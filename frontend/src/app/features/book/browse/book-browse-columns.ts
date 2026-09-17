@@ -123,13 +123,13 @@ export function formatBookValue(
   kind: BookColumnKind,
   value: BookColumnValue,
   translate: (key: string) => string,
-): string {
+): string | null {
   if (value == null || value === '') {
-    return BOOK_EMPTY_VALUE;
+    return null;
   }
   switch (kind) {
     case 'date':
-      return formatMediumDate(String(value)) || BOOK_EMPTY_VALUE;
+      return formatMediumDate(String(value)) || null;
     case 'fileSize':
       return formatFileSizeKb(Number(value));
     case 'rating':
@@ -138,7 +138,7 @@ export function formatBookValue(
       return NUMBER_FORMAT.format(Number(value));
     case 'readStatus': {
       const labelKey = typeof value === 'string' ? bookReadStatusLabelKey(value) : null;
-      return labelKey ? translate(labelKey) : BOOK_EMPTY_VALUE;
+      return labelKey ? translate(labelKey) : null;
     }
     case 'text':
       return String(value);
