@@ -7,6 +7,7 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataReplaceMode;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.projection.BookCoverUpdateProjection;
 import org.booklore.service.NotificationService;
@@ -373,6 +374,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
                     .build();
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -704,6 +706,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
                     .build();
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -1287,7 +1290,7 @@ class BookCoverServiceTest {
     class NetworkStorageGating {
 
         @Test
-        void writeCoverToBookFile_networkStorage_skipsFileWrite() {
+        void writeCoverToBookFile_networkStorage_skipsFileWrite() throws IOException {
             when(appProperties.isLocalStorage()).thenReturn(false);
 
             BookEntity book = buildBook(1L, false);
@@ -1298,7 +1301,8 @@ class BookCoverServiceTest {
             book.setBookFiles(Set.of(bookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
-            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
+            Path coverPath = Files.write(tempDir.resolve("cover.jpg"), new byte[]{1, 2, 3});
+            when(fileService.getCoverFile(1)).thenReturn(coverPath.toString());
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1307,7 +1311,7 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void writeAudiobookCoverToFile_networkStorage_skipsFileWrite() {
+        void writeAudiobookCoverToFile_networkStorage_skipsFileWrite() throws IOException {
             when(appProperties.isLocalStorage()).thenReturn(false);
 
             BookEntity book = buildBookWithAudiobookLock(1L, false);
@@ -1317,7 +1321,8 @@ class BookCoverServiceTest {
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
-            when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
+            Path coverPath = Files.write(tempDir.resolve("cover.jpg"), new byte[]{1, 2, 3});
+            when(fileService.getAudiobookCoverFile(1)).thenReturn(coverPath.toString());
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
