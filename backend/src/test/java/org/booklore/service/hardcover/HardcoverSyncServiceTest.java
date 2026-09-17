@@ -7,6 +7,8 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.NotificationService;
+import org.booklore.util.TaskUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,6 +59,12 @@ class HardcoverSyncServiceTest {
     @InjectMocks
     private HardcoverSyncService service;
 
+    @Mock 
+    private TaskUtils taskUtils;
+
+    @Mock 
+    private NotificationService notificationService;
+
     private BookEntity testBook;
     private BookMetadataEntity testMetadata;
     private HardcoverSyncSettings hardcoverSyncSettings;
@@ -69,7 +77,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, restClient, userRepository);
+        service = new HardcoverSyncService(restClient, hardcoverSyncSettingsService, bookRepository, userRepository, userBookProgressRepository, notificationService);
 
         testBook = new BookEntity();
         testBook.setId(TEST_BOOK_ID);

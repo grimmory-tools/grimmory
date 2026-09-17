@@ -1,12 +1,12 @@
 package org.booklore.service.hardcover;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.EntityManager;
-import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookIdentifier;
@@ -18,14 +18,14 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.NotificationService;
 import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +42,7 @@ import java.time.format.DateTimeFormatter;
  * Each user can configure their own Hardcover API key in their sync settings.
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class HardcoverSyncService {
 
@@ -56,24 +57,11 @@ public class HardcoverSyncService {
     private final UserRepository userRepository;
     private final UserBookProgressRepository userBookProgressRepository;
 
+    private final NotificationService notificationService;
+
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
     private AtomicBoolean hardcoverImportLock = new AtomicBoolean(false);
-
-    @Autowired
-    public HardcoverSyncService(
-            HardcoverSyncSettingsService hardcoverSyncSettingsService,
-            BookRepository bookRepository,
-            UserBookProgressRepository userBookProgressRepository,
-            RestClient restClient,
-            UserRepository userRepository
-    ) {
-        this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
-        this.bookRepository = bookRepository;
-        this.restClient = restClient;
-        this.userBookProgressRepository = userBookProgressRepository;
-        this.userRepository = userRepository;
-    }
 
     /**
      * Asynchronously sync Kobo reading progress to Hardcover.
@@ -903,6 +891,7 @@ public class HardcoverSyncService {
                     updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
                 }
                 log.info("Hardcover import done");
+                notificationService.sendMessageToUser(userRepository.findById(userId).get().getUsername(), Topic.HARDCOVER_IMPORT, "Importing data from Hardcover has finished");
             } catch (Exception e) {
                 log.warn("Failed to get user's hardcover books: {}", e.getMessage());
             } finally {

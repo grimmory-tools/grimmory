@@ -11,6 +11,7 @@ import {UserService} from '../../../user-management/user.service';
 import {HardcoverSyncSettingsService} from './hardcover-sync-settings.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
+import { TaskCreateRequest, TaskService, TaskType } from '../../../task-management/task.service';
 
 @Component({
   standalone: true,
@@ -35,6 +36,7 @@ export class HardcoverSettingsComponent {
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly taskService = inject(TaskService);
 
   readonly hasPermission = computed(() => {
     const user = this.userService.currentUser();
@@ -98,7 +100,14 @@ export class HardcoverSettingsComponent {
   }
 
   private hardcoverImport() {
-    this.hardcoverSyncSettingsService.startImport(this.overwriteExistingData).subscribe({
+    const request: TaskCreateRequest = {
+          taskType: TaskType.HARDCOVER_IMPORT,
+          triggeredByCron: false,
+          options: {
+            "overwrite": this.overwriteExistingData
+          }
+    };
+    this.taskService.startTask(request).subscribe({
       next: () => {
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.importStarted')});
       },

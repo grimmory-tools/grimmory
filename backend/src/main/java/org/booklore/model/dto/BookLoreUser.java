@@ -40,6 +40,7 @@ public class BookLoreUser {
         private boolean canManageLibrary;
         private boolean canSyncKoReader;
         private boolean canSyncKobo;
+        private boolean canSyncHardcover;
         private boolean canEmailBook;
         private boolean canDeleteBook;
         private boolean canAccessOpds;

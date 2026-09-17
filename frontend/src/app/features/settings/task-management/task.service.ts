@@ -12,7 +12,8 @@ export enum TaskType {
   SYNC_LIBRARY_FILES = 'SYNC_LIBRARY_FILES',
   BOOKDROP_PERIODIC_SCANNING = 'BOOKDROP_PERIODIC_SCANNING',
   CLEANUP_TEMP_METADATA = 'CLEANUP_TEMP_METADATA',
-  REFRESH_METADATA_MANUAL = 'REFRESH_METADATA_MANUAL'
+  REFRESH_METADATA_MANUAL = 'REFRESH_METADATA_MANUAL',
+  HARDCOVER_IMPORT = "HARDCOVER_IMPORT"
 }
 
 export const TASK_TYPE_CONFIG: Record<TaskType, { parallel: boolean; async: boolean; displayOrder: number }> = {
@@ -24,6 +25,7 @@ export const TASK_TYPE_CONFIG: Record<TaskType, { parallel: boolean; async: bool
   [TaskType.CLEANUP_TEMP_METADATA]: {parallel: false, async: false, displayOrder: 6},
   [TaskType.REFRESH_METADATA_MANUAL]: {parallel: false, async: false, displayOrder: 7},
   [TaskType.CLEAR_PDF_CACHE]: {parallel: false, async: false, displayOrder: 8},
+  [TaskType.HARDCOVER_IMPORT]: {parallel: false, async: true, displayOrder: 9},
 };
 
 export enum MetadataReplaceMode {
@@ -35,10 +37,14 @@ export interface LibraryRescanOptions {
   metadataReplaceMode?: MetadataReplaceMode;
 }
 
+export interface HardcoverImportOptions {
+    overwrite?: boolean
+}
+
 export interface TaskCreateRequest {
   taskType: TaskType;
   triggeredByCron?: boolean;
-  options?: LibraryRescanOptions | MetadataRefreshRequest | null;
+  options?: LibraryRescanOptions | MetadataRefreshRequest | HardcoverImportOptions | null;
 }
 
 export interface TaskCreateResponse {

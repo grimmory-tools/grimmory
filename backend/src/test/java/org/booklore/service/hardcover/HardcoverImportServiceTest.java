@@ -9,6 +9,8 @@ import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.NotificationService;
+import org.booklore.util.TaskUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,6 +67,10 @@ class HardcoverImportServiceTest {
     private RestClient.RequestBodySpec requestBodySpec;
     @Mock
     private RestClient.ResponseSpec responseSpec;
+    @Mock 
+    private TaskUtils taskUtils;
+    @Mock 
+    private NotificationService notificationService;
 
     private HardcoverSyncService service;
     private HardcoverSyncSettings hardcoverSyncSettings;
@@ -73,8 +79,7 @@ class HardcoverImportServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository,
-                userBookProgressRepository, restClient, userRepository);
+        service = new HardcoverSyncService(restClient, hardcoverSyncSettingsService, bookRepository, userRepository, userBookProgressRepository, notificationService);
 
         hardcoverSyncSettings = new HardcoverSyncSettings();
         hardcoverSyncSettings.setHardcoverSyncEnabled(true);
