@@ -132,6 +132,13 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private record SeriesInfo(String name, Float number, Integer total) {}
 
     @Override
+    public boolean isEnabled() {
+        return getSettings()
+                .map(MetadataProviderSettings.Amazon::isEnabled)
+                .orElse(false);
+    }
+
+    @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         String amazonBookId = getTopAmazonBookId(book, fetchMetadataRequest);
         if (amazonBookId == null) {
@@ -905,14 +912,14 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         return Optional.ofNullable(appSettingService.getAppSettings());
     }
 
-    private Optional<MetadataProviderSettings.Amazon> getAmazonSettings() {
+    private Optional<MetadataProviderSettings.Amazon> getSettings() {
         return getAppSettings()
                 .map(AppSettings::getMetadataProviderSettings)
                 .map(MetadataProviderSettings::getAmazon);
     }
 
     private String getDomain() {
-        String domain = getAmazonSettings()
+        String domain = getSettings()
                 .map(MetadataProviderSettings.Amazon::getDomain)
                 .orElse(DEFAULT_DOMAIN);
 
@@ -924,7 +931,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     }
 
     private String getAmazonCookie() {
-        return getAmazonSettings()
+        return getSettings()
                 .map(MetadataProviderSettings.Amazon::getCookie)
                 .orElse(null);
     }

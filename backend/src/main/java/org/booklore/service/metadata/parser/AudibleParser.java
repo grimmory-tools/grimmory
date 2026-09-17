@@ -8,6 +8,7 @@ import org.booklore.model.dto.AudiobookMetadata;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
@@ -163,12 +164,7 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
     ) {}
 
     private String getTld() {
-        var settings = appSettingService.getAppSettings().getMetadataProviderSettings();
-        String tld = DEFAULT_TLD;
-        if (settings != null && settings.getAudible() != null && settings.getAudible().getDomain() != null) {
-            tld = settings.getAudible().getDomain();
-        }
-        return tld;
+        return getSettings().map(MetadataProviderSettings.Audible::getDomain).orElse(DEFAULT_TLD);
     }
 
     private String getBaseURI() {
@@ -332,6 +328,24 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
         }
 
         return metadata.getAsin();
+    }
+
+    private Optional<MetadataProviderSettings.Audible> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getAudible());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings().map(MetadataProviderSettings.Audible::isEnabled).orElse(false);
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
+import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
 import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
 import org.booklore.service.metadata.parser.hardcover.HardcoverCachedTag;
@@ -50,6 +51,9 @@ class HardcoverParserTest {
     @Mock
     private HardcoverBookSearchService hardcoverBookSearchService;
 
+    @Mock
+    private AppSettingService appSettingService;
+
     private HardcoverParser parser;
 
     private MockedStatic<Jsoup> mockJsoup;
@@ -57,7 +61,7 @@ class HardcoverParserTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        parser = new HardcoverParser(hardcoverBookSearchService);
+        parser = new HardcoverParser(hardcoverBookSearchService, appSettingService);
         mockJsoup = mockStatic(Jsoup.class);
         previousDefaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.ENGLISH);
