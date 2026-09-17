@@ -127,18 +127,22 @@
     </div>
 
     @if (railVisible()) {
-      <aside
-        class="flex max-h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col">
+      <aside [class]="railClass()">
         <div class="-mx-1.5 flex min-h-0 flex-1 flex-col">
-        <div class="mb-4">
-          <app-browse-search-input
-            size="sm"
-            [value]="searchDraft.value()"
-            [placeholder]="queries.searchHint()"
-            [ariaLabel]="queries.searchHint()"
-            [clearLabel]="'book.searcher.clearSearch' | transloco"
-            (valueChange)="searchDraft.set($event)"
-            (cleared)="onClearQuery()" />
+        <div class="mb-2 border-b border-border/50 pb-4">
+          <div class="mb-2 flex h-6 items-center px-2">
+            <h3 class="m-0 text-[13px] font-semibold text-text-secondary">{{ queries.searchHint() }}</h3>
+          </div>
+          <div class="px-2">
+            <app-browse-search-input
+              size="sm"
+              [value]="searchDraft.value()"
+              [placeholder]="'browse.rail.searchFields' | transloco"
+              [ariaLabel]="queries.searchHint()"
+              [clearLabel]="'book.searcher.clearSearch' | transloco"
+              (valueChange)="searchDraft.set($event)"
+              (cleared)="onClearQuery()" />
+          </div>
         </div>
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6 [--page-stuck-offset:0px]">
           @if (railReady()) {

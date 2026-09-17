@@ -173,7 +173,7 @@ export class BookBrowsePageComponent {
   protected readonly minCardWidth = computed(() =>
     this.isMobile() ? 1 : Math.round(CARD_BASE_WIDTH * this.coverScale.scaleFactor()),
   );
-  private readonly railOpen = signal(this.localStorage.get<boolean>(RAIL_OPEN_STORAGE_KEY) === true);
+  private readonly railOpen = signal(this.localStorage.get<boolean>(RAIL_OPEN_STORAGE_KEY) !== false);
   protected readonly railVisible = computed(() => !this.isMobile() && this.railOpen());
   protected readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
 
@@ -324,6 +324,12 @@ export class BookBrowsePageComponent {
       ),
     };
   });
+  protected readonly railClass = computed(() =>
+    cn(
+      'flex max-h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col',
+      this.preferences.viewMode() === 'grid' && 'box-content border-l border-border/70 pl-6',
+    ),
+  );
   protected readonly gridBoxClass = computed(() => cn('md:pb-8', !this.railVisible() && 'md:-mr-8 md:pr-8'));
   protected readonly chipsBandClass = computed(() =>
     cn(

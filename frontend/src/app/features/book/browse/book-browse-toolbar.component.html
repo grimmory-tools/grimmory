@@ -82,6 +82,7 @@
 </app-menu>
 
 <app-button
+  class="sm:hidden"
   variant="soft"
   [label]="'browse.filter' | transloco"
   [ariaExpanded]="filtersOpen()"
@@ -98,6 +99,7 @@
   [label]="'common.select' | transloco"
   (clicked)="mobileSelectToggle.emit()" />
 
+<span class="hidden h-6 w-px bg-border sm:block" aria-hidden="true"></span>
 <app-button
   class="ml-auto sm:ml-0"
   variant="ghost"
@@ -107,6 +109,7 @@
   <svg lucideEllipsis aria-hidden="true"></svg>
 </app-button>
 <app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
+  <app-menu-section class="hidden sm:block">{{ 'browse.toolbar.viewMode' | transloco }}</app-menu-section>
   @if (viewMode() === 'grid') {
     <div class="flex min-h-8 w-full select-none items-center gap-2 pl-2 pr-0 text-sm leading-5 text-text pointer-coarse:min-h-11 pointer-coarse:pl-3">
       <span class="min-w-0 flex-1 truncate">{{ 'browse.toolbar.density' | transloco }}</span>
@@ -127,7 +130,7 @@
         [attr.aria-label]="'browse.toolbar.largerCards' | transloco"
         (selected)="densityChange.emit('larger')" />
     </div>
-    <app-menu-separator class="sm:hidden" />
+    <app-menu-separator />
   }
   <div class="contents sm:hidden">
     <app-menu-radio-group [value]="viewMode()" (valueSelected)="selectView($event)">
@@ -139,8 +142,17 @@
     <app-menu-separator class="sm:hidden" />
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
+  <div class="hidden sm:contents">
+    <app-menu-checkbox
+      value="show-filters"
+      [checked]="filtersOpen()"
+      (selected)="filtersToggle.emit()">
+      {{ 'browse.toolbar.showFilters' | transloco }}
+    </app-menu-checkbox>
+  </div>
   @if (actionTarget(); as target) {
     <app-menu-separator />
+    <app-menu-section>{{ target.entity.name }}</app-menu-section>
     <app-library-shelf-menu-items [target]="target" />
   }
 </app-menu>

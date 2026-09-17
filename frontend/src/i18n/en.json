@@ -5495,7 +5495,14 @@
     },
     "rail": {
       "searchValues": "Search…",
-      "search": "Search {{scope}}",
+      "searchFields": "Title, author, genre…",
+      "searchScope": {
+        "allBooks": "Search All Books",
+        "library": "Search Library",
+        "shelf": "Search Shelf",
+        "magicShelf": "Search Magic Shelf",
+        "unshelved": "Search Unshelved Books"
+      },
       "noMatches": "No matches",
       "minUnit": "Min unit",
       "maxUnit": "Max unit",
@@ -5528,6 +5535,7 @@
       "density": "Size",
       "smallerCards": "Smaller Cards",
       "largerCards": "Larger Cards",
+      "showFilters": "Show Filters",
       "columns": "Columns",
       "resetColumns": "Reset to Default"
     },
