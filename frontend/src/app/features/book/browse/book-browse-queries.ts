@@ -93,7 +93,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   });
   const searchHint = computed(() => {
     activeLang();
-    return transloco.translate('browse.rail.search', {scope: title()});
+    return transloco.translate(`browse.rail.searchScope.${scope()?.kind ?? 'allBooks'}`);
   });
   const actionTarget = computed<LibraryShelfMenuTarget | null>(() => {
     const target = bookBrowseScopeMenuTarget(
