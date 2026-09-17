@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -42,6 +41,7 @@ public class RanobeDbParser implements BookParser {
     private static final String USER_AGENT = "Grimmory/1.0 (Book and Comic Metadata Fetcher; +https://github.com/grimmory-tools/grimmory)";
     private static final String RANOBEDB_URL = "https://ranobedb.org/api/v0/";
     private static final String RANOBEDB_IMAGE_URL = "https://images.ranobedb.org/";
+    private static final String EXTERNAL_URL_TEMPLATE = "https://ranobedb.org/book/{id}";
 
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
@@ -367,8 +367,13 @@ public class RanobeDbParser implements BookParser {
                     description = "ja".equalsIgnoreCase(bookLang) ? book.getDescriptionJa() : book.getDescription();
                 }
 
+                String externalUrl = UriComponentsBuilder.fromUriString(EXTERNAL_URL_TEMPLATE)
+                        .build(String.valueOf(book.getId()))
+                        .toString();
+
                 return BookMetadata.builder()
                     .provider(MetadataProvider.Ranobedb)
+                    .externalUrl(externalUrl)
                     .ranobedbId(String.valueOf(book.getId()))
                     .ranobedbRating(book.getRating() != null ? book.getRating().getScore() / 2.0 : null)
                     .title(title) 

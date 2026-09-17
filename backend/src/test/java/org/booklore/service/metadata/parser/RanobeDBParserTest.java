@@ -116,6 +116,7 @@ class RanobeDbParserTest {
         BookMetadata firstResult = results.getFirst();
         assertThat(firstResult.getTitle()).withFailMessage("Title should be present").isNotNull();
         assertThat(firstResult.getRanobedbId()).withFailMessage("RanobeDB ID should be present").isNotNull();
+        assertThat(firstResult.getExternalUrl()).isEqualTo("https://ranobedb.org/book/47136");
 
         var authors = firstResult.getAuthors();
         assertThat(authors).withFailMessage("Authors should be present").isNotEmpty();
