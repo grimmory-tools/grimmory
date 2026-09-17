@@ -1,9 +1,9 @@
 package org.booklore.service.hardcover;
 
-import jakarta.persistence.EntityManager;
 import org.booklore.model.dto.BookIdentifier;
 import org.booklore.model.dto.HardcoverBookProgress;
 import org.booklore.model.dto.HardcoverSyncSettings;
+import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
@@ -20,18 +20,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.web.client.RestClient;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,6 +39,10 @@ import static org.mockito.Mockito.*;
  * Tests focused specifically on the Hardcover *import* logic:
  * importHardcoverData() and the private helpers it relies on
  * (pagination, response parsing, matching, and persistence).
+ * <p>
+ * Persistence for the import path now goes entirely through
+ * {@link UserBookProgressRepository} / {@link BookRepository} / {@link UserRepository}
+ * (no more EntityManager or JdbcTemplate).
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -70,12 +72,9 @@ class HardcoverImportServiceTest {
     private static final Long TEST_USER_ID = 1L;
 
     @BeforeEach
-    void setUp() throws Exception {
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, restClient, userRepository);
-
-        Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");
-        restClientField.setAccessible(true);
-        restClientField.set(service, restClient);
+    void setUp() {
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository,
+                userBookProgressRepository, restClient, userRepository);
 
         hardcoverSyncSettings = new HardcoverSyncSettings();
         hardcoverSyncSettings.setHardcoverSyncEnabled(true);
@@ -105,6 +104,8 @@ class HardcoverImportServiceTest {
             service.importHardcoverData(TEST_USER_ID, false);
 
             verify(restClient, never()).post();
+            verify(userBookProgressRepository, never()).saveAll(any());
+            verify(userBookProgressRepository, never()).findById(any());
         }
 
         @Test
@@ -143,12 +144,16 @@ class HardcoverImportServiceTest {
         @Test
         @DisplayName("Should release the lock even when parsing throws")
         void whenParsingThrows_shouldStillReleaseLockAndNotPropagate() {
+            // status_id missing causes an NPE inside parseHardcoverResponse, which
+            // importHardcoverData must swallow.
             Map<String, Object> badBook = new HashMap<>();
             badBook.put("book_id", 1);
             when(responseSpec.body(Map.class))
                     .thenReturn(userBooksPageResponse(1, List.of(badBook)));
 
             assertDoesNotThrow(() -> service.importHardcoverData(TEST_USER_ID, false));
+
+            verify(userBookProgressRepository, never()).saveAll(any());
         }
 
         @Test
@@ -157,6 +162,9 @@ class HardcoverImportServiceTest {
             when(responseSpec.body(Map.class)).thenReturn(null);
 
             service.importHardcoverData(TEST_USER_ID, false);
+
+            verify(userBookProgressRepository, never()).saveAll(any());
+            verify(userBookProgressRepository, never()).findById(any());
         }
 
         @Test
@@ -169,8 +177,14 @@ class HardcoverImportServiceTest {
             when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet()))
                     .thenReturn(List.of(identifier));
+            when(bookRepository.findById(500L)).thenReturn(Optional.of(mock(BookEntity.class)));
 
             service.importHardcoverData(TEST_USER_ID, false);
+
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<UserBookProgressEntity>> captor = ArgumentCaptor.forClass(List.class);
+            verify(userBookProgressRepository, times(1)).saveAll(captor.capture());
+            assertEquals(1, captor.getValue().size());
         }
 
         @Test
@@ -183,7 +197,9 @@ class HardcoverImportServiceTest {
             service.importHardcoverData(TEST_USER_ID, false);
 
             verify(userBookProgressRepository, never())
-                    .findExistingProgressBookIdsByIdentifiers(any(), any(), any(), any());        }
+                    .findExistingProgressBookIdsByIdentifiers(any(), any(), any(), any());
+            verify(userBookProgressRepository, never()).findById(any());
+        }
 
         @Test
         @DisplayName("Should update existing progress when overwriteData is true")
@@ -196,9 +212,11 @@ class HardcoverImportServiceTest {
                     eq(TEST_USER_ID), anySet(), anySet(), anySet()))
                     .thenReturn(List.of(existing));
             UserBookProgressEntity entity = new UserBookProgressEntity();
+            when(userBookProgressRepository.findById(900L)).thenReturn(Optional.of(entity));
 
             service.importHardcoverData(TEST_USER_ID, true);
 
+            verify(userBookProgressRepository, times(1)).save(entity);
             assertEquals(ReadStatus.READING, entity.getReadStatus());
         }
     }
@@ -423,11 +441,11 @@ class HardcoverImportServiceTest {
 
         @SuppressWarnings("unchecked")
         private List<HardcoverBookProgress> parse(List<Map> books,
-                                                  Map<String, HardcoverBookProgress> isbn10,
-                                                  Map<String, HardcoverBookProgress> isbn13,
-                                                  Map<String, HardcoverBookProgress> hcIds) throws Exception {
+                                                    Map<String, HardcoverBookProgress> isbn10,
+                                                    Map<String, HardcoverBookProgress> isbn13,
+                                                    Map<String, HardcoverBookProgress> hcIds) throws Exception {
             Method m = HardcoverSyncService.class.getDeclaredMethod("parseHardcoverResponse",
-                                                                    List.class, Map.class, Map.class, Map.class);
+                    List.class, Map.class, Map.class, Map.class);
             m.setAccessible(true);
             try {
                 return (List<HardcoverBookProgress>) m.invoke(service, books, isbn10, isbn13, hcIds);
@@ -458,8 +476,8 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("999", "111", null, 1, 1);
 
             Object result = invokePrivate("getHardcoverBook",
-                                          new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
-                                          isbn10, isbn13, hcIds, identifier);
+                    new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
+                    isbn10, isbn13, hcIds, identifier);
 
             assertSame(byId, result);
         }
@@ -475,8 +493,8 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("999", "111", null, 1, 1);
 
             Object result = invokePrivate("getHardcoverBook",
-                                          new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
-                                          isbn10, isbn13, hcIds, identifier);
+                    new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
+                    isbn10, isbn13, hcIds, identifier);
 
             assertSame(byIsbn10, result);
         }
@@ -492,8 +510,8 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("999", "111", "2222222222222", 1, 1);
 
             Object result = invokePrivate("getHardcoverBook",
-                                          new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
-                                          isbn10, isbn13, hcIds, identifier);
+                    new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
+                    isbn10, isbn13, hcIds, identifier);
 
             assertSame(byIsbn13, result);
         }
@@ -504,8 +522,8 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("999", "111", "222", 1, 1);
 
             Object result = invokePrivate("getHardcoverBook",
-                                          new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
-                                          Map.of(), Map.of(), Map.of(), identifier);
+                    new Class<?>[]{Map.class, Map.class, Map.class, BookIdentifier.class},
+                    Map.of(), Map.of(), Map.of(), identifier);
 
             assertNull(result);
         }
@@ -520,19 +538,22 @@ class HardcoverImportServiceTest {
     class NewProgressRecords {
 
         @Test
-        @DisplayName("Should not touch jdbcTemplate when there are no missing-progress books")
+        @DisplayName("Should not touch bookRepository or save anything when there are no missing-progress books")
         void noMissingBooks_shouldSkipInsert() throws Exception {
             when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of());
 
             invokePrivate("createNewProgressRecords",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+
+            verify(bookRepository, never()).findById(any());
+            verify(userBookProgressRepository, never()).saveAll(any());
         }
 
         @Test
-        @DisplayName("Should set rating and last-read timestamps when both are present")
-        void shouldSetRatingAndDateWhenPresent() throws Exception {
+        @DisplayName("Should build a new progress entity with the book, status, rating and dates from Hardcover")
+        void shouldBuildEntityWithMappedFields() throws Exception {
             HardcoverBookProgress book = new HardcoverBookProgress();
             book.setHardcoverId("111");
             book.setStatus(ReadStatus.READING);
@@ -543,24 +564,28 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("111", null, null, 42, 1);
             when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
+            BookEntity bookEntity = mock(BookEntity.class);
+            when(bookRepository.findById(42L)).thenReturn(Optional.of(bookEntity));
 
             invokePrivate("createNewProgressRecords",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
 
-            PreparedStatement ps = invokeBatchCallback(identifier);
-
-            verify(ps).setInt(1, Math.toIntExact(TEST_USER_ID));
-            verify(ps).setInt(2, 42);
-            verify(ps).setTimestamp(eq(3), any());
-            verify(ps).setString(4, "READING");
-            verify(ps).setTimestamp(eq(5), any());
-            verify(ps).setInt(6, 8);
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<UserBookProgressEntity>> captor = ArgumentCaptor.forClass(List.class);
+            verify(userBookProgressRepository).saveAll(captor.capture());
+            assertEquals(1, captor.getValue().size());
+            UserBookProgressEntity saved = captor.getValue().get(0);
+            assertSame(bookEntity, saved.getBook());
+            assertEquals(ReadStatus.READING, saved.getReadStatus());
+            assertEquals(8, saved.getPersonalRating());
+            assertNotNull(saved.getLastReadTime());
+            assertNotNull(saved.getDateFinished());
         }
 
         @Test
-        @DisplayName("Should null out rating and date columns when both are absent")
-        void shouldNullOutRatingAndDateWhenAbsent() throws Exception {
+        @DisplayName("Should leave rating and dates null when both are absent from Hardcover")
+        void shouldLeaveRatingAndDateNullWhenAbsent() throws Exception {
             HardcoverBookProgress book = new HardcoverBookProgress();
             book.setHardcoverId("111");
             book.setStatus(ReadStatus.UNREAD);
@@ -569,41 +594,55 @@ class HardcoverImportServiceTest {
             BookIdentifier identifier = mockIdentifier("111", null, null, 42, 1);
             when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
+            when(bookRepository.findById(42L)).thenReturn(Optional.of(mock(BookEntity.class)));
 
             invokePrivate("createNewProgressRecords",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
 
-            PreparedStatement ps = invokeBatchCallback(identifier);
-
-            verify(ps).setNull(eq(3), anyInt());
-            verify(ps).setNull(eq(5), anyInt());
-            verify(ps).setNull(eq(6), anyInt());
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<UserBookProgressEntity>> captor = ArgumentCaptor.forClass(List.class);
+            verify(userBookProgressRepository).saveAll(captor.capture());
+            UserBookProgressEntity saved = captor.getValue().get(0);
+            assertNull(saved.getPersonalRating());
+            assertNull(saved.getLastReadTime());
+            assertNull(saved.getDateFinished());
         }
 
         @Test
-        @DisplayName("Should skip a candidate row that cannot be matched to any Hardcover book")
+        @DisplayName("Should exclude a candidate row that cannot be matched to any Hardcover book")
         void unmatchedCandidate_shouldBeExcludedFromBatch() throws Exception {
             BookIdentifier identifier = mockIdentifier("does-not-exist", null, null, 42, 1);
             when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
 
             invokePrivate("createNewProgressRecords",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
 
+            verify(bookRepository, never()).findById(any());
             @SuppressWarnings("unchecked")
-            ArgumentCaptor<List<BookIdentifier>> captor = ArgumentCaptor.forClass(List.class);
+            ArgumentCaptor<List<UserBookProgressEntity>> captor = ArgumentCaptor.forClass(List.class);
+            verify(userBookProgressRepository).saveAll(captor.capture());
             assertTrue(captor.getValue().isEmpty());
         }
 
-        @SuppressWarnings("unchecked")
-        private PreparedStatement invokeBatchCallback(BookIdentifier identifier) throws Exception {
-            ArgumentCaptor<ParameterizedPreparedStatementSetter<BookIdentifier>> captor =
-                    ArgumentCaptor.forClass(ParameterizedPreparedStatementSetter.class);
-            PreparedStatement ps = mock(PreparedStatement.class);
-            captor.getValue().setValues(ps, identifier);
-            return ps;
+        @Test
+        @DisplayName("Should propagate when the matched book cannot be found in the local repository")
+        void bookNotFoundLocally_shouldThrow() throws Exception {
+            HardcoverBookProgress book = new HardcoverBookProgress();
+            book.setHardcoverId("111");
+            book.setStatus(ReadStatus.UNREAD);
+
+            Map<String, HardcoverBookProgress> hcIds = Map.of("111", book);
+            BookIdentifier identifier = mockIdentifier("111", null, null, 42, 1);
+            when(userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(
+                    eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
+            when(bookRepository.findById(42L)).thenReturn(Optional.empty());
+
+            assertThrows(NoSuchElementException.class, () -> invokePrivate("createNewProgressRecords",
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book))));
         }
     }
 
@@ -616,14 +655,17 @@ class HardcoverImportServiceTest {
     class ExistingProgressUpdate {
 
         @Test
-        @DisplayName("Should not touch entityManager when there are no existing-progress books")
+        @DisplayName("Should not touch the repository when there are no existing-progress books")
         void noExistingBooks_shouldSkipUpdate() throws Exception {
             when(userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of());
 
             invokePrivate("updateExistingProgress",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+
+            verify(userBookProgressRepository, never()).findById(any());
+            verify(userBookProgressRepository, never()).save(any());
         }
 
         @Test
@@ -641,15 +683,17 @@ class HardcoverImportServiceTest {
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
 
             UserBookProgressEntity entity = new UserBookProgressEntity();
+            when(userBookProgressRepository.findById(900L)).thenReturn(Optional.of(entity));
 
             invokePrivate("updateExistingProgress",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
 
             assertEquals(ReadStatus.READ, entity.getReadStatus());
             assertEquals(10, entity.getPersonalRating());
             assertNotNull(entity.getLastReadTime());
             assertNotNull(entity.getDateFinished());
+            verify(userBookProgressRepository).save(entity);
         }
 
         @Test
@@ -660,8 +704,11 @@ class HardcoverImportServiceTest {
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
 
             invokePrivate("updateExistingProgress",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
+
+            verify(userBookProgressRepository, never()).findById(any());
+            verify(userBookProgressRepository, never()).save(any());
         }
 
         @Test
@@ -678,13 +725,32 @@ class HardcoverImportServiceTest {
 
             UserBookProgressEntity entity = new UserBookProgressEntity();
             entity.setLastReadTime(java.time.Instant.now());
+            when(userBookProgressRepository.findById(900L)).thenReturn(Optional.of(entity));
 
             invokePrivate("updateExistingProgress",
-                          new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
-                          TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book)));
 
             assertNull(entity.getLastReadTime());
             assertNull(entity.getDateFinished());
+        }
+
+        @Test
+        @DisplayName("Should propagate when the matched progress record cannot be found in the repository")
+        void progressNotFoundLocally_shouldThrow() throws Exception {
+            HardcoverBookProgress book = new HardcoverBookProgress();
+            book.setHardcoverId("111");
+            book.setStatus(ReadStatus.READING);
+
+            Map<String, HardcoverBookProgress> hcIds = Map.of("111", book);
+            BookIdentifier identifier = mockIdentifier("111", null, null, 42, 900);
+            when(userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(
+                    eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
+            when(userBookProgressRepository.findById(900L)).thenReturn(Optional.empty());
+
+            assertThrows(NoSuchElementException.class, () -> invokePrivate("updateExistingProgress",
+                    new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
+                    TEST_USER_ID, new HashMap<>(), new HashMap<>(), hcIds, new ArrayList<>(List.of(book))));
         }
     }
 
@@ -708,20 +774,20 @@ class HardcoverImportServiceTest {
     }
 
     private void setImportLock(boolean locked) throws Exception {
-        Field lockField = HardcoverSyncService.class.getDeclaredField("hardcoverImportLock");
+        var lockField = HardcoverSyncService.class.getDeclaredField("hardcoverImportLock");
         lockField.setAccessible(true);
         ((java.util.concurrent.atomic.AtomicBoolean) lockField.get(service)).set(locked);
     }
 
     private boolean readImportLock() throws Exception {
-        Field lockField = HardcoverSyncService.class.getDeclaredField("hardcoverImportLock");
+        var lockField = HardcoverSyncService.class.getDeclaredField("hardcoverImportLock");
         lockField.setAccessible(true);
         return ((java.util.concurrent.atomic.AtomicBoolean) lockField.get(service)).get();
     }
 
-    /** Mocks a BookIdentifier since its concrete constructor/setters aren't part of this service's contract. */
+    /** Mocks a BookIdentifier since it's an interface with no public implementation in test scope. */
     private BookIdentifier mockIdentifier(String hardcoverBookId, String isbn10, String isbn13,
-                                          Integer bookId, Integer progressId) {
+                                           Integer bookId, Integer progressId) {
         BookIdentifier identifier = mock(BookIdentifier.class);
         doReturn(hardcoverBookId).when(identifier).getHardcoverBookId();
         doReturn(isbn10).when(identifier).getIsbn10();
@@ -732,8 +798,8 @@ class HardcoverImportServiceTest {
     }
 
     private Map<String, Object> userBook(Integer bookId, Integer statusId, Integer editionId,
-                                         Double rating, String lastReadDate,
-                                         List<Map<String, Object>> editions) {
+                                          Double rating, String lastReadDate,
+                                          List<Map<String, Object>> editions) {
         Map<String, Object> book = new HashMap<>();
         book.put("book_id", bookId);
         book.put("status_id", statusId);
