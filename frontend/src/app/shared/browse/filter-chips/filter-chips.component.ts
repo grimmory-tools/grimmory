@@ -8,7 +8,7 @@ import {type BrowseFilterChip} from '../facets';
 @Component({
   selector: 'app-browse-filter-chips',
   imports: [TranslocoPipe, AppButtonComponent, AppTagComponent],
-  host: {class: 'flex min-h-8 flex-wrap items-center gap-2'},
+  host: {class: 'flex flex-wrap items-center gap-2'},
   styles: [`
     @property --chips-fade-l {syntax: '<length>'; inherits: false; initial-value: 0px;}
     @property --chips-fade-r {syntax: '<length>'; inherits: false; initial-value: 0px;}
@@ -66,9 +66,10 @@ import {type BrowseFilterChip} from '../facets';
     }
     </div>
     <app-button
-      class="shrink-0"
+      class="flex h-[22px] shrink-0"
       variant="ghost"
       size="sm"
+      styleClass="h-[22px] px-2"
       [label]="'browse.clearFilters' | transloco"
       (clicked)="clearAll.emit()" />
   `,
