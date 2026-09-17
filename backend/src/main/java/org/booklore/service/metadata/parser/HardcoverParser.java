@@ -15,6 +15,7 @@ import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
 import org.booklore.util.BookUtils;
 import org.booklore.util.LanguageNormalizer;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,6 +29,8 @@ import java.util.stream.Stream;
 @Service
 @AllArgsConstructor
 public class HardcoverParser implements BookParser {
+    private static final String EXTERNAL_URL_TEMPLATE = "https://hardcover.app/books/{id}";
+
     private final HardcoverBookSearchService hardcoverBookSearchService;
 
     @Override
@@ -323,6 +326,10 @@ public class HardcoverParser implements BookParser {
             book.setTitle(book.getTitle().replace(": " + book.getSubtitle(), ""));
         }
 
+        String externalUrl = UriComponentsBuilder.fromUriString(EXTERNAL_URL_TEMPLATE)
+                .build(book.getSlug())
+                .toString();
+
         builder.hardcoverId(book.getSlug())
                 .title(book.getTitle())
                 .subtitle(edition.getSubtitle())
@@ -330,7 +337,8 @@ public class HardcoverParser implements BookParser {
                 .description(book.getDescription())
                 .hardcoverReviewCount(book.getReviewsCount())
                 .thumbnailUrl(book.getImage() != null ? book.getImage().getUrl() : null)
-                .provider(MetadataProvider.Hardcover);
+                .provider(MetadataProvider.Hardcover)
+                .externalUrl(externalUrl);
 
         mapBookId(builder, book);
         mapCachedContributors(builder, book);
