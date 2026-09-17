@@ -139,6 +139,14 @@ describe('sidebar-filter', () => {
     expect(doesBookMatchFilter(book, 'unknown', ['x'], 'or')).toBe(false);
 
     expect(doesBookMatchFilter(makeBook(4, {isPhysical: true}), 'bookType', ['PHYSICAL'], 'or')).toBe(true);
+
+    const multiFormatBook = makeBook(5, {
+      primaryFile: {id: 1, bookId: 5, bookType: 'EPUB'},
+      alternativeFormats: [{id: 2, bookId: 5, bookType: 'AUDIOBOOK'}]
+    });
+    expect(doesBookMatchFilter(multiFormatBook, 'bookType', ['AUDIOBOOK'], 'or')).toBe(true);
+    expect(doesBookMatchFilter(multiFormatBook, 'bookType', ['EPUB', 'AUDIOBOOK'], 'and')).toBe(true);
+    expect(doesBookMatchFilter(multiFormatBook, 'bookType', ['CBX'], 'or')).toBe(false);
     expect(doesBookMatchFilter(book, 'author', [], 'or')).toBe(true);
     expect(doesBookMatchFilter(book, 'author', [], 'and')).toBe(false);
 

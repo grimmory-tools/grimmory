@@ -1,4 +1,4 @@
-import {ageRatingRanges, fileSizeRanges, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.config';
+import {ageRatingRanges, fileSizeRanges, getBookTypes, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.config';
 import {Book, ReadStatus} from '../../../model/book.model';
 import {BookFilterMode} from '../../../../settings/user-management/user.service';
 
@@ -79,8 +79,12 @@ export function doesBookMatchFilter(
       return effectiveMode === 'or'
         ? filterValues.some(val => book.metadata?.seriesName?.trim() === val)
         : filterValues.every(val => book.metadata?.seriesName?.trim() === val);
-    case 'bookType':
-      return book.isPhysical ? filterValues.includes('PHYSICAL') : filterValues.includes(book.primaryFile?.bookType);
+    case 'bookType': {
+      const types = getBookTypes(book);
+      return effectiveMode === 'or'
+        ? filterValues.some(val => types.includes(val as string))
+        : filterValues.every(val => types.includes(val as string));
+    }
     case 'readStatus':
       return doesBookMatchReadStatus(book, filterValues);
     case 'personalRating':

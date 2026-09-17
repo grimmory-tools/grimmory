@@ -6,6 +6,7 @@ import {
   FILTER_CONFIGS,
   FILTER_EXTRACTORS,
   FILTER_LABEL_KEYS,
+  getBookTypes,
   MATCH_SCORE_RANGES,
   NUMERIC_ID_FILTER_TYPES,
   RATING_OPTIONS_10,
@@ -79,5 +80,32 @@ describe('book-filter.config', () => {
       {id: 'Jane Artist:penciller', name: 'Jane Artist (Penciller)'},
       {id: 'Max Editor:editor', name: 'Max Editor (Editor)'}
     ]);
+  });
+
+  it('includes every format a book has, not just the primary file', () => {
+    const book = makeBook({
+      primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'},
+      alternativeFormats: [{id: 2, bookId: 1, bookType: 'AUDIOBOOK'}]
+    });
+
+    expect(getBookTypes(book)).toEqual(['EPUB', 'AUDIOBOOK']);
+    expect(FILTER_EXTRACTORS.bookType(book)).toEqual([
+      {id: 'EPUB', name: 'EPUB'},
+      {id: 'AUDIOBOOK', name: 'AUDIOBOOK'}
+    ]);
+  });
+
+  it('dedupes repeated formats and combines physical with digital formats', () => {
+    const duplicateFormats = makeBook({
+      primaryFile: {id: 1, bookId: 1, bookType: 'AUDIOBOOK'},
+      alternativeFormats: [{id: 2, bookId: 1, bookType: 'AUDIOBOOK'}]
+    });
+    expect(getBookTypes(duplicateFormats)).toEqual(['AUDIOBOOK']);
+
+    const physicalWithEbook = makeBook({
+      isPhysical: true,
+      primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'}
+    });
+    expect(getBookTypes(physicalWithEbook)).toEqual(['PHYSICAL', 'EPUB']);
   });
 });

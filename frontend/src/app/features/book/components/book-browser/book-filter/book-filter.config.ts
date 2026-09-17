@@ -199,6 +199,24 @@ const extractStringsAsFilters = (values: string[] | undefined): FilterValue[] =>
 const extractSingleString = (value: string | undefined | null): FilterValue[] =>
   value ? [{id: value, name: value}] : [];
 
+export function getBookTypes(book: Book): string[] {
+  const types = new Set<string>();
+
+  if (book.isPhysical) {
+    types.add('PHYSICAL');
+  }
+  if (book.primaryFile?.bookType) {
+    types.add(book.primaryFile.bookType);
+  }
+  book.alternativeFormats?.forEach(file => {
+    if (file.bookType) {
+      types.add(file.bookType);
+    }
+  });
+
+  return Array.from(types);
+}
+
 let languageDisplayName: (raw: string) => string = raw => raw;
 
 export function registerLanguageDisplayName(resolver: (raw: string) => string): void {
@@ -209,7 +227,7 @@ export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, 
   author: (book) => extractStringsAsFilters(book.metadata?.authors),
   category: (book) => extractStringsAsFilters(book.metadata?.categories),
   series: (book) => extractSingleString(book.metadata?.seriesName?.trim()),
-  bookType: (book) => book.isPhysical ? [{id: 'PHYSICAL', name: 'PHYSICAL'}] : extractSingleString(book.primaryFile?.bookType),
+  bookType: (book) => getBookTypes(book).map(type => ({id: type, name: type})),
   readStatus: (book) => {
     const status = book.readStatus ?? ReadStatus.UNSET;
     const validStatus = status in READ_STATUS_LABELS ? status : ReadStatus.UNSET;
