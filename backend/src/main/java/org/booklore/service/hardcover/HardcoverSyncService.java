@@ -18,6 +18,7 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.repository.UserRepository;
 import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -31,10 +32,6 @@ import org.springframework.web.client.RestClientException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Service to sync reading progress to Hardcover.
@@ -49,14 +46,12 @@ public class HardcoverSyncService {
     private static final int STATUS_CURRENTLY_READING = 2;
     private static final int STATUS_READ = 3;
     private static final int HARDCOVER_LIMIT = 1000;
-
+    
     private final RestClient restClient;
     private final HardcoverSyncSettingsService hardcoverSyncSettingsService;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
     private final UserBookProgressRepository userBookProgressRepository;
-
-    private final EntityManager entityManager;
-    private final JdbcTemplate jdbcTemplate;
 
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
@@ -67,16 +62,14 @@ public class HardcoverSyncService {
             HardcoverSyncSettingsService hardcoverSyncSettingsService,
             BookRepository bookRepository,
             UserBookProgressRepository userBookProgressRepository,
-            EntityManager entityManager,
-            JdbcTemplate jdbcTemplate,
-            RestClient restClient
+            RestClient restClient,
+            UserRepository userRepository
     ) {
         this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
         this.bookRepository = bookRepository;
         this.restClient = restClient;
         this.userBookProgressRepository = userBookProgressRepository;
-        this.entityManager = entityManager;
-        this.jdbcTemplate = jdbcTemplate;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -95,7 +88,7 @@ public class HardcoverSyncService {
             // Get user's Hardcover settings
             HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
             
-            if (!isHardcoverSyncEnabledForUser(userSettings)) {
+            if (!userSettings.isHardcoverSyncEnabledForUser()) {
                 log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
                 return;
             }
@@ -229,19 +222,6 @@ public class HardcoverSyncService {
             log.error("Failed to sync progress to Hardcover for book {} (user {}): {}", 
                     bookId, userId, e.getMessage());
         }
-    }
-
-    /**
-     * Check if Hardcover sync is enabled for a specific user.
-     */
-    private boolean isHardcoverSyncEnabledForUser(HardcoverSyncSettings userSettings) {
-        if (userSettings == null) {
-            return false;
-        }
-
-        return userSettings.isHardcoverSyncEnabled() 
-                && userSettings.getHardcoverApiKey() != null 
-                && !userSettings.getHardcoverApiKey().isBlank();
     }
 
     private String getApiToken() {
@@ -906,14 +886,13 @@ public class HardcoverSyncService {
      * Import all the data related to the books from an account from Hardcover
      * @param userId The ID of the Booklore user
      */
-    @Async
     @Transactional
     public void importHardcoverData(Long userId, boolean overwriteData) {
         log.info("Hardcover import triggered");
         if (hardcoverImportLock.compareAndSet(false, true)) {        // Get user's Hardcover settings
             try {
                 HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
-                if (!isHardcoverSyncEnabledForUser(userSettings)) {
+                if (!userSettings.isHardcoverSyncEnabledForUser()) {
                     log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
                     return;
                 }
@@ -948,34 +927,23 @@ public class HardcoverSyncService {
         if (noProgressBookIds.isEmpty()) {
             return;
         }
-        String sql = "INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES (?, ?, ?, ?, ?, ?)";
-        List<BookIdentifier> toBeInsertedBooks = new ArrayList<>();
+        List<UserBookProgressEntity> newProgressEntities = new ArrayList<>();
         for (BookIdentifier bookWithNoProgress : noProgressBookIds) {
-            if (getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookWithNoProgress) != null) {
-                toBeInsertedBooks.add(bookWithNoProgress);
+            HardcoverBookProgress hardcoverBook = getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookWithNoProgress);
+            if (hardcoverBook != null && hardcoverBook instanceof HardcoverBookProgress) {
+                java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null : hardcoverBook.getLastReadDate().toInstant();
+                UserBookProgressEntity newProgressEntity = new UserBookProgressEntity();
+                BookEntity book = bookRepository.findById(Integer.toUnsignedLong(bookWithNoProgress.getBookId())).orElseThrow();
+                newProgressEntity.setBook(book);
+                newProgressEntity.setUser(userRepository.getReferenceById(userId));
+                newProgressEntity.setDateFinished(lastReadDate);
+                newProgressEntity.setLastReadTime(lastReadDate);
+                newProgressEntity.setReadStatus(hardcoverBook.getStatus());
+                newProgressEntity.setPersonalRating(hardcoverBook.getRating());
+                newProgressEntities.add(newProgressEntity);
             }
         }
-        jdbcTemplate.batchUpdate(sql, toBeInsertedBooks, 100, (preparedStatement, bookIdentifier) -> {
-            HardcoverBookProgress hardcoverBook = getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookIdentifier);
-
-            if (hardcoverBook == null) return;
-            preparedStatement.setInt(1, Math.toIntExact(userId));
-            preparedStatement.setInt(2, bookIdentifier.getBookId());
-            java.sql.Timestamp lastReadDate = hardcoverBook.getLastReadDate() == null ? null : new java.sql.Timestamp(hardcoverBook.getLastReadDate().getTime());
-            if (lastReadDate != null) {
-                preparedStatement.setTimestamp(3, lastReadDate);
-                preparedStatement.setTimestamp(5, lastReadDate);
-            } else {
-                preparedStatement.setNull(3, Types.TIMESTAMP);
-                preparedStatement.setNull(5, Types.TIMESTAMP);
-            }
-            preparedStatement.setString(4, hardcoverBook.getStatus().toString());
-            if (hardcoverBook.getRating() != null) {
-                preparedStatement.setInt(6, hardcoverBook.getRating());
-            } else {
-                preparedStatement.setNull(6, Types.INTEGER);
-            }
-        });
+        userBookProgressRepository.saveAll(newProgressEntities);
     }
 
     private void updateExistingProgress(Long userId, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
@@ -988,17 +956,14 @@ public class HardcoverSyncService {
             if (hardcoverBook == null)
                 continue;
 
-            java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null :
-                    hardcoverBook.getLastReadDate().toInstant();
-            UserBookProgressEntity userBookProgressEntity =
-                    entityManager.find(UserBookProgressEntity.class,
-                                       existingBookProgress.getProgressId());
+            java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null : hardcoverBook.getLastReadDate().toInstant();
+            UserBookProgressEntity userBookProgressEntity = userBookProgressRepository.findById(Integer.toUnsignedLong(existingBookProgress.getProgressId())).orElseThrow();
             userBookProgressEntity.setLastReadTime(lastReadDate);
             userBookProgressEntity.setDateFinished(lastReadDate);
             userBookProgressEntity.setReadStatus(hardcoverBook.getStatus());
             userBookProgressEntity.setPersonalRating(hardcoverBook.getRating());
 
-            entityManager.merge(userBookProgressEntity);
+            userBookProgressRepository.save(userBookProgressEntity);
         }
     }
 
@@ -1013,7 +978,7 @@ public class HardcoverSyncService {
         return null;
     }
 
-    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(List<Map> user_books, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws
+    private ArrayList<HardcoverBookProgress> parseHardcoverResponse(List<Map> user_books, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws
             ParseException {
         ArrayList<HardcoverBookProgress> hardcoverBooks = new ArrayList<>();
 

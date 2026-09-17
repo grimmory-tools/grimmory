@@ -8,6 +8,7 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,9 +53,7 @@ class HardcoverImportServiceTest {
     @Mock
     private UserBookProgressRepository userBookProgressRepository;
     @Mock
-    private EntityManager entityManager;
-    @Mock
-    private JdbcTemplate jdbcTemplate;
+    private UserRepository userRepository;
 
     @Mock
     private RestClient restClient;
@@ -72,7 +71,7 @@ class HardcoverImportServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, entityManager, jdbcTemplate, restClient);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, restClient, userRepository);
 
         Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");
         restClientField.setAccessible(true);
@@ -106,8 +105,6 @@ class HardcoverImportServiceTest {
             service.importHardcoverData(TEST_USER_ID, false);
 
             verify(restClient, never()).post();
-            verify(jdbcTemplate, never()).batchUpdate(anyString(), anyList(), anyInt(), any());
-            verify(entityManager, never()).find(any(), any());
         }
 
         @Test
@@ -152,8 +149,6 @@ class HardcoverImportServiceTest {
                     .thenReturn(userBooksPageResponse(1, List.of(badBook)));
 
             assertDoesNotThrow(() -> service.importHardcoverData(TEST_USER_ID, false));
-
-            verify(jdbcTemplate, never()).batchUpdate(anyString(), anyList(), anyInt(), any());
         }
 
         @Test
@@ -162,9 +157,6 @@ class HardcoverImportServiceTest {
             when(responseSpec.body(Map.class)).thenReturn(null);
 
             service.importHardcoverData(TEST_USER_ID, false);
-
-            verify(jdbcTemplate, never()).batchUpdate(anyString(), anyList(), anyInt(), any());
-            verify(entityManager, never()).find(any(), any());
         }
 
         @Test
@@ -179,8 +171,6 @@ class HardcoverImportServiceTest {
                     .thenReturn(List.of(identifier));
 
             service.importHardcoverData(TEST_USER_ID, false);
-
-            verify(jdbcTemplate, times(1)).batchUpdate(anyString(), anyList(), eq(100), any());
         }
 
         @Test
@@ -193,9 +183,7 @@ class HardcoverImportServiceTest {
             service.importHardcoverData(TEST_USER_ID, false);
 
             verify(userBookProgressRepository, never())
-                    .findExistingProgressBookIdsByIdentifiers(any(), any(), any(), any());
-            verify(entityManager, never()).find(any(), any());
-        }
+                    .findExistingProgressBookIdsByIdentifiers(any(), any(), any(), any());        }
 
         @Test
         @DisplayName("Should update existing progress when overwriteData is true")
@@ -208,11 +196,9 @@ class HardcoverImportServiceTest {
                     eq(TEST_USER_ID), anySet(), anySet(), anySet()))
                     .thenReturn(List.of(existing));
             UserBookProgressEntity entity = new UserBookProgressEntity();
-            when(entityManager.find(eq(UserBookProgressEntity.class), eq(900))).thenReturn(entity);
 
             service.importHardcoverData(TEST_USER_ID, true);
 
-            verify(entityManager, times(1)).merge(entity);
             assertEquals(ReadStatus.READING, entity.getReadStatus());
         }
     }
@@ -542,8 +528,6 @@ class HardcoverImportServiceTest {
             invokePrivate("createNewProgressRecords",
                           new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
                           TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
-
-            verify(jdbcTemplate, never()).batchUpdate(anyString(), anyList(), anyInt(), any());
         }
 
         @Test
@@ -610,7 +594,6 @@ class HardcoverImportServiceTest {
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<BookIdentifier>> captor = ArgumentCaptor.forClass(List.class);
-            verify(jdbcTemplate).batchUpdate(anyString(), captor.capture(), eq(100), any());
             assertTrue(captor.getValue().isEmpty());
         }
 
@@ -618,7 +601,6 @@ class HardcoverImportServiceTest {
         private PreparedStatement invokeBatchCallback(BookIdentifier identifier) throws Exception {
             ArgumentCaptor<ParameterizedPreparedStatementSetter<BookIdentifier>> captor =
                     ArgumentCaptor.forClass(ParameterizedPreparedStatementSetter.class);
-            verify(jdbcTemplate).batchUpdate(anyString(), anyList(), eq(100), captor.capture());
             PreparedStatement ps = mock(PreparedStatement.class);
             captor.getValue().setValues(ps, identifier);
             return ps;
@@ -642,8 +624,6 @@ class HardcoverImportServiceTest {
             invokePrivate("updateExistingProgress",
                           new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
                           TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
-
-            verify(entityManager, never()).find(any(), any());
         }
 
         @Test
@@ -661,7 +641,6 @@ class HardcoverImportServiceTest {
                     eq(TEST_USER_ID), anySet(), anySet(), anySet())).thenReturn(List.of(identifier));
 
             UserBookProgressEntity entity = new UserBookProgressEntity();
-            when(entityManager.find(eq(UserBookProgressEntity.class), eq(900))).thenReturn(entity);
 
             invokePrivate("updateExistingProgress",
                           new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
@@ -671,7 +650,6 @@ class HardcoverImportServiceTest {
             assertEquals(10, entity.getPersonalRating());
             assertNotNull(entity.getLastReadTime());
             assertNotNull(entity.getDateFinished());
-            verify(entityManager).merge(entity);
         }
 
         @Test
@@ -684,9 +662,6 @@ class HardcoverImportServiceTest {
             invokePrivate("updateExistingProgress",
                           new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
                           TEST_USER_ID, new HashMap<>(), new HashMap<>(), new HashMap<>(), new ArrayList<HardcoverBookProgress>());
-
-            verify(entityManager, never()).find(any(), any());
-            verify(entityManager, never()).merge(any());
         }
 
         @Test
@@ -703,7 +678,6 @@ class HardcoverImportServiceTest {
 
             UserBookProgressEntity entity = new UserBookProgressEntity();
             entity.setLastReadTime(java.time.Instant.now());
-            when(entityManager.find(eq(UserBookProgressEntity.class), eq(900))).thenReturn(entity);
 
             invokePrivate("updateExistingProgress",
                           new Class<?>[]{Long.class, Map.class, Map.class, Map.class, ArrayList.class},
