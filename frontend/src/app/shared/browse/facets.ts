@@ -368,32 +368,16 @@ export function browseFilterChips<K extends string>(
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterChip<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  const definedKeys = orderedBrowseFacetKeys(served, frozen, definitions);
-  const definedKeySet = new Set<string>(definedKeys);
-  const selectionKeys = Object.keys(selections).filter(definitions.isKey);
-  const keys = [
-    ...definedKeys,
-    ...selectionKeys.filter(key => !definedKeySet.has(key)),
-  ];
+  const keys = Object.keys(selections).filter(definitions.isKey);
   return keys.flatMap(key => {
     const values = selections[key] ?? [];
-    if (values.length === 0) {
-      return [];
-    }
     const frozenValues = frozen?.[key] ?? [];
-    const frozenIndex = new Map(frozenValues.map((item, index) => [item.value, index]));
     const labels = knownFacetLabels(servedByKey.get(key)?.values ?? [], frozenValues);
-    return [...values]
-      .sort((a, b) => {
-        const indexA = frozenIndex.get(a) ?? Number.MAX_SAFE_INTEGER;
-        const indexB = frozenIndex.get(b) ?? Number.MAX_SAFE_INTEGER;
-        return indexA - indexB || a.localeCompare(b);
-      })
-      .map(value => ({
-        key,
-        value,
-        groupLabelKey: definitions.labelKey(key),
-        valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
-      }));
+    return values.map(value => ({
+      key,
+      value,
+      groupLabelKey: definitions.labelKey(key),
+      valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
+    }));
   });
 }
