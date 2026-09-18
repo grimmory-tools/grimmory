@@ -43,14 +43,104 @@ class AudiobookProcessorTest {
         Files.createFile(audiobookFolder.resolve("01.mp3"));
         Path secondTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
 
-        AudioHeader secondHeader = mock(AudioHeader.class);
-        when(secondHeader.getPreciseTrackLength()).thenReturn(24_540.0);
-        AudioFile secondAudioFile = mock(AudioFile.class);
-        when(secondAudioFile.getAudioHeader()).thenReturn(secondHeader);
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        BookFileEntity audiobookFile = book.getPrimaryBookFile();
+        AudioFile secondAudioFile = mockAudioFile(24_540.0);
 
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(secondTrack.toFile())).thenReturn(secondAudioFile);
+
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(26_760L));
+
+            audioFileIO.verify(() -> AudioFileIO.read(secondTrack.toFile()));
+        }
+
+        assertThat(audiobookFile.getDurationSeconds()).isEqualTo(51_300L);
+        assertThat(audiobookFile.getBitrate()).isEqualTo(128);
+        assertThat(audiobookFile.getCodec()).isEqualTo("MP3");
+    }
+
+    @Test
+    void setAudiobookTechnicalMetadata_extractsFirstTrackWhenDurationIsMissing() throws Exception {
+        Path audiobookFolder = Files.createDirectory(tempDir.resolve("Missing Duration"));
+        Path firstTrack = Files.createFile(audiobookFolder.resolve("01.mp3"));
+        Path secondTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        AudioFile firstAudioFile = mockAudioFile(120.0);
+        AudioFile secondAudioFile = mockAudioFile(180.0);
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(firstTrack.toFile())).thenReturn(firstAudioFile);
+            audioFileIO.when(() -> AudioFileIO.read(secondTrack.toFile())).thenReturn(secondAudioFile);
+
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(null));
+
+            audioFileIO.verify(() -> AudioFileIO.read(firstTrack.toFile()));
+            audioFileIO.verify(() -> AudioFileIO.read(secondTrack.toFile()));
+        }
+
+        assertThat(book.getPrimaryBookFile().getDurationSeconds()).isEqualTo(300L);
+    }
+
+    @Test
+    void setAudiobookTechnicalMetadata_preservesDurationForEmptyFolder() throws Exception {
+        Path audiobookFolder = Files.createDirectory(tempDir.resolve("Empty Folder"));
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(600L));
+
+            audioFileIO.verifyNoInteractions();
+        }
+
+        assertThat(book.getPrimaryBookFile().getDurationSeconds()).isEqualTo(600L);
+    }
+
+    @Test
+    void setAudiobookTechnicalMetadata_skipsInvalidLaterTracks() throws Exception {
+        Path audiobookFolder = Files.createDirectory(tempDir.resolve("Invalid Tracks"));
+        Files.createFile(audiobookFolder.resolve("01.mp3"));
+        Path zeroDurationTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
+        Path unreadableTrack = Files.createFile(audiobookFolder.resolve("03.mp3"));
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        AudioFile zeroDurationAudioFile = mockAudioFile(0.0);
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(zeroDurationTrack.toFile())).thenReturn(zeroDurationAudioFile);
+            audioFileIO.when(() -> AudioFileIO.read(unreadableTrack.toFile()))
+                    .thenThrow(new RuntimeException("unreadable"));
+
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(240L));
+
+            audioFileIO.verify(() -> AudioFileIO.read(zeroDurationTrack.toFile()));
+            audioFileIO.verify(() -> AudioFileIO.read(unreadableTrack.toFile()));
+        }
+
+        assertThat(book.getPrimaryBookFile().getDurationSeconds()).isEqualTo(240L);
+    }
+
+    @Test
+    void setAudiobookTechnicalMetadata_leavesDurationNullWhenNoDurationIsAvailable() throws Exception {
+        Path audiobookFolder = Files.createDirectory(tempDir.resolve("No Durations"));
+        Path firstTrack = Files.createFile(audiobookFolder.resolve("01.mp3"));
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        AudioFile zeroDurationAudioFile = mockAudioFile(0.0);
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(firstTrack.toFile())).thenReturn(zeroDurationAudioFile);
+
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(null));
+
+            audioFileIO.verify(() -> AudioFileIO.read(firstTrack.toFile()));
+        }
+
+        assertThat(book.getPrimaryBookFile().getDurationSeconds()).isNull();
+    }
+
+    private AudiobookProcessor createProcessor() {
         AudiobookMetadataExtractor extractor = new AudiobookMetadataExtractor(
                 new ObjectMapper(), mock(FfprobeService.class));
-        AudiobookProcessor processor = new AudiobookProcessor(
+        return new AudiobookProcessor(
                 mock(BookRepository.class),
                 mock(BookAdditionalFileRepository.class),
                 mock(BookCreatorService.class),
@@ -59,7 +149,9 @@ class AudiobookProcessorTest {
                 mock(MetadataMatchService.class),
                 mock(SidecarMetadataWriter.class),
                 extractor);
+    }
 
+    private BookEntity createFolderBasedAudiobook(Path audiobookFolder) {
         BookEntity book = new BookEntity();
         book.setLibraryPath(LibraryPathEntity.builder().path(tempDir.toString()).build());
 
@@ -73,25 +165,24 @@ class AudiobookProcessorTest {
                 .bookType(BookFileType.AUDIOBOOK)
                 .build();
         book.setBookFiles(Set.of(audiobookFile));
+        return book;
+    }
 
-        BookMetadata firstTrackMetadata = BookMetadata.builder()
+    private BookMetadata createMetadata(Long durationSeconds) {
+        return BookMetadata.builder()
                 .audiobookMetadata(AudiobookMetadata.builder()
-                        .durationSeconds(26_760L)
+                        .durationSeconds(durationSeconds)
                         .bitrate(128)
                         .codec("MP3")
                         .build())
                 .build();
+    }
 
-        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
-            audioFileIO.when(() -> AudioFileIO.read(secondTrack.toFile())).thenReturn(secondAudioFile);
-
-            processor.setAudiobookTechnicalMetadata(book, firstTrackMetadata);
-
-            audioFileIO.verify(() -> AudioFileIO.read(secondTrack.toFile()));
-        }
-
-        assertThat(audiobookFile.getDurationSeconds()).isEqualTo(51_300L);
-        assertThat(audiobookFile.getBitrate()).isEqualTo(128);
-        assertThat(audiobookFile.getCodec()).isEqualTo("MP3");
+    private AudioFile mockAudioFile(double durationSeconds) {
+        AudioHeader header = mock(AudioHeader.class);
+        when(header.getPreciseTrackLength()).thenReturn(durationSeconds);
+        AudioFile audioFile = mock(AudioFile.class);
+        when(audioFile.getAudioHeader()).thenReturn(header);
+        return audioFile;
     }
 }

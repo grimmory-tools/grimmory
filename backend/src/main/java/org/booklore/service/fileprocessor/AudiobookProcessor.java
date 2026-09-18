@@ -294,7 +294,10 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             }
         }
 
-        return hasDuration ? totalDurationSeconds : firstTrackDurationSeconds;
+        if (!hasDuration) {
+            return firstTrackDurationSeconds;
+        }
+        return totalDurationSeconds;
     }
 
     private List<BookFileEntity.AudioFileChapter> mapChapters(List<AudiobookMetadata.ChapterInfo> chapters) {
