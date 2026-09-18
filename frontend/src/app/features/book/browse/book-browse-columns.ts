@@ -14,8 +14,6 @@ import {
   type BookColumnValue,
 } from './book-browse-fields';
 
-export const BOOK_EMPTY_VALUE = '—';
-
 const DEFAULT_COLUMN_MIN_WIDTH = 84;
 const DEFAULT_COLUMN_MAX_WIDTH = 420;
 const NUMBER_FORMAT = new Intl.NumberFormat();
