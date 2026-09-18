@@ -40,6 +40,7 @@ import {createBookBrowseQueries} from './book-browse-queries';
 import {createBookBrowsePreferences} from './book-browse-preferences';
 import {createBookBrowseUrlState} from './book-browse-url-state';
 import {type BookBrowseMultiSortDialogResult} from './book-browse-multi-sort-dialog.component';
+import {type BookDetailLineSortKey} from './book-browse-fields';
 import {bookSortHasDetailLine, bookSortOptions} from './book-browse-sort';
 import {BookBrowseDetailLineService} from './book-browse-detail-line.service';
 import {cn} from '../../../shared/ui/cn';
@@ -271,7 +272,7 @@ export class BookBrowsePageComponent {
   protected readonly fetchMatchingBookIds = (): Promise<readonly number[]> =>
     this.queryClient.query(this.bookQuery.ids(this.params()));
 
-  private readonly detailLineKey = heldSignal<BookQuerySortKey | null>(
+  private readonly detailLineKey = heldSignal<BookDetailLineSortKey | null>(
     () => {
       const primary = this.sortTerms().at(0);
       return primary && !this.preferences.isDefaultSort(this.sortTerms()) && bookSortHasDetailLine(primary.key)

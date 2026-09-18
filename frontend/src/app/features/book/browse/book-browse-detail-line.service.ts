@@ -3,11 +3,9 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {bookProgressPercentage} from '../data/book-actions';
-import {type BookQuerySortKey} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
-import {BOOK_EMPTY_VALUE, formatBookValue} from './book-browse-columns';
-import {type BookColumnKind, type BookColumnValue} from './book-browse-fields';
-import {bookSortHasDetailLine} from './book-browse-sort';
+import {formatBookValue} from './book-browse-columns';
+import {type BookColumnKind, type BookColumnValue, type BookDetailLineSortKey} from './book-browse-fields';
 
 @Injectable({providedIn: 'root'})
 export class BookBrowseDetailLineService {
@@ -16,11 +14,12 @@ export class BookBrowseDetailLineService {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  lineFor(key: BookQuerySortKey, book: BookSummary): string {
+  lineFor(key: BookDetailLineSortKey, book: BookSummary): string {
     this.activeLang();
-    if (!bookSortHasDetailLine(key)) {
-      return BOOK_EMPTY_VALUE;
-    }
+    return this.valueFor(key, book) ?? '—';
+  }
+
+  private valueFor(key: BookDetailLineSortKey, book: BookSummary): string | null {
     const metadata = book.metadata;
     switch (key) {
       case 'addedOn':
@@ -62,12 +61,12 @@ export class BookBrowseDetailLineService {
     }
   }
 
-  private format(kind: BookColumnKind, value: BookColumnValue): string {
-    return formatBookValue(kind, value, key => this.transloco.translate(key)) ?? BOOK_EMPTY_VALUE;
+  private format(kind: BookColumnKind, value: BookColumnValue): string | null {
+    return formatBookValue(kind, value, key => this.transloco.translate(key));
   }
 }
 
-function progressLine(book: BookSummary): string {
+function progressLine(book: BookSummary): string | null {
   const percentage = bookProgressPercentage(book);
-  return percentage == null ? BOOK_EMPTY_VALUE : `${Math.round(percentage)}%`;
+  return percentage == null ? null : `${Math.round(percentage)}%`;
 }
