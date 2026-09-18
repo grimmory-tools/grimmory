@@ -65,7 +65,7 @@
     "@angular/cli": "^22.1.4",
     "@angular/compiler-cli": "^22.1.2",
     "@eslint/js": "^10.0.1",
-    "@openng/optimus-ui-tailwindcss": "^2.0.1",
+    "@openng/optimus-ui-tailwindcss": "^2.0.2",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/markdown-it": "^14.1.2",
