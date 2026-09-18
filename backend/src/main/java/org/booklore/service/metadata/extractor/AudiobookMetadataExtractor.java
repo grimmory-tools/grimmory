@@ -167,6 +167,21 @@ public class AudiobookMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
+    public Long extractDurationSeconds(File audioFile) {
+        try {
+            AudioHeader header = AudioFileIO.read(audioFile).getAudioHeader();
+            if (header == null) {
+                return null;
+            }
+
+            long durationSeconds = (long) header.getPreciseTrackLength();
+            return durationSeconds > 0 ? durationSeconds : null;
+        } catch (Exception e) {
+            log.warn("Failed to read duration from audio file {}: {}", audioFile.getName(), e.getMessage());
+            return null;
+        }
+    }
+
     private void extractAudioHeaderInfo(AudiobookMetadata.AudiobookMetadataBuilder builder, AudioHeader header) {
         if (header == null) {
             return;

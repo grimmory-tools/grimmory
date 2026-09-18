@@ -261,13 +261,40 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             return;
         }
 
-        audiobookFile.setDurationSeconds(audiobookDto.getDurationSeconds());
+        Long durationSeconds = audiobookFile.isFolderBased()
+                ? calculateFolderDurationSeconds(audiobookFile, audiobookDto.getDurationSeconds())
+                : audiobookDto.getDurationSeconds();
+
+        audiobookFile.setDurationSeconds(durationSeconds);
         audiobookFile.setBitrate(audiobookDto.getBitrate());
         audiobookFile.setSampleRate(audiobookDto.getSampleRate());
         audiobookFile.setChannels(audiobookDto.getChannels());
         audiobookFile.setCodec(truncate(audiobookDto.getCodec(), 50));
         audiobookFile.setChapterCount(audiobookDto.getChapterCount());
         audiobookFile.setChapters(mapChapters(audiobookDto.getChapters()));
+    }
+
+    private Long calculateFolderDurationSeconds(BookFileEntity audiobookFile, Long firstTrackDurationSeconds) {
+        List<Path> audioFiles = FileUtils.listAudioFilesInFolder(audiobookFile.getFullFilePath());
+        if (audioFiles.isEmpty()) {
+            return firstTrackDurationSeconds;
+        }
+
+        long totalDurationSeconds = 0;
+        boolean hasDuration = false;
+
+        for (int i = 0; i < audioFiles.size(); i++) {
+            Long trackDurationSeconds = i == 0 && firstTrackDurationSeconds != null
+                    ? firstTrackDurationSeconds
+                    : audiobookMetadataExtractor.extractDurationSeconds(audioFiles.get(i).toFile());
+
+            if (trackDurationSeconds != null && trackDurationSeconds > 0) {
+                totalDurationSeconds += trackDurationSeconds;
+                hasDuration = true;
+            }
+        }
+
+        return hasDuration ? totalDurationSeconds : firstTrackDurationSeconds;
     }
 
     private List<BookFileEntity.AudioFileChapter> mapChapters(List<AudiobookMetadata.ChapterInfo> chapters) {
