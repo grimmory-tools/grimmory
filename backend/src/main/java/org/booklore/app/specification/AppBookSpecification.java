@@ -1,6 +1,7 @@
 package org.booklore.app.specification;
 
 import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
@@ -349,7 +350,7 @@ public class AppBookSpecification {
                     .filter(Objects::nonNull)
                     .toList();
             if (!unknown.isEmpty()) {
-                throw new APIException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", PHYSICAL", HttpStatus.BAD_REQUEST);
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", PHYSICAL");
             }
             if (parsed.isEmpty()) return cb.conjunction();
 
