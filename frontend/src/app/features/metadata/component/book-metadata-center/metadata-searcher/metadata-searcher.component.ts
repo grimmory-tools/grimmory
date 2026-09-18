@@ -287,34 +287,11 @@ export class MetadataSearcherComponent implements OnDestroy {
   }
 
   providerHref(result: BookMetadata): string | null {
-    if (result.externalUrl) return result.externalUrl;
-
-    switch (result.provider) {
-      case 'OpenLibrary':
-        return result.openlibraryId ? `https://openlibrary.org/${result.openlibraryId.replace(/^\//, '')}` : null;
-      case 'Audible':
-        return result.audibleId ? `https://www.audible.com/pd/${result.audibleId}` : null;
-      case 'AppleBooks':
-        return this.appleBooksHref(result.applebooksId);
-      case 'Amazon':
-        return result.asin ? `https://www.amazon.com/dp/${result.asin}` : null;
-      case 'GoodReads':
-        return result.goodreadsId ? `https://www.goodreads.com/book/show/${result.goodreadsId}` : null;
-      case 'Google':
-        return result.googleId ? `https://books.google.com/books?id=${result.googleId}` : null;
-      case 'Hardcover':
-        return result.hardcoverId ? `https://hardcover.app/books/${result.hardcoverId}` : null;
-      case 'Douban':
-        return result['doubanId'] ? `https://book.douban.com/subject/${result['doubanId']}` : null;
-      case 'Lubimyczytac':
-        return result.lubimyczytacId ? `https://lubimyczytac.pl/ksiazka/${result.lubimyczytacId}/ksiazka` : null;
-      case 'Comicvine':
-        return result.comicvineId ? `https://comicvine.gamespot.com/4050-${result.comicvineId}/` : null;
-      case 'Ranobedb':
-        return result.ranobedbId ? `https://ranobedb.org/book/${result.ranobedbId}` : null;
-      default:
-        return null;
+    if (!result.externalUrl) {
+      return null;
     }
+
+    return result.externalUrl;
   }
 
   onProviderClick(event: Event): void {
@@ -332,16 +309,6 @@ export class MetadataSearcherComponent implements OnDestroy {
   truncateText(text: string | null, length: number): string {
     const safeText = text ?? '';
     return safeText.length > length ? safeText.substring(0, length) + '...' : safeText;
-  }
-
-  private appleBooksHref(applebooksId: string | undefined): string | null {
-    if (!applebooksId) return null;
-    if (!applebooksId.includes(':')) {
-      return `https://books.apple.com/us/book/id${applebooksId}`;
-    }
-    const [wrapperType, itemId] = applebooksId.split(':', 2);
-    const kind = wrapperType.toLowerCase() === 'audiobook' ? 'audiobook' : 'book';
-    return `https://books.apple.com/us/${kind}/id${itemId}`;
   }
 
   private isEnabledProviderSetting(value: unknown): value is { enabled: boolean } {
