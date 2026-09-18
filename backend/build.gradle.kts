@@ -7,10 +7,10 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.5.Final"
-    id("com.github.ben-manes.versions") version "0.61.0"
+    id("org.hibernate.orm") version "7.4.8.Final"
+    id("com.github.ben-manes.versions") version "0.62.0"
     jacoco
 }
 
@@ -120,11 +120,11 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:13.3.0")
+    implementation("org.flywaydb:flyway-mysql:13.6.0")
 
     // --- Lombok (For Clean Code) ---
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
 
     // --- Book & Image Processing ---
     val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
@@ -132,10 +132,10 @@ dependencies {
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
     // --- TwelveMonkeys ImageIO ---
-    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.14.0")
-    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.14.0")
+    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.15.0")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
     implementation("org.grimmory:epub4j-core:1.5.0")
@@ -144,10 +144,10 @@ dependencies {
     implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.junrar:junrar:8.1.0")
+    implementation("com.github.junrar:junrar:8.1.1")
 
     // --- JSON & Web Scraping ---
-    implementation("org.jsoup:jsoup:1.23.1")
+    implementation("org.jsoup:jsoup:1.23.2")
 
     // --- i18n / Language Normalization ---
     implementation("com.neovisionaries:nv-i18n:1.29")
@@ -157,20 +157,20 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.1")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.2")
+    implementation("org.apache.tika:tika-core:4.0.0")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.9")
 
     // --- Template Engine ---
-    implementation("org.freemarker:freemarker:2.3.34")
+    implementation("org.freemarker:freemarker:2.3.35")
 
     // --- Jackson 3 ---
     implementation(platform("tools.jackson:jackson-bom:3.2.2"))
@@ -243,6 +243,9 @@ tasks.named<BootRun>("bootRun") {
 
 tasks.named<BootJar>("bootJar") {
     mainClass.set("org.booklore.BookloreApplication")
+    into("/META-INF") {
+        from("../NOTICE", "../LICENSE")
+    }
 }
 
 tasks.register("exportOpenApi") {

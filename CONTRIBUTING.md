@@ -74,9 +74,9 @@ friendly to newcomers are tagged [`good first issue`][good-first-issue].
 
 ### I'd like to contribute translations
 
-Please use the [Grimmory Weblate project](https://hosted.weblate.org/engage/grimmory/) for
-non-English localization work. Weblate tracks `develop`, shows missing and outdated strings, and
-sends translation updates back to the repository as reviewed pull requests.
+Please use the [Grimmory Crowdin project](https://crowdin.com/project/grimmory) for
+non-English localization work. Crowdin's hosted GitHub integration tracks `develop`, shows missing
+and outdated strings, and sends translation updates back as reviewed pull requests.
 
 When translating, preserve placeholders exactly, such as `{{ name }}`, `{{ count }}`, and
 `{{ provider }}`. Do not translate placeholder names. Keep HTML tags intact when they appear in a
@@ -87,10 +87,10 @@ Do not hand-edit non-English translations in regular code pull requests unless e
 to do so by a maintainer. Do not pre-fill other languages' localizations with English. Empty target
 strings make it easier to surface those keys for translators than copied English.
 
-Developers should add and change source strings in `frontend/src/i18n/en/*.json`. Each JSON file is
-a Transloco domain and maps to a Weblate component. When adding a new source-string domain, add the
-English JSON file, add matching empty JSON files for each non-English locale, then import/export the
-domain from each locale `index.ts`.
+Developers should add and change source strings in `frontend/src/i18n/en.json`. Each top-level key
+is a Transloco domain. When adding a new source-string domain, add a top-level key block to the
+English file; other locales pick it up automatically through the English fallback until translations
+arrive.
 
 ### Something isn't working
 

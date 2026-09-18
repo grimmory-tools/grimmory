@@ -4,7 +4,9 @@ import com.neovisionaries.i18n.LanguageAlpha3Code;
 import com.neovisionaries.i18n.LanguageCode;
 import lombok.experimental.UtilityClass;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,14 +23,32 @@ public class LanguageNormalizer {
         }
         String trimmed = input.trim();
 
-        String primary = BCP47_SEPARATOR.split(trimmed)[0];
+        String[] subtags = BCP47_SEPARATOR.split(trimmed);
+        String primary = resolveCode(subtags[0]);
 
-        String result = resolveCode(primary);
-        if (result == null && !primary.equals(trimmed)) {
-            result = resolveCode(trimmed);
+        if (primary == null) {
+            if (subtags.length > 1) {
+                String byFullName = resolveCode(trimmed);
+                if (byFullName != null) {
+                    return byFullName;
+                }
+            }
+            return trimmed.toLowerCase(Locale.ROOT);
         }
 
-        return result != null ? result : trimmed.toLowerCase(Locale.ROOT).strip();
+        if (subtags.length == 1) {
+            return primary;
+        }
+        return canonicalizeTag(primary, subtags);
+    }
+
+    private String canonicalizeTag(String primary, String[] subtags) {
+        String tag = primary + "-" + String.join("-", Arrays.copyOfRange(subtags, 1, subtags.length));
+        try {
+            return new Locale.Builder().setLanguageTag(tag).build().toLanguageTag();
+        } catch (IllformedLocaleException e) {
+            return primary;
+        }
     }
 
     private String resolveCode(String input) {

@@ -2,9 +2,7 @@ package org.booklore.service.reader;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.RemovalCause;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.response.CbxPageDimension;
@@ -36,8 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 @Slf4j
 @Service
@@ -69,19 +65,6 @@ public class CbxReaderService {
     });
     /** Tracks books whose async cache init has already been submitted. */
     private final Set<String> cacheInitSubmitted = ConcurrentHashMap.newKeySet();
-
-    // L1 Cache: Open ZipFile handles for active reading sessions (TTL 30m)
-    @Setter
-    private Cache<String, ZipFile> zipHandleCache = Caffeine.newBuilder()
-            .maximumSize(MAX_CACHE_ENTRIES)
-            .expireAfterAccess(Duration.ofMinutes(30))
-            .removalListener((String _, ZipFile value, RemovalCause _) -> {
-                try {
-                    value.close();
-                } catch (IOException _) {
-                }
-            })
-            .build();
 
     private record CachedArchiveMetadata(List<String> imageEntries, List<CbxPageDimension> pageDimensions, long lastModified) {
         CachedArchiveMetadata {
@@ -226,61 +209,8 @@ public class CbxReaderService {
     /**
      * Reads image dimensions for all pages using only image headers (a few KB
      * per page) instead of loading the full image.
-     * <p>
-     * For ZIP/CBZ archives the fast path uses {@link java.util.zip.ZipFile}
-     * which supports random access, so each entry stream feeds directly into
-     * {@link ImageIO}. For non-ZIP archives (RAR, 7z) the first
-     * {@value #DIMENSION_PREFIX_BYTES} bytes of each entry are extracted via
-     * {@link ArchiveService#getEntryBytesPrefix} which is sufficient for all
-     * common image header formats (JPEG SOF, PNG IHDR, WebP VP8, etc.).
      */
     private List<CbxPageDimension> readDimensionsStreaming(Path cbxPath, List<String> imageEntries) {
-        // Try the ZipFile fast-path first (random access, no full extraction)
-        if (isZipPath(cbxPath)) {
-            try {
-                return readDimensionsViaZipFile(cbxPath, imageEntries);
-            } catch (IOException e) {
-                log.debug("ZipFile dimension read failed for {}, falling back to bounded extraction: {}", cbxPath.getFileName(), e.getMessage());
-            }
-        }
-
-        // Fallback for non-ZIP or on ZipFile failure: bounded prefix extraction
-        return readDimensionsViaBoundedPrefix(cbxPath, imageEntries);
-    }
-
-    /**
-     * Uses a ZipFile handle to stream each entry's image header bytes directly
-     * into ImageIO for dimension detection.  Memory cost: only the bytes
-     * ImageIO needs to decode the header (typically < 4 KB per page).
-     */
-    private List<CbxPageDimension> readDimensionsViaZipFile(Path cbxPath, List<String> imageEntries) throws IOException {
-        List<CbxPageDimension> dimensions = new ArrayList<>(imageEntries.size());
-        try (ZipFile zip = new ZipFile(cbxPath.toFile())) {
-            for (int i = 0; i < imageEntries.size(); i++) {
-                int pageNumber = i + 1;
-                String entryName = imageEntries.get(i);
-                ZipEntry entry = zip.getEntry(entryName);
-                if (entry != null) {
-                    try (InputStream is = zip.getInputStream(entry);
-                         ImageInputStream iis = ImageIO.createImageInputStream(is)) {
-                        dimensions.add(readDimensionFromImageStream(iis, pageNumber));
-                        continue;
-                    } catch (Exception e) {
-                        log.warn("Failed to read dimensions for page {} via ZipFile (entry: {}): {}", pageNumber, entryName, e.getMessage());
-                    }
-                }
-                dimensions.add(fallbackDimension(pageNumber));
-            }
-        }
-        return dimensions;
-    }
-
-    /**
-     * For non-ZIP archives (RAR, 7z): extracts only the first
-     * {@value #DIMENSION_PREFIX_BYTES} bytes of each entry, enough for image
-     * header parsing,  and reads dimensions from that bounded buffer.
-     */
-    private List<CbxPageDimension> readDimensionsViaBoundedPrefix(Path cbxPath, List<String> imageEntries) {
         List<CbxPageDimension> dimensions = new ArrayList<>(imageEntries.size());
         for (int i = 0; i < imageEntries.size(); i++) {
             int pageNumber = i + 1;
@@ -351,25 +281,7 @@ public class CbxReaderService {
         CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
         validatePageRequest(bookId, page, metadata.imageEntries());
 
-        // Tier 1: Check L1 Memory Map (OS File Cache) via open ZipFile
-        // This is the fastest path for ZIP/CBZ
-        try {
-            ZipFile zip = getZipFile(cbxPath, metadata.lastModified());
-            if (zip != null) {
-                String entryName = metadata.imageEntries().get(page - 1);
-                ZipEntry entry = zip.getEntry(entryName);
-                if (entry != null) {
-                    try (InputStream is = zip.getInputStream(entry)) {
-                        is.transferTo(outputStream);
-                        return;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            log.trace("L1 Zip cache miss or unsupported format for book {}: {}", bookId, e.getMessage());
-        }
-
-        // Tier 2: Check L3 Disk Cache (extracted files)
+        // Check L3 Disk Cache (extracted files)
         String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified());
         if (chapterCacheService.hasPage(cacheKey, page)) {
             Path cached = chapterCacheService.getCachedPage(cacheKey, page);
@@ -377,23 +289,9 @@ public class CbxReaderService {
             return;
         }
 
-        // Tier 3: Fallback to full extraction/stream (slowest)
+        // Fallback to full extraction/stream (slowest)
         String entryName = metadata.imageEntries().get(page - 1);
         archiveService.transferEntryTo(cbxPath, entryName, outputStream);
-    }
-
-    private ZipFile getZipFile(Path cbxPath, long lastModified) {
-        String cacheKey = cbxPath.toString() + ":" + lastModified;
-        return zipHandleCache.get(cacheKey, _ -> {
-            try {
-                if (isZipPath(cbxPath)) {
-                    return new ZipFile(cbxPath.toFile());
-                }
-            } catch (IOException e) {
-                log.warn("Failed to open ZipFile for {}: {}", cbxPath, e.getMessage());
-            }
-            return null;
-        });
     }
 
     private String getCacheKey(Long bookId, String bookType, long lastModified) {

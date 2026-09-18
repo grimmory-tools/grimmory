@@ -13,6 +13,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
+import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.service.file.FileFingerprint;
@@ -56,6 +57,7 @@ class BookCoverServiceTest {
     @Mock private BookQueryService bookQueryService;
     @Mock private CoverImageGenerator coverImageGenerator;
     @Mock private MetadataWriterFactory metadataWriterFactory;
+    @Mock private SidecarMetadataWriter sidecarMetadataWriter;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private Executor taskExecutor;
     @Mock private AuthenticationService authenticationService;
@@ -1168,6 +1170,60 @@ class BookCoverServiceTest {
 
             verify(metadataWriterFactory, never()).getWriter(any());
             verify(bookRepository).save(book);
+        }
+    }
+
+    @Nested
+    class SidecarWriteOnCoverUpdate {
+
+        @Test
+        void writesSidecarWhenWriteOnUpdateEnabled() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(sidecarMetadataWriter).writeSidecarMetadata(book);
+        }
+
+        @Test
+        void writesSidecarForAudiobookCoverWhenWriteOnUpdateEnabled() {
+            BookEntity book = buildBookWithAudiobookLock(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+
+            service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
+
+            verify(sidecarMetadataWriter).writeSidecarMetadata(book);
+        }
+
+        @Test
+        void skipsSidecarWhenWriteOnUpdateDisabled() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(sidecarMetadataWriter, never()).writeSidecarMetadata(any());
+        }
+
+        @Test
+        void coverUpdateSucceedsWhenSidecarWriteFails() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+            doThrow(new RuntimeException("sidecar unavailable")).when(sidecarMetadataWriter).writeSidecarMetadata(book);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(bookRepository).save(book);
+            assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
         }
     }
 }

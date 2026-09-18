@@ -18,9 +18,10 @@ public class BookFacetRegistry {
     private static final String MAGIC_SHELF_PREFIX = "magic:";
 
     private static final Set<String> NAMES = Set.of(
-            "author", "series", "genre", "tag", "mood", "language", "publisher", "library", "shelf",
+            "author", "series", "genre", "tag", "mood", "language", "publisher", "narrator", "library", "shelf",
             "file_type", "read_status", "personal_rating", "amazon_rating", "goodreads_rating",
-            "hardcover_rating", "ranobedb_rating", "age_rating", "content_rating", "match_score",
+            "hardcover_rating", "ranobedb_rating", "lubimyczytac_rating", "audible_rating", "applebooks_rating",
+            "age_rating", "content_rating", "match_score",
             "published_year", "file_size", "page_count", "shelf_status",
             "comic_character", "comic_team", "comic_location", "comic_creator");
 
@@ -48,6 +49,7 @@ public class BookFacetRegistry {
             case "mood" -> AppBookSpecification.withMoods(values, mode);
             case "language" -> AppBookSpecification.withLanguages(values, mode);
             case "publisher" -> AppBookSpecification.withPublishers(values, mode);
+            case "narrator" -> AppBookSpecification.withNarrators(values, mode);
             case "library" -> AppBookSpecification.inLibraries(values, mode);
             case "shelf" -> shelves(values, logic, userId);
             case "file_type" -> AppBookSpecification.withFileTypes(values, mode);
@@ -57,6 +59,9 @@ public class BookFacetRegistry {
             case "goodreads_rating" -> AppBookSpecification.withGoodreadsRatings(values, mode);
             case "hardcover_rating" -> AppBookSpecification.withHardcoverRatings(values, mode);
             case "ranobedb_rating" -> AppBookSpecification.withRanobedbRatings(values, mode);
+            case "lubimyczytac_rating" -> AppBookSpecification.withLubimyczytacRatings(values, mode);
+            case "audible_rating" -> AppBookSpecification.withAudibleRatings(values, mode);
+            case "applebooks_rating" -> AppBookSpecification.withApplebooksRatings(values, mode);
             case "age_rating" -> AppBookSpecification.withAgeRatings(values, mode);
             case "content_rating" -> AppBookSpecification.withContentRatings(values, mode);
             case "match_score" -> AppBookSpecification.withMatchScores(values, mode);

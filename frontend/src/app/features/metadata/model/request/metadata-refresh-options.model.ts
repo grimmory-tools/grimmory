@@ -38,6 +38,7 @@ export interface FieldOptions {
   isbn10: FieldProvider;
   language: FieldProvider;
   pageCount: FieldProvider;
+  openlibraryId: FieldProvider;
   asin: FieldProvider;
   goodreadsId: FieldProvider;
   comicvineId: FieldProvider;
@@ -57,6 +58,9 @@ export interface FieldOptions {
   audibleId: FieldProvider;
   audibleRating: FieldProvider;
   audibleReviewCount: FieldProvider;
+  applebooksId: FieldProvider;
+  applebooksRating: FieldProvider;
+  applebooksReviewCount: FieldProvider;
   moods: FieldProvider;
   tags: FieldProvider;
 }

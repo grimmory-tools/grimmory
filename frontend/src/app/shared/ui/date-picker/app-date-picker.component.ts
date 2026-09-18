@@ -38,7 +38,6 @@ export class AppDatePickerComponent extends AppDatePickerBaseDirective implement
 
   protected override pickDay(day: DayCell): void {
     this.value.set(day.iso);
-    this.touched.set(true);
     this.close(true);
   }
 

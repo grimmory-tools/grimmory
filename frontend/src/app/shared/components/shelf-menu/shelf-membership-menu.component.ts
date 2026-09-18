@@ -60,6 +60,7 @@ const FILTER_THRESHOLD = 8;
         <div class="max-h-80 overflow-y-auto overscroll-contain">
           @for (shelf of filteredShelves(); track shelf.id) {
             <app-menu-checkbox
+              [value]="shelf.id"
               [checked]="shelf.checked"
               [mixed]="shelf.mixed ?? false"
               (selected)="toggleShelf.emit({shelfId: shelf.id, checked: $event})">{{ shelf.name }}</app-menu-checkbox>
@@ -72,7 +73,7 @@ const FILTER_THRESHOLD = 8;
         @if (shelves().length > 0) {
           <app-menu-separator />
         }
-        <app-menu-item (selected)="createShelf.emit()">{{ 'shared.ui.shelfMenu.newShelf' | transloco }}</app-menu-item>
+        <app-menu-item value="create-shelf" (selected)="createShelf.emit()">{{ 'shared.ui.shelfMenu.newShelf' | transloco }}</app-menu-item>
       </ng-template>
     </app-menu>
   `,

@@ -459,14 +459,110 @@ describe('MagicShelfComponent (Part 3)', () => {
       expect(ruleCtrl.get('value')?.value).toBe('');
     });
 
-    it('should not affect form when called with already-set within_last', () => {
+    it('should preserve a compatible value when re-selecting within_last', () => {
       const ruleCtrl = component.createRule();
       ruleCtrl.get('operator')?.setValue('within_last');
       component.onOperatorChange(ruleCtrl);
       ruleCtrl.get('value')?.setValue('15');
       ruleCtrl.get('operator')?.setValue('within_last');
       component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('15');
+    });
+
+    it('should preserve a valid period and clear valueStart/valueEnd when re-selecting this_period', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'addedOn', operator: 'this_period', value: 'month'});
+      ruleCtrl.get('valueStart')?.setValue('stale-start');
+      ruleCtrl.get('valueEnd')?.setValue('stale-end');
+      ruleCtrl.get('operator')?.setValue('this_period');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('month');
+      expect(ruleCtrl.get('valueStart')?.value).toBeNull();
+      expect(ruleCtrl.get('valueEnd')?.value).toBeNull();
+    });
+
+    it('should preserve the value when switching between compatible single-value operators', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'pageCount', operator: 'equals', value: 42});
+      ruleCtrl.get('operator')?.setValue('greater_than_equal_to');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe(42);
+    });
+
+    it('should preserve a boolean value when switching between equals and not_equals', () => {
+      const ruleCtrl = component.createRule();
+      ruleCtrl.get('field')?.setValue('abridged');
+      ruleCtrl.get('operator')?.setValue('equals');
+      component.onOperatorChange(ruleCtrl);
+      ruleCtrl.get('value')?.setValue('true');
+      ruleCtrl.get('operator')?.setValue('not_equals');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('true');
+    });
+
+    it('should preserve both amount and unit when switching between within_last and older_than', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'dateFinished', operator: 'within_last', value: 5, valueEnd: 'weeks'});
+      ruleCtrl.get('operator')?.setValue('older_than');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe(5);
+      expect(ruleCtrl.get('valueEnd')?.value).toBe('weeks');
+    });
+
+    it('should preserve the array when switching between multi-value operators', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'tags', operator: 'includes_any', value: ['a', 'b']});
+      ruleCtrl.get('operator')?.setValue('includes_all');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toEqual(['a', 'b']);
+    });
+
+    it('should clear the value when switching from a multi-value operator to a single-value operator', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'tags', operator: 'includes_any', value: ['a', 'b']});
+      ruleCtrl.get('operator')?.setValue('equals');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('');
+    });
+
+    it('should clear the value when switching from a single-value operator to a multi-value operator', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'tags', operator: 'equals', value: 'foo'});
+      ruleCtrl.get('operator')?.setValue('includes_any');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toEqual([]);
+    });
+
+    it('should clear the value when switching from equals to within_last', () => {
+      const ruleCtrl = component.createRule();
+      ruleCtrl.get('field')?.setValue('dateFinished');
+      ruleCtrl.get('operator')?.setValue('equals');
+      component.onOperatorChange(ruleCtrl);
+      ruleCtrl.get('value')?.setValue('2026-07-24');
+      ruleCtrl.get('operator')?.setValue('within_last');
+      component.onOperatorChange(ruleCtrl);
       expect(ruleCtrl.get('value')?.value).toBeNull();
+      expect(ruleCtrl.get('valueEnd')?.value).toBe('days');
+    });
+
+    it('should not resurrect a value from before an is_empty round trip', () => {
+      const ruleCtrl = component.createRule();
+      ruleCtrl.get('operator')?.setValue('equals');
+      component.onOperatorChange(ruleCtrl);
+      ruleCtrl.get('value')?.setValue('foo');
+      ruleCtrl.get('operator')?.setValue('is_empty');
+      component.onOperatorChange(ruleCtrl);
+      ruleCtrl.get('operator')?.setValue('equals');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('');
+    });
+
+    it('should clear the single value when switching to in_between, which edits valueStart/valueEnd', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'dateFinished', operator: 'equals', value: '2026-07-24'});
+      ruleCtrl.get('operator')?.setValue('in_between');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('');
+    });
+
+    it('should preserve a value loaded from saved shelf data when switching to a compatible operator', () => {
+      const ruleCtrl = component.buildRuleFromData({field: 'title', operator: 'contains', value: 'Harry Potter'});
+      ruleCtrl.get('operator')?.setValue('starts_with');
+      component.onOperatorChange(ruleCtrl);
+      expect(ruleCtrl.get('value')?.value).toBe('Harry Potter');
     });
   });
 

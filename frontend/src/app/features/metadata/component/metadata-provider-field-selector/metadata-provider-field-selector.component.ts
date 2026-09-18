@@ -19,11 +19,13 @@ export class MetadataProviderFieldSelectorComponent {
   private t = inject(TranslocoService);
 
   providerGroups: { labelKey: string, fields: string[] }[] = [
+    {labelKey: 'openlibrary', fields: ['openlibraryId']},
     {labelKey: 'amazon', fields: ['asin', 'amazonRating', 'amazonReviewCount']},
     {labelKey: 'googleBooks', fields: ['googleId']},
     {labelKey: 'goodreads', fields: ['goodreadsId', 'goodreadsRating', 'goodreadsReviewCount']},
     {labelKey: 'hardcover', fields: ['hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount']},
     {labelKey: 'audible', fields: ['audibleId', 'audibleRating', 'audibleReviewCount']},
+    {labelKey: 'applebooks', fields: ['applebooksId', 'applebooksRating', 'applebooksReviewCount']},
     {labelKey: 'comicvine', fields: ['comicvineId']},
     {labelKey: 'lubimyczytac', fields: ['lubimyczytacId', 'lubimyczytacRating']},
     {labelKey: 'ranobedb', fields: ['ranobedbId', 'ranobedbRating']}
@@ -38,6 +40,7 @@ export class MetadataProviderFieldSelectorComponent {
   }
 
   private readonly allFieldNames: (keyof MetadataProviderSpecificFields)[] = [
+    'openlibraryId',
     'asin', 'amazonRating', 'amazonReviewCount',
     'googleId',
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
@@ -45,7 +48,8 @@ export class MetadataProviderFieldSelectorComponent {
     'comicvineId',
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount'
+    'audibleId', 'audibleRating', 'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
   ];
 
   private readonly syncSettingsEffect = effect(() => {

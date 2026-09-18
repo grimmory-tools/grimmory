@@ -17,6 +17,6 @@ public class AppSettingEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "val", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "val", columnDefinition = "TEXT")
     private String val;
 }

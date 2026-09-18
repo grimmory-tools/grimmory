@@ -1,12 +1,10 @@
 package org.booklore.service.reader;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import org.booklore.exception.ApiError;
 import org.booklore.exception.APIException;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.ArchiveService;
-import org.booklore.service.reader.ChapterCacheService;
 import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,6 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
-import java.util.zip.ZipFile;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,9 +38,6 @@ class CbxReaderServiceTest {
     @InjectMocks
     CbxReaderService cbxReaderService;
 
-    @Mock
-    Cache<String, ZipFile> mockZipCache;
-
     @Captor
     ArgumentCaptor<Long> longCaptor;
 
@@ -55,10 +49,6 @@ class CbxReaderServiceTest {
         bookEntity = new BookEntity();
         bookEntity.setId(1L);
         cbzPath = Path.of("/tmp/test.cbz");
-        // Manually inject the mock cache
-        cbxReaderService.setZipHandleCache(mockZipCache);
-        // Ensure zipHandleCache is mocked to return null on any key access
-        lenient().when(mockZipCache.get(anyString(), any())).thenReturn(null);
     }
 
     @Test

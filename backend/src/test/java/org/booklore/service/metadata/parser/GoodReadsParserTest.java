@@ -169,6 +169,36 @@ public class GoodReadsParserTest {
     }
 
     @Test
+    void testFetchMetadata_addsExternalUrl() throws Exception {
+        // Given
+        Book book = Book.builder()
+                .title("A Clockwork Orange")
+                .build();
+
+        FetchMetadataRequest request = FetchMetadataRequest.builder()
+                .title("A Clockwork Orange")
+                .author("Anthony Burgess")
+                .build();
+
+        // Mock enabled provider
+        mockSettings(true);
+
+        // Two expected URLs: search + GraphQL
+        mockHttpClientResponse("https://www.goodreads.com/book/auto_complete", 200, exampleSearchJsonFixture);
+        mockHttpClientResponse("https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql", 200, exampleGraphqlResponseFixture);
+
+        // When
+        List<BookMetadata> results = parser.fetchMetadata(book, request);
+
+        // Then
+        assertThat(results).isNotNull();
+        assertThat(results).as("Should return results for real book").isNotEmpty();
+
+        BookMetadata result = results.getFirst();
+        assertThat(result.getExternalUrl()).isEqualTo("https://www.goodreads.com/book/show/41817486");
+    }
+
+    @Test
     void testFetchMetadata_withRateLimitingError() throws Exception {
         // Given
         Book book = Book.builder()

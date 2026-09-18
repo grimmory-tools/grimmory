@@ -71,14 +71,17 @@ public class OidcAuthService {
             throw ApiError.FORBIDDEN.createException("OIDC is not enabled");
         }
 
-        OidcProviderDetails providerDetails = appSettingService.getAppSettings().getOidcProviderDetails();
+        var appSettings = appSettingService.getAppSettings();
+        OidcProviderDetails providerDetails = appSettings.getOidcProviderDetails();
+        String providerClientSecret = appSettings.getOidcProviderClientSecret();
+
         if (providerDetails == null || providerDetails.getIssuerUri() == null) {
             throw ApiError.FORBIDDEN.createException("OIDC is not properly configured");
         }
 
         validateRedirectUri(redirectUri, httpRequest);
 
-        var tokenResponse = oidcTokenClient.exchangeAuthorizationCode(code, codeVerifier, redirectUri, providerDetails);
+        var tokenResponse = oidcTokenClient.exchangeAuthorizationCode(code, codeVerifier, redirectUri, providerDetails, providerClientSecret);
 
         String idToken = tokenResponse.idToken();
         if (idToken == null) {

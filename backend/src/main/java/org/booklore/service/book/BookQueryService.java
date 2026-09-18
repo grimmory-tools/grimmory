@@ -55,8 +55,21 @@ public class BookQueryService {
         return findBooksPaged(visibleBooks(libraryIds, userId), pageable, userId);
     }
 
+    private Specification<BookEntity> distinct(Specification<BookEntity> filter) {
+        return (root, query, cb) -> {
+            // We need to query distinct because otherwise the `JOIN` + `LIMIT` cause the page sizes to be wrong.
+            //
+            // I've tried a few ways to just get only what we need - distinct IDs from the repository.
+            // With Projections, we ran into issues with the order by not getting applied.  I'm sure
+            // there's a better way but right now this works well enough, even though it over-fetches.
+
+            query.distinct(true);
+            return filter.toPredicate(root, query, cb);
+        };
+    }
+
     public Page<Book> findBooksPaged(Specification<BookEntity> spec, Pageable pageable, Long userId) {
-        Page<BookEntity> page = bookRepository.findAll(spec, pageable);
+        Page<BookEntity> page = bookRepository.findAll(distinct(spec), pageable);
         Map<Long, BookEntity> booksById = bookRepository
                 .findAllWithMetadataByIds(page.getContent().stream().map(BookEntity::getId).collect(Collectors.toSet()))
                 .stream()
@@ -188,6 +201,7 @@ public class BookQueryService {
             m.setSeriesTotalLocked(null);
             m.setIsbn13Locked(null);
             m.setIsbn10Locked(null);
+            m.setOpenlibraryIdLocked(null);
             m.setAsinLocked(null);
             m.setGoodreadsIdLocked(null);
             m.setComicvineIdLocked(null);
@@ -212,6 +226,9 @@ public class BookQueryService {
             m.setAudibleIdLocked(null);
             m.setAudibleRatingLocked(null);
             m.setAudibleReviewCountLocked(null);
+            m.setApplebooksIdLocked(null);
+            m.setApplebooksRatingLocked(null);
+            m.setApplebooksReviewCountLocked(null);
             m.setExternalUrlLocked(null);
             m.setCoverLocked(null);
             m.setAudiobookCoverLocked(null);
@@ -226,6 +243,7 @@ public class BookQueryService {
             m.setContentRatingLocked(null);
 
             // Strip external IDs
+            m.setOpenlibraryId(null);
             m.setAsin(null);
             m.setGoodreadsId(null);
             m.setComicvineId(null);
@@ -236,6 +254,7 @@ public class BookQueryService {
             m.setRanobedbId(null);
             m.setAudibleId(null);
             m.setDoubanId(null);
+            m.setApplebooksId(null);
 
             // Strip unused detail fields
             m.setSubtitle(null);
@@ -255,6 +274,8 @@ public class BookQueryService {
             m.setAudibleRating(null);
             m.setAudibleReviewCount(null);
             m.setLubimyczytacRating(null);
+            m.setApplebooksRating(null);
+            m.setApplebooksReviewCount(null);
 
             // Strip empty metadata collections
             if (m.getMoods() != null && m.getMoods().isEmpty()) m.setMoods(null);
@@ -319,7 +340,7 @@ public class BookQueryService {
                 m.getTitleLocked(), m.getSubtitleLocked(), m.getPublisherLocked(),
                 m.getPublishedDateLocked(), m.getDescriptionLocked(), m.getSeriesNameLocked(),
                 m.getSeriesNumberLocked(), m.getSeriesTotalLocked(), m.getIsbn13Locked(),
-                m.getIsbn10Locked(), m.getAsinLocked(), m.getGoodreadsIdLocked(),
+                m.getIsbn10Locked(), m.getOpenlibraryIdLocked(), m.getAsinLocked(), m.getGoodreadsIdLocked(),
                 m.getComicvineIdLocked(), m.getHardcoverIdLocked(), m.getHardcoverBookIdLocked(),
                 m.getDoubanIdLocked(), m.getGoogleIdLocked(), m.getPageCountLocked(),
                 m.getLanguageLocked(), m.getAmazonRatingLocked(), m.getAmazonReviewCountLocked(),
@@ -329,6 +350,7 @@ public class BookQueryService {
                 m.getLubimyczytacIdLocked(), m.getLubimyczytacRatingLocked(),
                 m.getRanobedbIdLocked(), m.getRanobedbRatingLocked(),
                 m.getAudibleIdLocked(), m.getAudibleRatingLocked(), m.getAudibleReviewCountLocked(),
+                m.getApplebooksIdLocked(), m.getApplebooksRatingLocked(), m.getApplebooksReviewCountLocked(),
                 m.getExternalUrlLocked(), m.getCoverLocked(), m.getAudiobookCoverLocked(),
                 m.getAuthorsLocked(), m.getCategoriesLocked(), m.getMoodsLocked(),
                 m.getTagsLocked(), m.getReviewsLocked(), m.getNarratorLocked(),

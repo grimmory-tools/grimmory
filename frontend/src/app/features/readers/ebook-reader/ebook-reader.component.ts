@@ -164,13 +164,10 @@ export class EbookReaderComponent implements OnInit {
       this.applyStyles();
     });
 
-    effect(
-      () => {
-        this.sidebarService.bookmarks();
-        this.updateBookmarkIndicator();
-      },
-      {allowSignalWrites: true}
-    );
+    effect(() => {
+      this.sidebarService.bookmarks();
+      this.updateBookmarkIndicator();
+    });
   }
 
   ngOnInit() {

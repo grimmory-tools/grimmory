@@ -18,6 +18,8 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -38,12 +40,12 @@ import java.util.stream.Collectors;
 public class DoubanBookParser implements BookParser {
 
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
-    private static final String BASE_BOOK_URL = "https://book.douban.com/subject/";
+    private static final String BOOK_URI_TEMPLATE = "https://book.douban.com/subject/{id}";
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^\\d]");
     private static final Pattern NON_ALPHANUMERIC_CJK_PATTERN = Pattern.compile("[^a-zA-Z0-9\\u4e00-\\u9fff]");
     private static final Pattern SLASH_SEPARATOR_PATTERN = Pattern.compile(" / ");
     // Regex to extract JSON assigned to window.__DATA__ in Douban pages (DOTALL to capture across lines)
-    private static final Pattern WINDOW_DATA_JSON_PATTERN = Pattern.compile("window\\.__DATA__\\s*=\\s*(\\{.*\\});", Pattern.DOTALL);
+    private static final Pattern WINDOW_DATA_JSON_PATTERN = Pattern.compile("window\\.__DATA__\\s*=\\s*(.*)", Pattern.DOTALL);
     // Pattern to extract numeric Douban subject id from URLs like /subject/123456/
     private static final Pattern SUBJECT_ID_PATTERN = Pattern.compile("/subject/(\\d+)/");
     // Pattern to extract rating number from class names like 'rating40' -> 40
@@ -92,7 +94,7 @@ public class DoubanBookParser implements BookParser {
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         List<BookMetadata> searchResults = getDoubanSearchResults(book, fetchMetadataRequest);
         if (searchResults == null || searchResults.isEmpty()) {
-            return null;
+            return List.of();
         }
 
         // For detailed metadata, fetch full book information for top results
@@ -117,6 +119,35 @@ public class DoubanBookParser implements BookParser {
         return detailedMetadata;
     }
 
+    private JsonNode getWindowData(Document doc) {
+        // Extract JSON data from window.__DATA__
+        var scripts = doc.getElementsByTag("script");
+        for (var scriptElement : scripts) {
+            for (var dataNode : scriptElement.dataNodes()) {
+                Matcher matcher = WINDOW_DATA_JSON_PATTERN.matcher(dataNode.getWholeData());
+                if (!matcher.find()) {
+                    continue;
+                }
+
+                String jsonData = matcher.group(1);
+                log.debug("Extracted JSON data: {}", jsonData);
+
+                // Parse just the first object we find, so we can ignore the rest
+                // of the data in the script tag.
+                try {
+                    return objectMapper.reader()
+                            .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                            .readTree(jsonData);
+                } catch (Exception e) {
+                    log.warn("Failed to parse JSON: {}", e.getMessage());
+                }
+            }
+        }
+
+        log.warn("No JSON data found in Douban search response");
+        return null;
+    }
+
     private List<BookMetadata> getDoubanSearchResults(Book book, FetchMetadataRequest request) {
         log.debug("Douban: Querying metadata for ISBN: {}, Title: {}, Author: {}, FileName: {}", request.getIsbn(), request.getTitle(), request.getAuthor(), book.getPrimaryFile() != null ? book.getPrimaryFile().getFileName() : null);
         String queryUrl = buildQueryUrl(request, book);
@@ -128,45 +159,24 @@ public class DoubanBookParser implements BookParser {
         try {
             Document doc = fetchDocument(queryUrl);
 
-            // Extract JSON data from window.__DATA__
-            String htmlContent = doc.html();
-            String jsonData = null;
+            JsonNode rootNode = getWindowData(doc);
 
-            // Use regex to find the JSON object in window.__DATA__
-            Matcher matcher = WINDOW_DATA_JSON_PATTERN.matcher(htmlContent);
-             if (matcher.find()) {
-                 jsonData = matcher.group(1);
-                 log.debug("Successfully extracted JSON data, length: {}", jsonData.length());
-             }
-
-            if (jsonData == null) {
-                log.warn("No JSON data found in Douban search response");
-                return null;
+            if (rootNode == null) {
+                return List.of();
             }
 
-            log.debug("Extracted JSON data: {}", jsonData);
-
-            // Parse JSON data
-            JsonNode rootNode;
-            try {
-                rootNode = objectMapper.readTree(jsonData);
-                log.debug("Successfully parsed JSON");
-            } catch (Exception e) {
-                log.warn("Failed to parse JSON: {}", e.getMessage());
-                return null;
-            }
             JsonNode itemsNode = rootNode.get("items");
 
             log.debug("Items node: {}", itemsNode != null ? itemsNode.toString() : "null");
 
             if (itemsNode == null || !itemsNode.isArray()) {
                 log.warn("No items found in Douban search response or items is not an array");
-                return null;
+                return List.of();
             }
 
             if (itemsNode.isEmpty()) {
                 log.info("No books found for the search query");
-                return null;
+                return List.of();
             }
 
             for (JsonNode item : itemsNode) {
@@ -215,6 +225,7 @@ public class DoubanBookParser implements BookParser {
                     if (doubanId != null && !title.isEmpty()) {
                         BookMetadata metadata = BookMetadata.builder()
                                 .provider(MetadataProvider.Douban)
+                                .externalUrl(getBookUri(doubanId))
                                 .title(title)
                                 .doubanId(doubanId)
                                 .thumbnailUrl(coverUrl)
@@ -258,10 +269,16 @@ public class DoubanBookParser implements BookParser {
          return null;
     }
 
+    private String getBookUri(String doubanBookId) {
+        return UriComponentsBuilder.fromUriString(BOOK_URI_TEMPLATE)
+                .build(doubanBookId)
+                .toString();
+    }
+
     private BookMetadata getBookMetadata(String doubanBookId) {
         log.debug("Douban: Fetching metadata for: {}", doubanBookId);
 
-        Document doc = fetchDocument(BASE_BOOK_URL + doubanBookId);
+        Document doc = fetchDocument(getBookUri(doubanBookId));
 
         List<BookReview> reviews = appSettingService.getAppSettings()
                 .getMetadataPublicReviewsSettings()
@@ -278,6 +295,7 @@ public class DoubanBookParser implements BookParser {
     private BookMetadata buildBookMetadata(Document doc, String doubanBookId, List<BookReview> reviews) {
         return BookMetadata.builder()
                 .provider(MetadataProvider.Douban)
+                .externalUrl(getBookUri(doubanBookId))
                 .title(getTitle(doc))
                 .subtitle(getSubtitle(doc))
                 .authors(new ArrayList<>(getAuthors(doc)))
@@ -686,7 +704,7 @@ public class DoubanBookParser implements BookParser {
 
     private Document fetchDocument(String url) {
         try {
-            Connection connection = Jsoup.connect(url)
+            return Jsoup.connect(url)
                     .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
                     .header("accept-language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,fr-CH;q=0.6,fr;q=0.5")
                     .header("accept-encoding", "identity")
@@ -705,13 +723,9 @@ public class DoubanBookParser implements BookParser {
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .maxBodySize(0)
-                    .followRedirects(true);
-
-            Connection.Response response = connection.execute();
-
-            // Get the response content
-            String html = response.body();
-            return Jsoup.parse(html, response.url().toString());
+                    .followRedirects(true)
+                    .execute()
+                    .parse();
         } catch (IOException e) {
             log.error("Error parsing url: {}", url, e);
             throw new RuntimeException(e);

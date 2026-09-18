@@ -63,7 +63,6 @@ export class AppDateRangePickerComponent extends AppDatePickerBaseDirective impl
 
   protected override pickDay(day: DayCell): void {
     const range = this.value();
-    this.touched.set(true);
     this.clearPreview();
     if (!range.start || range.end || day.iso < range.start) {
       this.value.set({ start: day.iso, end: '' });

@@ -221,6 +221,7 @@ export class LibraryMetadataSettingsComponent {
         categories: {p1: null, p2: null, p3: null, p4: null},
         cover: {p1: null, p2: null, p3: null, p4: null},
         pageCount: {p1: null, p2: null, p3: null, p4: null},
+        openlibraryId: {p1: null, p2: null, p3: null, p4: null},
         asin: {p1: null, p2: null, p3: null, p4: null},
         goodreadsId: {p1: null, p2: null, p3: null, p4: null},
         comicvineId: {p1: null, p2: null, p3: null, p4: null},
@@ -240,6 +241,9 @@ export class LibraryMetadataSettingsComponent {
         audibleId: {p1: null, p2: null, p3: null, p4: null},
         audibleRating: {p1: null, p2: null, p3: null, p4: null},
         audibleReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        applebooksId: {p1: null, p2: null, p3: null, p4: null},
+        applebooksRating: {p1: null, p2: null, p3: null, p4: null},
+        applebooksReviewCount: {p1: null, p2: null, p3: null, p4: null},
         moods: {p1: null, p2: null, p3: null, p4: null},
         tags: {p1: null, p2: null, p3: null, p4: null}
       }

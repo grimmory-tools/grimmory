@@ -44,23 +44,23 @@
       <app-split-button tone="primary" label="Open" (clicked)="logMenu('Open')">
         <svg lucideFolderOpen></svg>
         <app-menu ariaLabel="Open options">
-          <app-menu-item [icon]="iconFolderOpen" (selected)="logMenu('Open in place')">Open</app-menu-item>
-          <app-menu-item [icon]="iconCopy" (selected)="logMenu('Open a copy')">Open a copy</app-menu-item>
+          <app-menu-item value="open" [icon]="iconFolderOpen" (selected)="logMenu('Open in place')">Open</app-menu-item>
+          <app-menu-item value="open-copy" [icon]="iconCopy" (selected)="logMenu('Open a copy')">Open a copy</app-menu-item>
         </app-menu>
       </app-split-button>
       <app-split-button label="Download" (clicked)="logMenu('Download')">
         <svg lucideDownload></svg>
         <app-menu ariaLabel="Download options">
-          <app-menu-item [icon]="iconDownload" shortcut="⌘S" (selected)="logMenu('Download EPUB')">Download EPUB</app-menu-item>
-          <app-menu-item [icon]="iconDownload" (selected)="logMenu('Download PDF')">Download PDF</app-menu-item>
+          <app-menu-item value="download-epub" [icon]="iconDownload" shortcut="⌘S" (selected)="logMenu('Download EPUB')">Download EPUB</app-menu-item>
+          <app-menu-item value="download-pdf" [icon]="iconDownload" (selected)="logMenu('Download PDF')">Download PDF</app-menu-item>
         </app-menu>
       </app-split-button>
       <app-split-button tone="danger" variant="soft" label="Delete" (clicked)="logMenu('Delete')">
         <svg lucideTrash2></svg>
         <app-menu ariaLabel="Delete options">
-          <app-menu-item (selected)="logMenu('Delete this')">Delete this</app-menu-item>
+          <app-menu-item value="delete-this" (selected)="logMenu('Delete this')">Delete this</app-menu-item>
           <app-menu-separator />
-          <app-menu-item variant="destructive" [icon]="iconTrash" (selected)="logMenu('Delete all')">Delete all…</app-menu-item>
+          <app-menu-item value="delete-all" variant="destructive" [icon]="iconTrash" (selected)="logMenu('Delete all')">Delete all…</app-menu-item>
         </app-menu>
       </app-split-button>
     </div>
@@ -540,15 +540,15 @@
     <app-menu #richMenu ariaLabel="Item actions">
       <ng-template appMenuContent>
         <app-menu-section>Actions</app-menu-section>
-        <app-menu-item [icon]="iconPencil" shortcut="⌘E" (selected)="logMenu('Rename')">Rename</app-menu-item>
-        <app-menu-item [icon]="iconCopy" shortcut="⌘D" (selected)="logMenu('Duplicate')">Duplicate</app-menu-item>
-        <app-menu-item [icon]="iconShare" [submenu]="shareMenu">Share</app-menu-item>
+        <app-menu-item value="rename" [icon]="iconPencil" shortcut="⌘E" (selected)="logMenu('Rename')">Rename</app-menu-item>
+        <app-menu-item value="duplicate" [icon]="iconCopy" shortcut="⌘D" (selected)="logMenu('Duplicate')">Duplicate</app-menu-item>
+        <app-menu-item value="share" [icon]="iconShare" [submenu]="shareMenu">Share</app-menu-item>
 
         <app-menu-separator />
 
         <app-menu-section>View</app-menu-section>
-        <app-menu-checkbox [(checked)]="menuPinned" (selected)="logMenu('Pinned ' + $event)">Pin to top</app-menu-checkbox>
-        <app-menu-checkbox [(checked)]="menuWrap" (selected)="logMenu('Wrap ' + $event)">Wrap long titles</app-menu-checkbox>
+        <app-menu-checkbox value="pin" [(checked)]="menuPinned" (selected)="logMenu('Pinned ' + $event)">Pin to top</app-menu-checkbox>
+        <app-menu-checkbox value="wrap" [(checked)]="menuWrap" (selected)="logMenu('Wrap ' + $event)">Wrap long titles</app-menu-checkbox>
 
         <app-menu-separator />
 
@@ -568,13 +568,13 @@
 
         <app-menu-separator />
 
-        <app-menu-item variant="destructive" [icon]="iconTrash" (selected)="logMenu('Delete')">Delete…</app-menu-item>
+        <app-menu-item value="delete" variant="destructive" [icon]="iconTrash" (selected)="logMenu('Delete')">Delete…</app-menu-item>
       </ng-template>
     </app-menu>
 
     <app-menu #shareMenu="ngMenu" ariaLabel="Share targets">
-      <app-menu-item [icon]="iconShare" (selected)="logMenu('Share link')">Copy link</app-menu-item>
-      <app-menu-item [icon]="iconDownload" (selected)="logMenu('Share email')">Send by email…</app-menu-item>
+      <app-menu-item value="copy-link" [icon]="iconShare" (selected)="logMenu('Share link')">Copy link</app-menu-item>
+      <app-menu-item value="send-email" [icon]="iconDownload" (selected)="logMenu('Share email')">Send by email…</app-menu-item>
     </app-menu>
   </section>
 

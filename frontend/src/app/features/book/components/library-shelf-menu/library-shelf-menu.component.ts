@@ -43,32 +43,34 @@ export type LibraryShelfMenuTarget =
         @if (available()) {
           @switch (currentTarget.type) {
             @case ('library') {
-              <app-menu-item (selected)="actions.addPhysicalBook(currentTarget.entity.id)">
+              <app-menu-item value="add-physical-book" (selected)="actions.addPhysicalBook(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.addPhysicalBook' | transloco }}
               </app-menu-item>
-              <app-menu-item (selected)="actions.importIsbns(currentTarget.entity.id)">
+              <app-menu-item value="import-isbns" (selected)="actions.importIsbns(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.bulkIsbnImport' | transloco }}
               </app-menu-item>
               <app-menu-separator />
               <app-menu-item
+                value="edit-library"
                 (selected)="actions.editLibrary(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.editLibrary' | transloco }}
               </app-menu-item>
-              <app-menu-item (selected)="actions.rescanLibrary(currentTarget.entity)">
+              <app-menu-item value="rescan-library" (selected)="actions.rescanLibrary(currentTarget.entity)">
                 {{ 'book.shelfMenuService.library.rescanLibrary' | transloco }}
               </app-menu-item>
               <app-menu-separator />
-              <app-menu-item (selected)="actions.customFetchLibraryMetadata(currentTarget.entity.id)">
+              <app-menu-item value="custom-fetch-metadata" (selected)="actions.customFetchLibraryMetadata(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.customFetchMetadata' | transloco }}
               </app-menu-item>
-              <app-menu-item (selected)="actions.autoFetchLibraryMetadata(currentTarget.entity.id)">
+              <app-menu-item value="auto-fetch-metadata" (selected)="actions.autoFetchLibraryMetadata(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.autoFetchMetadata' | transloco }}
               </app-menu-item>
-              <app-menu-item (selected)="actions.findLibraryDuplicates(currentTarget.entity.id)">
+              <app-menu-item value="find-duplicates" (selected)="actions.findLibraryDuplicates(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.library.findDuplicates' | transloco }}
               </app-menu-item>
               <app-menu-separator />
               <app-menu-item
+                value="delete-library"
                 [icon]="trashIcon"
                 variant="destructive"
                 (selected)="actions.deleteLibrary(currentTarget.entity)">
@@ -87,12 +89,14 @@ export type LibraryShelfMenuTarget =
                 </app-menu-section>
               }
               <app-menu-item
+                value="edit-shelf"
                 [disabled]="!canManageShelf()"
                 (selected)="actions.editShelf(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.shelf.editShelf' | transloco }}
               </app-menu-item>
               <app-menu-separator />
               <app-menu-item
+                value="delete-shelf"
                 [icon]="trashIcon"
                 [disabled]="!canManageShelf()"
                 variant="destructive"
@@ -102,15 +106,17 @@ export type LibraryShelfMenuTarget =
             }
             @case ('magicShelf') {
               <app-menu-item
+                value="edit-magic-shelf"
                 [disabled]="!canManageMagicShelf()"
                 (selected)="actions.editMagicShelf(currentTarget.entity.id)">
                 {{ 'book.shelfMenuService.magicShelf.editMagicShelf' | transloco }}
               </app-menu-item>
-              <app-menu-item (selected)="actions.copyMagicShelfJson(currentTarget.entity.filterJson)">
+              <app-menu-item value="export-magic-shelf" (selected)="actions.copyMagicShelfJson(currentTarget.entity.filterJson)">
                 {{ 'book.shelfMenuService.magicShelf.exportJson' | transloco }}
               </app-menu-item>
               <app-menu-separator />
               <app-menu-item
+                value="delete-magic-shelf"
                 [icon]="trashIcon"
                 [disabled]="!canManageMagicShelf()"
                 variant="destructive"

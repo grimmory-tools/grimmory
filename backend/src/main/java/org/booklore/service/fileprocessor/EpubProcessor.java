@@ -128,6 +128,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         String lang = epubMetadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(epubMetadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(epubMetadata.getAsin(), 10));
         metadata.setAmazonRating(epubMetadata.getAmazonRating());
         metadata.setAmazonReviewCount(epubMetadata.getAmazonReviewCount());
@@ -144,6 +145,9 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         metadata.setLubimyczytacRating(epubMetadata.getLubimyczytacRating());
         metadata.setRanobedbId(truncate(epubMetadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(epubMetadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(epubMetadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(epubMetadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(epubMetadata.getApplebooksReviewCount());
         metadata.setAgeRating(epubMetadata.getAgeRating());
         metadata.setContentRating(truncate(epubMetadata.getContentRating(), 20));
 

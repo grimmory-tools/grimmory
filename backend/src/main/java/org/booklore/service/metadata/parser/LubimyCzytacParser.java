@@ -208,6 +208,7 @@ public class LubimyCzytacParser implements BookParser {
 
         BookMetadata metadata = new BookMetadata();
         metadata.setProvider(MetadataProvider.Lubimyczytac);
+        metadata.setExternalUrl(url);
 
         // Extract LubimyCzytac ID from URL (e.g., /ksiazka/123456/title -> 123456)
         String id = extractIdFromUrl(url);

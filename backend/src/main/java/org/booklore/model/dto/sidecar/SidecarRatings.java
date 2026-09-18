@@ -18,4 +18,5 @@ public class SidecarRatings {
     private SidecarRating lubimyczytac;
     private SidecarRating ranobedb;
     private SidecarRating audible;
+    private SidecarRating applebooks;
 }

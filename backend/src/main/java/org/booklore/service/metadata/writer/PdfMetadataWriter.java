@@ -266,6 +266,9 @@ public class PdfMetadataWriter implements MetadataWriter {
         helper.copyGoogleId(clear != null && clear.isGoogleId(), id -> {
             if (id != null && !id.isBlank()) customFields.put(prefix + "googleId", id);
         });
+        helper.copyOpenlibraryId(clear != null && clear.isOpenlibraryId(), id -> {
+            if (id != null && !id.isBlank()) customFields.put(prefix + "openlibraryId", id);
+        });
         helper.copyGoodreadsId(clear != null && clear.isGoodreadsId(), id -> {
             String normalized = normalizeGoodreadsId(id);
             if (normalized != null && !normalized.isBlank()) customFields.put(prefix + "goodreadsId", normalized);
@@ -288,6 +291,9 @@ public class PdfMetadataWriter implements MetadataWriter {
         helper.copyRanobedbId(clear != null && clear.isRanobedbId(), id -> {
             if (id != null && !id.isBlank()) customFields.put(prefix + "ranobedbId", id);
         });
+        helper.copyApplebooksId(clear != null && clear.isApplebooksId(), id -> {
+            if (id != null && !id.isBlank()) customFields.put(prefix + "applebooksId", id);
+        });
 
         helper.copyRating(false, rating -> addBookloreRating(customFields, prefix, "rating", rating));
         helper.copyHardcoverRating(clear != null && clear.isHardcoverRating(),
@@ -300,6 +306,8 @@ public class PdfMetadataWriter implements MetadataWriter {
                 rating -> addBookloreRating(customFields, prefix, "lubimyczytacRating", rating));
         helper.copyRanobedbRating(clear != null && clear.isRanobedbRating(),
                 rating -> addBookloreRating(customFields, prefix, "ranobedbRating", rating));
+        helper.copyApplebooksRating(clear != null && clear.isApplebooksRating(),
+                rating -> addBookloreRating(customFields, prefix, "applebooksRating", rating));
 
         helper.copyPageCount(false, pageCount -> {
             if (pageCount != null && pageCount > 0) {

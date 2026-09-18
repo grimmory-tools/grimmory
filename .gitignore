@@ -55,4 +55,5 @@ backend/src/main/resources/application-local.yaml
 /scratch
 /pnpm-debug.log
 /.pnpm-store/
+/.angular/
 .worktrees/

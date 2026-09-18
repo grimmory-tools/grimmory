@@ -350,6 +350,7 @@ public class MetadataRefreshService {
             addProviderToSet(fieldOptions.getCategories(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getCover(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getPageCount(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getOpenlibraryId(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getAsin(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getGoodreadsId(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getComicvineId(), uniqueProviders, appSettings);
@@ -368,6 +369,9 @@ public class MetadataRefreshService {
             addProviderToSet(fieldOptions.getAudibleId(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getAudibleRating(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getAudibleReviewCount(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getApplebooksId(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getApplebooksRating(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getApplebooksReviewCount(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getMoods(), uniqueProviders, appSettings);
             addProviderToSet(fieldOptions.getTags(), uniqueProviders, appSettings);
         }
@@ -391,6 +395,7 @@ public class MetadataRefreshService {
 
         var settings = appSettings.getMetadataProviderSettings();
         return switch (provider) {
+            case OpenLibrary -> settings.getOpenLibrary() != null && settings.getOpenLibrary().isEnabled();
             case Amazon -> settings.getAmazon() != null && settings.getAmazon().isEnabled();
             case Google -> settings.getGoogle() != null && settings.getGoogle().isEnabled();
             case GoodReads -> settings.getGoodReads() != null && settings.getGoodReads().isEnabled();
@@ -400,6 +405,7 @@ public class MetadataRefreshService {
             case Douban -> settings.getDouban() != null && settings.getDouban().isEnabled();
             case Lubimyczytac -> settings.getLubimyczytac() != null && settings.getLubimyczytac().isEnabled();
             case Audible -> settings.getAudible() != null && settings.getAudible().isEnabled();
+            case AppleBooks -> settings.getAppleBooks() != null && settings.getAppleBooks().isEnabled();
             default -> true;
         };
     }
@@ -583,6 +589,14 @@ public class MetadataRefreshService {
             metadata.setHardcoverReviewCount(existingMetadata.getHardcoverReviewCount());
         }
 
+        if (enabledFields.isOpenlibraryId()) {
+            if (metadataMap.containsKey(OpenLibrary)) {
+                metadata.setOpenlibraryId(metadataMap.get(OpenLibrary).getOpenlibraryId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setOpenlibraryId(existingMetadata.getOpenlibraryId());
+        }
+
         if (enabledFields.isAsin()) {
             if (metadataMap.containsKey(Amazon)) {
                 metadata.setAsin(metadataMap.get(Amazon).getAsin());
@@ -684,6 +698,30 @@ public class MetadataRefreshService {
             metadata.setAudibleReviewCount(existingMetadata.getAudibleReviewCount());
         }
 
+        if (enabledFields.isApplebooksId()) {
+            if (metadataMap.containsKey(AppleBooks)) {
+                metadata.setApplebooksId(metadataMap.get(AppleBooks).getApplebooksId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setApplebooksId(existingMetadata.getApplebooksId());
+        }
+
+        if (enabledFields.isApplebooksRating()) {
+            if (metadataMap.containsKey(AppleBooks)) {
+                metadata.setApplebooksRating(metadataMap.get(AppleBooks).getApplebooksRating());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setApplebooksRating(existingMetadata.getApplebooksRating());
+        }
+
+        if (enabledFields.isApplebooksReviewCount()) {
+            if (metadataMap.containsKey(AppleBooks)) {
+                metadata.setApplebooksReviewCount(metadataMap.get(AppleBooks).getApplebooksReviewCount());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setApplebooksReviewCount(existingMetadata.getApplebooksReviewCount());
+        }
+
         if (enabledFields.isMoods()) {
             if (metadataMap.containsKey(Hardcover)) {
                 metadata.setMoods(metadataMap.get(Hardcover).getMoods());
@@ -736,6 +774,7 @@ public class MetadataRefreshService {
             metadata.setLanguageLocked(existingMetadata.getLanguageLocked());
             metadata.setCoverLocked(existingMetadata.getCoverLocked());
             metadata.setAudiobookCoverLocked(existingMetadata.getAudiobookCoverLocked());
+            metadata.setOpenlibraryIdLocked(existingMetadata.getOpenlibraryIdLocked());
             metadata.setAsinLocked(existingMetadata.getAsinLocked());
             metadata.setGoodreadsIdLocked(existingMetadata.getGoodreadsIdLocked());
             metadata.setComicvineIdLocked(existingMetadata.getComicvineIdLocked());
@@ -758,6 +797,9 @@ public class MetadataRefreshService {
             metadata.setHardcoverReviewCountLocked(existingMetadata.getHardcoverReviewCountLocked());
             metadata.setDoubanRatingLocked(existingMetadata.getDoubanRatingLocked());
             metadata.setDoubanReviewCountLocked(existingMetadata.getDoubanReviewCountLocked());
+            metadata.setApplebooksIdLocked(existingMetadata.getApplebooksIdLocked());
+            metadata.setApplebooksRatingLocked(existingMetadata.getApplebooksRatingLocked());
+            metadata.setApplebooksReviewCountLocked(existingMetadata.getApplebooksReviewCountLocked());
             metadata.setExternalUrlLocked(existingMetadata.getExternalUrlLocked());
             metadata.setCategoriesLocked(existingMetadata.getCategoriesLocked());
             metadata.setMoodsLocked(existingMetadata.getMoodsLocked());

@@ -14,7 +14,7 @@ import {
   type TemplateRef,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { ComboboxPopupContainer } from '@angular/aria/combobox';
+import { Combobox, ComboboxPopup, ComboboxWidget } from '@angular/aria/combobox';
 import { Listbox, Option } from '@angular/aria/listbox';
 import {
   CdkConnectedOverlay,
@@ -47,10 +47,10 @@ const LOAD_MORE_PREFETCH_PX = 240;
 @Component({
   selector: 'app-autocomplete-popup',
   standalone: true,
-  imports: [NgTemplateOutlet, OverlayModule, ComboboxPopupContainer, Listbox, Option, TranslocoPipe, LucideLoaderCircle],
+  imports: [NgTemplateOutlet, OverlayModule, ComboboxPopup, ComboboxWidget, Listbox, Option, TranslocoPipe, LucideLoaderCircle],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ng-template ngComboboxPopupContainer>
+    <ng-template ngComboboxPopup [combobox]="combobox()">
       <ng-template
         [cdkConnectedOverlay]="{
           origin: origin(),
@@ -65,15 +65,17 @@ const LOAD_MORE_PREFETCH_PX = 240;
         (attach)="onOverlayAttach()">
         <div [class]="surfaceClass">
           <ul
+            ngComboboxWidget
             ngListbox
-            #list
+            #list="ngListbox"
             tabindex="-1"
             focusMode="activedescendant"
             selectionMode="explicit"
+            [activeDescendant]="list.activeDescendant()"
             [readonly]="readonly()"
             [disabled]="disabled()"
             [attr.aria-busy]="isBusy() ? 'true' : null"
-            (valuesChange)="onValuesChange($event)"
+            (valueChange)="onValuesChange($event)"
             [class]="listClass">
             @for (option of options(); track option.value) {
               <li
@@ -115,6 +117,7 @@ const LOAD_MORE_PREFETCH_PX = 240;
   `,
 })
 export class AppAutocompletePopupComponent {
+  readonly combobox = input.required<Combobox>();
   readonly origin = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly open = input(false);
   readonly disabled = input(false);
@@ -203,7 +206,7 @@ export class AppAutocompletePopupComponent {
   }
 
   clearSelection(): void {
-    this.listbox()?.values.set([]);
+    this.listbox()?.value.set([]);
   }
 
   protected onOverlayAttach(): void {

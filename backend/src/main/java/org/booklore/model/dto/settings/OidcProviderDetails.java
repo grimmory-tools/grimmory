@@ -6,7 +6,6 @@ import lombok.Data;
 public class OidcProviderDetails {
     private String providerName;
     private String clientId;
-    private String clientSecret;
     private String issuerUri;
     private String scopes;
     private ClaimMapping claimMapping;

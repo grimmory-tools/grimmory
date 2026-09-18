@@ -7,6 +7,7 @@ import {
   input,
   model,
   numberAttribute,
+  output,
   signal,
   type ElementRef,
   viewChild,
@@ -75,7 +76,8 @@ interface Star {
         [style.--star-size-coarse]="starSizeCoarse()"
         (pointerdown)="onPointerDown($event)"
         (pointerenter)="onEnter($event)"
-        (pointerleave)="onLeave($event)">
+        (pointerleave)="onLeave($event)"
+        (focusout)="markTouchedAndCollapseWhenFocusLeavesControl($event)">
         <input
           #input
           type="range"
@@ -93,9 +95,7 @@ interface Star {
           [attr.aria-invalid]="showInvalid() ? 'true' : null"
           [attr.aria-busy]="pending() ? 'true' : null"
           [attr.aria-valuetext]="valueText()"
-          (input)="onRange(input.value)"
-          (change)="touched.set(true)"
-          (blur)="onRangeBlur()" />
+          (input)="onRange(input.value)" />
         @for (star of starList(); track $index) {
           <button
             type="button"
@@ -227,7 +227,8 @@ export class AppRatingComponent implements FormValueControl<number> {
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
   readonly inputId = input('');
   readonly ariaLabel = input('');
@@ -305,8 +306,11 @@ export class AppRatingComponent implements FormValueControl<number> {
     this.value.set(Math.max(0, Math.min(this.stars(), nextValue)));
   }
 
-  protected onRangeBlur(): void {
-    this.touched.set(true);
+  protected markTouchedAndCollapseWhenFocusLeavesControl(event: FocusEvent): void {
+    const control = event.currentTarget;
+    const next = event.relatedTarget;
+    if (control instanceof HTMLElement && next instanceof Node && control.contains(next)) return;
+    this.touch.emit();
     this.collapse();
   }
 
@@ -331,7 +335,6 @@ export class AppRatingComponent implements FormValueControl<number> {
 
   protected onStarClick(value: number): void {
     if (this.disabled()) return;
-    this.touched.set(true);
 
     if (this.expandable() && !this.isExpanded()) {
       this.expanded.set(true);

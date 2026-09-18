@@ -25,7 +25,7 @@ import {
   selector: 'app-menu-radio',
   standalone: true,
   imports: [LucideCheck],
-  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['value', 'disabled'] }],
   host: {
     '[class]': 'rowClass',
     '[attr.role]': "'menuitemradio'",
@@ -47,7 +47,6 @@ import {
   `,
 })
 export class AppMenuRadioComponent<T> {
-  readonly value = input.required<T>();
   readonly shortcut = input('');
   readonly closeOnSelect = input(true, { transform: booleanAttribute });
   readonly searchLabel = input('');
@@ -58,7 +57,7 @@ export class AppMenuRadioComponent<T> {
   private readonly menuItem = inject(AppMenuAriaItemDirective);
   private readonly owner = inject(AppMenuComponent);
 
-  protected readonly checked = computed(() => this.group.isSelected(this.value()));
+  protected readonly checked = computed(() => this.group.isSelected(this.menuValue()));
   protected readonly rowClass = appMenuItemRowClass('default');
   protected readonly leadingSlotClass = appMenuLeadingSlotClass;
   protected readonly checkClass = appMenuCheckIconClass;
@@ -78,8 +77,13 @@ export class AppMenuRadioComponent<T> {
   }
 
   private choose(): void {
-    this.group.select(this.value());
-    this.selected.emit(this.value());
+    const value = this.menuValue();
+    this.group.select(value);
+    this.selected.emit(value);
     if (this.closeOnSelect()) this.owner.closeChain();
+  }
+
+  private menuValue(): T {
+    return this.menuItem.value() as T;
   }
 }

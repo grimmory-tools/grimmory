@@ -7,6 +7,7 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChild,
 } from '@angular/core';
@@ -45,7 +46,7 @@ import {
         [disabled]="isUnavailable()"
         [required]="required()"
         (change)="onInputChange(checkbox.checked)"
-        (blur)="touched.set(true)" />
+        (blur)="touch.emit()" />
       <span appControlTransition [class]="boxClass()" aria-hidden="true"></span>
       <svg appControlTransition [class]="checkIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path
@@ -68,7 +69,8 @@ export class AppCheckboxComponent implements FormCheckboxControl {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly indeterminate = model(false);

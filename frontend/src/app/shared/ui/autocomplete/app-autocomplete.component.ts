@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, model, signal, viewChild } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
-import { Combobox, ComboboxInput } from '@angular/aria/combobox';
+import { Combobox } from '@angular/aria/combobox';
 import { LucideLoaderCircle } from '@lucide/angular';
 
 import { AppControlTransitionDirective } from '../control.styles';
@@ -14,21 +14,16 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
 @Component({
   selector: 'app-autocomplete',
   standalone: true,
-  imports: [Combobox, ComboboxInput, LucideLoaderCircle, AppAutocompletePopupComponent, AppAutocompleteSelectedTagsComponent, AppControlTransitionDirective],
+  imports: [Combobox, LucideLoaderCircle, AppAutocompletePopupComponent, AppAutocompleteSelectedTagsComponent, AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      ngCombobox
-      #cb="ngCombobox"
-      filterMode="manual"
-      [readonly]="readonly()"
-      [disabled]="disabled()"
-      class="relative block w-full">
+    <div class="relative block w-full">
       <div
         appControlTransition
         #origin
         [class]="boxClass()"
+        (focusout)="markTouchedWhenFocusLeavesControl($event)"
         (pointerdown)="focusInputOnPointerdown($event, input)">
         @if (selectedTags().length) {
           <app-autocomplete-selected-tags
@@ -39,12 +34,15 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
             (remove)="clearSelectedTag(input)" />
         }
         <input
-          ngComboboxInput
+          ngCombobox
+          #cb="ngCombobox"
           #input
           type="text"
           autocomplete="off"
           spellcheck="false"
           [(value)]="query"
+          [readonly]="inputReadonly()"
+          [disabled]="disabled()"
           [attr.id]="resolvedInputId()"
           [attr.name]="name() || null"
           [placeholder]="placeholderText()"
@@ -53,9 +51,7 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
           [attr.aria-readonly]="inputReadonly() ? 'true' : null"
           [attr.aria-busy]="pending() ? 'true' : null"
           [attr.aria-describedby]="resolvedDescribedBy()"
-          [disabled]="disabled()"
           [required]="required()"
-          [readonly]="inputReadonly()"
           (input)="onType(input.value)"
           (focus)="onInputFocus()"
           (keydown.enter)="onEnter($event)"
@@ -70,6 +66,7 @@ type AppAutocompleteSelectedDisplay = 'text' | 'tag';
       </div>
 
       <app-autocomplete-popup
+        [combobox]="cb"
         [origin]="origin"
         [open]="cb.expanded()"
         [disabled]="disabled()"
@@ -143,8 +140,6 @@ export class AppAutocompleteComponent extends AppAutocompleteBaseDirective imple
   }
 
   protected onInputBlur(): void {
-    this.touched.set(true);
-
     if (this.allowCustom()) return;
 
     queueMicrotask(() => {
@@ -157,7 +152,6 @@ export class AppAutocompleteComponent extends AppAutocompleteBaseDirective imple
     this.committedOption.set(option);
     this.value.set(option.value);
     this.query.set(this.selectedDisplay() === 'tag' ? '' : option.label);
-    this.touched.set(true);
     this.closePopup();
   }
 
@@ -166,7 +160,6 @@ export class AppAutocompleteComponent extends AppAutocompleteBaseDirective imple
     this.committedOption.set(null);
     this.value.set('');
     this.query.set('');
-    this.touched.set(true);
     this.complete.emit('');
     queueMicrotask(() => input.focus());
   }

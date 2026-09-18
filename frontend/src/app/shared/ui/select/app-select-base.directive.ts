@@ -6,7 +6,6 @@ import {
   inject,
   input,
   linkedSignal,
-  model,
   output,
   type ElementRef,
   type Signal,
@@ -40,7 +39,6 @@ import {
 import { AppSelectOptionTemplateDirective } from './app-select.templates';
 import { type SelectCompareWith, type SelectOption, type SelectOptionGroup } from './app-select.options';
 
-const FILTER_TEXT_EDITING_KEYS = new Set([' ', 'Spacebar', 'Backspace', 'Delete', 'Home', 'End']);
 const defaultCompareWith = <T>(optionValue: T, selectedValue: T): boolean => Object.is(optionValue, selectedValue);
 const UNGROUPED_GROUP_TRACK_KEY = Symbol('app-select-ungrouped');
 
@@ -55,7 +53,8 @@ export abstract class AppSelectBaseDirective<T> {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppSelectSize>('md');
@@ -87,7 +86,7 @@ export abstract class AppSelectBaseDirective<T> {
   private readonly overlayService = inject(Overlay);
   private readonly combobox = viewChild(Combobox);
   private readonly overlay = viewChild(CdkConnectedOverlay);
-  private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
+  private readonly controlRoot = viewChild<ElementRef<HTMLElement>>('controlRoot');
   protected readonly optionTemplate = contentChild(AppSelectOptionTemplateDirective);
 
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
@@ -172,37 +171,23 @@ export abstract class AppSelectBaseDirective<T> {
     computation: (expanded, previous) => (expanded ? (previous?.value ?? '') : ''),
   });
 
-  protected onTriggerKeydown(event: KeyboardEvent): void {
-    const combobox = this.combobox();
-    if (this.isUnavailable() || !combobox || combobox.expanded()) return;
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter' && event.key !== ' ') return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    combobox.open();
+  protected closePopup(): void {
+    this.combobox()?.expanded.set(false);
   }
 
-  protected onFilterKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' || event.key === 'Enter' || event.key === 'Tab' || event.key.startsWith('Arrow')) return;
-
-    if (event.key.length === 1 || event.ctrlKey || event.metaKey || FILTER_TEXT_EDITING_KEYS.has(event.key)) {
-      event.stopPropagation();
-    }
+  protected onExpandedChange(expanded: boolean): void {
+    if (!expanded) this.filterText.set('');
   }
 
-  protected onTriggerBlur(event: FocusEvent): void {
-    if (this.isUnavailable()) return;
-    const relatedTarget = event.relatedTarget;
-    const overlayElement = this.overlay()?.overlayRef?.overlayElement;
-    if (relatedTarget instanceof Node && overlayElement?.contains(relatedTarget)) return;
-    this.touched.set(true);
+  protected markTouchedWhenFocusLeavesControl(event: FocusEvent): void {
+    if (this.isUnavailable() || this.focusRemainsInControl(event.relatedTarget)) return;
+    this.touch.emit();
   }
 
   protected clear(event: MouseEvent): void {
     event.stopPropagation();
     if (this.isUnavailable()) return;
     this.clearValue();
-    this.touched.set(true);
     this.cleared.emit();
   }
 
@@ -211,6 +196,13 @@ export abstract class AppSelectBaseDirective<T> {
     const query = this.filterText().trim().toLowerCase();
     if (!query) return true;
     return option.label.toLowerCase().includes(query);
+  }
+
+  private focusRemainsInControl(target: EventTarget | null): boolean {
+    if (!(target instanceof Node)) return false;
+    const controlRoot = this.controlRoot()?.nativeElement;
+    const overlayElement = this.overlay()?.overlayRef?.overlayElement;
+    return controlRoot?.contains(target) === true || overlayElement?.contains(target) === true;
   }
 
   protected valuesMatch(optionValue: T, selectedValue: T): boolean {
@@ -245,6 +237,6 @@ export abstract class AppSelectBaseDirective<T> {
   }
 
   focus(options?: FocusOptions): void {
-    this.input()?.nativeElement.focus(options);
+    this.combobox()?.element.focus(options);
   }
 }

@@ -3,6 +3,7 @@ package org.booklore.service.kobo;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.util.SecureXmlUtils;
+import org.booklore.util.epub.EpubContentReader;
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
@@ -95,21 +96,14 @@ public class KoboSpanMapExtractionService {
     }
 
     private String readOpfPath(ZipFile zipFile) throws Exception {
-        org.w3c.dom.Document containerDocument = parseXmlEntry(zipFile, CONTAINER_PATH);
-        NodeList rootfiles = containerDocument.getElementsByTagNameNS(CONTAINER_NS, "rootfile");
-        if (rootfiles.getLength() == 0) {
-            rootfiles = containerDocument.getElementsByTagName("rootfile");
-        }
-        if (rootfiles.getLength() == 0) {
-            throw new IOException("No rootfile found in container.xml");
+        ZipEntry zipEntry = findEntry(zipFile, CONTAINER_PATH);
+        if (zipEntry == null) {
+            throw new IOException("Entry not found in archive: " + CONTAINER_PATH);
         }
 
-        Element rootfile = (Element) rootfiles.item(0);
-        String fullPath = rootfile.getAttribute("full-path");
-        if (fullPath == null || fullPath.isEmpty()) {
-            throw new IOException("No full-path attribute found in container.xml");
+        try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+            return EpubContentReader.getOPFHref(inputStream);
         }
-        return fullPath;
     }
 
     private org.w3c.dom.Document parseXmlEntry(ZipFile zipFile, String entryName) throws Exception {

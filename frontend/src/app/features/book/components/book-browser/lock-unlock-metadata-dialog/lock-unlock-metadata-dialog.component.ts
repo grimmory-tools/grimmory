@@ -34,11 +34,12 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
 
   lockableFields: string[] = [
-    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',
+    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked', 'openlibraryIdLocked',
     'isbn13Locked', 'isbn10Locked', 'asinLocked', 'pageCountLocked', 'thumbnailLocked', 'languageLocked', 'coverLocked',
     'seriesNameLocked', 'seriesNumberLocked', 'seriesTotalLocked', 'authorsLocked', 'categoriesLocked', 'moodsLocked', 'tagsLocked',
     'amazonRatingLocked', 'amazonReviewCountLocked', 'goodreadsRatingLocked', 'goodreadsReviewCountLocked',
     'hardcoverRatingLocked', 'hardcoverReviewCountLocked', 'goodreadsIdLocked', 'hardcoverIdLocked', 'hardcoverBookIdLocked', 'googleIdLocked', 'comicvineIdLocked',
+    'applebooksIdLocked', 'applebooksRatingLocked', 'applebooksReviewCountLocked',
     'ranobedbIdLocked', 'ranobedbRatingLocked'
   ];
 
@@ -50,6 +51,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     descriptionLocked: 'Description',
     isbn13Locked: 'ISBN-13',
     isbn10Locked: 'ISBN-10',
+    openlibraryIdLocked: 'OpenLibrary ID',
     asinLocked: 'ASIN',
     pageCountLocked: 'Page Count',
     thumbnailLocked: 'Thumbnail',
@@ -75,6 +77,9 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     comicvineIdLocked: 'Comicvine ID',
     ranobedbIdLocked: 'Ranobedb ID',
     ranobedbRatingLocked: 'Ranobedb ★',
+    applebooksIdLocked: 'Apple Books ID',
+    applebooksRatingLocked: 'Apple Books Rating',
+    applebooksReviewCountLocked: 'Apple Books Reviews',
   };
 
   isSaving = false;

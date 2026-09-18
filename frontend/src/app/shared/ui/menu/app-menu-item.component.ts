@@ -35,7 +35,7 @@ import {
   selector: 'app-menu-item',
   standalone: true,
   imports: [NgTemplateOutlet, RouterLink, LucideDynamicIcon, LucideChevronRight, LucideLoaderCircle],
-  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['disabled', 'submenu'] }],
+  hostDirectives: [{ directive: AppMenuAriaItemDirective, inputs: ['value', 'disabled', 'submenu'] }],
   host: {
     '[class]': 'rowClass()',
     '[attr.aria-disabled]': 'inert()',

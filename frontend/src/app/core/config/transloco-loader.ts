@@ -1,32 +1,32 @@
 import {Injectable} from '@angular/core';
 import {Translation, TranslocoLoader} from '@jsverse/transloco';
 import {from, of, Observable} from 'rxjs';
-import en from '../../../i18n/en';
+import en from '../../../i18n/en.json';
 
 export const EN_TRANSLATIONS: Translation = en;
 
-// To add a new language: create src/i18n/<lang>/ with domain JSONs + index.ts, then add an entry here.
+// To add a new language: create src/i18n/<lang>.json, then add an entry here.
 const LAZY_LANG_LOADERS: Record<string, () => Promise<{default: Translation}>> = {
-  es: () => import('../../../i18n/es'),
-  it: () => import('../../../i18n/it'),
-  de: () => import('../../../i18n/de'),
-  fr: () => import('../../../i18n/fr'),
-  nl: () => import('../../../i18n/nl'),
-  pl: () => import('../../../i18n/pl'),
-  pt: () => import('../../../i18n/pt'),
-  ru: () => import('../../../i18n/ru'),
-  hr: () => import('../../../i18n/hr'),
-  sv: () => import('../../../i18n/sv'),
-  zh: () => import('../../../i18n/zh'),
-  ja: () => import('../../../i18n/ja'),
-  hu: () => import('../../../i18n/hu'),
-  sl: () => import('../../../i18n/sl'),
-  sk: () => import('../../../i18n/sk'),
-  uk: () => import('../../../i18n/uk'),
-  id: () => import('../../../i18n/id'),
-  da: () => import('../../../i18n/da'),
-  ko: () => import('../../../i18n/ko'),
-  cs: () => import('../../../i18n/cs'),
+  es: () => import('../../../i18n/es.json'),
+  it: () => import('../../../i18n/it.json'),
+  de: () => import('../../../i18n/de.json'),
+  fr: () => import('../../../i18n/fr.json'),
+  nl: () => import('../../../i18n/nl.json'),
+  pl: () => import('../../../i18n/pl.json'),
+  pt: () => import('../../../i18n/pt.json'),
+  ru: () => import('../../../i18n/ru.json'),
+  hr: () => import('../../../i18n/hr.json'),
+  sv: () => import('../../../i18n/sv.json'),
+  zh: () => import('../../../i18n/zh.json'),
+  ja: () => import('../../../i18n/ja.json'),
+  hu: () => import('../../../i18n/hu.json'),
+  sl: () => import('../../../i18n/sl.json'),
+  sk: () => import('../../../i18n/sk.json'),
+  uk: () => import('../../../i18n/uk.json'),
+  id: () => import('../../../i18n/id.json'),
+  da: () => import('../../../i18n/da.json'),
+  ko: () => import('../../../i18n/ko.json'),
+  cs: () => import('../../../i18n/cs.json'),
 };
 
 export const AVAILABLE_LANGS = ['en', ...Object.keys(LAZY_LANG_LOADERS)];

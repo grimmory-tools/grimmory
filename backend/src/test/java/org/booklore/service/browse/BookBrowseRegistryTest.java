@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-        "spring.datasource.url=jdbc:h2:mem:browsetest;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE",
+        "spring.datasource.url=jdbc:h2:mem:browsetest;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE;MODE=MYSQL",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
@@ -144,6 +144,7 @@ class BookBrowseRegistryTest {
     private AuthorEntity author(String name) {
         return authors.computeIfAbsent(name, n -> {
             AuthorEntity e = AuthorEntity.builder().name(n).build();
+            e.computeSortName();
             em.persist(e);
             return e;
         });
@@ -173,6 +174,49 @@ class BookBrowseRegistryTest {
         em.flush();
         assertThat(sortedIds("title", user.getId())).containsExactly(a, b, c);
         assertThat(sortedIds("-title", user.getId())).containsExactly(c, b, a);
+    }
+
+    @Test
+    void authorAscendingAndDescending() {
+        Long a = book("Alpha", null, null, Instant.now(), List.of(), List.of("Ned McDodd"), null).getId();
+        Long b = book("Bravo", null, null, Instant.now(), List.of(), List.of("Sally O'Malley"), null).getId();
+        Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
+        em.flush();
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(c, a, b);
+        assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, a, c);
+    }
+
+    @Test
+    void emptyAuthorAscendingAndDescending() {
+        Long a = book("Alpha", null, null, Instant.now(), List.of(), List.of(), null).getId();
+        Long b = book("Bravo", null, null, Instant.now(), List.of(), List.of("Sally O'Malley"), null).getId();
+        Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
+        em.flush();
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(a, c, b);
+        assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, c, a);
+    }
+
+    @Test
+    void multiAuthorAscendingAndDescending() {
+        Long a = book("Alpha", null, null, Instant.now(), List.of(), List.of("Ned McDodd", "Euchariah Who"), null).getId();
+        Long b = book("Bravo", null, null, Instant.now(), List.of(), List.of("Sally O'Malley", "Axl"), null).getId();
+        Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
+        em.flush();
+
+        // These are the same because of how the sorting works with multiple authors.
+        // `b` has both the highest and lowest.
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(b, a, c);
+        assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, a, c);
+    }
+
+    @Test
+    void authorSortNameAscendingAndDescending() {
+        Long a = book("Alpha", null, null, Instant.now(), List.of(), List.of("Red McDodd"), null).getId();
+        Long b = book("Bravo", null, null, Instant.now(), List.of(), List.of("Sally O'Malley"), null).getId();
+        Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
+        em.flush();
+        assertThat(sortedIds("authorSortName", user.getId())).containsExactly(a, b, c);
+        assertThat(sortedIds("-authorSortName", user.getId())).containsExactly(c, b, a);
     }
 
     @Test

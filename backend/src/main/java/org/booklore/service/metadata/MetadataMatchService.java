@@ -69,6 +69,8 @@ public class MetadataMatchService {
         if (isPositive(metadata.getLubimyczytacRating(), metadata.getLubimyczytacRatingLocked())) score += weights.getLubimyczytacRating();
         if (isPositive(metadata.getAudibleRating(), metadata.getAudibleRatingLocked())) score += weights.getAudibleRating();
         if (isPositive(metadata.getAudibleReviewCount(), metadata.getAudibleReviewCountLocked())) score += weights.getAudibleReviewCount();
+        if (isPositive(metadata.getApplebooksRating(), metadata.getApplebooksRatingLocked())) score += weights.getApplebooksRating();
+        if (isPositive(metadata.getApplebooksReviewCount(), metadata.getApplebooksReviewCountLocked())) score += weights.getApplebooksReviewCount();
         if (metadata.getCoverUpdatedOn() != null || Boolean.TRUE.equals(metadata.getCoverLocked())) score += weights.getCoverImage();
 
         return (score / totalWeight) * 100f;

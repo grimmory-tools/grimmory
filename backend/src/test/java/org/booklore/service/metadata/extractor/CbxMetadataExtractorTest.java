@@ -1037,6 +1037,36 @@ class CbxMetadataExtractorTest {
 
             assertThat(cover).isNull();
         }
+
+        @Test
+        void extractsCoverWithNaturalNumberComparisons() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
+
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "img_000002.jpg", createMinimalJpeg(2),
+                    "img_0001.jpg", expected,
+                    "img_003.jpg", createMinimalJpeg(3)
+            ));
+
+            byte[] actual = extractor.extractCover(cbzPath);
+
+            assertThat(actual).isEqualTo(expected);
+        }
+
+        @Test
+        void extractsCoverWithBigIntegerNumbers() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
+
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "9789031433940_002.jpg", createMinimalJpeg(3),
+                    "9789031433940_000.jpg", expected,
+                    "9789031433940_001.jpg", createMinimalJpeg(2)
+            ));
+
+            byte[] actual = extractor.extractCover(cbzPath);
+
+            assertThat(actual).isEqualTo(expected);
+        }
     }
 
     @Nested

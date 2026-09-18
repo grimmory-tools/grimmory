@@ -115,6 +115,7 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
         String lang = fb2Metadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(fb2Metadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(fb2Metadata.getAsin(), 10));
         metadata.setAmazonRating(fb2Metadata.getAmazonRating());
         metadata.setAmazonReviewCount(fb2Metadata.getAmazonReviewCount());
@@ -128,6 +129,9 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
         metadata.setComicvineId(truncate(fb2Metadata.getComicvineId(), 100));
         metadata.setRanobedbId(truncate(fb2Metadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(fb2Metadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(fb2Metadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(fb2Metadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(fb2Metadata.getApplebooksReviewCount());
 
         bookCreatorService.addAuthorsToBook(fb2Metadata.getAuthors(), bookEntity);
 

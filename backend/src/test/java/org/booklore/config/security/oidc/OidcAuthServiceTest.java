@@ -78,7 +78,7 @@ class OidcAuthServiceTest {
         var expectedResponse = ResponseEntity.ok(AccessTokenDto.builder().accessToken("jwt").build());
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -138,7 +138,7 @@ class OidcAuthServiceTest {
         var tokenResponse = tokenResponse("access-token", null);
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
 
         assertThatThrownBy(() -> oidcAuthService.exchangeCodeForTokens(CODE, CODE_VERIFIER, REDIRECT_URI, NONCE, mockRequest()))
@@ -155,7 +155,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
                 .thenReturn(claims);
@@ -178,7 +178,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -203,7 +203,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -227,7 +227,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -296,7 +296,7 @@ class OidcAuthServiceTest {
         user.setEmail("old@example.com");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -325,7 +325,7 @@ class OidcAuthServiceTest {
                 .build();
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -353,7 +353,7 @@ class OidcAuthServiceTest {
                 .id(1L).username("jdoe").provisioningMethod(ProvisioningMethod.LOCAL).build();
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -379,7 +379,7 @@ class OidcAuthServiceTest {
                 .oidcSubject("sub-new").oidcIssuer(ISSUER_URI).build();
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -409,7 +409,7 @@ class OidcAuthServiceTest {
         var userClaims = userClaims("unknown", "sub-unknown");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -437,7 +437,7 @@ class OidcAuthServiceTest {
         user.setAvatarUrl("old-url");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -467,7 +467,7 @@ class OidcAuthServiceTest {
                 .build();
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -496,7 +496,7 @@ class OidcAuthServiceTest {
                 .build();
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails()))
+        when(oidcTokenClient.exchangeAuthorizationCode(CODE, CODE_VERIFIER, REDIRECT_URI, settings.getOidcProviderDetails(), null))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, "access-token"))
                 .thenReturn(claims);
@@ -525,7 +525,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("https://example.com/oauth2-callback"), any()))
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("https://example.com/oauth2-callback"), any(), any()))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
                 .thenReturn(claims);
@@ -548,7 +548,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("booklore://oauth2-callback"), any()))
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("booklore://oauth2-callback"), any(), any()))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
                 .thenReturn(claims);
@@ -572,7 +572,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("booklore://oauth2-callback"), any()))
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("booklore://oauth2-callback"), any(), any()))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
                 .thenReturn(claims);
@@ -606,7 +606,7 @@ class OidcAuthServiceTest {
         var user = existingOidcUser("jdoe", "sub-123");
 
         when(appSettingService.getAppSettings()).thenReturn(settings);
-        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("grimmory://some-other-path"), any()))
+        when(oidcTokenClient.exchangeAuthorizationCode(eq(CODE), eq(CODE_VERIFIER), eq("grimmory://some-other-path"), any(), any()))
                 .thenReturn(tokenResponse);
         when(oidcTokenValidator.validateIdToken("id-token", ISSUER_URI, CLIENT_ID, NONCE, null))
                 .thenReturn(claims);

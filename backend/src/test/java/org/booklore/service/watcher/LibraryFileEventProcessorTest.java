@@ -9,7 +9,6 @@ import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.library.LibraryProcessingService;
-import org.booklore.service.library.LibraryScanListener;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,7 +34,6 @@ class LibraryFileEventProcessorTest {
     @Mock private BookFileTransactionalHandler bookFileTransactionalHandler;
     @Mock private BookFilePersistenceService bookFilePersistenceService;
     @Mock private LibraryProcessingService libraryProcessingService;
-    @Mock private LibraryScanListener libraryScanListener;
     @Mock private PendingDeletionPool pendingDeletionPool;
 
     private LibraryFileEventProcessor processor;
@@ -54,7 +51,7 @@ class LibraryFileEventProcessorTest {
         mocks = MockitoAnnotations.openMocks(this);
         processor = new LibraryFileEventProcessor(
                 libraryRepository, bookRepository, bookFileTransactionalHandler,
-                bookFilePersistenceService, libraryProcessingService, libraryScanListener, pendingDeletionPool);
+                bookFilePersistenceService, libraryProcessingService, pendingDeletionPool);
 
         libraryPath = new LibraryPathEntity();
         libraryPath.setId(1L);
@@ -434,7 +431,7 @@ class LibraryFileEventProcessorTest {
             // Reinitialize so tearDown's shutdown doesn't fail
             processor = new LibraryFileEventProcessor(
                     libraryRepository, bookRepository, bookFileTransactionalHandler,
-                    bookFilePersistenceService, libraryProcessingService, libraryScanListener, pendingDeletionPool);
+                    bookFilePersistenceService, libraryProcessingService, pendingDeletionPool);
         }
     }
 }

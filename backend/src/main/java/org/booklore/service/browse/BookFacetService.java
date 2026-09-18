@@ -24,6 +24,9 @@ import org.booklore.model.dto.browse.FacetGroupsResponse.FacetLink;
 import org.booklore.model.dto.browse.FacetGroupsResponse.Metadata;
 import org.booklore.model.dto.browse.FacetGroupsResponse.Properties;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -45,15 +47,58 @@ public class BookFacetService {
     private static final int MAX_VALUES = 100;
 
     private static final List<FacetDef> FACETS = List.of(
-            new FacetDef("author", "Authors", root -> metadata(root).join("authors", JoinType.LEFT).get("name")),
-            new FacetDef("genre", "Genre", root -> metadata(root).join("categories", JoinType.LEFT).get("name")),
-            new FacetDef("tag", "Tags", root -> metadata(root).join("tags", JoinType.LEFT).get("name")),
-            new FacetDef("mood", "Moods", root -> metadata(root).join("moods", JoinType.LEFT).get("name")),
-            new FacetDef("series", "Series", root -> metadata(root).get("seriesName")),
-            new FacetDef("publisher", "Publisher", root -> metadata(root).get("publisher")),
-            new FacetDef("language", "Language", root -> metadata(root).get("language")),
-            new FacetDef("narrator", "Narrator", root -> metadata(root).get("narrator")),
-            new FacetDef("file_type", "File Type", root -> root.join("bookFiles", JoinType.LEFT).get("bookType")));
+            new FacetDef("author", "Authors", (cb, root, userId) -> metadata(root).join("authors", JoinType.LEFT).get("name")),
+            new FacetDef("genre", "Genre", (cb, root, userId) -> metadata(root).join("categories", JoinType.LEFT).get("name")),
+            new FacetDef("tag", "Tags", (cb, root, userId) -> metadata(root).join("tags", JoinType.LEFT).get("name")),
+            new FacetDef("mood", "Moods", (cb, root, userId) -> metadata(root).join("moods", JoinType.LEFT).get("name")),
+            new FacetDef("series", "Series", (cb, root, userId) -> metadata(root).get("seriesName")),
+            new FacetDef("publisher", "Publisher", (cb, root, userId) -> metadata(root).get("publisher")),
+            new FacetDef("language", "Language", (cb, root, userId) -> metadata(root).get("language")),
+            new FacetDef("narrator", "Narrator", (cb, root, userId) -> metadata(root).get("narrator")),
+            new FacetDef("file_type", "File Type", (cb, root, userId) -> {
+                Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
+                files.on(cb.isTrue(files.get("isBookFormat")));
+                return files.get("bookType");
+            }),
+            new FacetDef("content_rating", "Content Rating", (cb, root, userId) -> metadata(root).get("contentRating")),
+            new FacetDef("amazon_rating", "Amazon Rating", (cb, root, userId) -> metadata(root).get("amazonRating")),
+            new FacetDef("goodreads_rating", "Goodreads Rating", (cb, root, userId) -> metadata(root).get("goodreadsRating")),
+            new FacetDef("hardcover_rating", "Hardcover Rating", (cb, root, userId) -> metadata(root).get("hardcoverRating")),
+            new FacetDef("ranobedb_rating", "RanobeDB Rating", (cb, root, userId) -> metadata(root).get("ranobedbRating")),
+            new FacetDef("lubimyczytac_rating", "Lubimyczytac Rating", (cb, root, userId) -> metadata(root).get("lubimyczytacRating")),
+            new FacetDef("audible_rating", "Audible Rating", (cb, root, userId) -> metadata(root).get("audibleRating")),
+            new FacetDef("applebooks_rating", "Apple Books Rating", (cb, root, userId) -> metadata(root).get("applebooksRating")),
+            new FacetDef("age_rating", "Age Rating", (cb, root, userId) -> metadata(root).get("ageRating")),
+            new FacetDef("page_count", "Page Count", (cb, root, userId) -> metadata(root).get("pageCount")),
+            new FacetDef("match_score", "Match Score", (cb, root, userId) -> root.get("metadataMatchScore")),
+            new FacetDef("published_year", "Published Year", (cb, root, userId) ->
+                    cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))),
+            new FacetDef("library", "Library", (cb, root, userId) -> root.join("library").get("id")),
+            new FacetDef("shelf", "Shelf", (cb, root, userId) -> root.join("shelves", JoinType.LEFT).get("id")),
+            new FacetDef("shelf_status", "Shelf Status", (cb, root, userId) -> cb.<String>selectCase()
+                    .when(cb.isNotEmpty(root.get("shelves")), "shelved")
+                    .otherwise("unshelved")),
+            new FacetDef("read_status", "Read Status", (cb, root, userId) -> {
+                Join<BookEntity, UserBookProgressEntity> progress = root.join("userBookProgress", JoinType.LEFT);
+                progress.on(cb.equal(progress.get("user").get("id"), userId));
+                return cb.<ReadStatus>selectCase()
+                        .when(progress.get("id").isNull(), ReadStatus.UNSET)
+                        .otherwise(progress.get("readStatus"));
+            }),
+            new FacetDef("personal_rating", "Personal Rating", (cb, root, userId) -> {
+                Join<BookEntity, UserBookProgressEntity> progress = root.join("userBookProgress");
+                progress.on(cb.equal(progress.get("user").get("id"), userId));
+                return progress.get("personalRating");
+            }),
+            new FacetDef("file_size", "File Size", (cb, root, userId) -> {
+                Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
+                files.on(cb.isTrue(files.get("isBookFormat")));
+                return files.get("fileSizeKb");
+            }),
+            new FacetDef("comic_character", "Comic Characters", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("characters", JoinType.LEFT).get("name")),
+            new FacetDef("comic_team", "Comic Teams", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("teams", JoinType.LEFT).get("name")),
+            new FacetDef("comic_location", "Comic Locations", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("locations", JoinType.LEFT).get("name")),
+            new FacetDef("comic_creator", "Comic Creators", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name")));
 
     private final AuthenticationService authenticationService;
     private final BookFilterSpecifications filterSpecifications;
@@ -83,7 +128,7 @@ public class BookFacetService {
             groups.add(sortGroup(preserved));
             for (FacetDef def : FACETS) {
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(toGroup(def, count(def, base), facet, preserved));
+                groups.add(toGroup(def, count(def, base, userId), facet, preserved));
             }
             List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
             return new FacetGroupsResponse(links, groups);
@@ -95,11 +140,11 @@ public class BookFacetService {
         cache.invalidateAll();
     }
 
-    private List<FacetCount> count(FacetDef def, Specification<BookEntity> base) {
+    private List<FacetCount> count(FacetDef def, Specification<BookEntity> base, Long userId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<BookEntity> root = cq.from(BookEntity.class);
-        Expression<?> value = def.value().apply(root);
+        Expression<?> value = def.value().apply(cb, root, userId);
         Expression<Long> count = cb.countDistinct(root.get("id"));
 
         List<Predicate> predicates = new ArrayList<>();
@@ -157,7 +202,11 @@ public class BookFacetService {
         return root.join("metadata", JoinType.LEFT);
     }
 
-    private record FacetDef(String key, String title, Function<Root<BookEntity>, Expression<?>> value) {
+    private interface FacetValueSource {
+        Expression<?> apply(CriteriaBuilder cb, Root<BookEntity> root, Long userId);
+    }
+
+    private record FacetDef(String key, String title, FacetValueSource value) {
     }
 
     private record FacetCount(String value, long count) {

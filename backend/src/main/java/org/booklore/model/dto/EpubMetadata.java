@@ -28,6 +28,9 @@ public class EpubMetadata {
     private String asin;
     private Double amazonRating;
     private Integer amazonReviewCount;
+    private String applebooksId;
+    private Double applebooksRating;
+    private Integer applebooksReviewCount;
     private String goodreadsId;
     private String comicvineId;
     private Double goodreadsRating;
@@ -36,6 +39,7 @@ public class EpubMetadata {
     private Double hardcoverRating;
     private Integer hardcoverReviewCount;
     private String googleId;
+    private String openlibraryId;
     private String ranobedbId;
     private Double ranobedbRating;
     private List<String> authors;

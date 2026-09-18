@@ -28,6 +28,7 @@ export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
   { label: 'ISBN-10', controlName: 'isbn10', lockedKey: 'isbn10Locked', fetchedKey: 'isbn10', type: 'string' },
   { label: 'ISBN-13', controlName: 'isbn13', lockedKey: 'isbn13Locked', fetchedKey: 'isbn13', type: 'string' },
   { label: 'Pages', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount', type: 'number' },
+  { label: 'OpenLibrary ID', controlName: 'openlibraryId', lockedKey: 'openlibraryIdLocked', fetchedKey: 'openlibraryId', type: 'string', providerKey: 'openlibraryId' },
   { label: 'Google ID', controlName: 'googleId', lockedKey: 'googleIdLocked', fetchedKey: 'googleId', type: 'string', providerKey: 'googleId' },
   { label: 'ASIN', controlName: 'asin', lockedKey: 'asinLocked', fetchedKey: 'asin', type: 'string', providerKey: 'asin' },
   { label: 'Amazon #', controlName: 'amazonReviewCount', lockedKey: 'amazonReviewCountLocked', fetchedKey: 'amazonReviewCount', type: 'number', providerKey: 'amazonReviewCount' },
@@ -46,7 +47,10 @@ export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
   { label: 'Ranobedb ★', controlName: 'ranobedbRating', lockedKey: 'ranobedbRatingLocked', fetchedKey: 'ranobedbRating', type: 'number', providerKey: 'ranobedbRating' },
   { label: 'Audible ID', controlName: 'audibleId', lockedKey: 'audibleIdLocked', fetchedKey: 'audibleId', type: 'string', providerKey: 'audibleId' },
   { label: 'Audible ★', controlName: 'audibleRating', lockedKey: 'audibleRatingLocked', fetchedKey: 'audibleRating', type: 'number', providerKey: 'audibleRating' },
-  { label: 'Audible #', controlName: 'audibleReviewCount', lockedKey: 'audibleReviewCountLocked', fetchedKey: 'audibleReviewCount', type: 'number', providerKey: 'audibleReviewCount' }
+  { label: 'Audible #', controlName: 'audibleReviewCount', lockedKey: 'audibleReviewCountLocked', fetchedKey: 'audibleReviewCount', type: 'number', providerKey: 'audibleReviewCount' },
+  { label: 'Apple Books ID', controlName: 'applebooksId', lockedKey: 'applebooksIdLocked', fetchedKey: 'applebooksId', type: 'string', providerKey: 'applebooksId' },
+  { label: 'Apple Books ★', controlName: 'applebooksRating', lockedKey: 'applebooksRatingLocked', fetchedKey: 'applebooksRating', type: 'number', providerKey: 'applebooksRating' },
+  { label: 'Apple Books #', controlName: 'applebooksReviewCount', lockedKey: 'applebooksReviewCountLocked', fetchedKey: 'applebooksReviewCount', type: 'number', providerKey: 'applebooksReviewCount' },
 ];
 
 // Audiobook content metadata fields (narrator/abridged) - now stored at top level of BookMetadata

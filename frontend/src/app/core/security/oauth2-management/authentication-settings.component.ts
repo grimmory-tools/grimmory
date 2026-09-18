@@ -113,10 +113,11 @@ export class AuthenticationSettingsComponent {
   readonly groupMappings = signal<OidcGroupMapping[]>([]);
   readonly groupMappingDraft = signal<OidcGroupMapping | null>(null);
 
+  oidcProviderClientSecret: string = '';
+
   oidcProvider: OidcProviderDetails = {
     providerName: '',
     clientId: '',
-    clientSecret: '',
     issuerUri: '',
     scopes: '',
     claimMapping: {
@@ -171,8 +172,10 @@ export class AuthenticationSettingsComponent {
       clientId: settings.oidcProviderDetails?.clientId || '',
       issuerUri: settings.oidcProviderDetails?.issuerUri || '',
       scopes: settings.oidcProviderDetails?.scopes || '',
-      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping
+      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping,
     };
+
+    this.oidcProviderClientSecret = settings.oidcProviderClientSecret || '';
 
     this.availablePermissions.forEach(perm => {
       perm.selected = this.selectedPermissions.includes(perm.value);
@@ -215,6 +218,10 @@ export class AuthenticationSettingsComponent {
       {
         key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: this.mobileRedirectUris
+      },
+      {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: this.oidcProviderClientSecret
       }
     ];
     if (this.oidcEnabled) {

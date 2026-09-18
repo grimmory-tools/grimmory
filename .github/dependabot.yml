@@ -14,10 +14,6 @@ updates:
       - "backend"
     commit-message:
       prefix: "chore(deps)"
-    groups:
-      gradle-dependencies:
-        patterns:
-          - "*"
 
   # JavaScript – pnpm workspace (frontend + release tooling)
   - package-ecosystem: "npm"
@@ -41,9 +37,9 @@ updates:
           - "semantic-release"
           - "@semantic-release/*"
           - "conventional-changelog*"
-      frontend:
+      angular:
         patterns:
-          - "*"
+          - "@angular/*"
     ignore:
       - dependency-name: "typescript"
       - dependency-name: "@types/node"

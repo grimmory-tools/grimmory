@@ -119,6 +119,7 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
         String lang = azw3Metadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(azw3Metadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(azw3Metadata.getAsin(), 10));
         metadata.setAmazonRating(azw3Metadata.getAmazonRating());
         metadata.setAmazonReviewCount(azw3Metadata.getAmazonReviewCount());
@@ -132,6 +133,9 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
         metadata.setComicvineId(truncate(azw3Metadata.getComicvineId(), 100));
         metadata.setRanobedbId(truncate(azw3Metadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(azw3Metadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(azw3Metadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(azw3Metadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(azw3Metadata.getApplebooksReviewCount());
 
         bookCreatorService.addAuthorsToBook(azw3Metadata.getAuthors(), bookEntity);
 
