@@ -343,7 +343,8 @@ public class AppBookSpecification {
                     Subquery<Long> sub = query.subquery(Long.class);
                     Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
                     sub.select(bfRoot.get("book").get("id"))
-                            .where(cb.equal(bfRoot.get("bookType"), ft));
+                            .where(cb.equal(bfRoot.get("bookType"), ft),
+                                    cb.isTrue(bfRoot.get("isBookFormat")));
                     predicates.add(root.get("id").in(sub));
                 }
                 return cb.and(predicates.toArray(Predicate[]::new));
@@ -352,7 +353,8 @@ public class AppBookSpecification {
             Subquery<Long> sub = query.subquery(Long.class);
             Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
             sub.select(bfRoot.get("book").get("id"))
-                    .where(bfRoot.get("bookType").in(parsed));
+                    .where(bfRoot.get("bookType").in(parsed),
+                            cb.isTrue(bfRoot.get("isBookFormat")));
 
             if ("not".equals(mode)) {
                 return cb.not(root.get("id").in(sub));

@@ -55,7 +55,11 @@ public class BookFacetService {
             new FacetDef("publisher", "Publisher", (cb, root, userId) -> metadata(root).get("publisher")),
             new FacetDef("language", "Language", (cb, root, userId) -> metadata(root).get("language")),
             new FacetDef("narrator", "Narrator", (cb, root, userId) -> metadata(root).get("narrator")),
-            new FacetDef("file_type", "File Type", (cb, root, userId) -> root.join("bookFiles", JoinType.LEFT).get("bookType")),
+            new FacetDef("file_type", "File Type", (cb, root, userId) -> {
+                Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
+                files.on(cb.isTrue(files.get("isBookFormat")));
+                return files.get("bookType");
+            }),
             new FacetDef("content_rating", "Content Rating", (cb, root, userId) -> metadata(root).get("contentRating")),
             new FacetDef("amazon_rating", "Amazon Rating", (cb, root, userId) -> metadata(root).get("amazonRating")),
             new FacetDef("goodreads_rating", "Goodreads Rating", (cb, root, userId) -> metadata(root).get("goodreadsRating")),
