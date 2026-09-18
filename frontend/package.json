@@ -65,8 +65,8 @@
     "@angular/cli": "^22.1.4",
     "@angular/compiler-cli": "^22.1.2",
     "@eslint/js": "^10.0.1",
-    "@openng/optimus-ui-tailwindcss": "^2.0.1",
-    "@playwright/test": "^1.62.1",
+    "@openng/optimus-ui-tailwindcss": "^2.0.2",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.13.2",
@@ -74,13 +74,13 @@
     "angular-eslint": "^22.1.0",
     "eslint": "^10.9.1",
     "jsdom": "^30.0.1",
-    "ng-mocks": "^14.17.0",
+    "ng-mocks": "^14.17.6",
     "postcss": "^8.5.26",
     "stylelint": "^17.14.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.11"
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
   }
 }
