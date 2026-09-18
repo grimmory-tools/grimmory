@@ -4,7 +4,7 @@ import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {firstValueFrom} from 'rxjs';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import type {AdditionalFile, Book, BookMetadata, DetachBookFileResponse} from '../model/book.model';

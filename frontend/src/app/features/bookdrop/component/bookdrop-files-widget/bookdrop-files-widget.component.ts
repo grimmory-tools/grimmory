@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/cor
 import {BookdropFileService} from '../../service/bookdrop-file.service';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({

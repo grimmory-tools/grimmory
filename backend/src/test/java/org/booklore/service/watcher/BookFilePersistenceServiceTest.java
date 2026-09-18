@@ -74,7 +74,7 @@ class BookFilePersistenceServiceTest {
                 .library(library)
                 .libraryPath(libraryPath)
                 .deleted(false)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(Set.of())
                 .build();
     }
 
@@ -150,7 +150,7 @@ class BookFilePersistenceServiceTest {
         void updatesPathWhenSubPathDiffers() {
             BookEntity book = buildBook(10L);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "hash123");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
             fileUtilsMock.when(() -> FileUtils.getRelativeSubPath(anyString(), any(Path.class))).thenReturn("newsub");
@@ -165,7 +165,7 @@ class BookFilePersistenceServiceTest {
         void updatesPathWhenFileNameDiffers() {
             BookEntity book = buildBook(10L);
             BookFileEntity bookFile = buildBookFile(100L, book, "old.epub", "hash123");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
 
@@ -180,7 +180,7 @@ class BookFilePersistenceServiceTest {
             BookEntity book = buildBook(10L);
             book.setDeleted(true);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "hash123");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
 
@@ -196,7 +196,7 @@ class BookFilePersistenceServiceTest {
             BookEntity book = buildBook(10L);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "hash123");
             bookFile.setFileSubPath("sub");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
 
@@ -210,7 +210,7 @@ class BookFilePersistenceServiceTest {
             BookEntity book = buildBook(10L);
             BookFileEntity primaryFile = buildBookFile(100L, book, "primary.epub", "primaryhash");
             BookFileEntity secondaryFile = buildBookFile(101L, book, "secondary.pdf", "hash123");
-            book.setBookFiles(new ArrayList<>(List.of(primaryFile, secondaryFile)));
+            book.setBookFiles(Set.of(primaryFile, secondaryFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
             fileUtilsMock.when(() -> FileUtils.getRelativeSubPath(anyString(), any(Path.class))).thenReturn("newsub");
@@ -227,7 +227,7 @@ class BookFilePersistenceServiceTest {
         void sendsNotificationAfterUpdate() {
             BookEntity book = buildBook(10L);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "hash123");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             when(entityManager.merge(any(LibraryPathEntity.class))).thenReturn(libraryPath);
             fileUtilsMock.when(() -> FileUtils.getRelativeSubPath(anyString(), any(Path.class))).thenReturn("newsub");
@@ -346,7 +346,7 @@ class BookFilePersistenceServiceTest {
             BookEntity book = buildBook(10L);
             book.setDeleted(true);
             BookFileEntity bookFile = buildBookFile(100L, book, "old.epub", "filehash1");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             var fileSnap = new FileSnapshot(100L, "old.epub", "sub", "filehash1", false, BookFileType.EPUB);
             var bookSnap = new BookSnapshot(10L, 1L, "sub", List.of(fileSnap));
@@ -384,7 +384,7 @@ class BookFilePersistenceServiceTest {
             book.setDeleted(true);
             BookFileEntity file1 = buildBookFile(100L, book, "a.epub", "hash1");
             BookFileEntity file2 = buildBookFile(101L, book, "b.epub", "hash2");
-            book.setBookFiles(new ArrayList<>(List.of(file1, file2)));
+            book.setBookFiles(Set.of(file1, file2));
 
             var snap1 = new FileSnapshot(100L, "a.epub", "sub", "hash1", false, BookFileType.EPUB);
             var snap2 = new FileSnapshot(101L, "b.epub", "sub", "hash2", false, BookFileType.EPUB);
@@ -411,7 +411,7 @@ class BookFilePersistenceServiceTest {
         void fileSnapshotWithNoHashMatch_leftUnchanged() {
             BookEntity book = buildBook(10L);
             BookFileEntity bookFile = buildBookFile(100L, book, "old.epub", "oldhash");
-            book.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            book.setBookFiles(Set.of(bookFile));
 
             var fileSnap = new FileSnapshot(100L, "old.epub", "sub", "nomatch", false, BookFileType.EPUB);
             var bookSnap = new BookSnapshot(10L, 1L, "sub", List.of(fileSnap));

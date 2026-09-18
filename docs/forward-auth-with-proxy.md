@@ -37,7 +37,7 @@ REMOTE_AUTH_GROUPS_DELIMITER=\\s+          # Regex pattern for splitting groups.
 ```yaml
 services:
   grimmory:
-    image: ghcr.io/grimmory-tools/grimmory:v0.38.2
+    image: ghcr.io/grimmory-tools/grimmory:latest
     environment:
       # Forward Auth Configuration
       - REMOTE_AUTH_ENABLED=true

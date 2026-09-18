@@ -6,10 +6,10 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -48,6 +48,7 @@ class HardcoverSyncServiceTest {
     @Mock
     private RestClient.ResponseSpec responseSpec;
 
+    @InjectMocks
     private HardcoverSyncService service;
 
     private BookEntity testBook;
@@ -60,12 +61,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository);
-        
-        // Inject our mocked restClient using reflection
-        Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");
-        restClientField.setAccessible(true);
-        restClientField.set(service, restClient);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, restClient);
 
         testBook = new BookEntity();
         testBook.setId(TEST_BOOK_ID);

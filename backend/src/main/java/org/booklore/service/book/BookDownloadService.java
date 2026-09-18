@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -146,8 +147,16 @@ public class BookDownloadService {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        List<BookFileEntity> allFiles = bookEntity.getBookFiles();
-        if (allFiles == null || allFiles.isEmpty()) {
+        if (bookEntity.getBookFiles() == null) {
+            throw ApiError.FILE_NOT_FOUND.createException(bookId);
+        }
+
+        List<BookFileEntity> allFiles = bookEntity.getBookFiles()
+                .stream()
+                .sorted(Comparator.comparingLong(BookFileEntity::getId))
+                .toList();
+
+        if (allFiles.isEmpty()) {
             throw ApiError.FILE_NOT_FOUND.createException(bookId);
         }
 

@@ -5,6 +5,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {UserService} from '../../../settings/user-management/user.service';
 import {UserChartConfigService} from './service/user-chart-config.service';
 import {UserStatsComponent} from './user-stats.component';
+import {TranslocoService} from '@jsverse/transloco';
 
 describe('UserStatsComponent', () => {
   let chartConfigService: {
@@ -38,6 +39,7 @@ describe('UserStatsComponent', () => {
           },
         },
         {provide: UserChartConfigService, useValue: chartConfigService},
+        {provide: TranslocoService, useValue: {translate: (key: string) => key }},
       ],
     });
   });

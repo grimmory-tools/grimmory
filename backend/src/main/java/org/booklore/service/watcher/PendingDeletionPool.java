@@ -95,8 +95,11 @@ public class PendingDeletionPool {
             }
             if (!fileSnapshots.isEmpty()) {
                 BookSnapshot bs = new BookSnapshot(
-                        book.getId(), book.getLibraryPath() != null ? book.getLibraryPath().getId() : null,
-                        book.getBookFiles().getFirst().getFileSubPath(), fileSnapshots);
+                        book.getId(),
+                        book.getLibraryPath() != null ? book.getLibraryPath().getId() : null,
+                        book.getPrimaryBookFile() != null ? book.getPrimaryBookFile().getFileSubPath() : null,
+                        fileSnapshots
+                );
                 affectedBooks.put(book.getId(), bs);
             }
         }

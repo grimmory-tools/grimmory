@@ -1,6 +1,6 @@
 import {Component, effect, inject} from '@angular/core';
 import {BaseChartDirective} from 'ng2-charts';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -42,8 +42,7 @@ export class ReadingDebtChartComponent {
       },
       tooltip: {
         enabled: true, borderWidth: 1, cornerRadius: 6, padding: 10
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

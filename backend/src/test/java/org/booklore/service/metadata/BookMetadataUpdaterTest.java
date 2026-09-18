@@ -81,7 +81,7 @@ class BookMetadataUpdaterTest {
         bookEntity = BookEntity.builder()
                 .id(1L)
                 .metadata(metadataEntity)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
         metadataEntity.setBook(bookEntity);
     }
@@ -1749,7 +1749,7 @@ class BookMetadataUpdaterTest {
         void movesFile_whenSettingEnabled() {
             BookFileEntity primaryFile = BookFileEntity.builder()
                     .fileName("book.epub").bookType(BookFileType.EPUB).build();
-            bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile)));
+            bookEntity.setBookFiles(Set.of(primaryFile));
 
             BookMetadata newMeta = BookMetadata.builder().title("T").build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
@@ -1782,7 +1782,7 @@ class BookMetadataUpdaterTest {
         void moveFileException_doesNotFailUpdate() {
             BookFileEntity primaryFile = BookFileEntity.builder()
                     .fileName("book.epub").bookType(BookFileType.EPUB).build();
-            bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile)));
+            bookEntity.setBookFiles(Set.of(primaryFile));
 
             BookMetadata newMeta = BookMetadata.builder().title("T").build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
@@ -1859,7 +1859,7 @@ class BookMetadataUpdaterTest {
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
                     .build();
-            bookEntity.setBookFiles(new ArrayList<>(List.of(bookFile)));
+            bookEntity.setBookFiles(Set.of(bookFile));
 
             BookMetadata newMeta = BookMetadata.builder().title("New Title").build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);

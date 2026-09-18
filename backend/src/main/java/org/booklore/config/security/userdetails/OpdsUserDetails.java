@@ -1,5 +1,6 @@
 package org.booklore.config.security.userdetails;
 
+import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.OpdsUserV2;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 public class OpdsUserDetails implements UserDetails {
+    private final BookLoreUser user;
 
     private final OpdsUserV2 opdsUserV2;
 
@@ -28,5 +30,11 @@ public class OpdsUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        BookLoreUser.UserPermissions permissions = user.getPermissions();
+        return permissions != null && (permissions.isAdmin() || permissions.isCanAccessOpds());
     }
 }

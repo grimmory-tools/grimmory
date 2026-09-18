@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {of, throwError, delay} from 'rxjs';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {BookService} from '../../service/book.service';

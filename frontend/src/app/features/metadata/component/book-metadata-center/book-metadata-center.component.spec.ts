@@ -13,6 +13,7 @@ import {Book} from '../../../book/model/book.model';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {BookMetadataCenterComponent} from './book-metadata-center.component';
+import {TranslocoService} from '@jsverse/transloco';
 
 describe('BookMetadataCenterComponent', () => {
   let appSettingsSignal: WritableSignal<AppSettings | null>;
@@ -55,6 +56,7 @@ describe('BookMetadataCenterComponent', () => {
         {provide: UserService, useValue: {currentUser: currentUserSignal}},
         {provide: AppSettingsService, useValue: {appSettings: appSettingsSignal}},
         {provide: BookMetadataHostService, useValue: {bookSwitches$: new Subject<number>()}},
+        {provide: TranslocoService, useValue: {translate: (key: string) => key}},
       ],
     });
   });

@@ -1,7 +1,7 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import type {AutoCompleteCompleteEvent} from 'primeng/autocomplete';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import type {AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {Observable, Subject, throwError} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 

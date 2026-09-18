@@ -15,6 +15,7 @@ import { type FormValueControl } from '@angular/forms/signals';
 import { translateSignal } from '@jsverse/transloco';
 import { LucideEye, LucideEyeOff, LucideLoaderCircle } from '@lucide/angular';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import { appInputVariants, type AppInputSize, type AppInputVariant } from './app-input.variants';
 
@@ -22,19 +23,19 @@ type AppInputType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url';
 
 const ADORNMENT_CLASS = 'inline-flex shrink-0 items-center text-text-muted empty:hidden [&>svg]:size-4';
 const REVEAL_TOGGLE_CLASS =
-  'inline-flex size-7 shrink-0 items-center justify-center rounded-md text-text-muted ' +
-  'transition-colors hover:text-text-strong ' +
+  'inline-flex size-7 shrink-0 items-center justify-center rounded-md text-text-muted -mr-1.5 pointer-coarse:size-10 pointer-coarse:-mr-3 ' +
+  'touch-manipulation transition-colors hover:text-text-strong ' +
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ' +
   'disabled:pointer-events-none disabled:opacity-50';
 
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [LucideEye, LucideEyeOff, LucideLoaderCircle],
+  imports: [AppControlTransitionDirective, LucideEye, LucideEyeOff, LucideLoaderCircle],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div [class]="boxClass()" [attr.aria-invalid]="showInvalid() ? 'true' : null">
+    <div appControlTransition [class]="boxClass()" [attr.aria-invalid]="showInvalid() ? 'true' : null">
       <span [class]="adornmentClass"><ng-content select="[appInputLeading]" /></span>
       <input
         #input
@@ -56,7 +57,7 @@ const REVEAL_TOGGLE_CLASS =
         [readonly]="readonly()"
         [required]="required()"
         (input)="onInput(input)"
-        (blur)="touched.set(true)"
+        (blur)="touch.emit()"
         (keydown)="keyedDown.emit($event)"
         (keyup.enter)="onEnterKeyup($event)" />
       @if (pending()) {
@@ -87,7 +88,8 @@ export class AppInputComponent implements FormValueControl<string> {
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppInputSize>('md');

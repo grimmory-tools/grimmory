@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {vi, describe, beforeEach, afterEach, expect, it} from 'vitest';
 

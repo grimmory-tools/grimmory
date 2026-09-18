@@ -1,9 +1,9 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {catchError} from 'rxjs/operators';
 import {of} from 'rxjs';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {
   addWeeks,
   endOfISOWeek,

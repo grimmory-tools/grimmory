@@ -15,8 +15,8 @@ import { BookdropFileService } from "./features/bookdrop/service/bookdrop-file.s
 import { TaskService } from "./features/settings/task-management/task.service";
 import { LibraryHealthService } from "./features/book/service/library-health.service";
 import { AuthService } from "./shared/service/auth.service";
-import { ConfirmationService } from "primeng/api";
-import { MessageService } from "primeng/api";
+import { ConfirmationService } from "@openng/optimus-ui/api";
+import { MessageService } from "@openng/optimus-ui/api";
 import { CommandPaletteService } from "./features/command-palette/command-palette.service";
 import { LibraryImportProgressService } from "./shared/service/library-import-progress.service";
 import { AuthorService } from "./features/author-browser/service/author.service";

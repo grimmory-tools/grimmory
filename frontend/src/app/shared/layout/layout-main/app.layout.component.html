@@ -23,7 +23,7 @@
       (keyup)="onResizeKeyup($event)"
     ></div>
   </nav>
-  <main class="layout-main">
+  <main cdkScrollable class="layout-main">
     <router-outlet></router-outlet>
   </main>
   <button type="button" class="layout-mask" [attr.aria-label]="t('closeNavigation')" (click)="closeMobileSidebar()"></button>

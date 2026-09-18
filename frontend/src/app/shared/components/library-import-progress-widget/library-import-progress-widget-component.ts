@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
-import {ButtonDirective} from 'primeng/button';
-import {ProgressBar} from 'primeng/progressbar';
-import {Tag} from 'primeng/tag';
+import {ButtonDirective} from '@openng/optimus-ui/button';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
+import {Tag} from '@openng/optimus-ui/tag';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 import {LibraryImportProgressService, LibraryImportProgressState, LibraryImportProgressStatus} from '../../service/library-import-progress.service';

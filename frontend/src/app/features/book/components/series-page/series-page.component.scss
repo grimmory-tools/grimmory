@@ -72,7 +72,6 @@
 .hero-cover-img {
   width: 240px;
   height: 360px;
-  object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
 
@@ -460,7 +459,6 @@ $meta-card-colors: (
 .next-up-thumb {
   width: 2.4063rem;
   height: 3.5rem;
-  object-fit: cover;
   border-radius: 0.2188rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
@@ -618,7 +616,6 @@ $meta-card-colors: (
 .list-thumb {
   width: 2.4063rem;
   height: 3.5rem;
-  object-fit: cover;
   border-radius: 0.3281rem;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgb(0 0 0 / 20%);

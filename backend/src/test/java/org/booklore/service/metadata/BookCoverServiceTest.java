@@ -13,6 +13,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
+import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.service.file.FileFingerprint;
@@ -56,6 +57,7 @@ class BookCoverServiceTest {
     @Mock private BookQueryService bookQueryService;
     @Mock private CoverImageGenerator coverImageGenerator;
     @Mock private MetadataWriterFactory metadataWriterFactory;
+    @Mock private SidecarMetadataWriter sidecarMetadataWriter;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private Executor taskExecutor;
     @Mock private AuthenticationService authenticationService;
@@ -78,7 +80,7 @@ class BookCoverServiceTest {
         return BookEntity.builder()
                 .id(id)
                 .metadata(metadata)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
     }
 
@@ -91,7 +93,7 @@ class BookCoverServiceTest {
         return BookEntity.builder()
                 .id(id)
                 .metadata(metadata)
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
     }
 
@@ -243,7 +245,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
                     .build();
-            book.setBookFiles(List.of(ebookFile));
+            book.setBookFiles(Set.of(ebookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
@@ -262,7 +264,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
                     .build();
-            book.setBookFiles(List.of(ebookFile));
+            book.setBookFiles(Set.of(ebookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
@@ -297,7 +299,7 @@ class BookCoverServiceTest {
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
                     .build();
-            book.setBookFiles(List.of(audiobookFile));
+            book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
@@ -329,7 +331,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
                     .build();
-            book.setBookFiles(List.of(audiobookFile, pdfFile, epubFile));
+            book.setBookFiles(Set.of(audiobookFile, pdfFile, epubFile));
 
             LibraryEntity library = LibraryEntity.builder()
                     .formatPriority(List.of(BookFileType.AUDIOBOOK, BookFileType.EPUB, BookFileType.PDF))
@@ -358,7 +360,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.PDF)
                     .isBookFormat(true)
                     .build();
-            book.setBookFiles(List.of(audiobookFile, pdfFile));
+            book.setBookFiles(Set.of(audiobookFile, pdfFile));
             book.setLibrary(LibraryEntity.builder().formatPriority(null).build());
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -381,7 +383,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             AuthorEntity author = AuthorEntity.builder().name("Jane Doe").build();
             book.getMetadata().setAuthors(List.of(author));
-            book.setBookFiles(new ArrayList<>());
+            book.setBookFiles(new HashSet<>());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(coverImageGenerator.generateCover("Test Book", "Jane Doe")).thenReturn(new byte[]{1, 2, 3});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
@@ -615,7 +617,7 @@ class BookCoverServiceTest {
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
                     .build();
-            book.setBookFiles(List.of(audiobookFile));
+            book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
@@ -688,7 +690,7 @@ class BookCoverServiceTest {
         @Test
         void delegatesToAsyncExecutorWithUnlockedBooks() {
             BookEntity unlocked = buildBook(1L, false);
-            unlocked.setBookFiles(List.of(BookFileEntity.builder().bookType(BookFileType.EPUB).isBookFormat(true).build()));
+            unlocked.setBookFiles(Set.of(BookFileEntity.builder().bookType(BookFileType.EPUB).isBookFormat(true).build()));
             unlocked.setLibrary(LibraryEntity.builder().build());
             BookEntity locked = buildBook(2L, true);
 
@@ -767,7 +769,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             BookFileEntity ebookFile = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            book.setBookFiles(List.of(ebookFile));
+            book.setBookFiles(Set.of(ebookFile));
             book.setLibrary(LibraryEntity.builder().build());
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
@@ -798,7 +800,7 @@ class BookCoverServiceTest {
             BookEntity locked = buildBook(1L, true);
             BookFileEntity ebookFile = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            locked.setBookFiles(List.of(ebookFile));
+            locked.setBookFiles(Set.of(ebookFile));
             locked.setLibrary(LibraryEntity.builder().build());
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(locked));
@@ -819,14 +821,14 @@ class BookCoverServiceTest {
             withCover.setBookCoverHash("existingHash");
             BookFileEntity ebookFile1 = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            withCover.setBookFiles(List.of(ebookFile1));
+            withCover.setBookFiles(Set.of(ebookFile1));
             withCover.setLibrary(LibraryEntity.builder().build());
 
             BookEntity withoutCover = buildBook(2L, false);
             withoutCover.setBookCoverHash(null);
             BookFileEntity ebookFile2 = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            withoutCover.setBookFiles(List.of(ebookFile2));
+            withoutCover.setBookFiles(Set.of(ebookFile2));
             withoutCover.setLibrary(LibraryEntity.builder().build());
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(withCover, withoutCover));
@@ -857,7 +859,7 @@ class BookCoverServiceTest {
         @Test
         void skipsBooksWithNoPrimaryFile() {
             BookEntity book = buildBook(1L, false);
-            book.setBookFiles(new ArrayList<>());
+            book.setBookFiles(new HashSet<>());
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
@@ -878,7 +880,7 @@ class BookCoverServiceTest {
             BookEntity book = BookEntity.builder()
                     .id(1L)
                     .metadata(null)
-                    .bookFiles(new ArrayList<>())
+                    .bookFiles(new HashSet<>())
                     .build();
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
@@ -940,7 +942,7 @@ class BookCoverServiceTest {
         @Test
         void returnsNullWhenBookFilesIsEmpty() {
             BookEntity book = buildBook(1L, false);
-            book.setBookFiles(new ArrayList<>());
+            book.setBookFiles(new HashSet<>());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             assertThatThrownBy(() -> service.regenerateCover(1L))
@@ -953,7 +955,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK).isBookFormat(false).build();
-            book.setBookFiles(List.of(audiobookFile));
+            book.setBookFiles(Set.of(audiobookFile));
             book.setLibrary(LibraryEntity.builder().formatPriority(null).build());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
@@ -969,7 +971,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.PDF).isBookFormat(true).build();
             BookFileEntity epubFile = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            book.setBookFiles(List.of(pdfFile, epubFile));
+            book.setBookFiles(Set.of(pdfFile, epubFile));
             book.setLibrary(LibraryEntity.builder()
                     .formatPriority(List.of(BookFileType.EPUB, BookFileType.PDF)).build());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -988,7 +990,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             BookFileEntity pdfFile = BookFileEntity.builder()
                     .bookType(BookFileType.PDF).isBookFormat(true).build();
-            book.setBookFiles(List.of(pdfFile));
+            book.setBookFiles(Set.of(pdfFile));
             book.setLibrary(LibraryEntity.builder()
                     .formatPriority(List.of(BookFileType.EPUB)).build());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -1007,7 +1009,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             BookFileEntity epubFile = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB).isBookFormat(true).build();
-            book.setBookFiles(List.of(epubFile));
+            book.setBookFiles(Set.of(epubFile));
             book.setLibrary(LibraryEntity.builder().formatPriority(List.of()).build());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
@@ -1031,7 +1033,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.EPUB).isBookFormat(true)
                     .fileName("test.epub").fileSubPath("sub")
                     .build();
-            book.setBookFiles(List.of(primaryFile));
+            book.setBookFiles(Set.of(primaryFile));
             book.setLibrary(LibraryEntity.builder().build());
             book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
 
@@ -1058,7 +1060,7 @@ class BookCoverServiceTest {
         @Test
         void skipsWriteWhenNoPrimaryFile() {
             BookEntity book = buildBook(1L, false);
-            book.setBookFiles(new ArrayList<>());
+            book.setBookFiles(new HashSet<>());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
@@ -1142,7 +1144,7 @@ class BookCoverServiceTest {
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
                     .build();
-            book.setBookFiles(List.of(bookFile));
+            book.setBookFiles(Set.of(bookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
@@ -1160,7 +1162,7 @@ class BookCoverServiceTest {
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
                     .build();
-            book.setBookFiles(List.of(audiobookFile));
+            book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
@@ -1168,6 +1170,60 @@ class BookCoverServiceTest {
 
             verify(metadataWriterFactory, never()).getWriter(any());
             verify(bookRepository).save(book);
+        }
+    }
+
+    @Nested
+    class SidecarWriteOnCoverUpdate {
+
+        @Test
+        void writesSidecarWhenWriteOnUpdateEnabled() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(sidecarMetadataWriter).writeSidecarMetadata(book);
+        }
+
+        @Test
+        void writesSidecarForAudiobookCoverWhenWriteOnUpdateEnabled() {
+            BookEntity book = buildBookWithAudiobookLock(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+
+            service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
+
+            verify(sidecarMetadataWriter).writeSidecarMetadata(book);
+        }
+
+        @Test
+        void skipsSidecarWhenWriteOnUpdateDisabled() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(sidecarMetadataWriter, never()).writeSidecarMetadata(any());
+        }
+
+        @Test
+        void coverUpdateSucceedsWhenSidecarWriteFails() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+            doThrow(new RuntimeException("sidecar unavailable")).when(sidecarMetadataWriter).writeSidecarMetadata(book);
+
+            service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+            verify(bookRepository).save(book);
+            assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
         }
     }
 }

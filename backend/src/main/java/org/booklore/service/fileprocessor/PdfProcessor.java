@@ -137,6 +137,9 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             }
             
             // External IDs
+            if (StringUtils.isNotBlank(extracted.getOpenlibraryId())) {
+                bookEntity.getMetadata().setOpenlibraryId(truncate(extracted.getOpenlibraryId(), 100));
+            }
             if (StringUtils.isNotBlank(extracted.getAsin())) {
                 bookEntity.getMetadata().setAsin(truncate(extracted.getAsin(), 10));
             }
@@ -161,6 +164,10 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             if (StringUtils.isNotBlank(extracted.getLubimyczytacId())) {
                 bookEntity.getMetadata().setLubimyczytacId(extracted.getLubimyczytacId());
             }
+            if (StringUtils.isNotBlank(extracted.getApplebooksId())) {
+                bookEntity.getMetadata().setApplebooksId(extracted.getApplebooksId());
+            }
+
             if (StringUtils.isNotBlank(extracted.getIsbn10())) {
                 bookEntity.getMetadata().setIsbn10(truncate(extracted.getIsbn10(), 10));
             }

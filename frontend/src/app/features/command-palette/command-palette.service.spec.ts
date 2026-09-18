@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
 import { Book } from '../book/model/book.model';

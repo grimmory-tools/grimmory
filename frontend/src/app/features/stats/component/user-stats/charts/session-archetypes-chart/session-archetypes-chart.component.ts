@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BaseChartDirective} from 'ng2-charts';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {EMPTY, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
@@ -55,8 +55,7 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
             return `${ctx.dataset.label}: ${h}:${String(m).padStart(2, '0')} - ${duration} min`;
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     scales: {
       x: {

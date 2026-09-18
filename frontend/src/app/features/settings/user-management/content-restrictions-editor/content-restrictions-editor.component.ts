@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {MessageService} from 'primeng/api';
-import {Tooltip} from 'primeng/tooltip';
+import {Button} from '@openng/optimus-ui/button';
+import {Select} from '@openng/optimus-ui/select';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {
   AGE_RATING_OPTIONS,
   CONTENT_RATINGS,

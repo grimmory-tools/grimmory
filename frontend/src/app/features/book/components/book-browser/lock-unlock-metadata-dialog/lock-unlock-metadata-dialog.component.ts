@@ -1,11 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {FormsModule} from '@angular/forms';
 
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
-import {Divider} from 'primeng/divider';
+import {Divider} from '@openng/optimus-ui/divider';
 import {LoadingService} from '../../../../../core/services/loading.service';
 import {finalize} from 'rxjs';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -34,11 +34,12 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
 
   lockableFields: string[] = [
-    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',
+    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked', 'openlibraryIdLocked',
     'isbn13Locked', 'isbn10Locked', 'asinLocked', 'pageCountLocked', 'thumbnailLocked', 'languageLocked', 'coverLocked',
     'seriesNameLocked', 'seriesNumberLocked', 'seriesTotalLocked', 'authorsLocked', 'categoriesLocked', 'moodsLocked', 'tagsLocked',
     'amazonRatingLocked', 'amazonReviewCountLocked', 'goodreadsRatingLocked', 'goodreadsReviewCountLocked',
     'hardcoverRatingLocked', 'hardcoverReviewCountLocked', 'goodreadsIdLocked', 'hardcoverIdLocked', 'hardcoverBookIdLocked', 'googleIdLocked', 'comicvineIdLocked',
+    'applebooksIdLocked', 'applebooksRatingLocked', 'applebooksReviewCountLocked',
     'ranobedbIdLocked', 'ranobedbRatingLocked'
   ];
 
@@ -50,6 +51,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     descriptionLocked: 'Description',
     isbn13Locked: 'ISBN-13',
     isbn10Locked: 'ISBN-10',
+    openlibraryIdLocked: 'OpenLibrary ID',
     asinLocked: 'ASIN',
     pageCountLocked: 'Page Count',
     thumbnailLocked: 'Thumbnail',
@@ -75,6 +77,9 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     comicvineIdLocked: 'Comicvine ID',
     ranobedbIdLocked: 'Ranobedb ID',
     ranobedbRatingLocked: 'Ranobedb ★',
+    applebooksIdLocked: 'Apple Books ID',
+    applebooksRatingLocked: 'Apple Books Rating',
+    applebooksReviewCountLocked: 'Apple Books Reviews',
   };
 
   isSaving = false;

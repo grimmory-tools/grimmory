@@ -49,6 +49,8 @@ public class IconController {
     public ResponseEntity<String> getSvgIconContent(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
         String svgContent = iconService.getSvgIcon(svgName);
         return ResponseEntity.ok()
+                .header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; style-src 'self' 'unsafe-inline'")
+                .header("X-Content-Type-Options", "nosniff")
                 .header("Content-Type", "image/svg+xml")
                 .body(svgContent);
     }

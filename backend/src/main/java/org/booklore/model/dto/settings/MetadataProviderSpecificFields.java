@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class MetadataProviderSpecificFields {
+    private Boolean openlibraryId;
     private Boolean asin;
     private Boolean amazonRating;
     private Boolean amazonReviewCount;
@@ -25,4 +26,7 @@ public class MetadataProviderSpecificFields {
     private Boolean audibleId;
     private Boolean audibleRating;
     private Boolean audibleReviewCount;
+    private Boolean applebooksId;
+    private Boolean applebooksRating;
+    private Boolean applebooksReviewCount;
 }

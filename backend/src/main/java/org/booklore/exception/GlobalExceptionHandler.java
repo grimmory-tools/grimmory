@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -115,8 +116,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        HttpHeaders headers = HttpHeaders.EMPTY;
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "An unexpected error occurred."
+        );
+
+        if (ex instanceof org.springframework.web.ErrorResponse er) {
+            statusCode = er.getStatusCode().value();
+            headers = er.getHeaders();
+            errorResponse = new ErrorResponse(
+                    er.getBody().getStatus(),
+                    er.getBody().getDetail()
+            );
+        }
+
         log.error("Unhandled exception: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred.");
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return new ResponseEntity<>(
+                errorResponse,
+                headers,
+                statusCode
+        );
     }
 }

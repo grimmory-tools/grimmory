@@ -1,6 +1,5 @@
 package org.booklore.util.koreader;
 
-import org.grimmory.epub4j.cfi.DocumentNavigator;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -11,7 +10,7 @@ import java.util.List;
 
 /**
  * Jsoup-backed implementation of epub4j's {@link DocumentNavigator}, enabling
- * the library's {@link org.grimmory.epub4j.cfi.CfiConverter} to navigate a
+ * the library's {@link CfiConverter} to navigate a
  * Jsoup-parsed HTML document.
  */
 public class JsoupDocumentNavigator implements DocumentNavigator {

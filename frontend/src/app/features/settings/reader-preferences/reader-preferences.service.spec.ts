@@ -4,7 +4,7 @@ import {describe, expect, it, vi} from 'vitest';
 
 import {ReaderPreferencesService} from './reader-preferences.service';
 import {User, UserService, UserSettings} from '../user-management/user.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 describe('ReaderPreferencesService', () => {

@@ -154,9 +154,6 @@ export class AuthorUniverseChartComponent {
           enabled: false,
           external: (context) => this.handleExternalTooltip(context)
         },
-        datalabels: {
-          display: false
-        }
       },
       interaction: {
         intersect: true,

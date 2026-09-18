@@ -1,9 +1,9 @@
 import {Component, inject, OnInit, signal} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {DecimalPipe} from "@angular/common";
-import {Checkbox} from "primeng/checkbox";
-import {Button} from "primeng/button";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {Checkbox} from "@openng/optimus-ui/checkbox";
+import {Button} from "@openng/optimus-ui/button";
+import {ConfirmationService, MessageService} from "@openng/optimus-ui/api";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {LocalSettingsService, LocalSettings} from "../../../../shared/service/local-settings.service";
 import {CacheStorageService} from "../../../../shared/service/cache-storage.service";

@@ -25,10 +25,10 @@ code.
 
 Grimmory uses a two-stage workflow designed to keep everyone's time well spent.
 
-**Discussions first.** Ideas, bug reports, and support questions all start in
+**Discussions first.** Ideas and support questions all start in
 [GitHub Discussions](https://github.com/orgs/grimmory-tools/discussions). This is where problems get
 understood, ideas get shaped, and the community weighs in. Nothing is off the table at this stage.
-Discussions are where we figure out what's actually worth building or fixing.
+Discussions are where we figure out what's actually worth building.
 
 **Issues mean it's ready.** When a discussion produces something clear and actionable, a maintainer
 will promote it to an issue. That's the signal that the work is agreed, scoped, and ready to be
@@ -74,9 +74,9 @@ friendly to newcomers are tagged [`good first issue`][good-first-issue].
 
 ### I'd like to contribute translations
 
-Please use the [Grimmory Weblate project](https://hosted.weblate.org/engage/grimmory/) for
-non-English localization work. Weblate tracks `develop`, shows missing and outdated strings, and
-sends translation updates back to the repository as reviewed pull requests.
+Please use the [Grimmory Crowdin project](https://crowdin.com/project/grimmory) for
+non-English localization work. Crowdin's hosted GitHub integration tracks `develop`, shows missing
+and outdated strings, and sends translation updates back as reviewed pull requests.
 
 When translating, preserve placeholders exactly, such as `{{ name }}`, `{{ count }}`, and
 `{{ provider }}`. Do not translate placeholder names. Keep HTML tags intact when they appear in a
@@ -87,10 +87,10 @@ Do not hand-edit non-English translations in regular code pull requests unless e
 to do so by a maintainer. Do not pre-fill other languages' localizations with English. Empty target
 strings make it easier to surface those keys for translators than copied English.
 
-Developers should add and change source strings in `frontend/src/i18n/en/*.json`. Each JSON file is
-a Transloco domain and maps to a Weblate component. When adding a new source-string domain, add the
-English JSON file, add matching empty JSON files for each non-English locale, then import/export the
-domain from each locale `index.ts`.
+Developers should add and change source strings in `frontend/src/i18n/en.json`. Each top-level key
+is a Transloco domain. When adding a new source-string domain, add a top-level key block to the
+English file; other locales pick it up automatically through the English fallback until translations
+arrive.
 
 ### Something isn't working
 
@@ -102,19 +102,19 @@ may already have been reported or fixed.
 > upvote button on the discussion or an emoji reaction on the relevant post instead. This shows
 > your support without notifying every participant by email.
 
-If it hasn't been reported, open an [**Issue Triage**][bug] discussion and fill in the
+If it hasn't been reported, open a [**Bug Report Issue**][bug] and fill in the
 template completely. The information it asks for is what contributors need to investigate. Skipping
 fields slows things down for everyone.
 
 > [!WARNING]
 > A common mistake is to post a bug in the wrong category. If you're experiencing unexpected
-> behaviour, use [**Issue Triage**][bug] and not [**Q&A**][qa] or [**Feature Requests & Ideas**][request]. 
+> behaviour, use [**a Bug Report**][bug] and not [**Q&A**][qa] or [**Feature Requests & Ideas**][request]. 
 > Posting in the wrong place means maintainers or contributors have to ask for information all
 > over again, or ask you to repost entirely.
 
 [discussions]: https://github.com/orgs/grimmory-tools/discussions
 [closed-issues]: https://github.com/grimmory-tools/grimmory/issues?q=is%3Aissue%20state%3Aclosed
-[bug]: https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage
+[bug]: https://github.com/grimmory-tools/grimmory/issues/new?template=bug-report.yml
 [request]: https://github.com/orgs/grimmory-tools/discussions/new?category=feature-requests-ideas
 [qa]: https://github.com/orgs/grimmory-tools/discussions/new?category=q-a
 

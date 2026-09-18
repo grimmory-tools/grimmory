@@ -1,9 +1,9 @@
 package org.booklore.config.security.oidc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.Instant;
@@ -19,10 +19,18 @@ public class OidcDiscoveryService {
 
     private static final Pattern TRAILING_SLASH = Pattern.compile("/+$");
     private static final long CACHE_TTL_MS = 3_600_000; // 1 hour
-    private static final int CONNECT_TIMEOUT_MS = 10_000;
-    private static final int READ_TIMEOUT_MS = 10_000;
 
     private final ConcurrentMap<String, CachedDiscovery> cache = new ConcurrentHashMap<>();
+
+    @Qualifier("oidc")
+    private final RestTemplate oidcRestTemplate;
+
+    public OidcDiscoveryService(
+            @Qualifier("oidc")
+            RestTemplate oidcRestTemplate
+    ) {
+        this.oidcRestTemplate = oidcRestTemplate;
+    }
 
     public record DiscoveryDocument(
             String issuer,
@@ -63,16 +71,10 @@ public class OidcDiscoveryService {
         String discoveryUrl = issuerUri + "/.well-known/openid-configuration";
         log.info("Fetching OIDC discovery document from {}", discoveryUrl);
 
-        var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(CONNECT_TIMEOUT_MS);
-        factory.setReadTimeout(READ_TIMEOUT_MS);
-
-        var restClient = RestClient.builder().requestFactory(factory).build();
-
-        Map<String, Object> doc = restClient.get()
-                .uri(discoveryUrl)
-                .retrieve()
-                .body(Map.class);
+        Map<String, Object> doc = oidcRestTemplate.getForObject(
+                    discoveryUrl,
+                    Map.class
+                );
 
         if (doc == null) {
             throw new IllegalStateException("Failed to fetch OIDC discovery document from " + discoveryUrl);

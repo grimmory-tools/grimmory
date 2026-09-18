@@ -6,12 +6,13 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChild,
 } from '@angular/core';
 import { type FormCheckboxControl } from '@angular/forms/signals';
 import { cn } from '../cn';
-import { invisibleControlInputClass } from '../control.styles';
+import { AppControlTransitionDirective, expandedTouchTargetInputClass } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appSwitchRootVariants,
@@ -23,6 +24,7 @@ import {
 @Component({
   selector: 'app-switch',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'inline-flex align-middle' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -44,9 +46,9 @@ import {
         [disabled]="isUnavailable()"
         [required]="required()"
         (change)="onInputChange(control.checked)"
-        (blur)="touched.set(true)" />
-      <span [class]="trackClass()" aria-hidden="true"></span>
-      <span [class]="thumbClass()" aria-hidden="true"></span>
+        (blur)="touch.emit()" />
+      <span appControlTransition [class]="trackClass()" aria-hidden="true"></span>
+      <span appControlTransition [class]="thumbClass()" aria-hidden="true"></span>
     </span>
   `,
 })
@@ -57,7 +59,8 @@ export class AppSwitchComponent implements FormCheckboxControl {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppSwitchSize>('md');
@@ -76,7 +79,7 @@ export class AppSwitchComponent implements FormCheckboxControl {
   protected readonly isUnavailable = computed(() => this.disabled() || this.readonly());
 
   protected readonly rootClass = computed(() => cn(appSwitchRootVariants({ size: this.size() }), this.styleClass()));
-  protected readonly inputClass = invisibleControlInputClass;
+  protected readonly inputClass = expandedTouchTargetInputClass;
   protected readonly trackClass = computed(() =>
     appSwitchTrackVariants({ disabled: this.isUnavailable(), invalid: this.showInvalid() }),
   );

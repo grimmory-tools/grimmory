@@ -1,15 +1,15 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
-import {InputText} from 'primeng/inputtext';
-import {Divider} from 'primeng/divider';
-import {Chip} from 'primeng/chip';
-import {ProgressSpinner} from 'primeng/progressspinner';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Divider} from '@openng/optimus-ui/divider';
+import {Chip} from '@openng/optimus-ui/chip';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {BookdropService, PatternExtractResult} from '../../service/bookdrop.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {NgClass} from '@angular/common';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 interface PatternPlaceholder {

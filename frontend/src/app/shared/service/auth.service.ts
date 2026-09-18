@@ -177,14 +177,14 @@ export class AuthService {
     this._logoutInProgress.set(true);
 
     const refreshToken = this.getInternalRefreshToken();
-    this.clearSession();
-
     this.http.post<{ logoutUrl: string | null }>(`${this.apiUrl}/logout`, { refreshToken })
       .pipe(finalize(() => {
         this._logoutInProgress.set(false);
       }))
       .subscribe({
         next: (response) => {
+          this.clearSession();
+
           if (response.logoutUrl) {
             this.redirectTo(response.logoutUrl, true);
           } else {
@@ -192,6 +192,8 @@ export class AuthService {
           }
         },
         error: () => {
+          this.clearSession();
+
           this.redirectTo('/login', true);
         }
       });

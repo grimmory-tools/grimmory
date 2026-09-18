@@ -353,7 +353,7 @@ public class KomgaMapper {
     public KomgaUserDto toKomgaUserDto(OpdsUserV2Entity opdsUser) {
         return KomgaUserDto.builder()
                 .id(opdsUser.getId().toString())
-                .email(opdsUser.getUsername() + "@booklore.local")
+                .email(opdsUser.getUsername() + "@grimmory.local")
                 .roles(List.of("USER"))
                 .sharedAllLibraries(true)
                 .build();

@@ -7,12 +7,13 @@ import {
   inject,
   input,
   model,
+  output,
   type ElementRef,
   viewChild,
 } from '@angular/core';
 import { type FormCheckboxControl } from '@angular/forms/signals';
 import { cn } from '../cn';
-import { invisibleControlInputClass } from '../control.styles';
+import { AppControlTransitionDirective, expandedTouchTargetInputClass } from '../control.styles';
 import { APP_FIELD } from '../field/app-field.context';
 import {
   appCheckboxBoxVariants,
@@ -24,6 +25,7 @@ import {
 @Component({
   selector: 'app-checkbox',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'inline-block align-middle' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -44,9 +46,9 @@ import {
         [disabled]="isUnavailable()"
         [required]="required()"
         (change)="onInputChange(checkbox.checked)"
-        (blur)="touched.set(true)" />
-      <span [class]="boxClass()" aria-hidden="true"></span>
-      <svg [class]="checkIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        (blur)="touch.emit()" />
+      <span appControlTransition [class]="boxClass()" aria-hidden="true"></span>
+      <svg appControlTransition [class]="checkIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path
           d="M12.5 4.75L6.75 10.5L3.5 7.25"
           stroke="currentColor"
@@ -54,7 +56,7 @@ import {
           stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
-      <svg [class]="indeterminateIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg appControlTransition [class]="indeterminateIndicatorClass()" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M4 8H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
     </span>
@@ -67,7 +69,8 @@ export class AppCheckboxComponent implements FormCheckboxControl {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly indeterminate = model(false);
@@ -87,7 +90,7 @@ export class AppCheckboxComponent implements FormCheckboxControl {
   protected readonly isUnavailable = computed(() => this.disabled() || this.readonly());
 
   protected readonly rootClass = computed(() => cn(appCheckboxRootVariants({ size: this.size() }), this.styleClass()));
-  protected readonly inputClass = invisibleControlInputClass;
+  protected readonly inputClass = expandedTouchTargetInputClass;
   protected readonly boxClass = computed(() =>
     appCheckboxBoxVariants({ disabled: this.isUnavailable(), invalid: this.showInvalid() }),
   );

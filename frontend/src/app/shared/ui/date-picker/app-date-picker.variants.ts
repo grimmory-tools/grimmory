@@ -1,7 +1,7 @@
 export type AppDatePickerSize = 'sm' | 'md' | 'lg';
 
 export const appDatePickerDayBase =
-  'relative flex size-9 items-center justify-center rounded-md border-0 bg-transparent text-sm font-normal text-text outline-hidden ' +
+  'relative flex size-9 items-center justify-center rounded-md border-0 bg-transparent text-sm font-normal text-text outline-hidden pointer-coarse:size-11 ' +
   'hover:bg-surface-hover hover:text-text-strong ' +
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ' +
   'disabled:pointer-events-none';

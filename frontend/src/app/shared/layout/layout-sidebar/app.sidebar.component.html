@@ -55,22 +55,28 @@
       [tooltipDisabled]="!layoutService.isDesktop()"
       tooltipPosition="bottom"
       [attr.aria-label]="t('add')"
-      aria-haspopup="menu"
-      [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
-      (click)="toggleAddMenu($event, addMenu)"
+      [appMenuTriggerFor]="addMenu"
     >
       <svg lucidePlus aria-hidden="true"></svg>
     </button>
 
-    <p-menu
+    <app-menu
       #addMenu
-      [model]="addMenuItems()"
-      [popup]="true"
-      appendTo="body"
-      styleClass="sidebar-create-menu"
-      (onShow)="addMenuOpen.set(true)"
-      (onHide)="addMenuOpen.set(false)"
-    ></p-menu>
+      [ariaLabel]="t('add')">
+      @if (currentUser(); as user) {
+        @if (user.permissions.admin || user.permissions.canManageLibrary) {
+          <app-menu-item value="create-library" (selected)="dialogLauncherService.openLibraryCreateDialog()">
+            {{ t('createLibrary') }}
+          </app-menu-item>
+        }
+        <app-menu-item value="create-shelf" (selected)="bookDialogHelperService.openShelfCreatorDialog()">
+          {{ 'book.shelfCreator.title' | transloco }}
+        </app-menu-item>
+        <app-menu-item value="create-magic-shelf" (selected)="dialogLauncherService.openMagicShelfCreateDialog()">
+          {{ t('createMagicShelf') }}
+        </app-menu-item>
+      }
+    </app-menu>
 
     @if (canUploadBooks()) {
       <button
@@ -177,9 +183,7 @@
         [tooltipDisabled]="!layoutService.isDesktop()"
         tooltipPosition="top"
         [attr.aria-label]="t('add')"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="addMenuOpen() ? 'true' : 'false'"
-        (click)="toggleAddMenu($event, addMenu)"
+        [appMenuTriggerFor]="addMenu"
       >
         <svg lucidePlus aria-hidden="true"></svg>
         <span class="sidebar-footer-action-label">{{ t('add') }}</span>

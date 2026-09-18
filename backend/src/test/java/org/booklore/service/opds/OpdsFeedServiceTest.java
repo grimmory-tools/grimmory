@@ -351,7 +351,7 @@ class OpdsFeedServiceTest {
     void getOpenSearchDescription_shouldReturnValidXml() {
         String xml = opdsFeedService.getOpenSearchDescription();
         assertThat(xml).contains("<OpenSearchDescription");
-        assertThat(xml).contains("Search Booklore catalog");
+        assertThat(xml).contains("Search Grimmory catalog");
         assertThat(xml).contains("</OpenSearchDescription>");
     }
 

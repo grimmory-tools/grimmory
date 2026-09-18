@@ -1,17 +1,23 @@
 package org.booklore.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.booklore.model.dto.BookMetadata;
 
-@Builder
+import java.util.Optional;
+
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MetadataUpdateWrapper {
     private BookMetadata metadata;
-    @Builder.Default
     private MetadataClearFlags clearFlags = new MetadataClearFlags();
+
+    @Builder
+    private MetadataUpdateWrapper(BookMetadata metadata, MetadataClearFlags clearFlags) {
+        // @Builder.Default does not work as expected with non-primitive types in all cases
+        // so we've created our own helper.
+        this.metadata = metadata;
+        this.clearFlags = Optional.ofNullable(clearFlags).orElse(this.clearFlags);
+    }
 }

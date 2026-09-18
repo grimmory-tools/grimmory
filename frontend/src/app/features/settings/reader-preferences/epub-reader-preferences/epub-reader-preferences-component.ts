@@ -1,14 +1,14 @@
 import {DecimalPipe} from '@angular/common';
 import {Component, computed, effect, untracked, inject, input} from '@angular/core';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderPreferencesService} from '../reader-preferences.service';
 import {UserSettings} from '../../user-management/user.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
 import {addCustomFontsToDropdown, FontPreferenceItem} from '../../../../shared/util/custom-font.util';
-import {Skeleton} from 'primeng/skeleton';
+import {Skeleton} from '@openng/optimus-ui/skeleton';
 import {themes} from '../../../readers/ebook-reader/state/themes.constant';
 
 @Component({

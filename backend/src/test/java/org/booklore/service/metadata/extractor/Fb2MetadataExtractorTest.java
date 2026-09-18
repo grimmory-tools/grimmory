@@ -499,7 +499,24 @@ class Fb2MetadataExtractorTest {
     }
 
     @Test
-    void extractCover_fallbackToCoverpageReference() throws IOException {
+    void extractCover_binaryWithNewLines() throws IOException {
+        byte[] imageData = {(byte) 0x89, 0x50, 0x4E, 0x47};
+        File file = writeFb2("""
+                <description><title-info/></description>
+                <binary id="cover.jpg" content-type="image/jpeg">
+                iVB
+                ORw==
+                </binary>
+                """
+        );
+
+        byte[] cover = extractor.extractCover(file);
+
+        assertThat(cover).isEqualTo(imageData);
+    }
+
+    @Test
+    void extractCover_readCoverpageReference() throws IOException {
         byte[] imageData = {0x01, 0x02, 0x03, 0x04};
         String base64 = Base64.getEncoder().encodeToString(imageData);
         File file = writeFb2("""
@@ -511,6 +528,52 @@ class Fb2MetadataExtractorTest {
                   </title-info>
                 </description>
                 <binary id="img1" content-type="image/png">%s</binary>
+                """.formatted(base64));
+
+        byte[] cover = extractor.extractCover(file);
+
+        assertThat(cover).isEqualTo(imageData);
+    }
+
+    @Test
+    void extractCover_prioritizeCoverPageReference() throws IOException {
+        byte[] imageDataA = {0x01, 0x02, 0x03, 0x04};
+        byte[] imageDataB = {0x05, 0x06, 0x07, 0x08};
+        byte[] imageDataC = {0x09, 0x10, 0x11, 0x12};
+        String base64A = Base64.getEncoder().encodeToString(imageDataA);
+        String base64B = Base64.getEncoder().encodeToString(imageDataB);
+        String base64C = Base64.getEncoder().encodeToString(imageDataC);
+        File file = writeFb2("""
+                <description>
+                  <title-info>
+                    <coverpage>
+                      <image l:href="#img1"/>
+                    </coverpage>
+                  </title-info>
+                </description>
+                <binary id="img1" content-type="image/png">%s</binary>
+                <binary id="not-cover.jpg" content-type="image/png">%s</binary>
+                <binary id="also-not-cover.jpg" content-type="image/png">%s</binary>
+                """.formatted(base64A, base64B, base64C));
+
+        byte[] cover = extractor.extractCover(file);
+
+        assertThat(cover).isEqualTo(imageDataA);
+    }
+
+    @Test
+    void extractCover_fallsBackWhenCoverPageRefIsMissing() throws IOException {
+        byte[] imageData = {0x01, 0x02, 0x03, 0x04};
+        String base64 = Base64.getEncoder().encodeToString(imageData);
+        File file = writeFb2("""
+                <description>
+                  <title-info>
+                    <coverpage>
+                      <image l:href="#img1"/>
+                    </coverpage>
+                  </title-info>
+                </description>
+                <binary id="cover.jpg" content-type="image/png">%s</binary>
                 """.formatted(base64));
 
         byte[] cover = extractor.extractCover(file);

@@ -1,5 +1,5 @@
 import {FormsModule} from "@angular/forms";
-import {Button} from "primeng/button";
+import {Button} from "@openng/optimus-ui/button";
 import {ActivatedRoute, Router} from "@angular/router";
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DecimalPipe, KeyValuePipe, NgClass, NgStyle} from "@angular/common";
@@ -8,27 +8,28 @@ import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/b
 import {BookService} from "../../service/book.service";
 import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
 import {BookCardComponent} from "../book-browser/book-card/book-card.component";
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from "primeng/tabs";
-import {ProgressSpinner} from "primeng/progressspinner";
-import {ProgressBar} from "primeng/progressbar";
-import {DynamicDialogRef} from "primeng/dynamicdialog";
-import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@openng/optimus-ui/tabs";
+import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
+import {ProgressBar} from "@openng/optimus-ui/progressbar";
+import {DynamicDialogRef} from "@openng/optimus-ui/dynamicdialog";
+import {ConfirmationService, MenuItem, MessageService} from "@openng/optimus-ui/api";
 import {UserService} from "../../../settings/user-management/user.service";
 import {BookMenuService} from "../../service/book-menu.service";
 import {LoadingService} from "../../../../core/services/loading.service";
 import {BookDialogHelperService} from "../book-browser/book-dialog-helper.service";
 import {TaskHelperService} from "../../../settings/task-management/task-helper.service";
 import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
-import {TieredMenu} from "primeng/tieredmenu";
+import {TieredMenu} from "@openng/optimus-ui/tieredmenu";
 import {AppSettingsService} from "../../../../shared/service/app-settings.service";
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {Tooltip} from "primeng/tooltip";
-import {Divider} from "primeng/divider";
+import {Tooltip} from "@openng/optimus-ui/tooltip";
+import {Divider} from "@openng/optimus-ui/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
 import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
+import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
 import {LayoutService} from '../../../../shared/layout/layout.service';
@@ -89,7 +90,7 @@ interface SeriesStats {
     Divider,
     TranslocoDirective,
     TagComponent,
-    CoverPlaceholderComponent,
+    CoverComponent,
   ],
 })
 export class SeriesPageComponent implements AfterViewChecked {
@@ -101,6 +102,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly MOBILE_GRID_COLUMNS = 2;
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
+  private languageResolver = inject(LanguageResolverService);
   private bookMetadataManageService = inject(BookMetadataManageService);
   private metadataCenterViewMode: "route" | "dialog" = "route";
   private dialogRef?: DynamicDialogRef | null;
@@ -241,7 +243,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     const languages = new Set<string>();
     for (const book of this.filteredBooks()) {
       if (book.metadata?.language) {
-        languages.add(book.metadata.language);
+        languages.add(this.languageResolver.displayName(book.metadata.language));
       }
     }
     return Array.from(languages);

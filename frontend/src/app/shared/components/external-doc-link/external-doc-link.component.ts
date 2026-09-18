@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 
 export type DocType = 'kobo' | 'opds' | 'metadataManager' | 'koReader' | 'email'
   | 'amazonCookie' | 'fetchConfig' | 'hardcover' | 'taskManagement' | 'fileNamePatterns'

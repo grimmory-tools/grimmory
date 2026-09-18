@@ -118,7 +118,7 @@ class FileMoveServiceOrderingTest {
         file.setBookFormat(true);
         file.setBookType(BookFileType.EPUB);
 
-        book.setBookFiles(new ArrayList<>(List.of(file)));
+        book.setBookFiles(Set.of(file));
         return book;
     }
 
@@ -258,7 +258,7 @@ class FileMoveServiceOrderingTest {
         file2.setBookFormat(true);
         file2.setBookType(BookFileType.PDF);
 
-        book.setBookFiles(new ArrayList<>(List.of(file1, file2)));
+        book.setBookFiles(Set.of(file1, file2));
 
         Path target = Paths.get("/library/new/path/NewName.epub");
         mockStandardBehavior(book, target);

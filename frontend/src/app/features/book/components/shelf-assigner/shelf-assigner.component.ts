@@ -1,22 +1,22 @@
 import {Component, computed, effect, inject} from '@angular/core';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {Book} from '../../model/book.model';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {ShelfService} from '../../service/shelf.service';
 import {finalize} from 'rxjs';
 import {BookService} from '../../service/book.service';
 import {Shelf} from '../../model/shelf.model';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {FormsModule} from '@angular/forms';
 import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {InputText} from 'primeng/inputtext';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {IconField} from '@openng/optimus-ui/iconfield';
+import {InputIcon} from '@openng/optimus-ui/inputicon';
 import {IconSelection, toIconSelection} from '../../../../shared/icons/icon-selection';
 
 @Component({

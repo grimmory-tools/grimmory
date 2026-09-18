@@ -118,7 +118,7 @@
             pSize="small"
             id="clientSecret"
             type="password"
-            [(ngModel)]="oidcProvider.clientSecret"
+            [(ngModel)]="oidcProviderClientSecret"
             [placeholder]="t('providerConfig.clientSecretPlaceholder')"/>
           <span class="field-hint">{{ t('providerConfig.clientSecretHint') }}</span>
         </div>
@@ -250,14 +250,14 @@
 
       <div class="provider-actions-row">
         <div class="test-results-inline">
-          @if (testConnectionResult) {
+          @if (testConnectionResult()) {
             <div class="test-results-toggle"
-                 [style.border-radius]="showTestDetails ? '6px 6px 0 0' : '6px'"
+                 [style.border-radius]="showTestDetails() ? '6px 6px 0 0' : '6px'"
                  role="button"
                  tabindex="0"
-                 (click)="showTestDetails = !showTestDetails"
-                 (keydown.enter)="showTestDetails = !showTestDetails">
-              @if (testConnectionResult.success) {
+                 (click)="toggleTestDetails()"
+                 (keydown.enter)="toggleTestDetails()">
+              @if (testConnectionResult()?.success) {
                 <i class="pi pi-check-circle text-emerald-700 dark:text-emerald-300"></i>
                 <span>{{ t('testConnection.passed') }}</span>
               } @else {
@@ -265,9 +265,9 @@
                 <span>{{ t('testConnection.failed') }}</span>
               }
               <span style="color: var(--p-text-muted-color); font-size: 0.75rem;">
-                ({{ testConnectionResult.checks.length }} {{ t('testConnection.checks') }})
+                ({{ testConnectionResult()?.checks?.length ?? 0 }} {{ t('testConnection.checks') }})
               </span>
-              <i class="pi pi-chevron-right toggle-chevron" [class.expanded]="showTestDetails"></i>
+              <i class="pi pi-chevron-right toggle-chevron" [class.expanded]="showTestDetails()"></i>
             </div>
           }
         </div>
@@ -275,11 +275,11 @@
           <p-button
             [outlined]="true"
             [label]="t('testConnection.button')"
-            [icon]="isTestingConnection ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+            [icon]="isTestingConnection() ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
             severity="info"
             size="small"
             (click)="testConnection()"
-            [disabled]="!oidcProvider.issuerUri || isTestingConnection">
+            [disabled]="!oidcProvider.issuerUri || isTestingConnection()">
           </p-button>
           <p-button
             [outlined]="true"
@@ -292,9 +292,9 @@
           </p-button>
         </div>
       </div>
-      @if (testConnectionResult && showTestDetails) {
+      @if (testConnectionResult() && showTestDetails()) {
         <div class="test-results-details">
-          @for (check of testConnectionResult.checks; track check.name) {
+          @for (check of testConnectionResult()?.checks; track check.name) {
             <div class="test-check-row">
               @switch (check.status) {
                 @case ('PASS') {

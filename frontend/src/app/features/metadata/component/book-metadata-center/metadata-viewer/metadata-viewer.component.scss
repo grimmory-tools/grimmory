@@ -65,11 +65,7 @@
 }
 
 .cover-progress-bar-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
+  margin-top: 0.4375rem;
   border-radius: 9999px;
   overflow: hidden;
   display: flex;
@@ -78,6 +74,8 @@
 }
 
 .cover-progress-bar {
+  --p-progressbar-background: var(--color-surface-300);
+
   z-index: 2;
   pointer-events: none;
   height: 6px;
@@ -595,22 +593,22 @@
 }
 
 @media (width <= 767px) {
-  ::ng-deep .mobile-icon-only .p-button-label {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only .p-button-label {
     display: none !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only .p-button {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only .p-button {
     min-width: auto !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only.p-splitbutton .p-button-label {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only.p-splitbutton .p-button-label {
     display: none !important;
     padding: 10px !important;
   }
 
-  ::ng-deep .mobile-icon-only.p-splitbutton .p-button {
+  ::ng-deep .metadata-viewer-container .mobile-icon-only.p-splitbutton .p-button {
     min-width: auto !important;
     padding: 10px !important;
   }

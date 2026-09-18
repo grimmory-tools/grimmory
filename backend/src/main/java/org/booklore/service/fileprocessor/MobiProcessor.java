@@ -120,6 +120,7 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
         String lang = mobiMetadata.getLanguage();
         metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
+        metadata.setOpenlibraryId(truncate(mobiMetadata.getOpenlibraryId(), 100));
         metadata.setAsin(truncate(mobiMetadata.getAsin(), 10));
         metadata.setAmazonRating(mobiMetadata.getAmazonRating());
         metadata.setAmazonReviewCount(mobiMetadata.getAmazonReviewCount());
@@ -133,6 +134,9 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
         metadata.setComicvineId(truncate(mobiMetadata.getComicvineId(), 100));
         metadata.setRanobedbId(truncate(mobiMetadata.getRanobedbId(), 100));
         metadata.setRanobedbRating(mobiMetadata.getRanobedbRating());
+        metadata.setApplebooksId(truncate(mobiMetadata.getApplebooksId(), 100));
+        metadata.setApplebooksRating(mobiMetadata.getApplebooksRating());
+        metadata.setApplebooksReviewCount(mobiMetadata.getApplebooksReviewCount());
 
         bookCreatorService.addAuthorsToBook(mobiMetadata.getAuthors(), bookEntity);
 

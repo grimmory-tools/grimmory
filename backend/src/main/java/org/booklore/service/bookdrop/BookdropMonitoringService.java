@@ -1,21 +1,24 @@
 package org.booklore.service.bookdrop;
 
+import lombok.Getter;
 import org.booklore.config.AppProperties;
 import org.booklore.model.enums.BookFileExtension;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -72,7 +75,6 @@ public class BookdropMonitoringService implements SmartLifecycle {
             this.watchThread = new Thread(this::processEvents, "BookdropFolderWatcher");
             this.watchThread.setDaemon(true);
             this.watchThread.start();
-            scanExistingBookdropFiles();
             this.disabled = false;
         } catch (IOException e) {
             log.warn("Failed to start bookdrop folder monitor. Bookdrop monitoring is disabled.", e);
@@ -161,6 +163,12 @@ public class BookdropMonitoringService implements SmartLifecycle {
     }
 
     private void processEvents() {
+        try {
+            scanExistingBookdropFiles();
+        } catch (Exception e) {
+            log.error("Failed to scan existing bookdrop files", e);
+        }
+
         while (running) {
             if (paused) {
                 try {
@@ -186,46 +194,10 @@ public class BookdropMonitoringService implements SmartLifecycle {
             }
 
             for (WatchEvent<?> event : key.pollEvents()) {
-                WatchEvent.Kind<?> kind = event.kind();
-
-                if (kind == StandardWatchEventKinds.OVERFLOW) {
-                    log.warn("Overflow event detected");
-                    continue;
-                }
-
-                Path context = (Path) event.context();
-                Path fullPath = bookdrop.resolve(context);
-
-                log.info("Detected {} event on: {}", kind.name(), fullPath);
-
-                if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-                    if (Files.isDirectory(fullPath)) {
-                        log.info("New directory detected, scanning recursively: {}", fullPath);
-                        try (Stream<Path> pathStream = Files.walk(fullPath)) {
-                            pathStream
-                                    .filter(Files::isRegularFile)
-                                    .filter(path -> !FileUtils.shouldIgnore(path))
-                                    .filter(path -> BookFileExtension.fromFileName(path.getFileName().toString()).isPresent())
-                                    .forEach(path -> eventHandler.enqueueFile(path, StandardWatchEventKinds.ENTRY_CREATE));
-                        } catch (IOException e) {
-                            log.error("Failed to scan new directory: {}", fullPath, e);
-                        }
-                    } else {
-                        if (!FileUtils.shouldIgnore(fullPath)) {
-                            if (BookFileExtension.fromFileName(fullPath.getFileName().toString()).isPresent()) {
-                                eventHandler.enqueueFile(fullPath, kind);
-                            } else {
-                                log.info("Ignored unsupported file type: {}", fullPath);
-                            }
-                        }
-                    }
-                } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                    if (Files.isDirectory(fullPath)) {
-                        log.info("Directory deleted: {}, performing bulk DB cleanup", fullPath);
-                    } else {
-                        log.info("File deleted: {}", fullPath);
-                    }
-                    eventHandler.enqueueFile(fullPath, kind);
+                try {
+                    processEvent(event);
+                } catch (Exception e) {
+                    log.error("Failed to process {} event", event.kind(), e);
                 }
             }
 
@@ -233,6 +205,36 @@ public class BookdropMonitoringService implements SmartLifecycle {
             if (!valid) {
                 log.warn("WatchKey is no longer valid");
                 break;
+            }
+        }
+    }
+
+    private void processEvent(WatchEvent<?> event) {
+        WatchEvent.Kind<?> kind = event.kind();
+
+        if (kind == StandardWatchEventKinds.OVERFLOW) {
+            log.warn("Overflow event detected");
+            return;
+        }
+
+        if (event.context() instanceof Path context) {
+            Path fullPath = bookdrop.resolve(context);
+
+            log.info("Detected {} event on: {}", kind.name(), fullPath);
+
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+                var filePaths = getSupportedBookdropFiles(fullPath);
+
+                for (var path : filePaths) {
+                    eventHandler.enqueueFile(path, kind);
+                }
+            } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                if (Files.isDirectory(fullPath)) {
+                    log.info("Directory deleted: {}, performing bulk DB cleanup", fullPath);
+                } else {
+                    log.info("File deleted: {}", fullPath);
+                }
+                eventHandler.enqueueFile(fullPath, kind);
             }
         }
     }
@@ -246,17 +248,82 @@ public class BookdropMonitoringService implements SmartLifecycle {
         scanExistingBookdropFiles();
     }
 
-    private void scanExistingBookdropFiles() {
-        List<Path> supportedFiles;
-        try (Stream<Path> files = Files.walk(bookdrop)) {
-            supportedFiles = files.filter(Files::isRegularFile)
-                    .filter(path -> !FileUtils.shouldIgnore(path))
-                    .filter(path -> BookFileExtension.fromFileName(path.getFileName().toString()).isPresent())
-                    .toList();
-        } catch (IOException e) {
-            log.error("Error scanning bookdrop folder", e);
-            return;
+    private static class BookdropFileVisitor implements FileVisitor<Path> {
+        @Getter
+        private final Set<Path> visitedFiles = new HashSet<>();
+
+        @Override
+        @NotNull
+        public FileVisitResult preVisitDirectory(Path path, @NotNull BasicFileAttributes basicFileAttributes) {
+            if (!Files.isReadable(path)) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+
+            return FileVisitResult.CONTINUE;
         }
+
+        public FileVisitResult visitFile(Path path) {
+            if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
+                log.debug("Bookdrop file is not a readable regular file, skipping: {}", path);
+                return FileVisitResult.CONTINUE;
+            }
+
+            if (FileUtils.shouldIgnore(path)) {
+                log.debug("Bookdrop file is ignored: {}", path);
+                return FileVisitResult.CONTINUE;
+            }
+
+            if (BookFileExtension.fromFileName(path.getFileName().toString()).isEmpty()) {
+                log.debug("Bookdrop file is not supported: {}", path);
+                return FileVisitResult.CONTINUE;
+            }
+
+            visitedFiles.add(path);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        @NotNull
+        public FileVisitResult visitFile(Path path, @NotNull BasicFileAttributes basicFileAttributes) {
+            return visitFile(path);
+        }
+
+        @Override
+        @NotNull
+        public FileVisitResult visitFileFailed(Path path, @NotNull IOException e) {
+            log.error("Failed to read path in bookdrop: {}", path, e);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        @NotNull
+        public FileVisitResult postVisitDirectory(Path path, @Nullable IOException e) {
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    private List<Path> getSupportedBookdropFiles(Path path) {
+        // Given that individual folders may have permissions issues, we can't use the `Files.walk` helper.
+        // Instead, we can use a file visitor that ignores exceptions and tracks files.
+        log.info("New directory detected, scanning recursively: {}", path);
+        var visitor = new BookdropFileVisitor();
+
+        if (Files.isDirectory(path)) {
+            try {
+                Files.walkFileTree(path, visitor);
+
+            } catch (IOException e) {
+                log.error("Failed to scan new directory: {}", path, e);
+            }
+        } else {
+            visitor.visitFile(path);
+        }
+
+        return List.copyOf(visitor.getVisitedFiles());
+    }
+
+    private void scanExistingBookdropFiles() {
+        List<Path> supportedFiles = getSupportedBookdropFiles(bookdrop);
 
         if (!supportedFiles.isEmpty()) {
             List<String> supportedFilePaths = supportedFiles.stream()

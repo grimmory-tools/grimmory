@@ -1,39 +1,41 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
+import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/api';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {debounceTime, distinctUntilChanged, filter, map, skip, take} from 'rxjs/operators';
 import {combineLatest, finalize} from 'rxjs';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {Library} from '../../model/library.model';
 import {SortDirection, SortOption} from '../../model/sort.model';
 import {Book} from '../../model/book.model';
-import {LibraryShelfMenuService} from '../../service/library-shelf-menu.service';
+import {
+  LibraryShelfMenuComponent,
+  type LibraryShelfMenuTarget,
+} from '../library-shelf-menu/library-shelf-menu.component';
 import {BookTableComponent} from './book-table/book-table.component';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from '@openng/optimus-ui/button';
 import {NgClass} from '@angular/common';
 import {BookCardComponent} from './book-card/book-card.component';
 
-import {Menu} from 'primeng/menu';
-import {InputText} from 'primeng/inputtext';
+import {InputText} from '@openng/optimus-ui/inputtext';
 import {FormsModule} from '@angular/forms';
 import {BookFilterComponent} from './book-filter/book-filter.component';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {BookFilterMode, DEFAULT_VISIBLE_SORT_FIELDS, EntityViewPreferences, SortCriterion, UserService} from '../../../settings/user-management/user.service';
 import {SeriesCollapseFilter} from './filters/SeriesCollapseFilter';
 import {CoverScalePreferenceService} from './cover-scale-preference.service';
 import {BookSorter} from './sorting/BookSorter';
 import {BookDialogHelperService} from './book-dialog-helper.service';
-import {Checkbox} from 'primeng/checkbox';
-import {Popover} from 'primeng/popover';
-import {Divider} from 'primeng/divider';
-import {MultiSelect} from 'primeng/multiselect';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {Popover} from '@openng/optimus-ui/popover';
+import {Divider} from '@openng/optimus-ui/divider';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {TableColumnPreferenceService} from './table-column-preference.service';
-import {TieredMenu} from 'primeng/tieredmenu';
-import {Badge} from 'primeng/badge';
+import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
+import {Badge} from '@openng/optimus-ui/badge';
 import {BookMenuService} from '../../service/book-menu.service';
 import {SidebarFilterTogglePrefService} from './filters/sidebar-filter-toggle-pref.service';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
@@ -41,6 +43,7 @@ import {TaskHelperService} from '../../../settings/task-management/task-helper.s
 import {FilterLabelHelper} from './filter-label.helper';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
+import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {BookNavigationService} from '../../service/book-navigation.service';
 import {BookCardOverlayPreferenceService} from './book-card-overlay-preference.service';
 import {BookSelectionService, CheckboxClickEvent} from './book-selection.service';
@@ -59,6 +62,7 @@ import {filterBooksByFilters} from './filters/sidebar-filter';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 import {createGridDensity} from '../../../../shared/util/grid-density.util';
 import {DeferredRenderState} from './deferred-render-state';
+import {AppMenuTriggerDirective} from '../../../../shared/ui/menu/app-menu-trigger.directive';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -81,9 +85,10 @@ const MOBILE_COLUMNS_STORAGE_KEY = 'mobileColumnsPreference';
   styleUrls: ['./book-browser.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    Button, BookCardComponent, Menu, InputText, FormsModule,
+    Button, ButtonDirective, BookCardComponent, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, Popover,
     Checkbox, Divider, MultiSelect, TieredMenu, Badge, MultiSortPopoverComponent, TranslocoDirective, TranslocoPipe, GridDensityButtonsComponent,
+    LibraryShelfMenuComponent, AppMenuTriggerDirective,
   ],
   providers: [SeriesCollapseFilter],
 })
@@ -105,7 +110,6 @@ export class BookBrowserComponent implements AfterViewInit {
   private bookMetadataManageService = inject(BookMetadataManageService);
   private dialogHelperService = inject(BookDialogHelperService);
   private bookMenuService = inject(BookMenuService);
-  private libraryShelfMenuService = inject(LibraryShelfMenuService);
   private pageTitle = inject(PageTitleService);
   private loadingService = inject(LoadingService);
   private bookNavigationService = inject(BookNavigationService);
@@ -116,6 +120,7 @@ export class BookBrowserComponent implements AfterViewInit {
   private scrollService = inject(RouteScrollPositionService);
   private layoutService = inject(LayoutService);
   private readonly t = inject(TranslocoService);
+  private readonly languageResolver = inject(LanguageResolverService);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -187,19 +192,17 @@ export class BookBrowserComponent implements AfterViewInit {
     const {entityId, entityType} = this.entityInfo();
     return this.entityService.getEntity(entityId, entityType);
   });
-  readonly entityOptions = computed<MenuItem[]>(() => {
+  readonly entityMenuTarget = computed<LibraryShelfMenuTarget | null>(() => {
     const entity = this.entity();
-    if (!entity) {
-      return [];
+    if (entity?.id == null) return null;
+
+    if (this.entityService.isLibrary(entity)) {
+      return {type: 'library', entity: {...entity, id: entity.id}};
     }
-
-    const actions = this.entityService.isLibrary(entity)
-      ? this.libraryShelfMenuService.initializeLibraryMenuItems(entity)
-      : this.entityService.isMagicShelf(entity)
-        ? this.libraryShelfMenuService.initializeMagicShelfMenuItems(entity)
-        : this.libraryShelfMenuService.initializeShelfMenuItems(entity);
-
-    return actions;
+    if (this.entityService.isMagicShelf(entity)) {
+      return {type: 'magicShelf', entity: {...entity, id: entity.id}};
+    }
+    return {type: 'shelf', entity: {...entity, id: entity.id}};
   });
   // Deferred pipeline: heavy filter/sort runs in a setTimeout so the page chrome
   // and skeletons paint first, then real books replace them on the next task.
@@ -358,7 +361,9 @@ export class BookBrowserComponent implements AfterViewInit {
       const filterName = FilterLabelHelper.getFilterTypeName(filterType);
 
       if (values.length === 1) {
-        const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
+        const displayValue = filterType === 'language'
+          ? this.languageResolver.displayName(String(values[0]))
+          : FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
         return `${filterName}: ${displayValue}`;
       }
 

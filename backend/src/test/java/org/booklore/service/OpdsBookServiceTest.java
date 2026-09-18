@@ -67,7 +67,11 @@ class OpdsBookServiceTest {
 
     private OpdsUserDetails legacyUserDetails() {
         OpdsUserV2 v2 = OpdsUserV2.builder().userId(999L).username("legacy").build();
-        return new OpdsUserDetails(v2);
+        BookLoreUser user = BookLoreUser.builder().username("legacy").id(999L).build();
+        return new OpdsUserDetails(
+                user,
+                v2
+        );
     }
 
     private OpdsUserDetails v2UserDetails(Long userId, boolean isAdmin, Set<Long> libraryIds) {
@@ -88,7 +92,10 @@ class OpdsBookServiceTest {
         }
         when(user.getAssignedLibraries()).thenReturn(libraries);
 
-        return new OpdsUserDetails(v2);
+        return new OpdsUserDetails(
+                user,
+                v2
+        );
     }
 
     @Test
@@ -331,21 +338,6 @@ class OpdsBookServiceTest {
         List<Book> result = spy.getRandomBooks(details.getOpdsUserV2().getUserId(), 1);
 
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getBooksPageForV2User_throwsForbidden_whenNoPermission() {
-        OpdsUserV2 v2 = OpdsUserV2.builder().userId(1L).build();
-        BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(UserPermissionsEntity.class);
-        when(permissionsEntity.isPermissionAccessOpds()).thenReturn(false);
-        when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
-        when(entity.getPermissions()).thenReturn(permissionsEntity);
-        when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(entity));
-
-        assertThatThrownBy(() ->
-                opdsBookService.getBooksPage(1L, null, null, null, 0, 10)
-        ).hasMessageContaining("You are not allowed to access this resource");
     }
 
     @Test

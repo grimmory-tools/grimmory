@@ -12,6 +12,7 @@
 html {
   --mobile-shell-active: 0;
 
+  background-color: var(--color-page);
   font-family: var(--font-family);
   font-size: var(--font-size-root);
   -webkit-font-smoothing: antialiased;
@@ -172,10 +173,4 @@ hr {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-html.route-settling *,
-html.route-settling *::before,
-html.route-settling *::after {
-  transition: none !important;
 }

@@ -1,0 +1,62 @@
+{
+  "data": {
+    "books": [
+      {
+        "id": 1106368,
+        "slug": "summary-of-ready-player-one-by-ernest-cline-summary-analysis",
+        "title": "Summary of Ready Player One by Ernest Cline | Summary & Analysis",
+        "subtitle": null,
+        "description": null,
+        "cached_contributors": [
+          {
+            "author": {
+              "id": 518954,
+              "slug": "nosco-publishing",
+              "name": "Nosco Publishing",
+              "image": {}
+            },
+            "contribution": null
+          }
+        ],
+        "featured_book_series": null,
+        "rating": 3.0,
+        "ratings_count": 1,
+        "reviews_count": 1,
+        "pages": null,
+        "release_date": null,
+        "release_year": null,
+        "image": null,
+        "cached_tags": {},
+        "editions": [
+          {
+            "id": 31130393,
+            "title": "Summary of Ready Player One by Ernest Cline | Summary & Analysis",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 518954,
+                  "slug": "nosco-publishing",
+                  "name": "Nosco Publishing",
+                  "image": {}
+                },
+                "contribution": null
+              }
+            ],
+            "pages": null,
+            "release_date": null,
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60277606/5d5a3efaf95d750096907c60852322e49f349fe7.jpeg"
+            },
+            "publisher": null,
+            "isbn_10": null,
+            "isbn_13": null,
+            "language": null,
+            "reading_format_id": 1
+          }
+        ]
+      }
+    ]
+  }
+}

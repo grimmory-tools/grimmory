@@ -1,9 +1,13 @@
 package org.booklore.service.metadata.parser;
 
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookReview;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
+import org.booklore.model.dto.settings.MetadataPublicReviewsSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
@@ -19,6 +23,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -47,18 +52,53 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
     private static final String BASE_BOOK_URL_SUFFIX = "/dp/";
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^\\d]");
-    private static final Pattern SERIES_FORMAT_PATTERN = Pattern.compile("Book (\\d+(?:\\.\\d+)?) of (\\d+)");
+    private static final Pattern SERIES_FORMAT_PATTERN = Pattern.compile("\\s(\\d+(?:\\.\\d+)?)\\s+.+\\s+(\\d+)$");
     private static final Pattern PARENTHESES_WITH_WHITESPACE_PATTERN = Pattern.compile("\\s*\\(.*?\\)");
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^\\p{L}\\p{M}0-9]");
     private static final Pattern ASIN_PATH_PATTERN = Pattern.compile("/dp/([A-Z0-9]{10})");
     private static final Pattern REVIEWED_IN_ON_PATTERN = Pattern.compile("(?i)(?:Reviewed in|Rezension aus|Beoordeeld in|Recensie uit|Commenté en|Recensito in|Revisado en)\\s+(.+?)\\s+(?:on|vom|op|le|il|el)\\s+(.+)");
     private static final Pattern JAPANESE_REVIEW_DATE_PATTERN = Pattern.compile("(\\d{4}年\\d{1,2}月\\d{1,2}日).+");
+    private static final String PAGE_COUNT_SELECTOR = """
+            #rpi-attribute-book_details-fiona_pages .rpi-attribute-value span,
+            #rpi-attribute-book_details-ebook_pages .rpi-attribute-value span
+            """;
+    private static final String REVIEW_SELECTOR = """
+            div#averageCustomerReviews_feature_div,
+            div#averageCustomerReviews
+            """;
     private static final String[] TITLE_SELECTORS = {"#productTitle", "#ebooksProductTitle", "h1#title", "span#productTitle"};
     private static final String[] DATE_PATTERNS = {
             "MMMM d, yyyy", "d MMMM yyyy", "d. MMMM yyyy", "MMM d, yyyy",
             "MMM. d, yyyy", "d MMM yyyy", "d MMM. yyyy", "d. MMM yyyy",
             "yyyy/M/d", "yyyy/MM/dd", "yyyy年M月d日"
     };
+
+    private static final String DEFAULT_DOMAIN = "com";
+
+    private static final Map<String, String> BASE_URIS = Map.ofEntries(
+            Map.entry("com", "https://www.amazon.com"),
+            Map.entry("co.uk", "https://www.amazon.co.uk"),
+            Map.entry("de", "https://www.amazon.de"),
+            Map.entry("fr", "https://www.amazon.fr"),
+            Map.entry("it", "https://www.amazon.it"),
+            Map.entry("es", "https://www.amazon.es"),
+            Map.entry("ca", "https://www.amazon.ca"),
+            Map.entry("com.au", "https://www.amazon.com.au"),
+            Map.entry("co.jp", "https://www.amazon.co.jp"),
+            Map.entry("in", "https://www.amazon.in"),
+            Map.entry("com.br", "https://www.amazon.com.br"),
+            Map.entry("com.mx", "https://www.amazon.com.mx"),
+            Map.entry("nl", "https://www.amazon.nl"),
+            Map.entry("se", "https://www.amazon.se"),
+            Map.entry("pl", "https://www.amazon.pl"),
+            Map.entry("ae", "https://www.amazon.ae"),
+            Map.entry("sa", "https://www.amazon.sa"),
+            Map.entry("cn", "https://www.amazon.cn"),
+            Map.entry("sg", "https://www.amazon.sg"),
+            Map.entry("tr", "https://www.amazon.com.tr"),
+            Map.entry("eg", "https://www.amazon.eg"),
+            Map.entry("com.be", "https://www.amazon.com.be")
+    );
 
     private static final Map<String, LocaleInfo> DOMAIN_LOCALE_MAP = Map.ofEntries(
             Map.entry("com", new LocaleInfo("en-US,en;q=0.9", Locale.US)),
@@ -84,8 +124,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             Map.entry("eg", new LocaleInfo("en-US,en;q=0.9,ar;q=0.8", new Locale.Builder().setLanguage("en").setRegion("EG").build())),
             Map.entry("com.be", new LocaleInfo("en-GB,en;q=0.9,fr;q=0.8,nl;q=0.8", new Locale.Builder().setLanguage("fr").setRegion("BE").build()))
     );
-
-    private static final LocaleInfo DEFAULT_LOCALE_INFO = new LocaleInfo("en-US,en;q=0.9", Locale.US);
 
     private final AppSettingService appSettingService;
 
@@ -262,18 +300,15 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private BookMetadata getBookMetadata(String amazonBookId) {
         log.info("Amazon: Fetching metadata for: {}", amazonBookId);
 
-        String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
         Document doc;
         try {
-            doc = fetchDocument("https://www.amazon." + domain + BASE_BOOK_URL_SUFFIX + amazonBookId);
+            doc = fetchDocument(getBaseURI() + BASE_BOOK_URL_SUFFIX + amazonBookId);
         } catch (AmazonAntiScrapingException e) {
             log.debug("Aborting metadata fetch for ID {} due to status code (503).", amazonBookId);
             return null;
         }
 
-        List<BookReview> reviews = appSettingService.getAppSettings()
-                .getMetadataPublicReviewsSettings()
-                .getProviders()
+        List<BookReview> reviews = getReviewProviderConfigs()
                 .stream()
                 .filter(cfg -> cfg.getProvider() == MetadataProvider.Amazon && cfg.isEnabled())
                 .findFirst()
@@ -289,6 +324,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
         return BookMetadata.builder()
                 .provider(MetadataProvider.Amazon)
+                .externalUrl(buildExternalUrl(amazonBookId))
                 .title(titleInfo.title())
                 .subtitle(titleInfo.subtitle())
                 .authors(new ArrayList<>(getAuthors(doc)))
@@ -311,11 +347,20 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 .build();
     }
 
+    private String buildExternalUrl(String asin) {
+        String baseUri = getBaseURI();
+
+        return UriComponentsBuilder.fromUriString(baseUri)
+                .path("/dp/{asin}")
+                .build(asin)
+                .toString();
+    }
+
     private String buildQueryUrl(FetchMetadataRequest fetchMetadataRequest, Book book) {
-        String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
+        String baseURI = getBaseURI();
         String isbnCleaned = ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn());
         if (isbnCleaned != null && !isbnCleaned.isEmpty()) {
-            String url = "https://www.amazon." + domain + "/s?k=" + fetchMetadataRequest.getIsbn();
+            String url = baseURI + "/s?k=" + fetchMetadataRequest.getIsbn();
             log.info("Amazon Query URL (ISBN): {}", url);
             return url;
         }
@@ -345,7 +390,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         }
 
         String encodedSearchTerm = searchTerm.toString().replace(" ", "+");
-        String url = "https://www.amazon." + domain + "/s?k=" + encodedSearchTerm;
+        String url = baseURI + "/s?k=" + encodedSearchTerm;
         log.info("Amazon Query URL: {}", url);
         return url;
     }
@@ -609,7 +654,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private Double getRating(Document doc) {
         try {
-            Element reviewDiv = doc.selectFirst("div#averageCustomerReviews_feature_div");
+            Element reviewDiv = doc.selectFirst(REVIEW_SELECTOR);
             if (reviewDiv != null) {
                 Element ratingSpan = reviewDiv.selectFirst("span#acrPopover span.a-size-base.a-color-base");
                 if (ratingSpan == null) {
@@ -631,8 +676,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private List<BookReview> getReviews(Document doc, int maxReviews) {
         List<BookReview> reviews = new ArrayList<>();
-        String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
-        LocaleInfo localeInfo = getLocaleInfoForDomain(domain);
 
         try {
             Elements reviewElements = doc.select("li[data-hook=review]");
@@ -693,7 +736,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                             }
                         }
 
-                        LocalDate localDate = parseDate(datePart, localeInfo);
+                        LocalDate localDate = parseDate(datePart);
                         if (localDate != null) {
                             dateInstant = localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
                         }
@@ -739,7 +782,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private Integer getReviewCount(Document doc) {
         try {
-            Element reviewDiv = doc.select("div#averageCustomerReviews_feature_div").first();
+            Element reviewDiv = doc.selectFirst(REVIEW_SELECTOR);
             if (reviewDiv != null) {
                 Element reviewCountElement = reviewDiv.getElementById("acrCustomerReviewText");
                 if (reviewCountElement != null) {
@@ -777,7 +820,8 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     }
 
     private Integer getPageCount(Document doc) {
-        Elements pageCountElements = doc.select("#rpi-attribute-book_details-fiona_pages .rpi-attribute-value span");
+        Elements pageCountElements = doc.select(PAGE_COUNT_SELECTOR);
+
         if (!pageCountElements.isEmpty()) {
             String pageCountText = pageCountElements.first().text();
             if (!pageCountText.isEmpty()) {
@@ -794,10 +838,9 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     private Document fetchDocument(String url) {
         try {
-            String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
-            String amazonCookie = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getCookie();
-
-            LocaleInfo localeInfo = getLocaleInfoForDomain(domain);
+            String baseURI = getBaseURI();
+            String amazonCookie = getAmazonCookie();
+            LocaleInfo localeInfo = getLocaleInfo();
 
             Connection connection = Jsoup.connect(url)
                     .header("accept", "text/html, application/json")
@@ -807,7 +850,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                     .header("downlink", "10")
                     .header("dpr", "2")
                     .header("ect", "4g")
-                    .header("origin", "https://www.amazon." + domain)
+                    .header("origin", baseURI)
                     .header("priority", "u=1, i")
                     .header("rtt", "50")
                     .header("sec-ch-device-memory", "8")
@@ -848,11 +891,64 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         }
     }
 
-    private static LocaleInfo getLocaleInfoForDomain(String domain) {
-        return DOMAIN_LOCALE_MAP.getOrDefault(domain, DEFAULT_LOCALE_INFO);
+    private LocaleInfo getLocaleInfo() {
+        String domain = getDomain();
+
+        if (!DOMAIN_LOCALE_MAP.containsKey(domain)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
+        }
+
+        return DOMAIN_LOCALE_MAP.get(domain);
     }
 
-    private static LocalDate parseDate(String dateString, LocaleInfo localeInfo) {
+    private Optional<AppSettings> getAppSettings() {
+        return Optional.ofNullable(appSettingService.getAppSettings());
+    }
+
+    private Optional<MetadataProviderSettings.Amazon> getAmazonSettings() {
+        return getAppSettings()
+                .map(AppSettings::getMetadataProviderSettings)
+                .map(MetadataProviderSettings::getAmazon);
+    }
+
+    private String getDomain() {
+        String domain = getAmazonSettings()
+                .map(MetadataProviderSettings.Amazon::getDomain)
+                .orElse(DEFAULT_DOMAIN);
+
+        if (domain.isBlank()) {
+            return DEFAULT_DOMAIN;
+        }
+
+        return domain;
+    }
+
+    private String getAmazonCookie() {
+        return getAmazonSettings()
+                .map(MetadataProviderSettings.Amazon::getCookie)
+                .orElse(null);
+    }
+
+    private Set<MetadataPublicReviewsSettings.ReviewProviderConfig> getReviewProviderConfigs() {
+        return getAppSettings()
+                .map(AppSettings::getMetadataPublicReviewsSettings)
+                .map(MetadataPublicReviewsSettings::getProviders)
+                .orElse(Collections.emptySet());
+    }
+
+    private String getBaseURI() {
+        String domain = getDomain();
+
+        if (!BASE_URIS.containsKey(domain)) {
+            throw ApiError.INVALID_INPUT.createException("Unsupported Amazon domain: " + domain);
+        }
+
+        return BASE_URIS.get(domain);
+    }
+
+    private LocalDate parseDate(String dateString) {
+        LocaleInfo localeInfo = getLocaleInfo();
+
         if (dateString == null || dateString.trim().isEmpty()) {
             return null;
         }
@@ -877,11 +973,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
         log.warn("Failed to parse date '{}' with any known format for locale {}", dateString, localeInfo.locale());
         return null;
-    }
-
-    private LocalDate parseDate(String dateString) {
-        String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
-        return parseDate(dateString, getLocaleInfoForDomain(domain));
     }
 
     private boolean isWhitespaceNode(Node node) {

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +30,7 @@ class FileUtilsTest {
         bookFileEntity.setBook(bookEntity);
         bookFileEntity.setFileSubPath(subPath);
         bookFileEntity.setFileName(fileName);
-        bookEntity.setBookFiles(List.of(bookFileEntity));
+        bookEntity.setBookFiles(Set.of(bookFileEntity));
 
         return bookEntity;
     }

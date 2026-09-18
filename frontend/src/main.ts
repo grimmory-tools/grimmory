@@ -1,13 +1,12 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { ErrorHandler, inject, isDevMode, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
-import { DialogService } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
 import { RxStompService } from './app/shared/websocket/rx-stomp.service';
 import { rxStompServiceFactory } from './app/shared/websocket/rx-stomp-service-factory';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './app/core/custom-reuse-strategy';
-import { NavigationTransitionGuard } from './app/core/navigation-transition-guard';
-import { providePrimeNG } from 'primeng/config';
+import { provideOptimus } from '@openng/optimus-ui/config';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import Aura from './app/shared/layout/theme/theme-palette-extend';
@@ -23,6 +22,8 @@ import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { provideLucideConfig } from '@lucide/angular';
+
+document.addEventListener('touchstart', () => undefined, { passive: true });
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -42,10 +43,7 @@ bootstrapApplication(AppComponent, {
       const startup = inject(StartupService);
       return Promise.resolve(initializeAuth()).then(() => startup.load());
     }),
-    provideAppInitializer(() => {
-      inject(NavigationTransitionGuard);
-    }),
-    provideHttpClient(withInterceptors([AuthInterceptorService])),
+    provideHttpClient(withXhr(), withInterceptors([AuthInterceptorService])),
     provideRouter(routes),
     DialogService,
     MessageService,
@@ -69,12 +67,12 @@ bootstrapApplication(AppComponent, {
       },
       loader: TranslocoInlineLoader,
     }),
-    providePrimeNG({
+    provideOptimus({
       theme: {
         preset: Aura,
         options: {
           darkModeSelector: '.dark',
-          cssLayer: { name: 'primeng', order: 'theme, base, primeng, components, utilities' }
+          cssLayer: { name: 'optimus', order: 'theme, base, optimus, components, utilities' }
         }
       }
     }), provideServiceWorker('ngsw-worker.js', {

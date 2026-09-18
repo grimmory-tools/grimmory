@@ -1,6 +1,7 @@
 package org.booklore.service.book;
 
 import org.booklore.config.BookmarkProperties;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMarkMapper;
 import org.booklore.model.dto.BookMark;
 import org.booklore.model.dto.CreateBookMarkRequest;
@@ -13,7 +14,6 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -111,17 +111,17 @@ public class BookMarkService {
     private BookMarkEntity findBookmarkByIdAndUser(Long bookmarkId) {
         Long userId = getCurrentUserId();
         return bookMarkRepository.findByIdAndUserId(bookmarkId, userId)
-                .orElseThrow(() -> new EntityNotFoundException("Bookmark not found: " + bookmarkId));
+                .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Bookmark", bookmarkId));
     }
 
     private BookEntity findBook(Long bookId) {
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
     }
 
     private BookLoreUserEntity findUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
     }
 
     private void validateNoDuplicateBookmark(String cfi, Long bookId, Long userId) {

@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute} from '@angular/router';
 import {FormGroup} from '@angular/forms';
 import {TranslocoService} from '@jsverse/transloco';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 

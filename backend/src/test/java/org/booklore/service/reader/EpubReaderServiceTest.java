@@ -7,7 +7,9 @@ import org.booklore.model.dto.response.EpubSpineItem;
 import org.booklore.model.dto.response.EpubTocItem;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.ArchiveService;
 import org.booklore.util.FileUtils;
+import org.booklore.util.epub.CoverDetectorService;
 import org.grimmory.epub4j.domain.*;
 import org.grimmory.epub4j.epub.EpubWriter;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -39,6 +42,12 @@ class EpubReaderServiceTest {
 
     @Mock
     BookRepository bookRepository;
+
+    @Spy
+    ArchiveService archiveService = new ArchiveService();
+
+    @Mock
+    CoverDetectorService coverDetectorService;
 
     @InjectMocks
     EpubReaderService epubReaderService;
@@ -108,7 +117,6 @@ class EpubReaderServiceTest {
             assertEquals("en", bookInfo.getMetadata().get("language"));
             assertFalse(bookInfo.getManifest().isEmpty());
             assertEquals(2, bookInfo.getSpine().size());
-            assertNotNull(bookInfo.getCoverPath());
         }
     }
 

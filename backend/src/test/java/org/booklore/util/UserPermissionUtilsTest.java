@@ -60,7 +60,6 @@ class UserPermissionUtilsTest {
                 .permissionManageGlobalPreferences(false)
                 .permissionManageIcons(false)
                 .permissionManageFonts(false)
-                .permissionDemoUser(false)
                 .permissionAdmin(false)
                 .build();
 
@@ -89,7 +88,6 @@ class UserPermissionUtilsTest {
                 .permissionManageGlobalPreferences(true)
                 .permissionManageIcons(true)
                 .permissionManageFonts(true)
-                .permissionDemoUser(true)
                 .permissionAdmin(true)
                 .build();
 
@@ -117,7 +115,6 @@ class UserPermissionUtilsTest {
                 .permissionManageGlobalPreferences(false)
                 .permissionManageIcons(false)
                 .permissionManageFonts(false)
-                .permissionDemoUser(false)
                 .permissionAdmin(false);
 
         switch (permissionType) {
@@ -138,7 +135,6 @@ class UserPermissionUtilsTest {
             case MANAGE_GLOBAL_PREFERENCES -> builder.permissionManageGlobalPreferences(value);
             case MANAGE_ICONS -> builder.permissionManageIcons(value);
             case MANAGE_FONTS -> builder.permissionManageFonts(value);
-            case DEMO_USER -> builder.permissionDemoUser(value);
             case ADMIN -> builder.permissionAdmin(value);
             default -> throw new IllegalArgumentException("Test helper missing mapping for PermissionType: " + permissionType);
         }
@@ -186,7 +182,6 @@ class UserPermissionUtilsTest {
             case MANAGE_GLOBAL_PREFERENCES -> perms.setCanManageGlobalPreferences(value);
             case MANAGE_ICONS -> perms.setCanManageIcons(value);
             case MANAGE_FONTS -> perms.setCanManageFonts(value);
-            case DEMO_USER -> perms.setDemoUser(value);
             case ADMIN -> perms.setAdmin(value);
             default -> throw new IllegalArgumentException("Test helper missing mapping for PermissionType: " + permissionType);
         }

@@ -4,12 +4,10 @@ services:
   # and mounted volumes. Replace only the image line(s) with Grimmory tags.
   grimmory:
     # Stable release example:
-    image: grimmory/grimmory:v0.38.2
-    # Convenience tag:
-    # image: grimmory/grimmory:latest
-    # Or the GHCR image:
-    # image: ghcr.io/grimmory-tools/grimmory:v0.38.2
-    # The image already embeds its own release version metadata.
+    image: ghcr.io/grimmory-tools/grimmory:latest
+    # The suggested deployment approach is to use a specific version rather than `latest`
+    # so upgrading is more straightforward and convenient.  In those cases, you can
+    # use the tagged version, such as `v3.2.4` rather than `latest`.
     container_name: grimmory
     environment:
       - USER_ID=1000
@@ -23,7 +21,10 @@ services:
       # ALLOWED_ORIGINS=
       # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
       # Uncomment and adjust if you want a tighter or looser cap:
-      # JAVA_TOOL_OPTIONS=-Xmx256m
+      # - JDK_JAVA_OPTIONS=-Xmx256m
+      # Heap dumps are disabled by default. Enable them only when debugging an OOM:
+      # The JVM creates a PID-specific .hprof file in /app/data.
+      # - JDK_JAVA_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/data
     depends_on:
       mariadb:
         condition: service_healthy

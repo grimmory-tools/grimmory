@@ -17,6 +17,7 @@ const provider = (value: string | null): FieldProvider => ({
 describe('metadata-refresh-options.model', () => {
   it('supports replace-mode driven refresh settings', () => {
     const fieldOptions: FieldOptions = {
+      openlibraryId: provider('openlibrary'),
       title: provider('google'),
       description: provider('google'),
       authors: provider('google'),
@@ -51,6 +52,9 @@ describe('metadata-refresh-options.model', () => {
       audibleId: provider('audible'),
       audibleRating: provider('audible'),
       audibleReviewCount: provider('audible'),
+      applebooksId: provider('applebooks'),
+      applebooksRating: provider('applebooks'),
+      applebooksReviewCount: provider('applebooks'),
       moods: provider('google'),
       tags: provider('google')
     };
@@ -78,6 +82,7 @@ describe('metadata-refresh-options.model', () => {
         isbn10: true,
         language: true,
         pageCount: true,
+        openlibraryId: true,
         asin: true,
         goodreadsId: true,
         comicvineId: false,
@@ -97,6 +102,9 @@ describe('metadata-refresh-options.model', () => {
         audibleId: true,
         audibleRating: true,
         audibleReviewCount: true,
+        applebooksId: true,
+        applebooksRating: true,
+        applebooksReviewCount: true,
         moods: true,
         tags: true
       }

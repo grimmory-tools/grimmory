@@ -31,7 +31,6 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxComicInfoComplianceTest {
 
     private static final Pattern EMPTY_LINES_PATTERN = Pattern.compile("(?s).*\\n\\s*\\n\\s*<.*");

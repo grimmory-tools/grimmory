@@ -89,10 +89,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic
-                        .realmName("Booklore OPDS")
+                        .realmName("Grimmory OPDS")
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setHeader("WWW-Authenticate", "Basic realm=\"Booklore OPDS\"");
+                            response.setHeader("WWW-Authenticate", "Basic realm=\"Grimmory OPDS\"");
                             response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
                         })
                 );
@@ -111,10 +111,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic
-                        .realmName("Booklore Komga API")
+                        .realmName("Grimmory Komga API")
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setHeader("WWW-Authenticate", "Basic realm=\"Booklore Komga API\"");
+                            response.setHeader("WWW-Authenticate", "Basic realm=\"Grimmory Komga API\"");
                             response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
                         })
                 );
@@ -326,14 +326,6 @@ public class SecurityConfig {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
         auth.userDetailsService(opdsUserDetailsService).passwordEncoder(passwordEncoder());
         return auth.build();
-    }
-
-    @Bean("noRedirectRestTemplate")
-    public RestTemplate noRedirectRestTemplate() {
-        HttpClient httpClient = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .build();
-        return new RestTemplate(new JdkClientHttpRequestFactory(httpClient));
     }
 
     @Bean

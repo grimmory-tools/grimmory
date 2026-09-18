@@ -4,7 +4,7 @@ import {TestBed} from '@angular/core/testing';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {Book, BookMetadata, MetadataUpdateWrapper} from '../model/book.model';
 import {BOOKS_QUERY_KEY} from './book-query-keys';

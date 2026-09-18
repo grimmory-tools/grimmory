@@ -33,17 +33,5 @@
         ]
       }
     }
-  ],
-  "dataGroups": [
-    {
-      "name": "api-passthrough",
-      "urls": ["/api/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 0,
-        "maxAge": "0u",
-        "timeout": "0u"
-      }
-    }
   ]
 }

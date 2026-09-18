@@ -1,28 +1,28 @@
 import {Component, computed, effect, inject, Injector, OnInit, runInInjectionContext} from '@angular/core';
 import {AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {NgTemplateOutlet} from '@angular/common';
-import {InputText} from 'primeng/inputtext';
-import {Select} from 'primeng/select';
-import {DatePicker} from 'primeng/datepicker';
-import {InputNumber} from 'primeng/inputnumber';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Select} from '@openng/optimus-ui/select';
+import {DatePicker} from '@openng/optimus-ui/datepicker';
+import {InputNumber} from '@openng/optimus-ui/inputnumber';
 import {ReadStatus} from '../../book/model/book.model';
 import {LibraryService} from '../../book/service/library.service';
 import {MagicShelf, MagicShelfService} from '../service/magic-shelf.service';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MultiSelect} from 'primeng/multiselect';
-import {AutoComplete} from 'primeng/autocomplete';
+import {MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {EMPTY_CHECK_OPERATORS, MULTI_VALUE_OPERATORS, RELATIVE_DATE_OPERATORS, parseValue, removeNulls, serializeDateRules} from '../service/magic-shelf-utils';
 import {IconPickerService} from '../../../shared/service/icon-picker.service';
-import {CheckboxChangeEvent, Checkbox} from "primeng/checkbox";
+import {CheckboxChangeEvent, Checkbox} from "@openng/optimus-ui/checkbox";
 import {UserService} from "../../settings/user-management/user.service";
 import {IconDisplayComponent} from '../../../shared/components/icon-display/icon-display.component';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {BookService} from '../../book/service/book.service';
 import {ShelfService} from '../../book/service/shelf.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {Textarea} from 'primeng/textarea';
+import {Textarea} from '@openng/optimus-ui/textarea';
 import {IconSelection, toIconSelection} from '../../../shared/icons/icon-selection';
 
 export type RuleOperator =
@@ -86,6 +86,8 @@ export type RuleField =
   | 'contentRating'
   | 'audibleRating'
   | 'audibleReviewCount'
+  | 'applebooksRating'
+  | 'applebooksReviewCount'
   | 'abridged'
   | 'audiobookDuration'
   | 'audiobookCodec'
@@ -181,6 +183,8 @@ const FIELD_CONFIGS: Record<RuleField, FullFieldConfig> = {
   contentRating: {label: 'contentRating'},
   audibleRating: {label: 'audibleRating', type: 'decimal', max: 5},
   audibleReviewCount: {label: 'audibleReviewCount', type: 'number'},
+  applebooksRating: {label: 'applebooksRating', type: 'decimal', max: 5},
+  applebooksReviewCount: {label: 'applebooksReviewCount', type: 'number'},
   abridged: {label: 'abridged', type: 'boolean'},
   audiobookDuration: {label: 'audiobookDuration', type: 'number'},
   audiobookCodec: {label: 'audiobookCodec'},
@@ -204,12 +208,20 @@ const FIELD_GROUPS: FieldGroup[] = [
   { translationKey: 'bookInfo', fields: ['title', 'subtitle', 'description', 'authors', 'categories', 'publisher', 'language', 'pageCount', 'ageRating', 'contentRating'] },
   { translationKey: 'series', fields: ['seriesName', 'seriesNumber', 'seriesTotal', 'seriesStatus', 'seriesGaps', 'seriesPosition'] },
   { translationKey: 'dates', fields: ['publishedDate', 'dateFinished', 'lastReadTime', 'addedOn'] },
-  { translationKey: 'ratingsReviews', fields: ['personalRating', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount'] },
+  { translationKey: 'ratingsReviews', fields: ['personalRating', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount', 'applebooksRating', 'applebooksReviewCount'] },
   { translationKey: 'qualityMetadata', fields: ['metadataScore', 'metadataPresence'] },
   { translationKey: 'tagsMoods', fields: ['moods', 'tags'] },
   { translationKey: 'audiobook', fields: ['narrator', 'abridged', 'audiobookDuration', 'audiobookCodec', 'audiobookChapterCount', 'audiobookBitrate'] },
   { translationKey: 'fileIdentifiers', fields: ['fileType', 'fileSize', 'isbn13', 'isbn10', 'isPhysical'] }
 ];
+
+const DATE_UNITS = ['days', 'weeks', 'months', 'years'];
+const DATE_PERIODS = ['week', 'month', 'year'];
+
+function isRelativeAmount(value: unknown): boolean {
+  if (typeof value !== 'number' && typeof value !== 'string') return false;
+  return String(value).trim() !== '' && Number.isFinite(Number(value));
+}
 
 const READ_STATUS_KEYS: Record<string, string> = {
   UNREAD: 'unread',
@@ -388,14 +400,17 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.metadataFields.ranobedbRating'), value: 'ranobedbRating'},
         {label: this.t.translate('magicShelf.metadataFields.lubimyczytacRating'), value: 'lubimyczytacRating'},
         {label: this.t.translate('magicShelf.metadataFields.audibleRating'), value: 'audibleRating'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksRating'), value: 'applebooksRating'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.reviewCounts'), items: [
         {label: this.t.translate('magicShelf.metadataFields.amazonReviewCount'), value: 'amazonReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.goodreadsReviewCount'), value: 'goodreadsReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.hardcoverReviewCount'), value: 'hardcoverReviewCount'},
         {label: this.t.translate('magicShelf.metadataFields.audibleReviewCount'), value: 'audibleReviewCount'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksReviewCount'), value: 'applebooksReviewCount'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.externalIds'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.openlibraryId'), value: 'openlibraryId'},
         {label: this.t.translate('magicShelf.metadataFields.goodreadsId'), value: 'goodreadsId'},
         {label: this.t.translate('magicShelf.metadataFields.hardcoverId'), value: 'hardcoverId'},
         {label: this.t.translate('magicShelf.metadataFields.googleId'), value: 'googleId'},
@@ -403,6 +418,7 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.metadataFields.lubimyczytacId'), value: 'lubimyczytacId'},
         {label: this.t.translate('magicShelf.metadataFields.ranobedbId'), value: 'ranobedbId'},
         {label: this.t.translate('magicShelf.metadataFields.comicvineId'), value: 'comicvineId'},
+        {label: this.t.translate('magicShelf.metadataFields.applebooksId'), value: 'applebooksId'},
       ]},
       { label: this.t.translate('magicShelf.metadataFieldGroups.audiobook'), items: [
         {label: this.t.translate('magicShelf.metadataFields.narrator'), value: 'narrator'},
@@ -424,20 +440,11 @@ export class MagicShelfComponent implements OnInit {
   }
 
   get dateUnitOptions() {
-    return [
-      {label: this.t.translate('magicShelf.dateUnits.days'), value: 'days'},
-      {label: this.t.translate('magicShelf.dateUnits.weeks'), value: 'weeks'},
-      {label: this.t.translate('magicShelf.dateUnits.months'), value: 'months'},
-      {label: this.t.translate('magicShelf.dateUnits.years'), value: 'years'},
-    ];
+    return DATE_UNITS.map(unit => ({label: this.t.translate(`magicShelf.dateUnits.${unit}`), value: unit}));
   }
 
   get datePeriodOptions() {
-    return [
-      {label: this.t.translate('magicShelf.datePeriods.week'), value: 'week'},
-      {label: this.t.translate('magicShelf.datePeriods.month'), value: 'month'},
-      {label: this.t.translate('magicShelf.datePeriods.year'), value: 'year'},
-    ];
+    return DATE_PERIODS.map(period => ({label: this.t.translate(`magicShelf.datePeriods.${period}`), value: period}));
   }
 
   libraryOptions = computed(() =>
@@ -727,17 +734,18 @@ export class MagicShelfComponent implements OnInit {
     const valueCtrl = ruleCtrl.get('value');
     const valueStartCtrl = ruleCtrl.get('valueStart');
     const valueEndCtrl = ruleCtrl.get('valueEnd');
+    const value = valueCtrl?.value;
 
     if (operator === 'within_last' || operator === 'older_than') {
-      valueCtrl?.setValue(null);
+      if (!isRelativeAmount(value)) valueCtrl?.setValue(null);
       valueStartCtrl?.setValue(null);
-      valueEndCtrl?.setValue('days');
+      if (!DATE_UNITS.includes(valueEndCtrl?.value)) valueEndCtrl?.setValue('days');
     } else if (operator === 'this_period') {
-      valueCtrl?.setValue(null);
+      if (!DATE_PERIODS.includes(value)) valueCtrl?.setValue(null);
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else if (MULTI_VALUE_OPERATORS.includes(operator)) {
-      valueCtrl?.setValue([]);
+      if (!Array.isArray(value)) valueCtrl?.setValue([]);
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else if (EMPTY_CHECK_OPERATORS.includes(operator)) {
@@ -745,10 +753,18 @@ export class MagicShelfComponent implements OnInit {
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     } else {
-      valueCtrl?.setValue('');
+      // in_between edits valueStart/valueEnd, so it never keeps the single value
+      if (operator === 'in_between' || !this.isSingleValue(ruleCtrl, value)) valueCtrl?.setValue('');
       valueStartCtrl?.setValue(null);
       valueEndCtrl?.setValue(null);
     }
+  }
+
+  /** A value survives an operator change only when the input the new operator renders can still edit it. */
+  private isSingleValue(ruleCtrl: FormGroup, value: unknown): boolean {
+    if (value == null || value === '' || Array.isArray(value)) return false;
+    const type = FIELD_CONFIGS[ruleCtrl.get('field')?.value as RuleField]?.type;
+    return type !== 'date' || value instanceof Date;
   }
 
   onFieldChange(ruleCtrl: RuleFormGroup) {

@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -178,7 +178,7 @@ class KoboCompatibilityServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(bookWithNullType);
         primaryFile.setBookType(null);
-        bookWithNullType.setBookFiles(List.of(primaryFile));
+        bookWithNullType.setBookFiles(Set.of(primaryFile));
 
 
         boolean isSupported = koboCompatibilityService.isBookSupportedForKobo(bookWithNullType);
@@ -300,7 +300,7 @@ class KoboCompatibilityServiceTest {
         primaryFile.setBook(book);
         primaryFile.setBookType(bookType);
         primaryFile.setFileSizeKb(fileSizeKb);
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
 
         return book;
     }

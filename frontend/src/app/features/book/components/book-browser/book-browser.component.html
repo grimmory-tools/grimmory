@@ -28,19 +28,24 @@
             }
           </div>
 
-          @if (userService.currentUser(); as currentUser) {
-            @if (entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED &&
-            (currentUser.permissions.admin || currentUser.permissions.canManageLibrary)) {
-              <div class="entity-menu-wrapper">
-                <p-button
-                  icon="pi pi-ellipsis-v"
+          @if (entityMenuTarget(); as menuTarget) {
+            <div class="entity-menu-wrapper">
+              <app-library-shelf-menu
+                #entityMenu
+                [target]="menuTarget"
+                [ariaLabel]="'common.moreActionsFor' | transloco: {label: menuTarget.entity.name}" />
+              @if (entityMenu.available()) {
+                <button
+                  pButton
+                  type="button"
                   [rounded]="true"
                   [text]="true"
-                  (click)="entitymenu.toggle($event)">
-                </p-button>
-                <p-menu #entitymenu [model]="entityOptions()" [popup]="true" appendTo="body"></p-menu>
-              </div>
-            }
+                  [attr.aria-label]="'common.moreActionsFor' | transloco: {label: menuTarget.entity.name}"
+                  [appMenuTriggerFor]="entityMenu.menu()">
+                  <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
           }
         }
       </div>

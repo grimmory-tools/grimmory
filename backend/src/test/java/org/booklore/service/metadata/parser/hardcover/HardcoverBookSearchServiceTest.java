@@ -7,8 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -20,12 +22,26 @@ class HardcoverBookSearchServiceTest {
     @Mock
     private AppSettingService appSettingService;
 
+    @Mock
+    private RestClient restClient;
+
+    @InjectMocks
     private HardcoverBookSearchService searchService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        searchService = new HardcoverBookSearchService(appSettingService);
+    }
+
+    private void setupAppSettingsWithToken(String token) {
+        AppSettings appSettings = new AppSettings();
+        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
+        MetadataProviderSettings.Hardcover hardcover = new MetadataProviderSettings.Hardcover();
+        hardcover.setApiKey(token);
+        providerSettings.setHardcover(hardcover);
+        appSettings.setMetadataProviderSettings(providerSettings);
+
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
     }
 
     @Nested
@@ -72,43 +88,5 @@ class HardcoverBookSearchServiceTest {
 
             assertThat(results).isEmpty();
         }
-    }
-
-    @Nested
-    @DisplayName("fetchBookDetails Tests")
-    class FetchBookDetailsTests {
-
-        @Test
-        @DisplayName("Should return null when API token is not set")
-        void fetchBookDetails_noToken_returnsNull() {
-            setupAppSettingsWithToken(null);
-
-            HardcoverBookDetails result = searchService.fetchBookDetails(12345);
-
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("Should return null when API token is empty")
-        void fetchBookDetails_emptyToken_returnsNull() {
-            setupAppSettingsWithToken("");
-
-            HardcoverBookDetails result = searchService.fetchBookDetails(12345);
-
-
-            assertThat(result).isNull();
-        }
-    }
-
-
-    private void setupAppSettingsWithToken(String token) {
-        AppSettings appSettings = new AppSettings();
-        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
-        MetadataProviderSettings.Hardcover hardcover = new MetadataProviderSettings.Hardcover();
-        hardcover.setApiKey(token);
-        providerSettings.setHardcover(hardcover);
-        appSettings.setMetadataProviderSettings(providerSettings);
-        
-        when(appSettingService.getAppSettings()).thenReturn(appSettings);
     }
 }

@@ -35,50 +35,74 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
     private static final Pattern ISBN_CLEANER_PATTERN = Pattern.compile("[^0-9Xx]");
     private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
+    private String getCoverId(Document doc) {
+        Element titleInfo = getFirstElementByTagNameNS(doc, FB2_NAMESPACE, "title-info");
+        if (titleInfo == null) {
+            return null;
+        }
+
+        Element coverPage = getFirstElementByTagNameNS(titleInfo, FB2_NAMESPACE, "coverpage");
+        if (coverPage == null) {
+            return null;
+        }
+
+        Element image = getFirstElementByTagNameNS(coverPage, FB2_NAMESPACE, "image");
+        if (image == null) {
+            return null;
+        }
+
+        String href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+        if (!href.startsWith("#")) {
+            return null;
+        }
+
+        return href.substring(1);
+    }
+
+    private Element getCoverBinaryElement(Document doc) {
+        String coverId = getCoverId(doc);
+
+        // Look for cover image in binary elements
+        NodeList binaries = doc.getElementsByTagNameNS(FB2_NAMESPACE, "binary");
+
+        Element coverLike = null;
+
+        for (int i = 0; i < binaries.getLength(); i++) {
+            if (binaries.item(i) instanceof Element binary) {
+                String id = binary.getAttribute("id");
+
+                if (coverId != null && coverId.equals(id)) {
+                    return binary;
+                }
+
+                if (!id.toLowerCase().contains("cover")) {
+                    continue;
+                }
+
+                String contentType = binary.getAttribute("content-type");
+                if (!contentType.startsWith("image/")) {
+                    continue;
+                }
+
+                coverLike = binary;
+            }
+        }
+
+        // Fall back to the cover-like image if it was found;
+        return coverLike;
+    }
+
     @Override
     public byte[] extractCover(File file) {
         try (InputStream inputStream = getInputStream(file)) {
             DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document doc = builder.parse(inputStream);
 
-            // Look for cover image in binary elements
-            NodeList binaries = doc.getElementsByTagNameNS(FB2_NAMESPACE, "binary");
-            for (int i = 0; i < binaries.getLength(); i++) {
-                Element binary = (Element) binaries.item(i);
-                String id = binary.getAttribute("id");
+            Element binary = getCoverBinaryElement(doc);
 
-                if (id != null && id.toLowerCase().contains("cover")) {
-                    String contentType = binary.getAttribute("content-type");
-                    if (contentType != null && contentType.startsWith("image/")) {
-                        String base64Data = binary.getTextContent().trim();
-                        return Base64.getDecoder().decode(base64Data);
-                    }
-                }
-            }
-
-            // If no cover found by name, try to find the first referenced image in title-info
-            Element titleInfo = getFirstElementByTagNameNS(doc, FB2_NAMESPACE, "title-info");
-            if (titleInfo != null) {
-                NodeList coverPages = titleInfo.getElementsByTagNameNS(FB2_NAMESPACE, "coverpage");
-                if (coverPages.getLength() > 0) {
-                    Element coverPage = (Element) coverPages.item(0);
-                    NodeList images = coverPage.getElementsByTagNameNS(FB2_NAMESPACE, "image");
-                    if (images.getLength() > 0) {
-                        Element image = (Element) images.item(0);
-                        String href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-                        if (href != null && href.startsWith("#")) {
-                            String imageId = href.substring(1);
-                            // Find the binary with this ID
-                            for (int i = 0; i < binaries.getLength(); i++) {
-                                Element binary = (Element) binaries.item(i);
-                                if (imageId.equals(binary.getAttribute("id"))) {
-                                    String base64Data = binary.getTextContent().trim();
-                                    return Base64.getDecoder().decode(base64Data);
-                                }
-                            }
-                        }
-                    }
-                }
+            if (binary != null) {
+                String base64Data = binary.getTextContent().trim();
+                return Base64.getMimeDecoder().decode(base64Data);
             }
 
             return null;

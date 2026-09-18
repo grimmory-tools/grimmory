@@ -167,10 +167,6 @@ public class UserService {
         BookLoreUserEntity bookLoreUserEntity = userRepository.findByIdWithPermissions(bookLoreUser.getId())
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(bookLoreUser.getId()));
 
-        if (bookLoreUserEntity.getPermissions().isPermissionDemoUser()) {
-            throw ApiError.DEMO_USER_PASSWORD_CHANGE_NOT_ALLOWED.createException();
-        }
-
         if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), bookLoreUserEntity.getPasswordHash())) {
             throw ApiError.PASSWORD_INCORRECT.createException();
         }

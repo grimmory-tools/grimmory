@@ -2,7 +2,8 @@
 CREATE TEMPORARY TABLE prime_to_lucide_icon_map (
   prime_icon VARCHAR(64) NOT NULL PRIMARY KEY,
   lucide_icon VARCHAR(64) NOT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+-- Explicitly add character set / collation to handle improperly configured servers.
 
 INSERT INTO prime_to_lucide_icon_map (prime_icon, lucide_icon) VALUES
     ('address-book', 'contact'),
@@ -322,21 +323,21 @@ INSERT INTO prime_to_lucide_icon_map (prime_icon, lucide_icon) VALUES
 
 UPDATE library
 LEFT JOIN prime_to_lucide_icon_map
-  ON REPLACE(REPLACE(library.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon
+  ON REPLACE(REPLACE(library.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon COLLATE utf8mb4_general_ci
 SET library.icon = COALESCE(prime_to_lucide_icon_map.lucide_icon, IF(library.icon IS NULL, NULL, 'book')),
     library.icon_type = IF(library.icon IS NULL, NULL, 'LUCIDE')
 WHERE library.icon_type = 'PRIME_NG';
 
 UPDATE shelf
 LEFT JOIN prime_to_lucide_icon_map
-  ON REPLACE(REPLACE(shelf.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon
+  ON REPLACE(REPLACE(shelf.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon COLLATE utf8mb4_general_ci
 SET shelf.icon = COALESCE(prime_to_lucide_icon_map.lucide_icon, IF(shelf.icon IS NULL, NULL, 'book')),
     shelf.icon_type = IF(shelf.icon IS NULL, NULL, 'LUCIDE')
 WHERE shelf.icon_type = 'PRIME_NG';
 
 UPDATE magic_shelf
 LEFT JOIN prime_to_lucide_icon_map
-  ON REPLACE(REPLACE(magic_shelf.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon
+  ON REPLACE(REPLACE(magic_shelf.icon, 'pi pi-', ''), 'pi-', '') = prime_to_lucide_icon_map.prime_icon COLLATE utf8mb4_general_ci
 SET magic_shelf.icon = COALESCE(prime_to_lucide_icon_map.lucide_icon, IF(magic_shelf.icon IS NULL, NULL, 'book')),
     magic_shelf.icon_type = IF(magic_shelf.icon IS NULL, NULL, 'LUCIDE')
 WHERE magic_shelf.icon_type = 'PRIME_NG';

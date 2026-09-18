@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 @Service
 public class GoogleParser implements BookParser {
 
+    private static final String HEADER_API_KEY = "X-Goog-Api-Key"; // From https://docs.cloud.google.com/apis/docs/system-parameters
     private static final Pattern FOUR_DIGIT_YEAR_PATTERN = Pattern.compile("^(\\d{4})$");
     private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile("^(\\d{4})-(\\d{2})$");
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
@@ -141,6 +142,9 @@ public class GoogleParser implements BookParser {
     }
 
     private List<BookMetadata> fetchFromApi(String query, boolean isIsbnSearch) {
+        var googleSettings = getSettings();
+        String apiKey = googleSettings.getApiKey();
+
         try {
             waitForRateLimit();
 
@@ -154,12 +158,17 @@ public class GoogleParser implements BookParser {
             
             URI uri = uriBuilder.build().toUri();
 
-            log.info("Google Books API URL: {}", uri);
+            log.debug("Google Books API URL: {}", uri);
 
-            HttpRequest request = HttpRequest.newBuilder()
+            var requestBuilder = HttpRequest.newBuilder()
                     .uri(uri)
-                    .GET()
-                    .build();
+                    .GET();
+
+            if (apiKey != null && !apiKey.isBlank()) {
+                requestBuilder.setHeader(HEADER_API_KEY, apiKey);
+            }
+
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -571,21 +580,29 @@ public class GoogleParser implements BookParser {
         }
     }
 
+    private MetadataProviderSettings.Google getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null ||
+                appSettings.getMetadataProviderSettings().getGoogle() == null
+        ) {
+            return new MetadataProviderSettings.Google();
+        }
+
+        return appSettings.getMetadataProviderSettings().getGoogle();
+    }
+
     private String getApiUrl() {
-        MetadataProviderSettings.Google googleSettings = appSettingService.getAppSettings()
-                .getMetadataProviderSettings().getGoogle();
+        var googleSettings = getSettings();
 
         String language = googleSettings.getLanguage();
-        String apiKey = googleSettings.getApiKey();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(GOOGLE_BOOKS_API_URL);
 
         if (language != null && !language.isEmpty()) {
             builder.queryParam("langRestrict", language);
-        }
-
-        if (apiKey != null && !apiKey.isBlank()) {
-            builder.queryParam("key", apiKey);
         }
 
         return builder.build().toUri().toString();

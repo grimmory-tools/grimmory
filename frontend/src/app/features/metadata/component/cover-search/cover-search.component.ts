@@ -1,16 +1,16 @@
 import {Component, inject, Input, OnInit, signal} from '@angular/core';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {BookCoverService, CoverFetchRequest, CoverImage} from '../../../../shared/services/book-cover.service';
 import {finalize} from 'rxjs/operators';
-import {Button} from 'primeng/button';
-import {InputText} from 'primeng/inputtext';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
-import {Image} from 'primeng/image';
-import {Tooltip} from 'primeng/tooltip';
+import {Image} from '@openng/optimus-ui/image';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

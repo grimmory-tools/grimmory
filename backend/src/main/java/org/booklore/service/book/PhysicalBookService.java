@@ -56,7 +56,7 @@ public class PhysicalBookService {
                 .isPhysical(true)
                 .addedOn(Instant.now())
                 .scannedOn(Instant.now())
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
 
         BookMetadataEntity metadata = BookMetadataEntity.builder()

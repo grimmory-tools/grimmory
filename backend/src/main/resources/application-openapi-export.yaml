@@ -31,7 +31,6 @@ logging:
     root: WARN
     org.booklore: WARN
     org.hibernate.orm.deprecation: ERROR
-    com.github.gotson.nightcompress.Archive: ERROR
     io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics: ERROR
     org.booklore.config.WebSocketConfig: ERROR
     org.booklore.config.security.SecurityConfig: ERROR

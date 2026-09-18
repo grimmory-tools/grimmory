@@ -1,29 +1,27 @@
-import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output,} from "@angular/core";
-import {InputText} from "primeng/inputtext";
-import {Button} from "primeng/button";
-import {Divider} from "primeng/divider";
+import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
+import {InputText} from "@openng/optimus-ui/inputtext";
+import {Button} from "@openng/optimus-ui/button";
+import {Divider} from "@openng/optimus-ui/divider";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule,} from "@angular/forms";
 import {Observable, sample} from "rxjs";
-import {MessageService} from "primeng/api";
+import {MessageService} from "@openng/optimus-ui/api";
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper,} from "../../../../book/model/book.model";
 import {UrlHelperService} from "../../../../../shared/service/url-helper.service";
-import {CoverPlaceholderComponent} from "../../../../../shared/components/cover-generator/cover-generator.component";
+import {CoverComponent} from "../../../../../shared/components/cover/cover.component";
 import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, isFieldEmbeddable, hasMetadataWriter} from '../../../../../shared/metadata';
-import {FileUpload, FileUploadErrorEvent, FileUploadEvent,} from "primeng/fileupload";
+import {FileUpload, FileUploadErrorEvent, FileUploadEvent,} from "@openng/optimus-ui/fileupload";
 import {HttpResponse} from "@angular/common/http";
 import {BookService} from "../../../../book/service/book.service";
 import {BookMetadataManageService} from "../../../../book/service/book-metadata-manage.service";
-import {ProgressSpinner} from "primeng/progressspinner";
-import {Tooltip} from "primeng/tooltip";
+import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
+import {Tooltip} from "@openng/optimus-ui/tooltip";
 import {filter, finalize, take, tap} from "rxjs/operators";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {MetadataRefreshType} from "../../../model/request/metadata-refresh-type.enum";
-import {AutoComplete, AutoCompleteSelectEvent} from "primeng/autocomplete";
-import {DatePicker} from "primeng/datepicker";
-import {Textarea} from "primeng/textarea";
-import {Image} from "primeng/image";
-import {LazyLoadImageModule} from "ng-lazyload-image";
-import {Select} from "primeng/select";
+import {AutoComplete, AutoCompleteSelectEvent} from "@openng/optimus-ui/autocomplete";
+import {DatePicker} from "@openng/optimus-ui/datepicker";
+import {Textarea} from "@openng/optimus-ui/textarea";
+import {Select} from "@openng/optimus-ui/select";
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {BookDialogHelperService} from "../../../../book/components/book-browser/book-dialog-helper.service";
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
@@ -52,13 +50,11 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
     AutoComplete,
     DatePicker,
     Textarea,
-    Image,
-    LazyLoadImageModule,
     Select,
     TranslocoDirective,
     CdkDropList,
     CdkDrag,
-    CoverPlaceholderComponent,
+    CoverComponent,
   ],
 })
 export class MetadataEditorComponent implements OnInit {
@@ -152,6 +148,7 @@ export class MetadataEditorComponent implements OnInit {
   audiobookMetadataFields = AUDIOBOOK_METADATA_FIELDS;
 
   providerSpecificFields: MetadataProviderSpecificFields = {
+    openlibraryId: true,
     asin: true,
     amazonRating: true,
     amazonReviewCount: true,
@@ -171,6 +168,9 @@ export class MetadataEditorComponent implements OnInit {
     audibleId: true,
     audibleRating: true,
     audibleReviewCount: true,
+    applebooksId: true,
+    applebooksRating: true,
+    applebooksReviewCount: true,
   };
 
   private syncProviderFieldsEffect!: EffectRef;
@@ -279,6 +279,7 @@ export class MetadataEditorComponent implements OnInit {
       description: new FormControl(""),
       pageCount: new FormControl(""),
       language: new FormControl(""),
+      openlibraryId: new FormControl(""),
       asin: new FormControl(""),
       amazonRating: new FormControl(""),
       amazonReviewCount: new FormControl(""),
@@ -298,6 +299,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleId: new FormControl(""),
       audibleRating: new FormControl(""),
       audibleReviewCount: new FormControl(""),
+      applebooksId: new FormControl(""),
+      applebooksRating: new FormControl(""),
+      applebooksReviewCount: new FormControl(""),
       seriesName: new FormControl(""),
       seriesNumber: new FormControl(""),
       seriesTotal: new FormControl(""),
@@ -317,6 +321,7 @@ export class MetadataEditorComponent implements OnInit {
       descriptionLocked: new FormControl(false),
       pageCountLocked: new FormControl(false),
       languageLocked: new FormControl(false),
+      openlibraryIdLocked: new FormControl(false),
       asinLocked: new FormControl(false),
       amazonRatingLocked: new FormControl(false),
       amazonReviewCountLocked: new FormControl(false),
@@ -336,6 +341,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleIdLocked: new FormControl(false),
       audibleRatingLocked: new FormControl(false),
       audibleReviewCountLocked: new FormControl(false),
+      applebooksIdLocked: new FormControl(false),
+      applebooksRatingLocked: new FormControl(false),
+      applebooksReviewCountLocked: new FormControl(false),
       seriesNameLocked: new FormControl(false),
       seriesNumberLocked: new FormControl(false),
       seriesTotalLocked: new FormControl(false),
@@ -419,6 +427,7 @@ export class MetadataEditorComponent implements OnInit {
       language: metadata.language ?? null,
       rating: metadata.rating ?? null,
       reviewCount: metadata.reviewCount ?? null,
+      openlibraryId: metadata.openlibraryId ?? null,
       asin: metadata.asin ?? null,
       amazonRating: metadata.amazonRating ?? null,
       amazonReviewCount: metadata.amazonReviewCount ?? null,
@@ -438,6 +447,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleId: metadata.audibleId ?? null,
       audibleRating: metadata.audibleRating ?? null,
       audibleReviewCount: metadata.audibleReviewCount ?? null,
+      applebooksId: metadata.applebooksId ?? null,
+      applebooksRating: metadata.applebooksRating ?? null,
+      applebooksReviewCount: metadata.applebooksReviewCount ?? null,
       seriesName: metadata.seriesName ?? null,
       seriesNumber: metadata.seriesNumber ?? null,
       seriesTotal: metadata.seriesTotal ?? null,
@@ -454,6 +466,7 @@ export class MetadataEditorComponent implements OnInit {
       descriptionLocked: metadata.descriptionLocked ?? false,
       pageCountLocked: metadata.pageCountLocked ?? false,
       languageLocked: metadata.languageLocked ?? false,
+      openlibraryIdLocked: metadata.openlibraryIdLocked ?? false,
       asinLocked: metadata.asinLocked ?? false,
       amazonRatingLocked: metadata.amazonRatingLocked ?? false,
       amazonReviewCountLocked: metadata.amazonReviewCountLocked ?? false,
@@ -473,6 +486,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleIdLocked: metadata.audibleIdLocked ?? false,
       audibleRatingLocked: metadata.audibleRatingLocked ?? false,
       audibleReviewCountLocked: metadata.audibleReviewCountLocked ?? false,
+      applebooksIdLocked: metadata.applebooksIdLocked ?? false,
+      applebooksRatingLocked: metadata.applebooksRatingLocked ?? false,
+      applebooksReviewCountLocked: metadata.applebooksReviewCountLocked ?? false,
       seriesNameLocked: metadata.seriesNameLocked ?? false,
       seriesNumberLocked: metadata.seriesNumberLocked ?? false,
       seriesTotalLocked: metadata.seriesTotalLocked ?? false,
@@ -524,6 +540,7 @@ export class MetadataEditorComponent implements OnInit {
       {key: "languageLocked", control: "language"},
       {key: "isbn10Locked", control: "isbn10"},
       {key: "isbn13Locked", control: "isbn13"},
+      {key: "openlibraryIdLocked", control: "openlibraryId"},
       {key: "asinLocked", control: "asin"},
       {key: "amazonReviewCountLocked", control: "amazonReviewCount"},
       {key: "amazonRatingLocked", control: "amazonRating"},
@@ -544,6 +561,9 @@ export class MetadataEditorComponent implements OnInit {
       {key: "audibleIdLocked", control: "audibleId"},
       {key: "audibleRatingLocked", control: "audibleRating"},
       {key: "audibleReviewCountLocked", control: "audibleReviewCount"},
+      {key: "applebooksIdLocked", control: "applebooksId"},
+      {key: "applebooksRatingLocked", control: "applebooksRating"},
+      {key: "applebooksReviewCountLocked", control: "applebooksReviewCount"},
       {key: "pageCountLocked", control: "pageCount"},
       {key: "descriptionLocked", control: "description"},
       {key: "seriesNameLocked", control: "seriesName"},
@@ -715,6 +735,7 @@ export class MetadataEditorComponent implements OnInit {
       pageCount: form.get("pageCount")?.value,
       rating: form.get("rating")?.value,
       reviewCount: form.get("reviewCount")?.value,
+      openlibraryId: form.get("openlibraryId")?.value,
       asin: form.get("asin")?.value,
       amazonRating: form.get("amazonRating")?.value,
       amazonReviewCount: form.get("amazonReviewCount")?.value,
@@ -734,6 +755,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleId: form.get("audibleId")?.value,
       audibleRating: form.get("audibleRating")?.value,
       audibleReviewCount: form.get("audibleReviewCount")?.value,
+      applebooksId: form.get("applebooksId")?.value,
+      applebooksRating: form.get("applebooksRating")?.value,
+      applebooksReviewCount: form.get("applebooksReviewCount")?.value,
       language: form.get("language")?.value,
       seriesName: form.get("seriesName")?.value,
       seriesNumber: form.get("seriesNumber")?.value,
@@ -761,6 +785,7 @@ export class MetadataEditorComponent implements OnInit {
       descriptionLocked: form.get("descriptionLocked")?.value,
       pageCountLocked: form.get("pageCountLocked")?.value,
       languageLocked: form.get("languageLocked")?.value,
+      openlibraryIdLocked: form.get("openlibraryIdLocked")?.value,
       asinLocked: form.get("asinLocked")?.value,
       amazonRatingLocked: form.get("amazonRatingLocked")?.value,
       amazonReviewCountLocked: form.get("amazonReviewCountLocked")?.value,
@@ -780,6 +805,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleIdLocked: form.get("audibleIdLocked")?.value,
       audibleRatingLocked: form.get("audibleRatingLocked")?.value,
       audibleReviewCountLocked: form.get("audibleReviewCountLocked")?.value,
+      applebooksIdLocked: form.get("applebooksIdLocked")?.value,
+      applebooksRatingLocked: form.get("applebooksRatingLocked")?.value,
+      applebooksReviewCountLocked: form.get("applebooksReviewCountLocked")?.value,
       seriesNameLocked: form.get("seriesNameLocked")?.value,
       seriesNumberLocked: form.get("seriesNumberLocked")?.value,
       seriesTotalLocked: form.get("seriesTotalLocked")?.value,
@@ -851,6 +879,7 @@ export class MetadataEditorComponent implements OnInit {
       description: wasCleared("description"),
       pageCount: wasCleared("pageCount"),
       language: wasCleared("language"),
+      openlibraryId: wasCleared("openlibraryId"),
       asin: wasCleared("asin"),
       amazonRating: wasCleared("amazonRating"),
       amazonReviewCount: wasCleared("amazonReviewCount"),
@@ -870,6 +899,9 @@ export class MetadataEditorComponent implements OnInit {
       audibleId: wasCleared("audibleId"),
       audibleRating: wasCleared("audibleRating"),
       audibleReviewCount: wasCleared("audibleReviewCount"),
+      applebooksId: wasCleared("applebooksId"),
+      applebooksRating: wasCleared("applebooksRating"),
+      applebooksReviewCount: wasCleared("applebooksReviewCount"),
       seriesName: wasCleared("seriesName"),
       seriesNumber: wasCleared("seriesNumber"),
       seriesTotal: wasCleared("seriesTotal"),

@@ -1,6 +1,6 @@
 @use "sass:meta";
 @import "./assets/styles/tailwind.css";
-@import "primeicons/primeicons.css";
+@import "@openng/icons/openng-icons.css";
 @import "@angular/cdk/overlay-prebuilt.css";
 
 @layer base {

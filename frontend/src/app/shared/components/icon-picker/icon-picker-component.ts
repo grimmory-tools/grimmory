@@ -1,13 +1,13 @@
 import {Component, inject, OnInit, signal, WritableSignal, computed} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {CustomSvgService} from '../../services/custom-svg.service';
 import {CustomSvgCacheService} from '../../services/custom-svg-cache.service';
 import DOMPurify from 'dompurify';
 import {UrlHelperService} from '../../service/url-helper.service';
-import {MessageService} from 'primeng/api';
-import {Button} from 'primeng/button';
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Button} from '@openng/optimus-ui/button';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
 import {from, of} from 'rxjs';
 import {catchError, mergeMap, toArray} from 'rxjs/operators';

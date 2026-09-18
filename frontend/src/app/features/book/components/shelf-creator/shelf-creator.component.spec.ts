@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {Observable, of, throwError} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 

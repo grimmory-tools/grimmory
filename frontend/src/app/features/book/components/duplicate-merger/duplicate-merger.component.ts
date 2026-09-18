@@ -1,21 +1,21 @@
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {RadioButton} from 'primeng/radiobutton';
-import {SelectButton} from 'primeng/selectbutton';
-import {ProgressBar} from 'primeng/progressbar';
-import {Tag} from 'primeng/tag';
-import {Paginator, PaginatorState} from 'primeng/paginator';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {RadioButton} from '@openng/optimus-ui/radiobutton';
+import {SelectButton} from '@openng/optimus-ui/selectbutton';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
+import {Tag} from '@openng/optimus-ui/tag';
+import {Paginator, PaginatorState} from '@openng/optimus-ui/paginator';
 import {Subject, takeUntil} from 'rxjs';
 import {BookFileService} from '../../service/book-file.service';
 import {BookService} from '../../service/book.service';
 import {Book, DuplicateDetectionRequest, DuplicateGroup} from '../../model/book.model';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 
 type PresetMode = 'strict' | 'balanced' | 'aggressive' | 'custom';
@@ -40,7 +40,7 @@ interface DisplayGroup extends DuplicateGroup {
     Paginator,
     TranslocoDirective,
     TranslocoPipe,
-    CoverPlaceholderComponent,
+    CoverComponent,
   ],
   templateUrl: './duplicate-merger.component.html',
   styleUrls: ['./duplicate-merger.component.scss']
@@ -79,6 +79,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   readonly urlHelper = inject(UrlHelperService);
   private readonly appSettingsService = inject(AppSettingsService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.libraryId = this.config.data.libraryId;
@@ -384,6 +385,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
             if (group.books.length <= 1) {
               group.dismissed = true;
             }
+            this.changeDetectorRef.markForCheck();
           }
         });
       }

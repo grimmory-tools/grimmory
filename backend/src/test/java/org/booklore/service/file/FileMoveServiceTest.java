@@ -111,7 +111,7 @@ class FileMoveServiceTest {
         book.setLibrary(library);
         book.setLibraryPath(libraryPath);
         files.forEach(f -> f.setBook(book));
-        book.setBookFiles(new ArrayList<>(files));
+        book.setBookFiles(Set.copyOf(files));
         return book;
     }
 
@@ -735,7 +735,7 @@ class FileMoveServiceTest {
             bookWithEmptyFiles.setId(100L);
             bookWithEmptyFiles.setLibrary(library);
             bookWithEmptyFiles.setLibraryPath(libraryPath);
-            bookWithEmptyFiles.setBookFiles(new ArrayList<>());
+            bookWithEmptyFiles.setBookFiles(new HashSet<>());
 
             BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
             BookEntity loadedBook = createBook(List.of(epub));

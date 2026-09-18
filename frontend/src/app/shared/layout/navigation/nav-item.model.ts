@@ -1,5 +1,5 @@
-import type { MenuItem } from 'primeng/api';
 import { IconType } from '../../icons/icon-selection';
+import type {LibraryShelfMenuTarget} from '../../../features/book/components/library-shelf-menu/library-shelf-menu.component';
 
 export type NavItemType =
   | 'library' | 'shelf' | 'magicShelf'
@@ -17,9 +17,9 @@ export interface NavItem {
 
 /** A clickable row inside a sidebar section. */
 export interface SidebarLeaf extends NavItem {
+  menuTarget?: LibraryShelfMenuTarget;
   bookCount?: number;
   unhealthy?: boolean;
-  contextMenuItems?: MenuItem[];
 }
 
 /** A heading that groups leaves in the sidebar. */

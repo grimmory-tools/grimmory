@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public interface BookMapper {
     }
 
     @Named("mapPrimaryFile")
-    default BookFile mapPrimaryFile(List<BookFileEntity> bookFiles) {
+    default BookFile mapPrimaryFile(Set<BookFileEntity> bookFiles) {
         if (bookFiles == null || bookFiles.isEmpty()) {
             return null;
         }
@@ -84,17 +85,18 @@ public interface BookMapper {
     }
 
     @Named("mapAlternativeFormats")
-    default List<BookFile> mapAlternativeFormats(List<BookFileEntity> bookFiles) {
+    default List<BookFile> mapAlternativeFormats(Set<BookFileEntity> bookFiles) {
         if (bookFiles == null) return null;
         return bookFiles.stream()
                 .filter(bf -> bf.isBook())
                 .filter(bf -> !bf.equals(getPrimaryBookFile(bookFiles)))
                 .map(this::toBookFile)
+                .sorted(Comparator.comparingLong(BookFile::getId))
                 .toList();
     }
 
     @Named("mapSupplementaryFiles")
-    default List<BookFile> mapSupplementaryFiles(List<BookFileEntity> bookFiles) {
+    default List<BookFile> mapSupplementaryFiles(Set<BookFileEntity> bookFiles) {
         if (bookFiles == null)
             return null;
         return bookFiles.stream()
@@ -103,11 +105,12 @@ public interface BookMapper {
                 .toList();
     }
 
-    default BookFileEntity getPrimaryBookFile(List<BookFileEntity> bookFiles) {
+    default BookFileEntity getPrimaryBookFile(Set<BookFileEntity> bookFiles) {
         if (bookFiles == null || bookFiles.isEmpty()) return null;
 
         List<BookFileEntity> bookFormats = bookFiles.stream()
                 .filter(BookFileEntity::isBook)
+                .sorted(Comparator.comparingLong(BookFileEntity::getId))
                 .toList();
 
         if (bookFormats.isEmpty()) return null;
@@ -180,7 +183,7 @@ public interface BookMapper {
         BookFileEntity audiobookFile = bookEntity.getBookFiles() != null
                 ? bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == BookFileType.AUDIOBOOK && bf.isBook())
-                    .findFirst()
+                    .min(Comparator.comparingLong(BookFileEntity::getId))
                     .orElse(null)
                 : null;
 

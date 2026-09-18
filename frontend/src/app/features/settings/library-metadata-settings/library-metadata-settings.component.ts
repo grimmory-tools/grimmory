@@ -1,10 +1,10 @@
 import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {Accordion, AccordionPanel, AccordionHeader, AccordionContent} from 'primeng/accordion';
-import {MessageService} from 'primeng/api';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
+import {Accordion, AccordionPanel, AccordionHeader, AccordionContent} from '@openng/optimus-ui/accordion';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Button} from '@openng/optimus-ui/button';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 import {Library} from '../../book/model/library.model';
@@ -221,6 +221,7 @@ export class LibraryMetadataSettingsComponent {
         categories: {p1: null, p2: null, p3: null, p4: null},
         cover: {p1: null, p2: null, p3: null, p4: null},
         pageCount: {p1: null, p2: null, p3: null, p4: null},
+        openlibraryId: {p1: null, p2: null, p3: null, p4: null},
         asin: {p1: null, p2: null, p3: null, p4: null},
         goodreadsId: {p1: null, p2: null, p3: null, p4: null},
         comicvineId: {p1: null, p2: null, p3: null, p4: null},
@@ -240,6 +241,9 @@ export class LibraryMetadataSettingsComponent {
         audibleId: {p1: null, p2: null, p3: null, p4: null},
         audibleRating: {p1: null, p2: null, p3: null, p4: null},
         audibleReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        applebooksId: {p1: null, p2: null, p3: null, p4: null},
+        applebooksRating: {p1: null, p2: null, p3: null, p4: null},
+        applebooksReviewCount: {p1: null, p2: null, p3: null, p4: null},
         moods: {p1: null, p2: null, p3: null, p4: null},
         tags: {p1: null, p2: null, p3: null, p4: null}
       }

@@ -4,8 +4,8 @@ import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BehaviorSubject, EMPTY, Observable} from 'rxjs';
 import {catchError} from 'rxjs/operators';
-import {Select} from 'primeng/select';
-import {Tooltip} from 'primeng/tooltip';
+import {Select} from '@openng/optimus-ui/select';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {FormsModule} from '@angular/forms';
 import {PeakHoursResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -80,8 +80,7 @@ export class PeakHoursChartComponent implements OnInit {
               }
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

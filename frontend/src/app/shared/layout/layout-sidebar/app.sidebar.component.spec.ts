@@ -3,14 +3,13 @@ import { CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 
 import { getTranslocoModule } from '../../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { BookService } from '../../../features/book/service/book.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { LibraryService } from '../../../features/book/service/library.service';
-import { LibraryShelfMenuService } from '../../../features/book/service/library-shelf-menu.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
 import { AuthorService } from '../../../features/author-browser/service/author.service';
 import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
@@ -89,14 +88,6 @@ describe('AppSidebarComponent', () => {
         { provide: LibraryHealthService, useValue: { isUnhealthy: vi.fn(() => false) } },
         { provide: ShelfService, useValue: { shelves: signal([]), bookCountByShelfId: signal(new Map()), unshelvedBookCount: signal(0) } },
         { provide: BookService, useValue: { books: signal([]) } },
-        {
-          provide: LibraryShelfMenuService,
-          useValue: {
-            initializeLibraryMenuItems: vi.fn(() => []),
-            initializeShelfMenuItems: vi.fn(() => []),
-            initializeMagicShelfMenuItems: vi.fn(() => []),
-          },
-        },
         {
           provide: DialogLauncherService,
           useValue: {

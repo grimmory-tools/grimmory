@@ -1,6 +1,6 @@
 import {Component, computed, inject} from '@angular/core';
 import {BaseChartDirective} from 'ng2-charts';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ChartConfiguration, ChartData, ScatterDataPoint} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
@@ -123,8 +123,7 @@ export class BookLengthChartComponent {
             ];
           }
         }
-      },
-      datalabels: {display: false}
+      }
     },
     elements: {
       point: {

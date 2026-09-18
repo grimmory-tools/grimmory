@@ -16,13 +16,13 @@ import {from, Observable, of} from 'rxjs';
 import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {Button} from 'primeng/button';
-import {Slider, SliderChangeEvent} from 'primeng/slider';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {Tooltip} from 'primeng/tooltip';
-import {MenuItem, MessageService} from 'primeng/api';
-import {SelectButton} from 'primeng/selectbutton';
-import {Menu} from 'primeng/menu';
+import {Button} from '@openng/optimus-ui/button';
+import {Slider, SliderChangeEvent} from '@openng/optimus-ui/slider';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {MenuItem, MessageService} from '@openng/optimus-ui/api';
+import {SelectButton} from '@openng/optimus-ui/selectbutton';
+import {Menu} from '@openng/optimus-ui/menu';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 import {AudiobookService} from './audiobook.service';

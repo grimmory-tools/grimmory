@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {LocalStorageService} from '../../../../../shared/service/local-storage.service';
 import {SidebarFilterTogglePrefService} from './sidebar-filter-toggle-pref.service';

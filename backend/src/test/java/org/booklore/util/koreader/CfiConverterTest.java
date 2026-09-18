@@ -1,7 +1,5 @@
 package org.booklore.util.koreader;
 
-import org.grimmory.epub4j.cfi.CfiConverter;
-import org.grimmory.epub4j.cfi.XPointerResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;

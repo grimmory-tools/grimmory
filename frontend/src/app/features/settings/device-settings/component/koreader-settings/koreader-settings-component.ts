@@ -2,11 +2,11 @@ import {Component, DestroyRef, computed, effect, inject, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {FormsModule} from '@angular/forms';
-import {InputText} from 'primeng/inputtext';
-import {ToggleSwitch} from 'primeng/toggleswitch';
-import {Button} from 'primeng/button';
-import {Toast} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
+import {Button} from '@openng/optimus-ui/button';
+import {Toast} from '@openng/optimus-ui/toast';
+import {MessageService} from '@openng/optimus-ui/api';
 import {KoreaderService} from './koreader.service';
 import {UserService} from '../../../user-management/user.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';

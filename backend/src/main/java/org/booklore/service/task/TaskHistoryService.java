@@ -110,7 +110,8 @@ public class TaskHistoryService {
     public TasksHistoryResponse getLatestTasksForEachType() {
         List<TaskHistoryEntity> latestTasks;
         try {
-            latestTasks = taskHistoryRepository.findLatestTaskForEachType();
+            // Limits to all task types so we ignore older deprecated task types that are no longer in the enum
+            latestTasks = taskHistoryRepository.findLatestTaskForEachType(Arrays.asList(TaskType.values()));
         } catch (Exception e) {
             log.warn("Error fetching latest tasks, possibly due to removed enum values: {}", e.getMessage());
             latestTasks = Collections.emptyList();

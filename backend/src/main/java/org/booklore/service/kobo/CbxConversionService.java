@@ -185,40 +185,26 @@ public class CbxConversionService {
     }
 
     private List<Path> extractImagesFromCbx(File cbxFile, Path extractedImagesDir) throws IOException {
-        List<Path> imagePaths = new ArrayList<>();
+        var imagePaths = archiveService.extractToDirectory(
+                cbxFile.toPath(),
+                extractedImagesDir,
+                (entry) -> {
+                    if (!isImageFile(entry.name())) {
+                        return false;
+                    }
 
-        for (ArchiveService.Entry entry : archiveService.getEntries(cbxFile.toPath())) {
-            if (!isImageFile(entry.name())) {
-                continue;
-            }
+                    if (entry.size() > MAX_IMAGE_SIZE_BYTES) {
+                        log.warn("Image too large, skipping: {} ({})", entry.name(), entry.size());
+                        return false;
+                    }
 
-            validateImageSize(entry.name(), entry.size());
-
-            try {
-                Path outputPath = extractedImagesDir.resolve(extractFileName(entry.name()));
-
-                archiveService.extractEntryToPath(cbxFile.toPath(), entry.name(), outputPath);
-
-                imagePaths.add(outputPath);
-            } catch (Exception e) {
-                log.warn("Error extracting image {}: {}", entry.name(), e.getMessage());
-            }
-        }
+                    return true;
+                }
+        );
 
         log.debug("Found {} image entries in CBR file", imagePaths.size());
         imagePaths.sort(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()));
         return imagePaths;
-    }
-
-    private String extractFileName(String entryPath) {
-        return Path.of(entryPath).getFileName().toString();
-    }
-
-    private void validateImageSize(String imageName, long size) throws IOException {
-        if (size > MAX_IMAGE_SIZE_BYTES) {
-            throw new IOException(String.format("Image '%s' exceeds maximum size limit: %d bytes (max: %d bytes)",
-                    imageName, size, MAX_IMAGE_SIZE_BYTES));
-        }
     }
 
     private boolean isImageFile(String fileName) {
@@ -500,8 +486,14 @@ public class CbxConversionService {
             if (metadata.getAsin() != null && !metadata.getAsin().trim().isEmpty()) {
                 model.put("asin", metadata.getAsin());
             }
+            if (metadata.getOpenlibraryId() != null && !metadata.getOpenlibraryId().trim().isEmpty()) {
+                model.put("openlibraryId", metadata.getOpenlibraryId());
+            }
             if (metadata.getGoodreadsId() != null && !metadata.getGoodreadsId().trim().isEmpty()) {
                 model.put("goodreadsId", metadata.getGoodreadsId());
+            }
+            if (metadata.getApplebooksId() != null && !metadata.getApplebooksId().trim().isEmpty()) {
+                model.put("applebooksId", metadata.getApplebooksId());
             }
 
             if (metadata.getAuthors() != null && !metadata.getAuthors().isEmpty()) {

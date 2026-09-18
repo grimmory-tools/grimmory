@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Menu } from 'primeng/menu';
-import { Tooltip } from 'primeng/tooltip';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
 import { IconSelection, toIconSelection } from '../../icons/icon-selection';
 
-import { UserService } from '../../../features/settings/user-management/user.service';
 import { IconDisplayComponent } from '../../components/icon-display/icon-display.component';
 import { LayoutService } from '../layout.service';
 import { SidebarLeaf } from '../navigation/nav-item.model';
+import {LibraryShelfMenuComponent} from '../../../features/book/components/library-shelf-menu/library-shelf-menu.component';
+import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive';
 
 @Component({
   // Attribute selector so the row renders into its host <li> inside a <ul>.
@@ -19,7 +19,8 @@ import { SidebarLeaf } from '../navigation/nav-item.model';
   styleUrls: ['./app.sidebar-item-row.component.scss'],
   imports: [
     RouterLink,
-    Menu,
+    LibraryShelfMenuComponent,
+    AppMenuTriggerDirective,
     IconDisplayComponent,
     Tooltip,
     TranslocoPipe,
@@ -35,7 +36,6 @@ export class AppSidebarItemRowComponent {
   readonly menuOpen = signal(false);
   readonly key = computed(() => `${this.parentKey()}-${this.index()}`);
 
-  private readonly userService = inject(UserService);
   readonly layoutService = inject(LayoutService);
 
   readonly isRouteActive = computed(() => {
@@ -44,21 +44,9 @@ export class AppSidebarItemRowComponent {
     return this.layoutService.currentPath() === route;
   });
 
-  readonly canManipulateLibrary = computed(() =>
-    this.userService.currentUser()?.permissions.canManageLibrary ?? false
-  );
-
-  readonly admin = computed(() =>
-    this.userService.currentUser()?.permissions.admin ?? false
-  );
-
   runAction(event: Event): void {
     event.preventDefault();
     this.item().action?.();
-  }
-
-  openContextMenu(event: Event, menu: Menu): void {
-    menu.toggle(event);
   }
 
   markContextMenuOpen(): void {
@@ -73,16 +61,6 @@ export class AppSidebarItemRowComponent {
     const item = this.item();
     if (!item.icon) return null;
     return toIconSelection(item.icon, item.iconType);
-  }
-
-  hasContextMenu(): boolean {
-    return (this.item().contextMenuItems?.length ?? 0) > 0;
-  }
-
-  shouldShowContextMenuButton(): boolean {
-    const item = this.item();
-    return this.hasContextMenu()
-      && (item.type !== 'library' || (this.admin() || this.canManipulateLibrary()));
   }
 
   formatCount(count: number | null | undefined): string {

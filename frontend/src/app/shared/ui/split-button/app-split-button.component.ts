@@ -1,5 +1,14 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { type MenuItem } from 'primeng/api';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChild,
+  ElementRef,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { LucideChevronDown } from '@lucide/angular';
 import { cn } from '../cn';
 import { connectedGroupClass, connectedItemClass } from '../connected-group';
@@ -10,7 +19,7 @@ import { AppMenuComponent } from '../menu/app-menu.component';
 @Component({
   selector: 'app-split-button',
   standalone: true,
-  imports: [AppButtonComponent, AppMenuComponent, LucideChevronDown],
+  imports: [AppButtonComponent, LucideChevronDown],
   host: {
     class: 'inline-block align-middle',
     '[class.w-full]': 'fluid()',
@@ -42,6 +51,7 @@ import { AppMenuComponent } from '../menu/app-menu.component';
         <ng-content />
       </app-button>
       <app-button
+        #menuButton
         [buttonId]="menuButtonId()"
         type="button"
         iconOnly
@@ -51,12 +61,13 @@ import { AppMenuComponent } from '../menu/app-menu.component';
         [styleClass]="menuButtonClass()"
         [disabled]="isMenuDisabled()"
         [form]="form()"
-        [ariaHasPopup]="'menu'"
+        ariaHasPopup="menu"
+        [ariaExpanded]="menuExpanded()"
         [ariaLabel]="menuAriaLabel() || ariaLabel() || label()"
-        (clicked)="menu.toggle($event)">
+        (clicked)="toggleMenu()">
         <svg lucideChevronDown aria-hidden="true"></svg>
       </app-button>
-      <app-menu #menu [model]="model()" [appendTo]="appendTo()" />
+      <ng-content select="app-menu" />
     </span>
   `,
 })
@@ -79,15 +90,19 @@ export class AppSplitButtonComponent {
   readonly ariaLabel = input('');
   readonly menuAriaLabel = input('');
   readonly iconPos = input<'left' | 'right'>('left');
-  readonly model = input<readonly MenuItem[]>([]);
-  readonly appendTo = input<'body' | 'self' | HTMLElement>('body');
   readonly loading = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly type = input<'button' | 'submit' | 'reset'>('button');
 
   readonly clicked = output<MouseEvent>();
 
-  protected readonly isMenuDisabled = computed(() => this.disabled() || this.loading() || this.model().length === 0);
+  private readonly menu = contentChild(AppMenuComponent);
+  private readonly menuButton = viewChild<unknown, ElementRef<HTMLElement>>('menuButton', { read: ElementRef });
+
+  protected readonly isMenuDisabled = computed(() => this.disabled() || this.loading() || !this.menu()?.hasItems());
+  protected readonly menuExpanded = computed(() =>
+    this.menu()?.openerElement() === this.menuButton()?.nativeElement ? 'true' : 'false',
+  );
   protected readonly rootClass = computed(() => cn(connectedGroupClass, this.fluid() && 'w-full', this.styleClass()));
   protected readonly mainButtonClass = computed(() =>
     cn(
@@ -103,4 +118,15 @@ export class AppSplitButtonComponent {
       this.menuButtonStyleClass(),
     ),
   );
+
+  protected toggleMenu(): void {
+    const menu = this.menu();
+    const origin = this.menuButton()?.nativeElement;
+    if (!menu || !origin) return;
+    if (menu.openerElement() === origin) {
+      menu.close();
+    } else {
+      menu.open(origin);
+    }
+  }
 }

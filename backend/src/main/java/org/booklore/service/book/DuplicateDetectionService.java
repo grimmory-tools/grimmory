@@ -140,6 +140,8 @@ public class DuplicateDetectionService {
         addIfPresent(ids, "asin:", meta.getAsin());
         addIfPresent(ids, "audible:", meta.getAudibleId());
         addIfPresent(ids, "comicvine:", meta.getComicvineId());
+        addIfPresent(ids, "applebooks:", meta.getApplebooksId());
+        addIfPresent(ids, "openlibrary:", meta.getOpenlibraryId());
         return ids;
     }
 
@@ -238,13 +240,8 @@ public class DuplicateDetectionService {
             if (alreadyGrouped.contains(book.getId())) continue;
             if (book.getLibraryPath() == null) continue;
 
-            List<BookFileEntity> bookFiles = book.getBookFiles();
-            if (bookFiles == null || bookFiles.isEmpty()) continue;
+            BookFileEntity primary = book.getPrimaryBookFile();
 
-            BookFileEntity primary = bookFiles.stream()
-                    .filter(BookFileEntity::isBookFormat)
-                    .findFirst()
-                    .orElse(null);
             if (primary == null) continue;
 
             String subPath = primary.getFileSubPath();
@@ -263,13 +260,7 @@ public class DuplicateDetectionService {
         for (BookEntity book : books) {
             if (alreadyGrouped.contains(book.getId())) continue;
 
-            List<BookFileEntity> bookFiles = book.getBookFiles();
-            if (bookFiles == null || bookFiles.isEmpty()) continue;
-
-            BookFileEntity primary = bookFiles.stream()
-                    .filter(BookFileEntity::isBookFormat)
-                    .findFirst()
-                    .orElse(null);
+            BookFileEntity primary = book.getPrimaryBookFile();
             if (primary == null || primary.getFileName() == null) continue;
 
             String fileName = primary.getFileName();

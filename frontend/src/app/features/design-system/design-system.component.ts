@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router } from '@angular/router';
 import { email, form, FormField, minLength, required, validate } from '@angular/forms/signals';
-import { MenuItem } from 'primeng/api';
 import {
   LucideChevronLeft,
+  LucideCopy,
   LucideDownload,
   LucideEllipsisVertical,
   LucideFile,
@@ -12,15 +12,18 @@ import {
   LucideFolderOpen,
   LucideHeart,
   LucideList,
+  LucidePencil,
   LucideSave,
   LucideSearch,
   LucideSettings,
+  LucideShare2,
   LucideSmartphone,
   LucideTag,
   LucideTrash2,
   LucideTriangleAlert,
   LucideX,
   LucideZap,
+  type LucideIconData,
 } from '@lucide/angular';
 import { AppAccordionComponent } from '../../shared/ui/accordion/app-accordion.component';
 import {
@@ -38,9 +41,16 @@ import { AppDateRangePickerComponent, type DatePickerRange } from '../../shared/
 import { AppFieldComponent } from '../../shared/ui/field/app-field.component';
 import { AppInputComponent } from '../../shared/ui/input/app-input.component';
 import { AppMenuComponent } from '../../shared/ui/menu/app-menu.component';
+import { AppMenuContentDirective } from '../../shared/ui/menu/app-menu-content.directive';
 import { AppMessageComponent } from '../../shared/ui/message/app-message.component';
 import { AppNumberInputComponent } from '../../shared/ui/number-input/app-number-input.component';
-import { appMenuSection, appMenuSeparator } from '../../shared/ui/menu/app-menu.items';
+import { AppMenuItemComponent } from '../../shared/ui/menu/app-menu-item.component';
+import { AppMenuCheckboxComponent } from '../../shared/ui/menu/app-menu-checkbox.component';
+import { AppMenuRadioGroupComponent } from '../../shared/ui/menu/app-menu-radio-group.component';
+import { AppMenuRadioComponent } from '../../shared/ui/menu/app-menu-radio.component';
+import { AppMenuSectionComponent } from '../../shared/ui/menu/app-menu-section.component';
+import { AppMenuSeparatorComponent } from '../../shared/ui/menu/app-menu-separator.component';
+import { AppContextMenuDirective, AppMenuTriggerDirective } from '../../shared/ui/menu/app-menu-trigger.directive';
 import { AppRadioGroupComponent, type RadioOption } from '../../shared/ui/radio-group/app-radio-group.component';
 import { AppRatingComponent } from '../../shared/ui/rating/app-rating.component';
 import { AppMultiSelectComponent } from '../../shared/ui/select/app-multi-select.component';
@@ -79,6 +89,15 @@ interface ButtonExample {
     AppFieldComponent,
     AppInputComponent,
     AppMenuComponent,
+    AppMenuContentDirective,
+    AppMenuItemComponent,
+    AppMenuCheckboxComponent,
+    AppMenuRadioGroupComponent,
+    AppMenuRadioComponent,
+    AppMenuSectionComponent,
+    AppMenuSeparatorComponent,
+    AppMenuTriggerDirective,
+    AppContextMenuDirective,
     AppMessageComponent,
     AppNumberInputComponent,
     AppRadioGroupComponent,
@@ -135,14 +154,22 @@ export class DesignSystemComponent {
     { tone: 'danger', variant: 'ghost' },
   ];
   readonly buttonSizes: ButtonSize[] = ['sm', 'md', 'lg'];
-  readonly menuItems: MenuItem[] = [
-    appMenuSection('Actions'),
-    { label: 'Rename' },
-    { label: 'Duplicate' },
-    appMenuSeparator(),
-    appMenuSection('Danger'),
-    { label: 'Delete', styleClass: 'app-menu-item-destructive' },
-  ];
+
+  readonly iconCopy: LucideIconData = LucideCopy.icon;
+  readonly iconPencil: LucideIconData = LucidePencil.icon;
+  readonly iconDownload: LucideIconData = LucideDownload.icon;
+  readonly iconTrash: LucideIconData = LucideTrash2.icon;
+  readonly iconShare: LucideIconData = LucideShare2.icon;
+  readonly iconFolderOpen: LucideIconData = LucideFolderOpen.icon;
+
+  readonly menuPinned = signal(true);
+  readonly menuWrap = signal(false);
+  readonly menuDensity = signal<string | null>('comfortable');
+  readonly lastMenuEvent = signal('nothing yet');
+
+  logMenu(action: string): void {
+    this.lastMenuEvent.set(action);
+  }
   readonly selectOptions: SelectOption<string>[] = [
     { label: 'Option A', value: 'a' },
     { label: 'Option B', value: 'b' },

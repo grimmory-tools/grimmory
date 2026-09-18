@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -41,6 +42,8 @@ public class JwtUtils {
     public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 2;  // 2 hours
     @Getter
     public static final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
+
+    private static final long refreshTokenNotBeforeMs = 1000L * 60 * 2; // 2 minutes
 
     @PostConstruct
     public void init() {
@@ -78,14 +81,22 @@ public class JwtUtils {
         try {
             JWSSigner signer = new MACSigner(getSecretBytes());
 
-            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+            var builder = new JWTClaimsSet.Builder()
                     .issuer(JWT_ISSUER)
+                    .jwtID(UUID.randomUUID().toString())
                     .subject(user.getUsername())
                     .claim("userId", user.getId())
                     .claim("isDefaultPassword", user.isDefaultPassword())
                     .issueTime(Date.from(now))
-                    .expirationTime(Date.from(now.plusMillis(expirationTime)))
-                    .build();
+                    .expirationTime(Date.from(now.plusMillis(expirationTime)));
+
+            if (isRefreshToken) {
+                // Prevent refresh tokens from being used until at least
+                // some `refreshTokenNotBeforeMs` milliseconds from now.
+                builder.notBeforeTime(Date.from(now.plusMillis(refreshTokenNotBeforeMs)));
+            }
+
+            JWTClaimsSet claimsSet = builder.build();
 
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
             signedJWT.sign(signer);

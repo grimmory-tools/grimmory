@@ -4,12 +4,13 @@ import {DatePipe, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterLink, UrlTree} from '@angular/router';
 import {TranslocoDirective} from '@jsverse/transloco';
-import {Checkbox} from 'primeng/checkbox';
-import {Tooltip} from 'primeng/tooltip';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {Book, BookMetadata} from '../../../model/book.model';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
+import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {AppRatingComponent} from '../../../../../shared/ui/rating/app-rating.component';
 import {RATING_FIELDS, isMetadataFullyLocked} from './book-table.helpers';
 
@@ -86,7 +87,7 @@ const CLICKABLE_FILTER_KEYS: Record<string, string> = {
   imports: [
     CdkOverlayOrigin,
     Checkbox,
-    CoverPlaceholderComponent,
+    CoverComponent,
     FormsModule,
     NgClass,
     AppRatingComponent,
@@ -122,6 +123,7 @@ export class BookTableRowComponent {
 
   private readonly datePipe = inject(DatePipe);
   private readonly readStatusHelper = inject(ReadStatusHelper);
+  private readonly languageResolver = inject(LanguageResolverService);
   protected readonly urlHelper = inject(UrlHelperService);
 
   readonly metadata = computed<BookMetadata>(() => {
@@ -238,6 +240,14 @@ export class BookTableRowComponent {
           anchor: seriesName
         }];
       }
+      case 'language': {
+        const language = metadata.language;
+        if (!language) return [];
+        return [{
+          url: this.urlHelper.filterBooksBy('language', language),
+          anchor: this.languageResolver.displayName(language)
+        }];
+      }
       default: {
         const value = this.getMetadataValue(metadata, field);
         values = typeof value === 'string' && value ? [value] : [];
@@ -275,7 +285,7 @@ export class BookTableRowComponent {
       case 'fileSizeKb':
         return this.formatFileSize(book.fileSizeKb);
       case 'language':
-        return metadata.language ?? '';
+        return this.languageResolver.displayName(metadata.language);
       case 'pageCount':
         return metadata.pageCount ?? '';
       case 'amazonReviewCount':

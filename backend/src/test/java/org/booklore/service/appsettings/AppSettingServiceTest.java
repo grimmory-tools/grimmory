@@ -12,9 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -36,16 +39,14 @@ class AppSettingServiceTest {
     private AuditService auditService;
     @Mock
     private AppSettingsRepository appSettingsRepository;
+    @Spy
+    private ObjectMapper objectMapper = JsonMapper.shared();
 
-    private SettingPersistenceHelper settingPersistenceHelper;
-
+    @InjectMocks
     private AppSettingService appSettingService;
 
     @BeforeEach
     void setUp() {
-        settingPersistenceHelper = new SettingPersistenceHelper(appSettingsRepository, new ObjectMapper());
-        appSettingService = new AppSettingService(appProperties, settingPersistenceHelper, authenticationService, auditService);
-
         var permissions = new BookLoreUser.UserPermissions();
         permissions.setAdmin(true);
         BookLoreUser user = BookLoreUser.builder()

@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -197,7 +197,7 @@ describe('AuthorCardComponent', () => {
     });
   });
 
-  it('lazily initializes the menu once, marks for check, and toggles the Prime menu each time', () => {
+  it('lazily initializes the menu once, marks for check, and toggles the Optimus UI menu each time', () => {
     const component = createComponent({canQuickMatch: true, canDelete: true});
     const menu = {
       toggle: vi.fn(),

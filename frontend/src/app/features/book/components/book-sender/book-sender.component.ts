@@ -1,16 +1,16 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
+import {Button} from '@openng/optimus-ui/button';
+import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
 import {EmailProvider} from '../../../settings/email-v2/email-provider.model';
 import {EmailRecipient} from '../../../settings/email-v2/email-recipient.model';
 import {EmailService} from '../../../settings/email-v2/email.service';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
 import {EmailV2ProviderService} from '../../../settings/email-v2/email-v2-provider/email-v2-provider.service';
 import {EmailV2RecipientService} from '../../../settings/email-v2/email-v2-recipient/email-v2-recipient.service';
 import {Book} from '../../model/book.model';
-import {RadioButton} from 'primeng/radiobutton';
+import {RadioButton} from '@openng/optimus-ui/radiobutton';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface EmailableFile {

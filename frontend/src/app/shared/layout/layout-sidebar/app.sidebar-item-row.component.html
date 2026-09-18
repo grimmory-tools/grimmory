@@ -71,28 +71,29 @@
   }
 
   <span class="sidebar-item-end-content">
-    @if (shouldShowContextMenuButton()) {
-      <button
-        type="button"
-        class="entity-menu-button"
-        [attr.aria-label]="'common.moreActionsFor' | transloco: { label: currentItem.label }"
-        aria-haspopup="menu"
-        (click)="openContextMenu($event, entitymenu)"
-      >
-        <span class="entity-menu-button-content">
-          <svg lucideEllipsisVertical class="entity-menu-icon" aria-hidden="true"></svg>
-          <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
-        </span>
-      </button>
-      <p-menu
-        #entitymenu
-        [model]="currentItem.contextMenuItems"
-        [popup]="true"
-        appendTo="body"
-        styleClass="sidebar-entity-menu"
-        (onShow)="markContextMenuOpen()"
-        (onHide)="closeContextMenu()"
-      ></p-menu>
+    @if (currentItem.menuTarget; as menuTarget) {
+      <app-library-shelf-menu
+        #entityMenu
+        [target]="menuTarget"
+        [ariaLabel]="'common.moreActionsFor' | transloco: {label: currentItem.label}"
+        (opened)="markContextMenuOpen()"
+        (closed)="closeContextMenu()" />
+
+      @if (entityMenu.available()) {
+        <button
+          type="button"
+          class="entity-menu-button"
+          [attr.aria-label]="'common.moreActionsFor' | transloco: {label: currentItem.label}"
+          [appMenuTriggerFor]="entityMenu.menu()"
+        >
+          <span class="entity-menu-button-content">
+            <svg lucideEllipsisVertical class="entity-menu-icon" aria-hidden="true"></svg>
+            <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
+          </span>
+        </button>
+      } @else if (currentItem.bookCount) {
+        <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
+      }
     } @else if (currentItem.bookCount) {
       <p class="book-count book-count-end">{{ formatCount(currentItem.bookCount) }}</p>
     }

@@ -2,7 +2,7 @@ import {describe, it} from 'vitest';
 
 // NOTE(frontend-seam): Real coverage here needs seams around the large reactive form, admin
 // permission fan-out side effects, and dialog-close behavior so the create-user workflow can be
-// tested without mounting the full Prime form stack.
+// tested without mounting the full Optimus UI form stack.
 describe.skip('CreateUserDialogComponent', () => {
   it('needs form seams to verify validator setup, admin permission propagation, and library selection shaping', () => {
     // TODO(seam): Cover ngOnInit once the reactive-form and valueChanges runtime is isolated for deterministic assertions.

@@ -211,21 +211,6 @@ export function buildQuickActionNavItems(
     }));
 }
 
-export function buildCreateActionNavItems(
-  translate: TranslateFn,
-  permissions: ShellNavPermissions,
-  handlers: ShellActionHandlers,
-): NavItem[] {
-  return CREATE_ACTION_DEFINITIONS
-    .filter((definition) => isVisible(definition, permissions))
-    .map((definition) => ({
-      id: definition.id,
-      label: translate(definition.labelKey),
-      icon: definition.icon,
-      action: definition.run(handlers),
-    }));
-}
-
 const ALL_PAGE_DEFINITIONS: readonly PageDefinition[] = [
   ...HOME_PAGE_DEFINITIONS,
   ...SECONDARY_PAGE_DEFINITIONS,

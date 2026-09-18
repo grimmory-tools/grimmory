@@ -91,7 +91,7 @@ public class BookCreatorService {
                 .library(libraryFile.getLibraryEntity())
                 .libraryPath(libraryFile.getLibraryPathEntity())
                 .addedOn(Instant.now())
-                .bookFiles(new ArrayList<>())
+                .bookFiles(new HashSet<>())
                 .build();
 
         BookFileEntity bookFileEntity = BookFileEntity.builder()

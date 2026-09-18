@@ -6,17 +6,18 @@ import {Book, BookRecommendation} from '../../../book/model/book.model';
 import {distinctUntilChanged, filter, map} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {Tab, TabList, TabPanel, TabPanels, Tabs,} from 'primeng/tabs';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
+import {Tab, TabList, TabPanel, TabPanels, Tabs,} from '@openng/optimus-ui/tabs';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Button} from '@openng/optimus-ui/button';
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host.service';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.component';
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
 import {injectQuery, queryOptions} from '@tanstack/angular-query-experimental';
 import {bookRecommendationsQueryKey} from '../../../book/service/book-query-keys';
+import {PageTitleService} from '../../../../shared/service/page-title.service';
 
 enum BookMetadataTab {
   View = 'view',
@@ -52,6 +53,8 @@ export class BookMetadataCenterComponent implements OnInit {
   private appSettingsService = inject(AppSettingsService);
   private metadataHostService = inject(BookMetadataHostService);
   private destroyRef = inject(DestroyRef);
+  private pageTitle = inject(PageTitleService);
+  private t = inject(TranslocoService);
   readonly config = inject(DynamicDialogConfig, {optional: true});
   readonly ref = inject(DynamicDialogRef, {optional: true});
   BookMetadataTab = BookMetadataTab;
@@ -128,6 +131,9 @@ export class BookMetadataCenterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.config) {
+      this.pageTitle.setPageTitle(this.t.translate('metadata.center.title'));
+    }
     const bookIdFromDialog: number | undefined = this.config?.data?.bookId;
     if (bookIdFromDialog != null) {
       this.currentBookId.set(bookIdFromDialog);

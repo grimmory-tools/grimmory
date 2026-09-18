@@ -2,7 +2,7 @@ import {signal, WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {LayoutService} from '../../../../shared/layout/layout.service';

@@ -6,9 +6,9 @@ export type AppSwitchSize = 'sm' | 'md' | 'lg';
 export const appSwitchRootVariants = cva('relative inline-flex shrink-0 align-middle', {
   variants: {
     size: {
-      sm: 'h-4 w-8',
-      md: 'h-5 w-10',
-      lg: 'h-6 w-12',
+      sm: 'h-4 w-8 pointer-coarse:h-5 pointer-coarse:w-10',
+      md: 'h-5 w-10 pointer-coarse:h-6 pointer-coarse:w-12',
+      lg: 'h-6 w-12 pointer-coarse:h-7 pointer-coarse:w-14',
     },
   },
   defaultVariants: { size: 'md' },
@@ -40,9 +40,9 @@ export const appSwitchThumbVariants = cva(
   {
     variants: {
       size: {
-        sm: 'size-3 peer-checked:translate-x-4',
-        md: 'size-4 peer-checked:translate-x-5',
-        lg: 'size-5 peer-checked:translate-x-6',
+        sm: 'size-3 peer-checked:translate-x-4 pointer-coarse:size-4 pointer-coarse:peer-checked:translate-x-5',
+        md: 'size-4 peer-checked:translate-x-5 pointer-coarse:size-5 pointer-coarse:peer-checked:translate-x-6',
+        lg: 'size-5 peer-checked:translate-x-6 pointer-coarse:size-6 pointer-coarse:peer-checked:translate-x-7',
       },
       disabled: {
         true: 'opacity-50',

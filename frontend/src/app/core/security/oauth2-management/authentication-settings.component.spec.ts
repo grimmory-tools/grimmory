@@ -9,7 +9,7 @@ import {OidcGroupMapping} from '../../../shared/model/oidc-group-mapping.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {OidcGroupMappingService} from '../../../shared/service/oidc-group-mapping.service';
 import {LibraryService} from '../../../features/book/service/library.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {AuthenticationSettingsComponent} from './authentication-settings.component';
 
@@ -30,7 +30,6 @@ function completeProvider(overrides: Partial<OidcProviderDetails> = {}): OidcPro
   return {
     providerName: 'Example IdP',
     clientId: 'client-id',
-    clientSecret: 'secret',
     issuerUri: 'https://issuer.example',
     scopes: 'openid profile email',
     claimMapping: {
@@ -280,7 +279,11 @@ describe('AuthenticationSettingsComponent', () => {
       {
         key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
-      }
+      },
+      {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: "",
+      },
     ]);
 
     component.oidcEnabled = true;
@@ -296,9 +299,13 @@ describe('AuthenticationSettingsComponent', () => {
         newValue: ['grimmory://oauth2-callback', 'grimmory://auth/return'],
       },
       {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: "",
+      },
+      {
         key: AppSettingKey.OIDC_SESSION_DURATION_HOURS,
         newValue: 24,
-      }
+      },
     ]);
   });
 
@@ -495,12 +502,12 @@ describe('AuthenticationSettingsComponent', () => {
 
     component.testConnection();
 
-    expect(component.isTestingConnection).toBe(false);
-    expect(component.testConnectionResult).toEqual({
+    expect(component.isTestingConnection()).toBe(false);
+    expect(component.testConnectionResult()).toEqual({
       success: true,
       checks: [{name: 'issuer', status: 'PASS', message: 'ok'}],
     });
-    expect(component.showTestDetails).toBe(true);
+    expect(component.showTestDetails()).toBe(true);
 
     appSettingsService.testOidcConnection.mockReturnValueOnce(
       throwError(() => new HttpErrorResponse({status: 500}))
@@ -508,7 +515,7 @@ describe('AuthenticationSettingsComponent', () => {
 
     component.testConnection();
 
-    expect(component.isTestingConnection).toBe(false);
+    expect(component.isTestingConnection()).toBe(false);
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
       severity: 'error',
       detail: 'settingsAuth.testConnection.error',

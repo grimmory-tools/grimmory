@@ -28,6 +28,12 @@ runs:
       with:
         java-version: '25'
         distribution: 'temurin'
+        cache: gradle
+        cache-dependency-path: |
+          **/*.gradle*
+          **/gradle.lockfile
+          **/settings.gradle*
+          **/gradle/wrapper/gradle-wrapper.properties
 
     - name: Export OpenAPI JSON
       shell: bash

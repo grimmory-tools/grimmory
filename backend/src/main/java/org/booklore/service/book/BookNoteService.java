@@ -12,7 +12,6 @@ import org.booklore.model.entity.BookNoteEntity;
 import org.booklore.repository.BookNoteRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,13 +45,13 @@ public class BookNoteService {
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
 
         BookLoreUserEntity user = userRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + currentUser.getId()));
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(currentUser.getId()));
 
         BookNoteEntity noteEntity;
 
         if (request.getId() != null) {
             noteEntity = bookNoteRepository.findByIdAndUserId(request.getId(), currentUser.getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Note not found: " + request.getId()));
+                    .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Note", request.getId()));
             noteEntity.setTitle(request.getTitle());
             noteEntity.setContent(request.getContent());
         } else {
@@ -71,7 +70,8 @@ public class BookNoteService {
     @Transactional
     public void deleteNote(Long noteId) {
         BookLoreUser currentUser = authenticationService.getAuthenticatedUser();
-        BookNoteEntity note = bookNoteRepository.findByIdAndUserId(noteId, currentUser.getId()).orElseThrow(() -> new EntityNotFoundException("Note not found: " + noteId));
+        BookNoteEntity note = bookNoteRepository.findByIdAndUserId(noteId, currentUser.getId())
+                .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Note", noteId));
         bookNoteRepository.delete(note);
     }
 }

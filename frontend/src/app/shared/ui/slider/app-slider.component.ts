@@ -6,6 +6,7 @@ import {
   inject,
   input,
   model,
+  output,
   numberAttribute,
   type ElementRef,
   viewChild,
@@ -13,16 +14,17 @@ import {
 import { type FormValueControl } from '@angular/forms/signals';
 
 import { APP_FIELD } from '../field/app-field.context';
-import { invisibleControlInputClass, neutralControlBorderClass } from '../control.styles';
+import { AppControlTransitionDirective, invisibleControlInputClass, neutralControlBorderClass } from '../control.styles';
 
 @Component({
   selector: 'app-slider',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex h-5 w-full touch-none select-none items-center"
+      class="relative flex h-5 w-full touch-pan-y select-none items-center pointer-coarse:h-11"
       [class.opacity-50]="isUnavailable()"
       [style.--pct]="fraction()">
       <input
@@ -43,11 +45,12 @@ import { invisibleControlInputClass, neutralControlBorderClass } from '../contro
         [required]="required()"
         [attr.aria-readonly]="readonly() ? 'true' : null"
         (input)="onInput(input.value)"
-        (change)="touched.set(true)" />
+        (blur)="touch.emit()" />
 
       <div class="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-border"></div>
       <div class="pointer-events-none absolute left-0 h-1.5 rounded-full bg-primary" [style.width]="thumbPosition"></div>
       <div
+        appControlTransition
         [class]="thumbClass"
         [style.left]="thumbPosition"></div>
     </div>
@@ -60,7 +63,8 @@ export class AppSliderComponent implements FormValueControl<number> {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly min = input<number | undefined>(undefined);
@@ -73,7 +77,7 @@ export class AppSliderComponent implements FormValueControl<number> {
   protected readonly inputClass = invisibleControlInputClass;
   protected readonly thumbPosition = 'calc(0.5rem + var(--pct) * (100% - 1rem))';
   protected readonly thumbClass =
-    `pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border ${neutralControlBorderClass} ` +
+    `pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-coarse:size-5 ${neutralControlBorderClass} ` +
     'bg-white shadow-control transition-shadow peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary';
 
   private readonly fieldContext = inject(APP_FIELD, { optional: true });

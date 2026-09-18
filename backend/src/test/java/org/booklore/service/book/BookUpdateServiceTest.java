@@ -79,7 +79,7 @@ class BookUpdateServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.PDF);
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         BookLoreUser user = mock(BookLoreUser.class);
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
@@ -109,7 +109,7 @@ class BookUpdateServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         BookLoreUser user = mock(BookLoreUser.class);
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
@@ -159,7 +159,7 @@ class BookUpdateServiceTest {
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(book);
         primaryFile.setBookType(null);
-        book.setBookFiles(List.of(primaryFile));
+        book.setBookFiles(Set.of(primaryFile));
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
         when(authenticationService.getAuthenticatedUser()).thenReturn(mock(BookLoreUser.class));
         BookViewerSettings settings = BookViewerSettings.builder().build();
@@ -295,7 +295,7 @@ class BookUpdateServiceTest {
         bookFileEntity1.setBook(bookEntity1);
         bookFileEntity1.setFileSubPath("sub1");
         bookFileEntity1.setFileName("file1.pdf");
-        bookEntity1.setBookFiles(List.of(bookFileEntity1));
+        bookEntity1.setBookFiles(Set.of(bookFileEntity1));
 
         BookEntity bookEntity2 = spy(new BookEntity());
         bookEntity2.setId(2L);
@@ -307,7 +307,7 @@ class BookUpdateServiceTest {
         bookFileEntity2.setBook(bookEntity2);
         bookFileEntity2.setFileSubPath("sub2");
         bookFileEntity2.setFileName("file2.pdf");
-        bookEntity2.setBookFiles(List.of(bookFileEntity2));
+        bookEntity2.setBookFiles(Set.of(bookFileEntity2));
 
         when(bookQueryService.findAllWithMetadataByIds(bookIds)).thenReturn(Arrays.asList(bookEntity1, bookEntity2));
         ShelfEntity assignShelf = new ShelfEntity();

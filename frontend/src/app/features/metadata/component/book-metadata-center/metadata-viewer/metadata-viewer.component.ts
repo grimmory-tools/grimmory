@@ -1,44 +1,44 @@
 import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnInit, signal, ViewChild} from '@angular/core';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {DecimalPipe, NgClass} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
-import {Rating, RatingRateEvent} from 'primeng/rating';
+import {Rating, RatingRateEvent} from '@openng/optimus-ui/rating';
 import {FormsModule} from '@angular/forms';
 import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
+import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {UserService} from '../../../../settings/user-management/user.service';
-import {SplitButton} from 'primeng/splitbutton';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {SplitButton} from '@openng/optimus-ui/splitbutton';
+import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {EmailService} from '../../../../settings/email-v2/email.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
-import {ProgressBar} from 'primeng/progressbar';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
 import {catchError, map, switchMap, take} from 'rxjs/operators';
 import {of} from 'rxjs';
-import {Menu} from 'primeng/menu';
+import {Menu} from '@openng/optimus-ui/menu';
 import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
-import {DatePicker} from 'primeng/datepicker';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {TieredMenu} from 'primeng/tieredmenu';
-import {Image} from 'primeng/image';
+import {DatePicker} from '@openng/optimus-ui/datepicker';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
 import {BookDialogHelperService} from '../../../../book/components/book-browser/book-dialog-helper.service';
 import {LibraryService} from '../../../../book/service/library.service';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, fileSizeRanges, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
+import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
+import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthorService} from '../../../../author-browser/service/author.service';
-import {Dialog} from 'primeng/dialog';
-import {Checkbox} from 'primeng/checkbox';
+import {Dialog} from '@openng/optimus-ui/dialog';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
 
 
@@ -47,7 +47,7 @@ import DOMPurify from 'dompurify';
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverPlaceholderComponent]
+  imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
 })
 export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private bookService = inject(BookService);
@@ -109,6 +109,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private authorService = inject(AuthorService);
   protected urlHelper = inject(UrlHelperService);
   protected userService = inject(UserService);
+  protected languageResolver = inject(LanguageResolverService);
   private appSettingsService = inject(AppSettingsService);
   private confirmationService = inject(ConfirmationService);
 
@@ -429,7 +430,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   get bookInSeries(): Book[] {
     return this.bookInSeriesSignal();
   }
-  @ViewChild(Image) private coverImage?: Image;
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   isExpanded = false;
   isOverflowing = false;
@@ -472,12 +472,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   });
 
   ngOnInit(): void {
-    this.destroyRef.onDestroy(() => this.coverImage?.closePreview());
-
-    const onPopState = () => this.coverImage?.closePreview();
-    window.addEventListener('popstate', onPopState);
-    this.destroyRef.onDestroy(() => window.removeEventListener('popstate', onPopState));
-
     const user = this.userService.currentUser();
     if (user) {
       this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
@@ -876,13 +870,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     const range = pageCountRanges.find(r => pageCount >= r.min && pageCount < r.max);
     if (range) {
       this.handleMetadataClick('pageCount', range.id.toString());
-    }
-  }
-
-  goToFileSizeRange(fileSizeKb: number): void {
-    const range = fileSizeRanges.find(r => fileSizeKb >= r.min && fileSizeKb < r.max);
-    if (range) {
-      this.handleMetadataClick('fileSize', range.id.toString());
     }
   }
 

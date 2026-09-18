@@ -91,10 +91,6 @@ public class UserPermissionsEntity {
     @Builder.Default
     private boolean permissionManageFonts = false;
 
-    @Column(name = "permission_demo_user", nullable = false)
-    @Builder.Default
-    private boolean permissionDemoUser = false;
-
     @Column(name = "permission_bulk_auto_fetch_metadata", nullable = false)
     @Builder.Default
     private boolean permissionBulkAutoFetchMetadata = false;

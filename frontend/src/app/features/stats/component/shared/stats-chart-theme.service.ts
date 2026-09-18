@@ -73,8 +73,7 @@ function buildStatsChartThemeOptions(): ChartConfiguration['options'] {
         bodyColor: colors.textSecondary,
         borderColor: colors.border,
         borderWidth: 1,
-      },
-      datalabels: {color: colors.text},
+      }
     },
   };
 }

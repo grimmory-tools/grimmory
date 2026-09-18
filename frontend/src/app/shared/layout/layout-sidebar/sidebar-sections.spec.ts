@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { Library } from '../../../features/book/model/library.model';
 import { Shelf } from '../../../features/book/model/shelf.model';
@@ -28,15 +28,6 @@ function magicShelf(overrides: Partial<MagicShelf> & { name: string }): MagicShe
 
 const libraryDeps = {
   health: { isUnhealthy: (id: number) => id === 99 },
-  menuItems: { initializeLibraryMenuItems: vi.fn(() => []) },
-};
-
-const shelfDeps = {
-  menuItems: { initializeShelfMenuItems: vi.fn(() => []) },
-};
-
-const magicShelfDeps = {
-  menuItems: { initializeMagicShelfMenuItems: vi.fn(() => []) },
 };
 
 describe('normalizeSortPref', () => {
@@ -139,6 +130,7 @@ describe('buildLibrarySection', () => {
       id: 'library:5',
       label: 'Fiction',
       type: 'library',
+      menuTarget: {type: 'library', entity: libs[0]},
       icon: 'book',
       iconType: 'LUCIDE',
       routerLink: ['/library/5/books'],
@@ -159,7 +151,7 @@ describe('buildShelfSection', () => {
   const sort = { field: 'name', order: 'asc' } as const;
 
   it('renders Unshelved even when no shelves are persisted', () => {
-    const [section] = buildShelfSection([], new Map(), 5, sort, translate, shelfDeps);
+    const [section] = buildShelfSection([], new Map(), 5, sort, translate);
 
     expect(section.items).toEqual([
       expect.objectContaining({
@@ -172,7 +164,7 @@ describe('buildShelfSection', () => {
 
   it('always renders Unshelved as the first item when shelves exist', () => {
     const shelves = [shelf({ id: 1, name: 'Reading' })];
-    const [section] = buildShelfSection(shelves, new Map(), 9, sort, translate, shelfDeps);
+    const [section] = buildShelfSection(shelves, new Map(), 9, sort, translate);
 
     expect(section.items?.[0]).toMatchObject({
       id: 'shelfUnshelved',
@@ -187,10 +179,12 @@ describe('buildShelfSection', () => {
       shelf({ id: 2, name: 'Kobo', systemKey: 'kobo' }),
       shelf({ id: 3, name: 'Archive' }),
     ];
-    const [section] = buildShelfSection(shelves, new Map(), 0, sort, translate, shelfDeps);
+    const [section] = buildShelfSection(shelves, new Map(), 0, sort, translate);
 
     expect(section.items?.map((item) => item.label))
       .toEqual(['layout.menu.unshelved', 'Kobo', 'Archive', 'Reading']);
+    expect(section.items?.find((item) => item.label === 'Kobo')?.menuTarget)
+      .toEqual({type: 'shelf', entity: shelves[1]});
   });
 
   it('keeps the standard ordering when no shelf is marked for pinning', () => {
@@ -199,7 +193,7 @@ describe('buildShelfSection', () => {
       shelf({ id: 2, name: 'Kobo' }),
       shelf({ id: 3, name: 'Archive' }),
     ];
-    const [section] = buildShelfSection(shelves, new Map(), 0, sort, translate, shelfDeps);
+    const [section] = buildShelfSection(shelves, new Map(), 0, sort, translate);
 
     expect(section.items?.map((item) => item.label))
       .toEqual(['layout.menu.unshelved', 'Archive', 'Kobo', 'Reading']);
@@ -211,7 +205,7 @@ describe('buildMagicShelfSection', () => {
   const sort = { field: 'name', order: 'asc' } as const;
 
   it('returns no section when no magic shelves are persisted', () => {
-    expect(buildMagicShelfSection([], new Map(), sort, translate, magicShelfDeps)).toEqual([]);
+    expect(buildMagicShelfSection([], new Map(), sort, translate)).toEqual([]);
   });
 
   it('renders sorted magic shelves with route, icon, and count', () => {
@@ -221,13 +215,15 @@ describe('buildMagicShelfSection', () => {
     ];
     const counts = new Map([[1, 4], [2, 7]]);
 
-    const [section] = buildMagicShelfSection(shelves, counts, sort, translate, magicShelfDeps);
+    const [section] = buildMagicShelfSection(shelves, counts, sort, translate);
     expect(section.items).toEqual([
       expect.objectContaining({
         id: 'magicShelf:1', label: 'Alpha', routerLink: ['/magic-shelf/1/books'], bookCount: 4,
+        menuTarget: {type: 'magicShelf', entity: shelves[1]},
       }),
       expect.objectContaining({
         id: 'magicShelf:2', label: 'Beta', icon: 'sparkles', iconType: 'LUCIDE',
+        menuTarget: {type: 'magicShelf', entity: shelves[0]},
         routerLink: ['/magic-shelf/2/books'], bookCount: 7,
       }),
     ]);

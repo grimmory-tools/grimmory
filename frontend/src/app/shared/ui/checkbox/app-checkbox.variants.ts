@@ -6,9 +6,9 @@ export type AppCheckboxSize = 'sm' | 'md' | 'lg';
 export const appCheckboxRootVariants = cva('relative inline-grid shrink-0 place-items-center align-middle', {
   variants: {
     size: {
-      sm: 'size-4',
-      md: 'size-5',
-      lg: 'size-6',
+      sm: 'size-4 pointer-coarse:size-5',
+      md: 'size-5 pointer-coarse:size-6',
+      lg: 'size-6 pointer-coarse:size-7',
     },
   },
   defaultVariants: { size: 'md' },
@@ -42,9 +42,9 @@ export const appCheckboxIndicatorVariants = cva(
   {
     variants: {
       size: {
-        sm: 'size-3',
-        md: 'size-3.5',
-        lg: 'size-4',
+        sm: 'size-3 pointer-coarse:size-3.5',
+        md: 'size-3.5 pointer-coarse:size-4',
+        lg: 'size-4 pointer-coarse:size-5',
       },
     },
     defaultVariants: { size: 'md' },

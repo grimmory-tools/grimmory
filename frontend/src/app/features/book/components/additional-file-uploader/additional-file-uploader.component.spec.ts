@@ -1,6 +1,6 @@
 import {describe, it} from 'vitest';
 
-// NOTE(frontend-seam): Real coverage here needs seams around PrimeNG file-upload callbacks,
+// NOTE(frontend-seam): Real coverage here needs seams around Optimus UI file-upload callbacks,
 // dialog bootstrapping, and upload stream orchestration so single-file validation and upload state
 // transitions can be asserted without browser File objects and the live upload widget runtime.
 describe.skip('AdditionalFileUploaderComponent', () => {

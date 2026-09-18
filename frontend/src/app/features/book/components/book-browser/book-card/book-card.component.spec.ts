@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {User, UserService} from '../../../../settings/user-management/user.service';

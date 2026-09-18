@@ -1,6 +1,6 @@
 import {effect, inject, Injectable, signal} from '@angular/core';
 import {Book} from '../../../model/book.model';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {UserService} from '../../../../settings/user-management/user.service';
 
 @Injectable({providedIn: 'root'})

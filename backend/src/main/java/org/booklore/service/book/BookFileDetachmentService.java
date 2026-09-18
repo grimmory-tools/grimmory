@@ -15,6 +15,7 @@ import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.AuditAction;
+import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.audit.AuditService;
@@ -38,6 +39,7 @@ import java.util.Set;
 public class BookFileDetachmentService {
 
     private final BookRepository bookRepository;
+    private final BookFileRepository bookFileRepository;
     private final UserBookProgressRepository userBookProgressRepository;
     private final AuthenticationService authenticationService;
     private final ReadingProgressService readingProgressService;
@@ -96,10 +98,16 @@ public class BookFileDetachmentService {
         newBook.setMetadata(newMetadata);
 
         sourceBook.getBookFiles().remove(targetFile);
-        targetFile.setFileSubPath(newFileSubPath);
-        targetFile.setBook(newBook);
+        newBook.getBookFiles().add(targetFile);
 
         newBook = bookRepository.saveAndFlush(newBook);
+        bookRepository.saveAndFlush(sourceBook);
+
+        // Only save changes to the target file after the shift in relationship
+        // via source & new book or else we get a hibernate error.
+        targetFile.setFileSubPath(newFileSubPath);
+        targetFile.setBook(newBook);
+        bookFileRepository.saveAndFlush(targetFile);
 
         try {
             bookCoverService.regenerateCover(newBook.getId());
@@ -146,6 +154,7 @@ public class BookFileDetachmentService {
         copy.setRanobedbRating(source.getRanobedbRating());
         copy.setAudibleRating(source.getAudibleRating());
         copy.setAudibleReviewCount(source.getAudibleReviewCount());
+        copy.setOpenlibraryId(source.getOpenlibraryId());
         copy.setAsin(source.getAsin());
         copy.setGoodreadsId(source.getGoodreadsId());
         copy.setHardcoverId(source.getHardcoverId());
@@ -155,6 +164,9 @@ public class BookFileDetachmentService {
         copy.setLubimyczytacId(source.getLubimyczytacId());
         copy.setRanobedbId(source.getRanobedbId());
         copy.setAudibleId(source.getAudibleId());
+        copy.setApplebooksId(source.getApplebooksId());
+        copy.setApplebooksRating(source.getApplebooksRating());
+        copy.setApplebooksReviewCount(source.getApplebooksReviewCount());
         copy.setNarrator(source.getNarrator());
         copy.setAbridged(source.getAbridged());
         copy.setAgeRating(source.getAgeRating());

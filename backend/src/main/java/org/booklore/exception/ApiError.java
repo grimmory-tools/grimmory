@@ -11,6 +11,7 @@ public enum ApiError {
     GENERIC_BAD_REQUEST(HttpStatus.BAD_REQUEST, "%s"),
     GENERIC_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "%s"),
 
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found with ID: %d"),
     BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "Book not found with ID: %d"),
     EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email provider with ID %s not found"),
     DEFAULT_EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Default email provider not found"),
@@ -44,10 +45,10 @@ public enum ApiError {
     CANNOT_DELETE_ADMIN(HttpStatus.FORBIDDEN, "Admin user cannot be deleted"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "%s"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
-    PASSWORD_INCORRECT(HttpStatus.BAD_REQUEST, "Incorrect current password"),
+    PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "Incorrect current password"),
     PASSWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters long"),
     PASSWORD_SAME_AS_CURRENT(HttpStatus.BAD_REQUEST, "New password cannot be the same as the current password"),
-    INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "Invalid credentials"),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid credentials"),
     REMOTE_AUTH_DISABLED(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "Remote login is disabled"),
     SELF_DELETION_NOT_ALLOWED(HttpStatus.FORBIDDEN, "You cannot delete your own account"),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "%s"),
@@ -59,7 +60,6 @@ public enum ApiError {
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "Scheduled task not found: %s"),
     TASK_ALREADY_RUNNING(HttpStatus.CONFLICT, "Task is already running: %s"),
     ICON_ALREADY_EXISTS(HttpStatus.CONFLICT, "SVG icon with name '%s' already exists"),
-    DEMO_USER_PASSWORD_CHANGE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "Demo user password change not allowed."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "Permission denied: %s"),
     LIBRARY_PATH_NOT_ACCESSIBLE(HttpStatus.SERVICE_UNAVAILABLE, "Library scan aborted: path not accessible or empty: %s"),
     FORMAT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "File format '%s' is not allowed in library '%s'"),
@@ -74,7 +74,11 @@ public enum ApiError {
     OIDC_LOGOUT_REPLAY(HttpStatus.BAD_REQUEST, "Logout token has already been processed"),
     OIDC_LOGOUT_MISSING_JTI(HttpStatus.BAD_REQUEST, "Logout token missing required jti claim"),
     OIDC_INVALID_STATE(HttpStatus.BAD_REQUEST, "Invalid or expired OIDC state parameter"),
-    JWT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid JWT token: %s");
+    JWT_INVALID(HttpStatus.UNAUTHORIZED, "Invalid JWT token: %s"),
+
+    INVALID_SORT(HttpStatus.BAD_REQUEST, "%s"),
+    INVALID_CURSOR(HttpStatus.BAD_REQUEST, "%s"),
+    INVALID_FACET(HttpStatus.BAD_REQUEST, "%s");
 
     private final HttpStatus status;
     private final String message;

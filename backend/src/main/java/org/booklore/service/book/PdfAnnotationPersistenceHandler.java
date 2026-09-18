@@ -2,13 +2,13 @@ package org.booklore.service.book;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.PdfAnnotationEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.PdfAnnotationRepository;
 import org.booklore.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +53,11 @@ public class PdfAnnotationPersistenceHandler {
 
     private BookEntity findBook(Long bookId) {
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
     }
 
     private BookLoreUserEntity findUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
     }
 }

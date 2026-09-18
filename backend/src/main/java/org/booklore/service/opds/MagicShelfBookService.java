@@ -127,14 +127,9 @@ public class MagicShelfBookService {
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
-        if (entity.getPermissions() == null ||
-                (!entity.getPermissions().isPermissionAccessOpds() && !entity.getPermissions().isPermissionAdmin())) {
-            throw ApiError.FORBIDDEN.createException("You are not allowed to access this resource");
-        }
-
         boolean isOwner = shelf.getUserId().equals(userId);
         boolean isPublic = shelf.isPublic();
-        boolean isAdmin = entity.getPermissions().isPermissionAdmin();
+        boolean isAdmin = entity.getPermissions() != null && entity.getPermissions().isPermissionAdmin();
 
         if (!isOwner && !isPublic && !isAdmin) {
             throw ApiError.FORBIDDEN.createException("You are not allowed to access this magic shelf");

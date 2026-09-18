@@ -4,7 +4,7 @@ import {provideRouter} from '@angular/router';
 import {of, Subject} from 'rxjs';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';

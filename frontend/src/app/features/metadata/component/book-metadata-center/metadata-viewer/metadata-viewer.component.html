@@ -5,17 +5,14 @@
       <div class="cover-section">
         <div class="cover-wrapper">
 
-          @if (getBookCoverUrl(book); as coverUrl) {
-            <p-image
-              [src]="coverUrl"
-              [alt]="book.metadata?.title ? ('Cover of ' + book.metadata?.title) : ''"
-              width="250"
-              appendTo="body"
-              [preview]="true">
-            </p-image>
-          } @else {
-            <app-cover-placeholder style="width: 250px; height: 350px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
-          }
+          <app-cover
+            [src]="getBookCoverUrl(book)"
+            [title]="book.metadata?.title"
+            [authors]="book.metadata?.authors ?? []"
+            [natural]="true"
+            [alt]="book.metadata?.title ?? ''"
+            [preview]="true"
+            size="lg" />
 
           @if (book?.metadata!.seriesNumber !== null && book?.metadata!.seriesNumber !== undefined) {
             <div class="series-badge">
@@ -413,7 +410,7 @@
               <span class="metadata-key">{{ t('languageLabel') }}</span>
               @if (book?.metadata!.language) {
                 <span class="metadata-value metadata-link" role="button" tabindex="0" (click)="goToLanguage(book?.metadata!.language!)" (keydown.enter)="goToLanguage(book?.metadata!.language!)">
-                  {{ book?.metadata!.language }}
+                  {{ languageResolver.displayName(book?.metadata!.language) }}
                 </span>
               } @else {
                 <span class="metadata-value">-</span>
@@ -619,7 +616,7 @@
               <div class="metadata-item">
                 <span class="metadata-key">{{ t('fileSizeLabel') }}</span>
                 @if (book?.primaryFile?.fileSizeKb) {
-                  <span class="metadata-value metadata-link" role="button" tabindex="0" (click)="goToFileSizeRange(book?.primaryFile?.fileSizeKb!)" (keydown.enter)="goToFileSizeRange(book?.primaryFile?.fileSizeKb!)">
+                  <span class="metadata-value">
                     {{ formatFileSize(book?.primaryFile) }}
                   </span>
                 } @else {

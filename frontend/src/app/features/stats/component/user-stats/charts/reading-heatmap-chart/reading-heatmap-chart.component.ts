@@ -1,6 +1,6 @@
 import {Component, effect, inject} from '@angular/core';
 import {BaseChartDirective} from 'ng2-charts';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
@@ -86,15 +86,6 @@ export class ReadingHeatmapChartComponent {
             return this.t.translate(key, {value: point.v});
           }
         }
-      },
-      datalabels: {
-        display: true,
-        font: {
-          family: "'Inter', sans-serif",
-          size: 10,
-          weight: 'bold'
-        },
-        formatter: (value: MatrixDataPoint) => value.v > 0 ? value.v.toString() : ''
       }
     },
     scales: {

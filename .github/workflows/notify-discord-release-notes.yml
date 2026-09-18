@@ -166,7 +166,7 @@ jobs:
                             type: 2,
                             style: 5,
                             label: "Report Issue",
-                            url: "https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage"
+                            url: "https://github.com/grimmory-tools/grimmory/issues/new?template=bug-report.yml"
                           }
                         ]
                       }
@@ -182,7 +182,7 @@ jobs:
                             type: 2,
                             style: 5,
                             label: "Report Issue",
-                            url: "https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage"
+                            url: "https://github.com/grimmory-tools/grimmory/issues/new?template=bug-report.yml"
                           }
                         ]
                       }

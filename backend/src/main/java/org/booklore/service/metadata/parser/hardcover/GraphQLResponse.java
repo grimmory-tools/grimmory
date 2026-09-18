@@ -2,7 +2,10 @@ package org.booklore.service.metadata.parser.hardcover;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
@@ -235,6 +238,9 @@ public class GraphQLResponse {
         private String isbn13;
 
         private Language language;
+
+        @JsonProperty("reading_format_id")
+        private int readingFormatId;
     }
 
     @Getter

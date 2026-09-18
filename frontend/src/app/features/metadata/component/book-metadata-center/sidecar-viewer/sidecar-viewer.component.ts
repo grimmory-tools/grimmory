@@ -3,10 +3,10 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {Book} from '../../../../book/model/book.model';
 import {SidecarMetadata, SidecarService, SidecarSyncStatus} from '../../../service/sidecar.service';
-import {MessageService} from 'primeng/api';
-import {Button} from 'primeng/button';
-import {Tag} from 'primeng/tag';
-import {Tooltip} from 'primeng/tooltip';
+import {MessageService} from '@openng/optimus-ui/api';
+import {Button} from '@openng/optimus-ui/button';
+import {Tag} from '@openng/optimus-ui/tag';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {DatePipe, JsonPipe} from '@angular/common';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 

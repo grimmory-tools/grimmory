@@ -1,11 +1,11 @@
 import {Component, computed, effect, inject, signal} from '@angular/core';
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {MetadataEditorComponent} from '../book-metadata-center/metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from '../book-metadata-center/metadata-searcher/metadata-searcher.component';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 
 @Component({

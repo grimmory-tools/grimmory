@@ -64,10 +64,10 @@ public class BookFileAttachmentService {
             sourceBooks.add(sourceBook);
         }
 
-        BookFileEntity targetPrimaryFile = targetBook.getBookFiles().stream()
-                .filter(BookFileEntity::isBookFormat)
-                .findFirst()
-                .orElseThrow(() -> ApiError.GENERIC_BAD_REQUEST.createException("Target book has no primary file"));
+        BookFileEntity targetPrimaryFile = targetBook.getPrimaryBookFile();
+        if (targetPrimaryFile == null || !targetPrimaryFile.isBook()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Target book has no primary book file");
+        }
 
         for (BookEntity sourceBook : sourceBooks) {
             if (!targetBook.getLibrary().getId().equals(sourceBook.getLibrary().getId())) {

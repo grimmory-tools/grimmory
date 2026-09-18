@@ -26,7 +26,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CBX Conversion Service Tests")
-@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxConversionServiceTest {
 
     @TempDir

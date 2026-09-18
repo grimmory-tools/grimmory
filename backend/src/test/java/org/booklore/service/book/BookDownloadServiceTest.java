@@ -17,8 +17,8 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mockStatic;
@@ -98,7 +98,7 @@ public class BookDownloadServiceTest {
                 .build();
 
         BookEntity bookEntity = BookEntity.builder()
-                .bookFiles(List.of(bookFileEntity))
+                .bookFiles(Set.of(bookFileEntity))
                 .libraryPath(libraryPathEntity)
                 .build();
 

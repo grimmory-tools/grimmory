@@ -1,8 +1,8 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {describe, expect, it, vi} from 'vitest';
 import {Observable, of, throwError} from 'rxjs';
 import {Book} from '../../model/book.model';

@@ -4,7 +4,7 @@ import {firstValueFrom, of, throwError} from 'rxjs';
 
 import {TaskHelperService} from './task-helper.service';
 import {TaskService, TaskType} from './task.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 describe('TaskHelperService', () => {

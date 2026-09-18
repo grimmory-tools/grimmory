@@ -6,7 +6,7 @@ import {
   inject,
   input,
   LOCALE_ID,
-  model,
+  output,
   signal,
   type ElementRef,
   type Signal,
@@ -94,8 +94,9 @@ function currentYearMonth(): YearMonth {
 }
 
 export const DATE_PICKER_TEMPLATE = `
-    <div #origin class="relative block w-full">
+    <div #origin class="relative block w-full" (focusout)="markTouchedWhenFocusLeavesControl($event)">
       <input
+        appControlTransition
         #trigger
         readonly
         type="text"
@@ -116,8 +117,7 @@ export const DATE_PICKER_TEMPLATE = `
         [disabled]="disabled()"
         [required]="required()"
         (click)="toggle()"
-        (keydown)="onTriggerKeydown($event)"
-        (blur)="onTriggerBlur($event)" />
+        (keydown)="onTriggerKeydown($event)" />
 
       <span
         class="pointer-events-none absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-text-muted">
@@ -147,7 +147,7 @@ export const DATE_PICKER_TEMPLATE = `
         role="dialog"
         [attr.aria-label]="monthYearLabel()"
         [class]="popupClass"
-        (focusout)="onPopupFocusOut($event)">
+        (focusout)="closeAndMarkTouchedWhenFocusLeavesPopup($event)">
         <div class="mb-2 flex items-center justify-between gap-1">
           <button type="button" [class]="navButtonClass" [attr.aria-label]="'shared.ui.datePicker.previousMonth' | transloco" (click)="shiftMonth(-1)">
             <svg lucideChevronLeft class="size-4" aria-hidden="true"></svg>
@@ -172,7 +172,8 @@ export const DATE_PICKER_TEMPLATE = `
             <tr>
               @for (weekday of weekdays(); track weekday.key) {
                 <th scope="col" class="p-0">
-                  <span class="flex size-9 items-center justify-center text-xs font-medium text-text-muted">
+                  <span
+                    class="flex size-9 items-center justify-center text-xs font-medium text-text-muted pointer-coarse:size-11">
                     <span class="sr-only">{{ weekday.long }}</span>
                     <span aria-hidden="true">{{ weekday.narrow }}</span>
                   </span>
@@ -219,7 +220,8 @@ export abstract class AppDatePickerBaseDirective {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly pending = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
-  readonly touched = model(false);
+  readonly touched = input(false, { transform: booleanAttribute });
+  readonly touch = output<void>();
   readonly name = input('');
 
   readonly size = input<AppDatePickerSize>('md');
@@ -263,7 +265,7 @@ export abstract class AppDatePickerBaseDirective {
   protected readonly popupClass = cn(overlayListSurfaceClass, connectedOverlayPanelClass, 'w-auto p-3');
   protected readonly navButtonClass =
     'flex size-7 items-center justify-center rounded-md border-0 bg-transparent text-text-muted outline-hidden ' +
-    'transition-colors hover:bg-surface-hover hover:text-text-strong ' +
+    'pointer-coarse:size-11 touch-manipulation transition-colors hover:bg-surface-hover hover:text-text-strong ' +
     'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary';
 
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
@@ -401,10 +403,9 @@ export abstract class AppDatePickerBaseDirective {
     }
   }
 
-  protected onTriggerBlur(event: FocusEvent): void {
-    if (this.disabled()) return;
-    if (this.relatedTargetInPopup(event.relatedTarget)) return;
-    this.touched.set(true);
+  protected markTouchedWhenFocusLeavesControl(event: FocusEvent): void {
+    if (this.isUnavailable() || this.focusRemainsInControl(event.relatedTarget)) return;
+    this.touch.emit();
   }
 
   protected onOverlayKeydown(event: KeyboardEvent): void {
@@ -420,12 +421,11 @@ export abstract class AppDatePickerBaseDirective {
     this.close();
   }
 
-  protected onPopupFocusOut(event: FocusEvent): void {
+  protected closeAndMarkTouchedWhenFocusLeavesPopup(event: FocusEvent): void {
     const next = event.relatedTarget;
-    if (next === null) return;
-    if (next instanceof Node && this.originRef()?.nativeElement.contains(next)) return;
-    if (this.relatedTargetInPopup(next)) return;
+    if (this.focusRemainsInControl(next)) return;
     this.close();
+    if (!this.isUnavailable()) this.touch.emit();
   }
 
   protected onOverlayAttach(): void {
@@ -459,9 +459,11 @@ export abstract class AppDatePickerBaseDirective {
     );
   }
 
-  private relatedTargetInPopup(target: EventTarget | null): boolean {
+  private focusRemainsInControl(target: EventTarget | null): boolean {
+    if (!(target instanceof Node)) return false;
+    if (this.originRef()?.nativeElement.contains(target)) return true;
     const overlayElement = this.overlay()?.overlayRef?.overlayElement;
-    return target instanceof Node && overlayElement?.contains(target) === true;
+    return overlayElement?.contains(target) === true;
   }
 
   private focusInitialDay(): void {

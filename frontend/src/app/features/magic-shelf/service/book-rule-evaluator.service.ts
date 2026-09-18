@@ -27,14 +27,18 @@ export class BookRuleEvaluatorService {
     }
 
     const rawValue = this.extractBookValue(book, rule.field);
+    const isDateField = rule.field === 'publishedDate' || rule.field === 'dateFinished' ||
+      rule.field === 'lastReadTime' || rule.field === 'addedOn';
+    const withoutTime = (date: Date): Date =>
+      new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
     const normalize = (val: unknown): unknown => {
       if (val === null || val === undefined) return val;
-      if (val instanceof Date) return val;
+      if (val instanceof Date) return isDateField ? withoutTime(val) : val;
       if (typeof val === 'boolean') return String(val);
       if (typeof val === 'string') {
         const date = parseValue(val, 'date');
-        if (date != null) return date;
+        if (date instanceof Date) return isDateField ? withoutTime(date) : date;
         return val.toLowerCase();
       }
       return val;
@@ -345,6 +349,10 @@ export class BookRuleEvaluatorService {
         return book.metadata?.audibleRating;
       case 'audibleReviewCount':
         return book.metadata?.audibleReviewCount;
+      case 'applebooksRating':
+        return book.metadata?.applebooksRating;
+      case 'applebooksReviewCount':
+        return book.metadata?.applebooksReviewCount;
       case 'abridged':
         return book.metadata?.abridged;
       case 'audiobookDuration':
@@ -520,6 +528,7 @@ export class BookRuleEvaluatorService {
       case 'seriesName': return book.metadata?.seriesName;
       case 'isbn13': return book.metadata?.isbn13;
       case 'isbn10': return book.metadata?.isbn10;
+      case 'openlibraryId': return book.metadata?.openlibraryId;
       case 'asin': return book.metadata?.asin;
       case 'authors': return book.metadata?.authors;
       case 'categories': return book.metadata?.categories;
@@ -532,14 +541,17 @@ export class BookRuleEvaluatorService {
       case 'ranobedbRating': return book.metadata?.ranobedbRating;
       case 'lubimyczytacRating': return book.metadata?.lubimyczytacRating;
       case 'audibleRating': return book.metadata?.audibleRating;
+      case 'applebooksRating': return book.metadata?.applebooksRating;
       case 'amazonReviewCount': return book.metadata?.amazonReviewCount;
       case 'goodreadsReviewCount': return book.metadata?.goodreadsReviewCount;
       case 'hardcoverReviewCount': return book.metadata?.hardcoverReviewCount;
       case 'audibleReviewCount': return book.metadata?.audibleReviewCount;
+      case 'applebooksReviewCount': return book.metadata?.applebooksReviewCount;
       case 'goodreadsId': return book.metadata?.goodreadsId;
       case 'hardcoverId': return book.metadata?.hardcoverId;
       case 'googleId': return book.metadata?.googleId;
       case 'audibleId': return book.metadata?.audibleId;
+      case 'applebooksId': return book.metadata?.applebooksId;
       case 'lubimyczytacId': return book.metadata?.lubimyczytacId;
       case 'ranobedbId': return book.metadata?.ranobedbId;
       case 'comicvineId': return book.metadata?.comicvineId;

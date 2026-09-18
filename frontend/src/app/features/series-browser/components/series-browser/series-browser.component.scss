@@ -1,7 +1,7 @@
 @use "../../../../../assets/layout/styles/layout/variables";
 
 .series-browser-page {
-  --browser-gutter-inline: var(--page-gutter-inline);
+  --browser-gutter-inline: 1.125rem;
 
   display: flex;
   flex-direction: column;
@@ -18,7 +18,6 @@
   min-height: 0;
 }
 
-// Browse Header
 .browse-header {
   padding: 0.6563rem var(--browser-gutter-inline) 0;
 }
@@ -76,7 +75,6 @@
   min-width: 160px;
 }
 
-// Display settings
 .display-settings-btn {
   display: flex;
   align-items: center;
@@ -110,7 +108,6 @@
   color: var(--color-text);
 }
 
-// Virtual scroller and grid
 .virtual-scroller {
   flex: 1 1 auto;
   width: 100%;
@@ -149,7 +146,7 @@
 
 @media #{variables.$mobile-shell-media-query} {
   .series-browser-page {
-    --browser-gutter-inline: var(--space-4);
+    --browser-gutter-inline: 0.875rem;
 
     padding: 1.3125rem 0 0;
   }

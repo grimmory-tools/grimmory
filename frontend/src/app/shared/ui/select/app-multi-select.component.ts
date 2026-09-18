@@ -6,13 +6,14 @@ import {
   model,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
-import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/combobox';
+import { Combobox, ComboboxPopup, ComboboxWidget } from '@angular/aria/combobox';
 import { Listbox, Option } from '@angular/aria/listbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
 import { LucideCheck, LucideChevronDown, LucideLoaderCircle, LucideSearch, LucideX } from '@lucide/angular';
 
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { AppSelectBaseDirective } from './app-select-base.directive';
 import { type SelectOption } from './app-select.options';
 
@@ -23,11 +24,12 @@ import { type SelectOption } from './app-select.options';
     NgTemplateOutlet,
     OverlayModule,
     Combobox,
-    ComboboxInput,
-    ComboboxPopupContainer,
+    ComboboxPopup,
+    ComboboxWidget,
     Listbox,
     Option,
     TranslocoPipe,
+    AppControlTransitionDirective,
     LucideCheck,
     LucideChevronDown,
     LucideLoaderCircle,
@@ -37,34 +39,26 @@ import { type SelectOption } from './app-select.options';
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div ngCombobox #cb="ngCombobox" [readonly]="true" [disabled]="disabled()" class="relative block h-full w-full">
+    <div #controlRoot class="relative block h-full w-full" (focusout)="markTouchedWhenFocusLeavesControl($event)">
       <div
+        ngCombobox
+        #cb="ngCombobox"
+        appControlTransition
         #origin
         [class]="triggerClass()"
-        [attr.data-expanded]="cb.expanded() ? 'true' : null">
-        <input
-          ngComboboxInput
-          #input
-          readonly
-          type="text"
-          autocomplete="off"
-          spellcheck="false"
-          [value]="triggerLabel()"
-          [attr.id]="resolvedInputId()"
-          [attr.name]="name() || null"
-          [attr.aria-label]="ariaLabel() || null"
-          [attr.aria-labelledby]="ariaLabelledBy() || null"
-          [attr.aria-invalid]="showInvalid() ? 'true' : null"
-          [attr.aria-readonly]="readonly() ? 'true' : null"
-          [attr.aria-busy]="pending() ? 'true' : null"
-          [attr.aria-describedby]="resolvedDescribedBy()"
-          [disabled]="disabled()"
-          [required]="required()"
-          (keydown)="onTriggerKeydown($event)"
-          (blur)="onTriggerBlur($event)"
-          class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-md border-0 bg-transparent p-0 text-transparent caret-transparent outline-hidden disabled:cursor-default" />
-
-        <span aria-hidden="true" [class]="labelClass()" [class.text-text-muted]="!hasSelection()">
+        [attr.data-expanded]="cb.expanded() ? 'true' : null"
+        [attr.id]="resolvedInputId()"
+        [attr.name]="name() || null"
+        [attr.aria-label]="ariaLabel() || null"
+        [attr.aria-labelledby]="ariaLabelledBy() || null"
+        [attr.aria-invalid]="showInvalid() ? 'true' : null"
+        [attr.aria-busy]="pending() ? 'true' : null"
+        [attr.aria-required]="required() ? 'true' : null"
+        [attr.aria-describedby]="resolvedDescribedBy()"
+        [readonly]="readonly()"
+        [disabled]="disabled()"
+        (expandedChange)="onExpandedChange($event)">
+        <span [class]="labelClass()" [class.text-text-muted]="!hasSelection()">
           {{ triggerLabel() }}
         </span>
 
@@ -72,18 +66,13 @@ import { type SelectOption } from './app-select.options';
           <button
             type="button"
             [attr.aria-label]="'shared.ui.select.clearSelection' | transloco"
-            class="relative z-20 flex h-full shrink-0 items-center justify-center border-0 bg-transparent p-0 text-text-muted transition-colors hover:text-text-strong"
-            [class.w-9]="variant() !== 'bare'"
-            [class.w-7]="variant() === 'bare'"
+            [class]="clearButtonClass()"
             (click)="clear($event)">
             <svg lucideX class="size-4" aria-hidden="true"></svg>
           </button>
         }
 
-        <span
-          class="flex h-full shrink-0 items-center justify-center text-text-muted"
-          [class.w-9]="variant() !== 'bare'"
-          [class.w-7]="variant() === 'bare'">
+        <span [class]="indicatorClass()">
           @if (pending()) {
             <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
           } @else {
@@ -92,7 +81,7 @@ import { type SelectOption } from './app-select.options';
         </span>
       </div>
 
-      <ng-template ngComboboxPopupContainer>
+      <ng-template ngComboboxPopup [combobox]="cb" [popupType]="filter() ? 'dialog' : 'listbox'">
         <ng-template
           [cdkConnectedOverlay]="{
             origin,
@@ -104,64 +93,134 @@ import { type SelectOption } from './app-select.options';
           }"
           [cdkConnectedOverlayOpen]="cb.expanded()"
           [cdkConnectedOverlayScrollStrategy]="overlayScrollStrategy"
+          (overlayOutsideClick)="closePopup()"
           (attach)="onOverlayAttach()">
-          <div [class]="surfaceClass">
-            @if (filter()) {
-              <div class="flex h-9 items-center border-b border-border pl-3 pr-2 text-text-muted">
+          @if (filter()) {
+            <div
+              ngComboboxWidget
+              role="dialog"
+              [attr.aria-label]="filterPlaceholder() || ('shared.ui.select.search' | transloco)"
+              [class]="surfaceClass"
+              (keydown.escape)="closePopup()"
+              (focusout)="markTouchedWhenFocusLeavesControl($event)">
+              <div [class]="filterRowClass">
                 <input
-                  #filterInput
+                  ngCombobox
+                  #filterCombobox="ngCombobox"
                   type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  alwaysExpanded
                   [value]="filterText()"
-                  (input)="filterText.set(filterInput.value)"
-                  (keydown)="onFilterKeydown($event)"
+                  (valueChange)="filterText.set($event)"
                   [placeholder]="filterPlaceholder() || ('shared.ui.select.search' | transloco)"
                   [readonly]="readonly()"
-                  class="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-2 text-sm text-text-strong outline-hidden placeholder:text-text-muted focus:outline-hidden" />
+                  [disabled]="disabled()"
+                  [class]="filterInputClass" />
                 <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
               </div>
-            }
 
-            <ul
-              ngListbox
-              tabindex="-1"
-              focusMode="activedescendant"
-              selectionMode="explicit"
-              [multi]="true"
-              [values]="listboxValues()"
-              [readonly]="readonly()"
-              [disabled]="disabled()"
-              (valuesChange)="onValuesChange($event)"
-              [class]="listClass()">
-              @for (grp of renderedGroups(); track grp.trackKey; let first = $first) {
-                @if (grouped()) {
-                  @if (!first) {
-                    <li role="separator" [class]="separatorClass"></li>
-                  }
-                  <li role="presentation" [class]="sectionClass">{{ grp.label }}</li>
-                }
-                @for (option of grp.options; track option) {
-                  <li
-                    ngOption
-                    tabindex="-1"
-                    [value]="option.value"
-                    [label]="option.label"
-                    [disabled]="option.disabled === true"
-                    [class]="optionClass">
-                    <span [class]="checkboxClass(isSelected(option))">
-                      @if (isSelected(option)) { <svg lucideCheck class="size-3 text-white" aria-hidden="true"></svg> }
-                    </span>
-                    @if (optionTemplate(); as tpl) {
-                      <ng-container [ngTemplateOutlet]="tpl.template" [ngTemplateOutletContext]="{ $implicit: option }" />
-                    } @else {
-                      <span class="truncate leading-5">{{ option.label }}</span>
+              <ng-template ngComboboxPopup [combobox]="filterCombobox">
+                <ul
+                  ngComboboxWidget
+                  ngListbox
+                  #list="ngListbox"
+                  tabindex="-1"
+                  focusMode="activedescendant"
+                  selectionMode="explicit"
+                  [multi]="true"
+                  [value]="listboxValues()"
+                  [activeDescendant]="list.activeDescendant()"
+                  [readonly]="readonly()"
+                  [disabled]="disabled()"
+                  (valueChange)="onValuesChange($event)"
+                  [class]="listClass()">
+                  @for (grp of renderedGroups(); track grp.trackKey; let first = $first) {
+                    @if (grouped()) {
+                      @if (!first) {
+                        <li role="separator" [class]="separatorClass"></li>
+                      }
+                      <li role="presentation" [class]="sectionClass">{{ grp.label }}</li>
                     }
-                  </li>
+                    @for (option of grp.options; track option) {
+                      <li
+                        ngOption
+                        tabindex="-1"
+                        [value]="option.value"
+                        [label]="option.label"
+                        [disabled]="option.disabled === true"
+                        [class]="optionClass">
+                        <span [class]="checkboxClass(isSelected(option))">
+                          @if (isSelected(option)) {
+                            <svg lucideCheck class="size-3 text-white" aria-hidden="true"></svg>
+                          }
+                        </span>
+                        @if (optionTemplate(); as tpl) {
+                          <ng-container
+                            [ngTemplateOutlet]="tpl.template"
+                            [ngTemplateOutletContext]="{ $implicit: option }" />
+                        } @else {
+                          <span class="truncate leading-5">{{ option.label }}</span>
+                        }
+                      </li>
+                    }
+                  } @empty {
+                    <li [class]="emptyClass">{{ emptyMessage() || ('shared.ui.select.noResults' | transloco) }}</li>
+                  }
+                </ul>
+              </ng-template>
+            </div>
+          } @else {
+            <div [class]="surfaceClass" (focusout)="markTouchedWhenFocusLeavesControl($event)">
+              <ul
+                ngComboboxWidget
+                ngListbox
+                #list="ngListbox"
+                tabindex="-1"
+                focusMode="activedescendant"
+                selectionMode="explicit"
+                [multi]="true"
+                [value]="listboxValues()"
+                [activeDescendant]="list.activeDescendant()"
+                [readonly]="readonly()"
+                [disabled]="disabled()"
+                (valueChange)="onValuesChange($event)"
+                [class]="listClass()">
+                @for (grp of renderedGroups(); track grp.trackKey; let first = $first) {
+                  @if (grouped()) {
+                    @if (!first) {
+                      <li role="separator" [class]="separatorClass"></li>
+                    }
+                    <li role="presentation" [class]="sectionClass">{{ grp.label }}</li>
+                  }
+                  @for (option of grp.options; track option) {
+                    <li
+                      ngOption
+                      tabindex="-1"
+                      [value]="option.value"
+                      [label]="option.label"
+                      [disabled]="option.disabled === true"
+                      [class]="optionClass">
+                      <span [class]="checkboxClass(isSelected(option))">
+                        @if (isSelected(option)) {
+                          <svg lucideCheck class="size-3 text-white" aria-hidden="true"></svg>
+                        }
+                      </span>
+                      @if (optionTemplate(); as tpl) {
+                        <ng-container
+                          [ngTemplateOutlet]="tpl.template"
+                          [ngTemplateOutletContext]="{ $implicit: option }" />
+                      } @else {
+                        <span class="truncate leading-5">{{ option.label }}</span>
+                      }
+                    </li>
+                  }
+                } @empty {
+                  <li [class]="emptyClass">{{ emptyMessage() || ('shared.ui.select.noResults' | transloco) }}</li>
                 }
-              } @empty {
-                <li [class]="emptyClass">{{ emptyMessage() || ('shared.ui.select.noResults' | transloco) }}</li>
-              }
-            </ul>
-          </div>
+              </ul>
+            </div>
+          }
         </ng-template>
       </ng-template>
     </div>
@@ -188,7 +247,6 @@ export class AppMultiSelectComponent<T> extends AppSelectBaseDirective<T> implem
 
   protected override onValuesChange(values: readonly T[]): void {
     if (this.isUnavailable()) return;
-    this.touched.set(true);
     const hiddenSelections = this.value().filter((selectedValue) => !this.isVisibleValue(selectedValue));
     this.value.set([...hiddenSelections, ...values]);
   }

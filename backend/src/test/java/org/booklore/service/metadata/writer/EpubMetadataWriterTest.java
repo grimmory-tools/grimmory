@@ -1,5 +1,7 @@
 package org.booklore.service.metadata.writer;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -8,12 +10,17 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -26,9 +33,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -40,12 +48,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.net.URLDecoder;
 
+@ExtendWith(MockitoExtension.class)
 class EpubMetadataWriterTest {
+    @Mock
+    private AppSettingService appSettingService;
+
+    @Spy
+    private ArchiveService archiveService = new ArchiveService();
 
     private EpubMetadataWriter writer;
     private BookMetadataEntity metadata;
     private BookEntity bookEntity;
-    private AppSettingService appSettingService;
 
     @TempDir
     Path tempDir;
@@ -67,7 +80,7 @@ class EpubMetadataWriterTest {
         when(appSettings.getMetadataPersistenceSettings()).thenReturn(metadataPersistenceSettings);
         when(appSettingService.getAppSettings()).thenReturn(appSettings);
 
-        writer = new EpubMetadataWriter(appSettingService);
+        writer = new EpubMetadataWriter(appSettingService, archiveService);
         metadata = new BookMetadataEntity();
         metadata.setTitle("Test Book");
         AuthorEntity author = new AuthorEntity();
@@ -80,7 +93,7 @@ class EpubMetadataWriterTest {
         bookEntity.setLibraryPath(libraryPath);
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(bookEntity);
-        bookEntity.setBookFiles(Collections.singletonList(primaryFile));
+        bookEntity.setBookFiles(Set.of(primaryFile));
         bookEntity.getPrimaryBookFile().setFileSubPath("");
         bookEntity.getPrimaryBookFile().setFileName("test.epub");
     }
@@ -116,6 +129,76 @@ class EpubMetadataWriterTest {
                     assertTrue(fileString.contains("id=\"creator02\""));
                 }
             }
+        }
+
+        @Test
+        @DisplayName("Should remove extraneous refines in EPUB3")
+        void writeMetadata_removesMissingRefines() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <other id="example">Example</other>
+
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <meta refines="#example" property="identifier-type">wizard</meta>
+                            <meta refines="#example2" property="source-of">magic</meta>
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-role-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain("refines=\"#example2\"");
+            assertThat(content).contains("refines=\"#example\"");
+        }
+
+        @Test
+        @DisplayName("Should sort package children in EPUB3")
+        void writeMetadata_shouldSortPackageChildren() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <manifest></manifest>
+                        <collection></collection>
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+
+            int manifestIndex = content.indexOf("<manifest");
+            int metadataIndex = content.indexOf("<metadata");
+            int spineIndex = content.indexOf("<spine");
+            int collectionIndex = content.indexOf("<collection");
+
+            assertThat(metadataIndex).isLessThan(manifestIndex);
+            assertThat(manifestIndex).isLessThan(spineIndex);
+            assertThat(spineIndex).isLessThan(collectionIndex);
+        }
+
+        @Test
+        @DisplayName("Should not flatten collections in EPUB3")
+        void writeMetadata_shouldNotFlattenCollections() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <manifest></manifest>
+                        <collection><collection></collection></collection>
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+
+            assertThat(content.replaceAll("([\\s\n])+", " "))
+                    .contains("<collection> <collection/> </collection>");
         }
     }
 
@@ -311,8 +394,74 @@ class EpubMetadataWriterTest {
     }
 
     @Nested
-    @DisplayName("Mimetype ZIP Entry Tests")
+    @DisplayName("ZIP Entry Tests")
     class MimetypeZipTests {
+
+        @Test
+        @DisplayName("Should handle duplicate entries in zip")
+        void saveMetadata_handlesDuplicateCovers() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Original Title</dc:title>
+                            <meta name="cover" content="cover-image"/>
+                        </metadata>
+                        <manifest>
+                            <item id="cover-image" href="cover.png" media-type="text/plain" properties="cover-image"/>
+                        </manifest>
+                    </package>""";
+
+            byte[] coverImageA = new byte[]{0x0A};
+            byte[] coverImageB = new byte[]{0x0B};
+            byte[] coverImageC = new byte[]{0x0C};
+
+            File coverImageFile = tempDir.resolve("new-cover-" + System.nanoTime() + ".png").toFile();
+            Files.write(coverImageFile.toPath(), coverImageC);
+
+            File epubFile = tempDir.resolve("test-duplicate-" + System.nanoTime() + ".epub").toFile();
+
+            try (var zos = new ZipArchiveOutputStream(new FileOutputStream(epubFile))) {
+                String containerXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                    <rootfiles>
+                        <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+                    </rootfiles>
+                </container>
+                """;
+
+                zos.putArchiveEntry(new ZipArchiveEntry("mimetype"));
+                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("META-INF/container.xml"));
+                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("content.opf"));
+                zos.write(opfContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("cover.png"));
+                zos.write(coverImageA);
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("cover.png"));
+                zos.write(coverImageB);
+                zos.closeArchiveEntry();
+            }
+
+            writer.saveMetadataToFile(epubFile, metadata, coverImageFile.toString(), new MetadataClearFlags());
+
+            try (ZipFile zf = new ZipFile(epubFile)) {
+                var entry = zf.getEntry("cover.png");
+
+                try (InputStream is = zf.getInputStream(entry)) {
+                    assertThat(is.readAllBytes()).isEqualTo(coverImageC);
+                }
+            }
+        }
 
         @Test
         @DisplayName("Should store mimetype as first uncompressed entry in ZIP")
@@ -369,6 +518,68 @@ class EpubMetadataWriterTest {
                 assertThat(mimetypeCount).isEqualTo(1);
             }
         }
+
+        @Test
+        @DisplayName("Should handle file names with a literal plus sign")
+        void saveMetadata_handlesPlus() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>Original Title</dc:title>
+                            <meta name="cover" content="cover-image"/>
+                        </metadata>
+                        <manifest>
+                            <item id="cover-image" href="cover+example.bin" media-type="application/octet-stream" properties="cover-image"/>
+                        </manifest>
+                    </package>""";
+
+            byte[] coverImageA = new byte[]{0x0A};
+            byte[] coverImageB = new byte[]{0x0B};
+
+            File coverImageFile = tempDir.resolve("new-cover-" + System.nanoTime() + ".bin").toFile();
+            Files.write(coverImageFile.toPath(), coverImageB);
+
+            File epubFile = tempDir.resolve("test-duplicate-" + System.nanoTime() + ".epub").toFile();
+
+            try (var zos = new ZipArchiveOutputStream(new FileOutputStream(epubFile))) {
+                String containerXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                    <rootfiles>
+                        <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+                    </rootfiles>
+                </container>
+                """;
+
+                zos.putArchiveEntry(new ZipArchiveEntry("mimetype"));
+                zos.write("application/epub+zip".getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("META-INF/container.xml"));
+                zos.write(containerXml.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("content.opf"));
+                zos.write(opfContent.getBytes(StandardCharsets.UTF_8));
+                zos.closeArchiveEntry();
+
+                zos.putArchiveEntry(new ZipArchiveEntry("cover+example.bin"));
+                zos.write(coverImageA);
+                zos.closeArchiveEntry();
+            }
+
+            writer.saveMetadataToFile(epubFile, metadata, coverImageFile.toString(), new MetadataClearFlags());
+
+            try (ZipFile zf = new ZipFile(epubFile)) {
+                var entry = zf.getEntry("cover+example.bin");
+
+                try (InputStream is = zf.getInputStream(entry)) {
+                    assertThat(is.readAllBytes()).isEqualTo(coverImageB);
+                }
+            }
+        }
+
     }
 
     @Nested
@@ -461,6 +672,46 @@ class EpubMetadataWriterTest {
             assertThat(content).contains("property=\"title-type\"");
             assertThat(content).contains(">subtitle<");
         }
+
+        @Test
+        @DisplayName("Should remove refinement when subtitle is removed")
+        void epub3_shouldRemoveRefinementWhenRemovingSubtitle() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title id="#subtitle-12b45ebf">Subtitle</dc:title>
+                            <opf:meta xmlns:opf="http://www.idpf.org/2007/opf" property="title-type" refines="#subtitle-12b45ebf">subtitle</opf:meta>
+                        </metadata>
+                    </package>""";
+
+            metadata.setSubtitle(null);
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain(">subtitle</opf:meta>");
+        }
+
+        @Test
+        @DisplayName("Should do nothing when no subtitle and subtitle is removed")
+        void epub3_shouldSaveNoSubtitleWhenAlreadyNoSubtitle() throws Exception {
+            String opfContent = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        </metadata>
+                    </package>""";
+
+            metadata.setSubtitle(null);
+
+            File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
+            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).doesNotContain(">subtitle</opf:meta>");
+        }
     }
 
     @Nested
@@ -552,6 +803,124 @@ class EpubMetadataWriterTest {
             // Should NOT use property= form
             assertThat(content).doesNotContain("property=\"booklore:");
         }
+    }
+
+    @Nested
+    @DisplayName("Cover Tests")
+    class CoverTests {
+        @Test
+        void shouldCreateManifestItemIfNoneExist() throws Exception {
+            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
+            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+
+            File epubFile = createEpubWithOpf(
+                    """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                            <dc:title>Test Book</dc:title>
+                        </metadata>
+                    </package>
+                    """,
+                    "no-cover-" + System.nanoTime() + ".epub"
+            );
+
+            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
+
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains("href=\"cover.");
+        }
+
+        @Test
+        void shouldAddEpub3CoverImageTag() throws Exception {
+            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
+            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+
+            File epubFile = createEpubWithOpf(
+                    """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                            <dc:title>Test Book</dc:title>
+                        </metadata>
+                    </package>
+                    """,
+                    "no-cover-" + System.nanoTime() + ".epub"
+            );
+
+            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
+
+
+            String content = readOpfContent(epubFile);
+            assertThat(content).contains("properties=\"cover-image\"");
+        }
+
+        @Test
+        void shouldAllowOnlyOneCoverImagePropertiesEpub3() throws Exception {
+            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
+            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+
+            File epubFile = createEpubWithOpf(
+                    """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                            <dc:title>Test Book</dc:title>
+                        </metadata>
+                        <manifest>
+                            <item href="foo" properties="cover-image" media-type="application/octet-stream" />
+                            <item href="bar" properties="cover-image" media-type="application/octet-stream" />
+                        </manifest>
+                    </package>
+                    """,
+                    "cover-" + System.nanoTime() + ".epub"
+            );
+
+            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
+
+
+            String content = readOpfContent(epubFile);
+            var pattern = Pattern.compile("properties=\"cover-image\"");
+            var matcher = pattern.matcher(content);
+            int count = 0;
+            while (matcher.find()) {
+                count++;
+            }
+            assertThat(count).isEqualTo(1);
+        }
+
+        @Test
+        void shouldMitigateMediaTypeMismatch() throws Exception {
+            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
+            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+
+            File epubFile = createEpubWithOpf(
+                    """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                        </metadata>
+                        <manifest>
+                            <item href="cover.bin" id="cover" properties="cover-image" media-type="image/png" />
+                        </manifest>
+                    </package>
+                    """,
+                    "no-cover-" + System.nanoTime() + ".epub"
+            );
+
+            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
+
+
+            String content = readOpfContent(epubFile);
+
+            // Removes properties from existing
+            assertThat(content).contains("<item href=\"cover.bin\" id=\"cover\" media-type=\"image/png\"/>");
+
+            // And creates a new item with the prop
+            assertThat(content).containsPattern("<item href=\"cover-[^\"]+\\.bin\" id=\"cover-[^\"]+\" media-type=\"application/octet-stream\" properties=\"cover-image\"/>.*");
+        }
+
     }
 
     private Document parseOpf(File epubFile) throws Exception {

@@ -8,6 +8,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class MetadataMatchService {
     private final AppSettingService appSettingsService;
     private final BookQueryService bookQueryService;
 
+    @Transactional
     public void recalculateAllMatchScores() {
         List<BookEntity> allBooks = bookQueryService.getAllFullBookEntities();
         for (BookEntity book : allBooks) {
@@ -67,6 +69,8 @@ public class MetadataMatchService {
         if (isPositive(metadata.getLubimyczytacRating(), metadata.getLubimyczytacRatingLocked())) score += weights.getLubimyczytacRating();
         if (isPositive(metadata.getAudibleRating(), metadata.getAudibleRatingLocked())) score += weights.getAudibleRating();
         if (isPositive(metadata.getAudibleReviewCount(), metadata.getAudibleReviewCountLocked())) score += weights.getAudibleReviewCount();
+        if (isPositive(metadata.getApplebooksRating(), metadata.getApplebooksRatingLocked())) score += weights.getApplebooksRating();
+        if (isPositive(metadata.getApplebooksReviewCount(), metadata.getApplebooksReviewCountLocked())) score += weights.getApplebooksReviewCount();
         if (metadata.getCoverUpdatedOn() != null || Boolean.TRUE.equals(metadata.getCoverLocked())) score += weights.getCoverImage();
 
         return (score / totalWeight) * 100f;

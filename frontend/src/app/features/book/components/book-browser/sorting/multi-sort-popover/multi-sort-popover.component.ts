@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {SortDirection, SortOption} from '../../../../model/sort.model';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
-import {Button} from 'primeng/button';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {Button} from '@openng/optimus-ui/button';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

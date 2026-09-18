@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
-import { Menu } from 'primeng/menu';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
@@ -30,7 +29,6 @@ import { LibraryService } from '../../../features/book/service/library.service';
 import { LibraryHealthService } from '../../../features/book/service/library-health.service';
 import { ShelfService } from '../../../features/book/service/shelf.service';
 import { BookService } from '../../../features/book/service/book.service';
-import { LibraryShelfMenuService } from '../../../features/book/service/library-shelf-menu.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
 import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
@@ -40,11 +38,9 @@ import { CommandPaletteService } from '../../../features/command-palette/command
 import { AuthService } from '../../service/auth.service';
 import { LayoutService } from '../layout.service';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { Tooltip } from 'primeng/tooltip';
-import type { MenuItem } from 'primeng/api';
+import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavItem, SidebarSection } from '../navigation/nav-item.model';
-import { buildCreateActionNavItems } from '../navigation/nav-catalog';
+import { SidebarSection } from '../navigation/nav-item.model';
 import {
   buildHomeSection,
   buildLibrarySection,
@@ -60,6 +56,9 @@ import { LibraryImportProgressService } from '../../service/library-import-progr
 import { AppThemeService } from '../../service/app-theme.service';
 import type { AppearancePreference } from '../../model/app-state.model';
 import { APPEARANCE_OPTIONS } from '../theme/appearance-options';
+import {AppMenuComponent} from '../../ui/menu/app-menu.component';
+import {AppMenuItemComponent} from '../../ui/menu/app-menu-item.component';
+import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
@@ -145,7 +144,9 @@ function isNewerVersion(latest: string | undefined, current: string | undefined)
     LucideUpload,
     LucideUserPen,
     LucideX,
-    Menu,
+    AppMenuComponent,
+    AppMenuItemComponent,
+    AppMenuTriggerDirective,
     UnifiedNotificationBoxComponent,
     RouterLink,
     TranslocoDirective,
@@ -163,10 +164,9 @@ export class AppSidebarComponent {
   private readonly libraryHealthService = inject(LibraryHealthService);
   private readonly shelfService = inject(ShelfService);
   private readonly bookService = inject(BookService);
-  private readonly libraryShelfMenuService = inject(LibraryShelfMenuService);
-  private readonly dialogLauncherService = inject(DialogLauncherService);
+  protected readonly dialogLauncherService = inject(DialogLauncherService);
   private readonly commandPaletteService = inject(CommandPaletteService);
-  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  protected readonly bookDialogHelperService = inject(BookDialogHelperService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   readonly layoutService = inject(LayoutService);
@@ -230,7 +230,7 @@ export class AppSidebarComponent {
         this.libraryService.bookCountByLibraryId(),
         this.layoutService.librarySort(),
         this.translate,
-        { health: this.libraryHealthService, menuItems: this.libraryShelfMenuService },
+        { health: this.libraryHealthService },
       ),
       ...buildShelfSection(
         this.shelfService.shelves(),
@@ -238,31 +238,15 @@ export class AppSidebarComponent {
         this.shelfService.unshelvedBookCount(),
         this.layoutService.shelfSort(),
         this.translate,
-        { menuItems: this.libraryShelfMenuService },
       ),
       ...buildMagicShelfSection(
         this.magicShelfService.shelves(),
         this.magicShelfService.bookCountByMagicShelfId(),
         this.layoutService.magicShelfSort(),
         this.translate,
-        { menuItems: this.libraryShelfMenuService },
       ),
       ...buildToolsSection(this.translate, this.currentUser()?.permissions ?? {}),
     ];
-  });
-
-  readonly addMenuItems = computed<MenuItem[]>(() => {
-    this.activeLang();
-    const user = this.currentUser();
-    if (!user) return [];
-
-    const actions = buildCreateActionNavItems(this.translate, user.permissions, {
-      createLibrary: () => void this.dialogLauncherService.openLibraryCreateDialog().catch(() => undefined),
-      createShelf: () => void this.bookDialogHelperService.openShelfCreatorDialog().catch(() => undefined),
-      createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
-      uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
-    });
-    return this.toMenuItems(actions);
   });
 
   readonly userInitials = computed(() => {
@@ -273,7 +257,6 @@ export class AppSidebarComponent {
   protected readonly notificationsOpen = signal(false);
   protected readonly notificationPopoverOrigin = signal<CdkOverlayOrigin | null>(null);
   private readonly notificationPopoverMobilePositions = signal<ConnectedPosition[]>(ABOVE_ALIGN_CENTER);
-  protected readonly addMenuOpen = signal(false);
   protected readonly aboveMenuPositions = ABOVE_ALIGN_LEFT;
   protected readonly notificationPopoverPositions = computed(() =>
     this.layoutService.isDesktop() ? RIGHT_ALIGN_TOP : this.notificationPopoverMobilePositions()
@@ -367,28 +350,6 @@ export class AppSidebarComponent {
       event.preventDefault();
       this.closeNotificationsPopover();
     }
-  }
-
-  // Temporary: PrimeNG p-menu cannot render non-Prime icons here.
-  private static readonly ADD_MENU_ICONS: Record<string, string> = {
-    createLibrary: 'pi pi-folder',
-    createShelf: 'pi pi-bookmark',
-    createMagicShelf: 'pi pi-sparkles',
-  };
-
-  private toMenuItems(items: readonly (NavItem | null | undefined)[]): MenuItem[] {
-    return items.flatMap((item): MenuItem[] =>
-      item ? [{
-        label: item.label,
-        icon: AppSidebarComponent.ADD_MENU_ICONS[item.id],
-        routerLink: item.routerLink,
-        command: item.action,
-      }] : []
-    );
-  }
-
-  protected toggleAddMenu(event: MouseEvent, menu: Menu): void {
-    menu.toggle(event);
   }
 
   protected toggleHeaderNotificationsPopover(origin: CdkOverlayOrigin): void {

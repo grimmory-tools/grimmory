@@ -5,7 +5,7 @@ body:
       value: |
         > [!IMPORTANT]
         > **Have a good idea for a new feature or enhancement that would make Grimmory better?** This is the right spot for that. We can't wait to hear your ideas!
-        > If you're encountering an issue with an existing feature, visit our [**Issue Triage**](https://github.com/orgs/grimmory-tools/discussions/categories/issue-triage) to report it as a bug.
+        > If you're encountering an issue with an existing feature, submit a [**Bug Report Issue**](https://github.com/grimmory-tools/grimmory/issues/new?template=bug-report.yml).
 
   - type: textarea
     id: idea

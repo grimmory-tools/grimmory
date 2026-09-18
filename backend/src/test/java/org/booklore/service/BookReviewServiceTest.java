@@ -1,7 +1,7 @@
 package org.booklore.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.mapper.BookReviewMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.BookMetadata;
@@ -360,10 +360,10 @@ class BookReviewServiceTest {
 
         when(bookReviewRepository.existsById(reviewId)).thenReturn(false);
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+        APIException exception = assertThrows(APIException.class,
             () -> service.delete(reviewId));
 
-        assertEquals("Review not found: " + reviewId, exception.getMessage());
+        assertEquals("Review not found with ID: " + reviewId, exception.getMessage());
         verify(bookReviewRepository, never()).deleteById(reviewId);
     }
 }

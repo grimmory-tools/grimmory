@@ -1,16 +1,16 @@
 import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
 
-import {Checkbox} from 'primeng/checkbox';
-import {Button} from 'primeng/button';
-import {MessageService} from 'primeng/api';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {Button} from '@openng/optimus-ui/button';
+import {MessageService} from '@openng/optimus-ui/api';
 import {
   FieldOptions,
   MetadataRefreshOptions,
   MetadataReplaceMode
 } from '../../../model/request/metadata-refresh-options.model';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -30,17 +30,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
     'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10',
     'language', 'categories', 'cover', 'pageCount',
-    'asin', 'amazonRating', 'amazonReviewCount',
-    'googleId',
-    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
-    'comicvineId',
-    'lubimyczytacId', 'lubimyczytacRating',
-    'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount'
-  ];
-
-  providerSpecificFields: (keyof FieldOptions)[] = [
+    'openlibraryId',
     'asin', 'amazonRating', 'amazonReviewCount',
     'googleId',
     'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
@@ -49,6 +39,20 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'lubimyczytacId', 'lubimyczytacRating',
     'ranobedbId', 'ranobedbRating',
     'audibleId', 'audibleRating', 'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
+  ];
+
+  providerSpecificFields: (keyof FieldOptions)[] = [
+    'openlibraryId',
+    'asin', 'amazonRating', 'amazonReviewCount',
+    'googleId',
+    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
+    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
+    'comicvineId',
+    'lubimyczytacId', 'lubimyczytacRating',
+    'ranobedbId', 'ranobedbRating',
+    'audibleId', 'audibleRating', 'audibleReviewCount',
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
   ];
 
   nonProviderSpecificFields: (keyof FieldOptions)[] = [
@@ -57,8 +61,33 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  providers: string[] = ['Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible'];
-  providersWithClear: string[] = ['Clear All', 'Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban', 'Lubimyczytac', 'Ranobedb', 'Audible'];
+  providers: string[] = [
+    'OpenLibrary',
+    'Amazon',
+    'Google',
+    'GoodReads',
+    'Hardcover',
+    'Comicvine',
+    'Douban',
+    'Lubimyczytac',
+    'Ranobedb',
+    'Audible',
+    'AppleBooks'
+  ];
+  providersWithClear: string[] = [
+    'Clear All',
+    'OpenLibrary',
+    'Amazon',
+    'Google',
+    'GoodReads',
+    'Hardcover',
+    'Comicvine',
+    'Douban',
+    'Lubimyczytac',
+    'Ranobedb',
+    'Audible',
+    'AppleBooks'
+  ];
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
@@ -87,6 +116,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   private justSubmitted = false;
 
   private providerSpecificFieldsList = [
+    // OpenLibrary
+    'openlibraryId',
+
     // Amazon
     'asin', 'amazonRating', 'amazonReviewCount',
 
@@ -110,6 +142,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
     // Audible
     'audibleId', 'audibleRating', 'audibleReviewCount',
+
+    // Apple Books
+    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
 
     // Generic provider-specific
     'moods', 'tags'
@@ -268,6 +303,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'pageCount': 'Page Count',
       'rating': 'Rating',
       'reviewCount': 'Review Count',
+      'openlibraryId': 'OpenLibrary ID',
       'asin': 'Amazon ASIN',
       'goodreadsId': 'Goodreads ID',
       'comicvineId': 'Comicvine ID',
@@ -287,6 +323,9 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'audibleId': 'Audible ID',
       'audibleRating': 'Audible Rating',
       'audibleReviewCount': 'Audible Review Count',
+      'applebooksId': 'Apple Books ID',
+      'applebooksRating': 'Apple Books Rating',
+      'applebooksReviewCount': 'Apple Books Review Count',
       'moods': 'Moods (Hardcover)',
       'tags': 'Tags (Hardcover)'
     };

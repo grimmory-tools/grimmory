@@ -175,23 +175,27 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT a FROM AuthorEntity a
+            SELECT DISTINCT a.name
+            FROM AuthorEntity a
             JOIN a.bookMetadataEntityList m
             JOIN m.book b
             WHERE (b.deleted IS NULL OR b.deleted = false)
+              AND a.name IS NOT NULL
             ORDER BY a.name
             """)
-    List<AuthorEntity> findDistinctAuthors();
+    Page<String> findDistinctAuthorNames(Pageable pageable);
 
     @Query("""
-            SELECT DISTINCT a FROM AuthorEntity a
+            SELECT DISTINCT a.name
+            FROM AuthorEntity a
             JOIN a.bookMetadataEntityList m
             JOIN m.book b
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND b.library.id IN :libraryIds
+              AND a.name IS NOT NULL
             ORDER BY a.name
             """)
-    List<AuthorEntity> findDistinctAuthorsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
+    Page<String> findDistinctAuthorNamesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
     // ============================================
     // BOOKS BY AUTHOR - Two Query Pattern
@@ -230,7 +234,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
               AND m.seriesName != ''
             ORDER BY m.seriesName
             """)
-    List<String> findDistinctSeries();
+    Page<String> findDistinctSeries(Pageable pageable);
 
     @Query("""
             SELECT DISTINCT m.seriesName FROM BookMetadataEntity m
@@ -241,7 +245,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
               AND m.seriesName != ''
             ORDER BY m.seriesName
             """)
-    List<String> findDistinctSeriesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
+    Page<String> findDistinctSeriesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
     // ============================================
     // BOOKS BY SERIES - Two Query Pattern (sorted by series number)

@@ -3,7 +3,7 @@ import {firstValueFrom, of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {AnnotationService} from '../../../../../shared/service/annotation.service';
 import {ReaderAnnotationService} from './annotation-renderer.service';

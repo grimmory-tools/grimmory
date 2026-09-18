@@ -22,8 +22,7 @@ public enum PermissionType {
     ACCESS_TASK_MANAGER("permissionAccessTaskManager"),
     MANAGE_GLOBAL_PREFERENCES("permissionManageGlobalPreferences"),
     MANAGE_ICONS("permissionManageIcons"),
-    MANAGE_FONTS("permissionManageFonts"),
-    DEMO_USER("permissionDemoUser");
+    MANAGE_FONTS("permissionManageFonts");
 
     private final String entityField;
 

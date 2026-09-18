@@ -23,9 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +89,7 @@ class SendEmailV2ServiceTest {
         book.setId(10L);
         book.setMetadata(metadata);
         book.setLibraryPath(libraryPath);
-        book.setBookFiles(List.of(bookFile));
+        book.setBookFiles(Set.of(bookFile));
 
         emailProvider = EmailProviderV2Entity.builder()
                 .id(100L)

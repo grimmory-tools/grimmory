@@ -471,13 +471,11 @@ class AppSeriesServiceTest {
                 .bookType(BookFileType.EPUB)
                 .build();
 
-        List<BookFileEntity> bookFiles = new ArrayList<>(List.of(bookFile));
-
         BookEntity book = BookEntity.builder()
                 .id(id)
                 .metadata(metadata)
                 .addedOn(Instant.now())
-                .bookFiles(bookFiles)
+                .bookFiles(Set.of(bookFile))
                 .build();
 
         metadata.setBook(book);

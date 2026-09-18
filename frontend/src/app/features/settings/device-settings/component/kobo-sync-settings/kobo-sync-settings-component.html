@@ -124,6 +124,37 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
+                  <span class="setting-label">{{ t('kobo.apiPath') }}</span>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="koboApiPath"
+                      [value]="koboApiPath"
+                      [type]="showToken ? 'text' : 'password'"
+                      aria-label="{{ t('kobo.apiPath') }}"
+                      readonly
+                      class="token-input"
+                    />
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      [ariaLabel]="t('kobo.apiPath')"
+                      (onClick)="copyText(koboApiPath, t('kobo.apiPath'))"
+                      [disabled]="!koboApiPath">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  {{ t('kobo.apiPathDesc') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
                   <span class="setting-label">{{ t('kobo.markAsReading', {value: syncForm.controls.progressMarkAsReadingThreshold.value.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider

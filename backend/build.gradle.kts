@@ -7,10 +7,10 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.1.Final"
-    id("com.github.ben-manes.versions") version "0.54.0"
+    id("org.hibernate.orm") version "7.4.8.Final"
+    id("com.github.ben-manes.versions") version "0.62.0"
     jacoco
 }
 
@@ -94,56 +94,6 @@ fun pdfiumNativesClassifier(): String {
     return "natives-$osKey-$archKey"
 }
 
-fun epub4jNativesClassifier(): String {
-    // Support cross-compilation: check for explicit target overrides first
-    val targetPlatform = System.getenv("TARGETPLATFORM")
-        ?: project.findProperty("targetPlatform")?.toString()
-    val targetArch = System.getenv("TARGETARCH")
-        ?: project.findProperty("targetArch")?.toString()
-
-    val osName: String
-    val arch: String
-
-    if (targetPlatform != null) {
-        // Docker TARGETPLATFORM format: linux/amd64, linux/arm64
-        val parts = targetPlatform.split("/")
-        osName = parts.getOrElse(0) { "linux" }
-        arch = parts.getOrElse(1) { "amd64" }
-    } else {
-        osName = System.getProperty("os.name").lowercase()
-        arch = targetArch ?: System.getProperty("os.arch").lowercase()
-    }
-
-    val osKey = when {
-        "win" in osName -> "windows"
-        "mac" in osName || "darwin" in osName -> "macos"
-        "nux" in osName || "linux" in osName -> {
-            val libcOverride = (System.getenv("TARGETLIBC")
-                ?: project.findProperty("targetLibc")?.toString())?.lowercase()
-            val isMusl = when (libcOverride) {
-                "musl" -> true
-                "gnu", "glibc" -> false
-                else -> if (targetPlatform != null) false else runCatching {
-                    val libDir = File("/lib")
-                    libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
-                }.getOrElse {
-                    runCatching { File("/proc/self/maps").readText().contains("musl") }.getOrDefault(false)
-                }
-            }
-            if (isMusl) "linux-musl" else "linux"
-        }
-        else -> error("Unsupported OS: $osName")
-    }
-
-    val archKey = when (arch) {
-        "x86_64", "amd64" -> "x86_64"
-        "aarch64", "arm64" -> "aarch64"
-        else -> error("Unsupported architecture: $arch")
-    }
-
-    return "$osKey-$archKey"
-}
-
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -161,19 +111,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-http-client")
     implementation("com.nimbusds:nimbus-jose-jwt:10.9.1")
 
     // --- Reactive Streams ---
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.9")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.9.0")
+    implementation("org.flywaydb:flyway-mysql:13.6.0")
 
     // --- Lombok (For Clean Code) ---
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
 
     // --- Book & Image Processing ---
     val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
@@ -181,29 +132,22 @@ dependencies {
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
     // --- TwelveMonkeys ImageIO ---
-    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.13.1")
-    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
+    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.0")
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.15.0")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
-    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.4.0"
-    implementation(epub4jCoords)
-
-    // epub4j-native for native archive parsing
-    val epub4jNativeVersion = "1.4.0"
-    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:$epub4jNativeVersion"
-    implementation(epub4jNativeCoords)
-    runtimeOnly("$epub4jNativeCoords:${epub4jNativesClassifier()}")
+    implementation("org.grimmory:epub4j-core:1.5.0")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.23")
+    implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
+    implementation("com.github.junrar:junrar:8.1.1")
 
     // --- JSON & Web Scraping ---
-    implementation("org.jsoup:jsoup:1.22.2")
+    implementation("org.jsoup:jsoup:1.23.2")
 
     // --- i18n / Language Normalization ---
     implementation("com.neovisionaries:nv-i18n:1.29")
@@ -213,23 +157,23 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.1")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:3.3.1")
+    implementation("org.apache.tika:tika-core:4.0.0")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.9")
 
     // --- Template Engine ---
-    implementation("org.freemarker:freemarker:2.3.34")
+    implementation("org.freemarker:freemarker:2.3.35")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.2.0"))
+    implementation(platform("tools.jackson:jackson-bom:3.2.2"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
 
@@ -299,6 +243,9 @@ tasks.named<BootRun>("bootRun") {
 
 tasks.named<BootJar>("bootJar") {
     mainClass.set("org.booklore.BookloreApplication")
+    into("/META-INF") {
+        from("../NOTICE", "../LICENSE")
+    }
 }
 
 tasks.register("exportOpenApi") {

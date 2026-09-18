@@ -28,6 +28,7 @@ let nextId = 0;
     '(mouseenter)': 'show()',
     '(mouseleave)': 'hide()',
     '(keydown.escape)': 'hide()',
+    '(pointerdown)': 'onHostPointerDown($event)',
   },
 })
 export class AppTooltipDirective {
@@ -76,6 +77,18 @@ export class AppTooltipDirective {
       this.detach();
     });
   }
+
+  protected onHostPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse' || this.disabled() || !this.text().trim()) return;
+    this.show();
+    document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
+  }
+
+  private readonly onDocumentPointerDown = (event: PointerEvent): void => {
+    if (this.host.nativeElement.contains(event.target as Node)) return;
+    document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+    this.hide();
+  };
 
   protected show(): void {
     if (this.disabled() || !this.text().trim()) return;
@@ -139,6 +152,8 @@ export class AppTooltipDirective {
   }
 
   private detach(): void {
+    document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+
     if (this.containerRef) {
       this.containerRef = null;
       this.removeTooltipDescription();

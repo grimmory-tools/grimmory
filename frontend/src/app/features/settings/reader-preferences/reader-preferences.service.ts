@@ -1,6 +1,6 @@
 import {effect, inject, Injectable} from '@angular/core';
 import {User, UserService, UserSettings} from '../user-management/user.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 type MutableSettingsBranch = Record<string, unknown>;

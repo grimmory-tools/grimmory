@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.github.gotson.nightcompress.Archive;
 import org.grimmory.pdfium4j.PdfiumLibrary;
 
 /**
@@ -21,7 +20,6 @@ public final class NativeLibraries {
 
     public enum Library {
         PDFIUM,
-        LIBARCHIVE,
         EPUB4J_NATIVE
     }
 
@@ -38,8 +36,6 @@ public final class NativeLibraries {
             PdfiumLibrary.initialize();
             return true;
         }));
-
-        probes.put(Library.LIBARCHIVE, new Probe("libarchive", Archive::isAvailable));
 
         probes.put(Library.EPUB4J_NATIVE, new Probe("epub4j-native", () -> {
             Boolean clean = tryInvokeStaticBoolean(
@@ -138,10 +134,6 @@ public final class NativeLibraries {
 
     public boolean isPdfiumAvailable() {
         return isAvailable(Library.PDFIUM);
-    }
-
-    public boolean isLibArchiveAvailable() {
-        return isAvailable(Library.LIBARCHIVE);
     }
 
     public boolean isEpubNativeAvailable() {

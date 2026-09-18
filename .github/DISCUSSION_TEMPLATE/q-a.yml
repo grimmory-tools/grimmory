@@ -4,7 +4,7 @@ body:
     attributes:
       value: |
         > [!IMPORTANT]
-        > **Know for certain something's broken?** Head over to [**Issue Triage**](https://github.com/orgs/grimmory-tools/discussions/categories/issue-triage) to report it as a bug.
+        > **Know for certain something's broken?** Create a [**Bug Report Issue**](https://github.com/grimmory-tools/grimmory/issues/new?template=bug-report.yml).
         > If you're not sure, or you just can't get something to behave the way you expect,  you're in the right place. Ask away.
 
   - type: textarea

@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 🐛 Something's not working?
-    url: https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage
-    about: Visit our Issue Triage to report bugs or unexpected behaviour.
   - name: 💡 Have an idea or suggestion?
     url: https://github.com/orgs/grimmory-tools/discussions/new?category=feature-requests-ideas
     about: Share feature requests & ideas in Grimmory Discussions.

@@ -1,0 +1,3633 @@
+{
+  "data": {
+    "books": [
+      {
+        "id": 26363,
+        "slug": "ready-player-one",
+        "title": "Ready Player One",
+        "subtitle": "A Novel",
+        "description": "In the year 2045, reality is an ugly place. The only time Wade Watts really feels alive is when he’s jacked into the OASIS, a vast virtual world where most of humanity spends their days.\n\nWhen the eccentric creator of the OASIS dies, he leaves behind a series of fiendish puzzles, based on his obsession with the pop culture of decades past. Whoever is first to solve them will inherit his vast fortune—and control of the OASIS itself. \n\nThen Wade cracks the first clue. Suddenly he’s beset by rivals who’ll kill to take this prize. The race is on—and the only way to survive is to win.\n",
+        "cached_contributors": [
+          {
+            "author": {
+              "id": 197308,
+              "slug": "ernest-cline",
+              "name": "Ernest Cline",
+              "image": {
+                "id": 5483345,
+                "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                "color": "#c1cbcf",
+                "width": 349,
+                "height": 466,
+                "color_name": "Beige"
+              }
+            },
+            "contribution": null
+          }
+        ],
+        "featured_book_series": {
+          "series": {
+            "name": "Ready Player One",
+            "books_count": 3,
+            "primary_books_count": 2
+          },
+          "position": 1
+        },
+        "rating": 4.0270122484689414,
+        "ratings_count": 4572,
+        "reviews_count": 495,
+        "pages": 387,
+        "release_date": "2008-01-01",
+        "release_year": 2008,
+        "image": {
+          "url": "https://assets.hardcover.app/edition/31561015/c72731ad-c2bc-49c8-a087-66605cead82f.jpg"
+        },
+        "cached_tags": {
+          "Tag": [
+          ],
+          "Mood": [
+          ],
+          "Genre": [
+          ],
+          "Content Warning": [
+          ]
+        },
+        "editions": [
+          {
+            "id": 30426366,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 384,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30426366/846b2c6c52e58e0c89737aba49c439ccfeee6ed6.jpeg"
+            },
+            "publisher": {
+              "name": "Crown Publishers"
+            },
+            "isbn_10": "030788743X",
+            "isbn_13": "9780307887436",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31412121,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 610,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/46776459/111ab8862d2774e8d086e833e336e64686e6d4ee.jpeg"
+            },
+            "publisher": {
+              "name": "Broadway Books"
+            },
+            "isbn_10": "1524763284",
+            "isbn_13": "9781524763282",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 26678309,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 386,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/26678309/2e444ec8a8004da59f1771de77601dc37e5ebb11.jpeg"
+            },
+            "publisher": {
+              "name": "Ballantine Books"
+            },
+            "isbn_10": "0307887448",
+            "isbn_13": "9780307887443",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30453045,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 581,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30453045/352cd1a8b97338149ca42bf92ebb1bb57b4f1d5c.jpeg"
+            },
+            "publisher": {
+              "name": "Broadway Books"
+            },
+            "isbn_10": "0525574344",
+            "isbn_13": "9780525574347",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30743007,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 374,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30743007/13578e9e912350f65b7dae712bf25658623027cf.jpeg"
+            },
+            "publisher": {
+              "name": "Broadway"
+            },
+            "isbn_10": "0553459384",
+            "isbn_13": "9780553459388",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30436661,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 608,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/27155027/4dcb88fc2da029a0a2c5ca6cb1dd0640b522f925.jpeg"
+            },
+            "publisher": {
+              "name": "Ballantine Books"
+            },
+            "isbn_10": "0804190143",
+            "isbn_13": "9780804190145",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30453268,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 608,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61053911/72398f8752bb594ba0757f51238704426a67f333.jpeg"
+            },
+            "publisher": {
+              "name": "Turtleback Books"
+            },
+            "isbn_10": "060640757X",
+            "isbn_13": "9780606407571",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32066421,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 400,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32066421/c3621baec219a8dbef188ae8eb074422d80a2cdc.jpeg"
+            },
+            "publisher": {
+              "name": "Turtleback Books"
+            },
+            "isbn_10": "0606264124",
+            "isbn_13": "9780606264129",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 22665206,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 608,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/22665206/b11785535e5ed48585dd7ba8e940bd383d083311.jpeg"
+            },
+            "publisher": {
+              "name": "Random House Large Print"
+            },
+            "isbn_10": "1524755613",
+            "isbn_13": "9781524755614",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30526977,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 374,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30526977/c6538a70c86f31cd7b6e3b289bd006fcce21798a.jpeg"
+            },
+            "publisher": {
+              "name": "Arrow"
+            },
+            "isbn_10": "178475479X",
+            "isbn_13": "9781784754792",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30436662,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 384,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59507413/7eb8df6070b8934ffa2cf12a388dc9a5ef2ed5f2.jpeg"
+            },
+            "publisher": {
+              "name": "Random House"
+            },
+            "isbn_10": "1446493830",
+            "isbn_13": "9781446493830",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 30504859,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 386,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61053916/d2dec06d8310389fec0f6fa9969f6a6cfc9b706d.jpeg"
+            },
+            "publisher": {
+              "name": "Random House"
+            },
+            "isbn_10": "1846059372",
+            "isbn_13": "9781846059377",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31486645,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 388,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/27144776/700e5de40a6ddcabaa1a41026c1cf9a383e2c4bb.jpeg"
+            },
+            "publisher": {
+              "name": "Random House"
+            },
+            "isbn_10": "0099560437",
+            "isbn_13": "9780099560432",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30391354,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 148210,
+                  "slug": "wil-wheaton",
+                  "name": "Wil Wheaton",
+                  "image": {
+                    "id": 4728439,
+                    "url": "https://assets.hardcover.app/author/148210/8334244844354428.jpeg",
+                    "color": "#d6cbcf",
+                    "width": 194,
+                    "height": 259,
+                    "color_name": "Pink"
+                  }
+                },
+                "contribution": "Narrator"
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30391354/1bc433205a382d10181ce6c9e1abaa10ae621b3f.jpeg"
+            },
+            "publisher": {
+              "name": "Random House Audio"
+            },
+            "isbn_10": "0307913147",
+            "isbn_13": "9780307913142",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 2
+          },
+          {
+            "id": 30702784,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 384,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30702784/50e52b9048b95d97944326d260a30b54c64b82f2.jpeg"
+            },
+            "publisher": {
+              "name": "Century"
+            },
+            "isbn_10": "1529135354",
+            "isbn_13": "9781529135350",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 7519782,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 402,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/46776461/179fb8102b70f3991ff7646614f55a3f4975a9d0.jpeg"
+            },
+            "publisher": {
+              "name": "Ballantine Books"
+            },
+            "isbn_10": "0804190135",
+            "isbn_13": "9780804190138",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30406910,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 384,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30406910/2fbbdb84cb357fad28dd89650933288b13f8462f.jpeg"
+            },
+            "publisher": {
+              "name": "Ballantine Books"
+            },
+            "isbn_10": "9021409119",
+            "isbn_13": "9789021409115",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489797,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1003017,
+                  "slug": "rosa-maria-borras-montane-4494971f-9388-4ddf-a37d-445589a9e0a0",
+                  "name": "Rosa Maria Borras Montane",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              },
+              {
+                "author": {
+                  "id": 806559,
+                  "slug": "lluis-delgado-pico",
+                  "name": "Lluís Delgado Picó",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 512,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61892814/bc20fa4dd35d2b56c6b67491bd69dc243959a7d3.jpeg"
+            },
+            "publisher": {
+              "name": "labutxaca"
+            },
+            "isbn_10": "8417031804",
+            "isbn_13": "9788417031800",
+            "language": {
+              "code2": "ca"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30526978,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 313181,
+                  "slug": "sara-riffel",
+                  "name": "Sara Riffel",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              },
+              {
+                "author": {
+                  "id": 338796,
+                  "slug": "hannes-riffel",
+                  "name": "Hannes Riffel",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 400,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30526978/121c723dc5fee014c9603f8d45f1b5ac3d2682cf.jpeg"
+            },
+            "publisher": {
+              "name": "Fischer Tor"
+            },
+            "isbn_10": "3596296595",
+            "isbn_13": "9783596296590",
+            "language": {
+              "code2": "de"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31877328,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 374,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31877328/44134e82c9785d96a80e293f3eeb3a37f863ede7.jpeg"
+            },
+            "publisher": null,
+            "isbn_10": "1627655409",
+            "isbn_13": "9781627655408",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489801,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59560543/7180dd359b4e0ba9f72efb4605310c448f374d3e.jpeg"
+            },
+            "publisher": {
+              "name": "Turtleback"
+            },
+            "isbn_10": "1663615845",
+            "isbn_13": "9781663615848",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30550671,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 148210,
+                  "slug": "wil-wheaton",
+                  "name": "Wil Wheaton",
+                  "image": {
+                    "id": 4728439,
+                    "url": "https://assets.hardcover.app/author/148210/8334244844354428.jpeg",
+                    "color": "#d6cbcf",
+                    "width": 194,
+                    "height": 259,
+                    "color_name": "Pink"
+                  }
+                },
+                "contribution": "Narrator"
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/editions/30550671/5335d5db-b48f-443e-a9c3-bbd713bed684.jpg"
+            },
+            "publisher": {
+              "name": "Random House Audio"
+            },
+            "isbn_10": "0307913155",
+            "isbn_13": "9780307913159",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 2
+          },
+          {
+            "id": 32307155,
+            "title": "Jogador Número Um",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 555881,
+                  "slug": "giu-alonso",
+                  "name": "Giu Alonso",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 432,
+            "release_date": "2021-04-26",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32307155/259572a6-5e88-46b2-a3e6-28755bfbe2d6.jpg"
+            },
+            "publisher": {
+              "name": "Intrínseca"
+            },
+            "isbn_10": "6555601582",
+            "isbn_13": "9786555601589",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30436663,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 263891,
+                  "slug": "juanjo-estrella",
+                  "name": "Juanjo Estrella",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 462,
+            "release_date": "2008-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30436663/7d472523c6378ffcc9c7b8400c726f8952b85001.jpeg"
+            },
+            "publisher": {
+              "name": "EDB FICCION"
+            },
+            "isbn_10": "8466649174",
+            "isbn_13": "9788466649179",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30828429,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 338796,
+                  "slug": "hannes-riffel",
+                  "name": "Hannes Riffel",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 510,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30828429/b2542320232c224c93f76960c6f415cd59eb1b8e.jpeg"
+            },
+            "publisher": {
+              "name": "Blanvalet"
+            },
+            "isbn_10": "3442380308",
+            "isbn_13": "9783442380305",
+            "language": {
+              "code2": "de"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489796,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 387,
+            "release_date": "2015-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59560538/a24da5cd0a3146a7291859d15db26af78dc4612a.jpeg"
+            },
+            "publisher": {
+              "name": "Nemira Publishing House"
+            },
+            "isbn_10": "6067587106",
+            "isbn_13": "9786067587104",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 16865618,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 476,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/46776464/a1ba75aef1f604398a49d8a369dc4ccacb699a42.jpeg"
+            },
+            "publisher": {
+              "name": "National Geographic Books"
+            },
+            "isbn_10": "1947783270",
+            "isbn_13": "9781947783270",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31673027,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 427433,
+                  "slug": "ralph-van-der-aa",
+                  "name": "Ralph van der Aa",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 362,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61694362/8ebf49c4aa0955b169b71591a6a50ac9c8eaa74e.jpeg"
+            },
+            "publisher": {
+              "name": "Uitgeverij Q"
+            },
+            "isbn_10": "9021449757",
+            "isbn_13": "9789021449753",
+            "language": {
+              "code2": "nl"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32196438,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 374,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/1008071/eed9fb56601df4f61b383d82a714aae2e3b0adb7.jpeg"
+            },
+            "publisher": {
+              "name": "Penguin Random House"
+            },
+            "isbn_10": "1787462803",
+            "isbn_13": "9781787462809",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32599200,
+            "title": "Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 678872,
+                  "slug": "dariusz-cwiklak",
+                  "name": "Dariusz Ćwiklak",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 504,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/2225619/89e34f156af0ddc00222f3cfe435c9058e2fd076.jpeg"
+            },
+            "publisher": {
+              "name": "Feeria"
+            },
+            "isbn_10": "837229724X",
+            "isbn_13": "9788372297242",
+            "language": {
+              "code2": "pl"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32690184,
+            "title": "שחקן מספר אחת",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 765167,
+                  "slug": "45f5c74b-710e-4496-b657-4e4b7a33ff9a",
+                  "name": "דידי חנוך",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 394,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/2494230/3863e608d2bc5d902b4216fc4f4f69b532accfea.jpeg"
+            },
+            "publisher": {
+              "name": "עם עובד"
+            },
+            "isbn_10": "9651324457",
+            "isbn_13": "9789651324451",
+            "language": {
+              "code2": "he"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32506388,
+            "title": "Prvi igrač na potezu",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 271620,
+                  "slug": "goran-skrobonja",
+                  "name": "Goran Skrobonja",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 462,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/1999306/0a0627febc0b5d388490d2271332db54894dc1d9.jpeg"
+            },
+            "publisher": {
+              "name": "Laguna"
+            },
+            "isbn_10": "865210820X",
+            "isbn_13": "9788652108206",
+            "language": {
+              "code2": "sr"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30920097,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 148210,
+                  "slug": "wil-wheaton",
+                  "name": "Wil Wheaton",
+                  "image": {
+                    "id": 4728439,
+                    "url": "https://assets.hardcover.app/author/148210/8334244844354428.jpeg",
+                    "color": "#d6cbcf",
+                    "width": 194,
+                    "height": 259,
+                    "color_name": "Pink"
+                  }
+                },
+                "contribution": "Narrator"
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60908961/4e0b8fc639cf942fe8b0416cdc939e0d5edfc694.jpeg"
+            },
+            "publisher": {
+              "name": "Random House Audio"
+            },
+            "isbn_10": null,
+            "isbn_13": "9781448149582",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 2
+          },
+          {
+            "id": 30658331,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 148210,
+                  "slug": "wil-wheaton",
+                  "name": "Wil Wheaton",
+                  "image": {
+                    "id": 4728439,
+                    "url": "https://assets.hardcover.app/author/148210/8334244844354428.jpeg",
+                    "color": "#d6cbcf",
+                    "width": 194,
+                    "height": 259,
+                    "color_name": "Pink"
+                  }
+                },
+                "contribution": "Narrator"
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61053921/e74beb891a08358da2c853cc3c1afb8d097d0d69.jpeg"
+            },
+            "publisher": {
+              "name": "Books on Tape"
+            },
+            "isbn_10": "0307913163",
+            "isbn_13": "9780307913166",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 2
+          },
+          {
+            "id": 31472747,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 263891,
+                  "slug": "juanjo-estrella",
+                  "name": "Juanjo Estrella",
+                  "image": {}
+                },
+                "contribution": "Traductor"
+              },
+              {
+                "author": {
+                  "id": 260154,
+                  "slug": "david-tejera-exposito",
+                  "name": "David Tejera Expósito",
+                  "image": {}
+                },
+                "contribution": "Revisor traducción"
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31472747/6ba72032c4c60ef056eebf31b77976a02e24ee0b.jpeg"
+            },
+            "publisher": {
+              "name": "Nova"
+            },
+            "isbn_10": "8466663061",
+            "isbn_13": "9788466663069",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31561015,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 387,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31561015/c72731ad-c2bc-49c8-a087-66605cead82f.jpg"
+            },
+            "publisher": {
+              "name": "Crown"
+            },
+            "isbn_10": "0307887456",
+            "isbn_13": "9780307887450",
+            "language": {
+              "code2": "en"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 30382451,
+            "title": "Jogador Nº 1",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 248190,
+                  "slug": "carolina-caires-coelho",
+                  "name": "Carolina Caires Coelho",
+                  "image": {
+                    "id": 1710889,
+                    "url": "https://assets.hardcover.app/author/248190/49001475318773.jpeg",
+                    "color": "#3d1b0a",
+                    "width": 958,
+                    "height": 1080,
+                    "color_name": "Black"
+                  }
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 464,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30382451/53ec2f4167b278249d333cb71baadef412184829.jpeg"
+            },
+            "publisher": {
+              "name": "LeYa Brasil"
+            },
+            "isbn_10": "8580442680",
+            "isbn_13": "9788580442687",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32220936,
+            "title": "一級玩家",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1201794,
+                  "slug": "351926ef-9f6f-4df3-9dfc-1b3d361f13df",
+                  "name": "恩斯特·克萊恩",
+                  "image": {}
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 263996,
+                  "slug": "ac455d7d-d608-49a7-9229-2dd108e666b4",
+                  "name": "郭寶蓮",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 448,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32220936/e2e51e12adbe7bae4b51c4688c7928bd5d85e48a.jpeg"
+            },
+            "publisher": {
+              "name": "Mai Tian/Tsai Fong Books"
+            },
+            "isbn_10": "9861737588",
+            "isbn_13": "9789861737584",
+            "language": {
+              "code2": "zh"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30723437,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 427433,
+                  "slug": "ralph-van-der-aa",
+                  "name": "Ralph van der Aa",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 439,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59860423/3696d9d9c18a6f610e129a76ef3984b394a728ba.jpeg"
+            },
+            "publisher": {
+              "name": "Singel Uitgeverijen"
+            },
+            "isbn_10": "9021449765",
+            "isbn_13": "9789021449760",
+            "language": {
+              "code2": "nl"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 31580383,
+            "title": "Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 706757,
+                  "slug": "arnaud-regnauld",
+                  "name": "Arnaud Regnauld",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 624,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31580383/b2d065e324441165869d159ea78b11497b6ce83d.jpeg"
+            },
+            "publisher": {
+              "name": "Pocket"
+            },
+            "isbn_10": "2266242334",
+            "isbn_13": "9782266242332",
+            "language": {
+              "code2": "fr"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489800,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 706757,
+                  "slug": "arnaud-regnauld",
+                  "name": "Arnaud Regnauld",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 427,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59560542/d831828ea25b682f2702829169d88e8e0ed5b35b.jpeg"
+            },
+            "publisher": {
+              "name": "Michel Lafon"
+            },
+            "isbn_10": "2749935881",
+            "isbn_13": "9782749935881",
+            "language": {
+              "code2": "fr"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 31434316,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 310501,
+                  "slug": "laura-spini",
+                  "name": "Laura Spini",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 297,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60911179/6c686cdf35320b61cdc2e507267f0782e71f5019.jpeg"
+            },
+            "publisher": {
+              "name": "DeA Planeta Libri"
+            },
+            "isbn_10": "8851156557",
+            "isbn_13": "9788851156558",
+            "language": {
+              "code2": "it"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 30453264,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 263891,
+                  "slug": "juanjo-estrella",
+                  "name": "Juanjo Estrella",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 464,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59527133/6c2f82ec06a633a14e30f5512153f34786daf5d8.jpeg"
+            },
+            "publisher": {
+              "name": "NOVA"
+            },
+            "isbn_10": "8490199965",
+            "isbn_13": "9788490199961",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 32078282,
+            "title": "Jogador Nº 1",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 477,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/594977/38ce7a2060acf2acead30e2e45a863eb48e1c150.jpeg"
+            },
+            "publisher": {
+              "name": "Leya"
+            },
+            "isbn_10": "8580444721",
+            "isbn_13": "9788580444728",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489799,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 544,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59560541/663e33328eb5b80c3d4789cb6fb253912f23b33f.jpeg"
+            },
+            "publisher": {
+              "name": "S. Fischer Verlag"
+            },
+            "isbn_10": "3104909032",
+            "isbn_13": "9783104909035",
+            "language": {
+              "code2": "de"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30489798,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 416,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59560540/0e54d5d1536cab6381488a47f6b1d61fb8bbd9e7.jpeg"
+            },
+            "publisher": {
+              "name": "Edizioni Mondadori"
+            },
+            "isbn_10": "8835719518",
+            "isbn_13": "9788835719519",
+            "language": {
+              "code2": "it"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30721549,
+            "title": "Ready player one",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 612,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30721549/6fc6e26765bac2fcebadb596f6783f1d20edc636.jpeg"
+            },
+            "publisher": {
+              "name": "Pocket"
+            },
+            "isbn_10": "2266299395",
+            "isbn_13": "9782266299398",
+            "language": {
+              "code2": "fr"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30529475,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 544,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59599081/ae240feb1d2d135f7cdd96e6a72a386d41736a0c.jpeg"
+            },
+            "publisher": {
+              "name": "S. Fischer Verlag"
+            },
+            "isbn_10": "3104901945",
+            "isbn_13": "9783104901947",
+            "language": {
+              "code2": "de"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31406911,
+            "title": "Першому гравцеві приготуватися",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 766759,
+                  "slug": "61efac40-9b9e-4e8e-8b65-d7aae87d5f9f",
+                  "name": "Ернест Клайн",
+                  "image": {}
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 766760,
+                  "slug": "072ed31b-ff4d-4c54-9a22-734df4bb51f6",
+                  "name": "Зоряна Крижанович",
+                  "image": {}
+                },
+                "contribution": "Перекладач"
+              },
+              {
+                "author": {
+                  "id": 766761,
+                  "slug": "14e73fde-31ed-40a3-9cd5-3cc93322389d",
+                  "name": "Юрій Нікітюк",
+                  "image": {}
+                },
+                "contribution": "Перекладач"
+              }
+            ],
+            "pages": 520,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60512698/8f95728b35591036484c90fdf2a3dd12397f1a74.jpeg"
+            },
+            "publisher": {
+              "name": "КМ-Букс"
+            },
+            "isbn_10": "6177498965",
+            "isbn_13": "9786177498963",
+            "language": {
+              "code2": "uk"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31452802,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": null,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31452802/eaae36c3c37c8e6b231d0eb443d59f571aca4573.jpeg"
+            },
+            "publisher": {
+              "name": "Random House Audio"
+            },
+            "isbn_10": "052562483X",
+            "isbn_13": "9780525624837",
+            "language": null,
+            "reading_format_id": 2
+          },
+          {
+            "id": 31581860,
+            "title": "Первому игроку приготовиться",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 888263,
+                  "slug": "8de2253a-ac06-4794-8704-66699485a90b",
+                  "name": "Евгения Алексеева",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              },
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31581860/6b99fa92ca91c6111624dcd417ccb8c2cebaa533.jpeg"
+            },
+            "publisher": {
+              "name": "АСТ"
+            },
+            "isbn_10": "5170783264",
+            "isbn_13": "9785170783267",
+            "language": {
+              "code2": "ru"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32312582,
+            "title": "Jogador número um: Duologia jogador número um, Vol. 1",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 555881,
+                  "slug": "giu-alonso",
+                  "name": "Giu Alonso",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 574,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/1416852/f382e66b7bfe35e06bd644ffcc2aeb0a8480bf62.jpeg"
+            },
+            "publisher": {
+              "name": "Editora Intrinseca"
+            },
+            "isbn_10": "6555601590",
+            "isbn_13": "9786555601596",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30903960,
+            "title": "Başlat",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 523815,
+                  "slug": "taylan-taftaf",
+                  "name": "Taylan Taftaf",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 506,
+            "release_date": "2011-04-13",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30903960/28e42695e4e15d0bfa87907ee61e718a55123729.jpeg"
+            },
+            "publisher": {
+              "name": "DEX"
+            },
+            "isbn_10": "6050903441",
+            "isbn_13": "9786050903447",
+            "language": {
+              "code2": "tr"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31669202,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 338796,
+                  "slug": "hannes-riffel",
+                  "name": "Hannes Riffel",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              },
+              {
+                "author": {
+                  "id": 313181,
+                  "slug": "sara-riffel",
+                  "name": "Sara Riffel",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 539,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/27193539/2949c26e3215d166b04e9068296e1677a715d974.jpeg"
+            },
+            "publisher": {
+              "name": "Fischer Tor"
+            },
+            "isbn_10": "3596702429",
+            "isbn_13": "9783596702428",
+            "language": {
+              "code2": "de"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31123084,
+            "title": "Ready Player One: Hra začíná",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 647960,
+                  "slug": "nada-funiokova",
+                  "name": "Naďa Funioková",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 432,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60270793/50838db79b122b3d59594c701ec8ca505decf6ff.jpeg"
+            },
+            "publisher": {
+              "name": "Knižní klub"
+            },
+            "isbn_10": "8024251744",
+            "isbn_13": "9788024251745",
+            "language": {
+              "code2": "cs"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31692771,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 798494,
+                  "slug": "hetih-rusli",
+                  "name": "Hetih Rusli",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 544,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31692771/509b8aa6ea1a2fa954189e7906b94ff896036dfe.jpeg"
+            },
+            "publisher": {
+              "name": "Gramedia Pustaka Utama"
+            },
+            "isbn_10": "602038277X",
+            "isbn_13": "9786020382777",
+            "language": {
+              "code2": "id"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32106766,
+            "title": "بازیکن شماره ۱ آماده",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1156709,
+                  "slug": "42aeb895-e8d1-4db0-bace-969cc03d1103",
+                  "name": "پیمان اسماعیلیان",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 504,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/709530/4aa0447b9faf09c208b229a65392446d2187ee00.jpeg"
+            },
+            "publisher": {
+              "name": "نشر باژ"
+            },
+            "isbn_10": "6008203526",
+            "isbn_13": "9786008203520",
+            "language": {
+              "code2": "fa"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30482528,
+            "title": "Player one",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 310501,
+                  "slug": "laura-spini",
+                  "name": "Laura Spini",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 632,
+            "release_date": "2011-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30482528/010ab77e255bba7343087970273b6e32fa5d1fea.jpeg"
+            },
+            "publisher": {
+              "name": "Isbn Edizioni"
+            },
+            "isbn_10": "8876382550",
+            "isbn_13": "9788876382550",
+            "language": {
+              "code2": "it"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31662292,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 310501,
+                  "slug": "laura-spini",
+                  "name": "Laura Spini",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 448,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31662292/9219e457a7caf5c64a89bb363c744592b6d54b12.jpeg"
+            },
+            "publisher": {
+              "name": "DeA Planeta "
+            },
+            "isbn_10": "8851152322",
+            "isbn_13": "9788851152321",
+            "language": {
+              "code2": "it"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32309113,
+            "title": "Αν είσαι έτοιμος, πάτα Enter",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 834815,
+                  "slug": "f2610e49-af6c-4ed5-a700-79edd88bde15",
+                  "name": "Αλέξανδρος Καλοφωλιάς",
+                  "image": {}
+                },
+                "contribution": "Μεταφραστής"
+              }
+            ],
+            "pages": 620,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32309113/d067f22698b84f22c867020c3be8592325164d0d.jpeg"
+            },
+            "publisher": {
+              "name": "Πατάκης"
+            },
+            "isbn_10": "9601642358",
+            "isbn_13": "9789601642352",
+            "language": {
+              "code2": "el"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31654530,
+            "title": "Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 310501,
+                  "slug": "laura-spini",
+                  "name": "Laura Spini",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 632,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61654464/f03fb37a8f4cd0ad34a627f316bab9875f67faa8.jpeg"
+            },
+            "publisher": {
+              "name": "Isbn edizioni"
+            },
+            "isbn_10": "8876383441",
+            "isbn_13": "9788876383441",
+            "language": {
+              "code2": "it"
+            },
+            "reading_format_id": 4
+          },
+          {
+            "id": 30611781,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 319541,
+                  "slug": "mihai-dan-pavelescu",
+                  "name": "Mihai-Dan Pavelescu",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 456,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60843150/8df10035707d18f17af36c61b72bb7efc2e0cb2e.jpeg"
+            },
+            "publisher": {
+              "name": "Nemira"
+            },
+            "isbn_10": "6067586525",
+            "isbn_13": "9786067586527",
+            "language": {
+              "code2": "ro"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30478616,
+            "title": "Ready Player One - Jogador 1",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 308406,
+                  "slug": "miguel-romeira",
+                  "name": "Miguel Romeira",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 416,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30478616/c34f6fb1356b834c44e79b6144c11a541c0d5e66.jpeg"
+            },
+            "publisher": {
+              "name": "Editorial Presença"
+            },
+            "isbn_10": "9722358235",
+            "isbn_13": "9789722358231",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31521182,
+            "title": "Первому игроку приготовиться",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 888263,
+                  "slug": "8de2253a-ac06-4794-8704-66699485a90b",
+                  "name": "Евгения Алексеева",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61320304/03acc1d9f03849fd839de997843529c9f69a2f53.jpeg"
+            },
+            "publisher": {
+              "name": "АСТ"
+            },
+            "isbn_10": "5171062994",
+            "isbn_13": "9785171062996",
+            "language": {
+              "code2": "ru"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31889481,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 647960,
+                  "slug": "nada-funiokova",
+                  "name": "Naďa Funioková",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 511,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/60292011/74ce190ffc8836de732bad47340732d1d75077dd.jpeg"
+            },
+            "publisher": {
+              "name": "Nakladatelství Jota"
+            },
+            "isbn_10": "8074620743",
+            "isbn_13": "9788074620744",
+            "language": {
+              "code2": "cs"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30436666,
+            "title": "Ready Player One - Spillet om OASIS",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 632,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61053908/93e29c50598d2afdf1c1d9e1223da8662dacbcee.jpeg"
+            },
+            "publisher": {
+              "name": "Tellerup"
+            },
+            "isbn_10": "8758830472",
+            "isbn_13": "9788758830476",
+            "language": {
+              "code2": "da"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30707459,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/30707459/9570e6ad7d234a1f73d5203fe68a1db58513a1c0.jpeg"
+            },
+            "publisher": {
+              "name": "B de Books"
+            },
+            "isbn_10": "8413142695",
+            "isbn_13": "9788413142692",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31981752,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1100684,
+                  "slug": "gabor-roboz",
+                  "name": "Gábor Roboz",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 507,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/232194/0ad08ac29be545f45daa9dbc967663d7b44e8912.jpeg"
+            },
+            "publisher": {
+              "name": "Agave"
+            },
+            "isbn_10": "6155272018",
+            "isbn_13": "9786155272011",
+            "language": {
+              "code2": "hu"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32024147,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32024147/287a0a6cfb14403989476d54273193c2b44067e6.jpeg"
+            },
+            "publisher": {
+              "name": "NOVA"
+            },
+            "isbn_10": "6073163037",
+            "isbn_13": "9786073163033",
+            "language": {
+              "code2": "es"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31721463,
+            "title": "Igrač broj jedan",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 674013,
+                  "slug": "tajana-pavicevic",
+                  "name": "Tajana Pavičević",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 368,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/61809145/77e9ffeb1e461c4530513a00b3d108682d4b70e2.jpeg"
+            },
+            "publisher": {
+              "name": "Vorto Palabra"
+            },
+            "isbn_10": "9535987127",
+            "isbn_13": "9789535987123",
+            "language": null,
+            "reading_format_id": 1
+          },
+          {
+            "id": 32746197,
+            "title": "Jogador nº1 - Capa filme",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 248190,
+                  "slug": "carolina-caires-coelho",
+                  "name": "Carolina Caires Coelho",
+                  "image": {
+                    "id": 1710889,
+                    "url": "https://assets.hardcover.app/author/248190/49001475318773.jpeg",
+                    "color": "#3d1b0a",
+                    "width": 958,
+                    "height": 1080,
+                    "color_name": "Black"
+                  }
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 462,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32746197/c004a6964cf69550281695c7e81cc7bfb05964de.jpeg"
+            },
+            "publisher": {
+              "name": "LeYa"
+            },
+            "isbn_10": "8544106978",
+            "isbn_13": "9788544106976",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32607930,
+            "title": "Spēle sākas",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1346730,
+                  "slug": "agija-krasta",
+                  "name": "Agija Krasta",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 446,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/2250017/6ed5edee6d5cfbcb9c98a45ba9d9c1295c3f0c2e.jpeg"
+            },
+            "publisher": {
+              "name": "The White Book"
+            },
+            "isbn_10": "9934516330",
+            "isbn_13": "9789934516337",
+            "language": {
+              "code2": "lv"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32563983,
+            "title": "Играч първи, приготви се",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1323228,
+                  "slug": "54af57b3-31f9-42a3-8d05-63c199c31379",
+                  "name": "Ърнест Клайн",
+                  "image": {}
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 1189735,
+                  "slug": "25b3bfae-9780-4632-bd72-4f46ba436196",
+                  "name": "Катя Перчинкова",
+                  "image": {}
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 472,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": null,
+            "publisher": {
+              "name": "Intense"
+            },
+            "isbn_10": "9547832239",
+            "isbn_13": "9789547832237",
+            "language": {
+              "code2": "bg"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32342144,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 510,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/1522353/3b15b161bead441b574e9ddb180675bbd5159618.jpeg"
+            },
+            "publisher": {
+              "name": "Gummerus"
+            },
+            "isbn_10": "9512407345",
+            "isbn_13": "9789512407347",
+            "language": {
+              "code2": "fi"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32655204,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 451,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/2386586/2a4d784f35812f03c22ed73adc4954c31a391769.jpeg"
+            },
+            "publisher": {
+              "name": "Agave"
+            },
+            "isbn_10": "9634194613",
+            "isbn_13": "9789634194613",
+            "language": {
+              "code2": "hu"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32265002,
+            "title": "Jogador Nº 1",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              },
+              {
+                "author": {
+                  "id": 248190,
+                  "slug": "carolina-caires-coelho",
+                  "name": "Carolina Caires Coelho",
+                  "image": {
+                    "id": 1710889,
+                    "url": "https://assets.hardcover.app/author/248190/49001475318773.jpeg",
+                    "color": "#3d1b0a",
+                    "width": 958,
+                    "height": 1080,
+                    "color_name": "Black"
+                  }
+                },
+                "contribution": "Translator"
+              }
+            ],
+            "pages": 466,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32265002/3da999519b727a5a5f1efcd09bc020354a89f12b.jpeg"
+            },
+            "publisher": {
+              "name": "LeYa"
+            },
+            "isbn_10": "8544103162",
+            "isbn_13": "9788544103166",
+            "language": {
+              "code2": "pt"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32734898,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 457,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/2607222/7c21c7cd37d6ab2eb100d40d07b556b251bc837f.jpeg"
+            },
+            "publisher": {
+              "name": "Agave Könyvek"
+            },
+            "isbn_10": "9634195733",
+            "isbn_13": "9789634195733",
+            "language": {
+              "code2": "hu"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 32713009,
+            "title": "Первому игроку приготовиться",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 480,
+            "release_date": "2011-08-16",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/32713009/e9160ccc0fd1c7e60251af8b5929963e6a40f202.jpeg"
+            },
+            "publisher": null,
+            "isbn_10": "5171071942",
+            "isbn_13": "9785171071943",
+            "language": {
+              "code2": "ru"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 30660396,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 397366,
+                  "slug": "ernest-cline-8e095c27-6ddf-4694-bc6f-e85aaa29278d",
+                  "name": "Ernest Cline;",
+                  "image": {}
+                },
+                "contribution": null
+              }
+            ],
+            "pages": 464,
+            "release_date": "2015-01-01",
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/external_data/59731202/a0ba3338aa113d6d073a53ddd9b7da92c388475a.jpeg"
+            },
+            "publisher": {
+              "name": "Agave"
+            },
+            "isbn_10": "6155522820",
+            "isbn_13": "9786155522826",
+            "language": {
+              "code2": "hu"
+            },
+            "reading_format_id": 1
+          },
+          {
+            "id": 31291210,
+            "title": "Grehge e & Ready Player Two By Ernest Cline Collection 2 Books Set",
+            "subtitle": null,
+            "cached_contributors": [
+              {
+                "author": {
+                  "id": 197308,
+                  "slug": "ernest-cline",
+                  "name": "Ernest Cline",
+                  "image": {
+                    "id": 5483345,
+                    "url": "https://assets.hardcover.app/author/197308/fa6a91e3-d201-4b72-8629-71f69816fbf4.png",
+                    "color": "#c1cbcf",
+                    "width": 349,
+                    "height": 466,
+                    "color_name": "Beige"
+                  }
+                },
+                "contribution": null
+              }
+            ],
+            "pages": null,
+            "release_date": null,
+            "release_year": null,
+            "image": {
+              "url": "https://assets.hardcover.app/edition/31291210/640429c938b3ea1137f73846b923edcb0f7711d3.jpeg"
+            },
+            "publisher": null,
+            "isbn_10": "9124084026",
+            "isbn_13": "9789124084028",
+            "language": null,
+            "reading_format_id": 1
+          },
+          {
+            "id": 31876564,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [],
+            "pages": null,
+            "release_date": null,
+            "release_year": null,
+            "image": null,
+            "publisher": null,
+            "isbn_10": "9512088401",
+            "isbn_13": "9789512088409",
+            "language": null,
+            "reading_format_id": 1
+          },
+          {
+            "id": 32409319,
+            "title": "Ready Player One",
+            "subtitle": null,
+            "cached_contributors": [],
+            "pages": null,
+            "release_date": null,
+            "release_year": null,
+            "image": null,
+            "publisher": null,
+            "isbn_10": "1448149584",
+            "isbn_13": null,
+            "language": null,
+            "reading_format_id": 1
+          }
+        ]
+      }
+    ]
+  }
+}

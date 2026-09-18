@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 @ConfigurationProperties(prefix = "app")
 @Getter
 @Setter
@@ -12,7 +14,8 @@ public class AppProperties {
     private String bookdropFolder;
     private String version;
     private RemoteAuth remoteAuth;
-    private Boolean forceDisableOidc = false;
+    private OutboundRequests outbound;
+    private OIDC oidc;
 
     /**
      * Type of disk storage where library files are stored.
@@ -37,5 +40,20 @@ public class AppProperties {
         private String headerGroups;
         private String adminGroup;
         private String groupsDelimiter = "\\s+";  // Default to whitespace for backward compatibility
+    }
+
+    @Getter
+    @Setter
+    public static class OutboundRequests {
+        private int connectTimeout = 15;
+        private int readTimeout = 15;
+        private List<String> restrictedRanges = List.of();
+    }
+
+    @Getter
+    @Setter
+    public static class OIDC {
+        private Boolean forceDisable = false;
+        private Boolean allowUnsafeHosts = false;
     }
 }

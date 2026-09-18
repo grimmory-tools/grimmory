@@ -1,5 +1,5 @@
-import Aura from '@primeuix/themes/aura';
-import {$t, definePreset} from '@primeuix/themes';
+import Aura from '@openng/optimus-ui-themes/aura';
+import {$t, definePreset} from '@openng/optimus-ui-themes';
 
 export type ColorPalette = Record<string, string>;
 
@@ -12,10 +12,10 @@ const COLOR_STOPS = ['50', '100', '200', '300', '400', '500', '600', '700', '800
 const SURFACE_STOPS = ['0', ...COLOR_STOPS] as const;
 
 /*
- * PrimeNG theme bridge.
+ * Optimus UI theme bridge.
  *
  * App-owned CSS tokens define the native shell/page foundation. This file only
- * extends Prime's Aura preset so Prime components can use the same app-selected
+ * extends Optimus UI's Aura preset so its components can use the same app-selected
  * palettes and the same Tailwind-owned page background.
  */
 
@@ -74,7 +74,7 @@ const overlaySurface = {
   color: 'var(--color-text)',
 };
 
-const compactPrimeFontCss = `
+const compactOptimusFontCss = `
 .p-button:not(.p-button-sm):not(.p-button-lg),
 .p-inputtext:not(.p-inputtext-sm):not(.p-inputtext-lg),
 .p-textarea:not(.p-textarea-sm):not(.p-textarea-lg),
@@ -150,22 +150,22 @@ function scaleRemString(value: string): string {
   return result;
 }
 
-function scalePrimeRems<T>(value: T): T {
+function scaleOptimusRems<T>(value: T): T {
   if (typeof value === 'string') {
     return scaleRemString(value) as T;
   }
   if (Array.isArray(value)) {
-    return value.map(scalePrimeRems) as T;
+    return value.map(scaleOptimusRems) as T;
   }
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [key, scalePrimeRems(entry)])
+      Object.entries(value).map(([key, entry]) => [key, scaleOptimusRems(entry)])
     ) as T;
   }
   return value;
 }
 
-const AppPrimeBasePreset = scalePrimeRems(Aura);
+const AppOptimusBasePreset = scaleOptimusRems(Aura);
 
 function buildAppTokenPalette(prefix: 'primary' | 'surface', stops: readonly string[]): ColorPalette {
   return Object.fromEntries(
@@ -178,11 +178,11 @@ const appTokenPalettes: ResolvedThemePalettes = {
   surface: buildAppTokenPalette('surface', SURFACE_STOPS),
 };
 
-export function primeThemeTokenPalettes(): ResolvedThemePalettes {
+export function optimusThemeTokenPalettes(): ResolvedThemePalettes {
   return appTokenPalettes;
 }
 
-function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
+function buildOptimusPalettePreset(theme: ResolvedThemePalettes): object {
   return {
     semantic: {
       primary: theme.primary,
@@ -200,8 +200,8 @@ function buildPrimePalettePreset(theme: ResolvedThemePalettes): object {
   };
 }
 
-const AppPrimePreset = definePreset(AppPrimeBasePreset, {
-  css: compactPrimeFontCss,
+const AppOptimusPreset = definePreset(AppOptimusBasePreset, {
+  css: compactOptimusFontCss,
   semantic: {
     colorScheme: {
       light: {
@@ -240,12 +240,12 @@ const AppPrimePreset = definePreset(AppPrimeBasePreset, {
   },
 });
 
-export function applyPrimeTheme(theme: ResolvedThemePalettes): void {
+export function applyOptimusTheme(theme: ResolvedThemePalettes): void {
   $t()
-    .preset(AppPrimePreset)
-    .preset(buildPrimePalettePreset(theme))
+    .preset(AppOptimusPreset)
+    .preset(buildOptimusPalettePreset(theme))
     .surfacePalette(theme.surface)
     .use({useDefaultOptions: true});
 }
 
-export default AppPrimePreset;
+export default AppOptimusPreset;

@@ -1,25 +1,25 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, effect, inject, signal} from '@angular/core';
+import {Component, effect, inject, signal, WritableSignal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {ToggleSwitch} from 'primeng/toggleswitch';
-import {InputNumber} from 'primeng/inputnumber';
-import {MessageService} from 'primeng/api';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
+import {InputNumber} from '@openng/optimus-ui/inputnumber';
+import {MessageService} from '@openng/optimus-ui/api';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {AppSettingKey, AppSettings, OidcProviderDetails, OidcTestResult} from '../../../shared/model/app-settings.model';
-import {MultiSelect} from 'primeng/multiselect';
+import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {LibraryService} from '../../../features/book/service/library.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {OidcGroupMapping} from '../../../shared/model/oidc-group-mapping.model';
 import {OidcGroupMappingService} from '../../../shared/service/oidc-group-mapping.service';
-import {Select} from 'primeng/select';
-import {TableModule} from 'primeng/table';
-import {Dialog} from 'primeng/dialog';
+import {Select} from '@openng/optimus-ui/select';
+import {TableModule} from '@openng/optimus-ui/table';
+import {Dialog} from '@openng/optimus-ui/dialog';
 import {TagComponent} from '../../../shared/components/tag/tag.component';
-import {Chip} from 'primeng/chip';
+import {Chip} from '@openng/optimus-ui/chip';
 
 @Component({
   selector: 'app-authentication-settings',
@@ -99,9 +99,9 @@ export class AuthenticationSettingsComponent {
   ];
 
   // Test connection
-  isTestingConnection = false;
-  testConnectionResult: OidcTestResult | null = null;
-  showTestDetails = false;
+  readonly isTestingConnection = signal(false);
+  readonly testConnectionResult: WritableSignal<OidcTestResult | null> = signal(null);
+  readonly showTestDetails = signal(false);
 
   // Group mapping
   readonly groupSyncMode = signal('DISABLED');
@@ -113,10 +113,11 @@ export class AuthenticationSettingsComponent {
   readonly groupMappings = signal<OidcGroupMapping[]>([]);
   readonly groupMappingDraft = signal<OidcGroupMapping | null>(null);
 
+  oidcProviderClientSecret: string = '';
+
   oidcProvider: OidcProviderDetails = {
     providerName: '',
     clientId: '',
-    clientSecret: '',
     issuerUri: '',
     scopes: '',
     claimMapping: {
@@ -171,8 +172,10 @@ export class AuthenticationSettingsComponent {
       clientId: settings.oidcProviderDetails?.clientId || '',
       issuerUri: settings.oidcProviderDetails?.issuerUri || '',
       scopes: settings.oidcProviderDetails?.scopes || '',
-      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping
+      claimMapping: settings.oidcProviderDetails?.claimMapping || defaultClaimMapping,
     };
+
+    this.oidcProviderClientSecret = settings.oidcProviderClientSecret || '';
 
     this.availablePermissions.forEach(perm => {
       perm.selected = this.selectedPermissions.includes(perm.value);
@@ -215,6 +218,10 @@ export class AuthenticationSettingsComponent {
       {
         key: AppSettingKey.OIDC_REDIRECT_URIS,
         newValue: this.mobileRedirectUris
+      },
+      {
+        key: AppSettingKey.OIDC_PROVIDER_CLIENT_SECRET,
+        newValue: this.oidcProviderClientSecret
       }
     ];
     if (this.oidcEnabled) {
@@ -450,14 +457,18 @@ export class AuthenticationSettingsComponent {
     return this.allLibraries.find(l => l.id === id)?.name ?? `#${id}`;
   }
 
+  toggleTestDetails(): void {
+    this.showTestDetails.update(s => !s)
+  }
+
   testConnection(): void {
-    this.isTestingConnection = true;
-    this.testConnectionResult = null;
+    this.isTestingConnection.set(true);
+    this.testConnectionResult.set(null);
     this.appSettingsService.testOidcConnection(this.oidcProvider).subscribe({
       next: (result) => {
-        this.testConnectionResult = result;
-        this.showTestDetails = true;
-        this.isTestingConnection = false;
+        this.testConnectionResult.set(result);
+        this.showTestDetails.set(true);
+        this.isTestingConnection.set(false);
       },
       error: () => {
         this.messageService.add({
@@ -465,7 +476,7 @@ export class AuthenticationSettingsComponent {
           summary: this.t.translate('common.error'),
           detail: this.t.translate('settingsAuth.testConnection.error')
         });
-        this.isTestingConnection = false;
+        this.isTestingConnection.set(false);
       }
     });
   }

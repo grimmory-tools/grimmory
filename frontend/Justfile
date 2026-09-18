@@ -18,6 +18,10 @@ install-ci:
 dev:
     {{ pnpm }} run dev
 
+# Run the Angular development server for access from the local network.
+dev-unsafe host='0.0.0.0':
+    {{ pnpm }} run dev --host "{{ host }}"
+
 # Run the Angular development server with the default `start` script.
 start:
     {{ pnpm }} run start
@@ -32,7 +36,7 @@ watch:
 
 # Run the frontend test suite.
 test:
-    {{ pnpm }} run test
+    TZ=UTC {{ pnpm }} run test
 
 # Run the frontend tests with a coverage report.
 coverage:

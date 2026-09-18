@@ -1,9 +1,9 @@
 import {Component, effect, inject, OnDestroy, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {MessageService} from 'primeng/api';
+import {Button} from '@openng/optimus-ui/button';
+import {TableModule} from '@openng/optimus-ui/table';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
 import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 
@@ -12,7 +12,7 @@ import {Book} from '../../../features/book/model/book.model';
 import {FileMoveRequest, FileOperationsService} from '../../service/file-operations.service';
 import {LibraryService} from "../../../features/book/service/library.service";
 import {AppSettingsService} from '../../service/app-settings.service';
-import {Select} from 'primeng/select';
+import {Select} from '@openng/optimus-ui/select';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
 import {replacePlaceholders} from '../../util/pattern-resolver';
 

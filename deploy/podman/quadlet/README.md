@@ -10,9 +10,9 @@ This directory contains an example of how to use a rootless Podman pod defined t
    ```bash
    echo -n "YOUR PASSWORD" | podman secret create grimmory_db_pass -
    ```
-4. (Optional) `podman pull ghcr.io/grimmory-tools/grimmory:v0.38.2` to pre-pull the image
+4. (Optional) `podman pull ghcr.io/grimmory-tools/grimmory:latest` to pre-pull the image
   * If you have a slow connection, this is recommended because systemd will time out if the image pull takes too long.
-  * To follow rolling releases instead, set the image tag to `latest` in `grimmory.container`.
+  * To follow tagged releases instead, set the image tag to the latest tagged release in `grimmory.container`.
 5. Run `systemctl --user daemon-reload` to pick up the new Quadlet unit.
 6. Start the pod with `systemctl --user start grimmory-pod.service`
 

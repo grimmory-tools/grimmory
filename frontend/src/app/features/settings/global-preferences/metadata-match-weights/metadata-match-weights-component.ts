@@ -1,12 +1,12 @@
 import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 import {AppSettingKey, MetadataMatchWeights} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {InputNumber} from 'primeng/inputnumber';
+import {InputNumber} from '@openng/optimus-ui/inputnumber';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({

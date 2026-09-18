@@ -1,11 +1,13 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { cn } from '../cn';
+import { AppControlTransitionDirective } from '../control.styles';
 import { SPINNER_RING } from '../spinner/app-spinner.variants';
 import { buttonVariants, type ButtonSize, type ButtonTone, type ButtonVariant } from './app-button.variants';
 
 @Component({
   selector: 'app-button',
   standalone: true,
+  imports: [AppControlTransitionDirective],
   host: {
     class: 'inline-block align-middle',
     '[class.w-full]': 'fluid()',
@@ -13,6 +15,7 @@ import { buttonVariants, type ButtonSize, type ButtonTone, type ButtonVariant } 
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
+      appControlTransition
       [attr.id]="buttonId() || null"
       [class]="buttonClass()"
       [disabled]="disabled() || loading()"

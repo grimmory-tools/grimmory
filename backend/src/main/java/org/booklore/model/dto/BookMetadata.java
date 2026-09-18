@@ -35,6 +35,7 @@ public class BookMetadata {
     private AudiobookMetadata audiobookMetadata;
     private ComicMetadata comicMetadata;
 
+    private String openlibraryId;
     private String asin;
     private Double amazonRating;
     private Integer amazonReviewCount;
@@ -57,6 +58,9 @@ public class BookMetadata {
     private String audibleId;
     private Double audibleRating;
     private Integer audibleReviewCount;
+    private String applebooksId;
+    private Double applebooksRating;
+    private Integer applebooksReviewCount;
     private String externalUrl;
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;
@@ -82,6 +86,7 @@ public class BookMetadata {
     private Boolean seriesTotalLocked;
     private Boolean isbn13Locked;
     private Boolean isbn10Locked;
+    private Boolean openlibraryIdLocked;
     private Boolean asinLocked;
     private Boolean goodreadsIdLocked;
     private Boolean comicvineIdLocked;
@@ -106,6 +111,9 @@ public class BookMetadata {
     private Boolean audibleIdLocked;
     private Boolean audibleRatingLocked;
     private Boolean audibleReviewCountLocked;
+    private Boolean applebooksIdLocked;
+    private Boolean applebooksRatingLocked;
+    private Boolean applebooksReviewCountLocked;
     private Boolean externalUrlLocked;
     private Boolean coverLocked;
     private Boolean audiobookCoverLocked;

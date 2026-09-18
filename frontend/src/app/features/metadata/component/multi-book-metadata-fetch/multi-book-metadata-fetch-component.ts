@@ -3,13 +3,13 @@ import {Component, effect, inject, Input, OnChanges, OnInit, SimpleChanges} from
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshOptions} from '../../model/request/metadata-refresh-options.model';
 
-import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {Book} from '../../../book/model/book.model';
 import {FormsModule} from '@angular/forms';
 import {MetadataFetchOptionsComponent} from '../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
-import {Button} from 'primeng/button';
+import {Button} from '@openng/optimus-ui/button';
 
 @Component({
   selector: 'app-multi-book-metadata-fetch-component',

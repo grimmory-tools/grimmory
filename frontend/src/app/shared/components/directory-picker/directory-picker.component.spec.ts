@@ -2,7 +2,7 @@ import {of, throwError} from 'rxjs';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {DirectoryPickerComponent} from './directory-picker.component';

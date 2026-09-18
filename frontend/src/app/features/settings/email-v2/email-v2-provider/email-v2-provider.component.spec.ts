@@ -2,7 +2,7 @@ import {describe, it} from 'vitest';
 
 // NOTE(frontend-seam): Real coverage here needs seams around current-user bootstrapping, shared
 // provider permission logic, dialog close streams, and confirm/toast side effects so provider
-// management can be asserted without the full PrimeNG table runtime.
+// management can be asserted without the full Optimus UI table runtime.
 describe.skip('EmailV2ProviderComponent', () => {
   it('needs service seams to verify provider loading, default assignment, sharing toggles, and delete/save outcomes', () => {
     // TODO(seam): Cover loadCurrentUser, loadEmailProviders, saveProvider, deleteProvider, setDefaultProvider, and toggleShared once service streams are isolated behind deterministic doubles.

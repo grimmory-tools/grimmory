@@ -117,6 +117,13 @@ public class MetadataCopyHelper {
         }
     }
 
+    public void copyOpenlibraryId(boolean clear, Consumer<String> consumer) {
+        if (!isLocked(metadata.getOpenlibraryIdLocked())) {
+            if (clear) consumer.accept(null);
+            else if (metadata.getOpenlibraryId() != null) consumer.accept(metadata.getOpenlibraryId());
+        }
+    }
+
     public void copyComicvineId(boolean clear, Consumer<String> consumer) {
         if (!isLocked(metadata.getComicvineIdLocked())) {
             if (clear) consumer.accept(null);
@@ -158,6 +165,13 @@ public class MetadataCopyHelper {
         if (!isLocked(metadata.getRanobedbIdLocked())) {
             if (clear) consumer.accept(null);
             else if (metadata.getRanobedbId() != null) consumer.accept(metadata.getRanobedbId());
+        }
+    }
+
+    public void copyApplebooksId(boolean clear, Consumer<String> consumer) {
+        if (!isLocked(metadata.getApplebooksIdLocked())) {
+            if (clear) consumer.accept(null);
+            else if (metadata.getApplebooksId() != null) consumer.accept(metadata.getApplebooksId());
         }
     }
 
@@ -262,5 +276,10 @@ public class MetadataCopyHelper {
         }
     }
 
-
+    public void copyApplebooksRating(boolean clear, Consumer<Double> consumer) {
+        if (!isLocked(metadata.getApplebooksRatingLocked())) {
+            if (clear) consumer.accept(null);
+            else if (metadata.getApplebooksRating() != null) consumer.accept(metadata.getApplebooksRating());
+        }
+    }
 }

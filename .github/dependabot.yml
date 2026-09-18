@@ -14,10 +14,6 @@ updates:
       - "backend"
     commit-message:
       prefix: "chore(deps)"
-    groups:
-      gradle-dependencies:
-        patterns:
-          - "*"
 
   # JavaScript – pnpm workspace (frontend + release tooling)
   - package-ecosystem: "npm"
@@ -41,12 +37,18 @@ updates:
           - "semantic-release"
           - "@semantic-release/*"
           - "conventional-changelog*"
-      frontend:
+      angular:
         patterns:
-          - "*"
+          - "@angular/*"
     ignore:
       - dependency-name: "typescript"
+      - dependency-name: "@types/node"
+        versions: [">=25.0.0"]
       - dependency-name: "@angular/animations"
+        versions: [">=22.0.0"]
+      - dependency-name: "@angular-devkit/architect"
+        versions: [">=0.2200.0"]
+      - dependency-name: "@angular-devkit/schematics"
         versions: [">=22.0.0"]
       - dependency-name: "@angular/aria"
         versions: [">=22.0.0"]
@@ -74,12 +76,22 @@ updates:
         versions: [">=22.0.0"]
       - dependency-name: "@angular/service-worker"
         versions: [">=22.0.0"]
+      - dependency-name: "@tanstack/angular-table"
+        versions: [">=9.0.0"]
+      - dependency-name: "angular-eslint"
+        versions: [">=22.0.0"]
+      - dependency-name: "ngx-infinite-scroll"
+        versions: [">=22.0.0"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action/*"
     labels:
       - "dependencies"
       - "ci"

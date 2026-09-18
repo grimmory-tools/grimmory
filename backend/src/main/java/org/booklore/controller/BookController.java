@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.browse.BrowsePage;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
@@ -23,6 +24,9 @@ import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
 import org.booklore.service.book.PhysicalBookService;
+import org.booklore.service.browse.BookBrowseService;
+import org.booklore.service.browse.BookFacetService;
+import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.service.recommender.BookRecommendationService;
@@ -58,6 +62,8 @@ import java.io.IOException;
 public class BookController {
 
     private final BookService bookService;
+    private final BookBrowseService bookBrowseService;
+    private final BookFacetService bookFacetService;
     private final BookUpdateService bookUpdateService;
     private final BookRecommendationService bookRecommendationService;
     private final BookFileAttachmentService bookFileAttachmentService;
@@ -77,12 +83,54 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
-    @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated list of books. Supports sorting via 'sort' parameter (e.g. sort=metadata.title,asc).")
+    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, facet_logic, and query parameters; with none of these the legacy page/size behavior is preserved.")
     @ApiResponse(responseCode = "200", description = "Page of books returned successfully")
     @GetMapping("/page")
-    public ResponseEntity<Page<Book>> getBooksPaged(
-            @Parameter(hidden = true) Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBookDTOsPaged(pageable));
+    public ResponseEntity<BrowsePage<Book>> getBooksPaged(
+            @Parameter(hidden = true) Pageable pageable,
+            @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. seriesName,-seriesNumber)")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Facet selection in key:value form; repeatable (e.g. facet=genre:Horror&facet=read_status:READ)")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Opaque pagination cursor from a prior response's links")
+            @RequestParam(required = false) String cursor) {
+        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
+        if (browseMode) {
+            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
+        }
+        return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
+    }
+
+    @Operation(summary = "Get book facets", description = "Available facet values and counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts.")
+    @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
+    @GetMapping("/facets")
+    public ResponseEntity<FacetGroupsResponse> getBookFacets(
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
+    }
+
+    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @ApiResponse(responseCode = "200", description = "Matching book ids returned successfully")
+    @GetMapping("/ids")
+    public ResponseEntity<List<Long>> getBookIds(
+            @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search")
+            @RequestParam(required = false) String query) {
+        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")

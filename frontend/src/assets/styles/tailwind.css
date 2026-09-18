@@ -1,7 +1,7 @@
-@layer theme, base, primeng, components, utilities;
+@layer theme, base, optimus, components, utilities;
 
 @import "tailwindcss";
-@import "tailwindcss-primeui";
+@import "@openng/optimus-ui-tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -27,6 +27,19 @@
 }
 @utility slide-in-from-bottom-1 {
   --tw-enter-translate-y: 0.25rem;
+}
+@utility slide-in-from-bottom-full {
+  --tw-enter-translate-y: 100%;
+}
+@utility animate-in-sheet {
+  animation: enter 250ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@utility control-transition-pending {
+  &,
+  &::before,
+  &::after {
+    transition: none !important;
+  }
 }
 
 @font-face {

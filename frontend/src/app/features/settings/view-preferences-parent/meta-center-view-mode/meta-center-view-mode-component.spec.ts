@@ -5,7 +5,7 @@ import {describe, expect, it, vi} from 'vitest';
 
 import {MetaCenterViewModeComponent} from './meta-center-view-mode-component';
 import {User, UserService} from '../../user-management/user.service';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 describe('MetaCenterViewModeComponent', () => {

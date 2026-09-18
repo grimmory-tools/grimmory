@@ -147,7 +147,7 @@ class TaskHistoryServiceTest {
                 .createdAt(FIXED_TIME.plusMinutes(5))
                 .build();
 
-        when(taskHistoryRepository.findLatestTaskForEachType())
+        when(taskHistoryRepository.findLatestTaskForEachType(any()))
                 .thenReturn(Arrays.asList(importTask, exportTask));
 
         TasksHistoryResponse response = taskHistoryService.getLatestTasksForEachType();
@@ -162,7 +162,7 @@ class TaskHistoryServiceTest {
 
     @Test
     void testGetLatestTasksForEachType_exceptionHandled() {
-        when(taskHistoryRepository.findLatestTaskForEachType()).thenThrow(new RuntimeException("DB error"));
+        when(taskHistoryRepository.findLatestTaskForEachType(any())).thenThrow(new RuntimeException("DB error"));
         TasksHistoryResponse response = taskHistoryService.getLatestTasksForEachType();
         assertNotNull(response);
         assertTrue(response.getTaskHistories().stream().allMatch(h -> h.getId() == null));
@@ -178,7 +178,7 @@ class TaskHistoryServiceTest {
                 .createdAt(FIXED_TIME)
                 .build();
 
-        when(taskHistoryRepository.findLatestTaskForEachType()).thenReturn(Collections.singletonList(invalidTask));
+        when(taskHistoryRepository.findLatestTaskForEachType(any())).thenReturn(Collections.singletonList(invalidTask));
 
         TasksHistoryResponse response = taskHistoryService.getLatestTasksForEachType();
         assertNotNull(response);
@@ -259,7 +259,7 @@ class TaskHistoryServiceTest {
 
     @Test
     void testGetLatestTasksForEachType_emptyRepository() {
-        when(taskHistoryRepository.findLatestTaskForEachType()).thenReturn(Collections.emptyList());
+        when(taskHistoryRepository.findLatestTaskForEachType(any())).thenReturn(Collections.emptyList());
         TasksHistoryResponse response = taskHistoryService.getLatestTasksForEachType();
         assertNotNull(response);
         assertTrue(response.getTaskHistories().stream().allMatch(h -> h.getId() == null));
@@ -275,7 +275,7 @@ class TaskHistoryServiceTest {
                 .progressPercentage(0)
                 .createdAt(FIXED_TIME)
                 .build();
-        when(taskHistoryRepository.findLatestTaskForEachType()).thenReturn(Collections.singletonList(dummyTask));
+        when(taskHistoryRepository.findLatestTaskForEachType(any())).thenReturn(Collections.singletonList(dummyTask));
 
         hiddenTypes.forEach(type -> {
             try {

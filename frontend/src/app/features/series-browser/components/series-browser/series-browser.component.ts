@@ -1,9 +1,9 @@
 import {Component, DestroyRef, ElementRef, HostListener, computed, inject, OnInit, signal, viewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {InputText} from 'primeng/inputtext';
-import {Select} from 'primeng/select';
-import {Popover} from 'primeng/popover';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {Select} from '@openng/optimus-ui/select';
+import {Popover} from '@openng/optimus-ui/popover';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {SeriesDataService} from '../../service/series-data.service';
 import {SeriesSummary} from '../../model/series.model';

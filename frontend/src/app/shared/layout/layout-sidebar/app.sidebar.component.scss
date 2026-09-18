@@ -16,10 +16,6 @@
   margin-bottom: var(--sidebar-header-gap-after);
 }
 
-.sidebar-header > p-menu {
-  display: none;
-}
-
 .sidebar-brand {
   /* Shared rendered-height for both SVGs — derived from wordmark's width × aspect
      at default sidebar width. Keeps the wordmark and G-only mark the same pixel

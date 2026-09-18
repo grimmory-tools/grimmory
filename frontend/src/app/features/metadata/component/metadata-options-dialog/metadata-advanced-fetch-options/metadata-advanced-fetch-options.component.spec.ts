@@ -1,7 +1,7 @@
 import {SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {FieldOptions, MetadataRefreshOptions} from '../../../model/request/metadata-refresh-options.model';

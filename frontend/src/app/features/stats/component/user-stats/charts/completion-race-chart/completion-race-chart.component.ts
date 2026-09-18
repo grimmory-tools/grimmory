@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BaseChartDirective} from 'ng2-charts';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
@@ -90,8 +90,7 @@ export class CompletionRaceChartComponent implements OnInit, OnDestroy {
               return this.t.translate('statsUser.completionRace.tooltipDayProgress', {day, progress});
             }
           }
-        },
-        datalabels: {display: false}
+        }
       },
       scales: {
         x: {

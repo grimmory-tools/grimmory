@@ -6,61 +6,49 @@ import {
   linkedSignal,
   model,
   viewChild,
-  viewChildren,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
-import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/combobox';
-import { Listbox, Option } from '@angular/aria/listbox';
-import { OverlayModule } from '@angular/cdk/overlay';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { Combobox } from '@angular/aria/combobox';
 import { LucideLoaderCircle } from '@lucide/angular';
 
-import { AppTagComponent } from '../tag/app-tag.component';
+import { AppControlTransitionDirective } from '../control.styles';
 import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive';
+import { type AppAutocompleteOption } from './app-autocomplete-option';
+import { AppAutocompletePopupComponent } from './app-autocomplete-popup.component';
+import { AppAutocompleteSelectedTagsComponent } from './app-autocomplete-selected-tags.component';
 
 @Component({
   selector: 'app-multi-autocomplete',
   standalone: true,
-  imports: [
-    OverlayModule,
-    Combobox,
-    ComboboxInput,
-    ComboboxPopupContainer,
-    Listbox,
-    Option,
-    AppTagComponent,
-    TranslocoPipe,
-    LucideLoaderCircle,
-  ],
+  imports: [Combobox, LucideLoaderCircle, AppAutocompletePopupComponent, AppAutocompleteSelectedTagsComponent, AppControlTransitionDirective],
   host: { class: 'block w-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      ngCombobox
-      #cb="ngCombobox"
-      filterMode="manual"
-      [readonly]="readonly()"
-      [disabled]="disabled()"
-      class="relative block w-full">
+    <div class="relative block w-full">
       <div
+        appControlTransition
         #origin
         [class]="boxClass()"
+        (focusout)="markTouchedWhenFocusLeavesControl($event)"
         (pointerdown)="focusInputOnPointerdown($event, input)">
-        @for (tag of value(); track tag) {
-          <app-tag
-            size="sm"
+        @if (selectedTags().length) {
+          <app-autocomplete-selected-tags
+            [tags]="selectedTags()"
+            [size]="selectedTagSize()"
             [removable]="!isUnavailable()"
-            [label]="tag"
-            [removeLabel]="removeTagLabel() || ('shared.ui.autocomplete.removeTag' | transloco: { tag })"
-            (remove)="removeChip(tag)" />
+            [removeTagLabel]="removeTagLabel()"
+            (remove)="removeChip($event)" />
         }
         <input
-          ngComboboxInput
+          ngCombobox
+          #cb="ngCombobox"
           #input
           type="text"
           autocomplete="off"
           spellcheck="false"
           [(value)]="query"
+          [readonly]="readonly()"
+          [disabled]="disabled()"
           [attr.id]="resolvedInputId()"
           [attr.name]="name() || null"
           [placeholder]="placeholderText()"
@@ -69,53 +57,35 @@ import { AppAutocompleteBaseDirective } from './app-autocomplete-base.directive'
           [attr.aria-readonly]="readonly() ? 'true' : null"
           [attr.aria-busy]="pending() ? 'true' : null"
           [attr.aria-describedby]="resolvedDescribedBy()"
-          [disabled]="disabled()"
           [required]="required()"
-          [readonly]="readonly()"
           (input)="onType(input.value)"
+          (focus)="onInputFocus()"
           (keydown.enter)="onEnter($event)"
           (keydown.backspace)="onBackspace()"
-          (blur)="touched.set(true)"
           [class]="innerInputClass" />
-        @if (pending()) {
-          <svg lucideLoaderCircle class="size-4 shrink-0 animate-spin text-text-muted" aria-hidden="true"></svg>
-        }
+        <svg
+          lucideLoaderCircle
+          class="size-4 shrink-0 text-text-muted motion-reduce:animate-none"
+          [class.animate-spin]="pending()"
+          [class.invisible]="!pending()"
+          aria-hidden="true"></svg>
       </div>
 
-      <ng-template ngComboboxPopupContainer>
-        <ng-template
-          [cdkConnectedOverlay]="{
-            origin,
-            usePopover: 'inline',
-            matchWidth: true,
-            positions: overlayPositions,
-            viewportMargin: 8,
-            push: true
-          }"
-          [cdkConnectedOverlayOpen]="cb.expanded()"
-          [cdkConnectedOverlayScrollStrategy]="overlayScrollStrategy"
-          (attach)="onOverlayAttach()">
-          <div [class]="surfaceClass">
-            <ul
-              ngListbox
-              tabindex="-1"
-              focusMode="activedescendant"
-              selectionMode="explicit"
-              [readonly]="readonly()"
-              [disabled]="disabled()"
-              (valuesChange)="onSelect($event)"
-              [class]="listClass">
-              @for (option of suggestions(); track option) {
-                <li ngOption tabindex="-1" [value]="option" [label]="option" [class]="optionClass">
-                  <span class="truncate leading-5">{{ option }}</span>
-                </li>
-              } @empty {
-                <li [class]="emptyClass">{{ emptyMessage() || ('shared.ui.autocomplete.noResults' | transloco) }}</li>
-              }
-            </ul>
-          </div>
-        </ng-template>
-      </ng-template>
+      <app-autocomplete-popup
+        [combobox]="cb"
+        [origin]="origin"
+        [open]="cb.expanded()"
+        [disabled]="disabled()"
+        [readonly]="readonly()"
+        [pending]="pending()"
+        [loadingMore]="loadingMore()"
+        [hasMore]="hasMore()"
+        [errored]="errored()"
+        [suggestions]="normalizedSuggestions()"
+        [emptyMessage]="emptyMessage()"
+        [optionTemplate]="optionTemplate()?.template ?? null"
+        (optionSelected)="selectOption($event)"
+        (loadMore)="loadMore.emit()" />
     </div>
   `,
 })
@@ -124,14 +94,20 @@ export class AppMultiAutocompleteComponent extends AppAutocompleteBaseDirective 
 
   readonly removeTagLabel = input('');
 
-  private readonly listbox = viewChild<Listbox<string>>(Listbox);
-  protected readonly optionRefs = viewChildren(Option);
+  private readonly popup = viewChild(AppAutocompletePopupComponent);
+  private readonly chipLabels = new Map<string, string>();
 
   protected readonly query = linkedSignal<string[], string>({
     source: this.value,
     computation: () => '',
   });
 
+  protected readonly selectedTags = computed<readonly AppAutocompleteOption[]>(() =>
+    this.value().map((value) => ({
+      value,
+      label: this.chipLabels.get(value) ?? this.normalizedSuggestions().find((option) => option.value === value)?.label ?? value,
+    })),
+  );
   protected readonly placeholderText = computed(() => (this.value().length ? '' : this.placeholder()));
 
   protected onType(text: string): void {
@@ -143,12 +119,19 @@ export class AppMultiAutocompleteComponent extends AppAutocompleteBaseDirective 
     if (this.isUnavailable()) return;
     event.preventDefault();
     event.stopPropagation();
-    const active = this.optionRefs().find((option) => option.active());
+    const active = this.popup()?.activeOption();
     if (active) {
-      this.addChip(String(active.value()), true);
+      this.addChip(active);
       return;
     }
-    this.addChip(this.query());
+    const trimmed = this.query().trim();
+    if (!trimmed) return;
+    const match = this.normalizedSuggestions().find((option) => option.label === trimmed);
+    if (match) {
+      this.addChip(match);
+      return;
+    }
+    if (this.allowCustom()) this.addChip({ value: trimmed, label: trimmed });
   }
 
   protected onBackspace(): void {
@@ -156,38 +139,33 @@ export class AppMultiAutocompleteComponent extends AppAutocompleteBaseDirective 
     const current = this.value();
     if (!current.length) return;
     this.value.set(current.slice(0, -1));
-    this.touched.set(true);
   }
 
-  protected onSelect(values: readonly string[]): void {
-    if (this.isUnavailable() || !values.length) return;
-    this.addChip(values[values.length - 1], true);
+  protected selectOption(option: AppAutocompleteOption): void {
+    this.addChip(option);
   }
 
-  protected removeChip(tag: string): void {
-    this.value.set(this.value().filter((existing) => existing !== tag));
-    this.touched.set(true);
+  protected removeChip(value: string): void {
+    this.chipLabels.delete(value);
+    this.value.set(this.value().filter((existing) => existing !== value));
   }
 
-  private addChip(text: string, fromSuggestion = false): void {
+  private addChip(option: AppAutocompleteOption): void {
     if (this.isUnavailable()) return;
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    if (!fromSuggestion && !this.allowCustom() && !this.suggestions().includes(trimmed)) return;
     const current = this.value();
-    if (current.includes(trimmed)) {
+    if (current.includes(option.value)) {
       this.clearTagInput();
       return;
     }
-    this.value.set([...current, trimmed]);
+    this.chipLabels.set(option.value, option.label);
+    this.value.set([...current, option.value]);
     this.clearTagInput();
-    this.touched.set(true);
     this.complete.emit('');
   }
 
   private clearTagInput(): void {
-    this.combobox()?.close();
-    this.listbox()?.values.set([]);
+    this.closePopup();
+    this.popup()?.clearSelection();
     this.query.set('');
   }
 }

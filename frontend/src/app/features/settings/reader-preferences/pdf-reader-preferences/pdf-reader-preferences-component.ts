@@ -3,7 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderPreferencesService} from '../reader-preferences.service';
 import {PageSpread, UserSettings} from '../../user-management/user.service';
-import {Tooltip} from 'primeng/tooltip';
+import {Tooltip} from '@openng/optimus-ui/tooltip';
 
 @Component({
   selector: 'app-pdf-reader-preferences-component',

@@ -41,7 +41,7 @@
           (onSelect)="onBookSelect($event)" (onClear)="onBookClear()" optionLabel="metadata.title" [dropdown]="true"
           [showClear]="true" [placeholder]="t('searchPlaceholder')" [panelStyle]="autocomplePanelStyle" fluid
           [disabled]="isAttaching">
-          <ng-template let-book pTemplate="item">
+          <ng-template let-book #item>
             <div class="book-suggestion">
               <div class="suggestion-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
               @if (book.metadata?.authors?.length) {
@@ -53,7 +53,7 @@
               }
             </div>
           </ng-template>
-          <ng-template let-book pTemplate="selectedItem">
+          <ng-template let-book #selecteditem>
             <span>{{ getBookDisplayName(book) }}</span>
           </ng-template>
         </p-autocomplete>

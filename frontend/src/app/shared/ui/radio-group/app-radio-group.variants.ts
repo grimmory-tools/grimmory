@@ -74,9 +74,9 @@ const dotBase =
 export const appRadioGroupDotVariants = cva(dotBase, {
   variants: {
     size: {
-      sm: 'size-3.5 before:size-1',
-      md: 'size-4 before:size-1.5',
-      lg: 'size-5 before:size-2',
+      sm: 'size-3.5 before:size-1 pointer-coarse:size-4 pointer-coarse:before:size-1.5',
+      md: 'size-4 before:size-1.5 pointer-coarse:size-5 pointer-coarse:before:size-2',
+      lg: 'size-5 before:size-2 pointer-coarse:size-6 pointer-coarse:before:size-2.5',
     },
     variant: {
       list:
@@ -87,8 +87,9 @@ export const appRadioGroupDotVariants = cva(dotBase, {
     },
   },
   compoundVariants: [
-    { variant: 'list', size: 'sm', class: 'mt-px' },
-    { variant: 'list', size: ['md', 'lg'], class: 'mt-0.5' },
+    { variant: 'list', size: 'sm', class: 'mt-px pointer-coarse:mt-0.5' },
+    { variant: 'list', size: 'md', class: 'mt-0.5 pointer-coarse:mt-0' },
+    { variant: 'list', size: 'lg', class: 'mt-0.5 pointer-coarse:-mt-0.5' },
   ],
   defaultVariants: { size: 'md', variant: 'list' },
 });

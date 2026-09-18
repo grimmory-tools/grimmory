@@ -194,9 +194,6 @@ export class ReadingJourneyChartComponent {
               return [`\n${this.t.translate('statsLibrary.readingJourney.tooltipBacklog', {count: backlog})}`];
             }
           }
-        },
-        datalabels: {
-          display: false
         }
       },
       elements: {

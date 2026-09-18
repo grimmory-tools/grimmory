@@ -1,0 +1,27 @@
+{
+   "books":[
+      {
+         "id":47136,
+         "image_id":47609,
+         "lang":"en",
+         "romaji":null,
+         "romaji_orig":"Seishun Buta Yarou wa Beach Queen no Yume o Minai+",
+         "title":"Rascal Does Not Dream of a Beach Queen +",
+         "title_orig":"青春ブタ野郎はビーチクイーンの夢を見ない+",
+         "c_release_date":20250710,
+         "olang":"ja",
+         "image":{
+            "id":47609,
+            "width":220,
+            "height":312,
+            "spoiler":true,
+            "nsfw":false,
+            "filename":"xUJgJ0V2i98PwYrx.jpg"
+         },
+         "sim_score":1
+      }
+   ],
+   "count":"1",
+   "currentPage":1,
+   "totalPages":1
+}

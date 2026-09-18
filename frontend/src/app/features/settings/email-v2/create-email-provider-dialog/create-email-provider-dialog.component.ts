@@ -1,11 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {Button} from 'primeng/button';
-import {Checkbox} from 'primeng/checkbox';
-import {InputText} from 'primeng/inputtext';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {InputText} from '@openng/optimus-ui/inputtext';
 
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from '@openng/optimus-ui/api';
+import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {EmailV2ProviderService} from '../email-v2-provider/email-v2-provider.service';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 

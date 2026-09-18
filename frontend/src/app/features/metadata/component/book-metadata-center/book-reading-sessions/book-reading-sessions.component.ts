@@ -3,8 +3,8 @@ import {ReadingSessionApiService, ReadingSessionResponse} from '../../../../../s
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize, Subject, takeUntil} from 'rxjs';
 
-import {TableModule} from 'primeng/table';
-import {ProgressSpinner} from 'primeng/progressspinner';
+import {TableModule} from '@openng/optimus-ui/table';
+import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {NgClass} from '@angular/common';
 @Component({

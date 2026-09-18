@@ -185,8 +185,8 @@ describe('AuthService', () => {
     const logoutRequest = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/auth/logout`);
     expect(logoutRequest.request.body).toEqual({ refreshToken: 'refresh-token' });
 
-    refreshRequest.flush({ accessToken: 'late-access', refreshToken: 'late-refresh' });
     logoutRequest.flush({ logoutUrl: null });
+    refreshRequest.flush({ accessToken: 'late-access', refreshToken: 'late-refresh' });
 
     await expect(refresh).rejects.toThrow('Refresh response belongs to a stale session');
     expect(service.getInternalAccessToken()).toBeNull();
