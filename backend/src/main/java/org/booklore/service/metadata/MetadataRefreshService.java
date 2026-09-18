@@ -324,94 +324,83 @@ public class MetadataRefreshService {
     }
 
     public List<MetadataProvider> prepareProviders(MetadataRefreshOptions refreshOptions) {
-        AppSettings appSettings = appSettingService.getAppSettings();
         Set<MetadataProvider> allProviders = EnumSet.noneOf(MetadataProvider.class);
-        allProviders.addAll(getAllProvidersUsingIndividualFields(refreshOptions, appSettings));
+        allProviders.addAll(getAllProvidersUsingIndividualFields(refreshOptions));
         return new ArrayList<>(allProviders);
     }
 
-    protected Set<MetadataProvider> getAllProvidersUsingIndividualFields(MetadataRefreshOptions refreshOptions, AppSettings appSettings) {
+    protected Set<MetadataProvider> getAllProvidersUsingIndividualFields(MetadataRefreshOptions refreshOptions) {
         MetadataRefreshOptions.FieldOptions fieldOptions = refreshOptions.getFieldOptions();
         Set<MetadataProvider> uniqueProviders = EnumSet.noneOf(MetadataProvider.class);
 
         if (fieldOptions != null) {
-            addProviderToSet(fieldOptions.getTitle(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSubtitle(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getDescription(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAuthors(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPublisher(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPublishedDate(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesName(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesNumber(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getSeriesTotal(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getIsbn13(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getIsbn10(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLanguage(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getCategories(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getCover(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getPageCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getOpenlibraryId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAsin(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getComicvineId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoogleId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLubimyczytacId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAmazonRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAmazonReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getGoodreadsReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getHardcoverReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getLubimyczytacRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getRanobedbId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getRanobedbRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAudibleId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAudibleRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getAudibleReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getApplebooksId(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getApplebooksRating(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getApplebooksReviewCount(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getMoods(), uniqueProviders, appSettings);
-            addProviderToSet(fieldOptions.getTags(), uniqueProviders, appSettings);
+            addProviderToSet(fieldOptions.getTitle(), uniqueProviders);
+            addProviderToSet(fieldOptions.getSubtitle(), uniqueProviders);
+            addProviderToSet(fieldOptions.getDescription(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAuthors(), uniqueProviders);
+            addProviderToSet(fieldOptions.getPublisher(), uniqueProviders);
+            addProviderToSet(fieldOptions.getPublishedDate(), uniqueProviders);
+            addProviderToSet(fieldOptions.getSeriesName(), uniqueProviders);
+            addProviderToSet(fieldOptions.getSeriesNumber(), uniqueProviders);
+            addProviderToSet(fieldOptions.getSeriesTotal(), uniqueProviders);
+            addProviderToSet(fieldOptions.getIsbn13(), uniqueProviders);
+            addProviderToSet(fieldOptions.getIsbn10(), uniqueProviders);
+            addProviderToSet(fieldOptions.getLanguage(), uniqueProviders);
+            addProviderToSet(fieldOptions.getCategories(), uniqueProviders);
+            addProviderToSet(fieldOptions.getCover(), uniqueProviders);
+            addProviderToSet(fieldOptions.getPageCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getOpenlibraryId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAsin(), uniqueProviders);
+            addProviderToSet(fieldOptions.getGoodreadsId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getComicvineId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getHardcoverId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getGoogleId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getLubimyczytacId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAmazonRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAmazonReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getGoodreadsRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getGoodreadsReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getHardcoverRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getHardcoverReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getLubimyczytacRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getRanobedbId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getRanobedbRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAudibleId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAudibleRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getAudibleReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getApplebooksId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getApplebooksRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getApplebooksReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getMoods(), uniqueProviders);
+            addProviderToSet(fieldOptions.getTags(), uniqueProviders);
         }
 
         return uniqueProviders;
     }
 
-    protected void addProviderToSet(MetadataRefreshOptions.FieldProvider fieldProvider, Set<MetadataProvider> providerSet, AppSettings appSettings) {
+    protected void addProviderToSet(MetadataRefreshOptions.FieldProvider fieldProvider, Set<MetadataProvider> providerSet) {
         if (fieldProvider != null) {
-            if (fieldProvider.getP1() != null && isProviderEnabled(fieldProvider.getP1(), appSettings)) providerSet.add(fieldProvider.getP1());
-            if (fieldProvider.getP2() != null && isProviderEnabled(fieldProvider.getP2(), appSettings)) providerSet.add(fieldProvider.getP2());
-            if (fieldProvider.getP3() != null && isProviderEnabled(fieldProvider.getP3(), appSettings)) providerSet.add(fieldProvider.getP3());
-            if (fieldProvider.getP4() != null && isProviderEnabled(fieldProvider.getP4(), appSettings)) providerSet.add(fieldProvider.getP4());
+            if (fieldProvider.getP1() != null && isProviderEnabled(fieldProvider.getP1())) providerSet.add(fieldProvider.getP1());
+            if (fieldProvider.getP2() != null && isProviderEnabled(fieldProvider.getP2())) providerSet.add(fieldProvider.getP2());
+            if (fieldProvider.getP3() != null && isProviderEnabled(fieldProvider.getP3())) providerSet.add(fieldProvider.getP3());
+            if (fieldProvider.getP4() != null && isProviderEnabled(fieldProvider.getP4())) providerSet.add(fieldProvider.getP4());
         }
     }
 
-    protected boolean isProviderEnabled(MetadataProvider provider, AppSettings appSettings) {
-        if (provider == null || appSettings == null || appSettings.getMetadataProviderSettings() == null) {
-            return true;
-        }
+    protected boolean isProviderEnabled(MetadataProvider provider) {
+        var parser = parserMap.get(provider);
 
-        var settings = appSettings.getMetadataProviderSettings();
-        return switch (provider) {
-            case OpenLibrary -> settings.getOpenLibrary() != null && settings.getOpenLibrary().isEnabled();
-            case Amazon -> settings.getAmazon() != null && settings.getAmazon().isEnabled();
-            case Google -> settings.getGoogle() != null && settings.getGoogle().isEnabled();
-            case GoodReads -> settings.getGoodReads() != null && settings.getGoodReads().isEnabled();
-            case Hardcover -> settings.getHardcover() != null && settings.getHardcover().isEnabled();
-            case Comicvine -> settings.getComicvine() != null && settings.getComicvine().isEnabled();
-            case Ranobedb -> settings.getRanobedb() != null && settings.getRanobedb().isEnabled();
-            case Douban -> settings.getDouban() != null && settings.getDouban().isEnabled();
-            case Lubimyczytac -> settings.getLubimyczytac() != null && settings.getLubimyczytac().isEnabled();
-            case Audible -> settings.getAudible() != null && settings.getAudible().isEnabled();
-            case AppleBooks -> settings.getAppleBooks() != null && settings.getAppleBooks().isEnabled();
-            default -> true;
-        };
+        return parser != null && parser.isEnabled();
     }
 
     public BookMetadata fetchTopMetadataFromAProvider(MetadataProvider provider, Book book) {
-        return getParser(provider).fetchTopMetadata(book, buildFetchMetadataRequestFromBook(book));
+        var parser = getParser(provider);
+
+        if (!parser.isEnabled()) {
+            return null;
+        }
+
+        return parser.fetchTopMetadata(book, buildFetchMetadataRequestFromBook(book));
     }
 
     private BookParser getParser(MetadataProvider provider) {

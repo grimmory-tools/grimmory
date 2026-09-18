@@ -3,17 +3,13 @@ package org.booklore.service.metadata;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
-import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
 import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.MetadataFetchJobEntity;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.BookRepository;
@@ -131,19 +127,12 @@ class MetadataRefreshServiceTest {
                         .build())
                 .build();
 
-        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
-        MetadataProviderSettings.Amazon amazon = new MetadataProviderSettings.Amazon();
-        amazon.setEnabled(true);
-        providerSettings.setAmazon(amazon);
-        MetadataProviderSettings.Google google = new MetadataProviderSettings.Google();
-        google.setEnabled(true);
-        providerSettings.setGoogle(google);
-        MetadataProviderSettings.Goodreads goodreads = new MetadataProviderSettings.Goodreads();
-        goodreads.setEnabled(true);
-        providerSettings.setGoodReads(goodreads);
+        var enabledParser = mock(BookParser.class);
+        when(enabledParser.isEnabled()).thenReturn(true);
 
-        AppSettings appSettings = AppSettings.builder().metadataProviderSettings(providerSettings).build();
-        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+        when(parserMap.get(MetadataProvider.Google)).thenReturn(enabledParser);
+        when(parserMap.get(MetadataProvider.Amazon)).thenReturn(enabledParser);
+        when(parserMap.get(MetadataProvider.GoodReads)).thenReturn(enabledParser);
 
         List<MetadataProvider> result = service.prepareProviders(options);
 
@@ -161,40 +150,18 @@ class MetadataRefreshServiceTest {
                         .build())
                 .build();
 
-        MetadataProviderSettings providerSettings = new MetadataProviderSettings();
-        MetadataProviderSettings.Amazon amazon = new MetadataProviderSettings.Amazon();
-        amazon.setEnabled(false);
-        providerSettings.setAmazon(amazon);
-        MetadataProviderSettings.Google google = new MetadataProviderSettings.Google();
-        google.setEnabled(true);
-        providerSettings.setGoogle(google);
+        var enabledParser = mock(BookParser.class);
+        when(enabledParser.isEnabled()).thenReturn(true);
+        var disabledParser = mock(BookParser.class);
+        when(disabledParser.isEnabled()).thenReturn(false);
 
-        AppSettings appSettings = AppSettings.builder().metadataProviderSettings(providerSettings).build();
-        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+        when(parserMap.get(MetadataProvider.Google)).thenReturn(enabledParser);
+        when(parserMap.get(MetadataProvider.Amazon)).thenReturn(disabledParser);
 
         List<MetadataProvider> result = service.prepareProviders(options);
 
         assertThat(result).containsExactly(MetadataProvider.Google);
         assertThat(result).doesNotContain(MetadataProvider.Amazon);
-    }
-
-    @Test
-    void isProviderEnabled_returnsTrueWhenSettingsNull() {
-        boolean result = service.isProviderEnabled(MetadataProvider.Amazon, null);
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void isProviderEnabled_returnsTrueWhenProviderSettingsNull() {
-        AppSettings settings = AppSettings.builder().metadataProviderSettings(null).build();
-        boolean result = service.isProviderEnabled(MetadataProvider.Amazon, settings);
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void isProviderEnabled_returnsTrueWhenProviderNull() {
-        boolean result = service.isProviderEnabled(null, AppSettings.builder().build());
-        assertThat(result).isTrue();
     }
 
     @Test
@@ -208,7 +175,9 @@ class MetadataRefreshServiceTest {
         when(parserMap.get(MetadataProvider.Amazon)).thenReturn(amazonParser);
         when(parserMap.get(MetadataProvider.Google)).thenReturn(googleParser);
         when(amazonParser.fetchTopMetadata(any(), any())).thenReturn(amazonMeta);
+        when(amazonParser.isEnabled()).thenReturn(true);
         when(googleParser.fetchTopMetadata(any(), any())).thenReturn(googleMeta);
+        when(googleParser.isEnabled()).thenReturn(true);
 
         Book book = Book.builder().id(1L).metadata(BookMetadata.builder().title("Test").build()).build();
 
@@ -224,6 +193,7 @@ class MetadataRefreshServiceTest {
     void fetchMetadataForBook_skipsNullResults() {
         BookParser parser = mock(BookParser.class);
         when(parserMap.get(MetadataProvider.Amazon)).thenReturn(parser);
+        when(parser.isEnabled()).thenReturn(true);
         when(parser.fetchTopMetadata(any(), any())).thenReturn(null);
 
         Book book = Book.builder().id(1L).metadata(BookMetadata.builder().title("Test").build()).build();
@@ -241,6 +211,7 @@ class MetadataRefreshServiceTest {
 
         BookMetadata meta = BookMetadata.builder().provider(MetadataProvider.Amazon).title("T").build();
         when(parser.fetchTopMetadata(any(), any())).thenReturn(meta);
+        when(parser.isEnabled()).thenReturn(true);
 
         BookEntity entity = BookEntity.builder().id(1L).build();
         Book book = Book.builder().id(1L).metadata(BookMetadata.builder().title("T").build()).build();
@@ -635,21 +606,16 @@ class MetadataRefreshServiceTest {
                 .p4(MetadataProvider.GoodReads)
                 .build();
 
-        MetadataProviderSettings ps = new MetadataProviderSettings();
-        MetadataProviderSettings.Amazon amazon = new MetadataProviderSettings.Amazon();
-        amazon.setEnabled(true);
-        ps.setAmazon(amazon);
-        MetadataProviderSettings.Google google = new MetadataProviderSettings.Google();
-        google.setEnabled(true);
-        ps.setGoogle(google);
-        MetadataProviderSettings.Goodreads gr = new MetadataProviderSettings.Goodreads();
-        gr.setEnabled(true);
-        ps.setGoodReads(gr);
+        var parser = mock(BookParser.class);
+        when(parser.isEnabled()).thenReturn(true);
 
-        AppSettings appSettings = AppSettings.builder().metadataProviderSettings(ps).build();
+        when(parserMap.get(MetadataProvider.Amazon)).thenReturn(parser);
+        when(parserMap.get(MetadataProvider.Google)).thenReturn(parser);
+        when(parserMap.get(MetadataProvider.GoodReads)).thenReturn(parser);
+
         Set<MetadataProvider> set = new HashSet<>();
 
-        service.addProviderToSet(fp, set, appSettings);
+        service.addProviderToSet(fp, set);
 
         assertThat(set).containsExactlyInAnyOrder(MetadataProvider.Amazon, MetadataProvider.Google, MetadataProvider.GoodReads);
     }
@@ -657,7 +623,7 @@ class MetadataRefreshServiceTest {
     @Test
     void addProviderToSet_skipsWhenFieldProviderNull() {
         Set<MetadataProvider> set = new HashSet<>();
-        service.addProviderToSet(null, set, AppSettings.builder().build());
+        service.addProviderToSet(null, set);
         assertThat(set).isEmpty();
     }
 
@@ -711,140 +677,6 @@ class MetadataRefreshServiceTest {
     }
 
     @Nested
-    class IsProviderEnabledTests {
-
-        @Test
-        void hardcover_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Hardcover hc = new MetadataProviderSettings.Hardcover();
-            hc.setEnabled(true);
-            ps.setHardcover(hc);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Hardcover, settings)).isTrue();
-        }
-
-        @Test
-        void hardcover_disabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Hardcover hc = new MetadataProviderSettings.Hardcover();
-            hc.setEnabled(false);
-            ps.setHardcover(hc);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Hardcover, settings)).isFalse();
-        }
-
-        @Test
-        void hardcover_nullSetting() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            ps.setHardcover(null);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Hardcover, settings)).isFalse();
-        }
-
-        @Test
-        void comicvine_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Comicvine cv = new MetadataProviderSettings.Comicvine();
-            cv.setEnabled(true);
-            ps.setComicvine(cv);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Comicvine, settings)).isTrue();
-        }
-
-        @Test
-        void comicvine_disabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Comicvine cv = new MetadataProviderSettings.Comicvine();
-            cv.setEnabled(false);
-            ps.setComicvine(cv);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Comicvine, settings)).isFalse();
-        }
-
-        @Test
-        void douban_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Douban db = new MetadataProviderSettings.Douban();
-            db.setEnabled(true);
-            ps.setDouban(db);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Douban, settings)).isTrue();
-        }
-
-        @Test
-        void douban_disabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Douban db = new MetadataProviderSettings.Douban();
-            db.setEnabled(false);
-            ps.setDouban(db);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Douban, settings)).isFalse();
-        }
-
-        @Test
-        void lubimyczytac_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Lubimyczytac lc = new MetadataProviderSettings.Lubimyczytac();
-            lc.setEnabled(true);
-            ps.setLubimyczytac(lc);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Lubimyczytac, settings)).isTrue();
-        }
-
-        @Test
-        void ranobedb_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Ranobedb rn = new MetadataProviderSettings.Ranobedb();
-            rn.setEnabled(true);
-            ps.setRanobedb(rn);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Ranobedb, settings)).isTrue();
-        }
-
-        @Test
-        void ranobedb_disabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Ranobedb rn = new MetadataProviderSettings.Ranobedb();
-            rn.setEnabled(false);
-            ps.setRanobedb(rn);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Ranobedb, settings)).isFalse();
-        }
-
-        @Test
-        void audible_enabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Audible audible = new MetadataProviderSettings.Audible();
-            audible.setEnabled(true);
-            ps.setAudible(audible);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isTrue();
-        }
-
-        @Test
-        void audible_disabled() {
-            MetadataProviderSettings ps = new MetadataProviderSettings();
-            MetadataProviderSettings.Audible audible = new MetadataProviderSettings.Audible();
-            audible.setEnabled(false);
-            ps.setAudible(audible);
-            AppSettings settings = AppSettings.builder().metadataProviderSettings(ps).build();
-
-            assertThat(service.isProviderEnabled(MetadataProvider.Audible, settings)).isFalse();
-        }
-    }
-
-    @Nested
     class GetBookEntitiesTests {
 
         @Test
@@ -879,6 +711,7 @@ class MetadataRefreshServiceTest {
             BookParser parser = mock(BookParser.class);
             when(parserMap.get(MetadataProvider.Amazon)).thenReturn(parser);
             when(parser.fetchTopMetadata(any(), any())).thenReturn(null);
+            when(parser.isEnabled()).thenReturn(true);
 
             Book book = Book.builder().id(1L)
                     .metadata(BookMetadata.builder().title("T").isbn13("").isbn10("1234567890").build())
@@ -893,6 +726,7 @@ class MetadataRefreshServiceTest {
         void buildsFetchRequestWithNullMetadata() {
             BookParser parser = mock(BookParser.class);
             when(parserMap.get(MetadataProvider.Amazon)).thenReturn(parser);
+            when(parser.isEnabled()).thenReturn(true);
             when(parser.fetchTopMetadata(any(), any())).thenReturn(null);
 
             Book book = Book.builder().id(1L).metadata(null).build();
@@ -907,6 +741,7 @@ class MetadataRefreshServiceTest {
             BookParser parser = mock(BookParser.class);
             when(parserMap.get(MetadataProvider.Google)).thenReturn(parser);
             when(parser.fetchTopMetadata(any(), any())).thenReturn(null);
+            when(parser.isEnabled()).thenReturn(true);
 
             Book book = Book.builder().id(1L)
                     .metadata(BookMetadata.builder().title("T").isbn13("9781234567890").isbn10("1234567890").build())
@@ -1358,8 +1193,6 @@ class MetadataRefreshServiceTest {
             MetadataRefreshOptions options = MetadataRefreshOptions.builder()
                     .fieldOptions(null)
                     .build();
-
-            when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder().build());
 
             List<MetadataProvider> result = service.prepareProviders(options);
             assertThat(result).isEmpty();

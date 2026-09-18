@@ -93,18 +93,30 @@ public class BookMetadataService {
         Book book = bookMapper.toBook(bookEntity);
 
         return Flux.fromIterable(request.getProviders())
-                .flatMap(provider ->
-                    Flux.defer(() -> getParser(provider).fetchMetadataStream(book, request))
+                .flatMap(provider -> {
+                    var parser = getParser(provider);
+
+                    if (!parser.isEnabled()) {
+                        return Flux.empty();
+                    }
+
+                    return Flux.defer(() -> parser.fetchMetadataStream(book, request))
                             .subscribeOn(Schedulers.boundedElastic())
                             .onErrorResume(e -> {
                                 log.error("Error fetching metadata from provider: {}", provider, e);
                                 return Flux.empty();
-                            })
-                );
+                            });
+                });
     }
 
     public List<BookMetadata> fetchMetadataListFromAProvider(MetadataProvider provider, Book book, FetchMetadataRequest request) {
-        return getParser(provider).fetchMetadata(book, request);
+        var parser = getParser(provider);
+
+        if (!parser.isEnabled()) {
+            return List.of();
+        }
+
+        return parser.fetchMetadata(book, request);
     }
 
 
@@ -156,6 +168,11 @@ public class BookMetadataService {
 
     public BookMetadata getDetailedProviderMetadata(MetadataProvider provider, String providerItemId) {
         BookParser parser = getParser(provider);
+
+        if (!parser.isEnabled()) {
+            return null;
+        }
+
         if (parser instanceof DetailedMetadataProvider detailedProvider) {
             return detailedProvider.fetchDetailedMetadata(providerItemId);
         }
