@@ -52,7 +52,6 @@ import {isBookQuerySortKey, type BookSortTerm} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
 import {bookTitle, type BookColumnValue} from './book-browse-fields';
 import {
-  BOOK_EMPTY_VALUE,
   bookColumnKind,
   bookColumnSizing,
   bookColumnSortKey,
@@ -235,7 +234,7 @@ export class BookBrowseTableComponent {
       }] as const;
     })),
   );
-  protected readonly emptyValue = BOOK_EMPTY_VALUE;
+  protected readonly emptyValue = '—';
   protected readonly bookTitle = bookTitle;
 
   protected readonly rows = computed(() => this.table.getRowModel().rows);
