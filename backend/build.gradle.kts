@@ -144,7 +144,7 @@ dependencies {
     implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.junrar:junrar:8.1.0")
+    implementation("com.github.junrar:junrar:8.1.1")
 
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.23.2")
