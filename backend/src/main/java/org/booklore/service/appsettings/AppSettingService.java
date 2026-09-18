@@ -196,20 +196,27 @@ public class AppSettingService {
     private Map<AppSettingKey, Optional<String>> getSettingsMap() {
         var keys = Arrays.stream(AppSettingKey.values())
                 .filter(key -> cachedSettings.getIfPresent(key) == null)
-                .map(AppSettingKey::getDbKey)
                 .collect(Collectors.toSet());
 
         if (!keys.isEmpty()) {
-            cachedSettings.putAll(
-                    appSettingsRepository.findAll().stream()
-                            .filter(entity -> keys.contains(entity.getName()))
-                            .filter(entity -> entity.getVal() != null)
-                            .collect(
-                                    Collectors.toMap(
-                                            entity -> AppSettingKey.fromDbKey(entity.getName()),
-                                            entity -> Optional.ofNullable(entity.getVal())
-                                    )
+            log.debug("Settings Key Cache miss: {} keys missing from cache", keys.size());
+
+            Map<String, String> loadedSettings = appSettingsRepository.findAll()
+                    .stream()
+                    .collect(
+                            Collectors.toMap(
+                                    AppSettingEntity::getName,
+                                    AppSettingEntity::getVal
                             )
+                    );
+
+            cachedSettings.putAll(
+                    keys.stream().collect(
+                            Collectors.toMap(
+                                    key -> key,
+                                    key -> Optional.ofNullable(loadedSettings.get(key.getDbKey()))
+                            )
+                    )
             );
         }
 
