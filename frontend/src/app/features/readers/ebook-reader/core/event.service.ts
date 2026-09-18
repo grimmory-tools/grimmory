@@ -438,6 +438,8 @@ export class ReaderEventService {
       }
 
       if (touchDuration < this.LONG_HOLD_THRESHOLD_MS && Math.abs(deltaX) < 10 && deltaY < 10) {
+        const target = event.target as Element | null;
+        if (target?.closest('a[href]')) return;
         const iframe = doc.defaultView?.frameElement as HTMLIFrameElement | null;
         if (!iframe) return;
 

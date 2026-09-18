@@ -133,7 +133,7 @@ export class ReaderStateService {
         if (settings.maxInlineSize != null) newState.maxInlineSize = settings.maxInlineSize;
         if (settings.maxBlockSize != null) newState.maxBlockSize = settings.maxBlockSize;
         if (settings.isDark != null) newState.isDark = settings.isDark;
-        if (settings.tapToTurnPage != null) newState.tapToTurnPage = settings.tapToTurnPage;
+        if (settings.tapToTurnPage != null) newState.tapToTurnPage = globalSettings.tapToTurnPage ?? true;
         if (settings.flow) newState.flow = settings.flow;
         if (settings.theme) {
           const theme = this.themes.find(t => t.name === settings.theme);
