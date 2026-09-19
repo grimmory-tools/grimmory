@@ -5,6 +5,7 @@ import {ReaderAnnotationService} from '../features/annotations/annotation-render
 import {ReaderEventService, ViewEvent} from './event.service';
 
 interface TestView extends HTMLDivElement {
+  isFixedLayout: boolean;
   addAnnotation: (annotation: {value: string}) => void;
   addAnnotationSpy: (annotation: {value: string}) => void;
 }
@@ -80,6 +81,7 @@ describe('ReaderEventService', () => {
 
   function createView(width = 600): TestView {
     const element = document.createElement('div') as TestView;
+    element.isFixedLayout = true;
     element.addAnnotationSpy = vi.fn();
     element.addAnnotation = annotation => {
       element.addAnnotationSpy(annotation);

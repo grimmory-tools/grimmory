@@ -74,6 +74,7 @@ interface FoliateSearchSectionResult {
 type FoliateSearchResult = FoliateSearchProgress | FoliateSearchSectionResult | 'done';
 
 interface FoliateViewElement extends HTMLElement {
+  isFixedLayout: boolean;
   renderer?: FoliateRenderer | null;
   book?: FoliateBook;
   open(target: File | object): Promise<void>;

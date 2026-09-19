@@ -52,6 +52,7 @@ interface IframeClickMessage {
 }
 
 interface EventServiceView extends HTMLElement {
+  isFixedLayout: boolean;
   addAnnotation(annotation: { value: string }): void;
 }
 
@@ -423,7 +424,7 @@ export class ReaderEventService {
       const deltaX = touch.clientX - this.touchStartX;
       const deltaY = Math.abs(touch.clientY - this.touchStartY);
 
-      if (Math.abs(deltaX) >= this.SWIPE_THRESHOLD_PX && Math.abs(deltaX) > deltaY) {
+      if (this.view?.isFixedLayout && Math.abs(deltaX) >= this.SWIPE_THRESHOLD_PX && Math.abs(deltaX) > deltaY) {
         if (this.isNavigating) return;
 
         this.isNavigating = true;
