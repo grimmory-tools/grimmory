@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Nalaganje celotnih metapodatkov...",
       "columnCurrent": "Trenutno",
       "columnFetched": "Pridobljeno",
       "copyMissingTooltip": "Kopiraj manjkajoča polja",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Zgoraj vnesi iskalne pogoje in klikni Išči, da najdeš metapodatke",
       "noResultsFound": "Ni rezultatov",
       "noResultsHint": "Poskusi prilagoditi iskalne pogoje ali izberi druge ponudnike",
-      "unknownProvider": "",
       "selectOverlay": "Izberi"
     },
     "tabs": {

@@ -1,17 +1,19 @@
-import {Component, inject, Input, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {MessageService} from '@openng/optimus-ui/api';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {BookCoverService, CoverFetchRequest, CoverImage} from '../../../../shared/services/book-cover.service';
-import {finalize} from 'rxjs/operators';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
+import {CoverImage, CoverSearchParams, MetadataSourceQueryService} from '../../sources/metadata-source-query.service';
 import {Image} from '@openng/optimus-ui/image';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+
+const NO_SEARCH: CoverSearchParams = {bookId: 0, coverType: 'ebook'};
 
 @Component({
   selector: 'app-cover-search',
@@ -19,7 +21,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   imports: [
     Button,
     ReactiveFormsModule,
-    FormsModule,
     InputText,
     ProgressSpinner,
     Image,
@@ -28,47 +29,41 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   ],
   styleUrls: ['./cover-search.component.scss']
 })
-export class CoverSearchComponent implements OnInit {
-  @Input() bookId!: number;
-  searchForm: FormGroup;
-  coverImages: CoverImage[] = [];
-  loading = signal(false);
-  hasSearched = signal(false);
-  coverType: 'ebook' | 'audiobook' = 'ebook';
-
-  private fb = inject(FormBuilder);
-  private bookCoverService = inject(BookCoverService);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
-  protected dynamicDialogRef = inject(DynamicDialogRef);
-  protected bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private messageService = inject(MessageService);
+export class CoverSearchComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
+  protected readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
+  private readonly bookId: number = this.dynamicDialogConfig.data.bookId;
+  private readonly book = this.bookService.findBookById(this.bookId);
+  readonly searchForm = this.fb.nonNullable.group({
+    title: ['', Validators.required],
+    author: ['']
+  });
+  readonly coverType: 'ebook' | 'audiobook' = this.dynamicDialogConfig.data.coverType ??
+    (this.book?.primaryFile?.bookType === 'AUDIOBOOK' ? 'audiobook' : 'ebook');
+  private readonly search = signal<CoverSearchParams | null>(null);
+  private readonly query = injectQuery(() => ({
+    ...this.sources.coverSearch(this.search() ?? NO_SEARCH),
+    enabled: this.search() !== null,
+  }));
+
+  readonly coverImages = computed(() => [...(this.query.data() ?? [])].sort((a, b) => a.index - b.index));
+  readonly loading = this.query.isFetching;
+  readonly failed = computed(() => this.query.isError());
+  readonly hasSearched = computed(() => this.search() !== null);
+
   constructor() {
-    this.searchForm = this.fb.group({
-      title: ['', Validators.required],
-      author: ['']
-    });
-  }
-
-  ngOnInit() {
-    this.bookId = this.dynamicDialogConfig.data.bookId;
-    const book = this.bookService.findBookById(this.bookId);
-
-    // Use explicitly provided coverType, or auto-detect based on primary file
-    if (this.dynamicDialogConfig.data.coverType) {
-      this.coverType = this.dynamicDialogConfig.data.coverType;
-    } else if (book?.primaryFile?.bookType === 'AUDIOBOOK') {
-      this.coverType = 'audiobook';
-    } else {
-      this.coverType = 'ebook';
-    }
-
-    if (book) {
+    if (this.book) {
       this.searchForm.patchValue({
-        title: book.metadata?.title || '',
-        author: book.metadata?.authors && book.metadata?.authors.length > 0 ? book.metadata?.authors[0] : ''
+        title: this.book.metadata?.title || '',
+        author: this.book.metadata?.authors?.[0] ?? ''
       });
 
       if (this.searchForm.valid) {
@@ -78,36 +73,16 @@ export class CoverSearchComponent implements OnInit {
   }
 
   onSearch() {
-    if (this.searchForm.valid) {
-      this.loading.set(true);
-      this.coverImages = [];
-      const request: CoverFetchRequest = {
-        bookId: this.bookId,
-        title: this.searchForm.value.title,
-        author: this.searchForm.value.author,
-        coverType: this.coverType
-      };
+    if (!this.searchForm.valid) return;
 
-      this.bookCoverService.fetchBookCovers(request)
-        .pipe(finalize(() => {
-          this.loading.set(false);
-          this.hasSearched.set(true);
-        }))
-        .subscribe({
-          next: (image) => {
-            this.coverImages.push(image);
-            this.coverImages.sort((a, b) => a.index - b.index);
-          },
-          error: (error) => {
-            console.error('Error fetching covers:', error);
-          }
-        });
-    } else {
-      console.log('Form invalid', {
-        formErrors: this.searchForm.errors,
-        titleErrors: this.searchForm.get('title')?.errors
-      });
-    }
+    const params: CoverSearchParams = {
+      bookId: this.bookId,
+      title: this.searchForm.value.title,
+      author: this.searchForm.value.author,
+      coverType: this.coverType,
+    };
+    void this.queryClient.resetQueries({queryKey: this.sources.coverSearch(params).queryKey, exact: true});
+    this.search.set(params);
   }
 
   selectAndSave(image: CoverImage) {
@@ -138,7 +113,6 @@ export class CoverSearchComponent implements OnInit {
 
   onClear() {
     this.searchForm.reset();
-    this.coverImages = [];
-    this.hasSearched.set(false);
+    this.search.set(null);
   }
 }

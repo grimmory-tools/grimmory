@@ -8,11 +8,12 @@ import {Select} from '@openng/optimus-ui/select';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
 import {AutoComplete, AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../service/book.service';
-import {BookMetadataService} from '../../service/book-metadata.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
+import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({
@@ -36,7 +37,8 @@ export class AddPhysicalBookDialogComponent {
   private dynamicDialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private bookService = inject(BookService);
-  private bookMetadataService = inject(BookMetadataService);
+  private queryClient = inject(QueryClient);
+  private sources = inject(MetadataSourceQueryService);
   private libraryService = inject(LibraryService);
 
   selectedLibraryId: number | null = null;
@@ -59,6 +61,7 @@ export class AddPhysicalBookDialogComponent {
   coverUrl: string | null = null;
   isLoading = signal(false);
   isFetchingMetadata = signal(false);
+  readonly metadataLookupMessage = signal<'metadataNotFound' | 'metadataLookupFailed' | null>(null);
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;
     if (libraries.length === 0) {
@@ -115,28 +118,33 @@ export class AddPhysicalBookDialogComponent {
     (event.originalEvent.target as HTMLInputElement).value = '';
   }
 
-  fetchMetadataByIsbn(): void {
+  async fetchMetadataByIsbn(): Promise<void> {
     const isbnValue = this.isbn.trim();
     if (!isbnValue || this.isFetchingMetadata()) return;
 
     this.isFetchingMetadata.set(true);
-    this.bookMetadataService.lookupByIsbn(isbnValue).subscribe({
-      next: (metadata) => {
-        if (metadata.title) this.title = metadata.title;
-        if (metadata.authors?.length) this.authors = [...metadata.authors];
-        if (metadata.description) this.description = metadata.description;
-        if (metadata.publisher) this.publisher = metadata.publisher;
-        if (metadata.publishedDate) this.publishedDate = metadata.publishedDate;
-        if (metadata.language) this.language = metadata.language;
-        if (metadata.pageCount) this.pageCount = metadata.pageCount;
-        if (metadata.categories?.length) this.categories = [...metadata.categories];
-        this.coverUrl = metadata.thumbnailUrl || null;
-        this.isFetchingMetadata.set(false);
-      },
-      error: () => {
-        this.isFetchingMetadata.set(false);
+    this.metadataLookupMessage.set(null);
+    try {
+      const metadata = await this.queryClient.query(this.sources.isbnLookup(isbnValue));
+      if (!metadata) {
+        this.metadataLookupMessage.set('metadataNotFound');
+        return;
       }
-    });
+
+      if (metadata.title) this.title = metadata.title;
+      if (metadata.authors?.length) this.authors = [...metadata.authors];
+      if (metadata.description) this.description = metadata.description;
+      if (metadata.publisher) this.publisher = metadata.publisher;
+      if (metadata.publishedDate) this.publishedDate = metadata.publishedDate;
+      if (metadata.language) this.language = metadata.language;
+      if (metadata.pageCount) this.pageCount = metadata.pageCount;
+      if (metadata.categories?.length) this.categories = [...metadata.categories];
+      this.coverUrl = metadata.thumbnailUrl || null;
+    } catch {
+      this.metadataLookupMessage.set('metadataLookupFailed');
+    } finally {
+      this.isFetchingMetadata.set(false);
+    }
   }
 
   cancel(): void {

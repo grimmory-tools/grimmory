@@ -221,8 +221,8 @@
             </div>
             <code class="progress-item-isbn">{{ entry.isbn }}</code>
             <span class="progress-item-detail">
-              @if (entry.status === 'created' && entry.title) {
-                {{ entry.title }}
+              @if (entry.status === 'created') {
+                {{ entry.title || t('summaryCreated') }}
               } @else if (entry.status === 'created-no-metadata') {
                 {{ t('createdNoMetadata') }}
               } @else if (entry.status === 'failed') {
@@ -317,8 +317,8 @@
               </div>
               <code class="summary-detail-isbn">{{ entry.isbn }}</code>
               <span class="summary-detail-info">
-                @if (entry.status === 'created' && entry.title) {
-                  {{ entry.title }}
+                @if (entry.status === 'created') {
+                  {{ entry.title || t('summaryCreated') }}
                 } @else if (entry.status === 'created-no-metadata') {
                   {{ t('createdNoMetadata') }}
                 } @else if (entry.status === 'failed') {

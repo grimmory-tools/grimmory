@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Cargando metadatos completos...",
       "columnCurrent": "Actual",
       "columnFetched": "Obtenido",
       "copyMissingTooltip": "Copiar campos faltantes",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Ingresa tus criterios de búsqueda arriba y haz clic en Buscar para encontrar metadatos",
       "noResultsFound": "No se encontraron resultados",
       "noResultsHint": "Intenta ajustar tus criterios de búsqueda o seleccionar otros proveedores",
-      "unknownProvider": "",
       "selectOverlay": "Seleccionar"
     },
     "tabs": {

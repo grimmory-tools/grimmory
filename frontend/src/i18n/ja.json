@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "完全なメタデータを読み込み中...",
       "columnCurrent": "現在",
       "columnFetched": "取得済み",
       "copyMissingTooltip": "欠損フィールドをコピー",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "上に検索条件を入力して「検索」をクリックするとメタデータを検索できます",
       "noResultsFound": "結果が見つかりません",
       "noResultsHint": "検索条件を調整するか、別のプロバイダーを選択してみてください",
-      "unknownProvider": "",
       "selectOverlay": "選択"
     },
     "tabs": {

@@ -1,100 +1,108 @@
-import {Component, inject, Input, OnDestroy, signal} from '@angular/core';
+import {Component, computed, inject, input, OnDestroy, signal} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {Book} from '../../../../book/model/book.model';
-import {SidecarMetadata, SidecarService, SidecarSyncStatus} from '../../../service/sidecar.service';
+import {SidecarService} from '../../../service/sidecar.service';
+import {SidecarMetadata, SidecarSyncStatus} from '../../../sources/sidecar.models';
+import {metadataSourceKeys, MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {Button} from '@openng/optimus-ui/button';
 import {Tag} from '@openng/optimus-ui/tag';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {DatePipe, JsonPipe} from '@angular/common';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-sidecar-viewer',
   standalone: true,
   templateUrl: './sidecar-viewer.component.html',
   styleUrls: ['./sidecar-viewer.component.scss'],
-  imports: [Button, Tag, Tooltip, JsonPipe, DatePipe, TranslocoDirective]
+  imports: [Button, Tag, Tooltip, JsonPipe, DatePipe, TranslocoDirective, TranslocoPipe]
 })
 export class SidecarViewerComponent implements OnDestroy {
-  @Input()
-  set book(value: Book | null) {
-    if (!value) {
-      this.currentBookId = null;
-      this.sidecarContent = null;
-      this.syncStatus = 'NOT_APPLICABLE';
-      this.loading.set(false);
-      this.error = null;
-      return;
-    }
+  readonly book = input<Book | null>(null);
+  readonly currentBookId = computed(() => this.book()?.id ?? null);
 
-    this.currentBookId = value.id;
-    this.loadSidecarData(value.id);
-  }
-
-  private sidecarService = inject(SidecarService);
-  private messageService = inject(MessageService);
+  private readonly sidecarService = inject(SidecarService);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   private destroy$ = new Subject<void>();
 
-  sidecarContent: SidecarMetadata | null = null;
-  syncStatus: SidecarSyncStatus = 'NOT_APPLICABLE';
-  loading = signal(false);
-  exporting = signal(false);
-  importing = signal(false);
-  currentBookId: number | null = null;
-  error: string | null = null;
+  private readonly statusQuery = injectQuery(() => ({
+    ...this.sources.sidecarStatus(this.currentBookId() ?? 0),
+    enabled: this.currentBookId() !== null,
+  }));
 
-  loadSidecarData(bookId: number): void {
-    this.loading.set(true);
-    this.error = null;
+  readonly syncStatus = computed<SidecarSyncStatus | null>(() =>
+    this.statusQuery.isError() ? null : this.statusQuery.data()?.status ?? null
+  );
+  readonly syncStatusSeverity = computed(() => {
+    switch (this.syncStatus()) {
+      case 'IN_SYNC':
+        return 'success';
+      case 'OUTDATED':
+        return 'warn';
+      case 'CONFLICT':
+        return 'danger';
+      case 'MISSING':
+        return 'secondary';
+      default:
+        return 'info';
+    }
+  });
+  readonly syncStatusLabel = computed(() => {
+    const lang = this.activeLang();
+    switch (this.syncStatus()) {
+      case 'IN_SYNC':
+        return this.t.translate('metadata.sidecar.syncStatusInSync', {}, lang);
+      case 'OUTDATED':
+        return this.t.translate('metadata.sidecar.syncStatusOutdated', {}, lang);
+      case 'CONFLICT':
+        return this.t.translate('metadata.sidecar.syncStatusConflict', {}, lang);
+      case 'MISSING':
+        return this.t.translate('metadata.sidecar.syncStatusMissing', {}, lang);
+      case 'NOT_APPLICABLE':
+        return this.t.translate('metadata.sidecar.syncStatusNA', {}, lang);
+      default:
+        return this.t.translate('metadata.sidecar.syncStatusUnknown', {}, lang);
+    }
+  });
+  private readonly hasSidecar = computed(() => {
+    const status = this.syncStatus();
+    return status !== null && status !== 'MISSING' && status !== 'NOT_APPLICABLE';
+  });
 
-    this.sidecarService.getSyncStatus(bookId).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response) => {
-        this.syncStatus = response.status;
+  private readonly contentQuery = injectQuery(() => ({
+    ...this.sources.sidecar(this.currentBookId() ?? 0),
+    enabled: this.currentBookId() !== null && this.hasSidecar(),
+  }));
 
-        if (response.status !== 'MISSING' && response.status !== 'NOT_APPLICABLE') {
-          this.loadSidecarContent(bookId);
-        } else {
-          this.sidecarContent = null;
-          this.loading.set(false);
-        }
-      },
-      error: (err) => {
-        this.syncStatus = 'NOT_APPLICABLE';
-        this.sidecarContent = null;
-        this.loading.set(false);
-        console.error('Failed to get sync status:', err);
-      }
-    });
-  }
+  readonly sidecarContent = computed<SidecarMetadata | null>(() =>
+    this.hasSidecar() && !this.contentQuery.isError() ? this.contentQuery.data() ?? null : null
+  );
+  readonly loading = computed(() => this.statusQuery.isLoading() || this.contentQuery.isLoading());
+  readonly failed = computed(() => this.statusQuery.isError() || (this.hasSidecar() && this.contentQuery.isError()));
+  readonly exporting = signal(false);
+  readonly importing = signal(false);
 
-  private loadSidecarContent(bookId: number): void {
-    this.sidecarService.getSidecarContent(bookId).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (content) => {
-        this.sidecarContent = content;
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.sidecarContent = null;
-        this.loading.set(false);
-        if (err.status !== 404) {
-          console.error('Failed to load sidecar content:', err);
-        }
-      }
-    });
+  retryRead(): void {
+    const bookId = this.currentBookId();
+    if (bookId !== null) {
+      void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
+    }
   }
 
   exportToSidecar(): void {
-    if (!this.currentBookId) return;
+    const bookId = this.currentBookId();
+    if (!bookId) return;
 
     this.exporting.set(true);
-    this.sidecarService.exportToSidecar(this.currentBookId).pipe(
+    this.sidecarService.exportToSidecar(bookId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
@@ -103,7 +111,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.exportSuccessSummary'),
           detail: this.t.translate('metadata.sidecar.toast.exportSuccessDetail')
         });
-        this.loadSidecarData(this.currentBookId!);
+        void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
         this.exporting.set(false);
       },
       error: (err) => {
@@ -119,10 +127,11 @@ export class SidecarViewerComponent implements OnDestroy {
   }
 
   importFromSidecar(): void {
-    if (!this.currentBookId) return;
+    const bookId = this.currentBookId();
+    if (!bookId) return;
 
     this.importing.set(true);
-    this.sidecarService.importFromSidecar(this.currentBookId).pipe(
+    this.sidecarService.importFromSidecar(bookId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
@@ -131,7 +140,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.importSuccessSummary'),
           detail: this.t.translate('metadata.sidecar.toast.importSuccessDetail')
         });
-        this.loadSidecarData(this.currentBookId!);
+        void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
         this.importing.set(false);
       },
       error: (err) => {
@@ -144,38 +153,6 @@ export class SidecarViewerComponent implements OnDestroy {
         console.error('Import failed:', err);
       }
     });
-  }
-
-  getSyncStatusSeverity(): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
-    switch (this.syncStatus) {
-      case 'IN_SYNC':
-        return 'success';
-      case 'OUTDATED':
-        return 'warn';
-      case 'CONFLICT':
-        return 'danger';
-      case 'MISSING':
-        return 'secondary';
-      default:
-        return 'info';
-    }
-  }
-
-  getSyncStatusLabel(): string {
-    switch (this.syncStatus) {
-      case 'IN_SYNC':
-        return this.t.translate('metadata.sidecar.syncStatusInSync');
-      case 'OUTDATED':
-        return this.t.translate('metadata.sidecar.syncStatusOutdated');
-      case 'CONFLICT':
-        return this.t.translate('metadata.sidecar.syncStatusConflict');
-      case 'MISSING':
-        return this.t.translate('metadata.sidecar.syncStatusMissing');
-      case 'NOT_APPLICABLE':
-        return this.t.translate('metadata.sidecar.syncStatusNA');
-      default:
-        return this.t.translate('metadata.sidecar.syncStatusUnknown');
-    }
   }
 
   ngOnDestroy(): void {

@@ -1,4 +1,5 @@
-import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
 
@@ -13,6 +14,9 @@ import {
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
+import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+
 @Component({
   selector: 'app-metadata-advanced-fetch-options',
   templateUrl: './metadata-advanced-fetch-options.component.html',
@@ -21,6 +25,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   standalone: true
 })
 export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
+
+  private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   @Output() metadataOptionsSubmitted = new EventEmitter<MetadataRefreshOptions>();
   @Input() currentMetadataOptions!: MetadataRefreshOptions;
@@ -61,33 +70,27 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  providers: string[] = [
-    'OpenLibrary',
-    'Amazon',
-    'Google',
-    'GoodReads',
-    'Hardcover',
-    'Comicvine',
-    'Douban',
-    'Lubimyczytac',
-    'Ranobedb',
-    'Audible',
-    'AppleBooks'
-  ];
-  providersWithClear: string[] = [
-    'Clear All',
-    'OpenLibrary',
-    'Amazon',
-    'Google',
-    'GoodReads',
-    'Hardcover',
-    'Comicvine',
-    'Douban',
-    'Lubimyczytac',
-    'Ranobedb',
-    'Audible',
-    'AppleBooks'
-  ];
+  readonly providerOptions = computed(() => this.sources.enabledProviders().map(provider => ({
+    value: provider.id,
+    label: this.t.translate(provider.labelKey, {}, this.activeLang()),
+  })));
+  readonly providerOptionsWithClear = computed(() => [
+    {value: 'Clear All', label: 'Clear All'},
+    ...this.providerOptions(),
+  ]);
+
+  providerOptionsFor(selected: string | null) {
+    const enabled = this.providerOptions();
+    if (!selected || enabled.some(option => option.value === selected)) return enabled;
+
+    const provider = this.sources.providers().find(provider => provider.id === selected);
+    const label = provider ? this.t.translate(provider.labelKey, {}, this.activeLang()) : selected;
+    return [...enabled, {
+      value: selected,
+      label: this.t.translate('metadata.advancedFetchOptions.inactiveProvider', {provider: label}, this.activeLang()),
+      disabled: true,
+    }];
+  }
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
@@ -109,9 +112,6 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   bulkP2: string | null = null;
   bulkP3: string | null = null;
   bulkP4: string | null = null;
-
-  private messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
 
   private justSubmitted = false;
 
@@ -237,7 +237,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     }
   }
 
-  setBulkProvider(priority: 'p1' | 'p2' | 'p3' | 'p4', provider: string | null): void {
+  setBulkProvider(priority: 'p1' | 'p2' | 'p3' | 'p4', provider: MetadataProviderId | 'Clear All' | null): void {
     if (!provider) return;
 
     const value = provider === 'Clear All' ? null : provider;

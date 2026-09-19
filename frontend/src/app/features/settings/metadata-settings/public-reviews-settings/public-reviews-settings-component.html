@@ -48,7 +48,8 @@
                         [formControl]="provider.controls.enabled"
                         (onChange)="onProviderToggle(provider.controls.provider.value, $event.checked)">
                       </p-toggleswitch>
-                      <span class="provider-label">{{ provider.controls.provider.value }}</span>
+                      @let descriptor = catalog.provider(provider.controls.provider.value);
+                      <span class="provider-label">{{ descriptor ? (descriptor.labelKey | transloco) : provider.controls.provider.value }}</span>
                     </div>
                     @if (provider.controls.enabled.value) {
                       <div class="max-reviews-control">

@@ -1,57 +1,26 @@
-import {Component, computed, effect, inject, input, OnDestroy, signal} from '@angular/core';
+import {Component, computed, effect, inject, input, linkedSignal, signal} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {TranslocoDirective} from '@jsverse/transloco';
-import {catchError, Subject, takeUntil} from 'rxjs';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
 
-import {FetchMetadataRequest} from '../../../model/request/fetch-metadata-request.model';
-import {Book, BookMetadata} from '../../../../book/model/book.model';
+import {Book} from '../../../../book/model/book.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
-import {BookMetadataService} from '../../../../book/service/book-metadata.service';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
-import {MetadataProviderService} from '../../../service/metadata-provider.service';
-import {map} from 'rxjs/operators';
+import {MetadataCatalogService} from '../../../../../shared/metadata/metadata-catalog.service';
+import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
+import {
+  MetadataSourceQueryService,
+  type MetadataSearchParams,
+  type MetadataSearchResult,
+} from '../../../sources/metadata-source-query.service';
 
-const DETAIL_ID_FIELD: Record<string, keyof BookMetadata> = {
-  GoodReads: 'goodreadsId',
-  Amazon: 'asin',
-  Audible: 'audibleId',
-  Comicvine: 'comicvineId',
-};
-
-function providerKey(result: BookMetadata): string {
-  return result.provider?.toLowerCase() ?? 'unknown';
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function needsDetail(result: BookMetadata): boolean {
-  if (result.provider === 'Comicvine') {
-    const comic = result.comicMetadata;
-    return !comic || !(
-      comic.pencillers?.length || comic.inkers?.length || comic.colorists?.length ||
-      comic.letterers?.length || comic.editors?.length || comic.characters?.length
-    );
-  }
-  return !result.description;
-}
-
-export function detailRequestFor(result: BookMetadata): { provider: string; id: string } | null {
-  const provider = result.provider;
-  const idField = provider ? DETAIL_ID_FIELD[provider] : undefined;
-  const id = idField ? result[idField] : undefined;
-  if (!provider || typeof id !== 'string' || !id || !needsDetail(result)) {
-    return null;
-  }
-  return {provider, id};
-}
+const NO_SEARCH: MetadataSearchParams = {bookId: 0, providers: []};
 
 @Component({
   selector: 'app-metadata-searcher',
@@ -59,70 +28,80 @@ export function detailRequestFor(result: BookMetadata): { provider: string; id: 
   styleUrls: ['./metadata-searcher.component.scss'],
   imports: [
     ReactiveFormsModule,
-    FormsModule,
     Button,
     InputText,
     MetadataPickerComponent,
     MultiSelect,
     Tooltip,
     TranslocoDirective,
+    TranslocoPipe,
     CoverComponent
   ],
   standalone: true
 })
-export class MetadataSearcherComponent implements OnDestroy {
+export class MetadataSearcherComponent {
   readonly book = input<Book | null>(null);
   readonly isActiveTab = input(false);
 
   private readonly formBuilder = inject(FormBuilder);
-  private readonly bookMetadataService = inject(BookMetadataService);
   private readonly appSettingsService = inject(AppSettingsService);
-  private readonly metadataProviderService = inject(MetadataProviderService);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly catalog = inject(MetadataCatalogService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly t = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
+  private readonly search = signal<MetadataSearchParams | null>(null);
+  private resetForBookId: number | null = null;
+  private readonly autoSearchPending = linkedSignal<number | undefined, boolean>({
+    source: () => this.book()?.id,
+    computation: bookId => bookId !== undefined
+      && !!this.appSettingsService.appSettings()?.autoBookSearch,
+  });
+  private providersInitialised = false;
+  private readonly query = injectQuery(() => ({
+    ...this.sources.prospective(this.search() ?? NO_SEARCH),
+    enabled: this.search() !== null,
+  }));
 
-  readonly form: FormGroup = this.formBuilder.group({
-    provider: null,
-    title: [''],
-    author: [''],
-    isbn: ['']
+  readonly form = this.formBuilder.group({
+    providers: this.formBuilder.control<MetadataProviderId[] | null>(null),
+    title: this.formBuilder.nonNullable.control(''),
+    author: this.formBuilder.nonNullable.control(''),
+    isbn: this.formBuilder.nonNullable.control('')
   });
 
-  readonly results = signal<BookMetadata[]>([]);
-  readonly searchedProviders = signal<string[]>([]);
-  readonly loading = signal(false);
-  readonly searchTriggered = signal(false);
-  readonly selectedFilters = signal<Set<string>>(new Set(['all']));
-  readonly selected = signal<BookMetadata | null>(null);
-  readonly detailLoading = signal(false);
+  readonly results = computed(() => this.query.data() ?? []);
+  readonly loading = this.query.isFetching;
+  readonly failed = computed(() => this.query.isError());
+  readonly hasSearched = computed(() => this.search() !== null);
+  readonly selectedFilters = signal<Set<MetadataProviderId | 'all'>>(new Set(['all']));
+  readonly selected = signal<MetadataSearchResult | null>(null);
 
-  readonly providers = toSignal(
-    this.metadataProviderService.fetchMetadataProviders()
-      .pipe(map(
-        providers => providers.filter(p => p.enabled).map(p => capitalize(p.name))
-      ))
-      .pipe(catchError(() => []))
-  );
+  readonly providers = computed(() => this.sources.enabledProviders().map(provider => provider.id));
+
+  readonly providerOptions = computed(() => this.sources.enabledProviders().map(provider => ({
+    id: provider.id,
+    label: this.t.translate(provider.labelKey, {}, this.activeLang()),
+  })));
 
   readonly resultsByProvider = computed(() => {
-    const groups = new Map<string, BookMetadata[]>();
-    this.searchedProviders().forEach(provider => groups.set(provider.toLowerCase(), []));
+    const groups = new Map<MetadataProviderId, MetadataSearchResult[]>();
+    this.search()?.providers.forEach(provider => groups.set(provider, []));
     for (const result of this.results()) {
-      const key = providerKey(result);
-      groups.set(key, [...(groups.get(key) ?? []), result]);
+      groups.get(result.provider)?.push(result);
     }
     return groups;
   });
 
-  readonly providerTabs = computed(() =>
-    this.searchedProviders().map(provider => ({
-      provider,
-      count: this.resultsByProvider().get(provider.toLowerCase())?.length ?? 0
-    }))
-  );
+  readonly providerTabs = computed(() => Array.from(
+    this.resultsByProvider(),
+    ([provider, results]) => ({provider, count: results.length})
+  ));
 
-  readonly interleavedResults = computed(() => {
+  private readonly interleavedResults = computed(() => {
     const lists = Array.from(this.resultsByProvider().values());
     const maxLength = Math.max(0, ...lists.map(list => list.length));
-    const interleaved: BookMetadata[] = [];
+    const interleaved: MetadataSearchResult[] = [];
     for (let i = 0; i < maxLength; i++) {
       for (const list of lists) {
         if (i < list.length) interleaved.push(list[i]);
@@ -134,19 +113,14 @@ export class MetadataSearcherComponent implements OnDestroy {
   readonly filteredResults = computed(() => {
     const filters = this.selectedFilters();
     const all = this.interleavedResults();
-    return filters.has('all') ? all : all.filter(result => filters.has(providerKey(result)));
+    return filters.has('all') ? all : all.filter(result => filters.has(result.provider));
   });
-
-  private bookId: number | null = null;
-  private readonly autoSearchPending = signal(false);
-  private providersInitialised = false;
-  private readonly cancel$ = new Subject<void>();
 
   constructor() {
     effect(() => {
+      if (!this.appSettingsService.appSettings() || this.sources.providersLoading()) return;
       const providers = this.providers();
-      if (!this.appSettingsService.appSettings() || !providers) return;
-      const control = this.form.get('provider')!;
+      const control = this.form.controls.providers;
 
       if (!this.providersInitialised) {
         this.providersInitialised = true;
@@ -154,7 +128,7 @@ export class MetadataSearcherComponent implements OnDestroy {
         return;
       }
 
-      const current: string[] = control.value ?? [];
+      const current = control.value ?? [];
       const valid = current.filter(provider => providers.includes(provider));
       if (valid.length !== current.length) {
         control.setValue(valid.length > 0 ? valid : null);
@@ -169,173 +143,107 @@ export class MetadataSearcherComponent implements OnDestroy {
       }
 
       const settings = this.appSettingsService.appSettings();
-      const providers = this.providers();
-      if (!settings || !providers || book.id === this.bookId) return;
+      if (!settings || book.id === this.resetForBookId) return;
 
-      this.bookId = book.id;
+      this.resetForBookId = book.id;
       this.resetForBook(book);
-      if (providers.length > 0) {
-        this.autoSearchPending.set(!!settings.autoBookSearch);
-      }
     });
 
     effect(() => {
-      if (this.autoSearchPending() && this.isActiveTab()) {
+      if (this.autoSearchPending() && this.isActiveTab() && !this.sources.providersLoading()) {
         this.autoSearchPending.set(false);
         this.onSubmit();
       }
     });
   }
 
-  ngOnDestroy(): void {
-    this.cancel$.next();
-    this.cancel$.complete();
-  }
-
   get isSearchEnabled(): boolean {
-    const providerSelected = !!this.form.get('provider')?.value;
-    const title = this.form.get('title')?.value;
-    const isbn = this.form.get('isbn')?.value;
-    return providerSelected && (title || isbn);
+    const providerSelected = !!this.form.controls.providers.value?.length;
+    const title = this.form.controls.title.value;
+    const isbn = this.form.controls.isbn.value;
+    return providerSelected && (title.length > 0 || isbn.length > 0);
   }
 
   onSubmit(): void {
-    this.searchTriggered.set(true);
-    const selectedProviders: string[] | null = this.form.get('provider')?.value;
-    if (!selectedProviders?.length || this.bookId === null) return;
+    const selectedProviders = this.form.controls.providers.value;
+    const bookId = this.book()?.id;
+    if (!selectedProviders?.length || bookId === undefined) return;
 
-    const request: FetchMetadataRequest = {
-      bookId: this.bookId,
+    const params: MetadataSearchParams = {
+      bookId,
       providers: selectedProviders,
-      title: this.form.get('title')?.value,
-      author: this.form.get('author')?.value,
-      isbn: this.form.get('isbn')?.value
+      title: this.form.controls.title.value,
+      author: this.form.controls.author.value,
+      isbn: this.form.controls.isbn.value
     };
 
-    this.cancel$.next();
-    this.results.set([]);
-    this.searchedProviders.set(selectedProviders);
     this.selectedFilters.set(new Set(['all']));
-    this.loading.set(true);
 
-    this.bookMetadataService.fetchBookMetadata(request.bookId, request)
-      .pipe(takeUntil(this.cancel$))
-      .subscribe({
-        next: result => this.results.update(all => [...all, result]),
-        error: error => {
-          console.error('Error fetching metadata:', error);
-          this.loading.set(false);
-        },
-        complete: () => this.loading.set(false)
-      });
+    void this.queryClient.resetQueries({queryKey: this.sources.prospective(params).queryKey, exact: true});
+    this.search.set(params);
   }
 
-  onBookClick(result: BookMetadata): void {
+  onBookClick(result: MetadataSearchResult): void {
     this.selected.set(result);
-
-    const detail = detailRequestFor(result);
-    this.detailLoading.set(!!detail);
-    if (!detail) return;
-
-    this.bookMetadataService.fetchMetadataDetail(detail.provider, detail.id)
-      .pipe(takeUntil(this.cancel$))
-      .subscribe({
-        next: enriched => {
-          if (this.selected() !== result) return;
-          this.selected.set(enriched);
-          this.detailLoading.set(false);
-        },
-        error: error => {
-          console.error('Error fetching detailed metadata:', error);
-          if (this.selected() === result) this.detailLoading.set(false);
-        }
-      });
   }
 
   onGoBack(): void {
-    this.detailLoading.set(false);
     this.selected.set(null);
   }
 
-  onProviderPillClick(provider: string, event: Event): void {
-    const key = provider.toLowerCase();
+  onProviderPillClick(provider: MetadataProviderId, event: Event): void {
     const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
 
     this.selectedFilters.update(filters => {
       const next = new Set(filters);
       if (isModifierClick) {
-        if (next.has(key)) {
-          next.delete(key);
+        if (next.has(provider)) {
+          next.delete(provider);
         } else {
-          next.add(key);
+          next.add(provider);
           next.delete('all');
         }
         if (next.size === 0) next.add('all');
-      } else if (next.has(key) && next.size === 1) {
+      } else if (next.has(provider) && next.size === 1) {
         next.clear();
         next.add('all');
       } else {
         next.clear();
-        next.add(key);
+        next.add(provider);
       }
       return next;
     });
   }
 
-  isProviderPillActive(provider: string): boolean {
-    return this.selectedFilters().has(provider.toLowerCase());
+  isProviderPillActive(provider: MetadataProviderId): boolean {
+    return this.selectedFilters().has(provider);
   }
 
-  providerClass(result: BookMetadata): string {
-    return providerKey(result);
+  providerClass(id: MetadataProviderId): string {
+    return id.toLowerCase();
   }
 
-  providerName(result: BookMetadata): string | null {
-    return result.provider ?? null;
+  providerLabelKey(id: MetadataProviderId): string {
+    return this.catalog.provider(id)?.labelKey ?? id;
   }
 
-  providerHref(result: BookMetadata): string | null {
-    if (!result.externalUrl) {
-      return null;
-    }
-
-    return result.externalUrl;
-  }
-
-  onProviderClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'A' || target.closest('a')) {
-      event.stopPropagation();
-    }
-  }
-
-  sanitizeHtml(htmlString: string | null | undefined): string {
-    if (!htmlString) return '';
+  sanitizeHtml(htmlString: string): string {
     return htmlString.replace(/<\/?[^>]+(>|$)/g, '').trim();
   }
 
-  truncateText(text: string | null, length: number): string {
+  truncateText(text: string | undefined, length: number): string {
     const safeText = text ?? '';
     return safeText.length > length ? safeText.substring(0, length) + '...' : safeText;
   }
 
-  private isEnabledProviderSetting(value: unknown): value is { enabled: boolean } {
-    return !!value && typeof value === 'object' && 'enabled' in value && typeof value.enabled == 'boolean';
-  }
-
   private resetSearchState(): void {
-    this.cancel$.next();
-    this.loading.set(false);
-    this.detailLoading.set(false);
-    this.searchTriggered.set(false);
+    this.search.set(null);
     this.selected.set(null);
-    this.results.set([]);
-    this.searchedProviders.set([]);
     this.selectedFilters.set(new Set(['all']));
   }
 
   private clearForNoBook(): void {
-    this.bookId = null;
+    this.resetForBookId = null;
     this.autoSearchPending.set(false);
     this.resetSearchState();
     this.form.patchValue({title: '', author: '', isbn: ''});
@@ -343,10 +251,6 @@ export class MetadataSearcherComponent implements OnDestroy {
 
   private resetForBook(book: Book): void {
     this.resetSearchState();
-    this.patchFormFromBook(book);
-  }
-
-  private patchFormFromBook(book: Book): void {
     this.form.patchValue({
       title: book.metadata?.title ?? '',
       author: book.metadata?.authors?.[0] ?? '',

@@ -122,7 +122,8 @@
 
               @if (metadata?.goodreadsRating) {
                 <div class="metadata-item">
-                  <span class="label">Goodreads</span>
+                  @let provider = catalog.provider('GoodReads');
+                  <span class="label">{{ provider ? (provider.labelKey | transloco) : 'GoodReads' }}</span>
                   <span class="value">
                     &#11088; {{ metadata?.goodreadsRating?.toFixed(2) }}
                     @if (metadata?.goodreadsReviewCount) {
@@ -134,7 +135,8 @@
 
               @if (metadata?.amazonRating) {
                 <div class="metadata-item">
-                  <span class="label">Amazon</span>
+                  @let provider = catalog.provider('Amazon');
+                  <span class="label">{{ provider ? (provider.labelKey | transloco) : 'Amazon' }}</span>
                   <span class="value">
                     &#11088; {{ metadata?.amazonRating?.toFixed(2) }}
                     @if (metadata?.amazonReviewCount) {

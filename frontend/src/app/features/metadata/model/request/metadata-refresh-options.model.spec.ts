@@ -1,4 +1,5 @@
 import {describe, expect, expectTypeOf, it} from 'vitest';
+import type {MetadataProviderId} from '../../../../shared/metadata/metadata-providers';
 
 import {
   FieldOptions,
@@ -7,7 +8,7 @@ import {
   MetadataReplaceMode
 } from './metadata-refresh-options.model';
 
-const provider = (value: string | null): FieldProvider => ({
+const provider = (value: MetadataProviderId | null): FieldProvider => ({
   p4: value,
   p3: value,
   p2: value,
@@ -17,46 +18,46 @@ const provider = (value: string | null): FieldProvider => ({
 describe('metadata-refresh-options.model', () => {
   it('supports replace-mode driven refresh settings', () => {
     const fieldOptions: FieldOptions = {
-      openlibraryId: provider('openlibrary'),
-      title: provider('google'),
-      description: provider('google'),
-      authors: provider('google'),
-      categories: provider('google'),
-      cover: provider('google'),
-      subtitle: provider('google'),
-      publisher: provider('google'),
-      publishedDate: provider('google'),
-      seriesName: provider('google'),
-      seriesNumber: provider('google'),
-      seriesTotal: provider('google'),
-      isbn13: provider('google'),
-      isbn10: provider('google'),
-      language: provider('google'),
-      pageCount: provider('google'),
-      asin: provider('google'),
-      goodreadsId: provider('goodreads'),
+      openlibraryId: provider('OpenLibrary'),
+      title: provider('Google'),
+      description: provider('Google'),
+      authors: provider('Google'),
+      categories: provider('Google'),
+      cover: provider('Google'),
+      subtitle: provider('Google'),
+      publisher: provider('Google'),
+      publishedDate: provider('Google'),
+      seriesName: provider('Google'),
+      seriesNumber: provider('Google'),
+      seriesTotal: provider('Google'),
+      isbn13: provider('Google'),
+      isbn10: provider('Google'),
+      language: provider('Google'),
+      pageCount: provider('Google'),
+      asin: provider('Google'),
+      goodreadsId: provider('GoodReads'),
       comicvineId: provider(null),
-      hardcoverId: provider('hardcover'),
-      hardcoverBookId: provider('hardcover'),
-      googleId: provider('google'),
+      hardcoverId: provider('Hardcover'),
+      hardcoverBookId: provider('Hardcover'),
+      googleId: provider('Google'),
       lubimyczytacId: provider(null),
-      amazonRating: provider('amazon'),
-      amazonReviewCount: provider('amazon'),
-      goodreadsRating: provider('goodreads'),
-      goodreadsReviewCount: provider('goodreads'),
-      hardcoverRating: provider('hardcover'),
-      hardcoverReviewCount: provider('hardcover'),
+      amazonRating: provider('Amazon'),
+      amazonReviewCount: provider('Amazon'),
+      goodreadsRating: provider('GoodReads'),
+      goodreadsReviewCount: provider('GoodReads'),
+      hardcoverRating: provider('Hardcover'),
+      hardcoverReviewCount: provider('Hardcover'),
       lubimyczytacRating: provider(null),
       ranobedbId: provider(null),
       ranobedbRating: provider(null),
-      audibleId: provider('audible'),
-      audibleRating: provider('audible'),
-      audibleReviewCount: provider('audible'),
-      applebooksId: provider('applebooks'),
-      applebooksRating: provider('applebooks'),
-      applebooksReviewCount: provider('applebooks'),
-      moods: provider('google'),
-      tags: provider('google')
+      audibleId: provider('Audible'),
+      audibleRating: provider('Audible'),
+      audibleReviewCount: provider('Audible'),
+      applebooksId: provider('AppleBooks'),
+      applebooksRating: provider('AppleBooks'),
+      applebooksReviewCount: provider('AppleBooks'),
+      moods: provider('Google'),
+      tags: provider('Google')
     };
 
     const options: MetadataRefreshOptions = {
@@ -110,7 +111,7 @@ describe('metadata-refresh-options.model', () => {
       }
     };
 
-    expect(options.fieldOptions?.title.p4).toBe('google');
+    expect(options.fieldOptions?.title.p4).toBe('Google');
     expect(options.enabledFields?.subtitle).toBe(false);
     expectTypeOf(options.replaceMode).toEqualTypeOf<MetadataReplaceMode | undefined>();
   });

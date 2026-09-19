@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, computed, effect, inject, signal, WritableSignal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
@@ -7,11 +8,12 @@ import {Textarea} from '@openng/optimus-ui/textarea';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {FileUpload, FileSelectEvent} from '@openng/optimus-ui/fileupload';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../service/book.service';
-import {BookMetadataService} from '../../service/book-metadata.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {BookMetadata, CreatePhysicalBookRequest} from '../../model/book.model';
+import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {Tabs, TabList, Tab, TabPanels, TabPanel} from '@openng/optimus-ui/tabs';
 
@@ -61,7 +63,8 @@ export class BulkIsbnImportDialogComponent {
   private dynamicDialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private bookService = inject(BookService);
-  private bookMetadataService = inject(BookMetadataService);
+  private queryClient = inject(QueryClient);
+  private sources = inject(MetadataSourceQueryService);
   private libraryService = inject(LibraryService);
 
   selectedLibraryId: number | null = null;
@@ -189,7 +192,7 @@ export class BulkIsbnImportDialogComponent {
 
         await this.createBook(request);
 
-        if (metadata?.title) {
+        if (metadata !== null) {
           updateEntry(i, { status: 'created', title: metadata.title })
           this.createdCount.update(v => v + 1);
         } else {
@@ -346,25 +349,21 @@ export class BulkIsbnImportDialogComponent {
     return false;
   }
 
-  private lookupIsbn(isbn: string): Promise<BookMetadata | null> {
-    return new Promise((resolve) => {
-      this.bookMetadataService.lookupByIsbn(isbn).subscribe({
-        next: metadata => resolve(metadata),
-        error: err => {
-          // Retry once on potential rate limiting
-          if (err?.status === 429) {
-            setTimeout(() => {
-              this.bookMetadataService.lookupByIsbn(isbn).subscribe({
-                next: metadata => resolve(metadata),
-                error: () => resolve(null), // Still create with ISBN only
-              });
-            }, RETRY_DELAY_MS);
-          } else {
-            resolve(null); // No metadata found, still create with ISBN
-          }
-        },
-      });
-    });
+  private async lookupIsbn(isbn: string): Promise<BookMetadata | null> {
+    try {
+      return await this.queryClient.query(this.sources.isbnLookup(isbn));
+    } catch (err: unknown) {
+      if (!(err instanceof HttpErrorResponse) || err.status !== 429) {
+        return null;
+      }
+    }
+
+    await this.delay(RETRY_DELAY_MS);
+    try {
+      return await this.queryClient.query(this.sources.isbnLookup(isbn));
+    } catch {
+      return null;
+    }
   }
 
   private createBook(request: CreatePhysicalBookRequest): Promise<void> {

@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Vollständige Metadaten werden geladen...",
       "columnCurrent": "Aktuell",
       "columnFetched": "Abgerufen",
       "copyMissingTooltip": "Fehlende Felder kopieren",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Geben Sie oben Ihre Suchkriterien ein und klicken Sie auf Suchen, um Metadaten zu finden",
       "noResultsFound": "Keine Ergebnisse gefunden",
       "noResultsHint": "Passen Sie Ihre Suchkriterien an oder wählen Sie andere Anbieter",
-      "unknownProvider": "",
       "selectOverlay": "Auswählen"
     },
     "tabs": {

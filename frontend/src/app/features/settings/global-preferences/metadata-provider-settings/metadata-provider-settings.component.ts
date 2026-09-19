@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from '@openng/optimus-ui/table';
@@ -6,11 +6,14 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {Button} from '@openng/optimus-ui/button';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MessageService} from '@openng/optimus-ui/api';
-import {AppSettingKey} from '../../../../shared/model/app-settings.model';
+import {AppSettingKey, type MetadataProviderSettings} from '../../../../shared/model/app-settings.model';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
+import type {MetadataProviderId} from '../../../../shared/metadata/metadata-providers';
+import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
 import {Select} from '@openng/optimus-ui/select';
 import {ExternalDocLinkComponent} from '../../../../shared/components/external-doc-link/external-doc-link.component';
 import { ToggleSwitch } from '@openng/optimus-ui/toggleswitch';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-metadata-provider-settings',
@@ -23,12 +26,18 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Select,
     ExternalDocLinkComponent,
     ToggleSwitch,
-    TranslocoDirective
+    TranslocoDirective,
+    TranslocoPipe
   ],
   templateUrl: './metadata-provider-settings.component.html',
   styleUrl: './metadata-provider-settings.component.scss'
 })
 export class MetadataProviderSettingsComponent {
+  private readonly catalog = inject(MetadataCatalogService);
+  private readonly sourceQuery = inject(MetadataSourceQueryService);
+  readonly configurableProviders = computed(() => this.catalog.providers().filter(provider => provider.hasOptions));
+  readonly simpleProviders = computed(() => this.catalog.providers().filter(provider => !provider.hasOptions));
+  readonly enabled: Partial<Record<MetadataProviderId, boolean>> = {};
 
   amazonDomains = [
     {label: 'amazon.com', value: 'com'},
@@ -97,23 +106,12 @@ export class MetadataProviderSettingsComponent {
 
   selectedAppleBooksCountry = 'US';
   selectedAudibleDomain = 'com';
-  audibleEnabled: boolean = false;
 
   hardcoverToken: string = '';
   amazonCookie: string = '';
-  hardcoverEnabled: boolean = false;
-  amazonEnabled: boolean = false;
-  openLibraryEnabled: boolean = false;
-  goodreadsEnabled: boolean = false;
-  googleEnabled: boolean = false;
-  comicvineEnabled: boolean = false;
   comicvineToken: string = '';
-  doubanEnabled: boolean = false;
-  lubimyCzytacEnabled: boolean = false;
-  ranobedbEnabled: boolean = false;
   ranobedbPreferRomaji: boolean = false;
   googleApiKey: string = '';
-  appleBooksEnabled: boolean = false;
 
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
@@ -129,32 +127,24 @@ export class MetadataProviderSettingsComponent {
 
   private applySettings(settings: NonNullable<ReturnType<typeof this.appSettingsService.appSettings>>): void {
     const metadataProviderSettings = settings.metadataProviderSettings;
-    this.openLibraryEnabled = metadataProviderSettings?.openLibrary?.enabled ?? false;
-    this.amazonEnabled = metadataProviderSettings?.amazon?.enabled ?? false;
+    for (const provider of this.sourceQuery.providers()) {
+      this.enabled[provider.id] = provider.enabled;
+    }
     this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
     this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
-    this.goodreadsEnabled = metadataProviderSettings?.goodReads?.enabled ?? false;
     this.selectedGoogleLanguage = metadataProviderSettings?.google?.language ?? '';
     this.googleApiKey = metadataProviderSettings?.google?.apiKey ?? '';
-    this.googleEnabled = (metadataProviderSettings?.google?.enabled ?? false) && this.googleApiKeyConfigured;
     this.hardcoverToken = metadataProviderSettings?.hardcover?.apiKey ?? '';
-    this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
-    this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
     this.comicvineToken = metadataProviderSettings?.comicvine?.apiKey ?? '';
-    this.doubanEnabled = metadataProviderSettings?.douban?.enabled ?? false;
-    this.lubimyCzytacEnabled = metadataProviderSettings?.lubimyczytac?.enabled ?? false;
-    this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
     this.ranobedbPreferRomaji = metadataProviderSettings?.ranobedb?.preferRomaji ?? false;
-    this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
-    this.appleBooksEnabled = metadataProviderSettings?.appleBooks?.enabled ?? false;
     this.selectedAppleBooksCountry = metadataProviderSettings?.appleBooks?.country ?? 'US';
   }
 
   onTokenChange(newToken: string): void {
     this.hardcoverToken = newToken;
     if (!newToken.trim()) {
-      this.hardcoverEnabled = false;
+      this.enabled.Hardcover = false;
     }
   }
 
@@ -166,60 +156,45 @@ export class MetadataProviderSettingsComponent {
     return this.googleApiKey.trim().length > 0;
   }
 
+  isToggleDisabled(id: MetadataProviderId): boolean {
+    if (id === 'Google') return !this.googleApiKeyConfigured;
+    if (id === 'Hardcover') return !this.hardcoverToken;
+    return false;
+  }
+
   saveSettings(): void {
+    const options: {
+      [Id in MetadataProviderId]?: Omit<MetadataProviderSettings[Uncapitalize<Id>], 'enabled'>;
+    } = {
+      Amazon: {cookie: this.amazonCookie, domain: this.selectedAmazonDomain},
+      Google: {language: this.selectedGoogleLanguage, apiKey: this.googleApiKey.trim()},
+      Hardcover: {apiKey: this.hardcoverToken.trim()},
+      Comicvine: {apiKey: this.comicvineToken.trim()},
+      Ranobedb: {preferRomaji: this.ranobedbPreferRomaji},
+      Audible: {domain: this.selectedAudibleDomain},
+      AppleBooks: {country: this.selectedAppleBooksCountry},
+    };
     const payload = [
       {
         key: AppSettingKey.METADATA_PROVIDER_SETTINGS,
-        newValue: {
-          openLibrary: {
-            enabled: this.openLibraryEnabled,
-          },
-          amazon: {
-            enabled: this.amazonEnabled,
-            cookie: this.amazonCookie,
-            domain: this.selectedAmazonDomain
-          },
-          comicvine: {
-            enabled: this.comicvineEnabled,
-            apiKey: this.comicvineToken.trim()
-          },
-          goodReads: {enabled: this.goodreadsEnabled},
-          google: {
-            enabled: this.googleEnabled && this.googleApiKeyConfigured,
-            language: this.selectedGoogleLanguage,
-            apiKey: this.googleApiKey.trim()
-          },
-          hardcover: {
-            enabled: this.hardcoverEnabled,
-            apiKey: this.hardcoverToken.trim()
-          },
-          douban: {enabled: this.doubanEnabled},
-          lubimyczytac: {enabled: this.lubimyCzytacEnabled},
-          ranobedb: {
-            enabled: this.ranobedbEnabled,
-            preferRomaji: this.ranobedbPreferRomaji
-          },
-          audible: {
-            enabled: this.audibleEnabled,
-            domain: this.selectedAudibleDomain
-          },
-          appleBooks: {
-            enabled: this.appleBooksEnabled,
-            country: this.selectedAppleBooksCountry,
-          },
-        }
+        newValue: Object.fromEntries(this.catalog.providers().map(provider => [
+          provider.settingsKey,
+          {enabled: this.enabled[provider.id] ?? false, ...options[provider.id]},
+        ])),
       }
     ];
 
     this.appSettingsService.saveSettings(payload).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: () =>
+      next: () => {
+        void this.sourceQuery.refreshProviders();
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('common.success'),
           detail: this.t.translate('settingsMeta.providers.saveSuccess')
-        }),
+        });
+      },
       error: () =>
         this.messageService.add({
           severity: 'error',

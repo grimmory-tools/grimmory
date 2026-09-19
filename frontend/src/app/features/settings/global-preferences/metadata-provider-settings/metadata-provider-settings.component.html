@@ -16,177 +16,146 @@
           <h4 class="provider-group-title">{{ t('configurableTitle') }}</h4>
 
           <div class="configurable-providers-list">
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="amazonEnabled"></p-toggleswitch>
-                <span class="setting-label">Amazon</span>
-              </div>
-              @if (amazonEnabled) {
-                <div class="setting-options">
-                  <div class="config-field">
-                    <span class="config-label">{{ t('region') }}</span>
-                    <p-select
-                      [options]="amazonDomains"
-                      [(ngModel)]="selectedAmazonDomain"
-                      [placeholder]="t('selectDomain')"
-                      class="config-select">
-                    </p-select>
-                  </div>
-                  <div class="config-field">
-                    <div class="config-label-row">
-                      <span class="config-label">{{ t('cookieLabel') }}</span>
-                      <app-external-doc-link docType="amazonCookie"></app-external-doc-link>
-                    </div>
-                    <p class="config-description">{{ t('cookieDesc') }}</p>
-                    <input
-                      type="text"
-                      pInputText
-                      [placeholder]="t('cookiePlaceholder')"
-                      [(ngModel)]="amazonCookie"
-                      class="config-input"/>
-                  </div>
+            @for (provider of configurableProviders(); track provider.id) {
+              <div class="setting-item">
+                <div class="setting-header">
+                  <p-toggleswitch [(ngModel)]="enabled[provider.id]" [disabled]="isToggleDisabled(provider.id)"></p-toggleswitch>
+                  <span class="setting-label">{{ provider.labelKey | transloco }}</span>
                 </div>
-              }
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch
-                  [(ngModel)]="googleEnabled"
-                  [disabled]="!googleApiKeyConfigured">
-                </p-toggleswitch>
-                <span class="setting-label">Google Books</span>
-              </div>
-              <div class="setting-options">
-                @if (googleEnabled) {
-                  <div class="config-field">
-                    <span class="config-label">{{ t('languageRestriction') }}</span>
-                    <p-select
-                      [options]="googleLanguages"
-                      [(ngModel)]="selectedGoogleLanguage"
-                      [showClear]="!!selectedGoogleLanguage"
-                      [placeholder]="t('selectLanguage')"
-                      class="config-select">
-                    </p-select>
-                  </div>
+                @switch (provider.id) {
+                  @case ('Amazon') {
+                    @if (enabled.Amazon) {
+                      <div class="setting-options">
+                        <div class="config-field">
+                          <span class="config-label">{{ t('region') }}</span>
+                          <p-select
+                            [options]="amazonDomains"
+                            [(ngModel)]="selectedAmazonDomain"
+                            [placeholder]="t('selectDomain')"
+                            class="config-select">
+                          </p-select>
+                        </div>
+                        <div class="config-field">
+                          <div class="config-label-row">
+                            <span class="config-label">{{ t('cookieLabel') }}</span>
+                            <app-external-doc-link docType="amazonCookie"></app-external-doc-link>
+                          </div>
+                          <p class="config-description">{{ t('cookieDesc') }}</p>
+                          <input
+                            type="text"
+                            pInputText
+                            [placeholder]="t('cookiePlaceholder')"
+                            [(ngModel)]="amazonCookie"
+                            class="config-input"/>
+                        </div>
+                      </div>
+                    }
+                  }
+                  @case ('Google') {
+                    <div class="setting-options">
+                      @if (enabled.Google) {
+                        <div class="config-field">
+                          <span class="config-label">{{ t('languageRestriction') }}</span>
+                          <p-select
+                            [options]="googleLanguages"
+                            [(ngModel)]="selectedGoogleLanguage"
+                            [showClear]="!!selectedGoogleLanguage"
+                            [placeholder]="t('selectLanguage')"
+                            class="config-select">
+                          </p-select>
+                        </div>
+                      }
+                      <div class="config-field">
+                        <span class="config-label">{{ t('googleApiLabel') }}</span>
+                        <p class="config-description">{{ t('googleApiDesc') }}</p>
+                        <input
+                          type="text"
+                          pInputText
+                          [placeholder]="t('googleApiPlaceholder')"
+                          [(ngModel)]="googleApiKey"
+                          class="config-input"/>
+                      </div>
+                    </div>
+                  }
+                  @case ('Hardcover') {
+                    <div class="setting-options">
+                      <div class="config-field">
+                        <div class="config-label-row">
+                          <span class="config-label">{{ t('apiToken') }}</span>
+                          <app-external-doc-link docType="hardcover"></app-external-doc-link>
+                        </div>
+                        <input
+                          type="text"
+                          pInputText
+                          [placeholder]="t('hardcoverPlaceholder')"
+                          [(ngModel)]="hardcoverToken"
+                          (ngModelChange)="onTokenChange($event)"
+                          class="config-input"/>
+                      </div>
+                    </div>
+                  }
+                  @case ('Comicvine') {
+                    @if (enabled.Comicvine) {
+                      <div class="setting-options">
+                        <div class="config-field">
+                          <span class="config-label">{{ t('apiToken') }}</span>
+                          <input
+                            type="text"
+                            pInputText
+                            [placeholder]="t('comicvinePlaceholder')"
+                            [(ngModel)]="comicvineToken"
+                            (ngModelChange)="onComicTokenChange($event)"
+                            class="config-input"/>
+                        </div>
+                      </div>
+                    }
+                  }
+                  @case ('Ranobedb') {
+                    @if (enabled.Ranobedb) {
+                      <div class="setting-options">
+                        <div class="config-field">
+                          <div class="config-label-row">
+                            <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji"></p-toggleswitch>
+                            <span class="config-label">{{ t('ranobedbPreferRomajiLabel') }}</span>
+                          </div>
+                          <p class="config-description">{{ t('ranobedbPreferRomajiDesc') }}</p>
+                        </div>
+                      </div>
+                    }
+                  }
+                  @case ('Audible') {
+                    @if (enabled.Audible) {
+                      <div class="setting-options">
+                        <div class="config-field">
+                          <span class="config-label">{{ t('region') }}</span>
+                          <p-select
+                            [options]="audibleDomains"
+                            [(ngModel)]="selectedAudibleDomain"
+                            [placeholder]="t('selectDomain')"
+                            class="config-select">
+                          </p-select>
+                        </div>
+                      </div>
+                    }
+                  }
+                  @case ('AppleBooks') {
+                    @if (enabled.AppleBooks) {
+                      <div class="setting-options">
+                        <div class="config-field">
+                          <span class="config-label">{{ t('region') }}</span>
+                          <p-select
+                            [options]="appleBooksCountries"
+                            [(ngModel)]="selectedAppleBooksCountry"
+                            [placeholder]="t('selectCountry')"
+                            class="config-select">
+                          </p-select>
+                        </div>
+                      </div>
+                    }
+                  }
                 }
-                <div class="config-field">
-                  <span class="config-label">{{ t('googleApiLabel') }}</span>
-                  <p class="config-description">{{ t('googleApiDesc') }}</p>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="t('googleApiPlaceholder')"
-                    [(ngModel)]="googleApiKey"
-                    class="config-input"/>
-                </div>
               </div>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch
-                  [(ngModel)]="hardcoverEnabled"
-                  [disabled]="!hardcoverToken">
-                </p-toggleswitch>
-                <span class="setting-label">Hardcover</span>
-              </div>
-              <div class="setting-options">
-                <div class="config-field">
-                  <div class="config-label-row">
-                    <span class="config-label">{{ t('apiToken') }}</span>
-                    <app-external-doc-link docType="hardcover"></app-external-doc-link>
-                  </div>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="t('hardcoverPlaceholder')"
-                    [(ngModel)]="hardcoverToken"
-                    (ngModelChange)="onTokenChange($event)"
-                    class="config-input"/>
-                </div>
-              </div>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="comicvineEnabled"></p-toggleswitch>
-                <span class="setting-label">Comic Vine</span>
-              </div>
-              @if (comicvineEnabled) {
-                <div class="setting-options">
-                  <div class="config-field">
-                    <span class="config-label">{{ t('apiToken') }}</span>
-                    <input
-                      type="text"
-                      pInputText
-                      [placeholder]="t('comicvinePlaceholder')"
-                      [(ngModel)]="comicvineToken"
-                      (ngModelChange)="onComicTokenChange($event)"
-                      class="config-input"/>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="audibleEnabled"></p-toggleswitch>
-                <span class="setting-label">Audible</span>
-              </div>
-              @if (audibleEnabled) {
-                <div class="setting-options">
-                  <div class="config-field">
-                    <span class="config-label">{{ t('region') }}</span>
-                    <p-select
-                      [options]="audibleDomains"
-                      [(ngModel)]="selectedAudibleDomain"
-                      [placeholder]="t('selectDomain')"
-                      class="config-select">
-                    </p-select>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="ranobedbEnabled"></p-toggleswitch>
-                <span class="setting-label">RanobeDB</span>
-              </div>
-              @if (ranobedbEnabled) {
-                <div class="setting-options">
-                  <div class="config-field">
-                    <div class="config-label-row">
-                      <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji"></p-toggleswitch>
-                      <span class="config-label">{{ t('ranobedbPreferRomajiLabel') }}</span>
-                    </div>
-                    <p class="config-description">{{ t('ranobedbPreferRomajiDesc') }}</p>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-
-                <p-toggleswitch [(ngModel)]="appleBooksEnabled"></p-toggleswitch>
-                <span class="setting-label">Apple Books</span>
-              </div>
-              @if (appleBooksEnabled) {
-                <div class="setting-options">
-                  <div class="config-field">
-                    <span class="config-label">{{ t('region') }}</span>
-                    <p-select
-                      [options]="appleBooksCountries"
-                      [(ngModel)]="selectedAppleBooksCountry"
-                      [placeholder]="t('selectCountry')"
-                      class="config-select">
-                    </p-select>
-                  </div>
-                </div>
-              }
-            </div>
+            }
           </div>
         </div>
 
@@ -194,33 +163,14 @@
           <h4 class="provider-group-title">{{ t('readyToUseTitle') }}</h4>
 
           <div class="simple-providers-grid">
-            <div class="setting-item simple-provider">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="openLibraryEnabled"></p-toggleswitch>
-                <span class="setting-label">OpenLibrary</span>
+            @for (provider of simpleProviders(); track provider.id) {
+              <div class="setting-item simple-provider">
+                <div class="setting-header">
+                  <p-toggleswitch [(ngModel)]="enabled[provider.id]"></p-toggleswitch>
+                  <span class="setting-label">{{ provider.labelKey | transloco }}</span>
+                </div>
               </div>
-            </div>
-
-            <div class="setting-item simple-provider">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="goodreadsEnabled"></p-toggleswitch>
-                <span class="setting-label">Goodreads</span>
-              </div>
-            </div>
-
-            <div class="setting-item simple-provider">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="doubanEnabled"></p-toggleswitch>
-                <span class="setting-label">Douban</span>
-              </div>
-            </div>
-
-            <div class="setting-item simple-provider">
-              <div class="setting-header">
-                <p-toggleswitch [(ngModel)]="lubimyCzytacEnabled"></p-toggleswitch>
-                <span class="setting-label">Lubimyczytac</span>
-              </div>
-            </div>
+            }
           </div>
         </div>
 

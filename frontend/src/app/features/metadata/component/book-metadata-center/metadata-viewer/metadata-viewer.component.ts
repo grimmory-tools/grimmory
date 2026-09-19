@@ -40,7 +40,15 @@ import {AuthorService} from '../../../../author-browser/service/author.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
+import {MetadataCatalogService} from '../../../../../shared/metadata/metadata-catalog.service';
+import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
 
+interface ProviderBadge {
+  id: MetadataProviderId;
+  labelKey: string;
+  rating: number | null;
+  tooltip: string | undefined;
+}
 
 @Component({
   selector: 'app-metadata-viewer',
@@ -100,6 +108,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   private readonly t = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   private libraryService = inject(LibraryService);
   private bookDialogHelperService = inject(BookDialogHelperService)
   private emailService = inject(EmailService);
@@ -118,6 +127,34 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private dialogRef = inject(DynamicDialogRef, { optional: true });
   private userState = this.userService.currentUser;
   private appSettings = this.appSettingsService.appSettings;
+  private readonly catalog = inject(MetadataCatalogService);
+
+  readonly providerBadges = computed((): ProviderBadge[] => {
+    const metadata = this.currentBook()?.metadata;
+    if (!metadata) {
+      return [];
+    }
+
+    return this.catalog.providers().map(provider => {
+      const book = provider.book;
+      const rating = (book?.rating ? metadata[book.rating] : null) ?? null;
+      const reviewCount = (book?.reviewCount ? metadata[book.reviewCount] : null) ?? null;
+
+      return {
+        id: provider.id,
+        labelKey: provider.labelKey,
+        rating,
+        tooltip: this.ratingTooltip(rating, reviewCount),
+      };
+    }).filter(provider => provider.rating !== null);
+  });
+
+  private ratingTooltip(rating: number | null, reviewCount: number | null): string | undefined {
+    if (rating === null) return undefined;
+    return reviewCount === null
+      ? this.t.translate('metadata.viewer.ratingTooltipNoReviews', {rating}, this.activeLang())
+      : this.t.translate('metadata.viewer.ratingTooltip', {rating, reviews: reviewCount.toLocaleString()}, this.activeLang());
+  }
 
   private navigateAfterDialogClose(navigate: () => void): void {
     if (this.metadataCenterViewMode !== 'dialog') {
@@ -475,7 +512,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     if (user) {
       this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
     }
-
   }
 
   ngAfterViewChecked(): void {
@@ -1137,40 +1173,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   getKOReaderPercentage(book: Book): number | null {
     const p = book?.koreaderProgress?.percentage;
     return p != null ? Math.round(p * 10) / 10 : null;
-  }
-
-  getRatingTooltip(book: Book, source: 'amazon' | 'goodreads' | 'hardcover' | 'lubimyczytac' | 'ranobedb' | 'audible'): string {
-    const meta = book?.metadata;
-    if (!meta) return '';
-
-    switch (source) {
-      case 'amazon':
-        return meta.amazonRating != null
-          ? `★ ${meta.amazonRating} | ${meta.amazonReviewCount?.toLocaleString() ?? '0'} reviews`
-          : '';
-      case 'goodreads':
-        return meta.goodreadsRating != null
-          ? `★ ${meta.goodreadsRating} | ${meta.goodreadsReviewCount?.toLocaleString() ?? '0'} reviews`
-          : '';
-      case 'hardcover':
-        return meta.hardcoverRating != null
-          ? `★ ${meta.hardcoverRating} | ${meta.hardcoverReviewCount?.toLocaleString() ?? '0'} reviews`
-          : '';
-      case 'lubimyczytac':
-        return meta.lubimyczytacRating != null
-          ? `★ ${meta.lubimyczytacRating}`
-          : '';
-      case 'ranobedb':
-        return meta.ranobedbRating != null
-          ? `★ ${meta.ranobedbRating}`
-          : '';
-      case 'audible':
-        return meta.audibleRating != null
-          ? `★ ${meta.audibleRating} | ${meta.audibleReviewCount?.toLocaleString() ?? '0'} reviews`
-          : '';
-      default:
-        return '';
-    }
   }
 
   getRatingPercent(rating: number | null | undefined): number {

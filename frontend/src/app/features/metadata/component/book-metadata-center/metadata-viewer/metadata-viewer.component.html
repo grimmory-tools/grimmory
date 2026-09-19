@@ -184,127 +184,20 @@
               </p-button>
             </div>
 
-            @if (book?.metadata?.amazonRating || book?.metadata?.asin || book?.metadata?.goodreadsRating || book?.metadata?.goodreadsId || book?.metadata?.hardcoverRating || book?.metadata?.hardcoverId || book?.metadata?.lubimyczytacRating || book?.metadata?.lubimyczytacId || book?.metadata?.ranobedbRating || book?.metadata?.ranobedbId || book?.metadata?.audibleRating || book?.metadata?.audibleId || book?.metadata?.googleId) {
+            @if (providerBadges().length > 0) {
               <div class="gradient-divider"></div>
             }
 
             <div class="external-ratings">
-              @if (book?.metadata?.amazonRating || book?.metadata?.asin) {
-                <a
-                  class="rating-link"
-                  [href]="'https://www.amazon.com/dp/' + (book.metadata?.asin ?? '')"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.amazonRating ? getRatingTooltip(book, 'amazon') : undefined"
+              @for (provider of providerBadges(); track provider.id) {
+                <span
+                  class="rating-badge"
+                  [pTooltip]="provider.tooltip"
                   tooltipPosition="top"
                 >
-                  <img src="https://www.amazon.com/favicon.ico" alt="Amazon" class="rating-favicon"/>
-                  @if (book?.metadata?.amazonRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.amazonRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.goodreadsRating || book?.metadata?.goodreadsId) {
-                <a
-                  class="rating-link"
-                  [href]="'https://www.goodreads.com/book/show/' + (book.metadata?.goodreadsId ?? '')"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.goodreadsRating ? getRatingTooltip(book, 'goodreads') : undefined"
-                  tooltipPosition="top"
-                >
-                  <img src="https://www.goodreads.com/favicon.ico" alt="Goodreads" class="rating-favicon"/>
-                  @if (book?.metadata?.goodreadsRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.goodreadsRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.hardcoverRating || book?.metadata?.hardcoverId) {
-                <a
-                  class="rating-link"
-                  [href]="'https://hardcover.app/books/' + (book.metadata?.hardcoverId ?? '')"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.hardcoverRating ? getRatingTooltip(book, 'hardcover') : undefined"
-                  tooltipPosition="top"
-                >
-                  <img src="https://assets.hardcover.app/static/favicon.ico" alt="Hardcover" class="rating-favicon"/>
-                  @if (book?.metadata?.hardcoverRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.hardcoverRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.lubimyczytacRating || book?.metadata?.lubimyczytacId) {
-                <a
-                  class="rating-link"
-                  [href]="book.metadata?.lubimyczytacId ? 'https://lubimyczytac.pl/ksiazka/' + book.metadata?.lubimyczytacId + '/ksiazka' : ''"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.lubimyczytacRating ? getRatingTooltip(book, 'lubimyczytac') : undefined"
-                  tooltipPosition="top"
-                >
-                  <img src="https://lubimyczytac.pl/favicon.ico" alt="Lubimyczytac" class="rating-favicon"/>
-                  @if (book?.metadata?.lubimyczytacRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.lubimyczytacRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.ranobedbRating || book?.metadata?.ranobedbId) {
-                <a
-                  class="rating-link"
-                  [href]="'https://ranobedb.org/book/' + (book.metadata?.ranobedbId ?? '')"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.ranobedbRating ? getRatingTooltip(book, 'ranobedb') : undefined"
-                  tooltipPosition="top"
-                >
-                  <img src="https://www.ranobedb.org/favicon.png" alt="Ranobedb" class="rating-favicon"/>
-                  @if (book?.metadata?.ranobedbRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.ranobedbRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.audibleRating || book?.metadata?.audibleId) {
-                <a
-                  class="rating-link"
-                  [href]="'https://www.audible.com/pd/' + (book.metadata?.audibleId ?? '')"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  [pTooltip]="book?.metadata?.audibleRating ? getRatingTooltip(book, 'audible') : undefined"
-                  tooltipPosition="top"
-                >
-                  <img src="https://www.audible.com/favicon.ico" alt="Audible" class="rating-favicon"/>
-                  @if (book?.metadata?.audibleRating) {
-                    <span class="rating-value">{{ getRatingPercent(book.metadata!.audibleRating) }}%</span>
-                  }
-                </a>
-              }
-
-              @if (book?.metadata?.googleId) {
-                <a
-                  class="rating-link"
-                  [href]="'https://books.google.com/books?id=' + book.metadata!.googleId"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src="https://books.google.com/favicon.ico" alt="Google Books" class="rating-favicon"/>
-                </a>
-              }
-
-              @if (book?.metadata?.comicMetadata?.webLink) {
-                <a
-                  class="rating-link"
-                  [href]="book.metadata!.comicMetadata!.webLink"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src="https://www.comicvine.com/favicon.ico" alt="Comic Vine" class="rating-favicon"/>
-                </a>
+                  <span class="rating-provider">{{ provider.labelKey | transloco }}</span>
+                  <span class="rating-value">{{ getRatingPercent(provider.rating) }}%</span>
+                </span>
               }
             </div>
           </div>

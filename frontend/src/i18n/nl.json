@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "",
       "columnCurrent": "",
       "columnFetched": "",
       "copyMissingTooltip": "",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "",
       "noResultsFound": "",
       "noResultsHint": "",
-      "unknownProvider": "",
       "selectOverlay": ""
     },
     "tabs": {

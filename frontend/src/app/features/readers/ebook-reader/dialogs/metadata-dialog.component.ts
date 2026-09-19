@@ -1,14 +1,15 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Book} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
 
 @Component({
   selector: 'app-reader-book-metadata-dialog',
   standalone: true,
-  imports: [TranslocoDirective, CoverComponent],
+  imports: [TranslocoDirective, TranslocoPipe, CoverComponent],
   templateUrl: './metadata-dialog.component.html',
   styleUrls: ['./metadata-dialog.component.scss']
 })
@@ -18,6 +19,7 @@ export class ReaderBookMetadataDialogComponent {
 
   private urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
+  protected readonly catalog = inject(MetadataCatalogService);
   protected readonly languageResolver = inject(LanguageResolverService);
 
   get metadata() {

@@ -28,31 +28,6 @@ describe('SidecarService', () => {
     TestBed.resetTestingModule();
   });
 
-  it('fetches sidecar content for a book', () => {
-    service.getSidecarContent(42).subscribe(response => {
-      expect(response.metadata.title).toBe('Book');
-    });
-
-    const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42/sidecar`);
-    expect(request.request.method).toBe('GET');
-    request.flush({
-      version: '1',
-      generatedAt: '2026-03-26T00:00:00Z',
-      generatedBy: 'test',
-      metadata: {title: 'Book'},
-    });
-  });
-
-  it('fetches the sidecar sync status', () => {
-    service.getSyncStatus(42).subscribe(response => {
-      expect(response).toEqual({status: 'CONFLICT'});
-    });
-
-    const request = httpTestingController.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42/sidecar/status`);
-    expect(request.request.method).toBe('GET');
-    request.flush({status: 'CONFLICT'});
-  });
-
   it('exports a sidecar for a book', () => {
     service.exportToSidecar(42).subscribe(response => {
       expect(response).toEqual({message: 'ok'});

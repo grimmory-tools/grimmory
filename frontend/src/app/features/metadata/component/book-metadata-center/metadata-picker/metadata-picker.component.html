@@ -1,13 +1,6 @@
 @if (book; as book) {
   <form [formGroup]="metadataForm" (ngSubmit)="onSave()" class="metadata-picker" *transloco="let t; prefix: 'metadata.picker'">
     <div class="dialog-body">
-      @if (detailLoading) {
-        <div class="detail-loading-banner">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ t('loadingMetadata') }}</span>
-        </div>
-      }
-
       <!-- Column Headers -->
       <div class="column-headers">
         <div class="column-label current">

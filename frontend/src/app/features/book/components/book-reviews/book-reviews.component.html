@@ -55,9 +55,10 @@
                     <div class="reviewer-name-row">
                       <span class="reviewer-name">{{ review.reviewerName || t('labels.anonymous') }}</span>
                       @if (review.metadataProvider) {
+                        @let provider = catalog.provider(review.metadataProvider);
                         <p-tag
                           [rounded]="true"
-                          [value]="review.metadataProvider"
+                          [value]="provider ? (provider.labelKey | transloco) : review.metadataProvider"
                           [severity]="getProviderSeverity(review.metadataProvider)"/>
                       }
                       @if (review.country) {

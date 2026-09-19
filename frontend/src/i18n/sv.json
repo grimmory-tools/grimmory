@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Laddar komplett metadata...",
       "columnCurrent": "Nuvarande",
       "columnFetched": "Hämtad",
       "copyMissingTooltip": "Kopiera saknade fält",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Ange dina sökkriterier ovan och klicka Sök för att hitta metadata",
       "noResultsFound": "Inga resultat hittades",
       "noResultsHint": "Prova att justera dina sökkriterier eller välja andra leverantörer",
-      "unknownProvider": "",
       "selectOverlay": "Välj"
     },
     "tabs": {

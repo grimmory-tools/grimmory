@@ -1,24 +1,23 @@
-import {Component, input, output, provideZonelessChangeDetection, signal} from '@angular/core';
+import {MetadataCatalogService} from '../../../../../shared/metadata/metadata-catalog.service';
+import {METADATA_PROVIDER_LIST, type MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
+import {Component, computed, input, output, provideZonelessChangeDetection, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {Subject} from 'rxjs';
+import {experimental_streamedQuery, provideTanStackQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {Book, BookMetadata} from '../../../../book/model/book.model';
-import {BookMetadataService} from '../../../../book/service/book-metadata.service';
+import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
 import {AppSettings} from '../../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
-import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
+import {Book, BookMetadata} from '../../../../book/model/book.model';
+import {MetadataSourceQueryService, type MetadataSearchParams, type MetadataSearchResult} from '../../../sources/metadata-source-query.service';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {MetadataSearcherComponent} from './metadata-searcher.component';
-import {MetadataProviderService} from '../../../service/metadata-provider.service';
-import {MetadataProvider} from '../../../model/metadata-provider.model';
 
 @Component({selector: 'app-metadata-picker', template: '', standalone: true})
 class PickerStub {
   readonly fetchedMetadata = input<BookMetadata>();
   readonly book = input<Book | null>();
-  readonly detailLoading = input(false);
   readonly goBack = output<boolean>();
 }
 
@@ -31,55 +30,73 @@ class CoverStub {
 }
 
 describe('MetadataSearcherComponent', () => {
+  const providers = signal(METADATA_PROVIDER_LIST);
+  const providersLoading = signal(false);
   let fixture: ComponentFixture<MetadataSearcherComponent>;
   let component: MetadataSearcherComponent;
-  let search$: Subject<BookMetadata>;
-  let detail$: Subject<BookMetadata>;
-  let providers$: Subject<MetadataProvider[]>;
+  let results: MetadataSearchResult[];
+  let streamError: Error | null;
+  let queryResult: Promise<MetadataSearchResult[]>;
+  let queryClient: QueryClient;
+  const appSettings = signal<Pick<AppSettings, 'autoBookSearch' | 'metadataProviderSettings'> | null>(null);
+  const prospective = vi.fn((params: MetadataSearchParams) => queryOptions({
+    queryKey: ['prospective', params],
+    queryFn: experimental_streamedQuery({
+      streamFn: async function* () {
+        yield* await queryResult;
+        if (streamError) throw streamError;
+      },
+    }),
+    retry: false,
+  }));
 
-  const appSettings = signal<AppSettings | null>(null);
-  const fetchBookMetadata = vi.fn();
-  const fetchMetadataDetail = vi.fn();
-  const fetchMetadataProviders = vi.fn();
-
-  const settings = (): AppSettings => ({
-    autoBookSearch: false,
+  const settings = (autoBookSearch = false): Pick<AppSettings, 'autoBookSearch' | 'metadataProviderSettings'> => ({
+    autoBookSearch,
     metadataProviderSettings: {
       openLibrary: {enabled: true},
+      amazon: {enabled: false, cookie: '', domain: 'com'},
+      google: {enabled: false, language: '', apiKey: ''},
       goodReads: {enabled: true},
+      ranobedb: {enabled: false, preferRomaji: false},
+      hardcover: {enabled: false, apiKey: ''},
+      comicvine: {enabled: false, apiKey: ''},
+      douban: {enabled: false},
+      lubimyczytac: {enabled: false},
+      audible: {enabled: false, domain: 'com'},
+      appleBooks: {enabled: false, country: ''},
     },
-  } as unknown as AppSettings);
+  });
 
-  const book = (): Book => ({
-    id: 1,
+  const book = (id = 1) => ({
+    id,
     libraryId: 1,
-    metadata: {bookId: 1, title: 'Dune', authors: ['Frank Herbert'], isbn13: '9780441013593'},
-  } as Book);
-
-  const openLibraryResult = (): BookMetadata => ({
-    bookId: 1,
-    provider: 'OpenLibrary',
-    title: 'Dune',
-    openlibraryId: '/books/OL30014174M',
-    goodreadsId: '53403754',
+    metadata: {bookId: id, title: 'Dune', authors: ['Frank Herbert'], isbn13: '9780441013593'},
   });
 
   beforeEach(async () => {
-    search$ = new Subject<BookMetadata>();
-    detail$ = new Subject<BookMetadata>();
-    providers$ = new Subject<MetadataProvider[]>();
+    providers.set(METADATA_PROVIDER_LIST);
+    providersLoading.set(false);
+    results = [];
+    streamError = null;
+    queryResult = Promise.resolve(results);
+    prospective.mockClear();
     appSettings.set(null);
-    fetchBookMetadata.mockReset().mockReturnValue(search$.asObservable());
-    fetchMetadataDetail.mockReset().mockReturnValue(detail$.asObservable());
-    fetchMetadataProviders.mockReset().mockReturnValue(providers$.asObservable());
 
     await TestBed.configureTestingModule({
       imports: [MetadataSearcherComponent, getTranslocoModule()],
       providers: [
         provideZonelessChangeDetection(),
+        provideTanStackQuery(queryClient = new QueryClient()),
         {provide: AppSettingsService, useValue: {appSettings}},
-        {provide: BookMetadataService, useValue: {fetchBookMetadata, fetchMetadataDetail}},
-        {provide: MetadataProviderService, useValue: {fetchMetadataProviders, fetchMetadataDetail}},
+        {provide: MetadataSourceQueryService, useValue: {
+          prospective,
+          providersLoading: providersLoading.asReadonly(),
+          enabledProviders: computed(() => providers().filter(provider => appSettings()?.metadataProviderSettings[provider.settingsKey]?.enabled)),
+        }},
+        {provide: MetadataCatalogService, useValue: {
+          providers: providers.asReadonly(),
+          provider: (id: MetadataProviderId) => providers().find(provider => provider.id === id),
+        }},
       ],
     })
       .overrideComponent(MetadataSearcherComponent, {
@@ -92,27 +109,41 @@ describe('MetadataSearcherComponent', () => {
     component = fixture.componentInstance;
   });
 
-  function setUp(isActiveTab = false): void {
-    appSettings.set(settings());
-    fixture.componentRef.setInput('book', book());
+  function setUp(isActiveTab = false, autoBookSearch = false, id = 1): void {
+    appSettings.set(settings(autoBookSearch));
+    fixture.componentRef.setInput('book', book(id));
     fixture.componentRef.setInput('isActiveTab', isActiveTab);
     fixture.detectChanges();
   }
 
-  it('keeps an OpenLibrary result even when it carries a Goodreads ID', () => {
-    setUp();
-    const result = openLibraryResult();
+  function latestQuery() {
+    const query = prospective.mock.results.at(-1);
+    if (!query || query.type !== 'return') throw new Error('Expected a prospective query');
+    return query.value;
+  }
+
+  async function submit(): Promise<void> {
     component.onSubmit();
-    search$.next(result);
+    TestBed.flushEffects();
+    await queryClient.fetchQuery(latestQuery()).catch(() => undefined);
+    await fixture.whenStable();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    TestBed.flushEffects();
+    fixture.detectChanges();
+  }
 
-    component.onBookClick(result);
+  it('keeps the selected result provider', async () => {
+    results = [{bookId: 1, provider: 'OpenLibrary', title: 'Dune'}];
+    queryResult = Promise.resolve(results);
+    setUp();
 
-    expect(fetchMetadataDetail).not.toHaveBeenCalled();
-    expect(component.selected()).toBe(result);
-    expect(component.detailLoading()).toBe(false);
+    await submit();
+    component.onBookClick(component.results()[0]);
+
+    expect(component.selected()?.provider).toBe('OpenLibrary');
   });
 
-  it('keeps user-edited search terms when the tab is switched away and back', () => {
+  it('keeps typed terms through a tab switch', () => {
     setUp(true);
     component.form.patchValue({title: 'Dune Messiah', isbn: ''});
 
@@ -121,7 +152,7 @@ describe('MetadataSearcherComponent', () => {
     fixture.componentRef.setInput('isActiveTab', true);
     fixture.detectChanges();
 
-    expect(component.form.value.title).toBe('Dune Messiah');
-    expect(component.form.value.isbn).toBe('');
+    expect(component.form.value).toMatchObject({title: 'Dune Messiah', isbn: ''});
   });
+
 });

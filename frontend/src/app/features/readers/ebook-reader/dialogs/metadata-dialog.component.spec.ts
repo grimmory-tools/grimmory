@@ -17,7 +17,9 @@ describe('ReaderBookMetadataDialogComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ReaderBookMetadataDialogComponent, getTranslocoModule()],
-      providers: [{provide: UrlHelperService, useValue: urlHelperService}],
+      providers: [
+        {provide: UrlHelperService, useValue: urlHelperService},
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReaderBookMetadataDialogComponent);
@@ -57,4 +59,5 @@ describe('ReaderBookMetadataDialogComponent', () => {
   it('returns the raw date when parsing falls back after an invalid date string', () => {
     expect(component.formatDate('not-a-date')).toBe('Invalid Date');
   });
+
 });

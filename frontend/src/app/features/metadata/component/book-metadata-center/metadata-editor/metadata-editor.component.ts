@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
 import {InputText} from "@openng/optimus-ui/inputtext";
 import {Button} from "@openng/optimus-ui/button";
@@ -32,6 +33,9 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
+
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
 
 @Component({
   selector: "app-metadata-editor",
@@ -102,6 +106,8 @@ export class MetadataEditorComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;
@@ -1101,29 +1107,26 @@ export class MetadataEditorComponent implements OnInit {
     }, 15000);
   }
 
-  fetchFromFile(bookId: number) {
+  async fetchFromFile(bookId: number): Promise<void> {
     this.isFetchingFromFile = true;
-    this.bookMetadataManageService.getFileMetadata(bookId).pipe(
-      finalize(() => this.isFetchingFromFile = false),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: (metadata) => {
-        this.populateFormFromMetadata(metadata);
-        this.metadataForm.markAsDirty();
-        this.messageService.add({
-          severity: 'info',
-          summary: this.t.translate('metadata.editor.toast.successSummary'),
-          detail: this.t.translate('metadata.editor.toast.fileMetadataLoaded'),
-        });
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('metadata.editor.toast.errorSummary'),
-          detail: err?.error?.message || this.t.translate('metadata.editor.toast.fileMetadataFailed'),
-        });
-      }
-    });
+    try {
+      this.populateFormFromMetadata(await this.queryClient.query(this.sources.fileMetadata(bookId)));
+      this.metadataForm.markAsDirty();
+      this.messageService.add({
+        severity: 'info',
+        summary: this.t.translate('metadata.editor.toast.successSummary'),
+        detail: this.t.translate('metadata.editor.toast.fileMetadataLoaded'),
+      });
+    } catch (err) {
+      const message: unknown = err instanceof HttpErrorResponse ? err.error?.message : null;
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('metadata.editor.toast.errorSummary'),
+        detail: typeof message === 'string' ? message : this.t.translate('metadata.editor.toast.fileMetadataFailed'),
+      });
+    } finally {
+      this.isFetchingFromFile = false;
+    }
   }
 
   onNext() {

@@ -88,6 +88,9 @@
                 [pTooltip]="t('fetchMetadataTooltip')"
                 tooltipPosition="top"/>
             </div>
+            @if (metadataLookupMessage(); as message) {
+              <small role="status">{{ t(message) }}</small>
+            }
           </div>
         </div>
 

@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Завантаження повних метаданих...",
       "columnCurrent": "Поточні",
       "columnFetched": "Отримані",
       "copyMissingTooltip": "Скопіювати відсутні поля",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Введіть критерії пошуку вище й натисніть Пошук, щоб знайти метадані",
       "noResultsFound": "Результатів не знайдено",
       "noResultsHint": "Спробуйте змінити критерії пошуку або вибрати інших провайдерів",
-      "unknownProvider": "",
       "selectOverlay": "Вибрати"
     },
     "tabs": {

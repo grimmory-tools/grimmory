@@ -25,26 +25,6 @@
 }
 
 
-// Detail loading banner
-.detail-loading-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4375rem;
-  padding: 0.5469rem 0.875rem;
-  background: rgb(34 197 94 / 10%);
-  border: 1px solid rgb(34 197 94 / 30%);
-  border-radius: 8px;
-  color: var(--p-green-400);
-  font-size: var(--app-text-sm);
-  font-weight: 600;
-  animation: fade-in 0.3s ease-in;
-
-  i {
-    font-size: var(--app-text-base);
-  }
-}
-
 // Body
 .dialog-body {
   flex: 1;

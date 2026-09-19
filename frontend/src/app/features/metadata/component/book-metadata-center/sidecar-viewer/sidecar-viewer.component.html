@@ -8,11 +8,13 @@
       </p>
     </div>
     <div class="header-actions">
-      <p-tag
-        [value]="getSyncStatusLabel()"
-        [severity]="getSyncStatusSeverity()"
-        class="sync-status-tag"
-      />
+      @if (syncStatus() !== null) {
+        <p-tag
+          [value]="syncStatusLabel()"
+          [severity]="syncStatusSeverity()"
+          class="sync-status-tag"
+        />
+      }
     </div>
   </div>
 
@@ -20,6 +22,12 @@
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
       <span>{{ t('loading') }}</span>
+    </div>
+  } @else if (failed()) {
+    <div class="empty-state" role="alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <p>{{ t('readFailed') }}</p>
+      <p-button [label]="'common.retry' | transloco" (onClick)="retryRead()" size="small" />
     </div>
   } @else {
     <div class="sidecar-actions">
@@ -37,7 +45,7 @@
         [label]="t('importBtn')"
         icon="pi pi-download"
         [loading]="importing()"
-        [disabled]="syncStatus === 'MISSING'"
+        [disabled]="syncStatus() === 'MISSING'"
         (onClick)="importFromSidecar()"
         severity="secondary"
         size="small"
@@ -46,7 +54,7 @@
       />
     </div>
 
-    @if (syncStatus === 'MISSING') {
+    @if (syncStatus() === 'MISSING') {
       <div class="empty-state">
         <i class="pi pi-file"></i>
         <h4>{{ t('noSidecarTitle') }}</h4>
@@ -54,33 +62,33 @@
           {{ t('noSidecarDescription') }}
         </p>
       </div>
-    } @else if (sidecarContent) {
+    } @else if (sidecarContent(); as sidecar) {
       <div class="sidecar-content">
         <div class="content-header">
           <div class="content-meta">
             <span class="meta-item">
               <i class="pi pi-clock"></i>
-              {{ t('generatedLabel') }} {{ sidecarContent.generatedAt | date:'medium' }}
+              {{ t('generatedLabel') }} {{ sidecar.generatedAt | date:'medium' }}
             </span>
             <span class="meta-item">
               <i class="pi pi-tag"></i>
-              {{ t('versionLabel') }} {{ sidecarContent.version }}
+              {{ t('versionLabel') }} {{ sidecar.version }}
             </span>
             <span class="meta-item">
               <i class="pi pi-cog"></i>
-              {{ t('byLabel') }} {{ sidecarContent.generatedBy }}
+              {{ t('byLabel') }} {{ sidecar.generatedBy }}
             </span>
           </div>
         </div>
 
         <div class="json-viewer">
-          <pre class="json-content">{{ sidecarContent | json }}</pre>
+          <pre class="json-content">{{ sidecar | json }}</pre>
         </div>
 
-        @if (sidecarContent.cover) {
+        @if (sidecar.cover; as cover) {
           <div class="cover-info">
             <i class="pi pi-image"></i>
-            <span>{{ t('coverFileLabel') }} {{ sidecarContent.cover.path }}</span>
+            <span>{{ t('coverFileLabel') }} {{ cover.path }}</span>
           </div>
         }
       </div>

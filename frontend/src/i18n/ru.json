@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Загрузка полных метаданных...",
       "columnCurrent": "Текущие",
       "columnFetched": "Полученные",
       "copyMissingTooltip": "Скопировать отсутствующие поля",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "Введите критерии поиска выше и нажмите «Поиск» для получения метаданных",
       "noResultsFound": "Результатов не найдено",
       "noResultsHint": "Попробуйте изменить критерии поиска или выбрать других провайдеров",
-      "unknownProvider": "",
       "selectOverlay": "Выбрать"
     },
     "tabs": {

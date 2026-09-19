@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "正在加载完整元数据...",
       "columnCurrent": "当前",
       "columnFetched": "获取的",
       "copyMissingTooltip": "复制缺失字段",
@@ -2404,7 +2403,6 @@
       "readyToSearchHint": "在上方输入搜索条件，然后点击搜索查找元数据",
       "noResultsFound": "未找到结果",
       "noResultsHint": "尝试调整搜索条件或选择不同的提供商",
-      "unknownProvider": "",
       "selectOverlay": "选择"
     },
     "tabs": {

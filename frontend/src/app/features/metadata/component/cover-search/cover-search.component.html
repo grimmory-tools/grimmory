@@ -96,21 +96,27 @@
           <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
           <p>{{ t('searchingForCovers') }}</p>
         </div>
-      } @else if (coverImages.length === 0) {
+      } @else if (coverImages().length === 0 || failed()) {
         <!-- No Results State -->
         <div class="empty-state no-results">
           <div class="empty-state-icon warning">
             <i class="pi pi-search"></i>
           </div>
-          <h3>{{ t('noCoversFound') }}</h3>
-          <p>{{ t('noCoversFoundDescription') }}</p>
+          @if (failed()) {
+            <h3>{{ t('searchFailed') }}</h3>
+          } @else {
+            <h3>{{ t('noCoversFound') }}</h3>
+            <p>{{ t('noCoversFoundDescription') }}</p>
+          }
         </div>
-      } @else {
+      }
+
+      @if (!loading() && coverImages().length > 0) {
         <!-- Results Grid -->
         <div class="results-header">
           <span class="results-count">
             <i class="pi pi-images"></i>
-            {{ coverImages.length === 1 ? t('coversFoundSingular', { count: coverImages.length }) : t('coversFoundPlural', { count: coverImages.length }) }}
+            {{ coverImages().length === 1 ? t('coversFoundSingular', { count: coverImages().length }) : t('coversFoundPlural', { count: coverImages().length }) }}
           </span>
           <span class="results-hint">
             <i class="pi pi-info-circle"></i>
@@ -119,7 +125,7 @@
         </div>
 
         <div class="covers-grid">
-          @for (cover of coverImages; track cover.url; let i = $index) {
+          @for (cover of coverImages(); track cover.url; let i = $index) {
             <div class="cover-card">
               <div class="cover-image-wrapper">
                 <p-image

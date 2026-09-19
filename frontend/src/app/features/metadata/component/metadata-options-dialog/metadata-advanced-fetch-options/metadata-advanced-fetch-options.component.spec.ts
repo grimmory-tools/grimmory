@@ -1,4 +1,7 @@
-import {SimpleChange} from '@angular/core';
+import {of} from 'rxjs';
+import {METADATA_PROVIDER_LIST, type MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+import {computed, signal, SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -7,18 +10,28 @@ import {TranslocoService} from '@jsverse/transloco';
 import {FieldOptions, MetadataRefreshOptions} from '../../../model/request/metadata-refresh-options.model';
 import {MetadataAdvancedFetchOptionsComponent} from './metadata-advanced-fetch-options.component';
 
+function providersWhereEnabled(isEnabled: (id: MetadataProviderId) => boolean) {
+  return METADATA_PROVIDER_LIST.map(provider => ({...provider, enabled: isEnabled(provider.id)}));
+}
+
 describe('MetadataAdvancedFetchOptionsComponent', () => {
+  const providers = signal(providersWhereEnabled(() => true));
   const add = vi.fn();
   const translate = vi.fn((key: string) => `translated:${key}`);
 
   beforeEach(() => {
+    providers.set(providersWhereEnabled(() => true));
     add.mockClear();
     translate.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
+        {provide: MetadataSourceQueryService, useValue: {
+          providers: providers.asReadonly(),
+          enabledProviders: computed(() => providers().filter(provider => provider.enabled)),
+        }},
         {provide: MessageService, useValue: {add}},
-        {provide: TranslocoService, useValue: {translate}},
+        {provide: TranslocoService, useValue: {translate, langChanges$: of('en'), getActiveLang: () => 'en'}},
       ]
     });
   });
@@ -66,6 +79,11 @@ describe('MetadataAdvancedFetchOptionsComponent', () => {
   it('emits metadata options when all enabled non-provider fields have a provider', () => {
     const component = createComponent();
     const emit = vi.spyOn(component.metadataOptionsSubmitted, 'emit');
+    providers.set(providersWhereEnabled(id => id === 'GoodReads'));
+    expect(component.providerOptionsFor('Google')).toEqual([
+      {value: 'GoodReads', label: 'translated:metadata.providers.goodReads'},
+      {value: 'Google', label: 'translated:metadata.advancedFetchOptions.inactiveProvider', disabled: true},
+    ]);
 
     for (const field of component.fields) {
       component.enabledFields[field] = false;

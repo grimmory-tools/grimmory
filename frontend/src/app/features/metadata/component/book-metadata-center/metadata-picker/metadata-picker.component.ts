@@ -84,7 +84,6 @@ export class MetadataPickerComponent {
     return this.currentBook;
   }
 
-  @Input() detailLoading = false;
   @Output() goBack = new EventEmitter<boolean>();
 
   currentBook: Book | null = null;

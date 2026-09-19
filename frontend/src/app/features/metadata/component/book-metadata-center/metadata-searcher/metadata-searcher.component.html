@@ -3,7 +3,6 @@
     <app-metadata-picker
       [fetchedMetadata]="selectedMetadata"
       [book]="book()"
-      [detailLoading]="detailLoading()"
       (goBack)="onGoBack()">
     </app-metadata-picker>
   </div>
@@ -20,8 +19,10 @@
             inputId="metadata-search-providers"
             [filter]="false"
             showToggleAll="false"
-            [options]="providers()"
-            formControlName="provider"
+            [options]="providerOptions()"
+            optionLabel="label"
+            optionValue="id"
+            formControlName="providers"
             [placeholder]="t('selectProviders')"
             class="'custom-multiselect'">
           </p-multiselect>
@@ -84,7 +85,7 @@
       </div>
     </form>
 
-    @if (loading() || searchTriggered()) {
+    @if (hasSearched()) {
       <div class="provider-status">
         <div class="status-header">
           <div class="results-info">
@@ -104,19 +105,20 @@
         <div class="provider-pills">
           @for (tab of providerTabs(); track tab.provider) {
             <div class="provider-pill"
+                 [class]="'provider-' + providerClass(tab.provider)"
                  [class.has-results]="tab.count > 0"
                  [class.active]="isProviderPillActive(tab.provider)"
-                 [class]="'provider-pill provider-' + tab.provider.toLowerCase() + (tab.count > 0 ? ' has-results' : '') + (isProviderPillActive(tab.provider) ? ' active' : '')"
                  [attr.role]="tab.count > 0 ? 'button' : null"
                  [attr.tabindex]="tab.count > 0 ? '0' : null"
                  (click)="tab.count > 0 && onProviderPillClick(tab.provider, $event)"
-                 (keydown.enter)="tab.count > 0 && onProviderPillClick(tab.provider, $event)"
-                 [style.cursor]="tab.count > 0 ? 'pointer' : 'default'">
+                 (keydown.enter)="tab.count > 0 && onProviderPillClick(tab.provider, $event)">
               <div class="pill-icon">
                 <i class="pi pi-database"></i>
               </div>
               <div class="pill-content">
-                <span class="pill-name">{{ tab.provider }}</span>
+                <span class="pill-name">
+                  {{ providerLabelKey(tab.provider) | transloco }}
+                </span>
                 @if (loading() && tab.count === 0) {
                   <i class="pi pi-spin pi-spinner pill-spinner"></i>
                 } @else {
@@ -129,7 +131,7 @@
       </div>
     }
 
-    @if (!searchTriggered() && results().length === 0) {
+    @if (!hasSearched()) {
       <div class="empty-state">
         <div class="empty-icon">
           <i class="pi pi-search"></i>
@@ -139,13 +141,17 @@
       </div>
     }
 
-    @if (searchTriggered() && results().length === 0 && !loading()) {
+    @if (hasSearched() && !loading() && (results().length === 0 || failed())) {
       <div class="empty-state">
         <div class="empty-icon no-results">
           <i class="pi pi-inbox"></i>
         </div>
-        <h3>{{ t('noResultsFound') }}</h3>
-        <p>{{ t('noResultsHint') }}</p>
+        @if (failed()) {
+          <h3>{{ t('searchFailed') }}</h3>
+        } @else {
+          <h3>{{ t('noResultsFound') }}</h3>
+          <p>{{ t('noResultsHint') }}</p>
+        }
       </div>
     }
 
@@ -164,7 +170,7 @@
                   class="book-cover"
                   [src]="metadata.thumbnailUrl"
                   [title]="metadata.title"
-                  [authors]="metadata.authors ?? []"
+                  [authors]="metadata.authors"
                   [alt]="metadata.title ?? ''"/>
                 <div class="card-overlay">
                   <i class="pi pi-eye"></i>
@@ -174,32 +180,20 @@
 
               <div class="card-content">
                 <div class="card-header">
-                  <h4 class="card-title">{{ truncateText(metadata.title!, 60) }}</h4>
-                  <div
-                    class="card-provider"
-                    [class]="'card-provider provider-' + providerClass(metadata)"
-                    role="button"
-                    tabindex="0"
-                    (click)="onProviderClick($event)"
-                    (keydown.enter)="onProviderClick($event)"
-                  >
-                    @if (providerHref(metadata); as href) {
-                      <a [href]="href" target="_blank" rel="noopener">
-                        @if (providerName(metadata); as name) {
-                          {{ name }}
-                        } @else {
-                          {{ t('unknownProvider') }}
-                        }
+                  <h4 class="card-title">{{ truncateText(metadata.title, 60) }}</h4>
+                  <div class="card-provider" [class]="'provider-' + providerClass(metadata.provider)">
+                    @let providerLabel = providerLabelKey(metadata.provider) | transloco;
+                    @if (metadata.externalUrl; as href) {
+                      <a [href]="href" target="_blank" rel="noopener" (click)="$event.stopPropagation()">
+                        {{ providerLabel }}
                       </a>
-                    } @else if (providerName(metadata); as name) {
-                      {{ name }}
                     } @else {
-                      {{ t('unknownProvider') }}
+                      {{ providerLabel }}
                     }
                   </div>
                 </div>
 
-                @if (metadata.authors && metadata.authors.length > 0) {
+                @if (metadata.authors?.length) {
                   <p class="card-authors">
                     <i class="pi pi-user"></i>
                     {{ truncateText(metadata.authors.join(', '), 50) }}

@@ -712,7 +712,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Public Reviews",
-      "sectionDesc": "Configure automatic downloading of user reviews from external platforms. Reviews can be fetched from Amazon, Goodreads, and Hardcover for offline access.",
+      "sectionDesc": "Configure automatic downloading of user reviews from external platforms for offline access.",
       "downloadLabel": "Download Public Reviews",
       "autoDownloadLabel": "Auto Download on Book Open",
       "autoDownloadDesc": "Automatically fetch reviews when you open a book's details page. When disabled, reviews will only be downloaded manually or during metadata refresh.",
@@ -2341,7 +2341,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Loading complete metadata...",
       "columnCurrent": "Current",
       "columnFetched": "Fetched",
       "copyMissingTooltip": "Copy missing fields",
@@ -2404,7 +2403,7 @@
       "readyToSearchHint": "Enter your search criteria above and click Search to find metadata",
       "noResultsFound": "No Results Found",
       "noResultsHint": "Try adjusting your search criteria or selecting different providers",
-      "unknownProvider": "Unknown Provider",
+      "searchFailed": "Search failed",
       "selectOverlay": "Select"
     },
     "tabs": {
@@ -2517,6 +2516,8 @@
       "goToPreviousBook": "Go to Previous Book",
       "goToNextBook": "Go to Next Book",
       "personalRating": "Personal Rating",
+      "ratingTooltip": "★ {{rating}} | {{reviews}} reviews",
+      "ratingTooltipNoReviews": "★ {{rating}}",
       "loadingBookDetails": "Loading book details...",
       "readStatusUnread": "Unread",
       "readStatusPaused": "Paused",
@@ -2622,6 +2623,7 @@
       "byLabel": "By:",
       "coverFileLabel": "Cover file:",
       "loading": "Loading sidecar data...",
+      "readFailed": "Could not load sidecar metadata. Please try again.",
       "syncStatusInSync": "In Sync",
       "syncStatusOutdated": "Outdated",
       "syncStatusConflict": "Conflict",
@@ -2655,6 +2657,7 @@
       "searchingForCovers": "Searching for covers...",
       "noCoversFound": "No Covers Found",
       "noCoversFoundDescription": "Try adjusting your search terms or check the spelling.",
+      "searchFailed": "Search failed",
       "coversFoundSingular": "{{ count }} cover found",
       "coversFoundPlural": "{{ count }} covers found",
       "resultsHint": "Click on an image to preview, or select to apply",
@@ -2799,7 +2802,8 @@
       "toast": {
         "providerRequiredSummary": "Error",
         "providerRequiredDetail": "At least one provider (P1-P4) must be selected for each enabled book field."
-      }
+      },
+      "inactiveProvider": "{{provider}} (disabled)"
     },
     "fetchOptions": {
       "startRefresh": "Start Refresh"
@@ -3286,7 +3290,9 @@
       "validationReady": "Ready to create",
       "cancelButton": "Cancel",
       "addButton": "Add Physical Book",
-      "fetchMetadataTooltip": "Fetch metadata by ISBN"
+      "fetchMetadataTooltip": "Fetch metadata by ISBN",
+      "metadataNotFound": "No metadata found for this ISBN. You can enter the book details manually.",
+      "metadataLookupFailed": "Could not fetch metadata. Please try again or enter the book details manually."
     },
     "bulkIsbnImport": {
       "title": "Import ISBNs",
