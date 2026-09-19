@@ -1,7 +1,7 @@
 package org.booklore.service.metadata.writer;
 
 import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +14,13 @@ public interface MetadataWriter {
 
     boolean shouldSaveMetadataToFile(File file);
 
-    default void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile file) {
+    default void replaceCoverImageFromUpload(BookFileEntity bookFile, MultipartFile file) {
     }
 
-    default void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] file) {
+    default void replaceCoverImageFromBytes(BookFileEntity bookFile, byte[] file) {
     }
 
-    default void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
+    default void replaceCoverImageFromUrl(BookFileEntity bookFile, String url) {
     }
 
     BookFileType getSupportedBookType();
