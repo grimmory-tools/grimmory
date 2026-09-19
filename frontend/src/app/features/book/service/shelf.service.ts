@@ -5,13 +5,15 @@ import {tap} from 'rxjs/operators';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Shelf} from '../model/shelf.model';
+import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {invalidateAllBookCaches} from './legacy-book-cache';
+import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 import {BookService} from './book.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {Book} from '../model/book.model';
 import {UserService} from '../../settings/user-management/user.service';
 import {AuthService} from '../../../shared/service/auth.service';
 
-const SHELVES_QUERY_KEY = ['shelves'] as const;
 const KOBO_SHELF_NAME = 'Kobo';
 const KOBO_SHELF_ICON = 'pi pi-tablet';
 
@@ -67,6 +69,7 @@ export class ShelfService {
     return this.http.post<Shelf>(this.url, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
       })
     );
   }
@@ -75,6 +78,8 @@ export class ShelfService {
     return this.http.put<Shelf>(`${this.url}/${id}`, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -84,6 +89,7 @@ export class ShelfService {
       tap(() => {
         this.bookService.removeBooksFromShelf(id);
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
       })
     );
   }
