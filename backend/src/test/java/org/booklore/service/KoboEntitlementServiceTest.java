@@ -265,6 +265,7 @@ class KoboEntitlementServiceTest {
         book.setId(id);
 
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.CBX);
         primaryFile.setFileSizeKb(1024L);
@@ -764,6 +765,7 @@ class KoboEntitlementServiceTest {
             BookEntity book = new BookEntity();
             book.setId(1L);
             BookFileEntity primaryFile = new BookFileEntity();
+            primaryFile.setBookFormat(true);
             primaryFile.setId(10L);
             primaryFile.setBook(book);
             primaryFile.setBookType(BookFileType.EPUB);
@@ -813,11 +815,13 @@ class KoboEntitlementServiceTest {
             book.setId(1L);
 
             BookFileEntity primaryEpub = new BookFileEntity();
+            primaryEpub.setBookFormat(true);
             primaryEpub.setId(10L);
             primaryEpub.setBook(book);
             primaryEpub.setBookType(BookFileType.EPUB);
 
             BookFileEntity alternateAudiobook = new BookFileEntity();
+            alternateAudiobook.setBookFormat(true);
             alternateAudiobook.setId(20L);
             alternateAudiobook.setBook(book);
             alternateAudiobook.setBookType(BookFileType.AUDIOBOOK);

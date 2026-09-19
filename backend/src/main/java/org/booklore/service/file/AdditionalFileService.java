@@ -79,7 +79,7 @@ public class AdditionalFileService {
             additionalFileRepository.delete(file);
         }
 
-        if (file.isBook() && book != null) {
+        if (book != null) {
             book.getBookFiles().remove(file);
         }
     }
