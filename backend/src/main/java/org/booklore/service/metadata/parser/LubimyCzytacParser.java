@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.LanguageNormalizer;
@@ -46,6 +47,24 @@ public class LubimyCzytacParser implements BookParser {
 
     private final AppSettingService appSettingService;
     private final ObjectMapper objectMapper;
+
+    private Optional<MetadataProviderSettings.Lubimyczytac> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getLubimyczytac());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings().map(MetadataProviderSettings.Lubimyczytac::isEnabled).orElse(false);
+    }
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -208,6 +227,7 @@ public class LubimyCzytacParser implements BookParser {
 
         BookMetadata metadata = new BookMetadata();
         metadata.setProvider(MetadataProvider.Lubimyczytac);
+        metadata.setExternalUrl(url);
 
         // Extract LubimyCzytac ID from URL (e.g., /ksiazka/123456/title -> 123456)
         String id = extractIdFromUrl(url);

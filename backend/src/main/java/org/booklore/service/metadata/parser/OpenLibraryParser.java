@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.SleepService;
+import org.booklore.service.appsettings.AppSettingService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -191,6 +193,7 @@ public class OpenLibraryParser implements BookParser {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final AppSettingService appSettingService;
     private final SleepService sleepService;
 
     private long rateLimitResetTime = 0;
@@ -481,6 +484,24 @@ public class OpenLibraryParser implements BookParser {
         }
 
         return builder.build();
+    }
+
+    private Optional<MetadataProviderSettings.OpenLibrary> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getOpenLibrary());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings().map(MetadataProviderSettings.OpenLibrary::isEnabled).orElse(false);
     }
 
     @Override

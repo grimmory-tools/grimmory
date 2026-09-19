@@ -33,9 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +48,11 @@ public class BookFacetService {
     private static final String FACET_PATH = "/api/v1/books/facets";
     private static final int MAX_VALUES = 100;
 
+    private static final FacetDef PHYSICAL_FILE_TYPE = new FacetDef("file_type", "File Type", (cb, root, userId) ->
+            cb.<String>selectCase()
+                    .when(cb.isTrue(root.get("isPhysical")), "PHYSICAL")
+                    .otherwise(cb.nullLiteral(String.class)));
+
     private static final List<FacetDef> FACETS = List.of(
             new FacetDef("author", "Authors", (cb, root, userId) -> metadata(root).join("authors", JoinType.LEFT).get("name")),
             new FacetDef("genre", "Genre", (cb, root, userId) -> metadata(root).join("categories", JoinType.LEFT).get("name")),
@@ -55,7 +62,11 @@ public class BookFacetService {
             new FacetDef("publisher", "Publisher", (cb, root, userId) -> metadata(root).get("publisher")),
             new FacetDef("language", "Language", (cb, root, userId) -> metadata(root).get("language")),
             new FacetDef("narrator", "Narrator", (cb, root, userId) -> metadata(root).get("narrator")),
-            new FacetDef("file_type", "File Type", (cb, root, userId) -> root.join("bookFiles", JoinType.LEFT).get("bookType")),
+            new FacetDef("file_type", "File Type", (cb, root, userId) -> {
+                Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
+                files.on(cb.isTrue(files.get("isBookFormat")));
+                return files.get("bookType");
+            }),
             new FacetDef("content_rating", "Content Rating", (cb, root, userId) -> metadata(root).get("contentRating")),
             new FacetDef("amazon_rating", "Amazon Rating", (cb, root, userId) -> metadata(root).get("amazonRating")),
             new FacetDef("goodreads_rating", "Goodreads Rating", (cb, root, userId) -> metadata(root).get("goodreadsRating")),
@@ -124,7 +135,13 @@ public class BookFacetService {
             groups.add(sortGroup(preserved));
             for (FacetDef def : FACETS) {
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(toGroup(def, count(def, base, userId), facet, preserved));
+                List<FacetCount> counts = count(def, base, userId);
+                if ("file_type".equals(def.key())) {
+                    counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, userId).stream())
+                            .sorted(Comparator.comparingLong(FacetCount::count).reversed().thenComparing(FacetCount::value))
+                            .toList();
+                }
+                groups.add(toGroup(def, counts, facet, preserved));
             }
             List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
             return new FacetGroupsResponse(links, groups);

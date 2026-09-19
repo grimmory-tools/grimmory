@@ -187,6 +187,7 @@ public class BookLoreUser {
             private Integer maxInlineSize;
             private String theme;
             private String flow;
+            private Boolean tapToTurnPage;
         }
 
         @Data

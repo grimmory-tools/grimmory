@@ -184,6 +184,7 @@ class LubimyCzytacParserTest {
         assertNotNull(result.getAuthors());
         assertEquals(1, result.getAuthors().size());
         assertEquals("Bruno Schulz", result.getAuthors().getFirst());
+        assertEquals("https://lubimyczytac.pl/ksiazka/5223841/sklepy-cynamonowe", result.getExternalUrl());
 
         // The description is very long, but we need to make sure we're in the right ballpark.
         assertEquals("Jedno z najoryginalniejszych", result.getDescription().substring(0, 28));

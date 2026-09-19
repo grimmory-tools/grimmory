@@ -124,6 +124,9 @@ public class KoreaderService {
                         progress.setKoreaderLastSyncTime(Instant.now());
                         progress.setKoreaderProgress(null);
 
+                        progress.setKoreaderDevice(DEFAULT_DEVICE_NAME);
+                        progress.setKoreaderDeviceId(DEFAULT_DEVICE_ID);
+
                         BookFileEntity primaryFile = book.getPrimaryBookFile();
                         if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
                                 && progress.getEpubProgress() != null) {

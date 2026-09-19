@@ -161,4 +161,20 @@ public class DoubanBookParserTest {
 
         assertThat(results).hasSize(3);
     }
+
+    @Test
+    public void parsesSearchResults_includesExternalUrl() throws Exception {
+        mockJsoupConnect("https://search.douban.com/book/subject_search?search_text=Example", readFixture("match-search.html"));
+        mockJsoupConnect("https://book.douban.com/subject/36939359", readFixture("book.html"));
+        mockJsoupConnect("https://book.douban.com/subject/35297655", readFixture("book.html"));
+        mockJsoupConnect("https://book.douban.com/subject/26328534", readFixture("book.html"));
+
+        var book = getBook();
+        var fetchMetadataRequest = FetchMetadataRequest.builder().title("Example").build();
+
+        var results = doubanBookParser.fetchMetadata(book, fetchMetadataRequest);
+
+        assertThat(results).hasSize(3);
+        assertThat(results.getFirst().getExternalUrl()).isEqualTo("https://book.douban.com/subject/36939359");
+    }
 }

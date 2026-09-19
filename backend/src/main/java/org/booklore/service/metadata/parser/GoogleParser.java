@@ -60,6 +60,14 @@ public class GoogleParser implements BookParser {
     }
 
     @Override
+    public boolean isEnabled() {
+        boolean enabled = getSettings().map(MetadataProviderSettings.Google::isEnabled).orElse(false);
+        String apiKey = getSettings().map(MetadataProviderSettings.Google::getApiKey).orElse(null);
+
+        return enabled && apiKey != null && !apiKey.isBlank();
+    }
+
+    @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         List<BookMetadata> fetchedBookMetadata = fetchMetadata(book, fetchMetadataRequest);
         return fetchedBookMetadata.isEmpty() ? null : fetchedBookMetadata.getFirst();
@@ -143,7 +151,7 @@ public class GoogleParser implements BookParser {
 
     private List<BookMetadata> fetchFromApi(String query, boolean isIsbnSearch) {
         var googleSettings = getSettings();
-        String apiKey = googleSettings.getApiKey();
+        String apiKey = googleSettings.map(MetadataProviderSettings.Google::getApiKey).orElse(null);
 
         try {
             waitForRateLimit();
@@ -580,24 +588,23 @@ public class GoogleParser implements BookParser {
         }
     }
 
-    private MetadataProviderSettings.Google getSettings() {
+    private Optional<MetadataProviderSettings.Google> getSettings() {
         var appSettings = appSettingService.getAppSettings();
 
         if (
                 appSettings == null ||
-                appSettings.getMetadataProviderSettings() == null ||
-                appSettings.getMetadataProviderSettings().getGoogle() == null
+                appSettings.getMetadataProviderSettings() == null
         ) {
-            return new MetadataProviderSettings.Google();
+            return Optional.empty();
         }
 
-        return appSettings.getMetadataProviderSettings().getGoogle();
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getGoogle());
     }
 
     private String getApiUrl() {
         var googleSettings = getSettings();
 
-        String language = googleSettings.getLanguage();
+        String language = googleSettings.map(MetadataProviderSettings.Google::getLanguage).orElse(null);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(GOOGLE_BOOKS_API_URL);
 

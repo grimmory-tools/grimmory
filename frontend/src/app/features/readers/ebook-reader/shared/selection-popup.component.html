@@ -2,6 +2,7 @@
 @if (visible) {
   <div class="popup-backdrop" role="button" tabindex="0" (click)="onDismiss($event)" (keydown.enter)="onDismiss($event)"></div>
   <div class="text-selection-popup"
+       (mousedown)="$event.preventDefault()"
        [class.show-below]="showBelow"
        [style.left.px]="position.x"
        [style.top.px]="position.y">

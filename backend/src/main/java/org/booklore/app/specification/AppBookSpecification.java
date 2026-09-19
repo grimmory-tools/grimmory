@@ -1,6 +1,7 @@
 package org.booklore.app.specification;
 
 import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class AppBookSpecification {
+
+    private static final String PHYSICAL_FILE_TYPE = "PHYSICAL";
 
     private AppBookSpecification() {
     }
@@ -164,38 +167,6 @@ public class AppBookSpecification {
         };
     }
 
-    public static Specification<BookEntity> withReadStatus(ReadStatus status, Long userId) {
-        return (root, query, cb) -> {
-            if (status == null || userId == null) {
-                return cb.conjunction();
-            }
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<UserBookProgressEntity> progressRoot = subquery.from(UserBookProgressEntity.class);
-            subquery.select(progressRoot.get("book").get("id"))
-                    .where(
-                            cb.equal(progressRoot.get("user").get("id"), userId),
-                            cb.equal(progressRoot.get("readStatus"), status)
-                    );
-            return root.get("id").in(subquery);
-        };
-    }
-
-    public static Specification<BookEntity> inProgress(Long userId) {
-        return (root, query, cb) -> {
-            if (userId == null) {
-                return cb.conjunction();
-            }
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<UserBookProgressEntity> progressRoot = subquery.from(UserBookProgressEntity.class);
-            subquery.select(progressRoot.get("book").get("id"))
-                    .where(
-                            cb.equal(progressRoot.get("user").get("id"), userId),
-                            progressRoot.get("readStatus").in(ReadStatus.READING, ReadStatus.RE_READING)
-                    );
-            return root.get("id").in(subquery);
-        };
-    }
-
     /**
      * Filter books that have any progress for a specific user.
      * If `optional` is true, allow books without user progress to be included
@@ -263,10 +234,6 @@ public class AppBookSpecification {
         return (root, query, cb) -> cb.isNotNull(root.get("scannedOn"));
     }
 
-    public static Specification<BookEntity> hasDigitalFile() {
-        return (root, query, cb) -> cb.isNotEmpty(root.get("bookFiles"));
-    }
-
     public static Specification<BookEntity> hasDigitalFileOrIsPhysical() {
         return (root, query, cb) -> cb.or(
                 cb.isNotEmpty(root.get("bookFiles")),
@@ -274,49 +241,29 @@ public class AppBookSpecification {
         );
     }
 
-    public static Specification<BookEntity> hasAudiobookFile() {
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<BookFileEntity> bookFileRoot = subquery.from(BookFileEntity.class);
-            subquery.select(bookFileRoot.get("book").get("id"))
-                    .where(cb.equal(bookFileRoot.get("bookType"), BookFileType.AUDIOBOOK));
-            return root.get("id").in(subquery);
-        };
-    }
-
-    public static Specification<BookEntity> hasNonAudiobookFile() {
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<BookFileEntity> bookFileRoot = subquery.from(BookFileEntity.class);
-            subquery.select(bookFileRoot.get("book").get("id"))
-                    .where(cb.notEqual(bookFileRoot.get("bookType"), BookFileType.AUDIOBOOK));
-            return root.get("id").in(subquery);
-        };
-    }
-
-    /**
-     * Filter books that have at least one file of the given type.
-     */
-    public static Specification<BookEntity> withFileType(BookFileType fileType) {
-        return (root, query, cb) -> {
-            if (fileType == null) {
-                return cb.conjunction();
-            }
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<BookFileEntity> bookFileRoot = subquery.from(BookFileEntity.class);
-            subquery.select(bookFileRoot.get("book").get("id"))
-                    .where(cb.equal(bookFileRoot.get("bookType"), fileType));
-            return root.get("id").in(subquery);
-        };
-    }
-
     /**
      * Filter books by multiple file types with mode support.
-     * OR  = books with at least one file of ANY listed type
-     * AND = books with files of ALL listed types
-     * NOT = books with NONE of the listed file types
+     * PHYSICAL matches the book's physical flag, alongside any digital file types.
+     * OR  = books matching ANY listed format
+     * AND = books matching ALL listed formats
+     * NOT = books matching NONE of the listed formats
      */
     public static Specification<BookEntity> withFileTypes(List<String> fileTypes, String mode) {
+        if (fileTypes.stream().anyMatch(s -> s != null && PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))) {
+            List<String> digitalTypes = fileTypes.stream()
+                    .filter(s -> s != null && !s.isBlank() && !PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))
+                    .toList();
+            Specification<BookEntity> physical = (root, query, cb) ->
+                    cb.isTrue(root.get("isPhysical"));
+            if ("not".equals(mode)) {
+                physical = Specification.not(physical);
+            }
+            if (digitalTypes.isEmpty()) {
+                return physical;
+            }
+            Specification<BookEntity> digital = withFileTypes(digitalTypes, mode);
+            return "and".equals(mode) || "not".equals(mode) ? physical.and(digital) : physical.or(digital);
+        }
         return (root, query, cb) -> {
             List<String> unknown = new ArrayList<>();
             List<BookFileType> parsed = fileTypes.stream()
@@ -333,7 +280,7 @@ public class AppBookSpecification {
                     .filter(Objects::nonNull)
                     .toList();
             if (!unknown.isEmpty()) {
-                throw new APIException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()), HttpStatus.BAD_REQUEST);
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", " + PHYSICAL_FILE_TYPE);
             }
             if (parsed.isEmpty()) return cb.conjunction();
 
@@ -343,7 +290,8 @@ public class AppBookSpecification {
                     Subquery<Long> sub = query.subquery(Long.class);
                     Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
                     sub.select(bfRoot.get("book").get("id"))
-                            .where(cb.equal(bfRoot.get("bookType"), ft));
+                            .where(cb.equal(bfRoot.get("bookType"), ft),
+                                    cb.isTrue(bfRoot.get("isBookFormat")));
                     predicates.add(root.get("id").in(sub));
                 }
                 return cb.and(predicates.toArray(Predicate[]::new));
@@ -352,7 +300,8 @@ public class AppBookSpecification {
             Subquery<Long> sub = query.subquery(Long.class);
             Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
             sub.select(bfRoot.get("book").get("id"))
-                    .where(bfRoot.get("bookType").in(parsed));
+                    .where(bfRoot.get("bookType").in(parsed),
+                            cb.isTrue(bfRoot.get("isBookFormat")));
 
             if ("not".equals(mode)) {
                 return cb.not(root.get("id").in(sub));
@@ -481,13 +430,6 @@ public class AppBookSpecification {
     }
 
     /**
-     * Filter books by author name (case-insensitive exact match).
-     */
-    public static Specification<BookEntity> withAuthor(String authorName) {
-        return withAuthors(authorName == null ? List.of() : List.of(authorName), "or");
-    }
-
-    /**
      * Filter books by multiple author names with mode support.
      * OR  = books with ANY of the authors
      * AND = books with ALL of the authors
@@ -501,13 +443,6 @@ public class AppBookSpecification {
             return buildManyToManySpec(root, query, cb, cleaned, mode,
                     "metadata", "authors", "name");
         };
-    }
-
-    /**
-     * Filter books by language code (case-insensitive).
-     */
-    public static Specification<BookEntity> withLanguage(String language) {
-        return withLanguages(language == null ? List.of() : List.of(language), "or");
     }
 
     /**
@@ -538,10 +473,6 @@ public class AppBookSpecification {
         };
     }
 
-    public static Specification<BookEntity> withCategory(String categoryName) {
-        return withCategories(categoryName == null ? List.of() : List.of(categoryName), "or");
-    }
-
     /**
      * Filter books by multiple categories with mode support.
      */
@@ -555,10 +486,6 @@ public class AppBookSpecification {
         };
     }
 
-    public static Specification<BookEntity> withPublisher(String publisher) {
-        return withPublishers(publisher == null ? List.of() : List.of(publisher), "or");
-    }
-
     /**
      * Filter books by multiple publishers with mode support.
      */
@@ -569,10 +496,6 @@ public class AppBookSpecification {
 
             return buildMetadataFieldSpec(root, query, cb, cleaned, mode, "publisher");
         };
-    }
-
-    public static Specification<BookEntity> withTag(String tagName) {
-        return withTags(tagName == null ? List.of() : List.of(tagName), "or");
     }
 
     /**
@@ -588,10 +511,6 @@ public class AppBookSpecification {
         };
     }
 
-    public static Specification<BookEntity> withMood(String moodName) {
-        return withMoods(moodName == null ? List.of() : List.of(moodName), "or");
-    }
-
     /**
      * Filter books by multiple moods with mode support.
      */
@@ -603,10 +522,6 @@ public class AppBookSpecification {
             return buildManyToManySpec(root, query, cb, cleaned, mode,
                     "metadata", "moods", "name");
         };
-    }
-
-    public static Specification<BookEntity> withNarrator(String narrator) {
-        return withNarrators(narrator == null ? List.of() : List.of(narrator), "or");
     }
 
     /**

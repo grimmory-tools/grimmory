@@ -5,6 +5,7 @@ import {ReaderAnnotationService, Annotation} from '../features/annotations/annot
 import {ReaderEventService, ViewEvent, TextSelection} from './event.service';
 import {PageInfo, ThemeInfo, PageDecorator} from '../shared/header-footer.util';
 import {EpubStreamingService, EpubBookInfo} from './epub-streaming.service';
+import {ReaderStateService} from '../state/reader-state.service';
 
 export type {ViewEvent, TextSelection} from './event.service';
 export type {PageInfo, ThemeInfo} from '../shared/header-footer.util';
@@ -74,6 +75,7 @@ interface FoliateSearchSectionResult {
 type FoliateSearchResult = FoliateSearchProgress | FoliateSearchSectionResult | 'done';
 
 interface FoliateViewElement extends HTMLElement {
+  isFixedLayout: boolean;
   renderer?: FoliateRenderer | null;
   book?: FoliateBook;
   open(target: File | object): Promise<void>;
@@ -108,6 +110,7 @@ export class ReaderViewManagerService {
   private annotationService = inject(ReaderAnnotationService);
   private eventService = inject(ReaderEventService);
   private epubStreamingService = inject(EpubStreamingService);
+  private readerStateService = inject(ReaderStateService);
   private view: FoliateViewElement | null = null;
 
   public get events$(): Observable<ViewEvent> {
@@ -125,7 +128,8 @@ export class ReaderViewManagerService {
       prev: () => this.prev(),
       next: () => this.next(),
       getCFI: (index: number, range: Range) => this.view?.getCFI(index, range) ?? null,
-      getContents: () => this.view?.renderer?.getContents() ?? null
+      getContents: () => this.view?.renderer?.getContents() ?? null,
+      isTapToTurnEnabled: () => this.readerStateService.state().tapToTurnPage
     });
   }
 

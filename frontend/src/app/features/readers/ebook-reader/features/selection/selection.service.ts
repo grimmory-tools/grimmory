@@ -70,6 +70,9 @@ export class ReaderSelectionService {
   }
 
   handleTextSelected(detail: SelectionDetail, popupPosition?: { x: number; y: number; showBelow?: boolean }): void {
+    if (this.previewCfi && this.previewCfi !== detail.cfi && this.previewColor && this.previewStyle) {
+      this.updatePreview(detail.cfi, this.previewColor, this.previewStyle);
+    }
     this.currentSelection = detail;
     this._overlappingAnnotationId = this.findOverlappingAnnotation(detail.cfi);
     this._visible = true;

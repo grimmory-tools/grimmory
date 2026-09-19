@@ -6,6 +6,7 @@ import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookReview;
 import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
@@ -18,6 +19,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -39,7 +41,7 @@ import java.util.stream.Collectors;
 public class DoubanBookParser implements BookParser {
 
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
-    private static final String BASE_BOOK_URL = "https://book.douban.com/subject/";
+    private static final String BOOK_URI_TEMPLATE = "https://book.douban.com/subject/{id}";
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^\\d]");
     private static final Pattern NON_ALPHANUMERIC_CJK_PATTERN = Pattern.compile("[^a-zA-Z0-9\\u4e00-\\u9fff]");
     private static final Pattern SLASH_SEPARATOR_PATTERN = Pattern.compile(" / ");
@@ -53,6 +55,26 @@ public class DoubanBookParser implements BookParser {
     private static final Pattern DATE_YMD_PATTERN = Pattern.compile("(\\d{4})[-/](\\d{1,2})[-/](\\d{1,2})");
     private final AppSettingService appSettingService;
     private final ObjectMapper objectMapper;
+
+    private Optional<MetadataProviderSettings.Douban> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getDouban());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings()
+                .map(MetadataProviderSettings.Douban::isEnabled)
+                .orElse(false);
+    }
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -224,6 +246,7 @@ public class DoubanBookParser implements BookParser {
                     if (doubanId != null && !title.isEmpty()) {
                         BookMetadata metadata = BookMetadata.builder()
                                 .provider(MetadataProvider.Douban)
+                                .externalUrl(getBookUri(doubanId))
                                 .title(title)
                                 .doubanId(doubanId)
                                 .thumbnailUrl(coverUrl)
@@ -267,10 +290,16 @@ public class DoubanBookParser implements BookParser {
          return null;
     }
 
+    private String getBookUri(String doubanBookId) {
+        return UriComponentsBuilder.fromUriString(BOOK_URI_TEMPLATE)
+                .build(doubanBookId)
+                .toString();
+    }
+
     private BookMetadata getBookMetadata(String doubanBookId) {
         log.debug("Douban: Fetching metadata for: {}", doubanBookId);
 
-        Document doc = fetchDocument(BASE_BOOK_URL + doubanBookId);
+        Document doc = fetchDocument(getBookUri(doubanBookId));
 
         List<BookReview> reviews = appSettingService.getAppSettings()
                 .getMetadataPublicReviewsSettings()
@@ -287,6 +316,7 @@ public class DoubanBookParser implements BookParser {
     private BookMetadata buildBookMetadata(Document doc, String doubanBookId, List<BookReview> reviews) {
         return BookMetadata.builder()
                 .provider(MetadataProvider.Douban)
+                .externalUrl(getBookUri(doubanBookId))
                 .title(getTitle(doc))
                 .subtitle(getSubtitle(doc))
                 .authors(new ArrayList<>(getAuthors(doc)))

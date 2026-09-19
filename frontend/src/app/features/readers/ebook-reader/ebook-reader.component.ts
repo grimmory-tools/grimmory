@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, effect, HostListener, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, effect, HostListener, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {forkJoin, from, Observable, of, throwError} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
@@ -114,6 +114,9 @@ export class EbookReaderComponent implements OnInit {
   private sectionFractionsTimeout?: ReturnType<typeof setTimeout>;
   private pendingInitialChapterRestore: PendingInitialChapterRestore | null = null;
   private pendingInitialChapterRestoreTimeout?: ReturnType<typeof setTimeout>;
+
+  @ViewChild(TextSelectionPopupComponent, {static: true})
+  private selectionPopup!: TextSelectionPopupComponent;
 
   isLoading = signal(true);
   showQuickSettings = signal(false);
@@ -337,6 +340,9 @@ export class EbookReaderComponent implements OnInit {
             break;
           case 'text-selected':
             this.selectionService.handleTextSelected(event.detail, event.popupPosition);
+            break;
+          case 'text-deselected':
+            this.selectionPopup.onDismiss();
             break;
           case 'toggle-fullscreen':
             this.toggleFullscreen();

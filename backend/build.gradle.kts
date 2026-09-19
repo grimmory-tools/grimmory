@@ -9,8 +9,8 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.7.Final"
-    id("com.github.ben-manes.versions") version "0.61.0"
+    id("org.hibernate.orm") version "7.4.8.Final"
+    id("com.github.ben-manes.versions") version "0.62.0"
     jacoco
 }
 
@@ -120,7 +120,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:13.5.0")
+    implementation("org.flywaydb:flyway-mysql:13.6.0")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.48")
@@ -144,7 +144,7 @@ dependencies {
     implementation("com.github.RouHim:jaudiotagger:2.0.27")
 
     // --- Archive Support ---
-    implementation("com.github.junrar:junrar:8.1.0")
+    implementation("com.github.junrar:junrar:8.1.1")
 
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.23.2")

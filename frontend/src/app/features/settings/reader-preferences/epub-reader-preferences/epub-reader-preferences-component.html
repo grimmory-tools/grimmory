@@ -287,5 +287,38 @@
         </div>
       </div>
     </div>
+
+    <div class="settings-group">
+      <h3 class="group-title">{{ t('navigation') }}</h3>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label-row">
+            <span class="setting-label">{{ t('tapToTurnPage') }}</span>
+            <div class="button-group">
+              <button
+                type="button"
+                class="option-button"
+                [class.selected]="!tapToTurnPage"
+                (click)="tapToTurnPage = false">
+                <i class="pi pi-times"></i>
+                <span class="option-text">{{ t('off') }}</span>
+              </button>
+              <button
+                type="button"
+                class="option-button"
+                [class.selected]="tapToTurnPage"
+                (click)="tapToTurnPage = true">
+                <i class="pi pi-check"></i>
+                <span class="option-text">{{ t('on') }}</span>
+              </button>
+            </div>
+          </div>
+          <p class="setting-description">
+            {{ t('tapToTurnPageDesc') }}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </ng-container>
