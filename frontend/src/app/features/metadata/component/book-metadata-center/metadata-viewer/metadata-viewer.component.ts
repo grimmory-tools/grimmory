@@ -460,7 +460,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
   private bookNavigationService = inject(BookNavigationService);
   private metadataHostService = inject(BookMetadataHostService);
-  amazonDomain = 'com';
   readonly navigationState = this.bookNavigationService.navigationState;
   readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
   readonly canNavigateNext = this.bookNavigationService.canNavigateNext;
@@ -477,10 +476,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
     }
 
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.amazonDomain = settings.metadataProviderSettings?.amazon?.domain ?? 'com';
-    }
   }
 
   ngAfterViewChecked(): void {

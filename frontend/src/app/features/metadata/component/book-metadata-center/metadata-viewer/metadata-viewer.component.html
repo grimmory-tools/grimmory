@@ -192,7 +192,7 @@
               @if (book?.metadata?.amazonRating || book?.metadata?.asin) {
                 <a
                   class="rating-link"
-                  [href]="'https://www.amazon.' + amazonDomain + '/dp/' + (book.metadata?.asin ?? '')"
+                  [href]="'https://www.amazon.com/dp/' + (book.metadata?.asin ?? '')"
                   target="_blank"
                   rel="noopener noreferrer"
                   [pTooltip]="book?.metadata?.amazonRating ? getRatingTooltip(book, 'amazon') : undefined"
