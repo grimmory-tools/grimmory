@@ -20,6 +20,8 @@ import java.util.function.Function;
 
 public class AppBookSpecification {
 
+    private static final String PHYSICAL_FILE_TYPE = "PHYSICAL";
+
     private AppBookSpecification() {
     }
 
@@ -319,9 +321,9 @@ public class AppBookSpecification {
      * NOT = books matching NONE of the listed formats
      */
     public static Specification<BookEntity> withFileTypes(List<String> fileTypes, String mode) {
-        if (fileTypes.stream().anyMatch(s -> s != null && "PHYSICAL".equalsIgnoreCase(s.trim()))) {
+        if (fileTypes.stream().anyMatch(s -> s != null && PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))) {
             List<String> digitalTypes = fileTypes.stream()
-                    .filter(s -> s != null && !s.isBlank() && !"PHYSICAL".equalsIgnoreCase(s.trim()))
+                    .filter(s -> s != null && !s.isBlank() && !PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))
                     .toList();
             Specification<BookEntity> physical = (root, query, cb) ->
                     cb.isTrue(root.get("isPhysical"));
@@ -350,7 +352,7 @@ public class AppBookSpecification {
                     .filter(Objects::nonNull)
                     .toList();
             if (!unknown.isEmpty()) {
-                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", PHYSICAL");
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", " + PHYSICAL_FILE_TYPE);
             }
             if (parsed.isEmpty()) return cb.conjunction();
 
