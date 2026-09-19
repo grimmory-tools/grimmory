@@ -4,8 +4,9 @@ import {
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
   normalizeBookPageParams,
+  type BookPageParams,
 } from './book-query-params';
-import {bookQueryKeys} from './book-query-keys';
+import {bookCollectionKeys, bookQueryKeys} from './book-query-keys';
 
 describe('book query keys', () => {
   const query = {
@@ -52,5 +53,39 @@ describe('book query keys', () => {
     const recommendationPrefix = bookQueryKeys.recommendationQueries(12);
     expect(bookQueryKeys.recommendation(12, 20).slice(0, recommendationPrefix.length))
       .toEqual([...recommendationPrefix]);
+  });
+});
+
+const PARAMS: BookPageParams = {
+  query: 'dune',
+  facets: {genre: ['Science Fiction']},
+  facetLogic: 'or',
+  sort: [{key: 'title', direction: 'asc'}],
+  size: 20,
+};
+
+describe('bookCollectionKeys', () => {
+  it('normalizes the params and keeps membership identity apart from ordering identity', () => {
+    const collection = bookCollectionKeys(PARAMS);
+    const equivalent = bookCollectionKeys({
+      ...PARAMS,
+      query: '  dune  ',
+      facets: {genre: ['Science Fiction', 'Science Fiction']},
+    });
+    expect(equivalent.filtersKey).toBe(collection.filtersKey);
+    expect(equivalent.listKey).toBe(collection.listKey);
+
+    const largerPage: BookPageParams = {...PARAMS, size: 50};
+    const resized = bookCollectionKeys(largerPage);
+    expect(resized.filtersKey).toBe(collection.filtersKey);
+    expect(resized.listKey).toBe(collection.listKey);
+
+    const reordered = bookCollectionKeys({...PARAMS, sort: [{key: 'title', direction: 'desc'}]});
+    expect(reordered.filtersKey).toBe(collection.filtersKey);
+    expect(reordered.listKey).not.toBe(collection.listKey);
+
+    const refiltered = bookCollectionKeys({...PARAMS, query: 'foundation'});
+    expect(refiltered.filtersKey).not.toBe(collection.filtersKey);
+    expect(refiltered.listKey).not.toBe(collection.listKey);
   });
 });

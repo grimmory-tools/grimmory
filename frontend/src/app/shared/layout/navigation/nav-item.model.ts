@@ -1,5 +1,5 @@
 import { IconType } from '../../icons/icon-selection';
-import type {LibraryShelfMenuTarget} from '../../../features/book/components/library-shelf-menu/library-shelf-menu.component';
+import type {LibraryShelfMenuTarget} from './library-shelf-menu-target.model';
 
 export type NavItemType =
   | 'library' | 'shelf' | 'magicShelf'

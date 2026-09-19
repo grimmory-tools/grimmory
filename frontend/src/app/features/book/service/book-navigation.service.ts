@@ -1,7 +1,9 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
 import {Router} from '@angular/router';
 
+import {UserService} from '../../settings/user-management/user.service';
 import {type BookFileResponse, type BookFileType, type BookSummary} from '../data/book-response.models';
+import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
 
 export interface BookNavigationState {
   bookIds: number[];
@@ -13,6 +15,8 @@ export interface BookNavigationState {
 })
 export class BookNavigationService {
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly dialogHelper = inject(BookDialogHelperService);
 
   private readonly _navigationState = signal<BookNavigationState | null>(null);
   readonly navigationState = this._navigationState.asReadonly();
@@ -71,6 +75,19 @@ export class BookNavigationService {
     }
 
     void this.router.navigate(path);
+  }
+
+  openBook(bookId: number, contextIds: number[]): void {
+    if (contextIds.length > 0) {
+      this.setNavigationContext(contextIds, bookId);
+    }
+
+    const mode = this.userService.currentUser()?.userSettings.metadataCenterViewMode ?? 'route';
+    if (mode === 'route') {
+      void this.router.navigate(['/book', bookId]);
+      return;
+    }
+    void this.dialogHelper.openBookDetailsDialog(bookId);
   }
 
   setNavigationContext(bookIds: number[], currentBookId: number): void {

@@ -120,11 +120,14 @@ export function parseFacetParams(tokens: readonly string[]): FacetValueMap {
     if (!isBookQueryFacetKey(key)) {
       continue;
     }
+    const value = token.slice(separator + 1).trim();
     const values = facets.get(key) ?? [];
-    values.push(token.slice(separator + 1));
+    if (value && !values.includes(value)) {
+      values.push(value);
+    }
     facets.set(key, values);
   }
-  return normalizeFacetValueMap(Object.fromEntries(facets));
+  return Object.fromEntries([...facets].filter(([, values]) => values.length > 0));
 }
 
 export function bookFacetQueryParams(facets: FacetValueMap) {
