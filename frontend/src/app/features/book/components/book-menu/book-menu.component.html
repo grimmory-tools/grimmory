@@ -1,0 +1,125 @@
+<app-menu [ariaLabel]="'book.menu.label' | transloco" (closed)="clearOpenBook()">
+  @if (readable() && readLabelKey(); as labelKey) {
+    <app-menu-item value="read" [trailingIcon]="readIcon()" [trailingText]="readProgress()" (selected)="onRead()">{{ labelKey | transloco }}</app-menu-item>
+    <app-menu-separator />
+  }
+  @if (openInNewTab() && book(); as menuBook) {
+    <app-menu-item value="open-details-new-tab" [link]="['/book', menuBook.id]" target="_blank" [trailingIcon]="newTabIcon">{{ 'book.menu.openInNewTab' | transloco }}</app-menu-item>
+    <app-menu-separator />
+  }
+  <app-menu-item value="add-to-shelf" [submenu]="shelfMenu.ariaMenu()">{{ 'book.menu.addToShelf' | transloco }}</app-menu-item>
+  <app-menu-item value="mark-as" [submenu]="markAsMenu">{{ 'book.menu.markAs' | transloco }}</app-menu-item>
+  @if (actionPermissions().canEmailBook && digital()) {
+    <app-menu-item value="send" [submenu]="sendMenu">{{ 'book.menu.send' | transloco }}</app-menu-item>
+  }
+  @if (actionPermissions().canDownload && digital()) {
+    @if (additionalFiles().length > 0) {
+      <app-menu-item value="download" [submenu]="downloadMenu">{{ 'book.menu.download' | transloco }}</app-menu-item>
+    } @else {
+      <app-menu-item value="download" (selected)="onDownload()">{{ 'book.menu.download' | transloco }}</app-menu-item>
+    }
+  }
+  @if (actionPermissions().canEditMetadata) {
+    <app-menu-item value="metadata" [submenu]="metadataMenu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
+  }
+  @if (hasMoreActions()) {
+    <app-menu-item value="more" [submenu]="moreMenu">{{ 'book.menu.more' | transloco }}</app-menu-item>
+  }
+  @if (actionPermissions().canDeleteBook) {
+    <app-menu-separator />
+    @if (additionalFiles().length > 0) {
+      <app-menu-item value="delete" variant="destructive" [submenu]="deleteMenu">{{ 'common.delete' | transloco }}</app-menu-item>
+    } @else {
+      <app-menu-item value="delete" variant="destructive" (selected)="onDeleteRequested()">{{ 'common.delete' | transloco }}</app-menu-item>
+    }
+  }
+</app-menu>
+
+<app-shelf-membership-menu
+  #shelfMenu
+  [shelves]="shelves()"
+  (toggleShelf)="onToggleShelf($event.shelfId, $event.checked)"
+  (createShelf)="onCreateShelf()"
+  (removeFromAllShelves)="onRemoveFromAllShelves()" />
+
+<app-menu #markAsMenu="ngMenu" [ariaLabel]="'book.menu.markAs' | transloco">
+  <app-menu-radio-group [value]="book()?.readStatus ?? null">
+    @for (status of readStatusTargets; track status) {
+      <app-menu-radio [value]="status" (selected)="onSetReadStatus(status)">{{ statusLabelKey(status) | transloco }}</app-menu-radio>
+    }
+  </app-menu-radio-group>
+  <app-menu-separator />
+  <app-menu-item value="clear-read-status" (selected)="onSetReadStatus(clearReadStatus)">
+    {{ clearReadStatusLabelKey | transloco }}
+  </app-menu-item>
+</app-menu>
+
+<app-menu #moreMenu="ngMenu" [ariaLabel]="'book.menu.more' | transloco">
+  @if (canOrganizeFile()) {
+    <app-menu-item value="organize-file" (selected)="onOrganizeFile()">{{ 'book.menu.organizeFile' | transloco }}</app-menu-item>
+  }
+  @if (actionPermissions().canResetGrimmoryProgress) {
+    <app-menu-item value="reset-grimmory-progress" (selected)="onResetProgress('GRIMMORY')">{{ 'book.menu.resetGrimmoryProgress' | transloco }}</app-menu-item>
+  }
+  @if (actionPermissions().canResetKoreaderProgress) {
+    <app-menu-item value="reset-koreader-progress" (selected)="onResetProgress('KOREADER')">{{ 'book.menu.resetKoreaderProgress' | transloco }}</app-menu-item>
+  }
+</app-menu>
+
+<ng-template #fileLabel let-file>
+  @let parts = fileLabelParts(file);
+  <span class="flex w-full min-w-0 items-baseline" [attr.title]="parts.full">
+    <span class="min-w-0 truncate">{{ parts.base }}</span>
+    <span class="shrink-0">{{ parts.suffix }}</span>
+  </span>
+</ng-template>
+
+<app-menu #downloadMenu="ngMenu" [ariaLabel]="'book.menu.download' | transloco">
+  @if (book()?.primaryFile; as primaryFile) {
+    <app-menu-item value="download-primary-file" (selected)="onDownload()">
+      <ng-container [ngTemplateOutlet]="fileLabel" [ngTemplateOutletContext]="{$implicit: primaryFile}" />
+    </app-menu-item>
+    <app-menu-separator />
+  }
+  @for (file of additionalFiles(); track file.id) {
+    <app-menu-item [value]="'download-file-' + file.id" (selected)="onDownloadFile(file)">
+      <ng-container [ngTemplateOutlet]="fileLabel" [ngTemplateOutletContext]="{$implicit: file}" />
+    </app-menu-item>
+  }
+</app-menu>
+
+<app-menu #deleteMenu="ngMenu" [ariaLabel]="'common.delete' | transloco">
+  <app-menu-item value="delete-entire-book" variant="destructive" (selected)="onDeleteRequested()">{{ 'book.menu.deleteEntireBook' | transloco }}</app-menu-item>
+  <app-menu-separator />
+  @for (file of additionalFiles(); track file.id) {
+    <app-menu-item [value]="'delete-file-' + file.id" variant="destructive" (selected)="onDeleteFileRequested(file)">
+      <ng-container [ngTemplateOutlet]="fileLabel" [ngTemplateOutletContext]="{$implicit: file}" />
+    </app-menu-item>
+  }
+</app-menu>
+
+<app-menu #sendMenu="ngMenu" [ariaLabel]="'book.menu.send' | transloco">
+  @if (quickSendAvailable()) {
+    <app-menu-item value="quick-send" (selected)="onQuickSend()">{{ 'book.menu.quickSend' | transloco }}</app-menu-item>
+  }
+  <app-menu-item value="custom-send" (selected)="onCustomSend()">{{ 'book.menu.customSend' | transloco }}</app-menu-item>
+</app-menu>
+
+<app-menu #metadataMenu="ngMenu" [ariaLabel]="'book.menu.metadata' | transloco">
+  <app-menu-item value="edit-metadata" (selected)="onEditMetadata()">{{ 'book.menu.editMetadata' | transloco }}</app-menu-item>
+  <app-menu-separator />
+  <app-menu-item value="refresh-metadata" (selected)="onFetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>
+  <app-menu-item value="refresh-metadata-with-options" (selected)="onFetchMetadataWithOptions()">{{ 'book.menu.fetchMetadataWithOptions' | transloco }}</app-menu-item>
+  <app-menu-item value="search-providers" (selected)="onSearchMetadata()">{{ 'book.menu.searchProviders' | transloco }}</app-menu-item>
+  <app-menu-separator />
+  <app-menu-item value="restore-cover" (selected)="onChangeCovers('regenerate')">{{ 'book.menu.restoreCover' | transloco }}</app-menu-item>
+  <app-menu-item value="generate-cover" (selected)="onChangeCovers('generate')">{{ 'book.menu.generateCover' | transloco }}</app-menu-item>
+  <app-menu-separator />
+  <app-menu-checkbox
+    value="lock-metadata"
+    [(checked)]="metadataLocked"
+    [disabled]="metadataLockPending()"
+    (selected)="onMetadataLockChange($event)">
+    {{ 'book.menu.lockMetadata' | transloco }}
+  </app-menu-checkbox>
+</app-menu>
