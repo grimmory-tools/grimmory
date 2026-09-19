@@ -33,7 +33,6 @@ export class KoreaderSettingsComponent {
   editMode = signal(true);
   showPassword = signal(false);
   koReaderSyncEnabled = signal(false);
-  syncWithWebReader = signal(false);
   koReaderUsername = signal('');
   koReaderPassword = signal('');
   credentialsSaved = signal(false);
@@ -75,7 +74,6 @@ export class KoreaderSettingsComponent {
         this.koReaderUsername.set(koreaderUser.username);
         this.koReaderPassword.set(koreaderUser.password);
         this.koReaderSyncEnabled.set(koreaderUser.syncEnabled);
-        this.syncWithWebReader.set(koreaderUser.syncWithWebReader ?? false);
         this.credentialsSaved.set(true);
       },
       error: err => {
@@ -111,31 +109,6 @@ export class KoreaderSettingsComponent {
       error: () => {
         this.koReaderSyncEnabled.set(previousEnabled);
         this.messageService.add({severity: 'error', summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'), detail: this.t.translate('settingsDevice.koreader.syncUpdateError')});
-      }
-    });
-  }
-
-  onToggleSyncWithWebReader(enabled: boolean) {
-    const previousSyncWithWebReader = this.syncWithWebReader();
-    this.syncWithWebReader.set(enabled);
-    this.koreaderService.toggleSyncProgressWithWebReader(enabled).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => {
-        this.syncWithWebReader.set(enabled);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('settingsDevice.koreader.syncUpdated'),
-          detail: enabled ? this.t.translate('settingsDevice.koreader.grimmoryReaderEnabled') : this.t.translate('settingsDevice.koreader.grimmoryReaderDisabled')
-        });
-      },
-      error: () => {
-        this.syncWithWebReader.set(previousSyncWithWebReader);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),
-          detail: this.t.translate('settingsDevice.koreader.grimmoryReaderError')
-        });
       }
     });
   }

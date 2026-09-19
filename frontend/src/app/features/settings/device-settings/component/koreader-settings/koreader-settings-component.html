@@ -49,23 +49,6 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <span class="setting-label">{{ t('koreader.syncWithGrimmory') }}</span>
-                  <p-toggle-switch
-                    name="syncWithWebReader"
-                    [ngModel]="syncWithWebReader()"
-                    (ngModelChange)="onToggleSyncWithWebReader($event)"
-                    inputId="syncWithWebReader"
-                    [disabled]="!credentialsSaved() || !koReaderSyncEnabled()">
-                  </p-toggle-switch>
-                </div>
-                <p class="setting-description" [innerHTML]="t('koreader.syncWithGrimmoryDesc')">
-                </p>
-              </div>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label-row">
                   <span class="setting-label">{{ t('koreader.apiPath') }}</span>
                   <div class="token-input-group">
                     <input

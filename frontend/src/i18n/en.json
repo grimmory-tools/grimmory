@@ -1416,8 +1416,6 @@
       "syncConfigDesc": "Enable and configure synchronization between your Grimmory library and KOReader device.",
       "enableSync": "Enable KOReader Sync",
       "enableSyncDesc": "Turn on synchronization to automatically sync your reading progress.",
-      "syncWithGrimmory": "Sync reading progress with Grimmory eBook Reader",
-      "syncWithGrimmoryDesc": "Enable bidirectional sync between Grimmory's eBook reader and KOReader. <strong>Note:</strong> Progress sync is approximate and may update by chapter rather than exact page or location.",
       "apiPath": "KOReader API Path",
       "apiPathDesc": "The API endpoint path for your KOReader sync service.",
       "username": "KOReader Username",

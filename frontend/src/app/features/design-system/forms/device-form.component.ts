@@ -23,7 +23,7 @@ interface DeviceFormModel {
     markAsFinished: number;
     conversionLimitMb: number | null;
   };
-  koreader: { enabled: boolean; syncWithWebReader: boolean; username: string; password: string };
+  koreader: { enabled: boolean; username: string; password: string };
 }
 
 function createInitialModel(): DeviceFormModel {
@@ -37,7 +37,7 @@ function createInitialModel(): DeviceFormModel {
       markAsFinished: 95,
       conversionLimitMb: 50,
     },
-    koreader: { enabled: false, syncWithWebReader: false, username: '', password: '' },
+    koreader: { enabled: false, username: '', password: '' },
   };
 }
 
@@ -94,7 +94,6 @@ export class DeviceFormExampleComponent {
         : null,
     );
 
-    hidden(path.koreader.syncWithWebReader, ({ valueOf }) => !valueOf(path.koreader.enabled));
     hidden(path.koreader.username, ({ valueOf }) => !valueOf(path.koreader.enabled));
     hidden(path.koreader.password, ({ valueOf }) => !valueOf(path.koreader.enabled));
     required(path.koreader.username, { message: 'Choose a sync username' });
