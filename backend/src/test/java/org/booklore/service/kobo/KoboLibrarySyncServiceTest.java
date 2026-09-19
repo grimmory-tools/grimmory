@@ -1,11 +1,8 @@
 package org.booklore.service.kobo;
 
 import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.model.dto.kobo.ChangedReadingState;
-import org.booklore.model.dto.kobo.KoboReadingState;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.KoboDeletedBookProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.util.kobo.BookloreSyncTokenGenerator;
@@ -22,7 +19,6 @@ import org.mockito.quality.Strictness;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -57,70 +53,7 @@ class KoboLibrarySyncServiceTest {
     @BeforeEach
     void setUp() {
         testSettings = new KoboSyncSettings();
-        testSettings.setTwoWayProgressSync(false);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(testSettings);
-    }
-
-    @Nested
-    @DisplayName("Sync Filtering - Two-Way Toggle Gating")
-    class TwoWaySyncFiltering {
-
-        @Test
-        @DisplayName("Should filter out web-reader-only entries when two-way sync is OFF")
-        void filterWebReaderOnlyEntries_whenToggleOff() {
-            testSettings.setTwoWayProgressSync(false);
-
-            UserBookProgressEntity webReaderOnly = createProgress(1L);
-            webReaderOnly.setEpubProgress("epubcfi(/6/4)");
-            webReaderOnly.setEpubProgressPercent(50f);
-            webReaderOnly.setLastReadTime(Instant.now());
-            webReaderOnly.setKoboProgressPercent(null);
-            webReaderOnly.setKoboProgressReceivedTime(null);
-            webReaderOnly.setReadStatusModifiedTime(null);
-
-            assertFalse(needsStatusSync(webReaderOnly));
-            assertFalse(needsKoboProgressSync(webReaderOnly));
-        }
-
-        @Test
-        @DisplayName("Should include Kobo progress entries regardless of toggle state")
-        void includeKoboProgressEntries_alwaysIncluded() {
-            testSettings.setTwoWayProgressSync(false);
-
-            UserBookProgressEntity koboProgress = createProgress(1L);
-            koboProgress.setKoboProgressPercent(75f);
-            koboProgress.setKoboProgressReceivedTime(Instant.now());
-            koboProgress.setKoboProgressSentTime(null);
-
-            assertTrue(needsKoboProgressSync(koboProgress));
-        }
-
-        @Test
-        @DisplayName("Should include status sync entries regardless of toggle state")
-        void includeStatusEntries_alwaysIncluded() {
-            testSettings.setTwoWayProgressSync(false);
-
-            UserBookProgressEntity statusProgress = createProgress(1L);
-            statusProgress.setReadStatus(ReadStatus.READ);
-            statusProgress.setReadStatusModifiedTime(Instant.now());
-            statusProgress.setKoboStatusSentTime(null);
-
-            assertTrue(needsStatusSync(statusProgress));
-        }
-
-        @Test
-        @DisplayName("Should not filter web-reader entries when two-way sync is ON")
-        void includeWebReaderEntries_whenToggleOn() {
-            testSettings.setTwoWayProgressSync(true);
-
-            UserBookProgressEntity webReaderProgress = createProgress(1L);
-            webReaderProgress.setEpubProgress("epubcfi(/6/4)");
-            webReaderProgress.setEpubProgressPercent(50f);
-            webReaderProgress.setLastReadTime(Instant.now());
-
-            assertNotNull(webReaderProgress.getEpubProgressPercent());
-            assertNotNull(webReaderProgress.getLastReadTime());
-        }
     }
 
     @Nested
@@ -212,14 +145,12 @@ class KoboLibrarySyncServiceTest {
     }
 
     @Nested
-    @DisplayName("Web Reader Progress Sync (Two-Way)")
+    @DisplayName("Web Reader Progress Sync")
     class WebReaderProgressSync {
 
         @Test
-        @DisplayName("Should detect web reader progress needing sync when toggle ON and lastReadTime after sent")
+        @DisplayName("Should detect web reader progress needing sync when lastReadTime after sent")
         void needsProgressSync_webReaderNewer() {
-            testSettings.setTwoWayProgressSync(true);
-
             UserBookProgressEntity progress = createProgress(1L);
             progress.setEpubProgress("epubcfi(/6/4)");
             progress.setEpubProgressPercent(65f);
@@ -231,10 +162,8 @@ class KoboLibrarySyncServiceTest {
         }
 
         @Test
-        @DisplayName("Should detect href-only web reader progress when toggle ON and lastReadTime after sent")
+        @DisplayName("Should detect href-only web reader progress when lastReadTime after sent")
         void needsProgressSync_webReaderHrefOnly() {
-            testSettings.setTwoWayProgressSync(true);
-
             UserBookProgressEntity progress = createProgress(1L);
             progress.setEpubProgressHref("OPS/chapter3.xhtml");
             progress.setEpubProgressPercent(65f);
@@ -246,25 +175,8 @@ class KoboLibrarySyncServiceTest {
         }
 
         @Test
-        @DisplayName("Should not sync web reader progress when toggle OFF")
-        void needsProgressSync_toggleOff() {
-            testSettings.setTwoWayProgressSync(false);
-
-            UserBookProgressEntity progress = createProgress(1L);
-            progress.setEpubProgress("epubcfi(/6/4)");
-            progress.setEpubProgressPercent(65f);
-            progress.setLastReadTime(Instant.now());
-            progress.setKoboProgressSentTime(Instant.now().minusSeconds(60));
-            progress.setKoboProgressReceivedTime(null);
-
-            assertFalse(needsProgressSync(progress));
-        }
-
-        @Test
         @DisplayName("Should not bounce Kobo progress back immediately")
         void needsProgressSync_preventBounce() {
-            testSettings.setTwoWayProgressSync(true);
-
             UserBookProgressEntity progress = createProgress(1L);
             progress.setEpubProgress("epubcfi(/6/4)");
             progress.setEpubProgressPercent(65f);
@@ -300,8 +212,7 @@ class KoboLibrarySyncServiceTest {
     private boolean needsProgressSync(UserBookProgressEntity progress) {
         if (needsKoboProgressSync(progress)) return true;
 
-        if (testSettings.isTwoWayProgressSync()
-                && progress.getEpubProgressPercent() != null) {
+        if (progress.getEpubProgressPercent() != null) {
             Instant sentTime = progress.getKoboProgressSentTime();
             Instant lastReadTime = progress.getLastReadTime();
             if (lastReadTime != null && (sentTime == null || lastReadTime.isAfter(sentTime))) {
@@ -312,7 +223,6 @@ class KoboLibrarySyncServiceTest {
     }
 
     private boolean needsProgressSyncWebReader(UserBookProgressEntity progress) {
-        if (!testSettings.isTwoWayProgressSync()) return false;
         if (progress.getEpubProgress() == null || progress.getEpubProgressPercent() == null) return false;
 
         Instant lastReadTime = progress.getLastReadTime();

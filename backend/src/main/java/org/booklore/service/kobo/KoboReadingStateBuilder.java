@@ -55,9 +55,6 @@ public class KoboReadingStateBuilder {
     }
 
     public boolean shouldUseWebReaderProgress(UserBookProgressEntity progress) {
-        if (!koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()) {
-            return false;
-        }
         if (progress.getEpubProgressPercent() == null) {
             return false;
         }

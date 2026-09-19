@@ -20,7 +20,6 @@ const DEFAULT_KOBO_SYNC_SETTINGS: KoboSyncSettings = {
   progressMarkAsReadingThreshold: 1,
   progressMarkAsFinishedThreshold: 99,
   autoAddToShelf: false,
-  twoWayProgressSync: false,
 };
 
 const DEFAULT_KOBO_ADMIN_SETTINGS: KoboSettings = {
@@ -158,7 +157,6 @@ describe('KoboSyncSettingsComponent', () => {
       progressMarkAsReadingThreshold: 1,
       progressMarkAsFinishedThreshold: 99,
       autoAddToShelf: false,
-      twoWayProgressSync: false,
     };
 
     setupKoboTest({
@@ -179,19 +177,18 @@ describe('KoboSyncSettingsComponent', () => {
     component.onAutoAddToggle(true);
 
     // Before the response arrives, the user edits a different control.
-    component.syncForm.controls.twoWayProgressSync.setValue(true);
-    component.syncForm.controls.twoWayProgressSync.markAsDirty();
+    component.syncForm.controls.progressMarkAsFinishedThreshold.setValue(4);
+    component.syncForm.controls.progressMarkAsFinishedThreshold.markAsDirty();
 
-    // Server confirms the autoAddToShelf change but still has the old twoWayProgressSync.
+    // Server confirms the autoAddToShelf change
     updateSettings$.next({
       ...initialSettings,
       autoAddToShelf: true,
-      twoWayProgressSync: false,
     });
 
     // The newer in-flight edit must not be reverted.
-    expect(component.syncForm.controls.twoWayProgressSync.value).toBe(true);
-    expect(component.syncForm.controls.twoWayProgressSync.dirty).toBe(true);
+    expect(component.syncForm.controls.progressMarkAsFinishedThreshold.value).toBe(4);
+    expect(component.syncForm.controls.progressMarkAsFinishedThreshold.dirty).toBe(true);
     expect(component.syncForm.controls.autoAddToShelf.value).toBe(true);
     expect(component.syncForm.controls.autoAddToShelf.pristine).toBe(true);
 
@@ -224,7 +221,6 @@ describe('KoboSyncSettingsComponent', () => {
       progressMarkAsReadingThreshold: 2,
       progressMarkAsFinishedThreshold: 95,
       autoAddToShelf: true,
-      twoWayProgressSync: true,
     });
     fixture.detectChanges();
     await fixture.whenStable();
@@ -240,7 +236,6 @@ describe('KoboSyncSettingsComponent', () => {
       progressMarkAsReadingThreshold: 2,
       progressMarkAsFinishedThreshold: 95,
       autoAddToShelf: true,
-      twoWayProgressSync: true,
     });
     expect(fixture.nativeElement.querySelector('input#koboToken')).not.toBeNull();
 

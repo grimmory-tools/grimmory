@@ -47,20 +47,8 @@
           @if (syncForm.controls.syncEnabled.value) {
             <div class="setting-item">
               <div class="setting-info">
-                <div class="setting-label-row">
-                  <span class="setting-label">{{ t('kobo.twoWaySyncLabel') }}</span>
-                  <p-toggle-switch
-                    inputId="koboTwoWayProgressSync"
-                    formControlName="twoWayProgressSync"
-                    (onChange)="onTwoWaySyncToggle($event.checked)">
-                  </p-toggle-switch>
-                </div>
-                <p class="setting-description">
-                  {{ t('kobo.twoWaySyncDesc') }}
-                  <br>
-                  <strong>{{ t('kobo.twoWaySyncNote') }}</strong>
-                </p>
-                @if (syncForm.controls.twoWayProgressSync.value && !koboSettings.convertToKepub) {
+
+                @if (!koboSettings.convertToKepub) {
                   <p class="setting-warning border-l-red-700 dark:border-l-red-300" role="status" aria-live="polite" aria-atomic="true">
                     <i class="pi pi-exclamation-triangle text-red-700 dark:text-red-300" aria-hidden="true"></i>
                     @if (isAdmin) {

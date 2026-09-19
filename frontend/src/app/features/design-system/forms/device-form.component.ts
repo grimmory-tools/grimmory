@@ -17,7 +17,6 @@ interface DeviceFormModel {
   hardcover: { enabled: boolean; apiKey: string };
   kobo: {
     enabled: boolean;
-    twoWaySync: boolean;
     convertToKepub: boolean;
     markAsReading: number;
     markAsFinished: number;
@@ -31,7 +30,6 @@ function createInitialModel(): DeviceFormModel {
     hardcover: { enabled: false, apiKey: '' },
     kobo: {
       enabled: true,
-      twoWaySync: false,
       convertToKepub: true,
       markAsReading: 3,
       markAsFinished: 95,
@@ -83,16 +81,10 @@ export class DeviceFormExampleComponent {
     max(path.kobo.markAsFinished, 100);
     min(path.kobo.conversionLimitMb, 1);
     max(path.kobo.conversionLimitMb, 250);
-    hidden(path.kobo.twoWaySync, ({ valueOf }) => !valueOf(path.kobo.enabled));
     hidden(path.kobo.convertToKepub, ({ valueOf }) => !valueOf(path.kobo.enabled));
     hidden(path.kobo.markAsReading, ({ valueOf }) => !valueOf(path.kobo.enabled));
     hidden(path.kobo.markAsFinished, ({ valueOf }) => !valueOf(path.kobo.enabled));
     hidden(path.kobo.conversionLimitMb, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    validate(path.kobo.twoWaySync, ({ value, valueOf }) =>
-      value() && !valueOf(path.kobo.convertToKepub)
-        ? { kind: 'needsKepub', message: 'Two-way sync needs KEPUB conversion turned on' }
-        : null,
-    );
 
     hidden(path.koreader.username, ({ valueOf }) => !valueOf(path.koreader.enabled));
     hidden(path.koreader.password, ({ valueOf }) => !valueOf(path.koreader.enabled));
