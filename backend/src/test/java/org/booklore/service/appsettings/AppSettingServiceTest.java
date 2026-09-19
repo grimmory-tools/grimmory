@@ -171,14 +171,54 @@ class AppSettingServiceTest {
         }
     }
 
-    @Test
-    void getAppSettings_handlesNullSettingValues() {
-        when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+    @Nested
+    class GetAppSettings {
+        @BeforeEach
+        void setUp() {
+            when(appProperties.getRemoteAuth()).thenReturn(new AppProperties.RemoteAuth());
+        }
 
-        var setting = new AppSettingEntity();
-        setting.setName("test");
-        setting.setVal(null);
-        when(appSettingsRepository.findAll()).thenReturn(List.of(setting));
-        assertThat(appSettingService.getAppSettings()).isNotNull();
+        @Test
+        void getAppSettings_providesMinimalMetadataProviderSettingsWithoutPermission() {
+            var permissions = new BookLoreUser.UserPermissions();
+            permissions.setAdmin(false);
+
+            var setting = new AppSettingEntity();
+            setting.setName("metadata_provider_settings");
+            setting.setVal("{\"google\":{\"enabled\":true,\"apiKey\":\"foo\"}}");
+            when(appSettingsRepository.findAll()).thenReturn(List.of(setting));
+            var actual = appSettingService.getAppSettings(permissions);
+
+            assertThat(actual.getMetadataProviderSettings()).isNotNull();
+            assertThat(actual.getMetadataProviderSettings().getGoogle()).isNotNull();
+            assertThat(actual.getMetadataProviderSettings().getGoogle().isEnabled()).isTrue();
+            assertThat(actual.getMetadataProviderSettings().getGoogle().getApiKey()).isNull();
+        }
+
+        @Test
+        void getAppSettings_providesFullMetadataProviderSettingsWithPermission() {
+            var permissions = new BookLoreUser.UserPermissions();
+            permissions.setAdmin(true);
+
+            var setting = new AppSettingEntity();
+            setting.setName("metadata_provider_settings");
+            setting.setVal("{\"google\":{\"enabled\":true,\"apiKey\":\"foo\"}}");
+            when(appSettingsRepository.findAll()).thenReturn(List.of(setting));
+            var actual = appSettingService.getAppSettings(permissions);
+
+            assertThat(actual.getMetadataProviderSettings()).isNotNull();
+            assertThat(actual.getMetadataProviderSettings().getGoogle()).isNotNull();
+            assertThat(actual.getMetadataProviderSettings().getGoogle().isEnabled()).isTrue();
+            assertThat(actual.getMetadataProviderSettings().getGoogle().getApiKey()).isEqualTo("foo");
+        }
+
+        @Test
+        void getAppSettings_handlesNullSettingValues() {
+            var setting = new AppSettingEntity();
+            setting.setName("test");
+            setting.setVal(null);
+            when(appSettingsRepository.findAll()).thenReturn(List.of(setting));
+            assertThat(appSettingService.getAppSettings()).isNotNull();
+        }
     }
 }

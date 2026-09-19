@@ -316,6 +316,39 @@ public class AppSettingService {
         return getAppSettings(user.getPermissions());
     }
 
+    private MetadataProviderSettings getMinimalMetadataProviderSettings(Map<AppSettingKey, Optional<String>> settingsMap) {
+        try {
+            var node = settingsMap.get(AppSettingKey.METADATA_PROVIDER_SETTINGS).map(objectMapper::readTree).orElse(null);
+            if (node == null || !node.isObject()) {
+                return getDefaultMetadataProviderSettings();
+            }
+
+            var settingsNode = node.deepCopy().asObject();
+
+            for (var prop : List.copyOf(settingsNode.propertyNames())) {
+                if (settingsNode.get(prop) == null || !settingsNode.get(prop).isObject()) {
+                    settingsNode.remove(prop);
+                    continue;
+                }
+
+                var providerSettingNode = settingsNode.get(prop).asObject();
+
+                for (var providerProp : List.copyOf(providerSettingNode.propertyNames())) {
+                    if (!"enabled".equalsIgnoreCase(providerProp)) {
+                        providerSettingNode.remove(providerProp);
+                    }
+                }
+            }
+
+            return objectMapper.readValue(
+                    objectMapper.writeValueAsString(settingsNode),
+                    MetadataProviderSettings.class
+            );
+        } catch (Exception e) {
+            return getDefaultMetadataProviderSettings();
+        }
+    }
+
     public AppSettings getAppSettings(BookLoreUser.UserPermissions permissions) {
         Map<AppSettingKey, Optional<String>> settingsMap = getSettingsMap();
 
@@ -361,6 +394,13 @@ public class AppSettingService {
         builder.oidcGroupSyncMode(getValue(permissions, settingsMap, AppSettingKey.OIDC_GROUP_SYNC_MODE, "DISABLED"));
 
         builder.diskType(appProperties.getDiskType());
+
+        // Temporary workaround: While we lack a metadata providers endpoint we
+        // still need to have at least the enabled status available.
+        // Should be fixed with https://github.com/grimmory-tools/grimmory/issues/2668
+        if (!hasAccess(permissions, AppSettingKey.METADATA_PROVIDER_SETTINGS)) {
+            builder.metadataProviderSettings(getMinimalMetadataProviderSettings(settingsMap));
+        }
 
         return builder.build();
     }
