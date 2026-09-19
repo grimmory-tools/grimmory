@@ -10,6 +10,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
+import {MetadataProviderFieldsService, providerFieldRecord} from '../../../shared/metadata';
 import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
@@ -30,6 +31,7 @@ export class LibraryMetadataSettingsComponent {
   private sidecarService = inject(SidecarService);
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
+  private providerFields = inject(MetadataProviderFieldsService);
 
   defaultMetadataOptions: MetadataRefreshOptions = this.getDefaultMetadataOptions();
   libraryMetadataOptions: Record<number, MetadataRefreshOptions> = {};
@@ -221,31 +223,9 @@ export class LibraryMetadataSettingsComponent {
         categories: {p1: null, p2: null, p3: null, p4: null},
         cover: {p1: null, p2: null, p3: null, p4: null},
         pageCount: {p1: null, p2: null, p3: null, p4: null},
-        openlibraryId: {p1: null, p2: null, p3: null, p4: null},
-        asin: {p1: null, p2: null, p3: null, p4: null},
-        goodreadsId: {p1: null, p2: null, p3: null, p4: null},
-        comicvineId: {p1: null, p2: null, p3: null, p4: null},
-        hardcoverId: {p1: null, p2: null, p3: null, p4: null},
-        hardcoverBookId: {p1: null, p2: null, p3: null, p4: null},
-        googleId: {p1: null, p2: null, p3: null, p4: null},
-        amazonRating: {p1: null, p2: null, p3: null, p4: null},
-        amazonReviewCount: {p1: null, p2: null, p3: null, p4: null},
-        goodreadsRating: {p1: null, p2: null, p3: null, p4: null},
-        goodreadsReviewCount: {p1: null, p2: null, p3: null, p4: null},
-        hardcoverRating: {p1: null, p2: null, p3: null, p4: null},
-        hardcoverReviewCount: {p1: null, p2: null, p3: null, p4: null},
-        lubimyczytacId: {p1: null, p2: null, p3: null, p4: null},
-        lubimyczytacRating: {p1: null, p2: null, p3: null, p4: null},
-        ranobedbId: {p1: null, p2: null, p3: null, p4: null},
-        ranobedbRating: {p1: null, p2: null, p3: null, p4: null},
-        audibleId: {p1: null, p2: null, p3: null, p4: null},
-        audibleRating: {p1: null, p2: null, p3: null, p4: null},
-        audibleReviewCount: {p1: null, p2: null, p3: null, p4: null},
-        applebooksId: {p1: null, p2: null, p3: null, p4: null},
-        applebooksRating: {p1: null, p2: null, p3: null, p4: null},
-        applebooksReviewCount: {p1: null, p2: null, p3: null, p4: null},
         moods: {p1: null, p2: null, p3: null, p4: null},
-        tags: {p1: null, p2: null, p3: null, p4: null}
+        tags: {p1: null, p2: null, p3: null, p4: null},
+        ...providerFieldRecord(this.providerFields.fields(), () => ({p1: null, p2: null, p3: null, p4: null})),
       }
     };
   }

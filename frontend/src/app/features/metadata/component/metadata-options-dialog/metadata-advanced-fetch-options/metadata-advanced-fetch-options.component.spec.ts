@@ -85,7 +85,7 @@ describe('MetadataAdvancedFetchOptionsComponent', () => {
       {value: 'Google', label: 'translated:metadata.advancedFetchOptions.inactiveProvider', disabled: true},
     ]);
 
-    for (const field of component.fields) {
+    for (const field of component.fields()) {
       component.enabledFields[field] = false;
     }
     component.fieldOptions.title.p1 = 'Google';

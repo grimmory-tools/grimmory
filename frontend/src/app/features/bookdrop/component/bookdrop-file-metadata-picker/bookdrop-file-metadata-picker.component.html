@@ -300,9 +300,9 @@
             </div>
           </div>
         }
-        @for (field of metadataFieldsBottom; track field) {
+        @for (field of metadataFieldsBottom(); track field) {
           <div class="meta-row field-{{field.controlName}}">
-            <label for="{{field.controlName}}" class="field-label">{{ field.label }}</label>
+            <label for="{{field.controlName}}" class="field-label">{{ fieldLabel(field) }}</label>
             <div class="meta-fields">
               <input
                 pInputText
@@ -522,9 +522,9 @@
             </div>
           }
 
-          @for (field of metadataFieldsBottom; track field) {
+          @for (field of metadataFieldsBottom(); track field) {
             <div class="meta-row field-{{field.controlName}}" [class.field-series-name]="field.controlName === 'seriesName'">
-              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ field.label }}</label>
+              <label for="{{field.controlName}}" class="field-label field-label-fixed">{{ fieldLabel(field) }}</label>
               <div class="field-input-row">
                 <input
                   pSize="small"

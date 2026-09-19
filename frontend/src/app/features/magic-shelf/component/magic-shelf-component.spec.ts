@@ -699,33 +699,33 @@ describe('MagicShelfComponent (Part 3)', () => {
 
   describe('numericFieldConfigMap', () => {
     it('should contain readingProgress with max 100', () => {
-      const config = component.numericFieldConfigMap.get('readingProgress');
+      const config = component.numericFieldConfigMap().get('readingProgress');
       expect(config).toBeDefined();
       expect(config!.type).toBe('decimal');
       expect(config!.max).toBe(100);
     });
 
     it('should contain personalRating with max 10', () => {
-      const config = component.numericFieldConfigMap.get('personalRating');
+      const config = component.numericFieldConfigMap().get('personalRating');
       expect(config).toBeDefined();
       expect(config!.type).toBe('decimal');
       expect(config!.max).toBe(10);
     });
 
     it('should contain pageCount with type number and no max', () => {
-      const config = component.numericFieldConfigMap.get('pageCount');
+      const config = component.numericFieldConfigMap().get('pageCount');
       expect(config).toBeDefined();
       expect(config!.type).toBe('number');
       expect(config!.max).toBeUndefined();
     });
 
     it('should not contain title', () => {
-      const config = component.numericFieldConfigMap.get('title');
+      const config = component.numericFieldConfigMap().get('title');
       expect(config).toBeUndefined();
     });
 
     it('should contain abridged with type boolean', () => {
-      const config = component.numericFieldConfigMap.get('abridged');
+      const config = component.numericFieldConfigMap().get('abridged');
       expect(config).toBeDefined();
       expect(config!.type).toBe('boolean');
     });

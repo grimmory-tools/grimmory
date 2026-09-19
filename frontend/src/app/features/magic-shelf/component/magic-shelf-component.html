@@ -152,12 +152,12 @@
                   } @else if (['dateFinished', 'addedOn', 'lastReadTime'].includes(ruleCtrl.get('field')?.value)) {
                     <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.startDate')" appendTo="body" fluid class="value-input"></p-datepicker>
                     <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.endDate')" appendTo="body" fluid class="value-input"></p-datepicker>
-                  } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
+                  } @else if (numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.type === 'number') {
                     <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" [min]="0" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
                     <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" [min]="0" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
-                  } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
+                  } @else if (numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
                   } @else {
                     <input pInputText [formControl]="ruleCtrl.get('valueStart')" class="value-input" [placeholder]="t('placeholders.startValue')"/>
                     <input pInputText [formControl]="ruleCtrl.get('valueEnd')" class="value-input" [placeholder]="t('placeholders.endValue')"/>
@@ -167,12 +167,12 @@
                     <p-datepicker formControlName="value" dateFormat="yy-mm-dd" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (['dateFinished', 'addedOn', 'lastReadTime'].includes(ruleCtrl.get('field')?.value)) {
                     <p-datepicker formControlName="value" dateFormat="yy-mm-dd" appendTo="body" fluid class="value-input"></p-datepicker>
-                  } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'boolean') {
+                  } @else if (numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.type === 'boolean') {
                     <p-select [options]="booleanOptions" formControlName="value" [placeholder]="t('placeholders.selectValue')" appendTo="body" class="value-input"></p-select>
-                  } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
+                  } @else if (numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.type === 'number') {
                     <p-inputNumber formControlName="value" class="value-input" mode="decimal" [placeholder]="t('placeholders.value')" [showButtons]="true"></p-inputNumber>
-                  } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
-                    <p-inputNumber formControlName="value" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.value')"></p-inputNumber>
+                  } @else if (numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
+                    <p-inputNumber formControlName="value" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap().get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.value')"></p-inputNumber>
                   } @else if (ruleCtrl.get('field')?.value === 'seriesStatus') {
                     <p-select [options]="seriesStatusOptions" formControlName="value" [placeholder]="t('placeholders.selectSeriesStatus')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'seriesGaps') {

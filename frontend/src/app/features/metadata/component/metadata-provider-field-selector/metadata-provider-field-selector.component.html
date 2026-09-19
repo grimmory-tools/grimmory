@@ -12,21 +12,21 @@
 
     <div class="section-body">
       <div class="provider-groups-container">
-        @for (group of providerGroups; track group.labelKey) {
+        @for (group of providerGroups(); track group.label) {
           <div class="provider-group">
             <div class="group-header">
               <span class="group-icon pi pi-database"></span>
-              <h4 class="group-label">{{ getProviderLabel(group.labelKey) }}</h4>
+              <h4 class="group-label">{{ group.label }}</h4>
             </div>
             <div class="field-list">
-              @for (field of group.fields; track field) {
+              @for (field of group.fields; track field.name) {
                 <div class="field-item">
                   <p-toggleswitch
-                    [inputId]="field"
-                    [ngModel]="selectedFields.includes(field)"
-                    (ngModelChange)="toggleField(field, $event)">
+                    [inputId]="field.name"
+                    [ngModel]="selectedFields.includes(field.name)"
+                    (ngModelChange)="toggleField(field.name, $event)">
                   </p-toggleswitch>
-                  <label [for]="field">{{ getFieldLabel(field) }}</label>
+                  <label [for]="field.name">{{ field.label }}</label>
                 </div>
               }
             </div>

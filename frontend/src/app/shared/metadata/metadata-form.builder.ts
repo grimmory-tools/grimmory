@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
-import {ALL_COMIC_METADATA_FIELDS, ALL_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, MetadataFieldConfig} from './metadata-field.config';
+import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, MetadataFieldConfig} from './metadata-field.config';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +8,8 @@ import {ALL_COMIC_METADATA_FIELDS, ALL_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELD
 export class MetadataFormBuilder {
 
   buildForm(
-    includeLockedControls: boolean = true,
-    fields: MetadataFieldConfig[] = ALL_METADATA_FIELDS
+    includeLockedControls: boolean,
+    fields: MetadataFieldConfig[]
   ): FormGroup {
     const controls: Record<string, FormControl> = {};
 
@@ -66,7 +66,7 @@ export class MetadataFormBuilder {
   applyLockStates(
     metadataForm: FormGroup,
     lockedFields: Record<string, boolean>,
-    fields: MetadataFieldConfig[] = ALL_METADATA_FIELDS
+    fields: MetadataFieldConfig[]
   ): void {
     for (const key of Object.keys(metadataForm.controls)) {
       if (!key.endsWith('Locked')) {

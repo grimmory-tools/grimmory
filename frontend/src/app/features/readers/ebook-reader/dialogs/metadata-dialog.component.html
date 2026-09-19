@@ -116,31 +116,17 @@
             </div>
           }
 
-          @if (metadata?.rating || metadata?.goodreadsRating || metadata?.amazonRating) {
+          @if (providerRatings.length > 0) {
             <div class="metadata-group">
               <h3 class="section-title">{{ t('ratings') }}</h3>
 
-              @if (metadata?.goodreadsRating) {
+              @for (entry of providerRatings; track entry.labelKey) {
                 <div class="metadata-item">
-                  @let provider = catalog.provider('GoodReads');
-                  <span class="label">{{ provider ? (provider.labelKey | transloco) : 'GoodReads' }}</span>
+                  <span class="label">{{ entry.labelKey | transloco }}</span>
                   <span class="value">
-                    &#11088; {{ metadata?.goodreadsRating?.toFixed(2) }}
-                    @if (metadata?.goodreadsReviewCount) {
-                      <span class="review-count">({{ metadata?.goodreadsReviewCount }} {{ t('reviews') }})</span>
-                    }
-                  </span>
-                </div>
-              }
-
-              @if (metadata?.amazonRating) {
-                <div class="metadata-item">
-                  @let provider = catalog.provider('Amazon');
-                  <span class="label">{{ provider ? (provider.labelKey | transloco) : 'Amazon' }}</span>
-                  <span class="value">
-                    &#11088; {{ metadata?.amazonRating?.toFixed(2) }}
-                    @if (metadata?.amazonReviewCount) {
-                      <span class="review-count">({{ metadata?.amazonReviewCount }} {{ t('reviews') }})</span>
+                    &#11088; {{ entry.rating.toFixed(2) }}
+                    @if (entry.reviewCount) {
+                      <span class="review-count">({{ entry.reviewCount }} {{ t('reviews') }})</span>
                     }
                   </span>
                 </div>

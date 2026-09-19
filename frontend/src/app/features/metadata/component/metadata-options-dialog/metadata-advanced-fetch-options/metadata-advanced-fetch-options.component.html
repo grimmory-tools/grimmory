@@ -121,7 +121,7 @@
     <h3 class="section-title">{{ t('providerSpecificFields') }}</h3>
     <p class="section-description">{{ t('providerSpecificDescription') }}</p>
     <div class="fields-grid">
-      @for (field of providerSpecificFields; track field) {
+      @for (field of providerSpecificFields(); track field) {
         <div class="field-card">
           <p-checkbox [(ngModel)]="enabledFields[field]" [binary]="true"
                       [pTooltip]="t('enableFieldTooltip')"

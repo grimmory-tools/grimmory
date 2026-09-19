@@ -354,7 +354,7 @@
   min-width: 100px;
 
   @media (width >= 768px) {
-    min-width: 120px;
+    width: 120px;
     flex-shrink: 0;
   }
 }

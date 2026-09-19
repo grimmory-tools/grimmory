@@ -117,9 +117,9 @@ describe('MetadataPickerComponent', () => {
     const component = TestBed.runInInjectionContext(() => new MetadataPickerComponent());
     TestBed.flushEffects();
 
-    expect(component.metadataProviderFields.map(field => field.controlName)).toContain('googleId');
-    expect(component.metadataProviderFields.map(field => field.controlName)).toContain('audibleId');
-    expect(component.metadataProviderFields.map(field => field.controlName)).not.toContain('amazonRating');
+    expect(component.metadataProviderFields().map(field => field.controlName)).toContain('googleId');
+    expect(component.metadataProviderFields().map(field => field.controlName)).toContain('audibleId');
+    expect(component.metadataProviderFields().map(field => field.controlName)).not.toContain('amazonRating');
 
     component.filterItems({query: 'fan'}, 'categories');
     expect(component.getFiltered('categories')).toEqual(['Fantasy']);

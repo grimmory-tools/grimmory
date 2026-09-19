@@ -21,6 +21,7 @@ import {InputGroupAddon} from '@openng/optimus-ui/inputgroupaddon';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookMetadata} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {MetadataProviderFieldsService} from '../../../../shared/metadata';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {NgClass} from '@angular/common';
 import {Paginator} from '@openng/optimus-ui/paginator';
@@ -73,6 +74,7 @@ export class BookdropFileReviewComponent implements OnInit {
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly messageService = inject(MessageService);
   private readonly urlHelper = inject(UrlHelperService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
@@ -309,26 +311,11 @@ export class BookdropFileReviewComponent implements OnInit {
         description: original?.description ?? null,
         pageCount: original?.pageCount ?? null,
         language: original?.language ?? null,
-        asin: original?.asin ?? null,
-        amazonRating: original?.amazonRating ?? null,
-        amazonReviewCount: original?.amazonReviewCount ?? null,
-        goodreadsId: original?.goodreadsId ?? null,
-        goodreadsRating: original?.goodreadsRating ?? null,
-        goodreadsReviewCount: original?.goodreadsReviewCount ?? null,
-        hardcoverId: original?.hardcoverId ?? null,
-        hardcoverBookId: original?.hardcoverBookId ?? null,
-        hardcoverRating: original?.hardcoverRating ?? null,
-        hardcoverReviewCount: original?.hardcoverReviewCount ?? null,
-        lubimyczytacId: original?.lubimyczytacId ?? null,
-        lubimyczytacRating: original?.lubimyczytacRating ?? null,
-        googleId: original?.googleId ?? null,
-        comicvineId: original?.comicvineId ?? null,
-        ranobedbId: original?.ranobedbId ?? null,
-        ranobedbRating: original?.ranobedbRating ?? null,
         seriesName: original?.seriesName ?? null,
         seriesNumber: original?.seriesNumber ?? null,
         seriesTotal: original?.seriesTotal ?? null,
         thumbnailUrl: this.urlHelper.getBookdropCoverUrl(fileUi.file.id),
+        ...Object.fromEntries(this.providerFields.fields().map(field => [field.name, original?.[field.name] ?? null])),
       });
       fileUi.copiedFields = {};
       fileUi.savedFields = {};
@@ -590,26 +577,11 @@ export class BookdropFileReviewComponent implements OnInit {
       description: new FormControl(original?.description ?? ''),
       pageCount: new FormControl(original?.pageCount ?? ''),
       language: new FormControl(original?.language ?? ''),
-      asin: new FormControl(original?.asin ?? ''),
-      amazonRating: new FormControl(original?.amazonRating ?? ''),
-      amazonReviewCount: new FormControl(original?.amazonReviewCount ?? ''),
-      goodreadsId: new FormControl(original?.goodreadsId ?? ''),
-      goodreadsRating: new FormControl(original?.goodreadsRating ?? ''),
-      goodreadsReviewCount: new FormControl(original?.goodreadsReviewCount ?? ''),
-      hardcoverId: new FormControl(original?.hardcoverId ?? ''),
-      hardcoverBookId: new FormControl(original?.hardcoverBookId ?? ''),
-      hardcoverRating: new FormControl(original?.hardcoverRating ?? ''),
-      hardcoverReviewCount: new FormControl(original?.hardcoverReviewCount ?? ''),
-      lubimyczytacId: new FormControl(original?.lubimyczytacId ?? ''),
-      lubimyczytacRating: new FormControl(original?.lubimyczytacRating ?? ''),
-      ranobedbId: new FormControl(original?.ranobedbId ?? ''),
-      ranobedbRating: new FormControl(original?.ranobedbRating ?? ''),
-      googleId: new FormControl(original?.googleId ?? ''),
-      comicvineId: new FormControl(original?.comicvineId ?? ''),
       seriesName: new FormControl(original?.seriesName ?? ''),
       seriesNumber: new FormControl(original?.seriesNumber ?? ''),
       seriesTotal: new FormControl(original?.seriesTotal ?? ''),
       thumbnailUrl: new FormControl(this.urlHelper.getBookdropCoverUrl(bookdropFileId)),
+      ...Object.fromEntries(this.providerFields.fields().map(field => [field.name, new FormControl(original?.[field.name] ?? '')])),
     });
   }
 

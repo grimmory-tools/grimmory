@@ -9,6 +9,7 @@ import {Divider} from '@openng/optimus-ui/divider';
 import {LoadingService} from '../../../../../core/services/loading.service';
 import {finalize} from 'rxjs';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {MetadataProviderFieldsService} from '../../../../../shared/metadata';
 
 @Component({
   selector: 'app-lock-unlock-metadata-dialog',
@@ -33,14 +34,13 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
 
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
 
+  private readonly providerFields = inject(MetadataProviderFieldsService);
+
   lockableFields: string[] = [
-    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked', 'openlibraryIdLocked',
-    'isbn13Locked', 'isbn10Locked', 'asinLocked', 'pageCountLocked', 'thumbnailLocked', 'languageLocked', 'coverLocked',
+    'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',
+    'isbn13Locked', 'isbn10Locked', 'pageCountLocked', 'thumbnailLocked', 'languageLocked', 'coverLocked',
     'seriesNameLocked', 'seriesNumberLocked', 'seriesTotalLocked', 'authorsLocked', 'categoriesLocked', 'moodsLocked', 'tagsLocked',
-    'amazonRatingLocked', 'amazonReviewCountLocked', 'goodreadsRatingLocked', 'goodreadsReviewCountLocked',
-    'hardcoverRatingLocked', 'hardcoverReviewCountLocked', 'goodreadsIdLocked', 'hardcoverIdLocked', 'hardcoverBookIdLocked', 'googleIdLocked', 'comicvineIdLocked',
-    'applebooksIdLocked', 'applebooksRatingLocked', 'applebooksReviewCountLocked',
-    'ranobedbIdLocked', 'ranobedbRatingLocked'
+    ...this.providerFields.fields().map(field => field.lockName),
   ];
 
   fieldLabels: Record<string, string> = {
@@ -51,8 +51,6 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     descriptionLocked: 'Description',
     isbn13Locked: 'ISBN-13',
     isbn10Locked: 'ISBN-10',
-    openlibraryIdLocked: 'OpenLibrary ID',
-    asinLocked: 'ASIN',
     pageCountLocked: 'Page Count',
     thumbnailLocked: 'Thumbnail',
     languageLocked: 'Language',
@@ -64,23 +62,12 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     categoriesLocked: 'Genres',
     moodsLocked: 'Moods',
     tagsLocked: 'Tags',
-    amazonRatingLocked: 'Amazon ★',
-    amazonReviewCountLocked: 'Amazon Reviews',
-    goodreadsRatingLocked: 'Goodreads ★',
-    goodreadsReviewCountLocked: 'Goodreads Reviews',
-    hardcoverRatingLocked: 'Hardcover ★',
-    hardcoverReviewCountLocked: 'Hardcover Reviews',
-    goodreadsIdLocked: 'Goodreads ID',
-    hardcoverIdLocked: 'Hardcover ID',
-    hardcoverBookIdLocked: 'Hardcover Book ID',
-    googleIdLocked: 'Google ID',
-    comicvineIdLocked: 'Comicvine ID',
-    ranobedbIdLocked: 'Ranobedb ID',
-    ranobedbRatingLocked: 'Ranobedb ★',
-    applebooksIdLocked: 'Apple Books ID',
-    applebooksRatingLocked: 'Apple Books Rating',
-    applebooksReviewCountLocked: 'Apple Books Reviews',
   };
+
+  getFieldLabel(lockName: string): string {
+    const providerField = this.providerFields.fields().find(field => field.lockName === lockName);
+    return providerField ? this.providerFields.label(providerField.name) : this.fieldLabels[lockName] ?? lockName;
+  }
 
   isSaving = false;
 

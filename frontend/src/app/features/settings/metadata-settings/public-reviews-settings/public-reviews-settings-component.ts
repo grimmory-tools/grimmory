@@ -113,9 +113,9 @@ export class PublicReviewsSettingsComponent {
   private buildReviewSettings(settings: AppSettings): PublicReviewSettings {
     const saved = settings.metadataPublicReviewsSettings;
     const baseSettings = {
-      downloadEnabled: saved?.downloadEnabled ?? true,
-      autoDownloadEnabled: saved?.autoDownloadEnabled ?? false,
-      providers: saved?.providers.map(provider => ({...provider})) ?? [],
+      downloadEnabled: saved.downloadEnabled,
+      autoDownloadEnabled: saved.autoDownloadEnabled,
+      providers: saved.providers.map(provider => ({...provider})),
     };
 
     this.catalog.reviewProviders().forEach(provider => {

@@ -1,6 +1,8 @@
 import {MetadataRefreshOptions} from '../../features/metadata/model/request/metadata-refresh-options.model';
+import type {MetadataProviderFieldRecord} from '../metadata/metadata-provider-fields';
+import type {MetadataProviderScoreFieldName} from '../metadata/metadata-providers';
 
-export interface MetadataMatchWeights {
+interface GenericMatchWeights {
   title: number;
   subtitle: number;
   description: number;
@@ -15,20 +17,12 @@ export interface MetadataMatchWeights {
   language: number;
   pageCount: number;
   categories: number;
-  amazonRating: number;
-  amazonReviewCount: number;
-  goodreadsRating: number;
-  goodreadsReviewCount: number;
-  hardcoverRating: number;
-  hardcoverReviewCount: number;
   doubanRating: number;
   doubanReviewCount: number;
-  lubimyczytacRating: number;
-  ranobedbRating: number;
-  audibleRating: number;
-  audibleReviewCount: number;
   coverImage: number;
 }
+
+export type MetadataMatchWeights = GenericMatchWeights & Record<MetadataProviderScoreFieldName, number>;
 
 export interface OidcProviderDetails {
   providerName: string;
@@ -213,31 +207,7 @@ export interface AppSettings {
   diskType: string;
 }
 
-export interface MetadataProviderSpecificFields {
-  openlibraryId: boolean;
-  asin: boolean;
-  amazonRating: boolean;
-  amazonReviewCount: boolean;
-  googleId: boolean;
-  goodreadsId: boolean;
-  goodreadsRating: boolean;
-  goodreadsReviewCount: boolean;
-  hardcoverId: boolean;
-  hardcoverBookId: boolean;
-  hardcoverRating: boolean;
-  hardcoverReviewCount: boolean;
-  comicvineId: boolean;
-  lubimyczytacId: boolean;
-  lubimyczytacRating: boolean;
-  ranobedbId: boolean;
-  ranobedbRating: boolean;
-  audibleId: boolean;
-  audibleRating: boolean;
-  audibleReviewCount: boolean;
-  applebooksId: boolean;
-  applebooksRating: boolean;
-  applebooksReviewCount: boolean;
-}
+export type MetadataProviderSpecificFields = MetadataProviderFieldRecord<boolean>;
 
 export enum AppSettingKey {
   QUICK_BOOK_MATCH = 'QUICK_BOOK_MATCH',

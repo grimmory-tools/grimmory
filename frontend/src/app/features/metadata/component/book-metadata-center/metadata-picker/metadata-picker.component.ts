@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, Output, signal} from '@angular/core';
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../../book/model/book.model';
 import {MessageService} from '@openng/optimus-ui/api';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -18,7 +18,7 @@ import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {LazyLoadImageModule} from 'ng-lazyload-image';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
-import {ALL_COMIC_METADATA_FIELDS, ALL_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, getArrayFields, getBookDetailsFields, getBottomFields, getProviderFields, getSeriesFields, getTextareaFields, getTopFields, MetadataFieldConfig, MetadataFormBuilder, MetadataUtilsService} from '../../../../../shared/metadata';
+import {ALL_COMIC_METADATA_FIELDS, allMetadataFields, AUDIOBOOK_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, getArrayFields, getBookDetailsFields, getProviderFields, getSeriesFields, getTextareaFields, getTopFields, MetadataFieldConfig, MetadataProviderFieldsService, MetadataFormBuilder, MetadataUtilsService} from '../../../../../shared/metadata';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -50,8 +50,6 @@ export class MetadataPickerComponent {
   metadataDescription: MetadataFieldConfig[] = [];
   metadataSeriesFields: MetadataFieldConfig[] = [];
   metadataBookDetailsFields: MetadataFieldConfig[] = [];
-  metadataProviderFields: MetadataFieldConfig[] = [];
-  metadataFieldsBottom: MetadataFieldConfig[] = [];
   audiobookMetadataFields: MetadataFieldConfig[] = [];
   comicTextFields: MetadataFieldConfig[] = [];
   comicArrayFields: MetadataFieldConfig[] = [];
@@ -109,13 +107,16 @@ export class MetadataPickerComponent {
   private formBuilder = inject(MetadataFormBuilder);
   private metadataUtils = inject(MetadataUtilsService);
   private readonly t = inject(TranslocoService);
+  protected readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
 
-  private enabledProviderFields: MetadataProviderSpecificFields | null = null;
+  private readonly enabledProviderFields = signal<MetadataProviderSpecificFields | null>(null);
+  private readonly allFields = computed(() => allMetadataFields(this.providerFields.fields()));
+  readonly metadataProviderFields = computed(() => getProviderFields(this.allFields(), this.enabledProviderFields()));
 
   constructor() {
-    this.metadataForm = this.formBuilder.buildForm(true);
+    this.metadataForm = this.formBuilder.buildForm(true, this.allFields());
     this.initFieldArrays();
   }
 
@@ -125,20 +126,10 @@ export class MetadataPickerComponent {
     this.metadataDescription = getTextareaFields();
     this.metadataSeriesFields = getSeriesFields();
     this.metadataBookDetailsFields = getBookDetailsFields();
-    this.updateProviderFields();
-    this.updateBottomFields();
     this.audiobookMetadataFields = AUDIOBOOK_METADATA_FIELDS;
     this.comicTextFields = COMIC_TEXT_METADATA_FIELDS;
     this.comicArrayFields = COMIC_ARRAY_METADATA_FIELDS;
     this.comicTextareaFields = COMIC_TEXTAREA_METADATA_FIELDS;
-  }
-
-  private updateProviderFields(): void {
-    this.metadataProviderFields = getProviderFields(this.enabledProviderFields);
-  }
-
-  private updateBottomFields(): void {
-    this.metadataFieldsBottom = getBottomFields(this.enabledProviderFields);
   }
 
   getFiltered(controlName: string): string[] {
@@ -154,9 +145,7 @@ export class MetadataPickerComponent {
   private readonly syncProviderFieldsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
     if (settings?.metadataProviderSpecificFields) {
-      this.enabledProviderFields = settings.metadataProviderSpecificFields;
-      this.updateProviderFields();
-      this.updateBottomFields();
+      this.enabledProviderFields.set(settings.metadataProviderSpecificFields);
     }
   });
 
@@ -164,7 +153,7 @@ export class MetadataPickerComponent {
     void book;
     const patchData: Record<string, unknown> = {};
 
-    for (const field of ALL_METADATA_FIELDS) {
+    for (const field of this.allFields()) {
       const key = field.controlName as keyof BookMetadata;
       const lockedKey = field.lockedKey as keyof BookMetadata;
       const value = metadata[key];
@@ -221,7 +210,7 @@ export class MetadataPickerComponent {
 
   private applyLockStates(metadata: BookMetadata): void {
     const lockedFields: Record<string, boolean> = {};
-    for (const field of ALL_METADATA_FIELDS) {
+    for (const field of this.allFields()) {
       lockedFields[field.lockedKey] = !!metadata[field.lockedKey as keyof BookMetadata];
     }
     // Also handle audiobook metadata lock states (now at top-level of BookMetadata)
@@ -234,7 +223,7 @@ export class MetadataPickerComponent {
       const modelLockKey = COMIC_FORM_TO_MODEL_LOCK[field.lockedKey];
       lockedFields[field.lockedKey] = !!comicMeta?.[modelLockKey as keyof ComicMetadata];
     }
-    this.formBuilder.applyLockStates(this.metadataForm, lockedFields);
+    this.formBuilder.applyLockStates(this.metadataForm, lockedFields, this.allFields());
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -348,7 +337,7 @@ export class MetadataPickerComponent {
   private buildMetadataFromForm(): BookMetadata {
     const metadata: Record<string, unknown> = {bookId: this.currentBookId};
 
-    for (const field of ALL_METADATA_FIELDS) {
+    for (const field of this.allFields()) {
       if (field.type === 'array') {
         metadata[field.controlName] = this.getArrayValue(field.controlName);
       } else if (field.type === 'number') {
@@ -459,7 +448,7 @@ export class MetadataPickerComponent {
   private inferClearFlags(current: BookMetadata, original: BookMetadata): MetadataClearFlags {
     const flags: Record<string, boolean> = {};
 
-    for (const field of ALL_METADATA_FIELDS) {
+    for (const field of this.allFields()) {
       const key = field.controlName as keyof BookMetadata;
       const curr = current[key];
       const orig = original[key];

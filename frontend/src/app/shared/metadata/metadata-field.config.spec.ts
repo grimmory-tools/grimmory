@@ -2,8 +2,9 @@ import {describe, expect, it} from 'vitest';
 
 import {
   ALL_COMIC_METADATA_FIELDS,
-  ALL_METADATA_FIELDS,
+  allMetadataFields,
   COMIC_FORM_TO_MODEL_LOCK,
+  GENERIC_METADATA_FIELDS,
   getArrayFields,
   getBookDetailsFields,
   getBottomFields,
@@ -12,6 +13,10 @@ import {
   getTextareaFields,
   getTopFields
 } from './metadata-field.config';
+import {providerFieldsOf} from './metadata-provider-fields';
+import {METADATA_PROVIDER_LIST} from './metadata-providers';
+
+const allFields = allMetadataFields(providerFieldsOf(METADATA_PROVIDER_LIST));
 
 describe('metadata-field.config', () => {
   it('exposes stable grouped field selectors', () => {
@@ -66,13 +71,13 @@ describe('metadata-field.config', () => {
       applebooksReviewCount: false,
     };
 
-    expect(getProviderFields(enabledFields).map((field) => field.controlName)).toEqual(['googleId']);
-    expect(getBottomFields(enabledFields).some((field) => field.controlName === 'googleId')).toBe(true);
+    expect(getProviderFields(allFields, enabledFields).map((field) => field.controlName)).toEqual(['googleId']);
+    expect(getBottomFields(allFields, enabledFields).some((field) => field.controlName === 'googleId')).toBe(true);
   });
 
   it('keeps comic metadata fields and lock mappings aligned', () => {
     expect(ALL_COMIC_METADATA_FIELDS.length).toBeGreaterThan(0);
     expect(COMIC_FORM_TO_MODEL_LOCK['comicIssueNumberLocked']).toBe('issueNumberLocked');
-    expect(ALL_METADATA_FIELDS.some((field) => field.controlName === 'title')).toBe(true);
+    expect(GENERIC_METADATA_FIELDS.some((field) => field.controlName === 'title')).toBe(true);
   });
 });

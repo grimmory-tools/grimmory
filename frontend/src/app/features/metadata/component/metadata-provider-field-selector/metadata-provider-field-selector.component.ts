@@ -1,8 +1,11 @@
-import {Component, effect, inject, Input} from '@angular/core';
+import {Component, computed, effect, inject, Input} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {AppSettingKey, MetadataProviderSpecificFields} from '../../../../shared/model/app-settings.model';
+import {MetadataProviderFieldsService, providerFieldRecord} from '../../../../shared/metadata';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -17,40 +20,25 @@ export class MetadataProviderFieldSelectorComponent {
 
   private appSettingsService = inject(AppSettingsService);
   private t = inject(TranslocoService);
+  private catalog = inject(MetadataCatalogService);
+  private providerFields = inject(MetadataProviderFieldsService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
-  providerGroups: { labelKey: string, fields: string[] }[] = [
-    {labelKey: 'openlibrary', fields: ['openlibraryId']},
-    {labelKey: 'amazon', fields: ['asin', 'amazonRating', 'amazonReviewCount']},
-    {labelKey: 'googleBooks', fields: ['googleId']},
-    {labelKey: 'goodreads', fields: ['goodreadsId', 'goodreadsRating', 'goodreadsReviewCount']},
-    {labelKey: 'hardcover', fields: ['hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount']},
-    {labelKey: 'audible', fields: ['audibleId', 'audibleRating', 'audibleReviewCount']},
-    {labelKey: 'applebooks', fields: ['applebooksId', 'applebooksRating', 'applebooksReviewCount']},
-    {labelKey: 'comicvine', fields: ['comicvineId']},
-    {labelKey: 'lubimyczytac', fields: ['lubimyczytacId', 'lubimyczytacRating']},
-    {labelKey: 'ranobedb', fields: ['ranobedbId', 'ranobedbRating']}
-  ];
+  readonly providerGroups = computed(() => {
+    const lang = this.activeLang();
+    return this.catalog.providers()
+      .filter(provider => provider.book)
+      .map(provider => ({
+        label: this.t.translate(provider.labelKey, {}, lang),
+        fields: this.providerFields.fields()
+          .filter(field => field.provider === provider.id)
+          .map(field => ({name: field.name, label: this.providerFields.label(field.name)})),
+      }));
+  });
 
-  getProviderLabel(key: string): string {
-    return this.t.translate('settingsMeta.fieldSelector.providers.' + key);
-  }
-
-  getFieldLabel(field: string): string {
-    return this.t.translate('settingsMeta.fieldSelector.fields.' + field);
-  }
-
-  private readonly allFieldNames: (keyof MetadataProviderSpecificFields)[] = [
-    'openlibraryId',
-    'asin', 'amazonRating', 'amazonReviewCount',
-    'googleId',
-    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount',
-    'comicvineId',
-    'lubimyczytacId', 'lubimyczytacRating',
-    'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount',
-    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
-  ];
+  private readonly allFieldNames = computed<(keyof MetadataProviderSpecificFields)[]>(
+    () => this.providerFields.fields().map(field => field.name),
+  );
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
@@ -81,10 +69,6 @@ export class MetadataProviderFieldSelectorComponent {
   }
 
   private toFieldState(selectedFields: string[]): MetadataProviderSpecificFields {
-    const fieldState = {} as MetadataProviderSpecificFields;
-    for (const field of this.allFieldNames) {
-      fieldState[field] = selectedFields.includes(field);
-    }
-    return fieldState;
+    return providerFieldRecord(this.providerFields.fields(), field => selectedFields.includes(field.name));
   }
 }

@@ -26,6 +26,16 @@ export class ReaderBookMetadataDialogComponent {
     return this.book?.metadata;
   }
 
+  get providerRatings() {
+    const metadata = this.metadata;
+    return this.catalog.providers().flatMap(provider => {
+      const rating = provider.book?.rating ? metadata?.[provider.book.rating] : undefined;
+      if (typeof rating !== 'number') return [];
+      const reviewCount = provider.book?.reviewCount ? metadata?.[provider.book.reviewCount] : undefined;
+      return [{labelKey: provider.labelKey, rating, reviewCount}];
+    });
+  }
+
   get bookCoverUrl(): string | null {
     if (!this.book?.id) return null;
     const coverUpdatedOn = this.book.metadata?.coverUpdatedOn;

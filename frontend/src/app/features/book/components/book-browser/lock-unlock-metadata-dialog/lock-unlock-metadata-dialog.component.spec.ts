@@ -57,6 +57,8 @@ describe('LockUnlockMetadataDialogComponent', () => {
           provide: TranslocoService,
           useValue: {
             translate,
+            langChanges$: of('en'),
+            getActiveLang: () => 'en',
           },
         },
       ],

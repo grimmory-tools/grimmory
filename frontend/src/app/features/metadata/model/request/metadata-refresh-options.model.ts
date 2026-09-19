@@ -1,3 +1,5 @@
+import type {MetadataProviderFieldRecord} from '../../../../shared/metadata/metadata-provider-fields';
+
 export type MetadataReplaceMode = 'REPLACE_ALL' | 'REPLACE_MISSING' | 'REPLACE_WHEN_PROVIDED';
 
 export interface MetadataRefreshOptions {
@@ -22,7 +24,7 @@ export interface FieldProvider {
   p1: string | null;
 }
 
-export interface FieldOptions {
+interface GenericFieldOptions {
   title: FieldProvider;
   description: FieldProvider;
   authors: FieldProvider;
@@ -38,29 +40,8 @@ export interface FieldOptions {
   isbn10: FieldProvider;
   language: FieldProvider;
   pageCount: FieldProvider;
-  openlibraryId: FieldProvider;
-  asin: FieldProvider;
-  goodreadsId: FieldProvider;
-  comicvineId: FieldProvider;
-  hardcoverId: FieldProvider;
-  hardcoverBookId: FieldProvider;
-  googleId: FieldProvider;
-  lubimyczytacId: FieldProvider;
-  amazonRating: FieldProvider;
-  amazonReviewCount: FieldProvider;
-  goodreadsRating: FieldProvider;
-  goodreadsReviewCount: FieldProvider;
-  hardcoverRating: FieldProvider;
-  hardcoverReviewCount: FieldProvider;
-  lubimyczytacRating: FieldProvider;
-  ranobedbId: FieldProvider;
-  ranobedbRating: FieldProvider;
-  audibleId: FieldProvider;
-  audibleRating: FieldProvider;
-  audibleReviewCount: FieldProvider;
-  applebooksId: FieldProvider;
-  applebooksRating: FieldProvider;
-  applebooksReviewCount: FieldProvider;
   moods: FieldProvider;
   tags: FieldProvider;
 }
+
+export type FieldOptions = GenericFieldOptions & MetadataProviderFieldRecord<FieldProvider>;
