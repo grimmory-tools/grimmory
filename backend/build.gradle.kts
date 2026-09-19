@@ -138,7 +138,7 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.15.0")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
-    implementation("org.grimmory:epub4j-core:1.5.0")
+    implementation("org.grimmory:epub4j-core:2.1.0")
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.27")
