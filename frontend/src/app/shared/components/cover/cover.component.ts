@@ -74,8 +74,10 @@ export class CoverComponent {
       this.closePreview();
     });
     afterNextRender(() => {
-      if (!this.showImage() || this.preview()) {
+      if (this.preview()) {
         this.markReady();
+      } else if (!this.showImage()) {
+        requestAnimationFrame(() => requestAnimationFrame(this.markReady));
       }
     });
   }

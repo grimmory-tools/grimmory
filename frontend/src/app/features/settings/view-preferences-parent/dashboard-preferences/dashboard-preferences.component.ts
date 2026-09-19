@@ -53,8 +53,6 @@ export class DashboardPreferencesComponent {
     const t = (key: string) => this.translocoService.translate(`settingsView.dashboardScrollers.${key}`);
     return [
       {label: t('sortFields.title'), value: 'title'},
-      {label: t('sortFields.fileName'), value: 'fileName'},
-      {label: t('sortFields.filePath'), value: 'filePath'},
       {label: t('sortFields.addedOn'), value: 'addedOn'},
       {label: t('sortFields.author'), value: 'author'},
       {label: t('sortFields.authorSurnameVorname'), value: 'authorSurnameVorname'},
@@ -67,7 +65,6 @@ export class DashboardPreferencesComponent {
       {label: t('sortFields.readStatus'), value: 'readStatus'},
       {label: t('sortFields.dateFinished'), value: 'dateFinished'},
       {label: t('sortFields.readingProgress'), value: 'readingProgress'},
-      {label: t('sortFields.bookType'), value: 'bookType'},
       {label: t('sortFields.pageCount'), value: 'pageCount'}
     ];
   });
