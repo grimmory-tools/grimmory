@@ -1580,7 +1580,12 @@
       "syncDisabledMsg": "Hardcover sync disabled",
       "apiKeyUpdated": "Hardcover API key updated",
       "updateFailed": "Update Failed",
-      "updateError": "Unable to update Hardcover sync settings. Please try again."
+      "updateError": "Unable to update Hardcover sync settings. Please try again.",
+      "importData": "Import Hardcover data",
+      "importStarted": "Hardcover import has started",
+      "importFailed": "Hardcover import failed",
+      "importError": "Unable to import data from Hardcover. Please try again.",
+      "overwriteData": "Overwrite Grimmory data with Hardcover data."
     }
   },
   "settingsProfile": {

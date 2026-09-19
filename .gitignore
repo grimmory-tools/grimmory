@@ -4,7 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-example-chart/charts/
+.env
 
 ## MacOS ###
 .DS_Store
