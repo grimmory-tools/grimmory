@@ -3,10 +3,12 @@ import {provideHttpClient} from '@angular/common/http';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {of, type Observable} from 'rxjs';
 
 interface AuthServiceStub {
   token: WritableSignal<string | null>;
   getInternalAccessToken: () => string | null;
+  ensureAccessToken: (options?: {forceRefresh?: boolean}) => Observable<string>;
 }
 
 export interface QueryClientHarness {
@@ -19,6 +21,7 @@ export function createAuthServiceStub(initialToken: string | null = 'token-123')
   return {
     token,
     getInternalAccessToken: () => token(),
+    ensureAccessToken: () => of(token() ?? ''),
   };
 }
 
@@ -57,4 +60,20 @@ export async function flushQueryAsync(rounds = 5): Promise<void> {
   }
   TestBed.flushEffects();
   appRef.tick();
+}
+
+export function sseStream(chunks: readonly string[]): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(chunk));
+      }
+      controller.close();
+    },
+  });
+}
+
+export function sseResponse(body: ReadableStream<Uint8Array>, status = 200): Response {
+  return new Response(body, {status, headers: {'Content-Type': 'text/event-stream'}});
 }

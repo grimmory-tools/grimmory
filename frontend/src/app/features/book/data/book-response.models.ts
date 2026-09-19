@@ -18,19 +18,6 @@ export const BOOK_READ_STATUSES = [
 export type KnownBookReadStatus = typeof BOOK_READ_STATUSES[number];
 export type BookReadStatus = KnownBookReadStatus | (string & {});
 
-export const BOOK_METADATA_PROVIDERS = [
-  'Amazon',
-  'GoodReads',
-  'Google',
-  'Hardcover',
-  'Comicvine',
-  'Douban',
-  'Lubimyczytac',
-  'Ranobedb',
-  'Audible',
-] as const;
-export type BookMetadataProvider = typeof BOOK_METADATA_PROVIDERS[number] | (string & {});
-
 export interface BookFileResponse {
   id: number;
   bookId: number;
@@ -267,7 +254,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   abridged?: boolean;
   audiobookMetadata?: BookDetailAudiobookMetadata;
   comicMetadata?: BookDetailComicMetadata;
-  provider?: BookMetadataProvider;
+  provider?: string;
   externalUrl?: string;
   thumbnailUrl?: string;
   titleLocked?: boolean;
