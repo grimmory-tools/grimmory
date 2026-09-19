@@ -1832,6 +1832,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Välj alla"
       }
     }
   },
@@ -5474,5 +5477,9 @@
         "matchFailedDetail": ""
       }
     }
+  },
+  "browse": {
+    "showAll": "Visa alla",
+    "moreActions": "Fler åtgärder"
   }
 }

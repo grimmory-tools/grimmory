@@ -1832,6 +1832,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Вибрати все"
       }
     }
   },
@@ -5475,5 +5478,9 @@
         "matchFailedDetail": "Не вдалося зіставити автора із зовнішніми метаданими."
       }
     }
+  },
+  "browse": {
+    "showAll": "Показати все",
+    "moreActions": "Додаткові дії"
   }
 }

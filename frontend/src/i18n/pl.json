@@ -1832,6 +1832,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Zaznacz wszystko"
       }
     }
   },
@@ -5472,5 +5475,9 @@
         "matchFailedDetail": ""
       }
     }
+  },
+  "browse": {
+    "showAll": "Pokaż wszystkie",
+    "moreActions": "Więcej akcji"
   }
 }
