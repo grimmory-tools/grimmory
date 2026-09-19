@@ -13,6 +13,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {BookMetadataService} from '../../../../book/service/book-metadata.service';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
+import {MetadataProviderService} from '../../../service/metadata-provider.service';
 
 const DETAIL_ID_FIELD: Record<string, keyof BookMetadata> = {
   GoodReads: 'goodreadsId',
@@ -71,9 +72,11 @@ export class MetadataSearcherComponent implements OnDestroy {
   readonly book = input<Book | null>(null);
   readonly isActiveTab = input(false);
 
+  private readonly destroy$ = new Subject<void>();
   private readonly formBuilder = inject(FormBuilder);
   private readonly bookMetadataService = inject(BookMetadataService);
   private readonly appSettingsService = inject(AppSettingsService);
+  private readonly metadataProviderService = inject(MetadataProviderService);
 
   readonly form: FormGroup = this.formBuilder.group({
     provider: null,
@@ -90,12 +93,8 @@ export class MetadataSearcherComponent implements OnDestroy {
   readonly selected = signal<BookMetadata | null>(null);
   readonly detailLoading = signal(false);
 
-  readonly providers = computed(() => {
-    const providerSettings = this.appSettingsService.appSettings()?.metadataProviderSettings ?? {};
-    return Object.entries(providerSettings)
-      .filter(([, value]) => this.isEnabledProviderSetting(value) && value.enabled)
-      .map(([key]) => capitalize(key));
-  });
+  private readonly providersInitialized = signal<boolean>(false);
+  readonly providers = signal<string[]>([]);
 
   readonly resultsByProvider = computed(() => {
     const groups = new Map<string, BookMetadata[]>();
@@ -134,27 +133,50 @@ export class MetadataSearcherComponent implements OnDestroy {
 
   private bookId: number | null = null;
   private readonly autoSearchPending = signal(false);
-  private providersInitialised = false;
   private readonly cancel$ = new Subject<void>();
 
   constructor() {
     effect(() => {
       if (!this.appSettingsService.appSettings()) return;
-      const providers = this.providers();
       const control = this.form.get('provider')!;
 
-      if (!this.providersInitialised) {
-        this.providersInitialised = true;
-        control.setValue(providers);
+      this.metadataProviderService.fetchMetadataProviders()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: providers => {
+            const activeProviderNames = providers
+              .filter(p => p.enabled)
+              .map(p => capitalize(p.name));
+
+            this.providers.set(activeProviderNames);
+
+            this.providersInitialized.update(value => {
+              if (!value) {
+                // First time we have set this
+                control.setValue(activeProviderNames);
+              }
+
+              return !value;
+            });
+          },
+          error: err => {
+            console.error('Failed to load providers:', err);
+          }
+        });
+    });
+
+    effect(() => {
+      if (!this.providersInitialized()) {
         return;
       }
+      const control = this.form.get('provider')!;
 
       const current: string[] = control.value ?? [];
-      const valid = current.filter(provider => providers.includes(provider));
+      const valid = current.filter(provider => this.providers().includes(provider));
       if (valid.length !== current.length) {
         control.setValue(valid.length > 0 ? valid : null);
       }
-    });
+    })
 
     effect(() => {
       const book = this.book();
@@ -172,7 +194,7 @@ export class MetadataSearcherComponent implements OnDestroy {
     });
 
     effect(() => {
-      if (this.autoSearchPending() && this.isActiveTab()) {
+      if (this.autoSearchPending() && this.isActiveTab() && this.providersInitialized()) {
         this.autoSearchPending.set(false);
         this.onSubmit();
       }
