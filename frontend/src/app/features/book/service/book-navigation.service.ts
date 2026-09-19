@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 
 import {UserService} from '../../settings/user-management/user.service';
 import {type BookFileResponse, type BookFileType, type BookSummary} from '../data/book-response.models';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from './book-dialog-helper.service';
 
 export interface BookNavigationState {
   bookIds: number[];

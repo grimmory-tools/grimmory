@@ -105,24 +105,4 @@ describe('UrlHelperService', () => {
     });
     expect(consoleErrorSpy).toHaveBeenCalledWith('Unsupported book type:', undefined);
   });
-
-  it('builds series and generic book filters with the expected router shape', () => {
-    expect(service.filterBooksBy('series', 'The Wheel of Time')).toEqual({
-      commands: ['/series', 'The Wheel of Time'],
-      extras: undefined,
-    });
-
-    expect(service.filterBooksBy('author', 'Ursula K. Le Guin')).toEqual({
-      commands: ['/all-books'],
-      extras: {
-        queryParams: {
-          view: 'grid',
-          sort: 'title',
-          direction: 'asc',
-          sidebar: true,
-          filter: 'author:Ursula%20K.%20Le%20Guin',
-        },
-      },
-    });
-  });
 });

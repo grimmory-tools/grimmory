@@ -17,7 +17,6 @@ function createUserSettings(): UserSettings {
     sidebarLibrarySorting: {field: 'name', order: 'ASC'},
     sidebarShelfSorting: {field: 'name', order: 'ASC'},
     sidebarMagicShelfSorting: {field: 'name', order: 'ASC'},
-    filterMode: 'and',
     metadataCenterViewMode: 'route',
     enableSeriesView: true,
     entityViewPreferences: {global: {sortKey: 'title', sortDir: 'ASC', view: 'GRID', coverSize: 100, seriesCollapsed: false, overlayBookType: false}, overrides: []},

@@ -13,7 +13,7 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
-import {BookDialogHelperService} from '../../../../book/components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../../../../book/service/book-dialog-helper.service';
 import {LibraryService} from '../../../../book/service/library.service';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {AuthorService} from '../../../../author-browser/service/author.service';

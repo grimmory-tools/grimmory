@@ -6,8 +6,6 @@ import {UserService} from '../../../settings/user-management/user.service';
 import {type LibraryShelfMenuTarget} from '../../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {libraryShelfMenuAvailable, LibraryShelfMenuItemsComponent} from './library-shelf-menu-items.component';
 
-export type {LibraryShelfMenuTarget} from '../../../../shared/layout/navigation/library-shelf-menu-target.model';
-
 @Component({
   selector: 'app-library-shelf-menu',
   standalone: true,

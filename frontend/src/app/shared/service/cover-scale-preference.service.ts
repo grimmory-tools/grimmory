@@ -1,6 +1,6 @@
 import {computed, inject, Injectable} from '@angular/core';
-import {LocalStorageService} from '../../../../shared/service/local-storage.service';
-import {ScalePreference} from '../../../../shared/util/scale-preference.util';
+import {LocalStorageService} from './local-storage.service';
+import {ScalePreference} from '../util/scale-preference.util';
 
 @Injectable({
   providedIn: 'root'

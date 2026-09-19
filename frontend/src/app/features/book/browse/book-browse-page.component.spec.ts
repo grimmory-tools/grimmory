@@ -25,7 +25,7 @@ import {LibraryService} from '../service/library.service';
 import {LibraryShelfMenuService} from '../service/library-shelf-menu.service';
 import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
 import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {EmailService} from '../../settings/email-v2/email.service';
 import {type BookSortTerm} from '../data/book-query-params';
