@@ -59,6 +59,7 @@ describe('author.model', () => {
       id: 4,
       name: 'Author',
       nameLocked: false,
+      sortNameLocked: false,
       descriptionLocked: true,
       asinLocked: false,
       photoLocked: false
