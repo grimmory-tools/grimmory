@@ -14,6 +14,7 @@ import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.metadata.MetadataManagementService;
 import org.booklore.service.metadata.MetadataMatchService;
+import org.booklore.service.metadata.MetadataProviderService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,7 @@ public class MetadataController {
     private final BookMetadataService bookMetadataService;
     private final MetadataMatchService metadataMatchService;
     private final MetadataManagementService metadataManagementService;
+    private final MetadataProviderService metadataProviderService;
 
     @Operation(summary = "Get prospective metadata for a book", description = "Fetch prospective metadata for a book by its ID. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "200", description = "Prospective metadata returned successfully")
@@ -134,7 +136,7 @@ public class MetadataController {
     public ResponseEntity<BookMetadata> getDetailedProviderMetadata(
             @Parameter(description = "Metadata provider") @PathVariable MetadataProvider provider,
             @Parameter(description = "Provider-specific item ID") @PathVariable String providerItemId) {
-        BookMetadata metadata = bookMetadataService.getDetailedProviderMetadata(provider, providerItemId);
+        BookMetadata metadata = metadataProviderService.getDetailedMetadata(provider, providerItemId);
         if (metadata == null) {
             return ResponseEntity.notFound().build();
         }
