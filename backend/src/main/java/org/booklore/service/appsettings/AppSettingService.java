@@ -203,6 +203,7 @@ public class AppSettingService {
 
             Map<String, String> loadedSettings = appSettingsRepository.findAll()
                     .stream()
+                    .filter(e -> e.getVal() != null)
                     .collect(
                             Collectors.toMap(
                                     AppSettingEntity::getName,
