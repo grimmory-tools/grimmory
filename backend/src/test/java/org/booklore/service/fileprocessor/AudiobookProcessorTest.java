@@ -21,7 +21,7 @@ import org.jaudiotagger.audio.AudioHeader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,24 +40,46 @@ class AudiobookProcessorTest {
     @Test
     void setAudiobookTechnicalMetadata_sumsAllFolderTrackDurations() throws Exception {
         Path audiobookFolder = Files.createDirectory(tempDir.resolve("Example Book"));
-        Files.createFile(audiobookFolder.resolve("01.mp3"));
+        Path firstTrack = Files.createFile(audiobookFolder.resolve("01.mp3"));
         Path secondTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
 
         BookEntity book = createFolderBasedAudiobook(audiobookFolder);
         BookFileEntity audiobookFile = book.getPrimaryBookFile();
+        AudioFile firstAudioFile = mockAudioFile(26_760.0);
         AudioFile secondAudioFile = mockAudioFile(24_540.0);
 
         try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(firstTrack.toFile())).thenReturn(firstAudioFile);
             audioFileIO.when(() -> AudioFileIO.read(secondTrack.toFile())).thenReturn(secondAudioFile);
 
             createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(26_760L));
 
+            audioFileIO.verify(() -> AudioFileIO.read(firstTrack.toFile()));
             audioFileIO.verify(() -> AudioFileIO.read(secondTrack.toFile()));
         }
 
         assertThat(audiobookFile.getDurationSeconds()).isEqualTo(51_300L);
         assertThat(audiobookFile.getBitrate()).isEqualTo(128);
         assertThat(audiobookFile.getCodec()).isEqualTo("MP3");
+    }
+
+    @Test
+    void setAudiobookTechnicalMetadata_sumsMillisecondsBeforeRoundingToSeconds() throws Exception {
+        Path audiobookFolder = Files.createDirectory(tempDir.resolve("Precise Duration"));
+        Path firstTrack = Files.createFile(audiobookFolder.resolve("01.mp3"));
+        Path secondTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
+        BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        AudioFile firstAudioFile = mockAudioFile(10.75);
+        AudioFile secondAudioFile = mockAudioFile(20.75);
+
+        try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(firstTrack.toFile())).thenReturn(firstAudioFile);
+            audioFileIO.when(() -> AudioFileIO.read(secondTrack.toFile())).thenReturn(secondAudioFile);
+
+            createProcessor().setAudiobookTechnicalMetadata(book, createMetadata(11L));
+        }
+
+        assertThat(book.getPrimaryBookFile().getDurationSeconds()).isEqualTo(32L);
     }
 
     @Test
@@ -99,13 +121,15 @@ class AudiobookProcessorTest {
     @Test
     void setAudiobookTechnicalMetadata_skipsInvalidLaterTracks() throws Exception {
         Path audiobookFolder = Files.createDirectory(tempDir.resolve("Invalid Tracks"));
-        Files.createFile(audiobookFolder.resolve("01.mp3"));
+        Path firstTrack = Files.createFile(audiobookFolder.resolve("01.mp3"));
         Path zeroDurationTrack = Files.createFile(audiobookFolder.resolve("02.mp3"));
         Path unreadableTrack = Files.createFile(audiobookFolder.resolve("03.mp3"));
         BookEntity book = createFolderBasedAudiobook(audiobookFolder);
+        AudioFile firstAudioFile = mockAudioFile(240.0);
         AudioFile zeroDurationAudioFile = mockAudioFile(0.0);
 
         try (MockedStatic<AudioFileIO> audioFileIO = mockStatic(AudioFileIO.class)) {
+            audioFileIO.when(() -> AudioFileIO.read(firstTrack.toFile())).thenReturn(firstAudioFile);
             audioFileIO.when(() -> AudioFileIO.read(zeroDurationTrack.toFile())).thenReturn(zeroDurationAudioFile);
             audioFileIO.when(() -> AudioFileIO.read(unreadableTrack.toFile()))
                     .thenThrow(new RuntimeException("unreadable"));
@@ -139,7 +163,7 @@ class AudiobookProcessorTest {
 
     private AudiobookProcessor createProcessor() {
         AudiobookMetadataExtractor extractor = new AudiobookMetadataExtractor(
-                new ObjectMapper(), mock(FfprobeService.class));
+                JsonMapper.shared(), mock(FfprobeService.class));
         return new AudiobookProcessor(
                 mock(BookRepository.class),
                 mock(BookAdditionalFileRepository.class),

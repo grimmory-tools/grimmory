@@ -280,16 +280,17 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             return firstTrackDurationSeconds;
         }
 
-        long totalDurationSeconds = 0;
+        long totalDurationMillis = 0;
         boolean hasDuration = false;
 
         for (int i = 0; i < audioFiles.size(); i++) {
-            Long trackDurationSeconds = i == 0 && firstTrackDurationSeconds != null
-                    ? firstTrackDurationSeconds
-                    : audiobookMetadataExtractor.extractDurationSeconds(audioFiles.get(i).toFile());
+            Long trackDurationMillis = audiobookMetadataExtractor.extractDurationMillis(audioFiles.get(i).toFile());
+            if (trackDurationMillis == null && i == 0 && firstTrackDurationSeconds != null) {
+                trackDurationMillis = firstTrackDurationSeconds * 1000;
+            }
 
-            if (trackDurationSeconds != null && trackDurationSeconds > 0) {
-                totalDurationSeconds += trackDurationSeconds;
+            if (trackDurationMillis != null && trackDurationMillis > 0) {
+                totalDurationMillis += trackDurationMillis;
                 hasDuration = true;
             }
         }
@@ -297,7 +298,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
         if (!hasDuration) {
             return firstTrackDurationSeconds;
         }
-        return totalDurationSeconds;
+        return Math.round(totalDurationMillis / 1000.0);
     }
 
     private List<BookFileEntity.AudioFileChapter> mapChapters(List<AudiobookMetadata.ChapterInfo> chapters) {
