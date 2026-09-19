@@ -7,8 +7,10 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ResetProgressType} from '../../../shared/constants/reset-progress-type';
 import {AuthService} from '../../../shared/service/auth.service';
+import {TaskProgressPayload} from '../../settings/task-management/task.service';
 import {Router} from '@angular/router';
 import {BookSocketService} from './book-socket.service';
+import type {BookCoverPatch} from './legacy-book-cache';
 import {BookPatchService} from './book-patch.service';
 import {TranslocoService} from '@jsverse/transloco';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
@@ -377,19 +379,23 @@ export class BookService {
     this.bookSocketService.handleRemovedBookIds(removedBookIds);
   }
 
-  handleBookUpdate(updatedBook: Book): void {
-    this.bookSocketService.handleBookUpdate(updatedBook);
-  }
-
-  handleMultipleBookUpdates(updatedBooks: Book[]): void {
-    this.bookSocketService.handleMultipleBookUpdates(updatedBooks);
+  handleBookUpdate(payload: Book | readonly number[]): void {
+    this.bookSocketService.handleBookUpdate(payload);
   }
 
   handleBookMetadataUpdate(bookId: number): void {
     this.bookSocketService.handleBookMetadataUpdate(bookId);
   }
 
-  handleMultipleBookCoverPatches(patches: { id: number; coverUpdatedOn: string }[]): void {
+  handleMultipleBookCoverPatches(patches: readonly BookCoverPatch[]): void {
     this.bookSocketService.handleMultipleBookCoverPatches(patches);
+  }
+
+  handleTaskProgress(payload: TaskProgressPayload): void {
+    this.bookSocketService.handleTaskProgress(payload);
+  }
+
+  handleReconnect(): void {
+    this.bookSocketService.handleReconnect();
   }
 }
