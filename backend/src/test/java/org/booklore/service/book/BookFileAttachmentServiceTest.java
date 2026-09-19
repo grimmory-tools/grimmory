@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -95,7 +96,7 @@ class BookFileAttachmentServiceTest {
                 .bookType(BookFileType.EPUB)
                 .build();
 
-        Path dir = tempDir.resolve(subPath);
+        Path dir = Path.of(book.getLibraryPath().getPath()).resolve(subPath);
         Files.createDirectories(dir);
         Files.createFile(dir.resolve(fileName));
 
@@ -223,7 +224,8 @@ class BookFileAttachmentServiceTest {
             createBookFile(10L, target, "target.epub", "sub", true, false);
 
             BookEntity source = createBook(2L);
-            createBookFile(20L, source, "notes.txt", "sub2", false, false);
+            source.setLibraryPath(null);
+            source.setIsPhysical(true);
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
@@ -761,8 +763,8 @@ class BookFileAttachmentServiceTest {
         }
 
         @Test
-        @DisplayName("Attach without move keeps file in place and recalculates fileSubPath for different library paths")
-        void attachBookFiles_differentLibraryPaths_noMoveRecalculatesSubPath() throws IOException {
+        @DisplayName("Rejects books from different library paths without moving files")
+        void attachBookFiles_differentLibraryPathsWithoutMove_rejectsBeforeChanges() throws IOException {
             LibraryPathEntity otherLibraryPath = LibraryPathEntity.builder()
                     .id(2L)
                     .library(library)
@@ -770,41 +772,26 @@ class BookFileAttachmentServiceTest {
                     .build();
             library.setLibraryPaths(new ArrayList<>(List.of(libraryPath, otherLibraryPath)));
 
-            Files.createDirectories(tempDir.resolve("other_root"));
-
             BookEntity target = createBook(1L);
             createBookFile(10L, target, "target.epub", "target_dir", true, false);
 
-            BookEntity source = BookEntity.builder()
-                    .id(2L)
-                    .library(library)
-                    .libraryPath(otherLibraryPath)
-                    .build();
-            source.setBookFiles(new HashSet<>());
-            BookFileEntity sourceFile = BookFileEntity.builder()
-                    .id(20L)
-                    .book(source)
-                    .fileName("source.pdf")
-                    .fileSubPath("source_dir")
-                    .isBookFormat(true)
-                    .folderBased(false)
-                    .bookType(BookFileType.PDF)
-                    .build();
-            Path sourceDir = tempDir.resolve("other_root/source_dir");
-            Files.createDirectories(sourceDir);
-            Files.createFile(sourceDir.resolve("source.pdf"));
-            source.getBookFiles().add(sourceFile);
+            BookEntity source = createBook(2L);
+            source.setLibraryPath(otherLibraryPath);
+            BookFileEntity sourceFile = createBookFile(20L, source, "source.epub", "source_dir", true, false);
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
             setupGetUpdatedBookMocks(1L, target);
 
-            AttachBookFileResponse result = service.attachBookFiles(1L, List.of(2L), false);
+            APIException ex = assertThrows(APIException.class,
+                    () -> service.attachBookFiles(1L, List.of(2L), false));
 
-            assertTrue(Files.exists(sourceDir.resolve("source.pdf")),
-                    "Source file should remain at original location");
-            verify(bookFileRepository).reassignFileToBookWithPath(eq(1L), anyString(), eq(20L));
-            assertEquals(List.of(2L), result.deletedSourceBookIds());
+            assertEquals(HttpStatus.CONFLICT, ex.getStatus());
+            assertTrue(ex.getMessage().contains("different library folders"));
+            assertTrue(Files.exists(sourceFile.getFullFilePath()));
+            assertSame(source, sourceFile.getBook());
+            verifyNoInteractions(bookFileRepository, entityManager, monitoringRegistrationService);
+            verify(bookRepository, never()).deleteAll(any());
         }
 
         @Test
