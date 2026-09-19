@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
@@ -13,7 +13,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {UserService} from '../../../settings/user-management/user.service';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 
@@ -28,9 +27,9 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   @Input() bookId!: number;
   @Input() reviews: BookReview[] | undefined = [];
   @Input() active: boolean = false;
+  @Input() reviewsLocked = false;
 
   private reviewService = inject(BookReviewService);
-  private bookService = inject(BookService);
   private bookMetadataManageService = inject(BookMetadataManageService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
@@ -38,7 +37,6 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   private appSettingsService = inject(AppSettingsService);
   private destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
-  private bookIdState = signal<number | null>(null);
   private loadingBookId: number | null = null;
   private loadingRequestSeq = 0;
   private activeLoadingRequestSeq: number | null = null;
@@ -49,22 +47,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   hasPermission = false;
   revealedSpoilers = new Set<number>();
   sortAscending = false;
-  reviewsLocked = false;
   allSpoilersRevealed = false;
   reviewDownloadEnabled = true;
-
-  constructor() {
-    effect(() => {
-      const bookId = this.bookIdState();
-      if (!bookId) {
-        this.reviewsLocked = false;
-        return;
-      }
-
-      const book = this.bookService.findBookById(bookId);
-      this.reviewsLocked = book?.metadata?.reviewsLocked ?? false;
-    });
-  }
 
   ngOnInit(): void {
     this.checkUserPermissions();
@@ -73,7 +57,6 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['bookId'] && changes['bookId'].currentValue) {
-      this.bookIdState.set(changes['bookId'].currentValue);
       this.loadReviews();
     }
   }

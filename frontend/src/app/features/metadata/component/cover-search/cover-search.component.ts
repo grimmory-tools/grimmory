@@ -54,18 +54,17 @@ export class CoverSearchComponent implements OnInit {
 
   ngOnInit() {
     this.bookId = this.dynamicDialogConfig.data.bookId;
-    const book = this.bookService.findBookById(this.bookId);
-
-    // Use explicitly provided coverType, or auto-detect based on primary file
-    if (this.dynamicDialogConfig.data.coverType) {
-      this.coverType = this.dynamicDialogConfig.data.coverType;
-    } else if (book?.primaryFile?.bookType === 'AUDIOBOOK') {
-      this.coverType = 'audiobook';
-    } else {
-      this.coverType = 'ebook';
+    const explicitCoverType = this.dynamicDialogConfig.data.coverType;
+    if (explicitCoverType) {
+      this.coverType = explicitCoverType;
     }
 
-    if (book) {
+    this.bookService.ensureBookDetail(this.bookId, true).then(book => {
+      // Without an explicit coverType, auto-detect based on primary file
+      if (!explicitCoverType && book.primaryFile?.bookType === 'AUDIOBOOK') {
+        this.coverType = 'audiobook';
+      }
+
       this.searchForm.patchValue({
         title: book.metadata?.title || '',
         author: book.metadata?.authors && book.metadata?.authors.length > 0 ? book.metadata?.authors[0] : ''
@@ -74,7 +73,7 @@ export class CoverSearchComponent implements OnInit {
       if (this.searchForm.valid) {
         this.onSearch();
       }
-    }
+    });
   }
 
   onSearch() {

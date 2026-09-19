@@ -1,8 +1,7 @@
-import {Component, computed, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, inject, OnInit, signal, untracked, ViewChild} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FetchedProposal, MetadataTaskService} from '../../../book/service/metadata-task';
 import {BookService} from '../../../book/service/book.service';
-import {Book} from '../../../book/model/book.model';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Button} from '@openng/optimus-ui/button';
 import {Divider} from '@openng/optimus-ui/divider';
@@ -11,6 +10,8 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {MetadataProgressService} from '../../../../shared/service/metadata-progress.service';
 import {MetadataPickerComponent} from '../book-metadata-center/metadata-picker/metadata-picker.component';
 import {DecimalPipe} from '@angular/common';
+import {injectQuery} from '@tanstack/angular-query-experimental';
+import {retryTransientQueryError} from '../../../../core/data/query-transport';
 
 @Component({
   selector: 'app-metadata-review-dialog-component',
@@ -31,28 +32,23 @@ export class MetadataReviewDialogComponent implements OnInit {
   private bookService = inject(BookService);
   private progressService = inject(MetadataProgressService);
 
-  loading = signal(true);
   readonly proposals = signal<FetchedProposal[]>([]);
   readonly currentIndex = signal(0);
-  readonly currentBook = computed<Book | null>(() => {
-    const proposal = this.proposals()[this.currentIndex()];
-    if (!proposal) {
-      return null;
-    }
-
-    return this.bookService.findBookById(proposal.bookId) ?? null;
-  });
+  private readonly currentBookId = computed(() => this.proposals()[this.currentIndex()]?.bookId ?? null);
+  private readonly bookDetailQuery = injectQuery(() => ({
+    ...this.bookService.bookDetailQueryOptions(this.currentBookId() ?? -1, true),
+    enabled: this.currentBookId() != null,
+    retry: retryTransientQueryError,
+  }));
+  readonly currentBook = computed(() => this.bookDetailQuery.data() ?? null);
+  readonly loading = computed(() => this.currentBook() === null);
 
   constructor() {
+    // A proposal can outlive its book, so skip any whose book cannot be loaded.
     effect(() => {
-      const proposals = this.proposals();
-      if (proposals.length === 0) {
-        return;
+      if (this.bookDetailQuery.isError()) {
+        untracked(() => this.onNext());
       }
-
-      const bookIds = new Set(proposals.map(proposal => proposal.bookId));
-      const matchedBooks = this.bookService.books().filter(book => bookIds.has(book.id));
-      this.loading.set(matchedBooks.length !== bookIds.size);
     });
   }
 

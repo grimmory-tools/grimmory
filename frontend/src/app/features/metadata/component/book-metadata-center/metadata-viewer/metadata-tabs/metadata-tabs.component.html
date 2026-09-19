@@ -92,7 +92,7 @@
     </p-tabpanel>
     <p-tabpanel value="reviews">
       <ng-template #content>
-        <app-book-reviews [bookId]="currentBook.id"></app-book-reviews>
+        <app-book-reviews [bookId]="currentBook.id" [reviewsLocked]="currentBook.metadata?.reviewsLocked ?? false"></app-book-reviews>
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="chapters">
