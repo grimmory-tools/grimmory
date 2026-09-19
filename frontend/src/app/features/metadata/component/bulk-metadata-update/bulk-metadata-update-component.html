@@ -5,7 +5,7 @@
     </div>
     <div class="header-text">
       <h2 class="panel-title">Bulk Edit Metadata</h2>
-      <p class="panel-description">{{ books.length }} book{{ books.length !== 1 ? 's' : '' }} selected</p>
+      <p class="panel-description">{{ bookIds.length }} book{{ bookIds.length !== 1 ? 's' : '' }} selected</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -23,30 +23,6 @@
         <p-progressSpinner></p-progressSpinner>
       </div>
     }
-
-    <div class="info-box">
-      <div class="info-header">
-        <p class="info-title">
-          Editing {{ books.length }} Book{{ books.length !== 1 ? 's' : '' }}
-        </p>
-        <button
-          type="button"
-          (click)="showBookList = !showBookList"
-          class="toggle-list-btn">
-          {{ showBookList ? 'Hide' : 'Show' }} Titles
-        </button>
-      </div>
-
-      @if (showBookList) {
-        <div class="book-list-panel">
-          <ul class="book-list">
-            @for (book of books; track book.id) {
-              <li>{{ book.metadata?.title || 'Untitled Book' }}</li>
-            }
-          </ul>
-        </div>
-      }
-    </div>
 
     <div class="warning-text">
       <i class="pi pi-exclamation-triangle warning-icon"></i>

@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, Injector, OnInit} from '@angular/core';
+import {Component, computed, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -9,7 +9,7 @@ import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicd
 import {MessageService} from '@openng/optimus-ui/api';
 import {BookService} from '../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
-import {Book, BulkMetadataUpdateRequest} from '../../../book/model/book.model';
+import {BulkMetadataUpdateRequest} from '../../../book/model/book.model';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
@@ -36,8 +36,6 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 export class BulkMetadataUpdateComponent implements OnInit {
   metadataForm!: FormGroup;
   bookIds: number[] = [];
-  books: Book[] = [];
-  showBookList = true;
   mergeCategories = true;
   mergeMoods = true;
   mergeTags = true;
@@ -62,7 +60,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly bookService = inject(BookService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
-  private readonly injector = inject(Injector);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   get allAuthors(): string[] { return this.uniqueMetadata().authors; }
@@ -122,7 +119,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
 
   ngOnInit(): void {
     this.bookIds = this.config.data?.bookIds ?? [];
-    this.books = this.bookService.getBooksByIds(this.bookIds);
 
     this.metadataForm = this.fb.group({
       authors: [],
@@ -135,10 +131,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
       moods: [],
       tags: []
     });
-
-    effect(() => {
-      this.books = this.bookService.books().filter(book => this.bookIds.includes(book.id));
-    }, {injector: this.injector});
   }
 
   onFieldClearToggle(field: keyof typeof this.clearFields): void {

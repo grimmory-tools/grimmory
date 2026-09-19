@@ -34,37 +34,6 @@
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 }
 
-.book-list-section {
-  flex-shrink: 0;
-  margin-bottom: 0.875rem;
-}
-
-.book-list-container {
-  max-height: 5.25rem;
-  overflow: auto;
-  border: 1px solid var(--color-border);
-  border-radius: 0.2188rem;
-  padding: 0.4375rem;
-  font-size: var(--app-text-sm);
-}
-
-.book-list {
-  list-style-type: disc;
-  padding-left: 1.0938rem;
-
-  li {
-    margin-bottom: 0.2188rem;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.book-id {
-  color: var(--color-text-secondary);
-}
-
 ::ng-deep app-metadata-fetch-options {
   flex: 1;
   display: flex;

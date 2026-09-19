@@ -34,58 +34,6 @@
   background: color-mix(in srgb, var(--color-surface-950) 60%, transparent);
 }
 
-.info-box {
-  padding: 0.875rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.3281rem;
-  margin-bottom: 0.875rem;
-  background: var(--color-page);
-  color: var(--color-text);
-}
-
-.info-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.4375rem;
-}
-
-.info-title {
-  font-size: var(--app-text-base);
-  font-weight: 600;
-}
-
-.toggle-list-btn {
-  font-size: var(--app-text-sm);
-  color: var(--color-primary-text);
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.book-list-panel {
-  max-height: 10.5rem;
-  overflow-y: auto;
-  border-top: 1px solid var(--color-border);
-  padding-top: 0.4375rem;
-  padding-left: 0.2188rem;
-  font-size: var(--app-text-sm);
-  color: var(--color-text-secondary);
-}
-
-.book-list {
-  list-style-type: disc;
-  padding-left: 1.0938rem;
-
-  li + li {
-    margin-top: 0.2188rem;
-  }
-}
-
 .warning-text {
   padding: 0 0.875rem;
   font-size: var(--app-text-sm);

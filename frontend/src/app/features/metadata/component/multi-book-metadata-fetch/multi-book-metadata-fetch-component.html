@@ -8,7 +8,7 @@
       @if (isLibraryRefresh) {
         <p class="panel-description">Library-level custom metadata fetch</p>
       } @else {
-        <p class="panel-description">{{ booksToShow.length }} books selected</p>
+        <p class="panel-description">{{ bookIds.length }} books selected</p>
       }
     </div>
     <p-button
@@ -22,20 +22,6 @@
   </div>
 
   <div class="dialog-content">
-    @if (!isLibraryRefresh) {
-      <div class="book-list-section">
-        <div class="book-list-container">
-          <ul class="book-list">
-            @for (book of booksToShow; track book.id) {
-              <li>
-                <span class="book-id">#{{ book.id }}</span>: {{ book.metadata?.title || 'Untitled' }}
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
-    }
-
     <app-metadata-fetch-options
       [dialogData]="{ bookIds: bookIds, libraryId: libraryId, metadataRefreshType: metadataRefreshType }"></app-metadata-fetch-options>
   </div>

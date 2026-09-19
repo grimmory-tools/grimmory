@@ -4,9 +4,7 @@ import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enu
 import {MetadataRefreshOptions} from '../../model/request/metadata-refresh-options.model';
 
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {Book} from '../../../book/model/book.model';
 import {FormsModule} from '@angular/forms';
 import {MetadataFetchOptionsComponent} from '../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 import {Button} from '@openng/optimus-ui/button';
@@ -27,13 +25,11 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
 
   bookIds: number[] = [];
   libraryId: number | null = null;
-  booksToShow: Book[] = [];
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
 
   private dynamicDialogConfig = inject(DynamicDialogConfig);
   dialogRef = inject(DynamicDialogRef);
-  private bookService = inject(BookService);
   private appSettingsService = inject(AppSettingsService);
   expanded = false;
 
@@ -64,7 +60,6 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
     this.bookIds = context.bookIds ?? [];
     this.libraryId = context.libraryId ?? null;
     this.metadataRefreshType = context.metadataRefreshType ?? MetadataRefreshType.BOOKS;
-    this.booksToShow = this.bookService.getBooksByIds(this.bookIds);
   }
 
   get isLibraryRefresh(): boolean {
