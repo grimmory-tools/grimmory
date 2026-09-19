@@ -9,6 +9,7 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.model.websocket.LogNotification;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
@@ -36,6 +37,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -182,7 +185,7 @@ public class BookCoverService {
     }
 
     /**
-     * Regenerate audiobook cover for a single book by extracting from the audiobook file.
+     * Regenerate audiobook cover for a single book from local artwork.
      */
     public void regenerateAudiobookCover(long bookId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -192,14 +195,14 @@ public class BookCoverService {
 
         // Find the audiobook file
         var audiobookFile = bookEntity.getBookFiles().stream()
-                .filter(f -> f.getBookType() == BookFileType.AUDIOBOOK)
+                .filter(f -> f.isBookFormat() && f.getBookType() == BookFileType.AUDIOBOOK)
                 .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElseThrow(() -> ApiError.FAILED_TO_REGENERATE_COVER.createException("no audiobook file found"));
 
         BookFileProcessor processor = processorRegistry.getProcessorOrThrow(audiobookFile.getBookType());
-        boolean success = processor.generateAudiobookCover(bookEntity);
+        boolean success = processor.restoreCover(bookEntity, audiobookFile);
         if (!success) {
-            throw ApiError.FAILED_TO_REGENERATE_COVER.createException("no embedded cover image found in the audiobook file");
+            throw ApiError.FAILED_TO_REGENERATE_COVER.createException("no local audiobook cover image found");
         }
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
@@ -241,7 +244,7 @@ public class BookCoverService {
     // =========================
 
     /**
-     * Regenerate cover for a single book from its ebook file.
+     * Regenerate cover for a single book from local artwork.
      * For books with multiple formats, this specifically uses an ebook (non-audiobook) file,
      * respecting the library's format priority setting.
      */
@@ -257,12 +260,23 @@ public class BookCoverService {
         }
 
         BookFileProcessor processor = processorRegistry.getProcessorOrThrow(ebookFile.getBookType());
-        boolean success = processor.generateCover(bookEntity, ebookFile);
+        boolean success = processor.restoreCover(bookEntity, ebookFile);
         if (!success) {
-            throw ApiError.FAILED_TO_REGENERATE_COVER.createException("no embedded cover image found in the file");
+            throw ApiError.FAILED_TO_REGENERATE_COVER.createException("no local book cover image found");
         }
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
+    }
+
+    public boolean regenerateCoversFromBookFiles(BookEntity book, MetadataReplaceMode replaceMode) {
+        return regenerateCoverSlots(book, replaceMode != MetadataReplaceMode.REPLACE_ALL);
+    }
+
+    public void saveRegeneratedCovers(List<BookEntity> books) {
+        if (!books.isEmpty()) {
+            bookRepository.saveAll(books);
+            notifyBookCoverUpdates(books.stream().map(BookEntity::getId).toList());
+        }
     }
 
     /**
@@ -404,7 +418,7 @@ public class BookCoverService {
             try {
                 BookFileEntity ebookFile = findEbookFile(book);
                 BookFileProcessor processor = processorRegistry.getProcessorOrThrow(ebookFile.getBookType());
-                if (processor.generateCover(book, ebookFile)) {
+                if (processor.restoreCover(book, ebookFile)) {
                     updateBookCoverMetadata(book);
                     updated = true;
                 }
@@ -414,8 +428,12 @@ public class BookCoverService {
         }
         if (audiobookSlotNeedsRegeneration(book, missingOnly)) {
             try {
+                BookFileEntity audiobookFile = book.getBookFiles().stream()
+                        .filter(f -> f.isBookFormat() && f.getBookType() == BookFileType.AUDIOBOOK)
+                        .min(Comparator.comparingLong(BookFileEntity::getId))
+                        .orElseThrow();
                 BookFileProcessor processor = processorRegistry.getProcessorOrThrow(BookFileType.AUDIOBOOK);
-                if (processor.generateAudiobookCover(book)) {
+                if (processor.restoreCover(book, audiobookFile)) {
                     updateAudiobookCoverMetadata(book);
                     updated = true;
                 }
@@ -560,11 +578,22 @@ public class BookCoverService {
     }
 
     private boolean ebookSlotNeedsRegeneration(BookEntity book, boolean missingOnly) {
-        return hasEbookFile(book) && !isCoverLocked(book) && (!missingOnly || book.getBookCoverHash() == null);
+        return hasEbookFile(book)
+                && !isCoverLocked(book)
+                && (!missingOnly || book.getBookCoverHash() == null || ebookCoverFileIsMissing(book.getId()));
     }
 
     private boolean audiobookSlotNeedsRegeneration(BookEntity book, boolean missingOnly) {
-        return hasUnlockedAudiobookSlot(book) && (!missingOnly || book.getAudiobookCoverHash() == null);
+        return hasUnlockedAudiobookSlot(book)
+                && (!missingOnly || book.getAudiobookCoverHash() == null || audiobookCoverFileIsMissing(book.getId()));
+    }
+
+    private boolean ebookCoverFileIsMissing(long bookId) {
+        return !Files.isRegularFile(Path.of(fileService.getCoverFile(bookId)));
+    }
+
+    private boolean audiobookCoverFileIsMissing(long bookId) {
+        return !Files.isRegularFile(Path.of(fileService.getAudiobookCoverFile(bookId)));
     }
 
     private boolean needsRegeneration(BookEntity book, boolean missingOnly) {
@@ -621,7 +650,7 @@ public class BookCoverService {
             return;
         }
         var audiobookFile = bookEntity.getBookFiles().stream()
-                .filter(f -> f.getBookType() == BookFileType.AUDIOBOOK)
+                .filter(f -> f.isBookFormat() && f.getBookType() == BookFileType.AUDIOBOOK)
                 .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
 
@@ -668,15 +697,18 @@ public class BookCoverService {
     }
 
     private void notifyBookCoverUpdate(BookEntity bookEntity) {
-        Long bookId = bookEntity.getId();
+        notifyBookCoverUpdates(List.of(bookEntity.getId()));
+    }
+
+    private void notifyBookCoverUpdates(List<Long> bookIds) {
         Runnable notify = () -> {
             try {
-                List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(List.of(bookId));
+                List<BookCoverUpdateProjection> updates = bookRepository.findCoverUpdateInfoByIds(bookIds);
                 if (!updates.isEmpty()) {
                     notificationService.sendMessage(Topic.BOOKS_COVER_UPDATE, updates);
                 }
             } catch (Exception e) {
-                log.warn("Failed to send cover update notification for book ID {}: {}", bookId, e.getMessage());
+                log.warn("Failed to send cover update notification for book IDs {}: {}", bookIds, e.getMessage());
             }
         };
         if (TransactionSynchronizationManager.isSynchronizationActive()) {

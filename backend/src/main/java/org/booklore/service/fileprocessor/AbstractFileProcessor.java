@@ -5,6 +5,7 @@ import org.booklore.model.FileProcessResult;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.FileProcessStatus;
 import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.repository.BookAdditionalFileRepository;
@@ -84,13 +85,29 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
     protected abstract BookEntity processNewFile(LibraryFile libraryFile);
 
     protected Path getBookFolderForCoverFallback(LibraryFile libraryFile) {
-        if (libraryFile.isFolderBased()) {
-            return libraryFile.getFullPath();
+        return resolveCoverFolder(libraryFile.getFullPath(), libraryFile.isFolderBased(),
+                libraryFile.getLibraryEntity().getOrganizationMode());
+    }
+
+    protected Path getBookFolderForCoverFallback(BookEntity bookEntity, BookFileEntity bookFile) {
+        return resolveCoverFolder(bookFile.getFullFilePath(), bookFile.isFolderBased(),
+                bookEntity.getLibrary().getOrganizationMode());
+    }
+
+    private Path resolveCoverFolder(Path filePath, boolean folderBased, LibraryOrganizationMode organizationMode) {
+        if (folderBased) {
+            return filePath;
         }
-        if (libraryFile.getLibraryEntity().getOrganizationMode() == LibraryOrganizationMode.BOOK_PER_FOLDER) {
-            return libraryFile.getFullPath().getParent();
+        return organizationMode == LibraryOrganizationMode.BOOK_PER_FOLDER ? filePath.getParent() : null;
+    }
+
+    @Override
+    public boolean restoreCover(BookEntity bookEntity, BookFileEntity bookFile) {
+        if (generateCover(bookEntity, bookFile)) {
+            return true;
         }
-        return null;
+        Path folder = getBookFolderForCoverFallback(bookEntity, bookFile);
+        return folder != null && generateCoverFromFolderImage(bookEntity, folder);
     }
 
     protected boolean generateCoverFromFolderImage(BookEntity bookEntity, Path bookFolder) {
