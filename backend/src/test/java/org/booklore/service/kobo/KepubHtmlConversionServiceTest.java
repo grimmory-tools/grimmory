@@ -166,13 +166,23 @@ class KepubHtmlConversionServiceTest {
     }
 
     @Test
-    void transform_ShouldNotLetEmptyAnchorsSwallowFollowingText() {
+    void transform_ShouldAllowSelfClosingAnchor() {
         String actual = service.transform(
                 "<html><body><p><a id=\"pagebreak\"/>Body text.</p></body></html>",
                 false
         );
 
-        assertThat(actual).containsPattern("<a id=\"pagebreak\"\\s*/>");
+        assertThat(actual).contains("<a id=\"pagebreak\" />");
+    }
+
+    @Test
+    void transform_ShouldAllowSelfClosingSpan() {
+        String actual = service.transform(
+                "<html><body><span id=\"pagebreak\"/>Body text.</body></html>",
+                false
+        );
+
+        assertThat(actual).contains("<span id=\"pagebreak\" />");
     }
 
     private int countKoboSpans(String html) {
