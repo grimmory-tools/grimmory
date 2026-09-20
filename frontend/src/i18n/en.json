@@ -2329,6 +2329,7 @@
       "fetching": "Fetching...",
       "readyToSearch": "Ready to Search",
       "readyToSearchHint": "Enter your search criteria above and click Search to find metadata",
+      "noProviders": "No metadata providers are available",
       "noResultsFound": "No Results Found",
       "noResultsHint": "Try adjusting your search criteria or selecting different providers",
       "searchFailed": "Search failed",

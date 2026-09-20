@@ -78,6 +78,7 @@ export class MetadataSearcherComponent {
   readonly selected = signal<MetadataSearchResult | null>(null);
 
   readonly providers = computed(() => this.sources.enabledProviders().map(provider => provider.id));
+  readonly noProviders = computed(() => !this.sources.providersLoading() && this.providers().length === 0);
 
   readonly providerOptions = computed(() => this.sources.enabledProviders().map(provider => ({
     id: provider.id,

@@ -136,8 +136,12 @@
         <div class="empty-icon">
           <i class="pi pi-search"></i>
         </div>
-        <h3>{{ t('readyToSearch') }}</h3>
-        <p>{{ t('readyToSearchHint') }}</p>
+        @if (noProviders()) {
+          <h3>{{ t('noProviders') }}</h3>
+        } @else {
+          <h3>{{ t('readyToSearch') }}</h3>
+          <p>{{ t('readyToSearchHint') }}</p>
+        }
       </div>
     }
 

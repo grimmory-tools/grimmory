@@ -73,6 +73,7 @@
                           pInputText
                           [placeholder]="t('googleApiPlaceholder')"
                           [(ngModel)]="googleApiKey"
+                          (ngModelChange)="onKeyChange('Google', $event)"
                           class="config-input"/>
                       </div>
                     </div>
@@ -89,26 +90,24 @@
                           pInputText
                           [placeholder]="t('hardcoverPlaceholder')"
                           [(ngModel)]="hardcoverToken"
-                          (ngModelChange)="onTokenChange($event)"
+                          (ngModelChange)="onKeyChange('Hardcover', $event)"
                           class="config-input"/>
                       </div>
                     </div>
                   }
                   @case ('Comicvine') {
-                    @if (enabled.Comicvine) {
-                      <div class="setting-options">
-                        <div class="config-field">
-                          <span class="config-label">{{ t('apiToken') }}</span>
-                          <input
-                            type="text"
-                            pInputText
-                            [placeholder]="t('comicvinePlaceholder')"
-                            [(ngModel)]="comicvineToken"
-                            (ngModelChange)="onComicTokenChange($event)"
-                            class="config-input"/>
-                        </div>
+                    <div class="setting-options">
+                      <div class="config-field">
+                        <span class="config-label">{{ t('apiToken') }}</span>
+                        <input
+                          type="text"
+                          pInputText
+                          [placeholder]="t('comicvinePlaceholder')"
+                          [(ngModel)]="comicvineToken"
+                          (ngModelChange)="onKeyChange('Comicvine', $event)"
+                          class="config-input"/>
                       </div>
-                    }
+                    </div>
                   }
                   @case ('Ranobedb') {
                     @if (enabled.Ranobedb) {

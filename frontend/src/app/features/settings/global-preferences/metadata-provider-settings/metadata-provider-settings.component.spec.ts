@@ -1,4 +1,4 @@
-import {computed, signal, type WritableSignal} from '@angular/core';
+import {signal, type WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {of} from 'rxjs';
@@ -19,13 +19,11 @@ describe('MetadataProviderSettingsComponent', () => {
   let appSettingsSignal: WritableSignal<AppSettings | null>;
   let saveSettings: ReturnType<typeof vi.fn>;
   let refreshProviders: ReturnType<typeof vi.fn>;
-  let backendEnabled: WritableSignal<Partial<Record<string, boolean>>>;
 
   beforeEach(async () => {
     appSettingsSignal = signal<AppSettings | null>(null);
     saveSettings = vi.fn(() => of(void 0));
     refreshProviders = vi.fn(() => Promise.resolve());
-    backendEnabled = signal<Partial<Record<string, boolean>>>({});
 
     await TestBed.configureTestingModule({
       imports: [MetadataProviderSettingsComponent, getTranslocoModule()],
@@ -33,13 +31,7 @@ describe('MetadataProviderSettingsComponent', () => {
         {provide: MetadataCatalogService, useValue: {providers: () => METADATA_PROVIDER_LIST}},
         {
           provide: MetadataSourceQueryService,
-          useValue: {
-            providers: computed(() => METADATA_PROVIDER_LIST.map(provider => ({
-              ...provider,
-              enabled: backendEnabled()[provider.id] ?? false,
-            }))),
-            refreshProviders,
-          },
+          useValue: {refreshProviders},
         },
         {
           provide: AppSettingsService,
@@ -75,13 +67,15 @@ describe('MetadataProviderSettingsComponent', () => {
     });
   });
 
-  it('persists the toggle as set, leaving the backend to decide whether it is usable', () => {
+  it('switches a provider off when its required key is cleared', () => {
+    component.googleApiKey = 'configured-key';
     component.enabled.Google = true;
-    component.googleApiKey = '';
 
+    component.googleApiKey = '';
+    component.onKeyChange('Google', '');
     component.saveSettings();
 
-    expect(getSavedProviderSettings().google.enabled).toBe(true);
+    expect(getSavedProviderSettings().google.enabled).toBe(false);
   });
 
   function getSavedProviderSettings() {

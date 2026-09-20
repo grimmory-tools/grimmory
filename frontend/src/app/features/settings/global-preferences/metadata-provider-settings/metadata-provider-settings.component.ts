@@ -127,9 +127,6 @@ export class MetadataProviderSettingsComponent {
 
   private applySettings(settings: NonNullable<ReturnType<typeof this.appSettingsService.appSettings>>): void {
     const metadataProviderSettings = settings.metadataProviderSettings;
-    for (const provider of this.sourceQuery.providers()) {
-      this.enabled[provider.id] = provider.enabled;
-    }
     this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
     this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
     this.selectedGoogleLanguage = metadataProviderSettings?.google?.language ?? '';
@@ -139,27 +136,26 @@ export class MetadataProviderSettingsComponent {
     this.ranobedbPreferRomaji = metadataProviderSettings?.ranobedb?.preferRomaji ?? false;
     this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
     this.selectedAppleBooksCountry = metadataProviderSettings?.appleBooks?.country ?? 'US';
-  }
-
-  onTokenChange(newToken: string): void {
-    this.hardcoverToken = newToken;
-    if (!newToken.trim()) {
-      this.enabled.Hardcover = false;
+    for (const provider of this.catalog.providers()) {
+      this.enabled[provider.id] = !!metadataProviderSettings?.[provider.settingsKey]?.enabled && !this.isToggleDisabled(provider.id);
     }
   }
 
-  onComicTokenChange(newToken: string): void {
-    this.comicvineToken = newToken;
-  }
-
-  get googleApiKeyConfigured(): boolean {
-    return this.googleApiKey.trim().length > 0;
-  }
+  private readonly requiredKey: Partial<Record<MetadataProviderId, () => string>> = {
+    Google: () => this.googleApiKey,
+    Hardcover: () => this.hardcoverToken,
+    Comicvine: () => this.comicvineToken,
+  };
 
   isToggleDisabled(id: MetadataProviderId): boolean {
-    if (id === 'Google') return !this.googleApiKeyConfigured;
-    if (id === 'Hardcover') return !this.hardcoverToken;
-    return false;
+    const key = this.requiredKey[id];
+    return key !== undefined && !key().trim();
+  }
+
+  onKeyChange(id: MetadataProviderId, key: string): void {
+    if (!key.trim()) {
+      this.enabled[id] = false;
+    }
   }
 
   saveSettings(): void {
