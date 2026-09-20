@@ -268,12 +268,6 @@ public class KepubConversionService {
         );
     }
 
-    public File convertEpubToKepub(File epubFile, File tempDir, boolean forceEnableHyphenation) throws IOException {
-        var outputPath = Files.createTempFile(tempDir.toPath(), "grimmory", ".kepub.epub");
-        convertEpubToKepub(epubFile.toPath(), outputPath, forceEnableHyphenation);
-        return outputPath.toFile();
-    }
-
     private void validateInputs(Path inputPath) {
         if (inputPath == null || !Files.isRegularFile(inputPath)) {
             throw new IllegalArgumentException("Invalid EPUB file: " + inputPath);
