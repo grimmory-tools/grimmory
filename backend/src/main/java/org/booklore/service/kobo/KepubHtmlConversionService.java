@@ -331,12 +331,7 @@ public class KepubHtmlConversionService {
         var tagSet = TagSet.Html();
 
         tagSet.onNewTag(tag -> {
-            // For some reason we want a hack to allow
-            // for self-closing anchor tags even though
-            // this is not valid HTML.
-            if (tag.name().equals("a")) {
-                tag.set(Tag.SelfClose);
-            }
+            tag.set(Tag.SelfClose);
         });
 
         var parser = Parser.htmlParser();
