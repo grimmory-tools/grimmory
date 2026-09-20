@@ -157,12 +157,13 @@ class KepubHtmlConversionServiceTest {
     @Test
     void transform_ShouldNotReuseAnExistingMarkerId() {
         String actual = service.transform(
-                "<html><body><p><span class=\"koboSpan\" id=\"kobo.1\">Already marked.</span>" +
-                        " Newly added text.</p></body></html>",
+                "<html><body><p><span id=\"kobo.1.1\" class=\"koboSpan\">Already marked.</span>" +
+                        " New text.</p></body></html>",
                 false
         );
 
-        assertThat(actual).doesNotMatch(Pattern.compile(".+id=\"kobo\\.1\".+id=\"kobo\\.1\".+", Pattern.DOTALL));
+        assertThat(actual).contains("<span id=\"kobo.1.1\" class=\"koboSpan\">Already marked.</span>");
+        assertThat(actual).contains("<span id=\"kobo.1.2\" class=\"koboSpan\"> New text.</span>");
     }
 
     @Test
