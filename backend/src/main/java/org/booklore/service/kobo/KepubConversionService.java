@@ -76,8 +76,8 @@ public class KepubConversionService {
      *     Read more on the EPUB3 spec.
      * </a>
      */
-    private void transformOPFCoverImage(Document opfDoc, String coverImage) {
-        if (coverImage == null) {
+    private void transformOPFCoverImage(Document opfDoc, String coverHref) {
+        if (coverHref == null) {
             return;
         }
 
@@ -92,7 +92,7 @@ public class KepubConversionService {
 
             for (int i = 0; i < itemList.getLength(); i++) {
                 if (itemList.item(i) instanceof Element item) {
-                    if (coverImage.equals(item.getAttribute("href"))) {
+                    if (coverHref.equals(item.getAttribute("href"))) {
                         String properties = item.getAttribute("properties");
 
                         if (properties.isBlank()) {
@@ -175,7 +175,7 @@ public class KepubConversionService {
     public void convertEpubToKepub(Path inputPath, Path outputPath, boolean forceEnableHyphenation) throws IOException {
         validateInputs(inputPath);
 
-        String coverHref = coverDetectorService.detectCoverImagePath(inputPath);
+        String coverArchivePath = coverDetectorService.detectCoverImagePath(inputPath);
 
         var tempDir = Files.createTempDirectory("grimmory-kepubify");
         try {
@@ -185,6 +185,13 @@ public class KepubConversionService {
 
             try {
                 Path opfPath = EpubContentReader.findOPFInExtractedEpub(tempDir);
+
+                String coverHref = null;
+                if (coverArchivePath != null) {
+                    Path coverPath = tempDir.resolve(coverArchivePath);
+                    coverHref = opfPath.getParent().relativize(coverPath).toString();
+                }
+
                 transformOPF(opfPath, coverHref);
             } catch (Exception e) {
                 log.warn("Unable to transform OPF", e);
