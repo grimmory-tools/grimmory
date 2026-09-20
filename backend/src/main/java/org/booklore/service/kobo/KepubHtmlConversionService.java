@@ -28,7 +28,7 @@ public class KepubHtmlConversionService {
     private static final String CLASSNAME_KOBO_SPAN = "koboSpan";
     private static final String CLASSNAME_KOBO_STYLES = "kobostylehacks";
     private static final String CLASSNAME_KOBO_HYPHENATE = "kobostylehyphenate";
-    private static final String ID_FORMAT_KOBO_SPAN = "kobo.%d";
+    private static final String ID_FORMAT_KOBO_SPAN = "kobo.%d.%d";
 
     private static final String CSS_KOBO_STYLES = """
             div#book-inner {
@@ -156,8 +156,7 @@ public class KepubHtmlConversionService {
      * text node.
      */
     private void transformContentAddKoboSpans(Document document) {
-        List<TextNode> wrappableText = new ArrayList<>();
-        List<Element> wrappableElements = new ArrayList<>();
+        List<Node> wrappableNodes = new ArrayList<>();
 
         document.body()
                 .filter(
@@ -177,7 +176,7 @@ public class KepubHtmlConversionService {
 
                             if (node instanceof TextNode textNode) {
                                 if (!textNode.isBlank()) {
-                                    wrappableText.add(textNode);
+                                    wrappableNodes.add(textNode);
                                 }
 
                                 return NodeFilter.FilterResult.CONTINUE;
@@ -185,7 +184,7 @@ public class KepubHtmlConversionService {
 
                             if (node instanceof Element element) {
                                 if (WRAPPABLE_TAGS.contains(element.tagName())) {
-                                    wrappableElements.add(element);
+                                    wrappableNodes.add(element);
                                 }
 
                                 if (IGNORED_CONTAINERS.contains(element.tagName())) {
@@ -197,7 +196,9 @@ public class KepubHtmlConversionService {
                         }
                 );
 
-        AtomicInteger koboSpanIndex = new AtomicInteger();
+        AtomicInteger koboElementIndex = new AtomicInteger();
+        AtomicInteger koboSentenceIndex = new AtomicInteger();
+
         Set<String> existingIds = document.getElementsByAttribute("id")
                 .stream()
                 .map(Element::id)
@@ -206,7 +207,11 @@ public class KepubHtmlConversionService {
         Supplier<Element> nextKoboSpan = () -> {
             String koboSpanId;
             do {
-                koboSpanId = String.format(ID_FORMAT_KOBO_SPAN, koboSpanIndex.incrementAndGet());
+                koboSpanId = String.format(
+                        ID_FORMAT_KOBO_SPAN,
+                        koboElementIndex.get(),
+                        koboSentenceIndex.incrementAndGet()
+                );
             } while (existingIds.contains(koboSpanId));
 
             var koboSpan = document.createElement("span");
@@ -215,20 +220,23 @@ public class KepubHtmlConversionService {
             return koboSpan;
         };
 
-        for (var textNode : wrappableText) {
-            for (var sentence : getSentences(textNode.getWholeText()).toList()) {
+        for (var node : wrappableNodes) {
+            koboElementIndex.getAndIncrement();
+            koboSentenceIndex.set(0);
+
+            if (node instanceof TextNode textNode) {
+                for (var sentence : getSentences(textNode.getWholeText()).toList()) {
+                    var koboSpan = nextKoboSpan.get();
+                    koboSpan.text(sentence);
+                    textNode.before(koboSpan);
+                }
+
+                textNode.remove();
+            } else if (node instanceof Element element) {
                 var koboSpan = nextKoboSpan.get();
-                koboSpan.text(sentence);
-                textNode.before(koboSpan);
+                element.before(koboSpan);
+                koboSpan.appendChild(element);
             }
-
-            textNode.remove();
-        }
-
-        for (var element : wrappableElements) {
-            var koboSpan = nextKoboSpan.get();
-            element.before(koboSpan);
-            koboSpan.appendChild(element);
         }
     }
 

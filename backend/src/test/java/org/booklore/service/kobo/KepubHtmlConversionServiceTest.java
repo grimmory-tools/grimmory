@@ -19,14 +19,26 @@ class KepubHtmlConversionServiceTest {
         String actual = service.transform("<html><body><p>Hello.World.  This is a test!</p></body></html>", false);
 
         assertThat(actual).contains(
-                "<span id=\"kobo.1\" class=\"koboSpan\">Hello.</span>"
+                "<span id=\"kobo.1.1\" class=\"koboSpan\">Hello.</span>"
         );
         assertThat(actual).contains(
-                "<span id=\"kobo.2\" class=\"koboSpan\">World.</span>"
+                "<span id=\"kobo.1.2\" class=\"koboSpan\">World.</span>"
         );
         assertThat(actual).contains(
-                "<span id=\"kobo.3\" class=\"koboSpan\"> This is a test!</span>"
+                "<span id=\"kobo.1.3\" class=\"koboSpan\"> This is a test!</span>"
         );
+    }
+
+    @Test
+    void transform_shouldIndexElementsSeparateFromSentences() {
+        String actual = service.transform(
+                "<html><body><p>What a guy.  Makes you cry.</p><p>And I did.</p></html>",
+                false
+        );
+
+        assertThat(actual).contains("<span id=\"kobo.1.1\" class=\"koboSpan\">What a guy.</span>");
+        assertThat(actual).contains("<span id=\"kobo.1.2\" class=\"koboSpan\"> Makes you cry.</span>");
+        assertThat(actual).contains("<span id=\"kobo.2.1\" class=\"koboSpan\">And I did.</span>");
     }
 
     @Test
@@ -34,7 +46,7 @@ class KepubHtmlConversionServiceTest {
         String actual = service.transform("<html><body><p>Hello World.<img /></p></body></html>", false);
 
         assertThat(actual).contains(
-                "<span id=\"kobo.2\" class=\"koboSpan\"><img /></span>"
+                "<span id=\"kobo.2.1\" class=\"koboSpan\"><img /></span>"
         );
     }
 
@@ -43,10 +55,10 @@ class KepubHtmlConversionServiceTest {
         String actual = service.transform("<html><body><p>Hello World.<img /><img /></p></body></html>", false);
 
         assertThat(actual).contains(
-                "<span id=\"kobo.2\" class=\"koboSpan\"><img /></span>"
+                "<span id=\"kobo.2.1\" class=\"koboSpan\"><img /></span>"
         );
         assertThat(actual).contains(
-                "<span id=\"kobo.3\" class=\"koboSpan\"><img /></span>"
+                "<span id=\"kobo.3.1\" class=\"koboSpan\"><img /></span>"
         );
     }
 
@@ -128,7 +140,6 @@ class KepubHtmlConversionServiceTest {
 
         String actual = service.transform("<html><body>" + body + "</body></html>", false);
 
-        System.out.println(actual);
         assertThat(countKoboSpans(actual)).isEqualTo(40);
     }
 
@@ -151,7 +162,6 @@ class KepubHtmlConversionServiceTest {
                 false
         );
 
-        System.out.println(actual);
         assertThat(actual).doesNotMatch(Pattern.compile(".+id=\"kobo\\.1\".+id=\"kobo\\.1\".+", Pattern.DOTALL));
     }
 
