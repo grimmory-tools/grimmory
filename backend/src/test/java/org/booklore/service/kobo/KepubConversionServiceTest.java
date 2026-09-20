@@ -56,6 +56,17 @@ class KepubConversionServiceTest {
     void setup() throws Exception {
         mockFiles = mockStatic(Files.class, CALLS_REAL_METHODS);
         mockFiles.when(() -> Files.createTempDirectory(anyString())).thenReturn(appDir);
+
+        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
+                args -> "transformed " + args.getArgument(0)
+        );
+
+        when(archiveService.extractToDirectory(any(), any(), any())).then(
+                (a) -> {
+                    writeExtractedEpub(a.getArgument(1));
+                    return List.of();
+                }
+        );
     }
 
 
@@ -79,17 +90,6 @@ class KepubConversionServiceTest {
 
         Path epubPath = writeFakeEpub("example.epub");
         Path kepubPath = tempDir.resolve("example.epub.kepub");
-
-        when(archiveService.extractToDirectory(any(), any(), any())).then(
-                (a) -> {
-                    writeExtractedEpub(a.getArgument(1));
-                    return List.of();
-                }
-        );
-
-        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
-                args -> "transformed " + args.getArgument(0)
-        );
 
         kepubConversionService.convertEpubToKepub(
                 epubPath,
@@ -119,17 +119,6 @@ class KepubConversionServiceTest {
         Path epubPath = writeFakeEpub("example.epub");
         Path kepubPath = tempDir.resolve("example.epub.kepub");
 
-        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
-                args -> "transformed " + args.getArgument(0)
-        );
-
-        when(archiveService.extractToDirectory(any(), any(), any())).then(
-                (a) -> {
-                    writeExtractedEpub(a.getArgument(1));
-                    return List.of();
-                }
-        );
-
         kepubConversionService.convertEpubToKepub(
                 epubPath,
                 kepubPath,
@@ -142,22 +131,27 @@ class KepubConversionServiceTest {
     }
 
     @Test
+    void convertEpubToKepub_ShouldOnlyTransformManifestItems() throws Exception {
+        Path epubPath = writeFakeEpub("example.epub");
+        Path kepubPath = tempDir.resolve("example.epub.kepub");
+
+        kepubConversionService.convertEpubToKepub(
+                epubPath,
+                kepubPath,
+                true
+        );
+
+        verify(kepubHtmlConversionService, never()).transform("<html><body>do not transform</body></html>", true);
+
+        assertThat(kepubPath).exists();
+    }
+
+    @Test
     void convertEpubToKepub_ShouldFindCoverPage() throws IOException {
         Path epubPath = writeFakeEpub("example.epub");
         Path kepubPath = tempDir.resolve("example.epub.kepub");
 
         when(coverDetectorService.detectCoverImagePath(any())).thenReturn("OEBPS/cover.jpg");
-
-        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
-                args -> "transformed " + args.getArgument(0)
-        );
-
-        when(archiveService.extractToDirectory(any(), any(), any())).then(
-                (a) -> {
-                    writeExtractedEpub(a.getArgument(1));
-                    return List.of();
-                }
-        );
 
         kepubConversionService.convertEpubToKepub(
                 epubPath,
@@ -218,9 +212,11 @@ class KepubConversionServiceTest {
     private void writeExtractedEpub(Path path) {
         writeString(path.resolve("mimetype"), "application/epub+zip");
         writeString(path.resolve("META-INF/container.xml"), CONTAINER_XML);
+        writeString(path.resolve("OEBPS/cover.jpg"), "");
         writeString(path.resolve("OEBPS/content.opf"), MINIMAL_OPF);
         writeString(path.resolve("OEBPS/example.txt"), "example");
         writeString(path.resolve("OEBPS/ch1.html"), "<html><body></body></html>");
+        writeString(path.resolve("OEBPS/unknown.html"), "<html><body>do not transform</body></html>");
 
         mockFiles.clearInvocations();
     }
