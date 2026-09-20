@@ -224,7 +224,7 @@ public class KepubHtmlConversionService {
         };
 
         for (var textNode : wrappableText) {
-            for (var sentence : getSentences(textNode.text()).toList()) {
+            for (var sentence : getSentences(textNode.getWholeText()).toList()) {
                 var koboSpan = nextKoboSpan.get();
                 koboSpan.text(sentence);
                 textNode.before(koboSpan);

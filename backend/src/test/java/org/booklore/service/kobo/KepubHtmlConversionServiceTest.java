@@ -185,6 +185,16 @@ class KepubHtmlConversionServiceTest {
         assertThat(actual).contains("<span id=\"pagebreak\" />");
     }
 
+    @Test
+    void transform_shouldRetainNonBreakingSpaces() {
+        String actual = service.transform(
+                "<html><body>Body&nbsp;Text</html>",
+                false
+        );
+
+        assertThat(actual).contains("Body&#xa0;Text");
+    }
+
     private int countKoboSpans(String html) {
         return countOccurrences(html, "class=\"koboSpan\"");
     }
