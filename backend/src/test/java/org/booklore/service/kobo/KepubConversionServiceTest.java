@@ -3,6 +3,8 @@ package org.booklore.service.kobo;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.booklore.service.ArchiveService;
 import org.booklore.util.epub.CoverDetectorService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -10,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -41,8 +44,25 @@ class KepubConversionServiceTest {
     @TempDir
     Path tempDir;
 
+    @TempDir
+    Path appDir;
+
+    MockedStatic<Files> mockFiles;
+
     @Captor
     ArgumentCaptor<Predicate<ArchiveService.Entry>> predicateCaptor;
+
+    @BeforeEach
+    void setup() throws Exception {
+        mockFiles = mockStatic(Files.class, CALLS_REAL_METHODS);
+        mockFiles.when(() -> Files.createTempDirectory(anyString())).thenReturn(appDir);
+    }
+
+
+    @AfterEach
+    void tearDown() {
+        mockFiles.close();
+    }
 
     @Test
     void convertEpubToKepub_ShouldSkipSomeFiles() throws IOException {
@@ -95,7 +115,7 @@ class KepubConversionServiceTest {
     }
 
     @Test
-    void convertEpubToKepub_ShouldOnlyTransformHTML() throws IOException {
+    void convertEpubToKepub_ShouldOnlyTransformHTML() throws Exception {
         Path epubPath = writeFakeEpub("example.epub");
         Path kepubPath = tempDir.resolve("example.epub.kepub");
 
@@ -119,6 +139,36 @@ class KepubConversionServiceTest {
         verify(kepubHtmlConversionService).transform("<html><body></body></html>", true);
 
         assertThat(kepubPath).exists();
+    }
+
+    @Test
+    void convertEpubToKepub_ShouldFindCoverPage() throws IOException {
+        Path epubPath = writeFakeEpub("example.epub");
+        Path kepubPath = tempDir.resolve("example.epub.kepub");
+
+        when(coverDetectorService.detectCoverImagePath(any())).thenReturn("OEBPS/cover.jpg");
+
+        when(kepubHtmlConversionService.transform(anyString(), eq(true))).then(
+                args -> "transformed " + args.getArgument(0)
+        );
+
+        when(archiveService.extractToDirectory(any(), any(), any())).then(
+                (a) -> {
+                    writeExtractedEpub(a.getArgument(1));
+                    return List.of();
+                }
+        );
+
+        kepubConversionService.convertEpubToKepub(
+                epubPath,
+                kepubPath,
+                true
+        );
+
+        mockFiles.verify(() -> Files.writeString(
+                any(),
+                contains("<item href=\"cover.jpg\" properties=\"cover-image\"/>")
+        ));
     }
 
     private Path writeFakeEpub(String epubName) throws IOException {
@@ -148,6 +198,7 @@ class KepubConversionServiceTest {
               <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
               </metadata>
               <manifest>
+                <item href="cover.jpg" />
                 <item href="ch1.html" />
               </manifest>
               <spine></spine>
@@ -170,5 +221,7 @@ class KepubConversionServiceTest {
         writeString(path.resolve("OEBPS/content.opf"), MINIMAL_OPF);
         writeString(path.resolve("OEBPS/example.txt"), "example");
         writeString(path.resolve("OEBPS/ch1.html"), "<html><body></body></html>");
+
+        mockFiles.clearInvocations();
     }
 }
