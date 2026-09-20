@@ -296,7 +296,10 @@
       "maxWidth": "Ancho máximo",
       "maxWidthDesc": "Limita el ancho máximo del área de lectura para un seguimiento de líneas más fácil.",
       "maxHeight": "Altura máxima",
-      "maxHeightDesc": "Limita la altura máxima del área de lectura para ajustarse a tu pantalla."
+      "maxHeightDesc": "Limita la altura máxima del área de lectura para ajustarse a tu pantalla.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "Lector PDF: Ajustes predeterminados",

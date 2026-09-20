@@ -296,7 +296,10 @@
       "maxWidth": "最大宽度",
       "maxWidthDesc": "限制阅读区域的最大宽度以便于追踪行文。",
       "maxHeight": "最大高度",
-      "maxHeightDesc": "限制阅读区域的最大高度以适应您的屏幕。"
+      "maxHeightDesc": "限制阅读区域的最大高度以适应您的屏幕。",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "PDF 阅读器：默认设置",

@@ -296,7 +296,10 @@
       "maxWidth": "最大幅",
       "maxWidthDesc": "行の追跡を容易にするために読書エリアの最大幅を制限します。",
       "maxHeight": "最大高さ",
-      "maxHeightDesc": "画面に合わせて読書エリアの最大高さを制限します。"
+      "maxHeightDesc": "画面に合わせて読書エリアの最大高さを制限します。",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "PDFリーダー：デフォルト設定",

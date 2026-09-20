@@ -296,7 +296,10 @@
       "maxWidth": "Max bredd",
       "maxWidthDesc": "Begränsa den maximala bredden på läsområdet för enklare radföljning.",
       "maxHeight": "Max höjd",
-      "maxHeightDesc": "Begränsa den maximala höjden på läsområdet för att passa din skärm."
+      "maxHeightDesc": "Begränsa den maximala höjden på läsområdet för att passa din skärm.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "PDF-läsare: Standardinställningar",

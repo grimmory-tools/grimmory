@@ -296,7 +296,10 @@
       "maxWidth": "Maks. szerokość",
       "maxWidthDesc": "Ogranicz maksymalną szerokość obszaru czytania dla łatwiejszego śledzenia linii.",
       "maxHeight": "Maks. wysokość",
-      "maxHeightDesc": "Ogranicz maksymalną wysokość obszaru czytania, aby dopasować go do ekranu."
+      "maxHeightDesc": "Ogranicz maksymalną wysokość obszaru czytania, aby dopasować go do ekranu.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "Czytnik PDF: Ustawienia domyślne",

@@ -296,7 +296,10 @@
       "maxWidth": "Largeur max.",
       "maxWidthDesc": "Limitez la largeur maximale de la zone de lecture pour un suivi de ligne plus facile.",
       "maxHeight": "Hauteur max.",
-      "maxHeightDesc": "Limitez la hauteur maximale de la zone de lecture pour s'adapter à votre écran."
+      "maxHeightDesc": "Limitez la hauteur maximale de la zone de lecture pour s'adapter à votre écran.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "Lecteur PDF : Paramètres par défaut",

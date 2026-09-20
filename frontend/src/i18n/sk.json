@@ -296,7 +296,10 @@
       "maxWidth": "",
       "maxWidthDesc": "",
       "maxHeight": "",
-      "maxHeightDesc": ""
+      "maxHeightDesc": "",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "",

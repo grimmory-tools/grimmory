@@ -296,7 +296,10 @@
       "maxWidth": "Največja širina",
       "maxWidthDesc": "Omeji največjo širino bralnega območja za lažje sledenje vrsticam.",
       "maxHeight": "Največja višina",
-      "maxHeightDesc": "Omeji največjo višino bralnega območja, da ustreza tvojemu zaslonu."
+      "maxHeightDesc": "Omeji največjo višino bralnega območja, da ustreza tvojemu zaslonu.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "Bralnik PDF: Privzete nastavitve",

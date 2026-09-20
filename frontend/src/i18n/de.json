@@ -296,7 +296,10 @@
       "maxWidth": "Max. Breite",
       "maxWidthDesc": "Begrenzen Sie die maximale Breite des Lesebereichs für einfacheres Zeilenverfolgen.",
       "maxHeight": "Max. Höhe",
-      "maxHeightDesc": "Begrenzen Sie die maximale Höhe des Lesebereichs, um ihn an Ihren Bildschirm anzupassen."
+      "maxHeightDesc": "Begrenzen Sie die maximale Höhe des Lesebereichs, um ihn an Ihren Bildschirm anzupassen.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "PDF-Reader: Standardeinstellungen",
