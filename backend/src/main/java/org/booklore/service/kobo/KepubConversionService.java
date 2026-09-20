@@ -20,9 +20,11 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -108,43 +110,92 @@ public class KepubConversionService {
         }
     }
 
-    private void transformOPF(Path path, String coverHref) throws IOException {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            try (var inputStream = Files.newInputStream(path)){
-                var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-                var opfDoc = builder.parse(inputStream);
-
-                transformOPFCoverImage(opfDoc, coverHref);
-
-                Transformer transformer = TransformerFactory.newInstance().newTransformer();
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                transformer.transform(new DOMSource(opfDoc), new StreamResult(outputStream));
-            } catch (TransformerException | SAXException | ParserConfigurationException exception) {
-                log.error("unable to parse OPF");
-                throw new IOException("unable to parse OPF", exception);
-            }
-
-            // After we close the InputStream we can write the file.
-            Files.writeString(path, outputStream.toString(StandardCharsets.UTF_8));
+    private Document readOPF(Path path) throws IOException {
+        try (var inputStream = Files.newInputStream(path)) {
+            var builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+            return builder.parse(inputStream);
+        } catch (SAXException | ParserConfigurationException exception) {
+            log.error("unable to parse OPF", exception);
+            throw new IOException("unable to parse OPF", exception);
         }
     }
 
-    private void transformExtractedEpubHtml(
+    private void transformOPF(Path path, String coverHref) throws IOException {
+        try (var outputStream = new ByteArrayOutputStream()) {
+            var opfDoc = readOPF(path);
+
+            transformOPFCoverImage(opfDoc, coverHref);
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.transform(new DOMSource(opfDoc), new StreamResult(outputStream));
+
+            // After we close the InputStream we can write the file.
+            Files.writeString(path, outputStream.toString(StandardCharsets.UTF_8));
+        } catch (TransformerException exception) {
+            log.error("unable to serialize OPF", exception);
+            throw new IOException("unable to serialize OPF", exception);
+        }
+    }
+
+    private Set<Path> getManifestPaths(Path path) throws IOException {
+        var opfPath = EpubContentReader.findOPFInExtractedEpub(path);
+        var opfDoc = readOPF(opfPath);
+
+        NodeList manifestList = opfDoc.getElementsByTagNameNS(OPF_NS, "manifest");
+
+        if (manifestList.getLength() == 0) {
+            return Set.of();
+        }
+
+        Set<Path> paths = new HashSet<>();
+        Path opfDir = opfPath.getParent();
+
+        if (manifestList.item(0) instanceof Element manifest) {
+            NodeList itemList = manifest.getElementsByTagNameNS(OPF_NS, "item");
+
+            for (int i = 0; i < itemList.getLength(); i++) {
+                if (itemList.item(i) instanceof Element item) {
+                    String href = item.getAttribute("href");
+
+                    // Technically, epub specification only refers to `href` as supporting percent-encoding.
+                    // Unfortunately, the Java URLDecoder.decode method will also do `+` -> space decoding.
+                    // To work around this, we can replace `+` with the percent-encoded version of a plus.
+                    String decodedHref = URLDecoder.decode(
+                            href.replaceAll("\\+", "%2b"),
+                            StandardCharsets.UTF_8
+                    );
+                    if (decodedHref == null || decodedHref.isBlank()) {
+                        log.debug("Manifest item has no href, skipping");
+                        continue;
+                    }
+
+                    var resourcePath = opfDir.resolve(decodedHref).normalize();
+
+                    if (!resourcePath.startsWith(path)) {
+                        log.debug("Ignored attempted to access file outside of epub");
+                        continue;
+                    }
+
+                    paths.add(resourcePath);
+                }
+            }
+        }
+
+        return paths;
+    }
+
+    private void transformExtractedResources(
             Path path,
             boolean forceEnableHyphenation
     ) throws IOException {
-        try (var files = Files.walk(path)) {
-            var allFiles = files
-                    .filter(Files::isRegularFile)
-                    .toList();
+        var manifestPaths = getManifestPaths(path);
+        for (var file : manifestPaths) {
+            String mediaType = MimeDetector.detect(file);
 
-            for (var file : allFiles) {
-                String mediaType = MimeDetector.detect(file);
-
-                if (HTML_MEDIA_TYPES.contains(mediaType)) {
-                    transformHTML(file, forceEnableHyphenation);
-                }
+            if (HTML_MEDIA_TYPES.contains(mediaType)) {
+                transformHTML(file, forceEnableHyphenation);
             }
         }
     }
@@ -181,8 +232,6 @@ public class KepubConversionService {
         try {
             archiveService.extractToDirectory(inputPath, tempDir, this::isAcceptedEntry);
 
-            transformExtractedEpubHtml(tempDir, forceEnableHyphenation);
-
             try {
                 Path opfPath = EpubContentReader.findOPFInExtractedEpub(tempDir);
 
@@ -196,6 +245,8 @@ public class KepubConversionService {
             } catch (Exception e) {
                 log.warn("Unable to transform OPF", e);
             }
+
+            transformExtractedResources(tempDir, forceEnableHyphenation);
 
             EpubContentWriter.createEpubFromDirectory(tempDir, outputPath);
         } finally {
