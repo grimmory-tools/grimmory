@@ -105,11 +105,11 @@ public class BookBrowseService {
             return List.of();
         }
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Long userId = user.getId();
-        boolean isAdmin = user.getPermissions().isAdmin();
+        BrowseScope scope = scopeFactory.from(user);
+        Long userId = scope.userId();
 
         Specification<BookEntity> spec = filterSpecifications
-                .base(null, Map.of(), FacetLogic.AND, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null)
+                .base(null, Map.of(), FacetLogic.AND, scope, null)
                 .and((root, query, cb) -> root.get("id").in(ids));
 
         List<Book> books = bookQueryService.findBooks(spec, userId);

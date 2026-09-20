@@ -154,9 +154,10 @@ export class BookQueryService {
   }
 
   batch(ids: readonly number[]) {
+    const distinctIds = [...new Set(ids)];
     return queryOptions({
-      queryKey: bookQueryKeys.batch(ids),
-      queryFn: ({signal}): Promise<BookSummary[]> => this.fetchBatch(ids, signal),
+      queryKey: bookQueryKeys.batch(distinctIds),
+      queryFn: ({signal}): Promise<BookSummary[]> => this.fetchBatch(distinctIds, signal),
       ...QUERY_DEFAULTS,
     });
   }
