@@ -55,14 +55,6 @@ public class KepubHtmlConversionService {
             }
             """;
 
-    private static final String CSS_NO_HYPHENATE = """
-            * {
-                -moz-hyphens: none !important;
-                -webkit-hyphens: none !important;
-                hyphens: none !important;
-            }
-            """;
-
     private static final Set<Integer> SENTENCE_PUNCTUATION = Set.of(
             (int) '.',
             (int) '?',
@@ -257,13 +249,6 @@ public class KepubHtmlConversionService {
                             .addClass(CLASSNAME_KOBO_HYPHENATE)
                             .attr("type", "text/css")
                             .text(CSS_HYPHENATE)
-            );
-        } else {
-            document.head().appendChild(
-                    document.createElement("style")
-                            .addClass(CLASSNAME_KOBO_HYPHENATE)
-                            .attr("type", "text/css")
-                            .text(CSS_NO_HYPHENATE)
             );
         }
     }
