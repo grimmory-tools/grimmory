@@ -17,6 +17,7 @@ async function* readLines(reader: ReadableStreamDefaultReader<Uint8Array>): Asyn
 
     yield buffer;
   } finally {
+    await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
 }

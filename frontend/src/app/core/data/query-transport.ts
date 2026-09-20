@@ -61,10 +61,12 @@ export async function postSseJson<T>(
 
   let response = await send();
   if (response.status === 401) {
+    await response.body?.cancel();
     response = await send({forceRefresh: true});
   }
 
   if (!response.ok) {
+    await response.body?.cancel();
     throw new HttpErrorResponse({status: response.status, statusText: response.statusText, url});
   }
 
