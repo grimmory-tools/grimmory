@@ -9,9 +9,14 @@ import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicd
 import {MessageService} from '@openng/optimus-ui/api';
 import {EmailV2ProviderService} from '../../../settings/email-v2/email-v2-provider/email-v2-provider.service';
 import {EmailV2RecipientService} from '../../../settings/email-v2/email-v2-recipient/email-v2-recipient.service';
-import {Book} from '../../model/book.model';
 import {RadioButton} from '@openng/optimus-ui/radiobutton';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+
+export interface BookSenderSource {
+  id: number;
+  primaryFile?: {id: number; bookType?: string; fileSizeKb?: number};
+  alternativeFormats?: readonly {id: number; bookType?: string; fileSizeKb?: number}[];
+}
 
 interface EmailableFile {
   id: number;
@@ -44,7 +49,7 @@ export class BookSenderComponent implements OnInit {
   dynamicDialogRef = inject(DynamicDialogRef);
   private dynamicDialogConfig = inject(DynamicDialogConfig);
 
-  book: Book = this.dynamicDialogConfig.data.book;
+  book: BookSenderSource = this.dynamicDialogConfig.data.book;
 
   emailProviders: { label: string, value: EmailProvider }[] = [];
   emailRecipients: { label: string, value: EmailRecipient }[] = [];

@@ -10,6 +10,7 @@ import {AuthService} from '../../../shared/service/auth.service';
 import {Book} from '../../book/model/book.model';
 import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {AuthorService} from './author.service';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
 
 function makeBook(authors?: string[]): Book {
   return {
@@ -181,6 +182,28 @@ describe('AuthorService', () => {
 
     expect(errors).toHaveLength(1);
     expect(errors[0]).toEqual(new Error('boom'));
+  });
+
+  it('refreshes embedded book author data after an author rename', () => {
+    service.updateAuthor(7, {name: 'Augusta Ada King'}).subscribe();
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+  });
+
+  it('refreshes book caches on any author update, not just renames', () => {
+    service.updateAuthor(7, {description: 'Mathematician'}).subscribe();
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+  });
+
+  it('refreshes the author list and book caches after deleting authors', () => {
+    service.deleteAuthors([7]).subscribe();
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
   });
 
   it('builds tokenized author media urls with and without cache busters', () => {

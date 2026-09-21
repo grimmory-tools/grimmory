@@ -115,6 +115,7 @@ export interface BookSummaryComicMetadata {
 interface BookMetadataFields {
   bookId: number;
   title?: string;
+  subtitle?: string;
   publisher?: string;
   publishedDate?: string;
   seriesName?: string;
@@ -229,7 +230,6 @@ export interface BookDetailComicMetadata extends BookSummaryComicMetadata {
 }
 
 export interface BookDetailMetadata extends BookMetadataFields {
-  subtitle?: string;
   description?: string;
   seriesTotal?: number;
   asin?: string;

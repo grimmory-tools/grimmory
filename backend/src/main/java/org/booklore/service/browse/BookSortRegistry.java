@@ -36,7 +36,7 @@ public class BookSortRegistry {
         registry.register("addedOn", rootField("addedOn"));
 
         for (String field : List.of(
-                "title", "seriesName", "seriesNumber", "publisher", "publishedDate",
+                "title", "subtitle", "seriesName", "seriesNumber", "publisher", "publishedDate",
                 "amazonRating", "amazonReviewCount", "goodreadsRating", "goodreadsReviewCount",
                 "hardcoverRating", "hardcoverReviewCount", "ranobedbRating",
                 "lubimyczytacRating",

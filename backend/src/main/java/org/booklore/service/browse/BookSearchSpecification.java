@@ -25,6 +25,7 @@ public final class BookSearchSpecification {
             Join<BookEntity, BookMetadataEntity> metadata = root.join("metadata", JoinType.LEFT);
             return cb.or(
                     cb.like(cb.lower(metadata.get("title")), pattern),
+                    cb.like(cb.lower(metadata.get("subtitle")), pattern),
                     cb.like(cb.lower(metadata.get("seriesName")), pattern),
                     cb.like(cb.lower(metadata.get("isbn13")), pattern),
                     cb.like(cb.lower(metadata.get("isbn10")), pattern),
