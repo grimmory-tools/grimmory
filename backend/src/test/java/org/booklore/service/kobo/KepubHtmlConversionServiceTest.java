@@ -1,10 +1,13 @@
 package org.booklore.service.kobo;
 
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -18,15 +21,11 @@ class KepubHtmlConversionServiceTest {
     void transform_ShouldSplitSentences() {
         String actual = service.transform("<html><body><p>Hello.World.  This is a test!</p></body></html>", false);
 
-        assertThat(actual).contains(
-                "<span id=\"kobo.1.1\" class=\"koboSpan\">Hello.</span>"
-        );
-        assertThat(actual).contains(
-                "<span id=\"kobo.1.2\" class=\"koboSpan\">World.</span>"
-        );
-        assertThat(actual).contains(
-                "<span id=\"kobo.1.3\" class=\"koboSpan\"> This is a test!</span>"
-        );
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.1.1")).isEqualTo("Hello.");
+        assertThat(koboSpans.get("kobo.1.2")).isEqualTo("World.");
+        assertThat(koboSpans.get("kobo.1.3")).isEqualTo("This is a test!");
     }
 
     @Test
@@ -36,30 +35,30 @@ class KepubHtmlConversionServiceTest {
                 false
         );
 
-        assertThat(actual).contains("<span id=\"kobo.1.1\" class=\"koboSpan\">What a guy.</span>");
-        assertThat(actual).contains("<span id=\"kobo.1.2\" class=\"koboSpan\"> Makes you cry.</span>");
-        assertThat(actual).contains("<span id=\"kobo.2.1\" class=\"koboSpan\">And I did.</span>");
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.1.1")).isEqualTo("What a guy.");
+        assertThat(koboSpans.get("kobo.1.2")).isEqualTo("Makes you cry.");
+        assertThat(koboSpans.get("kobo.2.1")).isEqualTo("And I did.");
     }
 
     @Test
     void transform_ShouldWrapImages() {
         String actual = service.transform("<html><body><p>Hello World.<img /></p></body></html>", false);
 
-        assertThat(actual).contains(
-                "<span id=\"kobo.2.1\" class=\"koboSpan\"><img /></span>"
-        );
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.2.1")).isEqualTo("<img>");
     }
 
     @Test
     void transform_ShouldWrapMultipleImages() {
         String actual = service.transform("<html><body><p>Hello World.<img /><img /></p></body></html>", false);
 
-        assertThat(actual).contains(
-                "<span id=\"kobo.2.1\" class=\"koboSpan\"><img /></span>"
-        );
-        assertThat(actual).contains(
-                "<span id=\"kobo.3.1\" class=\"koboSpan\"><img /></span>"
-        );
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.2.1")).isEqualTo("<img>");
+        assertThat(koboSpans.get("kobo.3.1")).isEqualTo("<img>");
     }
 
     @Test
@@ -162,8 +161,10 @@ class KepubHtmlConversionServiceTest {
                 false
         );
 
-        assertThat(actual).contains("<span id=\"kobo.1.1\" class=\"koboSpan\">Already marked.</span>");
-        assertThat(actual).contains("<span id=\"kobo.1.2\" class=\"koboSpan\"> New text.</span>");
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.1.1")).isEqualTo("Already marked.");
+        assertThat(koboSpans.get("kobo.1.2")).isEqualTo("New text.");
     }
 
     @Test
@@ -204,6 +205,45 @@ class KepubHtmlConversionServiceTest {
         );
 
         assertThat(actual).contains("Body&#xa0;Text");
+    }
+
+    @Test
+    void transform_incrementsForSentenceAndParagraphAsExpected() {
+        String actual = service.transform(
+                """
+                <?xml version='1.0' encoding='utf-8'?>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <body>
+                First <h2>Second</h2>
+                <div>Third
+                <ol><li>Fourth</li>
+                <li><p>Fifth</p></li>
+                </ol>
+                Sixth
+                </div>
+                </body>
+                </html>
+                """,
+                false
+        );
+
+        var koboSpans = getKoboSpans(actual);
+
+        assertThat(koboSpans.get("kobo.0.1")).isEqualTo("First");
+        assertThat(koboSpans.get("kobo.1.1")).isEqualTo("Second");
+        assertThat(koboSpans.get("kobo.1.2")).isEqualTo("Third");
+        assertThat(koboSpans.get("kobo.2.1")).isEqualTo("Fourth");
+        assertThat(koboSpans.get("kobo.3.1")).isEqualTo("Fifth");
+        assertThat(koboSpans.get("kobo.3.2")).isEqualTo("Sixth");
+    }
+
+    private Map<String, String> getKoboSpans(String html) {
+        var koboSpans = new HashMap<String, String>();
+        var doc = Jsoup.parse(html);
+        for (var element : doc.getElementsByClass("koboSpan")) {
+            koboSpans.put(element.attr("id"), element.html().trim());
+        }
+        return koboSpans;
     }
 
     private int countKoboSpans(String html) {

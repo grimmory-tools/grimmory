@@ -13,7 +13,9 @@ import javax.xml.transform.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -78,6 +80,10 @@ public class KepubHtmlConversionService {
             "video",
             "svg",
             "math"
+    );
+
+    private static final Set<String> PARAGRAPH_TAGS = Set.of(
+            "p", "ol", "ul", "table", "h1", "h2", "h3", "h4", "h5", "h6"
     );
 
     private static final Set<String> WRAPPABLE_TAGS = Set.of(
@@ -156,7 +162,31 @@ public class KepubHtmlConversionService {
      * text node.
      */
     private void transformContentAddKoboSpans(Document document) {
-        List<Node> wrappableNodes = new ArrayList<>();
+        Set<String> existingIds = document.getElementsByAttribute("id")
+                .stream()
+                .map(Element::id)
+                .collect(Collectors.toSet());
+
+        AtomicInteger koboParagraphIndex = new AtomicInteger(0);
+        AtomicInteger koboSentenceIndex = new AtomicInteger(0);
+
+        Supplier<Element> nextKoboSpan = () -> {
+            String koboSpanId;
+            do {
+                koboSpanId = String.format(
+                        ID_FORMAT_KOBO_SPAN,
+                        koboParagraphIndex.get(),
+                        koboSentenceIndex.incrementAndGet()
+                );
+            } while (existingIds.contains(koboSpanId));
+
+            var koboSpan = document.createElement("span");
+            koboSpan.id(koboSpanId);
+            koboSpan.addClass(CLASSNAME_KOBO_SPAN);
+            return koboSpan;
+        };
+
+        Map<Node, List<Node>> wrappableNodes = new HashMap<>();
 
         document.body()
                 .filter(
@@ -175,16 +205,30 @@ public class KepubHtmlConversionService {
                             }
 
                             if (node instanceof TextNode textNode) {
-                                if (!textNode.isBlank()) {
-                                    wrappableNodes.add(textNode);
+                                if (!textNode.isBlank() || textNode.parentNameIs("p")) {
+                                    for (var sentence : getSentences(textNode.getWholeText()).toList()) {
+                                        var koboSpan = nextKoboSpan.get();
+                                        koboSpan.text(sentence);
+                                        wrappableNodes.computeIfAbsent(node, k -> new ArrayList<>()).add(koboSpan);
+                                    }
                                 }
 
                                 return NodeFilter.FilterResult.CONTINUE;
                             }
 
                             if (node instanceof Element element) {
+                                if (PARAGRAPH_TAGS.contains(element.tagName())) {
+                                    koboParagraphIndex.incrementAndGet();
+                                    koboSentenceIndex.set(0);
+                                }
+
                                 if (WRAPPABLE_TAGS.contains(element.tagName())) {
-                                    wrappableNodes.add(element);
+                                    koboParagraphIndex.incrementAndGet();
+                                    koboSentenceIndex.set(0);
+
+                                    var koboSpan = nextKoboSpan.get();
+                                    koboSpan.appendChild(element.clone());
+                                    wrappableNodes.computeIfAbsent(node, k -> new ArrayList<>()).add(koboSpan);
                                 }
 
                                 if (IGNORED_CONTAINERS.contains(element.tagName())) {
@@ -196,47 +240,15 @@ public class KepubHtmlConversionService {
                         }
                 );
 
-        AtomicInteger koboElementIndex = new AtomicInteger();
-        AtomicInteger koboSentenceIndex = new AtomicInteger();
+        for (var entry : wrappableNodes.entrySet()) {
+            var node = entry.getKey();
+            var replacementNodes = entry.getValue();
 
-        Set<String> existingIds = document.getElementsByAttribute("id")
-                .stream()
-                .map(Element::id)
-                .collect(Collectors.toSet());
-
-        Supplier<Element> nextKoboSpan = () -> {
-            String koboSpanId;
-            do {
-                koboSpanId = String.format(
-                        ID_FORMAT_KOBO_SPAN,
-                        koboElementIndex.get(),
-                        koboSentenceIndex.incrementAndGet()
-                );
-            } while (existingIds.contains(koboSpanId));
-
-            var koboSpan = document.createElement("span");
-            koboSpan.id(koboSpanId);
-            koboSpan.addClass(CLASSNAME_KOBO_SPAN);
-            return koboSpan;
-        };
-
-        for (var node : wrappableNodes) {
-            koboElementIndex.getAndIncrement();
-            koboSentenceIndex.set(0);
-
-            if (node instanceof TextNode textNode) {
-                for (var sentence : getSentences(textNode.getWholeText()).toList()) {
-                    var koboSpan = nextKoboSpan.get();
-                    koboSpan.text(sentence);
-                    textNode.before(koboSpan);
-                }
-
-                textNode.remove();
-            } else if (node instanceof Element element) {
-                var koboSpan = nextKoboSpan.get();
-                element.before(koboSpan);
-                koboSpan.appendChild(element);
+            for (var replacementNode : replacementNodes) {
+                node.before(replacementNode);
             }
+
+            node.remove();
         }
     }
 
