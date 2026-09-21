@@ -1,5 +1,6 @@
 package org.booklore.service.kobo;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -344,7 +345,7 @@ public class KepubHtmlConversionService {
         return parser;
     }
 
-    public String transform(String html, boolean forceEnableHyphenation) {
+    public String transform(@NonNull String html, boolean forceEnableHyphenation) {
         Document document = Jsoup.parse(html, "/", getParser());
         transformDocument(document, forceEnableHyphenation);
         return document.toString();
