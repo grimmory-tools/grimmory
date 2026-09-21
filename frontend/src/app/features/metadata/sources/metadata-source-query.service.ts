@@ -11,7 +11,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {httpGet, postSseJson, QUERY_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 import type {BookMetadata} from '../../book/model/book.model';
-import {MetadataCatalogueService} from '../../../shared/metadata/metadata-catalogue.service';
+import {MetadataCatalogService} from '../../../shared/metadata/metadata-catalog.service';
 import type {MetadataProviderDescriptor, MetadataProviderId} from '../../../shared/metadata/metadata-providers';
 import type {SidecarMetadata, SidecarSyncStatus} from './sidecar.models';
 
@@ -90,7 +90,7 @@ export class MetadataSourceQueryService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
-  private readonly catalogue = inject(MetadataCatalogueService);
+  private readonly catalog = inject(MetadataCatalogService);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   private readonly providerList = injectQuery(() => queryOptions({
@@ -108,7 +108,7 @@ export class MetadataSourceQueryService {
 
   readonly providers = computed<readonly MetadataSourceProvider[]>(() => {
     const enabled = new Map((this.providerList.data() ?? []).map(entry => [entry.name, entry.enabled]));
-    return this.catalogue.providers().map(provider => ({
+    return this.catalog.providers().map(provider => ({
       ...provider,
       enabled: enabled.get(provider.id) ?? false,
     }));

@@ -11,7 +11,7 @@ const providers = [
     labelKey: 'metadata.providers.amazon',
     hasOptions: true,
     supportsReviews: true,
-    book: {ids: ['asin'], rating: 'amazonRating', reviewCount: 'amazonReviewCount'},
+    book: {ids: ['asin'], rating: 'amazonRating', reviewCount: 'amazonReviewCount', labelKeys: {asin: 'metadata.providerFields.asin'}},
   },
   {
     id: 'GoodReads',
@@ -32,7 +32,7 @@ const providers = [
     settingsKey: 'hardcover',
     labelKey: 'metadata.providers.hardcover',
     hasOptions: true,
-    book: {ids: ['hardcoverId', 'hardcoverBookId'], rating: 'hardcoverRating', reviewCount: 'hardcoverReviewCount'},
+    book: {ids: ['hardcoverId', 'hardcoverBookId'], rating: 'hardcoverRating', reviewCount: 'hardcoverReviewCount', labelKeys: {hardcoverBookId: 'metadata.providerFields.hardcoverBookId'}},
   },
   {
     id: 'Comicvine',
@@ -92,6 +92,7 @@ export interface MetadataProviderBookFields {
   readonly ids: readonly MetadataProviderIdFieldName[];
   readonly rating?: MetadataProviderRatingFieldName;
   readonly reviewCount?: MetadataProviderReviewCountFieldName;
+  readonly labelKeys?: Partial<Record<MetadataProviderFieldName, string>>;
 }
 
 export interface MetadataProviderDescriptor {

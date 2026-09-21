@@ -110,7 +110,7 @@ describe('MetadataSourceQueryService', () => {
     await flushQueryAsync();
   }
 
-  it('takes the enabled flag from the backend, in catalogue order', async () => {
+  it('takes the enabled flag from the backend, in catalog order', async () => {
     expect(service.enabledProviders()).toEqual([]);
 
     await answerProviders([
@@ -122,7 +122,7 @@ describe('MetadataSourceQueryService', () => {
     expect(service.enabledProviders().map(provider => provider.id)).toEqual(['OpenLibrary', 'Amazon']);
   });
 
-  it('ignores a provider the catalogue lacks and treats an omitted one as disabled', async () => {
+  it('ignores a provider the catalog lacks and treats an omitted one as disabled', async () => {
     await answerProviders([
       {name: 'Amazon', enabled: true},
       {name: 'Bookwyrm', enabled: true},

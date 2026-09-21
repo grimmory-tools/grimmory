@@ -2816,6 +2816,10 @@
       "ranobedb": "RanobeDB",
       "audible": "Audible",
       "appleBooks": "Apple Books"
+    },
+    "providerFields": {
+      "asin": "Amazon ASIN",
+      "hardcoverBookId": "Hardcover Book ID"
     }
   },
   "notebook": {
