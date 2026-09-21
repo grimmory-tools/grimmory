@@ -235,6 +235,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   }
 
   getBookFilePath(book: Book): string {
+    if (book.primaryFile?.filePath) return book.primaryFile.filePath;
     const subPath = book.primaryFile?.fileSubPath;
     const fileName = book.primaryFile?.fileName || '';
     if (subPath) return `${subPath}/${fileName}`;

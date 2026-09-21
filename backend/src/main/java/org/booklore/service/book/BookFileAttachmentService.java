@@ -81,6 +81,10 @@ public class BookFileAttachmentService {
             if (sourceBookFiles.isEmpty()) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Source book " + sourceBook.getId() + " has no book format files to attach");
             }
+            if (!moveFiles && !targetBook.getLibraryPath().getId().equals(sourceBook.getLibraryPath().getId())) {
+                throw ApiError.CONFLICT.createException(
+                        "These books are in different library folders. Tick \"Move all files to match your file naming pattern\" to merge them.");
+            }
 
             for (BookFileEntity fileToMove : sourceBookFiles) {
                 if (fileToMove.isFolderBased()) {
@@ -108,30 +112,17 @@ public class BookFileAttachmentService {
 
     private List<Long> attachWithoutFileMove(BookEntity targetBook, List<BookEntity> sourceBooks) {
         List<Long> sourceBooksToDeleteIds = new ArrayList<>();
-        Path targetLibraryRoot = Paths.get(targetBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
 
         for (BookEntity sourceBook : sourceBooks) {
-            boolean sameLibraryPath = sourceBook.getLibraryPath().getId().equals(targetBook.getLibraryPath().getId());
             List<BookFileEntity> bookFormatFiles = sourceBook.getBookFiles().stream()
                     .filter(BookFileEntity::isBookFormat)
                     .toList();
 
             if (!bookFormatFiles.isEmpty()) {
-                if (sameLibraryPath) {
-                    List<Long> bookFileIds = bookFormatFiles.stream()
-                            .map(BookFileEntity::getId)
-                            .toList();
-                    bookFileRepository.reassignFilesToBook(targetBook.getId(), bookFileIds);
-                } else {
-                    Path sourceLibraryRoot = Paths.get(sourceBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
-                    for (BookFileEntity file : bookFormatFiles) {
-                        Path fileDir = sourceLibraryRoot.resolve(file.getFileSubPath()).normalize();
-                        String newSubPath = fileDir.equals(targetLibraryRoot)
-                                ? ""
-                                : targetLibraryRoot.relativize(fileDir).toString();
-                        bookFileRepository.reassignFileToBookWithPath(targetBook.getId(), newSubPath, file.getId());
-                    }
-                }
+                List<Long> bookFileIds = bookFormatFiles.stream()
+                        .map(BookFileEntity::getId)
+                        .toList();
+                bookFileRepository.reassignFilesToBook(targetBook.getId(), bookFileIds);
             }
 
             long remainingBookFiles = sourceBook.getBookFiles().size() - bookFormatFiles.size();
