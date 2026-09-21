@@ -284,9 +284,6 @@ describe('BookFileService', () => {
     const sourceBook = buildBook(20, {
       alternativeFormats: [buildAdditionalFile(201, {bookId: 20, fileName: 'source.epub'})],
     });
-    const placeholderNewBook = buildBook(21, {
-      metadata: {title: 'Placeholder'},
-    });
     const response: DetachBookFileResponse = {
       sourceBook: buildBook(20, {alternativeFormats: []}),
       newBook: buildBook(21, {
@@ -295,7 +292,7 @@ describe('BookFileService', () => {
       }),
     };
 
-    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [sourceBook, placeholderNewBook]);
+    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [sourceBook]);
 
     service.detachBookFile(20, 201, true).subscribe(result => {
       expect(result).toEqual(response);

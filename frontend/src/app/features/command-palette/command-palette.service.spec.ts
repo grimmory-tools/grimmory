@@ -1,14 +1,17 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MessageService } from '@openng/optimus-ui/api';
+import { createQueryClientHarness } from '../../core/testing/query-testing';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/components/book-browser/book-dialog-helper.service';
-import { Book } from '../book/model/book.model';
-import { BookService } from '../book/service/book.service';
+import { BookPage } from '../book/data/book-query.models';
+import { BookQueryService } from '../book/data/book-query.service';
+import { BookSummary } from '../book/data/book-response.models';
 import { LibraryService } from '../book/service/library.service';
 import { ShelfService } from '../book/service/shelf.service';
 import { MagicShelfService } from '../magic-shelf/service/magic-shelf.service';
@@ -19,7 +22,12 @@ import { DialogLauncherService } from '../../shared/services/dialog-launcher.ser
 
 import { CommandPaletteService } from './command-palette.service';
 
-function makeBook(id: number, title: string, authors: string[] = [], overrides: Partial<Book> = {}): Book {
+function makeBook(
+  id: number,
+  title: string,
+  authors: string[] = [],
+  overrides: Partial<BookSummary> = {},
+): BookSummary {
   return {
     id,
     libraryId: 1,
@@ -27,16 +35,17 @@ function makeBook(id: number, title: string, authors: string[] = [], overrides: 
     ...overrides,
     metadata: {
       bookId: id,
-      title,
       authors,
+      allMetadataLocked: false,
+      title,
       ...overrides.metadata,
     },
-  } as Book;
+  };
 }
 
 describe('CommandPaletteService', () => {
   let service: CommandPaletteService;
-  let books = signal<Book[]>([]);
+  let http: HttpTestingController;
   let urlHelper: {
     getThumbnailUrl: ReturnType<typeof vi.fn>;
     getAudiobookThumbnailUrl: ReturnType<typeof vi.fn>;
@@ -47,11 +56,7 @@ describe('CommandPaletteService', () => {
   });
 
   beforeEach(() => {
-    books = signal([
-      makeBook(1, 'The Hobbit', ['J.R.R. Tolkien']),
-      makeBook(2, 'The Fellowship of the Ring', ['J.R.R. Tolkien']),
-      makeBook(3, 'Dune', ['Frank Herbert']),
-    ]);
+    const queryHarness = createQueryClientHarness();
     urlHelper = {
       getThumbnailUrl: vi.fn(() => null),
       getAudiobookThumbnailUrl: vi.fn(() => null),
@@ -60,8 +65,9 @@ describe('CommandPaletteService', () => {
     TestBed.configureTestingModule({
       imports: [getTranslocoModule()],
       providers: [
+        ...queryHarness.providers,
         { provide: Router, useValue: { navigate: vi.fn(() => Promise.resolve(true)) } },
-        { provide: BookService, useValue: { books: books.asReadonly() } },
+        BookQueryService,
         { provide: ShelfService, useValue: { shelves: signal([]) } },
         { provide: MagicShelfService, useValue: { shelves: signal([]) } },
         { provide: LibraryService, useValue: { libraries: signal([]) } },
@@ -87,71 +93,184 @@ describe('CommandPaletteService', () => {
     });
 
     service = TestBed.inject(CommandPaletteService);
+    http = TestBed.inject(HttpTestingController);
     TestBed.flushEffects();
   });
 
   afterEach(() => {
+    http.verify();
     TestBed.resetTestingModule();
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it('queries matching book groups locally after the debounce window', async () => {
-    service.query.set('tolkien');
+  function makeBookPage(books: BookSummary[]): BookPage {
+    return {
+      content: books,
+      page: {
+        number: 0,
+        size: 50,
+        totalElements: books.length,
+        totalPages: books.length > 0 ? 1 : 0,
+        cursor: 'opaque-cursor',
+      },
+      links: [],
+    };
+  }
+
+  async function searchBooks(query: string, books: BookSummary[]): Promise<void> {
+    service.open();
+    service.query.set(query);
     TestBed.flushEffects();
     await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+
+    const request = http.expectOne(request => request.url.endsWith('/api/v1/books/page'));
+    expect(request.request.params.get('facet_logic')).toBe('or');
+    expect(request.request.params.get('query')).toBe(query);
+    expect(request.request.params.get('sort')).toBe('title');
+    expect(request.request.params.get('size')).toBe('50');
+    request.flush(makeBookPage(books));
+    await TestBed.inject(ApplicationRef).whenStable();
+    TestBed.flushEffects();
+  }
+
+  it('queries the page endpoint with the normalized term after the debounce window', async () => {
+    service.open();
+    service.query.set('it!');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(199);
+    TestBed.flushEffects();
+
+    http.expectNone(request => request.url.endsWith('/api/v1/books/page'));
+
+    await vi.advanceTimersByTimeAsync(1);
+    TestBed.flushEffects();
+    const request = http.expectOne(request => request.url.endsWith('/api/v1/books/page'));
+    expect(request.request.params.get('facet_logic')).toBe('or');
+    expect(request.request.params.get('query')).toBe('it');
+    expect(request.request.params.get('sort')).toBe('title');
+    expect(request.request.params.get('size')).toBe('50');
+    request.flush(makeBookPage([makeBook(1, 'It', ['Stephen King'])]));
+    await TestBed.inject(ApplicationRef).whenStable();
     TestBed.flushEffects();
 
     const bookGroup = service.groups().find((group) => group.kind === 'book');
 
     expect(bookGroup).toBeDefined();
-    expect(bookGroup?.items.map((item) => item.title)).toEqual([
-      'The Hobbit',
-      'The Fellowship of the Ring',
-    ]);
+    expect(bookGroup?.items.map((item) => item.title)).toEqual(['It']);
   });
 
-  it('does not show book groups for one-character searches', async () => {
-    service.query.set('d');
+  it('reports a failed book search instead of claiming no results', async () => {
+    service.open();
+    service.query.set('tolkien');
     TestBed.flushEffects();
     await vi.advanceTimersByTimeAsync(200);
     TestBed.flushEffects();
 
+    const request = http.expectOne(req => req.url.endsWith('/api/v1/books/page'));
+    request.flush('Bad request', {status: 400, statusText: 'Bad Request'});
+    await TestBed.inject(ApplicationRef).whenStable();
+    TestBed.flushEffects();
+
+    expect(service.bookSearchFailed()).toBe(true);
     expect(service.groups().find((group) => group.kind === 'book')).toBeUndefined();
   });
 
-  it('returns no groups when the query is empty', () => {
-    service.query.set('');
-
-    expect(service.groups()).toEqual([]);
-    expect(service.visibleItems()).toEqual([]);
-  });
-
-  it('uses square audiobook metadata and audiobook thumbnails for audiobook results', async () => {
-    urlHelper.getAudiobookThumbnailUrl.mockReturnValue('/audio-thumb.jpg');
-    books.set([
-      makeBook(4, 'Audio Sample', ['Narrator'], {
-        primaryFile: { id: 4, bookId: 4, bookType: 'AUDIOBOOK' },
-        metadata: {
-          bookId: 4,
-          title: 'Audio Sample',
-          authors: ['Narrator'],
-          audiobookCoverUpdatedOn: 'audio-updated',
-        },
-      }),
-    ]);
-
-    service.query.set('audio');
+  it('does not search when the normalized term is below two characters', async () => {
+    service.open();
+    service.query.set('d!');
     TestBed.flushEffects();
     await vi.advanceTimersByTimeAsync(200);
     TestBed.flushEffects();
 
-    const book = service.groups().find((group) => group.kind === 'book')?.items[0];
+    http.expectNone(request => request.url.endsWith('/api/v1/books/page'));
+    expect(service.groups().find((group) => group.kind === 'book')).toBeUndefined();
+  });
+  it('does not search for eligible text while the palette is closed', async () => {
+    service.query.set('dune');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
 
-    expect(book?.bookMeta?.isAudiobook).toBe(true);
-    expect(book?.bookMeta?.thumbnailUrl).toBe('/audio-thumb.jpg');
-    expect(urlHelper.getAudiobookThumbnailUrl).toHaveBeenCalledWith(4, 'audio-updated');
-    expect(urlHelper.getThumbnailUrl).not.toHaveBeenCalled();
+    http.expectNone(request => request.url.endsWith('/api/v1/books/page'));
+    expect(service.groups().find((group) => group.kind === 'book')).toBeUndefined();
+  });
+
+  it('cancels an in-flight book search when debounced text changes', async () => {
+    service.open();
+    service.query.set('dune');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+    const duneRequest = http.expectOne(request => request.urlWithParams.includes('query=dune'));
+
+    service.query.set('tolkien');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+
+    expect(duneRequest.cancelled).toBe(true);
+    const tolkienRequest = http.expectOne(request => request.urlWithParams.includes('query=tolkien'));
+    tolkienRequest.flush(makeBookPage([]));
+    TestBed.flushEffects();
+  });
+
+  it('cancels an in-flight book search on close and does not refire it on quick reopen', async () => {
+    service.open();
+    service.query.set('dune');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+    const duneRequest = http.expectOne(request => request.urlWithParams.includes('query=dune'));
+
+    service.hide();
+    TestBed.flushEffects();
+
+    expect(duneRequest.cancelled).toBe(true);
+
+    service.open();
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+
+    http.expectNone(request => request.url.endsWith('/api/v1/books/page'));
+  });
+
+  it('hides results from the previous search while the next search is debouncing', async () => {
+    await searchBooks('dune', [makeBook(3, 'Dune', ['Frank Herbert'])]);
+
+    expect(service.groups().find((group) => group.kind === 'book')!.items[0].title).toBe('Dune');
+
+    service.query.set('tolkien');
+    TestBed.flushEffects();
+
+    expect(service.groups().find((group) => group.kind === 'book')).toBeUndefined();
+
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+    const request = http.expectOne(request => request.urlWithParams.includes('query=tolkien'));
+    request.flush(makeBookPage([]));
+    TestBed.flushEffects();
+  });
+
+  it('hides a failed search error while the next term is debouncing', async () => {
+    service.open();
+    service.query.set('dune');
+    TestBed.flushEffects();
+    await vi.advanceTimersByTimeAsync(200);
+    TestBed.flushEffects();
+    const duneRequest = http.expectOne(request => request.urlWithParams.includes('query=dune'));
+    duneRequest.flush('Bad request', {status: 400, statusText: 'Bad Request'});
+    await TestBed.inject(ApplicationRef).whenStable();
+    TestBed.flushEffects();
+
+    expect(service.bookSearchFailed()).toBe(true);
+
+    service.query.set('tolkien');
+    TestBed.flushEffects();
+
+    expect(service.bookSearchFailed()).toBe(false);
   });
 });

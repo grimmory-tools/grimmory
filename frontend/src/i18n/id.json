@@ -3737,6 +3737,22 @@
         "mergeFailedDetail": "",
         "mergePartialDetail": ""
       }
+    },
+    "menu": {
+      "confirm": {
+        "deleteBookHeader": "Konfirmasi Penghapusan"
+      }
+    },
+    "readAction": {
+      "continueReading": {
+        "short": "Lanjutkan"
+      },
+      "play": {
+        "short": "Putar"
+      },
+      "continueListening": {
+        "short": "Lanjutkan"
+      }
     }
   },
   "readerAudiobook": {

@@ -20,6 +20,8 @@ import {CommandPaletteComponent} from './features/command-palette/command-palett
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
 import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
 import {AuthorService} from './features/author-browser/service/author.service';
+import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
+import {RxStompState} from '@stomp/rx-stomp';
 
 @Component({
   selector: 'app-root',
@@ -44,6 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private metadataProgressService = inject(MetadataProgressService);
   private bookdropFileService = inject(BookdropFileService);
   private taskService = inject(TaskService);
+  private metadataRefreshSubmissionService = inject(MetadataRefreshSubmissionService);
   private libraryHealthService = inject(LibraryHealthService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
@@ -106,6 +109,20 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocketSubscriptions(): void {
+    let hasConnected = false;
+    this.subscriptions.push(
+      this.rxStompService.connectionState$.subscribe(state => {
+        if (state !== RxStompState.OPEN) {
+          return;
+        }
+        if (hasConnected) {
+          this.bookService.handleReconnect();
+          this.authorService.invalidateAuthors();
+          return;
+        }
+        hasConnected = true;
+      })
+    );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/book-add').subscribe(msg => {
         const book = JSON.parse(msg.body);
@@ -135,14 +152,11 @@ export class AppComponent implements OnInit, OnDestroy {
       )
     );
     this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-metadata-batch-update').subscribe(msg =>
-        this.bookService.handleMultipleBookUpdates(JSON.parse(msg.body))
-      )
-    );
-    this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg =>
-        this.metadataProgressService.handleIncomingProgress(JSON.parse(msg.body) as MetadataBatchProgressNotification)
-      )
+      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg => {
+        const progress = JSON.parse(msg.body) as MetadataBatchProgressNotification;
+        this.metadataProgressService.handleIncomingProgress(progress);
+        this.metadataRefreshSubmissionService.handleBatchProgress(progress);
+      })
     );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/log').subscribe(msg => {
@@ -160,6 +174,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.rxStompService.watch('/user/queue/task-progress').subscribe(msg => {
         const progress = JSON.parse(msg.body) as TaskProgressPayload;
         this.taskService.handleTaskProgress(progress);
+        this.bookService.handleTaskProgress(progress);
       })
     );
     this.subscriptions.push(
