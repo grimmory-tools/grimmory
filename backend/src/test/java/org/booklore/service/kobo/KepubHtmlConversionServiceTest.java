@@ -69,6 +69,20 @@ class KepubHtmlConversionServiceTest {
     }
 
     @Test
+    void transform_ShouldAddHyphenationWhenEnabled() {
+        String actual = service.transform("<html><body><p>Hello World.</p></body></html>", true);
+
+        assertThat(actual).contains("class=\"kobostylehyphenate\"");
+    }
+
+    @Test
+    void transform_ShouldOmitHyphenationWhenDisable() {
+        String actual = service.transform("<html><body><p>Hello World.</p></body></html>", false);
+
+        assertThat(actual).doesNotContain("class=\"kobostylehyphenate\"");
+    }
+
+    @Test
     void transform_ShouldIncludeRootXmlns() {
         String actual = service.transform("<html><body><p>Hello World.</p></body></html>", false);
 
