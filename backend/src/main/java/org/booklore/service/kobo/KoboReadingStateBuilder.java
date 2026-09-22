@@ -88,7 +88,23 @@ public class KoboReadingStateBuilder {
                         .type(resolved.type())
                         .source(resolved.source())
                         .build())
-                .orElse(null);
+                // The resolver can come back empty for reasons that have nothing to do with
+                // where the reader actually is - a KoboSpanPositionMap that hasn't been
+                // (re)built yet, a CFI that fails to parse, an href the map doesn't
+                // recognise. Sending a bookmark with progressPercent set but location
+                // omitted tells the Kobo "you're partway through, but here is nowhere valid
+                // to resume from" - Nickel then opens the book at its default starting
+                // point (the cover), which looks exactly like lost progress even though the
+                // percentage on the library screen is still correct. Falling back to the
+                // Kobo's own last-reported location keeps the device resuming somewhere
+                // sane until the web-reader-side location can be resolved again.
+                .orElseGet(() -> Optional.ofNullable(progress.getKoboLocation())
+                        .map(koboLocation -> KoboReadingState.CurrentBookmark.Location.builder()
+                                .value(koboLocation)
+                                .type(progress.getKoboLocationType())
+                                .source(progress.getKoboLocationSource())
+                                .build())
+                        .orElse(null));
 
         return KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(Math.round(progress.getEpubProgressPercent()))

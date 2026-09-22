@@ -242,7 +242,7 @@ class KoboReadingStateBuilderTest {
         }
 
         @Test
-        @DisplayName("Should build web reader bookmark without a fallback location when no KoboSpan resolves")
+        @DisplayName("Should build web reader bookmark with no location when no KoboSpan resolves and no Kobo location exists to fall back on")
         void buildBookmarkFromProgress_WebReaderLocation() {
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
@@ -261,6 +261,39 @@ class KoboReadingStateBuilderTest {
             assertEquals(55, bookmark.getProgressPercent());
             assertEquals(19, bookmark.getContentSourceProgressPercent());
             assertNull(bookmark.getLocation());
+        }
+
+        @Test
+        @DisplayName("Should fall back to the last-known Kobo location when no KoboSpan resolves, instead of sending no location at all")
+        void buildBookmarkFromProgress_WebReaderFallsBackToKoboLocationWhenSpanUnresolved() {
+            // Regression test: sending progressPercent with location omitted told the Kobo
+            // "you're partway through, but there's nowhere valid to resume from" - Nickel
+            // would then open the book at its default starting point (the cover), even
+            // though the library screen still showed the correct percentage. Falling back
+            // to the device's own last-reported location keeps it resuming somewhere sane
+            // until the web-reader-side location can be resolved again.
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
+            progress.setEpubProgressHref("OPS/chapter1.xhtml");
+            progress.setEpubProgressPercent(54.6f);
+            progress.setLastReadTime(Instant.parse("2025-11-26T10:00:00Z"));
+            progress.setKoboLocation("kobo.9.1");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OEBPS/chapter1.xhtml");
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
+            fileProgress.setPositionHref("OPS/chapter3.xhtml");
+            fileProgress.setContentSourceProgressPercent(18.6f);
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(55, bookmark.getProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.9.1", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OEBPS/chapter1.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
@@ -317,7 +350,10 @@ class KoboReadingStateBuilderTest {
 
             assertNotNull(bookmark);
             assertEquals(55, bookmark.getProgressPercent());
-            assertNull(bookmark.getLocation());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.1.1", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OPS/chapter1.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
@@ -369,7 +405,10 @@ class KoboReadingStateBuilderTest {
             assertNotNull(bookmark);
             assertEquals(55, bookmark.getProgressPercent());
             assertEquals(19, bookmark.getContentSourceProgressPercent());
-            assertNull(bookmark.getLocation());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.1.1", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OPS/chapter1.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
