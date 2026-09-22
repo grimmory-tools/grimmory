@@ -61,7 +61,7 @@ class LibraryFileEventProcessorTest {
                 .id(1L)
                 .name("Test Library")
                 .libraryPaths(List.of(libraryPath))
-                .organizationMode(LibraryOrganizationMode.AUTO_DETECT)
+                .organizationMode(LibraryOrganizationMode.BOOK_PER_FILE)
                 .build();
 
         when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));

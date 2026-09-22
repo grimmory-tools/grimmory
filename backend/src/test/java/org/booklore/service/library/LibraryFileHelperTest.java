@@ -363,19 +363,6 @@ class LibraryFileHelperTest {
     }
 
     @Test
-    void autoDetect_collapsesAudiobookSubfolderSameAsOtherModes() throws IOException {
-        Path audioDir = Files.createDirectories(tempDir.resolve("HP Book 1"));
-        for (int i = 1; i <= 5; i++) {
-            Files.write(audioDir.resolve("ch" + i + ".mp3"), new byte[]{1});
-        }
-
-        List<LibraryFile> files = libraryFileHelper.getLibraryFiles(createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT));
-
-        assertThat(files).hasSize(1);
-        assertThat(files.getFirst().isFolderBased()).isTrue();
-    }
-
-    @Test
     void bookPerFile_collapsesMultiFileAudiobookSubfolder() throws IOException {
         Path audioDir = Files.createDirectories(tempDir.resolve("Chaptered Audiobook"));
         Files.write(audioDir.resolve("Chaptered Audiobook - 1 - Chapter One.mp3"), new byte[]{1});
@@ -401,18 +388,6 @@ class LibraryFileHelperTest {
         assertThat(files.getFirst().isFolderBased()).isTrue();
         assertThat(files.getFirst().getFileName()).isEqualTo("Chaptered Audiobook");
         assertThat(files.getFirst().getBookFileType()).isEqualTo(BookFileType.AUDIOBOOK);
-    }
-
-    @Test
-    void autoDetect_singleAudioFileStaysIndividual() throws IOException {
-        Path dir = Files.createDirectories(tempDir.resolve("Book"));
-        Files.write(dir.resolve("book.m4b"), new byte[]{1});
-        Files.write(dir.resolve("book.epub"), new byte[]{1});
-
-        List<LibraryFile> files = libraryFileHelper.getLibraryFiles(createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT));
-
-        assertThat(files).hasSize(2);
-        assertThat(files).noneMatch(LibraryFile::isFolderBased);
     }
 
     @Test

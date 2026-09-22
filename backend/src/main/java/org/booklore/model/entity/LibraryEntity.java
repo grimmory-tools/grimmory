@@ -68,7 +68,7 @@ public class LibraryEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "organization_mode")
     @Builder.Default
-    private LibraryOrganizationMode organizationMode = LibraryOrganizationMode.AUTO_DETECT;
+    private LibraryOrganizationMode organizationMode = LibraryOrganizationMode.BOOK_PER_FILE;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "metadata_source")

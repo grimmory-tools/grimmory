@@ -68,7 +68,7 @@ class BookFileTransactionalHandlerTest {
         fileUtilsMock.when(() -> FileUtils.getRelativeSubPath(anyString(), any(Path.class))).thenReturn("sub");
         fileUtilsMock.when(() -> FileUtils.getFileSizeInKb(any(Path.class))).thenReturn(100L);
         fileUtilsMock.when(() -> FileUtils.getFolderSizeInKb(any(Path.class))).thenReturn(500L);
-        groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey(anyString())).thenAnswer(inv -> inv.getArgument(0, String.class).toLowerCase());
+        groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey(anyString())).thenCallRealMethod();
         groupingMock.when(() -> BookFileGroupingUtils.calculateSimilarity(anyString(), anyString())).thenReturn(0.5);
 
         libraryPath = new LibraryPathEntity();
@@ -79,7 +79,7 @@ class BookFileTransactionalHandlerTest {
                 .id(1L)
                 .name("Test Library")
                 .libraryPaths(List.of(libraryPath))
-                .organizationMode(LibraryOrganizationMode.AUTO_DETECT)
+                .organizationMode(LibraryOrganizationMode.BOOK_PER_FILE)
                 .build();
 
         when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
@@ -226,64 +226,6 @@ class BookFileTransactionalHandlerTest {
         }
 
         @Test
-        void autoDetect_fuzzyMatchesFilelessBook() {
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-
-            BookMetadataEntity metadata = BookMetadataEntity.builder().bookId(10L).build();
-            // Use reflection or setter to set title
-            metadata.setTitle("test");
-            BookEntity filelessBook = buildBook(10L, false);
-            filelessBook.setMetadata(metadata);
-            filelessBook.setLibraryPath(libraryPath);
-
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of(filelessBook));
-            groupingMock.when(() -> BookFileGroupingUtils.calculateSimilarity(anyString(), anyString())).thenReturn(0.90);
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
-
-            verify(bookAdditionalFileRepository).save(any(BookFileEntity.class));
-        }
-
-        @Test
-        void autoDetect_noFilelessMatch_matchesExistingBookByGroupingKey() {
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of());
-
-            BookEntity existingBook = buildBook(20L, false);
-            BookFileEntity primaryFile = buildBookFile(200L, existingBook, "test.epub", "otherhash");
-            existingBook.setBookFiles(Set.of(primaryFile));
-            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(1L, "sub")).thenReturn(List.of(existingBook));
-
-            // Both files should produce the same grouping key (extension stripped)
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("test.pdf")).thenReturn("test");
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("test.epub")).thenReturn("test");
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
-
-            verify(bookAdditionalFileRepository).save(any(BookFileEntity.class));
-        }
-
-        @Test
-        void autoDetect_noMatch_createsNewBook() {
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of());
-            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(anyLong(), anyString())).thenReturn(List.of());
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
-
-            verify(libraryProcessingService).processLibraryFiles(anyList(), eq(library));
-        }
-
-        @Test
         void bookPerFile_neverAttachesToExistingBooks() {
             library.setOrganizationMode(LibraryOrganizationMode.BOOK_PER_FILE);
 
@@ -382,60 +324,6 @@ class BookFileTransactionalHandlerTest {
         }
 
         @Test
-        void autoDetect_filelessBook_wrongLibraryPath_skipped() {
-            LibraryPathEntity otherPath = new LibraryPathEntity();
-            otherPath.setId(99L);
-            otherPath.setPath("/other");
-
-            BookMetadataEntity metadata = BookMetadataEntity.builder().bookId(10L).build();
-            metadata.setTitle("test");
-            BookEntity filelessBook = buildBook(10L, false);
-            filelessBook.setMetadata(metadata);
-            filelessBook.setLibraryPath(otherPath);
-
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of(filelessBook));
-            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(anyLong(), anyString())).thenReturn(List.of());
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
-
-            verify(libraryProcessingService).processLibraryFiles(anyList(), eq(library));
-        }
-
-        @Test
-        void autoDetect_fuzzyMatchBook_returnsHighSimilarity() {
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of());
-
-            BookEntity book1 = buildBook(20L, false);
-            BookFileEntity file1 = buildBookFile(200L, book1, "mybook.epub", "h1");
-            book1.setBookFiles(Set.of(file1));
-
-            BookEntity book2 = buildBook(21L, false);
-            BookFileEntity file2 = buildBookFile(201L, book2, "otherbook.epub", "h2");
-            book2.setBookFiles(Set.of(file2));
-
-            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(1L, "sub")).thenReturn(List.of(book1, book2));
-            // Make groupingKey different to avoid exact match, but similarity high for book1
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("mybook.pdf")).thenReturn("mybook");
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("mybook.epub")).thenReturn("mybook");
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("otherbook.epub")).thenReturn("otherbook");
-            groupingMock.when(() -> BookFileGroupingUtils.calculateSimilarity("mybook", "mybook")).thenReturn(1.0);
-            groupingMock.when(() -> BookFileGroupingUtils.calculateSimilarity("mybook", "otherbook")).thenReturn(0.3);
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/mybook.pdf"));
-
-            // Should attach to book1 via exact grouping key match
-            verify(bookAdditionalFileRepository).save(any(BookFileEntity.class));
-        }
-
-        @Test
         void nullSubPath_autoDetect_createsNewBook() {
             fileUtilsMock.when(() -> FileUtils.getRelativeSubPath(anyString(), any(Path.class))).thenReturn(null);
 
@@ -495,23 +383,6 @@ class BookFileTransactionalHandlerTest {
         }
 
         @Test
-        void nullOrganizationMode_defaultsToAutoDetect() {
-            library.setOrganizationMode(null);
-
-            when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
-                    .thenReturn(Optional.empty());
-            when(pendingDeletionPool.matchByHash(anyString())).thenReturn(Optional.empty());
-            when(bookRepository.findByCurrentHashIncludingRecentlyDeleted(anyString(), any())).thenReturn(Optional.empty());
-            when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of());
-            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(anyLong(), anyString())).thenReturn(List.of());
-
-            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
-
-            // AUTO_DETECT path: findFilelessBooksByLibraryId is called (fuzzy matching)
-            verify(bookRepository).findFilelessBooksByLibraryId(1L);
-        }
-
-        @Test
         void autoDetect_deletedBookInDirectory_skipped() {
             when(bookFilePersistenceService.findBookFileByLibraryPathSubPathAndFileName(anyLong(), anyString(), anyString()))
                     .thenReturn(Optional.empty());
@@ -543,7 +414,6 @@ class BookFileTransactionalHandlerTest {
             filelessBook.setLibraryPath(null);
 
             when(bookRepository.findFilelessBooksByLibraryId(1L)).thenReturn(List.of(filelessBook));
-            groupingMock.when(() -> BookFileGroupingUtils.calculateSimilarity(anyString(), anyString())).thenReturn(0.90);
 
             handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
 
@@ -584,10 +454,6 @@ class BookFileTransactionalHandlerTest {
             BookFileEntity primaryFile = buildBookFile(200L, existingBook, "audiobook.epub", "h1");
             existingBook.setBookFiles(Set.of(primaryFile));
             when(bookRepository.findAllByLibraryPathIdAndFileSubPath(anyLong(), anyString())).thenReturn(List.of(existingBook));
-
-            // Folder name "audiobook" and file "audiobook.epub" should produce same grouping key
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("audiobook")).thenReturn("audiobook");
-            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("audiobook.epub")).thenReturn("audiobook");
 
             handler.handleNewFolderAudiobook(1L, Path.of("/library/sub/audiobook"));
 

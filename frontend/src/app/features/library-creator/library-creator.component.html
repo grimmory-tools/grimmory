@@ -162,7 +162,7 @@
               <span>{{ t('organizationMode') }}</span>
               <i
                 class="pi pi-question-circle info-icon"
-                [pTooltip]="organizationMode() === 'AUTO_DETECT' ? t('organizationModeLockedTooltip') : t('organizationModeTooltip')"
+                [pTooltip]="t('organizationModeTooltip')"
                 tooltipPosition="top"
               ></i>
             </div>
@@ -172,7 +172,6 @@
               [options]="organizationModeOptions()"
               optionLabel="label"
               optionValue="value"
-              [disabled]="organizationMode() === 'AUTO_DETECT'"
               class="metadata-source-select"
               appendTo="body"
             />

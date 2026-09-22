@@ -4,7 +4,7 @@ import {IconType} from '../../../shared/icons/icon-selection';
 
 export type MetadataSource = 'EMBEDDED' | 'SIDECAR' | 'PREFER_SIDECAR' | 'PREFER_EMBEDDED' | 'NONE';
 
-export type OrganizationMode = 'BOOK_PER_FILE' | 'BOOK_PER_FOLDER' | 'AUTO_DETECT';
+export type OrganizationMode = 'BOOK_PER_FILE' | 'BOOK_PER_FOLDER';
 
 export interface Library {
   id?: number;

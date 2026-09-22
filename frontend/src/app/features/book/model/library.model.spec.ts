@@ -10,7 +10,7 @@ describe('library.model', () => {
       watch: true,
       paths: [{id: 10, path: '/books'}],
       metadataSource: 'PREFER_EMBEDDED',
-      organizationMode: 'AUTO_DETECT'
+      organizationMode: 'BOOK_PER_FILE'
     };
 
     expect(library.paths[0].path).toBe('/books');
@@ -23,7 +23,7 @@ describe('library.model', () => {
       'EMBEDDED' | 'SIDECAR' | 'PREFER_SIDECAR' | 'PREFER_EMBEDDED' | 'NONE'
     >();
     expectTypeOf<OrganizationMode>().toEqualTypeOf<
-      'BOOK_PER_FILE' | 'BOOK_PER_FOLDER' | 'AUTO_DETECT'
+      'BOOK_PER_FILE' | 'BOOK_PER_FOLDER'
     >();
   });
 });

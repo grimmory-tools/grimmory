@@ -241,26 +241,21 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
             return false;
         });
 
-        var mode = library.getOrganizationMode() != null
-                ? library.getOrganizationMode() : LibraryOrganizationMode.AUTO_DETECT;
-
         FolderAnalysis analysis = analyzeFolderForAudiobook(folderPath);
         if (analysis.isFolderBasedAudiobook()) {
             processFolderAudiobook(library, folderPath, analysis);
             return;
         }
 
+        var mode = library.getOrganizationMode();
+
         if (mode == LibraryOrganizationMode.BOOK_PER_FILE) {
             processFilesInFolderIndividually(library, folderPath);
-            return;
-        }
-
-        if (mode == LibraryOrganizationMode.BOOK_PER_FOLDER) {
+        } else if (mode == LibraryOrganizationMode.BOOK_PER_FOLDER) {
             processFilesInFolderAsOneBook(library, folderPath);
-            return;
+        } else {
+            log.debug("Unknown library organization mode: {}", mode);
         }
-
-        processTrackedAndWalkedFiles(library, folderPath);
     }
 
     private void processFolderAudiobook(LibraryEntity library, Path folderPath, FolderAnalysis analysis) {
