@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { JsonPipe } from '@angular/common';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router } from '@angular/router';
-import { form, FormField, FormRoot, hidden, max, min, minLength, required, validate } from '@angular/forms/signals';
+import { form, FormField, FormRoot, hidden, max, min, minLength, required } from '@angular/forms/signals';
 import { AppButtonComponent } from '../../../shared/ui/button/app-button.component';
 import { AppFieldComponent } from '../../../shared/ui/field/app-field.component';
 import { AppInputComponent } from '../../../shared/ui/input/app-input.component';
