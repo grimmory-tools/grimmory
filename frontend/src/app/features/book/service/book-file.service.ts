@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {Observable, throwError, from} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {catchError, tap} from 'rxjs/operators';
+import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
+import {catchError, filter, map, tap} from 'rxjs/operators';
 import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, DuplicateDetectionRequest, DuplicateGroup} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -11,6 +11,7 @@ import {LocalSettingsService} from '../../../shared/service/local-settings.servi
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {patchAttachedBookFilesInCache, patchBookInCacheWith, upsertBooksInCache} from './legacy-book-cache';
+import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
 @Injectable({
   providedIn: 'root',
@@ -131,8 +132,15 @@ export class BookFileService {
         formData.append('bookType', bookType);
       }
     }
-    return this.http.post<AdditionalFile>(`${this.url}/${bookId}/files`, formData).pipe(
-      tap(newFile => {
+
+    const req = mitigateWebkitUploadBug(
+      new HttpRequest('POST', `${this.url}/${bookId}/files`, formData)
+    );
+
+    return this.http.request<AdditionalFile>(req)
+      .pipe(filter(e => e.type == HttpEventType.Response))
+      .pipe(map(e => e.body!))
+      .pipe(tap(newFile => {
         patchBookInCacheWith(this.queryClient, bookId, book => {
           if (fileType === AdditionalFileType.ALTERNATIVE_FORMAT) {
             return {...book, alternativeFormats: [...(book.alternativeFormats || []), newFile]};

@@ -15,6 +15,7 @@ import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {mitigateWebkitUploadBug} from '../../util/mitigate-webkit-upload-bug';
 
 interface UploadingFile {
   file: File;
@@ -231,9 +232,11 @@ export class BookUploaderComponent {
         uploadUrl = `${API_CONFIG.BASE_URL}/api/v1/files/upload/bookdrop`;
       }
 
-      const req = new HttpRequest('POST', uploadUrl, formData, {
-        reportProgress: true
-      });
+      const req = mitigateWebkitUploadBug(
+        new HttpRequest('POST', uploadUrl, formData, { reportProgress: true })
+      );
+
+      mitigateWebkitUploadBug(req);
 
       this.http.request(req).subscribe({
         next: (event) => {

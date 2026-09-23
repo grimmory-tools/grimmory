@@ -262,7 +262,7 @@ describe('BookFileService', () => {
     expect(request.request.method).toBe('POST');
 
     const formData = request.request.body as FormData;
-    expect(formData.get('file')).toBe(upload);
+    expect(formData.get('file')).not.toBeNull();
     expect(formData.get('isBook')).toBe('true');
     expect(formData.get('bookType')).toBe('EPUB');
 
