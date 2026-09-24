@@ -40,6 +40,7 @@ import {
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
+import {isPageTurnSwipe} from './core/cbx-swipe.util';
 
 
 @Component({
@@ -99,7 +100,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
 
   private touchStartX = 0;
-  private touchEndX = 0;
+  private touchStartY = 0;
+  private touchStartScrollLeft = 0;
+  private touchStartScrollTop = 0;
 
   currentBook = signal<Book | null>(null);
   nextBookInSeries = signal<Book | null>(null);
@@ -1819,6 +1822,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
+    const container = this.getImageScrollContainer();
+    this.touchStartScrollLeft = container?.scrollLeft ?? 0;
+    this.touchStartScrollTop = container?.scrollTop ?? 0;
     this.touchMoveCount = 0;
   }
 
@@ -1829,10 +1836,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
-      this.handleSwipeGesture();
+      this.handleSwipeGesture(event.changedTouches[0]);
     }
   }
 
@@ -1867,12 +1873,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.visibilityManager.setFooterHovered(hovered);
   }
 
-  private handleSwipeGesture() {
+  private handleSwipeGesture(touch: Touch) {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
-    const delta = this.touchEndX - this.touchStartX;
-    const threshold = Math.min(75, window.innerWidth * 0.1);
-    if (Math.abs(delta) < threshold) return;
+    const delta = touch.screenX - this.touchStartX;
+    const container = this.getImageScrollContainer();
+    // Panning a zoomed/overflowing page scrolls the container; that must not turn the page.
+    const isSwipe = isPageTurnSwipe({
+      deltaX: delta,
+      deltaY: touch.screenY - this.touchStartY,
+      startScrollLeft: this.touchStartScrollLeft,
+      startScrollTop: this.touchStartScrollTop,
+      endScrollLeft: container?.scrollLeft ?? 0,
+      endScrollTop: container?.scrollTop ?? 0,
+      threshold: Math.min(75, window.innerWidth * 0.1),
+    });
+    if (!isSwipe) return;
 
     const isRtl = this.readingDirection() === CbxReadingDirection.RTL;
     const shouldGoNext = isRtl ? delta > 0 : delta < 0;
