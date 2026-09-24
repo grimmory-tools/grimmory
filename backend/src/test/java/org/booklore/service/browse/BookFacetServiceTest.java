@@ -120,7 +120,7 @@ class BookFacetServiceTest {
                 .build();
     }
 
-    private void book(String title, String genre, String authorName) {
+    private BookMetadataEntity book(String title, String genre, String authorName) {
         BookEntity bookEntity = BookEntity.builder()
                 .library(library).libraryPath(libraryPath).addedOn(Instant.now()).deleted(false).build();
         em.persist(bookEntity);
@@ -129,6 +129,7 @@ class BookFacetServiceTest {
         metadata.setAuthors(List.of(author(authorName)));
         em.persist(metadata);
         bookEntity.setMetadata(metadata);
+        return metadata;
     }
 
     private CategoryEntity category(String name) {
@@ -295,6 +296,41 @@ class BookFacetServiceTest {
 
         assertThat(group(response, "genre").links()).hasSize(100);
         assertThat(group(response, "author").links()).hasSize(100);
+    }
+
+    @Test
+    void numberFacetBoundsCoverValuesPastTheCap() {
+        for (int i = 1; i <= 101; i++) {
+            book("T" + i, "Genre", "Author").setPageCount(i);
+        }
+        em.flush();
+
+        FacetGroup pageCount = group(facetService.getFacets(null, null, null), "page_count");
+
+        assertThat(pageCount.links()).isEmpty();
+        assertThat(pageCount.metadata().min().intValue()).isEqualTo(1);
+        assertThat(pageCount.metadata().max().intValue()).isEqualTo(101);
+        assertThat(group(facetService.getFacets(null, null, null), "genre").metadata().max()).isNull();
+    }
+
+    @Test
+    void ratingFacetCountsBandsAcrossEveryValue() {
+        for (int i = 0; i < 150; i++) {
+            book("R" + i, "Genre", "Author").setGoodreadsRating(3.5 + i / 1000.0);
+        }
+        book("Four", "Genre", "Author").setGoodreadsRating(4.0);
+        book("High", "Genre", "Author").setGoodreadsRating(4.8);
+        em.flush();
+
+        FacetGroup goodreads = group(facetService.getFacets(List.of("goodreads_rating:4..4.5"), null, null), "goodreads_rating");
+
+        assertThat(goodreads.links()).extracting(FacetLink::value)
+                .containsExactly("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+        assertThat(count(goodreads, "0..1")).isZero();
+        assertThat(count(goodreads, "3..4")).isEqualTo(151);
+        assertThat(count(goodreads, "4..4.5")).isEqualTo(1);
+        assertThat(count(goodreads, "4.5..*")).isEqualTo(1);
+        assertThat(link(goodreads, "4..4.5").rel()).containsExactly("self", "facet");
     }
 
     @Test
