@@ -177,21 +177,17 @@ public class BookQueryService {
         }
 
         if (stripForListView) {
-            stripFieldsForListView(dto, bookEntity);
+            stripFieldsForListView(dto);
         }
 
         return dto;
     }
 
-    private void stripFieldsForListView(Book dto, BookEntity bookEntity) {
+    private void stripFieldsForListView(Book dto) {
         dto.setLibraryPath(null);
 
         BookMetadata m = dto.getMetadata();
         if (m != null) {
-            // Compute allMetadataLocked before stripping lock flags
-            BookMetadataEntity metadataEntity = bookEntity.getMetadata();
-            m.setAllMetadataLocked(metadataEntity != null && metadataEntity.areAllFieldsLocked());
-
             // Strip lock flags
             m.setTitleLocked(null);
             m.setSubtitleLocked(null);
