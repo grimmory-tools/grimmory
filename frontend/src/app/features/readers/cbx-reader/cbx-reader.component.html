@@ -98,7 +98,7 @@
     }
     } @else if (scrollMode() === CbxScrollMode.LONG_STRIP) {
     <div class="long-strip-wrapper" role="button" tabindex="0" (click)="onImageClick()"
-      (keydown.enter)="onImageClick()">
+      (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)">
       <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
         @for (item of longStripImages(); track item.page) {
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
@@ -128,7 +128,7 @@
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
           [attr.loading]="pageIdx === currentPage() ? 'eager' : 'lazy'" decoding="async"
-          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onStripImageDoubleClick()"
+          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
         @if (isLoadingMore()) {

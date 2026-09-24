@@ -41,7 +41,7 @@ import {
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 import {isPageTurnSwipe} from './core/cbx-swipe.util';
-import {CBX_DOUBLE_TAP_ZOOM, CbxPageZoom, wheelZoomFactor} from './core/cbx-page-zoom';
+import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, wheelZoomFactor} from './core/cbx-page-zoom';
 
 
 @Component({
@@ -155,11 +155,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
   private slideshowTimer: ReturnType<typeof setInterval> | null = null;
 
-  // Double-tap zoom (infinite scroll: toggles actual-size fit mode)
-  private originalFitMode: CbxFitMode | null = null;
-
-  // Pinch / double-tap / Ctrl+wheel zoom (paginated mode only)
-  private readonly pageZoom = new CbxPageZoom(() => this.getImageScrollContainer());
+  // Pinch / double-tap / Ctrl+wheel zoom
+  private readonly pageZoom = new CbxPageZoom(
+    () => this.getImageScrollContainer(),
+    () => this.scrollMode() === CbxScrollMode.PAGINATED ? 'page' : 'strip',
+  );
   /** True once a second finger touched down; such gestures never turn the page. */
   private gestureHadMultiTouch = false;
   private lastWindowWidth = window.innerWidth;
@@ -323,9 +323,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.hostRef.nativeElement.addEventListener('click', suppressDragClick, true);
     this.destroyRef.onDestroy(() => this.hostRef.nativeElement.removeEventListener('click', suppressDragClick, true));
 
-    // Zoom is transient: any page or layout change starts again at fit.
+    // Zoom is transient: page turns (paginated) and layout changes start again at fit.
+    // Strips keep their zoom while scrolling, which also changes the current page.
     effect(() => {
-      this.currentPage();
+      if (this.scrollMode() === CbxScrollMode.PAGINATED) this.currentPage();
+      this.bookId();
+      void this.cbxQuickSettingsState().stripMaxWidthPercent;
       this.fitMode();
       this.scrollMode();
       this.pageViewMode();
@@ -1866,13 +1869,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.touchStartScrollLeft = container?.scrollLeft ?? 0;
       this.touchStartScrollTop = container?.scrollTop ?? 0;
       this.touchMoveCount = 0;
-      // Unzoomed touch panning stays native; scripted panning only takes over while zoomed.
-      if (this.pageZoom.isZoomed && this.isOnPage(event.target)) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+      // Touch scrolling is scripted (the page container is touch-action: none) so a pinch that
+      // starts mid-scroll never races the browser's own scrolling.
+      if (this.isOnPage(event.target) && this.pageZoom.canPan) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
       return;
     }
 
     this.gestureHadMultiTouch = true;
-    if (event.touches.length === 2 && this.scrollMode() === CbxScrollMode.PAGINATED && !this.pageZoom.isPinching && this.isOnPage(event.target)) {
+    if (event.touches.length === 2 && !this.pageZoom.isPinching && this.isOnPage(event.target)) {
       if (this.pageZoom.beginPinch(this.touchPoint(event.touches[0]), this.touchPoint(event.touches[1])) && event.cancelable) {
         event.preventDefault();
       }
@@ -1896,7 +1900,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.pageZoom.isPinching && event.touches.length < 2) {
       this.pageZoom.endPinch();
       // Lifting one finger of a pinch continues as a one-finger pan.
-      if (event.touches.length === 1 && this.pageZoom.isZoomed) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+      if (event.touches.length === 1 && this.pageZoom.canPan) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
     } else if (event.touches.length === 0) {
       this.pageZoom.endPan();
     }
@@ -1916,7 +1920,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   /** Ctrl+wheel, which is also how desktop browsers report trackpad pinch. */
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent) {
-    if (!event.ctrlKey || this.scrollMode() !== CbxScrollMode.PAGINATED) return;
+    if (!event.ctrlKey) return;
     event.preventDefault();
     const deltaY = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 16 : event.deltaY;
     this.pageZoom.zoomBy(wheelZoomFactor(deltaY), {x: event.clientX, y: event.clientY});
@@ -2264,25 +2268,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   // Double-tap zoom: zoom in at the tapped point, or back to fit when already zoomed
   onImageDoubleClick(event: MouseEvent): void {
-    if (this.pageZoom.isZoomed) {
-      this.pageZoom.reset();
-    } else {
-      this.pageZoom.zoomTo(CBX_DOUBLE_TAP_ZOOM, {x: event.clientX, y: event.clientY});
-    }
+    const at = {x: event.clientX, y: event.clientY};
+    this.pageZoom.zoomTo(this.pageZoom.isZoomed ? CBX_MIN_ZOOM : CBX_DOUBLE_TAP_ZOOM, at);
     this.refreshPanCursor();
   }
 
-  onStripImageDoubleClick(): void {
-    if (this.originalFitMode === null) {
-      // Store current fit mode and switch to actual size
-      this.originalFitMode = this.fitMode();
-      this.onFitModeChange(CbxFitMode.ACTUAL_SIZE);
-    } else {
-      // Restore original fit mode
-      this.onFitModeChange(this.originalFitMode as CbxFitMode);
-      this.originalFitMode = null;
-    }
-  }
 
   // Double page detection
   onPageImageLoad(event: Event, pageIndex: number): void {

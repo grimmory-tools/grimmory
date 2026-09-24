@@ -293,7 +293,7 @@
       &.fit-width {
         overflow-y: auto;
         align-items: flex-start;
-        touch-action: pan-y;
+        touch-action: none; // touch scrolling is scripted (see CbxPageZoom)
 
         .pages-wrapper,
         .previous-page-layer,
@@ -338,7 +338,7 @@
       &.fit-height {
         overflow: auto;
         align-items: stretch;
-        touch-action: pan-x pan-y;
+        touch-action: none;
 
         .pages-wrapper {
           width: max-content;
@@ -392,7 +392,7 @@
       &.fit-actual-size {
         overflow: auto;
         align-items: flex-start;
-        touch-action: pan-x pan-y;
+        touch-action: none;
 
         .pages-wrapper,
         .previous-page-layer,
@@ -488,13 +488,13 @@
     &.infinite-scroll {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: pan-y;
+      touch-action: none; // touch scrolling is scripted (see CbxPageZoom)
       overscroll-behavior: contain;
 
       .infinite-scroll-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         gap: 0.875rem;
         width: 100%;
         min-width: 0;
@@ -511,7 +511,7 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         gap: 0.875rem;
       }
 
@@ -543,7 +543,7 @@
 
         .page-image {
           width: auto;
-          height: calc(100vh - 1.75rem);
+          height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           max-width: 100%;
         }
       }
@@ -552,7 +552,7 @@
         overflow-x: auto;
 
         .infinite-scroll-wrapper {
-          align-items: center;
+          align-items: safe center;
 
           // Stable width so strip max-width % resolves against the reader scrollport, not max-content.
           width: 100%;
@@ -562,6 +562,7 @@
         .page-image {
           width: auto;
           height: auto;
+          zoom: var(--cbx-zoom, 1);
         }
       }
 
@@ -572,7 +573,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           width: auto;
           height: auto;
         }
@@ -585,7 +586,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           width: auto;
           height: auto;
         }
@@ -603,13 +604,13 @@
     &.long-strip {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: pan-y;
+      touch-action: none;
       overscroll-behavior: contain;
 
       .long-strip-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         width: 100%;
         min-width: 0;
 
@@ -624,7 +625,7 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
       }
 
       @include cbx-reader-continuation-affordance;
@@ -657,7 +658,7 @@
 
         .long-strip-image {
           width: auto;
-          height: calc(100vh - 1.75rem);
+          height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           max-width: 100%;
         }
       }
@@ -666,7 +667,7 @@
         overflow-x: auto;
 
         .long-strip-wrapper {
-          align-items: center;
+          align-items: safe center;
           width: 100%;
           min-width: 0;
         }
@@ -675,6 +676,7 @@
           width: auto;
           height: auto;
           max-width: none;
+          zoom: var(--cbx-zoom, 1);
         }
       }
 
@@ -685,7 +687,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           width: auto;
           height: auto;
         }
@@ -698,7 +700,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           width: auto;
           height: auto;
         }
