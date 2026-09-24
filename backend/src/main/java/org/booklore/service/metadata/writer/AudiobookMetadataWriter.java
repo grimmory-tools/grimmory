@@ -55,14 +55,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             return;
         }
 
-        File backupFile = new File(audioFile.getParentFile(), audioFile.getName() + ".bak");
-        try {
-            Files.copy(audioFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            log.warn("Failed to create backup of audiobook {}: {}", audioFile.getName(), ex.getMessage());
-            return;
-        }
-
         try {
             AudioFile f = AudioFileIO.read(audioFile);
             Tag tag = f.getTagOrCreateAndSetDefault();
@@ -140,7 +132,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             }
 
             if (hasChanges[0]) {
-                f.commit();
+                commitWithBackup(f, audioFile);
                 log.info("Metadata updated in audiobook: {}", audioFile.getName());
             } else {
                 log.debug("No changes detected. Skipping audiobook write for: {}", audioFile.getName());
@@ -148,22 +140,44 @@ public class AudiobookMetadataWriter implements MetadataWriter {
 
         } catch (Exception e) {
             log.warn("Failed to write metadata to audiobook file {}: {}", audioFile.getName(), e.getMessage(), e);
-            if (backupFile.exists()) {
-                try {
-                    Files.copy(backupFile.toPath(), audioFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    log.info("Restored audiobook from backup: {}", audioFile.getName());
-                } catch (IOException io) {
-                    log.error("Failed to restore audiobook from backup for {}: {}", audioFile.getName(), io.getMessage(), io);
-                }
+        }
+    }
+
+    private void commitWithBackup(AudioFile audioFile, File originalFile) throws Exception {
+        File backupFile = new File(originalFile.getParentFile(), originalFile.getName() + ".bak");
+        Files.copy(originalFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        boolean deleteBackup = false;
+        try {
+            audioFile.commit();
+            validateWrittenAudiobook(originalFile);
+            deleteBackup = true;
+        } catch (Exception writeException) {
+            try {
+                Files.copy(backupFile.toPath(), originalFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                deleteBackup = true;
+                log.info("Restored audiobook from backup: {}", originalFile.getName());
+            } catch (IOException restoreException) {
+                writeException.addSuppressed(restoreException);
+                log.error("Failed to restore audiobook from backup for {}: {}",
+                        originalFile.getName(), restoreException.getMessage(), restoreException);
             }
+            throw writeException;
         } finally {
-            if (backupFile.exists()) {
+            if (deleteBackup) {
                 try {
-                    Files.delete(backupFile.toPath());
+                    Files.deleteIfExists(backupFile.toPath());
                 } catch (IOException ex) {
-                    log.warn("Failed to delete backup for {}: {}", audioFile.getName(), ex.getMessage());
+                    log.warn("Failed to delete backup for {}: {}", originalFile.getName(), ex.getMessage());
                 }
             }
+        }
+    }
+
+    private void validateWrittenAudiobook(File audioFile) throws Exception {
+        AudioFile writtenFile = AudioFileIO.read(audioFile);
+        if (writtenFile.getAudioHeader() == null || writtenFile.getAudioHeader().getTrackLength() <= 0) {
+            throw new IOException("Written file contains no valid audio track");
         }
     }
 
@@ -283,7 +297,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             artwork.setBinaryData(coverData);
             artwork.setMimeType(detectMimeType(coverData));
             tag.setField(artwork);
-            f.commit();
+            commitWithBackup(f, audioFile);
 
             log.info("Cover image updated in audiobook from {}: {}", source, audioFile.getName());
         } catch (Exception e) {
