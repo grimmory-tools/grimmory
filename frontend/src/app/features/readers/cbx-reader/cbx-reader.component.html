@@ -70,7 +70,7 @@
       @if (isPageTransitioning() && previousImageUrls().length > 0) {
       <div class="previous-page-layer" [class.single-page-layer]="isPreviousSinglePageLayer()">
         @for (url of previousImageUrls(); track url) {
-        <img [src]="url" alt="Previous Page" class="page-image previous-image" />
+        <img [src]="url" alt="Previous Page" class="page-image previous-image" draggable="false" />
         }
       </div>
       }
@@ -82,7 +82,7 @@
         </app-canvas-renderer>
         } @else {
         @for (url of currentImageUrls(); track url; let i = $index) {
-        <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage() + i)" />
+        <img [src]="url" alt="Page Image" class="page-image" draggable="false" (load)="onPageImageLoad($event, currentPage() + i)" />
         }
         }
       </div>

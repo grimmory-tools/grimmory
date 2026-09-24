@@ -91,6 +91,31 @@ describe('CbxPageZoom', () => {
     expect(container.querySelector<HTMLElement>('.pages-wrapper')!.getAttribute('style')).toBeFalsy();
   });
 
+  it('can pan only when zoomed or when the page overflows the viewport', () => {
+    const {container, zoom} = setup();
+    expect(zoom.canPan).toBe(false);
+
+    zoom.zoomTo(2, {x: 200, y: 300});
+    expect(zoom.canPan).toBe(true);
+
+    zoom.reset();
+    vi.spyOn(container, 'scrollHeight', 'get').mockReturnValue(2000);
+    vi.spyOn(container, 'clientHeight', 'get').mockReturnValue(800);
+    expect(zoom.canPan).toBe(true);
+  });
+
+  it('pans the container opposite to the drag direction', () => {
+    const {container, zoom} = setup();
+    zoom.zoomTo(2, {x: 0, y: 0});
+    container.scrollLeft = 0;
+    container.scrollTop = 0;
+    zoom.beginPan({x: 300, y: 300});
+    zoom.updatePan({x: 250, y: 280});
+    zoom.endPan(false);
+    expect(container.scrollLeft).toBe(50);
+    expect(container.scrollTop).toBe(20);
+  });
+
   it('removes every inline style when a pinch-out is undone past fit', () => {
     const {container, img, zoom} = setup();
     zoom.beginPinch({x: 100, y: 300}, {x: 300, y: 300});

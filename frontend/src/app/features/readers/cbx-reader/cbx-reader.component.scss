@@ -208,6 +208,20 @@
       }
     }
 
+    // Drag-to-pan cursors; classes are toggled from script when the page overflows.
+    // The page wrapper and strip images are [role='button'], which the global styles give a pointer cursor.
+    &.can-pan,
+    &.can-pan [role='button'],
+    &.can-pan .click-zone {
+      cursor: grab;
+    }
+
+    &.is-dragging,
+    &.is-dragging [role='button'],
+    &.is-dragging .click-zone {
+      cursor: grabbing;
+    }
+
     &.magnifier-active {
       cursor: none;
     }

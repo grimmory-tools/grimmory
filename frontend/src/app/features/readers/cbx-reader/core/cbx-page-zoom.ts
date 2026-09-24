@@ -116,10 +116,18 @@ export class CbxPageZoom {
     return this.panLast !== null;
   }
 
-  /** Start a one-finger (or mouse) pan of the zoomed page. */
+  /** True when the page is zoomed or otherwise larger than the viewport. */
+  get canPan(): boolean {
+    if (this.isZoomed) return true;
+    const container = this.getContainer();
+    return !!container && (
+      container.scrollWidth > container.clientWidth + 1 || container.scrollHeight > container.clientHeight + 1
+    );
+  }
+
+  /** Start a scripted pan (one finger or mouse drag); callers check `canPan` or `isZoomed` first. */
   beginPan(at: Point): void {
     this.stopFling();
-    if (!this.isZoomed) return;
     this.panLast = at;
     this.panSamples = [{...at, t: performance.now()}];
   }

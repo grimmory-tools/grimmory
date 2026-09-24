@@ -80,6 +80,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   /** Max pages kept in DOM for long strip; pages outside ±EVICTION_WINDOW are removed. */
   private static readonly LONG_STRIP_EVICTION_WINDOW = 15;
   private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
+  private static readonly DRAG_THRESHOLD_PX = 5;
+  private static readonly DRAG_CLICK_SUPPRESS_MS = 300;
   /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
 
@@ -161,6 +163,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   /** True once a second finger touched down; such gestures never turn the page. */
   private gestureHadMultiTouch = false;
   private lastWindowWidth = window.innerWidth;
+
+  // Mouse drag-to-pan
+  private mouseDragStart: {x: number; y: number} | null = null;
+  private mouseDragMoved = false;
+  /** Clicks before this time (ms, performance.now) end a drag and must not act as clicks. */
+  private suppressClicksUntil = 0;
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // Shortcuts help dialog
   showShortcutsHelp = signal(false);
@@ -304,13 +313,26 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.updateNotesState();
     });
 
+    // A drag that ends over the page, a click zone or a button must not also count as a click.
+    const suppressDragClick = (event: MouseEvent) => {
+      if (performance.now() < this.suppressClicksUntil) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    this.hostRef.nativeElement.addEventListener('click', suppressDragClick, true);
+    this.destroyRef.onDestroy(() => this.hostRef.nativeElement.removeEventListener('click', suppressDragClick, true));
+
     // Zoom is transient: any page or layout change starts again at fit.
     effect(() => {
       this.currentPage();
       this.fitMode();
       this.scrollMode();
       this.pageViewMode();
-      untracked(() => this.pageZoom.reset());
+      untracked(() => {
+        this.pageZoom.reset();
+        this.afterNextPaint(() => this.refreshPanCursor());
+      });
     });
   }
 
@@ -1844,7 +1866,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.touchStartScrollLeft = container?.scrollLeft ?? 0;
       this.touchStartScrollTop = container?.scrollTop ?? 0;
       this.touchMoveCount = 0;
-      if (this.isOnPage(event.target)) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+      // Unzoomed touch panning stays native; scripted panning only takes over while zoomed.
+      if (this.pageZoom.isZoomed && this.isOnPage(event.target)) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
       return;
     }
 
@@ -1873,7 +1896,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.pageZoom.isPinching && event.touches.length < 2) {
       this.pageZoom.endPinch();
       // Lifting one finger of a pinch continues as a one-finger pan.
-      if (event.touches.length === 1) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+      if (event.touches.length === 1 && this.pageZoom.isZoomed) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
     } else if (event.touches.length === 0) {
       this.pageZoom.endPan();
     }
@@ -1897,11 +1920,53 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     event.preventDefault();
     const deltaY = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 16 : event.deltaY;
     this.pageZoom.zoomBy(wheelZoomFactor(deltaY), {x: event.clientX, y: event.clientY});
+    this.refreshPanCursor();
   }
 
   /** Pan/zoom gestures only start on the page area, not on header, footer or sidebar controls. */
   private isOnPage(target: EventTarget | null): boolean {
     return target instanceof Node && !!this.getImageScrollContainer()?.contains(target);
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (event.button !== 0 || this.isMagnifierActive() || !this.isOnPage(event.target)) return;
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
+    if (!this.pageZoom.canPan) return;
+
+    // Stops the browser's native image drag and text selection.
+    event.preventDefault();
+    this.mouseDragStart = {x: event.clientX, y: event.clientY};
+    this.mouseDragMoved = false;
+    this.pageZoom.beginPan(this.mouseDragStart);
+    this.getImageScrollContainer()?.classList.add('is-dragging');
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    if (!this.mouseDragStart) return;
+    this.mouseDragStart = null;
+    this.pageZoom.endPan();
+    this.getImageScrollContainer()?.classList.remove('is-dragging');
+    if (this.mouseDragMoved) {
+      this.suppressClicksUntil = performance.now() + CbxReaderComponent.DRAG_CLICK_SUPPRESS_MS;
+    }
+  }
+
+  private updateMouseDrag(event: MouseEvent): void {
+    if (this.mouseDragStart) {
+      if (Math.hypot(event.clientX - this.mouseDragStart.x, event.clientY - this.mouseDragStart.y) > CbxReaderComponent.DRAG_THRESHOLD_PX) {
+        this.mouseDragMoved = true;
+      }
+      this.pageZoom.updatePan({x: event.clientX, y: event.clientY});
+      return;
+    }
+    this.refreshPanCursor();
+  }
+
+  /** Grab cursor hints that the page can be dragged; refreshed whenever zoom or layout changes. */
+  private refreshPanCursor(): void {
+    this.getImageScrollContainer()?.classList.toggle('can-pan', !this.isMagnifierActive() && this.pageZoom.canPan);
   }
 
   private touchPoint(touch: Touch): {x: number; y: number} {
@@ -1915,6 +1980,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.lastWindowWidth = window.innerWidth;
       this.pageZoom.reset();
     }
+    this.refreshPanCursor();
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
   }
@@ -1922,6 +1988,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     this.lastMouseEvent = event;
+    this.updateMouseDrag(event);
     this.visibilityManager.handleMouseMove(event.clientY);
     if (this.isMagnifierActive()) {
       this.updateMagnifier(event);
@@ -2202,6 +2269,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     } else {
       this.pageZoom.zoomTo(CBX_DOUBLE_TAP_ZOOM, {x: event.clientX, y: event.clientY});
     }
+    this.refreshPanCursor();
   }
 
   onStripImageDoubleClick(): void {
