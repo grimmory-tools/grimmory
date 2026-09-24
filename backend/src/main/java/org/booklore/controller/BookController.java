@@ -118,6 +118,24 @@ public class BookController {
         return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
+    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped and counted the same way as the facets endpoint. Name facets such as author, genre and tag are paged and can be searched.")
+    @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
+    @GetMapping("/facets/{facetName}")
+    public ResponseEntity<FacetGroupsResponse> getBookFacet(
+            @Parameter(description = "Facet name (for example author, genre, page_count, or goodreads_rating)")
+            @PathVariable String facetName,
+            @Parameter(hidden = true) Pageable pageable,
+            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Case-insensitive text the values must contain; name facets only")
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, facetLogic, query, search, pageable));
+    }
+
     @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
     @ApiResponse(responseCode = "200", description = "Matching book ids returned successfully")
     @GetMapping("/ids")
