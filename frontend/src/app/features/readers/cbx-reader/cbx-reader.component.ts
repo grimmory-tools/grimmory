@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
@@ -41,6 +41,7 @@ import {
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 import {isPageTurnSwipe} from './core/cbx-swipe.util';
+import {CBX_DOUBLE_TAP_ZOOM, CbxPageZoom, wheelZoomFactor} from './core/cbx-page-zoom';
 
 
 @Component({
@@ -152,9 +153,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
   private slideshowTimer: ReturnType<typeof setInterval> | null = null;
 
-  // Double-tap zoom
-  private lastTapTime = 0;
+  // Double-tap zoom (infinite scroll: toggles actual-size fit mode)
   private originalFitMode: CbxFitMode | null = null;
+
+  // Pinch / double-tap / Ctrl+wheel zoom (paginated mode only)
+  private readonly pageZoom = new CbxPageZoom(() => this.getImageScrollContainer());
+  /** True once a second finger touched down; such gestures never turn the page. */
+  private gestureHadMultiTouch = false;
+  private lastWindowWidth = window.innerWidth;
 
   // Shortcuts help dialog
   showShortcutsHelp = signal(false);
@@ -296,6 +302,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     effect(() => {
       this.sidebarService.notes();
       this.updateNotesState();
+    });
+
+    // Zoom is transient: any page or layout change starts again at fit.
+    effect(() => {
+      this.currentPage();
+      this.fitMode();
+      this.scrollMode();
+      this.pageViewMode();
+      untracked(() => this.pageZoom.reset());
     });
   }
 
@@ -1821,29 +1836,85 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.changedTouches[0].screenX;
-    this.touchStartY = event.changedTouches[0].screenY;
-    const container = this.getImageScrollContainer();
-    this.touchStartScrollLeft = container?.scrollLeft ?? 0;
-    this.touchStartScrollTop = container?.scrollTop ?? 0;
-    this.touchMoveCount = 0;
+    if (event.touches.length === 1) {
+      this.gestureHadMultiTouch = false;
+      this.touchStartX = event.changedTouches[0].screenX;
+      this.touchStartY = event.changedTouches[0].screenY;
+      const container = this.getImageScrollContainer();
+      this.touchStartScrollLeft = container?.scrollLeft ?? 0;
+      this.touchStartScrollTop = container?.scrollTop ?? 0;
+      this.touchMoveCount = 0;
+      if (this.isOnPage(event.target)) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+      return;
+    }
+
+    this.gestureHadMultiTouch = true;
+    if (event.touches.length === 2 && this.scrollMode() === CbxScrollMode.PAGINATED && !this.pageZoom.isPinching && this.isOnPage(event.target)) {
+      if (this.pageZoom.beginPinch(this.touchPoint(event.touches[0]), this.touchPoint(event.touches[1])) && event.cancelable) {
+        event.preventDefault();
+      }
+    }
   }
 
-  @HostListener('touchmove')
-  onTouchMove() {
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
     this.touchMoveCount++;
+    if (this.pageZoom.isPinching && event.touches.length === 2) {
+      if (event.cancelable) event.preventDefault();
+      this.pageZoom.updatePinch(this.touchPoint(event.touches[0]), this.touchPoint(event.touches[1]));
+    } else if (this.pageZoom.isPanning && event.touches.length === 1) {
+      if (event.cancelable) event.preventDefault();
+      this.pageZoom.updatePan(this.touchPoint(event.touches[0]));
+    }
   }
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
+    if (this.pageZoom.isPinching && event.touches.length < 2) {
+      this.pageZoom.endPinch();
+      // Lifting one finger of a pinch continues as a one-finger pan.
+      if (event.touches.length === 1) this.pageZoom.beginPan(this.touchPoint(event.touches[0]));
+    } else if (event.touches.length === 0) {
+      this.pageZoom.endPan();
+    }
+    if (this.gestureHadMultiTouch) return;
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
       this.handleSwipeGesture(event.changedTouches[0]);
     }
   }
 
+  @HostListener('touchcancel')
+  onTouchCancel() {
+    this.pageZoom.endPinch();
+    this.pageZoom.endPan(false);
+  }
+
+  /** Ctrl+wheel, which is also how desktop browsers report trackpad pinch. */
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    if (!event.ctrlKey || this.scrollMode() !== CbxScrollMode.PAGINATED) return;
+    event.preventDefault();
+    const deltaY = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 16 : event.deltaY;
+    this.pageZoom.zoomBy(wheelZoomFactor(deltaY), {x: event.clientX, y: event.clientY});
+  }
+
+  /** Pan/zoom gestures only start on the page area, not on header, footer or sidebar controls. */
+  private isOnPage(target: EventTarget | null): boolean {
+    return target instanceof Node && !!this.getImageScrollContainer()?.contains(target);
+  }
+
+  private touchPoint(touch: Touch): {x: number; y: number} {
+    return {x: touch.clientX, y: touch.clientY};
+  }
+
   @HostListener('window:resize')
   onResize() {
+    // Width changes (rotation, window resize) invalidate the zoomed page sizes.
+    if (window.innerWidth !== this.lastWindowWidth) {
+      this.lastWindowWidth = window.innerWidth;
+      this.pageZoom.reset();
+    }
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
   }
@@ -2124,8 +2195,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Double-tap zoom
-  onImageDoubleClick(): void {
+  // Double-tap zoom: zoom in at the tapped point, or back to fit when already zoomed
+  onImageDoubleClick(event: MouseEvent): void {
+    if (this.pageZoom.isZoomed) {
+      this.pageZoom.reset();
+    } else {
+      this.pageZoom.zoomTo(CBX_DOUBLE_TAP_ZOOM, {x: event.clientX, y: event.clientY});
+    }
+  }
+
+  onStripImageDoubleClick(): void {
     if (this.originalFitMode === null) {
       // Store current fit mode and switch to actual size
       this.originalFitMode = this.fitMode();
