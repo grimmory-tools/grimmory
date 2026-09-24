@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.FacetLogic;
 import org.booklore.browse.Link;
@@ -107,8 +108,25 @@ public class BookFacetService {
             new FacetDef("comic_location", "Comic Locations", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("locations", JoinType.LEFT).get("name")),
             new FacetDef("comic_creator", "Comic Creators", (cb, root, userId) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name")));
 
+    private static final Set<String> NUMBER_FACETS = Set.of(
+            "page_count", "published_year", "file_size", "match_score",
+            "amazon_rating", "goodreads_rating", "hardcover_rating", "ranobedb_rating",
+            "lubimyczytac_rating", "audible_rating", "applebooks_rating");
+
+    private static final List<String> RATING_BANDS = List.of("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+    private static final Map<String, List<String>> NUMBER_BANDS = Map.of(
+            "match_score", List.of("95..*", "90..95", "80..90", "70..80", "50..70", "30..50", "0..30"),
+            "amazon_rating", RATING_BANDS,
+            "goodreads_rating", RATING_BANDS,
+            "hardcover_rating", RATING_BANDS,
+            "ranobedb_rating", RATING_BANDS,
+            "lubimyczytac_rating", RATING_BANDS,
+            "audible_rating", RATING_BANDS,
+            "applebooks_rating", RATING_BANDS);
+
     private final AuthenticationService authenticationService;
     private final BookFilterSpecifications filterSpecifications;
+    private final BookFacetRegistry facetRegistry;
     private final BookSortRegistry sortRegistry;
 
     @PersistenceContext
@@ -135,13 +153,17 @@ public class BookFacetService {
             groups.add(sortGroup(preserved));
             for (FacetDef def : FACETS) {
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
+                if (NUMBER_FACETS.contains(def.key())) {
+                    groups.add(numberGroup(def, base, userId, facet, preserved));
+                    continue;
+                }
                 List<FacetCount> counts = count(def, base, userId);
                 if ("file_type".equals(def.key())) {
                     counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, userId).stream())
                             .sorted(Comparator.comparingLong(FacetCount::count).reversed().thenComparing(FacetCount::value))
                             .toList();
                 }
-                groups.add(toGroup(def, counts, facet, preserved));
+                groups.add(toGroup(def, counts, null, null, facet, preserved));
             }
             List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
             return new FacetGroupsResponse(links, groups);
@@ -177,7 +199,43 @@ public class BookFacetService {
                 .toList();
     }
 
-    private FacetGroup toGroup(FacetDef def, List<FacetCount> counts, List<String> facet, String preserved) {
+    @SuppressWarnings("unchecked")
+    private FacetGroup numberGroup(FacetDef def, Specification<BookEntity> base, Long userId, List<String> facet, String preserved) {
+        List<String> bands = NUMBER_BANDS.getOrDefault(def.key(), List.of());
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Expression<Number> value = (Expression<Number>) def.value().apply(cb, root, userId);
+
+        List<Selection<?>> columns = new ArrayList<>();
+        columns.add(cb.min(value).alias("min"));
+        columns.add(cb.max(value).alias("max"));
+        for (String band : bands) {
+            Specification<BookEntity> inBand = facetRegistry.toSpecification(def.key(), List.of(band), FacetLogic.OR, userId);
+            columns.add(countMatching(inBand, root, cq, cb).alias(band));
+        }
+        cq.multiselect(columns);
+        Predicate basePredicate = base.toPredicate(root, cq, cb);
+        if (basePredicate != null) {
+            cq.where(basePredicate);
+        }
+
+        Tuple row = entityManager.createQuery(cq).getSingleResult();
+        List<FacetCount> counts = bands.stream()
+                .map(band -> new FacetCount(band, row.get(band, Long.class)))
+                .toList();
+        return toGroup(def, counts, row.get("min", Number.class), row.get("max", Number.class), facet, preserved);
+    }
+
+    // COUNT(DISTINCT CASE WHEN <filter matches> THEN id END), so one query can count several filters at once
+    private Expression<Long> countMatching(Specification<BookEntity> filter, Root<BookEntity> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+        Expression<Long> matchingId = cb.<Long>selectCase()
+                .when(filter.toPredicate(root, cq, cb), root.get("id"))
+                .otherwise(cb.nullLiteral(Long.class));
+        return cb.countDistinct(matchingId);
+    }
+
+    private FacetGroup toGroup(FacetDef def, List<FacetCount> counts, Number min, Number max, List<String> facet, String preserved) {
         List<FacetLink> links = counts.stream()
                 .map(c -> {
                     boolean active = BrowseParams.hasFacet(facet, def.key(), c.value());
@@ -188,7 +246,7 @@ public class BookFacetService {
                     return new FacetLink(rel, href, Link.JSON_TYPE, c.value(), c.value(), new Properties(c.count()));
                 })
                 .toList();
-        return new FacetGroup(new Metadata("facet", def.key(), def.title()), links);
+        return new FacetGroup(new Metadata("facet", def.key(), def.title(), min, max), links);
     }
 
     private FacetGroup sortGroup(String preserved) {

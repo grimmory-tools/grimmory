@@ -15,7 +15,10 @@ public record FacetGroupsResponse(List<Link> links, List<FacetGroup> facets) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record Metadata(String rel, String key, String title) {
+    public record Metadata(String rel, String key, String title, Number min, Number max) {
+        public Metadata(String rel, String key, String title) {
+            this(rel, key, title, null, null);
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
