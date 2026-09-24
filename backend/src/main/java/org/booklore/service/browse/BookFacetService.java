@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.FacetLogic;
 import org.booklore.browse.ParamsHash;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
@@ -102,8 +104,25 @@ public class BookFacetService {
             new FacetDef("comic_creator", "Comic Creators", (cb, root, _) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name"))
     );
 
+    private static final Set<String> NUMBER_FACETS = Set.of(
+            "page_count", "published_year", "file_size", "match_score",
+            "amazon_rating", "goodreads_rating", "hardcover_rating", "ranobedb_rating",
+            "lubimyczytac_rating", "audible_rating", "applebooks_rating");
+
+    private static final List<String> RATING_BANDS = List.of("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+    private static final Map<String, List<String>> NUMBER_BANDS = Map.of(
+            "match_score", List.of("95..*", "90..95", "80..90", "70..80", "50..70", "30..50", "0..30"),
+            "amazon_rating", RATING_BANDS,
+            "goodreads_rating", RATING_BANDS,
+            "hardcover_rating", RATING_BANDS,
+            "ranobedb_rating", RATING_BANDS,
+            "lubimyczytac_rating", RATING_BANDS,
+            "audible_rating", RATING_BANDS,
+            "applebooks_rating", RATING_BANDS);
+
     private final AuthenticationService authenticationService;
     private final BookFilterSpecifications filterSpecifications;
+    private final BookFacetRegistry facetRegistry;
     private final BookSortRegistry sortRegistry;
     private final BrowseScopeFactory scopeFactory;
     private final EntityManager entityManager;
@@ -130,6 +149,10 @@ public class BookFacetService {
             for (FacetDef def : FACETS) {
 
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+                if (NUMBER_FACETS.contains(def.key())) {
+                    groups.add(numberGroup(def, base, scope, builder));
+                    continue;
+                }
                 var counts = count(def, base, scope);
                 if ("file_type".equals(def.key())) {
                     counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, scope).stream())
@@ -173,6 +196,42 @@ public class BookFacetService {
         return entityManager.createQuery(cq).setMaxResults(MAX_VALUES).getResultList().stream()
                 .map(tuple -> new FacetResponseBuilder.FacetCount(String.valueOf(tuple.get("value")), ((Number) tuple.get("count")).longValue()))
                 .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private FacetGroup numberGroup(FacetDef def, Specification<BookEntity> base, BrowseScope scope, FacetResponseBuilder builder) {
+        List<String> bands = NUMBER_BANDS.getOrDefault(def.key(), List.of());
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Expression<Number> value = (Expression<Number>) def.value().apply(cb, root, scope);
+
+        List<Selection<?>> columns = new ArrayList<>();
+        columns.add(cb.min(value).alias("min"));
+        columns.add(cb.max(value).alias("max"));
+        for (String band : bands) {
+            Specification<BookEntity> inBand = facetRegistry.toSpecification(def.key(), List.of(band), FacetLogic.OR, scope.userId());
+            columns.add(countMatching(inBand, root, cq, cb).alias(band));
+        }
+        cq.multiselect(columns);
+        Predicate basePredicate = base.toPredicate(root, cq, cb);
+        if (basePredicate != null) {
+            cq.where(basePredicate);
+        }
+
+        Tuple row = entityManager.createQuery(cq).getSingleResult();
+        List<FacetResponseBuilder.FacetCount> counts = bands.stream()
+                .map(band -> new FacetResponseBuilder.FacetCount(band, row.get(band, Long.class)))
+                .toList();
+        return builder.group(def.key(), def.title(), counts, row.get("min", Number.class), row.get("max", Number.class));
+    }
+
+    // COUNT(DISTINCT CASE WHEN <filter matches> THEN id END), so one query can count several filters at once
+    private Expression<Long> countMatching(Specification<BookEntity> filter, Root<BookEntity> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+        Expression<Long> matchingId = cb.<Long>selectCase()
+                .when(filter.toPredicate(root, cq, cb), root.get("id"))
+                .otherwise(cb.nullLiteral(Long.class));
+        return cb.countDistinct(matchingId);
     }
 
     private static Join<?, ?> metadata(Root<BookEntity> root) {
