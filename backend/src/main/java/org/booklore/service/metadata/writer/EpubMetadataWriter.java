@@ -379,7 +379,11 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     public void replaceCoverImageFromPath(BookEntity bookEntity, Path path) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
+        replaceCoverImageFromPath(bookEntity.getFullFilePath().toFile(), path);
+    }
+
+    public void replaceCoverImageFromPath(File epubFile, Path path) {
+        if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
 
@@ -390,16 +394,15 @@ public class EpubMetadataWriter implements MetadataWriter {
 
         try {
             byte[] coverData = Files.readAllBytes(path);
-            replaceCoverImageInternal(bookEntity, coverData, "upload");
+            replaceCoverImageInternal(epubFile, coverData, "upload");
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
         }
     }
 
-    private void replaceCoverImageInternal(BookEntity bookEntity, byte[] coverData, String source) {
+    private void replaceCoverImageInternal(File epubFile, byte[] coverData, String source) {
         Path tempDir = null;
         try {
-            File epubFile = new File(bookEntity.getFullFilePath().toUri());
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
 
             archiveService.extractToDirectory(epubFile.toPath(), tempDir);
