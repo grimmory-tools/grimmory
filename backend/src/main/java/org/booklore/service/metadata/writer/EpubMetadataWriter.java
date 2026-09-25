@@ -378,30 +378,18 @@ public class EpubMetadataWriter implements MetadataWriter {
         return changed;
     }
 
-
-    public void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] file) {
+    public void replaceCoverImageFromPath(BookEntity bookEntity, Path path) {
         if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
             return;
         }
-        if (file == null || file.length == 0) {
-            log.warn("Cover update failed: empty or null byte array.");
-            return;
-        }
 
-        replaceCoverImageInternal(bookEntity, file, "byte array");
-    }
-
-    public void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile multipartFile) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
-            return;
-        }
-        if (multipartFile == null || multipartFile.isEmpty()) {
+        if (path == null || !Files.isReadable(path)) {
             log.warn("Cover upload failed: empty or null file.");
             return;
         }
 
         try {
-            byte[] coverData = multipartFile.getBytes();
+            byte[] coverData = Files.readAllBytes(path);
             replaceCoverImageInternal(bookEntity, coverData, "upload");
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);

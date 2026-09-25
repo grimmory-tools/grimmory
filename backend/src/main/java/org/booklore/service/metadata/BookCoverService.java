@@ -98,8 +98,8 @@ public class BookCoverService {
         String author = getAuthorNames(bookEntity);
         byte[] coverBytes = coverImageGenerator.generateCover(title, author);
 
-        fileService.createThumbnailFromBytes(bookId, coverBytes);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromBytes(book, coverBytes));
+        var images = fileService.createThumbnailFromBytes(bookId, coverBytes);
+        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -116,8 +116,8 @@ public class BookCoverService {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
-        fileService.createThumbnailFromFile(bookId, file);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUpload(book, file));
+        var images = fileService.createThumbnailFromFile(bookId, file);
+        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -135,8 +135,8 @@ public class BookCoverService {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
-        fileService.createThumbnailFromUrl(bookId, url);
-        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUrl(book, url));
+        var images = fileService.createThumbnailFromUrl(bookId, url);
+        writeCoverToBookFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateBookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -158,8 +158,8 @@ public class BookCoverService {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
-        fileService.createAudiobookThumbnailFromFile(bookId, file);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUpload(book, file));
+        var images = fileService.createAudiobookThumbnailFromFile(bookId, file);
+        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -177,8 +177,8 @@ public class BookCoverService {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
-        fileService.createAudiobookThumbnailFromUrl(bookId, url);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromUrl(book, url));
+        var images = fileService.createAudiobookThumbnailFromUrl(bookId, url);
+        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -225,8 +225,8 @@ public class BookCoverService {
         String author = getAuthorNames(bookEntity);
         byte[] coverBytes = coverImageGenerator.generateSquareCover(title, author);
 
-        fileService.createAudiobookThumbnailFromBytes(bookId, coverBytes);
-        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromBytes(book, coverBytes));
+        var images = fileService.createAudiobookThumbnailFromBytes(bookId, coverBytes);
+        writeAudiobookCoverToFile(bookEntity, (writer, book) -> writer.replaceCoverImageFromPath(book, images.getFirst()));
         updateAudiobookCoverMetadata(bookEntity);
         bookRepository.save(bookEntity);
         notifyBookCoverUpdate(bookEntity);
@@ -399,8 +399,8 @@ public class BookCoverService {
 
                     transactionTemplate.execute(status -> {
                         bookRepository.findByIdWithBookFiles(bookInfo.id()).ifPresent(book -> {
-                            fileService.createThumbnailFromBytes(bookInfo.id(), coverImageBytes);
-                            writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverImageBytes));
+                            var images = fileService.createThumbnailFromBytes(bookInfo.id(), coverImageBytes);
+                            writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromPath(b, images.getFirst()));
                             updateBookCoverMetadata(book);
                             bookRepository.save(book);
                             notifyBulkCoverUpdate(List.of(book.getId()), username);
@@ -485,8 +485,8 @@ public class BookCoverService {
                             String author = getAuthorNames(book);
                             byte[] coverBytes = coverImageGenerator.generateCover(title, author);
 
-                            fileService.createThumbnailFromBytes(book.getId(), coverBytes);
-                            writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverBytes));
+                            var images = fileService.createThumbnailFromBytes(book.getId(), coverBytes);
+                            writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromPath(b, images.getFirst()));
                             updateBookCoverMetadata(book);
                             bookRepository.save(book);
                             notifyBulkCoverUpdate(List.of(book.getId()), username);
