@@ -183,7 +183,7 @@ dependencies {
 
     // --- Caching ---
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.3.0")
 
     // --- Test Dependencies ---
     testImplementation("org.springframework.boot:spring-boot-starter-test")
