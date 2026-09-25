@@ -952,14 +952,14 @@ class FileServiceTest {
 
                 RuntimeException exception = assertThrows(RuntimeException.class, () ->
                         fileService.createThumbnailFromBytes(17L, emptyData));
-                assertEquals("Error reading files from path: Image data is null or empty", exception.getMessage());
+                assertEquals("Error reading files from path: Failed to create cover thumbnail", exception.getMessage());
             }
 
             @Test
             void nullImageBytes_throwsRuntimeException() {
                 RuntimeException exception = assertThrows(RuntimeException.class, () ->
                         fileService.createThumbnailFromBytes(18L, null));
-                assertEquals("Error reading files from path: Image data is null or empty", exception.getMessage());
+                assertEquals("Error reading files from path: Failed to create cover thumbnail", exception.getMessage());
             }
         }
 
@@ -1011,9 +1011,8 @@ class FileServiceTest {
                 // validateCoverFile throws IllegalArgumentException, but it's caught and wrapped in RuntimeException via ApiError
                 RuntimeException exception = assertThrows(RuntimeException.class, () ->
                         fileService.createThumbnailFromFile(7L, emptyFile));
-                assertTrue(exception.getMessage().contains("empty") ||
-                                exception.getCause() instanceof IllegalArgumentException,
-                        "Exception message should indicate file is empty or wrap IllegalArgumentException");
+                assertTrue(exception.getCause() instanceof IllegalArgumentException,
+                        "Exception message should wrap IllegalArgumentException");
             }
 
             @Test

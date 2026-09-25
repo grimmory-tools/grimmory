@@ -326,7 +326,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the thumbnail: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -352,7 +352,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from bytes: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -378,7 +378,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from URL: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -407,7 +407,7 @@ public class FileService {
             return images;
         } catch (Exception e) {
             log.error("Failed to create author thumbnail from URL for author {}: {}", authorId, e.getMessage());
-            throw ApiError.FILE_READ_ERROR.createException("Failed to create author thumbnail", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create author thumbnail").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -535,7 +535,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the audiobook thumbnail: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -561,7 +561,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from bytes: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
@@ -587,7 +587,7 @@ public class FileService {
             throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from URL: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
         } finally {
             if (originalImage != null) {
                 originalImage.flush(); // Release resources after processing
