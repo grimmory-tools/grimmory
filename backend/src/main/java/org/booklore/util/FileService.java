@@ -1,6 +1,7 @@
 package org.booklore.util;
 
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.CoverCroppingSettings;
@@ -321,6 +322,8 @@ public class FileService {
             }
             log.info("Cover images created and saved for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the thumbnail: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
@@ -345,6 +348,8 @@ public class FileService {
             }
             log.info("Cover images created and saved for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from bytes: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
@@ -369,6 +374,8 @@ public class FileService {
             }
             log.info("Cover images created and saved for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from URL: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail", e);
@@ -524,6 +531,8 @@ public class FileService {
             }
             log.info("Audiobook cover images created and saved for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the audiobook thumbnail: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
@@ -548,6 +557,8 @@ public class FileService {
             }
             log.info("Audiobook cover images created and saved from bytes for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from bytes: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
@@ -572,6 +583,8 @@ public class FileService {
             }
             log.info("Audiobook cover images created and saved from URL for book ID: {}", bookId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from URL: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images", e);
@@ -702,7 +715,7 @@ public class FileService {
             File thumbnailFile = new File(folder, THUMBNAIL_FILENAME);
             boolean thumbnailSaved = ImageIO.write(thumb, IMAGE_FORMAT, thumbnailFile);
 
-            if (!originalSaved || thumbnailSaved) {
+            if (!originalSaved || !thumbnailSaved) {
                 return null;
             }
 
