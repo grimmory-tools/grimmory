@@ -70,7 +70,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.13.2",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.1",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.9.1",
     "jsdom": "^30.0.1",
