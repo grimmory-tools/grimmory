@@ -20,6 +20,10 @@ on:
         description: "Boolean indicating if migration files were changed"
         value: ${{ jobs.check-for-migrations.outputs.has_migrations }}
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   check-for-migrations:
     name: Check for DB Migrations
