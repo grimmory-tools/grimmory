@@ -59,7 +59,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     private final ArchiveService archiveService;
 
     @Override
-    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
+    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
@@ -214,14 +214,6 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    applyCoverImageToEpub(tempDir, opfDoc, coverData);
-                    hasChanges[0] = true;
-                }
-            }
 
             if (!hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata)) {
                 hasChanges[0] = true;
@@ -414,25 +406,6 @@ public class EpubMetadataWriter implements MetadataWriter {
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
-            return;
-        }
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageInternal(bookEntity, coverData, "URL");
     }
 
     private void replaceCoverImageInternal(BookEntity bookEntity, byte[] coverData, String source) {

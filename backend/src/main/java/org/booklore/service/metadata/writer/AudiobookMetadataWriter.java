@@ -40,17 +40,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     private final AppSettingService appSettingService;
 
     @Override
-    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
-        if (audioFile.isDirectory()) {
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    saveCoverToFolder(audioFile.toPath(), coverData);
-                }
-            }
-            return;
-        }
-
+    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(audioFile)) {
             return;
         }
@@ -122,22 +112,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
                 String trackTotal = val != null ? String.valueOf(val) : null;
                 setTagField(tag, FieldKey.TRACK_TOTAL, trackTotal, hasChanges);
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    try {
-                        tag.deleteArtworkField();
-                        Artwork artwork = ArtworkFactory.getNew();
-                        artwork.setBinaryData(coverData);
-                        artwork.setMimeType(detectMimeType(coverData));
-                        tag.setField(artwork);
-                        hasChanges[0] = true;
-                    } catch (Exception e) {
-                        log.warn("Failed to set cover art for {}: {}", audioFile.getName(), e.getMessage());
-                    }
-                }
-            }
 
             if (hasChanges[0]) {
                 f.commit();
@@ -255,22 +229,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageFromBytes(bookEntity, coverData);
     }
 
     private void replaceCoverImageInternal(File audioFile, byte[] coverData, String source) {

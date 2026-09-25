@@ -10,7 +10,7 @@ import java.io.File;
 
 public interface MetadataWriter {
 
-    void saveMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags);
+    void saveMetadataToFile(File file, BookMetadataEntity metadata, MetadataClearFlags clearFlags);
 
     boolean shouldSaveMetadataToFile(File file);
 
@@ -18,9 +18,6 @@ public interface MetadataWriter {
     }
 
     default void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] file) {
-    }
-
-    default void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
     }
 
     BookFileType getSupportedBookType();
