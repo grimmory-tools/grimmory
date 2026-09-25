@@ -612,15 +612,6 @@ public class EpubMetadataWriter implements MetadataWriter {
         return EpubContentReader.findOPFInExtractedEpub(tempDir);
     }
 
-    private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http") ? URI.create(pathOrUrl).toURL().openStream() : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
-            log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
-            return null;
-        }
-    }
-
     private void removeMetaByName(Element metadataElement, String name) {
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
         for (int i = metas.getLength() - 1; i >= 0; i--) {
