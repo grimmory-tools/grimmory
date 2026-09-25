@@ -150,7 +150,7 @@ class AbstractFileProcessorTest {
         bookEntity.setId(2L);
 
 
-        when(fileService.saveCoverImages(any(BufferedImage.class), eq(1L))).thenReturn(
+        when(fileService.saveAudiobookCoverImages(any(BufferedImage.class), eq(2L))).thenReturn(
                 List.of(
                         Path.of("2.jpg"),
                         Path.of("2.thumbnail.jpg")
