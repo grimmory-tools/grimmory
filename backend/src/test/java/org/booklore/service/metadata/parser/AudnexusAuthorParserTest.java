@@ -182,4 +182,21 @@ class AudnexusAuthorParserTest {
         assertThat(uri).contains("api.audnex.us/authors/B000APZGGS");
         assertThat(uri).contains("region=uk");
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getAuthorByAsin_escapesAsin() throws Exception {
+        HttpResponse<String> mockResponse = mock(HttpResponse.class);
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn("{\"asin\":\"B000APZGGS\",\"name\":\"Test\"}");
+        doReturn(mockResponse).when(httpClient).send(any(HttpRequest.class), any());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        parser.getAuthorByAsin("FOO/BAR", "uk");
+
+        verify(httpClient).send(requestCaptor.capture(), any());
+        String uri = requestCaptor.getValue().uri().toString();
+        assertThat(uri).contains("api.audnex.us/authors/FOO%2FBAR");
+        assertThat(uri).contains("region=uk");
+    }
 }
