@@ -405,6 +405,8 @@ public class FileService {
             }
             log.info("Author images created and saved from URL for author ID: {}", authorId);
             return images;
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to create author thumbnail from URL for author {}: {}", authorId, e.getMessage());
             throw ApiError.FILE_READ_ERROR.createException("Failed to create author thumbnail").initCause(e);
