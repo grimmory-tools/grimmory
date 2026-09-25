@@ -40,10 +40,6 @@ public class JwtUtils {
 
     @Getter
     public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 2;  // 2 hours
-    @Getter
-    public static final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
-
-    private static final long refreshTokenNotBeforeMs = 1000L * 60 * 2; // 2 minutes
 
     @PostConstruct
     public void init() {
@@ -74,8 +70,7 @@ public class JwtUtils {
         return key;
     }
 
-    public String generateToken(BookLoreUserEntity user, boolean isRefreshToken) {
-        long expirationTime = isRefreshToken ? refreshTokenExpirationMs : accessTokenExpirationMs;
+    public String generateAccessToken(BookLoreUserEntity user) {
         Instant now = Instant.now();
 
         try {
@@ -88,13 +83,7 @@ public class JwtUtils {
                     .claim("userId", user.getId())
                     .claim("isDefaultPassword", user.isDefaultPassword())
                     .issueTime(Date.from(now))
-                    .expirationTime(Date.from(now.plusMillis(expirationTime)));
-
-            if (isRefreshToken) {
-                // Prevent refresh tokens from being used until at least
-                // some `refreshTokenNotBeforeMs` milliseconds from now.
-                builder.notBeforeTime(Date.from(now.plusMillis(refreshTokenNotBeforeMs)));
-            }
+                    .expirationTime(Date.from(now.plusMillis(accessTokenExpirationMs)));
 
             JWTClaimsSet claimsSet = builder.build();
 
@@ -109,14 +98,6 @@ public class JwtUtils {
             log.error("Error generating JWT token", e);
             throw new RuntimeException("Could not generate token", e);
         }
-    }
-
-    public String generateAccessToken(BookLoreUserEntity user) {
-        return generateToken(user, false);
-    }
-
-    public String generateRefreshToken(BookLoreUserEntity user) {
-        return generateToken(user, true);
     }
 
     /**

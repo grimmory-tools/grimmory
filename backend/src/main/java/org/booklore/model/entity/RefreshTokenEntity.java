@@ -34,4 +34,7 @@ public class RefreshTokenEntity {
 
     @Column(name = "revocation_date")
     private Instant revocationDate;
+
+    @Column(name = "not_before_date")
+    private Instant notBeforeDate;
 }
