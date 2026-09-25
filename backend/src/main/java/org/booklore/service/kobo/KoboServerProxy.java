@@ -17,9 +17,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
@@ -80,7 +82,10 @@ public class KoboServerProxy {
 
     private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, String path, boolean includeSyncToken, BookloreSyncToken syncToken) {
         try {
-            String queryString = request.getQueryString() == null ? "" : request.getQueryString();
+            String queryString = URLDecoder.decode(
+                    request.getQueryString() == null ? "" : request.getQueryString(),
+                    StandardCharsets.UTF_8
+            );
 
             URI uri = UriComponentsBuilder.fromUriString(KOBO_BASE_URI)
                     .path(path)
