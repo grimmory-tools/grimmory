@@ -70,7 +70,7 @@ public class MetadataManagementService {
                     Optional<MetadataWriter> writerOpt = metadataWriterFactory.getWriter(bookType);
                     if (writerOpt.isPresent()) {
                         File file = book.getFullFilePath().toFile();
-                        writerOpt.get().saveMetadataToFile(file, metadata, null, null);
+                        writerOpt.get().saveMetadataToFile(file, metadata, null);
                         String newHash = FileFingerprint.generateHash(book.getFullFilePath());
                         primaryFile.setCurrentHash(newHash);
                         bookModified = true;

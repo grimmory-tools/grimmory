@@ -85,7 +85,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
             if (imageOptional.isPresent()) {
                 BufferedImage image = imageOptional.get();
                 try {
-                    boolean saved = fileService.saveCoverImages(image, bookEntity.getId());
+                    boolean saved = fileService.saveCoverImages(image, bookEntity.getId()) != null;
                     if (saved) {
                         return true;
                     } else {

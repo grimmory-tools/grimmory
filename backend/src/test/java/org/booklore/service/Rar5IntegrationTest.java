@@ -163,7 +163,7 @@ class Rar5IntegrationTest {
         BookMetadataEntity metadata = new BookMetadataEntity();
         metadata.setTitle("Updated RAR5 Title");
 
-        writer.saveMetadataToFile(cbrCopy.toFile(), metadata, null, null);
+        writer.saveMetadataToFile(cbrCopy.toFile(), metadata, null);
 
         Path cbzPath = tempDir.resolve("test.cbz");
         assertThat(cbzPath).exists();

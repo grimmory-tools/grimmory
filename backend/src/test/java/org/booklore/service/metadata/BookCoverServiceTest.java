@@ -18,15 +18,14 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.LogNotification;
-import org.booklore.model.websocket.Topic;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -38,6 +37,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -68,10 +70,22 @@ class BookCoverServiceTest {
     @InjectMocks
     private BookCoverService service;
 
+    private MockedStatic<Files> filesMock;
+    private MockedStatic<MimeDetector> mimeDetectorMock;
+
     @BeforeEach
     void setUp() {
+        mimeDetectorMock = mockStatic(MimeDetector.class);
+        filesMock = mockStatic(Files.class);
+
         lenient().when(appProperties.isLocalStorage()).thenReturn(true);
         lenient().when(authenticationService.getAuthenticatedUser()).thenReturn(BookLoreUser.builder().username("testuser").build());
+    }
+
+    @AfterEach
+    void tearDown() {
+        filesMock.close();
+        mimeDetectorMock.close();
     }
 
     private BookEntity buildBook(long id, boolean coverLocked) {
@@ -443,6 +457,8 @@ class BookCoverServiceTest {
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
 
             verify(bookQueryService).findAllWithMetadataByIds(Set.of(1L, 2L));
@@ -471,6 +487,8 @@ class BookCoverServiceTest {
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("application/wad");
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -504,6 +522,8 @@ class BookCoverServiceTest {
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromFileForBooks(Set.of(1L), file);
@@ -523,6 +543,8 @@ class BookCoverServiceTest {
             } catch (Exception _) {}
 
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/png");
 
             service.updateCoverFromFileForBooks(Set.of(1L), file);
         }
@@ -552,6 +574,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(fileService).createThumbnailFromUrl(1L, "https://example.com/cover.jpg");
@@ -571,6 +597,10 @@ class BookCoverServiceTest {
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             MultipartFile file = mock(MultipartFile.class);
 
+            when(fileService.createThumbnailFromFile(anyLong(), any(MultipartFile.class))).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromFile(1L, file);
 
             verify(fileService).createThumbnailFromFile(1L, file);
@@ -588,6 +618,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             MultipartFile file = mock(MultipartFile.class);
+
+            when(fileService.createAudiobookThumbnailFromFile(anyLong(), any())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             service.updateAudiobookCoverFromFile(1L, file);
 
@@ -615,6 +649,10 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            when(fileService.createAudiobookThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
@@ -815,6 +853,8 @@ class BookCoverServiceTest {
             runAsyncInline();
             runTransactionsInline();
 
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             service.updateCoverFromFileForBooks(Set.of(1L), file);
 
             verify(fileService).createAudiobookThumbnailFromBytes(eq(1L), any());
@@ -961,7 +1001,9 @@ class BookCoverServiceTest {
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(10);
-            
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             service.updateCoverFromFileForBooks(Set.of(1L), file);
             
             verify(bookQueryService).findAllWithMetadataByIds(any());
@@ -1096,12 +1138,18 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
+            filesMock.when(() -> Files.readAllBytes(any())).thenReturn(new byte[]{});
+
             try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
                 fpMock.when(() -> FileFingerprint.generateHash(epubFile.getFullFilePath())).thenReturn("hash");
 
                 service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
-                verify(epubWriter).replaceCoverImageFromUrl(epubFile.getFullFilePath().toFile(), "https://example.com/cover.jpg");
+                verify(epubWriter).replaceCoverImage(eq(epubFile.getFullFilePath().toFile()), any(byte[].class));
                 verify(metadataWriterFactory, never()).getWriter(BookFileType.AUDIOBOOK);
                 assertThat(epubFile.getCurrentHash()).isEqualTo("hash");
                 assertThat(audiobookFile.getCurrentHash()).isNull();
@@ -1114,6 +1162,12 @@ class BookCoverServiceTest {
             book.setBookFiles(new HashSet<>());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
+            filesMock.when(() -> Files.readAllBytes(any())).thenReturn(new byte[]{});
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1132,6 +1186,10 @@ class BookCoverServiceTest {
             BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
             when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(notificationService).sendMessage(any(), eq(List.of(projection)));
@@ -1143,6 +1201,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
             when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
+
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             TransactionSynchronizationManager.initSynchronization();
             try {
@@ -1165,6 +1227,10 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1222,6 +1288,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(metadataWriterFactory, never()).getWriter(any());
@@ -1240,6 +1310,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
+            when(fileService.createAudiobookThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
             verify(metadataWriterFactory, never()).getWriter(any());
@@ -1257,6 +1331,10 @@ class BookCoverServiceTest {
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(sidecarMetadataWriter).writeSidecarMetadata(book);
@@ -1268,6 +1346,10 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+
+            when(fileService.createAudiobookThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
@@ -1281,6 +1363,10 @@ class BookCoverServiceTest {
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
 
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(sidecarMetadataWriter, never()).writeSidecarMetadata(any());
@@ -1293,6 +1379,10 @@ class BookCoverServiceTest {
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
             doThrow(new RuntimeException("sidecar unavailable")).when(sidecarMetadataWriter).writeSidecarMetadata(book);
+
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    new FileService.ThumbnailImage(Path.of("cover.png"))
+            );
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 

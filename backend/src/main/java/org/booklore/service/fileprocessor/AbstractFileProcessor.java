@@ -100,7 +100,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
             BufferedImage image = ImageIO.read(coverImage.get().toFile());
             if (image == null) return false;
             try {
-                return fileService.saveCoverImages(image, bookEntity.getId());
+                return fileService.saveCoverImages(image, bookEntity.getId()) != null;
             } finally {
                 image.flush();
             }
@@ -117,7 +117,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
             BufferedImage image = FileService.readImage(Files.readAllBytes(coverImage.get()));
             if (image == null) return false;
             try {
-                return fileService.saveAudiobookCoverImages(image, bookEntity.getId());
+                return fileService.saveAudiobookCoverImages(image, bookEntity.getId()) != null;
             } finally {
                 image.flush();
             }

@@ -99,7 +99,9 @@ class AbstractFileProcessorTest {
         var bookEntity = new BookEntity();
         bookEntity.setId(1L);
 
-        when(fileService.saveCoverImages(any(BufferedImage.class), eq(1L))).thenReturn(true);
+        when(fileService.saveCoverImages(any(BufferedImage.class), eq(1L))).thenReturn(
+                new FileService.ThumbnailImage(Path.of("1.jpg"))
+        );
 
         boolean result = processor.exposedGenerateCoverFromFolderImage(bookEntity, folder);
 
@@ -144,7 +146,10 @@ class AbstractFileProcessorTest {
         var bookEntity = new BookEntity();
         bookEntity.setId(2L);
 
-        when(fileService.saveAudiobookCoverImages(any(BufferedImage.class), eq(2L))).thenReturn(true);
+
+        when(fileService.saveAudiobookCoverImages(any(BufferedImage.class), eq(2L))).thenReturn(
+                new FileService.ThumbnailImage(Path.of("2.jpg"))
+        );
 
         boolean result = processor.exposedGenerateAudiobookCoverFromFolderImage(bookEntity, folder);
 

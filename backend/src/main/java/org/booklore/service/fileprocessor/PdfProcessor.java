@@ -215,7 +215,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
         BufferedImage coverImage = null;
         try (PdfPage page = doc.page(0)) {
             coverImage = page.render(150).toBufferedImage();
-            return fileService.saveCoverImages(coverImage, bookId);
+            return fileService.saveCoverImages(coverImage, bookId) != null;
         } catch (OutOfMemoryError e) {
             log.error("Out of memory (heap space exhausted) while generating cover for bookId {}. Skipping cover generation.", bookId);
             System.gc(); // Hint to JVM to reclaim memory

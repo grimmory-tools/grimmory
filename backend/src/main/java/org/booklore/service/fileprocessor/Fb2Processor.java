@@ -150,6 +150,6 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
             return false;
         }
 
-        return fileService.saveCoverImages(originalImage, bookId);
+        return fileService.saveCoverImages(originalImage, bookId) != null;
     }
 }

@@ -254,7 +254,7 @@ class MetadataManagementServiceTest {
             service.consolidateMetadata(MergeMetadataType.authors, List.of("Target"), List.of("Old"));
         }
 
-        verify(writer).saveMetadataToFile(any(), eq(metadata), isNull(), isNull());
+        verify(writer).saveMetadataToFile(any(), eq(metadata), isNull());
         verify(bookRepository).saveAndFlush(book);
 
         Files.deleteIfExists(tempFile);
