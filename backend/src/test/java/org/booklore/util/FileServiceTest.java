@@ -583,10 +583,10 @@ class FileServiceTest {
             void createsBothCoverAndThumbnail() throws IOException {
                 BufferedImage image = createTestImage(500, 700);
 
-                boolean result = fileService.saveCoverImages(image, 1L);
+                var result = fileService.saveCoverImages(image, 1L);
 
                 assertAll(
-                        () -> assertTrue(result),
+                        () -> assertNotNull(result),
                         () -> assertTrue(Files.exists(Path.of(fileService.getCoverFile(1L)))),
                         () -> assertTrue(Files.exists(Path.of(fileService.getThumbnailFile(1L))))
                 );
@@ -616,9 +616,9 @@ class FileServiceTest {
                 g.fillRect(0, 0, 100, 100);
                 g.dispose();
 
-                boolean result = fileService.saveCoverImages(imageWithAlpha, 3L);
+                var result = fileService.saveCoverImages(imageWithAlpha, 3L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage saved = ImageIO.read(
                         new File(fileService.getCoverFile(3L)));
@@ -658,9 +658,9 @@ class FileServiceTest {
                 int largeHeight = 3000; // > MAX_ORIGINAL_HEIGHT (1500)
 
                 BufferedImage largeImage = createTestImage(largeWidth, largeHeight);
-                boolean result = fileService.saveCoverImages(largeImage, 5L);
+                var result = fileService.saveCoverImages(largeImage, 5L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(5L)));
@@ -684,9 +684,9 @@ class FileServiceTest {
                 int smallHeight = 600;  // < MAX_ORIGINAL_HEIGHT (1500)
 
                 BufferedImage smallImage = createTestImage(smallWidth, smallHeight);
-                boolean result = fileService.saveCoverImages(smallImage, 6L);
+                var result = fileService.saveCoverImages(smallImage, 6L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(6L)));
@@ -712,9 +712,9 @@ class FileServiceTest {
                 int height = 11280;  // ratio = 12:1
 
                 BufferedImage tallImage = createTestImage(width, height);
-                boolean result = fileService.saveCoverImages(tallImage, 100L);
+                var result = fileService.saveCoverImages(tallImage, 100L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(100L)));
@@ -735,9 +735,9 @@ class FileServiceTest {
                 int height = 400;  // width/height ratio = 7.5:1
 
                 BufferedImage wideImage = createTestImage(width, height);
-                boolean result = fileService.saveCoverImages(wideImage, 101L);
+                var result = fileService.saveCoverImages(wideImage, 101L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(101L)));
@@ -758,9 +758,9 @@ class FileServiceTest {
                 int height = 900;  // ratio = 1.5:1
 
                 BufferedImage normalImage = createTestImage(width, height);
-                boolean result = fileService.saveCoverImages(normalImage, 102L);
+                var result = fileService.saveCoverImages(normalImage, 102L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(102L)));
@@ -793,9 +793,9 @@ class FileServiceTest {
                 int height = 4000;  // ratio = 10:1
 
                 BufferedImage tallImage = createTestImage(width, height);
-                boolean result = fileService.saveCoverImages(tallImage, 103L);
+                var result = fileService.saveCoverImages(tallImage, 103L);
 
-                assertTrue(result);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(
                         new File(fileService.getCoverFile(103L)));
@@ -833,8 +833,8 @@ class FileServiceTest {
                 g.fillRect(0, 200, width, height - 200);
                 g.dispose();
 
-                boolean result = fileService.saveCoverImages(tallImage, 104L);
-                assertTrue(result);
+                var result = fileService.saveCoverImages(tallImage, 104L);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(new File(fileService.getCoverFile(104L)));
                 assertNotNull(savedCover);
@@ -866,8 +866,8 @@ class FileServiceTest {
                 g.fillRect(200, 0, width - 200, height);
                 g.dispose();
 
-                boolean result = fileService.saveCoverImages(wideImage, 105L);
-                assertTrue(result);
+                var result = fileService.saveCoverImages(wideImage, 105L);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(new File(fileService.getCoverFile(105L)));
                 assertNotNull(savedCover);
@@ -893,8 +893,8 @@ class FileServiceTest {
                 int height = 3000;
                 BufferedImage uniformImage = createTestImage(width, height, Color.BLUE);
 
-                boolean result = fileService.saveCoverImages(uniformImage, 106L);
-                assertTrue(result);
+                var result = fileService.saveCoverImages(uniformImage, 106L);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(new File(fileService.getCoverFile(106L)));
                 assertNotNull(savedCover);
@@ -914,8 +914,8 @@ class FileServiceTest {
                 int height = 3000;  // Very tall image
                 BufferedImage tallImage = createTestImage(width, height);
 
-                boolean result = fileService.saveCoverImages(tallImage, 107L);
-                assertTrue(result);
+                var result = fileService.saveCoverImages(tallImage, 107L);
+                assertNotNull(result);
 
                 BufferedImage savedCover = ImageIO.read(new File(fileService.getCoverFile(107L)));
                 assertNotNull(savedCover);
