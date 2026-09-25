@@ -75,7 +75,7 @@
     "eslint": "^10.9.1",
     "jsdom": "^30.0.1",
     "ng-mocks": "^14.17.6",
-    "postcss": "^8.5.26",
+    "postcss": "^8.5.28",
     "stylelint": "^17.14.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.3",
