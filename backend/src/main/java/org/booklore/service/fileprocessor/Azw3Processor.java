@@ -149,19 +149,12 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
 
     private boolean saveCoverImage(byte[] coverData, long bookId) throws Exception {
         BufferedImage originalImage = FileService.readImage(coverData);
-        try {
-            originalImage = FileService.readImage(coverData);
-            if (originalImage == null) {
-                log.warn("Failed to decode cover image for AZW3");
-                return false;
-            }
-
-            return fileService.saveCoverImages(originalImage, bookId) != null;
-        } finally {
-            if (originalImage != null) {
-                originalImage.flush();
-            }
+        if (originalImage == null) {
+            log.warn("Failed to decode cover image for AZW3");
+            return false;
         }
+
+        return fileService.saveCoverImages(originalImage, bookId) != null;
     }
 }
 
