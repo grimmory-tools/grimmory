@@ -216,10 +216,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     }
 
     public void replaceCoverImageFromPath(BookEntity bookEntity, Path path) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
-            return;
-        }
-
         if (path == null || !Files.isReadable(path)) {
             log.warn("Cover upload failed: empty or null file.");
             return;
