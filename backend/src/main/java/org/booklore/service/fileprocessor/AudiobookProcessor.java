@@ -142,15 +142,19 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
 
         log.debug("Found cover data ({} bytes) in audiobook file '{}'", coverData.length, audioFile.getName());
 
+        BufferedImage originalImage = null;
         boolean saved;
         try (ByteArrayInputStream bais = new ByteArrayInputStream(coverData)) {
-            BufferedImage originalImage = FileService.readImage(bais);
+            originalImage = FileService.readImage(bais);
             if (originalImage == null) {
                 log.warn("Failed to decode cover image for audiobook '{}'", audioFile.getName());
                 return false;
             }
-            saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId());
-            originalImage.flush();
+            saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId()) != null;
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush();
+            }
         }
 
         return saved;

@@ -89,7 +89,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
                     log.warn("Cover image found but could not be decoded (possibly SVG or unsupported format) in EPUB '{}'", bookFile.getFileName());
                     return false;
                 }
-                saved = fileService.saveCoverImages(originalImage, bookEntity.getId());
+                saved = fileService.saveCoverImages(originalImage, bookEntity.getId()) != null;
                 originalImage.flush();
             }
 
