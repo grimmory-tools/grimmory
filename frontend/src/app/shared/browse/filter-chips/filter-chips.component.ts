@@ -21,13 +21,8 @@ import {type BrowseFilterChip} from '../facets';
         #000 calc(100% - var(--chips-fade-r)),
         transparent 100%
       );
-    }
-
-    @supports (animation-timeline: scroll()) {
-      .chips-track {
-        animation: chips-fade linear;
-        animation-timeline: scroll(self inline);
-      }
+      animation: chips-fade linear;
+      animation-timeline: scroll(self inline);
     }
 
     @keyframes chips-fade {
@@ -66,7 +61,7 @@ import {type BrowseFilterChip} from '../facets';
     }
     </div>
     <app-button
-      class="flex h-[22px] shrink-0"
+      class="flex h-[22px] shrink-0 pointer-coarse:h-10"
       variant="ghost"
       size="sm"
       styleClass="h-[22px] px-2"
