@@ -31,20 +31,15 @@ class PdfReaderServiceTest {
     @Mock
     private BookRepository bookRepository;
 
-    @Mock
-    private ChapterCacheService chapterCacheService;
-
     @InjectMocks
     private PdfReaderService pdfReaderService;
 
     private BookEntity bookEntity;
-    private Path pdfPath;
 
     @BeforeEach
     void setup() {
         bookEntity = new BookEntity();
         bookEntity.setId(1L);
-        pdfPath = Path.of("/tmp/test.pdf");
     }
 
     @Test
@@ -52,15 +47,6 @@ class PdfReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         APIException ex = assertThrows(APIException.class, () ->
                 pdfReaderService.streamPageImage(1L, "../traversal", 1, new ByteArrayOutputStream())
-        );
-        assertTrue(ex.getMessage().contains("Invalid book type"), "Expected INVALID_INPUT, got: " + ex.getMessage());
-    }
-
-    @Test
-    void testInitCache_InvalidBookType_Throws() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
-        APIException ex = assertThrows(APIException.class, () ->
-                pdfReaderService.initCache(1L, "../traversal")
         );
         assertTrue(ex.getMessage().contains("Invalid book type"), "Expected INVALID_INPUT, got: " + ex.getMessage());
     }

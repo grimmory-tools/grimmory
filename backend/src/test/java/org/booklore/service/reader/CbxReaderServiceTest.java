@@ -32,14 +32,8 @@ class CbxReaderServiceTest {
     @Mock
     ArchiveService archiveService;
 
-    @Mock
-    ChapterCacheService chapterCacheService;
-
     @InjectMocks
     CbxReaderService cbxReaderService;
-
-    @Captor
-    ArgumentCaptor<Long> longCaptor;
 
     BookEntity bookEntity;
     Path cbzPath;
@@ -69,8 +63,6 @@ class CbxReaderServiceTest {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
             filesStatic.when(() -> Files.getLastModifiedTime(cbzPath)).thenReturn(FileTime.from(Instant.now()));
 
-            cbxReaderService.initCache(1L, null);
-
             List<Integer> pages = cbxReaderService.getAvailablePages(1L);
             assertEquals(List.of(1), pages);
         }
@@ -90,8 +82,6 @@ class CbxReaderServiceTest {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
             filesStatic.when(() -> Files.getLastModifiedTime(cbzPath)).thenReturn(FileTime.from(Instant.now()));
 
-            cbxReaderService.initCache(1L, null);
-
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             cbxReaderService.streamPageImage(1L, 1, out);
             assertArrayEquals(new byte[]{1, 2, 3}, out.toByteArray());
@@ -108,8 +98,6 @@ class CbxReaderServiceTest {
         ) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
             filesStatic.when(() -> Files.getLastModifiedTime(cbzPath)).thenReturn(FileTime.from(Instant.now()));
-
-            cbxReaderService.initCache(1L, null);
 
             assertThrows(
                     FileNotFoundException.class,
@@ -141,15 +129,6 @@ class CbxReaderServiceTest {
         when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
         APIException ex = assertThrows(APIException.class, () ->
                 cbxReaderService.streamPageImage(1L, "../traversal", 1, new ByteArrayOutputStream())
-        );
-        assertTrue(ex.getMessage().contains("Invalid book type"), "Expected INVALID_INPUT, got: " + ex.getMessage());
-    }
-
-    @Test
-    void testInitCache_InvalidBookType_Throws() {
-        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
-        APIException ex = assertThrows(APIException.class, () ->
-                cbxReaderService.initCache(1L, "../traversal")
         );
         assertTrue(ex.getMessage().contains("Invalid book type"), "Expected INVALID_INPUT, got: " + ex.getMessage());
     }

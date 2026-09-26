@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -39,48 +38,12 @@ public class PdfReaderService {
     private static final long MTIME_TOLERANCE_MS = 2000;
 
     private final BookRepository bookRepository;
-    private final ChapterCacheService chapterCacheService;
     private final Cache<String, CachedPdfMetadata> metadataCache = Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
     private record CachedPdfMetadata(int pageCount, long lastModified, List<PdfOutlineItem> outline) {}
-
-    public void initCache(Long bookId, String bookType) throws IOException {
-        Path pdfPath = getBookPath(bookId, bookType);
-        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
-
-        Path cacheDir = chapterCacheService.getCachedPage(cacheKey, 1).getParent();
-        if (!Files.exists(cacheDir)) {
-            Files.createDirectories(cacheDir);
-        }
-
-        long cacheMtime = Files.getLastModifiedTime(cacheDir).toMillis();
-        boolean cacheEmpty;
-        try (var stream = Files.list(cacheDir)) {
-            cacheEmpty = stream.findAny().isEmpty();
-        }
-
-        if (!cacheEmpty && Math.abs(cacheMtime - metadata.lastModified) <= MTIME_TOLERANCE_MS) {
-            return;
-        }
-
-        log.info("Populating PDF disk cache for {}: {} pages", cacheKey, metadata.pageCount);
-        // PdfDocument is not thread-safe — render pages serially then cache
-        try (PdfDocument doc = PdfDocument.open(pdfPath)) {
-            for (int i = 1; i <= metadata.pageCount; i++) {
-                Path target = chapterCacheService.getCachedPage(cacheKey, i);
-                if (!Files.exists(target) || Files.size(target) == 0) {
-                    byte[] jpeg = doc.renderPageToBytes(i - 1, (int) DEFAULT_DPI, "jpeg");
-                    writeAtomically(target, jpeg);
-                }
-            }
-        }
-
-        Files.setLastModifiedTime(cacheDir, Files.getLastModifiedTime(pdfPath));
-    }
 
     public void getAvailablePages(Long bookId) {
         getAvailablePages(bookId, null);
@@ -120,20 +83,10 @@ public class PdfReaderService {
     public void streamPageImage(Long bookId, String bookType, int page, OutputStream outputStream) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
-        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
-
-        if (chapterCacheService.hasPage(cacheKey, page)) {
-            Files.copy(chapterCacheService.getCachedPage(cacheKey, page), outputStream);
-            return;
-        }
 
         validatePageRequest(bookId, page, metadata.pageCount);
 
-        // Render, cache atomically, then stream
-        Path cached = chapterCacheService.getCachedPage(cacheKey, page);
-        Files.createDirectories(cached.getParent());
         byte[] jpeg = renderPageToBytes(pdfPath, page);
-        writeAtomically(cached, jpeg);
         outputStream.write(jpeg);
     }
 
@@ -249,20 +202,6 @@ public class PdfReaderService {
         } catch (Exception e) {
             log.error("Failed to render PDF page {} from {}", page, pdfPath, e);
             throw new IOException(e);
-        }
-    }
-
-    /**
-     * Writes bytes to a temp file then atomically moves to the target path.
-     * If the write fails the partial temp file is cleaned up.
-     */
-    private void writeAtomically(Path target, byte[] data) throws IOException {
-        Path tmp = Files.createTempFile(target.getParent(), target.getFileName().toString() + ".", ".tmp");
-        try {
-            Files.write(tmp, data);
-            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } finally {
-            Files.deleteIfExists(tmp);
         }
     }
 }
