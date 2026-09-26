@@ -1,13 +1,14 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {catchError, map, tap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {HttpClient, HttpEventType, HttpParams, HttpRequest} from '@angular/common/http';
+import {catchError, filter, map, tap, mergeMap} from 'rxjs/operators';
 import {Book, BookMetadata, BulkMetadataUpdateRequest, MetadataUpdateWrapper} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
+import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
 @Injectable({
   providedIn: 'root',
@@ -164,11 +165,19 @@ export class BookMetadataManageService {
   uploadAudiobookCoverFromFile(bookId: number, file: File): Observable<void> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<void>(`${this.url}/${bookId}/metadata/audiobook-cover/upload`, formData).pipe(
-      tap(() => {
-        invalidateBooksById(this.queryClient, [bookId]);
-      })
+
+    const req = mitigateWebkitUploadBug(
+      new HttpRequest('POST', `${this.url}/${bookId}/metadata/audiobook-cover/upload`, formData)
     );
+
+    return this.http.request<void>(req)
+      .pipe(filter(e => e.type == HttpEventType.Response))
+      .pipe(mergeMap(() => of<void>(void 0)))
+      .pipe(
+        tap(() => {
+          invalidateBooksById(this.queryClient, [bookId]);
+        })
+      );
   }
 
   getUploadAudiobookCoverUrl(bookId: number): string {
@@ -202,10 +211,18 @@ export class BookMetadataManageService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('bookIds', bookIds.join(','));
-    return this.http.post<void>(`${this.url}/bulk-upload-cover`, formData).pipe(
-      tap(() => {
-        invalidateBooksById(this.queryClient, bookIds);
-      })
+
+    const req = mitigateWebkitUploadBug(
+      new HttpRequest('POST', `${this.url}/bulk-upload-cover`, formData)
     );
+
+    return this.http.request<void>(req)
+      .pipe(filter(e => e.type == HttpEventType.Response))
+      .pipe(mergeMap(() => of<void>(void 0)))
+      .pipe(
+        tap(() => {
+          invalidateBooksById(this.queryClient, bookIds);
+        })
+      );
   }
 }

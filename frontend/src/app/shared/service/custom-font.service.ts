@@ -1,10 +1,12 @@
 import {computed, signal, effect, inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
 import {lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {mitigateWebkitUploadBug} from '../util/mitigate-webkit-upload-bug';
+import {filter, map} from 'rxjs/operators';
 
 const CUSTOM_FONTS_QUERY_KEY = ['customFonts'] as const;
 
@@ -59,15 +61,22 @@ export class CustomFontService {
       formData.append('fontName', fontName);
     }
 
-    return this.http.post<CustomFont>(`${this.apiUrl}/upload`, formData).pipe(
-      tap(font => {
-        this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
-          [...(current ?? []), font]
-        );
-        this.loadFontFace(font).catch(err => {
-          console.error('Failed to load font after upload:', err);
-        });
-      })
+    const req = mitigateWebkitUploadBug(
+      new HttpRequest('POST', `${this.apiUrl}/upload`, formData)
+    );
+
+    return this.http.request<CustomFont>(req)
+      .pipe(filter(e => e.type == HttpEventType.Response))
+      .pipe(map(e => e.body!))
+      .pipe(
+        tap(font => {
+          this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
+            [...(current ?? []), font]
+          );
+          this.loadFontFace(font).catch(err => {
+            console.error('Failed to load font after upload:', err);
+          });
+        })
     );
   }
 
