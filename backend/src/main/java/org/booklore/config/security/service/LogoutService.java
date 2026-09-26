@@ -52,7 +52,7 @@ public class LogoutService {
     }
 
     private BookLoreUserEntity resolveUser(Authentication auth, String refreshToken) {
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+        if (auth != null && auth.isAuthenticated()) {
             var bookLoreUser = authenticationService.getAuthenticatedUser();
             return userRepository.findByUsername(bookLoreUser.getUsername())
                     .orElseThrow(() -> ApiError.GENERIC_UNAUTHORIZED.createException("User not found"));
