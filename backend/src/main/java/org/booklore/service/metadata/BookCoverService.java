@@ -35,6 +35,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Comparator;
@@ -594,7 +595,7 @@ public class BookCoverService {
         return null;
     }
 
-    private void writeCoverToBookFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookFileEntity> writerAction) {
+    private void writeCoverToBookFile(BookEntity bookEntity, BiConsumer<MetadataWriter, File> writerAction) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
@@ -609,14 +610,14 @@ public class BookCoverService {
         if ((ebookFile.getBookType() != BookFileType.CBX || convertCbrCb7ToCbz)) {
             metadataWriterFactory.getWriter(ebookFile.getBookType())
                     .ifPresent(writer -> {
-                        writerAction.accept(writer, ebookFile);
+                        writerAction.accept(writer, ebookFile.getFullFilePath().toFile());
                         String newHash = FileFingerprint.generateHash(ebookFile.getFullFilePath());
                         ebookFile.setCurrentHash(newHash);
                     });
         }
     }
 
-    private void writeAudiobookCoverToFile(BookEntity bookEntity, BiConsumer<MetadataWriter, BookFileEntity> writerAction) {
+    private void writeAudiobookCoverToFile(BookEntity bookEntity, BiConsumer<MetadataWriter, File> writerAction) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
@@ -631,7 +632,7 @@ public class BookCoverService {
 
         metadataWriterFactory.getWriter(BookFileType.AUDIOBOOK)
                 .ifPresent(writer -> {
-                    writerAction.accept(writer, audiobookFile);
+                    writerAction.accept(writer, audiobookFile.getFullFilePath().toFile());
                     if (!audiobookFile.isFolderBased()) {
                         String newHash = FileFingerprint.generateHash(audiobookFile.getFullFilePath());
                         audiobookFile.setCurrentHash(newHash);

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
@@ -217,13 +216,13 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     }
 
     @Override
-    public void replaceCoverImageFromBytes(BookFileEntity bookFile, byte[] coverData) {
+    public void replaceCoverImageFromBytes(File bookFile, byte[] coverData) {
         if (coverData == null || coverData.length == 0) {
             log.warn("Cover update failed: empty or null byte array.");
             return;
         }
-        if (bookFile.isFolderBased()) {
-            Path folderPath = bookFile.getFullFilePath();
+        if (bookFile.isDirectory()) {
+            Path folderPath = bookFile.toPath();
             MetadataPersistenceSettings.FormatSettings audiobookSettings = appSettingService.getAppSettings()
                     .getMetadataPersistenceSettings().getSaveToOriginalFile().getAudiobook();
             if (audiobookSettings == null || !audiobookSettings.isEnabled()) {
@@ -232,16 +231,15 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             }
             saveCoverToFolder(folderPath, coverData);
         } else {
-            File file = bookFile.getFullFilePath().toFile();
-            if (!shouldSaveMetadataToFile(file)) {
+            if (!shouldSaveMetadataToFile(bookFile)) {
                 return;
             }
-            replaceCoverImageInternal(file, coverData, "byte array");
+            replaceCoverImageInternal(bookFile, coverData, "byte array");
         }
     }
 
     @Override
-    public void replaceCoverImageFromUpload(BookFileEntity bookFile, MultipartFile multipartFile) {
+    public void replaceCoverImageFromUpload(File bookFile, MultipartFile multipartFile) {
         if (multipartFile == null || multipartFile.isEmpty()) {
             log.warn("Cover upload failed: empty or null file.");
             return;
@@ -256,7 +254,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     }
 
     @Override
-    public void replaceCoverImageFromUrl(BookFileEntity bookFile, String url) {
+    public void replaceCoverImageFromUrl(File bookFile, String url) {
         if (url == null || url.isBlank()) {
             log.warn("Cover update via URL failed: empty or null URL.");
             return;
