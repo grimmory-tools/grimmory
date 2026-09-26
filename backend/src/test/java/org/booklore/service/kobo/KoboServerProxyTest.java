@@ -94,10 +94,9 @@ class KoboServerProxyTest {
     }
 
     @Test
-    void proxyCurrentRequest_withQueryParameterIsIncludedSafely() throws Exception {
+    void proxyCurrentRequest_shouldPreserveEncodedQueryParameters() throws Exception {
         String queryString = "Test&Filters=[%7BKey:TestKey%26ETag:W/TestEtagValue123%7D]";
         mockRequest.setQueryString(queryString);
-        mockRequest.addHeader("User-Agent", "Kobo/1.0");
         setupSuccessfulProxyResponse();
 
         ResponseEntity<JsonNode> response = koboServerProxy.proxyCurrentRequest(null, false);
@@ -108,6 +107,21 @@ class KoboServerProxyTest {
 
         var requestUri = httpRequestArgumentCaptor.getValue().uri();
         assertThat(requestUri.getRawQuery()).isEqualTo(queryString);
+    }
+
+    @Test
+    void proxyCurrentRequest_shouldPreserveEncodedPath() throws Exception {
+        mockRequest.setRequestURI("/api/kobo/v1/library/test%20spaces");
+        setupSuccessfulProxyResponse();
+
+        ResponseEntity<JsonNode> response = koboServerProxy.proxyCurrentRequest(null, false);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(httpClient).<String>send(httpRequestArgumentCaptor.capture(), any());
+
+        var requestUri = httpRequestArgumentCaptor.getValue().uri();
+        assertThat(requestUri.getRawPath()).isEqualTo("/library/test%20spaces");
     }
 
     @ParameterizedTest

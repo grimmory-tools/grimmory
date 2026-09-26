@@ -84,14 +84,14 @@ public class KoboServerProxy {
 
         URI uri = UriComponentsBuilder.fromUriString(KOBO_BASE_URI)
                 .path(path)
-                .build()
+                .build(true)
                 .toUri();
 
         if (queryString == null || queryString.isEmpty()) {
             return uri;
         }
 
-        return URI.create(uri.toString() + "?" + queryString);
+        return URI.create(uri + "?" + queryString);
     }
 
     private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, boolean includeSyncToken, BookloreSyncToken syncToken) {
