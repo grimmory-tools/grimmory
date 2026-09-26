@@ -11,10 +11,8 @@ import org.booklore.service.metadata.writer.CbxMetadataWriter;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.reader.ChapterCacheService;
 import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -66,13 +64,12 @@ class Rar5IntegrationTest {
         book.setId(99L);
         BookRepository mockRepo = Mockito.mock(BookRepository.class);
         Mockito.when(mockRepo.findByIdForStreaming(99L)).thenReturn(Optional.of(book));
-        ChapterCacheService mockCache = Mockito.mock(ChapterCacheService.class);
 
         try (var fileUtilsStatic = Mockito.mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), mockCache);
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
             List<Integer> pages = readerService.getAvailablePages(99L);
 
             assertThat(pages).hasSize(3);
@@ -89,7 +86,6 @@ class Rar5IntegrationTest {
         book.setId(99L);
         BookRepository mockRepo = Mockito.mock(BookRepository.class);
         Mockito.when(mockRepo.findByIdForStreaming(99L)).thenReturn(Optional.of(book));
-        ChapterCacheService mockCache = Mockito.mock(ChapterCacheService.class);
 
         try (
             var fileUtilsStatic = Mockito.mockStatic(FileUtils.class)
@@ -97,7 +93,7 @@ class Rar5IntegrationTest {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), mockCache);
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             readerService.streamPageImage(99L, 1, out);
 
