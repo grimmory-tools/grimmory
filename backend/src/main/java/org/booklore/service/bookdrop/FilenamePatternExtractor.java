@@ -56,7 +56,7 @@ public class FilenamePatternExtractor {
             Map.entry("ASIN", new PlaceholderConfig("(B[A-Za-z0-9]{9}|\\d{9}[0-9Xx])", "asin"))
     );
 
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(\\w+)(?::(.*?))?}|\\*");
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(\\w+)(?::([^}]*))?}|\\*");
     
     private static final Pattern FOUR_DIGIT_YEAR_PATTERN = Pattern.compile("\\d{4}");
     private static final Pattern TWO_DIGIT_YEAR_PATTERN = Pattern.compile("\\d{2}");
