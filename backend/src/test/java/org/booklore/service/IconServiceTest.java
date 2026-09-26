@@ -75,6 +75,15 @@ class IconServiceTest {
     }
 
     @Test
+    void saveSvgIcon_sanitizesFilename() {
+        SvgIconCreateRequest req = new SvgIconCreateRequest();
+        req.setSvgName("../ $example.svg");
+        req.setSvgData(SVG_DATA);
+        iconService.saveSvgIcon(req);
+        Path filePath = iconsSvgPath.resolve("_____example.svg");
+        assertTrue(Files.exists(filePath));
+    }
+    @Test
     void saveSvgIcon_validXmlSvg_savesFileAndCaches() {
         SvgIconCreateRequest req = new SvgIconCreateRequest();
         req.setSvgName(SVG_NAME);

@@ -33,7 +33,7 @@ import java.time.Duration;
 @Service
 public class IconService {
 
-    private static final Pattern INVALID_FILENAME_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9._-]");
+    private static final Pattern INVALID_FILENAME_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9_-]");
     private final AppProperties appProperties;
 
     private final Cache<String, String> svgCache = Caffeine.newBuilder()
@@ -233,8 +233,13 @@ public class IconService {
             throw ApiError.INVALID_INPUT.createException("Filename cannot be empty");
         }
 
+
+        if (filename.endsWith(SVG_EXTENSION)) {
+            filename = filename.substring(0, filename.length() - 4);
+        }
+
         String sanitized = INVALID_FILENAME_CHARS_PATTERN.matcher(filename.trim()).replaceAll("_");
-        return sanitized.endsWith(SVG_EXTENSION) ? sanitized : sanitized + SVG_EXTENSION;
+        return sanitized + SVG_EXTENSION;
     }
 
     Cache<String, String> getSvgCache() {
