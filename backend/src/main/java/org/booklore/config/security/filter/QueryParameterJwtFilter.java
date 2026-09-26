@@ -47,8 +47,8 @@ public class QueryParameterJwtFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (jwtUtils.validateToken(token)) {
-                authenticateUser(token, request);
+            if (jwtUtils.validateAccessToken(token)) {
+                setUserFromToken(token, request);
             } else {
                 log.debug("Invalid token. Rejecting request.");
             }
@@ -59,8 +59,8 @@ public class QueryParameterJwtFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    protected void authenticateUser(String token, HttpServletRequest request) {
-        Long userId = jwtUtils.extractUserId(token);
+    protected void setUserFromToken(String token, HttpServletRequest request) {
+        long userId = jwtUtils.unsafeExtractUserId(token);
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);

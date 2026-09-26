@@ -11,7 +11,6 @@ import org.booklore.model.entity.RefreshTokenEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.ProvisioningMethod;
 import org.booklore.repository.OidcSessionRepository;
-import org.booklore.repository.RefreshTokenRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
@@ -28,7 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LogoutService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private final OidcSessionRepository oidcSessionRepository;
     private final UserRepository userRepository;
     private final AppSettingService appSettingService;
@@ -59,7 +58,7 @@ public class LogoutService {
         }
 
         if (refreshToken != null && !refreshToken.isBlank()) {
-            RefreshTokenEntity tokenEntity = refreshTokenRepository.findByToken(refreshToken)
+            RefreshTokenEntity tokenEntity = refreshTokenService.findByToken(refreshToken)
                     .orElseThrow(() -> ApiError.GENERIC_UNAUTHORIZED.createException("Invalid refresh token"));
             return tokenEntity.getUser();
         }
@@ -68,12 +67,7 @@ public class LogoutService {
     }
 
     private void revokeRefreshToken(BookLoreUserEntity user) {
-        List<RefreshTokenEntity> tokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
-        tokens.forEach(token -> {
-            token.setRevoked(true);
-            token.setRevocationDate(Instant.now());
-        });
-        refreshTokenRepository.saveAll(tokens);
+        refreshTokenService.revokeAllForUser(user);
     }
 
     private String buildOidcLogoutUrl(BookLoreUserEntity user, String origin) {
