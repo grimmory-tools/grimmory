@@ -1101,7 +1101,7 @@ class BookCoverServiceTest {
 
                 service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
-                verify(epubWriter).replaceCoverImageFromUrl(epubFile, "https://example.com/cover.jpg");
+                verify(epubWriter).replaceCoverImageFromUrl(epubFile.getFullFilePath().toFile(), "https://example.com/cover.jpg");
                 verify(metadataWriterFactory, never()).getWriter(BookFileType.AUDIOBOOK);
                 assertThat(epubFile.getCurrentHash()).isEqualTo("hash");
                 assertThat(audiobookFile.getCurrentHash()).isNull();
