@@ -27,6 +27,7 @@ class FileUtilsTest {
         bookEntity.setLibraryPath(libraryPathEntity);
 
         BookFileEntity bookFileEntity = new BookFileEntity();
+        bookFileEntity.setBookFormat(true);
         bookFileEntity.setBook(bookEntity);
         bookFileEntity.setFileSubPath(subPath);
         bookFileEntity.setFileName(fileName);

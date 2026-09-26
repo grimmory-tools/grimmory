@@ -189,6 +189,7 @@ class KoboBookmarkLocationResolverTest {
         book.setLibraryPath(libraryPath);
 
         BookFileEntity bookFile = new BookFileEntity();
+        bookFile.setBookFormat(true);
         bookFile.setId(10L);
         bookFile.setBook(book);
         bookFile.setBookType(BookFileType.EPUB);
