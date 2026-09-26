@@ -22,10 +22,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,21 +39,21 @@ public class JwtUtils {
     private static final int MIN_SECRET_BYTES = 32;
     private static final String JWT_ISSUER = "booklore";
 
+    private static final String CLAIM_USER_ID = "userId";
+    private static final String CLAIM_SCOPE = "scope";
+
     private DefaultJWTClaimsVerifier<?> claimsVerifier;
 
     @Getter
     public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 2;  // 2 hours
-    @Getter
-    public static final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
-
-    private static final long refreshTokenNotBeforeMs = 1000L * 60 * 2; // 2 minutes
+    private static final Set<String> ACCESS_TOKEN_SCOPES = Set.of("api");
 
     @PostConstruct
     public void init() {
         validateSecret();
         this.claimsVerifier = new DefaultJWTClaimsVerifier<>(
                 new JWTClaimsSet.Builder().issuer(JWT_ISSUER).build(),
-                Set.of("exp", "iat", "iss", "sub", "userId")
+                Set.of("exp", "iat", "iss", "sub", CLAIM_USER_ID)
         );
     }
 
@@ -74,8 +77,7 @@ public class JwtUtils {
         return key;
     }
 
-    public String generateToken(BookLoreUserEntity user, boolean isRefreshToken) {
-        long expirationTime = isRefreshToken ? refreshTokenExpirationMs : accessTokenExpirationMs;
+    public String generateToken(BookLoreUserEntity user, long notBeforeMs, long expirationMs, Set<String> scopes) {
         Instant now = Instant.now();
 
         try {
@@ -85,16 +87,12 @@ public class JwtUtils {
                     .issuer(JWT_ISSUER)
                     .jwtID(UUID.randomUUID().toString())
                     .subject(user.getUsername())
-                    .claim("userId", user.getId())
+                    .claim(CLAIM_USER_ID, user.getId())
+                    .claim(CLAIM_SCOPE, String.join(" ", scopes))
                     .claim("isDefaultPassword", user.isDefaultPassword())
                     .issueTime(Date.from(now))
-                    .expirationTime(Date.from(now.plusMillis(expirationTime)));
-
-            if (isRefreshToken) {
-                // Prevent refresh tokens from being used until at least
-                // some `refreshTokenNotBeforeMs` milliseconds from now.
-                builder.notBeforeTime(Date.from(now.plusMillis(refreshTokenNotBeforeMs)));
-            }
+                    .notBeforeTime(Date.from(now.plusMillis(notBeforeMs)))
+                    .expirationTime(Date.from(now.plusMillis(expirationMs)));
 
             JWTClaimsSet claimsSet = builder.build();
 
@@ -112,11 +110,7 @@ public class JwtUtils {
     }
 
     public String generateAccessToken(BookLoreUserEntity user) {
-        return generateToken(user, false);
-    }
-
-    public String generateRefreshToken(BookLoreUserEntity user) {
-        return generateToken(user, true);
+        return generateToken(user, 0, accessTokenExpirationMs, ACCESS_TOKEN_SCOPES);
     }
 
     /**
@@ -128,7 +122,6 @@ public class JwtUtils {
         try {
             signedJWT = SignedJWT.parse(token);
         } catch (Exception e) {
-            log.error("Malformed token", e);
             throw ApiError.JWT_INVALID.createException("Malformed token");
         }
 
@@ -142,11 +135,19 @@ public class JwtUtils {
     /**
      * Validates the token's signature, expiration, and issuer.
      */
-    public boolean validateToken(String token) {
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, ACCESS_TOKEN_SCOPES);
+    }
+
+    /**
+     * Validates the token's signature, expiration, issuer, and scopes.
+     */
+    public boolean validateToken(String token, Set<String> requiredScopes) {
         try {
             SignedJWT signedJWT = parseAndVerify(token);
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
             validateClaims(claims);
+            validateScopes(claims, requiredScopes);
             return true;
         } catch (Exception e) {
             log.debug("Invalid token: {}", e.getMessage());
@@ -160,22 +161,41 @@ public class JwtUtils {
      */
     private void validateClaims(JWTClaimsSet claims) throws BadJWTException {
         claimsVerifier.verify(claims, null);
-        Object userId = claims.getClaim("userId");
+        Object userId = claims.getClaim(CLAIM_USER_ID);
         if (!(userId instanceof Number)) {
             throw new BadJWTException("Invalid userId claim type");
         }
     }
 
+    private void validateScopes(JWTClaimsSet claims, Set<String> requiredScopes) throws BadJWTException {
+        if (requiredScopes.isEmpty()) {
+            return;
+        }
+
+        try {
+            var scopeClaimStr = claims.getClaimAsString(CLAIM_SCOPE);
+            scopeClaimStr = scopeClaimStr == null ? "" : scopeClaimStr;
+
+            var scopeClaim = Set.of(scopeClaimStr.trim().split(" +"));
+
+            if (!scopeClaim.containsAll(requiredScopes)) {
+                throw new BadJWTException("Lacks expected scopes");
+            }
+        } catch (ParseException e) {
+            throw new BadJWTException("Lacks expected scopes");
+        }
+    }
+
     /**
-     * Extracts claims from a token after verifying signature and validating expiration/issuer.
-     * @throws RuntimeException if token is invalid or expired.
+     * Extracts claims from a token after verifying signature.
+     * Does not validate if the token is expired or otherwise revoked.
+     *
+     * @throws RuntimeException if token is invalid
      */
-    public JWTClaimsSet extractClaims(String token) {
+    private JWTClaimsSet unsafeExtractClaims(String token) {
         try {
             SignedJWT signedJWT = parseAndVerify(token);
-            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-            validateClaims(claims);
-            return claims;
+            return signedJWT.getJWTClaimsSet();
         } catch (BadJWTException e) {
             throw ApiError.JWT_INVALID.createException(e.getMessage());
         } catch (Exception e) {
@@ -185,12 +205,22 @@ public class JwtUtils {
     }
 
     /**
-     * Extracts username from token.
-     * @throws RuntimeException if token is invalid or expired.
+     * Extracts JWT ID from a token after verifying signature.
+     * Does not validate if the token is expired or otherwise revoked.
+     *
+     * @throws RuntimeException if token is invalid
      */
-    public String extractUsername(String token) {
+    public String unsafeExtractJWTID(String token) {
+        return unsafeExtractClaims(token).getJWTID();
+    }
+
+    /**
+     * Extracts username from token.
+     * @throws RuntimeException if token is invalid
+     */
+    public String unsafeExtractUsername(String token) {
         try {
-            return extractClaims(token).getSubject();
+            return unsafeExtractClaims(token).getSubject();
         } catch (Exception e) {
             log.warn("Failed to extract username from token: {}", e.getMessage());
             throw e;
@@ -199,12 +229,12 @@ public class JwtUtils {
 
     /**
      * Extracts user ID from token.
-     * @throws RuntimeException if token is invalid or expired.
+     * @throws RuntimeException if token is invalid
      */
-    public Long extractUserId(String token) {
-        Object userIdClaim = extractClaims(token).getClaim("userId");
-        if (userIdClaim instanceof Number) {
-            return ((Number) userIdClaim).longValue();
+    public long unsafeExtractUserId(String token) {
+        Object userIdClaim = unsafeExtractClaims(token).getClaim(CLAIM_USER_ID);
+        if (userIdClaim instanceof Number userIdNumber) {
+            return userIdNumber.longValue();
         }
         throw ApiError.JWT_INVALID.createException("Invalid userId claim type");
     }

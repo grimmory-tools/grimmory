@@ -3,13 +3,13 @@ package org.booklore.config.security.oidc;
 import com.nimbusds.jwt.JWTClaimsSet;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.config.security.service.RefreshTokenService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.settings.OidcProviderDetails;
 import org.booklore.model.entity.OidcSessionEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.OidcSessionRepository;
-import org.booklore.repository.RefreshTokenRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
@@ -37,7 +37,7 @@ public class BackchannelLogoutService {
     private final AppSettingService appSettingService;
     private final OidcTokenValidator oidcTokenValidator;
     private final OidcSessionRepository oidcSessionRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private final NotificationService notificationService;
     private final AuditService auditService;
 
@@ -89,11 +89,8 @@ public class BackchannelLogoutService {
             oidcSessionRepository.save(session);
 
             var user = session.getUser();
-            refreshTokenRepository.findAllByUserAndRevokedFalse(user).forEach(token -> {
-                token.setRevoked(true);
-                token.setRevocationDate(Instant.now());
-                refreshTokenRepository.save(token);
-            });
+
+            refreshTokenService.revokeAllForUser(user);
 
             notificationService.sendMessageToUser(
                     user.getUsername(),
