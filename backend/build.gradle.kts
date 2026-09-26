@@ -127,7 +127,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.48")
 
     // --- Book & Image Processing ---
-    val pdfium4jVersion = if (useLocalLibs) "+" else "1.2.0"
+    val pdfium4jVersion = if (useLocalLibs) "+" else "1.3.0"
     implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
