@@ -61,24 +61,10 @@ class AbstractFileProcessorTest {
     // ========== getBookFolderForCoverFallback ==========
 
     @Test
-    void getBookFolderForCoverFallback_folderBased_returnsFullPath() {
-        var libraryFile = buildLibraryFile(tempDir, "audiobooks", "MyAudiobook", true, LibraryOrganizationMode.AUTO_DETECT);
-        var result = processor.exposedGetBookFolderForCoverFallback(libraryFile);
-        assertThat(result).isEqualTo(libraryFile.getFullPath());
-    }
-
-    @Test
     void getBookFolderForCoverFallback_bookPerFolder_returnsParent() {
         var libraryFile = buildLibraryFile(tempDir, "books/author", "book.epub", false, LibraryOrganizationMode.BOOK_PER_FOLDER);
         var result = processor.exposedGetBookFolderForCoverFallback(libraryFile);
         assertThat(result).isEqualTo(libraryFile.getFullPath().getParent());
-    }
-
-    @Test
-    void getBookFolderForCoverFallback_autoDetectNotFolderBased_returnsNull() {
-        var libraryFile = buildLibraryFile(tempDir, "books", "book.epub", false, LibraryOrganizationMode.AUTO_DETECT);
-        var result = processor.exposedGetBookFolderForCoverFallback(libraryFile);
-        assertThat(result).isNull();
     }
 
     @Test

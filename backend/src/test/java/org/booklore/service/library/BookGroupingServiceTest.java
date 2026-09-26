@@ -635,21 +635,6 @@ class BookGroupingServiceTest {
     }
 
     @Test
-    void nullOrganizationMode_defaultsToAutoDetect() {
-        var path = pathEntity(1L, "/books");
-        var lib = library(null, path);
-
-        List<LibraryFile> files = List.of(
-                ebook(path, "Author/Book", "Book - Author.epub"),
-                ebook(path, "Author/Book", "Book - Author.mobi")
-        );
-
-        var groups = bookGroupingService.groupForInitialScan(files, lib);
-
-        assertThat(totalFiles(groups)).isEqualTo(2);
-    }
-
-    @Test
     void bookPerFolder_rootLevelAudiobooksAreIndividual() {
         var path = pathEntity(1L, "/books");
         var lib = library(LibraryOrganizationMode.BOOK_PER_FOLDER, path);

@@ -114,13 +114,7 @@ public class LibraryFileHelper {
     }
 
     public List<LibraryFile> getLibraryFiles(LibraryEntity libraryEntity) throws IOException {
-        LibraryOrganizationMode mode = libraryEntity.getOrganizationMode() != null
-                ? libraryEntity.getOrganizationMode() : LibraryOrganizationMode.AUTO_DETECT;
-
-        List<LibraryFile> allFiles = switch (mode) {
-            case BOOK_PER_FILE, BOOK_PER_FOLDER -> getAllLibraryFilesFlat(libraryEntity);
-            case AUTO_DETECT -> getAllLibraryFiles(libraryEntity);
-        };
+        List<LibraryFile> allFiles = getAllLibraryFilesFlat(libraryEntity);
         return filterByAllowedFormats(allFiles, libraryEntity.getAllowedFormats());
     }
 

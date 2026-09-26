@@ -93,9 +93,6 @@ export class LibraryCreatorComponent {
       { label: this.t.translate('libraryCreator.creator.organizationModeBookPerFile'), value: 'BOOK_PER_FILE' },
       { label: this.t.translate('libraryCreator.creator.organizationModeBookPerFolder'), value: 'BOOK_PER_FOLDER' },
     ];
-    if (this.organizationMode() === 'AUTO_DETECT') {
-      base.push({ label: this.t.translate('libraryCreator.creator.organizationModeAutoDetect'), value: 'AUTO_DETECT' });
-    }
     return base;
   });
 

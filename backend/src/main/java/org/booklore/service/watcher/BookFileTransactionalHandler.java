@@ -40,8 +40,6 @@ import static org.booklore.model.enums.PermissionType.MANAGE_LIBRARY;
 @RequiredArgsConstructor
 public class BookFileTransactionalHandler {
 
-    private static final double FILELESS_MATCH_THRESHOLD = 0.85;
-
     private final BookFilePersistenceService bookFilePersistenceService;
     private final LibraryProcessingService libraryProcessingService;
     private final NotificationService notificationService;
@@ -116,12 +114,7 @@ public class BookFileTransactionalHandler {
             return;
         }
 
-        var mode = libraryEntity.getOrganizationMode() != null
-                ? libraryEntity.getOrganizationMode() : LibraryOrganizationMode.AUTO_DETECT;
-
-        BookEntity filelessMatch = (mode == LibraryOrganizationMode.AUTO_DETECT)
-                ? findMatchingFilelessBook(libraryEntity, fileName, libraryPathEntity)
-                : findExactFilelessBook(libraryEntity, fileName, libraryPathEntity);
+        BookEntity filelessMatch = findExactFilelessBook(libraryEntity, fileName, libraryPathEntity);
 
         if (filelessMatch != null) {
             if (filelessMatch.getLibraryPath() == null) {
@@ -136,9 +129,7 @@ public class BookFileTransactionalHandler {
 
         BookEntity matchingBook = null;
 
-        if (mode == LibraryOrganizationMode.BOOK_PER_FILE) {
-            // BOOK_PER_FILE: never attach to existing books
-        } else if (mode == LibraryOrganizationMode.BOOK_PER_FOLDER) {
+        if (libraryEntity.getOrganizationMode() == LibraryOrganizationMode.BOOK_PER_FOLDER) {
             matchingBook = findBookInSameFolder(libraryPathEntity.getId(), fileSubPath);
             if (matchingBook == null) {
                 BookFileType fileType = BookFileExtension.fromFileName(fileName)
@@ -148,7 +139,7 @@ public class BookFileTransactionalHandler {
                 }
             }
         } else {
-            matchingBook = findMatchingBook(libraryPathEntity.getId(), fileSubPath, fileName);
+            log.debug("Not BOOK_PER_FOLDER, skpping search for matching book");
         }
 
         if (matchingBook != null) {
@@ -224,26 +215,6 @@ public class BookFileTransactionalHandler {
 
     private static final double FUZZY_MATCH_THRESHOLD = 0.85;
 
-    private BookEntity findMatchingFilelessBook(LibraryEntity library, String fileName, LibraryPathEntity fileLibraryPath) {
-        List<BookEntity> filelessBooks = bookRepository.findFilelessBooksByLibraryId(library.getId());
-        String fileBaseName = BookFileGroupingUtils.extractGroupingKey(fileName);
-
-        for (BookEntity book : filelessBooks) {
-            if (book.getLibraryPath() != null && !book.getLibraryPath().getId().equals(fileLibraryPath.getId())) {
-                continue;
-            }
-
-            if (book.getMetadata() != null && book.getMetadata().getTitle() != null) {
-                String bookTitle = BookFileGroupingUtils.extractGroupingKey(book.getMetadata().getTitle());
-                double similarity = BookFileGroupingUtils.calculateSimilarity(fileBaseName, bookTitle);
-                if (similarity >= FILELESS_MATCH_THRESHOLD) {
-                    return book;
-                }
-            }
-        }
-        return null;
-    }
-
     private BookEntity findExactFilelessBook(LibraryEntity library, String fileName, LibraryPathEntity fileLibraryPath) {
         List<BookEntity> filelessBooks = bookRepository.findFilelessBooksByLibraryId(library.getId());
         String fileBaseName = BookFileGroupingUtils.extractGroupingKey(fileName);
@@ -313,46 +284,6 @@ public class BookFileTransactionalHandler {
             }
         }
         return null;
-    }
-
-    private BookEntity findMatchingBook(Long libraryPathId, String fileSubPath, String fileName) {
-        if (fileSubPath == null) {
-            return null;
-        }
-
-        String fileGroupingKey = BookFileGroupingUtils.extractGroupingKey(fileName);
-
-        List<BookEntity> booksInDirectory = bookRepository.findAllByLibraryPathIdAndFileSubPath(libraryPathId, fileSubPath);
-
-        BookEntity fuzzyMatch = null;
-        double bestSimilarity = 0;
-
-        for (BookEntity book : booksInDirectory) {
-            if (book.getDeleted() != null && book.getDeleted()) {
-                continue;
-            }
-            BookFileEntity primaryFile = book.getPrimaryBookFile();
-            if (primaryFile == null) {
-                continue;
-            }
-            String existingGroupingKey = BookFileGroupingUtils.extractGroupingKey(primaryFile.getFileName());
-
-            if (fileGroupingKey.equals(existingGroupingKey)) {
-                return book;
-            }
-
-            double similarity = BookFileGroupingUtils.calculateSimilarity(fileGroupingKey, existingGroupingKey);
-            if (similarity >= FUZZY_MATCH_THRESHOLD && similarity > bestSimilarity) {
-                bestSimilarity = similarity;
-                fuzzyMatch = book;
-            }
-        }
-
-        if (fuzzyMatch != null) {
-            String primaryFileName = fuzzyMatch.hasFiles() ? fuzzyMatch.getPrimaryBookFile().getFileName() : "book#" + fuzzyMatch.getId();
-            log.debug("Fuzzy matched '{}' to '{}' with similarity {}", fileName, primaryFileName, bestSimilarity);
-        }
-        return fuzzyMatch;
     }
 
     private BookEntity findMatchingBookForFolderAudiobook(Long libraryPathId, String fileSubPath, String folderName) {
