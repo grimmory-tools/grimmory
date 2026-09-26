@@ -234,7 +234,7 @@ class EpubMetadataWriterTest {
                     imageBytes
             );
 
-            assertDoesNotThrow(() -> writer.replaceCoverImageFromUpload(bookEntity.getPrimaryBookFile(), coverFile));
+            assertDoesNotThrow(() -> writer.replaceCoverImageFromUpload(epubFile, coverFile));
         }
     }
 
