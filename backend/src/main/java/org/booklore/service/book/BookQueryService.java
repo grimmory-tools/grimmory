@@ -71,16 +71,23 @@ public class BookQueryService {
 
     public Page<Book> findBooksPaged(Specification<BookEntity> spec, Pageable pageable, Long userId) {
         Page<BookEntity> page = bookRepository.findAll(distinct(spec), pageable);
+        return new PageImpl<>(hydrateAndMap(page.getContent(), userId), pageable, page.getTotalElements());
+    }
+
+    public List<Book> findBooks(Specification<BookEntity> spec, Long userId) {
+        return hydrateAndMap(bookRepository.findAll(distinct(spec)), userId);
+    }
+
+    private List<Book> hydrateAndMap(List<BookEntity> matches, Long userId) {
         Map<Long, BookEntity> booksById = bookRepository
-                .findAllWithMetadataByIds(page.getContent().stream().map(BookEntity::getId).collect(Collectors.toSet()))
+                .findAllWithMetadataByIds(matches.stream().map(BookEntity::getId).collect(Collectors.toSet()))
                 .stream()
                 .collect(Collectors.toMap(BookEntity::getId, book -> book));
-        List<Book> dtos = page.getContent().stream()
+        return matches.stream()
                 .map(book -> booksById.get(book.getId()))
                 .filter(Objects::nonNull)
                 .map(book -> mapBookToDto(book, false, userId, true))
                 .toList();
-        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     private Specification<BookEntity> visibleBooks(Collection<Long> libraryIds, Long userId) {
