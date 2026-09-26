@@ -59,7 +59,7 @@ class LibraryProcessingServiceRegressionTest {
     private LibraryProcessingService libraryProcessingService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         libraryProcessingService = new LibraryProcessingService(
                 libraryRepository,
                 bookRepository,
@@ -74,6 +74,8 @@ class LibraryProcessingServiceRegressionTest {
                 bookMapper,
                 entityManager
         );
+        lenient().when(libraryFileHelper.reconcileRescanCandidates(anyList(), anyList()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
