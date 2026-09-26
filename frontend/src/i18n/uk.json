@@ -499,8 +499,6 @@
       },
       "sortFields": {
         "title": "Назва",
-        "fileName": "Назва файлу",
-        "filePath": "Шлях до файлу",
         "addedOn": "Дата додавання",
         "author": "Автор",
         "authorSurnameVorname": "Автор (Прізвище)",
@@ -513,7 +511,6 @@
         "readStatus": "Статус читання",
         "dateFinished": "Дата завершення",
         "readingProgress": "Прогрес читання",
-        "bookType": "Тип книги",
         "pageCount": "Сторінки"
       },
       "sortDirections": {
