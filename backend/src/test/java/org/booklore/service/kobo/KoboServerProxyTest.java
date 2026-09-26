@@ -95,7 +95,7 @@ class KoboServerProxyTest {
 
     @Test
     void proxyCurrentRequest_withQueryParameterIsIncludedSafely() throws Exception {
-        String queryString = "Filters=[%7BKey:TestKey,ETag:W/TestEtagValue123%7D]";
+        String queryString = "Test&Filters=[%7BKey:TestKey%26ETag:W/TestEtagValue123%7D]";
         mockRequest.setQueryString(queryString);
         mockRequest.addHeader("User-Agent", "Kobo/1.0");
         setupSuccessfulProxyResponse();
@@ -107,7 +107,7 @@ class KoboServerProxyTest {
         verify(httpClient).<String>send(httpRequestArgumentCaptor.capture(), any());
 
         var requestUri = httpRequestArgumentCaptor.getValue().uri();
-        assertThat(requestUri.toString()).endsWith(queryString);
+        assertThat(requestUri.getRawQuery()).isEqualTo(queryString);
     }
 
     @ParameterizedTest

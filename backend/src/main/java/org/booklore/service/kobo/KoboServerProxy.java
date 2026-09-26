@@ -17,11 +17,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
@@ -35,6 +33,7 @@ public class KoboServerProxy {
     private static final Pattern KOBO_API_PREFIX_PATTERN = Pattern.compile("^/api/kobo/[^/]+");
     private final String KOBO_BASE_URI = "https://storeapi.kobo.com";
     private final String KOBO_BOOK_IMAGE_CDN_URL = "https://cdn.kobo.com/book-images/{ImageId}/{Width}/{Height}/{IsGreyscale}/image.jpg";
+    private final Pattern QUERY_PARAM_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
     private final ObjectMapper objectMapper;
     private final BookloreSyncTokenGenerator bookloreSyncTokenGenerator;
@@ -60,7 +59,6 @@ public class KoboServerProxy {
 
     public ResponseEntity<JsonNode> proxyCurrentRequest(Object body, boolean includeSyncToken) {
         HttpServletRequest request = RequestUtils.getCurrentRequest();
-        String path = KOBO_API_PREFIX_PATTERN.matcher(request.getRequestURI()).replaceFirst("");
 
         BookloreSyncToken syncToken = null;
         if (includeSyncToken) {
@@ -70,7 +68,7 @@ public class KoboServerProxy {
             }
         }
 
-        return executeProxyRequest(request, body, path, includeSyncToken, syncToken);
+        return executeProxyRequest(request, body, includeSyncToken, syncToken);
     }
 
     public URI getKoboCDNCoverUri(String imageId, int width, int height, boolean isGreyscale) {
@@ -80,18 +78,25 @@ public class KoboServerProxy {
                 .toUri();
     }
 
-    private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, String path, boolean includeSyncToken, BookloreSyncToken syncToken) {
-        try {
-            String queryString = URLDecoder.decode(
-                    request.getQueryString() == null ? "" : request.getQueryString(),
-                    StandardCharsets.UTF_8
-            );
+    private URI buildKoboURI(HttpServletRequest request) {
+        String path = KOBO_API_PREFIX_PATTERN.matcher(request.getRequestURI()).replaceFirst("");
+        String queryString = request.getQueryString();
 
-            URI uri = UriComponentsBuilder.fromUriString(KOBO_BASE_URI)
-                    .path(path)
-                    .query(queryString)
-                    .build()
-                    .toUri();
+        URI uri = UriComponentsBuilder.fromUriString(KOBO_BASE_URI)
+                .path(path)
+                .build()
+                .toUri();
+
+        if (queryString == null || queryString.isEmpty()) {
+            return uri;
+        }
+
+        return URI.create(uri.toString() + "?" + queryString);
+    }
+
+    private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, boolean includeSyncToken, BookloreSyncToken syncToken) {
+        try {
+            URI uri = buildKoboURI(request);
 
             log.debug("Kobo proxy URL: {}", uri);
 
