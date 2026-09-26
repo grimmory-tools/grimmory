@@ -149,7 +149,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
                 log.warn("Failed to decode cover image for audiobook '{}'", audioFile.getName());
                 return false;
             }
-            saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId());
+            saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId()) != null;
             originalImage.flush();
         }
 

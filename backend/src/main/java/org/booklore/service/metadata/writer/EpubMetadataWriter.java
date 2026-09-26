@@ -59,7 +59,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     private final ArchiveService archiveService;
 
     @Override
-    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
+    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
@@ -214,14 +214,6 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    applyCoverImageToEpub(tempDir, opfDoc, coverData);
-                    hasChanges[0] = true;
-                }
-            }
 
             if (!hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata)) {
                 hasChanges[0] = true;
@@ -386,59 +378,31 @@ public class EpubMetadataWriter implements MetadataWriter {
         return changed;
     }
 
-
-    public void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] file) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
-            return;
-        }
-        if (file == null || file.length == 0) {
-            log.warn("Cover update failed: empty or null byte array.");
-            return;
-        }
-
-        replaceCoverImageInternal(bookEntity, file, "byte array");
+    public void replaceCoverImageFromPath(BookEntity bookEntity, Path path) {
+        replaceCoverImageFromPath(bookEntity.getFullFilePath().toFile(), path);
     }
 
-    public void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile multipartFile) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
+    public void replaceCoverImageFromPath(File epubFile, Path path) {
+        if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
-        if (multipartFile == null || multipartFile.isEmpty()) {
+
+        if (path == null || !Files.isReadable(path)) {
             log.warn("Cover upload failed: empty or null file.");
             return;
         }
 
         try {
-            byte[] coverData = multipartFile.getBytes();
-            replaceCoverImageInternal(bookEntity, coverData, "upload");
+            byte[] coverData = Files.readAllBytes(path);
+            replaceCoverImageInternal(epubFile, coverData, "upload");
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
         }
     }
 
-    @Override
-    public void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
-        if (!shouldSaveMetadataToFile(bookEntity.getFullFilePath().toFile())) {
-            return;
-        }
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageInternal(bookEntity, coverData, "URL");
-    }
-
-    private void replaceCoverImageInternal(BookEntity bookEntity, byte[] coverData, String source) {
+    private void replaceCoverImageInternal(File epubFile, byte[] coverData, String source) {
         Path tempDir = null;
         try {
-            File epubFile = new File(bookEntity.getFullFilePath().toUri());
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
 
             archiveService.extractToDirectory(epubFile.toPath(), tempDir);
@@ -649,15 +613,6 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private Path findOpfPath(Path tempDir) throws IOException, ParserConfigurationException, SAXException {
         return EpubContentReader.findOPFInExtractedEpub(tempDir);
-    }
-
-    private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http") ? URI.create(pathOrUrl).toURL().openStream() : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
-            log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
-            return null;
-        }
     }
 
     private void removeMetaByName(Element metadataElement, String name) {

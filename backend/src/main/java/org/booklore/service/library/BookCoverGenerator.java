@@ -90,7 +90,7 @@ public class BookCoverGenerator {
                     log.warn("Failed to decode cover image for audiobook '{}'", audioFile.getFileName());
                     return;
                 }
-                boolean saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId());
+                boolean saved = fileService.saveAudiobookCoverImages(originalImage, bookEntity.getId()) != null;
                 originalImage.flush();
 
                 if (saved) {
@@ -135,7 +135,7 @@ public class BookCoverGenerator {
                     log.warn("Failed to decode cover image for ebook '{}'", ebookFile.getFileName());
                     return;
                 }
-                boolean saved = fileService.saveCoverImages(originalImage, bookEntity.getId());
+                boolean saved = fileService.saveCoverImages(originalImage, bookEntity.getId()) != null;
                 originalImage.flush();
 
                 if (saved) {

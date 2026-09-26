@@ -155,7 +155,7 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
             return false;
         }
 
-        return fileService.saveCoverImages(originalImage, bookId);
+        return fileService.saveCoverImages(originalImage, bookId) != null;
     }
 }
 

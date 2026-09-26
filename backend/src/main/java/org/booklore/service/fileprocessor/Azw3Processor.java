@@ -154,7 +154,7 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
             return false;
         }
 
-        return fileService.saveCoverImages(originalImage, bookId);
+        return fileService.saveCoverImages(originalImage, bookId) != null;
     }
 }
 

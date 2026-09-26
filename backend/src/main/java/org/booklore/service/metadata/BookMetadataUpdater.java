@@ -129,12 +129,18 @@ public class BookMetadataUpdater {
             metadataWriterFactory.getWriter(bookType).ifPresent(writer -> {
                 try {
                     String thumbnailUrl = updateThumbnail ? newMetadata.getThumbnailUrl() : null;
-                    if ((StringUtils.hasText(thumbnailUrl) && isLocalOrPrivateUrl(thumbnailUrl) || Boolean.TRUE.equals(metadata.getCoverLocked()))) {
-                        log.debug("Blocked local/private thumbnail URL: {}", thumbnailUrl);
+                    if (Boolean.TRUE.equals(metadata.getCoverLocked())) {
+                        log.debug("Blocked thumbnail update, cover is locked.");
                         thumbnailUrl = null;
                     }
+
+                    if (thumbnailUrl != null) {
+                        var images = fileService.createThumbnailFromUrl(bookEntity.getId(), thumbnailUrl);
+                        writer.replaceCoverImageFromPath(bookEntity, images.getFirst());
+                    }
+
                     File file = new File(bookEntity.getFullFilePath().toUri());
-                    writer.saveMetadataToFile(file, metadata, thumbnailUrl, clearFlags);
+                    writer.saveMetadataToFile(file, metadata, clearFlags);
                     updateFileNameIfConverted(primaryFile, file.toPath());
                     String newHash = file.isDirectory()
                             ? FileFingerprint.generateFolderHash(bookEntity.getFullFilePath())

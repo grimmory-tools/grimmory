@@ -40,17 +40,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     private final AppSettingService appSettingService;
 
     @Override
-    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
-        if (audioFile.isDirectory()) {
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    saveCoverToFolder(audioFile.toPath(), coverData);
-                }
-            }
-            return;
-        }
-
+    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(audioFile)) {
             return;
         }
@@ -122,22 +112,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
                 String trackTotal = val != null ? String.valueOf(val) : null;
                 setTagField(tag, FieldKey.TRACK_TOTAL, trackTotal, hasChanges);
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    try {
-                        tag.deleteArtworkField();
-                        Artwork artwork = ArtworkFactory.getNew();
-                        artwork.setBinaryData(coverData);
-                        artwork.setMimeType(detectMimeType(coverData));
-                        tag.setField(artwork);
-                        hasChanges[0] = true;
-                    } catch (Exception e) {
-                        log.warn("Failed to set cover art for {}: {}", audioFile.getName(), e.getMessage());
-                    }
-                }
-            }
 
             if (hasChanges[0]) {
                 f.commit();
@@ -218,8 +192,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
     }
 
-    @Override
-    public void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] coverData) {
+    private void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] coverData) {
         if (coverData == null || coverData.length == 0) {
             log.warn("Cover update failed: empty or null byte array.");
             return;
@@ -242,35 +215,18 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
     }
 
-    @Override
-    public void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile multipartFile) {
-        if (multipartFile == null || multipartFile.isEmpty()) {
+    public void replaceCoverImageFromPath(BookEntity bookEntity, Path path) {
+        if (path == null || !Files.isReadable(path)) {
             log.warn("Cover upload failed: empty or null file.");
             return;
         }
 
         try {
-            byte[] coverData = multipartFile.getBytes();
+            byte[] coverData = Files.readAllBytes(path);
             replaceCoverImageFromBytes(bookEntity, coverData);
         } catch (IOException e) {
             log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageFromBytes(bookEntity, coverData);
     }
 
     private void replaceCoverImageInternal(File audioFile, byte[] coverData, String source) {
@@ -325,17 +281,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
 
         return true;
-    }
-
-    private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http")
-                ? URI.create(pathOrUrl).toURL().openStream()
-                : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
-            log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
-            return null;
-        }
     }
 
     private String detectMimeType(byte[] data) {

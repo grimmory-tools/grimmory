@@ -24,9 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.LogNotification;
-import org.booklore.model.websocket.Topic;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -36,6 +33,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -1046,6 +1044,10 @@ class BookCoverServiceTest {
             when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(writer));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            when(fileService.createThumbnailFromUrl(anyLong(), anyString())).thenReturn(
+                    List.of(Path.of("cover.png"), Path.of("cover.thumbnail.png"))
+            );
 
             try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
                 fpMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("abc123");
