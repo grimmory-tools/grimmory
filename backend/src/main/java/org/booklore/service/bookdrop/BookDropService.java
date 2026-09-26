@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
+import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookdropFileMapper;
 import org.booklore.model.FileProcessResult;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookdropFile;
 import org.booklore.model.dto.BookdropFileNotification;
@@ -72,6 +74,7 @@ public class BookDropService {
     private final BookFileProcessorRegistry processorRegistry;
     private final AppProperties appProperties;
     private final BookdropFileMapper mapper;
+    private final BookMapper bookMapper;
     private final ObjectMapper objectMapper;
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
@@ -485,9 +488,8 @@ public class BookDropService {
                 .build();
 
         metadataRefreshService.updateBookMetadata(context);
-        eventPublisher.publishEvent(new BookAddedEvent(fileProcessResult.getBook()));
-
-        notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
+        Book updatedBook = bookMapper.toBookWithDescription(bookEntity, true);
+        eventPublisher.publishEvent(new BookAddedEvent(updatedBook));
 
         cleanupBookdropData(bookdropFile);
 
