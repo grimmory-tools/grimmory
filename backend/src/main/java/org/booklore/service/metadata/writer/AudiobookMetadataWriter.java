@@ -232,6 +232,12 @@ public class AudiobookMetadataWriter implements MetadataWriter {
 
         if (audioFile.isFolderBased()) {
             Path folderPath = audioFile.getFullFilePath();
+            MetadataPersistenceSettings.FormatSettings audiobookSettings = appSettingService.getAppSettings()
+                    .getMetadataPersistenceSettings().getSaveToOriginalFile().getAudiobook();
+            if (audiobookSettings == null || !audiobookSettings.isEnabled()) {
+                log.debug("Audiobook metadata writing is disabled. Skipping: {}", folderPath.getFileName());
+                return;
+            }
             saveCoverToFolder(folderPath, coverData);
         } else {
             File file = audioFile.getFullFilePath().toFile();

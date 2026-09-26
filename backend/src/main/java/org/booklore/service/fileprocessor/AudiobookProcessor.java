@@ -1,7 +1,6 @@
 package org.booklore.service.fileprocessor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.AudiobookMetadata;
 import org.booklore.model.dto.BookMetadata;
@@ -97,7 +96,7 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
                 return false;
             }
 
-            return extractAndSaveCover(bookEntity, audioFile, false);
+            return extractAndSaveCover(bookEntity, audioFile);
 
         } catch (Exception e) {
             log.error("Error generating cover for audiobook '{}': {}", bookEntity.getPrimaryBookFile().getFileName(), e.getMessage(), e);
@@ -118,10 +117,8 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
             }
 
             log.debug("Extracting cover from audio file: {}", audioFile.getAbsolutePath());
-            return extractAndSaveCover(bookEntity, audioFile, true);
+            return extractAndSaveCover(bookEntity, audioFile);
 
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             log.error("Error generating cover for audiobook '{}' (bookId: {}): {}",
                     audiobookFile.getFileName(), bookEntity.getId(), e.getMessage(), e);
@@ -129,14 +126,11 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
         }
     }
 
-    private boolean extractAndSaveCover(BookEntity bookEntity, File audioFile, boolean throwOnNoCover) throws Exception {
+    private boolean extractAndSaveCover(BookEntity bookEntity, File audioFile) throws Exception {
         byte[] coverData = audiobookMetadataExtractor.extractCover(audioFile);
 
         if (coverData == null) {
             log.warn("No embedded cover image found in audiobook file '{}' (bookId: {})", audioFile.getAbsolutePath(), bookEntity.getId());
-            if (throwOnNoCover) {
-                throw ApiError.NO_COVER_IN_FILE.createException();
-            }
             return false;
         }
 
