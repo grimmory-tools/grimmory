@@ -20,7 +20,5 @@ public interface BookFileProcessor {
         return generateCover(bookEntity);
     }
 
-    default boolean generateAudiobookCover(BookEntity bookEntity) {
-        return generateCover(bookEntity);
-    }
+    boolean restoreCover(BookEntity bookEntity, BookFileEntity bookFile);
 }
