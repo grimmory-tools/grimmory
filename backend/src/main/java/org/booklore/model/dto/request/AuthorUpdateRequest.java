@@ -5,9 +5,11 @@ import lombok.Data;
 @Data
 public class AuthorUpdateRequest {
     private String name;
+    private String sortName;
     private String description;
     private String asin;
     private Boolean nameLocked;
+    private Boolean sortNameLocked;
     private Boolean descriptionLocked;
     private Boolean asinLocked;
     private Boolean photoLocked;

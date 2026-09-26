@@ -206,6 +206,7 @@ export interface BookMetadata {
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];
+  authorSortNames?: string[];
   categories?: string[];
   moods?: string[];
   tags?: string[];
