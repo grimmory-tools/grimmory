@@ -51,6 +51,8 @@ jobs:
     name: Flyway Migration Check
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
     uses: ./.github/workflows/migrations-check.yml
+    permissions:
+      contents: read
     with:
       base_ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
       head_ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}

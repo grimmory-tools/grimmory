@@ -13,6 +13,8 @@ jobs:
   migration-check:
     name: Flyway Migration Check
     uses: ./.github/workflows/migrations-check.yml
+    permissions:
+      contents: read
     with:
       base_ref: ${{ github.event.before }}
       head_ref: ${{ github.sha }}
