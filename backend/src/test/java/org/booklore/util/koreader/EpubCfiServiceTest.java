@@ -95,6 +95,17 @@ class EpubCfiServiceTest {
         return epubFile;
     }
 
+    @Test
+    void convertsIndexedTextPositionThroughEpubAndBack() {
+        String xpointer = "/body/DocFragment[1]/body/div[1]/p[2]/text()[1].7";
+
+        String cfi = service.convertXPointerToCfi(testEpubFile, xpointer);
+
+        assertEquals("epubcfi(/6/2!/4/2/6/1:7)", cfi);
+        assertEquals("/body/DocFragment[1]/body/div/p[2]/text()[1].7",
+                service.convertCfiToXPointer(testEpubFile, cfi).getXpointer());
+    }
+
     @Nested
     class CreateConverterTests {
 

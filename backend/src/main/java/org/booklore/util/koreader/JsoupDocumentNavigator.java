@@ -51,6 +51,26 @@ public class JsoupDocumentNavigator implements DocumentNavigator {
     }
 
     @Override
+    public List<DirectTextNode> getDirectTextNodes(Object element) {
+        List<DirectTextNode> nodes = new ArrayList<>();
+        int step = 1;
+        int offset = 0;
+        for (Node child : ((Element) element).childNodes()) {
+            if (child instanceof Element) {
+                step += 2;
+                offset = 0;
+            } else if (child instanceof TextNode textNode) {
+                String text = textNode.getWholeText();
+                if (text.isEmpty()) continue;
+                nodes.add(new DirectTextNode(step, offset, text));
+                // CFI combines text separated only by comments/processing instructions.
+                offset += text.length();
+            }
+        }
+        return nodes;
+    }
+
+    @Override
     public List<String> collectTextContent(Object element) {
         List<String> texts = new ArrayList<>();
         collectTexts((Node) element, texts);

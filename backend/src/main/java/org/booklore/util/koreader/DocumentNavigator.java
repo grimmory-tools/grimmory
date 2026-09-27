@@ -25,6 +25,12 @@ public interface DocumentNavigator {
   /** Returns the parent element, or null if this is the root. */
   Object getParent(Object element);
 
+  /** Returns non-empty direct text nodes in document order, without normalizing whitespace. */
+  List<DirectTextNode> getDirectTextNodes(Object element);
+
+  /** CFI text step and UTF-16 start offset (comments do not split a CFI text chunk). */
+  record DirectTextNode(int step, int offset, String text) {}
+
   /**
    * Collects all text content from the element and its descendants, returning each text node's
    * content as a separate string in document order. Empty text nodes should be omitted.

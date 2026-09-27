@@ -12,6 +12,7 @@
 package org.booklore.util.koreader;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Bidirectional converter between EPUB CFI expressions and KOReader-style XPointer strings.
@@ -43,6 +44,9 @@ public class CfiConverter {
   private static final String XPOINTER_PREFIX = "/body/DocFragment[";
 
   private static final String XPOINTER_BODY_SUFFIX = "]/body";
+
+  private static final Pattern TEXT_SUFFIX =
+      Pattern.compile("/text\\(\\)(?:\\[([0-9]+)\\])?\\.([0-9]+)$");
 
   private final DocumentNavigator nav;
   private final int spineIdx;
@@ -92,8 +96,8 @@ public class CfiConverter {
   public static String normalizeProgressXPointer(String xpointer) {
     if (xpointer == null) return null;
 
-    // Remove "/text().N" suffix
-    int textIdx = xpointer.indexOf("/text().");
+    // Remove either text().N or text()[index].N, including legacy node suffixes.
+    int textIdx = xpointer.indexOf("/text()");
     if (textIdx >= 0) {
       xpointer = xpointer.substring(0, textIdx);
     }
@@ -146,21 +150,27 @@ public class CfiConverter {
    */
   public String xPointerToCfi(String startXPointer, String endXPointer) {
     XPointerParts startParts = decomposeXPointer(startXPointer);
-    List<CfiExpression.PathStep> startSteps = domToCfiSteps(startParts.element());
-    String startPath = CfiParser.formatContentPath(startSteps, startParts.textOffset());
+    String startPath = xPointerContentPath(startParts);
 
     if (endXPointer == null || endXPointer.isBlank()) {
       return wrapCfi(startPath);
     }
 
     XPointerParts endParts = decomposeXPointer(endXPointer);
-    List<CfiExpression.PathStep> endSteps = domToCfiSteps(endParts.element());
-    String endPath = CfiParser.formatContentPath(endSteps, endParts.textOffset());
+    String endPath = xPointerContentPath(endParts);
 
     if (startPath.equals(endPath)) {
       return wrapCfi(startPath);
     }
     return wrapCfi(startPath + "," + endPath);
+  }
+
+  private String xPointerContentPath(XPointerParts parts) {
+    var steps = new ArrayList<>(domToCfiSteps(parts.element()));
+    if (parts.textStep() != null) {
+      steps.add(new CfiExpression.PathStep(parts.textStep(), null));
+    }
+    return CfiParser.formatContentPath(steps, parts.textOffset());
   }
 
   /** Returns {@code true} if the given CFI can be resolved against this document. */
@@ -187,6 +197,25 @@ public class CfiConverter {
 
   /** Walk the parsed CFI steps against the document and produce an XPointer string. */
   private String resolveToXPointer(List<CfiExpression.PathStep> steps, Integer charOffset) {
+    if (!steps.isEmpty() && !steps.getLast().targetsElement()) {
+      Object parent = walkSteps(steps.subList(0, steps.size() - 1));
+      if (parent == null) {
+        throw new IllegalArgumentException("Cannot resolve CFI text parent");
+      }
+      int step = steps.getLast().position();
+      int offset = charOffset == null ? 0 : charOffset;
+      var nodes = nav.getDirectTextNodes(parent);
+      for (int i = 0; i < nodes.size(); i++) {
+        var node = nodes.get(i);
+        int localOffset = offset - node.offset();
+        if (node.step() == step && localOffset >= 0 && localOffset <= node.text().length()) {
+          int codePointOffset = node.text().codePointCount(0, localOffset);
+          return elementToXPointer(parent) + "/text()[" + (i + 1) + "]." + codePointOffset;
+        }
+      }
+      throw new IllegalArgumentException("Cannot resolve CFI text position");
+    }
+
     Object target = walkSteps(steps);
     if (target == null) {
       throw new IllegalArgumentException("Cannot resolve CFI path to a document element");
@@ -227,18 +256,34 @@ public class CfiConverter {
     Integer textOffset = null;
     String pathStr = xpointer;
 
-    int textMarker = xpointer.indexOf("/text().");
-    if (textMarker >= 0) {
-      String digits = xpointer.substring(textMarker + "/text().".length());
-      textOffset = Integer.parseInt(digits);
-      pathStr = xpointer.substring(0, textMarker);
+    Integer textIndex = null;
+    var suffix = TEXT_SUFFIX.matcher(xpointer);
+    if (suffix.find()) {
+      textOffset = Integer.parseInt(suffix.group(2));
+      textIndex = suffix.group(1) == null ? null : Integer.parseInt(suffix.group(1));
+      pathStr = xpointer.substring(0, suffix.start());
+    } else if (xpointer.contains("/text()")) {
+      throw new IllegalArgumentException("Invalid XPointer text position: " + xpointer);
     }
 
-    Object element = locateXPointerElement(pathStr);
+    Object element = locateXPointerElement(pathStr, textIndex != null);
     if (element == null) {
       throw new IllegalArgumentException("Cannot resolve XPointer path: " + pathStr);
     }
-    return new XPointerParts(element, textOffset);
+    if (textIndex != null) {
+      var nodes = nav.getDirectTextNodes(element);
+      if (textIndex < 1 || textIndex > nodes.size()) {
+        throw new IllegalArgumentException("Text node " + textIndex + " not found");
+      }
+      var node = nodes.get(textIndex - 1);
+      String text = node.text();
+      if (textOffset > text.codePointCount(0, text.length())) {
+        throw new IllegalArgumentException("Text offset exceeds text node length");
+      }
+      int utf16Offset = node.offset() + text.offsetByCodePoints(0, textOffset);
+      return new XPointerParts(element, utf16Offset, node.step());
+    }
+    return new XPointerParts(element, textOffset, null);
   }
 
   /**
@@ -246,11 +291,10 @@ public class CfiConverter {
    *
    * <p>Expects format: {@code /body/DocFragment[N]/body/tag[idx]/tag[idx]/...}
    *
-   * <p>KOReader's crengine uses global element counting for indexed segments (the last segment's
-   * index refers to the Nth occurrence of that tag anywhere in the body). For non-indexed segments
-   * and intermediate path components, hierarchical child traversal is used.
+   * <p>Indexed text locators use hierarchical child traversal. Element-only and unindexed-text
+   * locators retain the legacy global lookup for an indexed last segment.
    */
-  private Object locateXPointerElement(String path) {
+  private Object locateXPointerElement(String path, boolean hierarchical) {
     int bodyStart = path.indexOf(XPOINTER_BODY_SUFFIX);
     if (bodyStart < 0) {
       throw new IllegalArgumentException("Invalid XPointer format (missing DocFragment): " + path);
@@ -271,6 +315,10 @@ public class CfiConverter {
     if (segments.length == 0) {
       return body;
     }
+
+    // Indexed text positions describe a child-by-child DOM path. Retain the legacy
+    // global lookup only for older element/unindexed-text locators.
+    if (hierarchical) return walkHierarchical(body, segments);
 
     // If the last segment is indexed (e.g. "p[54]"), look it up globally
     String lastSeg = segments[segments.length - 1];
@@ -455,7 +503,7 @@ public class CfiConverter {
 
   // -- Value types ------------------------------------------------------------
 
-  private record XPointerParts(Object element, Integer textOffset) {}
+  private record XPointerParts(Object element, Integer textOffset, Integer textStep) {}
 
   /**
    * Parsed tag reference from an XPointer segment, e.g. {@code "p[3]"} gives tag="p", index=2
