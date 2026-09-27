@@ -4,6 +4,8 @@ import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.request.SvgIconCreateRequest;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
@@ -72,6 +74,23 @@ class IconServiceTest {
         Path filePath = iconsSvgPath.resolve(SVG_NAME + ".svg");
         assertTrue(Files.exists(filePath));
         assertEquals(SVG_DATA, iconService.getSvgIcon(SVG_NAME));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ':', value = {
+            "foo/bar.svg:foo_bar.svg",
+            "../../etc/passwd:.._.._etc_passwd.svg",
+            "..:...svg",
+            ".:..svg",
+            "..\0example:.._example.svg"
+    })
+    void saveSvgIcon_sanitizesFilename(String input, String expected) throws IOException {
+        SvgIconCreateRequest req = new SvgIconCreateRequest();
+        req.setSvgName(input);
+        req.setSvgData(SVG_DATA);
+        iconService.saveSvgIcon(req);
+        Path filePath = iconsSvgPath.resolve(expected);
+        assertTrue(Files.exists(filePath));
     }
 
     @Test
