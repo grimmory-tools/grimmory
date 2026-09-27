@@ -1072,13 +1072,17 @@ class BookCoverServiceTest {
     class WriteCoverToBookFile {
 
         @Test
-        void writesAndUpdatesHashWhenWriterExists() {
+        void ebookCoverWriteTargetsEbookFileNotPrimaryAudiobook() {
             BookEntity book = buildBook(1L, false);
-            BookFileEntity primaryFile = BookFileEntity.builder()
-                    .bookType(BookFileType.EPUB).isBookFormat(true)
-                    .fileName("test.epub").fileSubPath("sub")
+            BookFileEntity audiobookFile = BookFileEntity.builder()
+                    .id(1L).book(book).bookType(BookFileType.AUDIOBOOK).isBookFormat(true)
+                    .fileName("audio.m4b").fileSubPath("sub")
                     .build();
-            book.setBookFiles(Set.of(primaryFile));
+            BookFileEntity epubFile = BookFileEntity.builder()
+                    .id(2L).book(book).bookType(BookFileType.EPUB).isBookFormat(true)
+                    .fileName("book.epub").fileSubPath("sub")
+                    .build();
+            book.setBookFiles(Set.of(audiobookFile, epubFile));
             book.setLibrary(LibraryEntity.builder().build());
             book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
 
@@ -1087,18 +1091,20 @@ class BookCoverServiceTest {
             when(appSettings.getMetadataPersistenceSettings()).thenReturn(persistSettings);
             when(persistSettings.isConvertCbrCb7ToCbz()).thenReturn(false);
 
-            MetadataWriter writer = mock(MetadataWriter.class);
-            when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(writer));
+            MetadataWriter epubWriter = mock(MetadataWriter.class);
+            when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(epubWriter));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
-                fpMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("abc123");
+                fpMock.when(() -> FileFingerprint.generateHash(epubFile.getFullFilePath())).thenReturn("hash");
 
                 service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
-                verify(metadataWriterFactory).getWriter(BookFileType.EPUB);
-                assertThat(primaryFile.getCurrentHash()).isEqualTo("abc123");
+                verify(epubWriter).replaceCoverImageFromUrl(epubFile.getFullFilePath().toFile(), "https://example.com/cover.jpg");
+                verify(metadataWriterFactory, never()).getWriter(BookFileType.AUDIOBOOK);
+                assertThat(epubFile.getCurrentHash()).isEqualTo("hash");
+                assertThat(audiobookFile.getCurrentHash()).isNull();
             }
         }
 
