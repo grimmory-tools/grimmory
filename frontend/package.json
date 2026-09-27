@@ -59,7 +59,7 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "^0.2201.4",
+    "@angular-devkit/architect": "^0.2202.0",
     "@angular-devkit/schematics": "^22.1.4",
     "@angular/build": "22.2.0",
     "@angular/cli": "^22.2.0",
