@@ -30,18 +30,16 @@ jobs:
     with:
       checkout_ref: ${{ github.sha }}
 
-  semantic-version:
-    name: Compute Release and Changelog
-    needs:
-      - migration-check
-      - test-suite
+  resolve-refs:
+    name: Resolve release ref
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
     outputs:
-      version: ${{ steps.notes.outputs.predicted_version }}
+      commit-sha: ${{ steps.resolve.outputs.commit_sha }}
+      from-ref: ${{ steps.resolve.outputs.from_ref }}
 
     steps:
       - name: Checkout Repository
@@ -58,21 +56,24 @@ jobs:
           set -eu
 
           git fetch origin main --tags --force
-          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          from_ref="$base_tag"
+          from_ref="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
 
-          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "from_ref=${from_ref}" >> "$GITHUB_OUTPUT"
 
-      - name: Build Changelog
-        id: notes
-        uses: ./.github/actions/compute-release-notes
-        with:
-          base_tag: ${{ steps.resolve.outputs.base_tag }}
-          from_ref: ${{ steps.resolve.outputs.from_ref }}
-          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
-          to_ref: ${{ steps.resolve.outputs.commit_sha }}
+  semantic-version:
+    name: Generate Notes
+    needs:
+      - resolve-refs
+      - migration-check
+    uses: ./.github/workflows/compute-release-notes.yml
+    permissions:
+      contents: read
+    with:
+      bump: true
+      from-ref: ${{ needs.resolve-refs.outputs.from-ref }}
+      to-ref: ${{ needs.resolve-refs.outputs.commit-sha }}
+    secrets: inherit
 
   build-frontend:
     name: Build frontend
@@ -208,10 +209,6 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: range-release-notes
-
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
           name: frontend
           skip-decompress: true
           path: artifacts/
@@ -239,14 +236,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          RELEASE_NOTES: ${{ needs.semantic-version.outputs.release-notes }}
           RELEASE_VERSION: ${{ needs.semantic-version.outputs.version }}
           TARGET_REF: ${{ github.sha }}
         run: |
           gh release create \
-            "v${RELEASE_VERSION}" \
-            --title "Release v${RELEASE_VERSION}" \
+            "${RELEASE_VERSION}" \
+            --title "Release ${RELEASE_VERSION}" \
             --draft \
             --latest \
             --target "${TARGET_REF}" \
-            --notes-file ./range-release-notes.md \
+            --notes "${RELEASE_NOTES}" \
             release-assets/*

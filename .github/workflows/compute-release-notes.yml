@@ -1,0 +1,149 @@
+name: Compute Release Notes
+
+on:
+  workflow_call:
+    inputs:
+      bump:
+        description: Whether to bump the version for the changelog generated
+        required: false
+        type: boolean
+        default: false
+      from-ref:
+        description: Git ref that marks the start of the changelog range
+        type: string
+        required: true
+      to-ref:
+        description: Git ref that marks the end of the changelog range
+        type: string
+        required: true
+
+    outputs:
+      compare-url:
+        description: Compare URL for the computed range
+        value: ${{ jobs.compute-release-notes.outputs.compare-url }}
+      details-url:
+        description: Workflow run URL that contains the full markdown summary
+        value: ${{ jobs.compute-release-notes.outputs.details-url }}
+      version:
+        description: Predicted semantic version for the supplied range
+        value: ${{ jobs.compute-release-notes.outputs.version }}
+      release-notes:
+        description: Markdown notes generated from conventional commits
+        value: ${{ jobs.compute-release-notes.outputs.release-notes }}
+
+jobs:
+  compute-release-notes:
+    name: Compute Release Notes
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    outputs:
+      compare-url: ${{ steps.extract.outputs.compare-url }}
+      details-url: ${{ steps.extract.outputs.details-url }}
+      version: ${{ steps.git-cliff.outputs.version }}
+      release-notes: ${{ steps.git-cliff.outputs.release-notes }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.to-ref }}
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29 # v2.87.21
+        with:
+          tool: git-cliff
+
+      - name: Run git-cliff
+        id: git-cliff
+        shell: bash
+        env:
+          IS_BUMP: ${{ inputs.bump }}
+          GIT_CLIFF_CONFIG: .github/cliff.toml
+          FROM_REF: ${{ inputs.from-ref }}
+          TO_REF: ${{ inputs.to-ref }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+  
+          git-cliff \
+            --config ${GIT_CLIFF_CONFIG} \
+            --context \
+            --output range-context.json \
+            "${FROM_REF}..${TO_REF}"
+  
+          if [ "$IS_BUMP" = "true" ]; then
+            BUMP_ARG="--bump"
+          else
+            BUMP_ARG=""
+          fi
+  
+          git-cliff \
+            --config ${GIT_CLIFF_CONFIG} \
+            --from-context range-context.json \
+            ${BUMP_ARG} \
+            --output range-notes.md \
+            "${FROM_REF}..${TO_REF}"
+  
+          RELEASE_NOTES_DELIM="EOF_$(openssl rand -hex 16)"
+  
+          {
+            echo "release-notes<<${RELEASE_NOTES_DELIM}"
+            cat range-notes.md
+            printf '\n'
+            echo "${RELEASE_NOTES_DELIM}"
+          } >> "$GITHUB_OUTPUT"
+  
+          PREDICTED_VERSION=$(
+            git-cliff \
+              --config ${GIT_CLIFF_CONFIG} \
+              --from-context range-context.json \
+              --bumped-version \
+              "${FROM_REF}..${TO_REF}"
+          )
+          
+          echo "version=${PREDICTED_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract Range Outputs
+        id: extract
+        shell: bash
+        env:
+          FROM_REF: ${{ inputs.from-ref }}
+          TO_REF: ${{ inputs.to-ref }}
+          PREDICTED_VERSION: ${{ steps.git-cliff.outputs.version }}
+          RELEASE_NOTES: ${{ steps.git-cliff.outputs.release-notes }}
+          DETAILS_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          COMPARE_URL: ${{ format('{0}/{1}/compare/{2}...{3}', github.server_url, github.repository, inputs.from-ref, inputs.to-ref) }}
+        run: |
+          set -eu
+  
+          {
+            echo "compare-url=${COMPARE_URL}"
+            echo "details-url=${DETAILS_URL}"
+          } >> "$GITHUB_OUTPUT"
+  
+          {
+            echo "## Full Changelog"
+            echo
+            echo "- Range: \`${FROM_REF}..${TO_REF}\`"
+            echo "- Predicted version: \`${PREDICTED_VERSION:-none}\`"
+            if [ -n "$COMPARE_URL" ]; then
+              echo "- Compare: ${COMPARE_URL}"
+            fi
+            echo
+            echo "$RELEASE_NOTES"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Range Notes Artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: range-release-notes
+          path: |
+            range-context.json
+            range-notes.md
+          retention-days: 14

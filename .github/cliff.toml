@@ -1,0 +1,137 @@
+# git-cliff ~ configuration file
+# https://git-cliff.org/docs/configuration
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
+
+[changelog]
+# A Tera template to be rendered as the changelog's header.
+# See https://keats.github.io/tera/#getting-started
+header = """
+"""
+
+# A Tera template to be rendered for each release in the changelog.
+# See https://keats.github.io/tera/#getting-started
+body = """
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+
+{% macro print_commit(commit) -%}
+    - {% if commit.scope %}**{{ commit.scope }}:** {% endif %}\
+        {% if commit.breaking %}[**breaking**] {% endif %}\
+        {{ commit.message | upper_first }} \
+        ([`{{ commit.id | truncate(length=7, end="") }}`]({{ self::remote_url() }}/commit/{{ commit.id }}))\
+{% endmacro -%}
+
+{% if version -%}
+    {% if previous.version -%}
+        ## [{{ version | trim_start_matches(pat="v") }}]\
+          ({{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}) ({{ timestamp | date(format="%Y-%m-%d") }})
+    {%- else -%}
+        ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+    {%- endif %}
+{%- else -%}
+    ## [unreleased]
+{%- endif %}
+
+## Changelog
+{% if version and previous.version %}
+    **Full Changelog**: {{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}
+
+{% endif -%}
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits
+    | filter(attribute="scope")
+    | sort(attribute="scope") %}
+        {{ self::print_commit(commit=commit) }}
+    {%- endfor %}
+    {% for commit in commits %}
+        {%- if not commit.scope -%}
+            {{ self::print_commit(commit=commit) }}
+        {% endif -%}
+    {% endfor -%}
+{% endfor -%}
+{%- if version -%}
+{%- if github %}
+  ## Contributors
+
+  We'd like to thank the contributors for this release for taking the time to make Grimmory better.
+
+  Including but not limited to:
+  {%- for contributor in github.contributors -%}
+    {%- if contributor.username and contributor.username is not ending_with("[bot]") -%}
+        {% raw %} {% endraw -%}@{{ contributor.username }}
+    {%- endif -%}
+  {%- endfor -%}
+{% set first_time_contributors = github.contributors | filter(attribute="is_first_time", value=true) -%}
+{% if first_time_contributors | length != 0 %}
+
+  ### New Contributors
+{% endif %}\
+{% for contributor in first_time_contributors %}
+  * @{{ contributor.username }} made their first contribution
+    {%- if contributor.pr_number %} in #{{ contributor.pr_number }}{%- endif %}
+{%- endfor -%}
+{%- endif -%}
+{%- endif -%}
+"""
+# A Tera template to be rendered as the changelog's footer.
+# See https://keats.github.io/tera/#getting-started
+footer = """
+"""
+
+# Remove leading and trailing whitespaces from the changelog's body.
+trim = true
+# Format the rendered changelog as Markdown (only applies to Markdown output).
+# format = true
+# An array of regex based postprocessors to modify the changelog.
+postprocessors = [
+
+]
+
+[git]
+# Parse commits according to the conventional commits specification.
+# See https://www.conventionalcommits.org
+conventional_commits = true
+# Exclude commits that do not match the conventional commits specification.
+filter_unconventional = true
+# Split commits on newlines, treating each line as an individual commit.
+split_commits = false
+# An array of regex based parsers to modify commit messages prior to further processing.
+commit_preprocessors = [
+
+]
+# An array of regex based parsers for extracting data from the commit message.
+# Assigns commits to groups.
+# Optionally sets the commit's scope and can decide to exclude commits from further processing.
+commit_parsers = [
+    # Skip commits without a scope, except breaking changes (e.g., "feat!: xxx")
+    { message = "^feat", group = "<!-- 0 -->Features" },
+    { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 -->Documentation" },
+    { message = "^perf", group = "<!-- 4 -->Performance" },
+    { message = "^refactor", group = "<!-- 2 -->Refactor" },
+    { message = "^style", group = "<!-- 5 -->Styling" },
+    { message = "^test", group = "<!-- 6 -->Testing" },
+    { message = "^chore\\(deps.*\\)", group = "<!-- 8 -->Dependencies" },
+    { message = "^chore|^ci", group = "<!-- 7 -->Miscellaneous Tasks" },
+    { message = "^revert", group = "<!-- 9 -->Revert" },
+]
+# Prevent commits that are breaking from being excluded by commit parsers.
+protect_breaking_commits = false
+# Exclude commits that are not matched by any commit parser.
+filter_commits = false
+# Regex to select git tags that represent releases.
+tag_pattern = "v[0-9].*"
+# Regex to select git tags that do not represent proper releases.
+# Takes precedence over `tag_pattern`.
+# Changes belonging to these releases will be included in the next release.
+skip_tags = "beta|alpha"
+# Order releases topologically instead of chronologically.
+topo_order = false
+# Order of commits in each group/release within the changelog.
+# Allowed values: newest, oldest
+sort_commits = "newest"

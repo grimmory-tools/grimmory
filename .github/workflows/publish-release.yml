@@ -119,7 +119,6 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      base_tag: ${{ steps.metadata.outputs.base_tag }}
       compare_url: ${{ steps.metadata.outputs.compare_url }}
       available: ${{ steps.webhook_secrets_check.outputs.available }}
 
@@ -163,7 +162,6 @@ jobs:
             COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${BASE_TAG}...${RELEASE_TAG}"
           fi
           {
-            echo "base_tag=${BASE_TAG}"
             echo "compare_url=${COMPARE_URL}"
           } >> "$GITHUB_OUTPUT"
 
@@ -183,6 +181,5 @@ jobs:
       predicted_version: ${{ github.event.release.tag_name }}
       details_url: ${{ github.event.release.html_url }}
       candidate_sha: ${{ github.sha }}
-      base_tag: ${{ needs.prepare-release-notification.outputs.base_tag }}
       compare_url: ${{ needs.prepare-release-notification.outputs.compare_url }}
       mention_text: ${{ vars.DISCORD_STABLE_MENTIONS }}

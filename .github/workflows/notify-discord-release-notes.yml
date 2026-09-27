@@ -11,11 +11,6 @@ on:
         description: 'Resolved commit SHA for the candidate build'
         required: true
         type: string
-      base_tag:
-        description: 'Stable base tag that the candidate is built on top of'
-        required: false
-        default: ''
-        type: string
       mention_text:
         description: 'Optional role mentions or intro text to prepend to the message'
         required: false

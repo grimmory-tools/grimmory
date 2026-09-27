@@ -9,7 +9,7 @@ on:
         description: 'Post the Discord nightly announcement'
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   resolve_ref:
@@ -20,7 +20,6 @@ jobs:
       contents: read
 
     outputs:
-      base_tag: ${{ steps.resolve.outputs.base_tag }}
       commit_sha: ${{ steps.resolve.outputs.commit_sha }}
       from_ref: ${{ steps.resolve.outputs.from_ref }}
       nightly_tag: ${{ steps.resolve.outputs.nightly_tag }}
@@ -42,10 +41,8 @@ jobs:
           short_sha="$(git rev-parse --short HEAD)"
           build_date="$(date -u +%Y%m%d)"
           nightly_tag="nightly-${build_date}-${short_sha}"
-          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          from_ref="$base_tag"
+          from_ref="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
 
-          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "from_ref=${from_ref}" >> "$GITHUB_OUTPUT"
           echo "nightly_tag=${nightly_tag}" >> "$GITHUB_OUTPUT"
@@ -160,54 +157,25 @@ jobs:
           retention-days: 30
 
   generate-notes:
-    name: Nightly Changelog
-    if: ${{ always() && needs.test-suite.result == 'success' }}
-    needs: [resolve_ref, test-suite]
-    runs-on: ubuntu-latest
+    name: Generate Notes
+    needs:
+      - resolve_ref
+    uses: ./.github/workflows/compute-release-notes.yml
     permissions:
       contents: read
-    outputs:
-      compare_url: ${{ steps.notes.outputs.compare_url }}
-      details_url: ${{ steps.notes.outputs.details_url }}
-      predicted_version: ${{ steps.notes.outputs.predicted_version }}
-      release_notes: ${{ steps.notes.outputs.release_notes }}
-      release_type: ${{ steps.notes.outputs.release_type }}
-      released: ${{ steps.notes.outputs.released }}
-      to_sha: ${{ steps.notes.outputs.to_sha }}
-      available: ${{ steps.webhook_secrets_check.outputs.available }}
-    steps:
-      - name: Check Discord Webhook secrets
-        id: webhook_secrets_check
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK != '' && secrets.DISCORD_NIGHTLY_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
-        run: |
-          # Check here rather than in the `if`.
-          # Github actions does not support the `secrets` context in `if` blocks.
-          if [[ -n "${DISCORD_WEBHOOK}" ]]; then
-            echo "available=true" >> $GITHUB_OUTPUT
-          else
-            echo "available=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Checkout Workflow Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-
-      - name: Build Full Changelog
-        if: ${{ steps.webhook_secrets_check.outputs.available == 'true' }}
-        id: notes
-        uses: ./.github/actions/compute-release-notes
-        with:
-          base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
-          from_ref: ${{ needs.resolve_ref.outputs.from_ref }}
-          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
-          to_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+    with:
+      from-ref: ${{ needs.resolve_ref.outputs.from_ref }}
+      to-ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+    secrets: inherit
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && (github.event_name == 'schedule' || inputs.post_discord) && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
-    needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.post_discord) && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' }}
+    needs:
+      - resolve_ref
+      - build-and-push
+      - export-openapi
+      - generate-notes
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
@@ -215,12 +183,11 @@ jobs:
     with:
       channel: nightly
       candidate_sha: ${{ needs.resolve_ref.outputs.commit_sha }}
-      base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
       current_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
-      details_url: ${{ needs.generate-notes.outputs.details_url }}
-      compare_url: ${{ needs.generate-notes.outputs.compare_url }}
+      details_url: ${{ needs.generate-notes.outputs.details-url }}
+      compare_url: ${{ needs.generate-notes.outputs.compare-url }}
       mention_text: ${{ vars.DISCORD_NIGHTLY_MENTIONS }}
-      predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
+      predicted_version: ${{ needs.generate-notes.outputs.version }}
 
   test-suite:
     name: Test Suite

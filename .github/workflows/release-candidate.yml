@@ -66,33 +66,16 @@ jobs:
           echo "current_version=${current_version}" >> "$GITHUB_OUTPUT"
 
   generate-notes:
-    name: Release Candidate Changelog
-    needs: [resolve_ref]
-    runs-on: ubuntu-latest
+    name: Generate Notes
+    needs:
+      - resolve_ref
+    uses: ./.github/workflows/compute-release-notes.yml
     permissions:
       contents: read
-    outputs:
-      compare_url: ${{ steps.notes.outputs.compare_url }}
-      details_url: ${{ steps.notes.outputs.details_url }}
-      predicted_version: ${{ steps.notes.outputs.predicted_version }}
-      release_notes: ${{ steps.notes.outputs.release_notes }}
-      release_type: ${{ steps.notes.outputs.release_type }}
-      released: ${{ steps.notes.outputs.released }}
-      to_sha: ${{ steps.notes.outputs.to_sha }}
-    steps:
-      - name: Checkout Workflow Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-
-      - name: Build Full Changelog
-        id: notes
-        uses: ./.github/actions/compute-release-notes
-        with:
-          base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
-          from_ref: ${{ needs.resolve_ref.outputs.base_tag }}
-          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
-          to_ref: ${{ needs.resolve_ref.outputs.candidate_sha }}
+    with:
+      from-ref: ${{ needs.resolve_ref.outputs.base_tag }}
+      to-ref: ${{ needs.resolve_ref.outputs.candidate_sha }}
+    secrets: inherit
 
   notify-discord:
     name: Notify Discord (RC)
@@ -105,9 +88,8 @@ jobs:
     with:
       channel: rc
       candidate_sha: ${{ needs.resolve_ref.outputs.candidate_sha }}
-      base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
       current_version: ${{ needs.resolve_ref.outputs.current_version }}
-      details_url: ${{ needs.generate-notes.outputs.details_url }}
-      predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
-      compare_url: ${{ needs.generate-notes.outputs.compare_url }}
+      details_url: ${{ needs.generate-notes.outputs.details-url }}
+      predicted_version: ${{ needs.generate-notes.outputs.version }}
+      compare_url: ${{ needs.generate-notes.outputs.compare-url }}
       mention_text: ${{ vars.DISCORD_RC_MENTIONS }}
