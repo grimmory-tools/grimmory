@@ -77,6 +77,8 @@ export class CoverComponent {
       if (this.preview()) {
         this.markReady();
       } else if (!this.showImage()) {
+        // Required for placeholders to appear as part of the normal loading fade,
+        // timed after page load to avoid faster paint than the real cover images.
         requestAnimationFrame(() => requestAnimationFrame(this.markReady));
       }
     });
