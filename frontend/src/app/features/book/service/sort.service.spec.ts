@@ -55,9 +55,9 @@ describe('SortService', () => {
 
   it('sorts by array fields and read status rank', () => {
     const books = [
-      makeBook(1, {metadata: {bookId: 1, authors: ['Jane Zed']}, readStatus: ReadStatus.READ}),
-      makeBook(2, {metadata: {bookId: 2, authors: ['Adam Alpha']}, readStatus: ReadStatus.READING}),
-      makeBook(3, {metadata: {bookId: 3, authors: ['Jane Zed']}, readStatus: ReadStatus.UNREAD}),
+      makeBook(1, {metadata: {bookId: 1, authors: ['Jane Zed'], authorSortNames: ['Zed, Jane']}, readStatus: ReadStatus.READ}),
+      makeBook(2, {metadata: {bookId: 2, authors: ['Adam Alpha'], authorSortNames: ['Alpha, Adam']}, readStatus: ReadStatus.READING}),
+      makeBook(3, {metadata: {bookId: 3, authors: ['Jane Zed'], authorSortNames: ['Zed, Jane']}, readStatus: ReadStatus.UNREAD}),
     ];
 
     expect(service.applyMultiSort(books, [
@@ -67,6 +67,17 @@ describe('SortService', () => {
     expect(service.applyMultiSort(books, [
       {label: 'Status', field: 'readStatus', direction: SortDirection.DESCENDING},
     ]).map(book => book.id)).toEqual([1, 2, 3]);
+  });
+
+  it('falls back to raw author names when sort names are absent', () => {
+    const books = [
+      makeBook(1, {metadata: {bookId: 1, authors: ['Jane Zed']}}),
+      makeBook(2, {metadata: {bookId: 2, authors: ['Adam Alpha']}}),
+    ];
+
+    expect(service.applyMultiSort(books, [
+      {label: 'Authors', field: 'authorSurnameVorname', direction: SortDirection.ASCENDING},
+    ]).map(book => book.id)).toEqual([2, 1]);
   });
 
   it('keeps null values sorted after non-null values and warns on unknown fields', () => {

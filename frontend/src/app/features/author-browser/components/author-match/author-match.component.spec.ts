@@ -140,8 +140,10 @@ describe('AuthorMatchComponent', () => {
     const updatedAuthor: AuthorDetails = {
       id: 9,
       name: 'Ada Lovelace',
+      sortName: 'Lovelace, Ada',
       asin: 'B00MATCH',
       nameLocked: false,
+      sortNameLocked: false,
       descriptionLocked: false,
       asinLocked: true,
       photoLocked: false,

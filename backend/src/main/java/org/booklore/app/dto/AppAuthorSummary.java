@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class AppAuthorSummary {
     private Long id;
     private String name;
+    private String sortName;
     private String asin;
     private int bookCount;
     private boolean hasPhoto;
