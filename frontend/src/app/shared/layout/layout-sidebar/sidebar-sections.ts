@@ -13,6 +13,11 @@ import {
 import { SidebarLeaf, SidebarSection } from '../navigation/nav-item.model';
 import { buildHomeNavItems, findPageNavItem, ShellNavPermissions } from '../navigation/nav-catalog';
 
+export interface HomeCounts {
+  series: number;
+  authors: number;
+}
+
 export interface LibrarySectionDeps {
   health: Pick<LibraryHealthService, 'isUnhealthy'>;
 }
@@ -37,7 +42,7 @@ function sortByPref<T extends { id: number; name: string }>(items: T[], pref: So
   return pref.order === 'desc' ? sorted.reverse() : sorted;
 }
 
-export function buildHomeSection(translate: TranslateFn): SidebarSection[] {
+export function buildHomeSection(translate: TranslateFn, counts: HomeCounts): SidebarSection[] {
   return [{
     id: 'home',
     menuKey: 'home',
@@ -46,6 +51,7 @@ export function buildHomeSection(translate: TranslateFn): SidebarSection[] {
     items: buildHomeNavItems(translate).map((item) => ({
       ...item,
       bookScope: item.id === 'allBooks' ? null : undefined,
+      bookCount: homeItemBookCount(item.id, counts),
     })),
   }];
 }
@@ -69,6 +75,14 @@ export function buildToolsSection(
     expandable: true,
     items,
   }];
+}
+
+function homeItemBookCount(itemId: string, counts: HomeCounts): number | undefined {
+  switch (itemId) {
+    case 'series': return counts.series;
+    case 'authors': return counts.authors;
+    default: return undefined;
+  }
 }
 
 export function buildLibrarySection(

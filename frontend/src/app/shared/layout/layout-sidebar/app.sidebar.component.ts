@@ -1,4 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {injectQuery} from '@tanstack/angular-query-experimental';
+import {lastValueFrom} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {API_CONFIG} from '../../../core/config/api-config';
+import {QUERY_DEFAULTS} from '../../../core/data/query-transport';
+import {bookQueryKeys} from '../../../features/book/data/book-query-keys';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
@@ -58,6 +65,9 @@ import {AppMenuItemComponent} from '../../ui/menu/app-menu-item.component';
 import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive';
 
 const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
+// Keyed under book collections so every book change refreshes these counts.
+const SERIES_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'series-count'] as const;
+const AUTHOR_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'author-count'] as const;
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
   { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
   { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
@@ -169,6 +179,7 @@ export class AppSidebarComponent {
   private readonly userService = inject(UserService);
   private readonly versionService = inject(VersionService);
   private readonly magicShelfService = inject(MagicShelfService);
+  private readonly http = inject(HttpClient);
   private readonly t = inject(TranslocoService);
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
@@ -210,10 +221,35 @@ export class AppSidebarComponent {
     typeof navigator !== 'undefined' ? navigator.userAgent : ''
   );
 
+  private readonly homeCountsEnabled = computed(() =>
+    this.authService.isAuthenticated() && this.layoutService.areSidebarCountsVisible('home'));
+  // Temporary: Using the /app/ endpoints until the new ones are ready. They work for now, easy enough to swap when ready.
+  private readonly seriesCountQuery = injectQuery(() => ({
+    queryKey: SERIES_COUNT_QUERY_KEY,
+    queryFn: () => this.entityCount('series'),
+    enabled: this.homeCountsEnabled(),
+    ...QUERY_DEFAULTS,
+  }));
+  private readonly authorCountQuery = injectQuery(() => ({
+    queryKey: AUTHOR_COUNT_QUERY_KEY,
+    queryFn: () => this.entityCount('authors'),
+    enabled: this.homeCountsEnabled(),
+    ...QUERY_DEFAULTS,
+  }));
+
+  private entityCount(entity: 'series' | 'authors'): Promise<number> {
+    return lastValueFrom(this.http
+      .get<{totalElements: number}>(`${API_CONFIG.BASE_URL}/api/v1/app/${entity}`, {params: {page: 0, size: 1}})
+      .pipe(map(response => response.totalElements)));
+  }
+
   readonly sections = computed<SidebarSection[]>(() => {
     this.activeLang();
     return [
-      ...buildHomeSection(this.translate),
+      ...buildHomeSection(this.translate, {
+        series: this.seriesCountQuery.data() ?? 0,
+        authors: this.authorCountQuery.data() ?? 0,
+      }),
       ...buildLibrarySection(
         this.libraryService.libraries(),
         this.layoutService.librarySort(),

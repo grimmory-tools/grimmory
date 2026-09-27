@@ -39,8 +39,8 @@ describe('normalizeSortPref', () => {
 });
 
 describe('buildHomeSection', () => {
-  it('emits the standard home items and scopes the all-books count', () => {
-    const [section] = buildHomeSection(translate);
+  it('emits the standard home items and attaches counts only to counted entries', () => {
+    const [section] = buildHomeSection(translate, { series: 3, authors: 7 });
 
     expect(section.id).toBe('home');
     expect(section.expandable).toBe(true);
@@ -48,8 +48,16 @@ describe('buildHomeSection', () => {
       'dashboard', 'allBooks', 'series', 'authors', 'notebook',
     ]);
 
-    expect(section.items?.find((item) => item.id === 'allBooks')?.bookScope).toBeNull();
-    expect(section.items?.every((item) => item.bookCount === undefined)).toBe(true);
+    const counts = Object.fromEntries(
+      (section.items ?? []).map((item) => [item.id, item.bookCount]),
+    );
+    expect(counts).toEqual({
+      dashboard: undefined,
+      allBooks: undefined,
+      series: 3,
+      authors: 7,
+      notebook: undefined,
+    });
   });
 });
 
