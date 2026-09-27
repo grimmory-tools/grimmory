@@ -239,7 +239,14 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
             """)
     List<BookEntity> findFilelessBooksByLibraryId(@Param("libraryId") Long libraryId);
 
-    @Query("SELECT b.id as id, m.coverUpdatedOn as coverUpdatedOn FROM BookEntity b LEFT JOIN b.metadata m WHERE b.id IN :bookIds")
+    @Query("""
+            SELECT b.id as id,
+                   m.coverUpdatedOn as coverUpdatedOn,
+                   m.audiobookCoverUpdatedOn as audiobookCoverUpdatedOn
+            FROM BookEntity b
+            LEFT JOIN b.metadata m
+            WHERE b.id IN :bookIds
+            """)
     List<BookCoverUpdateProjection> findCoverUpdateInfoByIds(@Param("bookIds") Collection<Long> bookIds);
 
     @Modifying
