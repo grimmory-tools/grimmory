@@ -14,7 +14,6 @@ RUN --mount=type=cache,target=/pnpm/store \
 
 COPY package.json ./
 COPY frontend/package.json ./frontend/
-COPY tools/release/package.json ./tools/release/
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm install --offline --frozen-lockfile --ignore-scripts
 
