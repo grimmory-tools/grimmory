@@ -148,8 +148,12 @@
           @if (railReady()) {
             <app-browse-filter-rail
               [groups]="queries.railGroups()"
+              [openKeys]="queries.openKeys()"
+              [searchTerms]="queries.searchTerms()"
               (toggleValue)="onToggleFacet($event)"
-              (commitRange)="onCommitFacetRange($event)" />
+              (commitRange)="onCommitFacetRange($event)"
+              (openChange)="queries.setOpen($event)"
+              (searchChange)="queries.setSearch($event)" />
           }
         </div>
         </div>

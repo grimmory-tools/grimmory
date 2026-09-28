@@ -113,21 +113,14 @@ describe('BookQueryService', () => {
     await expect(resultPromise).resolves.toMatchObject({content: [{id: 1}]});
   });
 
-  it('fetches facets without sort or size, splitting the sort tokens out', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facets(PARAMS));
+  it('fetches the facet index as facet keys and sort tokens', async () => {
+    const resultPromise = queryClient.fetchQuery(service.facetIndex(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?facet_logic=or&query=dune&facet=genre:Science%20Fiction`);
     request.flush({
       links: [{rel: 'self', href: '/api/v1/books/facets?query=dune', type: 'application/json'}],
       facets: [{
         metadata: {rel: 'facet', key: 'genre', title: 'Genre'},
-        links: [{
-          rel: ['self', 'facet'],
-          href: '/api/v1/books/page?facet=genre%3AFantasy',
-          type: 'application/json',
-          title: 'Fantasy',
-          value: 'Fantasy',
-          properties: {numberOfItems: 4},
-        }],
+        links: [],
       }, {
         metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
         links: [
@@ -138,12 +131,31 @@ describe('BookQueryService', () => {
     });
 
     await expect(resultPromise).resolves.toEqual({
-      facets: [{
-        key: 'genre',
-        title: 'Genre',
-        values: [{value: 'Fantasy', title: 'Fantasy', count: 4, selected: true}],
-      }],
+      facetKeys: ['genre'],
       sortTokens: ['title', '-title'],
+    });
+  });
+
+  it('fetches one facet page with its search, noting whether more values follow', async () => {
+    const resultPromise = queryClient.fetchQuery(service.facet('author', PARAMS, ' tolk '));
+    const request = http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?facet_logic=or&query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
+    );
+    request.flush({
+      links: [
+        {rel: 'self', href: '/api/v1/books/facets/author?page=0&size=100', type: 'application/json'},
+        {rel: 'next', href: '/api/v1/books/facets/author?page=1&size=100', type: 'application/json'},
+      ],
+      facets: [{
+        metadata: {rel: 'facet', key: 'author', title: 'Authors'},
+        links: [{rel: 'facet', href: '', type: '', title: 'J. R. R. Tolkien', value: 'J. R. R. Tolkien', properties: {numberOfItems: 3}}],
+      }],
+    });
+
+    await expect(resultPromise).resolves.toEqual({
+      key: 'author',
+      values: [{value: 'J. R. R. Tolkien', title: 'J. R. R. Tolkien', count: 3}],
+      complete: false,
     });
   });
 

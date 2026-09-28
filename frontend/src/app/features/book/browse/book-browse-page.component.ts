@@ -50,7 +50,6 @@ import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filt
 import {
   countBrowseFacetValues,
   toggleBrowseFacetValue,
-  withBrowseFacetRange,
   type BrowseFilterChip,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
@@ -435,9 +434,7 @@ export class BookBrowsePageComponent {
   }
 
   protected onCommitFacetRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.urlState.setFacetRange(
-      withBrowseFacetRange(this.urlState.facets(), commit.key, commit.min, commit.max, this.queries.definitions()),
-    );
+    this.urlState.setFacetRange(this.queries.withRange(this.urlState.facets(), commit));
   }
 
   protected onClearQuery(): void {

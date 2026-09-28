@@ -2,7 +2,6 @@ import {
   formatRangeLabel,
   formatRangeToken,
   parseRangeToken,
-  type BrowseFacetBucket,
 } from '../../../shared/browse/facet-ranges';
 import {
   type BrowseFacetKind,
@@ -43,7 +42,8 @@ interface FacetField {
   readonly kind?: BrowseFacetKind;
   readonly order?: BrowseFacetValueOrder;
   readonly domain?: readonly string[];
-  readonly buckets?: readonly BrowseFacetBucket[];
+  readonly banded?: true;
+  readonly stars?: number;
   readonly fileSize?: true;
   readonly openByDefault?: true;
   readonly bookValues?: (book: BookSummary) => readonly string[];
@@ -78,15 +78,6 @@ interface BookBrowseField {
   readonly sort?: SortField;
   readonly column?: ColumnField;
 }
-
-const RATING_BUCKETS: readonly BrowseFacetBucket[] = [
-  {min: 0, max: 1, stars: 1},
-  {min: 1, max: 2, stars: 2},
-  {min: 2, max: 3, stars: 3},
-  {min: 3, max: 4, stars: 4},
-  {min: 4, max: 4.5, stars: 4.5},
-  {min: 4.5, stars: 5},
-];
 
 const MATCH_SCORE_LABELS = new Map(
   MATCH_SCORE_BANDS.flatMap(band => {
@@ -228,7 +219,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.amazonRating',
-    facet: {key: 'amazon_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'amazon_rating', banded: true, stars: 5},
     sort: {key: 'amazonRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'amazonRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.amazonRating},
@@ -241,7 +232,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.goodreadsRating',
-    facet: {key: 'goodreads_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'goodreads_rating', banded: true, stars: 5},
     sort: {key: 'goodreadsRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'goodreadsRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.goodreadsRating},
@@ -254,7 +245,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.hardcoverRating',
-    facet: {key: 'hardcover_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'hardcover_rating', banded: true, stars: 5},
     sort: {key: 'hardcoverRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'hardcoverRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.hardcoverRating},
@@ -267,21 +258,21 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.ranobedbRating',
-    facet: {key: 'ranobedb_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'ranobedb_rating', banded: true, stars: 5},
     sort: {key: 'ranobedbRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'ranobedbRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.ranobedbRating},
   },
   {
     labelKey: 'book.fields.lubimyczytacRating',
-    facet: {key: 'lubimyczytac_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'lubimyczytac_rating', banded: true, stars: 5},
     sort: {key: 'lubimyczytacRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'lubimyczytacRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.lubimyczytacRating},
   },
   {
     labelKey: 'book.fields.audibleRating',
-    facet: {key: 'audible_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'audible_rating', banded: true, stars: 5},
     sort: {key: 'audibleRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'audibleRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.audibleRating},
@@ -378,7 +369,7 @@ const FIELDS = [
     facet: {
       key: 'match_score',
       kind: 'range',
-      buckets: MATCH_SCORE_BANDS,
+      banded: true,
       valueLabel: (value, deps) => {
         const labelKey = MATCH_SCORE_LABELS.get(value);
         return labelKey ? deps.translate(`book.filter.matchScore.${labelKey}`) : rangeTokenLabel(value);
