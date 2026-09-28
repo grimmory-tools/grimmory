@@ -230,20 +230,14 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             return;
         }
 
+        File file = audioFile.getFullFilePath().toFile();
+        if (!shouldSaveMetadataToFile(file)) {
+            return;
+        }
+
         if (audioFile.isFolderBased()) {
-            Path folderPath = audioFile.getFullFilePath();
-            MetadataPersistenceSettings.FormatSettings audiobookSettings = appSettingService.getAppSettings()
-                    .getMetadataPersistenceSettings().getSaveToOriginalFile().getAudiobook();
-            if (audiobookSettings == null || !audiobookSettings.isEnabled()) {
-                log.debug("Audiobook metadata writing is disabled. Skipping: {}", folderPath.getFileName());
-                return;
-            }
-            saveCoverToFolder(folderPath, coverData);
+            saveCoverToFolder(file.toPath(), coverData);
         } else {
-            File file = audioFile.getFullFilePath().toFile();
-            if (!shouldSaveMetadataToFile(file)) {
-                return;
-            }
             replaceCoverImageInternal(file, coverData, "byte array");
         }
     }
@@ -321,6 +315,10 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         if (audiobookSettings == null || !audiobookSettings.isEnabled()) {
             log.debug("Audiobook metadata writing is disabled. Skipping: {}", audioFile.getName());
             return false;
+        }
+
+        if (audioFile.isDirectory()) {
+            return true;
         }
 
         long fileSizeInMb = audioFile.length() / (1024 * 1024);
