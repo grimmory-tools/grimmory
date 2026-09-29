@@ -97,6 +97,11 @@
 
             @if (authorBooks(); as books) {
               <div class="books-section">
+                <app-book-menu
+                  openInNewTab
+                  [books]="authorBooks()"
+                />
+
                 <h3 class="section-title">{{ t('booksBy', {name: author.name}) }} ({{ books.length }})</h3>
                 @if (books.length === 0) {
                   <div class="empty-books">
@@ -116,12 +121,14 @@
                             <div class="virtual-scroller-item"
                               [style.width.px]="currentCardSize.width"
                               [style.height.px]="currentCardSize.height">
-                              <app-legacy-book-card
-                                [index]="virtualItem.index"
+                              <app-book-card
                                 [book]="book"
-                                [isSeriesCollapsed]="false"
-                                [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                              </app-legacy-book-card>
+                                [showFormatPill]="true"
+                                [detailMode]="'link'"
+                                (action)="bookNavigation.readBook(book)"
+                                [menuOpen]="menuOpenBookId() === book.id"
+                                (menuRequested)="bookMenu()?.openFor(book, $event)"
+                              />
                             </div>
                           </div>
                         }
