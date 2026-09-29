@@ -51,6 +51,7 @@ export class BookQueryService {
     return queryOptions({
       queryKey: bookQueryKeys.boundedPage(normalized),
       queryFn: ({signal}) => this.fetchPage(normalized, null, signal),
+      enabled: params.enabled,
       ...QUERY_DEFAULTS,
     });
   }
@@ -67,6 +68,7 @@ export class BookQueryService {
       ),
       initialPageParam: null as string | null,
       getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
+      enabled: params.enabled,
       ...QUERY_DEFAULTS,
     });
   }
@@ -110,6 +112,7 @@ export class BookQueryService {
         toIdsHttpParams(normalized),
       ),
       ...QUERY_DEFAULTS,
+      enabled: params.enabled,
       staleTime: 0,
       gcTime: 0,
     });
