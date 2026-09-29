@@ -39,7 +39,6 @@ import java.util.Set;
 @Tag(name = "Kobo Integration", description = "Endpoints for Kobo device and library integration")
 public class KoboController {
 
-    private String token;
     private final AppSettingService appSettingService;
     private final KoboServerProxy koboServerProxy;
     private final KoboInitializationService koboInitializationService;
@@ -57,22 +56,22 @@ public class KoboController {
         return appSettingService.getAppSettings().getKoboSettings().isForwardToKoboStore();
     }
 
-    @ModelAttribute
-    public void captureToken(@PathVariable("token") String token) {
-        this.token = token;
-    }
-
     @Operation(summary = "Initialize Kobo resources", description = "Initialize Kobo resources for the device.")
     @ApiResponse(responseCode = "200", description = "Initialization successful")
     @GetMapping("/v1/initialization")
-    public ResponseEntity<KoboResources> initialization() throws JacksonException {
+    public ResponseEntity<KoboResources> initialization(
+            @PathVariable("token") String token
+    ) throws JacksonException {
         return koboInitializationService.initialize(token);
     }
 
     @Operation(summary = "Sync Kobo library", description = "Sync the user's Kobo library.")
     @ApiResponse(responseCode = "200", description = "Library synced successfully")
     @GetMapping("/v1/library/sync")
-    public ResponseEntity<List<Entitlement>> syncLibrary(@AuthenticationPrincipal BookLoreUser user) {
+    public ResponseEntity<List<Entitlement>> syncLibrary(
+            @PathVariable("token") String token,
+            @AuthenticationPrincipal BookLoreUser user
+    ) {
         return koboLibrarySyncService.syncLibrary(user, token);
     }
 
@@ -125,7 +124,10 @@ public class KoboController {
     @Operation(summary = "Get book metadata", description = "Retrieve metadata for a book in the Kobo library.")
     @ApiResponse(responseCode = "200", description = "Metadata returned successfully")
     @GetMapping("/v1/library/{bookId}/metadata")
-    public ResponseEntity<?> getBookMetadata(@Parameter(description = "Book ID") @PathVariable String bookId) {
+    public ResponseEntity<?> getBookMetadata(
+            @PathVariable("token") String token,
+            @Parameter(description = "Book ID") @PathVariable String bookId
+    ) {
         if (StringUtils.isNumeric(bookId)) {
             KoboBookMetadata metadata = koboEntitlementService.getMetadataForBook(Long.parseLong(bookId), token);
 
