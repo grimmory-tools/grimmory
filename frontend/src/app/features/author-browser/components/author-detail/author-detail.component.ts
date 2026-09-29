@@ -9,7 +9,7 @@ import {
   signal,
   viewChild
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
@@ -20,7 +20,6 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { AuthorService } from '../../service/author.service';
 import { AuthorDetails } from '../../model/author.model';
-import { BookService } from '../../../book/service/book.service';
 import { CoverScalePreferenceService } from '../../../../shared/service/cover-scale-preference.service';
 import { BookCardOverlayPreferenceService } from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import { UserService } from '../../../settings/user-management/user.service';
@@ -32,7 +31,6 @@ import {BookQueryService} from '../../../book/data/book-query.service';
 import {injectInfiniteQuery} from '@tanstack/angular-query-experimental';
 import {BookCardComponent} from '../../../book/components/cards/book-card.component';
 import {bookCardHeightForWidth} from '../../../book/components/cards/book-card.layout';
-import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {BookNavigationService} from '../../../book/service/book-navigation.service';
 import {BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
 
