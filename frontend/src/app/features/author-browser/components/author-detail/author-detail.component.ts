@@ -112,7 +112,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
       return
     }
 
-    if (this.booksQuery.isError()) {
+    if (this.booksQuery.isFetchNextPageError()) {
       // If there's an error we may not want to keep retrying over and over.
       return;
     }
