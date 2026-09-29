@@ -64,7 +64,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private authorService = inject(AuthorService);
   protected readonly bookNavigation = inject(BookNavigationService);
-  private readonly bookQuery = inject(BookQueryService);
+  private readonly bookQueryService = inject(BookQueryService);
   private messageService = inject(MessageService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
@@ -88,7 +88,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
 
-  readonly books = injectInfiniteQuery(() => this.bookQuery.infinitePage({
+  readonly booksQuery = injectInfiniteQuery(() => this.bookQueryService.infinitePage({
     enabled: this.author() != null,
     size: 30,
     sort: [],
@@ -98,9 +98,11 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     facetLogic: 'and'
   }));
 
-  authorBooks = computed(
-    () => this.books.data()?.pages.flatMap(p => p.content) ?? []
+  books = computed(
+    () => this.booksQuery.data()?.pages.flatMap(p => p.content) ?? []
   );
+
+  bookTotalCount = computed(() => this.booksQuery.data()?.pages[0]?.page.totalElements ?? 0)
 
   private readonly fetchNextPageEffect = effect(() => {
     const virtualItems = this.virtualGrid.virtualizer.getVirtualItems();
@@ -111,11 +113,11 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     }
 
     if (
-      lastItem.index >= this.authorBooks().length - 1 &&
-      this.books.hasNextPage() &&
-      !this.books.isFetchingNextPage()
+      lastItem.index >= this.books().length - 1 &&
+      this.booksQuery.hasNextPage() &&
+      !this.booksQuery.isFetchingNextPage()
     ) {
-      this.books.fetchNextPage()
+      this.booksQuery.fetchNextPage()
     }
   })
 
@@ -126,7 +128,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   }
 
   readonly virtualGrid = createVirtualGrid({
-    items: this.authorBooks,
+    items: this.books,
     scrollElement: this.scrollElement,
     minItemWidth: computed(() => this.currentCardSize.width),
     estimateItemHeight: () => this.currentCardSize.height,
