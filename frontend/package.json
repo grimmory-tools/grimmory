@@ -73,7 +73,7 @@
     "@vitest/coverage-v8": "^5.0.1",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.9.1",
-    "jsdom": "^30.0.1",
+    "jsdom": "^30.1.1",
     "ng-mocks": "^14.18.1",
     "postcss": "^8.5.28",
     "stylelint": "^17.14.1",
