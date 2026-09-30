@@ -13,7 +13,7 @@ import org.booklore.app.dto.AppPageResponse;
 import org.booklore.app.dto.UpdateProgressRequest;
 import org.booklore.app.dto.BookListRequest;
 import org.booklore.app.mapper.AppBookMapper;
-import org.booklore.app.specification.AppBookSpecification;
+import org.booklore.service.browse.BookSpecification;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
@@ -110,7 +110,7 @@ public class AppBookService {
             spec = spec.and(magicShelfBookService.toSpecification(userId, req.magicShelfId()));
 
             if (Boolean.TRUE.equals(req.unshelved())) {
-                spec = spec.and(AppBookSpecification.unshelved());
+                spec = spec.and(BookSpecification.unshelved());
             }
 
             Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
@@ -124,7 +124,7 @@ public class AppBookService {
                 accessibleLibraryIds, userId, req);
 
         if (Boolean.TRUE.equals(req.unshelved())) {
-            spec = spec.and(AppBookSpecification.unshelved());
+            spec = spec.and(BookSpecification.unshelved());
         }
 
         Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
@@ -143,7 +143,7 @@ public class AppBookService {
         }
 
         if (Boolean.TRUE.equals(req.unshelved())) {
-            spec = spec.and(AppBookSpecification.unshelved());
+            spec = spec.and(BookSpecification.unshelved());
         }
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -246,11 +246,11 @@ public class AppBookService {
 
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "addedOn"));
 
-        Specification<BookEntity> spec = AppBookSpecification.combine(
-                AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFileOrIsPhysical(),
-                AppBookSpecification.inLibraries(accessibleLibraryIds),
-                AppBookSpecification.searchText(query)
+        Specification<BookEntity> spec = BookSpecification.combine(
+                BookSpecification.notDeleted(),
+                BookSpecification.hasDigitalFileOrIsPhysical(),
+                BookSpecification.inLibraries(accessibleLibraryIds),
+                BookSpecification.searchText(query)
         );
 
         Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
@@ -310,11 +310,11 @@ public class AppBookService {
 
         int maxItems = validateLimit(limit, 10);
 
-        Specification<BookEntity> spec = AppBookSpecification.combine(
-                AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFileOrIsPhysical(),
-                AppBookSpecification.inLibraries(accessibleLibraryIds),
-                AppBookSpecification.addedWithinDays(30)
+        Specification<BookEntity> spec = BookSpecification.combine(
+                BookSpecification.notDeleted(),
+                BookSpecification.hasDigitalFileOrIsPhysical(),
+                BookSpecification.inLibraries(accessibleLibraryIds),
+                BookSpecification.addedWithinDays(30)
         );
 
         Pageable pageable = PageRequest.of(0, maxItems, Sort.by(Sort.Direction.DESC, "addedOn"));
@@ -333,10 +333,10 @@ public class AppBookService {
 
         int maxItems = validateLimit(limit, 10);
 
-        Specification<BookEntity> spec = AppBookSpecification.combine(
-                AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasScannedOn(),
-                AppBookSpecification.inLibraries(accessibleLibraryIds)
+        Specification<BookEntity> spec = BookSpecification.combine(
+                BookSpecification.notDeleted(),
+                BookSpecification.hasScannedOn(),
+                BookSpecification.inLibraries(accessibleLibraryIds)
         );
 
         Pageable pageable = PageRequest.of(0, maxItems, Sort.by(Sort.Direction.DESC, "scannedOn"));
@@ -446,7 +446,7 @@ public class AppBookService {
             baseSpec = baseSpec.and(magicShelfSpec);
         }
         if (shelfId != null) {
-            baseSpec = baseSpec.and(AppBookSpecification.inShelf(shelfId));
+            baseSpec = baseSpec.and(BookSpecification.inShelf(shelfId));
         }
 
         Set<Long> magicBookIds = null;
@@ -800,19 +800,19 @@ public class AppBookService {
             BookListRequest req) {
 
         List<Specification<BookEntity>> specs = new ArrayList<>();
-        specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
+        specs.add(BookSpecification.notDeleted());
+        specs.add(BookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (req.libraryId() != null && accessibleLibraryIds.contains(req.libraryId())) {
-                specs.add(AppBookSpecification.inLibrary(req.libraryId()));
+                specs.add(BookSpecification.inLibrary(req.libraryId()));
             } else if (req.libraryId() != null) {
                 throw ApiError.FORBIDDEN.createException("Access denied to library " + req.libraryId());
             } else {
-                specs.add(AppBookSpecification.inLibraries(accessibleLibraryIds));
+                specs.add(BookSpecification.inLibraries(accessibleLibraryIds));
             }
         } else if (req.libraryId() != null) {
-            specs.add(AppBookSpecification.inLibrary(req.libraryId()));
+            specs.add(BookSpecification.inLibrary(req.libraryId()));
         }
 
         if (req.shelfId() != null) {
@@ -821,238 +821,238 @@ public class AppBookService {
             if (!shelf.isPublic() && !shelf.getUser().getId().equals(userId)) {
                 throw ApiError.FORBIDDEN.createException("Access denied to shelf " + req.shelfId());
             }
-            specs.add(AppBookSpecification.inShelf(req.shelfId()));
+            specs.add(BookSpecification.inShelf(req.shelfId()));
         }
 
         if (req.status() != null && !req.status().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.status());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withReadStatuses(cleaned, userId, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withReadStatuses(cleaned, userId, req.effectiveFilterMode()));
             }
         }
 
         if (req.search() != null && !req.search().trim().isEmpty()) {
-            specs.add(AppBookSpecification.searchText(req.search()));
+            specs.add(BookSpecification.searchText(req.search()));
         }
 
         if (req.fileType() != null && !req.fileType().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.fileType());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withFileTypes(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withFileTypes(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.minRating() != null) {
-            specs.add(AppBookSpecification.withMinRating(req.minRating(), userId));
+            specs.add(BookSpecification.withMinRating(req.minRating(), userId));
         }
 
         if (req.maxRating() != null) {
-            specs.add(AppBookSpecification.withMaxRating(req.maxRating(), userId));
+            specs.add(BookSpecification.withMaxRating(req.maxRating(), userId));
         }
 
         if (req.authors() != null && !req.authors().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.authors());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withAuthors(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withAuthors(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.language() != null && !req.language().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.language());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withLanguages(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withLanguages(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.series() != null && !req.series().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.series());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.inSeriesMulti(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.inSeriesMulti(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.category() != null && !req.category().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.category());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withCategories(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withCategories(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.publisher() != null && !req.publisher().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.publisher());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withPublishers(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withPublishers(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.tag() != null && !req.tag().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.tag());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withTags(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withTags(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.mood() != null && !req.mood().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.mood());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withMoods(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withMoods(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.narrator() != null && !req.narrator().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.narrator());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withNarrators(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withNarrators(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.ageRating() != null && !req.ageRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.ageRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withAgeRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withAgeRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.contentRating() != null && !req.contentRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.contentRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withContentRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withContentRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.matchScore() != null && !req.matchScore().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.matchScore());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withMatchScores(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withMatchScores(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.publishedDate() != null && !req.publishedDate().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.publishedDate());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withPublishedYears(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withPublishedYears(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.fileSize() != null && !req.fileSize().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.fileSize());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withFileSizes(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withFileSizes(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.personalRating() != null && !req.personalRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.personalRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withPersonalRatings(cleaned, userId, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withPersonalRatings(cleaned, userId, req.effectiveFilterMode()));
             }
         }
 
         if (req.amazonRating() != null && !req.amazonRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.amazonRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withAmazonRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withAmazonRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.goodreadsRating() != null && !req.goodreadsRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.goodreadsRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withGoodreadsRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withGoodreadsRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.hardcoverRating() != null && !req.hardcoverRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.hardcoverRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withHardcoverRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withHardcoverRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.lubimyczytacRating() != null && !req.lubimyczytacRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.lubimyczytacRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withLubimyczytacRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withLubimyczytacRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.ranobedbRating() != null && !req.ranobedbRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.ranobedbRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withRanobedbRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withRanobedbRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.audibleRating() != null && !req.audibleRating().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.audibleRating());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withAudibleRatings(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withAudibleRatings(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.pageCount() != null && !req.pageCount().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.pageCount());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withPageCounts(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withPageCounts(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.shelfStatus() != null && !req.shelfStatus().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.shelfStatus());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withShelfStatus(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withShelfStatus(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.comicCharacter() != null && !req.comicCharacter().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.comicCharacter());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withComicCharacters(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withComicCharacters(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.comicTeam() != null && !req.comicTeam().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.comicTeam());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withComicTeams(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withComicTeams(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.comicLocation() != null && !req.comicLocation().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.comicLocation());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withComicLocations(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withComicLocations(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.comicCreator() != null && !req.comicCreator().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.comicCreator());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.withComicCreators(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.withComicCreators(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.shelves() != null && !req.shelves().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.shelves());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.inShelves(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.inShelves(cleaned, req.effectiveFilterMode()));
             }
         }
 
         if (req.libraries() != null && !req.libraries().isEmpty()) {
             List<String> cleaned = BookListRequest.cleanValues(req.libraries());
             if (!cleaned.isEmpty()) {
-                specs.add(AppBookSpecification.inLibraries(cleaned, req.effectiveFilterMode()));
+                specs.add(BookSpecification.inLibraries(cleaned, req.effectiveFilterMode()));
             }
         }
 
         // Any of the user book progress sorting we need to filter to only the current user's progress.
         String field = getSortField(req.sort());
         if (field.startsWith("userBookProgress.")) {
-            specs.add(AppBookSpecification.withProgress(userId, true));
+            specs.add(BookSpecification.withProgress(userId, true));
         }
 
-        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+        return BookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private String getSortField(String sortBy) {
@@ -1105,21 +1105,21 @@ public class AppBookService {
 
     private Specification<BookEntity> buildBaseSpecification(Set<Long> accessibleLibraryIds, Long libraryId) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
-        specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
+        specs.add(BookSpecification.notDeleted());
+        specs.add(BookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (libraryId != null && !accessibleLibraryIds.contains(libraryId)) {
                 throw ApiError.FORBIDDEN.createException("Access denied to library " + libraryId);
             }
             specs.add(libraryId != null
-                    ? AppBookSpecification.inLibrary(libraryId)
-                    : AppBookSpecification.inLibraries(accessibleLibraryIds));
+                    ? BookSpecification.inLibrary(libraryId)
+                    : BookSpecification.inLibraries(accessibleLibraryIds));
         } else if (libraryId != null) {
-            specs.add(AppBookSpecification.inLibrary(libraryId));
+            specs.add(BookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+        return BookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private AppPageResponse<AppBookSummary> buildPageResponse(
