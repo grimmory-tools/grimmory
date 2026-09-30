@@ -677,7 +677,7 @@ public class BookMetadataUpdater {
             return;
         }
         if (!set) return;
-        if (!StringUtils.hasText(m.getThumbnailUrl()) || isLocalOrPrivateUrl(m.getThumbnailUrl())) return;
+        if (!StringUtils.hasText(m.getThumbnailUrl())) return;
         try {
             if (bookType == BookFileType.AUDIOBOOK) {
                 if (Boolean.TRUE.equals(e.getAudiobookCoverLocked())) return;
@@ -762,19 +762,6 @@ public class BookMetadataUpdater {
         if (Files.exists(cbzPath)) {
             log.info("File converted from {} to {}, updating book file record", fileName, cbzFileName);
             bookFile.setFileName(cbzFileName);
-        }
-    }
-
-    private boolean isLocalOrPrivateUrl(String url) {
-        try {
-            URI uri = new URI(url);
-            String host = uri.getHost();
-            if ("localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host)) return true;
-            InetAddress addr = InetAddress.getByName(host);
-            return addr.isLoopbackAddress() || addr.isSiteLocalAddress();
-        } catch (Exception e) {
-            log.warn("Invalid thumbnail URL '{}': {}", url, e.getMessage());
-            return true;
         }
     }
 }
