@@ -1,8 +1,8 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {of, type Observable} from 'rxjs';
-import {describe, expect, it, vi} from 'vitest';
-import {MessageService} from '@openng/optimus-ui/api';
+import {afterEach, describe, expect, it, vi} from 'vitest';
+import {MessageService, ToastMessageOptions} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {AppSettings} from '../../../shared/model/app-settings.model';
@@ -40,6 +40,7 @@ interface OpdsTestEnv {
   userState: ReturnType<typeof signal<User | null>>;
   appSettingsState: ReturnType<typeof signal<AppSettings | null>>;
   getUser: () => Observable<OpdsUserV2[]>;
+  messageServiceAdd?: (options: ToastMessageOptions) => void;
 }
 
 function setupOpdsTest(env: OpdsTestEnv): void {
@@ -55,7 +56,7 @@ function setupOpdsTest(env: OpdsTestEnv): void {
         },
       },
       {provide: OpdsService, useValue: {getUser: env.getUser}},
-      {provide: MessageService, useValue: {add: vi.fn()}},
+      {provide: MessageService, useValue: {add: env.messageServiceAdd ?? vi.fn()}},
       {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
     ],
   });
@@ -63,6 +64,10 @@ function setupOpdsTest(env: OpdsTestEnv): void {
 }
 
 describe('OpdsSettings', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('clears the loading state when app settings arrive after permission resolution', () => {
     const userState = signal<User | null>(buildUser());
     const appSettingsState = signal<AppSettings | null>(null);
@@ -108,5 +113,101 @@ describe('OpdsSettings', () => {
     expect(component.users()).toHaveLength(1);
 
     fixture.destroy();
+  });
+
+  it('shows feedback after copying opds endpoint', async () => {
+    const userState = signal<User | null>(buildUser());
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
+    const messageServiceAdd = vi.fn();
+
+    const writeText = vi.fn().mockResolvedValue(null);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
+
+    const fixture = TestBed.createComponent(OpdsSettings);
+    const component = fixture.componentInstance;
+
+    component.copyEndpoint();
+
+    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/api/v1/opds");
+    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'common.success',
+      detail: 'settingsOpds.opdsCopied',
+    }));
+  });
+
+  it('shows error after copying opds endpoint failure', async () => {
+    const userState = signal<User | null>(buildUser());
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
+    const messageServiceAdd = vi.fn();
+
+    const writeText = vi.fn().mockRejectedValue(new Error());
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
+
+    const fixture = TestBed.createComponent(OpdsSettings);
+    const component = fixture.componentInstance;
+
+    component.copyEndpoint();
+
+    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/api/v1/opds");
+    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'common.error',
+      detail: 'settingsOpds.copyFailed',
+    }));
+  });
+
+  it('shows feedback after copying komga endpoint', async () => {
+    const userState = signal<User | null>(buildUser());
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
+    const messageServiceAdd = vi.fn();
+
+    const writeText = vi.fn().mockResolvedValue(null);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
+
+    const fixture = TestBed.createComponent(OpdsSettings);
+    const component = fixture.componentInstance;
+
+    component.copyKomgaEndpoint();
+
+    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/komga");
+    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'common.success',
+      detail: 'settingsOpds.komgaCopied',
+    }));
+  });
+
+  it('shows error after copying komga endpoint failure', async () => {
+    const userState = signal<User | null>(buildUser());
+    const appSettingsState = signal<AppSettings | null>(null);
+    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
+    const messageServiceAdd = vi.fn();
+
+    const writeText = vi.fn().mockRejectedValue(new Error());
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
+
+    const fixture = TestBed.createComponent(OpdsSettings);
+    const component = fixture.componentInstance;
+
+    component.copyKomgaEndpoint();
+
+    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/komga");
+    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'common.error',
+      detail: 'settingsOpds.copyFailed',
+    }));
   });
 });
