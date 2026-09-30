@@ -1113,6 +1113,7 @@
     "deleteSuccess": "User deleted successfully",
     "deleteError": "Failed to delete user",
     "opdsCopied": "OPDS endpoint copied to clipboard",
+    "copyFailed": "Copy Failed",
     "komgaCopied": "Komga API endpoint copied to clipboard",
     "sortUpdateSuccess": "Sort order updated successfully",
     "sortUpdateError": "Failed to update sort order",
