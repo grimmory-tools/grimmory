@@ -9,7 +9,6 @@ import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.booklore.browse.BrowsePage;
 import org.booklore.browse.BrowsePager;
-import org.booklore.browse.FacetLogic;
 import org.booklore.browse.ParamsHash;
 import org.booklore.browse.SortParser;
 import org.booklore.browse.SortRegistry;
@@ -45,37 +44,35 @@ public class AuthorBrowseService {
     private final AuthorPhotoIndex photoIndex;
     private final EntityManager entityManager;
 
-    public BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
+    public BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String query, String cursor, Pageable pageable) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        String paramsHash = ParamsHash.compute(query, facets, facetLogic);
+        String paramsHash = ParamsHash.compute(query, facets);
 
         BrowsePager.Window window = pager.resolve(sort, cursor, pageable, paramsHash);
 
         SortRegistry<AuthorEntity> registry = sortRegistry.registry(scope);
         List<SortTerm> sortTerms = SortParser.parse(window.sort(), registry.keys());
-        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, facetLogic, scope, null);
+        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, scope, null);
 
         long total = count(spec);
         List<AuthorEntity> authors = page(spec, registry, sortTerms, scope, window.offset(), window.limit());
         List<AuthorSummary> summaries = toSummaries(authors, scope);
 
-        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query),
+        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, query),
                 window, total, summaries);
     }
 
-    public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
+    public List<Long> findAllIds(String sort, List<String> facet, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
         SortRegistry<AuthorEntity> registry = sortRegistry.registry(scope);
         List<SortTerm> sortTerms = SortParser.parse(sort, registry.keys());
-        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, facetLogic, scope, null);
+        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, scope, null);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);

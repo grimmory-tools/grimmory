@@ -187,11 +187,7 @@ class AuthorBrowseServiceTest {
     }
 
     private BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browse(sort, facet, null, query, cursor, page, size);
-    }
-
-    private BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogic, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, facetLogic, query, cursor, PageRequest.of(page, size));
+        return browseService.browse(sort, facet, query, cursor, PageRequest.of(page, size));
     }
 
     private List<Long> ids(BrowsePage<AuthorSummary> page) {
@@ -284,7 +280,7 @@ class AuthorBrowseServiceTest {
     }
 
     @Test
-    void facetLogicCombinesSelectedValues() {
+    void facetMarksRequireOrExcludeValues() {
         AuthorEntity horrorOnly = author("Horror Only");
         AuthorEntity romanceOnly = author("Romance Only");
         AuthorEntity both = author("Both");
@@ -295,12 +291,11 @@ class AuthorBrowseServiceTest {
         book("N", library, libraryPath, List.of(neither), null, List.of("Fantasy"), null);
         em.flush();
 
-        List<String> facets = List.of("genre:Horror", "genre:Romance");
-        assertThat(ids(browse("name", facets, "or", null, null, 0, 20)))
+        assertThat(ids(browse("name", List.of("genre:Horror", "genre:Romance"), null, null, 0, 20)))
                 .containsExactly(both.getId(), horrorOnly.getId(), romanceOnly.getId());
-        assertThat(ids(browse("name", facets, "and", null, null, 0, 20)))
+        assertThat(ids(browse("name", List.of("+genre:Horror", "+genre:Romance"), null, null, 0, 20)))
                 .containsExactly(both.getId());
-        assertThat(ids(browse("name", facets, "not", null, null, 0, 20)))
+        assertThat(ids(browse("name", List.of("-genre:Horror", "-genre:Romance"), null, null, 0, 20)))
                 .containsExactly(neither.getId());
     }
 
@@ -468,7 +463,7 @@ class AuthorBrowseServiceTest {
         BrowsePage<AuthorSummary> result = browse(null, null, null, null, 0, 20);
         assertThat(result.content()).isEmpty();
         assertThat(result.page().totalElements()).isZero();
-        assertThat(browseService.findAllIds(null, null, null, null)).isEmpty();
+        assertThat(browseService.findAllIds(null, null, null)).isEmpty();
     }
 
     @Test
@@ -547,7 +542,7 @@ class AuthorBrowseServiceTest {
         em.flush();
 
         List<Long> pageIds = ids(browse("name", null, null, null, 0, 20));
-        assertThat(browseService.findAllIds("name", null, null, null)).isEqualTo(pageIds);
+        assertThat(browseService.findAllIds("name", null, null)).isEqualTo(pageIds);
     }
 
     @Test
@@ -559,7 +554,7 @@ class AuthorBrowseServiceTest {
         book("B", library, libraryPath, List.of(unmatched));
         em.flush();
 
-        assertThat(browseService.findAllIds(null, List.of("has_asin:true"), null, null))
+        assertThat(browseService.findAllIds(null, List.of("has_asin:true"), null))
                 .containsExactly(matched.getId());
     }
 }

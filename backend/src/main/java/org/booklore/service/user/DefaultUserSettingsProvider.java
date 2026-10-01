@@ -32,7 +32,6 @@ public class DefaultUserSettingsProvider {
         defaultSettings.put(UserSettingKey.SIDEBAR_MAGIC_SHELF_SORTING, this::buildDefaultSidebarMagicShelfSorting);
         defaultSettings.put(UserSettingKey.ENTITY_VIEW_PREFERENCES, this::buildDefaultEntityViewPreferences);
         defaultSettings.put(UserSettingKey.TABLE_COLUMN_PREFERENCE, () -> null);
-        defaultSettings.put(UserSettingKey.FILTER_MODE, () -> "and");
         defaultSettings.put(UserSettingKey.FILTER_SORTING_MODE, () -> "count");
         defaultSettings.put(UserSettingKey.METADATA_CENTER_VIEW_MODE, () -> "route");
     }
