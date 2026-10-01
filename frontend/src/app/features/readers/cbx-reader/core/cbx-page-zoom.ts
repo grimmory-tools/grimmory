@@ -10,17 +10,17 @@ const FLING_DECAY_PER_MS = 0.996;
 const FLING_MIN_SPEED = 0.02;
 /** Only pointer movement this recent (ms) counts toward fling velocity. */
 const FLING_SAMPLE_WINDOW_MS = 100;
-
 /** Movement (px) before a pan picks its direction. */
 const PAN_SLOP_PX = 6;
+/** Browsers report DOM_DELTA_LINE wheel deltas in lines; roughly this many px each. */
+const WHEEL_LINE_PX = 16;
 
-/** CSS custom property the strip layouts multiply their fit sizes by. */
+/** CSS custom property the strip layouts multiply their fit sizes and column width by. */
 export const CBX_ZOOM_CSS_VAR = '--cbx-zoom';
 
 /**
- * `page`: the paginated view, zoomed by resizing the visible page elements.
- * `strip`: long strip / infinite scroll, zoomed by widening the strip column and scaling the
- * fit-mode size limits through {@link CBX_ZOOM_CSS_VAR}, so pages loaded later zoom too.
+ * page: resizes the visible page elements.
+ * strip: sets {@link CBX_ZOOM_CSS_VAR}, which the strip CSS scales by, so lazily loaded pages zoom too.
  */
 export type CbxZoomLayout = 'page' | 'strip';
 
@@ -51,6 +51,27 @@ interface ZoomAnchor {
   fraction: Point;
 }
 
+type StyleTable = Record<string, string>;
+
+// Paginated zoom layout. Inline so it beats every fit-mode rule; cleared from the same tables.
+// Start-aligned container: a centered flex item that overflows is cut off at the top/left,
+// while the wrapper's auto margins still center a page smaller than the screen.
+const PAGE_CONTAINER_STYLES: StyleTable = {'justify-content': 'flex-start', 'align-items': 'flex-start'};
+const PAGE_WRAPPER_STYLES: StyleTable = {
+  'display': 'flex', 'flex-grow': '0', 'flex-shrink': '0', 'flex-basis': 'auto', 'margin': 'auto',
+  'width': 'max-content', 'height': 'max-content', 'min-width': '0', 'min-height': '0',
+};
+const PAGE_LAYER_STYLES: StyleTable = {'width': 'max-content', 'height': 'max-content'};
+const PAGE_TARGET_STYLES: StyleTable = {'max-width': 'none', 'max-height': 'none', 'flex-grow': '0', 'flex-shrink': '0'};
+
+function applyStyles(el: HTMLElement, styles: StyleTable): void {
+  for (const [prop, value] of Object.entries(styles)) el.style.setProperty(prop, value);
+}
+
+function clearStyles(el: HTMLElement, props: string[]): void {
+  for (const prop of props) el.style.removeProperty(prop);
+}
+
 export function clampZoom(zoom: number): number {
   if (!Number.isFinite(zoom)) return CBX_MIN_ZOOM;
   return Math.min(CBX_MAX_ZOOM, Math.max(CBX_MIN_ZOOM, zoom));
@@ -59,6 +80,10 @@ export function clampZoom(zoom: number): number {
 export function snapZoom(zoom: number): number {
   const clamped = clampZoom(zoom);
   return clamped - CBX_MIN_ZOOM < ZOOM_SNAP_EPSILON ? CBX_MIN_ZOOM : clamped;
+}
+
+export function toPoint(e: {clientX: number; clientY: number}): Point {
+  return {x: e.clientX, y: e.clientY};
 }
 
 export function touchDistance(a: Point, b: Point): number {
@@ -70,8 +95,9 @@ export function touchMidpoint(a: Point, b: Point): Point {
 }
 
 /** Zoom factor for one Ctrl+wheel / trackpad-pinch event. */
-export function wheelZoomFactor(deltaY: number): number {
-  return Math.exp(-deltaY * 0.01);
+export function wheelZoomFactor(deltaY: number, deltaMode = 0): number {
+  const px = deltaMode === 1 ? deltaY * WHEEL_LINE_PX : deltaY;
+  return Math.exp(-px * 0.01);
 }
 
 /** Where a viewport point sits inside a box, as a fraction of the box size. */
@@ -103,32 +129,36 @@ function unionRect(elements: HTMLElement[]): Rect | null {
   return left === Infinity ? null : {left, top, width: right - left, height: bottom - top};
 }
 
+function hasScrollRoom(container: HTMLElement, axis: 'x' | 'y'): boolean {
+  return axis === 'x'
+    ? container.scrollWidth > container.clientWidth + 1
+    : container.scrollHeight > container.clientHeight + 1;
+}
+
 /**
- * Transient zoom for the CBX reader, applied inside the image scroll container so scrolling
- * pans the zoomed content. Callers reset it when the page, layout or window size changes.
+ * Transient zoom and scripted panning for the CBX reader, inside the image scroll container.
+ * Callers reset it when the page, layout or window size changes.
  */
 export class CbxPageZoom {
   private zoom = CBX_MIN_ZOOM;
   /** Layout the current zoom was applied with; fixed until reset. */
   private layout: CbxZoomLayout = 'page';
   private targets: ZoomTarget[] = [];
-  /** Strip column width binding (e.g. `80%`) captured before zooming. */
-  private stripBaseWidth: string | null = null;
   private pinchStartDistance = 0;
   private pinchStartZoom = CBX_MIN_ZOOM;
   private pinchAnchor: ZoomAnchor | null = null;
-  /** True while the inline zoom layout is applied, independent of the current zoom level. */
+  /** Zoom styles applied; can be true at 1x mid-pinch. */
   private layoutActive = false;
   private panLast: Point | null = null;
-  /** False until the pan moved past the slop and confirmed it can scroll that way. */
-  private panLocked = false;
+  /** Set until the pan passes the slop and commits to a direction. */
   private panOrigin: Point | null = null;
+  private panMovedPastSlop = false;
   private panSamples: {x: number; y: number; t: number}[] = [];
   private flingFrame: number | null = null;
 
   constructor(
     private readonly getContainer: () => HTMLElement | null,
-    private readonly getLayout: () => CbxZoomLayout = () => 'page',
+    private readonly getLayout: () => CbxZoomLayout,
   ) {}
 
   get level(): number {
@@ -147,46 +177,41 @@ export class CbxPageZoom {
     return this.panLast !== null;
   }
 
-  /** True when the page is zoomed or otherwise larger than the viewport. */
+  /** Whether the last pan moved past the slop, even if it then let a swipe through. */
+  get panMoved(): boolean {
+    return this.panMovedPastSlop;
+  }
+
   get canPan(): boolean {
     if (this.isZoomed) return true;
     const container = this.getContainer();
-    return !!container && (
-      container.scrollWidth > container.clientWidth + 1 || container.scrollHeight > container.clientHeight + 1
-    );
+    return !!container && (hasScrollRoom(container, 'x') || hasScrollRoom(container, 'y'));
   }
 
-  /**
-   * Start a scripted pan (one finger or mouse drag); callers check `canPan` first.
-   * The pan cancels itself if its first movement goes a way the content cannot scroll,
-   * so a sideways swipe on a vertically scrolling page still reaches swipe navigation.
-   */
+  /** Callers check `canPan` first. */
   beginPan(at: Point): void {
     this.stopFling();
     this.panLast = at;
     this.panOrigin = at;
-    this.panLocked = false;
+    this.panMovedPastSlop = false;
     this.panSamples = [{...at, t: performance.now()}];
   }
 
   updatePan(at: Point): void {
     const container = this.getContainer();
     if (!this.panLast || !container) return;
-    if (!this.panLocked) {
-      const origin = this.panOrigin ?? at;
-      const dx = at.x - origin.x;
-      const dy = at.y - origin.y;
+    if (this.panOrigin) {
+      const dx = at.x - this.panOrigin.x;
+      const dy = at.y - this.panOrigin.y;
       if (Math.hypot(dx, dy) < PAN_SLOP_PX) return;
-      const horizontal = Math.abs(dx) > Math.abs(dy);
-      const hasRoom = horizontal
-        ? container.scrollWidth > container.clientWidth + 1
-        : container.scrollHeight > container.clientHeight + 1;
-      if (!hasRoom) {
+      this.panMovedPastSlop = true;
+      this.panOrigin = null;
+      // Can't scroll the way it started: step aside so a sideways swipe can still turn the page.
+      if (!hasScrollRoom(container, Math.abs(dx) > Math.abs(dy) ? 'x' : 'y')) {
         this.panLast = null;
         this.panSamples = [];
         return;
       }
-      this.panLocked = true;
     }
     container.scrollLeft -= at.x - this.panLast.x;
     container.scrollTop -= at.y - this.panLast.y;
@@ -196,7 +221,7 @@ export class CbxPageZoom {
     this.panSamples = this.panSamples.filter(s => now - s.t <= FLING_SAMPLE_WINDOW_MS);
   }
 
-  /** End the pan; with `fling`, keep scrolling with decaying velocity. */
+  /** With `fling`, keeps scrolling with decaying velocity. */
   endPan(fling = true): void {
     if (!this.panLast) return;
     this.panLast = null;
@@ -204,10 +229,11 @@ export class CbxPageZoom {
     this.panSamples = [];
     if (!fling || samples.length < 2) return;
 
+    const now = performance.now();
     const first = samples[0];
     const last = samples[samples.length - 1];
-    const dt = performance.now() - first.t;
-    if (dt <= 0 || performance.now() - last.t > FLING_SAMPLE_WINDOW_MS / 2) return;
+    const dt = now - first.t;
+    if (dt <= 0 || now - last.t > FLING_SAMPLE_WINDOW_MS / 2) return;
     this.startFling((first.x - last.x) / dt, (first.y - last.y) / dt);
   }
 
@@ -262,21 +288,23 @@ export class CbxPageZoom {
     this.panSamples = [];
     const container = this.getContainer();
     for (const t of this.targets) {
-      for (const prop of ['width', 'height', 'max-width', 'max-height', 'flex-grow', 'flex-shrink']) {
-        t.sized.style.removeProperty(prop);
-      }
+      clearStyles(t.sized, ['width', 'height', ...Object.keys(PAGE_TARGET_STYLES)]);
     }
     this.targets = [];
     if (container && this.layoutActive) {
-      if (this.layout === 'page') {
-        this.resetPageLayout(container);
-      } else {
-        this.resetStripLayout(container);
-      }
       container.style.removeProperty('overflow');
-      container.style.removeProperty('touch-action');
+      container.scrollLeft = 0;
+      if (this.layout === 'page') {
+        const [wrapper, layer] = this.pageLayoutElements(container);
+        clearStyles(container, Object.keys(PAGE_CONTAINER_STYLES));
+        if (wrapper) clearStyles(wrapper, Object.keys(PAGE_WRAPPER_STYLES));
+        if (layer) clearStyles(layer, Object.keys(PAGE_LAYER_STYLES));
+        container.scrollTop = 0;
+      } else {
+        // Strips keep their vertical reading position.
+        container.style.removeProperty(CBX_ZOOM_CSS_VAR);
+      }
     }
-    this.stripBaseWidth = null;
     this.layoutActive = false;
     this.zoom = CBX_MIN_ZOOM;
   }
@@ -284,60 +312,55 @@ export class CbxPageZoom {
   private anchorAt(at: Point): ZoomAnchor | null {
     const layout = this.layoutActive ? this.layout : this.getLayout();
     const rect = layout === 'page' ? this.pageAnchorRect() : this.stripAnchorRect(at);
-    const box = rect?.();
-    if (!rect || !box) return null;
+    const box = rect();
+    if (!box) return null;
     this.layout = layout;
     return {rect, fraction: toAnchorFraction(at, box)};
   }
 
   /** Paginated: the visible page(s) together. */
-  private pageAnchorRect(): (() => Rect | null) | null {
-    if (!this.ensureTargets()) return null;
-    return () => unionRect(this.targets.map(t => t.measured));
+  private pageAnchorRect(): () => Rect | null {
+    this.ensureTargets();
+    const measured = this.targets.map(t => t.measured);
+    return () => unionRect(measured);
   }
 
   /** Strip: the page image under (or vertically nearest to) the point. */
-  private stripAnchorRect(at: Point): (() => Rect | null) | null {
-    const images = Array.from(this.getContainer()?.querySelectorAll<HTMLElement>('.strip-width-constrain img') ?? []);
+  private stripAnchorRect(at: Point): () => Rect | null {
+    const images = this.getContainer()?.querySelectorAll<HTMLElement>('.strip-width-constrain img') ?? [];
     let best: HTMLElement | null = null;
     let bestDistance = Infinity;
-    for (const img of images) {
+    for (const img of Array.from(images)) {
       const r = img.getBoundingClientRect();
       if (r.height === 0) continue;
-      const distance = at.y < r.top ? r.top - at.y : at.y > r.bottom ? at.y - r.bottom : 0;
+      const distance = Math.max(0, r.top - at.y, at.y - r.bottom);
       if (distance < bestDistance) {
         best = img;
         bestDistance = distance;
       }
     }
-    if (!best) return null;
     const img = best;
-    return () => img.isConnected ? img.getBoundingClientRect() : null;
+    return () => img?.isConnected ? img.getBoundingClientRect() : null;
   }
 
-  private ensureTargets(): boolean {
-    if (this.targets.length > 0) return true;
+  private ensureTargets(): void {
+    if (this.targets.length > 0) return;
     const layer = this.getContainer()?.querySelector<HTMLElement>('.current-page-layer');
-    if (!layer) return false;
-
-    const targets: ZoomTarget[] = [];
-    for (const child of Array.from(layer.children) as HTMLElement[]) {
+    for (const child of Array.from(layer?.children ?? []) as HTMLElement[]) {
       const measured = child.tagName === 'APP-CANVAS-RENDERER'
         ? child.querySelector<HTMLElement>('canvas')
         : child.tagName === 'IMG' ? child : null;
       if (!measured) continue;
       const r = measured.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
-      targets.push({sized: child, measured, baseWidth: r.width, baseHeight: r.height});
+      this.targets.push({sized: child, measured, baseWidth: r.width, baseHeight: r.height});
     }
-    this.targets = targets;
-    return targets.length > 0;
   }
 
   private applyAnchored(zoom: number, anchor: ZoomAnchor, viewport: Point): void {
     const container = this.getContainer();
     if (!container) return;
-    // Pinching in at fit: nothing to do, and entering the zoom layout at 1x would drop fit sizing.
+    // At fit with no zoom layout yet: entering it at 1x would drop the fit sizing.
     if (zoom === CBX_MIN_ZOOM && !this.layoutActive) return;
 
     if (!this.layoutActive) this.enterZoomLayout(container);
@@ -349,8 +372,6 @@ export class CbxPageZoom {
       }
     } else {
       container.style.setProperty(CBX_ZOOM_CSS_VAR, String(zoom));
-      const column = container.querySelector<HTMLElement>('.strip-width-constrain');
-      if (column) column.style.width = `calc(${this.stripBaseWidth} * ${zoom})`;
     }
 
     const box = anchor.rect();
@@ -381,59 +402,22 @@ export class CbxPageZoom {
     this.flingFrame = requestAnimationFrame(step);
   }
 
-  /** Inline styles so the zoomed content overrides every fit-mode layout rule. */
   private enterZoomLayout(container: HTMLElement): void {
     this.layoutActive = true;
     container.style.overflow = 'auto';
-    // Panning is handled in script while zoomed so a late second finger never races native scrolling.
-    container.style.touchAction = 'none';
-
-    if (this.layout === 'strip') {
-      const column = container.querySelector<HTMLElement>('.strip-width-constrain');
-      this.stripBaseWidth = column?.style.width || '100%';
-      column?.style.setProperty('max-width', 'none');
-      return;
-    }
+    if (this.layout === 'strip') return;
 
     const [wrapper, layer] = this.pageLayoutElements(container);
-    if (wrapper) {
-      Object.assign(wrapper.style, {
-        display: 'flex', flexGrow: '0', flexShrink: '0', flexBasis: 'auto', margin: 'auto',
-        width: 'max-content', height: 'max-content', minWidth: '0', minHeight: '0',
-      });
-    }
-    if (layer) {
-      Object.assign(layer.style, {width: 'max-content', height: 'max-content'});
-    }
-    for (const t of this.targets) {
-      Object.assign(t.sized.style, {maxWidth: 'none', maxHeight: 'none', flexGrow: '0', flexShrink: '0'});
-    }
+    applyStyles(container, PAGE_CONTAINER_STYLES);
+    if (wrapper) applyStyles(wrapper, PAGE_WRAPPER_STYLES);
+    if (layer) applyStyles(layer, PAGE_LAYER_STYLES);
+    for (const t of this.targets) applyStyles(t.sized, PAGE_TARGET_STYLES);
   }
 
-  private pageLayoutElements(container: HTMLElement): HTMLElement[] {
-    return ['.pages-wrapper', '.current-page-layer']
-      .map(sel => container.querySelector<HTMLElement>(sel))
-      .filter((el): el is HTMLElement => el !== null);
-  }
-
-  private resetPageLayout(container: HTMLElement): void {
-    for (const el of this.pageLayoutElements(container)) {
-      for (const prop of ['width', 'height', 'min-width', 'min-height', 'margin', 'flex-grow', 'flex-shrink', 'flex-basis', 'display']) {
-        el.style.removeProperty(prop);
-      }
-    }
-    container.scrollLeft = 0;
-    container.scrollTop = 0;
-  }
-
-  /** Keeps the vertical reading position; only the horizontal pan goes back to the start. */
-  private resetStripLayout(container: HTMLElement): void {
-    container.style.removeProperty(CBX_ZOOM_CSS_VAR);
-    const column = container.querySelector<HTMLElement>('.strip-width-constrain');
-    if (column) {
-      column.style.removeProperty('max-width');
-      if (this.stripBaseWidth) column.style.width = this.stripBaseWidth;
-    }
-    container.scrollLeft = 0;
+  private pageLayoutElements(container: HTMLElement): (HTMLElement | null)[] {
+    return [
+      container.querySelector<HTMLElement>('.pages-wrapper'),
+      container.querySelector<HTMLElement>('.current-page-layer'),
+    ];
   }
 }

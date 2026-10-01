@@ -99,7 +99,7 @@
     } @else if (scrollMode() === CbxScrollMode.LONG_STRIP) {
     <div class="long-strip-wrapper" role="button" tabindex="0" (click)="onImageClick()"
       (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)">
-      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+      <div class="strip-width-constrain" [style.width]="'calc(' + cbxQuickSettingsState().stripMaxWidthPercent + '% * var(--cbx-zoom, 1))'">
         @for (item of longStripImages(); track item.page) {
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
           draggable="false" [attr.loading]="item.page === currentPage() ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
@@ -123,7 +123,7 @@
     </div>
     } @else {
     <div class="infinite-scroll-wrapper">
-      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+      <div class="strip-width-constrain" [style.width]="'calc(' + cbxQuickSettingsState().stripMaxWidthPercent + '% * var(--cbx-zoom, 1))'">
         @for (pageIdx of infiniteScrollPages(); track pageIdx) {
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"

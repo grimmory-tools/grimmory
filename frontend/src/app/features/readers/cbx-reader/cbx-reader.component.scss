@@ -1,3 +1,6 @@
+// Strip fit sizes scale with the pinch zoom (--cbx-zoom, set from script).
+$cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+
 @mixin cbx-reader-continuation-affordance {
   .cbx-continuation-spacer {
     flex: 0 0 auto;
@@ -189,6 +192,7 @@
     padding: 0.4375rem;
     background: #0f0f0f;
     min-height: 0;
+    touch-action: none; // touch scrolling and pinch are scripted (CbxPageZoom)
 
     &:not(.two-page-view, .infinite-scroll) {
       flex-direction: column;
@@ -208,17 +212,14 @@
       }
     }
 
-    // Drag-to-pan cursors; classes are toggled from script when the page overflows.
-    // The page wrapper and strip images are [role='button'], which the global styles give a pointer cursor.
+    // Grab cursors (toggled from script); override the global pointer on [role='button'].
     &.can-pan,
-    &.can-pan [role='button'],
-    &.can-pan .click-zone {
+    &.can-pan :is([role='button'], .click-zone) {
       cursor: grab;
     }
 
     &.is-dragging,
-    &.is-dragging [role='button'],
-    &.is-dragging .click-zone {
+    &.is-dragging :is([role='button'], .click-zone) {
       cursor: grabbing;
     }
 
@@ -293,7 +294,6 @@
       &.fit-width {
         overflow-y: auto;
         align-items: flex-start;
-        touch-action: none; // touch scrolling is scripted (see CbxPageZoom)
 
         .pages-wrapper,
         .previous-page-layer,
@@ -338,7 +338,6 @@
       &.fit-height {
         overflow: auto;
         align-items: stretch;
-        touch-action: none;
 
         .pages-wrapper {
           width: max-content;
@@ -392,7 +391,6 @@
       &.fit-actual-size {
         overflow: auto;
         align-items: flex-start;
-        touch-action: none;
 
         .pages-wrapper,
         .previous-page-layer,
@@ -488,7 +486,6 @@
     &.infinite-scroll {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: none; // touch scrolling is scripted (see CbxPageZoom)
       overscroll-behavior: contain;
 
       .infinite-scroll-wrapper {
@@ -503,10 +500,10 @@
       }
 
       .strip-width-constrain {
-        // Width set inline from quick-settings signal (% of wrapper). Center column when < 100%.
+        // Width bound in the template: strip width % times --cbx-zoom. Center column when < 100%.
         flex-shrink: 0;
         min-width: 0;
-        max-width: 100%;
+        max-width: calc(100% * var(--cbx-zoom, 1));
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
@@ -543,7 +540,7 @@
 
         .page-image {
           width: auto;
-          height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          height: $cbx-strip-fit-height;
           max-width: 100%;
         }
       }
@@ -573,7 +570,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -586,7 +583,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -604,7 +601,6 @@
     &.long-strip {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: none;
       overscroll-behavior: contain;
 
       .long-strip-wrapper {
@@ -620,7 +616,7 @@
       .strip-width-constrain {
         flex-shrink: 0;
         min-width: 0;
-        max-width: 100%;
+        max-width: calc(100% * var(--cbx-zoom, 1));
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
@@ -658,7 +654,7 @@
 
         .long-strip-image {
           width: auto;
-          height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          height: $cbx-strip-fit-height;
           max-width: 100%;
         }
       }
@@ -687,7 +683,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -700,7 +696,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }

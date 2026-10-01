@@ -36,6 +36,8 @@ describe('cbx page zoom math', () => {
     expect(wheelZoomFactor(-100)).toBeGreaterThan(1);
     expect(wheelZoomFactor(100)).toBeLessThan(1);
     expect(wheelZoomFactor(0)).toBe(1);
+    // Line-mode deltas (Firefox mouse wheels) are converted to px.
+    expect(wheelZoomFactor(3, 1)).toBeCloseTo(wheelZoomFactor(48));
   });
 
   it('keeps the anchored spot under the pinch midpoint after zooming', () => {
@@ -54,19 +56,19 @@ describe('cbx page zoom math', () => {
     expect(toAnchorFraction(midpoint, scrolled)).toEqual(fraction);
   });
 
-  it('follows the midpoint when two fingers pan while pinching', () => {
+  it('computes the scroll delta for an off-centre anchor', () => {
     const box = {left: 0, top: 0, width: 1000, height: 1500};
     const delta = anchorScrollDelta({x: 0.1, y: 0.1}, box, {x: 150, y: 120});
     expect(delta).toEqual({x: -50, y: 30});
   });
 });
 
-describe('CbxPageZoom', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-    document.body.innerHTML = '';
-  });
+afterEach(() => {
+  vi.restoreAllMocks();
+  document.body.innerHTML = '';
+});
 
+describe('CbxPageZoom', () => {
   function setup(): {container: HTMLElement; img: HTMLImageElement; zoom: CbxPageZoom} {
     document.body.innerHTML = `
       <div class="image-container">
@@ -77,7 +79,7 @@ describe('CbxPageZoom', () => {
     vi.spyOn(img, 'getBoundingClientRect').mockReturnValue(
       {left: 0, top: 0, right: 400, bottom: 600, width: 400, height: 600, x: 0, y: 0, toJSON: () => ({})} as DOMRect
     );
-    return {container, img, zoom: new CbxPageZoom(() => container)};
+    return {container, img, zoom: new CbxPageZoom(() => container, () => 'page')};
   }
 
   function giveScrollRoom(container: HTMLElement): void {
@@ -133,6 +135,7 @@ describe('CbxPageZoom', () => {
     zoom.beginPan({x: 300, y: 300});
     zoom.updatePan({x: 297, y: 300});
     expect(container.scrollLeft).toBe(100);
+    expect(zoom.panMoved).toBe(false);
     zoom.updatePan({x: 280, y: 300});
     expect(container.scrollLeft).toBe(120);
   });
@@ -148,6 +151,8 @@ describe('CbxPageZoom', () => {
     zoom.updatePan({x: 200, y: 290});
     expect(zoom.isPanning).toBe(false);
     expect(container.scrollTop).toBe(0);
+    // Still a drag, so a mouse click ending it must be suppressed.
+    expect(zoom.panMoved).toBe(true);
 
     zoom.beginPan({x: 300, y: 300});
     zoom.updatePan({x: 295, y: 200});
@@ -161,60 +166,53 @@ describe('CbxPageZoom', () => {
     zoom.updatePinch({x: 0, y: 300}, {x: 400, y: 300});
     expect(zoom.level).toBe(2);
     expect(img.style.width).toBe('800px');
+    // Start-aligned so the overflowing page can be scrolled to its top and left edges.
+    expect(container.style.justifyContent).toBe('flex-start');
+    expect(container.style.alignItems).toBe('flex-start');
 
     zoom.updatePinch({x: 150, y: 300}, {x: 250, y: 300});
     zoom.endPinch();
 
     expect(zoom.isZoomed).toBe(false);
     expect(img.getAttribute('style')).toBeFalsy();
-    expect(container.style.overflow).toBe('');
+    expect(container.getAttribute('style')).toBeFalsy();
     expect(container.querySelector<HTMLElement>('.pages-wrapper')!.style.width).toBe('');
   });
 });
 
 describe('CbxPageZoom strip layout', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-    document.body.innerHTML = '';
-  });
-
-  function setupStrip(): {container: HTMLElement; column: HTMLElement; zoom: CbxPageZoom} {
+  function setupStrip(): {container: HTMLElement; zoom: CbxPageZoom} {
     document.body.innerHTML = `
       <div class="image-container">
         <div class="long-strip-wrapper">
-          <div class="strip-width-constrain" style="width: 80%">
+          <div class="strip-width-constrain">
             <img class="long-strip-image"><img class="long-strip-image">
           </div>
         </div>
       </div>`;
     const container = document.querySelector<HTMLElement>('.image-container')!;
-    const column = document.querySelector<HTMLElement>('.strip-width-constrain')!;
     const [first, second] = Array.from(document.querySelectorAll<HTMLElement>('img'));
     const rect = (top: number) => ({left: 0, top, right: 400, bottom: top + 600, width: 400, height: 600, x: 0, y: top, toJSON: () => ({})}) as DOMRect;
     vi.spyOn(first, 'getBoundingClientRect').mockReturnValue(rect(0));
     vi.spyOn(second, 'getBoundingClientRect').mockReturnValue(rect(600));
-    return {container, column, zoom: new CbxPageZoom(() => container, () => 'strip')};
+    return {container, zoom: new CbxPageZoom(() => container, () => 'strip')};
   }
 
-  it('scales the strip column and exposes the zoom to the fit-mode CSS', () => {
-    const {container, column, zoom} = setupStrip();
+  it('exposes the zoom to the strip CSS', () => {
+    const {container, zoom} = setupStrip();
     zoom.zoomTo(2, {x: 200, y: 900});
     expect(zoom.level).toBe(2);
-    // jsdom folds the calc(); browsers keep calc(80% * 2).
-    expect(column.style.width).toMatch(/^calc\((80% \* 2|160%)\)$/);
-    expect(column.style.maxWidth).toBe('none');
     expect(container.style.getPropertyValue(CBX_ZOOM_CSS_VAR)).toBe('2');
+    expect(container.style.overflow).toBe('auto');
   });
 
-  it('restores the strip column and keeps the vertical position when zooming back to fit', () => {
-    const {container, column, zoom} = setupStrip();
+  it('keeps the vertical position when zooming back to fit', () => {
+    const {container, zoom} = setupStrip();
     zoom.zoomTo(2, {x: 200, y: 900});
     container.scrollTop = 700;
     container.scrollLeft = 150;
     zoom.reset();
 
-    expect(column.style.width).toBe('80%');
-    expect(column.style.maxWidth).toBe('');
     expect(container.style.getPropertyValue(CBX_ZOOM_CSS_VAR)).toBe('');
     expect(container.scrollTop).toBe(700);
     expect(container.scrollLeft).toBe(0);
