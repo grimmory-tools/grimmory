@@ -51,7 +51,7 @@ describe('CbxHeaderService', () => {
     service.reset();
 
     expect(service.bookTitle()).toBe('');
-    expect(service.forceVisible()).toBe(true);
+    expect(service.forceVisible()).toBe(false);
     expect(service.state()).toEqual({
       isFullscreen: false,
       isSlideshowActive: false,

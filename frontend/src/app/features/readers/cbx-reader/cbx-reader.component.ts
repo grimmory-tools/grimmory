@@ -40,7 +40,7 @@ import {
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
-
+import {isTouchScreen, setupReaderEdges} from '../shared/reader-edges.util';
 
 @Component({
   selector: 'app-cbx-reader',
@@ -159,7 +159,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   // Magnifier
   isMagnifierActive = signal(false);
   private magnifierLensRef = viewChild<ElementRef<HTMLDivElement>>('magnifierLens');
-  private readerRootRef = viewChild<ElementRef<HTMLElement>>('readerRoot');
   private imageScrollHostRef = viewChild<ElementRef<HTMLElement>>('imageScrollHost');
   magnifierZoom = signal<CbxMagnifierZoom>(CbxMagnifierZoom.ZOOM_3X);
   magnifierLensSize = signal<CbxMagnifierLensSize>(CbxMagnifierLensSize.MEDIUM);
@@ -248,6 +247,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   isFooterVisible = computed(() => this.footerService.forceVisible());
 
+  private static readonly PAGE_COLORS: Record<CbxBackgroundColor, string> = {
+    [CbxBackgroundColor.BLACK]: '#000',
+    [CbxBackgroundColor.GRAY]: '#0f0f0f',
+    [CbxBackgroundColor.WHITE]: '#fff',
+  };
+
+  pageColor = computed(() => CbxReaderComponent.PAGE_COLORS[this.backgroundColor()]);
+
+  stripColor = computed(() => this.brightness() < 100
+    ? `color-mix(in srgb, ${this.pageColor()} ${this.brightness()}%, black)`
+    : this.pageColor());
+
+  topBarColor = computed(() => this.headerService.forceVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+
+  bottomBarColor = computed(() => this.isFooterVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+
   showQuickSettings = computed(() => this.quickSettingsService.visible());
 
   isAtLastPage = computed(() => this.currentPage() >= this.pages().length - 1);
@@ -285,6 +300,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   constructor() {
+    setupReaderEdges(this.stripColor);
+
     effect(() => {
       this.sidebarService.bookmarks();
       this.updateBookmarkState();
@@ -297,7 +314,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight);
+    this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight, !isTouchScreen());
     this.visibilityManager.onStateChange((state) => {
       this.headerService.setForceVisible(state.headerVisible);
       this.footerService.setForceVisible(state.footerVisible);
@@ -1811,8 +1828,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
-    const target = this.readerRootRef()?.nativeElement ?? document.documentElement;
-    this.isFullscreen.set(document.fullscreenElement === target);
+    this.isFullscreen.set(!!document.fullscreenElement);
     this.headerService.updateState({ isFullscreen: this.isFullscreen(), isSlideshowActive: this.isSlideshowActive() });
   }
 
@@ -1995,7 +2011,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    const elem = this.readerRootRef()?.nativeElement ?? document.documentElement;
+    const elem = document.documentElement;
     if (elem.requestFullscreen) {
       void elem.requestFullscreen().catch(() => undefined);
     }

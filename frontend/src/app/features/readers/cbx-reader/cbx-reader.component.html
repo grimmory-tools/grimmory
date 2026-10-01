@@ -1,6 +1,13 @@
-<div #readerRoot class="comic-reader-container" tabindex="0"
+<div class="comic-reader-container" tabindex="0"
   [class.rtl-reading]="readingDirection() === CbxReadingDirection.RTL"
   [class.fullscreen-mode]="isFullscreen()" [class.slideshow-active]="isSlideshowActive()">
+  @for (color of [topBarColor()]; track color) {
+  <div class="browser-bar top" [style.background]="color" aria-hidden="true"></div>
+  }
+  @for (color of [bottomBarColor()]; track color) {
+  <div class="browser-bar bottom" [style.background]="color" aria-hidden="true"></div>
+  }
+
   <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked()"
     [currentPageHasNotes]="currentPageHasNotes()"
     (hoverChange)="onHeaderHovered($event)"></app-cbx-header>
@@ -58,9 +65,8 @@
     [class.long-strip]="scrollMode() === CbxScrollMode.LONG_STRIP"
     [class.fit-actual-size]="fitMode() === CbxFitMode.ACTUAL_SIZE" [class.fit-page]="fitMode() === CbxFitMode.FIT_PAGE"
     [class.fit-width]="fitMode() === CbxFitMode.FIT_WIDTH" [class.fit-height]="fitMode() === CbxFitMode.FIT_HEIGHT"
-    [class.fit-auto]="fitMode() === CbxFitMode.AUTO" [class.bg-black]="backgroundColor() === CbxBackgroundColor.BLACK"
-    [class.bg-gray]="backgroundColor() === CbxBackgroundColor.GRAY"
-    [class.bg-white]="backgroundColor() === CbxBackgroundColor.WHITE" [class.emulate-book]="emulateBook() && isTwoPageView()"
+    [class.fit-auto]="fitMode() === CbxFitMode.AUTO" [style.background-color]="pageColor()"
+    [class.emulate-book]="emulateBook() && isTwoPageView()"
     [style.filter]="brightness() < 100 ? 'brightness(' + brightness() + '%)' : null" (scroll)="onScroll($event)">
     @if (!isLoading()) {
     @if (pages().length > 0) {

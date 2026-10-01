@@ -23,7 +23,7 @@ export class CbxHeaderService {
   private readonly _bookTitle = signal('');
   readonly bookTitle = this._bookTitle.asReadonly();
 
-  private readonly _forceVisible = signal(true);
+  private readonly _forceVisible = signal(false);
   readonly forceVisible = this._forceVisible.asReadonly();
 
   private readonly _state = signal<CbxHeaderState>(this.defaultState);
@@ -99,7 +99,7 @@ export class CbxHeaderService {
   }
 
   reset(): void {
-    this._forceVisible.set(true);
+    this._forceVisible.set(false);
     this._state.set(this.defaultState);
     this._bookTitle.set('');
   }
