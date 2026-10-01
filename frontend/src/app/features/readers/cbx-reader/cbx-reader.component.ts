@@ -180,6 +180,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   /** 50–100: max width of strip column (infinite / long strip). */
   stripMaxWidthPercent = signal(100);
+  /** Strip column width; scaled by the pinch zoom through --cbx-zoom. */
+  protected readonly stripColumnWidth = computed(
+    () => `calc(${this.cbxQuickSettingsState().stripMaxWidthPercent}% * var(--cbx-zoom, 1))`
+  );
 
   /** Kavita-style hint when archive looks like vertical webtoon strips. */
   showWebtoonSuggestion = signal(false);
@@ -315,13 +319,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       }
     };
     // Native (not @HostListener) so ordinary wheel scrolling doesn't schedule change detection.
-    const onWheel = (event: WheelEvent) => this.onWheel(event);
     const host = this.hostRef.nativeElement;
     host.addEventListener('click', suppressDragClick, true);
-    host.addEventListener('wheel', onWheel, {passive: false});
+    host.addEventListener('wheel', this.onWheel, {passive: false});
     this.destroyRef.onDestroy(() => {
       host.removeEventListener('click', suppressDragClick, true);
-      host.removeEventListener('wheel', onWheel);
+      host.removeEventListener('wheel', this.onWheel);
     });
 
     // Zoom resets on page turn and layout changes; strips ignore currentPage since scrolling changes it.
@@ -1914,12 +1917,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   /** Ctrl+wheel, which is also how desktop browsers report trackpad pinch. */
-  private onWheel(event: WheelEvent): void {
+  private readonly onWheel = (event: WheelEvent): void => {
     if (!event.ctrlKey) return;
     event.preventDefault();
     this.pageZoom.zoomBy(wheelZoomFactor(event.deltaY, event.deltaMode), toPoint(event));
     this.refreshPanCursor();
-  }
+  };
 
   /** Pan/zoom only starts on the page area, not header/footer/sidebar. */
   private isOnPage(target: EventTarget | null): boolean {
@@ -2000,11 +2003,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
     const delta = touch.screenX - this.touchStart.x;
-    const container = this.getImageScrollContainer();
     const isSwipe = isPageTurnSwipe({
       deltaX: delta,
       deltaY: touch.screenY - this.touchStart.y,
-      scrollDeltaX: (container?.scrollLeft ?? 0) - this.touchStart.scrollLeft,
+      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.touchStart.scrollLeft,
       threshold: Math.min(75, window.innerWidth * 0.1),
     });
     if (!isSwipe) return;

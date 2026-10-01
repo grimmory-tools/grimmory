@@ -1,5 +1,6 @@
-// Strip fit sizes scale with the pinch zoom (--cbx-zoom, set from script).
-$cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
+// Pinch zoom for the strip layouts (--cbx-zoom, set from script; 1 when not zoomed).
+$cbx-zoom: var(--cbx-zoom, 1);
+$cbx-strip-fit-height: calc((100vh - 1.75rem) * #{$cbx-zoom});
 
 @mixin cbx-reader-continuation-affordance {
   .cbx-continuation-spacer {
@@ -503,7 +504,7 @@ $cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
         // Width bound in the template: strip width % times --cbx-zoom. Center column when < 100%.
         flex-shrink: 0;
         min-width: 0;
-        max-width: calc(100% * var(--cbx-zoom, 1));
+        max-width: calc(100% * #{$cbx-zoom});
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
@@ -559,7 +560,7 @@ $cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
         .page-image {
           width: auto;
           height: auto;
-          zoom: var(--cbx-zoom, 1);
+          zoom: $cbx-zoom;
         }
       }
 
@@ -616,7 +617,7 @@ $cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
       .strip-width-constrain {
         flex-shrink: 0;
         min-width: 0;
-        max-width: calc(100% * var(--cbx-zoom, 1));
+        max-width: calc(100% * #{$cbx-zoom});
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
@@ -672,7 +673,7 @@ $cbx-strip-fit-height: calc((100vh - 1.75rem) * var(--cbx-zoom, 1));
           width: auto;
           height: auto;
           max-width: none;
-          zoom: var(--cbx-zoom, 1);
+          zoom: $cbx-zoom;
         }
       }
 

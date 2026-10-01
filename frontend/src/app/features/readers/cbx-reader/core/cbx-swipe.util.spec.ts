@@ -12,7 +12,7 @@ function gesture(overrides: Partial<CbxSwipeGesture> = {}): CbxSwipeGesture {
 }
 
 describe('isPageTurnSwipe', () => {
-  it('turns the page for a horizontal swipe on a page that fits the screen', () => {
+  it('turns the page for a horizontal swipe that cannot scroll the page sideways', () => {
     expect(isPageTurnSwipe(gesture())).toBe(true);
     expect(isPageTurnSwipe(gesture({deltaX: 120}))).toBe(true);
   });
@@ -29,12 +29,8 @@ describe('isPageTurnSwipe', () => {
     expect(isPageTurnSwipe(gesture({deltaX: -300, scrollDeltaX: 300}))).toBe(false);
   });
 
-  it('turns the page at the sideways edge even when vertical drift scrolled a zoomed page', () => {
+  it('turns the page despite vertical drift, which may scroll a zoomed page vertically', () => {
     expect(isPageTurnSwipe(gesture({deltaX: -600, deltaY: 80}))).toBe(true);
-  });
-
-  it('turns the page when a zoomed page is already at the edge and cannot scroll further', () => {
-    expect(isPageTurnSwipe(gesture({deltaX: -200}))).toBe(true);
   });
 
   it('treats sub-pixel scroll jitter as no pan', () => {

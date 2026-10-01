@@ -53,10 +53,11 @@ interface ZoomAnchor {
 
 type StyleTable = Record<string, string>;
 
-// Paginated zoom layout. Inline so it beats every fit-mode rule; cleared from the same tables.
-// Start-aligned container: a centered flex item that overflows is cut off at the top/left,
-// while the wrapper's auto margins still center a page smaller than the screen.
-const PAGE_CONTAINER_STYLES: StyleTable = {'justify-content': 'flex-start', 'align-items': 'flex-start'};
+// Zoom layout. Inline so it beats every fit-mode rule; cleared from the same tables.
+const STRIP_CONTAINER_STYLES: StyleTable = {'overflow': 'auto'};
+// Paginated container is start-aligned: a centered flex item that overflows is cut off at the
+// top/left, while the wrapper's auto margins still center a page smaller than the screen.
+const PAGE_CONTAINER_STYLES: StyleTable = {...STRIP_CONTAINER_STYLES, 'justify-content': 'flex-start', 'align-items': 'flex-start'};
 const PAGE_WRAPPER_STYLES: StyleTable = {
   'display': 'flex', 'flex-grow': '0', 'flex-shrink': '0', 'flex-basis': 'auto', 'margin': 'auto',
   'width': 'max-content', 'height': 'max-content', 'min-width': '0', 'min-height': '0',
@@ -68,8 +69,8 @@ function applyStyles(el: HTMLElement, styles: StyleTable): void {
   for (const [prop, value] of Object.entries(styles)) el.style.setProperty(prop, value);
 }
 
-function clearStyles(el: HTMLElement, props: string[]): void {
-  for (const prop of props) el.style.removeProperty(prop);
+function clearStyles(el: HTMLElement, styles: StyleTable): void {
+  for (const prop of Object.keys(styles)) el.style.removeProperty(prop);
 }
 
 export function clampZoom(zoom: number): number {
@@ -288,17 +289,18 @@ export class CbxPageZoom {
     this.panSamples = [];
     const container = this.getContainer();
     for (const t of this.targets) {
-      clearStyles(t.sized, ['width', 'height', ...Object.keys(PAGE_TARGET_STYLES)]);
+      clearStyles(t.sized, PAGE_TARGET_STYLES);
+      t.sized.style.removeProperty('width');
+      t.sized.style.removeProperty('height');
     }
     this.targets = [];
     if (container && this.layoutActive) {
-      container.style.removeProperty('overflow');
+      clearStyles(container, PAGE_CONTAINER_STYLES);
       container.scrollLeft = 0;
       if (this.layout === 'page') {
         const [wrapper, layer] = this.pageLayoutElements(container);
-        clearStyles(container, Object.keys(PAGE_CONTAINER_STYLES));
-        if (wrapper) clearStyles(wrapper, Object.keys(PAGE_WRAPPER_STYLES));
-        if (layer) clearStyles(layer, Object.keys(PAGE_LAYER_STYLES));
+        if (wrapper) clearStyles(wrapper, PAGE_WRAPPER_STYLES);
+        if (layer) clearStyles(layer, PAGE_LAYER_STYLES);
         container.scrollTop = 0;
       } else {
         // Strips keep their vertical reading position.
@@ -404,8 +406,10 @@ export class CbxPageZoom {
 
   private enterZoomLayout(container: HTMLElement): void {
     this.layoutActive = true;
-    container.style.overflow = 'auto';
-    if (this.layout === 'strip') return;
+    if (this.layout === 'strip') {
+      applyStyles(container, STRIP_CONTAINER_STYLES);
+      return;
+    }
 
     const [wrapper, layer] = this.pageLayoutElements(container);
     applyStyles(container, PAGE_CONTAINER_STYLES);
