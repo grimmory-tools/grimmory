@@ -1,14 +1,25 @@
+@use '../shared/styles/reader-chrome' as *;
+
 .reader {
-  width: 100vw;
-  height: 100dvh;
+  @include safe-area;
+
+  --reader-header-height: calc(36px + var(--safe-edge-top));
+  --reader-footer-height: calc(48px + var(--safe-edge-bottom));
+
   overflow: hidden;
   position: fixed;
-  top: 0;
-  left: 0;
-  margin: 0;
-  padding: 0;
+  inset: 0;
+  padding: var(--safe-edge-top) var(--safe-edge-right) var(--safe-edge-bottom) var(--safe-edge-left);
   display: flex;
   flex-direction: column;
+
+  @media (width <= 600px) {
+    --reader-footer-height: calc(44px + var(--safe-edge-bottom));
+  }
+}
+
+.browser-bar {
+  @include browser-bar;
 }
 
 .header-trigger-zone {
