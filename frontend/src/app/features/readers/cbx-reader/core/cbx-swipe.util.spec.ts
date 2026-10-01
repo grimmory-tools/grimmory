@@ -6,7 +6,6 @@ function gesture(overrides: Partial<CbxSwipeGesture> = {}): CbxSwipeGesture {
     deltaX: -120,
     deltaY: 0,
     scrollDeltaX: 0,
-    scrollDeltaY: 0,
     threshold: 75,
     ...overrides,
   };
@@ -30,8 +29,8 @@ describe('isPageTurnSwipe', () => {
     expect(isPageTurnSwipe(gesture({deltaX: -300, scrollDeltaX: 300}))).toBe(false);
   });
 
-  it('does not turn the page when the gesture panned an overflowing page vertically', () => {
-    expect(isPageTurnSwipe(gesture({deltaX: -150, deltaY: -100, scrollDeltaY: 100}))).toBe(false);
+  it('turns the page at the sideways edge even when vertical drift scrolled a zoomed page', () => {
+    expect(isPageTurnSwipe(gesture({deltaX: -600, deltaY: 80}))).toBe(true);
   });
 
   it('turns the page when a zoomed page is already at the edge and cannot scroll further', () => {

@@ -214,7 +214,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private hasHitZeroScroll = signal(false);
 
   // Touch gestures
-  private touchStart = {x: 0, y: 0, scrollLeft: 0, scrollTop: 0};
+  private touchStart = {x: 0, y: 0, scrollLeft: 0};
   private touchMoveCount = 0;
   /** True once a second finger touched down; such gestures never turn the page. */
   private gestureHadMultiTouch = false;
@@ -1862,13 +1862,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   onTouchStart(event: TouchEvent) {
     if (event.touches.length === 1) {
       const touch = event.changedTouches[0];
-      const container = this.getImageScrollContainer();
-      this.touchStart = {
-        x: touch.screenX,
-        y: touch.screenY,
-        scrollLeft: container?.scrollLeft ?? 0,
-        scrollTop: container?.scrollTop ?? 0,
-      };
+      const scrollLeft = this.getImageScrollContainer()?.scrollLeft ?? 0;
+      this.touchStart = {x: touch.screenX, y: touch.screenY, scrollLeft};
       this.touchMoveCount = 0;
       this.gestureHadMultiTouch = false;
       // Scripted pan (container is touch-action: none) so a late second finger can't race native scroll.
@@ -2010,7 +2005,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       deltaX: delta,
       deltaY: touch.screenY - this.touchStart.y,
       scrollDeltaX: (container?.scrollLeft ?? 0) - this.touchStart.scrollLeft,
-      scrollDeltaY: (container?.scrollTop ?? 0) - this.touchStart.scrollTop,
       threshold: Math.min(75, window.innerWidth * 0.1),
     });
     if (!isSwipe) return;
