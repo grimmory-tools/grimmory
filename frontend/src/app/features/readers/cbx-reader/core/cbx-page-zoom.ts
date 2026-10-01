@@ -189,7 +189,7 @@ export class CbxPageZoom {
     return !!container && (hasScrollRoom(container, 'x') || hasScrollRoom(container, 'y'));
   }
 
-  /** Callers check `canPan` first. */
+  /** Safe without room to scroll: the pan then steps aside on its first move (see `panMoved`). */
   beginPan(at: Point): void {
     this.stopFling();
     this.panLast = at;

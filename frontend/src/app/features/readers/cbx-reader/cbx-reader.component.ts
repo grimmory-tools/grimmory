@@ -41,7 +41,7 @@ import {
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 import {isPageTurnSwipe} from './core/cbx-swipe.util';
-import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, toPoint, wheelZoomFactor} from './core/cbx-page-zoom';
+import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, Point, toPoint, wheelZoomFactor} from './core/cbx-page-zoom';
 
 
 @Component({
@@ -83,6 +83,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
   private static readonly DRAG_CLICK_SUPPRESS_MS = 300;
+  /** Mouse events this soon after a touch are the browser's emulated ones and are ignored. */
+  private static readonly TOUCH_MOUSE_EMULATION_MS = 800;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -156,7 +158,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     () => this.scrollMode() === CbxScrollMode.PAGINATED ? 'page' : 'strip',
   );
   private lastWindowWidth = window.innerWidth;
-  private isMouseDragging = false;
   /** performance.now() deadline; clicks before it end a drag. */
   private suppressClicksUntil = 0;
 
@@ -217,8 +218,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private hasHitRightScroll = signal(false);
   private hasHitZeroScroll = signal(false);
 
-  // Touch gestures
-  private touchStart = {x: 0, y: 0, scrollLeft: 0};
+  // Touch and mouse drag gestures
+  /** Where the current one-finger or mouse drag started, for swipe detection. */
+  private gestureStart = {x: 0, y: 0, scrollLeft: 0};
+  private isMouseDragging = false;
+  private lastTouchTime = 0;
   private touchMoveCount = 0;
   /** True once a second finger touched down; such gestures never turn the page. */
   private gestureHadMultiTouch = false;
@@ -1863,10 +1867,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
+    this.lastTouchTime = performance.now();
     if (event.touches.length === 1) {
-      const touch = event.changedTouches[0];
-      const scrollLeft = this.getImageScrollContainer()?.scrollLeft ?? 0;
-      this.touchStart = {x: touch.screenX, y: touch.screenY, scrollLeft};
+      this.startGesture(toPoint(event.changedTouches[0]));
       this.touchMoveCount = 0;
       this.gestureHadMultiTouch = false;
       // Scripted pan (container is touch-action: none) so a late second finger can't race native scroll.
@@ -1896,6 +1899,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
+    this.lastTouchTime = performance.now();
     if (this.pageZoom.isPinching && event.touches.length < 2) {
       this.pageZoom.endPinch();
       // Lifting one finger of a pinch continues as a one-finger pan.
@@ -1906,7 +1910,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.gestureHadMultiTouch) return;
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
-      this.handleSwipeGesture(event.changedTouches[0]);
+      this.handleSwipeGesture(toPoint(event.changedTouches[0]));
     }
   }
 
@@ -1931,26 +1935,35 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
+    if (performance.now() - this.lastTouchTime < CbxReaderComponent.TOUCH_MOUSE_EMULATION_MS) return;
     if (event.button !== 0 || this.isMagnifierActive() || !this.isOnPage(event.target)) return;
     if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
-    if (!this.pageZoom.canPan) return;
+    // Paginated drags can always turn the page, like touch swipes; strips only pan.
+    const canPan = this.pageZoom.canPan;
+    if (!canPan && this.scrollMode() !== CbxScrollMode.PAGINATED) return;
 
     // Stops the browser's native image drag and text selection.
     event.preventDefault();
     this.isMouseDragging = true;
+    this.startGesture(toPoint(event));
     this.pageZoom.beginPan(toPoint(event));
-    this.getImageScrollContainer()?.classList.add('is-dragging');
+    if (canPan) this.getImageScrollContainer()?.classList.add('is-dragging');
   }
 
-  @HostListener('document:mouseup')
-  onMouseUp(): void {
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent): void {
     if (!this.isMouseDragging) return;
     this.isMouseDragging = false;
     this.pageZoom.endPan();
     this.getImageScrollContainer()?.classList.remove('is-dragging');
     if (this.pageZoom.panMoved) {
       this.suppressClicksUntil = performance.now() + CbxReaderComponent.DRAG_CLICK_SUPPRESS_MS;
+      this.handleSwipeGesture(toPoint(event));
     }
+  }
+
+  private startGesture(at: Point): void {
+    this.gestureStart = {...at, scrollLeft: this.getImageScrollContainer()?.scrollLeft ?? 0};
   }
 
   private refreshPanCursor(): void {
@@ -1999,14 +2012,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.visibilityManager.setFooterHovered(hovered);
   }
 
-  private handleSwipeGesture(touch: Touch) {
+  private handleSwipeGesture(end: Point) {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
-    const delta = touch.screenX - this.touchStart.x;
+    const delta = end.x - this.gestureStart.x;
     const isSwipe = isPageTurnSwipe({
       deltaX: delta,
-      deltaY: touch.screenY - this.touchStart.y,
-      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.touchStart.scrollLeft,
+      deltaY: end.y - this.gestureStart.y,
+      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.gestureStart.scrollLeft,
       threshold: Math.min(75, window.innerWidth * 0.1),
     });
     if (!isSwipe) return;
