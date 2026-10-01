@@ -1,8 +1,9 @@
 package org.booklore.service.browse;
 
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.booklore.app.specification.AppBookSpecification;
-import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,7 @@ public class BookFilterSpecifications {
     private final BookFacetRegistry facetRegistry;
     private final UserContentRestrictionRepository restrictionRepository;
 
-    public Specification<BookEntity> base(String query, Map<String, List<String>> facets, FacetLogic facetLogic,
+    public Specification<BookEntity> base(String query, Map<String, List<String>> facets,
                                           Long userId, boolean isAdmin, Set<Long> libraryIds, String omitFacet) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
@@ -39,15 +39,28 @@ public class BookFilterSpecifications {
             specs.add(BookSearchSpecification.matching(query));
         }
         for (Map.Entry<String, List<String>> entry : facets.entrySet()) {
-            if (Objects.equals(entry.getKey(), omitFacet)) {
-                continue;
-            }
-            if (!facetRegistry.has(entry.getKey())) {
+            String key = BrowseParams.unmarked(entry.getKey());
+            if (!facetRegistry.has(key)) {
                 throw ApiError.INVALID_FACET.createException("Unknown facet: " + entry.getKey());
             }
-            specs.add(facetRegistry.toSpecification(entry.getKey(), entry.getValue(), facetLogic, userId));
+            if (entry.getKey().startsWith("+")) {
+                entry.getValue().forEach(value -> specs.add(facetRegistry.matching(key, List.of(value), userId)));
+            } else if (entry.getKey().startsWith("-")) {
+                specs.add(excluding(facetRegistry.matching(key, entry.getValue(), userId)));
+            } else if (!key.equals(omitFacet)) {
+                specs.add(facetRegistry.matching(key, entry.getValue(), userId));
+            }
         }
         return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+    }
+
+    private static Specification<BookEntity> excluding(Specification<BookEntity> matching) {
+        return (root, query, cb) -> {
+            Subquery<Long> matches = query.subquery(Long.class);
+            Root<BookEntity> book = matches.from(BookEntity.class);
+            matches.select(book.get("id")).where(matching.toPredicate(book, query, cb));
+            return cb.not(root.get("id").in(matches));
+        };
     }
 
     private static Specification<BookEntity> inLibraries(Set<Long> libraryIds) {

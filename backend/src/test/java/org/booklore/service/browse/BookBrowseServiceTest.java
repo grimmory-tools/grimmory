@@ -140,7 +140,7 @@ class BookBrowseServiceTest {
     }
 
     private BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, null, query, cursor, PageRequest.of(page, size));
+        return browseService.browse(sort, facet, query, cursor, PageRequest.of(page, size));
     }
 
     private String nextCursor(BrowsePage<Book> page) {
@@ -262,7 +262,7 @@ class BookBrowseServiceTest {
         em.flush();
 
         List<Long> pageIds = browse("title", null, null, null, 0, 20).content().stream().map(Book::getId).toList();
-        List<Long> allIds = browseService.findAllIds("title", null, null, null);
+        List<Long> allIds = browseService.findAllIds("title", null, null);
 
         assertThat(allIds).isEqualTo(pageIds);
     }
@@ -272,7 +272,20 @@ class BookBrowseServiceTest {
         Long horror = book("H", List.of("Horror")).getId();
         book("R", List.of("Romance"));
         em.flush();
-        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null, null)).containsExactly(horror);
+        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null)).containsExactly(horror);
+    }
+
+    @Test
+    void facetMarksRequireOrExcludeValues() {
+        Long horror = book("H", List.of("Horror")).getId();
+        Long both = book("HR", List.of("Horror", "Romance")).getId();
+        BookEntity series = book("S", List.of());
+        series.getMetadata().setSeriesName("Discworld");
+        Long none = book("None", List.of()).getId();
+        em.flush();
+        assertThat(browseService.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null)).containsExactly(both);
+        assertThat(browseService.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null))
+                .containsExactlyInAnyOrder(horror, none);
     }
 
     @Test
@@ -289,7 +302,7 @@ class BookBrowseServiceTest {
         em.persist(BookMetadataEntity.builder().book(outside).title("Outside").build());
         em.flush();
 
-        assertThat(browseService.findAllIds(null, null, null, null)).containsExactly(inLibrary);
+        assertThat(browseService.findAllIds(null, null, null)).containsExactly(inLibrary);
     }
 
     @Test

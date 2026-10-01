@@ -10,7 +10,7 @@ final class BrowseParams {
     private BrowseParams() {
     }
 
-    static String preserved(List<String> facet, String facetLogic, String query) {
+    static String preserved(List<String> facet, String query) {
         List<String> parts = new ArrayList<>();
         if (facet != null) {
             for (String entry : facet) {
@@ -18,9 +18,6 @@ final class BrowseParams {
                     parts.add("facet=" + encode(entry));
                 }
             }
-        }
-        if (facetLogic != null && !facetLogic.isBlank()) {
-            parts.add("facet_logic=" + encode(facetLogic));
         }
         if (query != null && !query.isBlank()) {
             parts.add("query=" + encode(query));
@@ -43,7 +40,11 @@ final class BrowseParams {
         if (colon <= 0 || colon == entry.length() - 1) {
             return false;
         }
-        return entry.substring(0, colon).equals(key) && entry.substring(colon + 1).equalsIgnoreCase(value);
+        return unmarked(entry.substring(0, colon)).equals(key) && entry.substring(colon + 1).equalsIgnoreCase(value);
+    }
+
+    static String unmarked(String key) {
+        return key.startsWith("+") || key.startsWith("-") ? key.substring(1) : key;
     }
 
     static String encode(String value) {

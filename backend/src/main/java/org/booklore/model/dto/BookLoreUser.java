@@ -76,8 +76,9 @@ public class BookLoreUser {
         public SidebarSortOption sidebarMagicShelfSorting;
         public EntityViewPreferences entityViewPreferences;
         public List<TableColumnPreference> tableColumnPreference;
-        public String filterMode;
         public String filterSortingMode;
+        public Boolean filterMatchAll;
+        public Boolean filterExcludeOnTick;
         public String metadataCenterViewMode;
         public boolean koReaderEnabled;
         public boolean enableSeriesView;
