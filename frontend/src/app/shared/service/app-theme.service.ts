@@ -267,8 +267,8 @@ export class AppThemeService {
   private updateFavicon(): void {
     const styles = getComputedStyle(this.document.documentElement);
     this.faviconService.updateFavicon(
-      styles.getPropertyValue('--color-primary-300').trim(),
-      styles.getPropertyValue('--color-primary-500').trim(),
+      styles.getPropertyValue('--color-logo-start').trim(),
+      styles.getPropertyValue('--color-logo-end').trim(),
     );
   }
 }

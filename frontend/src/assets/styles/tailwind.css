@@ -253,6 +253,8 @@
   --color-surface-800: var(--color-stone-800);
   --color-surface-900: var(--color-stone-900);
   --color-surface-950: var(--color-stone-950);
+  --color-logo-start: #fdba74;
+  --color-logo-end: #f97316;
 }
 
 .dark[data-app-theme="grimmory"] {

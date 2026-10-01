@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source srcset="assets/logo-with-text.svg">
-  <img src="assets/logo-with-text.svg" alt="Grimmory" height="80" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text.svg">
+  <img src="assets/logo-with-text-light.svg" alt="Grimmory" height="80" />
 </picture>
 
 **Grimmory is a self-hosted digital library for people who take their reading seriously.**

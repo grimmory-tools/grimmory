@@ -29,6 +29,8 @@ function createThemeComputedStyle(): CSSStyleDeclaration {
   ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'].forEach((stop) => {
     values.set(`--color-surface-${stop}`, `surface-${stop}`);
   });
+  values.set('--color-logo-start', 'logo-start');
+  values.set('--color-logo-end', 'logo-end');
 
   return {
     getPropertyValue: (propertyName: string) => values.get(propertyName) ?? '',
@@ -106,8 +108,8 @@ describe('AppThemeService', () => {
     expect(rootStyle.getPropertyValue('--color-app')).toBe('');
     expect(rootStyle.getPropertyValue('--color-card')).toBe('');
     expect(faviconServiceMock.updateFavicon).toHaveBeenCalledWith(
-      'primary-300',
-      'primary-500'
+      'logo-start',
+      'logo-end'
     );
   });
 
@@ -122,8 +124,8 @@ describe('AppThemeService', () => {
     expect(rootStyle.getPropertyValue('--primary-300')).toBe('');
     expect(rootStyle.getPropertyValue('--color-card')).toBe('');
     expect(faviconServiceMock.updateFavicon).toHaveBeenLastCalledWith(
-      'primary-300',
-      'primary-500'
+      'logo-start',
+      'logo-end'
     );
   });
 
