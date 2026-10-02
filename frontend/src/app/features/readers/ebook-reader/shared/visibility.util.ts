@@ -6,7 +6,7 @@ export interface HeaderFooterVisibilityState {
 export class ReaderHeaderFooterVisibilityManager {
   private isPinned = false;
   private isImmersive = false;
-  private mouseY: number;
+  private mouseY: number | null = null;
 
   private readonly HEADER_TRIGGER_ZONE = 20;
   private readonly FOOTER_TRIGGER_ZONE = 30;
@@ -19,9 +19,7 @@ export class ReaderHeaderFooterVisibilityManager {
 
   private onStateChangeCallback?: (state: HeaderFooterVisibilityState) => void;
 
-  constructor(private windowHeight: number) {
-    this.mouseY = windowHeight / 2;
-  }
+  constructor(private windowHeight: number, private readonly followsPointer = true) {}
 
   onStateChange(callback: (state: HeaderFooterVisibilityState) => void): void {
     this.onStateChangeCallback = callback;
@@ -32,6 +30,7 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   handleMouseMove(mouseY: number): void {
+    if (!this.followsPointer) return;
     this.mouseY = mouseY;
     if (!this.isImmersive) {
       this.updateVisibility();
@@ -39,6 +38,7 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   handleMouseLeave(): void {
+    this.mouseY = null;
     this.headerHovered = false;
     this.footerHovered = false;
     if (!this.isPinned && !this.isImmersive) {
@@ -49,20 +49,21 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   handleHeaderZoneEnter(): void {
-    if (!this.isPinned && !this.isImmersive) {
+    if (this.followsPointer && !this.isPinned && !this.isImmersive) {
       this.setHeaderVisible(true);
       this.notifyStateChange();
     }
   }
 
   handleFooterZoneEnter(): void {
-    if (!this.isPinned && !this.isImmersive) {
+    if (this.followsPointer && !this.isPinned && !this.isImmersive) {
       this.setFooterVisible(true);
       this.notifyStateChange();
     }
   }
 
   setHeaderHovered(hovered: boolean): void {
+    if (!this.followsPointer) return;
     this.headerHovered = hovered;
     if (!this.isImmersive) {
       this.updateVisibility();
@@ -70,6 +71,7 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   setFooterHovered(hovered: boolean): void {
+    if (!this.followsPointer) return;
     this.footerHovered = hovered;
     if (!this.isImmersive) {
       this.updateVisibility();
@@ -123,7 +125,7 @@ export class ReaderHeaderFooterVisibilityManager {
 
   private updateVisibility(): void {
     if (
-      this.mouseY <= this.HEADER_TRIGGER_ZONE ||
+      (this.mouseY !== null && this.mouseY <= this.HEADER_TRIGGER_ZONE) ||
       this.headerHovered ||
       this.isPinned
     ) {
@@ -133,7 +135,7 @@ export class ReaderHeaderFooterVisibilityManager {
     }
 
     if (
-      this.mouseY >= this.windowHeight - this.FOOTER_TRIGGER_ZONE ||
+      (this.mouseY !== null && this.mouseY >= this.windowHeight - this.FOOTER_TRIGGER_ZONE) ||
       this.footerHovered ||
       this.isPinned
     ) {

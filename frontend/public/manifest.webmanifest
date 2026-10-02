@@ -1,8 +1,7 @@
 {
   "name": "Grimmory",
   "short_name": "Grimmory",
-  "display": "fullscreen",
-  "display_override": ["fullscreen", "standalone", "browser"],
+  "display": "standalone",
   "scope": "./",
   "start_url": "./",
   "background_color": "#0d1012",

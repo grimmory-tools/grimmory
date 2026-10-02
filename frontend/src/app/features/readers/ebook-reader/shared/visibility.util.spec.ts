@@ -89,4 +89,38 @@ describe('ReaderHeaderFooterVisibilityManager', () => {
 
     expect(manager.getVisibilityState()).toEqual({headerVisible: false, footerVisible: true});
   });
+
+  it('has no pointer position until the mouse moves, and forgets it when the mouse leaves', () => {
+    const manager = new ReaderHeaderFooterVisibilityManager(852);
+
+    manager.updateWindowHeight(393);
+    manager.togglePinned();
+    manager.togglePinned();
+    expect(manager.getVisibilityState()).toEqual({headerVisible: false, footerVisible: false});
+
+    manager.handleMouseMove(380);
+    manager.handleMouseLeave();
+    manager.togglePinned();
+    manager.togglePinned();
+    expect(manager.getVisibilityState()).toEqual({headerVisible: false, footerVisible: false});
+  });
+
+  it('on touch screens shows and hides both bars together on taps, whatever the pointer did', () => {
+    const manager = new ReaderHeaderFooterVisibilityManager(924, false);
+
+    manager.handleMouseMove(900);
+    manager.setHeaderHovered(true);
+    manager.setFooterHovered(true);
+    manager.updateWindowHeight(412);
+
+    manager.togglePinned();
+    expect(manager.getVisibilityState()).toEqual({headerVisible: true, footerVisible: true});
+
+    manager.togglePinned();
+    expect(manager.getVisibilityState()).toEqual({headerVisible: false, footerVisible: false});
+
+    manager.handleFooterZoneEnter();
+    manager.handleMouseLeave();
+    expect(manager.getVisibilityState()).toEqual({headerVisible: false, footerVisible: false});
+  });
 });
