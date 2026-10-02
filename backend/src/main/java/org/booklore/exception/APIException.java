@@ -13,10 +13,4 @@ public class APIException extends RuntimeException {
         this.status = status;
         this.message = formattedMessage;
     }
-
-    @Override
-    public APIException initCause(Throwable cause) {
-        super.initCause(cause);
-        return this;
-    }
 }
