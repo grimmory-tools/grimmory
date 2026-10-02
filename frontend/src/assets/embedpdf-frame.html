@@ -162,31 +162,47 @@
         --ep-foreground-secondary: rgba(0,0,0,0.54);
       }
 
+      [data-epdf] > :not([data-epdf-i]) {
+        padding-left: var(--grimmory-safe-left, 0px);
+        padding-right: var(--grimmory-safe-right, 0px);
+        background: var(--ep-background-app);
+      }
+
+      [data-epdf-i="main-toolbar"] {
+        --toolbar-safe-top: var(--grimmory-safe-top, 0px);
+      }
+
       [class*="border-b"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"] {
-        background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%) !important;
+        background: #2d2d2d !important;
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
-        height: 38px !important;
-        padding-right: 96px !important;
-        padding-top: 0 !important;
+        height: calc(38px + var(--toolbar-safe-top, 0px)) !important;
+        padding-left: calc(16px + var(--grimmory-safe-left, 0px)) !important;
+        padding-right: calc(96px + var(--grimmory-safe-right, 0px)) !important;
+        padding-top: var(--toolbar-safe-top, 0px) !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
       }
 
       :host([data-color-scheme="light"]) [class*="border-b"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"] {
-        background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%) !important;
+        background: #f0f0f0 !important;
         border-bottom-color: #d0d0d0 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-      }
-
-      [data-epdf-i="right-group"] {
-        position: relative !important;
-        right: 80px !important;
       }
 
       @media (max-width: 600px) {
         [data-epdf-i="right-group"] {
           display: none !important;
+        }
+      }
+
+      @container (width < 1024px) {
+        [data-epdf-i="mode-tabs"] {
+          display: none !important;
+        }
+
+        [data-epdf-i="mode-select-button"] {
+          display: flex !important;
         }
       }
 
@@ -346,6 +362,7 @@
           defaultLocale: msg.locale || 'en',
           fallbackLocale: 'en',
         },
+        theme: { preference: msg.theme },
         disabledCategories: [
           'document-open',
           'document-close',
@@ -467,6 +484,12 @@
 
     if (msg.type === 'setLocale') {
       applyLocale(registry?.getPlugin('i18n')?.provides?.(), msg.locale);
+    }
+
+    if (msg.type === 'safeArea') {
+      for (const side of ['top', 'right', 'left']) {
+        document.documentElement.style.setProperty('--grimmory-safe-' + side, msg[side]);
+      }
     }
 
     if (msg.type === 'scrollToPage') {

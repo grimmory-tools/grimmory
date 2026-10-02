@@ -5,18 +5,16 @@
 }
 
 @if (!isLoading()) {
-<div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()" [class.footer-hidden]="!footerVisible()">
-  @if (viewerMode() === 'book') {
-    @for (color of [topBarColor()]; track color) {
-    <div class="browser-bar top" [style.background]="color" aria-hidden="true"></div>
-    }
-    @for (color of [bottomBarColor()]; track color) {
-    <div class="browser-bar bottom" [style.background]="color" aria-hidden="true"></div>
-    }
+<div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()" [class.footer-hidden]="!footerShown()">
+  @for (color of [topBarColor()]; track color) {
+  <div class="browser-bar top" [style.background]="color" aria-hidden="true"></div>
+  }
+  @for (color of [bottomBarColor()]; track color) {
+  <div class="browser-bar bottom" [style.background]="color" aria-hidden="true"></div>
   }
 
   <!-- Footer trigger zone -->
-  <div class="footer-trigger-zone" [class.inactive]="footerVisible()" (mouseenter)="visibilityManager.handleFooterZoneEnter()"></div>
+  <div class="footer-trigger-zone" [class.inactive]="footerShown()" (mouseenter)="visibilityManager.handleFooterZoneEnter()"></div>
 
   @if (viewerMode() === 'book') {
   <!-- Header trigger zone -->
@@ -192,7 +190,7 @@
   }
 
   <!-- Footer (shared across both viewer modes) -->
-  <div class="pdf-footer" [class.is-visible]="footerVisible()" (mouseenter)="visibilityManager.setFooterHovered(true)" (mouseleave)="visibilityManager.setFooterHovered(false)">
+  <div class="pdf-footer" [class.is-visible]="footerShown()" (mouseenter)="visibilityManager.setFooterHovered(true)" (mouseleave)="visibilityManager.setFooterHovered(false)">
     <div class="page-nav-left">
       <button class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
         [title]="'readerPdf.footer.firstPage' | transloco" [attr.aria-label]="'readerPdf.footer.firstPage' | transloco">

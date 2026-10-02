@@ -82,8 +82,12 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   readonly pageColor = computed(() => this.isDarkTheme() ? PDF_PAGE_COLOR.dark : PDF_PAGE_COLOR.light);
   readonly headerShown = computed(() => this.headerVisible() || this.isSearchOpen() || this.isToolbarOverflowOpen());
-  readonly topBarColor = computed(() => this.headerShown() ? 'var(--reader-chrome-bg)' : this.pageColor());
-  readonly bottomBarColor = computed(() => this.footerVisible() ? 'var(--reader-chrome-bg)' : this.pageColor());
+  readonly footerShown = computed(() => this.footerVisible() || (isTouchScreen() && this.viewerMode() === 'document'));
+  readonly topBarColor = computed(() => {
+    if (this.viewerMode() === 'document') return this.isDarkTheme() ? '#2d2d2d' : '#f0f0f0';
+    return this.headerShown() ? 'var(--reader-chrome-bg)' : this.pageColor();
+  });
+  readonly bottomBarColor = computed(() => this.footerShown() ? 'var(--reader-chrome-bg)' : this.pageColor());
   protected readonly visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight, !isTouchScreen());
 
   readonly sliderTicks = computed(() => {
@@ -203,7 +207,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       this.footerVisible.set(state.footerVisible);
     });
 
-    setupReaderEdges(() => this.viewerMode() === 'book' ? this.pageColor() : '');
+    setupReaderEdges(this.pageColor);
   }
 
   ngOnInit(): void {
@@ -1022,6 +1026,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         theme: this.isDarkTheme() ? 'dark' : 'light',
         locale: this.t.getActiveLang()
       }, location.origin);
+      this.postSafeArea();
 
     } catch (err) {
       console.error('[EmbedPDF] FATAL:', err);
@@ -1410,6 +1415,15 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   @HostListener('window:resize')
   onWindowResize(): void {
     this.visibilityManager.updateWindowHeight(window.innerHeight);
+    this.postSafeArea();
+  }
+
+  private postSafeArea(): void {
+    const iframe = this.embedPdfIframe;
+    if (!iframe?.contentWindow) return;
+    const style = getComputedStyle(iframe);
+    const [top, right, left] = ['top', 'right', 'left'].map(side => style.getPropertyValue(`--safe-edge-${side}`));
+    iframe.contentWindow.postMessage({type: 'safeArea', top, right, left}, location.origin);
   }
 
   private onFullscreenChange = (): void => {

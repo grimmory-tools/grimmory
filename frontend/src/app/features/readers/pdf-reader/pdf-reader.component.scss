@@ -583,8 +583,8 @@ $transition-fast: 150ms ease;
 
 .embed-header-actions {
   position: fixed;
-  top: 0;
-  right: 10px;
+  top: var(--safe-edge-top);
+  right: calc(10px + var(--safe-edge-right));
   height: $header-height;
   display: flex;
   align-items: center;
@@ -594,9 +594,7 @@ $transition-fast: 150ms ease;
   color: #fff;
 
   @media (width <= 1024px) {
-    top: env(safe-area-inset-top);
-    height: calc(#{$header-height} + 4px);
-    right: 8px;
+    right: calc(8px + var(--safe-edge-right));
   }
 }
 
@@ -662,8 +660,8 @@ $transition-fast: 150ms ease;
 
 .doc-viewer-info {
   position: fixed;
-  top: 48px;
-  right: 12px;
+  top: calc(var(--reader-header-height) + 10px);
+  right: calc(12px + var(--safe-edge-right));
   z-index: 1010;
   background: color-mix(in srgb, var(--reader-chrome-bg-raised) 90%, transparent);
   color: $text-primary;
@@ -715,19 +713,11 @@ $transition-fast: 150ms ease;
   width: 100%;
   height: 100%;
   display: flex;
-  transition: inset 0.25s ease-out, height 0.25s ease-out;
 
   iframe {
     width: 100%;
     height: 100%;
     border: none;
-  }
-}
-
-.pdf-reader-container.footer-hidden {
-  #embedpdf-viewer {
-    inset: 0;
-    height: 100%;
   }
 }
 
@@ -862,16 +852,26 @@ $transition-fast: 150ms ease;
 
 // --- Responsive ---
 
-// Tablet (portrait) switches to mobile toolbar layout
-@media (width <= 1024px) {
-  // When footer is visible on mobile/tablet, it pushes the PDF viewer
-  .pdf-reader-container:not(.footer-hidden) {
+// When footer is visible on mobile/tablet, it pushes the PDF viewer
+@media (width <= 1024px), (pointer: coarse) {
+  .pdf-reader-container:has(> #embedpdf-viewer):not(.footer-hidden) {
+    display: flex;
+    flex-direction: column;
+
     #embedpdf-viewer {
-      inset: 0 0 $footer-height;
-      height: calc(100% - #{$footer-height});
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .pdf-footer {
+      position: relative;
     }
   }
+}
 
+// Tablet (portrait) switches to mobile toolbar layout
+@media (width <= 1024px) {
   .pdf-header-toolbar {
     padding: var(--safe-edge-top) calc(8px + var(--safe-edge-right)) 0 calc(8px + var(--safe-edge-left));
   }
@@ -928,9 +928,8 @@ $transition-fast: 150ms ease;
   }
 
   .doc-viewer-info {
-    right: 12px;
-    left: 12px;
-    top: calc(48px + env(safe-area-inset-top));
+    right: calc(12px + var(--safe-edge-right));
+    left: calc(12px + var(--safe-edge-left));
     justify-content: center;
   }
 
