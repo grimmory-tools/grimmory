@@ -61,6 +61,8 @@ interface GrimmoryWindowState {
   __grimmoryOrigRelease?: typeof Element.prototype.releasePointerCapture;
 }
 
+export const PDF_PAGE_COLOR = {dark: '#1a1a1a', light: '#f5f5f5'};
+
 @Injectable()
 export class EmbedPdfBookService {
   private zone = inject(NgZone);
@@ -744,7 +746,7 @@ export class EmbedPdfBookService {
         }
 
         :host {
-          --ep-background-app: #1a1a1a;
+          --ep-background-app: ${PDF_PAGE_COLOR.dark};
           --ep-background-surface: #2d2d2d;
           --ep-border-default: #404040;
           --ep-border-subtle: #333333;
@@ -754,7 +756,7 @@ export class EmbedPdfBookService {
         }
 
         :host([data-color-scheme="light"]) {
-          --ep-background-app: #f5f5f5;
+          --ep-background-app: ${PDF_PAGE_COLOR.light};
           --ep-background-surface: #ffffff;
           --ep-border-default: #d0d0d0;
           --ep-border-subtle: #e0e0e0;

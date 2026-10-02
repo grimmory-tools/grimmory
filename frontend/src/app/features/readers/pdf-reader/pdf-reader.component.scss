@@ -40,6 +40,9 @@ $transition-fast: 150ms ease;
 
 .pdf-reader-container {
   @include tokens;
+  @include safe-area;
+
+  --reader-header-height: calc(#{$header-height} + var(--safe-edge-top));
 
   position: fixed;
   inset: 0;
@@ -52,6 +55,10 @@ $transition-fast: 150ms ease;
   * {
     box-sizing: border-box;
   }
+}
+
+.browser-bar {
+  @include browser-bar;
 }
 
 // --- Trigger zones ---
@@ -89,9 +96,9 @@ $transition-fast: 150ms ease;
   top: 0;
   left: 0;
   right: 0;
-  height: $header-height;
+  height: var(--reader-header-height);
   box-sizing: border-box;
-  padding: 0 16px;
+  padding: var(--safe-edge-top) calc(16px + var(--safe-edge-right)) 0 calc(16px + var(--safe-edge-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -197,7 +204,7 @@ $transition-fast: 150ms ease;
 
 .search-bar {
   position: fixed;
-  top: $header-height;
+  top: var(--reader-header-height);
   left: 0;
   right: 0;
   height: 36px;
@@ -206,7 +213,7 @@ $transition-fast: 150ms ease;
   border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 calc(16px + var(--safe-edge-right)) 0 calc(16px + var(--safe-edge-left));
   gap: 8px;
   opacity: 1;
   transform: translateY(0);
@@ -311,6 +318,7 @@ $transition-fast: 150ms ease;
   width: 100%;
   height: 100%;
   overflow: hidden auto;
+  padding: var(--safe-edge-top) var(--safe-edge-right) var(--safe-edge-bottom) var(--safe-edge-left);
 
   &.horizontal-scroll {
     overflow: auto hidden;
@@ -330,9 +338,8 @@ $transition-fast: 150ms ease;
   bottom: 0;
   left: 0;
   right: 0;
-  height: $footer-height;
-  padding: 0 16px;
-  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(#{$footer-height} + var(--safe-edge-bottom));
+  padding: 0 calc(16px + var(--safe-edge-right)) var(--safe-edge-bottom) calc(16px + var(--safe-edge-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -804,8 +811,11 @@ $transition-fast: 150ms ease;
 
 .toolbar-overflow-menu {
   position: fixed;
-  top: $header-height;
-  right: 8px;
+  top: var(--reader-header-height);
+  right: calc(8px + var(--safe-edge-right));
+  max-height: calc(100dvh - var(--reader-header-height) - var(--safe-edge-panel-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 1010;
   background: $chrome-bg-raised;
   border: 1px solid $border-color;
@@ -863,9 +873,7 @@ $transition-fast: 150ms ease;
   }
 
   .pdf-header-toolbar {
-    height: calc(#{$header-height} + 4px + env(safe-area-inset-top));
-    padding: 0 8px;
-    padding-top: env(safe-area-inset-top);
+    padding: var(--safe-edge-top) calc(8px + var(--safe-edge-right)) 0 calc(8px + var(--safe-edge-left));
   }
 
   .icon-btn.close-btn {
@@ -884,8 +892,7 @@ $transition-fast: 150ms ease;
 
   .pdf-footer {
     height: auto;
-    padding: 8px 12px;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    padding: 8px calc(12px + var(--safe-edge-right)) calc(8px + var(--safe-edge-bottom)) calc(12px + var(--safe-edge-left));
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -915,8 +922,6 @@ $transition-fast: 150ms ease;
   }
 
   .search-bar {
-    top: calc(#{$header-height} + 4px + env(safe-area-inset-top));
-
     .search-input-wrapper {
       max-width: none;
     }
@@ -943,9 +948,8 @@ $transition-fast: 150ms ease;
   }
 
   .toolbar-overflow-menu {
-    top: calc(#{$header-height} + 4px + env(safe-area-inset-top));
-    right: 4px;
-    left: 4px;
+    right: calc(4px + var(--safe-edge-right));
+    left: calc(4px + var(--safe-edge-left));
     min-width: unset;
 
     .overflow-item {
@@ -974,13 +978,11 @@ $transition-fast: 150ms ease;
 // Small phones
 @media (width <= 480px) {
   .pdf-header-toolbar {
-    padding: 0 6px;
-    padding-top: env(safe-area-inset-top);
+    padding: var(--safe-edge-top) calc(6px + var(--safe-edge-right)) 0 calc(6px + var(--safe-edge-left));
   }
 
   .pdf-footer {
-    padding: 6px 8px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    padding: 6px calc(8px + var(--safe-edge-right)) calc(6px + var(--safe-edge-bottom)) calc(8px + var(--safe-edge-left));
     gap: 6px;
   }
 
