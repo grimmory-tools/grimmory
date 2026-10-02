@@ -95,7 +95,7 @@ class PdfMetadataWriterTest {
         authors.add(author);
         meta.setAuthors(authors);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("Dead Simple Python", result.getTitle());
@@ -115,7 +115,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesNumber(22f);
         meta.setSeriesTotal(193);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("The Walking Dead", result.getSeriesName());
@@ -132,7 +132,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesName("Programming"); // Name without number - BROKEN DATA
         meta.setSeriesNumber(null);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         // Series should NOT be written since it's incomplete
@@ -149,7 +149,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesName("Test Series");
         meta.setSeriesNumber(0f); // Zero is invalid
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         // Series should NOT be written since number is zero
@@ -165,7 +165,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesName("Test Series");
         meta.setSeriesNumber(22f); // Whole number
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         // Read raw XMP to verify formatting
         String xmpContent = readXmpContent(pdf);
@@ -181,7 +181,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesName("Test Series");
         meta.setSeriesNumber(1.5f);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals(1.5f, result.getSeriesNumber());
@@ -194,7 +194,7 @@ class PdfMetadataWriterTest {
         BookMetadataEntity meta = createBasicMetadata();
         meta.setGoodreadsId("52555538-dead-simple-python"); // Full slug format
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("52555538", result.getGoodreadsId(),
@@ -208,7 +208,7 @@ class PdfMetadataWriterTest {
         BookMetadataEntity meta = createBasicMetadata();
         meta.setGoodreadsId("12345678");
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("12345678", result.getGoodreadsId());
@@ -230,7 +230,7 @@ class PdfMetadataWriterTest {
         meta.setLubimyczytacId("123456");
         meta.setRanobedbId("7890");
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("9781718500921", result.getIsbn13());
@@ -256,7 +256,7 @@ class PdfMetadataWriterTest {
         meta.setLubimyczytacRating(8.5);
         meta.setRanobedbRating(7.8);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals(4.4, result.getGoodreadsRating(), 0.01);
@@ -274,7 +274,7 @@ class PdfMetadataWriterTest {
         meta.setGoodreadsRating(0.0);
         meta.setHardcoverRating(0.0);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         String xmpContent = readXmpContent(pdf);
         assertFalse(xmpContent.contains("goodreadsRating"),
@@ -306,7 +306,7 @@ class PdfMetadataWriterTest {
         moods.add(mood2);
         meta.setMoods(moods);
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertTrue(result.getTags().contains("Python"));
@@ -322,7 +322,7 @@ class PdfMetadataWriterTest {
         BookMetadataEntity meta = createBasicMetadata();
         meta.setSubtitle("Idiomatic Python for the Impatient Programmer");
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
         assertEquals("Idiomatic Python for the Impatient Programmer", result.getSubtitle());
@@ -335,7 +335,7 @@ class PdfMetadataWriterTest {
         BookMetadataEntity meta = createBasicMetadata();
         meta.setPublishedDate(LocalDate.of(2021, 2, 17));
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         String xmpContent = readXmpContent(pdf);
         // CreateDate should be date-only format: 2021-02-17
@@ -352,7 +352,7 @@ class PdfMetadataWriterTest {
         meta.setSeriesNumber(1f);
         meta.setIsbn13("1234567890123");
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         String xmpContent = readXmpContent(pdf);
         assertTrue(xmpContent.contains("xmlns:booklore=\"http://booklore.org/metadata/1.0/\""),
@@ -369,7 +369,7 @@ class PdfMetadataWriterTest {
 
         BookMetadataEntity meta = createBasicMetadata();
 
-        writer.saveMetadataToFile(pdf, meta, null, null);
+        writer.saveMetadataToFile(pdf, meta, null);
 
         String xmpContent = readXmpContent(pdf);
         assertTrue(xmpContent.contains("<xmp:CreatorTool>Booklore</xmp:CreatorTool>"));

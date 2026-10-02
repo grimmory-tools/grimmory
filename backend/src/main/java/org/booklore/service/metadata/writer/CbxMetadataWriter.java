@@ -56,7 +56,7 @@ public class CbxMetadataWriter implements MetadataWriter {
     private final ArchiveService archiveService;
 
     @Override
-    public void saveMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags) {
+    public void saveMetadataToFile(File file, BookMetadataEntity metadata, MetadataClearFlags clearFlags) {
         if (!shouldSaveMetadataToFile(file)) {
             return;
         }

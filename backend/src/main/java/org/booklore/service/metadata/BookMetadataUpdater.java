@@ -141,7 +141,7 @@ public class BookMetadataUpdater {
                         writer.replaceCoverImageFromBytes(file, coverContents);
                     }
 
-                    writer.saveMetadataToFile(file, metadata, null, clearFlags);
+                    writer.saveMetadataToFile(file, metadata, clearFlags);
                     updateFileNameIfConverted(primaryFile, file.toPath());
                     String newHash = file.isDirectory()
                             ? FileFingerprint.generateFolderHash(bookEntity.getFullFilePath())

@@ -58,7 +58,6 @@ class EpubMetadataWriterTest {
 
     private EpubMetadataWriter writer;
     private BookMetadataEntity metadata;
-    private BookEntity bookEntity;
 
     @TempDir
     Path tempDir;
@@ -86,16 +85,6 @@ class EpubMetadataWriterTest {
         AuthorEntity author = new AuthorEntity();
         author.setName("Test Author");
         metadata.setAuthors(List.of(author));
-
-        bookEntity = new BookEntity();
-        LibraryPathEntity libraryPath = new LibraryPathEntity();
-        libraryPath.setPath(tempDir.toString());
-        bookEntity.setLibraryPath(libraryPath);
-        BookFileEntity primaryFile = new BookFileEntity();
-        primaryFile.setBook(bookEntity);
-        bookEntity.setBookFiles(Set.of(primaryFile));
-        bookEntity.getPrimaryBookFile().setFileSubPath("");
-        bookEntity.getPrimaryBookFile().setFileName("test.epub");
     }
 
     @Nested
@@ -117,7 +106,7 @@ class EpubMetadataWriterTest {
                     """, existingMetadata);
             File epubFile = createEpubWithOpf(opfContent, "test-metadata-" + System.nanoTime() + ".epub");
 
-            assertDoesNotThrow(() -> writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags()));
+            assertDoesNotThrow(() -> writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags()));
 
             assertTrue(epubFile.exists());
             assertTrue(epubFile.length() > 0);
@@ -146,7 +135,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-role-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).doesNotContain("refines=\"#example2\"");
@@ -166,7 +155,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
 
@@ -193,7 +182,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-sort-package-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
 
@@ -213,28 +202,10 @@ class EpubMetadataWriterTest {
             File epubFile = tempDir.resolve("test_unicode.epub").toFile();
             Files.write(epubFile.toPath(), epubContent);
 
-            assertDoesNotThrow(() -> writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags()));
+            assertDoesNotThrow(() -> writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags()));
 
             assertTrue(epubFile.exists());
             assertTrue(epubFile.length() > 0);
-        }
-
-        @Test
-        @DisplayName("Should handle URL-encoded cover href during cover replacement")
-        void replaceCoverImageFromUpload_withUnicodeHref_handlesDecoding() throws IOException {
-            byte[] epubContent = createEpubWithUnicodeCoverHref();
-            File epubFile = tempDir.resolve("test_cover_unicode.epub").toFile();
-            Files.write(epubFile.toPath(), epubContent);
-
-            byte[] imageBytes = createMinimalPngImage();
-            MultipartFile coverFile = new MockMultipartFile(
-                    "cover.png",
-                    "cover.png",
-                    "image/png",
-                    imageBytes
-            );
-
-            assertDoesNotThrow(() -> writer.replaceCoverImageFromUpload(epubFile, coverFile));
         }
     }
 
@@ -261,11 +232,11 @@ class EpubMetadataWriterTest {
             author.setName("Updated Author");
             newMeta.setAuthors(List.of(author));
 
-            writer.saveMetadataToFile(epubFile, newMeta, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, newMeta, new MetadataClearFlags());
             String contentAfterFirstSave = readOpfContent(epubFile);
 
             newMeta.setTitle("Updated Title 2"); // Change title to force write
-            writer.saveMetadataToFile(epubFile, newMeta, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, newMeta, new MetadataClearFlags());
             String contentAfterSecondSave = readOpfContent(epubFile);
 
             long lines1 = contentAfterFirstSave.lines().count();
@@ -292,7 +263,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-creator-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             Document doc = parseOpf(epubFile);
             NodeList creators = doc.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "creator");
@@ -328,7 +299,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-role-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("scheme=\"marc:relators\"");
@@ -352,7 +323,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub2-creator-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("opf:file-as=");
@@ -379,7 +350,7 @@ class EpubMetadataWriterTest {
             metadata.setPageCount(200);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub2-no-epub3-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             // EPUB2 should not have prefix attribute on package
@@ -416,9 +387,6 @@ class EpubMetadataWriterTest {
             byte[] coverImageB = new byte[]{0x0B};
             byte[] coverImageC = new byte[]{0x0C};
 
-            File coverImageFile = tempDir.resolve("new-cover-" + System.nanoTime() + ".png").toFile();
-            Files.write(coverImageFile.toPath(), coverImageC);
-
             File epubFile = tempDir.resolve("test-duplicate-" + System.nanoTime() + ".epub").toFile();
 
             try (var zos = new ZipArchiveOutputStream(new FileOutputStream(epubFile))) {
@@ -452,7 +420,7 @@ class EpubMetadataWriterTest {
                 zos.closeArchiveEntry();
             }
 
-            writer.saveMetadataToFile(epubFile, metadata, coverImageFile.toString(), new MetadataClearFlags());
+            writer.replaceCoverImageFromBytes(epubFile, coverImageC);
 
             try (ZipFile zf = new ZipFile(epubFile)) {
                 var entry = zf.getEntry("cover.png");
@@ -475,7 +443,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-mimetype-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             try (ZipFile zf = new ZipFile(epubFile)) {
                 Enumeration<? extends ZipEntry> entries = zf.entries();
@@ -505,7 +473,7 @@ class EpubMetadataWriterTest {
                     </package>""";
 
             File epubFile = createEpubWithOpf(opfContent, "test-no-dup-mimetype-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             try (ZipFile zf = new ZipFile(epubFile)) {
                 int mimetypeCount = 0;
@@ -537,9 +505,6 @@ class EpubMetadataWriterTest {
             byte[] coverImageA = new byte[]{0x0A};
             byte[] coverImageB = new byte[]{0x0B};
 
-            File coverImageFile = tempDir.resolve("new-cover-" + System.nanoTime() + ".bin").toFile();
-            Files.write(coverImageFile.toPath(), coverImageB);
-
             File epubFile = tempDir.resolve("test-duplicate-" + System.nanoTime() + ".epub").toFile();
 
             try (var zos = new ZipArchiveOutputStream(new FileOutputStream(epubFile))) {
@@ -569,7 +534,7 @@ class EpubMetadataWriterTest {
                 zos.closeArchiveEntry();
             }
 
-            writer.saveMetadataToFile(epubFile, metadata, coverImageFile.toString(), new MetadataClearFlags());
+            writer.replaceCoverImageFromBytes(epubFile, coverImageB);
 
             try (ZipFile zf = new ZipFile(epubFile)) {
                 var entry = zf.getEntry("cover+example.bin");
@@ -601,7 +566,7 @@ class EpubMetadataWriterTest {
             metadata.setSeriesNumber(3.0f);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-series-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("property=\"belongs-to-collection\"");
@@ -632,7 +597,7 @@ class EpubMetadataWriterTest {
             metadata.setSeriesNumber(5.0f);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub2-series-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("name=\"calibre:series\"");
@@ -665,7 +630,7 @@ class EpubMetadataWriterTest {
             metadata.setSubtitle("A Great Subtitle");
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("A Great Subtitle");
@@ -688,7 +653,7 @@ class EpubMetadataWriterTest {
             metadata.setSubtitle(null);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).doesNotContain(">subtitle</opf:meta>");
@@ -707,7 +672,7 @@ class EpubMetadataWriterTest {
             metadata.setSubtitle(null);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-subtitle-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).doesNotContain(">subtitle</opf:meta>");
@@ -733,7 +698,7 @@ class EpubMetadataWriterTest {
             metadata.setSubtitle("A Great Subtitle");
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub2-subtitle-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             // Title should remain unchanged (not appended with subtitle)
@@ -765,7 +730,7 @@ class EpubMetadataWriterTest {
             metadata.setPageCount(350);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub3-booklore-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("property=\"booklore:page_count\"");
@@ -793,7 +758,7 @@ class EpubMetadataWriterTest {
             metadata.setPageCount(350);
 
             File epubFile = createEpubWithOpf(opfContent, "test-epub2-booklore-" + System.nanoTime() + ".epub");
-            writer.saveMetadataToFile(epubFile, metadata, null, new MetadataClearFlags());
+            writer.saveMetadataToFile(epubFile, metadata, new MetadataClearFlags());
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("name=\"booklore:page_count\"");
@@ -810,8 +775,7 @@ class EpubMetadataWriterTest {
     class CoverTests {
         @Test
         void shouldCreateManifestItemIfNoneExist() throws Exception {
-            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
-            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+            var thumbnailData = new byte[]{0x01, 0x02, 0x03};
 
             File epubFile = createEpubWithOpf(
                     """
@@ -825,8 +789,7 @@ class EpubMetadataWriterTest {
                     "no-cover-" + System.nanoTime() + ".epub"
             );
 
-            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
-
+            writer.replaceCoverImageFromBytes(epubFile, thumbnailData);
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("href=\"cover.");
@@ -834,8 +797,7 @@ class EpubMetadataWriterTest {
 
         @Test
         void shouldAddEpub3CoverImageTag() throws Exception {
-            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
-            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+            var thumbnailData = new byte[]{0x01, 0x02, 0x03};
 
             File epubFile = createEpubWithOpf(
                     """
@@ -849,8 +811,7 @@ class EpubMetadataWriterTest {
                     "no-cover-" + System.nanoTime() + ".epub"
             );
 
-            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
-
+            writer.replaceCoverImageFromBytes(epubFile, thumbnailData);
 
             String content = readOpfContent(epubFile);
             assertThat(content).contains("properties=\"cover-image\"");
@@ -858,8 +819,7 @@ class EpubMetadataWriterTest {
 
         @Test
         void shouldAllowOnlyOneCoverImagePropertiesEpub3() throws Exception {
-            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
-            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+            var thumbnailData = new byte[]{0x01, 0x02, 0x03};
 
             File epubFile = createEpubWithOpf(
                     """
@@ -877,8 +837,7 @@ class EpubMetadataWriterTest {
                     "cover-" + System.nanoTime() + ".epub"
             );
 
-            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
-
+            writer.replaceCoverImageFromBytes(epubFile, thumbnailData);
 
             String content = readOpfContent(epubFile);
             var pattern = Pattern.compile("properties=\"cover-image\"");
@@ -892,8 +851,7 @@ class EpubMetadataWriterTest {
 
         @Test
         void shouldMitigateMediaTypeMismatch() throws Exception {
-            Path thumbnailPath = tempDir.resolve("thumbnail-" + System.nanoTime()).toAbsolutePath();
-            Files.write(thumbnailPath, new byte[]{0x01, 0x02, 0x03});
+            var thumbnailData = new byte[]{0x01, 0x02, 0x03};
 
             File epubFile = createEpubWithOpf(
                     """
@@ -909,8 +867,7 @@ class EpubMetadataWriterTest {
                     "no-cover-" + System.nanoTime() + ".epub"
             );
 
-            writer.saveMetadataToFile(epubFile, metadata, thumbnailPath.toString(), new MetadataClearFlags());
-
+            writer.replaceCoverImageFromBytes(epubFile, thumbnailData);
 
             String content = readOpfContent(epubFile);
 
