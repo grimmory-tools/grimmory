@@ -44,10 +44,7 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 export class OpdsSettings implements OnInit {
 
   opdsEndpoint = `${API_CONFIG.BASE_URL}/api/v1/opds`;
-  komgaEndpoint = `${API_CONFIG.BASE_URL}/komga`;
   opdsEnabled = false;
-  komgaApiEnabled = false;
-  komgaGroupUnknown = true;
 
   private opdsService = inject(OpdsService);
   private confirmationService = inject(ConfirmationService);
@@ -116,10 +113,8 @@ export class OpdsSettings implements OnInit {
 
   private applyAppSettings(settings: AppSettings): void {
     this.opdsEnabled = settings.opdsServerEnabled ?? false;
-    this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
-    this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
 
-    if (this.opdsEnabled || this.komgaApiEnabled) {
+    if (this.opdsEnabled) {
       if (!this.hasLoadedUsers) {
         this.loadUsers();
       }
@@ -216,54 +211,11 @@ export class OpdsSettings implements OnInit {
 
   toggleOpdsServer(): void {
     this.saveSetting(AppSettingKey.OPDS_SERVER_ENABLED, this.opdsEnabled);
-    if (this.opdsEnabled || this.komgaApiEnabled) {
+    if (this.opdsEnabled) {
       this.loadUsers();
     } else {
       this.users.set([]);
     }
-  }
-
-  toggleKomgaApi(): void {
-    this.saveKomgaSetting(AppSettingKey.KOMGA_API_ENABLED, this.komgaApiEnabled);
-    if (this.opdsEnabled || this.komgaApiEnabled) {
-      this.loadUsers();
-    } else {
-      this.users.set([]);
-    }
-  }
-
-  copyKomgaEndpoint(): void {
-    navigator.clipboard.writeText(this.komgaEndpoint)
-      .then(() => {
-        this.showMessage(
-          'success',
-          this.t.translate('common.success'),
-          this.t.translate('settingsOpds.komgaCopied')
-        );
-      })
-      .catch(() => {
-        this.showMessage(
-          'error',
-          this.t.translate('common.error'),
-          this.t.translate('settingsOpds.copyFailed')
-        );
-      });
-  }
-
-  toggleKomgaGroupUnknown(): void {
-    this.appSettingsService.saveSettings([{key: AppSettingKey.KOMGA_GROUP_UNKNOWN, newValue: this.komgaGroupUnknown}]).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => {
-        const successMessage = (this.komgaGroupUnknown === true)
-          ? this.t.translate('settingsOpds.groupEnabled')
-          : this.t.translate('settingsOpds.groupDisabled');
-        this.showMessage('success', this.t.translate('settingsOpds.settingsSaved'), successMessage);
-      },
-      error: () => {
-        this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsOpds.settingsError'));
-      }
-    });
   }
 
   private saveSetting(key: string, value: unknown): void {
@@ -274,22 +226,6 @@ export class OpdsSettings implements OnInit {
         const successMessage = (value === true)
           ? this.t.translate('settingsOpds.opdsEnabled')
           : this.t.translate('settingsOpds.opdsDisabled');
-        this.showMessage('success', this.t.translate('settingsOpds.settingsSaved'), successMessage);
-      },
-      error: () => {
-        this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsOpds.settingsError'));
-      }
-    });
-  }
-
-  private saveKomgaSetting(key: string, value: unknown): void {
-    this.appSettingsService.saveSettings([{key, newValue: value}]).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => {
-        const successMessage = (value === true)
-          ? this.t.translate('settingsOpds.komgaEnabled')
-          : this.t.translate('settingsOpds.komgaDisabled');
         this.showMessage('success', this.t.translate('settingsOpds.settingsSaved'), successMessage);
       },
       error: () => {
