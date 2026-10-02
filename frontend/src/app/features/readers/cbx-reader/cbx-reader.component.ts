@@ -1979,7 +1979,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private async findSeriesNeighbours(bookId: number, seriesName: string): Promise<{previous: Book | null; next: Book | null} | null> {
-    const seriesIds = await this.queryClient.query(this.bookQuery.ids({facets: {series: [seriesName]}, facetLogic: 'or', sort: SERIES_SORT}));
+    const seriesIds = await this.queryClient.query(this.bookQuery.ids({facets: {series: [seriesName]}, sort: SERIES_SORT}));
     const index = seriesIds.indexOf(bookId);
     if (index === -1) {
       return null;
