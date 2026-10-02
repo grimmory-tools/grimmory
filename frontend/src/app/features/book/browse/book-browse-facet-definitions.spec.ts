@@ -26,7 +26,7 @@ describe('book browse facets', () => {
       AVAILABLE,
       [group('genre', [['Drama', 90], ['Gothic', 5]])],
       definitions,
-      {genre: ['Comedy', 'Farce']},
+      {genre: ['Comedy'], '-genre': ['Farce']},
     );
     expect(genres[0].values.map(item => [item.value, item.count]))
       .toEqual([['Drama', 90], ['Gothic', 5], ['Comedy', 0], ['Farce', 0]]);

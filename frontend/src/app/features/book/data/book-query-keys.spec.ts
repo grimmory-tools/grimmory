@@ -12,7 +12,6 @@ describe('book query keys', () => {
   const query = {
     query: 'dune',
     facets: {genre: ['Fantasy']} as const,
-    facetLogic: 'or' as const,
     sort: [{key: 'title', direction: 'asc'}] as const,
   };
   const page = normalizeBookPageParams({...query, size: 20});
@@ -59,7 +58,6 @@ describe('book query keys', () => {
 const PARAMS: BookPageParams = {
   query: 'dune',
   facets: {genre: ['Science Fiction']},
-  facetLogic: 'or',
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };

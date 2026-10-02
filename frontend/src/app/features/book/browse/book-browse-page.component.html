@@ -48,7 +48,7 @@
             [chips]="chipsBand().chips"
             [query]="chipsBand().query"
             [mobile]="isMobile()"
-            (removeChip)="onToggleFacet({key: $event.key, value: $event.value, selected: false})"
+            (removeChip)="onToggleFacet({key: $event.key, value: $event.value, state: null, matchAll: false})"
             (removeSearch)="onClearQuery()"
             (clearAll)="onClearAllFilters()" />
         </div>
@@ -73,7 +73,7 @@
           [selectMode]="mobileSelectMode()"
           [openMenuBookId]="menuOpenBookId()"
           (sortTermsChange)="preferences.setSortTerms($event)"
-          (facetRequested)="onToggleFacet({key: $event.key, value: $event.value, selected: true})"
+          (facetRequested)="onFacetRequested($event)"
           (menuRequested)="bookMenu()?.openFor($event.book, $event.request)"
           (detailRequested)="onBookDetailRequested($event)"
           (retryInitial)="presentation.retryInitial()"
@@ -151,6 +151,7 @@
               [openKeys]="queries.openKeys()"
               [searchTerms]="queries.searchTerms()"
               (toggleValue)="onToggleFacet($event)"
+              (matchAllChange)="onFacetMatchAll($event)"
               (commitRange)="onCommitFacetRange($event)"
               (openChange)="queries.setOpen($event)"
               (searchChange)="queries.setSearch($event)" />

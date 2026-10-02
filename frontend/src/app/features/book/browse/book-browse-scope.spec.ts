@@ -29,14 +29,15 @@ describe('scopedFacetSelection', () => {
     expect(scopedFacetSelection(selection, null)).toBe(selection);
   });
 
-  it('gives the scope sole ownership of its facet key, even on an empty selection', () => {
+  it('adds the scope as a must-have alongside other picks, even on an empty selection', () => {
     const library = bookBrowseScope(convertToParamMap({libraryId: '3'}), {});
     expect(scopedFacetSelection({genre: ['Fantasy'], library: ['99']}, library)).toEqual({
       genre: ['Fantasy'],
-      library: ['3'],
+      library: ['99'],
+      '+library': ['3'],
     });
 
     const unshelved = bookBrowseScope(convertToParamMap({}), {browseScope: 'unshelved'});
-    expect(scopedFacetSelection(EMPTY_FACET_SELECTION, unshelved)).toEqual({shelf_status: ['unshelved']});
+    expect(scopedFacetSelection(EMPTY_FACET_SELECTION, unshelved)).toEqual({'+shelf_status': ['unshelved']});
   });
 });
