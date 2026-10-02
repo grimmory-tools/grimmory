@@ -49,6 +49,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional
 public class BookCoverService {
+
+    private static final int BATCH_SIZE = 100;
+
     private final AppProperties appProperties;
     private final BookRepository bookRepository;
     private final NotificationService notificationService;
