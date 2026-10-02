@@ -49,7 +49,7 @@ export class DashboardScrollerComponent {
   private readonly rowQuery = injectQuery(() => {
     const params = this.params();
     return {
-      ...this.bookQuery.page(params ?? {facets: {}, facetLogic: 'or', sort: [], size: 1}),
+      ...this.bookQuery.page(params ?? {facets: {}, sort: [], size: 1}),
       enabled: params !== null,
     };
   });

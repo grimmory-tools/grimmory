@@ -5272,7 +5272,8 @@
       "minUnit": "Min unit",
       "maxUnit": "Max unit",
       "min": "Min",
-      "max": "Max"
+      "max": "Max",
+      "excluded": "Excluded"
     },
     "book": {
       "empty": "No books here yet.",
@@ -5301,6 +5302,13 @@
       "smallerCards": "Smaller Cards",
       "largerCards": "Larger Cards",
       "showFilters": "Show Filters",
+      "filters": "Filters",
+      "tickToExclude": "Tick Again to Exclude",
+      "filterLogic": "Filter Logic",
+      "matchAny": "Match Any",
+      "matchAll": "Match All",
+      "any": "Any",
+      "all": "All",
       "columns": "Columns",
       "resetColumns": "Reset to Default"
     },

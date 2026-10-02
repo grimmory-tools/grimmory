@@ -68,7 +68,6 @@ export class CommandPaletteService {
   private readonly bookSearchParams = computed<BookPageParams>(() => ({
     query: this.debouncedBookQuery(),
     facets: EMPTY_FACET_SELECTION,
-    facetLogic: 'or',
     sort: [{key: 'title', direction: 'asc'}],
     size: BOOK_RESULT_LIMIT,
   }));

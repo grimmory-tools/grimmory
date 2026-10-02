@@ -23,6 +23,8 @@ import {libraryShelfMenuAvailable} from '../components/library-shelf-menu/librar
 import {
   browseFilterGroups,
   browseFilterChips,
+  browseFacetPicks,
+  hasBrowseFacetValues,
   withBrowseFacetRange,
   type BrowseFacetDefinitions,
   type BrowseFilterChip,
@@ -58,19 +60,17 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
 
   const collectionParams = computed<BookCollectionFilterParams>(() => ({
     facets: scopedFacetSelection(selection(), scope()),
-    facetLogic: 'or',
     query: normalizeRemoteSearchTerm(query()) || undefined,
   }));
   const scopeParams = computed<BookCollectionFilterParams>(() => ({
     facets: scopedFacetSelection(EMPTY_FACET_SELECTION, scope()),
-    facetLogic: 'or',
   }));
   const isEnabled = () => enabled?.() ?? true;
 
   const indexQuery = injectQuery(() => bookQuery.facetIndex(scopeParams()));
   const available = computed<ReadonlySet<string>>(() => new Set(indexQuery.data()?.facetKeys));
 
-  const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => (selection()[key]?.length ?? 0) > 0);
+  const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => hasBrowseFacetValues(selection(), key));
   const openKeys = signal<ReadonlySet<BookQueryFacetKey>>(new Set([...OPEN_RAIL_FACETS, ...selectedKeys]));
   const searchTerms = signal<Readonly<Partial<Record<BookQueryFacetKey, string>>>>({});
   const debouncedSearchTerms = debouncedSignal(searchTerms, SEARCH_DEBOUNCE_MS);
@@ -131,7 +131,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const railGroups = computed<BrowseFilterGroup<BookQueryFacetKey>[]>(() =>
     frame().map(group => ({
       ...group,
-      picks: new Set(selection()[group.key] ?? []),
+      picks: browseFacetPicks(selection(), group.key),
       loading: loadingKeys().has(group.key),
     })));
   const chips = computed<BrowseFilterChip<BookQueryFacetKey>[]>(() =>
@@ -173,9 +173,9 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
       open ? new Set([...keys, key]) : new Set([...keys].filter(openKey => openKey !== key))),
     setSearch: ({key, term}: BrowseFilterSearch<BookQueryFacetKey>) =>
       searchTerms.update(terms => ({...terms, [key]: term})),
-    withRange: (current: FacetValueMap, {key, min, max}: BrowseFilterRangeCommit<BookQueryFacetKey>) => {
+    withRange: (current: FacetValueMap, {key, min, max}: BrowseFilterRangeCommit<BookQueryFacetKey>, matchAll: boolean) => {
       const bands = served().find(group => group.key === key)?.values ?? [];
-      return withBrowseFacetRange(current, key, min, max, new Set(bands.map(value => value.value)));
+      return withBrowseFacetRange(current, key, min, max, new Set(bands.map(value => value.value)), matchAll);
     },
   };
 }
