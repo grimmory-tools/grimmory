@@ -1,7 +1,6 @@
 package org.booklore.service.browse;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
@@ -30,7 +29,7 @@ public class BookFilterSpecifications {
     public Specification<BookEntity> base(String query, Map<String, List<String>> facets, FacetLogic facetLogic,
                                           Long userId, boolean isAdmin, Set<Long> libraryIds, String omitFacet) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
-        specs.add(AppBookSpecification.notDeleted());
+        specs.add(BookSpecification.notDeleted());
         if (!isAdmin) {
             specs.add(inLibraries(libraryIds));
             specs.add(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(userId)));
@@ -47,7 +46,7 @@ public class BookFilterSpecifications {
             }
             specs.add(facetRegistry.toSpecification(entry.getKey(), entry.getValue(), facetLogic, userId));
         }
-        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+        return BookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private static Specification<BookEntity> inLibraries(Set<Long> libraryIds) {

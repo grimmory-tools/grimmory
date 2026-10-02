@@ -1,14 +1,13 @@
 package org.booklore.service.book;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.app.specification.AppBookSpecification;
+import org.booklore.service.browse.BookSpecification;
 import org.booklore.mapper.v2.BookMapperV2;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.BookRecommendationLite;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserContentRestrictionRepository;
 import org.booklore.security.policy.ContentRestrictionSpecification;
@@ -88,7 +87,7 @@ public class BookQueryService {
                 libraryIds == null || libraryIds.isEmpty()
                         ? cb.disjunction()
                         : root.get("library").get("id").in(libraryIds);
-        return AppBookSpecification.notDeleted()
+        return BookSpecification.notDeleted()
                 .and(inLibraries)
                 .and(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(userId)));
     }
