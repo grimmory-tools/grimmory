@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
@@ -40,6 +40,8 @@ import {
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
+import {isPageTurnSwipe} from './core/cbx-swipe.util';
+import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, Point, toPoint, wheelZoomFactor} from './core/cbx-page-zoom';
 
 
 @Component({
@@ -80,8 +82,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
   /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
+  private static readonly DRAG_CLICK_SUPPRESS_MS = 300;
+  /** Mouse events this soon after a touch are the browser's emulated ones and are ignored. */
+  private static readonly TOUCH_MOUSE_EMULATION_MS = 800;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private progressSaveSubject$ = new Subject<void>();
 
   bookType = signal<BookType | null>(null);
@@ -97,9 +103,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
   fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
   scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
-
-  private touchStartX = 0;
-  private touchEndX = 0;
 
   currentBook = signal<Book | null>(null);
   nextBookInSeries = signal<Book | null>(null);
@@ -149,9 +152,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
   private slideshowTimer: ReturnType<typeof setInterval> | null = null;
 
-  // Double-tap zoom
-  private lastTapTime = 0;
-  private originalFitMode: CbxFitMode | null = null;
+  // Pinch / double-tap / Ctrl+wheel zoom and drag-to-pan
+  private readonly pageZoom = new CbxPageZoom(
+    () => this.getImageScrollContainer(),
+    () => this.scrollMode() === CbxScrollMode.PAGINATED ? 'page' : 'strip',
+  );
+  private lastWindowWidth = window.innerWidth;
+  /** performance.now() deadline; clicks before it end a drag. */
+  private suppressClicksUntil = 0;
 
   // Shortcuts help dialog
   showShortcutsHelp = signal(false);
@@ -173,6 +181,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   /** 50–100: max width of strip column (infinite / long strip). */
   stripMaxWidthPercent = signal(100);
+  /** Strip column width; scaled by the pinch zoom through --cbx-zoom. */
+  protected readonly stripColumnWidth = computed(
+    () => `calc(${this.cbxQuickSettingsState().stripMaxWidthPercent}% * var(--cbx-zoom, 1))`
+  );
 
   /** Kavita-style hint when archive looks like vertical webtoon strips. */
   showWebtoonSuggestion = signal(false);
@@ -205,7 +217,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   // Swipe double-action prevention
   private hasHitRightScroll = signal(false);
   private hasHitZeroScroll = signal(false);
+
+  // Touch and mouse drag gestures
+  /** Where the current one-finger or mouse drag started, for swipe detection. */
+  private gestureStart = {x: 0, y: 0, scrollLeft: 0};
+  private isMouseDragging = false;
+  private lastTouchTime = 0;
   private touchMoveCount = 0;
+  /** True once a second finger touched down; such gestures never turn the page. */
+  private gestureHadMultiTouch = false;
 
   // Canvas split state
   canvasSplitState = signal<'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART'>('NO_SPLIT');
@@ -293,6 +313,35 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     effect(() => {
       this.sidebarService.notes();
       this.updateNotesState();
+    });
+
+    // Capture phase: swallow the click that ends a mouse drag.
+    const suppressDragClick = (event: MouseEvent) => {
+      if (performance.now() < this.suppressClicksUntil) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    // Native (not @HostListener) so ordinary wheel scrolling doesn't schedule change detection.
+    const host = this.hostRef.nativeElement;
+    host.addEventListener('click', suppressDragClick, true);
+    host.addEventListener('wheel', this.onWheel, {passive: false});
+    this.destroyRef.onDestroy(() => {
+      host.removeEventListener('click', suppressDragClick, true);
+      host.removeEventListener('wheel', this.onWheel);
+    });
+
+    // Zoom resets on page turn and layout changes; strips ignore currentPage since scrolling changes it.
+    effect(() => {
+      if (this.scrollMode() === CbxScrollMode.PAGINATED) this.currentPage();
+      this.bookId();
+      this.stripMaxWidthPercent();
+      this.fitMode();
+      this.pageViewMode();
+      untracked(() => {
+        this.pageZoom.reset();
+        this.afterNextPaint(() => this.refreshPanCursor());
+      });
     });
   }
 
@@ -1818,26 +1867,117 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.changedTouches[0].screenX;
-    this.touchMoveCount = 0;
+    this.lastTouchTime = performance.now();
+    if (event.touches.length === 1) {
+      this.startGesture(toPoint(event.changedTouches[0]));
+      this.touchMoveCount = 0;
+      this.gestureHadMultiTouch = false;
+      // Scripted pan (container is touch-action: none) so a late second finger can't race native scroll.
+      if (this.isOnPage(event.target) && this.pageZoom.canPan) this.pageZoom.beginPan(toPoint(event.touches[0]));
+      return;
+    }
+
+    this.gestureHadMultiTouch = true;
+    if (event.touches.length === 2 && !this.pageZoom.isPinching && this.isOnPage(event.target)) {
+      if (this.pageZoom.beginPinch(toPoint(event.touches[0]), toPoint(event.touches[1])) && event.cancelable) {
+        event.preventDefault();
+      }
+    }
   }
 
-  @HostListener('touchmove')
-  onTouchMove() {
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
     this.touchMoveCount++;
+    if (this.pageZoom.isPinching && event.touches.length === 2) {
+      if (event.cancelable) event.preventDefault();
+      this.pageZoom.updatePinch(toPoint(event.touches[0]), toPoint(event.touches[1]));
+    } else if (this.pageZoom.isPanning && event.touches.length === 1) {
+      if (event.cancelable) event.preventDefault();
+      this.pageZoom.updatePan(toPoint(event.touches[0]));
+    }
   }
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
+    this.lastTouchTime = performance.now();
+    if (this.pageZoom.isPinching && event.touches.length < 2) {
+      this.pageZoom.endPinch();
+      // Lifting one finger of a pinch continues as a one-finger pan.
+      if (event.touches.length === 1 && this.pageZoom.canPan) this.pageZoom.beginPan(toPoint(event.touches[0]));
+    } else if (event.touches.length === 0) {
+      this.pageZoom.endPan();
+    }
+    if (this.gestureHadMultiTouch) return;
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
-      this.handleSwipeGesture();
+      this.handleSwipeGesture(toPoint(event.changedTouches[0]));
     }
+  }
+
+  @HostListener('touchcancel')
+  onTouchCancel() {
+    this.pageZoom.endPinch();
+    this.pageZoom.endPan(false);
+  }
+
+  /** Ctrl+wheel, which is also how desktop browsers report trackpad pinch. */
+  private readonly onWheel = (event: WheelEvent): void => {
+    if (!event.ctrlKey) return;
+    event.preventDefault();
+    this.pageZoom.zoomBy(wheelZoomFactor(event.deltaY, event.deltaMode), toPoint(event));
+    this.refreshPanCursor();
+  };
+
+  /** Pan/zoom only starts on the page area, not header/footer/sidebar. */
+  private isOnPage(target: EventTarget | null): boolean {
+    return target instanceof Node && !!this.getImageScrollContainer()?.contains(target);
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (performance.now() - this.lastTouchTime < CbxReaderComponent.TOUCH_MOUSE_EMULATION_MS) return;
+    if (event.button !== 0 || this.isMagnifierActive() || !this.isOnPage(event.target)) return;
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
+    // Paginated drags can always turn the page, like touch swipes; strips only pan.
+    const canPan = this.pageZoom.canPan;
+    if (!canPan && this.scrollMode() !== CbxScrollMode.PAGINATED) return;
+
+    // Stops the browser's native image drag and text selection.
+    event.preventDefault();
+    this.isMouseDragging = true;
+    this.startGesture(toPoint(event));
+    this.pageZoom.beginPan(toPoint(event));
+    if (canPan) this.getImageScrollContainer()?.classList.add('is-dragging');
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent): void {
+    if (!this.isMouseDragging) return;
+    this.isMouseDragging = false;
+    this.pageZoom.endPan();
+    this.getImageScrollContainer()?.classList.remove('is-dragging');
+    if (this.pageZoom.panMoved) {
+      this.suppressClicksUntil = performance.now() + CbxReaderComponent.DRAG_CLICK_SUPPRESS_MS;
+      this.handleSwipeGesture(toPoint(event));
+    }
+  }
+
+  private startGesture(at: Point): void {
+    this.gestureStart = {...at, scrollLeft: this.getImageScrollContainer()?.scrollLeft ?? 0};
+  }
+
+  private refreshPanCursor(): void {
+    this.getImageScrollContainer()?.classList.toggle('can-pan', !this.isMagnifierActive() && this.pageZoom.canPan);
   }
 
   @HostListener('window:resize')
   onResize() {
+    // Only width changes invalidate zoom (the mobile URL bar only resizes height).
+    if (window.innerWidth !== this.lastWindowWidth) {
+      this.lastWindowWidth = window.innerWidth;
+      this.pageZoom.reset();
+    }
+    this.refreshPanCursor();
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
   }
@@ -1845,6 +1985,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     this.lastMouseEvent = event;
+    if (this.isMouseDragging) {
+      this.pageZoom.updatePan(toPoint(event));
+    } else {
+      this.refreshPanCursor();
+    }
     this.visibilityManager.handleMouseMove(event.clientY);
     if (this.isMagnifierActive()) {
       this.updateMagnifier(event);
@@ -1867,12 +2012,17 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.visibilityManager.setFooterHovered(hovered);
   }
 
-  private handleSwipeGesture() {
+  private handleSwipeGesture(end: Point) {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
-    const delta = this.touchEndX - this.touchStartX;
-    const threshold = Math.min(75, window.innerWidth * 0.1);
-    if (Math.abs(delta) < threshold) return;
+    const delta = end.x - this.gestureStart.x;
+    const isSwipe = isPageTurnSwipe({
+      deltaX: delta,
+      deltaY: end.y - this.gestureStart.y,
+      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.gestureStart.scrollLeft,
+      threshold: Math.min(75, window.innerWidth * 0.1),
+    });
+    if (!isSwipe) return;
 
     const isRtl = this.readingDirection() === CbxReadingDirection.RTL;
     const shouldGoNext = isRtl ? delta > 0 : delta < 0;
@@ -2109,16 +2259,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   // Double-tap zoom
-  onImageDoubleClick(): void {
-    if (this.originalFitMode === null) {
-      // Store current fit mode and switch to actual size
-      this.originalFitMode = this.fitMode();
-      this.onFitModeChange(CbxFitMode.ACTUAL_SIZE);
-    } else {
-      // Restore original fit mode
-      this.onFitModeChange(this.originalFitMode as CbxFitMode);
-      this.originalFitMode = null;
-    }
+  onImageDoubleClick(event: MouseEvent): void {
+    this.pageZoom.zoomTo(this.pageZoom.isZoomed ? CBX_MIN_ZOOM : CBX_DOUBLE_TAP_ZOOM, toPoint(event));
+    this.refreshPanCursor();
   }
 
   // Double page detection
@@ -2246,6 +2389,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopSlideshow();
+    this.pageZoom.stopFling();
     if (this.infiniteScrollPageDebounceTimer) {
       clearTimeout(this.infiniteScrollPageDebounceTimer);
       this.infiniteScrollPageDebounceTimer = null;
