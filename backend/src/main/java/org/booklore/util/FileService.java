@@ -1,6 +1,7 @@
 package org.booklore.util;
 
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.CoverCroppingSettings;
@@ -15,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Graphics2D;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -301,63 +304,81 @@ public class FileService {
     // ========================================
 
     public void createThumbnailFromFile(long bookId, MultipartFile file) {
+        BufferedImage originalImage = null;
         try {
             validateCoverFile(file);
-            BufferedImage originalImage;
             try (InputStream inputStream = file.getInputStream()) {
                 originalImage = readImage(inputStream);
             }
             if (originalImage == null) {
-                log.warn("Could not decode image from file, skipping thumbnail creation for book: {}", bookId);
-                return;
+                log.error("Could not decode image from file for book: {}", bookId);
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
             boolean success = saveCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
-            originalImage.flush(); // Release resources after processing
             log.info("Cover images created and saved for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the thumbnail: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
     public void createThumbnailFromBytes(long bookId, byte[] imageBytes) {
+        BufferedImage originalImage = null;
         try {
-            BufferedImage originalImage = readImage(imageBytes);
+            originalImage = readImage(imageBytes);
             if (originalImage == null) {
-                log.warn("Skipping thumbnail creation for book {}: image decode failed", bookId);
-                return;
+                log.error("Could not decode image from file for book: {}", bookId);
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
             boolean success = saveCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
-            originalImage.flush();
-            log.info("Cover images created and saved from bytes for book ID: {}", bookId);
+            log.info("Cover images created and saved for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from bytes: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
     public void createThumbnailFromUrl(long bookId, String imageUrl) {
+        BufferedImage originalImage = null;
         try {
-            BufferedImage originalImage = downloadImageFromUrl(imageUrl);
+            originalImage = downloadImageFromUrl(imageUrl);
+
             if (originalImage == null) {
-                log.warn("Skipping thumbnail creation for book {}: download/decode failed", bookId);
-                return;
+                log.error("Could not decode image from file for book: {}", bookId);
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
             boolean success = saveCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
             }
-            originalImage.flush();
-            log.info("Cover images created and saved from URL for book ID: {}", bookId);
+            log.info("Cover images created and saved for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating thumbnail from URL: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create cover thumbnail").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
@@ -366,20 +387,28 @@ public class FileService {
     // ========================================
 
     public void createAuthorThumbnailFromUrl(long authorId, String imageUrl) {
+        BufferedImage originalImage = null;
         try {
-            BufferedImage originalImage = downloadImageFromUrl(imageUrl);
+            originalImage = downloadImageFromUrl(imageUrl);
             if (originalImage == null) {
-                log.warn("Skipping author thumbnail creation for author {}: download/decode failed", authorId);
-                return;
+                log.warn("Could not decode image from file for author {}: download/decode failed", authorId);
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save author images");
             }
             boolean success = saveAuthorImages(originalImage, authorId);
             if (!success) {
-                log.warn("Failed to save author images for author ID: {}", authorId);
+                log.error("Failed to save author images for author ID: {}", authorId);
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save author images");
             }
-            originalImage.flush();
             log.info("Author images created and saved from URL for author ID: {}", authorId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
-            log.warn("Failed to create author thumbnail from URL for author {}: {}", authorId, e.getMessage());
+            log.error("Failed to create author thumbnail from URL for author {}: {}", authorId, e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to create author thumbnail").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
@@ -476,63 +505,80 @@ public class FileService {
     // ========================================
 
     public void createAudiobookThumbnailFromFile(long bookId, MultipartFile file) {
+        BufferedImage originalImage = null;
         try {
             validateCoverFile(file);
-            BufferedImage originalImage;
             try (InputStream inputStream = file.getInputStream()) {
                 originalImage = readImage(inputStream);
             }
             if (originalImage == null) {
                 log.warn("Could not decode image from file, skipping audiobook thumbnail creation for book: {}", bookId);
-                return;
+                throw ApiError.FILE_READ_ERROR.createException("Failed to read audiobook cover images");
             }
             boolean success = saveAudiobookCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images");
             }
-            originalImage.flush();
             log.info("Audiobook cover images created and saved for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating the audiobook thumbnail: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
     public void createAudiobookThumbnailFromBytes(long bookId, byte[] imageBytes) {
+        BufferedImage originalImage = null;
         try {
-            BufferedImage originalImage = readImage(imageBytes);
+            originalImage = readImage(imageBytes);
             if (originalImage == null) {
                 log.warn("Skipping audiobook thumbnail creation for book {}: image decode failed", bookId);
-                return;
+                throw ApiError.FILE_READ_ERROR.createException("Failed to read audiobook cover images");
             }
             boolean success = saveAudiobookCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images");
             }
-            originalImage.flush();
             log.info("Audiobook cover images created and saved from bytes for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from bytes: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
     public void createAudiobookThumbnailFromUrl(long bookId, String imageUrl) {
+        BufferedImage originalImage = null;
         try {
-            BufferedImage originalImage = downloadImageFromUrl(imageUrl);
+            originalImage = downloadImageFromUrl(imageUrl);
             if (originalImage == null) {
                 log.warn("Skipping audiobook thumbnail creation for book {}: download/decode failed", bookId);
-                return;
+                throw ApiError.FILE_READ_ERROR.createException("Failed to read audiobook cover images");
             }
             boolean success = saveAudiobookCoverImages(originalImage, bookId);
             if (!success) {
                 throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images");
             }
-            originalImage.flush();
             log.info("Audiobook cover images created and saved from URL for book ID: {}", bookId);
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while creating audiobook thumbnail from URL: {}", e.getMessage(), e);
-            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+            throw ApiError.FILE_READ_ERROR.createException("Failed to save audiobook cover images").initCause(e);
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush(); // Release resources after processing
+            }
         }
     }
 
