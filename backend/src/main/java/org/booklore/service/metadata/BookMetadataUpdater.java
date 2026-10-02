@@ -129,7 +129,12 @@ public class BookMetadataUpdater {
             metadataWriterFactory.getWriter(bookType).ifPresent(writer -> {
                 try {
                     String thumbnailUrl = updateThumbnail ? newMetadata.getThumbnailUrl() : null;
-                    if (Boolean.TRUE.equals(metadata.getCoverLocked())) {
+
+                    boolean isCoverLocked = bookType == BookFileType.AUDIOBOOK ?
+                            Boolean.TRUE.equals(metadata.getAudiobookCoverLocked()) :
+                            Boolean.TRUE.equals(metadata.getCoverLocked());
+
+                    if (isCoverLocked) {
                         log.debug("Blocked thumbnail update, cover is locked.");
                         thumbnailUrl = null;
                     }
@@ -673,17 +678,21 @@ public class BookMetadataUpdater {
     }
 
     private void updateThumbnailIfNeeded(long bookId, BookEntity bookEntity, BookMetadata m, BookMetadataEntity e, boolean set, BookFileType bookType) {
-        if (Boolean.TRUE.equals(e.getCoverLocked())) {
-            return;
-        }
         if (!set) return;
         if (!StringUtils.hasText(m.getThumbnailUrl())) return;
         try {
             if (bookType == BookFileType.AUDIOBOOK) {
-                if (Boolean.TRUE.equals(e.getAudiobookCoverLocked())) return;
+                if (Boolean.TRUE.equals(e.getAudiobookCoverLocked())) {
+                    return;
+                }
+
                 fileService.createAudiobookThumbnailFromUrl(bookId, m.getThumbnailUrl());
                 bookEntity.getMetadata().setAudiobookCoverUpdatedOn(Instant.now());
             } else {
+                if (Boolean.TRUE.equals(e.getCoverLocked())) {
+                    return;
+                }
+
                 fileService.createThumbnailFromUrl(bookId, m.getThumbnailUrl());
                 bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
             }
