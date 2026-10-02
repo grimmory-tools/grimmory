@@ -189,11 +189,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
 
     @Override
     public void replaceCoverImageFromBytes(File bookFile, byte[] coverData) {
-        if (coverData == null || coverData.length == 0) {
-            log.warn("Cover update failed: empty or null byte array.");
-            return;
-        }
-
         if (!shouldSaveMetadataToFile(bookFile)) {
             return;
         }
