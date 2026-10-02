@@ -141,7 +141,7 @@ public class BookMetadataUpdater {
 
                     File file = bookEntity.getFullFilePath().toFile();
 
-                    if (thumbnailUrl != null) {
+                    if (StringUtils.hasText(thumbnailUrl)) {
                         var image = fileService.createThumbnailFromUrl(bookEntity.getId(), thumbnailUrl);
                         byte[] coverContents = Files.readAllBytes(image.original());
                         writer.replaceCoverImage(file, coverContents);
