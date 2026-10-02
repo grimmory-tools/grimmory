@@ -46,7 +46,7 @@
     "chartjs-chart-matrix": "3.0.5",
     "class-variance-authority": "^0.7.1",
     "date-fns": "^4.4.0",
-    "dompurify": "^3.4.13",
+    "dompurify": "^3.4.16",
     "lucide-static": "1.47.0",
     "markdown-it": "^15.0.2",
     "ng-lazyload-image": "^9.1.3",
