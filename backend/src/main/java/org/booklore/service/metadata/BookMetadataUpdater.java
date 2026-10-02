@@ -697,11 +697,11 @@ public class BookMetadataUpdater {
                 bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
             }
             bookEntity.setBookCoverHash(BookCoverUtils.generateCoverHash());
+            return true;
         } catch (Exception ex) {
             log.warn("Failed to download cover for book {}: {}", bookId, ex.getMessage());
+            return false;
         }
-
-        return true;
     }
 
     private void updateLocks(BookMetadata m, BookMetadataEntity e) {
