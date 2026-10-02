@@ -1,8 +1,7 @@
-import {type BrowseFacetSelection} from '../../../shared/browse/facets';
+import {unmarkedBrowseFacetKey, type BrowseFacetKey, type BrowseFacetSelection} from '../../../shared/browse/facets';
 import {HttpParams} from '@angular/common/http';
 
 import {
-  BrowseFacetLogic,
   BrowseSortDirection,
   BrowseSortTerm,
 } from '../../../core/data/browse.models';
@@ -71,7 +70,6 @@ export const BOOK_QUERY_SORT_KEYS = [
 
 export type BookQueryFacetKey = typeof BOOK_QUERY_FACET_KEYS[number];
 export type BookQuerySortKey = typeof BOOK_QUERY_SORT_KEYS[number];
-export type FacetLogic = BrowseFacetLogic;
 export type FacetValueMap = BrowseFacetSelection<BookQueryFacetKey>;
 export type SortDirection = BrowseSortDirection;
 
@@ -82,7 +80,6 @@ export type BookSortTerm = BrowseSortTerm<BookQuerySortKey>;
 export interface BookCollectionFilterParams {
   query?: string;
   facets: FacetValueMap;
-  facetLogic: FacetLogic;
 }
 
 export interface BookQueryParams extends BookCollectionFilterParams {
@@ -110,16 +107,17 @@ export function isBookQuerySortKey(value: string): value is BookQuerySortKey {
 }
 
 export function parseFacetParams(tokens: readonly string[]): FacetValueMap {
-  const facets = new Map<BookQueryFacetKey, string[]>();
+  const facets = new Map<BrowseFacetKey<BookQueryFacetKey>, string[]>();
   for (const token of tokens) {
     const separator = token.indexOf(':');
     if (separator <= 0) {
       continue;
     }
-    const key = token.slice(0, separator);
-    if (!isBookQueryFacetKey(key)) {
+    const marked = token.slice(0, separator);
+    if (!isBookQueryFacetKey(unmarkedBrowseFacetKey(marked))) {
       continue;
     }
+    const key = marked as BrowseFacetKey<BookQueryFacetKey>;
     const value = token.slice(separator + 1).trim();
     const values = facets.get(key) ?? [];
     if (value && !values.includes(value)) {
@@ -202,12 +200,11 @@ export function normalizeBookCollectionFilterParams(
   return {
     ...(query ? {query} : {}),
     facets,
-    facetLogic: params.facetLogic,
   };
 }
 
 export function toCollectionHttpParams(params: BookCollectionFilterParams): HttpParams {
-  let httpParams = new HttpParams().set('facet_logic', params.facetLogic);
+  let httpParams = new HttpParams();
 
   if (params.query) {
     httpParams = httpParams.set('query', params.query);

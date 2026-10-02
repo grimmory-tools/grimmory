@@ -14,7 +14,6 @@ import {BookSocketService} from './book-socket.service';
 const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBookPageParams({
   size: 20,
   facets: {},
-  facetLogic: 'or',
   sort: [],
 }));
 

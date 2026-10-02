@@ -41,6 +41,7 @@ import {
 } from './book-browse-columns';
 import {bookSortDirectionIcon, bookSortField, type BookSortOption} from './book-browse-sort';
 import {type BookBrowseViewMode} from './book-browse-url-state';
+import {BookBrowseFilterMenuItemsComponent} from './book-browse-filter-menu-items.component';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {LibraryShelfMenuItemsComponent} from '../components/library-shelf-menu/library-shelf-menu-items.component';
 
@@ -59,6 +60,7 @@ import {LibraryShelfMenuItemsComponent} from '../components/library-shelf-menu/l
     AppMenuSeparatorComponent,
     AppMenuTriggerDirective,
     LibraryShelfMenuItemsComponent,
+    BookBrowseFilterMenuItemsComponent,
     LucideDynamicIcon,
     LucideEllipsis,
     LucideFunnel,
@@ -74,6 +76,8 @@ export class BookBrowseToolbarComponent {
   readonly densitySmallerDisabled = input.required<boolean>();
   readonly densityLargerDisabled = input.required<boolean>();
   readonly filtersOpen = input.required<boolean>();
+  readonly matchAll = input.required<boolean>();
+  readonly excludeOnTick = input.required<boolean>();
   readonly actionTarget = input.required<LibraryShelfMenuTarget | null>();
 
   readonly sortChange = output<BookSortTerm>();
@@ -85,6 +89,8 @@ export class BookBrowseToolbarComponent {
   readonly columnsReset = output();
   readonly densityChange = output<GridDensityDirection>();
   readonly filtersToggle = output();
+  readonly matchAllChange = output<boolean>();
+  readonly excludeOnTickChange = output<boolean>();
   readonly mobileSelectToggle = output();
 
   protected readonly stepperItemClass =

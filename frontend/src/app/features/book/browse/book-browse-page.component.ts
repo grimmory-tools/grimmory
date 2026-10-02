@@ -37,6 +37,7 @@ import {
 import {bookCollectionKeys} from '../data/book-query-keys';
 import {bookBrowseScope, bookBrowseScopePreferenceContext} from './book-browse-scope';
 import {createBookBrowseQueries} from './book-browse-queries';
+import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
 import {createBookBrowsePreferences} from './book-browse-preferences';
 import {createBookBrowseUrlState} from './book-browse-url-state';
 import {type BookBrowseMultiSortDialogResult} from './book-browse-multi-sort-dialog.component';
@@ -49,7 +50,7 @@ import {BrowseSearchInputComponent} from '../../../shared/browse/search-input/se
 import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
-  toggleBrowseFacetValue,
+  setBrowseFacetValue,
   type BrowseFilterChip,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
@@ -178,6 +179,7 @@ export class BookBrowsePageComponent {
   protected readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
 
   protected readonly urlState = createBookBrowseUrlState();
+  protected readonly filterSettings = createBookBrowseFilterSettings(this.urlState);
   private readonly routeParamMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -425,16 +427,17 @@ export class BookBrowsePageComponent {
   }
 
   protected onToggleFacet(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.urlState.setFacets(toggleBrowseFacetValue(
+    this.urlState.setFacets(setBrowseFacetValue(
       this.urlState.facets(),
       toggle.key,
       toggle.value,
-      toggle.selected,
+      toggle.state,
+      this.filterSettings.matchAll(),
     ));
   }
 
   protected onCommitFacetRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.urlState.setFacetRange(this.queries.withRange(this.urlState.facets(), commit));
+    this.urlState.setFacetRange(this.queries.withRange(this.urlState.facets(), commit, this.filterSettings.matchAll()));
   }
 
   protected onClearQuery(): void {

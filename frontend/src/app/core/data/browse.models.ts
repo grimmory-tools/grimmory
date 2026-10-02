@@ -37,7 +37,6 @@ export interface BrowseFacetIndex {
   sortTokens: string[];
 }
 
-export type BrowseFacetLogic = 'and' | 'or' | 'not';
 export type BrowseSortDirection = 'asc' | 'desc';
 
 export interface BrowseSortTerm<Key extends string = string> {
