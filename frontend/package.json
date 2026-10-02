@@ -31,7 +31,7 @@
     "@angular/router": "^22.2.0",
     "@angular/service-worker": "^22.2.0",
     "@embedpdf/pdfium": "2.15.0",
-    "@embedpdf/snippet": "2.15.0",
+    "@embedpdf/snippet": "2.15.1",
     "@jsverse/transloco": "^8.4.0",
     "@lucide/angular": "^1.31.0",
     "@openng/icons": "^1.0.0",
