@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -130,6 +131,25 @@ public class BookBrowseService {
         cq.orderBy(sortRegistry.registry().toOrders(sortTerms, root, cq, cb, userId, randomSeed));
 
         return entityManager.createQuery(cq).getResultList();
+    }
+
+    public List<Book> findByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        Long userId = user.getId();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        Specification<BookEntity> spec = filterSpecifications
+                .base(null, Map.of(), FacetLogic.AND, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null)
+                .and((root, query, cb) -> root.get("id").in(ids));
+
+        List<Book> books = bookQueryService.findBooks(spec, userId);
+        enrich(books, userId);
+
+        Map<Long, Book> byId = books.stream().collect(Collectors.toMap(Book::getId, book -> book));
+        return ids.stream().distinct().map(byId::get).filter(Objects::nonNull).toList();
     }
 
     public BrowsePage<Book> wrapLegacy(Page<Book> page, Pageable pageable) {
