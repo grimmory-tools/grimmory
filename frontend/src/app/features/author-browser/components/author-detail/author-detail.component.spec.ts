@@ -14,6 +14,8 @@ import type {AuthorDetails} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {AuthorDetailComponent} from './author-detail.component';
+import {DialogService} from '@openng/optimus-ui/dynamicdialog';
+import {createQueryClientHarness} from '../../../../core/testing/query-testing';
 
 describe('AuthorDetailComponent', () => {
   let getAuthorDetails: ReturnType<typeof vi.fn>;
@@ -24,6 +26,9 @@ describe('AuthorDetailComponent', () => {
   let setPageTitle: ReturnType<typeof vi.fn>;
   let translate: ReturnType<typeof vi.fn>;
   let messageService: Pick<MessageService, 'add'>;
+  let dialogServiceOpen: ReturnType<typeof vi.fn>;
+  let queryClientHarness: ReturnType<typeof createQueryClientHarness>;
+
   let route: {
     snapshot: {
       paramMap: ReturnType<typeof convertToParamMap>;
@@ -57,6 +62,7 @@ describe('AuthorDetailComponent', () => {
     getCurrentUser = vi.fn(() => null);
     setPageTitle = vi.fn();
     translate = vi.fn((key: string) => key);
+    dialogServiceOpen = vi.fn();
     messageService = {
       add: vi.fn(),
     };
@@ -66,6 +72,7 @@ describe('AuthorDetailComponent', () => {
         queryParamMap: convertToParamMap({}),
       },
     };
+    queryClientHarness = createQueryClientHarness();
 
     TestBed.configureTestingModule({
       providers: [
@@ -124,6 +131,13 @@ describe('AuthorDetailComponent', () => {
             translate,
           },
         },
+        {
+          provide: DialogService,
+          useValue: {
+            open: dialogServiceOpen,
+          }
+        },
+        ...queryClientHarness.providers,
       ],
     });
   });
