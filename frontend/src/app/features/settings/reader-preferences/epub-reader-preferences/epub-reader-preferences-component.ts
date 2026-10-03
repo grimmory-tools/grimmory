@@ -10,6 +10,7 @@ import {CustomFontService} from '../../../../shared/service/custom-font.service'
 import {addCustomFontsToDropdown, FontPreferenceItem} from '../../../../shared/util/custom-font.util';
 import {Skeleton} from '@openng/optimus-ui/skeleton';
 import {themes} from '../../../readers/ebook-reader/state/themes.constant';
+import {COLUMN_COUNT_LIMITS} from '../../../readers/ebook-reader/state/reader-layout.constant';
 
 @Component({
   selector: 'app-epub-reader-preferences-component',
@@ -25,6 +26,8 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
   styleUrl: './epub-reader-preferences-component.scss'
 })
 export class EpubReaderPreferencesComponent {
+
+  protected readonly columnCountLimits = COLUMN_COUNT_LIMITS;
 
   userSettings = input.required<UserSettings>();
 
@@ -144,6 +147,22 @@ export class EpubReaderPreferencesComponent {
   set maxColumnCount(value: number) {
     this.userSettings().ebookReaderSetting.maxColumnCount = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'maxColumnCount'], value);
+  }
+
+  increaseMaxColumnCount(): void {
+     this.changeMaxColumnCount(1);
+  }
+
+  decreaseMaxColumnCount(): void {
+     this.changeMaxColumnCount(-1);
+  }
+
+  private changeMaxColumnCount(delta: number): void {
+     const {min, max} = COLUMN_COUNT_LIMITS;
+     const newValue = Math.max(min, Math.min(max, this.maxColumnCount + delta));
+     if (newValue !== this.maxColumnCount) {
+       this.maxColumnCount = newValue;
+     }
   }
 
   get gap(): number {
