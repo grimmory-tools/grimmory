@@ -203,9 +203,8 @@ class BookBrowseRegistryTest {
         Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
         em.flush();
 
-        // These are the same because of how the sorting works with multiple authors.
-        // `b` has both the highest and lowest.
-        assertThat(sortedIds("authorName", user.getId())).containsExactly(b, a, c);
+        // Books with multiple authors sort by their first credited author.
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(c, a, b);
         assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, a, c);
     }
 

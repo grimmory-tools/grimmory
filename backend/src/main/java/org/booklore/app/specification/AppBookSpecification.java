@@ -436,13 +436,7 @@ public class AppBookSpecification {
      * NOT = books with NONE of the authors
      */
     public static Specification<BookEntity> withAuthors(List<String> authorNames, String mode) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(authorNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned, mode,
-                    "metadata", "authors", "name");
-        };
+        return withMetadataCollection("authors", authorNames, mode, null);
     }
 
     /**
@@ -477,13 +471,7 @@ public class AppBookSpecification {
      * Filter books by multiple categories with mode support.
      */
     public static Specification<BookEntity> withCategories(List<String> categoryNames, String mode) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(categoryNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned, mode,
-                    "metadata", "categories", "name");
-        };
+        return withMetadataCollection("categories", categoryNames, mode, null);
     }
 
     /**
@@ -502,25 +490,22 @@ public class AppBookSpecification {
      * Filter books by multiple tags with mode support.
      */
     public static Specification<BookEntity> withTags(List<String> tagNames, String mode) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(tagNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned, mode,
-                    "metadata", "tags", "name");
-        };
+        return withMetadataCollection("tags", tagNames, mode, null);
     }
 
     /**
      * Filter books by multiple moods with mode support.
      */
     public static Specification<BookEntity> withMoods(List<String> moodNames, String mode) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(moodNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
+        return withMetadataCollection("moods", moodNames, mode, null);
+    }
 
-            return buildManyToManySpec(root, query, cb, cleaned, mode,
-                    "metadata", "moods", "name");
+    public static Specification<BookEntity> withMetadataCollection(
+            String collectionAttr, List<String> names, String mode, Function<String, List<Long>> idsForName) {
+        return (root, query, cb) -> {
+            List<String> cleaned = cleanLowerCase(names);
+            if (cleaned.isEmpty()) return cb.conjunction();
+            return buildManyToManySpec(root, query, cb, cleaned, mode, collectionAttr, idsForName);
         };
     }
 
@@ -698,34 +683,21 @@ public class AppBookSpecification {
     }
 
     public static Specification<BookEntity> withComicCharacters(List<String> values, String mode) {
-        return buildComicCollectionSpec(values, mode, "characters");
+        return withComicCollection("characters", values, mode, null);
     }
 
     public static Specification<BookEntity> withComicTeams(List<String> values, String mode) {
-        return buildComicCollectionSpec(values, mode, "teams");
+        return withComicCollection("teams", values, mode, null);
     }
 
     public static Specification<BookEntity> withComicLocations(List<String> values, String mode) {
-        return buildComicCollectionSpec(values, mode, "locations");
+        return withComicCollection("locations", values, mode, null);
     }
 
-    private static Specification<BookEntity> buildComicCollectionSpec(
-            List<String> values, String mode, String collectionAttr) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(values);
-            if (cleaned.isEmpty()) return cb.conjunction();
-            
-            Subquery<Long> sub = query.subquery(Long.class);
-            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-            Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);
-            Join<?, ?> collJoin = comicJoin.join(collectionAttr, JoinType.INNER);
-            sub.select(cb.literal(1L))
-                    .where(
-                            cb.equal(metaRoot.get("id"), root.get("id")),
-                            cb.lower(collJoin.get("name")).in(cleaned)
-                    );
-            return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
-        };
+    public static Specification<BookEntity> withComicCollection(
+            String collectionAttr, List<String> values, String mode, Function<String, List<Long>> idsForName) {
+        return withMetadataCollection("comicMetadata." + collectionAttr, values,
+                "not".equals(mode) ? "not" : "or", idsForName);
     }
 
     public static Specification<BookEntity> inShelves(List<String> shelfIds, String mode) {
@@ -771,6 +743,11 @@ public class AppBookSpecification {
     }
 
     public static Specification<BookEntity> withComicCreators(List<String> values, String mode) {
+        return withComicCreators(values, mode, null);
+    }
+
+    public static Specification<BookEntity> withComicCreators(
+            List<String> values, String mode, Function<String, List<Long>> idsForName) {
         return (root, query, cb) -> {
             if (values == null || values.isEmpty()) return cb.conjunction();
 
@@ -788,7 +765,9 @@ public class AppBookSpecification {
 
                 List<Predicate> where = new ArrayList<>();
                 where.add(cb.equal(comicJoin.get("bookId"), root.get("id")));
-                where.add(cb.equal(cb.lower(creatorJoin.get("name")), name));
+                where.add(idsForName == null
+                        ? cb.equal(cb.lower(creatorJoin.get("name")), name)
+                        : creatorJoin.get("id").in(idsForName.apply(name)));
 
                 if (roleName != null) {
                     ComicCreatorRole role = parseCreatorRole(roleName);
@@ -857,7 +836,7 @@ public class AppBookSpecification {
     private static Predicate buildManyToManySpec(
             Root<BookEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
             List<String> values, String mode,
-            String metadataAttr, String collectionAttr, String nameAttr) {
+            String collectionAttr, Function<String, List<Long>> idsForName) {
 
         if ("and".equals(mode)) {
             // AND: book must have ALL values one EXISTS subquery per value
@@ -865,11 +844,13 @@ public class AppBookSpecification {
             for (String value : values) {
                 Subquery<Long> sub = query.subquery(Long.class);
                 Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-                Join<?, ?> collJoin = metaRoot.join(collectionAttr, JoinType.INNER);
+                From<?, ?> collJoin = joinCollection(metaRoot, collectionAttr);
                 sub.select(cb.literal(1L))
                         .where(
                                 cb.equal(metaRoot.get("id"), root.get("id")),
-                                cb.equal(cb.lower(collJoin.get(nameAttr)), value)
+                                idsForName == null
+                                        ? cb.equal(cb.lower(collJoin.get("name")), value)
+                                        : collJoin.get("id").in(idsForName.apply(value))
                         );
                 predicates.add(cb.exists(sub));
             }
@@ -879,17 +860,27 @@ public class AppBookSpecification {
         // OR or NOT: single EXISTS subquery with IN clause
         Subquery<Long> sub = query.subquery(Long.class);
         Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-        Join<?, ?> collJoin = metaRoot.join(collectionAttr, JoinType.INNER);
+        From<?, ?> collJoin = joinCollection(metaRoot, collectionAttr);
         sub.select(cb.literal(1L))
                 .where(
                         cb.equal(metaRoot.get("id"), root.get("id")),
-                        cb.lower(collJoin.get(nameAttr)).in(values)
+                        idsForName == null
+                                ? cb.lower(collJoin.get("name")).in(values)
+                                : collJoin.get("id").in(values.stream()
+                                        .flatMap(value -> idsForName.apply(value).stream()).distinct().toList())
                 );
 
         if ("not".equals(mode)) {
             return cb.not(cb.exists(sub));
         }
         return cb.exists(sub);
+    }
+
+    private static From<?, ?> joinCollection(From<?, ?> from, String path) {
+        for (String attribute : path.split("\\.")) {
+            from = from.join(attribute, JoinType.INNER);
+        }
+        return from;
     }
 
     @SafeVarargs
