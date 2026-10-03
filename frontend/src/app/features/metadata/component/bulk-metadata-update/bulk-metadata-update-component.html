@@ -175,6 +175,54 @@
         </div>
       </div>
 
+      <div class="form-row">
+        <!-- Age Rating -->
+        <div class="field-group field-group--half">
+          <label for="ageRating" class="field-label-row">
+            <span>Age Rating</span>
+            <div class="clear-checkbox">
+              <p-checkbox [(ngModel)]="clearFields.ageRating" [ngModelOptions]="{standalone: true}"
+                          (onChange)="onFieldClearToggle('ageRating')" binary="true" inputId="clearAgeRating"/>
+              <label for="clearAgeRating" class="clear-label">Clear</label>
+            </div>
+          </label>
+          <p-select
+            class="full-width"
+            inputId="ageRating"
+            formControlName="ageRating"
+            [options]="ageRatingOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Leave unchanged"
+            [showClear]="true"
+            [disabled]="clearFields.ageRating"
+            appendTo="body"/>
+        </div>
+
+        <!-- Content Rating -->
+        <div class="field-group field-group--half">
+          <label for="contentRating" class="field-label-row">
+            <span>Content Rating</span>
+            <div class="clear-checkbox">
+              <p-checkbox [(ngModel)]="clearFields.contentRating" [ngModelOptions]="{standalone: true}"
+                          (onChange)="onFieldClearToggle('contentRating')" binary="true" inputId="clearContentRating"/>
+              <label for="clearContentRating" class="clear-label">Clear</label>
+            </div>
+          </label>
+          <p-select
+            class="full-width"
+            inputId="contentRating"
+            formControlName="contentRating"
+            [options]="contentRatingOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Leave unchanged"
+            [showClear]="true"
+            [disabled]="clearFields.contentRating"
+            appendTo="body"/>
+        </div>
+      </div>
+
       <!-- Genres -->
       <div class="field-group">
         <label for="genres" class="field-label-row">

@@ -10,10 +10,12 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {BookService} from '../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {BulkMetadataUpdateRequest} from '../../../book/model/book.model';
+import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS} from '../../../book/model/book-value-labels';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
+import {Select} from '@openng/optimus-ui/select';
 
 @Component({
   selector: 'app-bulk-metadata-update-component',
@@ -27,8 +29,9 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
     DatePicker,
     Checkbox,
     ProgressSpinner,
-    AutoComplete
-],
+    AutoComplete,
+    Select,
+  ],
   providers: [MessageService],
   templateUrl: './bulk-metadata-update-component.html',
   styleUrl: './bulk-metadata-update-component.scss'
@@ -52,7 +55,13 @@ export class BulkMetadataUpdateComponent implements OnInit {
     genres: false,
     moods: false,
     tags: false,
+    ageRating: false,
+    contentRating: false,
   };
+
+  readonly ageRatingOptions = AGE_RATING_OPTIONS.map(({id, label}) => ({label, value: id}));
+  readonly contentRatingOptions = Object.entries(CONTENT_RATING_LABELS)
+    .map(([value, label]) => ({label, value}));
 
   private readonly config = inject(DynamicDialogConfig);
   readonly ref = inject(DynamicDialogRef);
@@ -129,7 +138,9 @@ export class BulkMetadataUpdateComponent implements OnInit {
       publishedDate: [null],
       genres: [],
       moods: [],
-      tags: []
+      tags: [],
+      ageRating: [null],
+      contentRating: [null]
     });
   }
 
@@ -213,6 +224,12 @@ export class BulkMetadataUpdateComponent implements OnInit {
 
       tags: this.clearFields.tags ? [] : (formValue.tags?.length ? formValue.tags : undefined),
       clearTags: this.clearFields.tags,
+
+      ageRating: this.clearFields.ageRating ? null : (formValue.ageRating ?? undefined),
+      clearAgeRating: this.clearFields.ageRating,
+
+      contentRating: this.clearFields.contentRating ? null : (formValue.contentRating ?? undefined),
+      clearContentRating: this.clearFields.contentRating,
 
       mergeCategories: this.mergeCategories,
       mergeMoods: this.mergeMoods,
