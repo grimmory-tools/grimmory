@@ -160,7 +160,9 @@ public class BookFacetService {
             groups.add(sortGroup(preserved));
             for (FacetDef def : FACETS) {
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, libraryIds, def.key());
-                groups.add(facetGroup(def, base, userId, facet, preserved));
+                if (hasValues(def, base, userId)) {
+                    groups.add(new FacetGroup(new Metadata("facet", def.key(), def.title()), List.of()));
+                }
             }
             List<Link> links = List.of(Link.json(List.of("self"), href(FACET_PATH, preserved)));
             return new FacetGroupsResponse(links, groups);
@@ -230,6 +232,28 @@ public class BookFacetService {
                     .toList();
         }
         return toGroup(def, counts, null, null, facet, preserved);
+    }
+
+    private boolean hasValues(FacetDef def, Specification<BookEntity> base, Long userId) {
+        return anyValue(def, base, userId) || ("file_type".equals(def.key()) && anyValue(PHYSICAL_FILE_TYPE, base, userId));
+    }
+
+    private boolean anyValue(FacetDef def, Specification<BookEntity> base, Long userId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Expression<?> value = def.value().apply(cb, root, userId);
+
+        List<Predicate> predicates = new ArrayList<>();
+        Predicate basePredicate = base.toPredicate(root, cq, cb);
+        if (basePredicate != null) {
+            predicates.add(basePredicate);
+        }
+        predicates.add(cb.isNotNull(value));
+
+        cq.select(cb.literal(1));
+        cq.where(predicates.toArray(Predicate[]::new));
+        return !entityManager.createQuery(cq).setMaxResults(1).getResultList().isEmpty();
     }
 
     private List<FacetCount> count(FacetDef def, Specification<BookEntity> base, Long userId) {
