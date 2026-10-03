@@ -76,6 +76,10 @@ describe('EpubReaderPreferencesComponent max columns', () => {
     expect(component.maxColumnCount).toBe(COLUMN_COUNT_LIMITS.min);
     expect(updatePreference).not.toHaveBeenCalled();
   });
+
+  it('uses the same 1 to 10 range as the in-reader setting', () => {
+    expect(COLUMN_COUNT_LIMITS).toEqual({min: 1, max: 10});
+  });
 });
 
 // TODO(seam): EPUB reader preferences need a mounted settings harness around form controls,
