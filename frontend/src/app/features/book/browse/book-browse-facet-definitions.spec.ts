@@ -26,7 +26,7 @@ describe('book browse facets', () => {
       AVAILABLE,
       [group('genre', [['Drama', 90], ['Gothic', 5]])],
       definitions,
-      {genre: ['Comedy', 'Farce']},
+      {genre: ['Comedy'], '-genre': ['Farce']},
     );
     expect(genres[0].values.map(item => [item.value, item.count]))
       .toEqual([['Drama', 90], ['Gothic', 5], ['Comedy', 0], ['Farce', 0]]);
@@ -44,12 +44,12 @@ describe('book browse facets', () => {
   });
 
   it('replaces a numeric range token rather than stacking it, and keeps band selections', () => {
-    let selection = withBrowseFacetRange({}, 'page_count', 100, 400, new Set());
+    let selection = withBrowseFacetRange({}, 'page_count', 100, 400, new Set(), false);
     expect(selection).toEqual({page_count: ['100..400']});
-    selection = withBrowseFacetRange(selection, 'page_count', null, 200, new Set());
+    selection = withBrowseFacetRange(selection, 'page_count', null, 200, new Set(), false);
     expect(selection).toEqual({page_count: ['*..200']});
-    expect(withBrowseFacetRange(selection, 'page_count', null, null, new Set())).toEqual({});
-    expect(withBrowseFacetRange({match_score: ['70..80', '10..20']}, 'match_score', 30, 90, new Set(['70..80'])))
+    expect(withBrowseFacetRange(selection, 'page_count', null, null, new Set(), false)).toEqual({});
+    expect(withBrowseFacetRange({match_score: ['70..80', '10..20']}, 'match_score', 30, 90, new Set(['70..80']), false))
       .toEqual({match_score: ['70..80', '30..90']});
   });
 });
