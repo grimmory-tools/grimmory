@@ -124,6 +124,7 @@ class KoboReadingStateServiceTest {
 
     private BookFileEntity setPrimaryEpub(Long bookFileId) {
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(bookFileId);
         primaryFile.setBook(testBook);
         primaryFile.setBookType(BookFileType.EPUB);

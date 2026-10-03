@@ -33,6 +33,28 @@ class LibraryFileHelperTest {
     private LibraryFileHelper libraryFileHelper;
 
     @Test
+    void supplementOnlyPhysicalBookIsNotMarkedDeleted() {
+        LibraryPathEntity libraryPath = new LibraryPathEntity();
+        libraryPath.setId(1L);
+        libraryPath.setPath(tempDir.toString());
+        BookFileEntity supplement = BookFileEntity.builder()
+                .id(11L)
+                .fileName("extras.zip")
+                .fileSubPath("")
+                .isBookFormat(false)
+                .build();
+        BookEntity book = BookEntity.builder()
+                .id(7L)
+                .isPhysical(true)
+                .libraryPath(libraryPath)
+                .bookFiles(Set.of(supplement))
+                .build();
+        supplement.setBook(book);
+
+        assertThat(libraryFileHelper.detectDeletedBookIds(List.of(), List.of(book))).isEmpty();
+    }
+
+    @Test
     void testGetAllLibraryFiles_IncludesAudiobookFolderFiles() throws IOException {
         Path authorFolder = tempDir.resolve("author");
         Path bookFolder = authorFolder.resolve("title");
@@ -465,6 +487,7 @@ class LibraryFileHelperTest {
                 .build();
 
         BookFileEntity existing = BookFileEntity.builder()
+                .isBookFormat(true)
                 .folderBased(true)
                 .fileSubPath("example")
                 .fileName("a")
@@ -499,6 +522,7 @@ class LibraryFileHelperTest {
                 .build();
 
         BookFileEntity existing = BookFileEntity.builder()
+                .isBookFormat(true)
                 .fileSubPath("example")
                 .fileName("file.epub")
                 .build();
@@ -512,6 +536,7 @@ class LibraryFileHelperTest {
         existing.setBook(book);
 
         BookFileEntity expectedMissingBookFileEntity = BookFileEntity.builder()
+                .isBookFormat(true)
                 .fileSubPath("missing")
                 .fileName("missing.epub")
                 .build();
@@ -576,6 +601,7 @@ class LibraryFileHelperTest {
                 .build();
 
         BookFileEntity bookFile = BookFileEntity.builder()
+                .isBookFormat(true)
                 .fileSubPath("example")
                 .fileName("a.epub")
                 .build();
@@ -616,6 +642,7 @@ class LibraryFileHelperTest {
                 .build();
 
         BookFileEntity audiobookFolder = BookFileEntity.builder()
+                .isBookFormat(true)
                 .folderBased(true)
                 .fileSubPath("example")
                 .fileName("a")
@@ -661,6 +688,7 @@ class LibraryFileHelperTest {
                 .build();
 
         BookFileEntity bookFile = BookFileEntity.builder()
+                .isBookFormat(true)
                 .fileSubPath("example")
                 .fileName("a.epub")
                 .build();

@@ -9,6 +9,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileExtension;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -237,6 +241,7 @@ class FileUploadServiceTest {
         primaryFile.setFileName("primary.epub");
         primaryFile.setFileSubPath(".");
         primaryFile.setBookType(BookFileType.EPUB);
+        primaryFile.setBookFormat(true);
         book.setBookFiles(Set.of(primaryFile));
 
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
@@ -280,6 +285,7 @@ class FileUploadServiceTest {
         primaryFile.setFileName("primary.epub");
         primaryFile.setFileSubPath(".");
         primaryFile.setBookType(BookFileType.EPUB);
+        primaryFile.setBookFormat(true);
         book.setBookFiles(Set.of(primaryFile));
 
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
@@ -294,6 +300,48 @@ class FileUploadServiceTest {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> service.uploadAdditionalFile(bookId, file, true, BookFileType.PDF, null));
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"extras.exe", "extras.zip", "extras.zip.001"})
+    void uploadAdditionalFile_physicalBook_rejectsNonEbookAsBookButKeepsItAsSupplement(String filename) throws IOException {
+        physicalBookWithTitle(5L, "The Dispossessed");
+        byte[] content = "supplement".getBytes();
+        MockMultipartFile file = new MockMultipartFile("file", filename, "application/octet-stream", content);
+
+        assertThatExceptionOfType(APIException.class)
+                .isThrownBy(() -> service.uploadAdditionalFile(5L, file, true, null, null))
+                .withMessageContaining("Unsupported book file extension");
+        verify(bookAdditionalFileRepository, never()).save(any());
+
+        service.uploadAdditionalFile(5L, file, false, null, null);
+
+        BookFileEntity saved = captureSavedFile();
+        assertThat(saved.getFileName()).isEqualTo(filename);
+        assertThat(saved.getFileSubPath()).isEqualTo("The Dispossessed");
+        assertThat(saved.isBookFormat()).isFalse();
+        assertThat(saved.getBookType()).isNull();
+        assertThat(Files.readAllBytes(saved.getFullFilePath())).isEqualTo(content);
+    }
+
+    private BookEntity physicalBookWithTitle(long bookId, String title) {
+        LibraryPathEntity libraryPath = LibraryPathEntity.builder().path(tempDir.toString()).build();
+        LibraryEntity library = LibraryEntity.builder().libraryPaths(List.of(libraryPath)).build();
+        BookEntity book = BookEntity.builder()
+                .id(bookId)
+                .isPhysical(true)
+                .library(library)
+                .metadata(BookMetadataEntity.builder().title(title).build())
+                .build();
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
+        when(fileMovingHelper.getFileNamingPattern(library)).thenReturn("{title}/{title}");
+        return book;
+    }
+
+    private BookFileEntity captureSavedFile() {
+        ArgumentCaptor<BookFileEntity> captor = ArgumentCaptor.forClass(BookFileEntity.class);
+        verify(bookAdditionalFileRepository).save(captor.capture());
+        return captor.getValue();
     }
 
     @Test
@@ -355,6 +403,7 @@ class FileUploadServiceTest {
         book.setLibraryPath(libPath);
         BookFileEntity primaryFile = new BookFileEntity();
         primaryFile.setBook(book);
+        primaryFile.setBookFormat(true);
         book.setBookFiles(Set.of(primaryFile));
         book.getPrimaryBookFile().setFileSubPath(".");
 

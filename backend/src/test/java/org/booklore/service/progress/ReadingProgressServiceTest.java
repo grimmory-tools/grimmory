@@ -101,9 +101,11 @@ class ReadingProgressServiceTest {
         book.setId(1L);
 
         BookFileEntity bookFile1 = new BookFileEntity();
+        bookFile1.setBookFormat(true);
         bookFile1.setBook(book);
 
         BookFileEntity bookFile2 = new BookFileEntity();
+        bookFile2.setBookFormat(true);
         bookFile2.setBook(book);
 
         UserBookFileProgressEntity progress1 = new UserBookFileProgressEntity();
@@ -152,6 +154,7 @@ class ReadingProgressServiceTest {
         progress.setLastReadTime(Instant.now().minusSeconds(100));
 
         BookFileEntity bookFile = new BookFileEntity();
+        bookFile.setBookFormat(true);
         bookFile.setBookType(BookFileType.EPUB);
 
         UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
@@ -176,6 +179,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
@@ -214,6 +218,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
@@ -257,6 +262,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.PDF);
@@ -295,6 +301,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
@@ -330,6 +337,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.PDF);
@@ -365,6 +373,7 @@ class ReadingProgressServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);

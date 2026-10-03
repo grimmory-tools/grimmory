@@ -132,15 +132,19 @@ public class FileUploadService {
                 String pattern = fileMovingHelper.getFileNamingPattern(book.getLibrary());
                 String resolvedRelativePath = PathPatternResolver.resolvePattern(book.getMetadata(), pattern, sanitizedFileName);
                 Path safeRelativePath = toSafeRelativePath(resolvedRelativePath);
-                finalFileName = safeRelativePath.getFileName().toString();
+                finalFileName = isBook ? safeRelativePath.getFileName().toString() : sanitizedFileName;
                 fileSubPath = safeRelativePath.getParent() != null
                     ? safeRelativePath.getParent().toString()
                         : "";
                 finalRootPath = FileUtils.normalizeAbsolutePath(Path.of(libraryPath.getPath()));
-                finalPath = resolvePathWithinRoot(finalRootPath, safeRelativePath.toString());
-                String extension = sanitizedFileName.substring(sanitizedFileName.lastIndexOf('.') + 1);
-                effectiveBookType = BookFileType.fromExtension(extension)
-                        .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported book file extension: " + extension));
+                finalPath = resolvePathWithinRoot(finalRootPath, buildSafeRelativePath(fileSubPath, finalFileName));
+                if (isBook) {
+                    String extension = sanitizedFileName.substring(sanitizedFileName.lastIndexOf('.') + 1);
+                    effectiveBookType = BookFileType.fromExtension(extension)
+                            .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported book file extension: " + extension));
+                } else {
+                    effectiveBookType = bookType;
+                }
             } else if (isBook) {
                 String pattern = fileMovingHelper.getFileNamingPattern(book.getLibrary());
                 String resolvedRelativePath = PathPatternResolver.resolvePattern(book.getMetadata(), pattern, sanitizedFileName);
