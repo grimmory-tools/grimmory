@@ -1,18 +1,18 @@
 FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="${PNPM_HOME}:${PATH}"
+ENV PATH="${PNPM_HOME}/bin:${PATH}"
 
 WORKDIR /workspace
 
-RUN npm install --ignore-scripts -g pnpm@11.19.0
+COPY package.json ./
+RUN ENV="/root/.shrc" SHELL="/bin/sh" \
+    npx --yes get-pnpm "$(node -p "require('./package.json').packageManager.split('@')[1]")"
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,target=/pnpm/store \
-    pnpm config set store-dir /pnpm/store && \
     pnpm fetch
 
-COPY package.json ./
 COPY frontend/package.json ./frontend/
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm install --offline --frozen-lockfile --ignore-scripts
