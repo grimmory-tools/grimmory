@@ -1,7 +1,6 @@
 export interface BrowseFacetBucket {
   readonly min?: number;
   readonly max?: number;
-  readonly stars?: number;
 }
 
 export function formatRangeToken(
@@ -37,13 +36,4 @@ export function parseRangeToken(token: string): {min: number | null; max: number
   }
   const exact = Number(token);
   return token.trim() !== '' && Number.isFinite(exact) ? {min: exact, max: exact} : null;
-}
-
-export function bucketRangeTokens(
-  buckets: readonly BrowseFacetBucket[] | undefined,
-): ReadonlySet<string> {
-  return new Set((buckets ?? []).flatMap(bucket => {
-    const token = formatRangeToken(bucket);
-    return token == null ? [] : [token];
-  }));
 }

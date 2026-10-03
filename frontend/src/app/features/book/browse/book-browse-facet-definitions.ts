@@ -8,7 +8,6 @@ import {type BookSummary} from '../data/book-response.models';
 import {
   COLUMNS_BY_KEY,
   FACET_FIELDS,
-  OPEN_RAIL_FACETS,
   type BookFacetEntity,
   type BookFacetLabelDeps,
 } from './book-browse-fields';
@@ -47,11 +46,11 @@ export function bookFacetDefinitions(deps: BookFacetLabelDeps): BrowseFacetDefin
     order: BOOK_QUERY_FACET_KEYS,
     isKey: isBookQueryFacetKey,
     labelKey: registeredFacetLabelKey,
-    openByDefault: OPEN_RAIL_FACETS,
     kind: key => FACET_FIELDS.get(key)?.facet.kind,
     valueOrder: key => FACET_FIELDS.get(key)?.facet.order,
     valueDomain: key => FACET_FIELDS.get(key)?.facet.domain,
-    valueBuckets: key => FACET_FIELDS.get(key)?.facet.buckets,
+    banded: key => FACET_FIELDS.get(key)?.facet.banded ?? false,
+    starScale: key => FACET_FIELDS.get(key)?.facet.stars,
     fileSize: key => FACET_FIELDS.get(key)?.facet.fileSize ?? false,
     valueLabel: (key, value) => FACET_FIELDS.get(key)?.facet.valueLabel?.(value, deps) ?? null,
     valueIcon: (key, value) => FACET_FIELDS.get(key)?.facet.valueIcon?.(value, deps) ?? null,
