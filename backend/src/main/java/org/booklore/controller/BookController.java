@@ -97,10 +97,12 @@ public class BookController {
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
             @Parameter(description = "Opaque pagination cursor from a prior response's links")
-            @RequestParam(required = false) String cursor) {
-        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
+            @RequestParam(required = false) String cursor,
+            @Parameter(description = "Return one item per matching series; the response grouping lists each series item's book IDs")
+            @RequestParam(name = "collapse_series", defaultValue = "false") boolean collapseSeries) {
+        boolean browseMode = collapseSeries || sort != null || facet != null || facetLogic != null || query != null || cursor != null;
         if (browseMode) {
-            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
+            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable, collapseSeries));
         }
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }

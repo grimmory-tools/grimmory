@@ -77,6 +77,7 @@ export class BookCardComponent {
   readonly showProgress = input(true, {transform: booleanAttribute});
   readonly showMeta = input(true, {transform: booleanAttribute});
   readonly overlays = input(true, {transform: booleanAttribute});
+  readonly seriesBookCount = input<number | null>(null);
   readonly detailLine = input<string | null>(null);
   readonly selectable = input(false, {transform: booleanAttribute});
   readonly selected = input(false, {transform: booleanAttribute});
@@ -99,8 +100,10 @@ export class BookCardComponent {
     initialValue: this.transloco.getActiveLang(),
   });
 
+  protected readonly isSeries = computed(() => this.seriesBookCount() !== null);
   protected readonly title = computed(() => {
-    const title = this.book().metadata?.title?.trim();
+    const metadata = this.book().metadata;
+    const title = (this.isSeries() ? metadata?.seriesName : metadata?.title)?.trim();
     if (title) {
       return title;
     }
@@ -108,7 +111,17 @@ export class BookCardComponent {
     return this.transloco.translate('book.card.book.unknownTitle');
   });
   protected readonly authors = computed(() => this.book().metadata?.authors ?? []);
-  protected readonly authorsLabel = computed(() => this.authors().join(', '));
+  protected readonly subtitle = computed(() => {
+    const count = this.seriesBookCount();
+    if (count === null) {
+      return this.authors().join(', ');
+    }
+    this.activeLang();
+    return this.transloco.translate(
+      count === 1 ? 'book.card.book.seriesBookCount' : 'book.card.book.seriesBooksCount',
+      {count},
+    );
+  });
   protected readonly seriesNumber = computed(() => this.book().metadata?.seriesNumber ?? null);
 
   protected readonly shownFile = computed(() => this.file() ?? this.book().primaryFile);
@@ -170,7 +183,11 @@ export class BookCardComponent {
     return this.transloco.translate(this.verbKey());
   });
 
-  protected readonly detailLink = computed(() => ['/book', this.book().id]);
+  protected readonly detailLink = computed(() => {
+    const book = this.book();
+    return this.isSeries() ? ['/series', book.metadata?.seriesName] : ['/book', book.id];
+  });
+  protected readonly bookOverlays = computed(() => this.overlays() && !this.isSeries());
   protected readonly detailHref = computed(() =>
     this.locationStrategy.prepareExternalUrl(
       this.router.serializeUrl(this.router.createUrlTree(this.detailLink())),
@@ -182,7 +199,7 @@ export class BookCardComponent {
   );
   protected readonly menuPinned = computed(() => this.menuOpen() && !this.selectionActive());
   protected readonly badgeVisible = computed(
-    () => this.showBadge() && this.seriesNumber() !== null,
+    () => this.showBadge() && (this.isSeries() || this.seriesNumber() !== null),
   );
 
   private pressTimer: number | null = null;
@@ -199,7 +216,7 @@ export class BookCardComponent {
     cn(
       `group/card relative block min-w-0 cursor-pointer ${BOOK_CARD_RADIUS_CLASS}`,
       'pointer-coarse:select-none pointer-coarse:[-webkit-touch-callout:none]',
-      !this.selectionActive() && this.overlays() && 'group/lift',
+      !this.selectionActive() && this.bookOverlays() && 'group/lift',
       this.menuPinned() && 'cover-lifted',
     ),
   );
@@ -219,7 +236,7 @@ export class BookCardComponent {
   protected readonly badgeClass =
     'absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white';
   protected readonly formatPillVisible = computed(
-    () => this.showFormatPill() && !this.checkboxTakesOver(),
+    () => this.showFormatPill() && !this.isSeries() && !this.checkboxTakesOver(),
   );
   protected readonly formatPillClass = computed(() =>
     cn(
@@ -266,7 +283,7 @@ export class BookCardComponent {
   protected startLongPress(event: PointerEvent): void {
     this.cancelLongPress();
     this.longPressFired = false;
-    if (event.pointerType === 'mouse' || !this.overlays() || this.selectionActive()) {
+    if (event.pointerType === 'mouse' || !this.bookOverlays() || this.selectionActive()) {
       return;
     }
     const request = contextMenuRequest(event);
@@ -309,7 +326,7 @@ export class BookCardComponent {
 
   protected requestContextMenu(event: MouseEvent): void {
     this.cancelLongPress();
-    if (!this.overlays()) {
+    if (!this.bookOverlays()) {
       return;
     }
     event.preventDefault();

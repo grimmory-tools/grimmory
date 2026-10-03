@@ -140,7 +140,7 @@ class BookBrowseServiceTest {
     }
 
     private BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, null, query, cursor, PageRequest.of(page, size));
+        return browseService.browse(sort, facet, null, query, cursor, PageRequest.of(page, size), false);
     }
 
     private String nextCursor(BrowsePage<Book> page) {
@@ -160,6 +160,48 @@ class BookBrowseServiceTest {
         assertThat(result.page().totalElements()).isEqualTo(2);
         assertThat(result.page().cursor()).isNotBlank();
         assertThat(result.links().stream().anyMatch(l -> l.rel().contains("self"))).isTrue();
+    }
+
+    @Test
+    void collapsesSeriesBeforePagingAndKeepsStandaloneBooks() {
+        Long second = seriesBook("Alpha", 2f).getId();
+        Long first = seriesBook("Zulu", 1f).getId();
+        Long standalone = book("Middle", List.of()).getId();
+        em.flush();
+
+        var page = browseService.browse("title", null, null, null, null, PageRequest.of(0, 1), true);
+        var next = browseService.browse("title", null, null, null, null, PageRequest.of(1, 1), true);
+
+        assertThat(page.content()).extracting(Book::getId).containsExactly(first);
+        assertThat(page.grouping().members()).containsOnlyKeys(first);
+        assertThat(page.grouping().members().get(first)).containsExactlyInAnyOrder(first, second);
+        assertThat(page.page().totalElements()).isEqualTo(2);
+        assertThat(page.grouping().totalMatches()).isEqualTo(3);
+        assertThat(next.content()).extracting(Book::getId).containsExactly(standalone);
+        assertThat(next.grouping().members()).isEmpty();
+    }
+
+    @Test
+    void collapsedSeriesSortsByItsBestMatchingBook() {
+        Instant now = Instant.now();
+        BookEntity first = seriesBook("Zulu", 1f);
+        first.setAddedOn(now.minusSeconds(300));
+        BookEntity standalone = book("Middle", List.of());
+        standalone.setAddedOn(now.minusSeconds(200));
+        BookEntity latest = seriesBook("Alpha", 2f);
+        latest.setAddedOn(now.minusSeconds(100));
+        em.flush();
+
+        var page = browseService.browse("-addedOn", null, null, null, null, PageRequest.of(0, 10), true);
+
+        assertThat(page.content()).extracting(Book::getId).containsExactly(first.getId(), standalone.getId());
+    }
+
+    private BookEntity seriesBook(String title, float number) {
+        BookEntity entity = book(title, List.of());
+        entity.getMetadata().setSeriesName("A saga");
+        entity.getMetadata().setSeriesNumber(number);
+        return entity;
     }
 
     @Test

@@ -70,6 +70,7 @@ export class BookBrowseToolbarComponent {
   readonly sortOptions = input.required<readonly BookSortOption[]>();
   readonly sortTerms = input.required<readonly BookSortTerm[]>();
   readonly viewMode = input.required<BookBrowseViewMode>();
+  readonly collapseSeries = input.required<boolean>();
   readonly columnOptions = input.required<readonly BookColumnOption[]>();
   readonly densitySmallerDisabled = input.required<boolean>();
   readonly densityLargerDisabled = input.required<boolean>();
@@ -81,6 +82,7 @@ export class BookBrowseToolbarComponent {
   readonly randomSortRequested = output();
   readonly multiSortRequested = output();
   readonly viewModeChange = output<BookBrowseViewMode>();
+  readonly collapseSeriesToggle = output();
   readonly columnVisibilityChange = output<BookBrowseColumnVisibilityChange>();
   readonly columnsReset = output();
   readonly densityChange = output<GridDensityDirection>();

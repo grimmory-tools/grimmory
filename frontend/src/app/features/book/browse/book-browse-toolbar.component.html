@@ -142,6 +142,12 @@
     <app-menu-separator class="sm:hidden" />
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
+  <app-menu-checkbox
+    value="collapse-series"
+    [checked]="collapseSeries()"
+    (selected)="collapseSeriesToggle.emit()">
+    {{ 'book.browser.labels.collapseSeries' | transloco }}
+  </app-menu-checkbox>
   <div class="hidden sm:contents">
     <app-menu-checkbox
       value="show-filters"

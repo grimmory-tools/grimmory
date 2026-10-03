@@ -12,10 +12,16 @@ export interface BrowsePageMetadata {
   cursor: string;
 }
 
+export interface BrowseGrouping {
+  totalMatches: number;
+  members: Record<string, number[]>;
+}
+
 export interface BrowsePage<T> {
   content: T[];
   page: BrowsePageMetadata;
   links: BrowseLink[];
+  grouping?: BrowseGrouping;
 }
 
 export interface BrowseFacetValue {

@@ -11,6 +11,10 @@ final class BrowseParams {
     }
 
     static String preserved(List<String> facet, String facetLogic, String query) {
+        return preserved(facet, facetLogic, query, false);
+    }
+
+    static String preserved(List<String> facet, String facetLogic, String query, boolean collapseSeries) {
         List<String> parts = new ArrayList<>();
         if (facet != null) {
             for (String entry : facet) {
@@ -24,6 +28,9 @@ final class BrowseParams {
         }
         if (query != null && !query.isBlank()) {
             parts.add("query=" + encode(query));
+        }
+        if (collapseSeries) {
+            parts.add("collapse_series=true");
         }
         return String.join("&", parts);
     }

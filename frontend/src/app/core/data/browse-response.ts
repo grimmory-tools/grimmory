@@ -2,6 +2,7 @@ import {
   BrowseFacetGroup,
   BrowseFacetResult,
   BrowseFacetValue,
+  BrowseGrouping,
   BrowseLink,
   BrowsePage,
   BrowsePageMetadata,
@@ -17,6 +18,7 @@ interface RawBrowsePage<T> {
   content: T[];
   page: BrowsePageMetadata;
   links: RawLink[];
+  grouping?: BrowseGrouping;
 }
 
 interface RawFacetLink extends RawLink {
@@ -39,6 +41,7 @@ export function mapBrowsePage<T>(response: RawBrowsePage<T>): BrowsePage<T> {
     content: response.content,
     page: response.page,
     links: response.links.map(mapBrowseLink),
+    ...(response.grouping ? {grouping: response.grouping} : {}),
   };
 }
 

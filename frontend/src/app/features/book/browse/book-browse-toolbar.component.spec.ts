@@ -26,6 +26,7 @@ describe('BookBrowseToolbarComponent', () => {
     );
     fixture.componentRef.setInput('sortTerms', [{key: 'title', direction: 'asc'}]);
     fixture.componentRef.setInput('viewMode', 'grid');
+    fixture.componentRef.setInput('collapseSeries', false);
     fixture.componentRef.setInput('columnOptions', []);
     fixture.componentRef.setInput('densitySmallerDisabled', false);
     fixture.componentRef.setInput('densityLargerDisabled', false);

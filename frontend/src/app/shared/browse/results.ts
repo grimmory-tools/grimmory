@@ -44,6 +44,8 @@ export interface BrowseResultsDeps<T extends {id: number}> {
 export interface BrowseResults<T extends {id: number}> {
   readonly items: Signal<readonly T[]>;
   readonly total: Signal<number | null>;
+  readonly totalMatches: Signal<number | null>;
+  readonly groupMembers: Signal<ReadonlyMap<number, readonly number[]>>;
   readonly status: Signal<BrowseStatus>;
   readonly nextPageError: Signal<boolean>;
   readonly shownHasNextPage: Signal<boolean>;
@@ -67,6 +69,11 @@ export function createBrowseResults<T extends {id: number}>(
 
   const items = computed<readonly T[]>(() => flattenBrowsePages(shown()));
   const total = computed<number | null>(() => shown()?.pages[0]?.page.totalElements ?? null);
+  const totalMatches = computed<number | null>(() => shown()?.pages[0]?.grouping?.totalMatches ?? total());
+  const groupMembers = computed<ReadonlyMap<number, readonly number[]>>(() => new Map(
+    (shown()?.pages ?? []).flatMap(page =>
+      Object.entries(page.grouping?.members ?? {}).map(([id, members]) => [Number(id), members] as const)),
+  ));
   const status = computed<BrowseStatus>(() => {
     if (items().length > 0 || (shown() !== undefined && deps.query.isSuccess())) {
       return 'success';
@@ -141,6 +148,8 @@ export function createBrowseResults<T extends {id: number}>(
   return {
     items,
     total,
+    totalMatches,
+    groupMembers,
     status,
     nextPageError,
     shownHasNextPage,

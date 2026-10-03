@@ -9,6 +9,7 @@ import {
 } from '../../settings/user-management/user.service';
 import {
   entityViewMode,
+  entityViewSeriesCollapsed,
   entityViewSortCriteria,
   entityViewSortPatch,
   findEntityViewPreferenceOverride,
@@ -46,6 +47,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
   const viewMode = computed<BookBrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global?.overlayBookType ?? true);
+  const seriesCollapsed = computed(() => entityViewSeriesCollapsed(entityViewPreferences(), context()));
 
   const defaultSortTerms = computed<readonly BookSortTerm[]>(() => {
     const preferences = entityViewPreferences();
@@ -113,6 +115,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
   return {
     viewMode,
     formatPill,
+    seriesCollapsed,
     sortTerms,
     defaultSortTerms,
     isDefaultSort,
@@ -141,6 +144,10 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
     resetColumns(): void {
       columnPreferences.set(normalizeBookColumnPreferences(undefined));
       persistColumnPreferences();
+    },
+
+    setSeriesCollapsed(collapsed: boolean): void {
+      updateViewPreference({seriesCollapsed: collapsed});
     },
 
     saveSortDefault(terms: readonly BookSortTerm[]): void {

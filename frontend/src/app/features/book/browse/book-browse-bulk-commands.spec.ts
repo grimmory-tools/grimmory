@@ -20,6 +20,7 @@ function selection(ids: readonly number[]): BrowseSelection {
     active: signal(ids.length > 0),
     allMatchingSelected: signal(false),
     isSelected: id => selected.has(id),
+    isItemSelected: item => selected.has(item.id),
     toggle: vi.fn(),
     selectAll: vi.fn(),
     clear: vi.fn(),

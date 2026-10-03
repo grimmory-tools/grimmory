@@ -121,6 +121,7 @@ const BODY_CELL_CLASS =
 })
 export class BookBrowseTableComponent {
   readonly books = input.required<readonly BookSummary[]>();
+  readonly groupMembers = input.required<ReadonlyMap<number, readonly number[]>>();
   readonly status = input.required<BrowseStatus>();
   readonly hasNextPage = input.required<boolean>();
   readonly pendingDeletionIds = input.required<ReadonlySet<number>>();
@@ -128,7 +129,7 @@ export class BookBrowseTableComponent {
   readonly sortTerms = input.required<readonly BookSortTerm[]>();
   readonly sortOptions = input.required<readonly BookSortOption[]>();
   readonly mobile = input.required<boolean>();
-  readonly selection = input.required<BrowseSelection | null>();
+  readonly selection = input.required<BrowseSelection<BookSummary> | null>();
   readonly selectMode = input(false);
   readonly openMenuBookId = input.required<number | null>();
   readonly useSquareCovers = input.required<boolean>();
@@ -235,7 +236,13 @@ export class BookBrowseTableComponent {
     })),
   );
   protected readonly emptyValue = '—';
-  protected readonly bookTitle = bookTitle;
+  protected bookTitle(book: BookSummary): string {
+    return (this.seriesBookCount(book) !== null && book.metadata?.seriesName) || bookTitle(book);
+  }
+
+  protected seriesBookCount(book: BookSummary): number | null {
+    return this.groupMembers().get(book.id)?.length ?? null;
+  }
 
   protected readonly rows = computed(() => this.table.getRowModel().rows);
   private readonly hasRows = computed(() => this.rows().length > 0);
@@ -419,13 +426,16 @@ export class BookBrowseTableComponent {
   }
 
   protected cellText(cell: BookBrowseCell): string | null {
+    if (this.seriesBookCount(cell.row.original) !== null && cell.column.id !== 'seriesName') {
+      return null;
+    }
     return formatBookValue(
       bookColumnKind(cell.column.id), cell.getValue<BookColumnValue>(), key => this.transloco.translate(key),
     );
   }
 
   protected cellLinks(book: BookSummary, field: string): readonly BookFacetLink[] {
-    return bookFacetLinks(book, field);
+    return this.seriesBookCount(book) !== null && field !== 'seriesName' ? [] : bookFacetLinks(book, field);
   }
 
   protected rememberSelectionPointer(event: MouseEvent): void {
@@ -451,11 +461,11 @@ export class BookBrowseTableComponent {
   }
 
   protected isSelected(book: BookSummary): boolean {
-    return this.selection()?.isSelected(book.id) ?? false;
+    return this.selection()?.isItemSelected(book) ?? false;
   }
 
   protected onRowContextMenu(book: BookSummary | undefined, event: MouseEvent): void {
-    if (!book || this.mobile()) {
+    if (!book || this.seriesBookCount(book) !== null || this.mobile()) {
       return;
     }
     event.preventDefault();
@@ -470,7 +480,9 @@ export class BookBrowseTableComponent {
 
   protected detailHref(book: BookSummary): string {
     return this.locationStrategy.prepareExternalUrl(
-      this.router.serializeUrl(this.router.createUrlTree(['/book', book.id])),
+      this.router.serializeUrl(this.router.createUrlTree(
+        this.seriesBookCount(book) !== null ? ['/series', book.metadata?.seriesName] : ['/book', book.id],
+      )),
     );
   }
 

@@ -3,7 +3,7 @@
     @if (mobileSelectMode()) {
       <app-browse-select-mode-controls
         [count]="selection.count()"
-        [total]="presentation.total()"
+        [total]="presentation.totalMatches()"
         (selectAll)="selection.selectAll()"
         (cancelled)="onMobileSelectToggle()" />
     } @else {
@@ -11,6 +11,7 @@
         [sortOptions]="sortOptions()"
         [sortTerms]="sortTerms()"
         [viewMode]="preferences.viewMode()"
+        [collapseSeries]="preferences.seriesCollapsed()"
         [columnOptions]="preferences.columnOptions()"
         [densitySmallerDisabled]="densitySmallerDisabled()"
         [densityLargerDisabled]="densityLargerDisabled()"
@@ -25,6 +26,7 @@
         (columnsReset)="preferences.resetColumns()"
         (densityChange)="onDensityChange($event)"
         (filtersToggle)="onFiltersToggle()"
+        (collapseSeriesToggle)="preferences.setSeriesCollapsed(!preferences.seriesCollapsed())"
         (mobileSelectToggle)="onMobileSelectToggle()" />
     }
   </app-page-header>
@@ -37,7 +39,7 @@
   <app-book-browse-bulk-bar
     [selection]="selection"
     [books]="books()"
-    [total]="presentation.total()"
+    [total]="presentation.totalMatches()"
     [fetchIds]="fetchMatchingBookIds" />
 
   <div [class]="layoutClasses().row">
@@ -58,6 +60,7 @@
       @if (preferences.viewMode() === 'table') {
         <app-book-browse-table
           [books]="books()"
+          [groupMembers]="presentation.groupMembers()"
           [status]="presentation.status()"
           [hasNextPage]="hasNextPage()"
           [nextPageError]="presentation.nextPageError()"
@@ -103,11 +106,12 @@
           <app-book-card
             [class.opacity-50]="pendingDeletions().has(book.id)"
             [book]="book"
+            [seriesBookCount]="seriesBookCount(book)"
             [showFormatPill]="preferences.formatPill()"
             [squareCovers]="squareCovers()"
             [detailLine]="detailLineFor(book)"
             [selectable]="selectionEnabled()"
-            [selected]="selectionEnabled() && selection.isSelected(book.id)"
+            [selected]="selectionEnabled() && selection.isItemSelected(book)"
             [selectionActive]="selectionEnabled() && (selection.active() || mobileSelectMode())"
             [detailMode]="'request'"
             [menuOpen]="menuOpenBookId() === book.id"

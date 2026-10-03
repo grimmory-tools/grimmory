@@ -18,7 +18,13 @@
       />
 
       @if (badgeVisible()) {
-        <span [class]="badgeClass" data-testid="badge">#{{ seriesNumber() }}</span>
+        <span [class]="badgeClass" data-testid="badge">
+          @if (isSeries()) {
+            {{ 'book.fields.series' | transloco }}
+          } @else {
+            #{{ seriesNumber() }}
+          }
+        </span>
       }
 
       @if (formatPillVisible() && formatLabel(); as format) {
@@ -34,7 +40,7 @@
         />
       }
 
-      @if (showProgress() && progressPercentage() !== null) {
+      @if (!isSeries() && showProgress() && progressPercentage() !== null) {
         <span
           class="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/45"
           [appTooltip]="progressTooltip()"
@@ -54,7 +60,7 @@
         </span>
       }
 
-      @if (overlays() && !selectionActive()) {
+      @if (bookOverlays() && !selectionActive()) {
         <div [class]="overlayClass" data-testid="overlay">
           @if (hasPrimaryFile()) {
             <button
@@ -85,8 +91,8 @@
   @if (showMeta()) {
     <div class="px-0.5 pt-2" data-testid="meta">
       <div [class]="metaTitleClass" [attr.title]="title()">{{ title() }}</div>
-      <div [class]="metaSecondaryClass + ' mt-px'">{{ authorsLabel() }}</div>
-      @if (detailLine() !== null) {
+      <div [class]="metaSecondaryClass + ' mt-px'">{{ subtitle() }}</div>
+      @if (!isSeries() && detailLine() !== null) {
         <div [class]="metaSecondaryClass">{{ detailLine() }}</div>
       }
     </div>

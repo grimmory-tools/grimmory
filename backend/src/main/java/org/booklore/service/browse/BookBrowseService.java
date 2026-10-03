@@ -49,6 +49,7 @@ public class BookBrowseService {
 
     private final AuthenticationService authenticationService;
     private final BookQueryService bookQueryService;
+    private final BookSeriesCollapse seriesCollapse;
     private final ReadingProgressService readingProgressService;
     private final BookFilterSpecifications filterSpecifications;
     private final BookSortRegistry sortRegistry;
@@ -58,7 +59,7 @@ public class BookBrowseService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public BrowsePage<Book> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
+    public BrowsePage<Book> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable, boolean collapseSeries) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
         boolean isAdmin = user.getPermissions().isAdmin();
@@ -91,18 +92,28 @@ public class BookBrowseService {
 
         List<SortTerm> sortTerms = SortParser.parse(sortString, sortRegistry.registry().keys());
         Specification<BookEntity> filter = filterSpecifications.base(query, facets, facetLogic, userId, isAdmin, BookFilterSpecifications.libraryIds(user), null);
-        Specification<BookEntity> spec = withSort(filter, sortTerms, userId, randomSeed);
-
-        Pageable pageRequest = PageRequest.of((int) (offset / limit), limit);
-        Page<Book> page = bookQueryService.findBooksPaged(spec, pageRequest, userId);
-        enrich(page.getContent(), userId);
+        List<Book> content;
+        long totalElements;
+        BrowsePage.Grouping grouping = null;
+        if (collapseSeries) {
+            BookSeriesCollapse.CollapsedPage page = seriesCollapse.page(filter, sortTerms, offset, limit, userId, randomSeed);
+            content = page.content();
+            totalElements = page.totalGroups();
+            grouping = page.grouping();
+        } else {
+            Pageable pageRequest = PageRequest.of((int) (offset / limit), limit);
+            Page<Book> page = bookQueryService.findBooksPaged(withSort(filter, sortTerms, userId, randomSeed), pageRequest, userId);
+            content = page.getContent();
+            totalElements = page.getTotalElements();
+        }
+        enrich(content, userId);
 
         CursorState baseState = new CursorState(offset, limit, sortString, paramsHash, randomSeed);
         String currentCursor = cursorCodec.encode(baseState);
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
-                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query), offset, limit, page.getTotalElements(), baseState));
+                PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query, collapseSeries), offset, limit, totalElements, baseState));
 
-        return BrowsePage.of(page.getContent(), offset, limit, page.getTotalElements(), currentCursor, links);
+        return BrowsePage.of(content, offset, limit, totalElements, currentCursor, links).withGrouping(grouping);
     }
 
     public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {

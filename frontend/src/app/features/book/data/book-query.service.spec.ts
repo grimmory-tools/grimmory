@@ -97,6 +97,15 @@ describe('BookQueryService', () => {
     });
   });
 
+  it('requests collapsed series and keeps the page grouping', async () => {
+    const grouping = {totalMatches: 3, members: {'1': [1, 2]}};
+    const resultPromise = queryClient.fetchQuery(service.page({...PARAMS, collapseSeries: true}));
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20&collapse_series=true`);
+    request.flush({...page([1, 3]), grouping});
+
+    await expect(resultPromise).resolves.toMatchObject({grouping});
+  });
+
   it('sends every selected facet value as a repeated facet parameter', async () => {
     const resultPromise = queryClient.fetchQuery(service.page({
       ...PARAMS,

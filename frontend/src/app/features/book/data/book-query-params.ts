@@ -87,6 +87,7 @@ export interface BookCollectionFilterParams {
 
 export interface BookQueryParams extends BookCollectionFilterParams {
   sort: readonly BookSortTerm[];
+  collapseSeries?: boolean;
 }
 
 export interface BookPageParams extends BookQueryParams {
@@ -174,8 +175,9 @@ export function normalizeBookPageParams(params: BookPageParams): BookPageParams 
 }
 
 export function toPageHttpParams(params: BookPageParams): HttpParams {
-  return appendSortParam(toCollectionHttpParams(params), params.sort)
+  const httpParams = appendSortParam(toCollectionHttpParams(params), params.sort)
     .set('size', params.size.toString());
+  return params.collapseSeries ? httpParams.set('collapse_series', 'true') : httpParams;
 }
 
 export function toIdsHttpParams(params: BookQueryParams): HttpParams {
@@ -190,6 +192,7 @@ export function normalizeBookQueryParams(params: BookQueryParams): BookQueryPara
   return {
     ...normalizeBookCollectionFilterParams(params),
     sort: params.sort,
+    ...(params.collapseSeries ? {collapseSeries: true} : {}),
   };
 }
 

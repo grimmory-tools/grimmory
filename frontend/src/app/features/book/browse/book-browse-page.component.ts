@@ -1,7 +1,7 @@
 import {NgTemplateOutlet} from '@angular/common';
 import {Component, computed, effect, inject, linkedSignal, signal, untracked, viewChild} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {take} from 'rxjs/operators';
@@ -130,6 +130,7 @@ export class BookBrowsePageComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly pageTitle = inject(PageTitleService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly layout = inject(LayoutService);
   private readonly localStorage = inject(LocalStorageService);
   private readonly coverScale = inject(CoverScalePreferenceService);
@@ -213,6 +214,7 @@ export class BookBrowsePageComponent {
 
   private readonly params = computed<BookPageParams>(() => ({
     ...this.queries.collectionParams(),
+    collapseSeries: this.preferences.seriesCollapsed(),
     size: PAGE_SIZE,
     sort: this.sortTerms(),
   }));
@@ -266,7 +268,8 @@ export class BookBrowsePageComponent {
     filtersKey: this.filtersKey,
     listKey: this.listKey,
     items: this.books,
-    totalElements: this.presentation.total,
+    totalElements: this.presentation.totalMatches,
+    itemIds: book => this.presentation.groupMembers().get(book.id) ?? [book.id],
   });
   protected readonly selectionEnabled = computed(() => !this.isMobile() || this.mobileSelectMode());
   protected readonly fetchMatchingBookIds = (): Promise<readonly number[]> =>
@@ -288,7 +291,7 @@ export class BookBrowsePageComponent {
   protected readonly bookItemKey = (book: BookSummary): number => book.id;
 
   protected readonly pageHeader = computed<PageHeader>(() => {
-    const total = this.presentation.total();
+    const total = this.presentation.totalMatches();
     return {
       title: this.queries.title(),
       count: total == null ? undefined : total.toLocaleString(),
@@ -411,8 +414,17 @@ export class BookBrowsePageComponent {
     this.mobileSelectMode.set(true);
   }
 
+  protected seriesBookCount(book: BookSummary): number | null {
+    return this.presentation.groupMembers().get(book.id)?.length ?? null;
+  }
+
   protected onBookDetailRequested(book: BookSummary): void {
-    this.bookNavigation.openBook(book.id, this.books().map(presented => presented.id));
+    const members = this.presentation.groupMembers();
+    if (members.has(book.id)) {
+      void this.router.navigate(['/series', book.metadata?.seriesName]);
+      return;
+    }
+    this.bookNavigation.openBook(book.id, this.books().flatMap(presented => members.get(presented.id) ?? [presented.id]));
   }
 
   protected onFiltersToggle(): void {

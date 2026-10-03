@@ -4,24 +4,26 @@ export interface BrowseSelectionItem {
   readonly id: number;
 }
 
-export interface BrowseSelectionDeps {
+export interface BrowseSelectionDeps<T extends BrowseSelectionItem> {
   filtersKey: Signal<string>;
   listKey: Signal<string>;
-  items: Signal<readonly BrowseSelectionItem[]>;
+  items: Signal<readonly T[]>;
   totalElements: Signal<number | null>;
+  itemIds?: (item: T) => readonly number[];
 }
 
 export type BrowseSelectionState =
   | {mode: 'explicit'; ids: ReadonlySet<number>}
   | {mode: 'allMatching'; excludedIds: ReadonlySet<number>};
 
-export interface BrowseSelection {
+export interface BrowseSelection<T extends BrowseSelectionItem = BrowseSelectionItem> {
   readonly state: Signal<BrowseSelectionState>;
   readonly count: Signal<number>;
   readonly active: Signal<boolean>;
   readonly allMatchingSelected: Signal<boolean>;
   isSelected(id: number): boolean;
-  toggle(item: BrowseSelectionItem, index: number, shiftKey: boolean): void;
+  isItemSelected(item: T): boolean;
+  toggle(item: T, index: number, shiftKey: boolean): void;
   selectAll(): void;
   clear(): void;
   pruneDeleted(ids: readonly number[]): void;
@@ -52,7 +54,8 @@ function withIds(set: ReadonlySet<number>, ids: readonly number[], present: bool
   return next;
 }
 
-export function createBrowseSelection(deps: BrowseSelectionDeps): BrowseSelection {
+export function createBrowseSelection<T extends BrowseSelectionItem>(deps: BrowseSelectionDeps<T>): BrowseSelection<T> {
+  const itemIds = deps.itemIds ?? ((item: T) => [item.id]);
   const state = linkedSignal<string, BrowseSelectionState>({
     source: deps.filtersKey,
     computation: () => ({mode: 'explicit', ids: new Set<number>()}),
@@ -79,6 +82,10 @@ export function createBrowseSelection(deps: BrowseSelectionDeps): BrowseSelectio
       : !current.excludedIds.has(id);
   }
 
+  function isItemSelected(item: T): boolean {
+    return itemIds(item).every(isSelected);
+  }
+
   function setSelected(ids: readonly number[], selected: boolean): void {
     const current = state();
     state.set(current.mode === 'explicit'
@@ -87,10 +94,10 @@ export function createBrowseSelection(deps: BrowseSelectionDeps): BrowseSelectio
   }
 
   function selectLoadedRange(start: number, end: number, selected: boolean): void {
-    setSelected(deps.items().slice(start, end + 1).map(item => item.id), selected);
+    setSelected(deps.items().slice(start, end + 1).flatMap(itemIds), selected);
   }
 
-  function toggle(item: BrowseSelectionItem, index: number, shiftKey: boolean): void {
+  function toggle(item: T, index: number, shiftKey: boolean): void {
     const anchorId = anchor();
     if (shiftKey && anchorId !== null) {
       const anchorIndex = deps.items().findIndex(candidate => candidate.id === anchorId);
@@ -98,13 +105,13 @@ export function createBrowseSelection(deps: BrowseSelectionDeps): BrowseSelectio
         selectLoadedRange(
           Math.min(anchorIndex, index),
           Math.max(anchorIndex, index),
-          !isSelected(item.id),
+          !isItemSelected(item),
         );
         return;
       }
     }
 
-    setSelected([item.id], !isSelected(item.id));
+    setSelected(itemIds(item), !isItemSelected(item));
     anchor.set(item.id);
   }
 
@@ -138,6 +145,7 @@ export function createBrowseSelection(deps: BrowseSelectionDeps): BrowseSelectio
     active,
     allMatchingSelected,
     isSelected,
+    isItemSelected,
     toggle,
     selectAll,
     clear,
