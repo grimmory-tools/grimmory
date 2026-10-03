@@ -10,6 +10,8 @@ import {ExternalDocLinkComponent} from '../../../../../shared/components/externa
 import {UserService} from '../../../user-management/user.service';
 import {HardcoverSyncSettingsService} from './hardcover-sync-settings.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import { TaskCreateRequest, TaskService, TaskType } from '../../../task-management/task.service';
 
 @Component({
   standalone: true,
@@ -21,7 +23,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Button,
     Toast,
     ExternalDocLinkComponent,
-    TranslocoDirective
+    TranslocoDirective,
+    Checkbox
   ],
   providers: [MessageService],
   templateUrl: './hardcover-settings-component.html',
@@ -33,6 +36,7 @@ export class HardcoverSettingsComponent {
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly taskService = inject(TaskService);
 
   readonly hasPermission = computed(() => {
     const user = this.userService.currentUser();
@@ -44,6 +48,7 @@ export class HardcoverSettingsComponent {
   private prevHasPermission = false;
   private savedHardcoverSyncEnabled = false;
   private savedHardcoverApiKey = '';
+  overwriteExistingData = false;
 
   constructor() {
     effect(() => {
@@ -78,6 +83,10 @@ export class HardcoverSettingsComponent {
     this.showHardcoverApiKey.update(showHardcoverApiKey => !showHardcoverApiKey);
   }
 
+  triggerHardcoverImport() {
+    this.hardcoverImport();
+  }
+
   onHardcoverSyncToggle(enabled: boolean) {
     this.hardcoverSyncEnabled.set(enabled);
     const message = enabled
@@ -88,6 +97,28 @@ export class HardcoverSettingsComponent {
 
   onHardcoverApiKeyChange() {
     this.updateHardcoverSettings(this.t.translate('settingsDevice.hardcover.apiKeyUpdated'));
+  }
+
+  private hardcoverImport() {
+    const request: TaskCreateRequest = {
+          taskType: TaskType.HARDCOVER_IMPORT,
+          triggeredByCron: false,
+          options: {
+            "overwrite": this.overwriteExistingData
+          }
+    };
+    this.taskService.startTask(request).subscribe({
+      next: () => {
+        this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.importStarted')});
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('settingsDevice.hardcover.importFailed'),
+          detail: this.t.translate('settingsDevice.hardcover.importError')
+        });
+      }
+    })
   }
 
   private updateHardcoverSettings(successMessage: string) {
