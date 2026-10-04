@@ -8,10 +8,13 @@ import org.booklore.exception.APIException;
 import org.booklore.mapper.KoreaderUserMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.KoreaderUser;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.KoreaderSyncSettings;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoreaderUserEntity;
 import org.booklore.repository.KoreaderUserRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.koreader.KoreaderUserService;
 import org.booklore.util.Md5Util;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +35,7 @@ class KoreaderUserServiceTest {
     @Mock UserRepository userRepository;
     @Mock KoreaderUserRepository koreaderUserRepository;
     @Mock KoreaderUserMapper koreaderUserMapper;
+    @Mock AppSettingService appSettingService;
     @InjectMocks
     KoreaderUserService service;
 
@@ -45,6 +49,9 @@ class KoreaderUserServiceTest {
         when(ownerDto.getId()).thenReturn(123L);
         when(ownerDto.getUsername()).thenReturn("ownerName");
         when(authService.getAuthenticatedUser()).thenReturn(ownerDto);
+        when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder()
+                .koreaderSyncSettings(KoreaderSyncSettings.builder().build())
+                .build());
 
         ownerEntity = new BookLoreUserEntity();
         ownerEntity.setId(123L);

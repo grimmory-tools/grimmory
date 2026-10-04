@@ -21,6 +21,7 @@ public enum AppSettingKey {
     OPDS_SERVER_ENABLED                 ("opds_server_enabled",                  false, true,  List.of(PermissionType.ADMIN)),
     KOMGA_API_ENABLED                   ("komga_api_enabled",                    false, true,  List.of(PermissionType.ADMIN)),
     KOMGA_GROUP_UNKNOWN                 ("komga_group_unknown",                  false, true,  List.of(PermissionType.ADMIN)),
+    KOREADER_SYNC_SETTINGS              ("koreader_sync_settings",               true,  true,  List.of(PermissionType.ADMIN)),
 
     // ADMIN + MANAGE_METADATA_CONFIG
     LIBRARY_METADATA_REFRESH_OPTIONS    ("library_metadata_refresh_options",     true,  true, List.of(PermissionType.ADMIN, PermissionType.MANAGE_METADATA_CONFIG)),

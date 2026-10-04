@@ -7,6 +7,7 @@ import org.booklore.model.dto.Shelf;
 import org.booklore.model.dto.request.ShelfCreateRequest;
 import org.booklore.model.entity.KoboUserSettingsEntity;
 import org.booklore.model.entity.ShelfEntity;
+import org.booklore.model.enums.IconType;
 import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.service.ShelfService;
@@ -243,6 +244,34 @@ class KoboSettingsServiceTest {
         method.setAccessible(true);
         assertDoesNotThrow(() -> method.invoke(service, 1L));
         verify(shelfService).createShelf(any(ShelfCreateRequest.class));
+    }
+
+    @Test
+    void ensureKoboShelfExists_movesThePreviousDefaultIconToTheKoboIcon() throws Exception {
+        ShelfEntity existing = ShelfEntity.builder().id(100L).name(ShelfType.KOBO.getName()).icon("tablet").iconType(IconType.LUCIDE).build();
+        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.of(existing));
+
+        var method = service.getClass().getDeclaredMethod("ensureKoboShelfExists", Long.class);
+        method.setAccessible(true);
+        method.invoke(service, 1L);
+
+        ArgumentCaptor<ShelfCreateRequest> request = ArgumentCaptor.forClass(ShelfCreateRequest.class);
+        verify(shelfService).updateShelf(eq(100L), request.capture());
+        assertEquals(ShelfType.KOBO.getName(), request.getValue().getName());
+        assertEquals(ShelfType.KOBO.getIcon(), request.getValue().getIcon());
+        assertEquals(ShelfType.KOBO.getIconType(), request.getValue().getIconType());
+    }
+
+    @Test
+    void ensureKoboShelfExists_keepsAnIconTheUserChose() throws Exception {
+        ShelfEntity existing = ShelfEntity.builder().id(100L).name(ShelfType.KOBO.getName()).icon("book-heart").iconType(IconType.LUCIDE).build();
+        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.of(existing));
+
+        var method = service.getClass().getDeclaredMethod("ensureKoboShelfExists", Long.class);
+        method.setAccessible(true);
+        method.invoke(service, 1L);
+
+        verify(shelfService, never()).updateShelf(any(), any());
     }
 
     @Test

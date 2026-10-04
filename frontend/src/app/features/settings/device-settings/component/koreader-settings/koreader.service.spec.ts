@@ -78,6 +78,30 @@ describe('KoreaderService', () => {
     });
   });
 
+  it('rotates the password with a bodyless POST and returns the updated user', () => {
+    let responseBody: unknown;
+
+    service.rotatePassword().subscribe(response => {
+      responseBody = response;
+    });
+
+    const request = httpTestingController.expectOne(req =>
+      req.method === 'POST' && req.url.endsWith('/api/v1/koreader-users/me/rotate-password')
+    );
+    expect(request.request.body).toBeNull();
+    request.flush({
+      username: 'reader',
+      password: 'k3newcode9xy',
+      syncEnabled: true,
+    });
+
+    expect(responseBody).toEqual({
+      username: 'reader',
+      password: 'k3newcode9xy',
+      syncEnabled: true,
+    });
+  });
+
   it('patches the sync-enabled flag using the enabled query parameter', () => {
     service.toggleSync(true).subscribe();
 
