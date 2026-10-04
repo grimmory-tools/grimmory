@@ -47,8 +47,10 @@ public class BrowsePager {
         }
         if (limit <= 0) {
             throw ApiError.INVALID_INPUT.createException("Page size must be positive.");
+        } else if (limit > MAX_PAGE_SIZE) {
+            throw ApiError.INVALID_INPUT.createException("Page size must be less than or equal to " + MAX_PAGE_SIZE + ".");
         }
-        return new Window(offset, Math.min(limit, MAX_PAGE_SIZE), sortString, paramsHash, randomSeed);
+        return new Window(offset, limit, sortString, paramsHash, randomSeed);
     }
 
     public <T> BrowsePage<T> assemble(String pagePath, String facetPath, String preserved,
