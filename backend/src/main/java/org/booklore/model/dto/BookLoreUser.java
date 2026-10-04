@@ -30,7 +30,6 @@ public class BookLoreUser {
     private List<Library> assignedLibraries;
     private UserPermissions permissions;
     private UserSettings userSettings;
-
     @Data
     public static class UserPermissions {
         private boolean isAdmin;
