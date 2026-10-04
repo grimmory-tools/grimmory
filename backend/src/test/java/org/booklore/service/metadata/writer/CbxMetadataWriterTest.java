@@ -119,7 +119,7 @@ class CbxMetadataWriterTest {
         meta.setCategories(cats);
 
         // Execute
-        writer.saveMetadataToFile(cbz, meta, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(cbz, meta, new MetadataClearFlags());
 
         // Assert ComicInfo.xml exists and contains our fields
         try (ZipFile zip = new ZipFile(cbz)) {
@@ -195,7 +195,7 @@ class CbxMetadataWriterTest {
         moods.add(mood);
         meta.setMoods(moods);
 
-        writer.saveMetadataToFile(cbz, meta, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(cbz, meta, new MetadataClearFlags());
 
         try (ZipFile zip = new ZipFile(cbz)) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");
@@ -247,7 +247,7 @@ class CbxMetadataWriterTest {
         meta.setTitle("New Title");
         meta.setDescription("New Summary");
 
-        writer.saveMetadataToFile(out.toFile(), meta, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(out.toFile(), meta, new MetadataClearFlags());
 
         try (ZipFile zip = new ZipFile(out.toFile())) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");
@@ -267,7 +267,7 @@ class CbxMetadataWriterTest {
         BookMetadataEntity meta = new BookMetadataEntity();
         meta.setTitle("Mismatched Title");
 
-        writer.saveMetadataToFile(zipAsCbr, meta, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(zipAsCbr, meta, new MetadataClearFlags());
 
         try (ZipFile zip = new ZipFile(zipAsCbz.toFile())) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");
@@ -354,7 +354,7 @@ class CbxMetadataWriterTest {
 
         meta.setComicMetadata(comic);
 
-        writer.saveMetadataToFile(cbz, meta, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(cbz, meta, new MetadataClearFlags());
 
         try (ZipFile zip = new ZipFile(cbz)) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");

@@ -36,7 +36,7 @@ public class PdfMetadataWriter implements MetadataWriter {
     private final AppSettingService appSettingService;
 
     @Override
-    public void saveMetadataToFile(File file, BookMetadataEntity metadataEntity, String thumbnailUrl, MetadataClearFlags clear) {
+    public void saveMetadataToFile(File file, BookMetadataEntity metadataEntity, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(file)) {
             return;
         }
