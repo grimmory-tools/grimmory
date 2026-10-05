@@ -4,10 +4,10 @@
   [style.background-color]="readerState().theme.bg ?? ''">
 
   @for (color of [readerState().theme.bg]; track color) {
-    <div class="browser-bar top" [style.background]="color" aria-hidden="true"></div>
+    <div class="browser-bar top-0" [style.background]="color" aria-hidden="true"></div>
   }
   @for (color of [forceNavbarVisible() ? 'var(--reader-chrome-bg)' : readerState().theme.bg]; track color) {
-    <div class="browser-bar bottom" [style.background]="color" aria-hidden="true"></div>
+    <div class="browser-bar bottom-0" [style.background]="color" aria-hidden="true"></div>
   }
 
   <div class="header-trigger-zone"

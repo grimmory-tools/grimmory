@@ -7,10 +7,10 @@
 @if (!isLoading()) {
 <div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()" [class.footer-hidden]="!footerShown()">
   @for (color of [topBarColor()]; track color) {
-  <div class="browser-bar top" [style.background]="color" aria-hidden="true"></div>
+  <div class="browser-bar top-0" [style.background]="color" aria-hidden="true"></div>
   }
   @for (color of [bottomBarColor()]; track color) {
-  <div class="browser-bar bottom" [style.background]="color" aria-hidden="true"></div>
+  <div class="browser-bar bottom-0" [style.background]="color" aria-hidden="true"></div>
   }
 
   <!-- Footer trigger zone -->

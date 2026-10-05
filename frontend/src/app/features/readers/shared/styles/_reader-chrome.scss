@@ -58,14 +58,6 @@
   @media (pointer: coarse) {
     display: block;
   }
-
-  &.top {
-    top: 0;
-  }
-
-  &.bottom {
-    bottom: 0;
-  }
 }
 
 @mixin sidebar-edge($side, $width) {
