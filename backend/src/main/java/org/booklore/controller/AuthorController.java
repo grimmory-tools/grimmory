@@ -48,7 +48,7 @@ public class AuthorController {
         return ResponseEntity.ok(authorMetadataService.getAllAuthors());
     }
 
-    @Operation(summary = "Get authors (paginated)", description = "Retrieve a page of authors with book counts. Supports cursor pagination plus sort, facet, facet_logic, and query parameters. Facets: has_asin, has_photo, has_description (true/false); read_status (same ReadStatus values as the books browse, matching authors with at least one such book); book_count (count or range, e.g. 4, 2-10, 5-, -3); library (library id); genre and language (values from the facets endpoint). Rating sort keys share the books browse names (e.g. amazonRating) and average across the author's visible books.")
+    @Operation(summary = "Get authors (paginated)", description = "Retrieve a page of authors with book counts. Supports cursor pagination plus sort, facet, facet_logic, and query parameters.")
     @ApiResponse(responseCode = "200", description = "Page of authors returned successfully")
     @GetMapping("/page")
     public ResponseEntity<BrowsePage<AuthorSummary>> getAuthorsPaged(
