@@ -1,3 +1,7 @@
+// Pinch zoom for the strip layouts (--cbx-zoom, set from script; 1 when not zoomed).
+$cbx-zoom: var(--cbx-zoom, 1);
+$cbx-strip-fit-height: calc((100vh - 1.75rem) * #{$cbx-zoom});
+
 @mixin cbx-reader-continuation-affordance {
   .cbx-continuation-spacer {
     flex: 0 0 auto;
@@ -189,6 +193,7 @@
     padding: 0.4375rem;
     background: #0f0f0f;
     min-height: 0;
+    touch-action: none; // touch scrolling and pinch are scripted (CbxPageZoom)
 
     &:not(.two-page-view, .infinite-scroll) {
       flex-direction: column;
@@ -206,6 +211,17 @@
         flex: 0 0 auto;
         margin-top: 0.875rem;
       }
+    }
+
+    // Grab cursors (toggled from script); override the global pointer on [role='button'].
+    &.can-pan,
+    &.can-pan :is([role='button'], .click-zone) {
+      cursor: grab;
+    }
+
+    &.is-dragging,
+    &.is-dragging :is([role='button'], .click-zone) {
+      cursor: grabbing;
     }
 
     &.magnifier-active {
@@ -279,7 +295,6 @@
       &.fit-width {
         overflow-y: auto;
         align-items: flex-start;
-        touch-action: pan-y;
 
         .pages-wrapper,
         .previous-page-layer,
@@ -324,7 +339,6 @@
       &.fit-height {
         overflow: auto;
         align-items: stretch;
-        touch-action: pan-x pan-y;
 
         .pages-wrapper {
           width: max-content;
@@ -378,7 +392,6 @@
       &.fit-actual-size {
         overflow: auto;
         align-items: flex-start;
-        touch-action: pan-x pan-y;
 
         .pages-wrapper,
         .previous-page-layer,
@@ -474,13 +487,12 @@
     &.infinite-scroll {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: pan-y;
       overscroll-behavior: contain;
 
       .infinite-scroll-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         gap: 0.875rem;
         width: 100%;
         min-width: 0;
@@ -489,15 +501,15 @@
       }
 
       .strip-width-constrain {
-        // Width set inline from quick-settings signal (% of wrapper). Center column when < 100%.
+        // Width bound in the template: strip width % times --cbx-zoom. Center column when < 100%.
         flex-shrink: 0;
         min-width: 0;
-        max-width: 100%;
+        max-width: calc(100% * #{$cbx-zoom});
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         gap: 0.875rem;
       }
 
@@ -529,7 +541,7 @@
 
         .page-image {
           width: auto;
-          height: calc(100vh - 1.75rem);
+          height: $cbx-strip-fit-height;
           max-width: 100%;
         }
       }
@@ -538,7 +550,7 @@
         overflow-x: auto;
 
         .infinite-scroll-wrapper {
-          align-items: center;
+          align-items: safe center;
 
           // Stable width so strip max-width % resolves against the reader scrollport, not max-content.
           width: 100%;
@@ -548,6 +560,7 @@
         .page-image {
           width: auto;
           height: auto;
+          zoom: $cbx-zoom;
         }
       }
 
@@ -558,7 +571,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -571,7 +584,7 @@
 
         .page-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -589,13 +602,12 @@
     &.long-strip {
       overflow: hidden auto;
       align-items: flex-start;
-      touch-action: pan-y;
       overscroll-behavior: contain;
 
       .long-strip-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
         width: 100%;
         min-width: 0;
 
@@ -605,12 +617,12 @@
       .strip-width-constrain {
         flex-shrink: 0;
         min-width: 0;
-        max-width: 100%;
+        max-width: calc(100% * #{$cbx-zoom});
         margin-inline: auto;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: safe center;
       }
 
       @include cbx-reader-continuation-affordance;
@@ -643,7 +655,7 @@
 
         .long-strip-image {
           width: auto;
-          height: calc(100vh - 1.75rem);
+          height: $cbx-strip-fit-height;
           max-width: 100%;
         }
       }
@@ -652,7 +664,7 @@
         overflow-x: auto;
 
         .long-strip-wrapper {
-          align-items: center;
+          align-items: safe center;
           width: 100%;
           min-width: 0;
         }
@@ -661,6 +673,7 @@
           width: auto;
           height: auto;
           max-width: none;
+          zoom: $cbx-zoom;
         }
       }
 
@@ -671,7 +684,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }
@@ -684,7 +697,7 @@
 
         .long-strip-image {
           max-width: 100%;
-          max-height: calc(100vh - 1.75rem);
+          max-height: $cbx-strip-fit-height;
           width: auto;
           height: auto;
         }

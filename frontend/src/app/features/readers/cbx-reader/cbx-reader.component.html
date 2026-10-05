@@ -66,11 +66,11 @@
     @if (pages().length > 0) {
     @if (scrollMode() === CbxScrollMode.PAGINATED) {
     <div class="pages-wrapper" role="button" tabindex="0" (click)="onImageClick()" (keydown.enter)="onImageClick()"
-      (dblclick)="onImageDoubleClick()">
+      (dblclick)="onImageDoubleClick($event)">
       @if (isPageTransitioning() && previousImageUrls().length > 0) {
       <div class="previous-page-layer" [class.single-page-layer]="isPreviousSinglePageLayer()">
         @for (url of previousImageUrls(); track url) {
-        <img [src]="url" alt="Previous Page" class="page-image previous-image" />
+        <img [src]="url" alt="Previous Page" class="page-image previous-image" draggable="false" />
         }
       </div>
       }
@@ -82,7 +82,7 @@
         </app-canvas-renderer>
         } @else {
         @for (url of currentImageUrls(); track url; let i = $index) {
-        <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage() + i)" />
+        <img [src]="url" alt="Page Image" class="page-image" draggable="false" (load)="onPageImageLoad($event, currentPage() + i)" />
         }
         }
       </div>
@@ -98,8 +98,8 @@
     }
     } @else if (scrollMode() === CbxScrollMode.LONG_STRIP) {
     <div class="long-strip-wrapper" role="button" tabindex="0" (click)="onImageClick()"
-      (keydown.enter)="onImageClick()">
-      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+      (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)">
+      <div class="strip-width-constrain" [style.width]="stripColumnWidth()">
         @for (item of longStripImages(); track item.page) {
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
           draggable="false" [attr.loading]="item.page === currentPage() ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
@@ -123,12 +123,12 @@
     </div>
     } @else {
     <div class="infinite-scroll-wrapper">
-      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+      <div class="strip-width-constrain" [style.width]="stripColumnWidth()">
         @for (pageIdx of infiniteScrollPages(); track pageIdx) {
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
           [attr.loading]="pageIdx === currentPage() ? 'eager' : 'lazy'" decoding="async"
-          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
+          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
         @if (isLoadingMore()) {
