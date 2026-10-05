@@ -40,6 +40,7 @@ import {
 import {bookFacetDefinitions, bookFacetLabelDeps} from './book-browse-facet-definitions';
 import {FACET_FIELDS, OPEN_RAIL_FACETS} from './book-browse-fields';
 import {
+  bookBrowseScopeHiddenFacetKeys,
   bookBrowseScopeMenuTarget,
   bookBrowseScopeTitle,
   type BookBrowseScope,
@@ -50,6 +51,20 @@ export interface BookBrowseQueriesOptions {
   readonly query: Signal<string>;
   readonly scope: Signal<BookBrowseScope | null>;
   readonly enabled?: Signal<boolean>;
+}
+
+export function createBookBrowseScopeTitle(scope: () => BookBrowseScope | null): Signal<string> {
+  const transloco = inject(TranslocoService);
+  const libraryService = inject(LibraryService);
+  const magicShelfService = inject(MagicShelfService);
+  const shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  const shelvesQuery = injectQuery(() => shelfDefinitionQuery.definitions());
+  const activeLang = toSignal(transloco.langChanges$, {initialValue: transloco.getActiveLang()});
+  return computed(() => {
+    activeLang();
+    return bookBrowseScopeTitle(scope(), libraryService.libraries(), shelvesQuery.data() ?? [],
+      magicShelfService.shelves(), key => transloco.translate(key));
+  });
 }
 
 export function createBookBrowseQueries({selection, query, scope, enabled}: BookBrowseQueriesOptions) {
@@ -63,17 +78,20 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
 
   const collectionParams = computed<BookCollectionFilterParams>(() => ({
     facets: selection(),
-    scope: scope() ?? undefined,
+    scope: scope()?.facets,
     query: normalizeRemoteSearchTerm(query()) || undefined,
   }));
   const scopeParams = computed<BookCollectionFilterParams>(() => ({
     facets: EMPTY_FACET_SELECTION,
-    scope: scope() ?? undefined,
+    scope: scope()?.facets,
   }));
   const isEnabled = () => enabled?.() ?? true;
 
   const indexQuery = injectQuery(() => bookQuery.facetIndex(scopeParams()));
-  const available = computed<ReadonlySet<string>>(() => new Set(indexQuery.data()?.facetKeys));
+  const available = computed<ReadonlySet<string>>(() => {
+    const hidden: ReadonlySet<string> = bookBrowseScopeHiddenFacetKeys(scope());
+    return new Set(indexQuery.data()?.facetKeys.filter(key => !hidden.has(key)));
+  });
 
   const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
   const openKeys = signal<ReadonlySet<BookQueryFacetKey>>(new Set([...OPEN_RAIL_FACETS, ...selectedKeys]));
@@ -148,13 +166,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     })));
   const chips = computed<BrowseFilterChip<BookQueryFacetKey>[]>(() =>
     browseFilterChips(served(), definitions(), selection()));
-  const title = computed(() => {
-    activeLang();
-    return bookBrowseScopeTitle(scope(), libraryService.libraries(), shelfDefinitions(), magicShelfService.shelves(), {
-      allBooks: transloco.translate('book.browser.labels.allBooks'),
-      unshelved: transloco.translate('book.browser.labels.unshelvedBooks'),
-    });
-  });
+  const title = createBookBrowseScopeTitle(scope);
   const searchHint = computed(() => {
     activeLang();
     return transloco.translate(`browse.rail.searchScope.${scope()?.kind ?? 'allBooks'}`);

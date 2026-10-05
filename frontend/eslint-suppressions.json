@@ -133,16 +133,6 @@
       "count": 1
     }
   },
-  "src/app/features/dashboard/components/dashboard-scroller/dashboard-scroller.component.html": {
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
-    }
-  },
-  "src/app/features/dashboard/components/main-dashboard/main-dashboard.component.html": {
-    "@angular-eslint/template/prefer-contextual-for-variables": {
-      "count": 1
-    }
-  },
   "src/app/features/design-system/design-system.component.html": {
     "@angular-eslint/template/no-any": {
       "count": 4
