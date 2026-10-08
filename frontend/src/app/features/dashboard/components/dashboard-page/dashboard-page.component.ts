@@ -22,7 +22,7 @@ import {AppMenuTriggerDirective} from '../../../../shared/ui/menu/app-menu-trigg
 import {type GridDensityDirection} from '../../../../shared/util/grid-density.util';
 import {scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
 import {dashboardRows} from '../../dashboard-rows';
-import {DASHBOARD_CARD_GAP, DASHBOARD_CARD_WIDTH} from '../dashboard-row/dashboard-row.component';
+import {BOOK_ROW_CARD_GAP, BOOK_ROW_CARD_WIDTH} from '../../../book/components/book-row/book-row.component';
 import {DashboardRowComponent} from '../dashboard-row/dashboard-row.component';
 
 @Component({
@@ -133,10 +133,10 @@ export class DashboardPageComponent {
     if (!width) {
       return;
     }
-    const cardWidth = DASHBOARD_CARD_WIDTH * this.coverScale.scaleFactor();
-    const visible = Math.max(1, Math.floor((width + DASHBOARD_CARD_GAP) / (cardWidth + DASHBOARD_CARD_GAP)));
+    const cardWidth = BOOK_ROW_CARD_WIDTH * this.coverScale.scaleFactor();
+    const visible = Math.max(1, Math.floor((width + BOOK_ROW_CARD_GAP) / (cardWidth + BOOK_ROW_CARD_GAP)));
     const target = Math.max(1, visible + (direction === 'smaller' ? 1 : -1));
-    this.coverScale.setScale(scaleForGridColumns(width, DASHBOARD_CARD_GAP, target, DASHBOARD_CARD_WIDTH,
+    this.coverScale.setScale(scaleForGridColumns(width, BOOK_ROW_CARD_GAP, target, BOOK_ROW_CARD_WIDTH,
       this.coverScale.MIN_SCALE, this.coverScale.MAX_SCALE));
   }
 

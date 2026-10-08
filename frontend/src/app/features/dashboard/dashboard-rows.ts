@@ -7,6 +7,7 @@ import {
   magicShelfBrowseScope,
   shelfBrowseScope,
 } from '../book/browse/book-browse-scope';
+import {type BookRowCard} from '../book/components/book-row/book-row.component';
 import {bookGrimmoryProgress, bookProgressPercentage} from '../book/data/book-actions';
 import {bookSortTermsFromCriteria} from '../book/browse/book-browse-sort';
 import {
@@ -38,11 +39,6 @@ const DISCOVER_EXCLUDED_STATUSES: readonly BookReadStatus[] =
 const EBOOK_FILE_TYPES: readonly BookFileType[] = BOOK_FILE_TYPES.filter(type => type !== 'AUDIOBOOK');
 const AUDIOBOOK_FILE_TYPES: readonly BookFileType[] = ['AUDIOBOOK'];
 
-export interface DashboardRowCard {
-  readonly book: BookSummary;
-  readonly file?: BookFileResponse;
-}
-
 interface DashboardRowLink {
   readonly route: readonly (string | number)[];
   readonly queryParams: Params | null;
@@ -54,7 +50,7 @@ export interface DashboardRow {
   readonly scope: BookBrowseScope;
   readonly sort: readonly BookSortTerm[];
   readonly querySize: number;
-  readonly cards: (books: readonly BookSummary[]) => DashboardRowCard[];
+  readonly cards: (books: readonly BookSummary[]) => BookRowCard[];
 }
 
 interface DashboardRowEntity {
@@ -128,7 +124,7 @@ function entityRowType(type: ScrollerType, entity: DashboardRowEntity): Dashboar
   return {type, titleKey: rowTypeTitleKey(type), entity, build: scroller => entityRow(scroller, entity)};
 }
 
-function bookCards(books: readonly BookSummary[]): DashboardRowCard[] {
+function bookCards(books: readonly BookSummary[]): BookRowCard[] {
   return books.map(book => ({book}));
 }
 

@@ -87,10 +87,6 @@
       "welcomeDescription": "A library is where all your books live. Start building your digital collection today!",
       "createLibrary": "Create Your Library",
       "customize": "Customize Dashboard"
-    },
-    "row": {
-      "previous": "Scroll back",
-      "next": "Scroll forward"
     }
   },
   "settings": {
@@ -2830,6 +2826,10 @@
         "continueReading": "Continue reading",
         "readStatusMenu": "Change read status"
       }
+    },
+    "row": {
+      "previous": "Scroll back",
+      "next": "Scroll forward"
     },
     "menu": {
       "label": "Book actions",
