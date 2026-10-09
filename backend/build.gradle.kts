@@ -163,7 +163,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     // --- MIME Detection ---
-    implementation("org.apache.tika:tika-core:4.0.0")
+    implementation("org.apache.tika:tika-core:4.1.0")
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
