@@ -475,21 +475,6 @@ export interface PersonalRatingUpdateResponse {
   personalRating?: number;
 }
 
-export interface DuplicateDetectionRequest {
-  libraryId: number;
-  matchByIsbn: boolean;
-  matchByExternalId: boolean;
-  matchByTitleAuthor: boolean;
-  matchByDirectory: boolean;
-  matchByFilename: boolean;
-}
-
-export interface DuplicateGroup {
-  suggestedTargetBookId: number;
-  matchReason: string;
-  books: Book[];
-}
-
 export interface DetachBookFileResponse {
   sourceBook: Book;
   newBook: Book;

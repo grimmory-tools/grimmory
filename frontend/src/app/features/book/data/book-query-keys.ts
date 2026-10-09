@@ -7,6 +7,7 @@ import {
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
 } from './book-query-params';
+import {BookDuplicateRequest} from './book-query.models';
 
 export const bookQueryKeys = {
   all: () => ['books', 'query'] as const,
@@ -33,6 +34,9 @@ export const bookQueryKeys = {
     [...bookQueryKeys.recommendations(), bookId] as const,
   recommendation: (bookId: number, limit: number) =>
     [...bookQueryKeys.recommendationQueries(bookId), {limit}] as const,
+  duplicateQueries: () => [...bookQueryKeys.collections(), 'duplicates'] as const,
+  duplicates: (request: BookDuplicateRequest) =>
+    [...bookQueryKeys.duplicateQueries(), request] as const,
 };
 
 export function bookCollectionKeys(params: BookQueryParams) {

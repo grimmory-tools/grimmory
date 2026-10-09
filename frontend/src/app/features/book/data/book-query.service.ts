@@ -25,7 +25,11 @@ import {
   toIdsHttpParams,
   toPageHttpParams,
 } from './book-query-params';
-import {BookPage} from './book-query.models';
+import {
+  BookDuplicateGroup,
+  BookDuplicateRequest,
+  BookPage,
+} from './book-query.models';
 import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
@@ -136,6 +140,17 @@ export class BookQueryService {
         new HttpParams().set('limit', limit.toString()),
       ),
       ...QUERY_DEFAULTS,
+    });
+  }
+
+  duplicates(request: BookDuplicateRequest) {
+    const criteria = {...request};
+    return queryOptions({
+      ...QUERY_DEFAULTS,
+      queryKey: bookQueryKeys.duplicates(criteria),
+      queryFn: ({signal}) => this.finalize(
+        this.http.post<BookDuplicateGroup[]>(`${this.baseUrl}/duplicates`, criteria), signal),
+      staleTime: 0,
     });
   }
 

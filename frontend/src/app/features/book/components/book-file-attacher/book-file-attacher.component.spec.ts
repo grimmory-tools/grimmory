@@ -1,259 +1,117 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {TranslocoService} from '@jsverse/transloco';
+import {By} from '@angular/platform-browser';
 import {MessageService} from '@openng/optimus-ui/api';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {describe, expect, it, vi} from 'vitest';
-import {Observable, of, throwError} from 'rxjs';
-import {Book} from '../../model/book.model';
-import {BookFileService} from '../../service/book-file.service';
-import {BookService} from '../../service/book.service';
-import {BookFileAttacherComponent} from './book-file-attacher.component';
+import * as TanStack from '@tanstack/angular-query-experimental';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
+import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {BookCommandService} from '../../data/book-command.service';
+import {BookSummary} from '../../data/book-response.models';
+import {BookQueryService} from '../../data/book-query.service';
+import {BookFileAttacherComponent} from './book-file-attacher.component';
 
-interface DialogData {
-  sourceBook?: Book;
-  sourceBooks?: Book[];
+vi.mock('@tanstack/angular-query-experimental', {spy: true});
+
+function book(id: number): BookSummary {
+  return {id, libraryId: 7, libraryName: 'Library', metadata: {bookId: id, title: `Book ${id}`, allMetadataLocked: false}};
 }
 
-type AppSettingsLike = {
-  metadataPersistenceSettings?: {
-    moveFilesToLibraryPattern?: boolean;
+async function setup() {
+  const target = book(2);
+  const attach = vi.fn();
+  const read = {
+    data: signal({content: [target]}),
+    isPending: () => false,
+    isFetching: () => false,
+    isError: signal(false),
+    refetch: vi.fn(),
   };
-} | null;
-
-function buildBook(overrides: Partial<Book> = {}): Book {
-  const id = overrides.id ?? 1;
-  return {
-    id,
-    libraryId: overrides.libraryId ?? 10,
-    libraryName: overrides.libraryName ?? 'Main Library',
-    metadata: overrides.metadata ?? {
-      bookId: id,
-      title: `Book ${id}`,
-      authors: [`Author ${id}`],
-    },
-    primaryFile: overrides.primaryFile,
-    ...overrides,
-  };
-}
-
-function setup(options: {
-  dialogData?: DialogData;
-  books?: Book[];
-  appSettings?: AppSettingsLike;
-  attachResult?: Observable<{updatedBook: Book; deletedSourceBookIds: number[]}>;
-} = {}) {
-  const dialogRef = {
-    close: vi.fn(),
-  };
-  const config = {
-    data: options.dialogData ?? {},
-  };
-  const booksSignal = signal<Book[]>(options.books ?? []);
-  const bookFileService = {
-    attachBookFiles: vi.fn().mockReturnValue(
-      options.attachResult ?? of({updatedBook: buildBook({id: 999}), deletedSourceBookIds: []})
-    ),
-  };
-  const appSettingsService = {
-    appSettings: vi.fn(() => options.appSettings ?? null),
-  };
-  const translocoService = {
-    translate: vi.fn((key: string) => key),
-  };
-  const messageService = {
-    add: vi.fn(),
-  };
-
-  TestBed.resetTestingModule();
+  vi.mocked(TanStack.injectQuery).mockImplementation(vi.fn().mockReturnValue(read));
+  vi.mocked(TanStack.injectMutation).mockImplementation(vi.fn().mockReturnValue({isPending: () => false, mutate: attach}));
   TestBed.configureTestingModule({
+    imports: [BookFileAttacherComponent, getTranslocoModule()],
     providers: [
-      {provide: DynamicDialogRef, useValue: dialogRef},
-      {provide: DynamicDialogConfig, useValue: config},
-      {provide: BookService, useValue: {books: booksSignal}},
-      {provide: BookFileService, useValue: bookFileService},
-      {provide: AppSettingsService, useValue: appSettingsService},
-      {provide: TranslocoService, useValue: translocoService},
-      {provide: MessageService, useValue: messageService},
+      {provide: DynamicDialogRef, useValue: {close: vi.fn()}},
+      {provide: DynamicDialogConfig, useValue: {data: {sourceBooks: [book(1)]}}},
+      {provide: MessageService, useValue: {add: vi.fn()}},
+      {provide: BookCommandService, useValue: {}},
+      {provide: BookQueryService, useValue: {}},
+      {provide: AppSettingsService, useValue: {appSettings: () => null}},
     ],
   });
-
-  const component = TestBed.runInInjectionContext(() => new BookFileAttacherComponent());
-
+  const fixture = TestBed.createComponent(BookFileAttacherComponent);
+  await fixture.whenStable();
+  const control = fixture.debugElement.query(By.directive(AutoComplete));
   return {
-    component,
-    dialogRef,
-    bookFileService,
-    appSettingsService,
-    translocoService,
-    booksSignal,
+    fixture, target, attach, read,
+    component: fixture.componentInstance,
+    autocomplete: control.componentInstance as AutoComplete,
+    input: control.nativeElement.querySelector('input[role="combobox"]') as HTMLInputElement,
+    dropdown: control.nativeElement.querySelector('button') as HTMLButtonElement,
   };
 }
 
+let originalScrollIntoView: PropertyDescriptor | undefined;
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+    matches: false, media: query, onchange: null,
+    addEventListener: vi.fn(), removeEventListener: vi.fn(),
+    addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn(),
+  })));
+  originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {configurable: true, value: vi.fn()});
+});
+
+afterEach(() => {
+  TestBed.resetTestingModule();
+  if (originalScrollIntoView) {
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScrollIntoView);
+  } else {
+    delete (HTMLElement.prototype as {scrollIntoView?: unknown}).scrollIntoView;
+  }
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
 describe('BookFileAttacherComponent', () => {
-  it('bootstraps a single source book, filters candidates by library/source ids, and applies the moveFiles setting', () => {
-    const sourceBook = buildBook({id: 1, libraryId: 7, metadata: {bookId: 1, title: 'Source', authors: ['Origin']}});
-    const siblingCandidate = buildBook({id: 2, libraryId: 7, metadata: {bookId: 2, title: 'Sibling', authors: ['Match']}});
-    const foreignLibraryBook = buildBook({id: 3, libraryId: 99, metadata: {bookId: 3, title: 'Foreign', authors: ['Other']}});
-    const {component} = setup({
-      dialogData: {sourceBook},
-      books: [sourceBook, siblingCandidate, foreignLibraryBook],
-      appSettings: {
-        metadataPersistenceSettings: {
-          moveFilesToLibraryPattern: true,
-        },
-      },
-    });
+  it('reopens unchanged suggestions without leaving the Optimus spinner running', async () => {
+    const {fixture, dropdown, autocomplete, target} = await setup();
+    dropdown.click();
+    await fixture.whenStable();
 
-    component.ngOnInit();
-
-    expect(component.sourceBooks).toEqual([sourceBook]);
-    expect(component.isBulkMode).toBe(false);
-    expect(component.moveFiles).toBe(true);
-    expect(component.filteredBooks).toEqual([siblingCandidate]);
+    // Isolate repeated completion from the overlay's focus and transition timers.
+    autocomplete.overlayVisible = false;
+    dropdown.click();
+    await fixture.whenStable();
+    expect(autocomplete.loading).toBe(false);
+    expect(autocomplete.overlayVisible).toBe(true);
+    expect(autocomplete.suggestions).toEqual([target]);
   });
 
-  it('bootstraps bulk mode from sourceBooks and defaults moveFiles to false when settings are unavailable', () => {
-    const sourceA = buildBook({id: 10, libraryId: 4});
-    const sourceB = buildBook({id: 11, libraryId: 4});
-    const target = buildBook({id: 12, libraryId: 4});
-    const {component} = setup({
-      dialogData: {sourceBooks: [sourceA, sourceB]},
-      books: [sourceA, sourceB, target],
-      appSettings: null,
-    });
-
-    component.ngOnInit();
-
-    expect(component.sourceBooks).toEqual([sourceA, sourceB]);
-    expect(component.isBulkMode).toBe(true);
-    expect(component.moveFiles).toBe(false);
-    expect(component.filteredBooks).toEqual([target]);
+  it('lets the dropdown request another attempt for the same failed search', async () => {
+    const {fixture, dropdown, read, autocomplete} = await setup();
+    read.isError.set(true);
+    await fixture.whenStable();
+    dropdown.click();
+    await fixture.whenStable();
+    expect(read.refetch).toHaveBeenCalled();
+    expect(autocomplete.loading).toBe(false);
   });
 
-  it('closes immediately when no source payload is provided', () => {
-    const {component, dialogRef, appSettingsService} = setup({
-      dialogData: {},
-      books: [buildBook({id: 20})],
-    });
+  it('does not attach the previously selected book after its label is edited', async () => {
+    const {fixture, component, dropdown, input, attach} = await setup();
+    dropdown.click();
+    await fixture.whenStable();
+    (fixture.nativeElement.querySelector('li[role="option"]') as HTMLElement).click();
+    await fixture.whenStable();
 
-    component.ngOnInit();
-
-    expect(dialogRef.close).toHaveBeenCalledOnce();
-    expect(dialogRef.close).toHaveBeenCalledWith();
-    expect(appSettingsService.appSettings).not.toHaveBeenCalled();
-  });
-
-  it('filters candidate books by title and author and resets blank queries to the first twenty matches', () => {
-    const sourceBook = buildBook({id: 1, libraryId: 5, metadata: {bookId: 1, title: 'Source', authors: ['Keeper']}});
-    const matchingByTitle = buildBook({id: 2, libraryId: 5, metadata: {bookId: 2, title: 'Dune Messiah', authors: ['Frank Herbert']}});
-    const matchingByAuthor = buildBook({id: 3, libraryId: 5, metadata: {bookId: 3, title: 'Fahrenheit 451', authors: ['Ray Bradbury']}});
-    const fillerBooks = Array.from({length: 25}, (_, index) =>
-      buildBook({
-        id: index + 10,
-        libraryId: 5,
-        metadata: {bookId: index + 10, title: `Candidate ${index}`, authors: [`Writer ${index}`]},
-      })
-    );
-    const {component} = setup({
-      dialogData: {sourceBook},
-      books: [sourceBook, matchingByTitle, matchingByAuthor, ...fillerBooks],
-    });
-
-    component.ngOnInit();
-
-    expect(component.filteredBooks).toHaveLength(20);
-
-    component.filterBooks({query: ' dune '});
-    expect(component.filteredBooks).toEqual([matchingByTitle]);
-
-    component.filterBooks({query: 'bradbury'});
-    expect(component.filteredBooks).toEqual([matchingByAuthor]);
-
-    component.filterBooks({query: '   '});
-    expect(component.filteredBooks).toHaveLength(20);
-    expect(component.filteredBooks[0]).toEqual(matchingByTitle);
-  });
-
-  it('handles lightweight selection events and formats display helpers with fallbacks', () => {
-    const selectedBook = buildBook({
-      id: 30,
-      metadata: {bookId: 30, title: 'The Left Hand of Darkness', authors: ['Ursula K. Le Guin', 'Guest Author']},
-      primaryFile: {id: 301, bookId: 30, extension: 'epub', fileName: 'left-hand.epub'},
-    });
-    const untitledBook = buildBook({id: 31, metadata: undefined, primaryFile: undefined});
-    const {component, translocoService} = setup();
-
-    component.onBookSelect({value: selectedBook} as never);
-    expect(component.targetBook).toEqual(selectedBook);
-
-    component.onBookClear();
-    expect(component.targetBook).toBeNull();
-
-    expect(component.getBookDisplayName(selectedBook)).toBe('The Left Hand of Darkness - Ursula K. Le Guin, Guest Author');
-    expect(component.getBookDisplayName(untitledBook)).toBe('Book #31');
-    expect(component.getSourceFileInfo(selectedBook)).toBe('EPUB - left-hand.epub');
-    expect(component.getSourceFileInfo(untitledBook)).toBe('book.fileAttacher.unknownFile');
-    expect(translocoService.translate).toHaveBeenCalledWith('book.fileAttacher.unknownFile');
-  });
-
-  it('uses the target selection and defaulted moveFiles value when attach succeeds', () => {
-    const sourceBook = buildBook({id: 40, libraryId: 8});
-    const targetBook = buildBook({id: 41, libraryId: 8});
-    const {component, bookFileService, dialogRef} = setup({
-      dialogData: {sourceBook},
-      books: [sourceBook, targetBook],
-      appSettings: null,
-    });
-
-    component.ngOnInit();
-    component.targetBook = targetBook;
-
+    input.value = 'different';
+    input.dispatchEvent(new InputEvent('input', {bubbles: true}));
     component.attach();
-
-    expect(bookFileService.attachBookFiles).toHaveBeenCalledWith(41, [40], false);
-    expect(dialogRef.close).toHaveBeenCalledWith({success: true});
-  });
-
-  it('resets attaching state when attach fails and preserves the dialog', () => {
-    const sourceBook = buildBook({id: 50, libraryId: 9});
-    const targetBook = buildBook({id: 51, libraryId: 9});
-    const {component, bookFileService, dialogRef} = setup({
-      dialogData: {sourceBook},
-      books: [sourceBook, targetBook],
-      appSettings: {
-        metadataPersistenceSettings: {
-          moveFilesToLibraryPattern: true,
-        },
-      },
-      attachResult: throwError(() => new Error('attach failed')),
-    });
-
-    component.ngOnInit();
-    component.targetBook = targetBook;
-
-    component.attach();
-
-    expect(bookFileService.attachBookFiles).toHaveBeenCalledWith(51, [50], true);
-    expect(component.isAttaching).toBe(false);
-    expect(dialogRef.close).not.toHaveBeenCalled();
-  });
-
-  it('does not attach without a target book and exposes direct close behavior', () => {
-    const sourceBook = buildBook({id: 60});
-    const {component, bookFileService, dialogRef} = setup({
-      dialogData: {sourceBook},
-      books: [sourceBook],
-    });
-
-    component.ngOnInit();
-    component.attach();
-    component.closeDialog();
-
-    expect(component.canAttach()).toBe(false);
-    expect(bookFileService.attachBookFiles).not.toHaveBeenCalled();
-    expect(dialogRef.close).toHaveBeenCalledOnce();
-    expect(dialogRef.close).toHaveBeenCalledWith();
+    expect(attach).not.toHaveBeenCalled();
   });
 });

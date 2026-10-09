@@ -6,6 +6,7 @@ import {bookQueryKeys} from '../data/book-query-keys';
 import {
   invalidateDeletedBookQueries,
   patchBooksInCacheWith,
+  patchAttachedBookFilesInLegacyCache,
   reconcileBookCacheChangeSet,
   removeListOnlyBooks,
 } from './legacy-book-cache';
@@ -89,4 +90,14 @@ describe('legacy book cache adapter', () => {
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([book]);
   });
 
+  it('refetches surviving source books after attachment instead of leaving their old files cached', async () => {
+    const sourceKey = bookDetailQueryKey(2, false);
+    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1), makeBook(2)]);
+    queryClient.setQueryData(sourceKey, makeBook(2));
+
+    await patchAttachedBookFilesInLegacyCache(queryClient, makeBook(1), [], [2]);
+
+    expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
+    expect(isInvalidated(sourceKey)).toBe(true);
+  });
 });

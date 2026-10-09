@@ -9,8 +9,7 @@
         <p class="panel-description">{{ isBulkMode ? t('descriptionBulk') : t('description') }}</p>
       </div>
       <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="secondary" (click)="closeDialog()"
-        class="close-button">
-      </p-button>
+        class="close-button" />
     </div>
 
     <div class="dialog-content">
@@ -27,7 +26,13 @@
             }
             <div class="file-info">
               <i class="pi pi-file"></i>
-              <span>{{ getSourceFileInfo(book) }}</span>
+              <span>
+                @if (book.primaryFile; as file) {
+                  {{ file.extension?.toUpperCase() || file.bookType || t('unknownFormat') }} - {{ file.fileName || t('unknownFilename') }}
+                } @else {
+                  {{ t('unknownFile') }}
+                }
+              </span>
             </div>
           </div>
           }
@@ -35,12 +40,13 @@
       </div>
 
       <!-- Target Book Selection -->
-      <div class="target-selection" #autocompleteWrapper>
+      <div class="target-selection">
         <h3 class="section-title">{{ t('selectTargetBook') }}</h3>
-        <p-autocomplete [(ngModel)]="targetBook" [suggestions]="filteredBooks" (completeMethod)="filterBooks($event)"
-          (onSelect)="onBookSelect($event)" (onClear)="onBookClear()" optionLabel="metadata.title" [dropdown]="true"
-          [showClear]="true" [placeholder]="t('searchPlaceholder')" [panelStyle]="autocomplePanelStyle" fluid
-          [disabled]="isAttaching">
+        <p-autocomplete [(ngModel)]="targetInputValue"
+          [suggestions]="filteredBooks()" (completeMethod)="filterBooks($event)"
+          (input)="onSearchInput($event)" (onClear)="onBookClear()" optionLabel="metadata.title" [dropdown]="true" [showClear]="true"
+          [completeOnFocus]="true" [forceSelection]="true" [delay]="0" [placeholder]="t('searchPlaceholder')"
+          appendTo="self" [overlayOptions]="{styleClass: 'w-full'}" fluid [disabled]="attachMutation.isPending()">
           <ng-template let-book #item>
             <div class="book-suggestion">
               <div class="suggestion-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
@@ -54,15 +60,23 @@
             </div>
           </ng-template>
           <ng-template let-book #selecteditem>
-            <span>{{ getBookDisplayName(book) }}</span>
+            <span>{{ book.metadata?.title || ('Book #' + book.id) }}@if (book.metadata?.authors?.length) { - {{ book.metadata.authors.join(', ') }}}</span>
+          </ng-template>
+          <ng-template #empty>
+            @if (isSearching()) {
+            <span><i class="pi pi-spin pi-spinner"></i> {{ 'common.loading' | transloco }}</span>
+            } @else if (targetsQuery.isError()) {
+            <span>{{ 'dashboard.scroller.loadError' | transloco }}</span>
+            } @else {
+            <span>{{ 'book.searcher.noResults' | transloco }}</span>
+            }
           </ng-template>
         </p-autocomplete>
       </div>
 
       <!-- Options -->
       <div class="delete-option">
-        <p-checkbox [(ngModel)]="moveFiles" [binary]="true" inputId="moveFiles" [disabled]="isAttaching">
-        </p-checkbox>
+        <p-checkbox [(ngModel)]="moveFiles" [binary]="true" inputId="moveFiles" [disabled]="attachMutation.isPending()" />
         <label for="moveFiles" class="delete-label">
           {{ t('moveFilesLabel') }}
         </label>
@@ -72,7 +86,7 @@
       <div class="warning-message">
         <i class="pi pi-info-circle"></i>
         <div class="warning-text">
-          @if (moveFiles) {
+          @if (moveFiles()) {
           <p>{{ isBulkMode ? t('warningMoveBulk') : t('warningMove') }}</p>
           } @else {
           <p>{{ isBulkMode ? t('warningNoMoveBulk') : t('warningNoMove') }}</p>
@@ -84,11 +98,9 @@
       <!-- Action Buttons -->
       <div class="action-buttons">
         <p-button [label]="'common.cancel' | transloco" [outlined]="true" severity="secondary" (click)="closeDialog()"
-          [disabled]="isAttaching">
-        </p-button>
+          [disabled]="attachMutation.isPending()" />
         <p-button [label]="isBulkMode ? t('attachFilesBulk') : t('attachFile')" icon="pi pi-link" (click)="attach()"
-          [disabled]="!canAttach()" [loading]="isAttaching">
-        </p-button>
+          [disabled]="!canAttach()" [loading]="attachMutation.isPending()" />
       </div>
     </div>
   </div>

@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="closeDialog()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -27,39 +26,26 @@
         (onChange)="onPresetChange()"
         optionLabel="label"
         optionValue="value"
-        [disabled]="isScanning() || isMerging()">
-      </p-selectButton>
+        [allowEmpty]="false"
+        [disabled]="isBusy()" />
     </div>
 
     <!-- Advanced Toggles -->
     <div class="advanced-section">
-      <button class="advanced-toggle" (click)="showAdvanced = !showAdvanced">
-        <i class="pi" [class.pi-chevron-right]="!showAdvanced" [class.pi-chevron-down]="showAdvanced"></i>
+      <button class="advanced-toggle" (click)="showAdvanced.set(!showAdvanced())">
+        <i class="pi" [class.pi-chevron-right]="!showAdvanced()" [class.pi-chevron-down]="showAdvanced()"></i>
         {{ t('advanced') }}
       </button>
 
-      @if (showAdvanced) {
+      @if (showAdvanced()) {
         <div class="signal-checkboxes">
-          <div class="signal-checkbox">
-            <p-checkbox [(ngModel)]="matchByIsbn" [binary]="true" inputId="isbn" (onChange)="onSignalToggle()" [disabled]="isScanning() || isMerging()"></p-checkbox>
-            <label for="isbn">{{ t('signalIsbn') }}</label>
-          </div>
-          <div class="signal-checkbox">
-            <p-checkbox [(ngModel)]="matchByExternalId" [binary]="true" inputId="externalId" (onChange)="onSignalToggle()" [disabled]="isScanning() || isMerging()"></p-checkbox>
-            <label for="externalId">{{ t('signalExternalId') }}</label>
-          </div>
-          <div class="signal-checkbox">
-            <p-checkbox [(ngModel)]="matchByTitleAuthor" [binary]="true" inputId="titleAuthor" (onChange)="onSignalToggle()" [disabled]="isScanning() || isMerging()"></p-checkbox>
-            <label for="titleAuthor">{{ t('signalTitleAuthor') }}</label>
-          </div>
-          <div class="signal-checkbox">
-            <p-checkbox [(ngModel)]="matchByDirectory" [binary]="true" inputId="directory" (onChange)="onSignalToggle()" [disabled]="isScanning() || isMerging()"></p-checkbox>
-            <label for="directory">{{ t('signalDirectory') }}</label>
-          </div>
-          <div class="signal-checkbox">
-            <p-checkbox [(ngModel)]="matchByFilename" [binary]="true" inputId="filename" (onChange)="onSignalToggle()" [disabled]="isScanning() || isMerging()"></p-checkbox>
-            <label for="filename">{{ t('signalFilename') }}</label>
-          </div>
+          @for (option of matchingOptions; track option.key) {
+            <div class="signal-checkbox">
+              <p-checkbox [(ngModel)]="criteria[option.key]" [binary]="true" [inputId]="option.id"
+                (onChange)="presetMode.set('custom')" [disabled]="isBusy()" />
+              <label [for]="option.id">{{ t(option.label) }}</label>
+            </div>
+          }
         </div>
       }
     </div>
@@ -71,9 +57,8 @@
           [label]="t('scan')"
           icon="pi pi-search"
           (click)="scan()"
-          [disabled]="!canScan"
-          [loading]="isScanning()">
-        </p-button>
+          [disabled]="!canScan()"
+          [loading]="scanState() === 'scanning'" />
       </div>
       <div class="action-bar-right">
         <div class="delete-option">
@@ -81,30 +66,29 @@
             [(ngModel)]="moveFiles"
             [binary]="true"
             inputId="moveFiles"
-            [disabled]="isMerging()">
-          </p-checkbox>
+            [disabled]="isBusy()" />
           <label for="moveFiles">{{ 'book.fileAttacher.moveFilesLabel' | transloco }}</label>
         </div>
-        @if (activeGroups.length > 0) {
+        @if (groups().length > 0) {
           <p-button
-            [label]="t('mergeAll', { count: activeGroups.length })"
+            [label]="t('mergeAll', { count: groups().length })"
             icon="pi pi-check-circle"
             severity="success"
-            (click)="mergeAll()"
-            [disabled]="isMerging()"
-            [loading]="isMerging()">
-          </p-button>
+            (click)="mergeGroups(groups(), true)"
+            [disabled]="isBusy()"
+            [loading]="mergeProgress() !== null" />
         }
       </div>
     </div>
 
     <!-- Merge Progress -->
-    @if (isMerging()) {
-      <p-progressBar [value]="mergeTotal() > 0 ? (mergeProgress() / mergeTotal()) * 100 : 0" [showValue]="false"></p-progressBar>
+    @let progress = mergeProgress();
+    @if (progress !== null) {
+      <p-progressBar [value]="progress" [showValue]="false" />
     }
 
     <!-- Help Text -->
-    @if (hasScanned() && activeGroups.length > 0) {
+    @if (groups().length > 0) {
       <div class="help-text">
         <i class="pi pi-info-circle"></i>
         <span>{{ t('helpText') }}</span>
@@ -113,35 +97,30 @@
 
     <!-- Results Area -->
     <div class="results-area">
-      @if (isScanning()) {
+      @if (scanState() === 'scanning') {
         <div class="empty-state">
           <i class="pi pi-spin pi-spinner"></i>
           <p>{{ t('scanning') }}</p>
         </div>
-      } @else if (!hasScanned()) {
+      } @else if (scanState() === 'idle') {
         <div class="empty-state">
           <i class="pi pi-search"></i>
           <p>{{ t('scanPrompt') }}</p>
         </div>
-      } @else if (activeGroups.length === 0 && groups.length === 0) {
+      } @else if (groups().length === 0) {
         <div class="empty-state">
           <i class="pi pi-check-circle"></i>
-          <p>{{ t('noDuplicates') }}</p>
-        </div>
-      } @else if (activeGroups.length === 0 && groups.length > 0) {
-        <div class="empty-state">
-          <i class="pi pi-check-circle"></i>
-          <p>{{ t('allMerged') }}</p>
+          <p>{{ t(scanState() === 'empty' ? 'noDuplicates' : 'allMerged') }}</p>
         </div>
       } @else {
         <div class="groups-list">
-          @for (group of pagedGroups; track group.suggestedTargetBookId) {
+          @for (group of pagedGroups(); track group.suggestedTargetBookId) {
             <div class="duplicate-group">
               <div class="group-header">
-                <span class="group-label">{{ t('groupLabel', { index: pageFirst + $index + 1 }) }}</span>
-                <p-tag [value]="getMatchReasonLabel(group.matchReason)" [severity]="getMatchReasonSeverity(group.matchReason)"></p-tag>
+                <span class="group-label">{{ t('groupLabel', { index: pageFirst() + $index + 1 }) }}</span>
+                <p-tag [value]="t('reason.' + group.matchReason)" [severity]="matchReasonSeverity[group.matchReason] || 'info'" />
                 @if (hasSameFormatConflict(group)) {
-                  <p-tag [value]="t('sameFormatWarning')" severity="warn" icon="pi pi-exclamation-triangle"></p-tag>
+                  <p-tag [value]="t('sameFormatWarning')" severity="warn" icon="pi pi-exclamation-triangle" />
                 }
                 <div class="group-actions">
                   <p-button
@@ -149,19 +128,17 @@
                     icon="pi pi-check"
                     size="small"
                     severity="success"
-                    (click)="mergeGroup(group)"
-                    [disabled]="isMerging()">
-                  </p-button>
-                  @if (getDeleteSelectedCount(group) > 0) {
+                    (click)="mergeGroups([group])"
+                    [disabled]="isBusy()" />
+                  @if (group.selectedForDeletion.size > 0) {
                     <p-button
-                      [label]="t('deleteSelected', { count: getDeleteSelectedCount(group) })"
+                      [label]="t('deleteSelected', { count: group.selectedForDeletion.size })"
                       icon="pi pi-trash"
                       size="small"
                       severity="danger"
                       [outlined]="true"
                       (click)="deleteGroup(group)"
-                      [disabled]="isMerging()">
-                    </p-button>
+                      [disabled]="isBusy()" />
                   }
                   <p-button
                     [label]="t('dismiss')"
@@ -169,9 +146,8 @@
                     size="small"
                     severity="secondary"
                     [outlined]="true"
-                    (click)="dismissGroup(group)"
-                    [disabled]="isMerging()">
-                  </p-button>
+                    (click)="removeGroup(group)"
+                    [disabled]="isBusy()" />
                 </div>
               </div>
               <div class="group-books">
@@ -182,9 +158,8 @@
                         [binary]="true"
                         [ngModel]="group.selectedForDeletion.has(book.id)"
                         (onChange)="toggleDeleteSelection(group, book.id)"
-                        [disabled]="isMerging()"
-                        class="delete-checkbox">
-                      </p-checkbox>
+                        [disabled]="isBusy()"
+                        class="delete-checkbox" />
                     }
                     <app-cover class="book-cover"
                                aria-hidden="true"
@@ -205,8 +180,8 @@
                         @if (getFileCount(book) > 1) {
                           <span class="file-count">{{ t('fileCount', { count: getFileCount(book) }) }}</span>
                         }
-                        @if (book.primaryFile?.fileSizeKb) {
-                          <span class="file-detail">{{ formatFileSize(book.primaryFile?.fileSizeKb) }}</span>
+                        @if (book.primaryFile?.fileSizeKb; as sizeKb) {
+                          <span class="file-detail">{{ formatFileSize(sizeKb) }}</span>
                         }
                       </div>
                       @if (book.primaryFile?.fileName) {
@@ -220,10 +195,9 @@
                       <p-radioButton
                         [name]="'target-' + group.suggestedTargetBookId"
                         [value]="book.id"
-                        [(ngModel)]="group.selectedTargetBookId"
-                        (onClick)="onTargetChange(group)"
-                        [disabled]="isMerging()">
-                      </p-radioButton>
+                        [ngModel]="group.selectedTargetBookId"
+                        (ngModelChange)="onTargetChange(group, $event)"
+                        [disabled]="isBusy()" />
                       @if (book.id === group.selectedTargetBookId) {
                         <span class="target-label">{{ t('target') }}</span>
                       }
@@ -235,14 +209,13 @@
           }
         </div>
 
-        @if (activeGroups.length > pageSize) {
+        @if (groups().length > pageSize()) {
           <p-paginator
-            [rows]="pageSize"
-            [totalRecords]="activeGroups.length"
-            [first]="pageFirst"
+            [rows]="pageSize()"
+            [totalRecords]="groups().length"
+            [first]="pageFirst()"
             (onPageChange)="onPageChange($event)"
-            [rowsPerPageOptions]="[10, 20, 50]">
-          </p-paginator>
+            [rowsPerPageOptions]="[10, 20, 50]" />
         }
       }
     </div>

@@ -7,6 +7,8 @@ import {
 
 import {
   DeleteAdditionalFileResult,
+  AttachBookFilesResult,
+  AttachBookFilesVariables,
   DeleteBooksResult,
   ResetBookProgressResult,
   SetAllBookMetadataLocksResult,
@@ -20,6 +22,7 @@ import {
   invalidateAllLegacyBooks,
   patchListOnlyBookFields,
   patchListOnlyBooksWith,
+  patchAttachedBookFilesInLegacyCache,
   removeListOnlyBooks,
 } from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
@@ -27,9 +30,10 @@ import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 type MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> =
   WithRequired<CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>, 'mutationKey'>;
 
-type LegacyBookCachePatch<TData> = (
+type LegacyBookCachePatch<TData, TVariables> = (
   client: QueryClient,
   data: TData,
+  variables: TVariables,
 ) => Promise<void> | void;
 
 export function withLegacyBookCache<
@@ -39,7 +43,7 @@ export function withLegacyBookCache<
   TOnMutateResult = unknown,
 >(
   options: MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult>,
-  patch: LegacyBookCachePatch<TData>,
+  patch: LegacyBookCachePatch<TData, TVariables>,
 ): MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> {
   const originalOnSuccess = options.onSuccess;
   const originalOnError = options.onError;
@@ -48,7 +52,7 @@ export function withLegacyBookCache<
     ...options,
     onSuccess: async (data, variables, onMutateResult, context) => {
       await Promise.all([
-        patch(context.client, data),
+        patch(context.client, data, variables),
         originalOnSuccess?.(data, variables, onMutateResult, context),
       ]);
     },
@@ -62,6 +66,16 @@ export function withLegacyBookCache<
 }
 
 export const legacyBookCachePatches = {
+  attachBookFiles: (
+    client: QueryClient,
+    result: AttachBookFilesResult,
+    variables: AttachBookFilesVariables,
+  ): Promise<void> => patchAttachedBookFilesInLegacyCache(
+    client,
+    result.updatedBook as Book,
+    result.deletedSourceBookIds,
+    variables.sourceBookIds,
+  ),
   readStatus: (
     client: QueryClient,
     results: readonly SetBookReadStatusResult[],

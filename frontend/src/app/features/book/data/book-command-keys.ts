@@ -3,6 +3,7 @@ export const bookCommandKeys = {
   readStatus: () => [...bookCommandKeys.all(), 'read-status'] as const,
   deleteBooks: () => [...bookCommandKeys.all(), 'delete'] as const,
   deleteAdditionalFile: () => [...bookCommandKeys.all(), 'delete-additional-file'] as const,
+  attachBookFiles: () => [...bookCommandKeys.all(), 'attach-files'] as const,
   resetProgress: () => [...bookCommandKeys.all(), 'reset-progress'] as const,
   metadataAllLocks: () => [...bookCommandKeys.all(), 'metadata', 'all-locks'] as const,
 };
