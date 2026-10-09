@@ -41,6 +41,14 @@ public class KoreaderUserController {
         return ResponseEntity.ok(user);
     }
 
+    @Operation(summary = "Rotate the KoReader sync password", description = "Replace the current user's KoReader sync password with a new server-generated one.")
+    @ApiResponse(responseCode = "200", description = "Password rotated successfully")
+    @PostMapping("/me/rotate-password")
+    @PreAuthorize("@securityUtil.canSyncKoReader() or @securityUtil.isAdmin()")
+    public ResponseEntity<KoreaderUser> rotatePassword() {
+        return ResponseEntity.ok(koreaderUserService.rotatePassword());
+    }
+
     @Operation(summary = "Toggle KoReader sync", description = "Enable or disable KoReader sync for the current user.")
     @ApiResponse(responseCode = "204", description = "Sync toggled successfully")
     @PatchMapping("/me/sync")

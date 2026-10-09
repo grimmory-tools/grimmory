@@ -11,6 +11,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.koreader.KoreaderShelfService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,9 @@ class UserProvisioningServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private KoreaderShelfService koreaderShelfService;
 
     @InjectMocks
     private UserProvisioningService userProvisioningService;

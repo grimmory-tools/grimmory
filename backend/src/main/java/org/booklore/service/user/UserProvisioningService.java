@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.koreader.KoreaderShelfService;
 
 @Slf4j
 @Service
@@ -36,6 +37,7 @@ public class UserProvisioningService {
     private final UserDefaultsService userDefaultsService;
     private final AppSettingService appSettingService;
     private final AuditService auditService;
+    private final KoreaderShelfService koreaderShelfService;
 
     public boolean isInitialUserAlreadyProvisioned() {
         return userRepository.count() > 0;
@@ -276,6 +278,7 @@ public class UserProvisioningService {
         BookLoreUserEntity save = userRepository.save(user);
         userDefaultsService.addDefaultShelves(save);
         userDefaultsService.addDefaultSettings(save);
+        koreaderShelfService.ensureShelfForUser(save);
         auditService.log(AuditAction.USER_CREATED, "User", save.getId(), "Created user: " + save.getUsername());
         return save;
     }

@@ -11,4 +11,6 @@ public class PublicAppSetting {
     private boolean remoteAuthEnabled;
     private OidcProviderDetails oidcProviderDetails;
     private boolean oidcForceOnlyMode;
+    private String koreaderSyncUrlOverride;
+    private boolean koreaderUsersCanEditLogin;
 }
