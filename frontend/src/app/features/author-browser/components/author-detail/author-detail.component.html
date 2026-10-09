@@ -95,10 +95,15 @@
               </div>
             </div>
 
-            @if (authorBooks(); as books) {
+            @if (!booksQuery.isLoading()) {
               <div class="books-section">
-                <h3 class="section-title">{{ t('booksBy', {name: author.name}) }} ({{ books.length }})</h3>
-                @if (books.length === 0) {
+                <app-book-menu
+                  openInNewTab
+                  [books]="books()"
+                />
+
+                <h3 class="section-title">{{ t('booksBy', {name: author.name}) }} ({{ bookTotalCount() }})</h3>
+                @if (bookTotalCount() === 0) {
                   <div class="empty-books">
                     <i class="pi pi-book"></i>
                     <p>{{ t('noBooksFound') }}</p>
@@ -107,7 +112,7 @@
                   <div #scrollElement class="author-books-scroller virtual-scroller">
                     <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
                       @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
-                        @if (books[virtualItem.index]; as book) {
+                        @if (books()[virtualItem.index]; as book) {
                           <div
                             class="virtual-cell"
                             [style.width.px]="virtualGrid.itemWidth()"
@@ -116,12 +121,14 @@
                             <div class="virtual-scroller-item"
                               [style.width.px]="currentCardSize.width"
                               [style.height.px]="currentCardSize.height">
-                              <app-legacy-book-card
-                                [index]="virtualItem.index"
+                              <app-book-card
                                 [book]="book"
-                                [isSeriesCollapsed]="false"
-                                [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                              </app-legacy-book-card>
+                                [showFormatPill]="true"
+                                [detailMode]="'link'"
+                                (action)="bookNavigation.readBook(book)"
+                                [menuOpen]="menuOpenBookId() === book.id"
+                                (menuRequested)="bookMenu()?.openFor(book, $event)"
+                              />
                             </div>
                           </div>
                         }

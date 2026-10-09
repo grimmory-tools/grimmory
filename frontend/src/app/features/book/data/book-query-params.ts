@@ -86,6 +86,7 @@ export interface BookCollectionFilterParams {
 }
 
 export interface BookQueryParams extends BookCollectionFilterParams {
+  enabled?: boolean;
   sort: readonly BookSortTerm[];
 }
 
