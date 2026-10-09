@@ -105,7 +105,7 @@ public class BookController {
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
 
-    @Operation(summary = "Get book facets", description = "Available facet values and counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts. Number facets return their min and max, and banded ones a count for every band, instead of their values.")
+    @Operation(summary = "Get book facets", description = "The facets that have values for the current user, without their values, scoped by the same facet, facet_logic, and query parameters as the page endpoint, plus the sort options. Load a facet's values from /facets/{facetName}.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getBookFacets(
@@ -118,7 +118,7 @@ public class BookController {
         return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
-    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped and counted the same way as the facets endpoint. Name facets such as author, genre and tag are paged and can be searched.")
+    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet, facet_logic, and query parameters as the page endpoint. The facet omits its own selections from its counts. Number facets return their min and max, and banded ones a count for every band, instead of their values. Name facets such as author, genre and tag are paged and can be searched.")
     @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
     @GetMapping("/facets/{facetName}")
     public ResponseEntity<FacetGroupsResponse> getBookFacet(
