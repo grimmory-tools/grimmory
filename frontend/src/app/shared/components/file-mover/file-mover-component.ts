@@ -1,318 +1,226 @@
-import {Component, effect, inject, OnDestroy, signal} from '@angular/core';
+import {Component, computed, inject, linkedSignal, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {TableModule} from '@openng/optimus-ui/table';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MessageService} from '@openng/optimus-ui/api';
-import {takeUntil} from 'rxjs/operators';
-import {Subject} from 'rxjs';
-
-import {BookService} from '../../../features/book/service/book.service';
-import {Book} from '../../../features/book/model/book.model';
-import {FileMoveRequest, FileOperationsService} from '../../service/file-operations.service';
-import {LibraryService} from "../../../features/book/service/library.service";
-import {AppSettingsService} from '../../service/app-settings.service';
 import {Select} from '@openng/optimus-ui/select';
+import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+
+import {BookCommandService} from '../../../features/book/data/book-command.service';
+import {BookQueryService} from '../../../features/book/data/book-query.service';
+import {BookSummary} from '../../../features/book/data/book-response.models';
+import {LibraryService} from '../../../features/book/service/library.service';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
+import {AppSettingsService} from '../../service/app-settings.service';
 import {replacePlaceholders} from '../../util/pattern-resolver';
 
+const PAGE_SIZE = 100;
+
+interface BookTarget {
+  readonly bookId: number;
+  readonly targetLibraryId: number;
+  readonly targetLibraryPathId: number | null;
+}
+
 interface FilePreview {
-  bookId: number;
-  originalPath: string;
-  relativeOriginalPath: string;
-  currentLibraryId: number | null;
-  currentLibraryName: string;
-  currentLibraryPath: string;
-  targetLibraryId: number | null;
-  targetLibraryName: string;
-  targetLibraryPath: string;
-  targetLibraryPathId: number | null;
-  availableLibraryPaths: LibraryPath[];
-  newPath: string;
-  relativeNewPath: string;
-  isMoved?: boolean;
+  readonly bookId: number;
+  readonly currentLibraryName: string;
+  readonly relativeOriginalPath: string;
+  readonly targetLibraryId: number;
+  readonly targetLibraryName: string;
+  readonly targetLibraryPathId: number | null;
+  readonly availableLibraryPaths: LibraryPath[];
+  readonly relativeNewPath: string;
 }
 
 @Component({
   selector: 'app-file-mover-component',
-  standalone: true,
   imports: [Button, FormsModule, TableModule, Select],
   templateUrl: './file-mover-component.html',
   styleUrl: './file-mover-component.scss'
 })
-export class FileMoverComponent implements OnDestroy {
-  private config = inject(DynamicDialogConfig);
-  ref = inject(DynamicDialogRef);
-  private bookService = inject(BookService);
-  private libraryService = inject(LibraryService);
-  private fileOperationsService = inject(FileOperationsService);
-  private messageService = inject(MessageService);
-  private appSettingsService = inject(AppSettingsService);
-  private destroy$ = new Subject<void>();
-  private readonly appSettings = this.appSettingsService.appSettings;
-  private readonly syncLibraryPatternsEffect = effect(() => {
-    const settings = this.appSettings();
-    const libraries = this.libraryService.libraries();
-    if (!settings) {
-      return;
-    }
+export class FileMoverComponent {
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly bookQueryService = inject(BookQueryService);
+  private readonly bookCommandService = inject(BookCommandService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
 
-    this.defaultMovePattern = settings.uploadPattern || '';
+  protected readonly bookIds: number[] = this.config.data.bookIds;
+  protected readonly pageCount = Math.ceil(this.bookIds.length / PAGE_SIZE);
+  protected readonly pageIndex = signal(0);
 
-    const booksByLibrary = new Map<number | null, Book[]>();
-    this.books.forEach(book => {
-      const libraryId =
-        book.libraryId ??
-        book.libraryPath?.id ??
-        (book as { library?: { id: number } }).library?.id ??
-        null;
-      if (!booksByLibrary.has(libraryId)) {
-        booksByLibrary.set(libraryId, []);
-      }
-      booksByLibrary.get(libraryId)!.push(book);
-    });
+  protected readonly booksQuery = injectQuery(() => this.bookQueryService.batch(
+    this.bookIds.slice(this.pageIndex() * PAGE_SIZE, (this.pageIndex() + 1) * PAGE_SIZE)
+  ));
+  protected readonly moveFilesMutation = injectMutation(() => this.bookCommandService.moveFiles());
 
-    this.libraryPatterns = Array.from(booksByLibrary.entries()).map(([libraryId, libraryBooks]) => {
-      let libraryName = 'Unknown Library';
-      let pattern = this.defaultMovePattern;
-      let source = 'App Default';
+  protected readonly patternsCollapsed = signal(true);
+  protected readonly infoCollapsed = signal(true);
+  protected readonly moved = signal(false);
+  protected readonly defaultTargetLibraryId = signal<number | null>(null);
+  private readonly targetOverrides = signal<ReadonlyMap<number, BookTarget>>(new Map());
 
-      if (libraryId) {
-        const library = libraries.find(currentLibrary => currentLibrary.id === libraryId);
-        if (library) {
-          libraryName = library.name;
-          if (library.fileNamingPattern) {
-            pattern = library.fileNamingPattern;
-            source = 'Library Setting';
-          }
-        }
-      }
+  private readonly books = computed(() => this.booksQuery.data() ?? []);
+  private readonly defaultMovePattern = computed(() => this.appSettingsService.appSettings()?.uploadPattern || '');
+  protected readonly libraries = this.libraryService.libraries;
 
-      return {
-        libraryId,
-        libraryName,
-        pattern,
-        source,
-        bookCount: libraryBooks.length
-      };
-    });
-
-    this.applyPattern();
+  protected readonly defaultAvailableLibraryPaths = computed(() => {
+    const libraryId = this.defaultTargetLibraryId();
+    return libraryId === null ? [] : this.getLibraryPaths(libraryId);
+  });
+  protected readonly defaultTargetLibraryPathId = linkedSignal<LibraryPath[], number | null>({
+    source: this.defaultAvailableLibraryPaths,
+    computation: (paths, previous) => paths.find(path => path.id === previous?.value)?.id ?? paths[0]?.id ?? null
   });
 
-  libraryPatterns: {
-    libraryId: number | null;
-    libraryName: string;
-    pattern: string;
-    source: string;
-    bookCount: number;
-  }[] = [];
-  defaultMovePattern = '';
-  loading = signal(false);
-  patternsCollapsed = true;
-  infoCollapsed = true;
+  protected readonly libraryPatterns = computed(() => {
+    const bookCounts = new Map<number, number>();
+    for (const book of this.books()) {
+      bookCounts.set(book.libraryId, (bookCounts.get(book.libraryId) ?? 0) + 1);
+    }
 
-  bookIds = new Set<number>();
-  books: Book[] = [];
-  filePreviews = signal<FilePreview[]>([]);
-  defaultTargetLibraryId: number | null = null;
-  defaultTargetLibraryPathId: number | null = null;
-  defaultAvailableLibraryPaths: LibraryPath[] = [];
-
-  get availableLibraries(): { id: number | null; name: string }[] {
-    return this.libraryService.libraries().map(lib => ({id: lib.id ?? null, name: lib.name}));
-  }
-
-  constructor() {
-    this.bookIds = new Set(this.config.data?.bookIds ?? []);
-    this.books = this.bookService.getBooksByIds([...this.bookIds]);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  applyPattern(): void {
-    const previews = this.books.map(book => {
-      const fileName = book.fileName ?? '';
-      const fileSubPath = book.fileSubPath ? `${book.fileSubPath.replace(/\/+$/g, '')}/` : '';
-
-      const relativeOriginalPath = `${fileSubPath}${fileName}`;
-
-      const currentLibraryId = book.libraryId ?? book.libraryPath?.id ?? (book as { library?: { id: number } }).library?.id ?? null;
-      const currentLibraryName = this.getLibraryNameById(currentLibraryId);
-      const currentLibraryPath = this.getLibraryPathById(currentLibraryId);
-
-      const targetLibraryId = currentLibraryId;
-      const targetLibraryName = currentLibraryName;
-      const availableLibraryPaths = this.getLibraryPathsById(targetLibraryId);
-      const targetLibraryPathId = availableLibraryPaths.length > 0 ? availableLibraryPaths[0].id ?? null : null;
-      const targetLibraryPath = availableLibraryPaths.length > 0 ? availableLibraryPaths[0].path : '';
-
-      const preview: FilePreview = {
-        bookId: book.id,
-        originalPath: this.getFullPath(currentLibraryId, relativeOriginalPath),
-        relativeOriginalPath,
-        currentLibraryId,
-        currentLibraryName,
-        currentLibraryPath,
-        targetLibraryId,
-        targetLibraryName,
-        targetLibraryPath,
-        targetLibraryPathId,
-        availableLibraryPaths,
-        newPath: '',
-        relativeNewPath: ''
+    return [...bookCounts].map(([libraryId, bookCount]) => {
+      const library = this.getLibrary(libraryId);
+      return {
+        libraryId,
+        libraryName: library?.name ?? 'Unknown Library',
+        pattern: library?.fileNamingPattern || this.defaultMovePattern(),
+        source: library?.fileNamingPattern ? 'Library Setting' : 'App Default',
+        bookCount
       };
-
-      this.updatePreviewPaths(preview, book);
-      return preview;
     });
-    this.filePreviews.set(previews);
+  });
+
+  protected readonly filePreviews = computed(() => this.books().map(book => this.buildPreview(book)));
+
+  protected onDefaultLibraryChange(libraryId: number | null): void {
+    this.defaultTargetLibraryId.set(libraryId);
+    this.targetOverrides.set(new Map());
   }
 
-  onDefaultLibraryChange(): void {
-    this.defaultAvailableLibraryPaths = this.getLibraryPathsById(this.defaultTargetLibraryId);
-    this.defaultTargetLibraryPathId = this.defaultAvailableLibraryPaths.length > 0 ? this.defaultAvailableLibraryPaths[0].id ?? null : null;
+  protected onDefaultLibraryPathChange(libraryPathId: number | null): void {
+    this.defaultTargetLibraryPathId.set(libraryPathId);
+    this.targetOverrides.update(overrides => new Map(
+      [...overrides].filter(([, target]) => target.targetLibraryId !== this.defaultTargetLibraryId())
+    ));
+  }
 
-    this.filePreviews.update(previews => {
-      previews.forEach(preview => {
-        if (!preview.isMoved) {
-          preview.targetLibraryId = this.defaultTargetLibraryId;
-          preview.targetLibraryName = this.getLibraryNameById(this.defaultTargetLibraryId);
-          preview.availableLibraryPaths = this.defaultAvailableLibraryPaths;
-          preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
-          preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
+  protected onLibraryChange(bookId: number, libraryId: number): void {
+    this.setTarget({bookId, targetLibraryId: libraryId, targetLibraryPathId: this.getLibraryPaths(libraryId)[0]?.id ?? null});
+  }
 
-          const book = this.books.find(b => b.id === preview.bookId);
-          if (book) {
-            this.updatePreviewPaths(preview, book);
-          }
-        }
-      });
-      return [...previews];
+  protected onLibraryPathChange(preview: FilePreview, libraryPathId: number | null): void {
+    this.setTarget({bookId: preview.bookId, targetLibraryId: preview.targetLibraryId, targetLibraryPathId: libraryPathId});
+  }
+
+  protected saveChanges(): void {
+    const moves = this.bookIds.map(bookId => this.targetOverrides().get(bookId) ?? {
+      bookId,
+      targetLibraryId: this.defaultTargetLibraryId(),
+      targetLibraryPathId: this.defaultTargetLibraryPathId()
+    });
+
+    this.moveFilesMutation.mutate({moves}, {
+      onSuccess: () => {
+        this.moved.set(true);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Files Organized!',
+          detail: `Successfully organized ${this.bookIds.length} file${this.bookIds.length === 1 ? '' : 's'}.`,
+          life: 3000
+        });
+      },
+      onError: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Oops! Something went wrong',
+          detail: 'We had trouble organizing your files. Please try again.',
+          life: 3000
+        });
+      }
     });
   }
 
-  onDefaultLibraryPathChange(): void {
-    this.filePreviews.update(previews => {
-      previews.forEach(preview => {
-        if (!preview.isMoved && preview.targetLibraryId === this.defaultTargetLibraryId) {
-          preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
-          preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
-
-          const book = this.books.find(b => b.id === preview.bookId);
-          if (book) {
-            this.updatePreviewPaths(preview, book);
-          }
-        }
-      });
-      return [...previews];
-    });
+  protected cancel(): void {
+    this.ref.close();
   }
 
-  onLibraryChange(preview: FilePreview): void {
-    preview.targetLibraryName = this.getLibraryNameById(preview.targetLibraryId);
-    preview.availableLibraryPaths = this.getLibraryPathsById(preview.targetLibraryId);
-    preview.targetLibraryPathId = preview.availableLibraryPaths.length > 0 ? preview.availableLibraryPaths[0].id ?? null : null;
-    preview.targetLibraryPath = preview.availableLibraryPaths.length > 0 ? preview.availableLibraryPaths[0].path : '';
+  private setTarget(target: BookTarget): void {
+    this.targetOverrides.update(overrides => new Map(overrides).set(target.bookId, target));
+  }
 
-    const book = this.books.find(b => b.id === preview.bookId);
-    if (book) {
-      this.updatePreviewPaths(preview, book);
+  private getTarget(book: BookSummary): BookTarget {
+    const override = this.targetOverrides().get(book.id);
+    if (override) {
+      return override;
     }
-    this.filePreviews.update(previews => [...previews]);
-  }
-
-  onLibraryPathChange(preview: FilePreview): void {
-    const selectedPath = preview.availableLibraryPaths.find(p => p.id === preview.targetLibraryPathId);
-    preview.targetLibraryPath = selectedPath?.path || '';
-
-    const book = this.books.find(b => b.id === preview.bookId);
-    if (book) {
-      this.updatePreviewPaths(preview, book);
+    const defaultLibraryId = this.defaultTargetLibraryId();
+    if (defaultLibraryId !== null) {
+      return {bookId: book.id, targetLibraryId: defaultLibraryId, targetLibraryPathId: this.defaultTargetLibraryPathId()};
     }
-    this.filePreviews.update(previews => [...previews]);
+    return {bookId: book.id, targetLibraryId: book.libraryId, targetLibraryPathId: this.getLibraryPaths(book.libraryId)[0]?.id ?? null};
   }
 
-  private updatePreviewPaths(preview: FilePreview, book: Book): void {
+  private buildPreview(book: BookSummary): FilePreview {
+    const fileName = book.primaryFile?.fileName ?? '';
+    const fileSubPath = book.primaryFile?.fileSubPath ? `${book.primaryFile.fileSubPath.replace(/\/+$/g, '')}/` : '';
+    const target = this.getTarget(book);
+
+    return {
+      bookId: book.id,
+      currentLibraryName: this.getLibraryName(book.libraryId),
+      relativeOriginalPath: `${fileSubPath}${fileName}`,
+      targetLibraryId: target.targetLibraryId,
+      targetLibraryName: this.getLibraryName(target.targetLibraryId),
+      targetLibraryPathId: target.targetLibraryPathId,
+      availableLibraryPaths: this.getLibraryPaths(target.targetLibraryId),
+      relativeNewPath: this.getNewPath(book, target.targetLibraryId)
+    };
+  }
+
+  private getNewPath(book: BookSummary, libraryId: number): string {
     const meta = book.metadata!;
-    const fileName = book.fileName ?? '';
+    const fileName = book.primaryFile?.fileName ?? '';
     const extension = fileName.match(/\.[^.]+$/)?.[0] ?? '';
-    const pattern = this.getPatternForLibrary(preview.targetLibraryId);
+    const pattern = this.getLibrary(libraryId)?.fileNamingPattern || this.defaultMovePattern();
 
-    const values: Record<string, string> = {
+    if (!pattern.trim()) {
+      return fileName;
+    }
+
+    const newPath = replacePlaceholders(pattern, {
       authors: this.sanitize(meta.authors?.join(', ') || 'Unknown Author'),
       title: this.sanitize(meta.title || 'Untitled'),
       subtitle: this.sanitize(meta.subtitle || ''),
       year: this.formatYear(meta.publishedDate),
       series: this.sanitize(meta.seriesName || ''),
-      seriesIndex: this.formatSeriesIndex(meta.seriesNumber ?? undefined),
+      seriesIndex: this.formatSeriesIndex(meta.seriesNumber),
       language: this.sanitize(meta.language || ''),
       publisher: this.sanitize(meta.publisher || ''),
       isbn: this.sanitize(meta.isbn13 || meta.isbn10 || ''),
       currentFilename: this.sanitize(fileName)
-    };
+    });
 
-    let newPath: string;
-
-    if (!pattern?.trim()) {
-      newPath = fileName;
-    } else {
-      newPath = replacePlaceholders(pattern, values);
-
-      if (!newPath.endsWith(extension)) {
-        newPath += extension;
-      }
-    }
-
-    preview.relativeNewPath = newPath;
-    preview.newPath = this.getFullPath(preview.targetLibraryId, newPath);
+    return newPath.endsWith(extension) ? newPath : newPath + extension;
   }
 
-  private getPatternForLibrary(libraryId: number | null): string {
-    if (libraryId === null) {
-      return this.defaultMovePattern;
-    }
-
-    const libraries = this.libraryService.libraries();
-    const library = libraries.find((lib: Library) => lib.id === libraryId);
-
-    return library?.fileNamingPattern || this.defaultMovePattern;
+  private getLibrary(libraryId: number): Library | undefined {
+    return this.libraries().find(library => library.id === libraryId);
   }
 
-  private getLibraryNameById(libraryId: number | null): string {
-    if (libraryId === null) return 'Unknown Library';
-    return this.availableLibraries.find(lib => lib.id === libraryId)?.name || 'Unknown Library';
+  private getLibraryName(libraryId: number): string {
+    return this.getLibrary(libraryId)?.name ?? 'Unknown Library';
   }
 
-  private getLibraryPathsById(libraryId: number | null): LibraryPath[] {
-    if (libraryId === null) return [];
-
-    const libraries = this.libraryService.libraries();
-    const library = libraries.find((lib: Library) => lib.id === libraryId);
-    return library?.paths || [];
+  private getLibraryPaths(libraryId: number): LibraryPath[] {
+    return this.getLibrary(libraryId)?.paths ?? [];
   }
 
-  private getLibraryPathById(libraryId: number | null): string {
-    const paths = this.getLibraryPathsById(libraryId);
-    return paths.map((p: LibraryPath) => p.path).join(', ');
-  }
-
-  private getFullPath(libraryId: number | null, relativePath: string): string {
-    if (!libraryId) return relativePath;
-
-    const paths = this.getLibraryPathsById(libraryId);
-    const libraryPath = paths.length > 0 ? paths[0].path.replace(/\/+$/g, '') : '';
-    return libraryPath ? `${libraryPath}/${relativePath}`.replace(/\/\/+/g, '/') : relativePath;
-  }
-
-  get movedFileCount(): number {
-    return this.filePreviews().filter(p => p.isMoved).length;
-  }
-
-  sanitize(input: string | undefined): string {
+  private sanitize(input: string | undefined): string {
     const sanitized = (input ?? '')
       .replace(/[\\/:*?"<>|]/g, '')
       .split('')
@@ -325,7 +233,7 @@ export class FileMoverComponent implements OnDestroy {
     return sanitized.replace(/\s+/g, ' ').trim();
   }
 
-  formatYear(dateStr?: string): string {
+  private formatYear(dateStr?: string): string {
     if (!dateStr) return '';
     const yearMatch = dateStr.match(/^(\d{4})/);
     if (yearMatch) {
@@ -335,7 +243,7 @@ export class FileMoverComponent implements OnDestroy {
     return isNaN(date.getTime()) ? '' : date.getUTCFullYear().toString();
   }
 
-  formatSeriesIndex(seriesNumber?: number): string {
+  private formatSeriesIndex(seriesNumber?: number): string {
     if (seriesNumber == null) return '';
     // Check if it's a whole number
     if (Number.isInteger(seriesNumber)) {
@@ -347,58 +255,5 @@ export class FileMoverComponent implements OnDestroy {
       const decimalPart = (seriesNumber % 1).toFixed(10).substring(1).replace(/0+$/, '');
       return this.sanitize(intPart.toString().padStart(2, '0') + decimalPart);
     }
-  }
-
-  saveChanges(): void {
-    this.loading.set(true);
-
-    const request: FileMoveRequest = {
-      bookIds: [...this.bookIds],
-      moves: this.filePreviews().map(preview => ({
-        bookId: preview.bookId,
-        targetLibraryId: preview.targetLibraryId,
-        targetLibraryPathId: preview.targetLibraryPathId
-      }))
-    };
-
-    this.fileOperationsService.moveFiles(request).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.filePreviews.update(previews => {
-          previews.forEach(p => (p.isMoved = true));
-          return [...previews];
-        });
-        const currentPreviews = this.filePreviews();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Files Organized!',
-          detail: `Successfully organized ${currentPreviews.length} file${currentPreviews.length === 1 ? '' : 's'}.`,
-          life: 3000
-        });
-      },
-      error: () => {
-        this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Oops! Something went wrong',
-          detail: 'We had trouble organizing your files. Please try again.',
-          life: 3000
-        });
-      }
-    });
-  }
-
-  cancel(): void {
-    this.ref.close();
-  }
-
-  togglePatternsCollapsed(): void {
-    this.patternsCollapsed = !this.patternsCollapsed;
-  }
-
-  toggleInfoCollapsed(): void {
-    this.infoCollapsed = !this.infoCollapsed;
   }
 }

@@ -89,6 +89,19 @@ public class BookQueryService {
         return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
+    public List<Book> findBooks(Specification<BookEntity> spec, Long userId) {
+        List<BookEntity> matches = bookRepository.findAll(distinct(spec));
+        Map<Long, BookEntity> booksById = bookRepository
+                .findAllWithMetadataByIds(matches.stream().map(BookEntity::getId).collect(Collectors.toSet()))
+                .stream()
+                .collect(Collectors.toMap(BookEntity::getId, book -> book));
+        return matches.stream()
+                .map(book -> booksById.get(book.getId()))
+                .filter(Objects::nonNull)
+                .map(book -> mapBookToDto(book, false, userId, true))
+                .toList();
+    }
+
     private Specification<BookEntity> visibleBooks(Collection<Long> libraryIds, Long userId) {
         Specification<BookEntity> inLibraries = (root, query, cb) ->
                 libraryIds == null || libraryIds.isEmpty()

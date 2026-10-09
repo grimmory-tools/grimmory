@@ -133,6 +133,15 @@ public class BookController {
         return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
     }
 
+    @Operation(summary = "Get books by IDs", description = "Retrieve books for the given IDs, returned in request order. Applies the same visibility rules as the browse endpoints; IDs that are not found or not visible to the caller are simply omitted from the response.")
+    @ApiResponse(responseCode = "200", description = "Books returned successfully")
+    @GetMapping("/batch")
+    public ResponseEntity<List<Book>> getBooksBatch(
+            @Parameter(description = "Comma-separated book IDs to retrieve, in the desired order (max 500)")
+            @RequestParam @Size(max = 500, message = "A maximum of 500 IDs can be requested at once") List<Long> ids) {
+        return ResponseEntity.ok(bookBrowseService.findByIds(ids));
+    }
+
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book details returned successfully"),
@@ -170,15 +179,6 @@ public class BookController {
     public ResponseEntity<BookDeletionResponse> deleteBooks(
             @Parameter(description = "Set of book IDs to delete") @RequestParam Set<Long> ids) {
         return bookService.deleteBooks(ids);
-    }
-
-    @Operation(summary = "Get books by IDs", description = "Retrieve multiple books by their IDs. Optionally include descriptions.")
-    @ApiResponse(responseCode = "200", description = "Books returned successfully")
-    @GetMapping("/batch")
-    public ResponseEntity<List<Book>> getBooksByIds(
-            @Parameter(description = "Set of book IDs to retrieve") @RequestParam Set<Long> ids,
-            @Parameter(description = "Include book descriptions in the response") @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
-        return ResponseEntity.ok(bookService.getBooksByIds(ids, withDescription));
     }
 
     @Operation(summary = "Get ComicInfo metadata", description = "Retrieve ComicInfo metadata for a specific book.")

@@ -46,6 +46,16 @@ export interface ResetBookProgressResult {
   readonly readStatusModifiedTime: string | null;
 }
 
+export interface BookFileMove {
+  readonly bookId: number;
+  readonly targetLibraryId: number | null;
+  readonly targetLibraryPathId: number | null;
+}
+
+export interface MoveBookFilesVariables {
+  readonly moves: readonly BookFileMove[];
+}
+
 export abstract class BulkBookCommandPartialError<TCompleted> extends Error {
   constructor(
     readonly completed: TCompleted,

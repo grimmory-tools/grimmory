@@ -5,16 +5,15 @@
     </div>
     <div class="header-text">
       <h2 class="panel-title">Move & Organize Files</h2>
-      <p class="panel-description">{{ books.length }} book{{ books.length !== 1 ? 's' : '' }} selected</p>
+      <p class="panel-description">{{ bookIds.length }} book{{ bookIds.length !== 1 ? 's' : '' }} selected</p>
     </div>
     <p-button
       icon="pi pi-times"
       [rounded]="true"
       [text]="true"
       severity="secondary"
-      (click)="ref.close()"
-      class="close-button">
-    </p-button>
+      (click)="cancel()"
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -26,7 +25,7 @@
         </div>
         <div class="banner-content">
           <span class="banner-text">
-            Preview and organize <strong>{{ filePreviews().length }} file{{ filePreviews().length !== 1 ? 's' : '' }}</strong>.
+            Preview and organize <strong>{{ bookIds.length }} file{{ bookIds.length !== 1 ? 's' : '' }}</strong>.
             Files will be renamed based on metadata and naming patterns.
           </span>
           <span class="banner-warning">
@@ -34,13 +33,13 @@
             Requires good metadata quality.
           </span>
         </div>
-        <button type="button" class="banner-toggle" (click)="toggleInfoCollapsed()">
-          <span>{{ infoCollapsed ? 'Learn more' : 'Hide' }}</span>
-          <i [class]="infoCollapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
+        <button type="button" class="banner-toggle" (click)="infoCollapsed.set(!infoCollapsed())">
+          <span>{{ infoCollapsed() ? 'Learn more' : 'Hide' }}</span>
+          <i [class]="infoCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
         </button>
       </div>
 
-      @if (!infoCollapsed) {
+      @if (!infoCollapsed()) {
         <div class="banner-details">
           <div class="detail-item">
             <i class="pi pi-check-circle"></i>
@@ -64,18 +63,18 @@
 
     <!-- Naming Patterns Section -->
     <section class="patterns-section">
-      <button type="button" class="patterns-toggle" (click)="togglePatternsCollapsed()">
+      <button type="button" class="patterns-toggle" (click)="patternsCollapsed.set(!patternsCollapsed())">
         <div class="toggle-content">
           <i class="pi pi-code"></i>
           <span>Naming Rules</span>
-          <span class="patterns-count">{{ libraryPatterns.length }}</span>
+          <span class="patterns-count">{{ libraryPatterns().length }}</span>
         </div>
-        <i [class]="patternsCollapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
+        <i [class]="patternsCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
       </button>
 
-      @if (!patternsCollapsed) {
+      @if (!patternsCollapsed()) {
         <div class="patterns-list">
-          @for (pattern of libraryPatterns; track pattern.libraryId) {
+          @for (pattern of libraryPatterns(); track pattern.libraryId) {
             <div class="pattern-card">
               <div class="pattern-header">
                 <span class="pattern-library">{{ pattern.libraryName }}</span>
@@ -98,28 +97,26 @@
       <div class="bulk-controls">
         <span class="bulk-label">Set all files to:</span>
         <p-select
-          [options]="availableLibraries"
-          [(ngModel)]="defaultTargetLibraryId"
+          [options]="libraries()"
+          [ngModel]="defaultTargetLibraryId()"
+          (ngModelChange)="onDefaultLibraryChange($event)"
           optionLabel="name"
           optionValue="id"
           placeholder="Select library"
-          (onChange)="onDefaultLibraryChange()"
           class="select-library"
           size="small"
-          appendTo="body"
-        ></p-select>
-        @if (defaultAvailableLibraryPaths.length > 0) {
+          appendTo="body" />
+        @if (defaultAvailableLibraryPaths().length > 0) {
           <p-select
-            [options]="defaultAvailableLibraryPaths"
-            [(ngModel)]="defaultTargetLibraryPathId"
+            [options]="defaultAvailableLibraryPaths()"
+            [ngModel]="defaultTargetLibraryPathId()"
+            (ngModelChange)="onDefaultLibraryPathChange($event)"
             optionLabel="path"
             optionValue="id"
             placeholder="Select path"
-            (onChange)="onDefaultLibraryPathChange()"
             class="select-path"
             size="small"
-            appendTo="body"
-          ></p-select>
+            appendTo="body" />
         }
       </div>
     </section>
@@ -133,6 +130,7 @@
       <div class="table-container">
         <p-table
           [value]="filePreviews()"
+          [loading]="booksQuery.isFetching()"
           [scrollable]="true"
           scrollHeight="flex"
           [virtualScroll]="true"
@@ -151,9 +149,9 @@
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-preview>
-            <tr [class.row-moved]="preview.isMoved">
+            <tr [class.row-moved]="moved()">
               <td class="status-cell">
-                @if (preview.isMoved) {
+                @if (moved()) {
                   <i class="pi pi-check-circle status-success"></i>
                 } @else {
                   <i class="pi pi-clock status-pending"></i>
@@ -168,32 +166,30 @@
               </td>
               <td>
                 <p-select
-                  [options]="availableLibraries"
-                  [(ngModel)]="preview.targetLibraryId"
+                  [options]="libraries()"
+                  [ngModel]="preview.targetLibraryId"
+                  (ngModelChange)="onLibraryChange(preview.bookId, $event)"
                   optionLabel="name"
                   optionValue="id"
                   placeholder="Select"
-                  (onChange)="onLibraryChange(preview)"
-                  [disabled]="preview.isMoved"
+                  [disabled]="moved()"
                   class="select-full-width"
                   appendTo="body"
-                  size="small"
-                ></p-select>
+                  size="small" />
               </td>
               <td>
                 @if (preview.availableLibraryPaths.length > 0) {
                   <p-select
                     [options]="preview.availableLibraryPaths"
-                    [(ngModel)]="preview.targetLibraryPathId"
+                    [ngModel]="preview.targetLibraryPathId"
+                    (ngModelChange)="onLibraryPathChange(preview, $event)"
                     optionLabel="path"
                     optionValue="id"
                     placeholder="Select"
-                    (onChange)="onLibraryPathChange(preview)"
-                    [disabled]="preview.isMoved"
+                    [disabled]="moved()"
                     class="select-full-width"
                     appendTo="body"
-                    size="small"
-                  ></p-select>
+                    size="small" />
                 } @else {
                   <span class="no-paths">No paths</span>
                 }
@@ -211,39 +207,56 @@
           </ng-template>
         </p-table>
       </div>
+      @if (pageCount > 1) {
+        <div class="preview-pager">
+          <p-button
+            label="Previous"
+            icon="pi pi-chevron-left"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="pageIndex() === 0"
+            (click)="pageIndex.set(pageIndex() - 1)" />
+          <span class="preview-pager-label">Page {{ pageIndex() + 1 }} of {{ pageCount }}</span>
+          <p-button
+            label="Next"
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="pageIndex() === pageCount - 1"
+            (click)="pageIndex.set(pageIndex() + 1)" />
+        </div>
+      }
     </section>
   </div>
 
   <div class="dialog-footer">
-    @if (movedFileCount > 0) {
+    @if (moved()) {
       <div class="success-indicator">
         <i class="pi pi-check-circle"></i>
-        <span>{{ movedFileCount }} file{{ movedFileCount > 1 ? 's' : '' }} successfully moved</span>
+        <span>{{ bookIds.length }} file{{ bookIds.length > 1 ? 's' : '' }} successfully moved</span>
       </div>
     }
     <div class="footer-actions">
-      @if (movedFileCount === 0) {
+      @if (!moved()) {
         <p-button
           label="Cancel"
           icon="pi pi-times"
           severity="secondary"
           [outlined]="true"
-          (click)="cancel()"
-        ></p-button>
+          (click)="cancel()" />
         <p-button
-          [label]="loading() ? 'Moving...' : 'Move Files'"
-          [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [label]="moveFilesMutation.isPending() ? 'Moving...' : 'Move Files'"
+          [icon]="moveFilesMutation.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
-          [disabled]="loading() || filePreviews().length === 0"
-        ></p-button>
+          [disabled]="moveFilesMutation.isPending()" />
       } @else {
         <p-button
           label="Close"
           icon="pi pi-check"
           severity="primary"
-          (click)="cancel()"
-        ></p-button>
+          (click)="cancel()" />
       }
     </div>
   </div>
