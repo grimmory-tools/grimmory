@@ -30,8 +30,6 @@ function buildUser(overrides: Partial<User['permissions']> = {}): User {
 function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
   return {
     opdsServerEnabled: false,
-    komgaApiEnabled: false,
-    komgaGroupUnknown: true,
     ...overrides,
   } as AppSettings;
 }
@@ -156,54 +154,6 @@ describe('OpdsSettings', () => {
     component.copyEndpoint();
 
     expect(writeText).toHaveBeenCalledWith("http://localhost:6060/api/v1/opds");
-    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'common.error',
-      detail: 'settingsOpds.copyFailed',
-    }));
-  });
-
-  it('shows feedback after copying komga endpoint', async () => {
-    const userState = signal<User | null>(buildUser());
-    const appSettingsState = signal<AppSettings | null>(null);
-    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
-    const messageServiceAdd = vi.fn();
-
-    const writeText = vi.fn().mockResolvedValue(null);
-    vi.stubGlobal('navigator', { clipboard: { writeText } });
-
-    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
-
-    const fixture = TestBed.createComponent(OpdsSettings);
-    const component = fixture.componentInstance;
-
-    component.copyKomgaEndpoint();
-
-    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/komga");
-    await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'common.success',
-      detail: 'settingsOpds.komgaCopied',
-    }));
-  });
-
-  it('shows error after copying komga endpoint failure', async () => {
-    const userState = signal<User | null>(buildUser());
-    const appSettingsState = signal<AppSettings | null>(null);
-    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
-    const messageServiceAdd = vi.fn();
-
-    const writeText = vi.fn().mockRejectedValue(new Error());
-    vi.stubGlobal('navigator', { clipboard: { writeText } });
-
-    setupOpdsTest({userState, appSettingsState, getUser, messageServiceAdd});
-
-    const fixture = TestBed.createComponent(OpdsSettings);
-    const component = fixture.componentInstance;
-
-    component.copyKomgaEndpoint();
-
-    expect(writeText).toHaveBeenCalledWith("http://localhost:6060/komga");
     await vi.waitFor(() => expect(messageServiceAdd).toHaveBeenCalledWith({
       severity: 'error',
       summary: 'common.error',
