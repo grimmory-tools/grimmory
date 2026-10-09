@@ -7,7 +7,6 @@ import {Book} from '../model/book.model';
 import {
   BookCoverPatch,
   invalidateAllBookCaches,
-  invalidateLegacyBookRecommendations,
   patchBooksInCache,
   patchBookCoversInCache,
   reconcileBookCacheChangeSet,
@@ -58,10 +57,7 @@ export class BookSocketService {
     if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== 'COMPLETED') {
       return;
     }
-    void Promise.all([
-      invalidateBookRecommendations(this.queryClient),
-      invalidateLegacyBookRecommendations(this.queryClient),
-    ]);
+    void invalidateBookRecommendations(this.queryClient);
   }
 
   handleReconnect(): void {

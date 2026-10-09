@@ -3,10 +3,10 @@
   <button
     type="button"
     class="flex min-h-9 flex-1 cursor-pointer items-center gap-1.5 pr-8 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary pointer-coarse:min-h-12 pointer-coarse:pr-12"
-    [attr.aria-expanded]="isOpen()"
+    [attr.aria-expanded]="open()"
     (click)="toggleOpen()">
     <h3 class="m-0 text-[13px] font-semibold text-text-secondary group-hover/ghead:text-text pointer-coarse:text-base">{{ group.labelKey | transloco }}</h3>
-    @if (!isOpen() && selectedCount() > 0) {
+    @if (!open() && selectedCount() > 0) {
       <app-tag color="primary" size="sm" styleClass="min-w-4 justify-center px-1! py-px! text-[10px]! tabular-nums">
         {{ selectedCount() }}
       </app-tag>
@@ -14,7 +14,7 @@
     <svg
       lucideChevronDown
       class="size-3.5 text-text-muted transition-transform duration-200 motion-reduce:transition-none"
-      [class.-rotate-90]="!isOpen()"
+      [class.-rotate-90]="!open()"
       aria-hidden="true"></svg>
   </button>
   @if (headerSearchable()) {
@@ -35,7 +35,7 @@
   }
 </div>
 
-<div [class]="revealClass(isOpen())" [attr.inert]="isOpen() ? null : ''">
+<div [class]="revealClass(revealed())" [attr.inert]="revealed() ? null : ''">
   <div class="min-h-0 overflow-hidden">
     <div [class]="revealClass(searching())" [attr.inert]="searching() ? null : ''" data-search-wrap>
       <div class="min-h-0 overflow-hidden pt-px">
@@ -53,10 +53,11 @@
       </div>
     </div>
 
-    @if (disclosure() !== 'unopened') {
-      @if (activeQuery(); as query) {
+    @if (everOpened()) {
+      <span [id]="excludedLabelId()" hidden>{{ 'browse.rail.excluded' | transloco }}</span>
+      @if (activeQuery()) {
         <ul class="m-0 flex min-h-56 list-none flex-col p-0 pointer-coarse:min-h-[22rem]">
-          @for (item of matches(query); track item.value) {
+          @for (item of visibleValues(); track item.value) {
             <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
           } @empty {
             <li class="px-1.5 py-1.5 text-xs text-text-muted pointer-coarse:px-2 pointer-coarse:text-[13px]">
@@ -65,16 +66,18 @@
           }
         </ul>
       } @else {
-        <ul class="m-0 flex list-none flex-col p-0">
-          @for (item of visibleValues(); track item.value) {
-            <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
+        <div [class]="foldClass()">
+          <ul class="m-0 flex list-none flex-col p-0">
+            @for (item of visibleValues(); track item.value) {
+              <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
+            }
+          </ul>
+          @if (group.values.length > foldLimit()) {
+            <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
+              {{ (expanded() ? 'browse.showFewer' : 'browse.showMore') | transloco }}
+            </button>
           }
-        </ul>
-        @if (group.values.length > foldLimit()) {
-          <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
-            {{ (expanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
-          </button>
-        }
+        </div>
       }
       @if (group.range; as range) {
         <app-browse-facet-range-inputs
@@ -95,10 +98,13 @@
     [disabled]="isZero(item)"
     [attr.title]="item.label"
     [attr.aria-label]="item.stars ? item.label : null"
-    [attr.aria-pressed]="item.selected"
+    [attr.aria-pressed]="state(item) !== null"
+    [attr.aria-describedby]="state(item) === 'excluded' ? excludedLabelId() : null"
     (click)="onRowToggle(item)">
     <span [class]="boxClass(item)" aria-hidden="true">
-      @if (item.selected) {
+      @if (state(item) === 'excluded') {
+        <svg lucideMinus [class]="checkIconClass" aria-hidden="true"></svg>
+      } @else if (state(item) === 'included') {
         <svg lucideCheck [class]="checkIconClass" aria-hidden="true"></svg>
       }
     </span>

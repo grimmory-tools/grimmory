@@ -31,19 +31,6 @@ describe('BookDialogHelperService', () => {
     TestBed.resetTestingModule();
   });
 
-  it('opens the book details dialog with the expected payload', async () => {
-    const dialogRef = await service.openBookDetailsDialog(42);
-
-    expect(dialogLauncherService.openDialog).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        showHeader: false,
-        data: {bookId: 42},
-      })
-    );
-    expect(dialogRef).toEqual({id: 'dialog-ref'});
-  });
-
   it('returns null instead of opening the shelf assigner when no inputs are provided', async () => {
     const dialogRef = await service.openShelfAssignerDialog(null, null);
 

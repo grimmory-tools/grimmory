@@ -111,25 +111,10 @@
 <app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
   <app-menu-section class="hidden sm:block">{{ 'browse.toolbar.viewMode' | transloco }}</app-menu-section>
   @if (viewMode() === 'grid') {
-    <div class="flex min-h-8 w-full select-none items-center gap-2 pl-2 pr-0 text-sm leading-5 text-text pointer-coarse:min-h-11 pointer-coarse:pl-3">
-      <span class="min-w-0 flex-1 truncate">{{ 'browse.toolbar.density' | transloco }}</span>
-      <app-menu-item
-        value="smaller-cards"
-        [class]="stepperItemClass"
-        [icon]="smallerIcon"
-        [disabled]="densitySmallerDisabled()"
-        [closeOnSelect]="false"
-        [attr.aria-label]="'browse.toolbar.smallerCards' | transloco"
-        (selected)="densityChange.emit('smaller')" />
-      <app-menu-item
-        value="larger-cards"
-        [class]="stepperItemClass"
-        [icon]="largerIcon"
-        [disabled]="densityLargerDisabled()"
-        [closeOnSelect]="false"
-        [attr.aria-label]="'browse.toolbar.largerCards' | transloco"
-        (selected)="densityChange.emit('larger')" />
-    </div>
+    <app-browse-card-size-menu-items
+      [smallerDisabled]="densitySmallerDisabled()"
+      [largerDisabled]="densityLargerDisabled()"
+      (sizeChange)="densityChange.emit($event)" />
     <app-menu-separator />
   }
   <div class="contents sm:hidden">
@@ -143,12 +128,18 @@
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
   <div class="hidden sm:contents">
-    <app-menu-checkbox
-      value="show-filters"
-      [checked]="filtersOpen()"
-      (selected)="filtersToggle.emit()">
-      {{ 'browse.toolbar.showFilters' | transloco }}
-    </app-menu-checkbox>
+    <app-book-browse-filter-menu-items
+      [matchAll]="matchAll()"
+      [excludeOnTick]="excludeOnTick()"
+      (matchAllChange)="matchAllChange.emit($event)"
+      (excludeOnTickChange)="excludeOnTickChange.emit($event)">
+      <app-menu-checkbox
+        value="show-filters"
+        [checked]="filtersOpen()"
+        (selected)="filtersToggle.emit()">
+        {{ 'browse.toolbar.showFilters' | transloco }}
+      </app-menu-checkbox>
+    </app-book-browse-filter-menu-items>
   </div>
   @if (actionTarget(); as target) {
     <app-menu-separator />

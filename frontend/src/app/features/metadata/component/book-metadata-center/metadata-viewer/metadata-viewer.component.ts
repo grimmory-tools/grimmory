@@ -5,7 +5,7 @@ import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
 import {Rating, RatingRateEvent} from '@openng/optimus-ui/rating';
 import {FormsModule} from '@angular/forms';
-import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
+import {Book, BookFile, BookMetadata, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {UserService} from '../../../../settings/user-management/user.service';
@@ -14,12 +14,11 @@ import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
-import {catchError, map, switchMap, take} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {take} from 'rxjs/operators';
 import {Menu} from '@openng/optimus-ui/menu';
 import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
@@ -66,31 +65,6 @@ interface ProviderBadge {
 export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private bookService = inject(BookService);
   private currentBook = signal<Book | null>(null);
-  private readonly seriesLookupBookId = computed(() => {
-    const metadata = this.currentBook()?.metadata;
-    return metadata?.seriesName ? metadata.bookId : null;
-  });
-  private readonly bookInSeriesSignal = toSignal(
-    toObservable(this.seriesLookupBookId).pipe(
-      switchMap(bookId =>
-        bookId == null
-          ? of([])
-          : this.bookService.getBooksInSeries(bookId).pipe(
-            catchError(() => of([]))
-          )
-      ),
-      map(series => [...series].sort((a, b) => (a.metadata?.seriesNumber ?? 0) - (b.metadata?.seriesNumber ?? 0)))
-    ),
-    {initialValue: []}
-  );
-  private readonly originalRecommendedBooks = signal<BookRecommendation[]>([]);
-  readonly filteredRecommendedBooks = computed(() => {
-    const bookInSeriesIds = new Set(this.bookInSeriesSignal().map(book => book.id));
-
-    return this.originalRecommendedBooks().filter(
-      rec => !bookInSeriesIds.has(rec.book.id)
-    );
-  });
 
   @Input()
   set book(value: Book | null) {
@@ -106,11 +80,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
   get book(): Book | null {
     return this.currentBook();
-  }
-
-  @Input()
-  set recommendedBooks(value: BookRecommendation[]) {
-    this.originalRecommendedBooks.set(value);
   }
 
   private readonly t = inject(TranslocoService);
@@ -470,9 +439,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
     return items;
   });
-  get bookInSeries(): Book[] {
-    return this.bookInSeriesSignal();
-  }
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   isExpanded = false;
   isOverflowing = false;
@@ -1266,7 +1232,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  private navigateToBook(bookId: number): void {
+  protected navigateToBook(bookId: number): void {
     this.bookNavigationService.updateCurrentBook(bookId);
     if (this.metadataCenterViewMode === 'route') {
       this.router.navigate(['/book', bookId], {

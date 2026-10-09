@@ -12,6 +12,7 @@ import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
 import org.booklore.model.dto.browse.FacetGroupsResponse.FacetLink;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
@@ -21,6 +22,7 @@ import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ContentRestrictionMode;
 import org.booklore.model.enums.ContentRestrictionType;
+import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +47,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +79,8 @@ class BookFacetServiceTest {
     private ObjectMapper springMapper;
     @MockitoBean
     private AuthenticationService authenticationService;
+    @MockitoBean
+    private MagicShelfBookService magicShelfBookService;
 
     @PersistenceContext
     private EntityManager em;
@@ -123,7 +129,7 @@ class BookFacetServiceTest {
                 .build();
     }
 
-    private void book(String title, String genre, String authorName) {
+    private BookMetadataEntity book(String title, String genre, String authorName) {
         BookEntity bookEntity = BookEntity.builder()
                 .library(library).libraryPath(libraryPath).addedOn(Instant.now()).deleted(false).build();
         em.persist(bookEntity);
@@ -132,6 +138,7 @@ class BookFacetServiceTest {
         metadata.setAuthors(List.of(author(authorName)));
         em.persist(metadata);
         bookEntity.setMetadata(metadata);
+        return metadata;
     }
 
     private CategoryEntity category(String name) {
@@ -156,6 +163,10 @@ class BookFacetServiceTest {
                 .findFirst().orElseThrow();
     }
 
+    private FacetGroup facet(String key, List<String> selection) {
+        return group(facetService.getFacet(key, selection, null, null, PageRequest.of(0, 100)), key);
+    }
+
     private Long count(FacetGroup group, String value) {
         Optional<FacetLink> link = group.links().stream().filter(l -> value.equals(l.value())).findFirst();
         return link.map(l -> l.properties().numberOfItems()).orElse(null);
@@ -168,16 +179,70 @@ class BookFacetServiceTest {
     }
 
     @Test
+    void scalarValuesAndRatingBandsCountMatchingBooks() {
+        BookMetadataEntity first = book("A", "Horror", "Alice");
+        first.setLanguage("en");
+        first.setGoodreadsRating(3.5);
+        BookMetadataEntity second = book("B", "Romance", "Bob");
+        second.setLanguage("en");
+        second.setGoodreadsRating(4.5);
+        BookMetadataEntity third = book("C", "Fantasy", "Cara");
+        third.setLanguage("fr");
+        third.setGoodreadsRating(3.5);
+        em.flush();
+
+        assertThat(count(facet("language", null), "en")).isEqualTo(2);
+        assertThat(count(facet("language", null), "fr")).isEqualTo(1);
+        FacetGroup ratings = facet("goodreads_rating", List.of("language:en"));
+        assertThat(count(ratings, "3..4")).isEqualTo(1);
+        assertThat(count(ratings, "4.5..*")).isEqualTo(1);
+    }
+
+    @Test
+    void repeatedAuthorCreditsAndFileTypesCountEachBookOnce() {
+        BookMetadataEntity metadata = book("A", "Horror", "Alice");
+        metadata.setAuthors(List.of(author("Alice"), author("Alice")));
+        for (String name : List.of("first.epub", "second.epub")) {
+            em.persist(BookFileEntity.builder().book(metadata.getBook())
+                    .fileName(name).fileSubPath("").isBookFormat(true)
+                    .bookType(BookFileType.EPUB).build());
+        }
+        em.flush();
+
+        assertThat(count(facet("author", null), "Alice")).isEqualTo(1);
+        assertThat(count(facet("file_type", null), "EPUB")).isEqualTo(1);
+    }
+
+    @Test
+    void nestedCollectionFilterKeepsScalarAndBandCountsDistinct() {
+        BookMetadataEntity first = book("A", "Horror", "Alice");
+        first.setAuthors(List.of(author("Alice"), author("Bob")));
+        first.setLanguage("en");
+        first.setGoodreadsRating(3.5);
+        BookMetadataEntity second = book("B", "Romance", "Alice");
+        second.setLanguage("en");
+        second.setGoodreadsRating(3.5);
+        when(magicShelfBookService.toSpecification(userEntity.getId(), 99L))
+                .thenReturn((root, query, cb) ->
+                        cb.isNotNull(root.join("metadata").join("authors").get("id")));
+        em.flush();
+
+        List<String> selection = List.of("shelf:magic:99");
+        assertThat(count(facet("language", selection), "en")).isEqualTo(2);
+        assertThat(count(facet("goodreads_rating", selection), "3..4")).isEqualTo(2);
+    }
+
+    @Test
     void countsDiscreteFacetsWithCounts() {
         book("A", "Horror", "Alice");
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroup genre = facet("genre", null);
 
-        assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
-        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
-        assertThat(group(response, "author").links()).extracting(FacetLink::value).contains("Alice", "Bob");
+        assertThat(count(genre, "Horror")).isEqualTo(1);
+        assertThat(count(genre, "Romance")).isEqualTo(1);
+        assertThat(facet("author", null).links()).extracting(FacetLink::value).contains("Alice", "Bob");
     }
 
     @Test
@@ -187,14 +252,15 @@ class BookFacetServiceTest {
         book("C", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror"), null, null);
+        List<String> selection = List.of("genre:Horror");
+        FacetGroup genre = facet("genre", selection);
 
         // genre omits itself: both Horror (2) and Romance (1) still appear with full counts.
-        assertThat(count(group(response, "genre"), "Horror")).isEqualTo(2);
-        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
+        assertThat(count(genre, "Horror")).isEqualTo(2);
+        assertThat(count(genre, "Romance")).isEqualTo(1);
 
         // a different facet honors the genre:Horror filter: only Horror authors remain.
-        assertThat(group(response, "author").links()).extracting(FacetLink::value).containsExactly("Alice");
+        assertThat(facet("author", selection).links()).extracting(FacetLink::value).containsExactly("Alice");
     }
 
     @Test
@@ -204,8 +270,7 @@ class BookFacetServiceTest {
         book("C", "Romance", "Bob");
         em.flush();
 
-        List<String> genres = group(facetService.getFacets(null, null, null), "genre").links()
-                .stream().map(FacetLink::value).toList();
+        List<String> genres = facet("genre", null).links().stream().map(FacetLink::value).toList();
         assertThat(genres).containsExactly("Horror", "Romance");
     }
 
@@ -214,7 +279,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetLink horror = link(group(facetService.getFacets(null, null, null), "genre"), "Horror");
+        FacetLink horror = link(facet("genre", null), "Horror");
         assertThat(horror.href()).isEqualTo("/api/v1/books/page?facet=genre%3AHorror");
         assertThat(horror.properties().numberOfItems()).isEqualTo(1);
         assertThat(horror.rel()).containsExactly("facet");
@@ -224,8 +289,8 @@ class BookFacetServiceTest {
     void responseIsCachedPerParameters() {
         book("A", "Horror", "Alice");
         em.flush();
-        FacetGroupsResponse first = facetService.getFacets(null, null, null);
-        FacetGroupsResponse second = facetService.getFacets(null, null, null);
+        FacetGroupsResponse first = facetService.getFacets(null, null);
+        FacetGroupsResponse second = facetService.getFacets(null, null);
         assertThat(first).isSameAs(second);
     }
 
@@ -233,7 +298,7 @@ class BookFacetServiceTest {
     void includesSortGroup() {
         book("A", "Horror", "Alice");
         em.flush();
-        FacetGroup sort = group(facetService.getFacets(null, null, null), "sort");
+        FacetGroup sort = group(facetService.getFacets(null, null), "sort");
         assertThat(sort.metadata().rel()).isEqualTo("sort");
         assertThat(sort.links()).extracting(FacetLink::value).contains("title", "-title");
         assertThat(sort.links()).allSatisfy(l -> assertThat(l.rel()).containsExactly("sort"));
@@ -245,12 +310,12 @@ class BookFacetServiceTest {
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse withNull = facetService.getFacets(null, null, null);
-        FacetGroupsResponse withEmpty = facetService.getFacets(List.of(), null, null);
+        FacetGroup withNull = facet("genre", null);
+        FacetGroup withEmpty = facet("genre", List.of());
 
-        assertThat(count(group(withEmpty, "genre"), "Horror")).isEqualTo(count(group(withNull, "genre"), "Horror"));
-        assertThat(count(group(withEmpty, "genre"), "Romance")).isEqualTo(count(group(withNull, "genre"), "Romance"));
-        assertThat(count(group(withEmpty, "genre"), "Horror")).isEqualTo(1);
+        assertThat(count(withEmpty, "Horror")).isEqualTo(count(withNull, "Horror"));
+        assertThat(count(withEmpty, "Romance")).isEqualTo(count(withNull, "Romance"));
+        assertThat(count(withEmpty, "Horror")).isEqualTo(1);
     }
 
     @Test
@@ -260,31 +325,33 @@ class BookFacetServiceTest {
         book("C", "Romance", "Alice");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null);
+        List<String> selection = List.of("genre:Horror", "author:Alice");
+        FacetGroup genre = facet("genre", selection);
+        FacetGroup author = facet("author", selection);
 
-        assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
-        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
+        assertThat(count(genre, "Horror")).isEqualTo(1);
+        assertThat(count(genre, "Romance")).isEqualTo(1);
 
-        assertThat(count(group(response, "author"), "Alice")).isEqualTo(1);
-        assertThat(count(group(response, "author"), "Bob")).isEqualTo(1);
+        assertThat(count(author, "Alice")).isEqualTo(1);
+        assertThat(count(author, "Bob")).isEqualTo(1);
     }
 
     @Test
-    void facetLogicCombinesSelectedValues() {
+    void facetMarksCombineSelectedValues() {
         book("A", "Horror", "Alice");
         book("B", "Romance", "Bob");
         book("C", "Fantasy", "Cara");
         em.flush();
 
-        List<String> genres = List.of("genre:Horror", "genre:Romance");
-
-        assertThat(group(facetService.getFacets(genres, "or", null), "author").links())
+        assertThat(facet("author", List.of("genre:Horror", "genre:Romance")).links())
                 .extracting(FacetLink::value).containsExactlyInAnyOrder("Alice", "Bob");
 
-        assertThat(group(facetService.getFacets(genres, "and", null), "author").links()).isEmpty();
+        assertThat(facet("author", List.of("+genre:Horror", "+genre:Romance")).links()).isEmpty();
 
-        assertThat(group(facetService.getFacets(genres, "not", null), "author").links())
+        assertThat(facet("author", List.of("-genre:Horror", "-genre:Romance")).links())
                 .extracting(FacetLink::value).containsExactly("Cara");
+
+        assertThat(count(facet("genre", List.of("-genre:Horror")), "Horror")).isNull();
     }
 
     @Test
@@ -294,10 +361,98 @@ class BookFacetServiceTest {
         }
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        for (String key : List.of("genre", "author")) {
+            FacetGroupsResponse response = facetService.getFacet(key, null, null, null, PageRequest.of(0, 200));
+            assertThat(group(response, key).links()).hasSize(100);
+        }
+    }
 
-        assertThat(group(response, "genre").links()).hasSize(100);
-        assertThat(group(response, "author").links()).hasSize(100);
+    @Test
+    void individualFacetPagesWithNextLink() {
+        book("A", "Horror", "Alice");
+        book("B", "Romance", "Alice");
+        book("C", "Fantasy", "Bob");
+        em.flush();
+
+        List<String> selection = List.of("genre:Horror", "author:Alice");
+        FacetGroupsResponse first = facetService.getFacet("genre", selection, null, null, PageRequest.of(0, 1));
+        FacetGroupsResponse last = facetService.getFacet("genre", selection, null, null, PageRequest.of(1, 1));
+
+        assertThat(group(first, "genre").links()).extracting(FacetLink::value).containsExactly("Horror");
+        assertThat(group(first, "genre").links().getFirst().rel()).containsExactly("self", "facet");
+        assertThat(first.links().getLast().href())
+                .isEqualTo("/api/v1/books/facets/genre?facet=genre%3AHorror&facet=author%3AAlice&page=1&size=1");
+        assertThat(group(last, "genre").links()).extracting(FacetLink::value).containsExactly("Romance");
+        assertThat(last.links()).extracting(Link::rel).containsExactly(List.of("self"));
+    }
+
+    @Test
+    void listsOnlyFacetsThatHaveValues() {
+        book("A", "Horror", "Alice").setPageCount(120);
+        book("B", "Horror", "Alice").getBook().setIsPhysical(true);
+        em.flush();
+
+        FacetGroupsResponse response = facetService.getFacets(null, null);
+
+        assertThat(response.facets()).extracting(g -> g.metadata().key())
+                .contains("sort", "genre", "page_count", "file_type")
+                .doesNotContain("mood", "goodreads_rating");
+        assertThat(group(response, "genre").links()).isEmpty();
+    }
+
+    @Test
+    void numberFacetBoundsCoverValuesPastTheCap() {
+        for (int i = 1; i <= 101; i++) {
+            book("T" + i, "Genre", "Author").setPageCount(i);
+        }
+        em.flush();
+
+        FacetGroup pageCount = facet("page_count", null);
+
+        assertThat(pageCount.links()).isEmpty();
+        assertThat(pageCount.metadata().min().intValue()).isEqualTo(1);
+        assertThat(pageCount.metadata().max().intValue()).isEqualTo(101);
+        assertThat(facet("genre", null).metadata().max()).isNull();
+    }
+
+    @Test
+    void ratingFacetCountsBandsAcrossEveryValue() {
+        for (int i = 0; i < 150; i++) {
+            book("R" + i, "Genre", "Author").setGoodreadsRating(3.5 + i / 1000.0);
+        }
+        book("Four", "Genre", "Author").setGoodreadsRating(4.0);
+        book("High", "Genre", "Author").setGoodreadsRating(4.8);
+        em.flush();
+
+        FacetGroup goodreads = facet("goodreads_rating", List.of("goodreads_rating:4..4.5"));
+
+        assertThat(goodreads.links()).extracting(FacetLink::value)
+                .containsExactly("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+        assertThat(count(goodreads, "0..1")).isZero();
+        assertThat(count(goodreads, "3..4")).isEqualTo(151);
+        assertThat(count(goodreads, "4..4.5")).isEqualTo(1);
+        assertThat(count(goodreads, "4.5..*")).isEqualTo(1);
+        assertThat(link(goodreads, "4..4.5").rel()).containsExactly("self", "facet");
+    }
+
+    @Test
+    void individualFacetSearchesValuesPastTheTopHundred() {
+        for (int i = 0; i < 120; i++) {
+            book("T" + i, "Genre" + i, "Author");
+        }
+        book("Rare", "Zebra Fiction", "Author");
+        em.flush();
+
+        FacetGroupsResponse response = facetService.getFacet("genre", null, null, "zebra", PageRequest.of(0, 20));
+
+        assertThat(group(response, "genre").links()).extracting(FacetLink::value).containsExactly("Zebra Fiction");
+        assertThat(response.links().getFirst().href()).isEqualTo("/api/v1/books/facets/genre?search=zebra&page=0&size=20");
+    }
+
+    @Test
+    void individualFacetSearchIsLimitedToNameFacets() {
+        assertThatThrownBy(() -> facetService.getFacet("page_count", null, null, "12", PageRequest.of(0, 20)))
+                .hasMessage("Facet cannot be searched: page_count");
     }
 
     @Test
@@ -306,7 +461,7 @@ class BookFacetServiceTest {
         book("B", "Romance", "Bob");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror"), null, null), "genre");
+        FacetGroup genre = facet("genre", List.of("genre:Horror"));
         FacetLink horror = link(genre, "Horror");
         FacetLink romance = link(genre, "Romance");
 
@@ -322,7 +477,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:Horror", "author:Alice"), null, null), "genre");
+        FacetGroup genre = facet("genre", List.of("genre:Horror", "author:Alice"));
         FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).containsExactly("self", "facet");
@@ -334,7 +489,7 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        FacetGroup genre = group(facetService.getFacets(List.of("genre:horror"), null, null), "genre");
+        FacetGroup genre = facet("genre", List.of("genre:horror"));
         FacetLink horror = link(genre, "Horror");
 
         assertThat(horror.rel()).contains("self");
@@ -345,12 +500,12 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        Link bare = facetService.getFacets(null, null, null).links().getFirst();
+        Link bare = facetService.getFacets(null, null).links().getFirst();
         assertThat(bare.rel()).containsExactly("self");
         assertThat(bare.href()).isEqualTo("/api/v1/books/facets");
         assertThat(bare.type()).isEqualTo(Link.JSON_TYPE);
 
-        Link filtered = facetService.getFacets(List.of("genre:Horror"), null, "dune").links().getFirst();
+        Link filtered = facetService.getFacets(List.of("genre:Horror"), "dune").links().getFirst();
         assertThat(filtered.rel()).containsExactly("self");
         assertThat(filtered.href()).isEqualTo("/api/v1/books/facets?facet=genre%3AHorror&query=dune");
     }
@@ -362,7 +517,8 @@ class BookFacetServiceTest {
         book("A", "Horror", "Alice");
         em.flush();
 
-        String json = springMapper.writeValueAsString(facetService.getFacets(List.of("genre:Horror"), null, null));
+        String json = springMapper.writeValueAsString(
+                facetService.getFacet("genre", List.of("genre:Horror"), null, null, PageRequest.of(0, 100)));
 
         assertThat(json).contains("\"rel\":\"self\"");
         assertThat(json).contains("\"rel\":[\"self\",\"facet\"]");
@@ -382,10 +538,8 @@ class BookFacetServiceTest {
                 .permissions(permissions)
                 .build());
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
-
-        assertThat(group(response, "genre").links()).isEmpty();
-        assertThat(group(response, "author").links()).isEmpty();
+        assertThat(facet("genre", null).links()).isEmpty();
+        assertThat(facet("author", null).links()).isEmpty();
     }
 
     @Test
@@ -400,10 +554,8 @@ class BookFacetServiceTest {
         book("R", "Romance", "Bob");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
-
-        assertThat(count(group(response, "genre"), "Romance")).isEqualTo(1);
-        assertThat(count(group(response, "genre"), "Horror")).isNull();
-        assertThat(count(group(response, "author"), "Alice")).isNull();
+        assertThat(count(facet("genre", null), "Romance")).isEqualTo(1);
+        assertThat(count(facet("genre", null), "Horror")).isNull();
+        assertThat(count(facet("author", null), "Alice")).isNull();
     }
 }

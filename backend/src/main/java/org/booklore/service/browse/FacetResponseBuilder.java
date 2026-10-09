@@ -41,6 +41,10 @@ final class FacetResponseBuilder {
     }
 
     FacetGroup group(String key, String title, List<FacetCount> counts) {
+        return group(key, title, counts, null, null);
+    }
+
+    FacetGroup group(String key, String title, List<FacetCount> counts, Number min, Number max) {
         List<FacetLink> links = counts.stream()
                 .map(c -> {
                     boolean active = BrowseParams.hasFacet(selectedFacets, key, c.value());
@@ -51,7 +55,7 @@ final class FacetResponseBuilder {
                     return new FacetLink(rel, href, Link.JSON_TYPE, c.value(), c.value(), new Properties(c.count()));
                 })
                 .toList();
-        return new FacetGroup(new Metadata("facet", key, title), links);
+        return new FacetGroup(new Metadata("facet", key, title, min, max), links);
     }
 
     List<Link> selfLinks() {

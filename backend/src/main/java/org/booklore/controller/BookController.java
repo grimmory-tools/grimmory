@@ -4,7 +4,6 @@ import org.booklore.browse.BrowsePage;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookRecommendation;
 import org.booklore.model.dto.BookViewerSettings;
 import org.booklore.model.dto.request.AttachBookFileRequest;
 import org.booklore.model.dto.request.CreatePhysicalBookRequest;
@@ -83,54 +82,73 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
-    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, facet_logic, and query parameters; with none of these the legacy page/size behavior is preserved.")
+    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, and query parameters; with none of these the legacy page/size behavior is preserved.")
     @ApiResponse(responseCode = "200", description = "Page of books returned successfully")
     @GetMapping("/page")
     public ResponseEntity<BrowsePage<Book>> getBooksPaged(
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. seriesName,-seriesNumber)")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable (e.g. facet=genre:Horror&facet=read_status:READ)")
+            @Parameter(description = "Facet selection in key:value form; repeatable. Plain values of a facet match any of them; prefix a value with '+' (sent as %2B) to require it or '-' to exclude it (e.g. facet=genre:Horror&facet=%2Btag:Dragons&facet=-genre:Romance)")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
-            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
             @Parameter(description = "Opaque pagination cursor from a prior response's links")
             @RequestParam(required = false) String cursor) {
-        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
+        boolean browseMode = sort != null || facet != null || query != null || cursor != null;
         if (browseMode) {
-            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
+            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, query, cursor, pageable));
         }
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
 
-    @Operation(summary = "Get book facets", description = "Available facet values and counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts.")
+    @Operation(summary = "Get book facets", description = "The facets that have values for the current user, without their values, scoped by the same facet and query parameters as the page endpoint, plus the sort options. Load a facet's values from /facets/{facetName}.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getBookFacets(
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
-            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
+        return ResponseEntity.ok(bookFacetService.getFacets(facet, query));
     }
 
-    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. The counts leave out the facet's own plain values but keep its required and excluded ones. Number facets return their min and max, and banded ones a count for every band, instead of their values. Name facets such as author, genre and tag are paged and can be searched.")
+    @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
+    @GetMapping("/facets/{facetName}")
+    public ResponseEntity<FacetGroupsResponse> getBookFacet(
+            @Parameter(description = "Facet name (for example author, genre, page_count, or goodreads_rating)")
+            @PathVariable String facetName,
+            @Parameter(hidden = true) Pageable pageable,
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Case-insensitive text the values must contain; name facets only")
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, query, search, pageable));
+    }
+
+    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
     @ApiResponse(responseCode = "200", description = "Matching book ids returned successfully")
     @GetMapping("/ids")
     public ResponseEntity<List<Long>> getBookIds(
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
-            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
+        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, query));
+    }
+
+    @Operation(summary = "Get books by IDs", description = "Retrieve books for the given IDs, returned in request order. Applies the same visibility rules as the browse endpoints; IDs that are not found or not visible to the caller are simply omitted from the response.")
+    @ApiResponse(responseCode = "200", description = "Books returned successfully")
+    @GetMapping("/batch")
+    public ResponseEntity<List<Book>> getBooksBatch(
+            @Parameter(description = "Comma-separated book IDs to retrieve, in the desired order (max 500)")
+            @RequestParam @Size(max = 500, message = "A maximum of 500 IDs can be requested at once") List<Long> ids) {
+        return ResponseEntity.ok(bookBrowseService.findByIds(ids));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
@@ -170,15 +188,6 @@ public class BookController {
     public ResponseEntity<BookDeletionResponse> deleteBooks(
             @Parameter(description = "Set of book IDs to delete") @RequestParam Set<Long> ids) {
         return bookService.deleteBooks(ids);
-    }
-
-    @Operation(summary = "Get books by IDs", description = "Retrieve multiple books by their IDs. Optionally include descriptions.")
-    @ApiResponse(responseCode = "200", description = "Books returned successfully")
-    @GetMapping("/batch")
-    public ResponseEntity<List<Book>> getBooksByIds(
-            @Parameter(description = "Set of book IDs to retrieve") @RequestParam Set<Long> ids,
-            @Parameter(description = "Include book descriptions in the response") @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
-        return ResponseEntity.ok(bookService.getBooksByIds(ids, withDescription));
     }
 
     @Operation(summary = "Get ComicInfo metadata", description = "Retrieve ComicInfo metadata for a specific book.")
@@ -293,11 +302,11 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get book recommendations", description = "Get recommended books based on a specific book.")
+    @Operation(summary = "Get book recommendations", description = "Get recommended books based on a specific book, most similar first, in the same form as the page endpoint.")
     @ApiResponse(responseCode = "200", description = "Recommendations returned successfully")
     @GetMapping("/{id}/recommendations")
     @CheckBookAccess(bookIdParam = "id")
-    public ResponseEntity<List<BookRecommendation>> getRecommendations(
+    public ResponseEntity<List<Book>> getRecommendations(
             @Parameter(description = "ID of the book for recommendations") @PathVariable Long id,
             @Parameter(description = "Maximum number of recommendations to return (max 25)") @RequestParam(defaultValue = "25") @Max(25) @Min(1) int limit) {
         return ResponseEntity.ok(bookRecommendationService.getRecommendations(id, limit));

@@ -84,19 +84,16 @@
     "main": {
       "pageTitle": "Dashboard",
       "welcomeTitle": "Welcome to Grimmory!",
-      "welcomeSubtitle": "Let's create your first library",
       "welcomeDescription": "A library is where all your books live. Start building your digital collection today!",
-      "createLibrary": "Create Your Library"
+      "createLibrary": "Create Your Library",
+      "customize": "Customize Dashboard"
     },
     "scroller": {
-      "noBooksFound": "No books found for this scroller.",
-      "loadError": "Failed to load books! Please try refreshing the page.",
       "continueListening": "Continue Listening",
       "continueReading": "Continue Reading",
       "recentlyAdded": "Recently Added",
-      "discoverNew": "Discover Something New",
-      "magicShelf": "Magic Shelf",
-      "default": "Scroller"
+      "recentlyFinished": "Recently Finished",
+      "discoverNew": "Discover Something New"
     }
   },
   "settings": {
@@ -475,16 +472,19 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboard Configuration",
-      "sectionDesc": "Add up to 5 scrollers from different book collections and customize their behavior.",
+      "sectionDesc": "Add scrollers from different book collections and customize their behavior.",
       "type": "Type",
       "selectType": "Select type",
       "magicShelf": "Magic Shelf",
       "selectMagicShelf": "Select magic shelf",
+      "library": "Library",
+      "selectLibrary": "Select library",
+      "shelf": "Shelf",
+      "selectShelf": "Select shelf",
       "sortField": "Sort Field",
       "selectField": "Select field",
       "direction": "Direction",
       "selectDirection": "Select direction",
-      "maxItems": "Max Items",
       "addScroller": "Add Scroller",
       "resetToDefault": "Reset to Default",
       "saveSettings": "Save Settings",
@@ -494,7 +494,10 @@
         "lastRead": "Continue Reading",
         "lastListened": "Continue Listening",
         "latestAdded": "Recently Added",
+        "recentlyFinished": "Recently Finished",
         "random": "Discover Something New",
+        "library": "Library",
+        "shelf": "Shelf",
         "magicShelf": "Magic Shelf",
         "default": "Scroller"
       },
@@ -2835,6 +2838,11 @@
         "continueReading": "Continue reading",
         "readStatusMenu": "Change read status"
       }
+    },
+    "row": {
+      "previous": "Scroll back",
+      "next": "Scroll forward",
+      "loadError": "These books couldn't be loaded."
     },
     "menu": {
       "label": "Book actions",
@@ -5242,6 +5250,7 @@
   },
   "browse": {
     "showAll": "Show All",
+    "showMore": "Show More",
     "showFewer": "Show Fewer",
     "clearFilters": "Clear Filters",
     "filter": "Filter",
@@ -5265,13 +5274,15 @@
         "library": "Search Library",
         "shelf": "Search Shelf",
         "magicShelf": "Search Magic Shelf",
-        "unshelved": "Search Unshelved Books"
+        "unshelved": "Search Unshelved Books",
+        "dashboardRow": "Search These Books"
       },
       "noMatches": "No matches",
       "minUnit": "Min unit",
       "maxUnit": "Max unit",
       "min": "Min",
-      "max": "Max"
+      "max": "Max",
+      "excluded": "Excluded"
     },
     "book": {
       "empty": "No books here yet.",
@@ -5300,6 +5311,13 @@
       "smallerCards": "Smaller Cards",
       "largerCards": "Larger Cards",
       "showFilters": "Show Filters",
+      "filters": "Filters",
+      "tickToExclude": "Tick Again to Exclude",
+      "filterLogic": "Filter Logic",
+      "matchAny": "Match Any",
+      "matchAll": "Match All",
+      "any": "Any",
+      "all": "All",
       "columns": "Columns",
       "resetColumns": "Reset to Default"
     },

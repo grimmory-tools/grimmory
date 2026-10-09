@@ -47,8 +47,7 @@
     <p-tabpanels class="tabpanels-responsive">
       <p-tabpanel [value]="BookMetadataTab.View">
         <app-metadata-viewer
-          [book]="book()"
-          [recommendedBooks]="recommendedBooks()">
+          [book]="book()">
         </app-metadata-viewer>
       </p-tabpanel>
       @if (canOpenTab(BookMetadataTab.Edit)) {

@@ -20,7 +20,7 @@
               </div>
 
               <div class="scroller-fields">
-                <div class="scroller-field" [class.expanded]="scroller.type !== ScrollerType.MAGIC_SHELF">
+                <div class="scroller-field" [class.expanded]="!isScopeType(scroller.type)">
                   <label [for]="'dashboard-scroller-type-' + scroller.id">{{ t('type') }}</label>
                   <p-select
                     fluid
@@ -33,19 +33,49 @@
                   </p-select>
                 </div>
 
-                @if (scroller.type === ScrollerType.MAGIC_SHELF) {
-                  <div class="scroller-field">
-                    <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
-                    <p-select
-                      fluid
-                      [inputId]="'dashboard-scroller-magic-shelf-' + scroller.id"
-                      [options]="magicShelves()"
-                      [(ngModel)]="scroller.magicShelfId"
-                      [placeholder]="t('selectMagicShelf')"
-                      appendTo="body">
-                    </p-select>
-                  </div>
+                @switch (scroller.type) {
+                  @case (ScrollerType.LIBRARY) {
+                    <div class="scroller-field">
+                      <label [for]="'dashboard-scroller-library-' + scroller.id">{{ t('library') }}</label>
+                      <p-select
+                        fluid
+                        [inputId]="'dashboard-scroller-library-' + scroller.id"
+                        [options]="libraries()"
+                        [(ngModel)]="scroller.libraryId"
+                        [placeholder]="t('selectLibrary')"
+                        appendTo="body">
+                      </p-select>
+                    </div>
+                  }
+                  @case (ScrollerType.SHELF) {
+                    <div class="scroller-field">
+                      <label [for]="'dashboard-scroller-shelf-' + scroller.id">{{ t('shelf') }}</label>
+                      <p-select
+                        fluid
+                        [inputId]="'dashboard-scroller-shelf-' + scroller.id"
+                        [options]="shelves()"
+                        [(ngModel)]="scroller.shelfId"
+                        [placeholder]="t('selectShelf')"
+                        appendTo="body">
+                      </p-select>
+                    </div>
+                  }
+                  @case (ScrollerType.MAGIC_SHELF) {
+                    <div class="scroller-field">
+                      <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
+                      <p-select
+                        fluid
+                        [inputId]="'dashboard-scroller-magic-shelf-' + scroller.id"
+                        [options]="magicShelves()"
+                        [(ngModel)]="scroller.magicShelfId"
+                        [placeholder]="t('selectMagicShelf')"
+                        appendTo="body">
+                      </p-select>
+                    </div>
+                  }
+                }
 
+                @if (isScopeType(scroller.type)) {
                   <div class="scroller-field">
                     <label [for]="'dashboard-scroller-sort-field-' + scroller.id">{{ t('sortField') }}</label>
                     <p-select
@@ -70,18 +100,6 @@
                     </p-select>
                   </div>
                 }
-              </div>
-
-              <div class="scroller-field max-items-field">
-                <label [for]="'dashboard-scroller-max-items-' + scroller.id">{{ t('maxItems') }}</label>
-                <p-inputNumber
-                  fluid
-                  [inputId]="'dashboard-scroller-max-items-' + scroller.id"
-                  [(ngModel)]="scroller.maxItems"
-                  [min]="MIN_ITEMS"
-                  [max]="MAX_ITEMS"
-                  [showButtons]="true">
-                </p-inputNumber>
               </div>
 
               <div class="scroller-controls-right">
@@ -126,8 +144,7 @@
             severity="primary"
             outlined
             size="small"
-            (onClick)="addScroller()"
-            [disabled]="config.scrollers.length >= MAX_SCROLLERS">
+            (onClick)="addScroller()">
           </p-button>
           <p-button
             [label]="t('resetToDefault')"

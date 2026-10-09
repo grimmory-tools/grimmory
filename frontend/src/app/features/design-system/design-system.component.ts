@@ -153,7 +153,6 @@ export class DesignSystemComponent {
 
   private readonly bookCardsQuery = injectQuery(() => this.bookQueryService.page({
     facets: EMPTY_FACET_SELECTION,
-    facetLogic: 'or',
     sort: [{ key: 'title', direction: 'asc' }],
     size: 4,
   }));

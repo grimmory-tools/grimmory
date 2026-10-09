@@ -1,7 +1,5 @@
 <ng-container *transloco="let t; prefix: 'metadata.tabs'">
 @let currentBook = book();
-@let seriesBooks = bookInSeries();
-@let recommendations = recommendedBooks();
 @let currentAudiobookInfo = audiobookInfo();
 @let currentFileState = fileState();
 <p-tabs lazy class="custom-p-tabs" [value]="activeTab()" scrollable (valueChange)="onTabChange($event)">
@@ -15,34 +13,12 @@
   <p-tabpanels>
     <p-tabpanel value="series">
       <ng-template #content>
-        <div class="tab-content">
-          @if (seriesBooks.length > 1) {
-            <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (bookInSeriesItem of seriesBooks; track bookInSeriesItem.id) {
-                @if (bookInSeriesItem.id !== currentBook.id) {
-                  <div class="dashboard-scroller-card">
-                    <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === currentBook.id"></app-book-card-lite-component>
-                  </div>
-                }
-              }
-            </div>
-          }
-        </div>
+        <app-book-row [cards]="seriesCards()" [status]="seriesQuery.status()" [bookMenu]="bookMenu" (retry)="seriesQuery.refetch()" (opened)="openBook.emit($event.id)" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="similar">
       <ng-template #content>
-        <div class="tab-content">
-          @if (recommendations.length > 0) {
-            <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (recBook of recommendations; track recBook.book.id) {
-                <div class="dashboard-scroller-card">
-                  <app-book-card-lite-component [book]="recBook.book"></app-book-card-lite-component>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <app-book-row [cards]="similarCards()" [status]="similarQuery.status()" [bookMenu]="bookMenu" (retry)="similarQuery.refetch()" (opened)="openBook.emit($event.id)" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="covers">
@@ -432,4 +408,5 @@
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
+<app-book-menu #bookMenu openInNewTab />
 </ng-container>

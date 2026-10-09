@@ -315,8 +315,3 @@ export interface BookDetailMetadata extends BookMetadataFields {
 export interface BookDetail extends BookRecord<BookDetailMetadata> {
   libraryPath?: BookLibraryPath;
 }
-
-export interface BookRecommendation {
-  book: BookDetail;
-  similarityScore: number;
-}

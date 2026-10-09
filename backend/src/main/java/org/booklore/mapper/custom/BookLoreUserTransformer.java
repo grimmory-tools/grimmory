@@ -70,8 +70,9 @@ public class BookLoreUserTransformer {
                     }
                 } else {
                     switch (settingKey) {
-                        case FILTER_MODE -> userSettings.setFilterMode(value);
                         case FILTER_SORTING_MODE -> userSettings.setFilterSortingMode(value);
+                        case FILTER_MATCH_ALL -> userSettings.setFilterMatchAll(Boolean.parseBoolean(value));
+                        case FILTER_EXCLUDE_ON_TICK -> userSettings.setFilterExcludeOnTick(Boolean.parseBoolean(value));
                         case METADATA_CENTER_VIEW_MODE -> userSettings.setMetadataCenterViewMode(value);
                         case ENABLE_SERIES_VIEW -> userSettings.setEnableSeriesView(Boolean.parseBoolean(value));
                         case AUTO_SAVE_METADATA -> userSettings.setAutoSaveMetadata(Boolean.parseBoolean(value));
