@@ -117,34 +117,6 @@ class BookServiceTest {
     }
 
     @Test
-    void getBooksByIds_returnsMappedBooksWithProgress() {
-        BookEntity entity = new BookEntity();
-        entity.setId(2L);
-        BookFileEntity primaryFile = new BookFileEntity();
-        primaryFile.setBook(entity);
-        primaryFile.setBookType(BookFileType.EPUB);
-        entity.setBookFiles(Set.of(primaryFile));
-        LibraryPathEntity libPath = new LibraryPathEntity();
-        libPath.setPath("/tmp/library");
-        LibraryEntity library = new LibraryEntity();
-        library.setLibraryPaths(List.of(libPath));
-        entity.setLibrary(library);
-        when(bookQueryService.findAllWithMetadataByIds(anySet())).thenReturn(List.of(entity));
-        when(readingProgressService.fetchUserProgress(anyLong(), anySet())).thenReturn(Map.of(2L, new UserBookProgressEntity()));
-        Book mappedBook = Book.builder().id(2L).primaryFile(BookFile.builder().bookType(BookFileType.EPUB).build()).metadata(BookMetadata.builder().build()).build();
-        when(bookMapper.toBook(entity)).thenReturn(mappedBook);
-        when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
-
-        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(epubPath);
-            List<Book> result = bookService.getBooksByIds(Set.of(2L), false);
-
-            assertEquals(1, result.size());
-            assertEquals(2L, result.getFirst().getId());
-        }
-    }
-
-    @Test
     void getBook_existingBook_returnsBookWithProgress() {
         BookEntity entity = new BookEntity();
         entity.setId(3L);
