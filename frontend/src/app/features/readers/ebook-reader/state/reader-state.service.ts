@@ -2,6 +2,7 @@ import {inject, Injectable, signal} from '@angular/core';
 import {forkJoin, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './themes.constant';
+import {COLUMN_COUNT_LIMITS} from './reader-layout.constant';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {EpubCustomFontService} from '../features/fonts/custom-font.service';
@@ -162,7 +163,7 @@ export class ReaderStateService {
 
   updateMaxColumnCount(delta: number): void {
     const current = this._state().maxColumnCount;
-    const newValue = Math.max(1, Math.min(10, current + delta));
+    const newValue = Math.max(COLUMN_COUNT_LIMITS.min, Math.min(COLUMN_COUNT_LIMITS.max, current + delta));
     this.updateState({maxColumnCount: newValue});
   }
 
