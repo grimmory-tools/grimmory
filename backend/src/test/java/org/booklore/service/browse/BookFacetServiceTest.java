@@ -12,6 +12,7 @@ import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
 import org.booklore.model.dto.browse.FacetGroupsResponse.FacetLink;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
@@ -21,6 +22,7 @@ import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ContentRestrictionMode;
 import org.booklore.model.enums.ContentRestrictionType;
+import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +47,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +79,8 @@ class BookFacetServiceTest {
     private ObjectMapper springMapper;
     @MockitoBean
     private AuthenticationService authenticationService;
+    @MockitoBean
+    private MagicShelfBookService magicShelfBookService;
 
     @PersistenceContext
     private EntityManager em;
@@ -157,6 +163,14 @@ class BookFacetServiceTest {
                 .findFirst().orElseThrow();
     }
 
+    private FacetGroup facet(String key, List<String> selection) {
+        return facet(key, selection, null);
+    }
+
+    private FacetGroup facet(String key, List<String> selection, String facetLogic) {
+        return group(facetService.getFacet(key, selection, facetLogic, null, null, PageRequest.of(0, 100)), key);
+    }
+
     private Long count(FacetGroup group, String value) {
         Optional<FacetLink> link = group.links().stream().filter(l -> value.equals(l.value())).findFirst();
         return link.map(l -> l.properties().numberOfItems()).orElse(null);
@@ -166,6 +180,60 @@ class BookFacetServiceTest {
         return group.links().stream()
                 .filter(l -> value.equals(l.value()))
                 .findFirst().orElseThrow();
+    }
+
+    @Test
+    void scalarValuesAndRatingBandsCountMatchingBooks() {
+        BookMetadataEntity first = book("A", "Horror", "Alice");
+        first.setLanguage("en");
+        first.setGoodreadsRating(3.5);
+        BookMetadataEntity second = book("B", "Romance", "Bob");
+        second.setLanguage("en");
+        second.setGoodreadsRating(4.5);
+        BookMetadataEntity third = book("C", "Fantasy", "Cara");
+        third.setLanguage("fr");
+        third.setGoodreadsRating(3.5);
+        em.flush();
+
+        assertThat(count(facet("language", null), "en")).isEqualTo(2);
+        assertThat(count(facet("language", null), "fr")).isEqualTo(1);
+        FacetGroup ratings = facet("goodreads_rating", List.of("language:en"));
+        assertThat(count(ratings, "3..4")).isEqualTo(1);
+        assertThat(count(ratings, "4.5..*")).isEqualTo(1);
+    }
+
+    @Test
+    void repeatedAuthorCreditsAndFileTypesCountEachBookOnce() {
+        BookMetadataEntity metadata = book("A", "Horror", "Alice");
+        metadata.setAuthors(List.of(author("Alice"), author("Alice")));
+        for (String name : List.of("first.epub", "second.epub")) {
+            em.persist(BookFileEntity.builder().book(metadata.getBook())
+                    .fileName(name).fileSubPath("").isBookFormat(true)
+                    .bookType(BookFileType.EPUB).build());
+        }
+        em.flush();
+
+        assertThat(count(facet("author", null), "Alice")).isEqualTo(1);
+        assertThat(count(facet("file_type", null), "EPUB")).isEqualTo(1);
+    }
+
+    @Test
+    void nestedCollectionFilterKeepsScalarAndBandCountsDistinct() {
+        BookMetadataEntity first = book("A", "Horror", "Alice");
+        first.setAuthors(List.of(author("Alice"), author("Bob")));
+        first.setLanguage("en");
+        first.setGoodreadsRating(3.5);
+        BookMetadataEntity second = book("B", "Romance", "Alice");
+        second.setLanguage("en");
+        second.setGoodreadsRating(3.5);
+        when(magicShelfBookService.toSpecification(userEntity.getId(), 99L))
+                .thenReturn((root, query, cb) ->
+                        cb.isNotNull(root.join("metadata").join("authors").get("id")));
+        em.flush();
+
+        List<String> selection = List.of("shelf:magic:99");
+        assertThat(count(facet("language", selection), "en")).isEqualTo(2);
+        assertThat(count(facet("goodreads_rating", selection), "3..4")).isEqualTo(2);
     }
 
     @Test
@@ -302,6 +370,40 @@ class BookFacetServiceTest {
     }
 
     @Test
+    void individualFacetPagesWithNextLink() {
+        book("A", "Horror", "Alice");
+        book("B", "Romance", "Alice");
+        book("C", "Fantasy", "Bob");
+        em.flush();
+
+        List<String> selection = List.of("genre:Horror", "author:Alice");
+        FacetGroupsResponse first = facetService.getFacet("genre", selection, null, null, null, PageRequest.of(0, 1));
+        FacetGroupsResponse last = facetService.getFacet("genre", selection, null, null, null, PageRequest.of(1, 1));
+
+        assertThat(group(first, "genre").links()).extracting(FacetLink::value).containsExactly("Horror");
+        assertThat(group(first, "genre").links().getFirst().rel()).containsExactly("self", "facet");
+        assertThat(first.links().getLast().href())
+                .isEqualTo("/api/v1/books/facets/genre?facet=genre%3AHorror&facet=author%3AAlice&page=1&size=1");
+        assertThat(group(last, "genre").links()).extracting(FacetLink::value).containsExactly("Romance");
+        assertThat(last.links()).extracting(Link::rel).containsExactly(List.of("self"));
+    }
+
+    @Test
+    void individualNumberFacetsMatchTheOverallEndpoint() {
+        BookMetadataEntity metadata = book("A", "Genre", "Author");
+        metadata.setPageCount(120);
+        metadata.setGoodreadsRating(4.2);
+        em.flush();
+
+        FacetGroupsResponse overall = facetService.getFacets(null, null, null);
+        for (String key : List.of("page_count", "goodreads_rating")) {
+            FacetGroupsResponse single = facetService.getFacet(key, null, null, null, null, PageRequest.of(0, 1));
+            assertThat(single.facets()).containsExactly(group(overall, key));
+            assertThat(single.links()).extracting(Link::rel).containsExactly(List.of("self"));
+        }
+    }
+
+    @Test
     void numberFacetBoundsCoverValuesPastTheCap() {
         for (int i = 1; i <= 101; i++) {
             book("T" + i, "Genre", "Author").setPageCount(i);
@@ -334,6 +436,26 @@ class BookFacetServiceTest {
         assertThat(count(goodreads, "4..4.5")).isEqualTo(1);
         assertThat(count(goodreads, "4.5..*")).isEqualTo(1);
         assertThat(link(goodreads, "4..4.5").rel()).containsExactly("self", "facet");
+    }
+
+    @Test
+    void individualFacetSearchesValuesPastTheTopHundred() {
+        for (int i = 0; i < 120; i++) {
+            book("T" + i, "Genre" + i, "Author");
+        }
+        book("Rare", "Zebra Fiction", "Author");
+        em.flush();
+
+        FacetGroupsResponse response = facetService.getFacet("genre", null, null, null, "zebra", PageRequest.of(0, 20));
+
+        assertThat(group(response, "genre").links()).extracting(FacetLink::value).containsExactly("Zebra Fiction");
+        assertThat(response.links().getFirst().href()).isEqualTo("/api/v1/books/facets/genre?search=zebra&page=0&size=20");
+    }
+
+    @Test
+    void individualFacetSearchIsLimitedToNameFacets() {
+        assertThatThrownBy(() -> facetService.getFacet("page_count", null, null, null, "12", PageRequest.of(0, 20)))
+                .hasMessage("Facet cannot be searched: page_count");
     }
 
     @Test
