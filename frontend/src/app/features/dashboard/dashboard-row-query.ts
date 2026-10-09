@@ -54,14 +54,12 @@ export function dashboardRowQueryParams(config: ScrollerConfig): BookPageParams 
     case ScrollerType.LATEST_ADDED:
       return {
         facets: {},
-        facetLogic: 'or',
         sort: [{key: 'addedOn', direction: 'desc'}],
         size,
       };
     case ScrollerType.RANDOM:
       return {
-        facets: {read_status: RANDOM_EXCLUDED_STATUSES},
-        facetLogic: 'not',
+        facets: {'-read_status': RANDOM_EXCLUDED_STATUSES},
         sort: [{key: 'random', direction: 'asc'}],
         size,
       };
@@ -71,7 +69,6 @@ export function dashboardRowQueryParams(config: ScrollerConfig): BookPageParams 
       }
       return {
         facets: {shelf: [`magic:${config.magicShelfId}`]},
-        facetLogic: 'or',
         sort: magicShelfSort(config),
         size,
       };
@@ -112,7 +109,6 @@ function rowSize(config: ScrollerConfig): number {
 function inProgressParams(fileTypes: readonly BookFileType[], rowSize: number): BookPageParams {
   return {
     facets: {read_status: IN_PROGRESS_STATUSES, file_type: fileTypes},
-    facetLogic: 'or',
     sort: [{key: 'lastReadTime', direction: 'desc'}],
     size: rowSize * PROGRESS_QUERY_SIZE_MULTIPLIER,
   };

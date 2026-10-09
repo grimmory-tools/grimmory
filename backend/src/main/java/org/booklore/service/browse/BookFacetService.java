@@ -14,7 +14,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import lombok.RequiredArgsConstructor;
-import org.booklore.browse.FacetLogic;
 import org.booklore.browse.Link;
 import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
@@ -141,23 +140,22 @@ public class BookFacetService {
             .maximumSize(200)
             .build();
 
-    public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
+    public FacetGroupsResponse getFacets(List<String> facet, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
 
-        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets, facetLogic);
+        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets);
         return cache.get(cacheKey, key -> {
-            String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+            String preserved = BrowseParams.preserved(facet, query);
             FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, FACET_PATH, preserved, facet);
             List<FacetGroup> groups = new ArrayList<>();
             groups.add(builder.sortGroup(sortRegistry.registry().keys()));
             for (FacetDef def : FACETS) {
 
-                Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+                Specification<BookEntity> base = filterSpecifications.base(query, facets, scope, def.key());
                 if (hasValues(def, base, scope)) {
                     groups.add(new FacetGroup(new Metadata("facet", def.key(), def.title()), List.of()));
                 }
@@ -166,7 +164,7 @@ public class BookFacetService {
         });
     }
 
-    public FacetGroupsResponse getFacet(String facetName, List<String> facet, String facetLogicParam, String query, String search, Pageable pageable) {
+    public FacetGroupsResponse getFacet(String facetName, List<String> facet, String query, String search, Pageable pageable) {
         FacetDef def = findFacet(facetName);
         boolean nameFacet = NAME_FACETS.contains(def.key());
         String term = search == null || search.isBlank() ? null : search.trim();
@@ -177,9 +175,8 @@ public class BookFacetService {
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
-        Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+        String preserved = BrowseParams.preserved(facet, query);
+        Specification<BookEntity> base = filterSpecifications.base(query, facets, scope, def.key());
         String path = FACET_PATH + "/" + def.key();
         FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, path, preserved, facet);
 
@@ -300,7 +297,7 @@ public class BookFacetService {
         Expression<Number> value = (Expression<Number>) def.value().apply(cb, root, scope);
 
         List<Expression<Long>> matchingIds = bands.stream()
-                .map(band -> matchingId(facetRegistry.toSpecification(def.key(), List.of(band), FacetLogic.OR, scope.userId()), root, cq, cb))
+                .map(band -> matchingId(facetRegistry.matching(def.key(), List.of(band), scope.userId()), root, cq, cb))
                 .toList();
         Predicate basePredicate = base.toPredicate(root, cq, cb);
 

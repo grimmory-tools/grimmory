@@ -143,12 +143,18 @@
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
   <div class="hidden sm:contents">
-    <app-menu-checkbox
-      value="show-filters"
-      [checked]="filtersOpen()"
-      (selected)="filtersToggle.emit()">
-      {{ 'browse.toolbar.showFilters' | transloco }}
-    </app-menu-checkbox>
+    <app-book-browse-filter-menu-items
+      [matchAll]="matchAll()"
+      [excludeOnTick]="excludeOnTick()"
+      (matchAllChange)="matchAllChange.emit($event)"
+      (excludeOnTickChange)="excludeOnTickChange.emit($event)">
+      <app-menu-checkbox
+        value="show-filters"
+        [checked]="filtersOpen()"
+        (selected)="filtersToggle.emit()">
+        {{ 'browse.toolbar.showFilters' | transloco }}
+      </app-menu-checkbox>
+    </app-book-browse-filter-menu-items>
   </div>
   @if (actionTarget(); as target) {
     <app-menu-separator />

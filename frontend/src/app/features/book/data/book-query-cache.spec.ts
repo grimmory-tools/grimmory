@@ -14,7 +14,6 @@ const firstBook = {id: 1};
 const secondBook = {id: 2};
 const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
   facets: {},
-  facetLogic: 'or',
   sort: [],
   size: 20,
 }));

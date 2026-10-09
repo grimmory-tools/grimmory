@@ -3,7 +3,6 @@ package org.booklore.service.browse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
-import org.booklore.browse.FacetLogic;
 import org.booklore.browse.SortParser;
 import org.booklore.browse.SortTerm;
 import org.booklore.model.entity.AuthorEntity;
@@ -159,8 +158,8 @@ class BookBrowseRegistryTest {
         return bookRepository.findAll(spec).stream().map(BookEntity::getId).toList();
     }
 
-    private Set<Long> facetIds(String facet, List<String> values, FacetLogic logic, Long userId) {
-        return bookRepository.findAll(facetRegistry.toSpecification(facet, values, logic, userId)).stream()
+    private Set<Long> facetIds(String facet, List<String> values, Long userId) {
+        return bookRepository.findAll(facetRegistry.matching(facet, values, userId)).stream()
                 .map(BookEntity::getId).collect(Collectors.toSet());
     }
 
@@ -271,12 +270,12 @@ class BookBrowseRegistryTest {
     // ---- facets ----
 
     @Test
-    void genreFacetOrAndNot() {
+    void genreFacetMatchesAnyValue() {
         Long horror = book("H", null, null, Instant.now(), List.of("Horror"), List.of(), null).getId();
         Long romance = book("R", null, null, Instant.now(), List.of("Romance"), List.of(), null).getId();
         em.flush();
-        assertThat(facetIds("genre", List.of("Horror"), FacetLogic.OR, user.getId())).containsExactlyInAnyOrder(horror);
-        assertThat(facetIds("genre", List.of("Horror"), FacetLogic.NOT, user.getId())).contains(romance).doesNotContain(horror);
+        assertThat(facetIds("genre", List.of("Horror"), user.getId())).containsExactlyInAnyOrder(horror);
+        assertThat(facetIds("genre", List.of("Horror", "Romance"), user.getId())).containsExactlyInAnyOrder(horror, romance);
     }
 
     @Test
@@ -286,7 +285,7 @@ class BookBrowseRegistryTest {
         progress(read, user, null, ReadStatus.READ, null, null);
         progress(unread, user, null, ReadStatus.UNREAD, null, null);
         em.flush();
-        assertThat(facetIds("read_status", List.of("READ"), FacetLogic.OR, user.getId())).containsExactlyInAnyOrder(read.getId());
+        assertThat(facetIds("read_status", List.of("READ"), user.getId())).containsExactlyInAnyOrder(read.getId());
     }
 
     // ---- query ----
