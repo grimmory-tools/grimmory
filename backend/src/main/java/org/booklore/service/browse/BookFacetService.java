@@ -7,21 +7,26 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import lombok.RequiredArgsConstructor;
-import org.booklore.browse.FacetLogic;
+import org.booklore.browse.Link;
 import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
+import org.booklore.model.dto.browse.FacetGroupsResponse.Metadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
@@ -102,8 +108,29 @@ public class BookFacetService {
             new FacetDef("comic_creator", "Comic Creators", (cb, root, _) -> metadata(root).join("comicMetadata", JoinType.LEFT).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name"))
     );
 
+    private static final Set<String> NUMBER_FACETS = Set.of(
+            "page_count", "published_year", "file_size", "match_score",
+            "amazon_rating", "goodreads_rating", "hardcover_rating", "ranobedb_rating",
+            "lubimyczytac_rating", "audible_rating", "applebooks_rating");
+
+    private static final List<String> RATING_BANDS = List.of("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+    private static final Map<String, List<String>> NUMBER_BANDS = Map.of(
+            "match_score", List.of("95..*", "90..95", "80..90", "70..80", "50..70", "30..50", "0..30"),
+            "amazon_rating", RATING_BANDS,
+            "goodreads_rating", RATING_BANDS,
+            "hardcover_rating", RATING_BANDS,
+            "ranobedb_rating", RATING_BANDS,
+            "lubimyczytac_rating", RATING_BANDS,
+            "audible_rating", RATING_BANDS,
+            "applebooks_rating", RATING_BANDS);
+
+    private static final Set<String> NAME_FACETS = Set.of(
+            "author", "genre", "tag", "mood", "series", "publisher", "language", "narrator",
+            "comic_character", "comic_team", "comic_location", "comic_creator");
+
     private final AuthenticationService authenticationService;
     private final BookFilterSpecifications filterSpecifications;
+    private final BookFacetRegistry facetRegistry;
     private final BookSortRegistry sortRegistry;
     private final BrowseScopeFactory scopeFactory;
     private final EntityManager entityManager;
@@ -113,37 +140,66 @@ public class BookFacetService {
             .maximumSize(200)
             .build();
 
-    public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
+    public FacetGroupsResponse getFacets(List<String> facet, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
 
-        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets, facetLogic);
+        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets);
         return cache.get(cacheKey, key -> {
-            String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+            String preserved = BrowseParams.preserved(facet, query);
             FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, FACET_PATH, preserved, facet);
             List<FacetGroup> groups = new ArrayList<>();
             groups.add(builder.sortGroup(sortRegistry.registry().keys()));
             for (FacetDef def : FACETS) {
 
-                Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
-                var counts = count(def, base, scope);
-                if ("file_type".equals(def.key())) {
-                    counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, scope).stream())
-                            .sorted(
-                                    Comparator.comparingLong(FacetResponseBuilder.FacetCount::count)
-                                            .reversed()
-                                            .thenComparing(FacetResponseBuilder.FacetCount::value)
-                            )
-                            .toList();
+                Specification<BookEntity> base = filterSpecifications.base(query, facets, scope, def.key());
+                if (hasValues(def, base, scope)) {
+                    groups.add(new FacetGroup(new Metadata("facet", def.key(), def.title()), List.of()));
                 }
-                groups.add(builder.group(def.key(), def.title(), counts));
             }
             return new FacetGroupsResponse(builder.selfLinks(), groups);
         });
+    }
+
+    public FacetGroupsResponse getFacet(String facetName, List<String> facet, String query, String search, Pageable pageable) {
+        FacetDef def = findFacet(facetName);
+        boolean nameFacet = NAME_FACETS.contains(def.key());
+        String term = search == null || search.isBlank() ? null : search.trim();
+        if (term != null && !nameFacet) {
+            throw ApiError.INVALID_FACET.createException("Facet cannot be searched: " + facetName);
+        }
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        BrowseScope scope = scopeFactory.from(user);
+
+        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
+        String preserved = BrowseParams.preserved(facet, query);
+        Specification<BookEntity> base = filterSpecifications.base(query, facets, scope, def.key());
+        String path = FACET_PATH + "/" + def.key();
+        FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, path, preserved, facet);
+
+        if (!nameFacet) {
+            FacetGroup group = facetGroup(def, base, scope, builder);
+            return new FacetGroupsResponse(builder.selfLinks(), List.of(group));
+        }
+
+        int page = pageable.getPageNumber();
+        int limit = Math.min(pageable.getPageSize(), MAX_VALUES);
+        int offset = page * limit;
+        // One extra value shows whether a next page exists
+        List<FacetResponseBuilder.FacetCount> counts = count(def, base, scope, term, offset, limit + 1);
+        boolean hasNext = counts.size() > limit;
+        FacetGroup group = builder.group(def.key(), def.title(), hasNext ? counts.subList(0, limit) : counts);
+
+        String pagePreserved = term == null ? preserved : joinParams(preserved, "search=" + BrowseParams.encode(term));
+        List<Link> links = new ArrayList<>();
+        links.add(Link.json(List.of("self"), href(path, joinParams(pagePreserved, "page=" + page + "&size=" + limit))));
+        if (hasNext) {
+            links.add(Link.json(List.of("next"), href(path, joinParams(pagePreserved, "page=" + (page + 1) + "&size=" + limit))));
+        }
+        return new FacetGroupsResponse(links, List.of(group));
     }
 
     // Package-private: lets tests reset the shared singleton cache between runs.
@@ -151,12 +207,39 @@ public class BookFacetService {
         cache.invalidateAll();
     }
 
-    private List<FacetResponseBuilder.FacetCount> count(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
+    private FacetDef findFacet(String facetName) {
+        return FACETS.stream()
+                .filter(def -> def.key().equals(facetName))
+                .findFirst()
+                .orElseThrow(() -> ApiError.INVALID_FACET.createException("Unknown facet: " + facetName));
+    }
+
+    private FacetGroup facetGroup(FacetDef def, Specification<BookEntity> base, BrowseScope scope, FacetResponseBuilder builder) {
+        if (NUMBER_FACETS.contains(def.key())) {
+            return numberGroup(def, base, scope, builder);
+        }
+        var counts = count(def, base, scope);
+        if ("file_type".equals(def.key())) {
+            counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, scope).stream())
+                    .sorted(
+                            Comparator.comparingLong(FacetResponseBuilder.FacetCount::count)
+                                    .reversed()
+                                    .thenComparing(FacetResponseBuilder.FacetCount::value)
+                    )
+                    .toList();
+        }
+        return builder.group(def.key(), def.title(), counts);
+    }
+
+    private boolean hasValues(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
+        return anyValue(def, base, scope) || ("file_type".equals(def.key()) && anyValue(PHYSICAL_FILE_TYPE, base, scope));
+    }
+
+    private boolean anyValue(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+        CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<BookEntity> root = cq.from(BookEntity.class);
         Expression<?> value = def.value().apply(cb, root, scope);
-        Expression<Long> count = cb.countDistinct(root.get("id"));
 
         List<Predicate> predicates = new ArrayList<>();
         Predicate basePredicate = base.toPredicate(root, cq, cb);
@@ -165,14 +248,98 @@ public class BookFacetService {
         }
         predicates.add(cb.isNotNull(value));
 
+        cq.select(cb.literal(1));
+        cq.where(predicates.toArray(Predicate[]::new));
+        return !entityManager.createQuery(cq).setMaxResults(1).getResultList().isEmpty();
+    }
+
+    private List<FacetResponseBuilder.FacetCount> count(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
+        return count(def, base, scope, null, 0, MAX_VALUES);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<FacetResponseBuilder.FacetCount> count(FacetDef def, Specification<BookEntity> base, BrowseScope scope, String term, int offset, int limit) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Expression<?> value = def.value().apply(cb, root, scope);
+
+        List<Predicate> predicates = new ArrayList<>();
+        Predicate basePredicate = base.toPredicate(root, cq, cb);
+        if (basePredicate != null) {
+            predicates.add(basePredicate);
+        }
+        predicates.add(cb.isNotNull(value));
+        if (term != null) {
+            predicates.add(cb.like(cb.lower((Expression<String>) value), "%" + term.toLowerCase() + "%"));
+        }
+
+        Expression<Long> count = countBooks(root.get("id"), root, cb);
         cq.multiselect(value.alias("value"), count.alias("count"));
         cq.where(predicates.toArray(Predicate[]::new));
         cq.groupBy(value);
         cq.orderBy(cb.desc(count), cb.asc(value));
 
-        return entityManager.createQuery(cq).setMaxResults(MAX_VALUES).getResultList().stream()
+        return entityManager.createQuery(cq)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList().stream()
                 .map(tuple -> new FacetResponseBuilder.FacetCount(String.valueOf(tuple.get("value")), ((Number) tuple.get("count")).longValue()))
                 .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private FacetGroup numberGroup(FacetDef def, Specification<BookEntity> base, BrowseScope scope, FacetResponseBuilder builder) {
+        List<String> bands = NUMBER_BANDS.getOrDefault(def.key(), List.of());
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Expression<Number> value = (Expression<Number>) def.value().apply(cb, root, scope);
+
+        List<Expression<Long>> matchingIds = bands.stream()
+                .map(band -> matchingId(facetRegistry.matching(def.key(), List.of(band), scope.userId()), root, cq, cb))
+                .toList();
+        Predicate basePredicate = base.toPredicate(root, cq, cb);
+
+        List<Selection<?>> columns = new ArrayList<>();
+        columns.add(cb.min(value).alias("min"));
+        columns.add(cb.max(value).alias("max"));
+        for (int i = 0; i < bands.size(); i++) {
+            columns.add(countBooks(matchingIds.get(i), root, cb).alias(bands.get(i)));
+        }
+        cq.multiselect(columns);
+        if (basePredicate != null) {
+            cq.where(basePredicate);
+        }
+
+        Tuple row = entityManager.createQuery(cq).getSingleResult();
+        List<FacetResponseBuilder.FacetCount> counts = bands.stream()
+                .map(band -> new FacetResponseBuilder.FacetCount(band, row.get(band, Long.class)))
+                .toList();
+        return builder.group(def.key(), def.title(), counts, row.get("min", Number.class), row.get("max", Number.class));
+    }
+
+    private Expression<Long> matchingId(Specification<BookEntity> filter, Root<BookEntity> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+        return cb.<Long>selectCase()
+                .when(filter.toPredicate(root, cq, cb), root.get("id"))
+                .otherwise(cb.nullLiteral(Long.class));
+    }
+
+    private static Expression<Long> countBooks(Expression<Long> bookId, From<?, ?> root, CriteriaBuilder cb) {
+        return hasCollectionJoin(root) ? cb.countDistinct(bookId) : cb.count(bookId);
+    }
+
+    private static boolean hasCollectionJoin(From<?, ?> from) {
+        return from.getJoins().stream().anyMatch(join ->
+                join.getAttribute().isCollection() || hasCollectionJoin(join));
+    }
+
+    private static String joinParams(String preserved, String params) {
+        return preserved.isBlank() ? params : preserved + "&" + params;
+    }
+
+    private static String href(String path, String preserved) {
+        return preserved.isBlank() ? path : path + "?" + preserved;
     }
 
     private static Join<?, ?> metadata(Root<BookEntity> root) {

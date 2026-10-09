@@ -5,10 +5,18 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {Select} from '@openng/optimus-ui/select';
-import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {DashboardConfig, DEFAULT_MAX_ITEMS, MAX_ITEMS, MAX_SCROLLERS, MIN_ITEMS, ScrollerConfig, ScrollerType} from '../../../dashboard/models/dashboard-config.model';
-import {DashboardConfigService} from '../../../dashboard/services/dashboard-config.service';
+import {injectQuery} from '@tanstack/angular-query-experimental';
+import {ShelfDefinitionQueryService} from '../../../book/data/shelf-definition-query.service';
+import {LibraryService} from '../../../book/service/library.service';
+import {
+  DashboardConfig,
+  dashboardConfigOrDefault,
+  DEFAULT_DASHBOARD_CONFIG,
+  ScrollerConfig,
+  ScrollerType,
+} from '../../../dashboard/models/dashboard-config.model';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
+import {UserService} from '../../user-management/user.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -19,22 +27,24 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Button,
     Checkbox,
     Select,
-    InputNumber,
     TranslocoDirective
   ],
   templateUrl: './dashboard-preferences.component.html',
   styleUrls: ['./dashboard-preferences.component.scss']
 })
 export class DashboardPreferencesComponent {
-  private readonly configService = inject(DashboardConfigService);
+  private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly magicShelfService = inject(MagicShelfService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  private readonly shelvesQuery = injectQuery(() => this.shelfDefinitionQuery.definitions());
   private readonly translocoService = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.translocoService.langChanges$, {
     initialValue: this.translocoService.getActiveLang()
   });
 
-  config: DashboardConfig = structuredClone(this.configService.config());
+  config: DashboardConfig = this.savedConfig();
 
   readonly availableScrollerTypes = computed(() => {
     this.activeLanguage(); // Trigger on language change
@@ -43,7 +53,10 @@ export class DashboardPreferencesComponent {
       {label: t('scrollerTypes.lastRead'), value: ScrollerType.LAST_READ},
       {label: t('scrollerTypes.lastListened'), value: ScrollerType.LAST_LISTENED},
       {label: t('scrollerTypes.latestAdded'), value: ScrollerType.LATEST_ADDED},
+      {label: t('scrollerTypes.recentlyFinished'), value: ScrollerType.RECENTLY_FINISHED},
       {label: t('scrollerTypes.random'), value: ScrollerType.RANDOM},
+      {label: t('scrollerTypes.library'), value: ScrollerType.LIBRARY},
+      {label: t('scrollerTypes.shelf'), value: ScrollerType.SHELF},
       {label: t('scrollerTypes.magicShelf'), value: ScrollerType.MAGIC_SHELF}
     ];
   });
@@ -85,56 +98,30 @@ export class DashboardPreferencesComponent {
     }))
   );
 
-  private readonly magicShelvesMap = computed(() => {
-    const shelfMap = new Map<number, string>();
-    this.magicShelfService.shelves().forEach(shelf => {
-      if (shelf.id) {
-        shelfMap.set(shelf.id, shelf.name);
-      }
-    });
-    return shelfMap;
-  });
+  readonly libraries = computed(() =>
+    this.libraryService.libraries().flatMap(library =>
+      library.id == null ? [] : [{label: library.name, value: library.id}]));
 
-  readonly MIN_ITEMS = MIN_ITEMS;
-  readonly MAX_ITEMS = MAX_ITEMS;
-  readonly MAX_SCROLLERS = MAX_SCROLLERS;
+  readonly shelves = computed(() =>
+    (this.shelvesQuery.data() ?? []).map(shelf => ({label: shelf.name, value: shelf.id})));
+
   readonly ScrollerType = ScrollerType;
 
   private readonly syncConfigEffect = effect(() => {
-    this.config = structuredClone(this.configService.config());
+    this.config = this.savedConfig();
   });
 
-  getScrollerTitle(scroller: ScrollerConfig): string {
-    if (scroller.type === ScrollerType.MAGIC_SHELF && scroller.magicShelfId) {
-      return this.magicShelvesMap().get(scroller.magicShelfId) || 'dashboard.scroller.magicShelf';
-    }
-
-    switch (scroller.type) {
-      case ScrollerType.LAST_READ:
-        return 'dashboard.scroller.continueReading';
-      case ScrollerType.LAST_LISTENED:
-        return 'dashboard.scroller.continueListening';
-      case ScrollerType.LATEST_ADDED:
-        return 'dashboard.scroller.recentlyAdded';
-      case ScrollerType.RANDOM:
-        return 'dashboard.scroller.discoverNew';
-      default:
-        return 'dashboard.scroller.default';
-    }
+  isScopeType(type: ScrollerType): boolean {
+    return type === ScrollerType.LIBRARY || type === ScrollerType.SHELF || type === ScrollerType.MAGIC_SHELF;
   }
 
   addScroller(): void {
-    if (this.config.scrollers.length >= MAX_SCROLLERS) {
-      return;
-    }
     const newId = (Math.max(...this.config.scrollers.map((s: ScrollerConfig) => parseInt(s.id)), 0) + 1).toString();
     this.config.scrollers.push({
       id: newId,
       type: ScrollerType.LATEST_ADDED,
-      title: '',
       enabled: true,
-      order: this.config.scrollers.length + 1,
-      maxItems: DEFAULT_MAX_ITEMS
+      order: this.config.scrollers.length + 1
     });
   }
 
@@ -147,10 +134,12 @@ export class DashboardPreferencesComponent {
   }
 
   onScrollerTypeChange(scroller: ScrollerConfig): void {
-    if (scroller.type === ScrollerType.MAGIC_SHELF) {
-      scroller.magicShelfId = undefined;
-    } else {
-      delete scroller.magicShelfId;
+    delete scroller.libraryId;
+    delete scroller.shelfId;
+    delete scroller.magicShelfId;
+    if (!this.isScopeType(scroller.type)) {
+      delete scroller.sortField;
+      delete scroller.sortDirection;
     }
   }
 
@@ -177,10 +166,7 @@ export class DashboardPreferencesComponent {
   }
 
   save(): void {
-    this.config.scrollers.forEach(scroller => {
-      scroller.title = this.getScrollerTitle(scroller);
-    });
-    this.configService.saveConfig(this.config);
+    this.saveConfig(this.config);
     this.messageService.add({
       severity: 'success',
       summary: this.translocoService.translate('settingsView.dashboardScrollers.saveSuccess'),
@@ -190,6 +176,17 @@ export class DashboardPreferencesComponent {
   }
 
   resetToDefault(): void {
-    this.configService.resetToDefault();
+    this.saveConfig(DEFAULT_DASHBOARD_CONFIG);
+  }
+
+  private savedConfig(): DashboardConfig {
+    return structuredClone(dashboardConfigOrDefault(this.userService.currentUser()?.userSettings.dashboardConfig));
+  }
+
+  private saveConfig(config: DashboardConfig): void {
+    const user = this.userService.currentUser();
+    if (user) {
+      this.userService.updateUserSetting(user.id, 'dashboardConfig', structuredClone(config));
+    }
   }
 }

@@ -1,0 +1,15 @@
+@if (cards().length > 0 || query.status() !== 'success') {
+  <app-book-row class="pb-8" pageBleed [cards]="cards()" [status]="query.status()" [bookMenu]="bookMenu()" (retry)="query.refetch()" (opened)="openBook($event)">
+    <h2 #rowTitle class="m-0 min-w-0 text-lg font-semibold leading-tight text-text-strong">
+      <a
+        class="inline-flex max-w-full items-center gap-1 rounded-sm text-inherit no-underline underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-primary md:hover:underline"
+        [routerLink]="row().route"
+        [queryParams]="row().queryParams">
+        <span class="truncate">{{ title() }}</span>
+        @if (!desktop()) {
+          <svg lucideChevronRight aria-hidden="true" class="size-4 shrink-0 text-text-secondary"></svg>
+        }
+      </a>
+    </h2>
+  </app-book-row>
+}

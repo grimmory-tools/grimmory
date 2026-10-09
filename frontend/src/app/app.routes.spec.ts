@@ -31,7 +31,7 @@ describe('app routes', () => {
     const browseFilterPage = (path: string) => children.find(route => route.path === path)
       ?.children?.find(route => route.path === 'filter');
 
-    expect(children).toHaveLength(21);
+    expect(children).toHaveLength(22);
     expect(children.find(route => route.path === 'browse/filter')).toBeUndefined();
     expect(shellRoute?.canActivateChild).toEqual([AuthChildGuard]);
     expect(children.find(route => route.path === 'dashboard')?.canActivate).toBeUndefined();
