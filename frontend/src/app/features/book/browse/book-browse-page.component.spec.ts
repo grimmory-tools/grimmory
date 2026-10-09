@@ -93,19 +93,17 @@ describe('BookBrowsePageComponent', () => {
   }
 
   function flushFacetRegistry(): void {
-    for (const request of http.match(candidate => candidate.url === FACETS_URL)) {
-      request.flush({
-        links: [{rel: 'self', href: '/api/v1/books/facets', type: 'application/json'}],
-        facets: [{
-          metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
-          links: [
-            {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
-            {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
-            {rel: 'sort', href: '', type: '', title: 'page count', value: 'pageCount'},
-          ],
-        }],
-      });
-    }
+    http.expectOne(candidate => candidate.url === FACETS_URL).flush({
+      links: [{rel: 'self', href: '/api/v1/books/facets', type: 'application/json'}],
+      facets: [{
+        metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
+        links: [
+          {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
+          {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
+          {rel: 'sort', href: '', type: '', title: 'page count', value: 'pageCount'},
+        ],
+      }],
+    });
   }
 
   function expectInitialPageRequest() {
@@ -191,12 +189,9 @@ describe('BookBrowsePageComponent', () => {
 
   it('pins the route scope onto page and facet requests, over any URL facet for the same key', async () => {
     const routerHarness = await routeTo('/library/3/books?facet=genre:Fantasy&facet=library:99');
-    const facetRequests = http.match(candidate => candidate.url === FACETS_URL);
-    expect(facetRequests.map(facets => facets.request.params.getAll('facet'))).toEqual(
-      expect.arrayContaining([['library:3'], ['genre:Fantasy', 'library:3']]),
-    );
-    expect(facetRequests).toHaveLength(2);
-    facetRequests.forEach(facets => facets.flush({facets: []}));
+    const index = http.expectOne(candidate => candidate.url === FACETS_URL);
+    expect(index.request.params.getAll('facet')).toEqual(['library:3']);
+    index.flush({links: [], facets: []});
     const library = http.expectOne(candidate => candidate.url === PAGE_URL);
     expect(library.request.params.getAll('facet')).toEqual(['genre:Fantasy', 'library:3']);
     library.flush(bookPage([1], 1));

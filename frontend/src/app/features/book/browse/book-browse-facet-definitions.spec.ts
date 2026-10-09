@@ -1,14 +1,14 @@
 import {describe, expect, it} from 'vitest';
 
-import {browseFilterGroups, browseFrozenFacetOrders, withBrowseFacetRange} from '../../../shared/browse/facets';
+import {browseFilterGroups, withBrowseFacetRange} from '../../../shared/browse/facets';
 import {type BrowseFacetGroup} from '../../../core/data/browse.models';
 import {bookFacetDefinitions} from './book-browse-facet-definitions';
 
-function group(key: string, values: [string, number][]): BrowseFacetGroup {
+function group(key: string, values: [string, number][], complete = true): BrowseFacetGroup {
   return {
     key,
-    title: key,
-    values: values.map(([value, count]) => ({value, title: value, count, selected: false})),
+    values: values.map(([value, count]) => ({value, title: value, count})),
+    complete,
   };
 }
 
@@ -18,42 +18,38 @@ const definitions = bookFacetDefinitions({
   translate: (key: string) => key,
 });
 
+const AVAILABLE = new Set(['genre']);
+
 describe('book browse facets', () => {
-  it('keeps the frozen value order when the server re-ranks, narrows or grows a group', () => {
-    const frozen = browseFrozenFacetOrders([group('genre', [['Gothic', 40], ['Comedy', 30], ['Drama', 20]])], definitions);
-
-    const reranked = browseFilterGroups(
-      [group('genre', [['Drama', 90], ['Gothic', 5], ['Comedy', 2]])],
-      frozen,
+  it('lists the served values in server order, followed by unserved picks', () => {
+    const genres = browseFilterGroups(
+      AVAILABLE,
+      [group('genre', [['Drama', 90], ['Gothic', 5]])],
       definitions,
-      {},
+      {genre: ['Comedy', 'Farce']},
     );
-    expect(reranked[0].values.map(item => [item.value, item.count]))
-      .toEqual([['Gothic', 5], ['Comedy', 2], ['Drama', 90]]);
+    expect(genres[0].values.map(item => [item.value, item.count]))
+      .toEqual([['Drama', 90], ['Gothic', 5], ['Comedy', 0], ['Farce', 0]]);
+  });
 
-    const narrowed = browseFilterGroups([group('genre', [['Comedy', 7]])], frozen, definitions, {});
-    expect(narrowed[0].values.map(item => [item.value, item.count]))
-      .toEqual([['Comedy', 7], ['Gothic', 0], ['Drama', 0]]);
-
-    const selectedAtZero = browseFilterGroups([group('genre', [['Comedy', 7], ['Gothic', 0]])], frozen, definitions, {genre: ['Gothic']});
-    expect(selectedAtZero[0].values.map(item => item.value)).toEqual(['Gothic', 'Comedy', 'Drama']);
-
-    const grown = browseFilterGroups(
-      [group('genre', [['Farce', 3], ['Gothic', 40], ['Comedy', 30], ['Drama', 20]])],
-      frozen,
+  it('leaves the count of an unserved pick unknown when the list is cut off', () => {
+    const authors = browseFilterGroups(
+      AVAILABLE,
+      [group('author', [['Pratchett', 12]], false)],
       definitions,
-      {},
-    );
-    expect(grown[0].values.map(item => item.value)).toEqual(['Gothic', 'Comedy', 'Drama', 'Farce']);
+      {author: ['Lindbergh']},
+    ).find(item => item.key === 'author')!;
+    expect(authors.values.map(item => [item.value, item.count]))
+      .toEqual([['Pratchett', 12], ['Lindbergh', null]]);
   });
 
   it('replaces a numeric range token rather than stacking it, and keeps band selections', () => {
-    let selection = withBrowseFacetRange({}, 'page_count', 100, 400, definitions);
+    let selection = withBrowseFacetRange({}, 'page_count', 100, 400, new Set());
     expect(selection).toEqual({page_count: ['100..400']});
-    selection = withBrowseFacetRange(selection, 'page_count', null, 200, definitions);
+    selection = withBrowseFacetRange(selection, 'page_count', null, 200, new Set());
     expect(selection).toEqual({page_count: ['*..200']});
-    expect(withBrowseFacetRange(selection, 'page_count', null, null, definitions)).toEqual({});
-    expect(withBrowseFacetRange({match_score: ['70..80']}, 'match_score', 30, 90, definitions))
+    expect(withBrowseFacetRange(selection, 'page_count', null, null, new Set())).toEqual({});
+    expect(withBrowseFacetRange({match_score: ['70..80', '10..20']}, 'match_score', 30, 90, new Set(['70..80'])))
       .toEqual({match_score: ['70..80', '30..90']});
   });
 });

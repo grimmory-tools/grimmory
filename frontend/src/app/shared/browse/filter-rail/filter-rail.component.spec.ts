@@ -14,17 +14,24 @@ function authorGroup(count: number): BrowseFilterGroup {
   return {
     key: 'author',
     labelKey: 'browse.showAll',
-    defaultOpen: true,
     values: Array.from({length: count}, (_, index) => railValue(`Author ${index + 1}`)),
   };
 }
 
 @Component({
   imports: [BrowseFilterRailComponent],
-  template: `<app-browse-filter-rail [groups]="groups()" (commitRange)="commits.push($event)" />`,
+  template: `
+    <app-browse-filter-rail
+      [groups]="groups()"
+      [openKeys]="openKeys"
+      [searchTerms]="searchTerms"
+      (commitRange)="commits.push($event)" />
+  `,
 })
 class HostComponent {
   readonly groups = signal<readonly BrowseFilterGroup[]>([authorGroup(20)]);
+  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size']);
+  readonly searchTerms: Readonly<Record<string, string>> = {};
   readonly commits: BrowseFilterRangeCommit[] = [];
 }
 
@@ -46,7 +53,6 @@ describe('BrowseFilterRailComponent', () => {
     fixture.componentInstance.groups.set([{
       key: 'file_size',
       labelKey: 'browse.showAll',
-      defaultOpen: true,
       values: [],
       range: {min: null, max: null, boundsMin: 358, boundsMax: null, fileSize: true},
     }]);
@@ -78,5 +84,16 @@ describe('BrowseFilterRailComponent', () => {
       .map(button => button.querySelector('span:nth-of-type(2)')!.textContent!.trim());
     expect(labels).toHaveLength(20);
     expect(labels.at(-1)).toBe('Author 20');
+  });
+
+  it('counts a ticked row below the fold as one of the eight', () => {
+    const group = authorGroup(20);
+    group.values[11] = {...group.values[11], selected: true};
+    fixture.componentInstance.groups.set([group]);
+    fixture.detectChanges();
+
+    const labels = Array.from(root().querySelectorAll<HTMLElement>('button[aria-pressed]'))
+      .map(button => button.querySelector('span:nth-of-type(2)')!.textContent!.trim());
+    expect(labels).toEqual(['Author 1', 'Author 2', 'Author 3', 'Author 4', 'Author 5', 'Author 6', 'Author 7', 'Author 12']);
   });
 });

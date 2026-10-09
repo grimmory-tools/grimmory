@@ -8,7 +8,6 @@ import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filt
 import {
   countBrowseFacetValues,
   toggleBrowseFacetValue,
-  withBrowseFacetRange,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
@@ -49,11 +48,17 @@ import {createBookBrowseUrlState} from './book-browse-url-state';
       </app-page-header>
 
       <div class="-mx-1.5 pb-28">
-        <app-browse-filter-rail
-          alwaysShowBoxes
-          [groups]="railGroups()"
-          (toggleValue)="onToggle($event)"
-          (commitRange)="onCommitRange($event)" />
+        @if (!queries.pending()) {
+          <app-browse-filter-rail
+            alwaysShowBoxes
+            [groups]="railGroups()"
+            [openKeys]="queries.openKeys()"
+            [searchTerms]="queries.searchTerms()"
+            (toggleValue)="onToggle($event)"
+            (commitRange)="onCommitRange($event)"
+            (openChange)="queries.setOpen($event)"
+            (searchChange)="queries.setSearch($event)" />
+        }
       </div>
 
       <div
@@ -90,7 +95,7 @@ export class BookBrowseFilterPageComponent {
   private readonly scope = computed(() =>
     bookBrowseScope(this.route.snapshot.paramMap, this.route.snapshot.data),
   );
-  private readonly queries = createBookBrowseQueries({
+  protected readonly queries = createBookBrowseQueries({
     selection: this.staged,
     query: this.debouncedQuery,
     scope: this.scope,
@@ -136,8 +141,7 @@ export class BookBrowseFilterPageComponent {
   }
 
   protected onCommitRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.staged.update(current =>
-      withBrowseFacetRange(current, commit.key, commit.min, commit.max, this.queries.definitions()));
+    this.staged.update(current => this.queries.withRange(current, commit));
   }
 
   protected onClear(): void {

@@ -1,6 +1,6 @@
 import {
   BrowseFacetGroup,
-  BrowseFacetResult,
+  BrowseFacetIndex,
   BrowseFacetValue,
   BrowseLink,
   BrowsePage,
@@ -26,11 +26,12 @@ interface RawFacetLink extends RawLink {
 }
 
 interface RawFacetGroup {
-  metadata: {rel: string; key: string; title: string};
+  metadata: {rel: string; key: string; min?: number; max?: number};
   links: RawFacetLink[];
 }
 
 interface RawFacetResponse {
+  links: RawLink[];
   facets: RawFacetGroup[];
 }
 
@@ -42,21 +43,28 @@ export function mapBrowsePage<T>(response: RawBrowsePage<T>): BrowsePage<T> {
   };
 }
 
-export function mapBrowseFacetResult(response: RawFacetResponse): BrowseFacetResult {
-  const facets: BrowseFacetGroup[] = [];
+export function mapBrowseFacetIndex(response: RawFacetResponse): BrowseFacetIndex {
+  const facetKeys: string[] = [];
   const sortTokens: string[] = [];
   for (const group of response.facets) {
     if (group.metadata.rel === 'facet') {
-      facets.push({
-        key: group.metadata.key,
-        title: group.metadata.title,
-        values: group.links.map(mapBrowseFacetValue),
-      });
+      facetKeys.push(group.metadata.key);
     } else if (group.metadata.rel === 'sort') {
       sortTokens.push(...group.links.map(link => link.value));
     }
   }
-  return {facets, sortTokens};
+  return {facetKeys, sortTokens};
+}
+
+export function mapBrowseFacetPage(response: RawFacetResponse): BrowseFacetGroup {
+  const group = response.facets[0];
+  return {
+    key: group.metadata.key,
+    values: group.links.map(mapBrowseFacetValue),
+    min: group.metadata.min,
+    max: group.metadata.max,
+    complete: !response.links.some(link => normalizeRel(link.rel).includes('next')),
+  };
 }
 
 function mapBrowseLink(raw: RawLink): BrowseLink {
@@ -72,7 +80,6 @@ function mapBrowseFacetValue(raw: RawFacetLink): BrowseFacetValue {
     value: raw.value,
     title: raw.title,
     count: raw.properties?.numberOfItems ?? 0,
-    selected: normalizeRel(raw.rel).includes('self'),
   };
 }
 
