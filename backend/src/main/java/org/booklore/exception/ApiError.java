@@ -65,6 +65,7 @@ public enum ApiError {
     FORMAT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "File format '%s' is not allowed in library '%s'"),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many failed login attempts. Please try again later."),
     AUTHOR_NOT_FOUND(HttpStatus.NOT_FOUND, "Author not found with ID: %d"),
+    TOO_MANY_HARDCOVER_IMPORTS(HttpStatus.TOO_MANY_REQUESTS, "Too many hardcover imports triggered. Please wait before importing again."),
     OIDC_USER_NOT_PROVISIONED(HttpStatus.FORBIDDEN, "OIDC user '%s' is not provisioned and auto-provisioning is disabled"),
     OIDC_TOKEN_EXCHANGE_FAILED(HttpStatus.BAD_GATEWAY, "Failed to exchange authorization code: %s"),
     OIDC_PROVIDER_UNREACHABLE(HttpStatus.BAD_GATEWAY, "Cannot reach OIDC provider: %s"),
