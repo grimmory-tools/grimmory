@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { QueryClient } from '@tanstack/angular-query-experimental';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
+import { BookQueryService } from '../../book/data/book-query.service';
+import { type BookSortTerm } from '../../book/data/book-query-params';
 import { CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageSplitOption, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService } from '../../settings/user-management/user.service';
 import { CbxPageDimensionService } from './core/cbx-page-dimension.service';
 import { CbxPageDimension } from './models/cbx-page-dimension.model';
@@ -41,6 +44,8 @@ import {
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 import {isTouchScreen, setupReaderEdges} from '../shared/reader-edges.util';
+
+const SERIES_SORT: readonly BookSortTerm[] = [{key: 'seriesNumber', direction: 'asc'}];
 
 @Component({
   selector: 'app-cbx-reader',
@@ -217,6 +222,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private cbxReaderService = inject(CbxReaderService);
   private bookService = inject(BookService);
+  private bookQuery = inject(BookQueryService);
+  private queryClient = inject(QueryClient);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
@@ -400,8 +407,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         // For now, keeping this.destroy$ as a Subject if it's still needed for sub-initializations, but I'll check sidebarService.
         this.sidebarService.initialize(this.bookId()!, book, this.altBookType());
 
-        if (book.metadata?.seriesName) {
-          this.loadSeriesNavigation(book);
+        const seriesName = book.metadata?.seriesName;
+        if (seriesName) {
+          this.loadSeriesNavigation(book, seriesName);
         }
 
         this.pages.set(pages);
@@ -1945,28 +1953,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadSeriesNavigation(book: Book): void {
-    this.bookService.getBooksInSeries(book.id)
+  private loadSeriesNavigation(book: Book, seriesName: string): void {
+    from(this.findSeriesNeighbours(book.id, seriesName))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (seriesBooks) => {
+      next: (neighbours) => {
         if (this.currentBook()?.id !== book.id) {
           return;
         }
 
-        const sortedBySeriesNumber = this.sortBooksBySeriesNumber(seriesBooks);
-        const currentBookIndex = sortedBySeriesNumber.findIndex(b => b.id === book.id);
-
-        if (currentBookIndex === -1) {
+        if (!neighbours) {
           console.warn('[SeriesNav] Current book not found in series');
           return;
         }
 
-        const hasPreviousBook = currentBookIndex > 0;
-        const hasNextBook = currentBookIndex < sortedBySeriesNumber.length - 1;
-
-        this.previousBookInSeries.set(hasPreviousBook ? sortedBySeriesNumber[currentBookIndex - 1] : null);
-        this.nextBookInSeries.set(hasNextBook ? sortedBySeriesNumber[currentBookIndex + 1] : null);
+        this.previousBookInSeries.set(neighbours.previous);
+        this.nextBookInSeries.set(neighbours.next);
 
         this.footerService.setSeriesBooks(this.previousBookInSeries(), this.nextBookInSeries());
         this.footerService.setHasSeries(true);
@@ -1977,12 +1979,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sortBooksBySeriesNumber(books: Book[]): Book[] {
-    return books.sort((bookA, bookB) => {
-      const seriesNumberA = bookA.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-      const seriesNumberB = bookB.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-      return seriesNumberA - seriesNumberB;
-    });
+  private async findSeriesNeighbours(bookId: number, seriesName: string): Promise<{previous: Book | null; next: Book | null} | null> {
+    const seriesIds = await this.queryClient.query(this.bookQuery.ids({facets: {series: [seriesName]}, facetLogic: 'or', sort: SERIES_SORT}));
+    const index = seriesIds.indexOf(bookId);
+    if (index === -1) {
+      return null;
+    }
+
+    const loadBook = (id: number | undefined) => id === undefined ? Promise.resolve(null) : this.bookService.ensureBookDetail(id, false);
+    const [previous, next] = await Promise.all([loadBook(seriesIds[index - 1]), loadBook(seriesIds[index + 1])]);
+    return {previous, next};
   }
 
   getBookDisplayTitle(book: Book | null): string {
